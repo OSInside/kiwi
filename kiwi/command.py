@@ -113,18 +113,22 @@ class Command(object):
 
         def output_available():
             def __select():
-                readable, writable, exceptional = select.select(
+                descriptor_lists = select.select(
                     [process.stdout], [], [process.stdout], 1e-4
                 )
+                readable = descriptor_lists[0]
+                exceptional = descriptor_lists[2]
                 if readable and not exceptional:
                     return True
             return __select
 
         def error_available():
             def __select():
-                readable, writable, exceptional = select.select(
+                descriptor_lists = select.select(
                     [process.stderr], [], [process.stderr], 1e-4
                 )
+                readable = descriptor_lists[0]
+                exceptional = descriptor_lists[2]
                 if readable and not exceptional:
                     return True
             return __select

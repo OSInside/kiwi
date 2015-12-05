@@ -17,7 +17,6 @@
 #
 from collections import namedtuple
 import time
-import os
 
 # project
 from command import Command

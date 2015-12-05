@@ -141,7 +141,7 @@ class RepositoryZypper(RepositoryBase):
             break
 
     def __create_zypper_runtime_environment(self):
-        for key, zypper_dir in self.shared_zypper_dir.iteritems():
+        for zypper_dir in self.shared_zypper_dir.values():
             Path.create(zypper_dir)
         return dict(
             os.environ,
