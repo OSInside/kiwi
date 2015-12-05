@@ -4,6 +4,8 @@ from collections import namedtuple
 
 import mock
 
+import os
+
 import nose_helper
 
 from kiwi.exceptions import KiwiCommandError
@@ -21,6 +23,16 @@ class TestCommand(object):
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
         Command.run(['command', 'args'])
+
+    @patch('subprocess.Popen')
+    def test_run_does_not_raise_error(self, mock_popen):
+        mock_process = mock.Mock()
+        mock_process.communicate = mock.Mock(
+            return_value=['stdout', 'stderr']
+        )
+        mock_process.returncode = 1
+        mock_popen.return_value = mock_process
+        Command.run(['command', 'args'], os.environ, False)
 
     @patch('subprocess.Popen')
     def test_run(self, mock_popen):
@@ -46,7 +58,7 @@ class TestCommand(object):
 
     @raises(KiwiCommandError)
     def test_call_command_does_not_exist(self):
-        Command.call(['does-not-exist'])
+        Command.call(['does-not-exist'], os.environ)
 
     @patch('subprocess.Popen')
     @patch('select.select')

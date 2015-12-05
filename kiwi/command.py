@@ -30,7 +30,7 @@ class Command(object):
         Implements command invocation
     """
     @classmethod
-    def run(self, command, environment=os.environ, raise_on_error=True):
+    def run(self, command, custom_env=None, raise_on_error=True):
         """
             Execute a program and block the caller. The return value
             is a hash containing the stdout, stderr and return code
@@ -40,6 +40,9 @@ class Command(object):
         """
         from logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
+        environment = os.environ
+        if custom_env:
+            environment = custom_env
         try:
             process = subprocess.Popen(
                 command,
@@ -67,7 +70,7 @@ class Command(object):
         )
 
     @classmethod
-    def call(self, command, environment=os.environ):
+    def call(self, command, custom_env=None):
         """
             Execute a program and return an io file handle pair back.
             stdout and stderr are both on different channels. The caller
@@ -93,8 +96,10 @@ class Command(object):
                 print 'something failed: %s' % errors
         """
         from logger import log
-
         log.debug('EXEC: [%s]', ' '.join(command))
+        environment = os.environ
+        if custom_env:
+            environment = custom_env
         try:
             process = subprocess.Popen(
                 command,
