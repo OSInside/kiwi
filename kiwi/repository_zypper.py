@@ -23,6 +23,7 @@ from tempfile import NamedTemporaryFile
 from command import Command
 from repository_base import RepositoryBase
 from path import Path
+from logger import log
 
 from exceptions import (
     KiwiRepoTypeUnknown
@@ -137,6 +138,10 @@ class RepositoryZypper(RepositoryBase):
         for (dirpath, dirnames, filenames) in os.walk(repos_dir):
             for repo_file in filenames:
                 if repo_file not in self.repo_names:
+                    log.debug(
+                        'Cleanup unused repo %s from %s',
+                        repo_file, dirpath
+                    )
                     Path.wipe(repos_dir + '/' + repo_file)
             break
 
