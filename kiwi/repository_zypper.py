@@ -135,13 +135,9 @@ class RepositoryZypper(RepositoryBase):
 
     def cleanup_unused_repos(self):
         repos_dir = self.shared_zypper_dir['reposd-dir']
-        for (dirpath, dirnames, filenames) in os.walk(repos_dir):
-            for repo_file in filenames:
+        for elements in os.walk(repos_dir):
+            for repo_file in list(elements[2]):
                 if repo_file not in self.repo_names:
-                    log.debug(
-                        'Cleanup unused repo %s from %s',
-                        repo_file, dirpath
-                    )
                     Path.wipe(repos_dir + '/' + repo_file)
             break
 
