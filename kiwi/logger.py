@@ -207,7 +207,7 @@ class Logger(logging.Logger):
         sys.stdout.flush()
 
     def __add_stream_handler(
-        self, message_format, message_filter=[], channel=sys.__stdout__
+        self, message_format, message_filter, channel=sys.__stdout__
     ):
         handler = logging.StreamHandler(channel)
         handler.setFormatter(
