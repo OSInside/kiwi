@@ -18,7 +18,6 @@
 # project
 from command import Command
 from defaults import Defaults
-from logger import log
 
 
 class SystemSize(object):

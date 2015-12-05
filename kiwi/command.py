@@ -18,7 +18,6 @@
 import select
 import os
 import subprocess
-import io
 from collections import namedtuple
 
 # project

@@ -24,7 +24,6 @@ from filesystem_xfs import FileSystemXfs
 from filesystem_fat16 import FileSystemFat16
 from filesystem_fat32 import FileSystemFat32
 from filesystem_squashfs import FileSystemSquashFs
-from device_provider import DeviceProvider
 
 from exceptions import (
     KiwiFileSystemSetupError

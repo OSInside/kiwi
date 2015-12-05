@@ -28,6 +28,7 @@ class ColorMessage(object):
     def __init__(self):
         BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
         self.color = {
+            'BLACK': BLACK,
             'WARNING': YELLOW,
             'INFO': WHITE,
             'DEBUG': WHITE,

@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from collections import namedtuple
 import time
-import os
 import re
 
 # project
@@ -127,7 +125,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     break
                 except Exception:
                     log.warning(
-                        'umount of %s failed, try again in 1sec', self.device
+                        '%d umount of %s failed, try again in 1sec',
+                        busy, self.device
                     )
                     time.sleep(1)
             if umounted_successfully:

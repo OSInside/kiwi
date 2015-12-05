@@ -39,12 +39,9 @@ options:
         delete the given package name
 """
 # project
-import xml_parse
-
 from cli_task import CliTask
 from privileges import Privileges
 from help import Help
-from xml_description import XMLDescription
 from system import System
 
 from logger import log

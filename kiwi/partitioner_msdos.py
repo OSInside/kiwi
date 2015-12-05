@@ -51,8 +51,8 @@ class PartitionerMsDos(object):
         fdisk_input = NamedTemporaryFile()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
-                'fdisk: n p %d cur_position +%sM w q',
-                self.partition_id, format(mbsize)
+                '%s: fdisk: n p %d cur_position +%sM w q',
+                name, self.partition_id, format(mbsize)
             )
             if mbsize == 'all_free':
                 partition.write(

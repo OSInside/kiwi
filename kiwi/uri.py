@@ -86,14 +86,12 @@ class Uri(object):
             raise KiwiUriStyleUnknown(
                 'URI scheme not detected %s' % self.uri
             )
-        try:
-            self.remote_uri_types[uri.scheme]
+        if uri.scheme in self.remote_uri_types:
             return True
-        except KeyError:
-            try:
-                self.local_uri_type[uri.scheme]
+        else:
+            if uri.scheme in self.local_uri_type:
                 return False
-            except KeyError:
+            else:
                 raise KiwiUriTypeUnknown(
                     'URI type %s unknown' % uri.scheme
                 )

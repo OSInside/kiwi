@@ -46,11 +46,8 @@ options:
         add repository with given source, type, alias and priority.
 """
 # project
-import xml_parse
-
 from cli_task import CliTask
 from help import Help
-from xml_description import XMLDescription
 from privileges import Privileges
 from system import System
 from system_setup import SystemSetup

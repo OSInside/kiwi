@@ -61,7 +61,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
         return device_map
 
-    def setup(self, volume_group_name):
+    def setup(self, volume_group_name='systemVG'):
         if self.__volume_group_in_use_on_host_system(volume_group_name):
             raise KiwiVolumeGroupConflict(
                 'Requested volume group %s is in use on this host' %
@@ -196,8 +196,8 @@ class VolumeManagerLVM(VolumeManagerBase):
                             break
                         except Exception:
                             log.warning(
-                                'umount of %s failed, try again in 1sec',
-                                mount.device
+                                '%d umount of %s failed, try again in 1sec',
+                                busy, mount.device
                             )
                             time.sleep(1)
                     if not umounted_successfully:

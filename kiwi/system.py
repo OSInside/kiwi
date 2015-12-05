@@ -15,16 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import re
-import logging
-from collections import namedtuple
-
 # project
 from root_init import RootInit
 from root_bind import RootBind
 from repository import Repository
 from package_manager import PackageManager
-from command import Command
 from command_process import CommandProcess
 from uri import Uri
 from archive_tar import ArchiveTar
@@ -33,7 +28,6 @@ from logger import log
 
 from exceptions import(
     KiwiBootStrapPhaseFailed,
-    KiwiCommandError,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
     KiwiSystemDeletePackagesFailed,
@@ -326,5 +320,5 @@ class System(object):
         log.info('Cleaning up %s instance', type(self).__name__)
         try:
             self.root_bind.cleanup()
-        except:
+        except Exception:
             pass

@@ -26,7 +26,6 @@ from disk_setup import DiskSetup
 from loop_device import LoopDevice
 from firmware import FirmWare
 from disk import Disk
-from mapped_device import MappedDevice
 from filesystem import FileSystem
 from volume_manager import VolumeManager
 from logger import log

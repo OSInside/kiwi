@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from math import sqrt
 from collections import namedtuple
 import hashlib
 

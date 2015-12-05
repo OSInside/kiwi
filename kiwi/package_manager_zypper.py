@@ -19,7 +19,6 @@ import re
 
 # project
 from command import Command
-from path import Path
 from package_manager_base import PackageManagerBase
 from exceptions import (
     KiwiRpmDatabaseReloadError

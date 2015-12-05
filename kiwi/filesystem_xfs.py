@@ -24,7 +24,7 @@ class FileSystemXfs(FileSystemBase):
     """
         Implements creation of xfs filesystem
     """
-    def create_on_device(self, label):
+    def create_on_device(self, label=None):
         device = self.device_provider.get_device()
         if label:
             self.custom_args.append('-L')

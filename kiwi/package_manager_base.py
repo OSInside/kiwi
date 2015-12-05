@@ -49,7 +49,7 @@ class PackageManagerBase(object):
     def process_install_requests(self):
         raise NotImplementedError
 
-    def process_delete_requests(self):
+    def process_delete_requests(self, force=False):
         raise NotImplementedError
 
     def update(self):
@@ -67,7 +67,7 @@ class PackageManagerBase(object):
     def database_consistent(self):
         raise NotImplementedError
 
-    def dump_reload_package_database(self):
+    def dump_reload_package_database(self, version=45):
         raise NotImplementedError
 
     def cleanup_requests(self):

@@ -21,7 +21,6 @@ from tempfile import NamedTemporaryFile
 
 # project
 from command import Command
-from package_manager_base import PackageManagerBase
 from repository_base import RepositoryBase
 from path import Path
 

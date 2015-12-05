@@ -36,21 +36,14 @@ options:
         the target directory to store the system image file(s)
 """
 # project
-import xml_parse
-
 from cli_task import CliTask
 from help import Help
-from xml_description import XMLDescription
-from system import System
-from system_setup import SystemSetup
 from defaults import Defaults
-from profile import Profile
 from filesystem_builder import FileSystemBuilder
 from disk_builder import DiskBuilder
 from pxe_builder import PxeBuilder
 from result import Result
 from privileges import Privileges
-from logger import log
 
 from exceptions import (
     KiwiRequestedTypeError,

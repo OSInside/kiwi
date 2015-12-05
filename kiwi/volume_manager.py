@@ -18,7 +18,6 @@
 # project
 from volume_manager_lvm import VolumeManagerLVM
 from volume_manager_btrfs import VolumeManagerBtrfs
-from device_provider import DeviceProvider
 
 from exceptions import (
     KiwiVolumeManagerSetupError

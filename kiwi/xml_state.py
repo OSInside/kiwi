@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
 import re
 import platform
 from collections import namedtuple
@@ -339,7 +338,6 @@ class XMLState(object):
                     mountpoint = volume.get_mountpoint()
                     size = volume.get_size()
                     freespace = volume.get_freespace()
-                    path = None
                     fullsize = False
                     realpath = None
                     if mountpoint:
@@ -680,7 +678,6 @@ class XMLState(object):
         if target_bootstrap_packages_sections:
             target_bootstrap_packages_section = \
                 target_bootstrap_packages_sections[0]
-            package_names_added = []
             packages_sections = self.get_packages_sections(
                 ['image', 'bootstrap', self.get_build_type_name()]
             )

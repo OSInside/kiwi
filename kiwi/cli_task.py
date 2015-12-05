@@ -16,12 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import sys
 import logging
 
 # project
 from cli import Cli
-from help import Help
 from xml_state import XMLState
 from xml_description import XMLDescription
 

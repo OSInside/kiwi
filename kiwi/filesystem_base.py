@@ -117,8 +117,8 @@ class FileSystemBase(object):
                         break
                     except Exception:
                         log.warning(
-                            'umount of %s failed, try again in 1sec',
-                            self.mountpoint
+                            '%d umount of %s failed, try again in 1sec',
+                            busy, self.mountpoint
                         )
                         time.sleep(1)
                 if not umounted_successfully:

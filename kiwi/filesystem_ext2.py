@@ -24,7 +24,7 @@ class FileSystemExt2(FileSystemBase):
     """
         Implements creation of ext2 filesystem
     """
-    def create_on_device(self, label):
+    def create_on_device(self, label=None):
         device = self.device_provider.get_device()
         if label:
             self.custom_args.append('-L')

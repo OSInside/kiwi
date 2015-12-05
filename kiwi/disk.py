@@ -19,7 +19,6 @@ import os
 
 # project
 from command import Command
-from defaults import Defaults
 from device_provider import DeviceProvider
 from mapped_device import MappedDevice
 from partitioner import Partitioner
