@@ -1,6 +1,6 @@
 branches:
   only:
-    - horizon
+    - master
 
 language: python
 
