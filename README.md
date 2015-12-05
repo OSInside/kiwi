@@ -11,6 +11,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Status](#status)
   * [Motivation](#motivation)
   * [Supported Distributions](#supported_distributions)
+  * [Development](#development)
   
 ## Status
 
@@ -56,3 +57,10 @@ which are equal or newer compared to the following list:
 * SUSE Tumbleweed
 
 For anything older please consider to use the old version
+
+## Development
+
+The appliance builder part is developed in python and follows the
+test driven development rules. The XML, schema and stylesheets are
+taken from the old version of kiwi. Also the entire boot code
+written in bash is taken over from the old kiwi codebase.
