@@ -1,5 +1,8 @@
 # KIWI - next generation
 
+[![Build Status](https://travis-ci.org/SUSE/kiwi.svg?branch=master)](https://travis-ci.org/SUSE/kiwi)
+[![Health](https://landscape.io/github/SUSE/kiwi/master/landscape.svg?style=flat)](https://landscape.io/github/SUSE/kiwi/master)
+
 This is a rewrite of the current kiwi appliance builder which
 you can find here: https://github.com/openSUSE/kiwi.
 
