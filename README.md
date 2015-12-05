@@ -51,7 +51,7 @@ which are equal or newer compared to the following list:
 
 * SUSE Linux Enterprise 12
 * Red Hat Enterprise 7
-* Fedora 23
+* Fedora 22
 * openSUSE 13.2
 * SUSE Leap 42
 * SUSE Tumbleweed
