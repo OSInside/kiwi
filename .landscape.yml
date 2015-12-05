@@ -1,0 +1,2 @@
+ignore-paths:
+  - kiwi/xml_parse.py
