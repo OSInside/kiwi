@@ -23,7 +23,6 @@ from tempfile import NamedTemporaryFile
 from command import Command
 from repository_base import RepositoryBase
 from path import Path
-from logger import log
 
 from exceptions import (
     KiwiRepoTypeUnknown
