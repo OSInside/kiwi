@@ -1,19 +1,17 @@
-# KIWI - appliance builder next generation
+# KIWI - next generation
 
 This is a rewrite of the current kiwi appliance builder which
 you can find here: https://github.com/openSUSE/kiwi.
 
-This version of kiwi is able to build appliances for distributions
-which are equal or newer compared to the following list
+## Contents
 
-* SUSE Linux Enterprise 12
-* Red Hat Enterprise 7
-* Fedora 23
-* openSUSE 13.2
-* SUSE Leap 42
-* SUSE Tumbleweed
+  * [Status](#status)
+  * [Motivation](#motivation)
+  * [Supported Distributions](#supported_distributions)
+  
+## Status
 
-For anything older please consider to use the old version
+Development - no release yet
 
 This project is in an early development phase and some parts
 the old kiwi version can do are not yet available in the new
@@ -21,10 +19,6 @@ code base. If you are missing a feature at the time of the
 first release don't hesitate to open an issue such that I
 can collect them. Of course external contributions are very
 much appreciated.
-
-## Contents
-
-  * [Motivation](#motivation)
 
 ## Motivation
 
@@ -45,3 +39,17 @@ description, which means you can build an image from the same image
 description with the old and the new kiwi if the new kiwi supports
 the distribution and all features the image description has
 configured
+
+## Supported Distributions
+
+This version of kiwi is targeted to build appliances for distributions
+which are equal or newer compared to the following list:
+
+* SUSE Linux Enterprise 12
+* Red Hat Enterprise 7
+* Fedora 23
+* openSUSE 13.2
+* SUSE Leap 42
+* SUSE Tumbleweed
+
+For anything older please consider to use the old version
