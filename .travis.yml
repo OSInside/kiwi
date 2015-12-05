@@ -1,0 +1,17 @@
+branches:
+  only:
+    - horizon
+
+language: python
+
+python:
+  - "2.7"
+
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install -y xsltproc
+
+install:
+  - pip install -r .travis.requirements.txt
+
+script: ./.travis.script

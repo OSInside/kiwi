@@ -1,0 +1,41 @@
+#!/usr/bin/python
+
+import sys
+
+from xml.dom import minidom
+
+try:
+    pre_tree = minidom.parse('test/unit/coverage.reference.xml')
+    cur_tree = minidom.parse('test/unit/coverage.xml')
+except:
+    print "Coverage reference files missing"
+    sys.exit(1)
+
+summary = {}
+
+for cls in cur_tree.getElementsByTagName('class'):
+    filename = format(cls.attributes['filename'].value)
+    coverage = int (float(cls.attributes['line-rate'].value) * 100)
+    summary[filename] = []
+    summary[filename].append(coverage)
+    summary[filename].append(100)
+
+for cls in pre_tree.getElementsByTagName('class'):
+    filename = format(cls.attributes['filename'].value)
+    coverage = int (float(cls.attributes['line-rate'].value) * 100)
+    try:
+        summary[filename][1] = coverage
+    except Exception as e:
+        pass
+
+code = 0
+for filename in summary:
+    if summary[filename][1] > summary[filename][0]:
+        print '%s: Test code coverage violated current: %s previous: %s' % (
+            format(filename),
+            format(summary[filename][0])+'%',
+            format(summary[filename][1])+'%'
+        )
+        code = 1
+
+sys.exit(code)

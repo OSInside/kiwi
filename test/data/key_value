@@ -1,0 +1,4 @@
+foo='bar'
+bar="xxx"
+name=bob
+strange="$a_foo"

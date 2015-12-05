@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+my $ignore = 0;
+my $indent_l1 = "  ";
+my $indent_l2 = $indent_l1.$indent_l1;
+my $indent;
+
+$ENV{LC_ALL} = "C";
+
+while (my $line = <>) {
+    if ($ignore < 2) {
+        $ignore = 0;
+    }
+    if ($line =~ /^commit/) {
+        $ignore = 1;
+    }
+    if ($line =~ /^Merge|Conflicts/) {
+        $ignore = 2;
+    }
+    if (($ignore < 2) && ($line =~ /^Author: .*<(.*)@.*>/)) {
+        $name = $1;
+        $ignore = 1;
+    }
+    next if ($ignore);
+
+    if ($line =~ /^Date: (.*) [\+-].*/) {
+        if (@out) {
+            my $outstr = join (" ",@out);
+            if ($outstr !~ /added changelog|Merge branch|git-svn-id:/i) {
+                print @out;
+            }
+            undef @out;
+        }
+        my $date = qx /date --date="$1"/; chomp $date;
+        push @out, "------------------------------------------------------------------\n";
+        push @out, "$date - $name\@suse.de\n";
+        undef $date;
+        $ignore = 0;
+        $count = 0;
+    } else {
+        $line =~ s/^ +//;
+        if ($line =~ /^-/) {
+            push @out, $line;
+            $indent = $indent_l1;
+        } elsif (($line =~ /^[a-zA-Z]/) && ($count == 1)) {
+            push @out, "- ".$line;
+            $indent = $indent_l1;
+        } elsif ($line =~ /^[\*,\+]/) {
+            push @out, $indent_l1.$line;
+            $indent = $indent_l2;
+        } else {
+            push @out, $indent.$line;
+        }
+        $count++;
+    }
+}

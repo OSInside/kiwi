@@ -1,0 +1,88 @@
+#!/usr/bin/perl -w
+#
+# Convert a SUSE changelog file into descending chronological order
+#
+
+use Date::Parse;
+use Time::Zone;
+
+use strict;
+
+my @wday = qw{Sun Mon Tue Wed Thu Fri Sat};
+my @mon = qw{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec};
+my $zone;
+my $lastt;
+my %logs;
+my $logmsg;
+
+while (<>) {
+        next if (/^--------------/);
+
+        if (/^(?:\* )?([A-Za-z]+\s+[A-Za-z]+\s+[0-9].*[0-9][0-9][0-9][0-9])(.*\@.*)$/) {
+    my $dt = $1;
+    my $who = $2;
+    $dt = lc($dt);
+    $who =~ s/^\s+//;
+    $who =~ s/^-\s*//;
+    $dt =~ /([0-9][0-9][0-9][0-9])/;
+    my $year = $1;
+    if (!defined($zone) && $dt =~ /\s([a-z]{3,4})(dst)?\s[0-9]{4}/) {
+            my $dst = $2;
+            $zone = tz_offset($1);
+            $zone += 3600 if defined($zone) && $dst;
+    }
+    my $tdt = str2time($dt);
+    $dt =~ /([0-9]+)/;
+    my $day = $1;
+    if (!$tdt) {
+            if ($dt =~ /([a-z]{3})\s+([a-z]{3})/) {
+        $tdt = str2time("$1 $2 $day $year");
+            }
+    }
+    if (!$tdt) {
+            if ($dt =~ /([a-z]{3})/) {
+        $tdt = str2time("$1 $day $year");
+            }
+    }
+    if (!$tdt) {
+            $tdt = str2time("$year-1-1");
+    }
+    # 12:00 if not specified
+    $tdt += 12 * 3600 unless $dt =~ /\d:\d/;
+    $tdt += ($zone || 0);
+
+    if (defined($lastt) && $logmsg) {
+            if (defined($logs{$lastt})) {
+        #warn "Double commit detected:\n" . $logs{$lastt} ."\n";
+        my @message = split /\n/,$logmsg;
+        shift @message;
+        shift @message;
+        $logmsg = join ("\n",@message);
+        $logs{$lastt} .= $logmsg ."\n";
+        #$logs{$lastt} .= "-------------------------------------------------------------------\n" . $logmsg;
+            } else {
+        $logs{$lastt} = $logmsg;
+            }
+    }
+
+    $lastt = $tdt;
+    $logmsg = $_;
+    next;
+        }
+
+        $logmsg .= $_;
+}
+
+if (defined($lastt) && $logmsg) {
+        $logs{$lastt} = $logmsg;
+}
+
+sub hashValueDescendingNum {
+        $b <=> $a;
+}
+
+foreach my $key (sort hashValueDescendingNum (keys(%logs))) {
+        print "-------------------------------------------------------------------\n";
+        print "$logs{$key}";
+}
+

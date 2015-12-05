@@ -1,0 +1,3 @@
+[report]
+# skip auto generated code from report
+omit = *xml_parse*

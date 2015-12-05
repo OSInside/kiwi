@@ -1,0 +1,4 @@
+pep8
+docopt
+coverage
+lxml
