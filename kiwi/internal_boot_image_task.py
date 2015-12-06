@@ -25,7 +25,6 @@ from system import System
 from profile import Profile
 from system_setup import SystemSetup
 from logger import log
-from kernel import Kernel
 from archive_cpio import ArchiveCpio
 from command import Command
 from compress import Compress

@@ -18,7 +18,6 @@
 import re
 
 # project
-from logger import log
 from command import Command
 from package_manager_base import PackageManagerBase
 from exceptions import (
