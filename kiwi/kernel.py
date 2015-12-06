@@ -37,7 +37,6 @@ class Kernel(object):
         self.kernel_names = [
             'vmlinux', 'vmlinuz'
         ]
-        self.extracted = {}
 
     def get_kernel(self):
         for kernel_name in self.kernel_names:
@@ -66,29 +65,22 @@ class Kernel(object):
                 name='xen.gz'
             )
 
-    def extract_kernel(self, target_dir, base_file_name=None):
+    def copy_kernel(self, target_dir, file_name=None):
         kernel = self.get_kernel()
         if kernel:
-            if not base_file_name:
-                base_file_name = 'kernel'
-            extract_target = ''.join(
-                [
-                    target_dir, '/', base_file_name, '-', kernel.version,
-                    '.kernel'
-                ]
+            if not file_name:
+                file_name = 'kernel-' + kernel.version + '.kernel'
+            target_file = ''.join(
+                [target_dir, '/', file_name]
             )
-            Command.run(['mv', kernel.filename, extract_target])
-            self.extracted['kernel'] = extract_target
+            Command.run(['cp', kernel.filename, target_file])
 
-    def extract_xen_hypervisor(self, target_dir, base_file_name=None):
+    def copy_xen_hypervisor(self, target_dir, file_name=None):
         xen = self.get_xen_hypervisor()
         if xen:
-            if not base_file_name:
-                base_file_name = 'hypervisor'
-            extract_target = ''.join(
-                [
-                    target_dir, '/', base_file_name, '-', xen.name
-                ]
+            if not file_name:
+                file_name = 'hypervisor-' + xen.name
+            target_file = ''.join(
+                [target_dir, '/', file_name]
             )
-            Command.run(['mv', xen.filename, extract_target])
-            self.extracted['xen_hypervisor'] = extract_target
+            Command.run(['cp', xen.filename, target_file])

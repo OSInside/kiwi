@@ -32,6 +32,7 @@ from logger import log
 from command import Command
 from system_setup import SystemSetup
 from install_image_builder import InstallImageBuilder
+from kernel import Kernel
 
 from exceptions import (
     KiwiDiskBootImageError,
@@ -55,6 +56,7 @@ class DiskBuilder(object):
         self.volumes = xml_state.get_volumes()
         self.volume_group_name = xml_state.get_volume_group_name()
         self.mdraid = xml_state.build_type.get_mdraid()
+        self.machine = xml_state.get_build_type_machine_section()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
@@ -81,8 +83,7 @@ class DiskBuilder(object):
             ]
         )
         self.install_image = InstallImageBuilder(
-            xml_state, target_dir, source_dir + '/boot/linux.vmx',
-            self.diskname, self.boot_image_task
+            xml_state, target_dir, self.diskname, self.boot_image_task
         )
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
@@ -178,11 +179,9 @@ class DiskBuilder(object):
         # create if raid: mdadm -Db mddev > (initrd)/etc/mdadm.conf
         # we need a raid class providing us a method
 
-        self.boot_image_task.extract_kernel_files()
-
         self.boot_image_task.create_initrd(self.mbrid)
 
-        self.__move_boot_files_to_system_image()
+        self.__copy_first_boot_files_to_system_image()
 
         self.__write_bootloader_config_to_system_image(device_map)
 
@@ -359,15 +358,30 @@ class DiskBuilder(object):
             self.diskname, boot_device.get_device()
         )
 
-    def __move_boot_files_to_system_image(self):
-        log.info('Moving boot files to system image')
-        log.info('--> boot image kernel as first boot linux.vmx')
-        Command.run(
-            [
-                'mv', self.boot_image_task.kernel_filename,
-                self.source_dir + '/boot/linux.vmx'
-            ]
-        )
+    def __copy_first_boot_files_to_system_image(self):
+        log.info('Copy boot files to system image')
+        kernel = Kernel(self.boot_image_task.boot_root_directory)
+        if kernel.get_kernel():
+            log.info('--> boot image kernel as first boot linux.vmx')
+            kernel.copy_kernel(
+                self.source_dir, '/boot/linux.vmx'
+            )
+        else:
+            raise KiwiDiskBootImageError(
+                'No kernel in boot image tree %s found' %
+                self.boot_image_task.boot_root_directory
+            )
+        if self.machine and self.machine.get_domain() == 'dom0':
+            if kernel.get_xen_hypervisor():
+                log.info('--> boot image Xen hypervisor as xen.gz')
+                kernel.copy_xen_hypervisor(
+                    self.source_dir, '/boot/xen.gz'
+                )
+            else:
+                raise KiwiDiskBootImageError(
+                    'No hypervisor in boot image tree %s found' %
+                    self.boot_image_task.boot_root_directory
+                )
         log.info('--> initrd archive as first boot initrd.vmx')
         Command.run(
             [
@@ -375,11 +389,3 @@ class DiskBuilder(object):
                 self.source_dir + '/boot/initrd.vmx'
             ]
         )
-        if self.boot_image_task.xen_hypervisor_filename:
-            log.info('--> boot image Xen hypervisor as xen.gz')
-            Command.run(
-                [
-                    'mv', self.boot_image_task.xen_hypervisor_filename,
-                    self.source_dir + '/boot/xen.gz'
-                ]
-            )

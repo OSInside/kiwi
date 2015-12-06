@@ -104,7 +104,7 @@ class SystemCreateTask(CliTask):
                 pxe.create()
                 result.add(
                     'kernel',
-                    pxe.boot_image_task.kernel_filename
+                    pxe.kernel_filename
                 )
                 result.add(
                     'initrd',
@@ -112,7 +112,7 @@ class SystemCreateTask(CliTask):
                 )
                 result.add(
                     'xen_hypervisor',
-                    pxe.boot_image_task.xen_hypervisor_filename
+                    pxe.hypervisor_filename
                 )
                 result.add(
                     'filesystem_image',

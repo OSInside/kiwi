@@ -26,6 +26,11 @@ from image_identifier import ImageIdentifier
 from path import Path
 from checksum import Checksum
 from logger import log
+from kernel import Kernel
+
+from exceptions import (
+    KiwiInstallBootImageError
+)
 
 
 class InstallImageBuilder(object):
@@ -33,10 +38,9 @@ class InstallImageBuilder(object):
         Installation image builder
     """
     def __init__(
-        self, xml_state, target_dir, kernel_image, disk_image, boot_image_task
+        self, xml_state, target_dir, disk_image, boot_image_task
     ):
         self.target_dir = target_dir
-        self.kernel_image = kernel_image
         self.disk_image = disk_image
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
@@ -101,12 +105,15 @@ class InstallImageBuilder(object):
     def __create_iso_install_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/x86_64/loader'
         Path.create(boot_path)
-        Command.run(
-            [
-                'cp', self.kernel_image,
-                boot_path + '/linux'
-            ]
-        )
+        kernel = Kernel(self.boot_image_task.boot_root_directory)
+        if kernel.get_kernel():
+            kernel.copy_kernel(boot_path, '/linux')
+        else:
+            raise KiwiInstallBootImageError(
+                'No kernel in boot image tree %s found' %
+                self.boot_image_task.boot_root_directory
+            )
+        # TODO: for xen dom0 boot the hypervisor needs to be copied too
         self.boot_image_task.create_initrd(self.mbrid)
         Command.run(
             [

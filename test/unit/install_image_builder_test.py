@@ -32,13 +32,18 @@ class TestInstallImageBuilder(object):
         kiwi.install_image_builder.Checksum = mock.Mock(
             return_value=self.checksum
         )
+        self.kernel = mock.Mock()
+        self.kernel.get_kernel = mock.Mock()
+        self.kernel.copy_kernel = mock.Mock()
+        kiwi.install_image_builder.Kernel = mock.Mock(
+            return_value=self.kernel
+        )
         self.xml_state = mock.Mock()
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
         self.install_image = InstallImageBuilder(
-            self.xml_state, 'target_dir', 'some-kernel',
-            'some-diskimage', self.boot_image_task
+            self.xml_state, 'target_dir', 'some-diskimage', self.boot_image_task
         )
 
     @patch('kiwi.install_image_builder.mkdtemp')
@@ -81,11 +86,23 @@ class TestInstallImageBuilder(object):
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid
         )
+        self.kernel.copy_kernel.assert_called_once_with(
+            'tmpdir/boot/x86_64/loader', '/linux'
+        )
         assert mock_command.call_args_list == [
             call(['mv', 'some-diskimage.squashfs', 'tmpdir']),
-            call(['cp', 'some-kernel', 'tmpdir/boot/x86_64/loader/linux']),
             call(['mv', 'initrd', 'tmpdir/boot/x86_64/loader/initrd'])
         ]
+
+    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('__builtin__.open')
+    @patch('kiwi.install_image_builder.Command.run')
+    @raises(KiwiInstallBootImageError)
+    def test_create_install_iso_no_kernel_found(
+        self, mock_command, mock_open, mock_dtemp
+    ):
+        self.kernel.get_kernel.return_value = False
+        self.install_image.create_install_iso()
 
     def test_create_install_pxe_archive(self):
         # TODO

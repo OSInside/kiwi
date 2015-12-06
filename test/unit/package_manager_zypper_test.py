@@ -57,20 +57,6 @@ class TestPackageManagerZypper(object):
         )
 
     @patch('kiwi.command.Command.call')
-    def test_process_install_requests_bootstrap_fail_first(self, mock_call):
-        effect_values = ['start', 'raise']
-
-        def side_effect(a, b):
-            effect = effect_values.pop()
-            if effect == 'raise':
-                raise Exception
-
-        mock_call.side_effect = side_effect
-        self.manager.request_package('vim')
-        self.manager.process_install_requests_bootstrap()
-        assert len(mock_call.call_args_list) == 2
-
-    @patch('kiwi.command.Command.call')
     def test_process_install_requests(self, mock_call):
         self.manager.request_package('vim')
         self.manager.process_install_requests()

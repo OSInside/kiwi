@@ -2,6 +2,7 @@ import sys
 import mock
 from nose.tools import *
 from mock import patch
+from mock import call
 
 import kiwi
 
@@ -44,6 +45,7 @@ class TestBootImageTask(object):
             self.xml_state, 'some-target-dir'
         )
         self.task.boot_root_directory = 'boot-directory'
+        self.task.temp_boot_root_directory = 'temp-boot-directory'
 
     @raises(KiwiTargetDirectoryNotFound)
     def test_boot_image_task_raises(self):
@@ -91,44 +93,18 @@ class TestBootImageTask(object):
     def test_destructor(self, mock_path, mock_command):
         mock_path.return_value = True
         self.task.__del__()
-        mock_command.assert_called_once_with(
-            ['rm', '-r', '-f', 'boot-directory']
-        )
-
-    @patch('kiwi.internal_boot_image_task.Kernel')
-    def test_extract_kernel_files(self, mock_kernel):
-        kernel = mock.Mock()
-        kernel.extracted = {
-            'kernel': 'some-kernel',
-            'xen_hypervisor': 'some-hypervisor'
-        }
-        kernel.get_extracted = mock.Mock(
-            return_value={}
-        )
-        kernel.get_kernel = mock.Mock(
-            return_value=True
-        )
-        kernel.get_xen_hypervisor = mock.Mock(
-            return_value=True
-        )
-        mock_kernel.return_value = kernel
-        self.task.extract_kernel_files()
-        mock_kernel.assert_called_once_with(self.task.boot_root_directory)
-        kernel.get_kernel.assert_called_once_with()
-        kernel.extract_kernel.assert_called_once_with(
-            self.task.target_dir, 'LimeJeOS-openSUSE-13.2'
-        )
-        kernel.get_xen_hypervisor.assert_called_once_with()
-        kernel.extract_xen_hypervisor.assert_called_once_with(
-            self.task.target_dir, 'LimeJeOS-openSUSE-13.2'
-        )
+        assert mock_command.call_args_list == [
+            call(['rm', '-r', '-f', 'boot-directory']),
+            call(['rm', '-r', '-f', 'temp-boot-directory'])
+        ]
 
     @patch('kiwi.internal_boot_image_task.ArchiveCpio')
     @patch('kiwi.internal_boot_image_task.Compress')
     @patch('kiwi.internal_boot_image_task.Path.create')
     @patch('kiwi.internal_boot_image_task.Path.wipe')
+    @patch('kiwi.internal_boot_image_task.Command.run')
     def test_create_initrd(
-        self, mock_wipe, mock_create, mock_compress, mock_cpio
+        self, mock_command, mock_wipe, mock_create, mock_compress, mock_cpio
     ):
         mbrid = mock.Mock()
         mbrid.write = mock.Mock()
@@ -137,6 +113,9 @@ class TestBootImageTask(object):
         mock_cpio.return_value = cpio
         mock_compress.return_value = compress
         self.task.create_initrd(mbrid)
+        mock_command.assert_called_once_with(
+            ['rsync', '-zav', 'boot-directory/', 'temp-boot-directory']
+        )
         mock_cpio.assert_called_once_with(
             self.task.target_dir + '/LimeJeOS-openSUSE-13.2.initrd'
         )
@@ -144,16 +123,16 @@ class TestBootImageTask(object):
             self.task.target_dir + '/LimeJeOS-openSUSE-13.2.initrd'
         )
         mock_wipe.assert_called_once_with(
-            'boot-directory/boot'
+            'temp-boot-directory/boot'
         )
         mock_create.assert_called_once_with(
-            'boot-directory/boot'
+            'temp-boot-directory/boot'
         )
         mbrid.write.assert_called_once_with(
-            'boot-directory/boot/mbrid'
+            'temp-boot-directory/boot/mbrid'
         )
         cpio.create.assert_called_once_with(
-            source_dir=self.task.boot_root_directory,
+            source_dir=self.task.temp_boot_root_directory,
             exclude=['/var/cache']
         )
         compress.xz.assert_called_once_with()

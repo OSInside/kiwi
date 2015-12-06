@@ -113,6 +113,10 @@ class KiwiHelpNoCommandGiven(KiwiError):
     pass
 
 
+class KiwiInstallBootImageError(KiwiError):
+    pass
+
+
 class KiwiInstallMediaError(KiwiError):
     pass
 

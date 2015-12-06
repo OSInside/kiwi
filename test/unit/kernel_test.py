@@ -56,27 +56,24 @@ class TestKernel(object):
 
     @patch('kiwi.kernel.Kernel.get_kernel')
     @patch('kiwi.command.Command.run')
-    def test_extract_kernel(self, mock_run, mock_get_kernel):
+    def test_copy_kernel(self, mock_run, mock_get_kernel):
         result = mock.MagicMock()
         result.version = '42'
         result.filename = 'kernel'
         mock_get_kernel.return_value = result
-        self.kernel.extract_kernel('target-dir')
+        self.kernel.copy_kernel('target-dir')
         mock_run.assert_called_once_with(
-            ['mv', 'kernel', 'target-dir/kernel-42.kernel']
+            ['cp', 'kernel', 'target-dir/kernel-42.kernel']
         )
-        self.kernel.extracted['kernel'] == 'target-dir/kernel-42.kernel'
 
     @patch('kiwi.kernel.Kernel.get_xen_hypervisor')
     @patch('kiwi.command.Command.run')
-    def test_extract_xen_hypervisor(self, mock_run, mock_get_xen):
+    def test_copy_xen_hypervisor(self, mock_run, mock_get_xen):
         result = mock.MagicMock()
         result.name = 'xen.gz'
         result.filename = 'some/xen.gz'
         mock_get_xen.return_value = result
-        self.kernel.extract_xen_hypervisor('target-dir')
+        self.kernel.copy_xen_hypervisor('target-dir')
         mock_run.assert_called_once_with(
-            ['mv', 'some/xen.gz', 'target-dir/hypervisor-xen.gz']
+            ['cp', 'some/xen.gz', 'target-dir/hypervisor-xen.gz']
         )
-        self.kernel.extracted['xen_hypervisor'] == \
-            'target-dir/hypervisor-xen.gz'

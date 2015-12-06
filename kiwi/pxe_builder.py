@@ -20,6 +20,7 @@ from internal_boot_image_task import BootImageTask
 from filesystem_builder import FileSystemBuilder
 from compress import Compress
 from checksum import Checksum
+from kernel import Kernel
 from logger import log
 
 from exceptions import (
@@ -35,13 +36,18 @@ class PxeBuilder(object):
         within the kiwi PXE boot infrastructure
     """
     def __init__(self, xml_state, target_dir, source_dir):
+        self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
+        self.image_name = xml_state.xml_data.get_name()
+        self.machine = xml_state.get_build_type_machine_section()
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, source_dir
         )
         self.boot_image_task = BootImageTask(
             xml_state, target_dir
         )
+        self.kernel_filename = None
+        self.hypervisor_filename = None
 
     def create(self):
         if not self.boot_image_task.required():
@@ -64,7 +70,37 @@ class PxeBuilder(object):
 
         log.info('Creating PXE boot image')
         self.boot_image_task.prepare()
-        self.boot_image_task.extract_kernel_files()
+
+        kernel = Kernel(self.boot_image_task.boot_root_directory)
+        kernel_data = kernel.get_kernel()
+        if kernel_data:
+            self.kernel_filename = ''.join(
+                [self.image_name, '-', kernel_data.version, '.kernel']
+            )
+            kernel.copy_kernel(
+                self.target_dir, self.kernel_filename
+            )
+        else:
+            raise KiwiPxeBootImageError(
+                'No kernel in boot image tree %s found' %
+                self.boot_image_task.boot_root_directory
+            )
+
+        if self.machine and self.machine.get_domain() == 'dom0':
+            kernel_data = kernel.get_xen_hypervisor()
+            if kernel_data:
+                self.hypervisor_filename = ''.join(
+                    [self.image_name, '-', kernel_data.name]
+                )
+                kernel.copy_xen_hypervisor(
+                    self.target_dir, self.hypervisor_filename
+                )
+            else:
+                raise KiwiPxeBootImageError(
+                    'No hypervisor in boot image tree %s found' %
+                    self.boot_image_task.boot_root_directory
+                )
+
         self.boot_image_task.create_initrd()
 
         # TODO

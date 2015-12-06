@@ -45,16 +45,16 @@ class BootImageTask(object):
         self.xml_state = xml_state
         self.target_dir = target_dir
         self.boot_root_directory = None
+        self.temp_boot_root_directory = None
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
                 'target directory %s not found' % target_dir
             )
+        self.temp_boot_root_directory = mkdtemp()
         self.boot_root_directory = mkdtemp(
             prefix='boot.', dir=self.target_dir
         )
         self.initrd_filename = None
-        self.kernel_filename = None
-        self.xen_hypervisor_filename = None
 
     def prepare(self):
         """
@@ -115,29 +115,6 @@ class BootImageTask(object):
         else:
             return False
 
-    def extract_kernel_files(self):
-        """
-            extract all kernel related files which does not have to
-            be part of the boot image(initrd)
-        """
-        if self.required():
-            log.info('Extracting kernel files')
-            kernel = Kernel(self.boot_root_directory)
-            if kernel.get_kernel():
-                kernel.extract_kernel(
-                    self.target_dir, self.xml_state.xml_data.get_name()
-                )
-                self.kernel_filename = kernel.extracted['kernel']
-            if kernel.get_xen_hypervisor():
-                kernel.extract_xen_hypervisor(
-                    self.target_dir, self.xml_state.xml_data.get_name()
-                )
-                self.xen_hypervisor_filename = \
-                    kernel.extracted['xen_hypervisor']
-            log.info(
-                '--> extracted %s', ','.join(kernel.extracted.values())
-            )
-
     def create_initrd(self, mbrid=None):
         if self.required():
             log.info('Creating initrd cpio archive')
@@ -147,7 +124,20 @@ class BootImageTask(object):
                     self.xml_state.xml_data.get_name(), '.initrd'
                 ]
             )
-            boot_directory = self.boot_root_directory + '/boot'
+            # we can't simply exclude boot when building the archive
+            # because the file boot/mbrid must be preserved. Because of
+            # that we create a copy of the boot directory and remove
+            # everything in boot/ except for boot/mbrid. The original
+            # boot directory should not be changed because we rely
+            # on other data in boot/ e.g the kernel to be available
+            # for the entire image building process
+            Command.run(
+                [
+                    'rsync', '-zav', self.boot_root_directory + '/',
+                    self.temp_boot_root_directory
+                ]
+            )
+            boot_directory = self.temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)
             if mbrid:
                 log.info(
@@ -156,9 +146,10 @@ class BootImageTask(object):
                 Path.create(boot_directory)
                 image_identifier = boot_directory + '/mbrid'
                 mbrid.write(image_identifier)
+
             cpio = ArchiveCpio(initrd_file_name)
             cpio.create(
-                source_dir=self.boot_root_directory,
+                source_dir=self.temp_boot_root_directory,
                 exclude=['/var/cache']
             )
             log.info(
@@ -290,9 +281,13 @@ class BootImageTask(object):
             return boot_description
 
     def __del__(self):
-        directory = self.boot_root_directory
-        if directory and os.path.exists(directory):
-            log.info('Cleaning up %s instance', type(self).__name__)
-            Command.run(
-                ['rm', '-r', '-f', directory]
-            )
+        log.info('Cleaning up %s instance', type(self).__name__)
+        temp_directories = [
+            self.boot_root_directory,
+            self.temp_boot_root_directory
+        ]
+        for directory in temp_directories:
+            if directory and os.path.exists(directory):
+                Command.run(
+                    ['rm', '-r', '-f', directory]
+                )

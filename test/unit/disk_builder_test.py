@@ -54,6 +54,14 @@ class TestDiskBuilder(object):
         self.disk.get_device = mock.Mock(
             return_value=self.device_map
         )
+        self.kernel = mock.Mock()
+        self.kernel.get_kernel = mock.Mock()
+        self.kernel.get_xen_hypervisor = mock.Mock()
+        self.kernel.copy_kernel = mock.Mock()
+        self.kernel.copy_xen_hypervisor = mock.Mock()
+        kiwi.disk_builder.Kernel = mock.Mock(
+            return_value=self.kernel
+        )
         kiwi.disk_builder.Disk = mock.Mock(
             return_value=self.disk
         )
@@ -108,6 +116,11 @@ class TestDiskBuilder(object):
             XMLState(description.load()), 'target_dir', 'source_dir'
         )
         self.disk_builder.build_type_name = 'oem'
+        self.machine = mock.Mock()
+        self.machine.get_domain = mock.Mock(
+            return_value='dom0'
+        )
+        self.disk_builder.machine = self.machine
 
     @raises(KiwiInstallMediaError)
     def test_create_invalid_type_for_install_media(self):
@@ -214,10 +227,34 @@ class TestDiskBuilder(object):
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'source_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'kernel', 'source_dir/boot/linux.vmx']),
             call(['mv', 'initrd', 'source_dir/boot/initrd.vmx']),
-            call(['mv', 'xen_hypervisor', 'source_dir/boot/xen.gz'])
         ]
+        self.kernel.copy_kernel.assert_called_once_with(
+            'source_dir', '/boot/linux.vmx'
+        )
+        self.kernel.copy_xen_hypervisor.assert_called_once_with(
+            'source_dir', '/boot/xen.gz'
+        )
+
+    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk_builder.Command.run')
+    @raises(KiwiDiskBootImageError)
+    def test_create_standard_root_no_kernel_found(
+        self, mock_command, mock_open, mock_fs
+    ):
+        self.kernel.get_kernel.return_value = False
+        self.disk_builder.create()
+
+    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk_builder.Command.run')
+    @raises(KiwiDiskBootImageError)
+    def test_create_standard_root_no_hypervisor_found(
+        self, mock_command, mock_open, mock_fs
+    ):
+        self.kernel.get_xen_hypervisor.return_value = False
+        self.disk_builder.create()
 
     @patch('kiwi.disk_builder.FileSystem.new')
     @patch('__builtin__.open')

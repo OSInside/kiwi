@@ -18,6 +18,7 @@
 import re
 
 # project
+from logger import log
 from command import Command
 from package_manager_base import PackageManagerBase
 from exceptions import (
@@ -52,15 +53,9 @@ class PackageManagerZypper(PackageManagerBase):
             '--root', self.root_dir,
             'install', '--auto-agree-with-licenses'
         ] + self.custom_args + self.__install_items()
-        try:
-            return Command.call(command, self.command_env)
-        except Exception:
-            # for some reason zypper sometimes fails to initialize
-            # an empty rpm database but works on the second invocation
-            # of the same call. Therefore we pass a potential first
-            # error and try again
-            pass
-        return Command.call(command, self.command_env)
+        return Command.call(
+            command, self.command_env
+        )
 
     def process_install_requests(self):
         chroot_zypper_args = self.root_bind.move_to_root(
