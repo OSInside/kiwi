@@ -1,5 +1,6 @@
 from nose.tools import *
 from mock import patch
+from mock import call
 
 import mock
 
@@ -74,9 +75,10 @@ class TestRepositoryZypper(object):
         ]
         self.repo.repo_names = ['eggs']
         self.repo.cleanup_unused_repos()
-        mock_path.assert_called_once_with(
-            '../data/shared-dir/zypper/repos/spam'
-        )
+        assert mock_path.call_args_list == [
+            call('../data/shared-dir/zypper/solv/@System'),
+            call('../data/shared-dir/zypper/repos/spam')
+        ]
 
     @patch('kiwi.command.Command.run')
     def test_delete_all_repos(self, mock_command):

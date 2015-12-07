@@ -133,6 +133,16 @@ class RepositoryZypper(RepositoryBase):
         Path.create(self.shared_zypper_dir['reposd-dir'])
 
     def cleanup_unused_repos(self):
+        # zypper creates a system solvable which is unwanted for the
+        # purpose of building images. In addition zypper fails with
+        # an error message 'Failed to cache rpm database' if such a
+        # system solvable exists and a new root system is created
+        solv_dir = self.shared_zypper_dir['solv-cache-dir']
+        Path.wipe(solv_dir + '/@System')
+
+        # repository configurations which are not used for this build
+        # must be removed otherwise they are taken into account for
+        # the package installations
         repos_dir = self.shared_zypper_dir['reposd-dir']
         for elements in os.walk(repos_dir):
             for repo_file in list(elements[2]):
