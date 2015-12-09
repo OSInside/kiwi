@@ -9,6 +9,7 @@ from kiwi.exceptions import *
 
 from kiwi.iso import Iso
 from collections import namedtuple
+from tempfile import NamedTemporaryFile
 
 
 class TestIso(object):
@@ -110,9 +111,20 @@ class TestIso(object):
         )
         assert result[2158].name == 'header_end'
 
-    def test_add_iso_header_end_marker(self):
-        # TODO
-        self.iso.add_iso_header_end_marker()
+    def test_create_header_end_block(self):
+        temp_file = NamedTemporaryFile()
+        self.iso.header_end_file = temp_file.name
+        assert self.iso.create_header_end_block(
+            '../data/iso_with_marker.iso'
+        ) == 96
+
+    @raises(KiwiIsoLoaderError)
+    def test_create_header_end_block_raises(self):
+        temp_file = NamedTemporaryFile()
+        self.iso.header_end_file = temp_file.name
+        self.iso.create_header_end_block(
+            '../data/iso_no_marker.iso'
+        )
 
     def test_relocate_boot_catalog(self):
         # TODO

@@ -23,6 +23,7 @@ from tempfile import NamedTemporaryFile
 from collections import namedtuple
 
 # project
+from logger import log
 from command import Command
 from exceptions import (
     KiwiIsoLoaderError
@@ -34,10 +35,11 @@ class Iso(object):
         Implements helper methods around the creation of an iso filesystem
     """
     def __init__(self, source_dir):
+        self.source_dir = source_dir
         self.header_id = '7984fc91-a43f-4e45-bf27-6d3aa08b24cf'
         self.header_end_name = 'header_end'
+        self.header_end_file = self.source_dir + '/' + self.header_end_name
         self.arch = platform.machine()
-        self.source_dir = source_dir
         self.boot_path = 'boot/' + self.arch
         self.iso_sortfile = NamedTemporaryFile()
         self.iso_parameters = []
@@ -55,7 +57,7 @@ class Iso(object):
         """
         loader_file = self.boot_path + '/loader/isolinux.bin'
         catalog_file = self.boot_path + '/boot.catalog'
-        with open(self.source_dir + '/' + self.header_end_name, 'w') as marker:
+        with open(self.header_end_file, 'w') as marker:
             marker.write('%s\n' % self.header_id)
         if not os.path.exists(self.source_dir + '/' + loader_file):
             raise KiwiIsoLoaderError(
@@ -93,10 +95,6 @@ class Iso(object):
     def get_iso_creation_parameters(self):
         return self.iso_parameters + self.iso_loaders
 
-    def add_iso_header_end_marker(self):
-        # TODO: see the glump file creation in the old kiwi
-        pass
-
     def relocate_boot_catalog(self, isofile):
         # TODO
         pass
@@ -104,6 +102,40 @@ class Iso(object):
     def fix_boot_catalog(self, isofile):
         # TODO
         pass
+
+    def create_header_end_block(self, isofile):
+        file_count = 0
+        offset = 0
+        found_id = False
+        with open(isofile, 'rb') as iso:
+            for start in self.isols(isofile):
+                if file_count >= 8:  # check only the first 8 files
+                    break
+                file_count += 1
+                read_buffer = ''
+                for index in range(0, -9, -1):  # go back up to 8 blocks
+                    offset = start + index
+                    iso.seek(offset << 11, 0)
+                    read_buffer = iso.read(len(self.header_id))
+                    if read_buffer == self.header_id:
+                        iso.seek(0, 0)
+                        file_count = 8
+                        found_id = True
+                        break
+
+            if found_id:
+                log.debug('Found ISO header_end id at offset:')
+                log.debug('--> 2k blocks: %d', offset)
+                log.debug('--> 512 byte blocks(isohybrid): %d', offset * 4)
+                log.debug('--> bytes(loop mount): %d', offset * 2048)
+                with open(self.header_end_file, 'w') as marker:
+                    for index in range(offset):
+                        marker.write(iso.read(2048))
+            else:
+                raise KiwiIsoLoaderError(
+                    'Header ID not found in iso file %s' % isofile
+                )
+            return offset * 4
 
     def isols(self, isofile):
         listing_type = namedtuple(
