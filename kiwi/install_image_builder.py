@@ -95,6 +95,7 @@ class InstallImageBuilder(object):
         )
 
         # setup bootloader config to boot the ISO via isolinux
+        log.info('Setting up install image bootloader configuration')
         bootloader_config_isolinux = BootLoaderConfig.new(
             'isolinux', self.xml_state, self.media_dir
         )
@@ -121,10 +122,11 @@ class InstallImageBuilder(object):
         bootloader_config_grub.write()
 
         # create initrd for install image
+        log.info('Creating install image boot image')
         self.__create_iso_install_kernel_and_initrd()
 
-        # TODO
         # create iso filesystem from self.media_dir and make it hybrid
+        log.info('Creating ISO filesystem')
         iso_image = FileSystemIsoFs(
             device_provider=None,
             source_dir=self.media_dir,
