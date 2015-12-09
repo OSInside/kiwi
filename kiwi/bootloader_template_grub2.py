@@ -147,7 +147,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Install ${title}" --class os {
                 echo Loading kernel...
                 set gfxpayload=${gfxmode}
-                $$linux ($$root)${bootpath}/${kernel_file} ${boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -159,7 +159,7 @@ class BootLoaderTemplateGrub2(object):
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
                 set gfxpayload=${gfxmode}
-                module ${bootpath}/${kernel_file} dummy ${failsafe_boot_options}
+                module ${bootpath}/${kernel_file} dummy cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
@@ -169,7 +169,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Install ${title}" --class os {
                 echo Loading kernel...
                 set gfxpayload=${gfxmode}
-                linux ($$root)${bootpath}/${kernel_file} ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -179,7 +179,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Failsafe -- Install ${title}" --class os {
                 echo Loading kernel...
                 set gfxpayload=${gfxmode}
-                $$linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -191,7 +191,7 @@ class BootLoaderTemplateGrub2(object):
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
                 set gfxpayload=${gfxmode}
-                module ${bootpath}/${kernel_file} dummy ${failsafe_boot_options}
+                module ${bootpath}/${kernel_file} dummy cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
@@ -201,7 +201,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Failsafe -- Install ${title}" --class os {
                 echo Loading kernel...
                 set gfxpayload=${gfxmode}
-                linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
+                linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
