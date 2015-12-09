@@ -16,8 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
+import collections
 import platform
 from tempfile import NamedTemporaryFile
+from collections import namedtuple
 
 # project
 from command import Command
@@ -41,6 +44,15 @@ class Iso(object):
         self.iso_loaders = []
 
     def init_iso_creation_parameters(self, custom_args=None):
+        """
+            create a set of standard parameters for the main isolinux loader
+            In addition a sort file with the contents of the iso is created.
+            The kiwi iso file is also prepared to become a hybrid iso image.
+            In order to do this the offest address of the end of the first iso
+            block is required. In order to lookup the address a reference file
+            named 'header_end' is created and will show up as last file in
+            the block.
+        """
         loader_file = self.boot_path + '/loader/isolinux.bin'
         catalog_file = self.boot_path + '/boot.catalog'
         with open(self.source_dir + '/' + self.header_end_name, 'w') as marker:
@@ -92,6 +104,32 @@ class Iso(object):
     def fix_boot_catalog(self, isofile):
         # TODO
         pass
+
+    def isols(self, isofile):
+        listing_type = namedtuple(
+            'listing_type', ['name', 'filetype', 'start']
+        )
+        listing = Command.run(
+            ['isoinfo', '-R', '-l', '-i', isofile]
+        )
+        listing_result = {}
+        for line in listing.output.split('\n'):
+            iso_entry = re.search(
+                '^(.).*\s\[\s*(\d+)(\s+\d+)?\]\s+(.*?)\s*$', line
+            )
+            if iso_entry:
+                entry_type = iso_entry.group(1)
+                entry_name = iso_entry.group(4)
+                entry_addr = int(iso_entry.group(2))
+                if entry_type == '-':
+                    listing_result[entry_addr] = listing_type(
+                        name=entry_name,
+                        filetype=entry_type,
+                        start=entry_addr
+                    )
+        return collections.OrderedDict(
+            sorted(listing_result.items())
+        )
 
     def __create_sortfile(self):
         catalog_file = \

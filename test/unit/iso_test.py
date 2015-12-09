@@ -97,6 +97,19 @@ class TestIso(object):
         self.iso.iso_loaders = ['b']
         assert self.iso.get_iso_creation_parameters() == ['a', 'b']
 
+    @patch('kiwi.iso.Command.run')
+    def test_isols(self, mock_command):
+        output_type = namedtuple('output_type', ['output'])
+        output_data = ''
+        with open('../data/iso_listing.txt') as iso:
+            output_data = iso.read()
+        mock_command.return_value = output_type(output=output_data)
+        result = self.iso.isols('some-iso')
+        mock_command.assert_called_once_with(
+            ['isoinfo', '-R', '-l', '-i', 'some-iso']
+        )
+        assert result[2158].name == 'header_end'
+
     def test_add_iso_header_end_marker(self):
         # TODO
         self.iso.add_iso_header_end_marker()
