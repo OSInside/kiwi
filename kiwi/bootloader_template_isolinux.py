@@ -54,7 +54,6 @@ class BootLoaderTemplateIsoLinux(object):
             timeout  ${boot_timeout}
             display isolinux.msg
             default ${default_boot}
-            ui gfxboot bootlogo isolinux.msg
         ''').strip() + self.cr
 
         self.ui_theme = dedent('''
@@ -139,9 +138,9 @@ class BootLoaderTemplateIsoLinux(object):
         """
         template_data = self.header
         if with_theme:
-            self.ui_theme
+            template_data += self.ui_theme
         else:
-            self.ui_plain
+            template_data += self.ui_plain
         template_data += self.menu_install_harddisk_entry
         template_data += self.menu_install_entry
         if failsafe:
@@ -155,9 +154,9 @@ class BootLoaderTemplateIsoLinux(object):
         """
         template_data = self.header
         if with_theme:
-            self.ui_theme
+            template_data += self.ui_theme
         else:
-            self.ui_plain
+            template_data += self.ui_plain
         template_data += self.menu_install_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:
