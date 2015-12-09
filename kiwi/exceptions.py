@@ -29,10 +29,6 @@ class KiwiError(Exception):
         return format(self.message)
 
 
-class KiwiBootLoaderTargetError(KiwiError):
-    pass
-
-
 class KiwiBootLoaderConfigSetupError(KiwiError):
     pass
 
@@ -54,6 +50,14 @@ class KiwiBootLoaderGrubSecureBootError(KiwiError):
 
 
 class KiwiBootLoaderInstallSetupError(KiwiError):
+    pass
+
+
+class KiwiBootLoaderIsoLinuxPlatformError(KiwiError):
+    pass
+
+
+class KiwiBootLoaderTargetError(KiwiError):
     pass
 
 
@@ -126,6 +130,10 @@ class KiwiInstallPhaseFailed(KiwiError):
 
 
 class KiwiInvalidVolumeName(KiwiError):
+    pass
+
+
+class KiwiIsoLoaderError(KiwiError):
     pass
 
 

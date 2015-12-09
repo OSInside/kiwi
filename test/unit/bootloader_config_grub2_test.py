@@ -49,6 +49,10 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader = BootLoaderConfigGrub2(
             self.state, 'source_dir'
         )
+        self.bootloader.get_hypervisor_domain = mock.Mock(
+            return_value='domU'
+        )
+        self.bootloader.theme = None
 
     @raises(KiwiBootLoaderGrubPlatformError)
     @patch('platform.machine')
@@ -56,13 +60,12 @@ class TestBootLoaderConfigGrub2(object):
         mock_machine.return_value = 'unsupported-arch'
         BootLoaderConfigGrub2(mock.Mock(), 'source_dir')
 
-    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
     @patch('os.path.exists')
-    def test_post_init_dom0(self, mock_exists, mock_domain):
-        mock_domain.return_value = 'dom0'
+    def test_post_init_dom0(self, mock_exists):
+        self.bootloader.get_hypervisor_domain.return_value = 'dom0'
         mock_exists.return_value = True
         self.bootloader.post_init()
-        assert self.bootloader.hypervisor_domain == 'dom0'
+        assert self.bootloader.multiboot is True
 
     @patch('__builtin__.open')
     @patch('os.path.exists')
@@ -422,6 +425,39 @@ class TestBootLoaderConfigGrub2(object):
                 'cp', 'source_dir/usr/lib64/efi/grub.efi',
                 'source_dir//EFI/BOOT'
             ])
+
+    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('__builtin__.open')
+    @patch('os.path.exists')
+    @patch('kiwi.logger.log.warning')
+    def test_setup_install_boot_images_with_theme(
+        self, mock_warn, mock_exists, mock_open, mock_command
+    ):
+        self.bootloader.theme = 'some-theme'
+        exists_results = [False, True, False, False]
+
+        def side_effect(arg):
+            return exists_results.pop()
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_install_boot_images(self.mbrid)
+        assert mock_command.call_args_list[1] == call([
+            'rsync', '-zav',
+            'source_dir/usr/share/grub2/themes/some-theme',
+            'source_dir/boot/grub2/themes'
+        ])
+
+    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('__builtin__.open')
+    @patch('os.path.exists')
+    @patch('kiwi.logger.log.warning')
+    def test_setup_install_boot_images_with_theme_not_existing(
+        self, mock_warn, mock_exists, mock_open, mock_command
+    ):
+        self.bootloader.theme = 'some-theme'
+        mock_exists.return_value = False
+        self.bootloader.setup_install_boot_images(self.mbrid)
+        assert mock_warn.called
 
     def test_setup_live_image_config(self):
         # TODO

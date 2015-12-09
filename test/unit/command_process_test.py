@@ -1,5 +1,6 @@
 from nose.tools import *
 from mock import patch
+from mock import call
 from collections import namedtuple
 
 import mock
@@ -60,9 +61,10 @@ class TestCommandProcess(object):
         process.command.error.read = self.flow_err
         process.command.process.returncode = 0
         process.poll_show_progress(['a', 'b'], match_method)
-        mock_log_debug.assert_called_once_with(
-            '%s: %s', 'system', 'data'
-        )
+        assert mock_log_debug.call_args_list == [
+            call('%s: %s', 'system', 'data'),
+            call('%s: %s', 'system', 'error')
+        ]
 
     @raises(KiwiCommandError)
     @patch('kiwi.command.Command')
@@ -90,9 +92,10 @@ class TestCommandProcess(object):
         process.command.error.read = self.flow_err
         process.command.process.returncode = 0
         process.poll()
-        mock_log_debug.assert_called_once_with(
-            '%s: %s', 'system', 'data'
-        )
+        assert mock_log_debug.call_args_list == [
+            call('%s: %s', 'system', 'data'),
+            call('%s: %s', 'system', 'error')
+        ]
 
     @raises(KiwiCommandError)
     @patch('kiwi.command.Command')

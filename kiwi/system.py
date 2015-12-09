@@ -300,15 +300,15 @@ class System(object):
         self, manager, packages, collections=None, products=None
     ):
         if packages:
-            for package in packages:
+            for package in sorted(packages):
                 log.info('--> package: %s', package)
                 manager.request_package(package)
         if collections:
-            for collection in collections:
+            for collection in sorted(collections):
                 log.info('--> collection: %s', collection)
                 manager.request_collection(collection)
         if products:
-            for product in products:
+            for product in sorted(products):
                 log.info('--> product: %s', product)
                 manager.request_product(product)
         return \

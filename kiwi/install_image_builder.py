@@ -22,6 +22,7 @@ import os
 from command import Command
 from bootloader_config import BootLoaderConfig
 from filesystem_squashfs import FileSystemSquashFs
+from filesystem_isofs import FileSystemIsoFs
 from image_identifier import ImageIdentifier
 from path import Path
 from checksum import Checksum
@@ -42,11 +43,21 @@ class InstallImageBuilder(object):
     ):
         self.target_dir = target_dir
         self.disk_image = disk_image
+        self.machine = xml_state.get_build_type_machine_section()
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
+        self.isoname = ''.join(
+            [
+                target_dir, '/',
+                xml_state.xml_data.get_name(), '.install.iso'
+            ]
+        )
+
         self.mbrid = ImageIdentifier()
         self.mbrid.calculate_id()
+
         self.media_dir = None
+        self.custom_iso_args = None
 
     def create_install_iso(self):
         """
@@ -56,6 +67,12 @@ class InstallImageBuilder(object):
         self.media_dir = mkdtemp(
             prefix='install-media.', dir=self.target_dir
         )
+        # custom iso metadata
+        self.custom_iso_args = [
+            '-V', '"KIWI Installation System"',
+            '-A', self.mbrid.get_id()
+        ]
+
         # the install image transfer is checked against a checksum
         log.info('Creating disk image checksum')
         checksum = Checksum(self.disk_image)
@@ -77,26 +94,43 @@ class InstallImageBuilder(object):
             ['mv', squashed_image_file, self.media_dir]
         )
 
+        # setup bootloader config to boot the ISO via isolinux
+        bootloader_config_isolinux = BootLoaderConfig.new(
+            'isolinux', self.xml_state, self.media_dir
+        )
+        bootloader_config_isolinux.setup_install_boot_images(
+            mbrid=None,
+            lookup_path=self.boot_image_task.boot_root_directory
+        )
+        bootloader_config_isolinux.setup_install_image_config(
+            mbrid=None
+        )
+        bootloader_config_isolinux.write()
+
         # setup bootloader config to boot the ISO via EFI
-        self.bootloader_config_grub = BootLoaderConfig.new(
+        bootloader_config_grub = BootLoaderConfig.new(
             'grub2', self.xml_state, self.media_dir
         )
-        self.bootloader_config_grub.setup_install_boot_images(
+        bootloader_config_grub.setup_install_boot_images(
             mbrid=self.mbrid,
             lookup_path=self.boot_image_task.boot_root_directory
         )
-        self.bootloader_config_grub.setup_install_image_config(
-            self.mbrid
+        bootloader_config_grub.setup_install_image_config(
+            mbrid=self.mbrid
         )
-        self.bootloader_config_grub.write()
+        bootloader_config_grub.write()
 
-        # setup bootloader config to boot the ISO via isolinux
-        # TODO
-
+        # create initrd for install image
         self.__create_iso_install_kernel_and_initrd()
 
         # TODO
         # create iso filesystem from self.media_dir and make it hybrid
+        iso_image = FileSystemIsoFs(
+            device_provider=None,
+            source_dir=self.media_dir,
+            custom_args=self.custom_iso_args
+        )
+        iso_image.create_on_file(self.isoname)
 
     def create_install_pxe_archive(self):
         # TODO
@@ -113,7 +147,14 @@ class InstallImageBuilder(object):
                 'No kernel in boot image tree %s found' %
                 self.boot_image_task.boot_root_directory
             )
-        # TODO: for xen dom0 boot the hypervisor needs to be copied too
+        if self.machine and self.machine.get_domain() == 'dom0':
+            if kernel.get_xen_hypervisor():
+                kernel.copy_xen_hypervisor(boot_path, '/xen.gz')
+            else:
+                raise KiwiInstallBootImageError(
+                    'No hypervisor in boot image tree %s found' %
+                    self.boot_image_task.boot_root_directory
+                )
         self.boot_image_task.create_initrd(self.mbrid)
         Command.run(
             [
@@ -133,6 +174,6 @@ class InstallImageBuilder(object):
             iso_system.write('IMAGE="%s"\n' % diskname)
 
     def __del__(self):
-        # if self.media_dir:
-        #    Path.wipe(self.media_dir)
-        pass
+        if self.media_dir:
+            log.info('Cleaning up %s instance', type(self).__name__)
+            Path.wipe(self.media_dir)

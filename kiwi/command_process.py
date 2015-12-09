@@ -121,6 +121,10 @@ class CommandProcess(object):
             result = namedtuple(
                 'result', ['stderr', 'returncode']
             )
+            if watch:
+                log.debug(command_error_output)
+            else:
+                log.debug('%s: %s', self.log_topic, command_error_output)
             return result(
                 stderr=command_error_output,
                 returncode=self.command.process.returncode

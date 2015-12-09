@@ -90,6 +90,10 @@ class SystemCreateTask(CliTask):
                 result.add(
                     'disk_image', disk.diskname
                 )
+                if disk.install_image.media_dir:
+                    result.add(
+                        'installation_image', disk.install_image.isoname
+                    )
             elif requested_image_type in Defaults.get_live_image_types():
                 # TODO
                 raise KiwiNotImplementedError(

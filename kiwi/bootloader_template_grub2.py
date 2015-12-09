@@ -45,31 +45,37 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + self.cr
 
         self.header_gfxterm = dedent('''
-            set font=($$root)${bootpath}/unicode.pf2
-            if loadfont $$font ;then
-                set gfxmode=${gfxmode}
-                insmod all_video
-                insmod gfxterm
-                terminal_output gfxterm
-            fi
+            set gfxmode=${gfxmode}
+            insmod all_video
+            insmod gfxterm
+            terminal_output gfxterm
         ''').strip() + self.cr
 
         self.header_serial = dedent('''
-            set font=${bootpath}/unicode.pf2
-            if loadfont $$font ;then
-                serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1
-                terminal_input serial
-                terminal_output serial
-            fi
+            serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1
+            terminal_input serial
+            terminal_output serial
         ''').strip() + self.cr
 
         self.header_theme = dedent('''
+            set font=($$root)${bootpath}/unicode.pf2
             if loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2;then
                 loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
                 loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans10.pf2
                 loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans12.pf2
                 loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2
                 set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+            fi
+        ''').strip() + self.cr
+
+        self.header_theme_iso = dedent('''
+            set font=($$root)/boot/unicode.pf2
+            if loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2;then
+                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
+                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans10.pf2
+                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans12.pf2
+                loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2
+                set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
             fi
         ''').strip() + self.cr
 
@@ -263,7 +269,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.header_gfxterm
         else:
             template_data += self.header_serial
-        template_data += self.header_theme
+        template_data += self.header_theme_iso
         template_data += self.menu_install_harddisk_entry
         if hybrid:
             template_data += self.menu_install_entry_hybrid
@@ -287,7 +293,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.header_gfxterm
         else:
             template_data += self.header_serial
-        template_data += self.header_theme
+        template_data += self.header_theme_iso
         template_data += self.menu_install_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:

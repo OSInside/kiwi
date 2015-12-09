@@ -157,9 +157,6 @@ class BootImageTask(object):
             compress = Compress(initrd_file_name)
             compress.xz()
             self.initrd_filename = compress.compressed_filename
-            log.info(
-                '--> created %s', self.initrd_filename
-            )
 
     def __import_system_description_elements(self):
         self.xml_state.copy_displayname(

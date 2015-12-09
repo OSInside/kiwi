@@ -200,7 +200,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.source_dir + '/boot/mbrid'
         )
 
-        self.__copy_unicode_font_to_boot_directory(lookup_path)
+        self.__copy_theme_data_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'uefi':
             log.info('--> Using signed secure boot efi image')
@@ -226,7 +226,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()
 
-        self.__copy_unicode_font_to_boot_directory(lookup_path)
+        self.__copy_theme_data_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
@@ -468,11 +468,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             selected_gfxmode = gfxmode[requested_gfxmode]
         return selected_gfxmode
 
-    def __copy_unicode_font_to_boot_directory(self, lookup_path):
+    def __copy_theme_data_to_boot_directory(self, lookup_path):
+        if not lookup_path:
+            lookup_path = self.source_dir
         boot_unicode_font = self.source_dir + '/boot/unicode.pf2'
         if not os.path.exists(boot_unicode_font):
-            if not lookup_path:
-                lookup_path = self.source_dir
             unicode_font = lookup_path + '/usr/share/grub2/unicode.pf2'
             try:
                 Command.run(
@@ -482,6 +482,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 raise KiwiBootLoaderGrubFontError(
                     'Unicode font %s not found' % unicode_font
                 )
+
+        boot_theme_dir = self.source_dir + '/boot/grub2/themes'
+        if self.theme and not os.path.exists(boot_theme_dir):
+            Path.create(boot_theme_dir)
+            theme_dir = \
+                lookup_path + '/usr/share/grub2/themes/' + self.theme
+            if os.path.exists(theme_dir):
+                Command.run(
+                    ['rsync', '-zav', theme_dir, boot_theme_dir],
+                )
+            else:
+                log.warning('Theme %s not found', theme_dir)
 
     def __copy_efi_modules_to_boot_directory(self, lookup_path):
         self.__copy_modules_to_boot_directory_from(
