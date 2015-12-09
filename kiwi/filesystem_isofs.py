@@ -35,7 +35,20 @@ class FileSystemIsoFs(FileSystemBase):
         iso.init_iso_creation_parameters(self.custom_args)
         iso.add_efi_loader_parameters()
         Command.run(
-            ['genisoimage'] + iso.get_iso_creation_parameters() + [
+            [
+                'genisoimage'
+            ] + iso.get_iso_creation_parameters() + [
                 '-o', filename, self.source_dir
             ]
         )
+        hybrid_offset = iso.create_header_end_block(filename)
+        Command.run(
+            [
+                'genisoimage',
+                '-hide', iso.header_end_name,
+                '-hide-joliet', iso.header_end_name
+            ] + iso.get_iso_creation_parameters() + [
+                '-o', filename, self.source_dir
+            ]
+        )
+        return hybrid_offset
