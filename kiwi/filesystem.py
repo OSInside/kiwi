@@ -34,8 +34,7 @@ class FileSystem(object):
     """
         FileSystem factory
     """
-    @classmethod
-    def new(self, name, device_provider, source_dir=None, custom_args=None):
+    def __new__(self, name, device_provider, source_dir=None, custom_args=None):
         if name == 'ext2':
             return FileSystemExt2(
                 device_provider, source_dir, custom_args

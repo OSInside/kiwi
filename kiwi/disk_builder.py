@@ -155,7 +155,7 @@ class DiskBuilder(object):
                 'Creating root(%s) filesystem on %s',
                 self.requested_filesystem, device_map['root'].get_device()
             )
-            filesystem = FileSystem.new(
+            filesystem = FileSystem(
                 self.requested_filesystem, device_map['root'],
                 self.source_dir + '/',
                 self.custom_filesystem_args
@@ -239,7 +239,7 @@ class DiskBuilder(object):
                 'Creating EFI(fat16) filesystem on %s',
                 device_map['efi'].get_device()
             )
-            filesystem = FileSystem.new(
+            filesystem = FileSystem(
                 'fat16', device_map['efi'], self.source_dir + '/boot/efi/'
             )
             filesystem.create_on_device(
@@ -255,7 +255,7 @@ class DiskBuilder(object):
                 'Creating boot(%s) filesystem on %s',
                 boot_filesystem, device_map['boot'].get_device()
             )
-            filesystem = FileSystem.new(
+            filesystem = FileSystem(
                 boot_filesystem, device_map['boot'], self.source_dir + '/boot/'
             )
             filesystem.create_on_device(

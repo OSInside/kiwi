@@ -45,7 +45,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_label'] = 'ROOT'
 
     def setup(self, name=None):
-        filesystem = FileSystem.new(
+        filesystem = FileSystem(
             'btrfs', MappedDevice(device=self.device, device_provider=self)
         )
         filesystem.create_on_device(

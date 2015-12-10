@@ -110,7 +110,7 @@ class TestVolumeManagerLVM(object):
     @patch('os.path.exists')
     @patch('kiwi.volume_manager_base.SystemSize')
     @patch('kiwi.volume_manager_lvm.Command.run')
-    @patch('kiwi.volume_manager_lvm.FileSystem.new')
+    @patch('kiwi.volume_manager_lvm.FileSystem')
     @patch('kiwi.volume_manager_lvm.MappedDevice')
     def test_create_volumes(
         self, mock_mapped_device, mock_fs, mock_command, mock_size,

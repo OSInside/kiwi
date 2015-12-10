@@ -80,7 +80,7 @@ class FileSystemBuilder(object):
             self.blocksize
         )
         loop_provider.create()
-        filesystem = FileSystem.new(
+        filesystem = FileSystem(
             self.requested_filesystem, loop_provider,
             self.source_dir, self.custom_args
         )
@@ -95,7 +95,7 @@ class FileSystemBuilder(object):
 
     def __operate_on_file(self):
         default_provider = DeviceProvider()
-        filesystem = FileSystem.new(
+        filesystem = FileSystem(
             self.requested_filesystem, default_provider,
             self.source_dir, self.custom_args
         )

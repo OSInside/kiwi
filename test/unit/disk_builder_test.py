@@ -136,7 +136,7 @@ class TestDiskBuilder(object):
         )
         self.disk_builder.create()
 
-    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
     @patch('random.randrange')
     @patch('kiwi.disk_builder.Command.run')
@@ -236,7 +236,7 @@ class TestDiskBuilder(object):
             'source_dir', '/boot/xen.gz'
         )
 
-    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
     @patch('kiwi.disk_builder.Command.run')
     @raises(KiwiDiskBootImageError)
@@ -246,7 +246,7 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = False
         self.disk_builder.create()
 
-    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
     @patch('kiwi.disk_builder.Command.run')
     @raises(KiwiDiskBootImageError)
@@ -256,7 +256,7 @@ class TestDiskBuilder(object):
         self.kernel.get_xen_hypervisor.return_value = False
         self.disk_builder.create()
 
-    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_standard_root_secure_boot(
@@ -272,7 +272,7 @@ class TestDiskBuilder(object):
         bootloader = self.bootloader_config
         bootloader.setup_disk_boot_images.assert_called_once_with('0815')
 
-    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_mdraid_root(self, mock_command, mock_open, mock_fs):
@@ -285,7 +285,7 @@ class TestDiskBuilder(object):
             'all_free'
         )
 
-    @patch('kiwi.disk_builder.FileSystem.new')
+    @patch('kiwi.disk_builder.FileSystem')
     @patch('kiwi.disk_builder.VolumeManager.new')
     @patch('__builtin__.open')
     @patch('kiwi.disk_builder.Command.run')

@@ -136,7 +136,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         label = None
         if volume_name == 'LVRoot':
             label = self.custom_args['root_label']
-        filesystem = FileSystem.new(
+        filesystem = FileSystem(
             filesystem_name,
             MappedDevice(device=device_node, device_provider=self)
         )

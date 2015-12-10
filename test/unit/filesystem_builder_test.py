@@ -68,7 +68,7 @@ class TestFileSystemBuilder(object):
         FileSystemBuilder(xml_state, 'target_dir', 'source_dir')
 
     @patch('kiwi.filesystem_builder.LoopDevice')
-    @patch('kiwi.filesystem_builder.FileSystem.new')
+    @patch('kiwi.filesystem_builder.FileSystem')
     def test_create_on_loop(self, mock_fs, mock_loop):
         mock_fs.return_value = self.filesystem
         mock_loop.return_value = self.loop_provider
@@ -85,7 +85,7 @@ class TestFileSystemBuilder(object):
             ['image', '.profile', '.kconfig', 'var/cache/kiwi']
         )
 
-    @patch('kiwi.filesystem_builder.FileSystem.new')
+    @patch('kiwi.filesystem_builder.FileSystem')
     @patch('kiwi.filesystem_builder.DeviceProvider')
     def test_create_on_file(self, mock_provider, mock_fs):
         provider = mock.Mock()

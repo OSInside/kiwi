@@ -62,7 +62,7 @@ class TestVolumeManagerBtrfs(object):
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager_btrfs.Command.run')
-    @patch('kiwi.volume_manager_btrfs.FileSystem.new')
+    @patch('kiwi.volume_manager_btrfs.FileSystem')
     @patch('kiwi.volume_manager_btrfs.MappedDevice')
     @patch('kiwi.volume_manager_base.mkdtemp')
     def test_setup(
@@ -102,7 +102,7 @@ class TestVolumeManagerBtrfs(object):
     @raises(KiwiVolumeRootIDError)
     @patch('os.path.exists')
     @patch('kiwi.volume_manager_btrfs.Command.run')
-    @patch('kiwi.volume_manager_btrfs.FileSystem.new')
+    @patch('kiwi.volume_manager_btrfs.FileSystem')
     @patch('kiwi.volume_manager_btrfs.MappedDevice')
     @patch('kiwi.volume_manager_base.mkdtemp')
     def test_setup_volume_id_not_detected(
