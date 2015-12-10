@@ -74,7 +74,7 @@ class System(object):
         """
         repository_sections = self.xml_state.get_repository_sections()
         package_manager = self.xml_state.get_package_manager()
-        repo = Repository.new(
+        repo = Repository(
             self.root_bind, package_manager
         )
         for xml_repo in repository_sections:

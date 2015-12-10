@@ -172,7 +172,7 @@ class TestSystem(object):
         )
         self.system.delete_packages(self.manager, ['package'])
 
-    @patch('kiwi.system.Repository.new')
+    @patch('kiwi.system.Repository')
     @patch('kiwi.system.Uri')
     @patch('kiwi.system.PackageManager.new')
     @patch('kiwi.xml_state.XMLState.get_package_manager')

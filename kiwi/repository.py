@@ -27,8 +27,7 @@ class Repository(object):
     """
         Repository factory
     """
-    @classmethod
-    def new(self, root_bind, package_manager, custom_args=None):
+    def __new__(self, root_bind, package_manager, custom_args=None):
         if package_manager == 'zypper':
             return RepositoryZypper(root_bind, custom_args)
         else:
