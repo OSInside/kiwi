@@ -28,6 +28,7 @@ from path import Path
 from checksum import Checksum
 from logger import log
 from kernel import Kernel
+from iso import Iso
 
 from exceptions import (
     KiwiInstallBootImageError
@@ -136,14 +137,19 @@ class InstallImageBuilder(object):
         log.info('Creating install image boot image')
         self.__create_iso_install_kernel_and_initrd()
 
-        # create iso filesystem from self.media_dir and make it hybrid
+        # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
         iso_image = FileSystemIsoFs(
             device_provider=None,
             source_dir=self.media_dir,
             custom_args=self.custom_iso_args
         )
-        iso_image.create_on_file(self.isoname)
+        iso_header_offset = iso_image.create_on_file(self.isoname)
+
+        # make it hybrid
+        Iso.create_hybrid(
+            iso_header_offset, self.mbrid, self.isoname
+        )
 
     def create_install_pxe_archive(self):
         # TODO

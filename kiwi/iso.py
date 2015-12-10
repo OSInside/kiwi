@@ -45,6 +45,28 @@ class Iso(object):
         self.iso_parameters = []
         self.iso_loaders = []
 
+    @classmethod
+    def create_hybrid(self, offset, mbrid, isofile):
+        Command.run(
+            [
+                'isohybrid',
+                '--offset', offset,
+                '--id', mbrid.get_id(),
+                '--type', '0x83',
+                '--uefi', isofile
+            ]
+        )
+
+    @classmethod
+    def relocate_boot_catalog(self, isofile):
+        # TODO
+        pass
+
+    @classmethod
+    def fix_boot_catalog(self, isofile):
+        # TODO
+        pass
+
     def init_iso_creation_parameters(self, custom_args=None):
         """
             create a set of standard parameters for the main isolinux loader
@@ -94,14 +116,6 @@ class Iso(object):
 
     def get_iso_creation_parameters(self):
         return self.iso_parameters + self.iso_loaders
-
-    def relocate_boot_catalog(self, isofile):
-        # TODO
-        pass
-
-    def fix_boot_catalog(self, isofile):
-        # TODO
-        pass
 
     def create_header_end_block(self, isofile):
         file_count = 0

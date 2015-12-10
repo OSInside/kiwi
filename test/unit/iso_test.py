@@ -126,10 +126,25 @@ class TestIso(object):
             '../data/iso_no_marker.iso'
         )
 
+    @patch('kiwi.iso.Command.run')
+    def test_create_hybrid(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        Iso.create_hybrid(42, mbrid, 'some-iso')
+        mock_command.assert_called_once_with(
+            [
+                'isohybrid', '--offset', 42,
+                '--id', '0x0815', '--type', '0x83',
+                '--uefi', 'some-iso'
+            ]
+        )
+
     def test_relocate_boot_catalog(self):
         # TODO
-        self.iso.relocate_boot_catalog('isofile')
+        Iso.relocate_boot_catalog('isofile')
 
     def test_fix_boot_catalog(self):
         # TODO
-        self.iso.fix_boot_catalog('isofile')
+        Iso.fix_boot_catalog('isofile')

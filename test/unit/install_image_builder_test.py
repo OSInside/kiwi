@@ -21,6 +21,7 @@ class TestInstallImageBuilder(object):
             return_value=self.squashed_image
         )
         self.iso_image = mock.Mock()
+        self.iso_image.create_on_file.return_value = 42
         kiwi.install_image_builder.FileSystemIsoFs = mock.Mock(
             return_value=self.iso_image
         )
@@ -62,7 +63,10 @@ class TestInstallImageBuilder(object):
     @patch('kiwi.install_image_builder.mkdtemp')
     @patch('__builtin__.open')
     @patch('kiwi.install_image_builder.Command.run')
-    def test_create_install_iso(self, mock_command, mock_open, mock_dtemp):
+    @patch('kiwi.install_image_builder.Iso.create_hybrid')
+    def test_create_install_iso(
+        self, mock_hybrid, mock_command, mock_open, mock_dtemp
+    ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 
         def side_effect(prefix, dir):
@@ -131,6 +135,9 @@ class TestInstallImageBuilder(object):
         ]
         self.iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.install.iso'
+        )
+        mock_hybrid.assert_called_once_with(
+            42, self.mbrid, 'target_dir/result-image.install.iso'
         )
 
     @patch('kiwi.install_image_builder.mkdtemp')
