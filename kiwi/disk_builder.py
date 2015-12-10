@@ -83,7 +83,7 @@ class DiskBuilder(object):
             ]
         )
         self.install_image = InstallImageBuilder(
-            xml_state, target_dir, self.diskname, self.boot_image_task
+            xml_state, target_dir, self.boot_image_task
         )
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area

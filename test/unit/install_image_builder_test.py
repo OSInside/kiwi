@@ -52,7 +52,7 @@ class TestInstallImageBuilder(object):
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
         self.install_image = InstallImageBuilder(
-            self.xml_state, 'target_dir', 'some-diskimage', self.boot_image_task
+            self.xml_state, 'target_dir', self.boot_image_task
         )
         self.install_image.machine = mock.Mock()
         self.install_image.machine.get_domain = mock.Mock(
@@ -88,11 +88,11 @@ class TestInstallImageBuilder(object):
             call('temp_media_dir/config.isoclient', 'w')
         ]
         assert file_mock.write.call_args_list == [
-            call('IMAGE="some-diskimage"\n'),
-            call('IMAGE="some-diskimage"\n')
+            call('IMAGE="result-image.raw"\n'),
+            call('IMAGE="result-image.raw"\n')
         ]
         self.squashed_image.create_on_file.assert_called_once_with(
-            'some-diskimage.squashfs'
+            'target_dir/result-image.raw.squashfs'
         )
         assert self.bootloader.setup_install_boot_images.call_args_list == [
             call(lookup_path='initrd_dir', mbrid=None),
@@ -119,9 +119,15 @@ class TestInstallImageBuilder(object):
             'temp_media_dir/boot/x86_64/loader', '/xen.gz'
         )
         assert mock_command.call_args_list == [
-            call(['cp', '-l', 'some-diskimage', 'temp-squashfs']),
-            call(['mv', 'some-diskimage.squashfs', 'temp_media_dir']),
-            call(['mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd'])
+            call([
+                'cp', '-l', 'target_dir/result-image.raw', 'temp-squashfs'
+            ]),
+            call([
+                'mv', 'target_dir/result-image.raw.squashfs', 'temp_media_dir'
+            ]),
+            call([
+                'mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd'
+            ])
         ]
         self.iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.install.iso'

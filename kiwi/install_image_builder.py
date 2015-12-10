@@ -38,14 +38,17 @@ class InstallImageBuilder(object):
     """
         Installation image builder
     """
-    def __init__(
-        self, xml_state, target_dir, disk_image, boot_image_task
-    ):
+    def __init__(self, xml_state, target_dir, boot_image_task):
         self.target_dir = target_dir
-        self.disk_image = disk_image
         self.machine = xml_state.get_build_type_machine_section()
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
+        self.diskname = ''.join(
+            [
+                target_dir, '/',
+                xml_state.xml_data.get_name(), '.raw'
+            ]
+        )
         self.isoname = ''.join(
             [
                 target_dir, '/',
@@ -82,7 +85,7 @@ class InstallImageBuilder(object):
         self.squashed_contents = mkdtemp(
             prefix='install-squashfs.', dir=self.target_dir
         )
-        checksum = Checksum(self.disk_image)
+        checksum = Checksum(self.diskname)
         checksum.md5(self.squashed_contents + '/' + self.md5name)
 
         # the kiwi initrd code triggers the install by trigger files
@@ -91,9 +94,9 @@ class InstallImageBuilder(object):
         # the install image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
         Command.run(
-            ['cp', '-l', self.disk_image, self.squashed_contents]
+            ['cp', '-l', self.diskname, self.squashed_contents]
         )
-        squashed_image_file = self.disk_image + '.squashfs'
+        squashed_image_file = self.diskname + '.squashfs'
         squashed_image = FileSystemSquashFs(
             device_provider=None, source_dir=self.squashed_contents
         )
@@ -174,14 +177,14 @@ class InstallImageBuilder(object):
         )
 
     def __create_iso_install_trigger_files(self):
-        diskname = os.path.basename(self.disk_image)
+        disk_base_name = os.path.basename(self.diskname)
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         iso_trigger = self.media_dir + '/config.isoclient'
         with open(initrd_trigger, 'w') as vmx_system:
-            vmx_system.write('IMAGE="%s"\n' % diskname)
+            vmx_system.write('IMAGE="%s"\n' % disk_base_name)
         with open(iso_trigger, 'w') as iso_system:
-            iso_system.write('IMAGE="%s"\n' % diskname)
+            iso_system.write('IMAGE="%s"\n' % disk_base_name)
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
