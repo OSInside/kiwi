@@ -28,8 +28,7 @@ class BootLoaderConfig(object):
     """
         BootLoaderConfig factory
     """
-    @classmethod
-    def new(self, name, xml_state, source_dir):
+    def __new__(self, name, xml_state, source_dir):
         if name == 'grub2':
             return BootLoaderConfigGrub2(
                 xml_state, source_dir

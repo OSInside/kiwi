@@ -61,7 +61,7 @@ class DiskBuilder(object):
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
         self.bootloader = xml_state.build_type.get_bootloader()
-        self.bootloader_config = BootLoaderConfig.new(
+        self.bootloader_config = BootLoaderConfig(
             self.bootloader, xml_state, source_dir
         )
         self.disk_setup = DiskSetup(

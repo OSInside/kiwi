@@ -13,7 +13,7 @@ from kiwi.install_image_builder import InstallImageBuilder
 class TestInstallImageBuilder(object):
     def setup(self):
         self.bootloader = mock.Mock()
-        kiwi.install_image_builder.BootLoaderConfig.new = mock.Mock(
+        kiwi.install_image_builder.BootLoaderConfig = mock.Mock(
             return_value=self.bootloader
         )
         self.squashed_image = mock.Mock()

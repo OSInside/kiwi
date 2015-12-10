@@ -83,7 +83,7 @@ class TestDiskBuilder(object):
             return_value=self.bootloader_install
         )
         self.bootloader_config = mock.Mock()
-        kiwi.disk_builder.BootLoaderConfig.new = mock.MagicMock(
+        kiwi.disk_builder.BootLoaderConfig = mock.MagicMock(
             return_value=self.bootloader_config
         )
         kiwi.disk_builder.DiskSetup = mock.MagicMock(

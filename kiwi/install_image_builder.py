@@ -107,7 +107,7 @@ class InstallImageBuilder(object):
 
         # setup bootloader config to boot the ISO via isolinux
         log.info('Setting up install image bootloader configuration')
-        bootloader_config_isolinux = BootLoaderConfig.new(
+        bootloader_config_isolinux = BootLoaderConfig(
             'isolinux', self.xml_state, self.media_dir
         )
         bootloader_config_isolinux.setup_install_boot_images(
@@ -120,7 +120,7 @@ class InstallImageBuilder(object):
         bootloader_config_isolinux.write()
 
         # setup bootloader config to boot the ISO via EFI
-        bootloader_config_grub = BootLoaderConfig.new(
+        bootloader_config_grub = BootLoaderConfig(
             'grub2', self.xml_state, self.media_dir
         )
         bootloader_config_grub.setup_install_boot_images(
