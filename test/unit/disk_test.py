@@ -10,7 +10,7 @@ from kiwi.disk import Disk
 
 
 class TestDisk(object):
-    @patch('kiwi.disk.Partitioner.new')
+    @patch('kiwi.disk.Partitioner')
     def setup(self, mock_partitioner):
         self.partitioner = mock.Mock()
         self.partitioner.create = mock.Mock()

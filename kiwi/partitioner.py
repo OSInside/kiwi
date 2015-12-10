@@ -30,8 +30,7 @@ class Partitioner(object):
     """
         Partitioner factory
     """
-    @classmethod
-    def new(self, table_type, storage_provider):
+    def __new__(self, table_type, storage_provider):
         host_architecture = platform.machine()
         if host_architecture == 'x86_64':
             if table_type == 'gpt':
