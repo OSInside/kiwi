@@ -345,7 +345,7 @@ class DiskBuilder(object):
         )
 
     def __install_bootloader(self, device_map):
-        bootloader = BootLoaderInstall.new(
+        bootloader = BootLoaderInstall(
             self.bootloader, self.source_dir,
             self.disk.storage_provider
         )

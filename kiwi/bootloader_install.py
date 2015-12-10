@@ -27,8 +27,7 @@ class BootLoaderInstall(object):
     """
         BootLoaderInstall factory
     """
-    @classmethod
-    def new(self, name, source_dir, device_provider):
+    def __new__(self, name, source_dir, device_provider):
         if name == 'grub2':
             return BootLoaderInstallGrub2(
                 source_dir, device_provider
