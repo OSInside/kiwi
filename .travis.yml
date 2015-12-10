@@ -10,7 +10,7 @@ python:
 before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -y xsltproc
-    - sudo apt-get install -y cdrtools
+    - sudo apt-get install -y genisoimage
 
 install:
   - pip install -r .travis.requirements.txt
