@@ -174,7 +174,7 @@ class TestSystem(object):
 
     @patch('kiwi.system.Repository')
     @patch('kiwi.system.Uri')
-    @patch('kiwi.system.PackageManager.new')
+    @patch('kiwi.system.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
     def test_setup_repositories(
         self, mock_package_manager, mock_manager, mock_uri, mock_repo

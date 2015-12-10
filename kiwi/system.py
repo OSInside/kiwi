@@ -101,7 +101,7 @@ class System(object):
             )
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()
-        return PackageManager.new(
+        return PackageManager(
             repo, package_manager
         )
 
