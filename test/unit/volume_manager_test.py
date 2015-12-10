@@ -12,7 +12,7 @@ from kiwi.volume_manager import VolumeManager
 class TestVolumeManager(object):
     @raises(KiwiVolumeManagerSetupError)
     def test_volume_manager_not_implemented(self):
-        VolumeManager.new('foo', mock.Mock(), 'source_dir', mock.Mock())
+        VolumeManager('foo', mock.Mock(), 'source_dir', mock.Mock())
 
     @patch('kiwi.volume_manager.VolumeManagerLVM')
     @patch('os.path.exists')
@@ -20,7 +20,7 @@ class TestVolumeManager(object):
         mock_path.return_value = True
         provider = mock.Mock()
         volumes = mock.Mock()
-        VolumeManager.new('lvm', provider, 'source_dir', volumes)
+        VolumeManager('lvm', provider, 'source_dir', volumes)
         mock_lvm.assert_called_once_with(
             provider, 'source_dir', volumes, None
         )
@@ -31,7 +31,7 @@ class TestVolumeManager(object):
         mock_path.return_value = True
         provider = mock.Mock()
         volumes = mock.Mock()
-        VolumeManager.new('btrfs', provider, 'source_dir', volumes)
+        VolumeManager('btrfs', provider, 'source_dir', volumes)
         mock_btrfs.assert_called_once_with(
             provider, 'source_dir', volumes, None
         )

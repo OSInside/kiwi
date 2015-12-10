@@ -137,7 +137,7 @@ class DiskBuilder(object):
                 'root_filesystem_args': self.custom_filesystem_args,
                 'root_label': self.disk_setup.get_root_label(),
             }
-            volume_manager = VolumeManager.new(
+            volume_manager = VolumeManager(
                 self.volume_manager_name, device_map['root'],
                 self.source_dir + '/',
                 self.volumes, volume_manager_custom_parameters

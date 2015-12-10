@@ -286,7 +286,7 @@ class TestDiskBuilder(object):
         )
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('kiwi.disk_builder.VolumeManager.new')
+    @patch('kiwi.disk_builder.VolumeManager')
     @patch('__builtin__.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_volume_managed_root(

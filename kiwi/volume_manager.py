@@ -28,8 +28,9 @@ class VolumeManager(object):
     """
         VolumeManager factory
     """
-    @classmethod
-    def new(self, name, device_provider, source_dir, volumes, custom_args=None):
+    def __new__(
+        self, name, device_provider, source_dir, volumes, custom_args=None
+    ):
         if name == 'lvm':
             return VolumeManagerLVM(
                 device_provider, source_dir, volumes, custom_args
