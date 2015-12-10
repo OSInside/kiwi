@@ -63,7 +63,12 @@ class TestInstallImageBuilder(object):
     @patch('__builtin__.open')
     @patch('kiwi.install_image_builder.Command.run')
     def test_create_install_iso(self, mock_command, mock_open, mock_dtemp):
-        mock_dtemp.return_value = 'tmpdir'
+        tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+
+        def side_effect(prefix, dir):
+            return tmpdir_name.pop()
+
+        mock_dtemp.side_effect = side_effect
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
         file_mock = mock.Mock()
@@ -76,11 +81,11 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_iso()
 
         self.checksum.md5.assert_called_once_with(
-            'initrd_dir/etc/image.md5'
+            'temp-squashfs/result-image.md5'
         )
         assert mock_open.call_args_list == [
             call('initrd_dir/config.vmxsystem', 'w'),
-            call('tmpdir/config.isoclient', 'w')
+            call('temp_media_dir/config.isoclient', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call('IMAGE="some-diskimage"\n'),
@@ -108,14 +113,15 @@ class TestInstallImageBuilder(object):
             self.mbrid
         )
         self.kernel.copy_kernel.assert_called_once_with(
-            'tmpdir/boot/x86_64/loader', '/linux'
+            'temp_media_dir/boot/x86_64/loader', '/linux'
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
-            'tmpdir/boot/x86_64/loader', '/xen.gz'
+            'temp_media_dir/boot/x86_64/loader', '/xen.gz'
         )
         assert mock_command.call_args_list == [
-            call(['mv', 'some-diskimage.squashfs', 'tmpdir']),
-            call(['mv', 'initrd', 'tmpdir/boot/x86_64/loader/initrd'])
+            call(['cp', '-l', 'some-diskimage', 'temp-squashfs']),
+            call(['mv', 'some-diskimage.squashfs', 'temp_media_dir']),
+            call(['mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd'])
         ]
         self.iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.install.iso'
@@ -148,6 +154,10 @@ class TestInstallImageBuilder(object):
     @patch('kiwi.install_image_builder.Path.wipe')
     def test_destructor(self, mock_wipe):
         self.install_image.media_dir = 'media-dir'
+        self.install_image.squashed_contents = 'squashed-dir'
         self.install_image.__del__()
-        mock_wipe.assert_called_once_with('media-dir')
+        assert mock_wipe.call_args_list == [
+            call('media-dir'), call('squashed-dir')
+        ]
         self.install_image.media_dir = None
+        self.install_image.squashed_contents = None

@@ -52,11 +52,15 @@ class InstallImageBuilder(object):
                 xml_state.xml_data.get_name(), '.install.iso'
             ]
         )
+        self.md5name = ''.join(
+            [xml_state.xml_data.get_name(), '.md5']
+        )
 
         self.mbrid = ImageIdentifier()
         self.mbrid.calculate_id()
 
         self.media_dir = None
+        self.squashed_contents = None
         self.custom_iso_args = None
 
     def create_install_iso(self):
@@ -75,19 +79,23 @@ class InstallImageBuilder(object):
 
         # the install image transfer is checked against a checksum
         log.info('Creating disk image checksum')
-        checksum = Checksum(self.disk_image)
-        checksum.md5(
-            self.boot_image_task.boot_root_directory + '/etc/image.md5'
+        self.squashed_contents = mkdtemp(
+            prefix='install-squashfs.', dir=self.target_dir
         )
+        checksum = Checksum(self.disk_image)
+        checksum.md5(self.squashed_contents + '/' + self.md5name)
 
         # the kiwi initrd code triggers the install by trigger files
         self.__create_iso_install_trigger_files()
 
         # the install image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
+        Command.run(
+            ['cp', '-l', self.disk_image, self.squashed_contents]
+        )
         squashed_image_file = self.disk_image + '.squashfs'
         squashed_image = FileSystemSquashFs(
-            device_provider=None, source_dir=self.disk_image
+            device_provider=None, source_dir=self.squashed_contents
         )
         squashed_image.create_on_file(squashed_image_file)
         Command.run(
@@ -176,6 +184,8 @@ class InstallImageBuilder(object):
             iso_system.write('IMAGE="%s"\n' % diskname)
 
     def __del__(self):
+        log.info('Cleaning up %s instance', type(self).__name__)
         if self.media_dir:
-            log.info('Cleaning up %s instance', type(self).__name__)
             Path.wipe(self.media_dir)
+        if self.squashed_contents:
+            Path.wipe(self.squashed_contents)
