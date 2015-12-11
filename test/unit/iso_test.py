@@ -135,7 +135,7 @@ class TestIso(object):
         Iso.create_hybrid(42, mbrid, 'some-iso')
         mock_command.assert_called_once_with(
             [
-                'isohybrid', '--offset', 42,
+                'isohybrid', '--offset', '42',
                 '--id', '0x0815', '--type', '0x83',
                 '--uefi', 'some-iso'
             ]

@@ -50,7 +50,7 @@ class Iso(object):
         Command.run(
             [
                 'isohybrid',
-                '--offset', offset,
+                '--offset', format(offset),
                 '--id', mbrid.get_id(),
                 '--type', '0x83',
                 '--uefi', isofile
