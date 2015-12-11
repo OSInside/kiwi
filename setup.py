@@ -3,7 +3,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from kiwi.version import __VERSION__
+from kiwi.version import __version__
 
 config = {
     'description': 'KIWI - Appliance Builder',
@@ -11,7 +11,7 @@ config = {
     'url': 'https://github.com/openSUSE/kiwi',
     'download_url': 'https://github.com/openSUSE/kiwi',
     'author_email': 'ms@suse.com',
-    'version': __VERSION__,
+    'version': __version__,
     'install_requires': [
         'docopt==0.6.2',
         'lxml'
