@@ -193,6 +193,10 @@ class KiwiPxeBootImageError(KiwiError):
     pass
 
 
+class KiwiRaidSetupError(KiwiError):
+    pass
+
+
 class KiwiRepositorySetupError(KiwiError):
     pass
 

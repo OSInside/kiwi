@@ -112,6 +112,10 @@ class TestDiskBuilder(object):
         kiwi.disk_builder.InstallImageBuilder = mock.Mock(
             return_value=self.install_image
         )
+        self.raid_root = mock.Mock()
+        kiwi.disk_builder.RaidDevice = mock.Mock(
+            return_value=self.raid_root
+        )
         self.disk_builder = DiskBuilder(
             XMLState(description.load()), 'target_dir', 'source_dir'
         )
@@ -279,10 +283,13 @@ class TestDiskBuilder(object):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
-        self.disk_builder.mdraid = True
+        self.disk_builder.mdraid = 'mirroring'
         self.disk_builder.create()
         self.disk.create_root_raid_partition.assert_called_once_with(
             'all_free'
+        )
+        self.raid_root.create_degraded_raid.assert_called_once_with(
+            raid_level='mirroring'
         )
 
     @patch('kiwi.disk_builder.FileSystem')

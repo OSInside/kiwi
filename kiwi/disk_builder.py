@@ -26,6 +26,7 @@ from disk_setup import DiskSetup
 from loop_device import LoopDevice
 from firmware import FirmWare
 from disk import Disk
+from raid_device import RaidDevice
 from filesystem import FileSystem
 from volume_manager import VolumeManager
 from logger import log
@@ -126,9 +127,13 @@ class DiskBuilder(object):
 
         device_map = self.__build_and_map_disk_partitions()
 
+        if self.mdraid:
+            self.raid_root = RaidDevice(device_map['root'])
+            self.raid_root.create_degraded_raid(raid_level=self.mdraid)
+            device_map['root'] = self.raid_root.get_device()
+
         # TODO
         # crypt(luks) device provider class
-        # mdraid(degraded) device provider class
 
         self.__build_boot_filesystems(device_map)
 
@@ -175,9 +180,7 @@ class DiskBuilder(object):
 
         self.__write_image_identifier_to_system_image()
 
-        # TODO
-        # create if raid: mdadm -Db mddev > (initrd)/etc/mdadm.conf
-        # we need a raid class providing us a method
+        self.__write_raid_config_to_boot_image()
 
         self.boot_image_task.create_initrd(self.mbrid)
 
@@ -309,6 +312,13 @@ class DiskBuilder(object):
         with open(filename, 'w') as partids:
             for id_name, id_value in partition_id_map.iteritems():
                 partids.write('%s="%s"\n' % (id_name, id_value))
+
+    def __write_raid_config_to_boot_image(self):
+        if self.mdraid:
+            log.info('Creating etc/mdadm.conf in boot system')
+            self.raid_root.create_raid_config(
+                self.boot_image_task.boot_root_directory + '/etc/mdadm.conf'
+            )
 
     def __write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())
