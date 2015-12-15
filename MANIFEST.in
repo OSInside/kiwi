@@ -1,6 +1,4 @@
-#
-#
-#
+# Manifest describing source package contents
 
 graft boot
 graft config
@@ -19,6 +17,7 @@ include .landscape.yml
 include .travis*
 include .releasetags
 
-include *requirements.txt
+include .virtualenv.requirements.txt
+include .virtualenv.dev-requirements.txt
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib
