@@ -34,3 +34,6 @@ generateDS
 
 # For Python2 -> 3 transition
 six
+
+# for test coverage
+coverage
