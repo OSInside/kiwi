@@ -1,0 +1,24 @@
+#
+#
+#
+
+graft boot
+graft config
+graft doc
+graft schema
+graft test
+graft tools
+graft xsl
+
+include README*
+include LICENSE
+
+include .bumpversion.cfg
+include .coverage*
+include .landscape.yml
+include .travis*
+include .releasetags
+
+include *requirements.txt
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib
