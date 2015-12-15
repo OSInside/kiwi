@@ -2,6 +2,7 @@ from nose.tools import *
 from mock import patch
 
 import mock
+import os
 
 import nose_helper
 
@@ -17,13 +18,18 @@ from kiwi.xml_description import XMLDescription
 
 class TestProfile(object):
     def setup(self):
+        self.tmpfile = mock.Mock()
+        self.tmpfile.name = 'tmpfile'
         description = XMLDescription('../data/example_dot_profile_config.xml')
         self.profile = Profile(
             XMLState(description.load())
         )
 
-    def test_create(self):
+    @patch('kiwi.profile.NamedTemporaryFile')
+    def test_create(self, mock_temp):
+        mock_temp.return_value = self.tmpfile
         result = self.profile.create()
+        os.remove(self.tmpfile.name)
         assert self.profile.dot_profile == {
             'kiwi_allFreeVolume_bin_volume': 'size:all:LVusr_bin',
             'kiwi_allFreeVolume_LVusr_bin': 'size:all',
@@ -120,7 +126,11 @@ class TestProfile(object):
             "kiwi_type='oem'"
         ]
 
-    def test_create_cpio(self):
+    @patch('kiwi.profile.NamedTemporaryFile')
+    @patch('__builtin__.open')
+    @patch('kiwi.shell.Shell.quote_key_value_file')
+    def test_create_cpio(self, mock_shell_quote, mock_open, mock_temp):
+        mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_dot_profile_config.xml')
         profile = Profile(
             XMLState(description.load(), None, 'cpio')

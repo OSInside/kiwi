@@ -36,8 +36,9 @@ class TestCompress(object):
         assert self.compress.compressed_filename == 'some-file.gz'
 
     @patch('kiwi.command.Command.run')
+    @patch('kiwi.compress.NamedTemporaryFile')
     @patch('kiwi.compress.Compress.get_format')
-    def test_uncompress(self, mock_format, mock_command):
+    def test_uncompress(self, mock_format, mock_temp, mock_command):
         mock_format.return_value = 'xz'
         self.compress.uncompress()
         mock_command.assert_called_once_with(

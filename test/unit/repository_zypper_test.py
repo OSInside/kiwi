@@ -16,7 +16,12 @@ from kiwi.root_bind import RootBind
 
 class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
-    def setup(self, mock_command):
+    @patch('kiwi.repository_zypper.NamedTemporaryFile')
+    @patch('__builtin__.open')
+    def setup(self, mock_open, mock_temp, mock_command):
+        tmpfile = mock.Mock()
+        tmpfile.name = 'tmpfile'
+        mock_temp.return_value = tmpfile
         root_bind = mock.Mock()
         root_bind.move_to_root = mock.Mock(
             return_value=['root-moved-arguments']
