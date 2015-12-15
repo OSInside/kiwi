@@ -18,4 +18,4 @@
 """
     Global version information used in kiwi and the package
 """
-__VERSION__ = '8.10.0'
+__version__ = '8.10.0'
