@@ -65,7 +65,7 @@ class Cli(object):
     def __init__(self):
         self.all_args = docopt(
             __doc__,
-            version='kiwi version ' + __version__,
+            version='KIWI (next generation) version ' + __version__,
             options_first=True
         )
         self.command_args = self.all_args['<args>']
