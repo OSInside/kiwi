@@ -15,7 +15,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   
 ## Status
 
-Development - no release yet
+Development Status: 3 - Alpha(no release yet)
 
 This project is in an early development phase and some parts
 the old kiwi version can do are not yet available in the new
