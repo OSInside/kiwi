@@ -1,0 +1,15 @@
+#
+# Requirement files for Python Virtual Environments
+#
+# Create a Python virt env with:
+#  * For Python2: virtualenv .env2
+#  * For Python3: pyvenv .env3
+#
+# After activation of the env, install it with:
+# $ pip install -r requirements.txt
+
+# Shell interface for docopt, the command-line interface description language
+docopt
+
+# Powerful and Pythonic XML processing library
+lxml
