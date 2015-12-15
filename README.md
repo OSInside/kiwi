@@ -11,7 +11,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Status](#status)
   * [Motivation](#motivation)
   * [Supported Distributions](#supported_distributions)
-  * [Development](#development)
+  * [Contributing](#contributing)
   
 ## Status
 
@@ -58,9 +58,57 @@ which are equal or newer compared to the following list:
 
 For anything older please consider to use the old version
 
-## Development
+## Contributing
 
-The appliance builder part is developed in python and follows the
+The core appliance builder is developed in python and follows the
 test driven development rules. The XML, schema and stylesheets are
 taken from the old version of kiwi. Also the entire boot code
-written in bash is taken over from the old kiwi codebase.
+written in bash is taken from the old kiwi codebase.
+
+The python project uses python-virtualenv to setup a development
+environment for the desired python version. The following procedure
+describes how to create such an environment for python 2.7
+
+```
+$ sudo zypper in python-virtualenv
+
+$ virtualenv-2.7 .env2
+```
+
+Once the development environment exists it needs to be activated
+and initialized with the project required python modules
+
+```
+$ . .env2/bin/activate
+
+$ pip install -r .virtualenv.dev-requirements.txt
+
+$ ./setup.py develop
+```
+
+The __develop__ target of the setup.py script automatically created
+the application entry point called __kiwi__, which allows to simply
+call the application from the current code base
+
+```
+$ kiwi --help
+```
+
+In order to leave the development mode just call
+
+```
+$ deactivate
+```
+
+## Packaging
+
+The creation of an rpm package is still work in progress because there
+is still no release of this kiwi version. However in order to create the
+source tarball we already provided the MANIFEST.in file which controlls
+the contents of the archive
+
+```
+$ ./setup.py sdist
+```
+
+The result can be found in the dist/ directory.
