@@ -54,7 +54,7 @@ from exceptions import (
     KiwiLoadCommandUndefined,
     KiwiUnknownCommand
 )
-from version import __VERSION__
+from version import __version__
 from help import Help
 
 
@@ -65,7 +65,7 @@ class Cli(object):
     def __init__(self):
         self.all_args = docopt(
             __doc__,
-            version='kiwi version ' + __VERSION__,
+            version='kiwi version ' + __version__,
             options_first=True
         )
         self.command_args = self.all_args['<args>']
