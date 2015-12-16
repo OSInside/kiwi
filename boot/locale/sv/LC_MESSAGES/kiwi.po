@@ -1,0 +1,120 @@
+# @TITLE@
+# Copyright (C) 2006, SUSE Linux GmbH, Nuremberg
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+# This file is distributed under the same license as @PACKAGE@ package. FIRST
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: @PACKAGE@\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-05-18 10:26+0200\n"
+"PO-Revision-Date: 2015-12-06 01:08+0200\n"
+"Last-Translator: Jonas Svensson <jonas@ekhorva.se>\n"
+"Language-Team: Swedish <http://l10n.opensuse.org/projects/kiwi/master/sv/>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2.3\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr "Uppstarten fortsätter om 10 sekunder"
+
+msgid "Enter LUKS passphrase"
+msgstr "Skriv in LUKS-lösenord"
+
+msgid "Do you accept the license agreement ?"
+msgstr "Accepterar du licensavtalet?"
+
+# power-off message
+msgid "Do you want to start the System-Recovery ?"
+msgstr "Vill du påbörja systemåterställningen?"
+
+# power-off message
+msgid "Do you want to start the System-Restore ?"
+msgstr "Vill du starta systemåterställningen?"
+
+msgid "Restoring base operating system..."
+msgstr "Återställer grundoperativsystemet..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "ALL data på %1 kommer att förstöras. Vill du fortsätta?"
+
+msgid "Clean sweep..."
+msgstr "Raderar..."
+
+msgid "%1 files from %2 restored..."
+msgstr "%1 filer från %2 återställda..."
+
+msgid "backing up: %1..."
+msgstr "säkerhetskopierar %1..."
+
+msgid "archiving: %1..."
+msgstr "arkiverar: %1."
+
+msgid "restoring: %1..."
+msgstr "återställer: %1."
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nej"
+
+# ok button label
+msgid "OK"
+msgstr "OK"
+
+# cancel button label
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Exit"
+msgstr "Avsluta"
+
+msgid "Bootloader installation has failed"
+msgstr "Installationen av bootloadern misslyckades"
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+"Systemet kommer inte att kunna starta. Du måste reparera och installera "
+"bootloadern innan nästa omstart. Se /var/log/boot.kiwi för mer information"
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr "Avlägsna alla CD/DVD-skivor innan datorn startas om"
+
+msgid "Please unplug the USB stick before reboot"
+msgstr "Avlägsna USB-stickan innan omstart"
+
+msgid "Installation..."
+msgstr "Installation..."
+
+msgid "Loading %1"
+msgstr "Laddar %1"
+
+msgid "Verifying %1"
+msgstr "Verifierar %1"
+
+# dialog title for hard disk installation
+msgid "Select disk for installation:"
+msgstr "Välj installationsdisk:"
+
+# dialog title for hard disk installation
+msgid "Select %1 partition for installation:"
+msgstr "Välj %1 partition för installation:"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+"Systemet kommer att stängas av. Avlägsna USB-stickan innan du slår på datorn"
+
+msgid "Please remove the CD/DVD before shutdown"
+msgstr "Avlägsna CD/DVD-skivan innan du stänger av"

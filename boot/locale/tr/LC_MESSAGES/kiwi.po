@@ -1,0 +1,118 @@
+# @TITLE@
+# Copyright (C) 2006, SUSE Linux GmbH, Nuremberg
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+# This file is distributed under the same license as @PACKAGE@ package. FIRST
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: @PACKAGE@\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-05-15 15:07+0200\n"
+"PO-Revision-Date: 2001-10-18 10:13+0200\n"
+"Last-Translator: Görkem Çetin <gorkem@gelecek.com.tr>\n"
+"Language-Team: turkish <i18n@suse.de>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr "LUKS parolasını girin"
+
+msgid "Do you accept the license agreement ?"
+msgstr "Lisans sözleşmesini kabul ediyor musunuz?"
+
+msgid "Do you want to start the System-Recovery ?"
+msgstr "Sistem Kurtarma'yı başlatmak istiyor musunuz?"
+
+msgid "Do you want to start the System-Restore ?"
+msgstr "Sistem Kurtarma'yı başlatmak istiyor musunuz?"
+
+msgid "Restoring base operating system..."
+msgstr "Temel işletim sistemi geri yükleniyor..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "%1 üzerindeki TÜM veriler silinecek, devam etmek istiyor musunuz?"
+
+msgid "Clean sweep..."
+msgstr "Tam silme…"
+
+msgid "%1 files from %2 restored..."
+msgstr "%1/%2 dosya geri yüklendi..."
+
+msgid "backing up: %1..."
+msgstr ""
+
+msgid "archiving: %1..."
+msgstr ""
+
+msgid "restoring: %1..."
+msgstr ""
+
+msgid "Yes"
+msgstr "Evet"
+
+msgid "No"
+msgstr "Hayır"
+
+# ok button label
+msgid "OK"
+msgstr "Tamam"
+
+# /usr/lib/YaST2/keyboard_raw.ycp:139
+msgid "Cancel"
+msgstr "Vazgeç"
+
+msgid "Exit"
+msgstr "Çık"
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr ""
+
+msgid "Please unplug the USB stick before reboot"
+msgstr ""
+
+#, fuzzy
+msgid "Installation..."
+msgstr "Kurulum"
+
+#, fuzzy
+msgid "Loading %1"
+msgstr "%1 yüklemesinde bir hata oluştu"
+
+msgid "Verifying %1"
+msgstr ""
+
+# dialog title for hard disk installation
+#, fuzzy
+msgid "Select disk for installation:"
+msgstr "Sabit disk kurulumu"
+
+# dialog title for hard disk installation
+#, fuzzy
+msgid "Select %1 partition for installation:"
+msgstr "Sabit disk kurulumu"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+msgid "Please remove the CD/DVD before shutdown"
+msgstr ""

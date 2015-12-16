@@ -1,0 +1,122 @@
+# translation of kiwi.fi.po to suomi
+# translation of kiwi.po to
+# Jyri Palokangas <jyri.palokangas@opensuse.org>, 2009, 2010.
+# Asko Isonokari <askoin@opensuse.fi>, 2009.
+# Jyri Palokangas <jmp@opensuse.org>, 2010, 2011.
+# Katariina Kemppainen <katariina@opensuse.fi>, 2011.
+msgid ""
+msgstr ""
+"Project-Id-Version: kiwi.fi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-27 16:23+0200\n"
+"PO-Revision-Date: 2011-02-28 17:18+0200\n"
+"Last-Translator: Katariina Kemppainen <katariina@opensuse.fi>\n"
+"Language-Team: Finnish <kde-i18n-doc@kde.org>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr "Anna LUKS-tunnuslause"
+
+#
+msgid "Do you accept the license agreement ?"
+msgstr "Hyväksytkö käyttöoikeussopimuksen ?"
+
+# power-off message
+msgid "Do you want to start the System-Recovery ?"
+msgstr "Haluatko käynnistää järjestelmän korjausohjelman ?"
+
+# power-off message
+msgid "Do you want to start the System-Restore ?"
+msgstr "Haluatko käynnistää järjestelmän palautusohjelman ?"
+
+#
+msgid "Restoring base operating system..."
+msgstr "Palautetaan käyttöjärjestelmän perustaa..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "Poistetaan KAIKKI tieto %1, jatketaanko ?"
+
+msgid "Clean sweep..."
+msgstr "Tyhjennys..."
+
+msgid "%1 files from %2 restored..."
+msgstr "%1 tiedostoa %2 palautettiin..."
+
+msgid "backing up: %1..."
+msgstr "varmuuskopioidaan: %1..."
+
+msgid "archiving: %1..."
+msgstr "arkistoidaan: %1..."
+
+#
+msgid "restoring: %1..."
+msgstr "palautetaan: %1..."
+
+msgid "Yes"
+msgstr "Kyllä"
+
+msgid "No"
+msgstr "Ei"
+
+# ok button label
+msgid "OK"
+msgstr "OK"
+
+# cancel button label
+msgid "Cancel"
+msgstr "Peruuta"
+
+msgid "Exit"
+msgstr "Lopeta"
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr "Poista CD/DVD ennen jatkamista"
+
+msgid "Please unplug the USB stick before reboot"
+msgstr "Poista USB-tikku ennen jatkamista"
+
+#
+msgid "Installation..."
+msgstr "Asennus..."
+
+#
+msgid "Loading %1"
+msgstr "Ladataan %1"
+
+msgid "Verifying %1"
+msgstr "Tarkistetaan %1"
+
+msgid "Select disk for installation:"
+msgstr "Valitse levy asennusta varten:"
+
+#
+msgid "Select %1 partition for installation:"
+msgstr "Valitse osio %1 asennusta varten:"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+#, fuzzy
+msgid "Please remove the CD/DVD before shutdown"
+msgstr "Poista asennus-CD/DVD ennen jatkamista"

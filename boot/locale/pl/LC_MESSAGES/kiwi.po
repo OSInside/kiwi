@@ -1,0 +1,118 @@
+# @TITLE@
+# Copyright (C) 2006, SUSE Linux GmbH, Nuremberg
+#
+# This file is distributed under the same license as @PACKAGE@ package. FIRST
+#
+# Przemysław Bojczuk <pbojczuk@gmail.com>, 2009.
+# Mariusz Fik <fisiu@opensuse.org>, 2010, 2011.
+msgid ""
+msgstr ""
+"Project-Id-Version: @PACKAGE@\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-27 16:23+0200\n"
+"PO-Revision-Date: 2015-10-12 11:31+0200\n"
+"Last-Translator: Frantisek Komarek <frantisek.komarek@gmail.com>\n"
+"Language-Team: Polish <http://10n.opensuse.org/projects/kiwi/master/pl/>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 2.3\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr "Proszę podać hasło LUKS"
+
+msgid "Do you accept the license agreement ?"
+msgstr "Zaakceptować warunki licencji?"
+
+# power-off message
+msgid "Do you want to start the System-Recovery ?"
+msgstr "Czy uruchomić narzędzie odzyskiwania systemu System-Recovery?"
+
+# power-off message
+msgid "Do you want to start the System-Restore ?"
+msgstr "Czy uruchomić narzędzie przywracania systemu System-Restore?"
+
+msgid "Restoring base operating system..."
+msgstr "Przywracanie podstawowego systemu operacyjnego..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "Zostaną zniszczone WSZYSTKIE dane na %1, kontynuować?"
+
+msgid "Clean sweep..."
+msgstr "Całkowite usuwanie danych..."
+
+msgid "%1 files from %2 restored..."
+msgstr "przywrócono %1 plików z %2 ..."
+
+msgid "backing up: %1..."
+msgstr "tworzenie kopii zapasowej: %1..."
+
+msgid "archiving: %1..."
+msgstr "archiwizacja: %1..."
+
+msgid "restoring: %1..."
+msgstr "trwa przywracanie: %1..."
+
+msgid "Yes"
+msgstr "Tak"
+
+msgid "No"
+msgstr "Nie"
+
+# ok button label
+msgid "OK"
+msgstr "OK"
+
+# cancel button label
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgid "Exit"
+msgstr "Wyjście"
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr "Proszę wyjąć płytę CD/DVD przed ponownym uruchomieniem"
+
+msgid "Please unplug the USB stick before reboot"
+msgstr "Proszę odłączyć pamięć USB przed ponownym uruchomieniem"
+
+msgid "Installation..."
+msgstr "Instalacja..."
+
+msgid "Loading %1"
+msgstr "Ładowanie %1"
+
+msgid "Verifying %1"
+msgstr "Weryfikowanie %1"
+
+msgid "Select disk for installation:"
+msgstr "Proszę wybrać dysk do instalacji:"
+
+msgid "Select %1 partition for installation:"
+msgstr "Proszę wybrać partycję %1 do instalacji:"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+#, fuzzy
+msgid "Please remove the CD/DVD before shutdown"
+msgstr "Proszę wyjąć płytę instalacyjnę przed kontynuowaniem"

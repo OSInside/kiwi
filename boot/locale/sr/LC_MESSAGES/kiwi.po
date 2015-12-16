@@ -1,0 +1,119 @@
+# @TITLE@
+# Copyright (C) 2006, SUSE Linux GmbH, Nuremberg
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+# This file is distributed under the same license as @PACKAGE@ package. FIRST
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: @PACKAGE@\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2005-08-03 21:03+0200\n"
+"Last-Translator: Данило Шеган <danilo@gnome.org>\n"
+"Language-Team: Serbian <novell@prevod.org>\n"
+"Language: sr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr ""
+
+msgid "Do you accept the license agreement ?"
+msgstr ""
+
+msgid "Do you want to start the System-Recovery ?"
+msgstr ""
+
+msgid "Do you want to start the System-Restore ?"
+msgstr ""
+
+msgid "Restoring base operating system..."
+msgstr ""
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr ""
+
+msgid "Clean sweep..."
+msgstr ""
+
+msgid "%1 files from %2 restored..."
+msgstr ""
+
+msgid "backing up: %1..."
+msgstr ""
+
+msgid "archiving: %1..."
+msgstr ""
+
+msgid "restoring: %1..."
+msgstr ""
+
+#  summary item: an option is turned on
+msgid "Yes"
+msgstr "Да"
+
+msgid "No"
+msgstr "Не"
+
+# ok button label
+msgid "OK"
+msgstr "У реду"
+
+# cancel button label
+msgid "Cancel"
+msgstr "Одустани"
+
+msgid "Exit"
+msgstr ""
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr ""
+
+msgid "Please unplug the USB stick before reboot"
+msgstr ""
+
+#, fuzzy
+msgid "Installation..."
+msgstr "Инсталација"
+
+#, fuzzy
+msgid "Loading %1"
+msgstr "ладино"
+
+msgid "Verifying %1"
+msgstr ""
+
+# dialog title for hard disk installation
+#, fuzzy
+msgid "Select disk for installation:"
+msgstr "Инсталација на тврди диск"
+
+# dialog title for hard disk installation
+#, fuzzy
+msgid "Select %1 partition for installation:"
+msgstr "Инсталација на тврди диск"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+msgid "Please remove the CD/DVD before shutdown"
+msgstr ""

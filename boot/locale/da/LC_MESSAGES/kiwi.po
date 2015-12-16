@@ -1,0 +1,112 @@
+# Martin Schlander <mschlander@opensuse.org>, 2009, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: @PACKAGE@\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-27 16:23+0200\n"
+"PO-Revision-Date: 2010-12-31 11:35+0100\n"
+"Last-Translator: Martin Schlander <mschlander@opensuse.org>\n"
+"Language-Team: Danish <opensuse-translation@opensuse.org>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr "Angiv LUKS-adgangsfrase"
+
+# %s is either BOOTP or DHCP
+msgid "Do you accept the license agreement ?"
+msgstr "Vil du acceptere licensaftalen?"
+
+# power-off message
+msgid "Do you want to start the System-Recovery ?"
+msgstr "Vil du starte redning af systemet?"
+
+# power-off message
+msgid "Do you want to start the System-Restore ?"
+msgstr "Vil du starte systemgendannelsen?"
+
+msgid "Restoring base operating system..."
+msgstr "Gendanner basis-styresystemet..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "Ødelægger al data på %1, vil du fortsætte?"
+
+msgid "Clean sweep..."
+msgstr "Total oprydning..."
+
+msgid "%1 files from %2 restored..."
+msgstr "%1 filer fra %2 gendannet..."
+
+msgid "backing up: %1..."
+msgstr "opretter backup: %1..."
+
+msgid "archiving: %1..."
+msgstr "Arkiverer: %1..."
+
+msgid "restoring: %1..."
+msgstr "genskaber: %1..."
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nej"
+
+# ok button label
+msgid "OK"
+msgstr "OK"
+
+# cancel button label
+msgid "Cancel"
+msgstr "Annullér"
+
+msgid "Exit"
+msgstr "Afslut"
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr "Fjern venligst cd/dvd før genstart"
+
+msgid "Please unplug the USB stick before reboot"
+msgstr "Fjern venligst USB-nøglen før genstart"
+
+msgid "Installation..."
+msgstr "Installation..."
+
+msgid "Loading %1"
+msgstr "Indlæser  %1"
+
+msgid "Verifying %1"
+msgstr "Verificerer %1"
+
+msgid "Select disk for installation:"
+msgstr "Vælg disk til installation:"
+
+msgid "Select %1 partition for installation:"
+msgstr "Vælg %1 partition til installation:"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+#, fuzzy
+msgid "Please remove the CD/DVD before shutdown"
+msgstr "Fjern venligst cd/dvd før genstart"

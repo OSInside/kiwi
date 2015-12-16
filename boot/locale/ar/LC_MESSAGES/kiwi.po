@@ -1,0 +1,108 @@
+# moh <malham1@gmail.com>, 2011.
+# Mohammad Alhargan <malham1@hotmail.com>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: @PACKAGE@\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-05-15 15:07+0200\n"
+"PO-Revision-Date: 2012-10-08 08:50+0300\n"
+"Last-Translator: Mohammad Alhargan <malham1@hotmail.com>\n"
+"Language-Team: http://www.vertaal.com.ar/files/opensuse-11-4/ar/list/\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Virtaal 0.7.0\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr "أدخل عبارة المرور LUKS"
+
+msgid "Do you accept the license agreement ?"
+msgstr "هل تقبل اتفاقية الترخيي ؟"
+
+msgid "Do you want to start the System-Recovery ?"
+msgstr "هل تريد بدء إستعادة النظام ؟"
+
+msgid "Do you want to start the System-Restore ?"
+msgstr "هل تريد بدء إسترجاع النظام ؟"
+
+msgid "Restoring base operating system..."
+msgstr "استرجاع النظام الأساسي..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "تدمير كل البيانات على %1 ,متابعة ؟"
+
+msgid "Clean sweep..."
+msgstr "تنظيف القرص..."
+
+msgid "%1 files from %2 restored..."
+msgstr "%1 ملفات تمت إستعادتها من %2..."
+
+msgid "backing up: %1..."
+msgstr "نسخ إحتياطي: %1..."
+
+msgid "archiving: %1..."
+msgstr "أرشفة: %1..."
+
+msgid "restoring: %1..."
+msgstr "الاستعادة %1..."
+
+msgid "Yes"
+msgstr "نعم"
+
+msgid "No"
+msgstr "لا"
+
+msgid "OK"
+msgstr "موافق"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Exit"
+msgstr "خروج"
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr "رجاءا أخرج قرص CD/DVD قبل إعادة التشغيل"
+
+msgid "Please unplug the USB stick before reboot"
+msgstr "رجاءا أزل سواقة USB قبل إعادة التشغيل"
+
+msgid "Installation..."
+msgstr "التثبيت..."
+
+msgid "Loading %1"
+msgstr "يحمل %1"
+
+msgid "Verifying %1"
+msgstr "يفحص %1"
+
+msgid "Select disk for installation:"
+msgstr "حدد قرص للتثبيت:"
+
+msgid "Select %1 partition for installation:"
+msgstr "حدد %1 قسم للتثبيت:"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+msgid "Please remove the CD/DVD before shutdown"
+msgstr ""

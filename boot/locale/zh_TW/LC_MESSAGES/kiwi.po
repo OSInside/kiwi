@@ -1,0 +1,121 @@
+# translation of kiwi.po to Chinese Traditional
+# @TITLE@
+# Copyright (C) 2006, SUSE Linux GmbH, Nuremberg
+#
+# This file is distributed under the same license as @PACKAGE@ package. FIRST
+#
+# swyear <swyear@gmail.com>, 2009.
+# Ray Chen <swyear@opensuse.org>, 2013.
+# Ramax Lo <ramaxlo@gmail.com>, 2015.
+msgid ""
+msgstr ""
+"Project-Id-Version: kiwi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-08-18 14:46+0200\n"
+"PO-Revision-Date: 2015-10-17 04:30+0200\n"
+"Last-Translator: Ramax Lo <ramaxlo@gmail.com>\n"
+"Language-Team: Chinese (Taiwan) "
+"<http://10n.opensuse.org/projects/kiwi/master/zh_TW/>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2.3\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr "於 10 秒內繼續啟動"
+
+msgid "Enter LUKS passphrase"
+msgstr "輸入 LUKS 密語"
+
+#
+msgid "Do you accept the license agreement ?"
+msgstr "您接受此授權合約嗎？"
+
+# power-off message
+msgid "Do you want to start the System-Recovery ?"
+msgstr "您現在要啟動系統復原嗎？"
+
+# power-off message
+msgid "Do you want to start the System-Restore ?"
+msgstr "您現在要啟動系統重建嗎？"
+
+#
+msgid "Restoring base operating system..."
+msgstr "正在重建基礎作業系統..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "將破壞在 %1 上的所有資料，要繼續嗎？"
+
+msgid "Clean sweep..."
+msgstr "清理中..."
+
+msgid "%1 files from %2 restored..."
+msgstr "從 %2 回復 %1 個檔案..."
+
+msgid "backing up: %1..."
+msgstr "正在備份：%1..."
+
+msgid "archiving: %1..."
+msgstr "正在壓縮：%1..."
+
+msgid "restoring: %1..."
+msgstr "正在重建：%1..."
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "否"
+
+# ok button label
+msgid "OK"
+msgstr "確定"
+
+# cancel button label
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Exit"
+msgstr "離開"
+
+msgid "Bootloader installation has failed"
+msgstr "開機載入器安裝失敗"
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr "系統將無法重開機。請在下次重開機前，確保修正並安裝開機載入器。請查看 /var/log/boot.kiwi 以了解詳情"
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr "重開機前請移除 CD/DVD"
+
+msgid "Please unplug the USB stick before reboot"
+msgstr "重開機前請移除 USB 隨身碟"
+
+msgid "Installation..."
+msgstr "安裝..."
+
+msgid "Loading %1"
+msgstr "正在載入 %1"
+
+msgid "Verifying %1"
+msgstr "正在確認 %1"
+
+msgid "Select disk for installation:"
+msgstr "選擇要用來安裝的磁碟："
+
+msgid "Select %1 partition for installation:"
+msgstr "選擇 %1 分割區進行安裝："
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr "系統將關機。請在開啟電源前移除 USB 隨身碟"
+
+msgid "Please remove the CD/DVD before shutdown"
+msgstr "請在關機前移除 CD/DVD"

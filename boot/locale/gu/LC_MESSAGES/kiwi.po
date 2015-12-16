@@ -1,0 +1,116 @@
+# Marathi message file for YaST2 (@memory@).
+# Copyright (C) 2007 SUSE Linux Products GmbH.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: YaST (@memory@)\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-29 06:17+0000\n"
+"PO-Revision-Date: 2005-07-29 15:37+0530\n"
+"Last-Translator: i18n@suse.de\n"
+"Language-Team: Gujarati <i18n@suse.de>\n"
+"Language: gu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr ""
+
+msgid "Do you accept the license agreement ?"
+msgstr ""
+
+#, fuzzy
+msgid "Do you want to start the System-Recovery ?"
+msgstr "શું તમારે હમણા સિસ્ટમ શોભાવવા  માગો છે?"
+
+#, fuzzy
+msgid "Do you want to start the System-Restore ?"
+msgstr "શું તમારે હમણા સિસ્ટમ શોભાવવા  માગો છે?"
+
+#, fuzzy
+msgid "Restoring base operating system..."
+msgstr "મને ઓપરેટિંગ સિસ્ટમ સ્થાપનનું કરવાની જરૂર છે."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr ""
+
+msgid "Clean sweep..."
+msgstr ""
+
+msgid "%1 files from %2 restored..."
+msgstr ""
+
+msgid "backing up: %1..."
+msgstr ""
+
+#, fuzzy
+msgid "archiving: %1..."
+msgstr "ફાઈલ ઘણી મોટી છે: %1."
+
+#, fuzzy
+msgid "restoring: %1..."
+msgstr "ફાઈલ ઘણી મોટી છે: %1."
+
+msgid "Yes"
+msgstr "હા"
+
+msgid "No"
+msgstr "ના"
+
+msgid "OK"
+msgstr "બરાબર"
+
+msgid "Cancel"
+msgstr "રદ કરો "
+
+msgid "Exit"
+msgstr ""
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+msgid "Please remove the CD/DVD before reboot"
+msgstr ""
+
+msgid "Please unplug the USB stick before reboot"
+msgstr ""
+
+#, fuzzy
+msgid "Installation..."
+msgstr "સ્થાપન"
+
+#, fuzzy
+msgid "Loading %1"
+msgstr "મોડ્યૂલ્સ લોડ થઇ રહ્યાછેà."
+
+msgid "Verifying %1"
+msgstr ""
+
+#, fuzzy
+msgid "Select disk for installation:"
+msgstr "હાર્ડ ડિસ્કનું સ્થાપન"
+
+#, fuzzy
+msgid "Select %1 partition for installation:"
+msgstr "હાર્ડ ડિસ્કનું સ્થાપન"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+msgid "Please remove the CD/DVD before shutdown"
+msgstr ""
