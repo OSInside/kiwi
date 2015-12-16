@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.2" name="initrd-oemboot-suse-leap-42.1">
+    <description type="boot">
+        <author>Marcus Schaefer</author>
+        <contact>ms@suse.com</contact>
+        <specification>boot/initrd image used on OEM VMX disk</specification>
+    </description>
+    <preferences>
+        <type image="cpio" bootprofile="default" bootkernel="std"/>
+        <version>2.42.1</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <profiles>
+        <profile name="default" description="Booting default setup"/>
+        <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
+        <profile name="xen" description="Boot with xen mboot.c32 setup"/>
+        <profile name="ec2" description="Boot using EC2 system"/>
+        <profile name="std" description="KERNEL: Default"/>
+        <profile name="xenk" description="KERNEL: Xen kernel/mboot.c32"/>
+        <profile name="pae" description="KERNEL: pae kernel"/>
+        <profile name="ec2k" description="KERNEL: EC2 kernel"/>
+        <profile name="desktop" description="KERNEL: Desktop kernel"/>
+    </profiles>
+    <drivers>
+        <file name="crypto/*"/>
+        <file name="drivers/acpi/*"/>
+        <file name="drivers/acpi/dock.ko"/>
+        <file name="drivers/ata/*"/>
+        <file name="drivers/block/brd.ko"/>
+        <file name="drivers/block/cciss.ko"/>
+        <file name="drivers/block/loop.ko"/>
+        <file name="drivers/block/virtio_blk.ko"/>
+        <file name="drivers/cdrom/*"/>
+        <file name="drivers/char/hw_random/virtio-rng.ko"/>
+        <file name="drivers/char/lp.ko"/>
+        <file name="drivers/firmware/edd.ko"/>
+        <file name="drivers/gpu/drm/*"/>
+        <file name="drivers/hid/*"/>
+        <file name="drivers/hv/*"/>
+        <file name="drivers/hwmon/*"/>
+        <file name="drivers/ide/*"/>
+        <file name="drivers/input/keyboard/*"/>
+        <file name="drivers/input/mouse/*"/>
+        <file name="drivers/md/*"/>
+        <file name="drivers/message/fusion/*"/>
+        <file name="drivers/net/*"/>
+        <file name="drivers/parport/*"/>
+        <file name="drivers/scsi/*"/>
+        <file name="drivers/staging/hv/*"/>
+        <file name="drivers/thermal/*"/>
+        <file name="drivers/usb/*"/>
+        <file name="drivers/virtio/*"/>
+        <file name="fs/binfmt_aout.ko"/>
+        <file name="fs/binfmt_misc.ko"/>
+        <file name="fs/overlayfs/*"/>
+        <file name="fs/btrfs/*"/>
+        <file name="fs/exportfs/*"/>
+        <file name="fs/ext2/*"/>
+        <file name="fs/ext3/*"/>
+        <file name="fs/ext4/*"/>
+        <file name="fs/fat/*"/>
+        <file name="fs/fuse/*"/>
+        <file name="fs/hfs/*"/>
+        <file name="fs/jbd/*"/>
+        <file name="fs/jbd2/*"/>
+        <file name="fs/mbcache.ko"/>
+        <file name="fs/nls/nls_cp437.ko"/>
+        <file name="fs/nls/nls_iso8859-1.ko"/>
+        <file name="fs/nls/nls_utf8.ko"/>
+        <file name="fs/quota_v1.ko"/>
+        <file name="fs/quota_v2.ko"/>
+        <file name="fs/squashfs/*"/>
+        <file name="fs/udf/*"/>
+        <file name="fs/vfat/*"/>
+        <file name="fs/xfs/*"/>
+        <file name="fs/isofs/*"/>
+        <file name="lib/crc-t10dif.ko"/>
+        <file name="lib/crc16.ko"/>
+        <file name="lib/libcrc32c.ko"/>
+        <file name="lib/zlib_deflate/zlib_deflate.ko"/>
+        <file name="net/packet/*"/>
+    </drivers>
+    <drivers profiles="xen,ec2">
+        <file name="drivers/xen/*"/>
+    </drivers>
+    <repository type="yast2" status="replaceable">
+        <source path="obs://leap/42.1/repo/oss"/>
+    </repository>
+    <packages type="image" profiles="std">
+        <package name="kernel-default"/>
+    </packages>
+    <packages type="image" profiles="pae">
+        <package name="kernel-pae" arch="i686"/>
+        <package name="kernel-default" arch="i586"/>
+    </packages>
+    <packages type="image" profiles="xenk">
+<!-- xen kernel only supported on x86_64 -->
+        <package name="kernel-xen" arch="x86_64"/>
+<!-- xen dom0 support only on x86_64 -->
+        <package name="xen" arch="x86_64"/>
+    </packages>
+    <packages type="image" profiles="ec2k">
+        <package name="kernel-ec2"/>
+    </packages>
+    <packages type="image" profiles="desktop">
+        <package name="kernel-desktop" arch="x86_64"/>
+        <package name="kernel-desktop" arch="i686"/>
+        <package name="kernel-default" arch="i586"/>
+    </packages>
+    <packages type="image" profiles="xen,ec2">
+        <package name="grub2-x86_64-xen" arch="x86_64"/>
+    </packages>
+    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="bootstrap">
+        <package name="kbd"/>
+        <package name="gptfdisk"/>
+        <package name="adaptec-firmware"/>
+        <package name="atftp"/>
+        <package name="bc"/>
+        <package name="bind-libs"/>
+        <package name="bind-utils"/>
+        <package name="btrfsprogs"/>
+        <package name="busybox"/>
+        <package name="bzip2"/>
+        <package name="cryptsetup"/>
+        <package name="curl"/>
+        <package name="dialog"/>
+        <package name="dmraid"/>
+        <package name="dosfstools"/>
+        <package name="e2fsprogs"/>
+        <package name="fbiterm"/>
+        <package name="file"/>
+        <package name="fribidi"/>
+        <package name="genisoimage"/>
+        <package name="gettext-runtime"/>
+        <package name="grub2"/>
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
+        <package name="grub2-i386-efi" arch="i686"/>
+        <package name="grub2-i386-efi" arch="i586"/>
+        <package name="grub2-i386-pc"/>
+        <package name="shim" arch="x86_64"/>
+        <package name="hwinfo"/>
+        <package name="iputils"/>
+        <package name="kernel-firmware"/>
+        <package name="kexec-tools"/>
+        <package name="kiwi-tools"/>
+        <package name="kpartx"/>
+        <package name="lvm2"/>
+        <package name="make"/>
+        <package name="mdadm"/>
+        <package name="kmod-compat"/>
+        <package name="net-tools"/>
+        <package name="netcfg"/>
+        <package name="parted"/>
+        <package name="pciutils"/>
+        <package name="plymouth"/>
+        <package name="plymouth-scripts"/>
+        <package name="squashfs"/>
+        <package name="sysconfig"/>
+        <package name="sysfsutils"/>
+        <package name="syslinux"/>
+        <package name="tar"/>
+        <package name="util-linux"/>
+        <package name="xfsprogs"/>
+        <package name="diffutils"/>
+        <package name="filesystem"/>
+        <package name="glibc"/>
+        <package name="glibc-locale"/>
+        <package name="procps"/>
+        <package name="rsync"/>
+        <package name="timezone"/>
+        <package name="which"/>
+        <package name="udev"/>
+        <package name="wicked"/>
+        <package name="iproute2"/>
+        <package name="psmisc"/>
+        <package name="sysvinit-tools"/>
+        <package name="xz"/>
+    </packages>
+    <packages type="delete">
+        <package name="cracklib-dict-full"/>
+        <package name="fillup"/>
+        <package name="gdbm"/>
+        <package name="info"/>
+        <package name="insserv"/>
+        <package name="make"/>
+        <package name="mingetty"/>
+        <package name="Mesa"/>
+        <package name="openSUSE-release"/>
+        <package name="pam"/>
+        <package name="pam-modules"/>
+        <package name="perl"/>
+        <package name="perl-Bootloader"/>
+        <package name="permissions"/>
+        <package name="python"/>
+        <package name="python-base"/>
+    </packages>
+</image>

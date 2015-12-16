@@ -1,0 +1,51 @@
+#!/bin/bash
+#================
+# FILE          : preinit
+#----------------
+# PROJECT       : OpenSuSE KIWI Image System
+# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
+#               :
+# AUTHOR        : Marcus Schaefer <ms@suse.de>
+#               :
+# BELONGS TO    : Operating System images
+#               :
+# DESCRIPTION   : This file is called after the image root
+#               : has changed by the linuxrc script
+#               :
+# STATUS        : BETA
+#----------------
+#======================================
+# Functions...
+#--------------------------------------
+. /include
+
+#======================================
+# 1) start error log
+#--------------------------------------
+Echo "Calling pre-init stage in system image"
+errorLogStart
+
+#======================================
+# 2) update auth config 
+#--------------------------------------
+authconfig --updateall
+
+#======================================
+# 3) update mount table
+#--------------------------------------
+updateMTAB
+
+#======================================
+# 4) setup console
+#--------------------------------------
+setupConsole
+
+#======================================
+# 5) create framebuffer devices
+#--------------------------------------
+createFramebufferDevices
+
+#======================================
+# 6) clean mount
+#--------------------------------------
+umountSystemFilesystems

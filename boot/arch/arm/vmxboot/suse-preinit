@@ -1,0 +1,87 @@
+#!/bin/bash
+#================
+# FILE          : preinit
+#----------------
+# PROJECT       : OpenSuSE KIWI Image System
+# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
+#               :
+# AUTHOR        : Marcus Schaefer <ms@suse.de>
+#               :
+# BELONGS TO    : Operating System images
+#               :
+# DESCRIPTION   : This file is called after the image root
+#               : has changed by the linuxrc script
+#               :
+# STATUS        : BETA
+#----------------
+#======================================
+# Functions...
+#--------------------------------------
+. /include
+
+#======================================
+# 1) start error log
+#--------------------------------------
+errorLogStart
+Echo "Calling pre-init stage in system image"
+
+#======================================
+# 2) check for LOCAL_BOOT
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "yes" ];then
+    exit 0
+fi
+
+#======================================
+# 3) start udev
+#--------------------------------------
+mountSystemFilesystems
+udevSystemStart
+
+#======================================
+# 4) update mount table
+#--------------------------------------
+updateMTAB
+
+#======================================
+# 5) create framebuffer devices
+#--------------------------------------
+createFramebufferDevices
+
+#======================================
+# 6) create initrd on diskful
+#--------------------------------------
+if [ -z "$UNIONFS_CONFIG" ] && [ -z "$COMBINED_IMAGE" ]; then
+    #======================================
+    # use distro initrd tool
+    #--------------------------------------
+    setupInitrd
+else
+    #======================================
+    # use kiwi initrd from RW partition
+    #--------------------------------------
+    bootLoaderOK=1
+fi
+
+#======================================
+# 7) Install boot loader if ok
+#--------------------------------------
+if [ $bootLoaderOK = 1 ];then
+    installBootLoader
+fi
+
+#======================================
+# 8) setup console
+#--------------------------------------
+setupConsole
+
+#======================================
+# 9) Run user script
+#--------------------------------------
+runHook preCallInit
+
+#======================================
+# 10) kill udev
+#--------------------------------------
+udevSystemStop
+umountSystemFilesystems

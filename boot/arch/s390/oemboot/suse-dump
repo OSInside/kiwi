@@ -1,0 +1,1107 @@
+#!/bin/bash
+#================
+# FILE          : linuxrc
+#----------------
+# PROJECT       : OpenSuSE KIWI Image System
+# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
+#               :
+# AUTHOR        : Marcus Schaefer <ms@suse.de>
+#               :
+# BELONGS TO    : Operating System images
+#               :
+# DESCRIPTION   : This file includes functions for the OEM
+#               : installation mode. Installation means a dump of
+#               : the virtual disk file onto a preselected disk
+#               :
+#               :
+# STATUS        : BETA
+#----------------
+#
+#======================================
+# OEMNetwork
+#--------------------------------------
+function OEMNetwork {
+    # /.../
+    # setup network if pxe network installation mode was
+    # requested
+    # ----
+    #======================================
+    # load nics detected by hwinfo
+    #--------------------------------------
+    loadNetworkCard
+    #======================================
+    # setup network via DHCP
+    #--------------------------------------
+    setupNetwork
+    #======================================
+    # find TFTP server from lease file
+    #--------------------------------------
+    pxeSetupDownloadServer
+    #======================================
+    # setup server name and blocksize
+    #--------------------------------------
+    imageBlkSize=8192
+    imageServer=$SERVER
+}
+#======================================
+# OEMFindPartitions
+#--------------------------------------
+function OEMFindPartitions {
+    # /.../
+    # find partitions without known filesystem on the given
+    # disk device and return a list containing the information
+    # device:size-KB,device:size-KB,...
+    # ----
+    unset OEMPartitions
+    local disk=$1
+    local rids=$2
+    local IFS
+    local ID="(MBR) ID"
+    if [ "$imageTableType" = "gpt" ];then
+        ID="(Mapped GPT Name) ID"
+    fi
+    disk=$(echo $disk | sed -e s@^/dev/@@)
+    for i in $(cat /proc/partitions |\
+        grep -E $disk.+ | sed "s/^ *//;s/ *$//;s/ \{1,\}/:/g" |\
+        cut -f3,4 -d:)
+    do
+        local device=/dev/$(echo $i | cut -f2 -d:)
+        local kbsize=$(echo $i | cut -f1 -d:)
+        local mbsize=$((kbsize / 1024))
+        local partid=$(partitionID /dev/$disk $(nd $device))
+        local labels=""
+        local deviceOK=0
+        for i in $(echo $rids | tr , ' ');do
+            req_psize=$(echo $i | cut -f1 -d:)
+            req_label=$(echo $i | cut -f2 -d:)
+            req_partid=$(echo $i | cut -f3 -d:)
+            if [ $partid = $req_partid ] && [ $mbsize -gt $req_psize ];then
+                if [ -z "$labels" ];then
+                    labels=$req_label
+                else
+                    labels=$labels:$req_label
+                fi
+                deviceOK=1 ; break
+            fi
+        done
+        if [ $deviceOK -eq 0 ];then
+            Echo "Partition $device with $ID $partid and size $mbsize skipped"
+            Echo "Partition ID mismatch and/or size too small"
+            Echo "Searched in range: $rids"
+            continue
+        fi
+        local fsuuid=$(blkid $device -s UUID -o value)
+        if [ ! -z "$fsuuid" ];then
+            Echo "Partition $device with $ID $partid and size $mbsize skipped"
+            Echo "Partition contains the filesystem UUID: $fsuuid"
+            continue
+        fi
+        if [ -z "$OEMPartitions" ];then
+            OEMPartitions=$device:$mbsize:$partid:$labels
+        else
+            OEMPartitions=$OEMPartitions,$device:$mbsize:$partid:$labels
+        fi
+    done
+}
+#======================================
+# OEMInstall
+#--------------------------------------
+function OEMInstall {
+    # /.../
+    # Installation mode: find a usable disk to install the image
+    # on. The install image is a virtual disk. The system will be
+    # rebooted at the end of this function
+    # ----
+    local count=0
+    local dsize=0
+    local index=0
+    local message
+    local prefix
+    #======================================
+    # Check for install mode indicator file
+    #--------------------------------------
+    if [ ! -f $VMX_SYSTEM ];then
+        return
+    fi
+    #======================================
+    # Check partition ID meta data
+    #--------------------------------------
+    if [ ! -f $PART_IDS ];then
+        systemException \
+            "Couldn't find partition IDs meta data... abort" \
+        "reboot"
+    fi
+    #======================================
+    # Import partition ID meta data
+    #--------------------------------------
+    importFile < $PART_IDS
+    #======================================
+    # Check for install mode combination
+    #--------------------------------------
+    if [ ! -z "$kiwi_oempartition_install" ] && [ ! -z "$pxe" ];then
+        systemException \
+            "Partition install via remote interface is not supported" \
+        "reboot"
+    fi
+    #======================================
+    # Display license if text exists
+    #--------------------------------------
+    displayEULA
+    #======================================
+    # Run user script
+    #--------------------------------------
+    runHook preHWdetect
+    #======================================
+    # Search CD/DVD/DISK and mount it
+    #--------------------------------------
+    waitForIdleEventQueue
+    if [ -z "$pxe" ];then
+        Echo "Searching for install media on disk drive(s)..."
+        if ! searchBIOSBootDevice;then
+            Echo "Searching for install media on CD/DVD drive"
+            searchImageISODevice
+            Echo "Found Install CD/DVD: $biosBootDevice"
+            kiwiMount "$biosBootDevice" "/cdrom" "-o ro" 1>&2
+            export OEMInstallType=CD
+            export imageDiskDevice=$biosBootDevice
+        else
+            Echo "Found Install Disk: $biosBootDevice"
+            mkdir -p /cdrom
+            mount $(ddn $biosBootDevice $kiwi_InstallRootPart) /cdrom
+            export OEMInstallType=DISK
+            export imageDiskDevice=$biosBootDevice
+        fi
+    else
+        OEMNetwork
+        startDropBear
+        export OEMInstallType=PXE
+    fi
+    #======================================
+    # Search and ask for the install disk
+    #--------------------------------------
+    Echo "Searching harddrive for $OEMInstallType installation"
+    hwinfo=/usr/sbin/hwinfo
+    deviceDisks=$($hwinfo --disk | \
+        grep 'Device File:' | cut -f2 -d: | cut -f1 -d'(')
+    export deviceDisks=$(echo $deviceDisks)
+    #======================================
+    # Add optional ramdisk device
+    #--------------------------------------
+    if [ ! -z "$ramdisk" ];then
+        deviceDisks="$deviceDisks /dev/ram1"
+    fi
+    #======================================
+    # Add optional dmraid device(s)
+    #--------------------------------------
+    if [ "$kiwi_oemataraid_scan" = "true" ];then
+        identifyDMRaid
+    fi
+    #======================================
+    # Add optional multipath device(s)
+    #--------------------------------------
+    if [ "$kiwi_oemmultipath_scan" = "true" ];then
+        identifyMultipath
+    fi
+    #======================================
+    # Run user script
+    #--------------------------------------
+    runHook postHWdetect
+    #======================================
+    # Sort devices by capabilities
+    #--------------------------------------
+    for i in $deviceDisks;do
+        #======================================
+        # sort out the boot device
+        #--------------------------------------
+        if [ ! -z "$imageDiskDevice" ] && [ "$i" = "$imageDiskDevice" ];then
+            continue
+        fi
+        #======================================
+        # Can we read chunks from it
+        #--------------------------------------
+        if ! dd if=$i of=/dev/null bs=1 count=1 &>/dev/null;then
+            Echo "Can't read from device $i... skipped"
+            continue
+        fi
+        #======================================
+        # Does it provide a real serial ID
+        #--------------------------------------
+        serial=$(dmraid -b $i | cut -f2 -d,)
+        if [ "$serial" = "N/A" ];then
+            Echo "Can't find serial device identifier for $i... skipped"
+            continue
+        fi
+        #======================================
+        # Does it survive the filter rule
+        #--------------------------------------
+        if [ ! -z "$kiwi_oemdevicefilter" ];then
+            if [[ $i =~ $kiwi_oemdevicefilter ]];then
+                Echo "$i filtered out by rule: $kiwi_oemdevicefilter"
+                continue
+            fi
+        fi
+        deviceDisks_new="$deviceDisks_new $i"
+    done
+    #======================================
+    # Sort devices by name
+    #--------------------------------------
+    deviceDisks=$(for i in $deviceDisks_new; do echo $i;done | sort | xargs)
+    #======================================
+    # We need at least one device left
+    #--------------------------------------
+    if [ -z "$deviceDisks" ];then
+        systemException \
+            "No device(s) for installation found... abort" \
+        "reboot"
+    fi
+    #======================================
+    # Process devices for user selection
+    #--------------------------------------
+    count=0
+    for i in $deviceDisks;do
+        dbyid=$(getDiskID $i)
+        dsize=$(partitionSize $dbyid)
+        dsizeMB=$((dsize / 1024))
+        if [ "$dsizeMB" -gt 0 ];then
+            Echo -b "Disk $count -> $i [ $dsizeMB MB ]"
+            deviceLinux[$count]=$i
+            deviceArray[$count]=$dbyid
+            deviceDSize[$count]=$dsize
+            count=$((count + 1))
+        fi
+    done
+    if [ "$count" = "1" ];then
+        #======================================
+        # Found one single disk... use it
+        #--------------------------------------
+        instDisk=${deviceArray[0]}
+    elif [ ! -z "$kiwi_oemunattended" ];then
+        #======================================
+        # Unattended mode... first disk or id
+        #--------------------------------------
+        instDisk=${deviceArray[0]}
+        if [ ! -z "$kiwi_oemunattended_id" ];then
+            identifyDevice
+        fi
+    else
+        #======================================
+        # Found multiple disks...
+        #--------------------------------------
+        hd="\"$TEXT_SELECT\""
+        count=0
+        for i in $deviceDisks;do
+            dbyid=$(getDiskID $i)
+            dsize=$(partitionSize $dbyid)
+            dsizeMB=$((dsize / 1024))
+            if [ "$dsizeMB" -gt 0 ];then
+                if [ $count = 0 ];then
+                    dpara="$dbyid \"[ $dsizeMB MB ]\" on"
+                    count=1
+                else
+                    dpara="$dpara $dbyid \"[ $dsizeMB MB ]\" off"
+                fi
+            fi
+        done
+        instDisk=$(runInteractive \
+            "--radiolist $hd 20 75 15 $dpara"
+        )
+        if [ ! $? = 0 ];then
+            systemException \
+                "System installation canceled" \
+            "reboot"
+        fi
+    fi
+    imageDevice=$instDisk
+    #======================================
+    # Setup device names for further boot
+    #--------------------------------------
+    export imageDiskExclude=$instDisk
+    export imageDiskDevice=$instDisk
+    #======================================
+    # Import vmx configuration file
+    #--------------------------------------
+    importFile < $VMX_SYSTEM
+    #======================================
+    # Evaluate OEM install file
+    #--------------------------------------
+    imageName=$(echo $IMAGE | cut -f2 -d=)
+    if [ ! -z "$pxe" ];then
+        prefix=/image
+    else
+        prefix=/squashed
+        mkdir -p $prefix
+        if ! mount -o loop /cdrom/$imageName.squashfs $prefix;then
+            systemException \
+                "Failed to mount install image container" \
+            "reboot"
+        fi
+    fi
+    imageName=$prefix/$imageName
+    imageMD5=$(echo $imageName | sed -e s@.raw@.md5@)
+    if [ ! -z "$pxe" ];then
+        imageName=$(echo $imageName | sed -e s@.raw@.xz@)
+    fi
+    OEMRootImage=$imageName
+    #======================================
+    # Search, ask for the install partition
+    #--------------------------------------
+    if [ ! -z "$kiwi_oempartition_install" ];then
+        #======================================
+        # Loop mount disk image file
+        #--------------------------------------
+        info=/tmp/partinfo
+        wmrc=/wmrc
+        loop=$(loop_setup -f --show $imageName)
+        loop=$(echo $loop | sed -e s@^/dev/@@)
+        if ! kpartx -sa /dev/$loop;then
+            systemException \
+                "Loop setup for $instDisk failed" \
+            "reboot"
+        fi
+        imageName=/dev/mapper/${loop}p1
+        reqpart=$(parted -m /dev/$loop print | grep '^[[:digit:]]' | wc -l)
+        dhd=$(parted -m /dev/$loop print | head -n 3 | tail -n 2 | head -n 1)
+        imageTableType=$(echo $dhd | cut -f6 -d:)
+        if [[ $imageTableType =~ gpt ]];then
+            imageTableType=gpt
+        fi
+        #======================================
+        # Create partition size search list
+        #--------------------------------------
+        for i in /dev/mapper/${loop}*;do
+            psize=$(partitionSize $i)
+            psize=$((psize / 1024))
+            plabel=$(blkid $i -s LABEL -o value)
+            pftype=$(blkid $i -s TYPE  -o value)
+            partnr=$(echo $i | rev | cut -c1)
+            partid=$(partitionID /dev/$loop $partnr)
+            if [ -z "$pftype" ];then
+                plabel=BIOS_GRUB
+            elif [ -z "$plabel" ];then
+                plabel=ROOT
+            fi
+            if [ -z "$req_part_info" ];then
+                req_part_info=$psize:$plabel:$partid
+            else
+                req_part_info=$req_part_info,$psize:$plabel:$partid
+            fi
+        done
+        #======================================
+        # Check ptable and provide service mode
+        #--------------------------------------
+        while true;do
+            OEMFindPartitions $(getDiskDevice $instDisk) $req_part_info
+            partitions=$OEMPartitions
+            if [ ! -z "$partitions" ];then
+                count=0
+                for i in $(echo $partitions | tr , ' ');do
+                    count=$((count + 1))
+                done
+            fi
+            if [ -z "$partitions" ] || [ $count -lt $reqpart ];then
+                #======================================
+                # Print partition user information
+                #--------------------------------------
+                if [ -z "$partitions" ];then
+                    echo "No suitable partition(s) for installation found:" \
+                         > $info
+                else
+                    echo "Not enough partitions for installation found:" \
+                         > $info
+                    echo "Found $count but required $reqpart"        >> $info
+                fi
+                echo "Please prepare your disk first:"               >> $info
+                echo >> $info
+                echo "kiwi requires $reqpart partition(s) as listed" >> $info
+                echo "below without any filesystem inside !"         >> $info
+                echo >> $info
+                for i in $(echo $req_part_info | tr , ' ');do
+                    psize=$(echo $i | cut -f1 -d:)
+                    partname=$(echo $i | cut -f2 -d:)
+                    partid=$(echo $i | cut -f3 -d:)
+                    echo "* $partname partition requires at least $psize MB" \
+                        >> $info
+                    if [ ! $imageTableType = "gpt" ];then
+                        echo "  Partition Type (parted): 0x$partid" >> $info
+                    else
+                        echo "  Partition Type (gdisk): $partid" >> $info
+                    fi
+                done
+                systemException \
+                    "Partition setup required, for details call: cat $info" \
+                "shell"
+                continue
+            fi
+            #======================================
+            # Partition setup fine, proceed
+            #--------------------------------------
+            break
+        done
+        #======================================
+        # Do we have a LVM image...
+        #--------------------------------------
+        if [ "$kiwi_lvm" = "true" ];then
+            export haveLVM=yes
+        fi
+        #======================================
+        # Select all required partitions
+        #--------------------------------------
+        if [ $count -eq $reqpart ] && [ $reqpart -eq 1 ];then
+            #======================================
+            # There is only one free and required
+            #--------------------------------------
+            pname=$(echo $partitions | cut -f1 -d:)
+            imageDevice=$pname
+            rID=$(nd $pname)
+            instItems[0]=/dev/mapper/${loop}p1
+            instPaths[0]=$imageDevice
+        else
+            #======================================
+            # There is a choice, let the user do it
+            #--------------------------------------
+            for p in /dev/mapper/${loop}*;do
+                plabel=$(blkid $p -s LABEL -o value)
+                pftype=$(blkid $p -s TYPE  -o value)
+                if [ -z "$pftype" ];then
+                    plabel=BIOS_GRUB
+                elif [ -z "$plabel" ];then
+                    plabel=ROOT
+                fi
+                if [ $plabel = "ROOT" ];then
+                    pdevs[0]=$p:$plabel
+                elif [ $plabel = "BIOS_GRUB" ];then
+                    pdevs[1]=$p:$plabel
+                elif [ $plabel = "EFI" ];then
+                    pdevs[2]=$p:$plabel
+                elif [ $plabel = "BOOT" ];then
+                    pdevs[3]=$p:$plabel
+                fi
+            done
+            item=0
+            for p in ${pdevs[*]};do
+                originalPart=$(echo $p | cut -f1 -d:)
+                selectedText=$(echo $p | cut -f2 -d:)
+                selectedMSG="Select %1 partition for installation:"
+                TEXT_SELECT=$(
+                    getText "$selectedMSG" $selectedText)
+                count=0
+                for i in $(echo $partitions | tr , ' ');do
+                    plabel=$(echo $i | cut -f4- -d:)
+                    if [[ $plabel =~ $selectedText ]];then
+                        psize=$(echo $i | cut -f2 -d:)
+                        pname=$(echo $i | cut -f1 -d:)
+                        if [ $count -eq 0 ];then
+                            dpara="$pname \"[ $psize MB ]\" on"
+                        else
+                            dpara="$dpara $pname \"[ $psize MB ]\" off"
+                        fi
+                        count=$((count + 1))
+                    fi
+                done
+                if [ $count -eq 1 ];then
+                    selectedPart=$pname
+                else
+                    selectedPart=$(runInteractive \
+                        "--radiolist \"$TEXT_SELECT\" 20 75 15 $dpara"
+                    )
+                    if [ ! $? = 0 ];then
+                        systemException \
+                            "System installation canceled" \
+                        "reboot"
+                    fi
+                fi
+                count=0
+                for i in $(echo $partitions | tr , ' ');do
+                    pname=$(echo $i | cut -f1 -d:)
+                    if [ ! $pname = $selectedPart ];then
+                        if [ $count -eq 0 ];then
+                            partitions_next=$i
+                        else
+                            partitions_next=$partitions_next,$i
+                        fi
+                        count=$((count + 1))
+                    fi
+                done
+                partitions=$partitions_next
+                if [ $selectedText = "BOOT" ];then
+                    bID=$(nd $selectedPart)
+                fi
+                if [ $selectedText = "ROOT" ];then
+                    rID=$(nd $selectedPart)
+                fi
+                instItems[$item]=$originalPart
+                instPaths[$item]=$selectedPart
+                item=$((item + 1))
+            done
+        fi
+        #======================================
+        # Search for a swap space
+        #--------------------------------------
+        sID=$(searchSwapSpace)
+        if [ ! -z "$sID" ];then
+            sID=$(nd $sID)
+        else
+            sID=no
+        fi
+        #======================================
+        # Setup device names for further boot
+        #--------------------------------------
+        # /.../
+        # no support for reocvery partition in
+        # partition install mode
+        # ----
+        export DONT_PARTITION=1
+        unset  kiwi_oemrecovery
+        if [ -z "$bID" ];then
+            bID=$rID
+        fi
+        if [ "$haveLVM" = "yes" ];then
+            setupDeviceNames $rID $sID no $bID no $kiwi_lvmgroup
+        else
+            setupDeviceNames $rID $sID no $bID no
+        fi
+    else
+        instItems[0]=$imageName
+        instPaths[0]=$imageDevice
+    fi
+    #======================================
+    # Checks and MD5 sums...
+    #--------------------------------------
+    if [ -z "$kiwi_oempartition_install" ];then
+        #======================================
+        # Check MBR ID's...
+        #--------------------------------------
+        # /.../
+        # mbr ID check is deactivated by default
+        # see bug #525682 for details
+        # ----
+        nombridcheck=1
+        if [ -z "$nombridcheck" ];then
+            mbrD=$instDisk
+            mbrI="cat $imageName"
+            mbrM=$(dd if=$mbrD bs=1 count=4 \
+                skip=$((0x1b8))|hexdump -n4 -e '"0x%x"')
+            mbrI=$($mbrI | dd  bs=1 count=4 \
+                skip=$((0x1b8))|hexdump -n4 -e '"0x%x"')
+            if [ $mbrM = $mbrI ];then
+                systemException \
+                    "Base system already installed" \
+                "reboot"
+            fi
+        fi
+        #======================================
+        # read MD5 information if PXE install
+        #--------------------------------------
+        if [ ! -z "$pxe" ];then
+            multicast="disable"
+            fetchFile $imageMD5 /etc/image.md5 uncompressed $imageServer
+            if test $loadCode != 0 || ! loadOK "$loadStatus";then
+                systemException \
+                    "Download of $imageMD5 failed: $loadStatus" \
+                "reboot"
+            fi
+            imageMD5=/etc/image.md5
+        fi
+    fi
+    #======================================
+    # Run user script
+    #--------------------------------------
+    runHook preImageDump
+    #======================================
+    # Warn me before performing the install
+    #--------------------------------------
+    for i in ${instPaths[*]}; do
+        items="$items,$i"
+    done
+    items=$(echo $items | sed -e s@^,@@)
+    Echo "Entering installation mode for disk: $items"
+    if [ -z "$kiwi_oemunattended" ];then
+        inst_info=$items
+        if [ -z "$kiwi_oempartition_install" ];then
+            inst_info=$(basename $items)
+        fi
+        TEXT_INST=$(
+            getText "Destroying ALL data on %1, continue ?" $inst_info)
+
+        Dialog --yesno "\"$TEXT_INST\"" 5 80
+        if [ ! $? = 0 ];then
+            systemException \
+                "System installation canceled" \
+            "user_reboot"
+        fi
+    fi
+    clear
+    #======================================
+    # Clear superblocks on mdraid setup
+    #--------------------------------------
+    zeroMDRaidSuperBlock $instDisk
+    #======================================
+    # Perform the installation
+    #--------------------------------------
+    instIndex=0
+    while [ $instIndex -lt ${#instItems[*]} ];do
+        #======================================
+        # Setup source and target data
+        #--------------------------------------
+        Source=${instItems[$instIndex]}
+        Target=${instPaths[$instIndex]}
+        if [ -z "$kiwi_oempartition_install" ];then
+            if ! read sum1 blocks blocksize zblocks zblocksize < $imageMD5;then
+                systemException \
+                    "Reading of $imageMD5 failed" \
+                "reboot"
+            fi
+        else
+            blocksize=4096
+            partKB=$(partitionSize $Source)
+            partBT=$((partKB * 1024))
+            blocks=$((partBT / blocksize))
+        fi
+        #======================================
+        # Get available disk space
+        #--------------------------------------
+        haveKByte=`partitionSize $Target`
+        #======================================
+        # Get required disk space, setup I/O
+        #--------------------------------------
+        needBytes=$((blocks * blocksize))
+        needKByte=$((needBytes / 1024))
+        needMByte=$((needKByte / 1024))
+        #======================================
+        # Check disk space...
+        #--------------------------------------
+        haveMByte=$((haveKByte / 1024))
+        needMByte=$((needKByte / 1024))
+        Echo "Have size: $Target -> $haveMByte MB"
+        Echo "Need size: $Source -> $needMByte MB"
+        if [ $needMByte -gt $haveMByte ];then
+            systemException \
+                "Not enough space available for this image" \
+            "reboot"
+        fi
+        #======================================
+        # Dump image(s) on disk
+        #--------------------------------------
+        if [ -z "$pxe" ];then
+            dump="cat $Source"
+            if [ -x /usr/bin/dcounter ];then
+                if [ ! -z "$kiwi_oempartition_install" ];then
+                    progressP=$(echo $Source | cut -f5 -dp)
+                    progressBaseName="$(basename $OEMRootImage) [p$progressP]"
+                else
+                    progressBaseName=$(basename $Source)
+                fi
+                TEXT_LOAD=$(getText "Loading %1" "$progressBaseName")
+                dump="$dump | dcounter -s $needMByte -l \"$TEXT_LOAD \""
+            fi
+            Echo "Loading $Source [$Target] "
+            if [ -x /usr/bin/dcounter ] && [ -z "$kiwi_oemsilentinstall" ];then
+                test -e /progress || mkfifo /progress
+                Echo "Calling: eval $dump 2>/progress|dd bs=32k of=$Target"
+                errorLogStop
+                (
+                    if ! eval $dump 2>/progress|dd bs=32k of=$Target &>/dev/null
+                    then
+                        errorLogContinue
+                        systemException \
+                            "Failed to install image: $Source -> $Target" \
+                        "reboot"
+                    fi
+                )&
+                dump_pid=$!
+                hideSplash
+                echo "cat /progress | dialog \
+                    --backtitle \"$TEXT_INSTALLTITLE\" \
+                    --progressbox 3 65
+                " > /tmp/progress.sh
+                if FBOK;then
+                    fbiterm -m $UFONT -- bash -e /tmp/progress.sh || \
+                    bash -e /tmp/progress.sh
+                else
+                    bash -e /tmp/progress.sh
+                fi
+                wait $dump_pid
+                clear
+            else
+                if ! eval $dump | dd bs=32k of=$Target &>/dev/null; then
+                    systemException \
+                        "Failed to install image: $Source -> $Target" \
+                    "reboot"
+                fi
+            fi
+            if [ -x /usr/bin/dcounter ];then
+                errorLogContinue
+            fi
+        else
+            multicast="disable"
+            Echo "Loading $Source [$Target BS:$imageBlkSize Byte]..."
+            fetchFile $Source $Target compressed-xz $imageServer
+            if test $loadCode != 0 || ! loadOK "$loadStatus";then
+                systemException \
+                    "Download of $imageName failed: $loadStatus" \
+                "reboot"
+            fi
+        fi
+        instIndex=$((instIndex + 1))
+    done
+    #======================================
+    # Clear loops if required
+    #--------------------------------------
+    if [ ! -z "$kiwi_oempartition_install" ];then
+        dmsetup remove_all
+        loop_delete /dev/$loop
+    fi
+    #======================================
+    # Check the md5sum of the raw disk
+    #--------------------------------------
+    if [ -z "$kiwi_oempartition_install" ] && [ -z "$kiwi_oemskipverify" ];then
+        Echo "Install complete, checking data..."
+        verifyBytes=$((blocks * blocksize))
+        verifyMByte=$((verifyBytes / 1048576))
+        if [ -x /usr/bin/dcounter ] && [ -z "$kiwi_oemsilentverify" ];then
+            test -e /progress || mkfifo /progress
+            TEXT_VERIFY=$(getText "Verifying %1" $(basename $imageDevice))
+            echo "$TEXT_VERIFY ( 0% )" > /progress &
+            dump="cat $imageDevice"
+            dump="$dump | dcounter -s $verifyMByte -l \"$TEXT_VERIFY \""
+            errorLogStop
+            (
+                eval $dump 2>/progress |\
+                    head --bytes=$verifyBytes | md5sum - > /etc/ireal.md5
+            )&
+            dump_pid=$!
+            hideSplash
+            echo "cat /progress | dialog \
+                --backtitle \"$TEXT_INSTALLTITLE\" \
+                --progressbox 3 65
+            " > /tmp/progress.sh
+            if FBOK;then
+                fbiterm -m $UFONT -- bash -e /tmp/progress.sh || \
+                bash -e /tmp/progress.sh
+            else
+                bash -e /tmp/progress.sh
+            fi
+            wait $dump_pid
+            clear
+            errorLogContinue
+        else
+            dd if=$imageDevice bs=1024 |\
+                head --bytes=$verifyBytes |\
+                md5sum - > /etc/ireal.md5
+        fi
+        read sum2 dumy < /etc/ireal.md5
+        if [ $sum1 != $sum2 ];then
+            systemException \
+                "Image checksum test failed" \
+            "reboot"
+        fi
+        Echo "Image checksum test: fine :-)"
+        Echo "System installation has finished"
+    fi
+    #======================================
+    # Run user script
+    #--------------------------------------
+    runHook postImageDump
+    #======================================
+    # Umount CD/DVD USB
+    #--------------------------------------
+    if [ -z "$pxe" ];then
+        umount /squashed
+        umount /cdrom
+    fi
+    #======================================
+    # Reread partition table
+    #--------------------------------------
+    if [ -z "$kiwi_oempartition_install" ];then
+        blockdev --rereadpt $imageDevice
+        if echo $imageDevice | grep -q "^\/dev\/ram";then
+            kpartx -sa $imageDevice
+        fi
+        deviceTest=$(ddn $imageDevice 1)
+        if ! waitForStorageDevice $deviceTest;then
+            systemException \
+                "Partition $deviceTest doesn't appear... fatal !" \
+            "reboot"
+        fi
+    fi
+    #======================================
+    # Release network on PXE install
+    #--------------------------------------
+    if [ ! -z "$pxe" ];then
+        dhcpcd -p -k $PXE_IFACE
+    fi
+    #======================================
+    # create recovery archive if requested
+    #--------------------------------------
+    if [ ! -z "$kiwi_oemrecoveryInPlace" ];then
+        setupInitialDeviceNames
+        if ! mountSystem $imageRootDevice;then
+            systemException "Failed to mount root filesystem" "reboot"
+        fi
+        if [ ! -f /mnt/recovery.partition.size ];then
+            systemException "Can't find recovery part size info" "reboot"
+        fi
+        recoMByte=$(cat /mnt/recovery.partition.size)
+        recoBytes=$((recoMByte - 100))
+        recoBytes=$((recoBytes * 1048576))
+        haveMByte=$(
+            df -B1M $imageRootDevice | tail -n 1 | column -t |\
+            sed -e s@"  "@:@g | cut -f 4 -d:
+        )
+        if [ "$haveMByte" -gt "$recoMByte" ];then
+            pushd /mnt &>/dev/null
+            Echo "Creating recovery root tarball..."
+            test -e /progress || mkfifo /progress
+            test -e /usr/bin/mst || cp /usr/bin/tail /usr/bin/mst
+            (
+                touch recovery.tar.gz
+                tar --numeric-owner -czpf recovery.tar.gz . \
+                    --exclude "./dev" \
+                    --exclude "./proc" \
+                    --exclude "./sys" \
+                    --exclude "./recovery.*" &
+                rPID=$!
+                while kill -0 $rPID &>/dev/null;do
+                    rReady=$(stat --format="%s" ./recovery.tar.gz)
+                    if [ $rReady -eq 0 ];then
+                        continue
+                    fi
+                    rPDone=$(echo "scale=4; $recoBytes / $rReady" | bc)
+                    rPDone=$(echo "scale=0; 100 / $rPDone" | bc)
+                    getText "archiving: %1" "$rPDone%" > /progress
+                    sleep 1
+                done
+                dPID=$(pidof mst)
+                kill $dPID
+            )&
+            dump_pid=$!
+            hideSplash
+            echo "mst -f /progress | dialog \
+                --backtitle \"$TEXT_INSTALLTITLE\" \
+                --progressbox 3 50
+            " > /tmp/progress.sh
+            if FBOK;then
+                fbiterm -m $UFONT -- bash -e /tmp/progress.sh || \
+                bash -e /tmp/progress.sh
+            else
+                bash -e /tmp/progress.sh
+            fi
+            wait $dump_pid
+            popd &>/dev/null
+            clear
+        else
+            Echo "Not enough space left to create recovery archive"
+            Echo "=> Warning: Postponed after repartitioning is done"
+            Echo "=> Warning: This moves the archive creation to first boot"
+        fi
+        umountSystem
+    fi
+    #======================================
+    # Check for bootwait request
+    #--------------------------------------
+    if [ ! -z "$kiwi_oembootwait" ];then
+        if [ "$OEMInstallType" = "CD" ];then
+            TEXT_DUMP=$TEXT_CDPULL
+        else
+            TEXT_DUMP=$TEXT_USBPULL
+        fi
+        if [ "$OEMInstallType" = "CD" ];then
+            CDEject
+        fi
+        Dialog \
+            --backtitle \"$TEXT_INSTALLTITLE\" \
+            --msgbox "\"$TEXT_DUMP\"" 5 70
+                systemException "Reboot requested after image installation" \
+                        "user_reboot"
+    fi
+}
+
+#======================================
+# identifyDevice
+#--------------------------------------
+function identifyDevice {
+    local ux_device
+    local id_device
+    local prefix
+    local device
+    local count=0
+    local found=0
+    #======================================
+    # search for given id
+    #--------------------------------------
+    for prefix in by-id by-path by-uuid by-label;do
+        id_device=/dev/disk/$prefix/$kiwi_oemunattended_id
+        if [ -e $id_device ];then
+            ux_device=$(getDiskDevice $id_device)
+            found=1
+            break
+        fi
+    done
+    if [ $found -eq 0 ];then
+        id_device=/dev/mapper/$kiwi_oemunattended_id
+        if [ -e $id_device ];then
+            ux_device=$(getDiskDevice $id_device)
+            found=1
+            break
+        fi
+    fi
+    if [ $found -eq 0 ];then
+        systemException \
+            "Storage ID: $kiwi_oemunattended_id not found" \
+        "reboot"
+    fi
+    #======================================
+    # find index for device in deviceArray
+    #--------------------------------------
+    for device in ${deviceLinux[*]}; do
+        if [ "$device" = "$ux_device" ];then
+            instDisk=${deviceArray[$count]}
+            break
+        fi
+        count=$((count + 1))
+    done
+    if [ ! -e "$instDisk" ];then
+        systemException \
+            "Storage ID: $instDisk not found" \
+        "reboot"
+    fi
+}
+
+#======================================
+# identifyMultipath
+#--------------------------------------
+function identifyMultipath {
+    local device_disks=$deviceDisks
+    local device_disks_new
+    local disk
+    local wwn
+    #======================================
+    # start the multipath daemon
+    #--------------------------------------
+    local wwid_timeout=3
+    if ! startMultipathd; then
+        return
+    fi
+    #======================================
+    # strip list of disk devices
+    #--------------------------------------
+    # keep only non multipath devices in the list
+    for disk in $device_disks;do
+        if ! multipath -c $disk &>/dev/null;then
+            device_disks_new="$device_disks_new $disk"
+        fi
+    done
+    #======================================
+    # add multipath devices to the list
+    #--------------------------------------
+    for wwn in $(multipath -l -v1);do
+        disk=/dev/mapper/$wwn
+        if [ -e $disk ];then
+            device_disks_new="$device_disks_new $disk"
+        fi
+    done
+    #======================================
+    # return with new disk list
+    #--------------------------------------
+    deviceDisks=$device_disks_new
+}
+
+#======================================
+# identifyDMRaid
+#--------------------------------------
+function identifyDMRaid {
+    local count=-1
+    local index=0
+    local found=0
+    local mapped=0
+    local dmdevs
+    local dmraid
+    local device
+    local device_clean
+    local device_disks
+    local device_disks_new
+    #======================================
+    # check the tool
+    #--------------------------------------
+    if ! lookup dmraid &>/dev/null;then
+        Echo "identifyDMRaid: dmraid tool not found"
+        return
+    fi
+    #======================================
+    # check for raid disks
+    #--------------------------------------
+    if ! dmraid -s &>/dev/null;then
+        Echo "identifyDMRaid: no raid disks found"
+        return
+    fi
+    #======================================
+    # activate raid disks
+    #--------------------------------------
+    dmraid -a y
+    #======================================
+    # wait for devices to settle
+    #--------------------------------------
+    udevPending
+    #======================================
+    # search raid devices and store them
+    #--------------------------------------
+    for i in $(dmraid -s -ccc);do
+        if [ $(echo $i | cut -c1) = "/" ];then
+            device=$(echo $i | cut -f1 -d:)
+            if [ ! -z "${dmdevs[$count]}" ];then
+                dmdevs[$count]="${dmdevs[$count]} $device"
+            else
+                dmdevs[$count]="$device"
+            fi
+        else
+            count=$((count + 1))
+            dmraid[$count]=$(echo $i | cut -f1 -d:)
+        fi
+    done
+    if [ $count -eq -1 ];then
+        return
+    fi
+    #======================================
+    # lookup raid devices and add them
+    #--------------------------------------
+    device_disks=$deviceDisks
+    while true;do
+        if [ -b /dev/mapper/${dmraid[$index]} ];then
+            device_disks="$device_disks /dev/mapper/${dmraid[$index]}"
+            device_clean="$device_clean ${dmdevs[$index]}"
+            mapped=$((mapped + 1))
+        fi
+        if [ $index -eq $count ];then
+            break
+        fi
+        index=$((index + 1))
+    done
+    if [ $mapped -eq 0 ];then
+        dmraid -a n
+        return
+    fi
+    #======================================
+    # remove mapped devices from list
+    #--------------------------------------
+    for i in $device_disks;do
+        found=0
+        for n in $device_clean;do
+            if [ $i = $n ];then
+                found=1; break
+            fi
+        done
+        if [ $found -eq 0 ];then
+            device_disks_new="$device_disks_new $i"
+        fi
+    done
+    #======================================
+    # start event monitoring
+    #--------------------------------------
+    mdmon --all --takeover
+    #======================================
+    # return with new disk list
+    #--------------------------------------
+    deviceDisks=$device_disks_new
+}
+
+# vim: set noexpandtab:

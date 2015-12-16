@@ -1,0 +1,703 @@
+#!/bin/bash
+#================
+# FILE          : linuxrc
+#----------------
+# PROJECT       : OpenSuSE KIWI Image System
+# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
+#               :
+# AUTHOR        : Marcus Schaefer <ms@suse.de>
+#               :
+# BELONGS TO    : Operating System images
+#               :
+# DESCRIPTION   : This file is changed to become the real
+#               : linuxrc script which is used to prepare the
+#               : operating system for the main image
+#               :
+#               :
+# STATUS        : BETA
+#----------------
+#======================================
+# Exports (General)...
+#--------------------------------------
+export PATH="/sbin:/bin:/usr/sbin:/usr/bin"
+export IFS_ORIG=$IFS
+export DEBUG=0
+export DOBACKUP=1
+
+#======================================
+# Exports (Booting)
+#--------------------------------------
+export INITRD_MODULES=""
+export LOCAL_BOOT=no
+export systemIntegrity="clean"
+
+#======================================
+# Exports (Configuration)
+#--------------------------------------
+export VMX_SYSTEM="/config.vmxsystem"
+export PART_IDS="/config.partids"
+
+#======================================
+# Exports kernel options
+#--------------------------------------
+export kernel_cmdline=($@)
+
+#======================================
+# Functions...
+#--------------------------------------
+. /include
+. /repart
+. /dump
+initialize
+
+#======================================
+# Start logging
+#--------------------------------------
+errorLogStart
+
+#======================================
+# Functions...
+#--------------------------------------
+function setupInitialDeviceNames {
+    #======================================
+    # Check for DONT_PARTITION variable
+    #--------------------------------------
+    if [ ! -z "$DONT_PARTITION" ];then
+        return
+    fi
+    #======================================
+    # Check boot device
+    #--------------------------------------
+    if [ -z "$imageDiskDevice" ];then
+        systemException \
+            "Couldn't find any boot device... abort" \
+        "reboot"
+    fi
+    #======================================
+    # Check partition ID meta data
+    #--------------------------------------
+    if [ ! -f $PART_IDS ];then
+        systemException \
+            "Couldn't find partition IDs meta data... abort" \
+        "reboot"
+    fi
+    #======================================
+    # Import partition ID meta data
+    #--------------------------------------
+    importFile < $PART_IDS
+    #======================================
+    # Check for LVM or standard boot
+    #--------------------------------------
+    export imageBootDevice=$(ddn $imageDiskDevice $kiwi_BootPart)
+    if searchVolumeGroup; then
+        export haveLVM=yes
+        export imageRootDevice=/dev/$kiwi_lvmgroup/$kiwi_RootPartVol
+        if [ ! -z "$kiwi_ROPartVol" ];then
+            export imageRODevice=/dev/$kiwi_lvmgroup/$kiwi_ROPartVol
+        fi
+        if [ ! -z "$kiwi_RWPartVol" ];then
+            export imageRWDevice=/dev/$kiwi_lvmgroup/$kiwi_RWPartVol
+            export imageIOWRDevice=$imageRWDevice
+        fi
+    elif [ ! -z "$kiwi_RaidDev" ];then
+        if [ ! -z "$kiwi_ROPart" ] || [ ! -z "$kiwi_RWPart" ];then
+            systemException \
+                "split systems not supported in software raid mode"
+            "reboot"
+        fi
+        activateMDRaid
+        export imageRootDevice=$kiwi_RaidDev
+    else
+        export imageRootDevice=$(ddn $imageDiskDevice $kiwi_RootPart)
+        if [ ! -z "$kiwi_ROPart" ];then
+            export imageRODevice=$(ddn $imageDiskDevice $kiwi_ROPart)
+        fi
+        if [ ! -z "$kiwi_RWPart" ];then
+            export imageRWDevice=$(ddn $imageDiskDevice $kiwi_RWPart)
+            export imageIOWRDevice=$imageRWDevice
+        fi
+    fi
+    #======================================
+    # Check for recovery device
+    #--------------------------------------
+    if [ ! -z "$KIWI_RECOVERY" ];then
+        export imageRecoveryDevice=$(ddn $imageDiskDevice $KIWI_RECOVERY)
+    fi
+    #======================================
+    # Check for ram root
+    #--------------------------------------
+    if [ ! -z "$kiwi_ramonly" ];then
+        export imageRWDevice=/dev/ram1
+        export imageIOWRDevice=$imageRWDevice
+    fi
+    #======================================
+    # Probe root filesystem type
+    #--------------------------------------
+    probeFileSystem $imageRootDevice
+    #======================================
+    # Check for LUKS extension on root fs
+    #--------------------------------------
+    if [ "$FSTYPE" = "luks" ];then
+        luksOpen $imageRootDevice
+        imageRootDevice=$luksDeviceOpened
+        if [ -e /dev/$kiwi_lvmgroup/LVComp ];then
+            imageRODevice=$imageRootDevice
+        fi
+        probeFileSystem $imageRootDevice
+        export haveLuks=yes
+    fi
+    #======================================
+    # Check for LUKS extension on rw fs
+    #--------------------------------------
+    if isFSTypeReadOnly;then
+        FSTYPE_OLD=$FSTYPE
+        probeFileSystem $imageRWDevice
+        if [ "$FSTYPE" = "luks" ];then
+            export haveLuks=yes
+        fi
+        FSTYPE=$FSTYPE_OLD
+    fi
+}
+
+#======================================
+# Update library path
+#--------------------------------------
+ldconfig
+
+#======================================
+# 1) Mounting local file systems
+#--------------------------------------
+mountSystemFilesystems &>/dev/null
+if [ ! -z "$kiwi_oemsilentboot" ];then
+    test -e /proc/splash && echo verbose > /proc/splash
+    if lookup plymouthd &>/dev/null;then
+        plymouth hide-splash
+    fi
+fi
+
+#======================================
+# 2) Prepare module load support 
+#--------------------------------------
+touch /etc/modules.conf
+touch /lib/modules/*/modules.dep
+
+#======================================
+# 3) run udevd
+#--------------------------------------
+udevStart
+
+#======================================
+# 4) Include proc/cmdline information
+#--------------------------------------
+includeKernelParameters
+if \
+    [ ! -z "$UNIONFS_CONFIG" ] || [ "$COMBINED_IMAGE" = "local" ] ||\
+    [ ! -z "$KIWI_RECOVERY" ]
+then
+    # /.../
+    # if the unionfs/combined information is already in place at this
+    # stage it comes from the cmdline data which means we are not
+    # booting from CD/DVD USB stick but want to boot the local system
+    # This also applies if we use an oem system with the recovery
+    # feature enabled
+    # ----
+    export LOCAL_BOOT="yes"
+fi
+#======================================
+# 5) start boot shell
+#--------------------------------------
+startShell
+
+#======================================
+# 6) Including required kernel modules
+#--------------------------------------
+probeDevices
+
+#======================================
+# 7) Select language if not in cmdline
+#--------------------------------------
+selectLanguage
+
+#======================================
+# 8) Search boot device...
+#--------------------------------------
+if [ -z "$pxe" ];then
+    if [ ! -z "$cdinst" ];then
+        biosBootDevice=/dev/cdrom
+    else
+        Echo "Searching for boot device..."
+        if [ "$LOCAL_BOOT" = "no" ];then
+            searchBIOSBootDevice
+            if [ ! -e "$biosBootDevice" ];then
+                searchBusIDBootDevice
+            fi
+            if [ ! -e "$biosBootDevice" ];then
+                systemException "$biosBootDevice" "reboot"
+            fi
+            setupBootDeviceIfMultipath
+            export imageDiskDevice=$biosBootDevice
+        else
+            waitForStorageDevice $disk
+            export imageDiskDevice=$(dn $disk)
+            if [ ! -z "$KIWI_RECOVERY" ];then
+                export imageRecoveryDevice=$(
+                    ddn $imageDiskDevice $KIWI_RECOVERY
+                )
+            fi
+        fi
+        Echo "Found boot device: $imageDiskDevice"
+    fi
+fi
+
+#======================================
+# 9) Check for installation mode...
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "no" ];then
+    OEMInstall
+fi
+
+#======================================
+# 10) Setup device names...
+#--------------------------------------
+setupInitialDeviceNames
+
+#======================================
+# 11) Check for read-only filesystem
+#--------------------------------------
+if isFSTypeReadOnly;then
+    setupUnionFS $imageRWDevice $imageRODevice $unionFST
+fi
+
+#======================================
+# 12) repartition the disk device
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "no" ];then
+    OEMRepart
+fi
+
+#======================================
+# 13) Resize filesystem to full space
+#--------------------------------------
+Echo "Filesystem of OEM system is: $FSTYPE -> $imageRootDevice"
+if [ "$LOCAL_BOOT" = "no" ];then
+    deviceResize=$imageRootDevice
+    fstypeRootFS=$FSTYPE
+    if [ ! -z $COMBINED_IMAGE ];then
+        deviceResize=$imageIOWRDevice
+        KIWI_INITRD_PARAMS="COMBINED_IMAGE=local"
+        probeFileSystem $deviceResize
+        export KIWI_INITRD_PARAMS
+    fi
+    if isFSTypeReadOnly && [ -z "$COMBINED_IMAGE" ];then
+        deviceResize=$imageIOWRDevice
+        KIWI_INITRD_PARAMS="UNIONFS_CONFIG=yes"
+        probeFileSystem $deviceResize
+        export KIWI_INITRD_PARAMS
+    fi
+    if [ "$haveLVM" = "yes" ] && [ ! -z "$allFreeVolume" ];then
+        if \
+            [ -z "$DONT_PARTITION" ]   && \
+            [ ! -z "$kiwi_oemrootMB" ] && \
+            [ "$allFreeVolume" != "LVRoot" ]
+        then
+            # /.../
+            # resize root filesystem prior to the resize of the
+            # allFree volume. If systemsize _and_ allFree volume
+            # is specified we have to resize both, the root
+            # filesystem and the allFree filesystem
+            # ----
+            resizeFilesystem $deviceResize
+        fi
+        deviceResize=/dev/$kiwi_lvmgroup/$allFreeVolume
+    fi
+    if [ ! -z "$deviceResize" ] && partitionSize $deviceResize &>/dev/null;then
+        if [ ! -z "$kiwi_oemrecovery" ];then
+            KIWI_INITRD_PARAMS="$KIWI_INITRD_PARAMS LOCAL_BOOT=yes"
+            export KIWI_INITRD_PARAMS
+        fi
+        if [ -z "$DONT_PARTITION" ];then
+            resizeFilesystem $deviceResize
+        fi
+    fi
+    if [ "$kiwi_oemkboot" = "true" ];then
+        if ! echo $KIWI_INITRD_PARAMS | grep -qi LOCAL_BOOT;then
+            KIWI_INITRD_PARAMS="$KIWI_INITRD_PARAMS LOCAL_BOOT=yes"
+        fi
+    fi
+    FSTYPE=$fstypeRootFS
+fi
+
+#======================================
+# 14) Mount system
+#--------------------------------------
+if [ -z "$RESTORE" ];then
+    if ! mountSystem $imageRootDevice;then
+        systemException "Failed to mount root filesystem" "reboot"
+    fi
+    validateRootTree
+fi
+
+#======================================
+# 15) Recover system if requested
+#--------------------------------------
+if [ ! -z "$KIWI_RECOVERY" ];then
+    text=$TEXT_REPAIR
+    if [ ! -z "$RESTORE" ];then
+        text=$TEXT_RESTORE
+    fi
+    Dialog --defaultno --yesno "\"$text\"" 5 50
+    if [ ! $? = 0 ];then
+        systemException "System-Recovery not started" "reboot"
+    fi
+    clear
+    Echo "Starting System-Recovery/Restore..."
+    #======================================
+    # 15.1) mount recovery partition
+    #--------------------------------------
+    runHook preRecovery
+    mkdir -p /reco-save
+    if ! mount -o ro $imageRecoveryDevice /reco-save >/dev/null;then
+        systemException "Failed to mount recovery device" "reboot"
+    fi
+    #======================================
+    # 15.2) restore MBR/LVM in restore mode
+    #--------------------------------------
+    if [ ! -z "$RESTORE" ];then
+        if ! dd if=/reco-save/disk-layout of=$imageDiskDevice;then
+            systemException "Failed to restore disk layout" "reboot"
+        fi
+        umount $imageRecoveryDevice
+        blockdev --rereadpt $imageDiskDevice
+        waitForStorageDevice $imageRecoveryDevice
+        if ! mount -o ro $imageRecoveryDevice /reco-save >/dev/null;then
+            systemException "Failed to remount recovery device" "reboot"
+        fi
+        if [ -f /reco-save/lvm ];then
+            restoreLVMPhysicalVolumes /reco-save/lvm
+            if ! vgcfgrestore -f /reco-save/lvm $kiwi_lvmgroup;then
+                systemException "Failed to restore LVM metadata" "reboot"
+            fi
+            setupInitialDeviceNames
+        fi
+    fi
+    #======================================
+    # 15.3) restore root archive
+    #--------------------------------------
+    mkfifo /progress && cp /usr/bin/tail /usr/bin/mst
+    (
+        #======================================
+        # recreate filesystem in restore mode
+        #--------------------------------------
+        if [ ! -z "$RESTORE" ];then
+            getText "Clean sweep..." > /progress
+            export FSTYPE=$(cat /reco-save/recovery.tar.filesystem)
+            createFilesystem $imageRootDevice "" $(cat /reco-save/root.uuid)
+            if ! mountSystem $imageRootDevice;then
+                Echo "Failed to mount root filesystem"
+                exit 1
+            fi
+            if [ "$FSTYPE" = "btrfs" ];then
+                if ! restoreBtrfsSubVolumes /mnt;then
+                    Echo "Failed to restore btrfs subvolumes"
+                    exit 1
+                fi
+            fi
+            for i in dev sys proc;do
+                mkdir -p /mnt/$i
+            done
+        fi
+        cd /mnt
+        #======================================
+        # store files temporary
+        #--------------------------------------
+        if [ -z "$RESTORE" ];then
+            for i in passwd shadow group;do
+                if ! cp etc/$i tmp/$i;then
+                    cd / ; umountSystem; rm -f tmp/passwd tmp/shadow tmp/group
+                    Echo "Failed to store $i"
+                    exit 1
+                fi
+            done
+            if ! cp -a etc/zypp etc/zypp.backup;then
+                rm -rf etc/zypp.backup; cd / ; umountSystem
+                Echo "Failed to backup zypp database"
+                exit 1
+            fi
+            if ! cp -a var/lib/rpm var/lib/rpm.backup;then
+                rm -rf var/lib/rpm.backup; cd / ; umountSystem
+                Echo "Failed to backup RPM database"
+                exit 1
+            fi
+        fi
+        #======================================
+        # create backup diffs
+        #--------------------------------------
+        if [ -z "$RESTORE" ] && [ "$DOBACKUP" = 1 ];then
+            getText "Clean sweep..." > /progress
+            rm -rf tmp/foobar; mkdir -p tmp/foobar
+            rm -rf tmp/backup; mkdir -p tmp/backup
+            if ! find etc/ home/ -type f 2>/dev/null |\
+                xargs tar -cO -f - 2>/dev/null |\
+                tar -v -C tmp/foobar -xf -
+            then
+                rm -rf tmp/foobar; umountSystem
+                Echo "Failed to create backup files"
+                exit 1
+            fi
+        fi
+        #======================================
+        # extract root archive
+        #--------------------------------------
+        rFiles=$(cat /reco-save/recovery.tar.files)
+        tar --numeric-owner -xvpf /reco-save/recovery.tar.gz >/tmp/rFiles &
+        rPID=$!
+        while kill -0 $rPID &>/dev/null;do
+            rReady=$(cat /tmp/rFiles | wc -l)
+            if [ $rReady -eq 0 ];then
+                continue
+            fi
+            #Echo -e -n "$rReady files from $rFiles restored...\r"
+            rFDone=$(echo "scale=4; $rFiles / $rReady" | bc)
+            rFDone=$(echo "scale=0; 100 / $rFDone" | bc)
+            getText "restoring: %1..." "$rFDone%" > /progress
+            #getText "%1 files from %2 restored..." $rReady $rFiles > /progress
+            sleep 1
+        done
+        #======================================
+        # create backup diffs
+        #--------------------------------------
+        if [ -z "$RESTORE" ] && [ "$DOBACKUP" = 1 ];then
+            rReady=0
+            rCount=0
+            getText "backing up: %1..." "0%" > /progress
+            cat /tmp/rFiles | grep -E "^(./etc|./home)" > /tmp/bFiles
+            rFilesBackup=$(cat /tmp/bFiles | wc -l)
+            for file in $(cat /tmp/bFiles);do
+                if [ ! -d $file ] && [ -e $file ] && [ -e tmp/foobar/$file ]
+                then
+                    sizeOrig=$(stat $file --printf=%s)
+                    sizeBack=$(stat tmp/foobar/$file --printf=%s)
+                    if [ $sizeOrig -ne $sizeBack ];then
+                        if ! cmp -s -n 20480 $file tmp/foobar/$file;then
+                            label=$(echo $file | cut -c 2-)
+                            txdiff=$(diff -u \
+                                --label $label $file \
+                                --label $label tmp/foobar/$file 2>/dev/null)
+                            if [ $? = 1 ];then
+                                base=$(basename $file)
+                                printf "%s\n" "$txdiff" \
+                                    > tmp/backup/$base.$rCount.diff
+                                rCount=$((rCount + 1))
+                            fi
+                        fi
+                    fi
+                fi
+                rReady=$((rReady + 1))
+                rPDone=$(echo "scale=4; $rFilesBackup / $rReady" | bc)
+                rPDone=$(echo "scale=0; 100 / $rPDone" | bc)
+                getText "backing up: %1..." "$rPDone%" > /progress
+            done
+            rm -rf tmp/foobar
+            rm -rf tmp/backup/bootloader*
+            rm -rf tmp/backup/mtab*
+            rm -rf tmp/backup/fstab*
+            rm -rf tmp/backup/kernel*
+            rm -rf tmp/backup/passwd*
+            rm -rf tmp/backup/shadow*
+            rm -rf tmp/backup/group*
+        fi
+        dPID=$(pidof mst)
+        kill $dPID
+    )&
+    dump_pid=$!
+    echo "mst -f /progress | dialog \
+        --backtitle \"$TEXT_RECOVERYTITLE\" \
+        --progressbox 3 50
+    " > /tmp/progress.sh
+    if FBOK;then
+        fbiterm -m $UFONT -- bash -e /tmp/progress.sh || \
+        bash -e /tmp/progress.sh
+    else
+        bash -e /tmp/progress.sh
+    fi
+    wait $dump_pid
+    if [ ! $? = 0 ];then
+        systemException "Recovery failed" "reboot"
+    fi
+    clear
+    #======================================
+    # 15.4) restore temporary stored files
+    #--------------------------------------
+    if [ -z "$RESTORE" ];then
+        for i in passwd shadow group;do
+            if ! mv /mnt/tmp/$i /mnt/etc/$i;then
+                systemException "Failed to restore $i" "reboot"
+            fi
+        done
+        if [ -e /mnt/etc/zypp.backup ];then
+            rm -rf /mnt/etc/zypp && mv /mnt/etc/zypp.backup /mnt/etc/zypp
+        fi
+    fi
+    #======================================
+    # 15.5) restore boot files 1
+    #--------------------------------------
+    Echo "Restoring boot configuration archive part (1)..."
+    if ! tar -xf /reco-save/boot-1.tgz -C /mnt;then
+        systemException "Failed to restore boot configuration" "reboot"
+    fi
+    #======================================
+    # 15.6) restore fstab partitions
+    #--------------------------------------
+    if [ ! -z "$RESTORE" ];then
+        imageSwapDevice=$(cat /mnt/etc/fstab | grep swap | cut -f1 -d " ")
+        imageSwapDevice=$(echo $imageSwapDevice)
+        if [ -e "$imageSwapDevice" ];then
+            if ! mkswap $imageSwapDevice 1>&2;then
+                systemException "Failed to restore swap signature" "reboot"
+            fi
+        fi
+        imageBootDevice=$(
+            cat /mnt/etc/fstab|grep /.*boot|grep -v bind | sed -r 's/\s+/:/g')
+        if [ ! -z "$imageBootDevice" ];then
+            imageBootMountP=$(echo $imageBootDevice | cut -f2 -d:)
+            imageBootDevice=$(echo $imageBootDevice | cut -f1 -d:)
+            rm -rf /mnt/boot
+            probeFileSystem $imageBootDevice
+            createFilesystem $imageBootDevice "" $(cat /reco-save/boot.uuid)
+            mkdir -p /mnt/$imageBootMountP
+            mount $imageBootDevice /mnt/$imageBootMountP
+            pushd /mnt/$imageBootMountP >/dev/null
+            ln -s . boot
+            popd >/dev/null
+        fi
+    fi
+    #======================================
+    # 15.7) restore boot files 2
+    #--------------------------------------
+    Echo "Restoring boot configuration archive part (2)..."
+    if [ ! -z "$kiwi_JumpPart" ];then
+        jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+        umount $jdev &>/dev/null
+        if ! mkdosfs -F16 -I -n 'EFI' $jdev;then
+            systemException "Failed to create EFI fat filesystem" "reboot"
+        fi
+        mkdir -p /mnt/boot/efi
+        if ! mount $jdev /mnt/boot/efi;then
+            systemException "Failed to mount EFI boot partition" "reboot"
+        fi
+    fi
+    if ! tar -xf /reco-save/boot-2.tgz -C /mnt;then
+        systemException "Failed to restore boot configuration" "reboot"
+    fi
+    if [ ! -z "$kiwi_JumpPart" ];then
+        umount $jdev
+    fi
+    #======================================
+    # 15.8) run post recovery hook
+    #--------------------------------------
+    runHook postRecovery
+    #======================================
+    # 15.9) umount recovery
+    #--------------------------------------
+    umount $imageRecoveryDevice
+    #======================================
+    # 15.10) write oem-trigger
+    #--------------------------------------
+    TDIR=/mnt/var/cache/recovery
+    TOEM=oem-trigger
+    mkdir -p $TDIR
+    echo "RECOVERY_DEVICE=$imageRecoveryDevice" > $TDIR/$TOEM
+    if [ ! -z "$RESTORE" ];then
+        echo "RECOVERY_MODE=restore" >> $TDIR/$TOEM
+    else
+        echo "RECOVERY_MODE=recover" >> $TDIR/$TOEM
+    fi
+fi
+
+#======================================
+# 16) get installed kernels
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "no" ];then
+    kernelList /mnt
+fi
+
+#======================================
+# 17) setup ird/kernel links for union
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "no" ];then 
+    setupKernelLinks
+fi
+
+#======================================
+# 18) Create system dependant files
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "no" ];then
+    #======================================
+    # setup: /etc/fstab
+    #--------------------------------------
+    setupDefaultFstab /config
+    updateRootDeviceFstab /config $imageRootDevice
+    updateBootDeviceFstab /config $imageBootDevice
+    if partitionSize $imageSwapDevice &>/dev/null;then
+        updateSwapDeviceFstab /config $imageSwapDevice
+    else
+        unset $imageSwapDevice
+    fi
+    #======================================
+    # setup: bootloader files
+    #--------------------------------------
+    Echo "Creating boot loader configuration"
+    if [ -z "$kiwi_oemtitle" ];then
+        export kiwi_oemtitle=$kiwi_displayname
+    fi
+    setupBootLoader \
+        /mnt /config $(($bootid - 1)) $imageRootDevice \
+        "$kiwi_oemtitle" $imageSwapDevice
+    setupKernelModules /config
+fi
+
+#======================================
+# 19) copy system dependant files
+#--------------------------------------
+if [ "$LOCAL_BOOT" = "no" ];then
+    setupConfigFiles
+fi
+
+#======================================
+# 20) update system dependant files
+#--------------------------------------
+setupInittab /mnt
+
+#======================================
+# 21) setup real root device
+#--------------------------------------
+echo 256 > /proc/sys/kernel/real-root-dev
+
+#======================================
+# 22) umount system filesystems
+#--------------------------------------
+umountSystemFilesystems
+
+#======================================
+# 23) copy initrd files to image
+#--------------------------------------
+if [ -f /etc/mdadm.conf ];then
+    cp /etc/mdadm.conf /mnt/etc
+fi
+cp /preinit /mnt
+cp /include /mnt
+
+#======================================
+# 24) kill boot shell
+#--------------------------------------
+killShell
+
+#======================================
+# 25) Activate new root
+#--------------------------------------
+activateImage
+
+#======================================
+# 26 Unmount initrd / system init
+#--------------------------------------
+bootImage

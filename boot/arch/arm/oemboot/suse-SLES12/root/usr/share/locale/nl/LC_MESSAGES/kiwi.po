@@ -1,0 +1,123 @@
+# translation of kiwi.nl.po to Dutch
+# @TITLE@
+# Copyright (C) 2006, SUSE Linux GmbH, Nuremberg
+#
+# This file is distributed under the same license as @PACKAGE@ package. FIRST
+#
+# Freek de Kruijf <freek@opensuse.org>, 2009, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: kiwi.nl\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2010-04-07 09:01+0200\n"
+"Last-Translator: Freek de Kruijf <freek@opensuse.org>\n"
+"Language-Team: Dutch <yast-nl-l10n@lists.sf.kovoks.nl>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural= n != 1;\n"
+
+#. /.../
+#. Copyright (c) 2005 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#. This file contains the gettext keys used within a gettext call in the
+#. boot code for KIWI 
+#.
+msgid "Boot continues in 10 sec"
+msgstr ""
+
+msgid "Enter LUKS passphrase"
+msgstr "Voer LUKS wachtwoordzin in"
+
+msgid "Do you accept the license agreement ?"
+msgstr "Accepteert u de licentieovereenkomst?"
+
+# power-off message
+msgid "Do you want to start the System-Recovery ?"
+msgstr "Wilt u het systeemherstellen starten?"
+
+# power-off message
+msgid "Do you want to start the System-Restore ?"
+msgstr "Wilt u het systeemherstel starten?"
+
+msgid "Restoring base operating system..."
+msgstr "Herstellen van het basis besturingssysteem..."
+
+msgid "Destroying ALL data on %1, continue ?"
+msgstr "ALLE gegevens op %1 worden vernietigd, doorgaan?"
+
+msgid "Clean sweep..."
+msgstr "Schoonvegen..."
+
+msgid "%1 files from %2 restored..."
+msgstr "%1 bestanden van %2 hersteld..."
+
+msgid "backing up: %1..."
+msgstr "reservekopie maken van: %1..."
+
+#, fuzzy
+msgid "archiving: %1..."
+msgstr "reservekopie maken van: %1..."
+
+#
+msgid "restoring: %1..."
+msgstr "herstellen van: %1..."
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nee"
+
+# ok button label
+msgid "OK"
+msgstr "OK"
+
+# cancel button label
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Exit"
+msgstr "Stoppen"
+
+msgid "Bootloader installation has failed"
+msgstr ""
+
+msgid ""
+"The system will not be able to reboot. Please make sure to fixup and install "
+"the bootloader before next reboot. Check /var/log/boot.kiwi for details"
+msgstr ""
+
+#, fuzzy
+msgid "Please remove the CD/DVD before reboot"
+msgstr "Gaarne de installatie cd/dvd uitwerpen alvorens door te gaan"
+
+#, fuzzy
+msgid "Please unplug the USB stick before reboot"
+msgstr "De installatie USB-stick verwijderen alvorens verder te gaan"
+
+#
+msgid "Installation..."
+msgstr "Installatie..."
+
+# progress indicator label
+msgid "Loading %1"
+msgstr "%1 wordt geladen"
+
+msgid "Verifying %1"
+msgstr ""
+
+msgid "Select disk for installation:"
+msgstr "Selecteer de schijf voor installatie:"
+
+#, fuzzy
+msgid "Select %1 partition for installation:"
+msgstr "Selecteer de schijf voor installatie:"
+
+msgid "System will be shutdown. Remove USB stick before power on"
+msgstr ""
+
+#, fuzzy
+msgid "Please remove the CD/DVD before shutdown"
+msgstr "Gaarne de installatie cd/dvd uitwerpen alvorens door te gaan"

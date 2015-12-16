@@ -1,0 +1,960 @@
+#!/bin/bash
+#================
+# FILE          : linuxrc
+#----------------
+# PROJECT       : OpenSuSE KIWI Image System
+# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
+#               :
+# AUTHOR        : Marcus Schaefer <ms@suse.de>
+#               :
+# BELONGS TO    : Operating System images
+#               :
+# DESCRIPTION   : OEM repartition code functions. This file is used
+#               : to setup the partition table according to the OEM
+#               : specifications
+#               :
+# STATUS        : BETA
+#----------------
+#======================================
+# OEMRepartInit 
+#--------------------------------------
+function OEMRepartInit {
+    # /.../
+    # calculate memory based swapsize amount and initialize
+    # size of recovery archive
+    # ----
+    #======================================
+    # initialize swap partition size
+    #--------------------------------------
+    mem_size=`grep MemTotal: /proc/meminfo | tr -dc '[0-9]'`
+    swapsize=$(( $mem_size *2 / 1024 ))
+    if [ ! -z "$kiwi_oemswapMB" ];then
+        swapsize=$kiwi_oemswapMB
+    fi
+    if [ ! "$kiwi_oemswap" = "true" ];then
+        swapsize=0
+    fi
+    #======================================
+    # initialize recovery partition size
+    #--------------------------------------
+    recoMByte=0
+    if [ ! -z "$kiwi_oemrecovery" ];then
+        if [ -z "$kiwi_oemrecoveryPartSize" ];then
+            systemException "Can't find recovery part size info" "reboot"
+        fi
+        recoMByte=$kiwi_oemrecoveryPartSize
+        recoID=83
+        if [ ! -z "$kiwi_oemrecoveryID" ];then
+            recoID=$kiwi_oemrecoveryID
+        fi
+    fi
+    export input=/part.input
+    export bootid=1
+    rm -f $input
+}
+
+#======================================
+# OEMRepartStandard
+#--------------------------------------
+function OEMRepartStandard {
+    # /.../
+    # repartition disk with read/write root filesystem
+    # Initial partition table layout is:
+    # =====================================
+    # pX:   [ boot ]
+    # pX+1: ( root )  +luks
+    # -------------------------------------
+    local newparts=0
+    local partsize=0
+    #======================================
+    # check for boot partition
+    #--------------------------------------
+    createBootDeviceData
+    #======================================
+    # calculate partition sizes
+    #--------------------------------------
+    local diskFreeMBytes=$(($(getFreeDiskBytes $imageDiskDevice) / 1048576))
+    local diskRootMBytes=$(($(partitionSize $imageRootDevice) / 1024))
+    local diskRSysMBytes
+    local minAddMBytes
+    if [ -z "$kiwi_oemrootMB" ];then
+        diskRSysMBytes=$((
+            diskRootMBytes + diskFreeMBytes - swapsize - recoMByte
+        ))
+        minAddMBytes=$((
+            swapsize + recoMByte
+        ))
+    else
+        diskRSysMBytes=$kiwi_oemrootMB
+        minAddMBytes=$((
+            swapsize + recoMByte + kiwi_oemrootMB - diskRootMBytes
+        ))
+    fi
+    if [ $minAddMBytes -lt 5 ];then
+        minAddMBytes=5
+    fi
+    #======================================
+    # 1) check repart operation
+    #--------------------------------------
+    if [ ! -z "$kiwi_oemrootMB" ];then
+        if [ $kiwi_oemrootMB -lt $diskRootMBytes ];then
+            # /.../
+            # specified oem-systemsize is smaller than root partition
+            # ----
+            Echo "Requested OEM systemsize is smaller than root partition"
+            Echo "Disk won't be re-partitioned !"
+            echo
+            Echo -b "Current Root partition: $diskRootMBytes MB"
+            Echo -b "==> Requested size: $kiwi_oemrootMB MB"
+            echo
+            disableOEMParameters
+            disableRepart
+        fi
+    fi
+    #======================================
+    # 2) check repart operation
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" -a $minAddMBytes -gt $diskFreeMBytes ];then
+        # /.../
+        # Requested sizes for root, swap and recovery
+        # exceeds free space on the disk, will not re-partition
+        # ----
+        Echo "Requested sizes exceeds free space on the disk:"
+        Echo "Disk won't be re-partitioned !"
+        echo
+        Echo -b "Minimum required additional size: $minAddMBytes MB:"
+        if [ ! -z "$kiwi_oemrootMB" ];then
+            local share=$((kiwi_oemrootMB - diskRootMBytes))
+            Echo -b "==> Root's share is: $share MB"
+        fi
+        if [ $swapsize -gt 0 ];then
+            Echo -b "==> Swap's share is: $swapsize MB"
+        fi
+        if [ $recoMByte -gt 0 ];then
+            Echo -b "==> Recovery's share is: $recoMByte MB"
+        fi
+        echo
+        Echo -b "Free Space on disk: $diskFreeMBytes MB"
+        echo
+        disableOEMParameters
+        disableRepart
+    fi
+    #======================================
+    # write new partition table
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" ];then
+        pID=$kiwi_RootPart
+        bootParam=$kiwi_BootPart
+        rootParam=$pID
+        recoParam=no
+        swapParam=no
+        cowpParam=no
+        #======================================
+        # close open device mappings
+        #--------------------------------------
+        luksClose
+        #======================================
+        # count partitions to be created
+        #--------------------------------------
+        if [ "$kiwi_oemswap" = "true" ];then
+            newparts=$((newparts + 1))
+        fi
+        if [ ! -z "$kiwi_oemrecovery" ];then
+            newparts=$((newparts + 1))
+        fi
+        #======================================
+        # repart root partition
+        #--------------------------------------
+        deactivateMDRaid
+        partsize=+"$diskRSysMBytes"M
+        if [ -z "$kiwi_oemrootMB" ] && [ $newparts -eq 0 ];then
+            partsize=.
+        fi
+        createPartitionerInput \
+            d $pID n p:lxroot $pID . $partsize
+        #======================================
+        # add swap partition
+        #--------------------------------------
+        if [ "$kiwi_oemswap" = "true" ];then
+            pID=$((pID + 1))
+            partsize=+"$swapsize"M
+            if [ -z "$kiwi_oemrootMB" ] && [ $newparts -eq 1 ];then
+                partsize=.
+            fi
+            createPartitionerInput \
+                n p:lxswap $pID . $partsize t $pID 82
+            newparts=$((newparts - 1))
+            swapParam=$pID
+        fi
+        #======================================
+        # add recovery partition
+        #--------------------------------------
+        if [ ! -z "$kiwi_oemrecovery" ];then
+            pID=$((pID + 1))
+            partsize=+"$recoMByte"M
+            createPartitionerInput \
+                n p:lxrecovery $pID . $partsize t $pID $recoID
+            newparts=$((newparts - 1))
+            recoParam=$pID
+        else
+            unset kiwi_oemrecovery
+        fi
+        #======================================
+        # setup new device names
+        #--------------------------------------
+        setupDeviceNames \
+            $rootParam $swapParam $recoParam $bootParam $cowpParam
+        callPartitioner $input
+        activateMDRaid
+        #======================================
+        # extend mdraid array if required
+        #--------------------------------------
+        resizeMDRaid
+    fi
+}
+
+#======================================
+# OEMRepartSplit
+#--------------------------------------
+function OEMRepartSplit {
+    # /.../
+    # repartition disk for overlay systems with aufs, clicfs
+    # and friends and also systems of image type split.
+    # Initial partition table layout is:
+    # =====================================
+    # pX:   ( boot )
+    # pX+1: ( RO compressed )
+    # pX+2: ( RW write area ) +luks
+    # -------------------------------------
+    local newparts=0
+    local partsize=0
+    #====================================== 
+    # no recovery support in union mode
+    #--------------------------------------
+    unset kiwi_oemrecovery
+    #======================================
+    # check for boot partition
+    #--------------------------------------
+    createBootDeviceData
+    #====================================== 
+    # check for read-write partition
+    #--------------------------------------
+    if ! partitionSize $(ddn $imageDiskDevice 3) &>/dev/null;then
+        Echo "No read-write partition in this split/overlay image"
+        disableOEMParameters
+        disableRepart
+    fi
+    if [ -z "$DONT_PARTITION" ];then
+        #======================================
+        # calculate partition sizes
+        #--------------------------------------
+        local diskFreeMBytes=$(($(getFreeDiskBytes $imageDiskDevice) / 1048576))
+        local diskRootMBytes=$(($(partitionSize $imageRWDevice) / 1024))
+        local diskRSysMBytes
+        local minAddMBytes
+        if [ -z "$kiwi_oemrootMB" ];then
+            diskRSysMBytes=$((
+                diskRootMBytes + diskFreeMBytes - swapsize
+            ))
+            minAddMBytes=$swapsize
+        else
+            diskRSysMBytes=$kiwi_oemrootMB
+            minAddMBytes=$((
+                swapsize + kiwi_oemrootMB - diskRootMBytes
+            ))
+        fi
+        if [ $minAddMBytes -lt 5 ];then
+            minAddMBytes=5
+        fi
+        #======================================
+        # 1) check repart operation
+        #--------------------------------------
+        if [ ! -z "$kiwi_oemrootMB" ];then
+            if [ $kiwi_oemrootMB -lt $diskRootMBytes ];then
+                # /.../
+                # specified oem-systemsize is smaller than RW partition
+                # ----
+                Echo "Requested OEM systemsize is smaller than RW partition"
+                Echo "Disk won't be re-partitioned !"
+                echo
+                Echo -b "Current RW partition: $diskRootMBytes MB"
+                Echo -b "==> Requested size: $kiwi_oemrootMB MB"
+                echo
+                disableOEMParameters
+                disableRepart
+            fi
+        fi
+        #======================================
+        # 2) check repart operation
+        #--------------------------------------
+        if [ -z "$DONT_PARTITION" -a $minAddMBytes -gt $diskFreeMBytes ];then
+            # /.../
+            # Requested sizes for read/write and swap
+            # exceeds free space on the disk, will not re-partition
+            # ----
+            Echo "Requested sizes exceeds free space on the disk:"
+            Echo "Disk won't be re-partitioned !"
+            echo
+            Echo -b "Minimum required additional size: $minAddMBytes MB:"
+            if [ ! -z "$kiwi_oemrootMB" ];then
+                local share=$((kiwi_oemrootMB - diskRootMBytes))
+                Echo -b "==> Root's share is: $share MB"
+            fi
+            if [ $swapsize -gt 0 ];then
+                Echo -b "==> Swap's share is: $swapsize MB"
+            fi
+            echo
+            Echo -b "Free Space on disk: $diskFreeMBytes MB"
+            echo
+            disableOEMParameters
+            disableRepart
+        fi
+    fi
+    #======================================
+    # write new partition table
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" ];then
+        pID=$kiwi_RWPart
+        bootParam=$kiwi_BootPart
+        rootParam=$kiwi_ROPart
+        cowpParam=$pID
+        swapParam=no
+        recoParam=no
+        #======================================
+        # close open device mappings
+        #--------------------------------------
+        luksClose
+        #======================================
+        # count partitions to be created
+        #--------------------------------------
+        if [ "$kiwi_oemswap" = "true" ];then
+            newparts=$((newparts + 1))
+        fi
+        #======================================
+        # repart cow partition
+        #--------------------------------------
+        partsize=+"$diskRSysMBytes"M
+        if [ -z "$kiwi_oemrootMB" ] && [ $newparts -eq 0 ];then
+            partsize=.
+        fi
+        createPartitionerInput \
+            d $pID n p:lxrw $pID . $partsize
+        #======================================
+        # add swap partition
+        #--------------------------------------
+        if [ "$kiwi_oemswap" = "true" ];then
+            pID=$((pID + 1))
+            createPartitionerInput \
+                n p:lxswap $pID . +"$swapsize"M t $pID 82
+            swapParam=$pID
+        fi
+        #======================================
+        # setup new device names
+        #--------------------------------------
+        setupDeviceNames \
+            $rootParam $swapParam $recoParam $bootParam $cowpParam
+        callPartitioner $input
+    fi
+}
+
+#======================================
+# OEMRepartLVM
+#--------------------------------------
+function OEMRepartLVM {
+    # /.../
+    # repartition disk if LVM partition plus boot partition
+    # is used. Initial partition table layout is:
+    # =====================================
+    # pX:   ( boot )
+    # pX+1: ( LVM  )  +luks
+    # -------------------------------------
+    local partsize=0
+    #======================================
+    # check for boot partition
+    #--------------------------------------
+    createBootDeviceData
+    #======================================
+    # calculate partition sizes
+    #--------------------------------------
+    local extendID
+    local LVMdevice=$kiwi_RootPart
+    local LVMdevice=$(ddn $imageDiskDevice $LVMdevice)
+    local diskFreeMBytes=$(($(getFreeDiskBytes $imageDiskDevice) / 1048576))
+    local diskRootMBytes=$(($(partitionSize $LVMdevice) / 1024))
+    local diskRSysMBytes
+    local minAddMBytes
+    if [ -z "$kiwi_oemrootMB" ];then
+        diskRSysMBytes=$((
+            diskRootMBytes + diskFreeMBytes - recoMByte
+        ))
+        minAddMBytes=$((
+            swapsize + recoMByte
+        ))
+    else
+        diskRSysMBytes=$((
+            kiwi_oemrootMB + swapsize
+        ))
+        minAddMBytes=$((
+            swapsize + recoMByte + kiwi_oemrootMB - diskRootMBytes
+        ))
+    fi
+    if [ $minAddMBytes -lt 5 ];then
+        minAddMBytes=5
+    fi
+    #======================================
+    # 1) check repart operation
+    #--------------------------------------
+    if [ ! -z "$kiwi_oemrootMB" ];then
+        if [ $kiwi_oemrootMB -lt $diskRootMBytes ];then
+            # /.../
+            # specified oem-systemsize is smaller than root partition
+            # ----
+            Echo "Requested OEM systemsize is smaller than root partition"
+            Echo "Disk won't be re-partitioned !"
+            echo
+            Echo -b "Current Root partition: $diskRootMBytes MB"
+            Echo -b "==> Requested size: $kiwi_oemrootMB MB"
+            echo
+            disableOEMParameters
+            disableRepart
+        fi
+    fi
+    #======================================
+    # 2) check repart operation
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" -a $minAddMBytes -gt $diskFreeMBytes ];then
+        # /.../
+        # Requested sizes for root, swap and recovery
+        # exceeds free space on the disk, will not re-partition
+        # ----
+        Echo "Requested sizes exceeds free space on the disk:"
+        Echo "Disk won't be re-partitioned !"
+        echo
+        Echo -b "Minimum required additional size: $minAddMBytes MB:"
+        if [ ! -z "$kiwi_oemrootMB" ];then
+            local share=$((kiwi_oemrootMB - diskRootMBytes))
+            Echo -b "==> Root's share is: $share MB"
+        fi
+        if [ $swapsize -gt 0 ];then
+            Echo -b "==> Swap's share is: $swapsize MB"
+        fi
+        if [ $recoMByte -gt 0 ];then
+            Echo -b "==> Recovery's share is: $recoMByte MB"
+        fi
+        echo
+        Echo -b "Free Space on disk: $diskFreeMBytes MB"
+        echo
+        disableOEMParameters
+        disableRepart
+    fi
+    #======================================
+    # write new partition table
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" ];then
+        pID=$kiwi_RootPart
+        bootParam=$kiwi_BootPart
+        rootParam=$pID
+        recoParam=no
+        swapParam=no
+        #======================================
+        # setup all free volume name
+        #--------------------------------------
+        export allFreeVolume=$(getAllFreeVolume)
+        #======================================
+        # close open device mappings
+        #--------------------------------------
+        deactivateVolumeGroup
+        deactivateMDRaid
+        luksClose
+        #======================================
+        # resize LVM partition
+        #--------------------------------------
+        partsize=+"$diskRSysMBytes"M
+        if [ $recoMByte -eq 0 ] && [ -z "$kiwi_oemrootMB" ];then
+            partsize=.
+        fi
+        createPartitionerInput \
+            d $pID n p:lxlvm $pID . $partsize t $pID 8e
+        extendID=$pID
+        #======================================
+        # add recovery partition
+        #--------------------------------------
+        if [ ! -z "$kiwi_oemrecovery" ];then
+            pID=$((pID + 1))
+            partsize=+"$recoMByte"M
+            createPartitionerInput \
+                n p:lxrecovery $pID . $partsize t $pID $recoID
+            recoParam=$pID
+        else
+            unset kiwi_oemrecovery
+        fi
+        #======================================
+        # setup new device names
+        #--------------------------------------
+        setupDeviceNames \
+            1 $swapParam $recoParam $bootParam yes $kiwi_lvmgroup
+        callPartitioner $input
+        waitForStorageDevice $(ddn $imageDiskDevice $extendID)
+        luksOpen
+        activateMDRaid
+        deactivateVolumeGroup
+        #======================================
+        # extend LUKS if required
+        #--------------------------------------
+        luksResize
+        #======================================
+        # extend mdraid array if required
+        #--------------------------------------
+        resizeMDRaid
+        #======================================
+        # extend volume group with rest space
+        #--------------------------------------
+        resizeLVMPVs $extendID
+        #======================================
+        # activate volume group $kiwi_lvmgroup
+        #--------------------------------------
+        activateVolumeGroup
+        #======================================
+        # Add LVSwap if requested.
+        #--------------------------------------
+        if [ "$kiwi_oemswap" = "true" ];then
+            lvcreate --size $swapsize"M" -n LVSwap $kiwi_lvmgroup
+            swapParam=yes
+        fi
+        #======================================
+        # Resize volumes to requested size
+        #--------------------------------------
+        resizeLVMVolumes
+        #======================================
+        # Extend allFreeVolume if not done
+        #--------------------------------------
+        if [ -z "$(eval echo \$kiwi_LVM_${allFreeVolume})" ] ; then
+            lvextend -l +100%FREE /dev/$kiwi_lvmgroup/$allFreeVolume
+        fi
+        #======================================
+        # setup new device names
+        #--------------------------------------
+        setupDeviceNames \
+            $rootParam $swapParam $recoParam $bootParam yes $kiwi_lvmgroup
+    fi
+}
+
+#======================================
+# OEMPartitionInstall
+#--------------------------------------
+function OEMPartitionInstall {
+    # /.../
+    # don't repart the disk but prepare it for use with
+    # the existing partition table
+    # ----
+    #======================================
+    # no recovery support for part install
+    #--------------------------------------
+    unset kiwi_oemrecovery
+    #======================================
+    # check for LVM, resize to full space
+    #--------------------------------------
+    if searchVolumeGroup;then
+        #======================================
+        # setup all free volume name
+        #--------------------------------------
+        export allFreeVolume=$(getAllFreeVolume)
+        #======================================
+        # extend mdraid array if required
+        #--------------------------------------
+        resizeMDRaid
+        #======================================
+        # resize PV's
+        #--------------------------------------
+        resizeLVMPVs $rID
+        #======================================
+        # Resize volumes to requested size
+        #--------------------------------------
+        resizeLVMVolumes
+        #======================================
+        # Extend root or allFreeVolume
+        #--------------------------------------
+        lvextend -l +100%FREE /dev/$kiwi_lvmgroup/$allFreeVolume
+    fi
+    #======================================
+    # resize boot filesystem if needed
+    #--------------------------------------
+    if [ ! $imageBootDevice = $imageRootDevice ];then
+        resizeFilesystem $imageBootDevice
+    fi
+    #======================================
+    # cleanup temporary flags
+    #--------------------------------------
+    unset DONT_PARTITION
+}
+
+#======================================
+# OEMRepart
+#--------------------------------------
+function OEMRepart {
+    # /.../
+    # call the appropriate repartition functions
+    # ----
+    if [ ! $LOCAL_BOOT = "no" ];then
+        return
+    fi
+    #======================================
+    # check for luks extension
+    #--------------------------------------
+    if [ "$haveLuks" = "yes" ];then
+        unset kiwi_oemrecovery
+    fi
+    #======================================
+    # Initialize
+    #--------------------------------------
+    OEMRepartInit
+    #======================================
+    # Do the repartitioning
+    #--------------------------------------
+    if [ ! -z "$kiwi_oempartition_install" ];then
+        OEMPartitionInstall
+    elif [ ! -z "$haveLVM" ];then
+        OEMRepartLVM
+    elif isFSTypeReadOnly;then
+        OEMRepartSplit
+    else
+        OEMRepartStandard
+    fi
+    sleep 1
+    #======================================
+    # activate boot partition
+    #--------------------------------------
+    activateBootPartition
+    #======================================
+    # setup luks maps
+    #--------------------------------------
+    if [ "$haveLuks" = "yes" ];then
+        createLuksMaps
+    fi
+    #======================================
+    # find fstype for root partition
+    #--------------------------------------
+    if ! waitForStorageDevice $imageRootDevice &>/dev/null;then
+        systemException \
+            "Device $imageRootDevice doesn't appear... fatal !" \
+        "reboot"
+    fi
+    probeFileSystem $imageRootDevice
+    #======================================
+    # Activate swap space
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" ] && [ $swapsize -gt 0 ]; then
+        waitForStorageDevice $imageSwapDevice &>/dev/null
+        if partitionSize $imageSwapDevice &>/dev/null;then
+            Echo "Creating swap space on $imageSwapDevice"
+            if ! mkswap $imageSwapDevice 1>&2;then
+                systemException "Failed to create swap signature" "reboot"
+            fi
+        fi
+    fi
+    #======================================
+    # Create recovery file system
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" ] && [ ! -z "$kiwi_oemrecovery" ];then
+        Echo "Creating Recovery filesystem on $imageRecoveryDevice"
+        if ! waitForStorageDevice $imageRecoveryDevice &>/dev/null;then
+            systemException \
+                "Device $imageRecoveryDevice doesn't appear... fatal !" \
+            "reboot"
+        fi
+        if ! mke2fs -F -T ext3 -q -L recovery $imageRecoveryDevice 1>&2;then
+            systemException "Failed to create Recovery fs" "reboot"
+        fi
+        export reco_uuid=$(blkid -o value -s UUID -t LABEL=recovery)
+    fi
+    #======================================
+    # Setup recovery contents
+    #--------------------------------------
+    if [ -z "$DONT_PARTITION" ] && [ ! -z "$kiwi_oemrecovery" ];then
+        Echo "Setting up recovery archive..."
+        mkdir -p /reco-root
+        if ! mount $imageRootDevice /reco-root >/dev/null;then
+            systemException "Failed to mount root device" "reboot"
+        fi
+        if [ "$kiwi_BootPart" ];then
+            if [ ! "$kiwi_BootPart" = "$kiwi_RootPart" ];then
+                mkdir -p /recoboot
+                mount $(ddn $imageDiskDevice $kiwi_BootPart) /recoboot
+                mount --bind /recoboot/boot /reco-root/boot
+            fi
+        fi
+        mkdir -p /reco-save
+        if ! mount $imageRecoveryDevice /reco-save >/dev/null;then
+            systemException "Failed to mount recovery device" "reboot"
+        fi
+        if ! mv /reco-root/recovery.tar.files /reco-save >/dev/null;then
+            systemException "Failed to move recovery file count" "reboot"
+        fi
+        if ! mv /reco-root/recovery.tar.filesystem /reco-save >/dev/null;then
+            systemException "Failed to move recovery filesystem info" "reboot"
+        fi
+        if ! mv /reco-root/recovery.tar.size /reco-save >/dev/null;then
+            systemException "Failed to move recovery size info" "reboot"
+        fi
+        if ! mv /reco-root/recovery.partition.size /reco-save >/dev/null;then
+            systemException "Failed to move recovery part size info" "reboot"
+        fi
+        if [ -f /reco-root/recovery.tar.gz ];then
+            if ! mv /reco-root/recovery.tar.gz /reco-save >/dev/null;then
+                systemException "Failed to move recovery archive" "reboot"
+            fi
+        else
+            pushd /reco-root
+            Echo "Creating recovery root tarball..."
+            tar --numeric-owner -czpf /reco-save/recovery.tar.gz . \
+                --exclude "./dev" \
+                --exclude "./proc" \
+                --exclude "./sys" \
+                --exclude "./recovery.*"
+            popd
+        fi
+        mkdir /reco-save/boot
+        if ! cp /reco-root/boot/initrd.vmx /reco-save/boot/initrd;then
+            systemException "Failed to copy recovery initrd" "reboot"
+        fi
+        if ! cp /reco-root/boot/linux.vmx /reco-save/boot/vmlinuz;then
+            systemException "Failed to copy recovery kernel" "reboot"
+        fi
+        if [ "$loader" = "grub" ];then
+            if ! cp /reco-root/boot/message /reco-save/boot/message;then
+                systemException "Failed to copy recovery gfx message" "reboot"
+            fi
+        fi
+        if [ "$loader" = "grub2" ];then
+            if [ -e /reco-root/boot/unicode.pf2 ]; then
+                if ! cp /reco-root/boot/unicode.pf2 /reco-save/boot/;then
+                    systemException \
+                        "Failed to copy recovery unicode font" \
+                    "reboot"
+                fi
+            else
+                Echo "Warning: unicode grub2 font not available"
+            fi
+
+        fi
+        if ! backupDiskLayout $imageDiskDevice >/reco-save/disk-layout;then
+            systemException "Failed to store disk layout" "reboot"
+        fi
+        if [ ! -z "$haveLVM" ];then
+            if ! vgcfgbackup -f /reco-save/lvm $kiwi_lvmgroup;then
+                systemException "Failed to store LVM metadata" "reboot"
+            fi
+        fi
+        if [ "$kiwi_BootPart" ];then
+            if [ ! "$kiwi_BootPart" = "$kiwi_RootPart" ];then
+                umount /reco-root/boot
+                umount /recoboot && rmdir /recoboot
+            fi
+        fi
+        umount /reco-save && rmdir /reco-save
+        umount /reco-root && rmdir /reco-root
+    fi
+}
+
+#======================================
+# setupDeviceNames
+#--------------------------------------
+function setupDeviceNames {
+    local rootID=$1
+    local swapID=$2
+    local recoID=$3
+    local bootID=$4
+    local iorwID=$5
+    local vgroup=$6
+    if [ -z "$vgroup" ];then
+        #======================================
+        # set root device name
+        #--------------------------------------
+        if [ ! -z "$kiwi_RaidDev" ];then
+            export imageRootDevice=$kiwi_RaidDev
+        else
+            export imageRootDevice=$(ddn $imageDiskDevice $rootID)
+        fi
+        #======================================
+        # set swap device name
+        #--------------------------------------
+        if [ ! $swapID = "no" ];then
+            export imageSwapDevice=$(ddn $imageDiskDevice $swapID)
+        fi
+        #======================================
+        # set recovery device name
+        #--------------------------------------
+        if [ ! $recoID = "no" ];then
+            export imageRecoveryDevice=$(ddn $imageDiskDevice $recoID)
+            export recoid=$recoID
+        fi
+        #======================================
+        # set read-write device name
+        #--------------------------------------
+        if [ ! $iorwID = "no" ];then
+            export imageIOWRDevice=$(ddn $imageDiskDevice $iorwID)
+            export imageRWDevice=$imageIOWRDevice
+            export imageRODevice=$imageRootDevice
+        fi
+        #======================================
+        # set boot device name
+        #--------------------------------------
+        export imageBootDevice=$(ddn $imageDiskDevice $bootID)
+        #======================================
+        # set boot partition id
+        #--------------------------------------
+        export bootid=$bootID
+    else
+        #======================================
+        # set LVM root device name
+        #--------------------------------------
+        export imageRootDevice=/dev/$vgroup/LVRoot
+        #======================================
+        # set LVM swap device name
+        #--------------------------------------
+        if [ ! $swapID = "no" ];then
+            export imageSwapDevice=/dev/$vgroup/LVSwap
+        fi
+        #======================================
+        # set LVM recovery device name
+        #--------------------------------------
+        if [ ! $recoID = "no" ];then
+            export imageRecoveryDevice=$(ddn $imageDiskDevice $recoID)
+            export recoid=$recoID
+        fi
+        #======================================
+        # set LVM read-write device name
+        #--------------------------------------
+        if [ ! $iorwID = "no" ];then
+            if [ -e /dev/$vgroup/LVComp ];then
+                export imageRootDevice=/dev/$vgroup/LVComp
+            fi
+            export imageIOWRDevice=/dev/$vgroup/LVRoot
+            export imageRWDevice=$imageIOWRDevice
+            export imageRODevice=/dev/$vgroup/LVComp
+        fi
+        #======================================
+        # set LVM boot device name
+        #--------------------------------------
+        export imageBootDevice=$(ddn $imageDiskDevice $bootID)
+        #======================================
+        # set LVM boot partition id
+        #--------------------------------------
+        export bootid=$bootID
+    fi
+}
+
+#======================================
+# createBootDeviceData
+#--------------------------------------
+function createBootDeviceData {
+    #====================================== 
+    # check for overlay type
+    #--------------------------------------
+    local unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
+    if [ "$unionFST" = "clicfs" ];then
+        export haveClicFS=yes
+    fi
+    sleep 1
+}
+
+#======================================
+# createLuksMaps
+#--------------------------------------
+function createLuksMaps {
+    if [ -z "$luksDeviceOpened" ];then
+        luksOpen $imageRootDevice
+        export imageRootDevice=$luksDeviceOpened
+        luksResize
+    fi
+    if isFSTypeReadOnly;then
+        luksOpen $imageIOWRDevice luksReadWrite
+        export imageIOWRDevice=$luksDeviceOpened
+        export imageRWDevice=$imageIOWRDevice
+        export imageRODevice=$imageRootDevice
+        luksResize
+    fi
+}
+
+#======================================
+# disableOEMParameters
+#--------------------------------------
+function disableOEMParameters {
+    export kiwi_oemswap=false
+    unset kiwi_oemrecovery
+    unset kiwi_oemrootMB
+}
+
+#======================================
+# disableRepart
+#--------------------------------------
+function disableRepart {
+    DONT_PARTITION=1
+}
+
+#======================================
+# resizeLVMVolumes
+#--------------------------------------
+function resizeLVMVolumes {
+    local variable
+    local volume
+    local content
+    local mode
+    local size
+    for i in $(cat /.profile | grep kiwi_LVM_);do
+        variable=$(echo $i|cut -f1 -d=)
+        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
+        content=$(eval echo \$$variable)
+        mode=$(echo $content | cut -f1 -d:)
+        size=$(echo $content | cut -f2 -d:)
+        Echo "Resizing volume $volume..."
+        if [ $mode = "size" ];then
+            lvextend -L ${size}M /dev/$kiwi_lvmgroup/$volume
+        else
+            lvextend -L +${size}M /dev/$kiwi_lvmgroup/$volume
+        fi
+        if [ $? = 0 ];then
+            unset FSTYPE
+            resizeFilesystem /dev/$kiwi_lvmgroup/$volume
+        else
+            Echo "Warning: requested size cannot be reached !"
+        fi
+    done
+}
+
+#======================================
+# getFreeDiskBytes
+#--------------------------------------
+function getFreeDiskBytes {
+    local disk=$1
+    if [ ! -b "$disk" ];then
+        echo 0 ; return
+    fi
+    local disk_Bytes=$(blockdev --getsize64 $disk)
+    local rest_Bytes=$disk_Bytes
+    local part_Bytes=0
+    for i in 1 2 3 4;do
+        local part=$(ddn $disk $i)
+        if [ ! -b "$part" ];then
+            continue
+        fi
+        local size=$(blockdev --getsize64 $part)
+        part_Bytes=$((part_Bytes + size))
+    done
+    rest_Bytes=$((rest_Bytes - part_Bytes))
+    echo $rest_Bytes
+}
+
+#======================================
+# getAllFreeVolume
+#--------------------------------------
+function getAllFreeVolume {
+    local volume
+    local allFree=$(grep kiwi_allFreeVolume /.profile)
+    if [ ! -z "$allFree" ];then
+        volume=$(echo $allFree| cut -f3- -d_ | cut -f1 -d=)
+        echo $volume
+        return
+    fi
+    echo LVRoot
+}
