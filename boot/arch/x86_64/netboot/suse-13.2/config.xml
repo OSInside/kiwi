@@ -198,6 +198,7 @@
         <package name="e2fsprogs"/>
     </packages>
     <packages type="delete" profiles="default,diskless,xen">
+        <package name="dracut"/>
         <package name="cracklib-dict-full"/>
         <package name="diffutils"/>
         <package name="fillup"/>

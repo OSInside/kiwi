@@ -150,6 +150,7 @@
         <package name="sysvinit-tools"/>
     </packages>
     <packages type="delete">
+        <package name="dracut"/>
         <package name="cracklib-dict-full"/>
         <package name="cyrus-sasl"/>
         <package name="fillup"/>
