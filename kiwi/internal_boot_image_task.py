@@ -152,7 +152,7 @@ class BootImageTask(object):
             cpio = ArchiveCpio(initrd_file_name)
             cpio.create(
                 source_dir=self.temp_boot_root_directory,
-                exclude=['/var/cache']
+                exclude=['/var/cache', '/image']
             )
             log.info(
                 '--> xz compressing archive'
