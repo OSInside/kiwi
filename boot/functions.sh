@@ -453,7 +453,9 @@ function createInitialDevices {
     #--------------------------------------
     mkdir -p -m 0755 /run
     mkdir -p -m 0755 /var/run
-    if [[ ! $kiwi_iname =~ SLE.11 ]];then
+    if [[ ! $kiwi_initrdname =~ SLE.11 ]] && \
+       [[ ! $kiwi_initrdname =~ "rhel-06" ]]
+    then
         mount -t tmpfs -o mode=0755,nodev,nosuid tmpfs /run
         mount --bind /run /var/run
     fi
@@ -1150,7 +1152,7 @@ function installBootLoaderGrub {
             Echo "Failed to install boot loader"
             return 1
         fi
-        if [[ $kiwi_iname =~ boot-rhel ]];then
+        if [[ $kiwi_initrdname =~ boot-rhel ]];then
             # on rhel systems grub.conf is a link to menu.lst.
             rm -f /etc/grub.conf
             ln -s /boot/grub/menu.lst /etc/grub.conf
@@ -1324,8 +1326,9 @@ EOF
     # install grub2 in BIOS mode
     #--------------------------------------
     if [ ! -z "$kiwi_OfwGrub" ];then
+        local prepdev=$(ddn $imageDiskDevice $kiwi_OfwGrub)
         # install powerpc grub2
-        $instTool $imagePrepDevice 1>&2
+        $instTool $prepdev 1>&2
         if [ ! $? = 0 ];then
             Echo "Failed to install boot loader"
             return 1
@@ -1592,12 +1595,22 @@ function setupInitrd {
         #--------------------------------------
         if [ -x "$dracutExec" ]; then
             # 1. dracut
-            Echo "Creating dracut based initrd"
             params=" -f /boot/initrd-$kernel_version $kernel_version"
-            if ! $dracutExec -H $params;then
-                Echo "Can't create initrd with dracut"
-                systemIntegrity=unknown
-                bootLoaderOK=0
+            if [[ $kiwi_initrdname =~ vmxboot ]];then
+                Echo "Creating dracut based initrd (background process)"
+                # run dracut in the background to speed up the boot.
+                # We loose the status check of the call and reboot is
+                # only safe after the call has finished. Therefore this
+                # is only done for simple vmx type images which are
+                # mostly used in cloud frameworks
+                $dracutExec -H $params &>/dev/null </dev/null &
+            else
+                Echo "Creating dracut based initrd"
+                if ! $dracutExec -H $params;then
+                    Echo "Can't create initrd with dracut"
+                    systemIntegrity=unknown
+                    bootLoaderOK=0
+                fi
             fi
         elif [ -x "$mkinitrdExec" ]; then
             # 2. mkinitrd
@@ -1669,24 +1682,6 @@ function setupInitrd {
         systemIntegrity=unknown
         bootLoaderOK=0
     fi
-    #======================================
-    # Display a warning on failure
-    #--------------------------------------
-    # Warning message is disabled because sometimes the message
-    # can't be displayed on the console which leads to a stopped
-    # system but the user has no clue why
-    #
-    #if [ $bootLoaderOK = 0 ];then
-    #    if lookup dialog &>/dev/null;then
-    #        Dialog \
-    #            --backtitle \"$TEXT_BOOT_SETUP_FAILED\" \
-    #            --msgbox "\"$TEXT_BOOT_SETUP_FAILED_INFO\"" 10 70
-    #    else
-    #        systemException \
-    #            "$TEXT_BOOT_SETUP_FAILED\n\n$TEXT_BOOT_SETUP_FAILED_INFO" \
-    #        "waitkey"
-    #    fi
-    #fi
 }
 #======================================
 # setupDefaultTheme
@@ -1716,18 +1711,10 @@ function setupBootLoader {
         shift
     done
     case $arch-$loader in
-        i*86-grub)       eval setupBootLoaderGrub $para ;;
-        x86_64-grub)     eval setupBootLoaderGrub $para ;;
         i*86-grub2)      eval setupBootLoaderGrub2 $para ;;
         x86_64-grub2)    eval setupBootLoaderGrub2 $para ;;
         ppc64*-grub2)    eval setupBootLoaderGrub2 $para ;;
         s390*-grub2)     eval setupBootLoaderGrub2 $para ;;
-        i*86-syslinux)   eval setupBootLoaderSyslinux $para ;;
-        x86_64-syslinux) eval setupBootLoaderSyslinux $para ;;
-        i*86-extlinux)   eval setupBootLoaderSyslinux $para ;;
-        x86_64-extlinux) eval setupBootLoaderSyslinux $para ;;
-        s390-zipl)       eval setupBootLoaderS390 $para ;;
-        s390x-zipl)      eval setupBootLoaderS390 $para ;;
         s390x-grub2_s390x_emu)  eval setupBootLoaderS390Grub $para ;;
         ppc*)            eval setupBootLoaderYaboot $para ;;
         aarch64-uboot)   eval setupBootLoaderUBoot $para ;;
@@ -1822,262 +1809,13 @@ function setupBootLoaderRecovery {
         shift
     done
     case $arch-$loader in
-        i*86-grub)       eval setupBootLoaderGrubRecovery $para ;;
-        x86_64-grub)     eval setupBootLoaderGrubRecovery $para ;;
         i*86-grub2)      eval setupBootLoaderGrub2Recovery $para ;;
         x86_64-grub2)    eval setupBootLoaderGrub2Recovery $para ;;
-        s390*-grub2)     eval setupBootLoaderGrub2Recovery $para ;;
-        i*86-syslinux)   eval setupBootLoaderSyslinuxRecovery $para ;;
-        x86_64-syslinux) eval setupBootLoaderSyslinuxRecovery $para ;;
-        i*86-extlinux)   eval setupBootLoaderSyslinuxRecovery $para ;;
-        x86_64-extlinux) eval setupBootLoaderSyslinuxRecovery $para ;;
-        s390-zipl)       eval setupBootLoaderS390Recovery $para ;;
-        s390x-zipl)      eval setupBootLoaderS390Recovery $para ;;
-        s390x-grub2_s390x_emu)  eval setupBootLoaderS390Recovery $para ;;
         *)
         systemException \
             "*** boot loader setup for $arch-$loader not implemented ***" \
         "reboot"
     esac
-}
-#======================================
-# setupBootLoaderS390Recovery
-#--------------------------------------
-function setupBootLoaderS390Recovery {
-    local IFS=$IFS_ORIG
-    systemException \
-        "*** zipl: recovery boot not implemented ***" \
-    "reboot"
-}
-#======================================
-# setupBootLoaderSyslinuxRecovery
-#--------------------------------------
-function setupBootLoaderSyslinuxRecovery {
-    # /.../
-    # create syslinux configuration for the recovery boot system
-    # ----
-    local IFS=$IFS_ORIG
-    local mountPrefix=$1  # mount path of the image
-    local destsPrefix=$2  # base dir for the config files
-    local gnum=$3         # boot partition ID
-    local rdev=$4         # root partition
-    local gfix=$5         # syslinux title postfix
-    local swap=$6         # optional swap partition
-    local conf=$destsPrefix/boot/syslinux/syslinux.cfg
-    local kernel=""
-    local initrd=""
-    local fbmode=$vga
-    if [ -z "$fbmode" ];then
-        fbmode=$DEFAULT_VGA
-    fi
-    rdev_recovery=$imageRootDevice
-    diskByID=$(getDiskID $rdev_recovery)
-    if [ "$FSTYPE" = "zfs" ];then
-        diskByID="ZFS=kiwipool/ROOT/system-1"
-    fi
-    #======================================
-    # import syslinux into recovery
-    #--------------------------------------
-    cp -a $mountPrefix/boot/syslinux $destsPrefix/boot
-    #======================================
-    # setup config file name
-    #--------------------------------------
-    if [ $loader = "extlinux" ];then
-        conf=$destsPrefix/boot/syslinux/extlinux.conf
-    fi
-    #======================================
-    # create syslinux.cfg file
-    #--------------------------------------
-    echo "implicit 1"                   > $conf
-    echo "prompt   1"                  >> $conf
-    echo "TIMEOUT $kiwi_boot_timeout"  >> $conf
-    echo "display isolinux.msg"        >> $conf
-    if [ -f "$mountPrefix/boot/syslinux/bootlogo" ];then
-        if \
-            [ -f "$mountPrefix/boot/syslinux/gfxboot.com" ] || \
-            [ -f "$mountPrefix/boot/syslinux/gfxboot.c32" ]
-        then
-            echo "ui gfxboot bootlogo isolinux.msg" >> $conf
-        else
-            echo "gfxboot bootlogo"                 >> $conf
-        fi
-    fi
-    kernel=linux.vmx   # this is a copy of the kiwi linux.vmx file
-    initrd=initrd.vmx  # this is a copy of the kiwi initrd.vmx file
-    #======================================
-    # create recovery entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        #======================================
-        # Reboot
-        #--------------------------------------
-        title=$(makeLabel "Cancel/Reboot")
-        echo "DEFAULT $title"                              >> $conf
-        echo "label $title"                                >> $conf
-        echo " localboot 0x80"                             >> $conf
-        #======================================
-        # Recovery
-        #--------------------------------------
-        title=$(makeLabel "Recover/Repair System")
-        echo "label $title"                                >> $conf
-        if xenServer $kernel $mountPrefix;then
-            systemException \
-                "*** $loader: Xen dom0 boot not implemented ***" \
-            "reboot"
-        else
-            echo "kernel /boot/$kernel"                    >> $conf
-            echo -n "append initrd=/boot/$initrd"          >> $conf
-            echo -n " root=$diskByID"                      >> $conf
-            if [ ! -z "$imageDiskDevice" ];then
-                echo -n " disk=$(getDiskID $imageDiskDevice)"  >> $conf
-            fi
-            echo -n " vga=$fbmode"                         >> $conf
-            echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
-            echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
-            echo " KIWI_RECOVERY=$recoid"                  >> $conf
-            echo " showopts"                               >> $conf
-        fi
-        #======================================
-        # Restore
-        #--------------------------------------
-        title=$(makeLabel "Restore Factory System")
-        echo "label $title"                                >> $conf
-        if xenServer $kernel $mountPrefix;then
-            systemException \
-                "*** $loader: Xen dom0 boot not implemented ***" \
-            "reboot"
-        else
-            echo "kernel /boot/$kernel"                    >> $conf
-            echo -n "append initrd=/boot/$initrd"          >> $conf
-            echo -n " root=$diskByID"                      >> $conf
-            if [ ! -z "$imageDiskDevice" ];then
-                echo -n " disk=$(getDiskID $imageDiskDevice)"  >> $conf
-            fi
-            echo -n " vga=$fbmode"                         >> $conf
-            echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
-            echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
-            echo " KIWI_RECOVERY=$recoid RESTORE=1"        >> $conf
-            echo " showopts"                               >> $conf
-        fi
-    fi
-}
-#======================================
-# setupBootLoaderGrubRecovery
-#--------------------------------------
-function setupBootLoaderGrubRecovery {
-    # /.../
-    # create menu.lst file for the recovery boot system
-    # ----
-    local IFS=$IFS_ORIG
-    local mountPrefix=$1  # mount path of the image
-    local destsPrefix=$2  # base dir for the config files
-    local gfix=$3         # grub title
-    local menu=$destsPrefix/boot/grub/menu.lst
-    local kernel=""
-    local initrd=""
-    local fbmode=$vga
-    local gdevreco=$((recoid - 1))
-    if [ -z "$fbmode" ];then
-        fbmode=$DEFAULT_VGA
-    fi
-    gdev_recovery="(hd0,$gdevreco)"
-    rdev_recovery=$imageRootDevice
-    diskByID=$(getDiskID $rdev_recovery)
-    if [ "$FSTYPE" = "zfs" ];then
-        diskByID="ZFS=kiwipool/ROOT/system-1"
-    fi
-    #======================================
-    # import grub stages into recovery
-    #--------------------------------------
-    mkdir -p $destsPrefix/boot/grub
-    cp $mountPrefix/boot/grub/stage1 $destsPrefix/boot/grub
-    cp $mountPrefix/boot/grub/stage2 $destsPrefix/boot/grub
-    #======================================
-    # create recovery menu.lst
-    #--------------------------------------
-    echo "timeout 30" > $menu
-    echo "gfxmenu $gdev_recovery/boot/message" >> $menu
-    kernel=vmlinuz # this is a copy of the kiwi linux.vmx file
-    initrd=initrd  # this is a copy of the kiwi initrd.vmx file
-    #======================================
-    # create recovery entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        #======================================
-        # Make the cancel option default
-        #--------------------------------------
-        echo "default 0"                                  >> $menu
-        #======================================
-        # Reboot
-        #--------------------------------------
-        title=$(makeLabel "Cancel/Reboot")
-        echo "title $title"                               >> $menu
-        echo " reboot"                                    >> $menu
-        #======================================
-        # Recovery
-        #--------------------------------------
-        title=$(makeLabel "Recover/Repair System")
-        echo "title $title"                               >> $menu
-        if xenServer $kernel $mountPrefix;then
-            echo " root $gdev_recovery"                   >> $menu
-            echo " kernel /boot/xen.gz"                   >> $menu
-            echo -n " module /boot/$kernel"               >> $menu
-            echo -n " root=$diskByID $console"            >> $menu
-            if [ ! -z "$imageDiskDevice" ];then
-                echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-            fi
-            echo -n " vga=$fbmode"                        >> $menu
-            echo -n " $KIWI_INITRD_PARAMS"                >> $menu
-            echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
-            echo -n " KIWI_RECOVERY=$recoid"              >> $menu
-            echo " showopts"                              >> $menu
-            echo " module /boot/$initrd"                  >> $menu
-        else
-            echo -n " kernel $gdev_recovery/boot/$kernel" >> $menu
-            echo -n " root=$diskByID $console"            >> $menu
-            if [ ! -z "$imageDiskDevice" ];then
-                echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-            fi
-            echo -n " vga=$fbmode"                        >> $menu
-            echo -n " $KIWI_INITRD_PARAMS"                >> $menu
-            echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
-            echo -n " KIWI_RECOVERY=$recoid"              >> $menu
-            echo " showopts"                              >> $menu
-            echo " initrd $gdev_recovery/boot/$initrd"    >> $menu
-        fi
-        #======================================
-        # Restore
-        #--------------------------------------
-        title=$(makeLabel "Restore Factory System")
-        echo "title $title"                               >> $menu
-        if xenServer $kernel $mountPrefix;then
-            echo " root $gdev_recovery"                   >> $menu
-            echo " kernel /boot/xen.gz"                   >> $menu
-            echo -n " module /boot/$kernel"               >> $menu
-            echo -n " root=$diskByID $console"            >> $menu
-            if [ ! -z "$imageDiskDevice" ];then
-                echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-            fi
-            echo -n " vga=$fbmode"                        >> $menu
-            echo -n " $KIWI_INITRD_PARAMS"                >> $menu
-            echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
-            echo -n " KIWI_RECOVERY=$recoid"              >> $menu
-            echo " showopts"                              >> $menu
-            echo " module /boot/$initrd"                  >> $menu
-        else
-            echo -n " kernel $gdev_recovery/boot/$kernel" >> $menu
-            echo -n " root=$diskByID $console"            >> $menu
-            if [ ! -z "$imageDiskDevice" ];then
-                echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-            fi
-            echo -n " vga=$fbmode"                        >> $menu
-            echo -n " $KIWI_INITRD_PARAMS"                >> $menu
-            echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
-            echo -n " KIWI_RECOVERY=$recoid RESTORE=1"    >> $menu
-            echo " showopts"                              >> $menu
-            echo " initrd $gdev_recovery/boot/$initrd"    >> $menu
-        fi
-    fi
 }
 #======================================
 # setupBootLoaderGrub2Recovery
@@ -2268,7 +2006,6 @@ function setupBootLoaderS390Grub {
     #======================================
     # setup path names
     #--------------------------------------
-    local orig_sysimg_profile=$mountPrefix/image/.profile
     local inst_default_grub=$destsPrefix/etc/default/grub
     local inst_default_grubdev=$destsPrefix/etc/default/grub_installdevice
     local inst_default_grubmap=$destsPrefix/boot/grub2/device.map
@@ -2281,12 +2018,6 @@ function setupBootLoaderS390Grub {
     local diskByID=$(getDiskID $imageDiskDevice)
     if [ "$FSTYPE" = "zfs" ];then
         rootByID="ZFS=kiwipool/ROOT/system-1"
-    fi
-    #======================================
-    # check for system image .profile
-    #--------------------------------------
-    if [ -f $orig_sysimg_profile ];then
-        importFile < $orig_sysimg_profile
     fi
     #======================================
     # setup title name
@@ -2365,665 +2096,10 @@ EOF
     #--------------------------------------
     mkdir -p $destsPrefix/etc/sysconfig
 cat > $inst_sysb << EOF
-LOADER_TYPE=$loader_type
+LOADER_TYPE="$loader_type"
 DEFAULT_APPEND="$cmdline"
 FAILSAFE_APPEND="$failsafe $cmdline"
 EOF
-}
-#======================================
-# setupBootLoaderS390
-#--------------------------------------
-function setupBootLoaderS390 {
-    # /.../
-    # create /etc/zipl.conf used for the
-    # zipl bootloader
-    # ----
-    local IFS=$IFS_ORIG
-    local mountPrefix=$1  # mount path of the image
-    local destsPrefix=$2  # base dir for the config files
-    local znum=$3         # boot partition ID
-    local rdev=$4         # root partition
-    local zfix=$5         # zipl title postfix
-    local swap=$6         # optional swap partition
-    local conf=$destsPrefix/etc/zipl.conf
-    local sysb=$destsPrefix/etc/sysconfig/bootloader
-    local kname=""
-    local kernel=""
-    local initrd=""
-    local title=""
-    #======================================
-    # check for device by ID
-    #--------------------------------------
-    local diskByID=$(getDiskID $rdev)
-    local swapByID=$(getDiskID $swap swap)
-    if [ "$FSTYPE" = "zfs" ];then
-        diskByID="ZFS=kiwipool/ROOT/system-1"
-    fi
-    #======================================
-    # check for bootloader displayname
-    #--------------------------------------
-    if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
-        kiwi_oemtitle=$kiwi_displayname
-    fi
-    #======================================
-    # check for system image .profile
-    #--------------------------------------
-    if [ -f $mountPrefix/image/.profile ];then
-        importFile < $mountPrefix/image/.profile
-    fi
-    #======================================
-    # check for kernel options
-    #--------------------------------------
-    if [ ! -z "$kiwi_cmdline" ];then
-        KIWI_KERNEL_OPTIONS="$KIWI_KERNEL_OPTIONS $kiwi_cmdline"
-    fi
-    #======================================
-    # check for syslinux title postfix
-    #--------------------------------------
-    if [ -z "$zfix" ];then
-        zfix="unknown"
-    fi
-    #======================================
-    # check for boot TIMEOUT
-    #--------------------------------------
-    if [ -z "$kiwi_boot_timeout" ];then
-        kiwi_boot_timeout=100;
-    fi
-    #======================================
-    # create directory structure
-    #--------------------------------------
-    for dir in $conf $sysb;do
-        dir=`dirname $dir`; mkdir -p $dir
-    done
-    #======================================
-    # create zipl.conf file
-    #--------------------------------------
-    local count
-    local title_default
-    local title_failsafe
-    echo "[defaultboot]"                      > $conf
-    echo "defaultmenu = menu"                >> $conf
-    echo ":menu"                             >> $conf
-    echo "    default = 1"                   >> $conf
-    echo "    prompt = 1"                    >> $conf
-    echo "    target = /boot/zipl"           >> $conf
-    echo "    timeout = $kiwi_boot_timeout"  >> $conf
-    count=1
-    IFS="," ; for i in $KERNEL_LIST;do
-        if test -z "$i";then
-            continue
-        fi
-        kname=${KERNEL_NAME[$count]}
-        if ! echo $zfix | grep -E -q "OEM|USB|VMX|NET|unknown";then
-            if [ "$count" = "1" ];then
-                title_default=$(makeLabel "$zfix")
-            else
-                title_default=$(makeLabel "$kname ( $zfix )")
-            fi
-        elif [ -z "$kiwi_oemtitle" ];then
-            title_default=$(makeLabel "$kname ( $zfix )")
-        else
-            if [ "$count" = "1" ];then
-                title_default=$(makeLabel "$kiwi_oemtitle ( $zfix )")
-            else
-                title_default=$(makeLabel "$kiwi_oemtitle-$kname ( $zfix )")
-            fi
-        fi
-        title_failsafe=$(makeLabel "Failsafe -- $title_default")
-        echo "    $count = $title_default"  >> $conf
-        count=$((count + 1))
-        echo "    $count = $title_failsafe" >> $conf
-        count=$((count + 1))
-    done
-    count=1
-    IFS="," ; for i in $KERNEL_LIST;do
-        if test -z "$i";then
-            continue
-        fi
-        kernel=`echo $i | cut -f1 -d:`
-        initrd=`echo $i | cut -f2 -d:`
-        kname=${KERNEL_NAME[$count]}
-        if ! echo $zfix | grep -E -q "OEM|USB|VMX|NET|unknown";then
-            if [ "$count" = "1" ];then
-                title_default=$(makeLabel "$zfix")
-            else
-                title_default=$(makeLabel "$kname ( $zfix )")
-            fi
-        elif [ -z "$kiwi_oemtitle" ];then
-            title_default=$(makeLabel "$kname ( $zfix )")
-        else
-            if [ "$count" = "1" ];then
-                title_default=$(makeLabel "$kiwi_oemtitle ( $zfix )")
-            else
-                title_default=$(makeLabel "$kiwi_oemtitle-$kname ( $zfix )")
-            fi
-        fi
-        title_failsafe=$(makeLabel "Failsafe -- $title_default")
-        #======================================
-        # create standard entry
-        #--------------------------------------
-        echo "[$title_default]"                  >> $conf
-        echo "target  = /boot/zipl"              >> $conf
-        echo "image   = /boot/$kernel"           >> $conf
-        echo "ramdisk = /boot/$initrd,0x2000000" >> $conf
-        echo -n "parameters = \"root=$diskByID"  >> $conf
-        if [ ! -z "$imageDiskDevice" ];then
-            echo -n " disk=$(getDiskID $imageDiskDevice)"  >> $conf
-        fi
-        if [ ! -z "$swap" ];then
-            echo -n " resume=$swapByID" >> $conf
-        fi
-        echo -n " $KIWI_INITRD_PARAMS"  >> $conf
-        echo -n " $KIWI_KERNEL_OPTIONS" >> $conf
-        echo " showopts\""              >> $conf
-        #======================================
-        # create failsafe entry
-        #--------------------------------------
-        echo "[$title_failsafe]"                 >> $conf
-        echo "target  = /boot/zipl"              >> $conf
-        echo "image   = /boot/$kernel"           >> $conf
-        echo "ramdisk = /boot/$initrd,0x2000000" >> $conf
-        echo -n "parameters = \"root=$diskByID"  >> $conf
-        if [ ! -z "$imageDiskDevice" ];then
-            echo -n " disk=$(getDiskID $imageDiskDevice)"  >> $conf
-        fi
-        echo -n " $KIWI_INITRD_PARAMS"         >> $conf
-        echo -n " $KIWI_KERNEL_OPTIONS"        >> $conf
-        echo -n " x11failsafe"                 >> $conf
-        echo " showopts\""                     >> $conf
-        count=$((count + 1))
-    done
-    #======================================
-    # create recovery entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        systemException \
-            "*** zipl: recovery chain loading not implemented ***" \
-        "reboot"
-    fi
-    #======================================
-    # create sysconfig/bootloader
-    #--------------------------------------
-    echo "LOADER_TYPE=\"$loader\""                            > $sysb
-    echo "LOADER_LOCATION=\"mbr\""                           >> $sysb
-    echo -n "DEFAULT_APPEND=\"root=$diskByID"                >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo " showopts\""                                       >> $sysb
-    echo -n "FAILSAFE_APPEND=\"root=$diskByID"               >> $sysb
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo -n " x11failsafe noresume\""                        >> $sysb
-}
-#======================================
-# setupBootLoaderSyslinux
-#--------------------------------------
-function setupBootLoaderSyslinux {
-    # /.../
-    # create syslinux.cfg used for the
-    # syslinux bootloader
-    # ----
-    local IFS=$IFS_ORIG
-    local mountPrefix=$1  # mount path of the image
-    local destsPrefix=$2  # base dir for the config files
-    local gnum=$3         # boot partition ID
-    local rdev=$4         # root partition
-    local gfix=$5         # syslinux title postfix
-    local swap=$6         # optional swap partition
-    local conf=$destsPrefix/boot/syslinux/syslinux.cfg
-    local sysb=$destsPrefix/etc/sysconfig/bootloader
-    local console=""
-    local kname=""
-    local kernel=""
-    local initrd=""
-    local title=""
-    local fbmode=$vga
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        local gdevreco=$recoid
-    fi
-    if [ -z "$fbmode" ];then
-        fbmode=$DEFAULT_VGA
-    fi
-    #======================================
-    # check for device by ID
-    #--------------------------------------
-    local diskByID=$(getDiskID $rdev)
-    local swapByID=$(getDiskID $swap swap)
-    if [ "$FSTYPE" = "zfs" ];then
-        diskByID="ZFS=kiwipool/ROOT/system-1"
-    fi
-    #======================================
-    # check for bootloader displayname
-    #--------------------------------------
-    if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
-        kiwi_oemtitle=$kiwi_displayname
-    fi
-    #======================================
-    # check for system image .profile
-    #--------------------------------------
-    if [ -f $mountPrefix/image/.profile ];then
-        importFile < $mountPrefix/image/.profile
-    fi
-    #======================================
-    # check for kernel options
-    #--------------------------------------
-    if [ ! -z "$kiwi_cmdline" ];then
-        KIWI_KERNEL_OPTIONS="$KIWI_KERNEL_OPTIONS $kiwi_cmdline"
-    fi
-    #======================================
-    # setup config file name
-    #--------------------------------------
-    if [ $loader = "extlinux" ];then
-        conf=$destsPrefix/boot/syslinux/extlinux.conf
-    fi
-    #======================================
-    # check for syslinux title postfix
-    #--------------------------------------
-    if [ -z "$gfix" ];then
-        gfix="unknown"
-    fi
-    #======================================
-    # check for boot TIMEOUT
-    #--------------------------------------
-    if [ -z "$kiwi_boot_timeout" ];then
-        kiwi_boot_timeout=100;
-    fi
-    #======================================
-    # create directory structure
-    #--------------------------------------
-    for dir in $conf $sysb;do
-        dir=`dirname $dir`; mkdir -p $dir
-    done
-    #======================================
-    # create syslinux.cfg file
-    #--------------------------------------
-    echo "implicit 1"                   > $conf
-    echo "prompt   1"                  >> $conf
-    echo "TIMEOUT $kiwi_boot_timeout"  >> $conf
-    echo "display isolinux.msg"        >> $conf
-    if [ -f "$mountPrefix/boot/syslinux/bootlogo" ];then
-        if \
-            [ -f "$mountPrefix/boot/syslinux/gfxboot.com" ] || \
-            [ -f "$mountPrefix/boot/syslinux/gfxboot.c32" ]
-        then
-            echo "ui gfxboot bootlogo isolinux.msg" >> $conf
-        else
-            echo "gfxboot bootlogo"                 >> $conf
-        fi
-    fi
-    local count=1
-    IFS="," ; for i in $KERNEL_LIST;do
-        if test ! -z "$i";then
-            #======================================
-            # setup syslinux requirements
-            #--------------------------------------
-            kernel=`echo $i | cut -f1 -d:`
-            initrd=`echo $i | cut -f2 -d:`
-            kname=${KERNEL_NAME[$count]}
-            if ! echo $gfix | grep -E -q "OEM|USB|VMX|NET|unknown";then
-                if [ "$count" = "1" ];then
-                    title=$(makeLabel "$gfix")
-                else
-                    title=$(makeLabel "$kname [ $gfix ]")
-                fi
-            elif [ -z "$kiwi_oemtitle" ];then
-                title=$(makeLabel "$kname [ $gfix ]")
-            else
-                if [ "$count" = "1" ];then
-                    title=$(makeLabel "$kiwi_oemtitle [ $gfix ]")
-                else
-                    title=$(makeLabel "$kiwi_oemtitle-$kname [ $gfix ]")
-                fi
-            fi
-            #======================================
-            # create standard entry
-            #--------------------------------------
-            echo "DEFAULT $title"                              >> $conf
-            echo "label $title"                                >> $conf
-            if xenServer $kname $mountPrefix;then
-                systemException \
-                    "*** $loader: Xen dom0 boot not implemented ***" \
-                "reboot"
-            else
-                echo "kernel /boot/$kernel"                    >> $conf
-                echo -n "append initrd=/boot/$initrd"          >> $conf
-                echo -n " root=$diskByID $console"             >> $conf
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)"  >> $conf
-                fi
-                echo -n " vga=$fbmode"                         >> $conf
-                if [ ! -z "$swap" ];then
-                    echo -n " resume=$swapByID"                >> $conf
-                fi
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"         >> $conf
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc console=tty"         >> $conf
-                fi
-                echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
-                echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
-                echo " showopts"                               >> $conf
-            fi
-            #======================================
-            # create Failsafe entry
-            #--------------------------------------
-            title=$(makeLabel "Failsafe -- $title")
-            echo "label $title"                                >> $conf
-            if xenServer $kname $mountPrefix;then
-                systemException \
-                    "*** $loader: Xen dom0 boot not implemented ***" \
-                "reboot"
-            else
-                echo "kernel /boot/$kernel"                    >> $conf
-                echo -n "append initrd=/boot/$initrd"          >> $conf
-                echo -n " root=$diskByID $console"             >> $conf
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)"  >> $conf
-                fi
-                echo -n " vga=$fbmode"                         >> $conf
-                if [ ! -z "$swap" ];then
-                    echo -n " resume=$swapByID"                >> $conf
-                fi
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"         >> $conf
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc console=tty"         >> $conf
-                fi
-                echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
-                echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
-                echo -n " $failsafe"                           >> $conf
-                echo " showopts"                               >> $conf
-            fi
-            count=$((count + 1))
-        fi
-    done
-    #======================================
-    # create recovery entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        echo "label Recovery"                             >> $conf
-        echo "kernel chain"                               >> $conf
-        echo "append hd0 $gdevreco"                       >> $conf
-    fi
-    #======================================
-    # create sysconfig/bootloader
-    #--------------------------------------
-    echo "LOADER_TYPE=\"$loader\""                           > $sysb
-    echo "LOADER_LOCATION=\"mbr\""                           >> $sysb
-    echo "DEFAULT_VGA=\"$fbmode\""                           >> $sysb 
-    echo -n "DEFAULT_APPEND=\"root=$diskByID"                >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo " showopts\""                                       >> $sysb
-    echo "FAILSAFE_VGA=\"$fbmode\""                          >> $sysb
-    echo -n "FAILSAFE_APPEND=\"root=$diskByID"               >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo -n " $failsafe"                                     >> $sysb
-    echo "\""                                                >> $sysb
-}
-#======================================
-# setupBootLoaderGrub
-#--------------------------------------
-function setupBootLoaderGrub {
-    # /.../
-    # create grub.conf and menu.lst file used for
-    # installing the bootloader
-    # ----
-    local IFS=$IFS_ORIG
-    local mountPrefix=$1  # mount path of the image
-    local destsPrefix=$2  # base dir for the config files
-    local gnum=$3         # grub boot partition ID
-    local rdev=$4         # grub root partition
-    local gfix=$5         # grub title postfix
-    local swap=$6         # optional swap partition
-    local menu=$destsPrefix/boot/grub/menu.lst
-    local conf=$destsPrefix/etc/grub.conf
-    local dmap=$destsPrefix/boot/grub/device.map
-    local sysb=$destsPrefix/etc/sysconfig/bootloader
-    local stage=/boot/grub/stage2
-    local console=""
-    local kname=""
-    local kernel=""
-    local initrd=""
-    local title=""
-    local rdisk=""
-    local fbmode=$vga
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        local gdevreco=$((recoid - 1))
-    fi
-    if [ -z "$fbmode" ];then
-        fbmode=$DEFAULT_VGA
-    fi
-    #======================================
-    # check for device by ID
-    #--------------------------------------
-    local diskByID=$(getDiskID $rdev)
-    local swapByID=$(getDiskID $swap swap)
-    if [ "$FSTYPE" = "zfs" ];then
-        diskByID="ZFS=kiwipool/ROOT/system-1"
-    fi
-    #======================================
-    # check for system image .profile
-    #--------------------------------------
-    if [ -f $mountPrefix/image/.profile ];then
-        importFile < $mountPrefix/image/.profile
-    fi
-    #======================================
-    # check for bootloader displayname
-    #--------------------------------------
-    if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
-        kiwi_oemtitle=$kiwi_displayname
-    fi
-    #======================================
-    # check for kernel options
-    #--------------------------------------
-    if [ ! -z "$kiwi_cmdline" ];then
-        KIWI_KERNEL_OPTIONS="$KIWI_KERNEL_OPTIONS $kiwi_cmdline"
-    fi
-    #======================================
-    # check for grub device
-    #--------------------------------------
-    if [ -z "$gnum" ];then
-        gnum=1
-    fi
-    #======================================
-    # check for grub title postfix
-    #--------------------------------------
-    if [ -z "$gfix" ];then
-        gfix="unknown"
-    fi
-    #======================================
-    # check for boot TIMEOUT
-    #--------------------------------------
-    if [ -z "$kiwi_boot_timeout" ];then
-        kiwi_boot_timeout=10;
-    fi
-    #======================================
-    # create directory structure
-    #--------------------------------------
-    for dir in $menu $conf $dmap $sysb;do
-        dir=`dirname $dir`; mkdir -p $dir
-    done
-    #======================================
-    # setup grub device node
-    #--------------------------------------
-    gdev="(hd0,$gnum)"
-    #======================================
-    # create menu.lst file
-    #--------------------------------------
-    echo "timeout $kiwi_boot_timeout"  > $menu
-    if [ -f $mountPrefix/boot/grub/splash.xpm.gz ];then
-        echo "splashimage=$gdev/boot/grub/splash.xpm.gz" >> $menu
-    elif [ -f /image/loader/message ] || [ -f /boot/message ];then
-        echo "gfxmenu $gdev/boot/message" >> $menu
-    fi
-    local count=1
-    IFS="," ; for i in $KERNEL_LIST;do
-        if test ! -z "$i";then
-            #======================================
-            # create grub requirements
-            #--------------------------------------
-            kernel=`echo $i | cut -f1 -d:`
-            initrd=`echo $i | cut -f2 -d:`
-            kname=${KERNEL_NAME[$count]}
-            if ! echo $gfix | grep -E -q "OEM|USB|VMX|NET|unknown";then
-                if [ "$count" = "1" ];then
-                    title=$(makeLabel "$gfix")
-                else
-                    title=$(makeLabel "$kname [ $gfix ]")
-                fi
-            elif [ -z "$kiwi_oemtitle" ];then
-                title=$(makeLabel "$kname [ $gfix ]")
-            else
-                if [ "$count" = "1" ];then
-                    title=$(makeLabel "$kiwi_oemtitle [ $gfix ]")
-                else
-                    title=$(makeLabel "$kiwi_oemtitle-$kname [ $gfix ]")
-                fi
-            fi
-            #======================================
-            # create standard entry
-            #--------------------------------------
-            echo "title $title"                                   >> $menu
-            if xenServer $kname $mountPrefix;then
-                echo " root $gdev"                                >> $menu
-                echo " kernel /boot/xen.gz"                       >> $menu
-                echo -n " module /boot/$kernel"                   >> $menu
-                echo -n " root=$diskByID"                         >> $menu
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-                fi
-                echo -n " $console vga=$fbmode"                   >> $menu
-                if [ ! -z "$swap" ];then
-                    echo -n " resume=$swapByID"                   >> $menu
-                fi
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"            >> $menu
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc console=tty"            >> $menu
-                fi
-                echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
-                echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
-                echo " showopts"                                  >> $menu
-                echo " module /boot/$initrd"                      >> $menu
-            else
-                echo -n " kernel $gdev/boot/$kernel"              >> $menu
-                echo -n " root=$diskByID"                         >> $menu
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-                fi
-                echo -n " $console vga=$fbmode"                   >> $menu
-                if [ ! -z "$swap" ];then
-                    echo -n " resume=$swapByID"                   >> $menu
-                fi
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"            >> $menu
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc console=tty"            >> $menu
-                fi
-                echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
-                echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
-                echo " showopts"                                  >> $menu
-                echo " initrd $gdev/boot/$initrd"                 >> $menu
-            fi
-            #======================================
-            # create failsafe entry
-            #--------------------------------------
-            title=$(makeLabel "Failsafe -- $title")
-            echo "title $title"                                   >> $menu
-            if xenServer $kname $mountPrefix;then
-                echo " root $gdev"                                >> $menu
-                echo " kernel /boot/xen.gz"                       >> $menu
-                echo -n " module /boot/$kernel"                   >> $menu
-                echo -n " root=$diskByID"                         >> $menu
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-                fi
-                echo -n " $console vga=$fbmode"                   >> $menu
-                echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
-                echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
-                echo -n " $failsafe"                              >> $menu
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"            >> $menu
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc console=tty"            >> $menu
-                fi
-                echo " showopts"                                  >> $menu
-                echo " module /boot/$initrd"                      >> $menu
-            else
-                echo -n " kernel $gdev/boot/$kernel"              >> $menu
-                echo -n " root=$diskByID"                         >> $menu
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)" >> $menu
-                fi
-                echo -n " $console vga=$fbmode"                   >> $menu
-                echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
-                echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
-                echo -n " $failsafe"                              >> $menu
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"            >> $menu
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc console=tty"            >> $menu
-                fi
-                echo " showopts"                                  >> $menu
-                echo " initrd $gdev/boot/$initrd"                 >> $menu
-            fi
-            count=$((count + 1))
-        fi
-    done
-    #======================================
-    # create recovery entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        echo "title Recovery"                             >> $menu
-        echo " rootnoverify (hd0,$gdevreco)"              >> $menu
-        echo " chainloader +1"                            >> $menu
-    fi
-    #======================================
-    # create grub.conf file
-    #--------------------------------------
-    echo "root $gdev" > $conf
-    if dd if=$rdev bs=1 count=512 | file - | grep -q Bootloader;then
-        echo "setup --stage2=$stage $gdev" >> $conf
-    else
-        echo "setup --stage2=$stage (hd0)" >> $conf
-    fi
-    echo "quit" >> $conf
-    #======================================
-    # create grub device map
-    #--------------------------------------
-    rdisk=`echo $rdev | sed -e s"@[0-9]@@g"`
-    if [ ! -z "$imageDiskDevice" ];then
-        rdisk=$imageDiskDevice
-    fi
-    rdisk=$(getDiskID $rdisk)
-    echo "(hd0) $rdisk" > $dmap
-    #======================================
-    # create sysconfig/bootloader
-    #--------------------------------------
-    echo "LOADER_TYPE=\"grub\""                               > $sysb
-    echo "LOADER_LOCATION=\"mbr\""                           >> $sysb
-    echo "DEFAULT_VGA=\"$fbmode\""                           >> $sysb  
-    echo -n "DEFAULT_APPEND=\"root=$diskByID"                >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo " showopts\""                                       >> $sysb
-    echo "FAILSAFE_VGA=\"$fbmode\""                          >> $sysb
-    echo -n "FAILSAFE_APPEND=\"root=$diskByID"               >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo -n " $failsafe"                                     >> $sysb
-    echo "\""                                                >> $sysb
 }
 #======================================
 # setupBootLoaderGrub2
@@ -3082,17 +2158,10 @@ function setupBootLoaderGrub2 {
     #======================================
     # setup path names
     #--------------------------------------
-    local orig_sysimg_profile=$mountPrefix/image/.profile
     local inst_default_grub=$destsPrefix/etc/default/grub
     local inst_default_grubdev=$destsPrefix/etc/default/grub_installdevice
     local inst_default_grubmap=$destsPrefix/boot/grub2/device.map
     local unifont=$mountPrefix/usr/share/grub2/unicode.pf2
-    #======================================
-    # check for system image .profile
-    #--------------------------------------
-    if [ -f $orig_sysimg_profile ];then
-        importFile < $orig_sysimg_profile
-    fi
     #======================================
     # setup title name
     #--------------------------------------
@@ -3282,12 +2351,6 @@ function setupBootLoaderYaboot {
     #--------------------------------------
     if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
         kiwi_oemtitle=$kiwi_displayname
-    fi
-    #======================================
-    # check for system image .profile
-    #--------------------------------------
-    if [ -f $mountPrefix/image/.profile ];then
-        importFile < $mountPrefix/image/.profile
     fi
     #======================================
     # check for kernel options
@@ -3735,12 +2798,9 @@ function setupKernelModules {
     #======================================
     # update config file
     #--------------------------------------
-    for key in INITRD_MODULES DOMU_INITRD_MODULES;do
+    for key in INITRD_MODULES;do
         if [ $key = "INITRD_MODULES" ];then
             val=$INITRD_MODULES
-        fi
-        if [ $key = "DOMU_INITRD_MODULES" ];then
-            val=$DOMURD_MODULES
         fi
         if [ -z "$val" ];then
             continue
@@ -4557,6 +3617,27 @@ function searchBusIDBootDevice {
     fi
     export biosBootDevice=$(getDiskDevice $biosBootDevice)
     return 0
+}
+#======================================
+# setupBootDeviceIfMultipath
+#--------------------------------------
+function setupBootDeviceIfMultipath {
+    local IFS=$IFS_ORIG
+    local disk
+    local found_multipath_device=0
+    if startMultipathd; then
+        for wwn in $(multipath -l -v1 $biosBootDevice);do
+            disk=/dev/mapper/$wwn
+            if [ -e $disk ];then
+                biosBootDevice=$disk
+                found_multipath_device=1
+                break
+            fi
+        done
+        if [ ! $found_multipath_device = 1 ];then
+            stopMultipathd
+        fi
+    fi
 }
 #======================================
 # lookupDiskDevices
@@ -6954,7 +6035,7 @@ function mountSystem {
         [ $retval = 0 ]                   && \
         [ -z "$RESTORE" ]
     then
-        if [[ $kiwi_iname =~ netboot ]];then
+        if [[ $kiwi_initrdname =~ netboot ]];then
             setupBootPartitionPXE
         else
             setupBootPartition
@@ -6965,6 +6046,28 @@ function mountSystem {
     #--------------------------------------
     resetMountCounter
     return $retval
+}
+#======================================
+# mountOrCopyLiveCD
+#--------------------------------------
+function mountOrCopyLiveCD {
+    local SIZE
+    if [ ! -z "$TORAM" ]; then
+        Echo "Copying CD system into tmpfs"
+        mkdir -p ${LIVECD}R $LIVECD && \
+            eval mount $cdopt $biosBootDevice ${LIVECD}R
+        SIZE="$(du -s /${LIVECD}R | gawk '{print int($1*1.1)}')"
+        mount -t tmpfs -o size=${SIZE}k tmpfs $LIVECD
+        if ! cp -ar ${LIVECD}R/* $LIVECD; then
+            systemException \
+                "Copying CD contents to tmpfs failed" \
+            "reboot"
+        fi
+        umount ${LIVECD}R
+        rmdir ${LIVECD}R
+    else
+        mkdir -p $LIVECD && eval mount $cdopt $biosBootDevice $LIVECD
+    fi
 }
 #======================================
 # cleanDirectory
@@ -7719,41 +6822,6 @@ function putFile {
 }
 
 #======================================
-# importBranding
-#--------------------------------------
-function importBranding {
-    # /.../
-    # include possible custom boot loader and bootsplash files
-    # to the system to allow to use them persistently
-    # ----
-    local IFS=$IFS_ORIG
-    local prefix=/mnt
-    if [ -f /image/loader/message ];then
-        if ! canWrite $prefix/boot;then
-            Echo "Can't write to boot, import of boot message skipped"
-        else
-            mv /image/loader/message $prefix/boot
-        fi
-    fi
-    if [ -f /image/loader/branding/logo.mng ];then
-    if [ -d $prefix/etc/bootsplash/themes ];then
-        for theme in $prefix/etc/bootsplash/themes/*;do
-            if [ -d $theme/images ];then
-                if ! canWrite $theme;then
-                    Echo "Can't write to $theme, import of boot theme skipped"
-                    continue
-                fi
-                cp /image/loader/branding/logo.mng  $theme/images
-                cp /image/loader/branding/logov.mng $theme/images
-                cp /image/loader/branding/*.jpg $theme/images
-                cp /image/loader/branding/*.cfg $theme/config
-            fi
-        done  
-    fi
-    fi
-}
-
-#======================================
 # validateRootTree
 #--------------------------------------
 function validateRootTree {
@@ -7977,7 +7045,7 @@ function activateImage {
     mkdir -p $prefix/dev
     mkdir -p $prefix/var/run
     mount --move /dev $prefix/dev
-    if [[ ! $kiwi_iname =~ SLE.11 ]];then
+    if [[ ! $kiwi_initrdname =~ SLE.11 ]];then
         mount --move /run $prefix/run
         if [ ! -L $prefix/var/run ];then
             mount --move /var/run $prefix/var/run
@@ -9494,7 +8562,7 @@ function createPartedInput {
                 partid=${pcmds[$index + 1]}
                 flagok=1
                 if [ "$ptypex" = "82" ];then
-                    if [[ $kiwi_iname =~ boot-suse ]];then
+                    if [[ $kiwi_initrdname =~ boot-suse ]];then
                         # /.../
                         # suse parted is not able to set swap flag. I consider
                         # this as a bug in the suse parted tool. In order to
@@ -9502,7 +8570,7 @@ function createPartedInput {
                         # extension.
                         #
                         cmdq="$cmdq set $partid type 0x$ptypex"
-                    elif [[ $kiwi_iname =~ boot-rhel ]];then
+                    elif [[ $kiwi_initrdname =~ boot-rhel ]];then
                         # /.../
                         # parted on RHEL is not able to set swap flag. I don't
                         # have a good solution for this thus we skip the flag
@@ -10966,6 +10034,9 @@ function updatePartitionTable {
     # check table type
     #--------------------------------------
     plabel=$(cat /tmp/table | grep ^$device: | cut -f6 -d:)
+    if [[ "$plabel" =~ gpt ]];then
+        relocateGPTAtEndOfDisk
+    fi
     if [ ! "$plabel" = "gpt_sync_mbr" ];then
         return 0
     fi
@@ -11030,12 +10101,14 @@ function resetBootBind {
     #======================================
     # reset bind mount to standard boot dir
     #--------------------------------------
+    shopt -s dotglob
     umount $bprefix/boot
     mv /$bootdir/boot /$bootdir/tmp
     mv /$bootdir/tmp/* /$bootdir
     rm -rf /$bootdir/tmp
     umount /$bootdir
     rmdir /$bootdir
+    shopt -u dotglob
     #======================================
     # update fstab entry
     #--------------------------------------
@@ -11203,6 +10276,30 @@ function updateProtectiveMBR {
     fi
 }
 #======================================
+# relocateGPTAtEndOfDisk
+#--------------------------------------
+function relocateGPTAtEndOfDisk {
+    local IFS=$IFS_ORIG
+    local device=$1
+    local input=/part.input
+    if ! lookup gdisk &>/dev/null;then
+        Echo "Warning, gdisk tool not found"
+        Echo "This could break the resize of the image"
+    fi
+    rm -f $input
+    if [ ! -e "$device" ];then
+        device=$imageDiskDevice
+    fi
+    for cmd in x e w y; do
+        echo $cmd >> $input
+    done
+    gdisk $device < $input 1>&2
+    if [ ! $? = 0 ]; then
+        Echo "Failed to write backup GPT at end of disk !"
+        Echo "This could break the resize of the image"
+    fi
+}
+#======================================
 # FBOK
 #--------------------------------------
 function FBOK {
@@ -11287,6 +10384,83 @@ function loop_delete {
     losetup -d $target
 }
 #======================================
+# startMultipathd
+#--------------------------------------
+function startMultipathd {
+    local multipath_config=/etc/multipath.conf
+    local wwid_timeout=3
+    #======================================
+    # check already running
+    #--------------------------------------
+    if pidof multipathd &>/dev/null; then
+        Echo "startMultipathd: daemon already running"
+        return 0
+    fi
+    #======================================
+    # check the tools
+    #--------------------------------------
+    for tool in multipathd multipath;do
+        if ! lookup $tool &>/dev/null;then
+            Echo "startMultipathd: $tool not found"
+            return 1
+        fi
+    done
+    #======================================
+    # lookup multipath configuration
+    #--------------------------------------
+    if [ ! -f $multipath_config ];then
+        Echo "startMultipathd: no multipath configuration found"
+        return 1
+    fi
+    #======================================
+    # load multipath dm modules
+    #--------------------------------------
+    if ! modprobe dm-multipath;then
+        Echo "startMultipathd: can't load dm-multipath"
+        return 1
+    fi
+    #======================================
+    # start multipath daemon
+    #--------------------------------------
+    mkdir -p /etc/multipath
+    if ! multipathd;then
+        Echo "startMultipathd: failed to start multipathd"
+        return 1
+    fi
+    #======================================
+    # wait for devices to settle
+    #--------------------------------------
+    udevPending
+    #======================================
+    # sleep for a while
+    #--------------------------------------
+    # make sure /etc/multipath/wwids are written
+    if [ ! -z "$kiwi_wwid_wait_timeout" ];then
+        wwid_timeout=$kiwi_wwid_wait_timeout
+    fi
+    sleep $wwid_timeout
+    export MULTIPATHD_PID=$(pidof multipathd | tr ' ' ,)
+    return 0
+}
+#======================================
+# stopMultipathd
+#--------------------------------------
+function stopMultipathd {
+    # /.../
+    # stop multipathd started by us
+    # ----
+    local IFS=$IFS_ORIG
+    if [ -z "$MULTIPATHD_PID" ];then
+        return
+    fi
+    local IFS=,
+    for p in $MULTIPATHD_PID; do
+        if kill -0 $p &>/dev/null;then
+            kill $p
+        fi
+    done
+}
+#======================================
 # initialize
 #--------------------------------------
 function initialize {
@@ -11303,7 +10477,7 @@ function initialize {
     #======================================
     # Check partitioner capabilities
     #--------------------------------------
-    if echo $kiwi_iname | grep -qE '(oem|net)boot';then
+    if echo $kiwi_initrdname | grep -qE '(oem|net)boot';then
         if [ $PARTITIONER = "unsupported" ];then
             systemException \
                 "Installed parted version is too old" \
