@@ -62,6 +62,8 @@ class BootImageTask(object):
         """
         if self.required():
             self.__load_boot_xml_description()
+            boot_image_name = self.boot_xml_state.xml_data.get_name()
+
             self.__import_system_description_elements()
 
             log.info('Preparing boot image')
@@ -79,6 +81,7 @@ class BootImageTask(object):
             )
 
             profile = Profile(self.boot_xml_state)
+            profile.add('kiwi_initrdname', boot_image_name)
 
             defaults = Defaults()
             defaults.to_profile(profile)
