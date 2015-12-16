@@ -275,8 +275,9 @@ class BootImageTask(object):
         boot_description = self.xml_state.build_type.get_boot()
         if boot_description:
             if not boot_description[0] == '/':
-                boot_description = Defaults.get_image_description_path() + \
-                    '/' + boot_description
+                boot_description = \
+                    Defaults.get_boot_image_description_path() + '/' + \
+                    boot_description
             return boot_description
 
     def __del__(self):

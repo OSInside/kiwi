@@ -51,7 +51,7 @@ class TestBootImageTask(object):
     def test_boot_image_task_raises(self):
         BootImageTask(None, 'target-dir-does-not-exist')
 
-    @patch('kiwi.defaults.Defaults.get_image_description_path')
+    @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
     def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'
         self.task.prepare()

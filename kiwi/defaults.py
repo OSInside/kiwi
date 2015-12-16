@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
 
 
 class Defaults(object):
@@ -124,8 +125,8 @@ class Defaults(object):
         return ['pxe']
 
     @classmethod
-    def get_image_description_path(self):
-        return '/usr/share/kiwi/image'
+    def get_boot_image_description_path(self):
+        return 'boot/arch/' + platform.machine()
 
     @classmethod
     def get_boot_image_strip_file(self):
