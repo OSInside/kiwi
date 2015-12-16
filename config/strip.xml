@@ -22,16 +22,28 @@
         <file name="usr/share/emacs"/>
         <file name="usr/share/zoneinfo"/>
         <file name="usr/share/bash/helpfiles"/>
-        <file name="/usr/share/info"/>
-        <file name="/usr/share/splashy"/>
-        <file name="/lib/i686/nosegneg"/>
-        <file name="/usr/lib*/gconv"/>
-        <file name="/usr/src/packages"/>
-        <file name="/usr/share/X11/locale"/>
-        <file name="/usr/share/backgrounds"/>
-        <file name="/usr/share/grub2/backgrounds"/>
-        <file name="/usr/lib/rpm"/>  
-        <file name="/var/log/*"/>
+        <file name="usr/share/zypp"/>
+        <file name="usr/share/zypper"/>
+        <file name="usr/share/polkit-1"/>
+        <file name="usr/share/sounds"/>
+        <file name="usr/share/ssl"/>
+        <file name="usr/share/pixmaps"/>
+        <file name="usr/share/pkgconfig"/>
+        <file name="usr/share/help"/>
+        <file name="usr/share/gnupg"/>
+        <file name="var/lib/zypp"/>
+        <file name="var/adm/fillup-templates"/>
+        <file name="var/adm/backup"/>
+        <file name="usr/share/info"/>
+        <file name="usr/share/splashy"/>
+        <file name="lib/i686/nosegneg"/>
+        <file name="usr/lib*/gconv"/>
+        <file name="usr/src/packages"/>
+        <file name="usr/share/X11/locale"/>
+        <file name="usr/share/backgrounds"/>
+        <file name="usr/share/grub2/backgrounds"/>
+        <file name="usr/lib/rpm"/>
+        <file name="var/log/*"/>
     </strip>
     <!--
     remove all binaries from bin|sbin /usr/bin|sbin
