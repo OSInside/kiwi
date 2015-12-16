@@ -515,6 +515,5 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             except Exception:
                 raise KiwiBootLoaderGrubModulesError(
-                    'grub2 modules %s not found in system image' %
-                    module_path
+                    'grub2 modules %s not found' % module_path
                 )

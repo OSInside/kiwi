@@ -51,7 +51,7 @@ class BootImageTask(object):
             )
         self.temp_boot_root_directory = mkdtemp()
         self.boot_root_directory = mkdtemp(
-            prefix='boot.', dir=self.target_dir
+            prefix='boot-image.', dir=self.target_dir
         )
         self.initrd_filename = None
 
@@ -150,9 +150,15 @@ class BootImageTask(object):
                 mbrid.write(image_identifier)
 
             cpio = ArchiveCpio(initrd_file_name)
+            # the following is a list of directories which were needed
+            # during the process of creating an image but not when the
+            # image is actually booting with this initrd
+            exclude_from_archive = [
+                '/var/cache', '/image', '/usr/lib/grub2'
+            ]
             cpio.create(
                 source_dir=self.temp_boot_root_directory,
-                exclude=['/var/cache', '/image']
+                exclude=exclude_from_archive
             )
             log.info(
                 '--> xz compressing archive'

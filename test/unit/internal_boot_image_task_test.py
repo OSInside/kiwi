@@ -133,6 +133,6 @@ class TestBootImageTask(object):
         )
         cpio.create.assert_called_once_with(
             source_dir=self.task.temp_boot_root_directory,
-            exclude=['/var/cache', '/image']
+            exclude=['/var/cache', '/image', '/usr/lib/grub2']
         )
         compress.xz.assert_called_once_with()
