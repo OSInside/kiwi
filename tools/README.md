@@ -30,3 +30,11 @@ just set the package kiwi-tools in your config.xml file
 * /usr/bin/isconsole
   a small program sending the KDGETMODE ioctl to /dev/console
   in order to check if we can fbiterm on that console
+
+* /usr/bin/livestick
+  a script to create a livestick from a kiwi generated iso image.
+  The advantage of livestick compared to a simple dd of the iso
+  to the stick is, that livestick preserves the data on the stick
+  and does not destroy existing infrastructure. livestick is installed
+  as part of the kiwi main package and is not part of the
+  kiwi-tools package

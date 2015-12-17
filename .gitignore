@@ -1,3 +1,6 @@
+# compiled tools
+tools_bin
+
 # Schema formats
 kiwi/schema/kiwi.xsd
 kiwi/schema/xsi.xsd
