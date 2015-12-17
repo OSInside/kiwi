@@ -1,0 +1,46 @@
+#!/bin/sh
+#=====================================
+# getUntranslated()
+#-------------------------------------
+function getUntranslated {
+    IFS="
+    "
+    for i in $(\
+    cat $1 | grep -v "#~" | grep -A1 -n "msgstr \"\"" | grep -E ^[0-9]+-$ \
+    );do
+        line=${i/-/}; line=$(expr $line - 1)
+        nlin="$nlin,$line"
+        echo $line
+    done
+    echo $nlin | sed -e s@^,@@ > /tmp/lines
+}
+
+#=====================================
+# Main...
+#-------------------------------------
+printf "%-5s : %-7s : %-7s : %-6s- %s\n" \
+    "LC" "Removed" "Fuzzy's" "Missing" "LineNo/Status"
+printf "%s\n" \
+    "--------------------------------------------------"
+for i in $(find kiwi/boot/locale -maxdepth 1 -type d);do
+if [ -d $i/LC_MESSAGES ];then
+    notYet=$(getUntranslated $i/LC_MESSAGES/kiwi.po | wc -l)
+    notYet=$(echo $notYet)
+    fuzzyCount=$(cat $i/LC_MESSAGES/kiwi.po | grep -v "#~" | grep fuzzy | wc -l)
+    fuzzyCount=$(echo $fuzzyCount)
+    removed=$(cat $i/LC_MESSAGES/kiwi.po | grep "#~ msgid" | wc -l)
+    removed=$(echo $removed)
+    locale=$(basename $i)
+    lines=$(cat /tmp/lines)
+    if ([ $locale = "en_US" ]) || ([ $locale = "en_GB" ]);then
+        notYet=0
+    fi
+    if [ $notYet -eq 0 ];then
+        lines="Fine"
+    elif [ $notYet -gt 10 ];then
+        lines="Not usable"
+    fi
+    printf "%-5s : %-7s : %-7s : %-6s - %s\n" \
+        "$locale" "$removed" "$fuzzyCount" "$notYet" "$lines"
+fi
+done

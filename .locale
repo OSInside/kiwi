@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+# Copyright (c) 2000 SuSE GmbH Nuernberg, Germany.  All rights reserved.
+#
+# Author: Marcus Schaefer <ms@suse.de>, 2000
+# Script for creating .po translation files 
+# 
+# Status : development
+#
+use strict;
+my $Template = "kiwi-template";
+
+#----[ main ]---------#
+sub main {
+#-------------------------------------
+# main function, lets do all those 
+# ugly things :-)
+#
+    my $merge;
+    my $base_dir = "kiwi/boot/locale";
+    my $pdate = "POT-Creation-Date";
+    my $tfile = "$base_dir/$Template/kiwi.pot";
+    my $newtf = "$base_dir/$Template/kiwi.pot.new";
+
+    # merge old translations with new template file...
+    # --------------------------------------------------
+    opendir(FD, $base_dir);
+    my @files = readdir(FD);
+    closedir(FD);
+    foreach my $dir (sort @files) {
+        if (
+           ($dir =~ /^\.|\.\./) || (! -d "$base_dir/$dir") ||
+           ($dir eq $Template)          
+        ) {
+            next;
+        }
+        print "KIWI merging $dir: ";
+        my $LC="LC_MESSAGES";
+        my $po_out = "./$base_dir/$dir/kiwi.$dir.po";
+        my $cmd = "msgmerge --no-location";
+        $merge = qx (
+            $cmd ./$base_dir/$dir/$LC/kiwi.po ./$tfile > $po_out
+        );
+        qx (diff -q ./$base_dir/$dir/$LC/kiwi.po $po_out);
+        my $result = $? >> 8;
+        if ($result == 0) {
+            unlink $po_out;
+            next;
+        }
+        qx (mv $po_out ./$base_dir/$dir/$LC/kiwi.po); 
+        qx (
+            msgfmt ./$base_dir/$dir/$LC/kiwi.po -o ./$base_dir/$dir/$LC/kiwi.mo
+        );
+        my $po_patch = "./$base_dir/$dir/$LC/kiwi.po.patched";
+        qx (
+            cat ./$base_dir/$dir/$LC/kiwi.po | grep -v $pdate > $po_patch
+        );
+        qx (
+            mv $po_patch ./$base_dir/$dir/$LC/kiwi.po
+        );
+        print $merge; 
+    }
+    qx (cat $tfile | grep -v $pdate > $tfile.patched);
+    qx (mv $tfile.patched $tfile);
+}
+
+main();
