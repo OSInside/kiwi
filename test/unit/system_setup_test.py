@@ -11,6 +11,7 @@ from kiwi.system_setup import SystemSetup
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import *
+from kiwi.defaults import Defaults
 
 
 class TestSystemSetup(object):
@@ -50,7 +51,10 @@ class TestSystemSetup(object):
             ]),
             call(['cp', 'description_dir/config.sh', 'root_dir/image/']),
             call(['cp', 'description_dir/images.sh', 'root_dir/image/']),
-            call(['cp', 'config/functions.sh', 'root_dir/.kconfig'])
+            call([
+                'cp', Defaults.project_file('config/functions.sh'),
+                'root_dir/.kconfig'
+            ])
         ]
 
     @patch('kiwi.command.Command.run')

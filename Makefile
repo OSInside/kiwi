@@ -3,7 +3,7 @@ pep8:
 
 .PHONY: test
 test:
-	./.version > schema/kiwi.revision
+	./.version > kiwi/schema/kiwi.revision
 	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
 	helper/coverage-check
 
@@ -17,14 +17,14 @@ list_tests:
 %.py:
 	nosetests $@
 
-kiwi/xml_parse.py: schema/kiwi.xsd
+kiwi/xml_parse.py: kiwi/schema/kiwi.xsd
 	# XML parser code is auto generated from schema using generateDS
 	# http://pythonhosted.org/generateDS
 	generateDS.py --external-encoding='utf-8' \
-		-o kiwi/xml_parse.py schema/kiwi.xsd
+		-o kiwi/xml_parse.py kiwi/schema/kiwi.xsd
 
-schema/kiwi.xsd: schema/kiwi.rnc
-	trang -I rnc -O xsd schema/kiwi.rnc schema/kiwi.xsd
+kiwi/schema/kiwi.xsd: kiwi/schema/kiwi.rnc
+	trang -I rnc -O xsd kiwi/schema/kiwi.rnc kiwi/schema/kiwi.xsd
 
 clean:
 	find -name *.pyc | xargs rm -f

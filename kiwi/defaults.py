@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+from pkg_resources import resource_filename
 
 
 class Defaults(object):
@@ -126,23 +127,27 @@ class Defaults(object):
 
     @classmethod
     def get_boot_image_description_path(self):
-        return 'boot/arch/' + platform.machine()
+        return Defaults.project_file('boot/arch/' + platform.machine())
 
     @classmethod
     def get_boot_image_strip_file(self):
-        return 'config/strip.xml'
+        return Defaults.project_file('config/strip.xml')
 
     @classmethod
     def get_schema_file(self):
-        return 'schema/kiwi.rng'
+        return Defaults.project_file('schema/kiwi.rng')
 
     @classmethod
     def get_common_functions_file(self):
-        return 'config/functions.sh'
+        return Defaults.project_file('config/functions.sh')
 
     @classmethod
     def get_xsl_stylesheet_file(self):
-        return 'xsl/master.xsl'
+        return Defaults.project_file('xsl/master.xsl')
+
+    @classmethod
+    def project_file(self, filename):
+        return resource_filename('kiwi', filename)
 
     def get(self, key):
         if key in self.defaults:
@@ -153,5 +158,5 @@ class Defaults(object):
             profile.add(key, self.get(key))
 
     def __kiwi_revision(self):
-        with open('schema/kiwi.revision') as revision:
+        with open(Defaults.project_file('schema/kiwi.revision')) as revision:
             return revision.read().splitlines().pop()

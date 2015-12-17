@@ -7,6 +7,7 @@ import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.shell import Shell
+from kiwi.defaults import Defaults
 
 
 class TestShell(object):
@@ -24,6 +25,12 @@ class TestShell(object):
     @patch('kiwi.shell.Command.run')
     def test_run_common_function(self, mock_command):
         Shell.run_common_function('foo', ['"param1"', '"param2"'])
+        command_string = ' '.join(
+            [
+                'source', Defaults.project_file('config/functions.sh') + ';',
+                'foo', '"param1"', '"param2"'
+            ]
+        )
         mock_command.assert_called_once_with(
-            ['bash', '-c', 'source config/functions.sh; foo "param1" "param2"']
+            ['bash', '-c', command_string]
         )
