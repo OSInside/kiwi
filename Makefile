@@ -40,6 +40,9 @@ kiwi/xml_parse.py: kiwi/schema/kiwi.xsd
 kiwi/schema/kiwi.xsd: kiwi/schema/kiwi.rnc
 	trang -I rnc -O xsd kiwi/schema/kiwi.rnc kiwi/schema/kiwi.xsd
 
+kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
+	trang -I rnc -O rng kiwi/schema/kiwi.rnc kiwi/schema/kiwi.rng
+
 tools_bin:
 	mkdir -p tools_bin
 
