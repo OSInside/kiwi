@@ -17,7 +17,6 @@ pep8:
 
 .PHONY: test
 test:
-	./.version > kiwi/schema/kiwi.revision
 	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
 	helper/coverage-check
 

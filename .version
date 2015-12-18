@@ -1,3 +1,0 @@
-#!/bin/sh
-
-git log | head -n 1 | cut -f2 -d" "

@@ -19,3 +19,4 @@
     Global version information used in kiwi and the package
 """
 __version__ = '8.10.0'
+__githash__ = '$Id$'

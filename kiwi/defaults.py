@@ -16,7 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import re
 from pkg_resources import resource_filename
+from version import __githash__
 
 
 class Defaults(object):
@@ -158,5 +160,6 @@ class Defaults(object):
             profile.add(key, self.get(key))
 
     def __kiwi_revision(self):
-        with open(Defaults.project_file('schema/kiwi.revision')) as revision:
-            return revision.read().splitlines().pop()
+        githash = re.match('\$Id: (.*) \$', __githash__)
+        if githash:
+            return githash.group(1)
