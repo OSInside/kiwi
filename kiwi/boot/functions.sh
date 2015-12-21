@@ -8888,6 +8888,10 @@ function createFilesystem {
         if [ ! -z "$label" ];then
             opts="$opts -n $label"
         fi
+    elif [ "$filesystem" = "xfs" ];then
+        if [ ! -z "$label" ];then
+            opts="$opts -L $label"
+        fi
     elif [ "$filesystem" = "ntfs" ];then
         if [ ! -z "$label" ];then
             opts="$opts -L $label"
@@ -8908,8 +8912,10 @@ function createFilesystem {
         dd if=/dev/zero of=$deviceCreate bs=1M count=1 conv=notrunc
         mkfs.btrfs $opts $deviceCreate
     elif [ "$filesystem" = "xfs" ];then
-        mkfs.xfs -f $deviceCreate
-        xfs_admin -U $uuid $deviceCreate
+        mkfs.xfs $opts -f $deviceCreate
+        if [ ! -z "$uuid" ];then
+            xfs_admin -U $uuid $deviceCreate
+        fi
     elif [ "$filesystem" = "fat" ];then
         mkfs.fat $opts $deviceCreate $blocks 1>&2
     elif [ "$filesystem" = "ntfs" ];then
