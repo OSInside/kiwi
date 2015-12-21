@@ -209,6 +209,10 @@ class KiwiRequestedTypeError(KiwiError):
     pass
 
 
+class KiwiRequestError(KiwiError):
+    pass
+
+
 class KiwiRootDirExists(KiwiError):
     pass
 

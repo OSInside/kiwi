@@ -106,6 +106,7 @@ class TestPackageManagerZypper(object):
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.command.Command.call')
+    @raises(KiwiRequestError)
     def test_process_delete_requests_package_missing(self, mock_call, mock_run):
         mock_run.side_effect = Exception
         self.manager.request_package('vim')

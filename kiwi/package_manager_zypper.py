@@ -21,7 +21,8 @@ import re
 from command import Command
 from package_manager_base import PackageManagerBase
 from exceptions import (
-    KiwiRpmDatabaseReloadError
+    KiwiRpmDatabaseReloadError,
+    KiwiRequestError
 )
 
 
@@ -76,6 +77,10 @@ class PackageManagerZypper(PackageManagerBase):
             except Exception:
                 # ignore packages which are not installed
                 pass
+        if not delete_items:
+            raise KiwiRequestError(
+                'None of the requested packages to delete are installed'
+            )
         if force:
             force_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
