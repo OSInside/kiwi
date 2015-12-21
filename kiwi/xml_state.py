@@ -140,7 +140,7 @@ class XMLState(object):
         if package_list:
             for package in package_list:
                 result.append(package.get_name())
-        return list(set(result))
+        return sorted(list(set(result)))
 
     def get_system_packages(self):
         """
@@ -156,7 +156,7 @@ class XMLState(object):
         if package_list:
             for package in package_list:
                 result.append(package.get_name())
-        return list(set(result))
+        return sorted(list(set(result)))
 
     def get_bootstrap_archives(self):
         """
@@ -170,7 +170,7 @@ class XMLState(object):
                 if archive_list:
                     for archive in archive_list:
                         result.append(archive.get_name())
-        return result
+        return sorted(result)
 
     def get_system_archives(self):
         """
@@ -183,7 +183,7 @@ class XMLState(object):
         for packages in image_packages_sections:
             for archive in packages.get_archive():
                 result.append(archive.get_name())
-        return result
+        return sorted(result)
 
     def get_collection_type(self, section_type='image'):
         """

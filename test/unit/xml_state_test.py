@@ -46,13 +46,13 @@ class TestXMLState(object):
     def test_get_system_packages(self):
         assert self.state.get_system_packages() == [
             'gfxboot-branding-openSUSE',
-            'iputils',
             'grub2-branding-openSUSE',
-            'vim',
-            'kernel-default',
             'ifplugd',
+            'iputils',
+            'kernel-default',
             'openssh',
-            'plymouth-branding-openSUSE'
+            'plymouth-branding-openSUSE',
+            'vim'
         ]
 
     def test_get_system_collections(self):
