@@ -44,6 +44,9 @@ global options:
         show manual page
 """
 import sys
+import glob
+import re
+import os
 import importlib
 from docopt import docopt
 
@@ -54,6 +57,7 @@ from exceptions import (
     KiwiLoadCommandUndefined,
     KiwiUnknownCommand
 )
+from defaults import Defaults
 from version import __version__
 from help import Help
 
@@ -105,16 +109,33 @@ class Cli(object):
             raise KiwiLoadCommandUndefined(
                 'No command specified for %s service' % service
             )
-        try:
-            self.command_loaded = importlib.import_module(
-                'kiwi.' + service + '_' + command + '_task'
-            )
-        except Exception as e:
+        command_source_file = Defaults.project_file(
+            service + '_' + command + '_task.py'
+        )
+        if not os.path.exists(command_source_file):
             raise KiwiUnknownCommand(
-                'Loading command %s for %s service failed with: %s: %s' %
-                (command, service, type(e).__name__, format(e))
+                'Unknown command "%s", available are: %s' %
+                (command, self.__get_command_implementations())
             )
+        self.command_loaded = importlib.import_module(
+            'kiwi.' + service + '_' + command + '_task'
+        )
         return self.command_loaded
+
+    def __get_command_implementations(self):
+        command_implementations = []
+        glob_match = Defaults.project_file('.') + '/*task.py'
+        for source_file in glob.iglob(glob_match):
+            with open(source_file, 'r') as source:
+                for line in source:
+                    if re.search('usage: (.*)', line):
+                        command_path = os.path.basename(source_file).split('_')
+                        command_path.pop()
+                        command_implementations.append(
+                            ' '.join(command_path)
+                        )
+                        break
+        return command_implementations
 
     def __load_command_args(self):
         try:
