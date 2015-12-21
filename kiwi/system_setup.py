@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from collections import OrderedDict
 
 # project
 from command import Command
@@ -66,10 +67,13 @@ class SystemSetup(object):
             'edit_boot_install.sh':
                 self.xml_state.build_type.get_editbootinstall()
         }
+        sorted_bootloader_scripts = OrderedDict(
+            sorted(bootloader_scripts.items())
+        )
 
         script_target = self.root_dir + '/image/'
 
-        for name, bootloader_script in bootloader_scripts.iteritems():
+        for name, bootloader_script in sorted_bootloader_scripts.iteritems():
             if bootloader_script:
                 script_file = self.description_dir + '/' + bootloader_script
                 if os.path.exists(script_file):
