@@ -6,7 +6,7 @@ import mock
 import kiwi
 
 import nose_helper
-
+from collections import OrderedDict
 from kiwi.exceptions import *
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
@@ -30,6 +30,9 @@ class TestDiskBuilder(object):
             'kiwi_RootPart': 1,
             'kiwi_BootPart': 1
         }
+        self.id_map_sorted = OrderedDict(
+            sorted(self.id_map.items())
+        )
         self.loop_provider = mock.Mock()
         kiwi.disk_builder.LoopDevice = mock.Mock(
             return_value=self.loop_provider
@@ -49,7 +52,7 @@ class TestDiskBuilder(object):
             return_value='0815'
         )
         self.disk.get_partition_id_map = mock.Mock(
-            return_value=self.id_map
+            return_value=self.id_map_sorted
         )
         self.disk.get_device = mock.Mock(
             return_value=self.device_map
@@ -224,8 +227,8 @@ class TestDiskBuilder(object):
             call('/dev/some-loop', 'wb')
         ]
         assert file_mock.write.call_args_list == [
-            call('kiwi_RootPart="1"\n'),
             call('kiwi_BootPart="1"\n'),
+            call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
             call('\x0f\x0f\x0f\x0f')
         ]
