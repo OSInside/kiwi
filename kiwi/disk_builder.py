@@ -155,6 +155,7 @@ class DiskBuilder(object):
             )
             volume_manager.mount_volumes()
             self.system = volume_manager
+            device_map['root'] = volume_manager.get_device()['root']
         else:
             log.info(
                 'Creating root(%s) filesystem on %s',

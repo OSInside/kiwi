@@ -303,6 +303,9 @@ class TestDiskBuilder(object):
         self, mock_command, mock_open, mock_volume_manager, mock_fs
     ):
         volume_manager = mock.Mock()
+        volume_manager.get_device = mock.Mock(
+            return_value={'root': '/dev/systemVG/LVRoot'}
+        )
         mock_volume_manager.return_value = volume_manager
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
