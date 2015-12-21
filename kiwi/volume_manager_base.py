@@ -137,7 +137,7 @@ class VolumeManagerBase(DeviceProvider):
                 volume_paths[volume.realpath] = volume
 
         volume_list = []
-        for realpath in Path.sort_by_hierarchy(volume_paths.keys()):
+        for realpath in Path.sort_by_hierarchy(sorted(volume_paths.keys())):
             volume_list.append(volume_paths[realpath])
         return canonical_volume_type(
             volumes=volume_list, full_size_volume=full_size_volume

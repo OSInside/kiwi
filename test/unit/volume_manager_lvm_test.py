@@ -1,6 +1,6 @@
 from nose.tools import *
 from mock import patch
-
+from mock import call
 import mock
 
 import nose_helper
@@ -125,56 +125,35 @@ class TestVolumeManagerLVM(object):
         mock_os_exists.return_value = False
         self.volume_manager.volume_group = 'volume_group'
         self.volume_manager.create_volumes('ext3')
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
+        myvol_size = 500
+        etc_size = 200 + 42 + Defaults.get_min_volume_mbytes()
+        root_size = 100 + 42 + Defaults.get_min_volume_mbytes()
+        assert mock_command.call_args_list == [
+            call(['mkdir', '-p', 'source_dir//etc']),
+            call(['mkdir', '-p', 'source_dir//data']),
+            call(['mkdir', '-p', 'source_dir//home']),
             call([
-                'mkdir', '-p', 'source_dir//etc'
-            ])
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
+                'lvcreate', '-L', format(root_size), '-n', 'LVRoot',
+                'volume_group'
+            ]),
             call([
-                'mkdir', '-p', 'source_dir//data'
-            ])
-        call = mock_command.call_args_list[2]
-        assert mock_command.call_args_list[2] == \
+                'lvcreate', '-L', format(myvol_size), '-n', 'myvol',
+                'volume_group'
+            ]),
             call([
-                'mkdir', '-p', 'source_dir//home'
-            ])
-        size = 500
-        call = mock_command.call_args_list[3]
-        assert mock_command.call_args_list[3] == \
-            call([
-                'lvcreate', '-L', format(size), '-n', 'myvol', 'volume_group'
-            ])
-        size = 200 + 42 + Defaults.get_min_volume_mbytes()
-        call = mock_command.call_args_list[4]
-        assert mock_command.call_args_list[4] == \
-            call([
-                'lvcreate', '-L', format(size), '-n', 'LVetc', 'volume_group'
-            ])
-        size = 100 + 42 + Defaults.get_min_volume_mbytes()
-        call = mock_command.call_args_list[5]
-        assert mock_command.call_args_list[5] == \
-            call([
-                'lvcreate', '-L', format(size), '-n', 'LVRoot', 'volume_group'
-            ])
-        call = mock_command.call_args_list[6]
-        assert mock_command.call_args_list[6] == \
+                'lvcreate', '-L', format(etc_size), '-n', 'LVetc',
+                'volume_group'
+            ]),
             call([
                 'lvcreate', '-l', '+100%FREE', '-n', 'LVhome', 'volume_group'
             ])
-        call = mock_fs.call_args_list[0]
-        assert mock_fs.call_args_list[0] == \
+        ]
+        assert mock_fs.call_args_list == [
+            call('ext3', 'mapped_device'),
+            call('ext3', 'mapped_device'),
+            call('ext3', 'mapped_device'),
             call('ext3', 'mapped_device')
-        call = mock_fs.call_args_list[1]
-        assert mock_fs.call_args_list[1] == \
-            call('ext3', 'mapped_device')
-        call = mock_fs.call_args_list[2]
-        assert mock_fs.call_args_list[2] == \
-            call('ext3', 'mapped_device')
-        call = mock_fs.call_args_list[3]
-        assert mock_fs.call_args_list[3] == \
-            call('ext3', 'mapped_device')
+        ]
         assert self.volume_manager.mount_list == [
             self.mount_type(
                 device='/dev/volume_group/LVRoot', mountpoint='/'
@@ -220,15 +199,10 @@ class TestVolumeManagerLVM(object):
         self.volume_manager.volume_group = 'volume_group'
         self.volume_manager.__del__()
         call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
-            call([
-                'umount', '/dev/volume_group/LVRoot'
-            ])
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
-            call([
-                'vgchange', '-an', 'volume_group'
-            ])
+        assert mock_command.call_args_list == [
+            call(['umount', '/dev/volume_group/LVRoot']),
+            call(['vgchange', '-an', 'volume_group'])
+        ]
         mock_wipe.assert_called_once_with('tmpdir')
         self.volume_manager.volume_group = None
 
