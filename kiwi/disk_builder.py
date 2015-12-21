@@ -342,6 +342,11 @@ class DiskBuilder(object):
         if 'boot' in device_map:
             boot_device = device_map['boot']
 
+        partition_id_map = self.disk.get_partition_id_map()
+        boot_partition_id = partition_id_map['kiwi_RootPart']
+        if 'kiwi_BootPart' in partition_id_map:
+            boot_partition_id = partition_id_map['kiwi_BootPart']
+
         boot_uuid = self.disk.get_uuid(
             boot_device.get_device()
         )
@@ -349,9 +354,8 @@ class DiskBuilder(object):
         self.bootloader_config.setup_disk_image_config(boot_uuid)
         self.bootloader_config.write()
 
-        partition_id_map = self.disk.get_partition_id_map()
         self.system_setup.call_edit_boot_config_script(
-            self.requested_filesystem, partition_id_map['kiwi_BootPart']
+            self.requested_filesystem, boot_partition_id
         )
 
     def __install_bootloader(self, device_map):
