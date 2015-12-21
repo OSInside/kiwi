@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from collections import OrderedDict
 
 # project
 from command import Command
@@ -130,7 +131,9 @@ class Disk(DeviceProvider):
             )
 
     def get_partition_id_map(self):
-        return self.partition_id_map
+        return OrderedDict(
+            sorted(self.partition_id_map.items())
+        )
 
     def __add_to_id_map(self, name, value=None):
         if not value:
