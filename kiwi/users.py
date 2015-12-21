@@ -33,7 +33,7 @@ class Users(object):
 
     def group_add(self, group_name, options):
         Command.run(
-            ['chroot', self.root_dir, 'addgroup'] + options + [group_name]
+            ['chroot', self.root_dir, 'groupadd'] + options + [group_name]
         )
 
     def user_add(self, user_name, options):

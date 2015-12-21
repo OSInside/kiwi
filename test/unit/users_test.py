@@ -36,7 +36,7 @@ class TestUsers(object):
     def test_group_add(self, mock_command):
         self.users.group_add('group', ['--option', 'value'])
         mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', 'addgroup', '--option', 'value', 'group']
+            ['chroot', 'root_dir', 'groupadd', '--option', 'value', 'group']
         )
 
     @patch('kiwi.users.Command.run')
