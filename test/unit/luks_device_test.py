@@ -15,6 +15,9 @@ class TestLuksDevice(object):
         storage_device.get_byte_size = mock.Mock(
             return_value=1048576
         )
+        storage_device.get_uuid = mock.Mock(
+            return_value='0815'
+        )
         storage_device.get_device = mock.Mock(
             return_value='/dev/some-device'
         )
@@ -62,6 +65,21 @@ class TestLuksDevice(object):
                 '/dev/some-device', 'luksRoot'
             ])
         ]
+        self.luks.luks_device = None
+
+    @patch('__builtin__.open')
+    def test_create_crypttab(self, mock_open):
+        self.luks.luks_device = '/dev/mapper/luksRoot'
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        self.luks.create_crypttab('crypttab')
+        file_mock.write.assert_called_once_with('luks UUID=0815\n')
         self.luks.luks_device = None
 
     def test_is_loop(self):

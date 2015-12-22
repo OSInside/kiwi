@@ -7623,7 +7623,7 @@ function luksOpen {
     # no map name set, build it from device
     #--------------------------------------
     if [ -z "$name" ];then
-        name=luks_$(basename "$ldev")
+        name=luks
     fi
     #======================================
     # luks map already exists, return

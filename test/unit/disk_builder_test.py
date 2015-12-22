@@ -298,6 +298,9 @@ class TestDiskBuilder(object):
         self.raid_root.create_degraded_raid.assert_called_once_with(
             raid_level='mirroring'
         )
+        self.raid_root.create_raid_config.assert_called_once_with(
+            'boot_dir/etc/mdadm.conf'
+        )
 
     @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
@@ -310,6 +313,9 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
         self.luks_root.create_crypto_luks.assert_called_once_with(
             passphrase='passphrase', os=None
+        )
+        self.luks_root.create_crypttab.assert_called_once_with(
+            'source_dir/etc/crypttab'
         )
 
     @patch('kiwi.disk_builder.FileSystem')

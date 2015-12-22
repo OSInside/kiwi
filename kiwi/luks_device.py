@@ -108,6 +108,15 @@ class LuksDevice(DeviceProvider):
         )
         self.luks_device = '/dev/mapper/' + self.luks_name
 
+    def create_crypttab(self, filename):
+        storage_device = self.storage_provider.get_device()
+        with open(filename, 'w') as crypttab:
+            crypttab.write(
+                'luks UUID=%s\n' % self.storage_provider.get_uuid(
+                    storage_device
+                )
+            )
+
     def is_loop(self):
         """
             return loop status from base storage provider

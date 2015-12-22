@@ -200,6 +200,8 @@ class DiskBuilder(object):
 
         self.__write_raid_config_to_boot_image()
 
+        self.__write_crypttab_to_system_image()
+
         # create initrd cpio archive
         self.boot_image_task.create_initrd(self.mbrid)
 
@@ -340,6 +342,13 @@ class DiskBuilder(object):
             log.info('Creating etc/mdadm.conf in boot system')
             self.raid_root.create_raid_config(
                 self.boot_image_task.boot_root_directory + '/etc/mdadm.conf'
+            )
+
+    def __write_crypttab_to_system_image(self):
+        if self.luks:
+            log.info('Creating etc/crypttab')
+            self.luks_root.create_crypttab(
+                self.source_dir + '/etc/crypttab'
             )
 
     def __write_image_identifier_to_system_image(self):
