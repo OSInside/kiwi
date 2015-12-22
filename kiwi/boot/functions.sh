@@ -5458,35 +5458,23 @@ function setupReadWrite {
         if [ "$RELOAD_IMAGE" = "yes" ] || \
             ! mount -o ro $rwDevice $rwDir &>/dev/null
         then
-            #======================================
-            # store old FSTYPE value
-            #--------------------------------------
-            if [ ! -z "$FSTYPE" ];then
-                FSTYPE_SAVE=$FSTYPE
+            local hybrid_fs=$HYBRID_PERSISTENT_FS
+            if [ ! -z "$kiwi_hybridpersistent_filesystem" ];then
+                hybrid_fs=$kiwi_hybridpersistent_filesystem
             fi
-            #======================================
-            # probe filesystem
-            #--------------------------------------
-            probeFileSystem $rwDevice
-            if [ ! "$FSTYPE" = "unknown" ];then
-                Echo "Checking filesystem for RW data on $rwDevice..."
-                e2fsck -p $rwDevice
-            fi
-            #======================================
-            # restore FSTYPE
-            #--------------------------------------
-            if [ ! -z "$FSTYPE_SAVE" ];then
-                FSTYPE=$FSTYPE_SAVE
-            fi
+            Echo "Checking filesystem for RW data on $rwDevice..."
+            checkFilesystem $rwDevice
+
             if [ "$RELOAD_IMAGE" = "yes" ] || \
                 ! mount -o ro $rwDevice $rwDir &>/dev/null
             then
                 Echo "Creating filesystem for RW data on $rwDevice..."
-                if ! mkfs.ext3 -F $rwDevice >/dev/null;then
+                local exception_handling="false"
+                if ! createFilesystem $rwDevice "" "" "hybrid" $exception_handling $hybrid_fs; then
                     Echo "Failed to create ext3 filesystem"
                     return 1
                 fi
-                e2fsck -p $rwDevice >/dev/null
+                checkFilesystem $rwDevice >/dev/null
             fi
         else
             umount $rwDevice
@@ -8729,6 +8717,35 @@ function reloadKernel {
     exec kexec -e
 }
 #======================================
+# checkFilesystem
+#--------------------------------------
+function checkFilesystem {
+    local device=$1
+    local FSTYPE_SAVE=$FS_TYPE
+    if [ -z "$FSTYPE" ];then
+        probeFileSystem $device
+    fi
+    if [ "$FSTYPE" = "reiserfs" ];then
+        reiserfsck -y $device
+    elif [ "$FSTYPE" = "ext2" ];then
+        e2fsck -p $device
+    elif [ "$FSTYPE" = "ext3" ];then
+        e2fsck -p $device
+    elif [ "$FSTYPE" = "ext4" ];then
+        e2fsck -p $device
+    elif [ "$FSTYPE" = "btrfs" ];then
+        btrfsck $device
+    elif [ "$FSTYPE" = "xfs" ];then
+        xfs_repair -n $device
+    else
+        FSTYPE=$FSTYPE_SAVE
+        # don't know how to check this filesystem
+        Echo "Don't know how to check ${FSTYPE}... skip it"
+        return
+    fi
+    FSTYPE=$FSTYPE_SAVE
+}
+#======================================
 # resizeFilesystem
 #--------------------------------------
 function resizeFilesystem {
@@ -8749,22 +8766,18 @@ function resizeFilesystem {
     fi
     if [ "$FSTYPE" = "reiserfs" ];then
         resize_fs="resize_reiserfs -q $deviceResize"
-        check="reiserfsck -y $deviceResize"
     elif [ "$FSTYPE" = "ext2" ];then
         resize_fs="resize2fs -f -F -p $deviceResize"
-        check="e2fsck -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
         fi
     elif [ "$FSTYPE" = "ext3" ];then
         resize_fs="resize2fs -f -F -p $deviceResize"
-        check="e2fsck -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
         fi
     elif [ "$FSTYPE" = "ext4" ];then
         resize_fs="resize2fs -f -F -p $deviceResize"
-        check="e2fsck -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
         fi
@@ -8776,11 +8789,9 @@ function resizeFilesystem {
         else
             resize_fs="$resize_fs btrfsctl -r max $mpoint;umount $mpoint"
         fi
-        check="btrfsck $deviceResize"
     elif [ "$FSTYPE" = "xfs" ];then
         resize_fs="mount $deviceResize $mpoint &&"
         resize_fs="$resize_fs xfs_growfs $mpoint;umount $mpoint"
-        check="xfs_repair -n $deviceResize"
     elif [ "$FSTYPE" = "zfs" ];then
         local device=$(getDiskID $deviceResize)
         resize_fs="zpool import kiwipool && udevPending &&"
@@ -8792,9 +8803,9 @@ function resizeFilesystem {
         return
     fi
     if [ -z "$callme" ];then
-        if [ $ramdisk -eq 0 ] && [ ! -z "$check" ];then
+        if [ $ramdisk -eq 0 ]; then
             Echo "Checking $FSTYPE filesystem on ${deviceResize}..."
-            eval $check
+            checkFilesystem $check
         fi
         Echo "Resizing $FSTYPE filesystem on ${deviceResize}..."
         eval $resize_fs
