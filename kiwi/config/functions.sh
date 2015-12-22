@@ -1200,6 +1200,9 @@ function suseGFXBoot {
         if [ -f /boot/MLO ];then
             mv /boot/MLO /image/loader
         fi
+        if [ -d /boot/vc ];then
+            mv /boot/vc /image/loader
+        fi
         mv /boot/*.dat /image/loader &>/dev/null
         mv /boot/*.bin /image/loader &>/dev/null
         mv /boot/*.img /image/loader &>/dev/null
