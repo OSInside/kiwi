@@ -37,6 +37,7 @@ class DiskSetup(object):
         self.bootpart_requested = xml_state.build_type.get_bootpartition()
         self.bootpart_mbytes = xml_state.build_type.get_bootpartsize()
         self.mdraid = xml_state.build_type.get_mdraid()
+        self.luks = xml_state.build_type.get_luks()
         self.volume_manager = xml_state.get_volume_management()
         self.bootloader = xml_state.build_type.get_bootloader()
         self.oemconfig = xml_state.get_build_type_oemconfig_section()
@@ -161,6 +162,8 @@ class DiskSetup(object):
         if self.filesystem == 'xfs':
             return True
         if self.bootloader == 'grub2_s390x_emu':
+            return True
+        if self.luks:
             return True
 
     def get_boot_label(self):

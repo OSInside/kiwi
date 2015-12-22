@@ -62,6 +62,11 @@ class TestDiskSetup(object):
         self.setup.mdraid = True
         assert self.setup.need_boot_partition() == True
 
+    def test_need_boot_partition_luks(self):
+        self.__init_bootpart_check()
+        self.setup.luks = True
+        assert self.setup.need_boot_partition() == True
+
     def test_need_boot_partition_lvm(self):
         self.__init_bootpart_check()
         self.setup.volume_manager = 'lvm'
