@@ -27,5 +27,15 @@ class TestDeviceProvider(object):
             ['blkid', '/dev/some-device', '-s', 'UUID', '-o', 'value']
         )
 
+    @patch('kiwi.device_provider.Command.run')
+    def test_get_byte_size(self, mock_command):
+        blockdev_call = mock.Mock()
+        blockdev_call.output = '1024\n'
+        mock_command.return_value = blockdev_call
+        assert self.provider.get_byte_size('/dev/some-device') == 1024
+        mock_command.assert_called_once_with(
+            ['blockdev', '--getsize64', '/dev/some-device']
+        )
+
     def test_is_loop(self):
         assert self.provider.is_loop() == False

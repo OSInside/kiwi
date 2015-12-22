@@ -46,8 +46,7 @@ class RaidDevice(DeviceProvider):
 
     def get_device(self):
         """
-            return names of partition devices, note that the mapping
-            requires an explicit map() call
+            return an instance of mapped device providing the raid device
         """
         if self.raid_device:
             return MappedDevice(

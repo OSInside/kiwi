@@ -27,8 +27,9 @@ class DeviceProvider(object):
         base class for any class providing storage devices
     """
     def get_device(self):
+        # could provide one ore more devices representing the storage
         raise KiwiDeviceProviderError(
-            'No storage device provided'
+            'No storage device(s) provided'
         )
 
     def get_uuid(self, device):
@@ -36,6 +37,12 @@ class DeviceProvider(object):
             ['blkid', device, '-s', 'UUID', '-o', 'value']
         )
         return uuid_call.output.rstrip('\n')
+
+    def get_byte_size(self, device):
+        blockdev_call = Command.run(
+            ['blockdev', '--getsize64', device]
+        )
+        return int(blockdev_call.output.rstrip('\n'))
 
     def is_loop(self):
         return False

@@ -137,6 +137,10 @@ class KiwiIsoLoaderError(KiwiError):
     pass
 
 
+class KiwiLuksSetupError(KiwiError):
+    pass
+
+
 class KiwiLoadCommandUndefined(KiwiError):
     pass
 

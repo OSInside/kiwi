@@ -119,6 +119,10 @@ class TestDiskBuilder(object):
         kiwi.disk_builder.RaidDevice = mock.Mock(
             return_value=self.raid_root
         )
+        self.luks_root = mock.Mock()
+        kiwi.disk_builder.LuksDevice = mock.Mock(
+            return_value=self.luks_root
+        )
         self.disk_builder = DiskBuilder(
             XMLState(description.load()), 'target_dir', 'source_dir'
         )
@@ -293,6 +297,19 @@ class TestDiskBuilder(object):
         )
         self.raid_root.create_degraded_raid.assert_called_once_with(
             raid_level='mirroring'
+        )
+
+    @patch('kiwi.disk_builder.FileSystem')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk_builder.Command.run')
+    def test_create_luks_root(self, mock_command, mock_open, mock_fs):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.luks = 'passphrase'
+        self.disk_builder.create()
+        self.luks_root.create_crypto_luks.assert_called_once_with(
+            passphrase='passphrase', os=None
         )
 
     @patch('kiwi.disk_builder.FileSystem')

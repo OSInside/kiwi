@@ -27,6 +27,7 @@ from loop_device import LoopDevice
 from firmware import FirmWare
 from disk import Disk
 from raid_device import RaidDevice
+from luks_device import LuksDevice
 from filesystem import FileSystem
 from volume_manager import VolumeManager
 from logger import log
@@ -57,6 +58,8 @@ class DiskBuilder(object):
         self.volumes = xml_state.get_volumes()
         self.volume_group_name = xml_state.get_volume_group_name()
         self.mdraid = xml_state.build_type.get_mdraid()
+        self.luks = xml_state.build_type.get_luks()
+        self.luks_os = xml_state.build_type.get_luksOS()
         self.machine = xml_state.get_build_type_machine_section()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
         self.requested_boot_filesystem = \
@@ -110,11 +113,15 @@ class DiskBuilder(object):
             raise KiwiDiskBootImageError(
                 'disk images requires a boot setup in the type definition'
             )
+
+        # prepare boot(initrd) root system
         log.info('Preparing boot system')
         self.boot_image_task.prepare()
 
+        # precalculate needed disk size
         disksize_mbytes = self.disk_setup.get_disksize_mbytes()
 
+        # create the disk
         log.info('Creating raw disk image %s', self.diskname)
         loop_provider = LoopDevice(
             self.diskname, disksize_mbytes, self.blocksize
@@ -125,18 +132,27 @@ class DiskBuilder(object):
             self.firmware.get_partition_table_type(), loop_provider
         )
 
+        # create disk partitions and instance device map
         device_map = self.__build_and_map_disk_partitions()
 
+        # create raid on current root device if requested
         if self.mdraid:
             self.raid_root = RaidDevice(device_map['root'])
             self.raid_root.create_degraded_raid(raid_level=self.mdraid)
             device_map['root'] = self.raid_root.get_device()
 
-        # TODO
-        # crypt(luks) device provider class
+        # create luks on current root device if requested
+        if self.luks:
+            self.luks_root = LuksDevice(device_map['root'])
+            self.luks_root.create_crypto_luks(
+                passphrase=self.luks, os=self.luks_os
+            )
+            device_map['root'] = self.luks_root.get_device()
 
+        # create filesystems on boot partition(s) if any
         self.__build_boot_filesystems(device_map)
 
+        # create volumes and filesystems for root system
         if self.volume_manager_name:
             volume_manager_custom_parameters = {
                 'root_filesystem_args': self.custom_filesystem_args,
@@ -171,10 +187,11 @@ class DiskBuilder(object):
             )
             self.system = filesystem
 
+        # create a random image identifier
         self.mbrid = ImageIdentifier()
-
         self.mbrid.calculate_id()
 
+        # create first stage metadata to boot
         self.__write_partition_id_config_to_boot_image()
 
         self.__write_recovery_metadata_to_boot_image()
@@ -183,8 +200,10 @@ class DiskBuilder(object):
 
         self.__write_raid_config_to_boot_image()
 
+        # create initrd cpio archive
         self.boot_image_task.create_initrd(self.mbrid)
 
+        # create second stage metadata to boot
         self.__copy_first_boot_files_to_system_image()
 
         self.__write_bootloader_config_to_system_image(device_map)
@@ -195,6 +214,7 @@ class DiskBuilder(object):
             self.disk.storage_provider
         )
 
+        # syncing system data to disk image
         log.info('Syncing system to image')
         if self.system_efi:
             log.info('--> Syncing EFI boot data to EFI partition')
@@ -211,6 +231,7 @@ class DiskBuilder(object):
             self.__get_exclude_list_for_root_data_sync(device_map)
         )
 
+        # create install media if requested
         if self.__install_image_requested():
             if self.install_iso or self.install_stick:
                 log.info('Creating hybrid ISO installation image')
