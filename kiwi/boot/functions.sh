@@ -5268,18 +5268,22 @@ function includeKernelParameters {
     if [ -z "$file" ];then
         file=/proc/cmdline
     fi
-    for i in $(cat $file);do
+    local cmdline=$(
+        awk -F\" '{OFS="\"";for(i=2;i<NF;i+=2)gsub(/ /,"\030",$i);print}' <$file
+    )
+    for i in $cmdline;do
         if ! echo $i | grep -q "=";then
             continue
         fi
-        kernelKey=`echo $i | cut -f1 -d=`
+        kernelKey=$(echo $i | cut -f1 -d=)
         #======================================
         # convert parameters to lowercase if required
         #--------------------------------------
         if [ "$translate" = "lowercase" ];then
             kernelKey=`echo $kernelKey | tr [:upper:] [:lower:]`
         fi
-        kernelVal=`echo $i | cut -f2 -d=`
+        kernelVal=$(echo $i | cut -f2 -d=)
+        kernelVal=$(echo $kernelVal | sed -e 's/\o30/ /g')
         eval export $kernelKey=$kernelVal
     done
     if [ ! -z "$kiwikernelmodule" ];then
