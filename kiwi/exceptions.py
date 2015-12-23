@@ -113,6 +113,10 @@ class KiwiFileSystemSyncError(KiwiError):
     pass
 
 
+class KiwiFormatSetupError(KiwiError):
+    pass
+
+
 class KiwiHelpNoCommandGiven(KiwiError):
     pass
 

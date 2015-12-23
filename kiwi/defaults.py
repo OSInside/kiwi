@@ -78,6 +78,10 @@ class Defaults(object):
         return 2
 
     @classmethod
+    def get_disk_format_types(self):
+        return ['gce', 'qcow2', 'vagrant', 'vmdk', 'vhd', 'vhd-fixed']
+
+    @classmethod
     def get_firmware_types(self):
         return {
             'x86_64': ['efi', 'uefi', 'bios', 'ec2hvm', 'ec2'],
