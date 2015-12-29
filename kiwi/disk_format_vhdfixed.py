@@ -109,7 +109,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
                 binary_tag_part_5
             ]
         )
-        
+
     def __write_vhd_tag(self, tag):
         """
             Azure service uses a tag injected into the disk
