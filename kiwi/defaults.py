@@ -79,7 +79,7 @@ class Defaults(object):
 
     @classmethod
     def get_disk_format_types(self):
-        return ['gce', 'qcow2', 'vagrant', 'vmdk', 'vhd', 'vhd-fixed']
+        return ['gce', 'qcow2', 'vagrant', 'vmdk', 'vhd', 'vhdfixed']
 
     @classmethod
     def get_firmware_types(self):

@@ -38,8 +38,8 @@ class TestDiskFormatBase(object):
         self.disk_format.get_target_name_for_format('foo')
 
     def test_post_init(self):
-        self.disk_format.post_init(['unhandled'])
-        assert self.disk_format.custom_args == []
+        self.disk_format.post_init({'option': 'unhandled'})
+        assert self.disk_format.custom_args == {}
 
     def test_get_target_name_for_format(self):
         assert self.disk_format.get_target_name_for_format('vhd') == \

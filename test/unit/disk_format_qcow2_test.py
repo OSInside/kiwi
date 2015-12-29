@@ -24,8 +24,8 @@ class TestDiskFormatQcow2(object):
         )
 
     def test_post_init(self):
-        self.disk_format.post_init(['some-option'])
-        assert self.disk_format.custom_args == ['-o', 'some-option']
+        self.disk_format.post_init({'option': 'value'})
+        assert self.disk_format.options == ['-o', 'option', 'value']
 
     @patch('kiwi.disk_format_qcow2.Command.run')
     def test_create_image_format(self, mock_command):

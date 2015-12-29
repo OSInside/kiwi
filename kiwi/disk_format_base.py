@@ -39,7 +39,7 @@ class DiskFormatBase(object):
                 'raw disk base image %s not found' % self.diskname
             )
 
-        self.custom_args = []
+        self.custom_args = {}
         self.post_init(custom_args)
 
     def post_init(self, custom_args):

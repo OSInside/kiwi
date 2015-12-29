@@ -289,6 +289,10 @@ class KiwiValidationError(KiwiError):
     pass
 
 
+class KiwiVhdTagError(KiwiError):
+    pass
+
+
 class KiwiVolumeGroupConflict(KiwiError):
     pass
 
