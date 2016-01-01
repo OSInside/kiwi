@@ -33,6 +33,15 @@ class TestDiskFormatBase(object):
         self.disk_format.post_init({'option': 'unhandled'})
         assert self.disk_format.custom_args == {}
 
+    def test_get_qemu_option_list(self):
+        custom_args = {
+            'subformat=format': None,
+            'adapter_type=type': None
+        }
+        assert self.disk_format.get_qemu_option_list(custom_args) == [
+            '-o', 'adapter_type=type', '-o', 'subformat=format'
+        ]
+
     def test_get_target_name_for_format(self):
         assert self.disk_format.get_target_name_for_format('vhd') == \
             'target_dir/some-disk-image.vhd'

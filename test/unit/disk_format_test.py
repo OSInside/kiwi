@@ -57,5 +57,5 @@ class TestDiskFormat(object):
         DiskFormat('vmdk', xml_state, 'source_dir', 'target_dir')
         mock_vmdk.assert_called_once_with(
             xml_state, 'source_dir', 'target_dir',
-            {'adapter_type=': 'controller', 'subformat=': 'disk-mode'}
+            {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )

@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from collections import OrderedDict
 
 from exceptions import (
     KiwiFormatSetupError
@@ -43,6 +44,17 @@ class DiskFormatBase(object):
 
     def create_image_format(self):
         raise NotImplementedError
+
+    def get_qemu_option_list(self, custom_args):
+        options = []
+        if custom_args:
+            ordered_args = OrderedDict(custom_args.items())
+            for key, value in custom_args.iteritems():
+                options.append('-o')
+                options.append(key)
+                if value:
+                    options.append(value)
+        return options
 
     def get_target_name_for_format(self, format_name):
         if format_name != 'raw':

@@ -18,7 +18,6 @@
 # project
 from command import Command
 from disk_format_base import DiskFormatBase
-from collections import OrderedDict
 
 
 class DiskFormatVhd(DiskFormatBase):
@@ -26,13 +25,7 @@ class DiskFormatVhd(DiskFormatBase):
         create vhd image format
     """
     def post_init(self, custom_args):
-        self.options = []
-        if custom_args:
-            self.options.append('-o')
-            ordered_args = OrderedDict(custom_args.items())
-            for key, value in custom_args.iteritems():
-                self.options.append(key)
-                self.options.append(value)
+        self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
         Command.run(

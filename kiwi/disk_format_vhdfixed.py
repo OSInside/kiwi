@@ -45,7 +45,8 @@ class DiskFormatVhdFixed(DiskFormatBase):
                     self.tag = value
                 else:
                     self.options.append(key)
-                    self.options.append(value)
+                    if value:
+                        self.options.append(value)
 
     def create_image_format(self):
         Command.run(
