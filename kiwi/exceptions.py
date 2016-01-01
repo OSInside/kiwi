@@ -101,6 +101,10 @@ class KiwiDiskFileSystemSetupError(KiwiError):
     pass
 
 
+class KiwiDiskFormatSetupError(KiwiError):
+    pass
+
+
 class KiwiFileNotFound(KiwiError):
     pass
 
