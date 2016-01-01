@@ -42,10 +42,21 @@ class DiskFormat(object):
                 xml_state, source_dir, target_dir, custom_args
             )
         elif name == 'vhdfixed':
+            disk_tag = xml_state.build_type.get_vhdfixedtag()
+            if disk_tag:
+                custom_args = {
+                    '--tag': disk_tag
+                }
             return DiskFormatVhdFixed(
                 xml_state, source_dir, target_dir, custom_args
             )
         elif name == 'vmdk':
+            vmdisk_section = xml_state.get_build_type_vmdisk_section()
+            if vmdisk_section:
+                custom_args = {
+                    'subformat=': vmdisk_section.get_diskmode(),
+                    'adapter_type=': vmdisk_section.get_controller()
+                }
             return DiskFormatVmdk(
                 xml_state, source_dir, target_dir, custom_args
             )

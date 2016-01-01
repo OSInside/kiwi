@@ -33,15 +33,29 @@ class TestDiskFormat(object):
     @patch('kiwi.disk_format.DiskFormatVhdFixed')
     def test_disk_format_vhdfixed(self, mock_vhdfixed):
         xml_state = mock.Mock()
+        xml_state.build_type.get_vhdfixedtag = mock.Mock(
+            return_value='disk-tag'
+        )
         DiskFormat('vhdfixed', xml_state, 'source_dir', 'target_dir')
         mock_vhdfixed.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir', None
+            xml_state, 'source_dir', 'target_dir', {'--tag': 'disk-tag'}
         )
 
     @patch('kiwi.disk_format.DiskFormatVmdk')
     def test_disk_format_vmdk(self, mock_vmdk):
         xml_state = mock.Mock()
+        vmdisk = mock.Mock()
+        vmdisk.get_controller = mock.Mock(
+            return_value='controller'
+        )
+        vmdisk.get_diskmode = mock.Mock(
+            return_value='disk-mode'
+        )
+        xml_state.get_build_type_vmdisk_section = mock.Mock(
+            return_value=vmdisk
+        )
         DiskFormat('vmdk', xml_state, 'source_dir', 'target_dir')
         mock_vmdk.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir', None
+            xml_state, 'source_dir', 'target_dir',
+            {'adapter_type=': 'controller', 'subformat=': 'disk-mode'}
         )

@@ -112,6 +112,9 @@ class TestXMLState(object):
         assert self.state.get_build_type_system_disk_section().get_name() == \
             'mydisk'
 
+    def test_get_build_type_vmdisk_section(self):
+        assert self.state.get_build_type_vmdisk_section().get_id() == 0
+
     def test_get_volume_management(self):
         assert self.state.get_volume_management() == 'lvm'
 

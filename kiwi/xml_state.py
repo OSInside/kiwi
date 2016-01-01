@@ -274,6 +274,16 @@ class XMLState(object):
         if machine_sections:
             return machine_sections[0]
 
+    def get_build_type_vmdisk_section(self):
+        """
+            get vmdisk section from build type
+        """
+        machine_section = self.get_build_type_machine_section()
+        if machine_section:
+            vmdisk_sections = machine_section.get_vmdisk()
+            if vmdisk_sections:
+                return vmdisk_sections[0]
+
     def get_build_type_oemconfig_section(self):
         """
             get oemconfig section from build type
