@@ -293,6 +293,10 @@ class KiwiVhdTagError(KiwiError):
     pass
 
 
+class KiwiVmdkToolsError(KiwiError):
+    pass
+
+
 class KiwiVolumeGroupConflict(KiwiError):
     pass
 
