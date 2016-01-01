@@ -11,9 +11,7 @@ from exceptions import *
 
 
 class TestDiskFormatVhdFixed(object):
-    @patch('os.path.exists')
-    def setup(self, mock_exists):
-        mock_exists.return_value = True
+    def setup(self):
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'

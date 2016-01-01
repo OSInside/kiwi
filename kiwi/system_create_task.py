@@ -90,9 +90,13 @@ class SystemCreateTask(CliTask):
                 result.add(
                     'disk_image', disk.diskname
                 )
-                if disk.install_image.media_dir:
+                if disk.install_media:
                     result.add(
                         'installation_image', disk.install_image.isoname
+                    )
+                elif disk.image_format:
+                    result.add(
+                        'disk_format_image', disk.formatted_diskname
                     )
             elif requested_image_type in Defaults.get_live_image_types():
                 # TODO

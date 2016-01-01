@@ -19,7 +19,7 @@ class TestDiskFormat(object):
         xml_state = mock.Mock()
         DiskFormat('qcow2', xml_state, 'source_dir', 'target_dir')
         mock_qcow2.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir', None
+            xml_state, 'source_dir', 'target_dir'
         )
 
     @patch('kiwi.disk_format.DiskFormatVhd')
@@ -27,7 +27,7 @@ class TestDiskFormat(object):
         xml_state = mock.Mock()
         DiskFormat('vhd', xml_state, 'source_dir', 'target_dir')
         mock_vhd.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir', None
+            xml_state, 'source_dir', 'target_dir'
         )
 
     @patch('kiwi.disk_format.DiskFormatVhdFixed')

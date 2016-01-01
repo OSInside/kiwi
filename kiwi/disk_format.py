@@ -30,18 +30,17 @@ class DiskFormat(object):
     """
         DiskFormat factory
     """
-    def __new__(
-        self, name, xml_state, source_dir, target_dir, custom_args=None
-    ):
+    def __new__(self, name, xml_state, source_dir, target_dir):
         if name == 'qcow2':
             return DiskFormatQcow2(
-                xml_state, source_dir, target_dir, custom_args
+                xml_state, source_dir, target_dir
             )
         elif name == 'vhd':
             return DiskFormatVhd(
-                xml_state, source_dir, target_dir, custom_args
+                xml_state, source_dir, target_dir
             )
         elif name == 'vhdfixed':
+            custom_args = None
             disk_tag = xml_state.build_type.get_vhdfixedtag()
             if disk_tag:
                 custom_args = {
@@ -51,6 +50,7 @@ class DiskFormat(object):
                 xml_state, source_dir, target_dir, custom_args
             )
         elif name == 'vmdk':
+            custom_args = None
             vmdisk_section = xml_state.get_build_type_vmdisk_section()
             if vmdisk_section:
                 custom_args = {

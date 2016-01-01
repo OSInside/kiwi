@@ -10,9 +10,7 @@ from kiwi.disk_format_base import DiskFormatBase
 
 
 class TestDiskFormatBase(object):
-    @patch('os.path.exists')
-    def setup(self, mock_exists):
-        mock_exists.return_value = True
+    def setup(self):
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'
@@ -26,12 +24,6 @@ class TestDiskFormatBase(object):
     @raises(NotImplementedError)
     def test_create_image_format(self):
         self.disk_format.create_image_format()
-
-    @raises(KiwiFormatSetupError)
-    @patch('os.path.exists')
-    def test_raw_disk_does_not_exist(self, mock_exists):
-        mock_exists.return_value = False
-        DiskFormatBase(self.xml_state, 'source_dir', 'target_dir')
 
     @raises(KiwiFormatSetupError)
     def test_get_target_name_for_format_invalid_format(self):

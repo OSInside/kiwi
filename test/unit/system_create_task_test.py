@@ -56,7 +56,19 @@ class TestSystemCreateTask(object):
         self.result.print_results.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.get_build_type_name')
-    def test_process_system_create_disk(self, mock_type):
+    def test_process_system_create_disk_with_install_media(self, mock_type):
+        self.disk.install_media = True
+        mock_type.return_value = 'oem'
+        self.__init_command_args()
+        self.task.command_args['create'] = True
+        self.task.process()
+        self.disk.create.assert_called_once_with()
+        self.result.print_results.assert_called_once_with()
+
+    @patch('kiwi.xml_state.XMLState.get_build_type_name')
+    def test_process_system_create_disk_with_disk_format(self, mock_type):
+        self.disk.install_media = False
+        self.disk.image_format = 'qcow2'
         mock_type.return_value = 'oem'
         self.__init_command_args()
         self.task.command_args['create'] = True

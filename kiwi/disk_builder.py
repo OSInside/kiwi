@@ -35,6 +35,7 @@ from command import Command
 from system_setup import SystemSetup
 from install_image_builder import InstallImageBuilder
 from kernel import Kernel
+from disk_format import DiskFormat
 
 from exceptions import (
     KiwiDiskBootImageError,
@@ -50,6 +51,7 @@ class DiskBuilder(object):
         self.source_dir = source_dir
         self.custom_filesystem_args = None
         self.build_type_name = xml_state.get_build_type_name()
+        self.image_format = xml_state.build_type.get_format()
         self.install_iso = xml_state.build_type.get_installiso()
         self.install_stick = xml_state.build_type.get_installstick()
         self.install_pxe = xml_state.build_type.get_installpxe()
@@ -68,6 +70,9 @@ class DiskBuilder(object):
         self.bootloader_config = BootLoaderConfig(
             self.bootloader, xml_state, source_dir
         )
+        self.disk_format = DiskFormat(
+            self.image_format, xml_state, source_dir, target_dir
+        )
         self.disk_setup = DiskSetup(
             xml_state, source_dir
         )
@@ -80,12 +85,16 @@ class DiskBuilder(object):
         self.system_setup = SystemSetup(
             xml_state=xml_state, description_dir=None, root_dir=self.source_dir
         )
+        self.formatted_diskname = self.disk_format.get_target_name_for_format(
+            self.image_format
+        )
         self.diskname = ''.join(
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(), '.raw'
             ]
         )
+        self.install_media = self.__install_image_requested()
         self.install_image = InstallImageBuilder(
             xml_state, target_dir, self.boot_image_task
         )
@@ -104,7 +113,7 @@ class DiskBuilder(object):
         self.system_efi = None
 
     def create(self):
-        if self.__install_image_requested() and self.build_type_name != 'oem':
+        if self.install_media and self.build_type_name != 'oem':
             raise KiwiInstallMediaError(
                 'Install media requires oem type setup, got %s' %
                 self.build_type_name
@@ -234,7 +243,9 @@ class DiskBuilder(object):
         )
 
         # create install media if requested
-        if self.__install_image_requested():
+        if self.install_media:
+            if self.image_format:
+                log.warning('Install image requested, ignoring disk format')
             if self.install_iso or self.install_stick:
                 log.info('Creating hybrid ISO installation image')
                 self.install_image.create_install_iso()
@@ -243,10 +254,14 @@ class DiskBuilder(object):
                 log.info('Creating PXE installation archive')
                 self.install_image.create_install_pxe_archive()
 
+        # create disk image format if requested
+        elif self.image_format:
+            log.info('Creating %s Disk Format', self.image_format)
+            self.disk_format.create_image_format()
+
     def __install_image_requested(self):
         if self.install_iso or self.install_stick or self.install_pxe:
             return True
-        return False
 
     def __get_exclude_list_for_root_data_sync(self, device_map):
         exclude_list = [

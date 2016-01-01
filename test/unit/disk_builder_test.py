@@ -65,6 +65,10 @@ class TestDiskBuilder(object):
         kiwi.disk_builder.Kernel = mock.Mock(
             return_value=self.kernel
         )
+        self.disk_format = mock.Mock()
+        kiwi.disk_builder.DiskFormat = mock.Mock(
+            return_value=self.disk_format
+        )
         kiwi.disk_builder.Disk = mock.Mock(
             return_value=self.disk
         )
@@ -132,6 +136,7 @@ class TestDiskBuilder(object):
             return_value='dom0'
         )
         self.disk_builder.machine = self.machine
+        self.disk_builder.image_format = None
 
     @raises(KiwiInstallMediaError)
     def test_create_invalid_type_for_install_media(self):
@@ -344,3 +349,30 @@ class TestDiskBuilder(object):
             'image', '.profile', '.kconfig', 'var/cache/kiwi',
             'boot/*', 'boot/.*'
         ])
+
+    @patch('kiwi.disk_builder.FileSystem')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk_builder.Command.run')
+    def test_create_with_image_format(self, mock_command, mock_open, mock_fs):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.install_media = False
+        self.disk_builder.image_format = 'vmdk'
+        self.disk_builder.create()
+
+        disk_format = self.disk_builder.disk_format
+        disk_format.create_image_format.assert_called_once_with()
+
+    @patch('kiwi.disk_builder.FileSystem')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk_builder.Command.run')
+    @patch('kiwi.logger.log.warning')
+    def test_create_with_ignore_format_on_install_media(
+        self, mock_log_warn, mock_command, mock_open, mock_fs
+    ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.install_media = True
+        self.disk_builder.image_format = 'vmdk'
+        self.disk_builder.create()
+        assert mock_log_warn.called

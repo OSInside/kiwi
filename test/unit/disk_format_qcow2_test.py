@@ -10,9 +10,7 @@ from kiwi.disk_format_qcow2 import DiskFormatQcow2
 
 
 class TestDiskFormatQcow2(object):
-    @patch('os.path.exists')
-    def setup(self, mock_exists):
-        mock_exists.return_value = True
+    def setup(self):
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'

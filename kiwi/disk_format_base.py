@@ -32,14 +32,9 @@ class DiskFormatBase(object):
         self.xml_state = xml_state
         self.source_dir = source_dir
         self.target_dir = target_dir
-
-        self.diskname = self.get_target_name_for_format('raw')
-        if not os.path.exists(self.diskname):
-            raise KiwiFormatSetupError(
-                'raw disk base image %s not found' % self.diskname
-            )
-
         self.custom_args = {}
+        self.diskname = self.get_target_name_for_format('raw')
+
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
