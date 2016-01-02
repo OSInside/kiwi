@@ -29,15 +29,27 @@ class ArchiveTar(object):
         self.filename = filename
 
     def create(self, source_dir, exclude=None):
-        archive_items = []
-        for item in os.listdir(source_dir):
-            if not exclude:
-                archive_items.append(item)
-            elif item not in exclude:
-                archive_items.append(item)
+        archive_items = self.__get_archive_content_list(source_dir, exclude)
         Command.run(
             [
                 'tar', '-C', source_dir, '-c', '-f', self.filename
+            ] + archive_items
+        )
+
+    def create_xz_compressed(self, source_dir, exclude=None):
+        archive_items = self.__get_archive_content_list(source_dir, exclude)
+        Command.run(
+            [
+                'tar', '-C', source_dir, '-c', 'J', '-f', self.filename
+            ] + archive_items
+        )
+
+    def create_gnu_gzip_compressed(self, source_dir, exclude=None):
+        archive_items = self.__get_archive_content_list(source_dir, exclude)
+        Command.run(
+            [
+                'tar', '-C', source_dir,
+                '--format=gnu', '-c', 'S', 'z', '-f', self.filename
             ] + archive_items
         )
 
@@ -45,3 +57,12 @@ class ArchiveTar(object):
         Command.run(
             ['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename]
         )
+
+    def __get_archive_content_list(self, source_dir, exclude=None):
+        archive_items = []
+        for item in os.listdir(source_dir):
+            if not exclude:
+                archive_items.append(item)
+            elif item not in exclude:
+                archive_items.append(item)
+        return archive_items
