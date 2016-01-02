@@ -17,25 +17,31 @@ class TestSystemCreateTask(object):
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'create',
             '--root', '../data/root-dir', '--target-dir', 'some-target'
         ]
+        self.result = mock.Mock()
         kiwi.system_create_task.Privileges = mock.Mock()
         kiwi.system_create_task.Help = mock.Mock(
             return_value=mock.Mock()
         )
         self.disk = mock.MagicMock()
+        self.disk.create = mock.Mock(
+            return_value=self.result
+        )
         kiwi.system_create_task.DiskBuilder = mock.Mock(
             return_value=self.disk
         )
         self.filesystem = mock.MagicMock()
+        self.filesystem.create = mock.Mock(
+            return_value=self.result
+        )
         kiwi.system_create_task.FileSystemBuilder = mock.Mock(
             return_value=self.filesystem
         )
         self.pxe = mock.MagicMock()
+        self.pxe.create = mock.Mock(
+            return_value=self.result
+        )
         kiwi.system_create_task.PxeBuilder = mock.Mock(
             return_value=self.pxe
-        )
-        self.result = mock.MagicMock()
-        kiwi.system_create_task.Result = mock.Mock(
-            return_value=self.result
         )
         self.task = SystemCreateTask()
 

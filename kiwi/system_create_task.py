@@ -42,7 +42,6 @@ from defaults import Defaults
 from filesystem_builder import FileSystemBuilder
 from disk_builder import DiskBuilder
 from pxe_builder import PxeBuilder
-from result import Result
 from privileges import Privileges
 
 from exceptions import (
@@ -67,7 +66,6 @@ class SystemCreateTask(CliTask):
         )
 
         if self.command_args['create']:
-            result = Result()
             requested_image_type = self.xml_state.get_build_type_name()
             if requested_image_type in Defaults.get_filesystem_image_types():
                 filesystem = FileSystemBuilder(
@@ -75,29 +73,16 @@ class SystemCreateTask(CliTask):
                     self.command_args['--target-dir'],
                     self.command_args['--root']
                 )
-                filesystem.create()
-                result.add(
-                    'filesystem_image',
-                    filesystem.filename
-                )
+                result = filesystem.create()
+                result.print_results()
             elif requested_image_type in Defaults.get_disk_image_types():
                 disk = DiskBuilder(
                     self.xml_state,
                     self.command_args['--target-dir'],
                     self.command_args['--root']
                 )
-                disk.create()
-                result.add(
-                    'disk_image', disk.diskname
-                )
-                if disk.install_media:
-                    result.add(
-                        'installation_image', disk.install_image.isoname
-                    )
-                elif disk.image_format:
-                    result.add(
-                        'disk_format_image', disk.formatted_diskname
-                    )
+                result = disk.create()
+                result.print_results()
             elif requested_image_type in Defaults.get_live_image_types():
                 # TODO
                 raise KiwiNotImplementedError(
@@ -109,27 +94,8 @@ class SystemCreateTask(CliTask):
                     self.command_args['--target-dir'],
                     self.command_args['--root']
                 )
-                pxe.create()
-                result.add(
-                    'kernel',
-                    pxe.kernel_filename
-                )
-                result.add(
-                    'initrd',
-                    pxe.boot_image_task.initrd_filename
-                )
-                result.add(
-                    'xen_hypervisor',
-                    pxe.hypervisor_filename
-                )
-                result.add(
-                    'filesystem_image',
-                    pxe.image
-                )
-                result.add(
-                    'filesystem_md5',
-                    pxe.filesystem_checksum
-                )
+                result = pxe.create()
+                result.print_results()
             elif requested_image_type in Defaults.get_archive_image_types():
                 # TODO
                 raise KiwiNotImplementedError(
@@ -145,8 +111,6 @@ class SystemCreateTask(CliTask):
                     'requested image type %s not supported' %
                     requested_image_type
                 )
-
-            result.print_results()
 
     def __help(self):
         if self.command_args['help']:

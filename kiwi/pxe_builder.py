@@ -22,6 +22,7 @@ from compress import Compress
 from checksum import Checksum
 from kernel import Kernel
 from logger import log
+from result import Result
 
 from exceptions import (
     KiwiPxeBootImageError
@@ -48,6 +49,7 @@ class PxeBuilder(object):
         )
         self.kernel_filename = None
         self.hypervisor_filename = None
+        self.result = Result()
 
     def create(self):
         if not self.boot_image_task.required():
@@ -95,6 +97,9 @@ class PxeBuilder(object):
                 kernel.copy_xen_hypervisor(
                     self.target_dir, self.hypervisor_filename
                 )
+                self.result.add(
+                    'xen_hypervisor', self.hypervisor_filename
+                )
             else:
                 raise KiwiPxeBootImageError(
                     'No hypervisor in boot image tree %s found' %
@@ -102,6 +107,20 @@ class PxeBuilder(object):
                 )
 
         self.boot_image_task.create_initrd()
+        self.result.add(
+            'kernel', self.kernel_filename
+        )
+        self.result.add(
+            'initrd', self.boot_image_task.initrd_filename
+        )
+        self.result.add(
+            'filesystem_image', self.image
+        )
+        self.result.add(
+            'filesystem_md5', self.filesystem_checksum
+        )
 
         # TODO
         # Creation of client config.<MAC>
+
+        return self.result

@@ -56,6 +56,12 @@ class InstallImageBuilder(object):
                 xml_state.xml_data.get_name(), '.install.iso'
             ]
         )
+        self.pxename = ''.join(
+            [
+                target_dir, '/',
+                xml_state.xml_data.get_name(), '.install.pxe'
+            ]
+        )
         self.md5name = ''.join(
             [xml_state.xml_data.get_name(), '.md5']
         )

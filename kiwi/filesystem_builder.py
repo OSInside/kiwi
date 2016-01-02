@@ -22,6 +22,7 @@ from device_provider import DeviceProvider
 from filesystem_setup import FileSystemSetup
 from defaults import Defaults
 from logger import log
+from result import Result
 
 from exceptions import (
     KiwiFileSystemSetupError
@@ -57,6 +58,7 @@ class FileSystemBuilder(object):
         self.filesystems_no_device_node = [
             'squashfs'
         ]
+        self.result = Result()
 
     def create(self):
         log.info(
@@ -71,6 +73,10 @@ class FileSystemBuilder(object):
             self.__operate_on_loop()
         else:
             self.__operate_on_file()
+        self.result.add(
+            'filesystem_image', self.filename
+        )
+        return self.result
 
     def __operate_on_loop(self):
         filesystem = None

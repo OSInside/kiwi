@@ -36,6 +36,7 @@ from system_setup import SystemSetup
 from install_image_builder import InstallImageBuilder
 from kernel import Kernel
 from disk_format import DiskFormat
+from result import Result
 
 from exceptions import (
     KiwiDiskBootImageError,
@@ -111,6 +112,9 @@ class DiskBuilder(object):
         # an instance of a class with the sync_data capability
         # representing the boot/efi area of the disk
         self.system_efi = None
+
+        # result store
+        self.result = Result()
 
     def create(self):
         if self.install_media and self.build_type_name != 'oem':
@@ -242,6 +246,10 @@ class DiskBuilder(object):
             self.__get_exclude_list_for_root_data_sync(device_map)
         )
 
+        self.result.add(
+            'disk_image', self.diskname
+        )
+
         # create install media if requested
         if self.install_media:
             if self.image_format:
@@ -249,15 +257,26 @@ class DiskBuilder(object):
             if self.install_iso or self.install_stick:
                 log.info('Creating hybrid ISO installation image')
                 self.install_image.create_install_iso()
+                self.result.add(
+                    'installation_image', self.install_image.isoname
+                )
 
             if self.install_pxe:
                 log.info('Creating PXE installation archive')
                 self.install_image.create_install_pxe_archive()
+                self.result.add(
+                    'installation_pxe_archive', self.install_image.pxename
+                )
 
         # create disk image format if requested
         elif self.image_format:
             log.info('Creating %s Disk Format', self.image_format)
             self.disk_format.create_image_format()
+            self.result.add(
+                'disk_format_image', self.formatted_diskname
+            )
+
+        return self.result
 
     def __install_image_requested(self):
         if self.install_iso or self.install_stick or self.install_pxe:
