@@ -36,7 +36,7 @@ class TestArchiveTar(object):
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'source-dir',
-                '-c', 'J', '-f', 'foo.tar', 'foo', 'bar'
+                '-c', 'J', '-f', 'foo.tar.xz', 'foo', 'bar'
             ]
         )
 
@@ -48,7 +48,7 @@ class TestArchiveTar(object):
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'source-dir',
-                '--format=gnu', '-c', 'S', 'z', '-f', 'foo.tar', 'foo', 'bar'
+                '--format=gnu', '-c', 'S', 'z', '-f', 'foo.tar.gz', 'foo', 'bar'
             ]
         )
 

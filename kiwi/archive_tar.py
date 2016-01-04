@@ -32,7 +32,8 @@ class ArchiveTar(object):
         archive_items = self.__get_archive_content_list(source_dir, exclude)
         Command.run(
             [
-                'tar', '-C', source_dir, '-c', '-f', self.filename
+                'tar', '-C', source_dir, '-c',
+                '-f', self.filename
             ] + archive_items
         )
 
@@ -40,7 +41,8 @@ class ArchiveTar(object):
         archive_items = self.__get_archive_content_list(source_dir, exclude)
         Command.run(
             [
-                'tar', '-C', source_dir, '-c', 'J', '-f', self.filename
+                'tar', '-C', source_dir, '-c', 'J',
+                '-f', self.filename + '.xz'
             ] + archive_items
         )
 
@@ -49,7 +51,8 @@ class ArchiveTar(object):
         Command.run(
             [
                 'tar', '-C', source_dir,
-                '--format=gnu', '-c', 'S', 'z', '-f', self.filename
+                '--format=gnu', '-c', 'S', 'z',
+                '-f', self.filename + '.gz'
             ] + archive_items
         )
 
