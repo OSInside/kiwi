@@ -41,6 +41,17 @@ class TestDiskFormat(object):
             xml_state, 'source_dir', 'target_dir', {'--tag': 'disk-tag'}
         )
 
+    @patch('kiwi.disk_format.DiskFormatGce')
+    def test_disk_format_gce(self, mock_gce):
+        xml_state = mock.Mock()
+        xml_state.build_type.get_gcelicense = mock.Mock(
+            return_value='gce_license_tag'
+        )
+        DiskFormat('gce', xml_state, 'source_dir', 'target_dir')
+        mock_gce.assert_called_once_with(
+            xml_state, 'source_dir', 'target_dir', {'--tag': 'gce_license_tag'}
+        )
+
     @patch('kiwi.disk_format.DiskFormatVmdk')
     def test_disk_format_vmdk(self, mock_vmdk):
         xml_state = mock.Mock()

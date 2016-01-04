@@ -7,7 +7,6 @@ import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.disk_format_vhdfixed import DiskFormatVhdFixed
-from exceptions import *
 
 
 class TestDiskFormatVhdFixed(object):

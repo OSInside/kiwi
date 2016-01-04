@@ -45,3 +45,12 @@ class TestDiskFormatBase(object):
     def test_get_target_name_for_format(self):
         assert self.disk_format.get_target_name_for_format('vhd') == \
             'target_dir/some-disk-image.vhd'
+
+    @patch('kiwi.disk_format_base.Path.wipe')
+    @patch('os.path.exists')
+    def test_destructor(self, mock_exists, mock_wipe):
+        mock_exists.return_value = True
+        self.disk_format.temp_image_dir = 'tmpdir'
+        self.disk_format.__del__()
+        self.disk_format.temp_image_dir = None
+        mock_wipe.assert_called_once_with('tmpdir')

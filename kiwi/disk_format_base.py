@@ -23,6 +23,8 @@ from exceptions import (
 )
 
 from defaults import Defaults
+from path import Path
+from logger import log
 
 
 class DiskFormatBase(object):
@@ -34,6 +36,7 @@ class DiskFormatBase(object):
         self.source_dir = source_dir
         self.target_dir = target_dir
         self.custom_args = {}
+        self.temp_image_dir = None
         self.diskname = self.get_target_name_for_format('raw')
 
         self.post_init(custom_args)
@@ -68,3 +71,8 @@ class DiskFormatBase(object):
                 self.xml_state.xml_data.get_name(), '.' + format_name
             ]
         )
+
+    def __del__(self):
+        if self.temp_image_dir and os.path.exists(self.temp_image_dir):
+            log.info('Cleaning up %s instance', type(self).__name__)
+            Path.wipe(self.temp_image_dir)

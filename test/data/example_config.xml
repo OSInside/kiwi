@@ -34,7 +34,7 @@
         <locale>de_DE</locale>
     </preferences>
     <preferences>
-        <type image="iso" primary="true" boot="isoboot/example-boot" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install">
+        <type image="iso" primary="true" boot="isoboot/example-distribution" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" domain="domU">
@@ -57,16 +57,16 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-boot" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
+        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
     </preferences>
     <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-boot" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
+        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
             <machine memory="512" domain="domU">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-boot" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
@@ -77,14 +77,14 @@
         </type>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-boot" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
+        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
             <systemdisk name="systemVG"/>
             <machine memory="512" guestOS="suse" HWversion="4">
                 <vmdisk id="0" controller="ide"/>
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-boot" installiso="true" bootloader="grub2" kernelcmdline="splash">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" bootloader="grub2" kernelcmdline="splash">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>

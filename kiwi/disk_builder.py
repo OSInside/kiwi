@@ -86,8 +86,11 @@ class DiskBuilder(object):
         self.system_setup = SystemSetup(
             xml_state=xml_state, description_dir=None, root_dir=self.source_dir
         )
-        self.formatted_diskname = self.disk_format.get_target_name_for_format(
-            self.image_format
+        self.formatted_diskname = ''.join(
+            [
+                target_dir, '/',
+                self.disk_format.get_target_name_for_format(self.image_format)
+            ]
         )
         self.diskname = ''.join(
             [

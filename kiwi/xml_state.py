@@ -26,7 +26,8 @@ from defaults import Defaults
 from exceptions import(
     KiwiProfileNotFound,
     KiwiTypeNotFound,
-    KiwiInvalidVolumeName
+    KiwiInvalidVolumeName,
+    KiwiDistributionNameError
 )
 
 
@@ -61,6 +62,15 @@ class XMLState(object):
             get default build type name
         """
         return self.build_type.get_image()
+
+    def get_image_version(self):
+        """
+            get image version
+        """
+        for preferences in self.get_preferences_sections():
+            version = preferences.get_version()
+            if version:
+                return version[0]
 
     def get_package_manager(self):
         """
@@ -727,6 +737,23 @@ class XMLState(object):
                                 name=package.get_name()
                             )
                         )
+
+    def get_distribution_name_from_boot_attribute(self):
+        boot_attribute = self.build_type.get_boot()
+        if not boot_attribute:
+            raise KiwiDistributionNameError(
+                'No boot attribute to extract distribution name from found'
+            )
+        boot_attribute_format = '^.*-(.*)$'
+        boot_attribute_expression = re.match(
+            boot_attribute_format, boot_attribute
+        )
+        if not boot_attribute_expression:
+            raise KiwiDistributionNameError(
+                'Boot attribute "%s" does not match expected format %s' %
+                (boot_attribute, boot_attribute_format)
+            )
+        return boot_attribute_expression.group(1).lower()
 
     def __used_profiles(self, profiles=None):
         """

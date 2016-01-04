@@ -66,6 +66,9 @@ class TestDiskBuilder(object):
             return_value=self.kernel
         )
         self.disk_format = mock.Mock()
+        self.disk_format.get_target_name_for_format = mock.Mock(
+            return_value='some-target-format-name'
+        )
         kiwi.disk_builder.DiskFormat = mock.Mock(
             return_value=self.disk_format
         )

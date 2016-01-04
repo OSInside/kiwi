@@ -20,7 +20,7 @@ class TestXMLState(object):
             description.load()
         )
         boot_description = XMLDescription(
-            '../data/isoboot/example-boot/config.xml'
+            '../data/isoboot/example-distribution/config.xml'
         )
         self.boot_state = XMLState(
             boot_description.load()
@@ -37,6 +37,9 @@ class TestXMLState(object):
 
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
+
+    def test_get_image_version(self):
+        assert self.state.get_image_version() == '1.13.2'
 
     def test_get_bootstrap_packages(self):
         assert self.state.get_bootstrap_packages() == [
@@ -369,3 +372,21 @@ class TestXMLState(object):
 
     def test_get_volume_group_name_default(self):
         assert self.boot_state.get_volume_group_name() == 'systemVG'
+
+    def test_get_distribution_name_from_boot_attribute(self):
+        assert self.state.get_distribution_name_from_boot_attribute() == \
+            'distribution'
+
+    @raises(KiwiDistributionNameError)
+    @patch('kiwi.xml_parse.type_.get_boot')
+    def test_get_distribution_name_from_boot_attribute_no_boot(self, mock_boot):
+        mock_boot.return_value = None
+        self.state.get_distribution_name_from_boot_attribute()
+
+    @raises(KiwiDistributionNameError)
+    @patch('kiwi.xml_parse.type_.get_boot')
+    def test_get_distribution_name_from_boot_attribute_invalid_boot(
+        self, mock_boot
+    ):
+        mock_boot.return_value = 'invalid'
+        self.state.get_distribution_name_from_boot_attribute()

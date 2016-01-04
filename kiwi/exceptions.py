@@ -105,6 +105,10 @@ class KiwiDiskFormatSetupError(KiwiError):
     pass
 
 
+class KiwiDistributionNameError(KiwiError):
+    pass
+
+
 class KiwiFileNotFound(KiwiError):
     pass
 

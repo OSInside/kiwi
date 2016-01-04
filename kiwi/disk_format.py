@@ -20,6 +20,7 @@ from disk_format_qcow2 import DiskFormatQcow2
 from disk_format_vhd import DiskFormatVhd
 from disk_format_vhdfixed import DiskFormatVhdFixed
 from disk_format_vmdk import DiskFormatVmdk
+from disk_format_gce import DiskFormatGce
 
 from exceptions import (
     KiwiDiskFormatSetupError
@@ -47,6 +48,16 @@ class DiskFormat(object):
                     '--tag': disk_tag
                 }
             return DiskFormatVhdFixed(
+                xml_state, source_dir, target_dir, custom_args
+            )
+        elif name == 'gce':
+            custom_args = None
+            gce_license_tag = xml_state.build_type.get_gcelicense()
+            if gce_license_tag:
+                custom_args = {
+                    '--tag': gce_license_tag
+                }
+            return DiskFormatGce(
                 xml_state, source_dir, target_dir, custom_args
             )
         elif name == 'vmdk':
