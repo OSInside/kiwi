@@ -186,6 +186,15 @@ class DiskSetup(object):
                 return Defaults.get_default_boot_mbytes()
 
     def __inplace_recovery_partition_size(self):
+        """
+            in inplace recovery mode the recovery archive is created at
+            install time. This requires free space on the disk. The
+            amount of free space is specified with the oem-recovery-part-size
+            attribute. If specified we add the given size to the disk.
+            If not specified an inplace setup at install time will be
+            moved to the first boot of an oem image when the recovery
+            partition has been created
+        """
         if self.oemconfig and self.oemconfig.get_oem_inplace_recovery():
             recovery_mbytes = self.oemconfig.get_oem_recovery_part_size()
             if recovery_mbytes:

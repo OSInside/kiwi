@@ -17,6 +17,7 @@
 #
 import os
 from collections import OrderedDict
+from tempfile import NamedTemporaryFile
 
 # project
 from command import Command
@@ -26,6 +27,8 @@ from defaults import Defaults
 from users import Users
 from shell import Shell
 from path import Path
+from archive_tar import ArchiveTar
+from compress import Compress
 
 from exceptions import (
     KiwiScriptFailed
@@ -44,6 +47,7 @@ class SystemSetup(object):
         self.description_dir = description_dir
         self.root_dir = root_dir
         self.__preferences_lookup()
+        self.__oemconfig_lookup()
 
     def import_description(self):
         """
@@ -328,10 +332,104 @@ class SystemSetup(object):
     def create_recovery_archive(self):
         """
             create a compressed recovery archive from the root tree
-            for use with kiwi's recvoery system
+            for use with kiwi's recvoery system. The method creates
+            additional data into the image root filesystem which is
+            deleted prior to the creation of a new recovery data set
         """
-        # TODO
-        pass
+        # cleanup
+        bash_comand = [
+            'rm', '-f', self.root_dir + '/recovery.*'
+        ]
+        Command.run(['bash', '-c', ' '.join(bash_comand)])
+        if not self.oemconfig['recovery']:
+            return
+        # recovery.tar
+        log.info('Creating recovery tar archive')
+        metadata = {
+            'archive_name':
+                self.root_dir + '/recovery.tar',
+            'archive_filecount':
+                self.root_dir + '/recovery.tar.files',
+            'archive_size':
+                self.root_dir + '/recovery.tar.size',
+            'partition_size':
+                self.root_dir + '/recovery.partition.size',
+            'partition_filesystem':
+                self.root_dir + '/recovery.tar.filesystem'
+        }
+        recovery_archive = NamedTemporaryFile(
+            delete=False
+        )
+        archive = ArchiveTar(
+            filename=recovery_archive.name,
+            create_from_file_list=False
+        )
+        archive.create(
+            source_dir=self.root_dir,
+            exclude=['dev', 'proc', 'sys'],
+            options=[
+                '--numeric-owner',
+                '--hard-dereference',
+                '--preserve-permissions'
+            ]
+        )
+        Command.run(
+            ['mv', recovery_archive.name, metadata['archive_name']]
+        )
+        # recovery.tar.filesystem
+        recovery_filesystem = self.xml_state.build_type.get_filesystem()
+        with open(metadata['partition_filesystem'], 'w') as partfs:
+            partfs.write('%s' % recovery_filesystem)
+        log.info(
+            '--> Recovery partition filesystem: %s', recovery_filesystem
+        )
+        # recovery.tar.files
+        bash_comand = [
+            'tar', '-tf', metadata['archive_name'], '|', 'wc', '-l'
+        ]
+        tar_files_call = Command.run(
+            ['bash', '-c', ' '.join(bash_comand)]
+        )
+        tar_files_count = int(tar_files_call.output.rstrip('\n'))
+        with open(metadata['archive_filecount'], 'w') as files:
+            files.write('%d\n' % tar_files_count)
+        log.info(
+            '--> Recovery file count: %d files', tar_files_count
+        )
+        # recovery.tar.size
+        recovery_archive_size_bytes = os.path.getsize(metadata['archive_name'])
+        with open(metadata['archive_size'], 'w') as size:
+            size.write('%d' % recovery_archive_size_bytes)
+        log.info(
+            '--> Recovery uncompressed size: %d mbytes',
+            int(recovery_archive_size_bytes / 1048576)
+        )
+        # recovery.tar.gz
+        log.info('--> Compressing recovery archive')
+        compress = Compress(self.root_dir + '/recovery.tar')
+        compress.gzip()
+        # recovery.partition.size
+        recovery_archive_gz_size_mbytes = int(
+            os.path.getsize(metadata['archive_name'] + '.gz') / 1048576
+        )
+        recovery_partition_mbytes = recovery_archive_gz_size_mbytes \
+            + Defaults.get_recovery_spare_mbytes()
+        with open(metadata['partition_size'], 'w') as gzsize:
+            gzsize.write('%d' % recovery_partition_mbytes)
+        log.info(
+            '--> Recovery partition size: %d mbytes',
+            recovery_partition_mbytes
+        )
+        # delete recovery archive if inplace recovery is requested
+        # In this mode the recovery archive is created at install time
+        # and not at image creation time. However the recovery metadata
+        # is preserved in order to be able to check if enough space
+        # is available on the disk to create the recovery archive.
+        if self.oemconfig['recovery_inplace']:
+            log.info(
+                '--> Inplace recovery requested, deleting archive'
+            )
+            Path.wipe(metadata['archive_name'] + '.gz')
 
     def __call_script(self, name):
         if os.path.exists(self.root_dir + '/image/' + name):
@@ -388,3 +486,27 @@ class SystemSetup(object):
                 self.preferences['hwclock'] = hwclock_section[0]
             if keytable_section:
                 self.preferences['keytable'] = keytable_section[0]
+
+    def __oemconfig_lookup(self):
+        self.oemconfig = {
+            'recovery_inplace': False,
+            'recovery': False
+        }
+        oemconfig = self.xml_state.get_build_type_oemconfig_section()
+        if oemconfig:
+            self.oemconfig['recovery'] = \
+                self.__text(oemconfig.get_oem_recovery())
+            self.oemconfig['recovery_inplace'] = \
+                self.__text(oemconfig.get_oem_inplace_recovery())
+
+    def __text(self, section_content):
+        """
+            helper method to return the text for XML elements of the
+            following structure: <section>text</section>.
+        """
+        if section_content:
+            content = section_content[0]
+            if content == 'false':
+                return False
+            else:
+                return content

@@ -29,6 +29,17 @@ class TestArchiveTar(object):
         )
 
     @patch('kiwi.archive_tar.Command.run')
+    def test_create_from_dir_with_excludes(self, mock_command):
+        archive = ArchiveTar('foo.tar', False)
+        archive.create('source-dir', ['foo', 'bar'])
+        mock_command.assert_called_once_with(
+            [
+                'tar', '-C', 'source-dir', '-c', '-f', 'foo.tar',
+                '.', '--exclude', './foo', '--exclude', './bar'
+            ]
+        )
+
+    @patch('kiwi.archive_tar.Command.run')
     @patch('os.listdir')
     def test_create_xz_compressed(self, mock_os_dir, mock_command):
         mock_os_dir.return_value = ['foo', 'bar']

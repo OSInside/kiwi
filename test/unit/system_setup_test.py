@@ -17,6 +17,9 @@ from kiwi.defaults import Defaults
 class TestSystemSetup(object):
     def setup(self):
         self.xml_state = mock.MagicMock()
+        self.xml_state.build_type.get_filesystem = mock.Mock(
+            return_value='ext3'
+        )
         self.setup = SystemSetup(
             self.xml_state, 'description_dir', 'root_dir'
         )
@@ -370,6 +373,93 @@ class TestSystemSetup(object):
             ['ln', 'root_dir/linuxrc', 'root_dir/init']
         )
 
-    def test_create_recovery_archive(self):
+    @patch('kiwi.command.Command.run')
+    def test_create_recovery_archive_cleanup_only(self, mock_command):
+        self.setup.oemconfig['recovery'] = False
         self.setup.create_recovery_archive()
-        # TODO
+        assert mock_command.call_args_list[0] == call(
+            ['bash', '-c', 'rm -f root_dir/recovery.*']
+        )
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.system_setup.NamedTemporaryFile')
+    @patch('kiwi.system_setup.ArchiveTar')
+    @patch('__builtin__.open')
+    @patch('kiwi.system_setup.Compress')
+    @patch('os.path.getsize')
+    @patch('kiwi.system_setup.Path.wipe')
+    def test_create_recovery_archive(
+        self, mock_wipe, mock_getsize, mock_compress,
+        mock_open, mock_archive, mock_temp, mock_command
+    ):
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_getsize.return_value = 42
+        compress = mock.Mock()
+        mock_compress.return_value = compress
+        archive = mock.Mock()
+        mock_archive.return_value = archive
+        tmpdir = mock.Mock()
+        tmpdir.name = 'tmpdir'
+        mock_temp.return_value = tmpdir
+        self.setup.oemconfig['recovery'] = True
+        self.setup.oemconfig['recovery_inplace'] = True
+
+        self.setup.create_recovery_archive()
+
+        assert mock_command.call_args_list[0] == call(
+            ['bash', '-c', 'rm -f root_dir/recovery.*']
+        )
+        mock_archive.assert_called_once_with(
+            create_from_file_list=False, filename='tmpdir'
+        )
+        archive.create.assert_called_once_with(
+            exclude=['dev', 'proc', 'sys'],
+            options=[
+                '--numeric-owner',
+                '--hard-dereference',
+                '--preserve-permissions'
+            ],
+            source_dir='root_dir'
+        )
+        assert mock_command.call_args_list[1] == call(
+            ['mv', 'tmpdir', 'root_dir/recovery.tar']
+        )
+        assert mock_open.call_args_list[0] == call(
+            'root_dir/recovery.tar.filesystem', 'w'
+        )
+        assert file_mock.write.call_args_list[0] == call('ext3')
+        assert mock_command.call_args_list[2] == call(
+            ['bash', '-c', 'tar -tf root_dir/recovery.tar | wc -l']
+        )
+        assert mock_open.call_args_list[1] == call(
+            'root_dir/recovery.tar.files', 'w'
+        )
+        assert mock_getsize.call_args_list[0] == call(
+            'root_dir/recovery.tar'
+        )
+        assert file_mock.write.call_args_list[1] == call('1\n')
+        assert mock_open.call_args_list[2] == call(
+            'root_dir/recovery.tar.size', 'w'
+        )
+        assert file_mock.write.call_args_list[2] == call('42')
+        mock_compress.assert_called_once_with(
+            'root_dir/recovery.tar'
+        )
+        compress.gzip.assert_called_once_with()
+        assert mock_getsize.call_args_list[1] == call(
+            'root_dir/recovery.tar.gz'
+        )
+        assert mock_open.call_args_list[3] == call(
+            'root_dir/recovery.partition.size', 'w'
+        )
+        assert file_mock.write.call_args_list[3] == call('300')
+        mock_wipe.assert_called_once_with(
+            'root_dir/recovery.tar.gz'
+        )

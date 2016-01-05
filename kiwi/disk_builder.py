@@ -50,6 +50,8 @@ class DiskBuilder(object):
     """
     def __init__(self, xml_state, target_dir, source_dir):
         self.source_dir = source_dir
+        self.target_dir = target_dir
+        self.xml_state = xml_state
         self.custom_filesystem_args = None
         self.build_type_name = xml_state.get_build_type_name()
         self.image_format = xml_state.build_type.get_format()
@@ -71,9 +73,6 @@ class DiskBuilder(object):
         self.bootloader_config = BootLoaderConfig(
             self.bootloader, xml_state, source_dir
         )
-        self.disk_format = DiskFormat(
-            self.image_format, xml_state, source_dir, target_dir
-        )
         self.disk_setup = DiskSetup(
             xml_state, source_dir
         )
@@ -85,12 +84,6 @@ class DiskBuilder(object):
         )
         self.system_setup = SystemSetup(
             xml_state=xml_state, description_dir=None, root_dir=self.source_dir
-        )
-        self.formatted_diskname = ''.join(
-            [
-                target_dir, '/',
-                self.disk_format.get_target_name_for_format(self.image_format)
-            ]
         )
         self.diskname = ''.join(
             [
@@ -129,6 +122,9 @@ class DiskBuilder(object):
             raise KiwiDiskBootImageError(
                 'disk images requires a boot setup in the type definition'
             )
+
+        # setup recovery archive, cleanup and create archive if requested
+        self.system_setup.create_recovery_archive()
 
         # prepare boot(initrd) root system
         log.info('Preparing boot system')
@@ -274,9 +270,16 @@ class DiskBuilder(object):
         # create disk image format if requested
         elif self.image_format:
             log.info('Creating %s Disk Format', self.image_format)
-            self.disk_format.create_image_format()
+            disk_format = DiskFormat(
+                self.image_format, self.xml_state,
+                self.source_dir, self.target_dir
+            )
+            disk_format.create_image_format()
             self.result.add(
-                'disk_format_image', self.formatted_diskname
+                'disk_format_image',
+                self.target_dir + '/' + disk_format.get_target_name_for_format(
+                    self.image_format
+                )
             )
 
         return self.result

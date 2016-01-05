@@ -178,7 +178,10 @@ class TestDiskBuilder(object):
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_iso = True
         self.disk_builder.install_pxe = True
+
         self.disk_builder.create()
+
+        self.system_setup.create_recovery_archive.assert_called_once_with()
         self.disk_setup.get_disksize_mbytes.assert_called_once_with()
         self.loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()
@@ -362,9 +365,7 @@ class TestDiskBuilder(object):
         self.disk_builder.install_media = False
         self.disk_builder.image_format = 'vmdk'
         self.disk_builder.create()
-
-        disk_format = self.disk_builder.disk_format
-        disk_format.create_image_format.assert_called_once_with()
+        self.disk_format.create_image_format.assert_called_once_with()
 
     @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')

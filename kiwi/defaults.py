@@ -74,6 +74,10 @@ class Defaults(object):
         return 200
 
     @classmethod
+    def get_recovery_spare_mbytes(self):
+        return 300
+
+    @classmethod
     def get_default_legacy_bios_mbytes(self):
         return 2
 
