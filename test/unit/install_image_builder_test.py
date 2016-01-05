@@ -49,6 +49,9 @@ class TestInstallImageBuilder(object):
         self.xml_state.xml_data.get_name = mock.Mock(
             return_value='result-image'
         )
+        self.xml_state.build_type.get_kernelcmdline = mock.Mock(
+            return_value='custom_kernel_options'
+        )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -160,17 +163,113 @@ class TestInstallImageBuilder(object):
         self.kernel.get_xen_hypervisor.return_value = False
         self.install_image.create_install_iso()
 
-    def test_create_install_pxe_archive(self):
-        # TODO
+    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('__builtin__.open')
+    @patch('kiwi.install_image_builder.Command.run')
+    @patch('kiwi.install_image_builder.Checksum')
+    @patch('kiwi.install_image_builder.Compress')
+    @raises(KiwiInstallBootImageError)
+    def test_create_install_pxe_no_kernel_found(
+        self, mock_compress, mock_md5, mock_command, mock_open, mock_dtemp
+    ):
+        mock_dtemp.return_value = 'tmpdir'
+        self.kernel.get_kernel.return_value = False
         self.install_image.create_install_pxe_archive()
+
+    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('__builtin__.open')
+    @patch('kiwi.install_image_builder.Command.run')
+    @patch('kiwi.install_image_builder.Checksum')
+    @patch('kiwi.install_image_builder.Compress')
+    @raises(KiwiInstallBootImageError)
+    def test_create_install_pxe_no_hypervisor_found(
+        self, mock_compress, mock_md5, mock_command, mock_open, mock_dtemp
+    ):
+        mock_dtemp.return_value = 'tmpdir'
+        self.kernel.get_xen_hypervisor.return_value = False
+        self.install_image.create_install_pxe_archive()
+
+    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('__builtin__.open')
+    @patch('kiwi.install_image_builder.Command.run')
+    @patch('kiwi.install_image_builder.ArchiveTar')
+    @patch('kiwi.install_image_builder.Checksum')
+    @patch('kiwi.install_image_builder.Compress')
+    def test_create_install_pxe_archive(
+        self, mock_compress, mock_md5, mock_archive,
+        mock_command, mock_open, mock_dtemp
+    ):
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+
+        mock_dtemp.return_value = 'tmpdir'
+
+        archive = mock.Mock()
+        mock_archive.return_value = archive
+
+        checksum = mock.Mock()
+        mock_md5.return_value = checksum
+
+        compress = mock.Mock()
+        mock_compress.return_value = compress
+
+        self.install_image.create_install_pxe_archive()
+
+        mock_compress.assert_called_once_with(
+            keep_source_on_compress=True,
+            source_filename='target_dir/result-image.raw'
+        )
+        compress.xz.assert_called_once_with()
+        assert mock_command.call_args_list[0] == call(
+            ['mv', compress.compressed_filename, 'tmpdir/result-image.xz']
+        )
+        mock_md5.assert_called_once_with(
+            'tmpdir/result-image.xz'
+        )
+        checksum.md5.assert_called_once_with(
+            'tmpdir/result-image.md5'
+        )
+        mock_open.assert_called_once_with(
+            'tmpdir/result-image.append', 'w'
+        )
+        file_mock.write.assert_called_once_with(
+            'pxe=1 custom_kernel_options\n'
+        )
+
+        self.kernel.copy_kernel.assert_called_once_with(
+            'tmpdir', '/pxeboot.kernel'
+        )
+        self.kernel.copy_xen_hypervisor.assert_called_once_with(
+            'tmpdir', '/pxeboot.xen.gz'
+        )
+        self.boot_image_task.create_initrd.assert_called_once_with(
+            self.mbrid
+        )
+        assert mock_command.call_args_list[1] == call(
+            ['mv', 'initrd', 'tmpdir/pxeboot.initrd.xz']
+        )
+        mock_archive.assert_called_once_with(
+            'target_dir/result-image.install.tar'
+        )
+        archive.create_xz_compressed.assert_called_once_with(
+            'tmpdir'
+        )
 
     @patch('kiwi.install_image_builder.Path.wipe')
     def test_destructor(self, mock_wipe):
+        self.install_image.pxe_dir = 'pxe-dir'
         self.install_image.media_dir = 'media-dir'
         self.install_image.squashed_contents = 'squashed-dir'
         self.install_image.__del__()
         assert mock_wipe.call_args_list == [
-            call('media-dir'), call('squashed-dir')
+            call('media-dir'), call('pxe-dir'), call('squashed-dir')
         ]
+        self.install_image.pxe_dir = None
         self.install_image.media_dir = None
         self.install_image.squashed_contents = None

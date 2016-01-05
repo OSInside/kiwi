@@ -31,11 +31,12 @@ class Compress(object):
     """
         File compression / decompression
     """
-    def __init__(self, source_filename):
+    def __init__(self, source_filename, keep_source_on_compress=False):
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
                 'compression source file %s not found' % source_filename
             )
+        self.keep_source = keep_source_on_compress
         self.source_filename = source_filename
         self.supported_zipper = [
             'xz', 'gzip'
@@ -44,16 +45,26 @@ class Compress(object):
         self.uncompressed_filename = None
 
     def xz(self):
+        options = [
+            '--check=crc32',
+            '--lzma2=dict=512KiB'
+        ]
+        if self.keep_source:
+            options.append('--keep')
         Command.run(
-            [
-                'xz', '-f', '--check=crc32', '--lzma2=dict=512KiB',
-                self.source_filename
-            ]
+            ['xz', '-f'] + options + [self.source_filename]
         )
         self.compressed_filename = self.source_filename + '.xz'
 
     def gzip(self):
-        Command.run(['gzip', '-f', '-9', self.source_filename])
+        options = [
+            '-9'
+        ]
+        if self.keep_source:
+            options.append('--keep')
+        Command.run(
+            ['gzip', '-f'] + options + [self.source_filename]
+        )
         self.compressed_filename = self.source_filename + '.gz'
 
     def uncompress(self, temporary=False):

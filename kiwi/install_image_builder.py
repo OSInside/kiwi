@@ -29,6 +29,8 @@ from checksum import Checksum
 from logger import log
 from kernel import Kernel
 from iso import Iso
+from compress import Compress
+from archive_tar import ArchiveTar
 
 from exceptions import (
     KiwiInstallBootImageError
@@ -59,7 +61,7 @@ class InstallImageBuilder(object):
         self.pxename = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.install.pxe'
+                xml_state.xml_data.get_name(), '.install.tar.xz'
             ]
         )
         self.md5name = ''.join(
@@ -70,6 +72,7 @@ class InstallImageBuilder(object):
         self.mbrid.calculate_id()
 
         self.media_dir = None
+        self.pxe_dir = None
         self.squashed_contents = None
         self.custom_iso_args = None
 
@@ -87,7 +90,7 @@ class InstallImageBuilder(object):
             '-A', self.mbrid.get_id()
         ]
 
-        # the install image transfer is checked against a checksum
+        # the system image transfer is checked against a checksum
         log.info('Creating disk image checksum')
         self.squashed_contents = mkdtemp(
             prefix='install-squashfs.', dir=self.target_dir
@@ -98,7 +101,7 @@ class InstallImageBuilder(object):
         # the kiwi initrd code triggers the install by trigger files
         self.__create_iso_install_trigger_files()
 
-        # the install image is stored as squashfs embedded file
+        # the system image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
         Command.run(
             ['cp', '-l', self.diskname, self.squashed_contents]
@@ -158,8 +161,98 @@ class InstallImageBuilder(object):
         )
 
     def create_install_pxe_archive(self):
-        # TODO
-        pass
+        """
+            Create an oem install tar archive suitable for installing a
+            disk image via the network using the PXE boot protocol.
+            The archive contains the raw disk image and its checksum
+            as well as an install initrd and kernel plus the required
+            kernel commandline information which needs to be added
+            as append line in the pxelinux config file on the boot
+            server
+        """
+        self.pxe_dir = mkdtemp(
+            prefix='pxe-install-media.', dir=self.target_dir
+        )
+        # the system image is transfered as xz compressed variant
+        log.info('xz compressing disk image')
+        pxe_image_filename = ''.join(
+            [
+                self.pxe_dir, '/',
+                self.xml_state.xml_data.get_name(), '.xz'
+            ]
+        )
+        compress = Compress(
+            source_filename=self.diskname,
+            keep_source_on_compress=True
+        )
+        compress.xz()
+        Command.run(
+            ['mv', compress.compressed_filename, pxe_image_filename]
+        )
+
+        # the system image transfer is checked against a checksum
+        log.info('Creating disk image checksum')
+        pxe_md5_filename = ''.join(
+            [
+                self.pxe_dir, '/',
+                self.xml_state.xml_data.get_name(), '.md5'
+            ]
+        )
+        checksum = Checksum(pxe_image_filename)
+        checksum.md5(pxe_md5_filename)
+
+        # create pxe config append information
+        # this information helps to configure the boot server correctly
+        append_filename = ''.join(
+            [
+                self.pxe_dir, '/',
+                self.xml_state.xml_data.get_name(), '.append'
+            ]
+        )
+        cmdline = 'pxe=1'
+        custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
+        if custom_cmdline:
+            cmdline += ' ' + custom_cmdline
+        with open(append_filename, 'w') as append:
+            append.write('%s\n' % cmdline)
+
+        # create initrd for pxe install
+        log.info('Creating pxe install boot image')
+        self.__create_pxe_install_kernel_and_initrd()
+
+        # create pxe install tarball
+        log.info('Creating pxe install archive')
+        archive = ArchiveTar(
+            self.pxename.replace('.xz', '')
+        )
+        archive.create_xz_compressed(
+            self.pxe_dir
+        )
+
+    def __create_pxe_install_kernel_and_initrd(self):
+        kernel = Kernel(self.boot_image_task.boot_root_directory)
+        if kernel.get_kernel():
+            kernel.copy_kernel(self.pxe_dir, '/pxeboot.kernel')
+        else:
+            raise KiwiInstallBootImageError(
+                'No kernel in boot image tree %s found' %
+                self.boot_image_task.boot_root_directory
+            )
+        if self.machine and self.machine.get_domain() == 'dom0':
+            if kernel.get_xen_hypervisor():
+                kernel.copy_xen_hypervisor(self.pxe_dir, '/pxeboot.xen.gz')
+            else:
+                raise KiwiInstallBootImageError(
+                    'No hypervisor in boot image tree %s found' %
+                    self.boot_image_task.boot_root_directory
+                )
+        self.boot_image_task.create_initrd(self.mbrid)
+        Command.run(
+            [
+                'mv', self.boot_image_task.initrd_filename,
+                self.pxe_dir + '/pxeboot.initrd.xz'
+            ]
+        )
 
     def __create_iso_install_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/x86_64/loader'
@@ -202,5 +295,7 @@ class InstallImageBuilder(object):
         log.info('Cleaning up %s instance', type(self).__name__)
         if self.media_dir:
             Path.wipe(self.media_dir)
+        if self.pxe_dir:
+            Path.wipe(self.pxe_dir)
         if self.squashed_contents:
             Path.wipe(self.squashed_contents)
