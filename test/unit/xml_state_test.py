@@ -27,13 +27,13 @@ class TestXMLState(object):
         )
 
     def test_build_type_primary_selected(self):
-        assert self.state.get_build_type_name() == 'iso'
+        assert self.state.get_build_type_name() == 'oem'
 
     def test_build_type_first_selected(self):
         self.state.xml_data.get_preferences()[1].get_type()[0].set_primary(
             False
         )
-        assert self.state.get_build_type_name() == 'iso'
+        assert self.state.get_build_type_name() == 'oem'
 
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
