@@ -8,11 +8,6 @@
             openSUSE 13.2 JeOS, is a small text based image
         </specification>
     </description>
-    <profiles>
-        <profile name="invalid_volume_a" description="invalid volume"/>
-        <profile name="invalid_volume_b" description="invalid volume"/>
-        <profile name="invalid_volume_c" description="invalid volume"/>
-    </profiles>
     <preferences>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
@@ -24,26 +19,15 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-    </preferences>
-    <preferences profiles="invalid_volume_a">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/suse-13.2">
-            <systemdisk>
-                <volume name="foo_foo" size="1G"/>
-            </systemdisk>
-        </type>
-    </preferences>
-    <preferences profiles="invalid_volume_b">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/suse-13.2">
-            <systemdisk>
-                <volume name="foo" mountpoint="usr_lib/foo" size="1G"/>
-            </systemdisk>
-        </type>
-    </preferences>
-    <preferences profiles="invalid_volume_c">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/suse-13.2">
-            <systemdisk>
-                <volume name="foo-foo" mountpoint="foo/foo" size="1G"/>
-            </systemdisk>
+        <type image="pxe" filesystem="overlayfs" boot="netboot/suse-13.2">
+            <pxedeploy server="192.168.100.2" blocksize="4096">
+                <partitions device="/dev/sda">
+                    <partition type="swap" number="1" size="5"/>
+                    <partition type="L" number="2" size="image" mountpoint="/" target="true"/>
+                    <partition type="L" number="3" target="false"/>
+                </partitions>
+                <union ro="/dev/sda2" rw="/dev/sda3" type="overlayfs"/>
+            </pxedeploy>
         </type>
     </preferences>
     <repository type="yast2">

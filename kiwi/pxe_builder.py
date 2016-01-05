@@ -41,6 +41,7 @@ class PxeBuilder(object):
         self.compressed = xml_state.build_type.get_compressed()
         self.image_name = xml_state.xml_data.get_name()
         self.machine = xml_state.get_build_type_machine_section()
+        self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, source_dir
         )
@@ -120,7 +121,9 @@ class PxeBuilder(object):
             'filesystem_md5', self.filesystem_checksum
         )
 
-        # TODO
-        # Creation of client config.<MAC>
+        if self.pxedeploy:
+            log.warning(
+                'Creation of client config file from pxedeploy not implemented'
+            )
 
         return self.result

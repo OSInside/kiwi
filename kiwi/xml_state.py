@@ -276,6 +276,14 @@ class XMLState(object):
         if systemdisk_sections:
             return systemdisk_sections[0]
 
+    def get_build_type_pxedeploy_section(self):
+        """
+            get pxedeploy section from build type
+        """
+        pxedeploy_sections = self.build_type.get_pxedeploy()
+        if pxedeploy_sections:
+            return pxedeploy_sections[0]
+
     def get_build_type_machine_section(self):
         """
             get machine section from build type
