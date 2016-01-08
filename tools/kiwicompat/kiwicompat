@@ -74,14 +74,56 @@ class Cli(object):
 class Translate(object):
     def __init__(self, arguments):
         self.arguments = arguments
-        # TODO: translate into new kiwi call and exec
-        print self.arguments
+
+        self.translated = ['kiwi']
+        if self.arguments['--logfile']:
+            self.translated.append('--logfile')
+            self.translated.append(self.arguments['--logfile'])
+        if self.arguments['--debug']:
+            self.translated.append('--debug')
+        if self.arguments['--type']:
+            self.translated.append('--type')
+            self.translated.append(self.arguments['--type'])
+
+        if self.arguments['--create']:
+            self.create(self.arguments['--create'])
+        elif self.arguments['--prepare']:
+            self.prepare(self.arguments['--prepare'])
+        elif self.arguments['--upgrade']:
+            self.upgrade(self.arguments['--upgrade'])
+
+    def create(self, root):
+        self.translated.append('system')
+        self.translated.append('create')
+        self.translated.append('--root')
+        self.translated.append(root)
+        self.translated.append('--target-dir')
+        self.translated.append(self.arguments['--dest-dir'])
+
+    def prepare(self, description):
+        self.translated.append('system')
+        self.translated.append('prepare')
+        self.translated.append('--description')
+        self.translated.append(description)
+        self.translated.append('--root')
+        self.translated.append(self.arguments['--root'])
+        if self.arguments['--recycle-root']:
+            self.translated.append('--allow-existing-root')
+        # TODO: repo handling
+
+    def upgrade(self, root):
+        self.translated.append('system')
+        self.translated.append('update')
+        self.translated.append('--root')
+        self.translated.append(root)
+        # TODO: package handling
 
 
 logging.basicConfig(format='%(message)s')
 
 try:
     app = Cli()
-    Translate(app.compat_args)
+    arguments = Translate(app.compat_args)
+    print arguments.translated
 except NotImplementedError as e:
     logging.error(format(e))
