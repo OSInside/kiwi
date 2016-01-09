@@ -4,14 +4,8 @@ usage: kiwicompat -h | --help
        kiwicompat --prepare=<description> --root=<image-root>
            [--recycle-root]
            [--logfile=<filename>]
-           [--set-repo=<uri>]
-           [--set-repoalias=<alias>]
-           [--set-repopriority=<priority>]
-           [--set-repotype=<type>]
-           [--add-repo=<uri>...]
-           [--add-repoalias=<alias>...]
-           [--add-repopriority=<priority>...]
-           [--add-repotype=<type>...]
+           [(--set-repo=<uri> [--set-repoalias=<alias>] [--set-repopriority=<priority>] [--set-repotype=<type>])]
+           [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--debug]
        kiwicompat --create=<image-root> --dest-dir=<destination>
            [--type=<image-type>]
@@ -35,6 +29,7 @@ options:
 """
 
 import sys
+import os
 import logging
 from docopt import docopt
 from docopt import DocoptExit
@@ -75,7 +70,7 @@ class Translate(object):
     def __init__(self, arguments):
         self.arguments = arguments
 
-        self.translated = ['kiwi']
+        self.translated = []
         if self.arguments['--logfile']:
             self.translated.append('--logfile')
             self.translated.append(self.arguments['--logfile'])
@@ -109,14 +104,71 @@ class Translate(object):
         self.translated.append(self.arguments['--root'])
         if self.arguments['--recycle-root']:
             self.translated.append('--allow-existing-root')
-        # TODO: repo handling
+
+        if self.arguments['--add-repo']:
+            for index in range(0, len(self.arguments['--add-repo'])):
+                repo_type = None
+                repo_alias = None
+                repo_prio = None
+                try:
+                    repo_type = self.arguments['--add-repotype'][index]
+                except Exception:
+                    pass
+                try:
+                    repo_alias = self.arguments['--add-repoalias'][index]
+                except Exception:
+                    pass
+                try:
+                    repo_prio = self.arguments['--add-repopriority'][index]
+                except Exception:
+                    pass
+
+                self.translated.append('--add-repo')
+                self.translated.append(self.__repo_argument(
+                    self.arguments['--add-repo'][index],
+                    repo_type, repo_alias, repo_prio
+                ))
+
+        if self.arguments['--set-repo']:
+            self.translated.append('--set-repo')
+            self.translated.append(self.__repo_argument(
+                self.arguments['--set-repo'],
+                self.arguments['--set-repotype'],
+                self.arguments['--set-repoalias'],
+                self.arguments['--set-repopriority']
+            ))
 
     def upgrade(self, root):
         self.translated.append('system')
         self.translated.append('update')
         self.translated.append('--root')
+        if self.arguments['--add-package']:
+            for add_package in self.arguments['--add-package']:
+                self.translated.append('--add-package')
+                self.translated.append(add_package)
+        if self.arguments['--del-package']:
+            for del_package in self.arguments['--del-package']:
+                self.translated.append('--delete-package')
+                self.translated.append(del_package)
         self.translated.append(root)
-        # TODO: package handling
+
+    def __repo_argument(self, source, repo_type, alias, priority):
+        if not repo_type:
+            repo_type = ''
+        if not alias:
+            alias = ''
+        if not priority:
+            priority = ''
+        return ','.join(
+            [source, repo_type, alias, priority]
+        )
+
+
+class Command(object):
+    @classmethod
+    def execute(self, arguments):
+        # expecting kiwi to be the new kiwi in path
+        os.execvp('kiwi', arguments)
 
 
 logging.basicConfig(format='%(message)s')
@@ -124,6 +176,6 @@ logging.basicConfig(format='%(message)s')
 try:
     app = Cli()
     arguments = Translate(app.compat_args)
-    print arguments.translated
+    Command.execute(arguments.translated)
 except NotImplementedError as e:
     logging.error(format(e))
