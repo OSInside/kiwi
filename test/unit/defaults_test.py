@@ -30,3 +30,9 @@ class TestDefaults(object):
         profile.add.assert_any_call(
             'kiwi_revision', self.defaults.get('kiwi_revision')
         )
+
+    def test_get_preparer(self):
+        assert Defaults.get_preparer() == 'KIWI - http://suse.github.com/kiwi'
+
+    def test_get_publisher(self):
+        assert Defaults.get_publisher() == 'SUSE LINUX GmbH'

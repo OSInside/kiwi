@@ -50,6 +50,14 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_preparer(self):
+        return 'KIWI - http://suse.github.com/kiwi'
+
+    @classmethod
+    def get_publisher(self):
+        return 'SUSE LINUX GmbH'
+
+    @classmethod
     def get_shim_name(self):
         return 'shim.efi'
 

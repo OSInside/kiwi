@@ -153,6 +153,10 @@ class KiwiIsoLoaderError(KiwiError):
     pass
 
 
+class KiwiLiveBootImageError(KiwiError):
+    pass
+
+
 class KiwiLuksSetupError(KiwiError):
     pass
 
