@@ -29,6 +29,10 @@ class KiwiError(Exception):
         return format(self.message)
 
 
+class KiwiArchiveSetupError(KiwiError):
+    pass
+
+
 class KiwiBootLoaderConfigSetupError(KiwiError):
     pass
 

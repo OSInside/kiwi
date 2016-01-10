@@ -39,6 +39,7 @@ options:
 from cli_task import CliTask
 from help import Help
 from defaults import Defaults
+from archive_builder import ArchiveBuilder
 from filesystem_builder import FileSystemBuilder
 from disk_builder import DiskBuilder
 from pxe_builder import PxeBuilder
@@ -97,10 +98,13 @@ class SystemCreateTask(CliTask):
                 result = pxe.create()
                 result.print_results()
             elif requested_image_type in Defaults.get_archive_image_types():
-                # TODO
-                raise KiwiNotImplementedError(
-                    'archive image builder not yet implemented'
+                archive = ArchiveBuilder(
+                    self.xml_state,
+                    self.command_args['--target-dir'],
+                    self.command_args['--root']
                 )
+                result = archive.create()
+                result.print_results()
             elif requested_image_type in Defaults.get_container_image_types():
                 # TODO
                 raise KiwiNotImplementedError(
