@@ -23,6 +23,7 @@ export ELOG_FILE=/var/log/boot.kiwi
 export TRANSFER_ERRORS_FILE=/tmp/transfer.errors
 export UFONT=/usr/share/fbiterm/fonts/b16.pcf.gz
 export CONSOLE_FONT=/usr/share/kbd/consolefonts/default8x16.gz
+export HYBRID_PERSISTENT_FILENAME="Live OS's persistent storage.fs"
 export HYBRID_PERSISTENT_FS=btrfs
 export HYBRID_PERSISTENT_ID=83
 export HYBRID_PERSISTENT_DIR=/read-write
@@ -8236,19 +8237,23 @@ function setupHybridCowDevice {
         Echo "Failed to mount hybrid persistent filesystem !"
         return 1
     fi
-    if [ ! -e "/cow/cowfile" ];then
+    local hybrid_cow_filename="/cow/${HYBRID_PERSISTENT_FILENAME}"
+    if [ ! -z "$kiwi_hybridpersistent_cow_filename" ];then
+        hybrid_cow_filename="/cow/${kiwi_hybridpersistent_cow_filename}"
+    fi
+    if [ ! -e "$hybrid_cow_filename" ];then
         local cowsize=$(($(blockdev --getsize64 $hybrid_device) / 2))
         local exception_handling="false"
-        qemu-img create /cow/cowfile $cowsize
+        qemu-img create "$hybrid_cow_filename" "$cowsize"
         if ! createFilesystem \
-            "/cow/cowfile" "" "" "" $exception_handling "btrfs"
+            "$hybrid_cow_filename" "" "" "" $exception_handling "btrfs"
         then
             Echo "Failed to create hybrid persistent cow filesystem"
             return 1
         fi
     fi
-    export HYBRID_RW=$(loop_setup /cow/cowfile)
-    if [ ! -e "$cowdevice" ];then
+    export HYBRID_RW=$(loop_setup "$hybrid_cow_filename")
+    if [ ! -e "$HYBRID_RW" ];then
         Echo "Failed to loop setup hybrid cow file !"
         return 1
     fi
