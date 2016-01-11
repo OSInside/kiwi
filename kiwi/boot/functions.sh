@@ -2966,6 +2966,7 @@ function probeFileSystem {
         xfs)         FSTYPE=xfs ;;
         udf)         FSTYPE=udf ;;
         zfs_member)  FSTYPE=zfs ;;
+        exfat)       FSTYPE=exfat ;;
         *)
             FSTYPE=unknown
         ;;
@@ -8911,6 +8912,10 @@ function createFilesystem {
         if [ ! -z "$label" ];then
             opts="$opts -L $label"
         fi
+    elif [ "$filesystem" = "exfat" ];then
+        if [ ! -z "$label" ];then
+            opts="$opts -n $label"
+        fi
     fi
     if [ "$filesystem" = "reiserfs" ];then
         mkreiserfs $opts $deviceCreate $blocks 1>&2
@@ -8935,6 +8940,8 @@ function createFilesystem {
         mkfs.fat $opts $deviceCreate $blocks 1>&2
     elif [ "$filesystem" = "ntfs" ];then
         mkfs.ntfs $opts $deviceCreate $blocks 1>&2
+    elif [ "$filesystem" = "exfat" ];then
+        mkfs.exfat $opts $deviceCreate 1>&2
     else
         # use ext3 by default
         mkfs.ext3 $opts $deviceCreate $blocks 1>&2
