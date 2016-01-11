@@ -8190,6 +8190,7 @@ function createHybridPersistent {
         # based persistent write partitions to be created as first partition
         # on efi|uefi ISO hybrid images
         echo -e "n\np\n$pID\n\n\nw\nq" | fdisk $imageDiskDevice
+        blockdev --rereadpt $imageDiskDevice
     else
         createPartitionerInput \
             n p:lxrw $pID . . t $pID $HYBRID_PERSISTENT_ID
