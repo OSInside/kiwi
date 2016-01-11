@@ -8918,33 +8918,33 @@ function createFilesystem {
         fi
     fi
     if [ "$filesystem" = "reiserfs" ];then
-        mkreiserfs $opts $deviceCreate $blocks 1>&2
+        mkreiserfs $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext2" ];then
-        mkfs.ext2 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext2 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext3" ];then
-        mkfs.ext3 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext3 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext4" ];then
-        mkfs.ext4 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext4 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "btrfs" ];then
         # delete potentially existing btrfs on the device because even
         # with the force option enabled mkfs.btrfs refuses to create a
         # filesystem if the existing metadata contains the same UUID
-        dd if=/dev/zero of=$deviceCreate bs=1M count=1 conv=notrunc
-        mkfs.btrfs $opts $deviceCreate
+        dd if=/dev/zero of="$deviceCreate" bs=1M count=1 conv=notrunc
+        mkfs.btrfs $opts "$deviceCreate"
     elif [ "$filesystem" = "xfs" ];then
-        mkfs.xfs $opts -f $deviceCreate
+        mkfs.xfs $opts -f "$deviceCreate"
         if [ ! -z "$uuid" ];then
-            xfs_admin -U $uuid $deviceCreate
+            xfs_admin -U $uuid "$deviceCreate"
         fi
     elif [ "$filesystem" = "fat" ];then
-        mkfs.fat $opts $deviceCreate $blocks 1>&2
+        mkfs.fat $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ntfs" ];then
-        mkfs.ntfs $opts $deviceCreate $blocks 1>&2
+        mkfs.ntfs $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "exfat" ];then
-        mkfs.exfat $opts $deviceCreate 1>&2
+        mkfs.exfat $opts "$deviceCreate" 1>&2
     else
         # use ext3 by default
-        mkfs.ext3 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext3 $opts "$deviceCreate" $blocks 1>&2
     fi
     if [ $exception_handling = "false" ];then
         return $?
