@@ -5562,6 +5562,7 @@ function mountSystemUnionFS {
     local roDevice=`echo $UNIONFS_CONFIG | cut -d , -f 2`
     local unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
     local prefix=/mnt
+    local mount_options
     #======================================
     # load fuse module
     #--------------------------------------
@@ -5608,7 +5609,13 @@ function mountSystemUnionFS {
         if [ ! "$roDevice" = "nfs" ] && ! setupReadWrite; then
             return 1
         fi
-        if ! kiwiMount "$rwDevice" "$rwDir";then
+        if [ "$kiwi_hybridpersistent" = "true" ];then
+            # When using an overlay writing to a block device safety has
+            # less priority over speed. If this does not match your use
+            # case please report an issue on the kiwi github
+            mount_options="-o defaults,async,relatime,nodiratime,barrier=1"
+        fi
+        if ! kiwiMount "$rwDevice" "$rwDir" "$mount_options";then
             Echo "Failed to mount read/write filesystem"
             return 1
         fi
