@@ -188,6 +188,7 @@
         <file name="mkfs.ext4"/>
         <file name="mkfs.ntfs"/>
         <file name="mkfs.xfs"/>
+        <file name="mkfs.exfat"/>
         <file name="xfs_growfs"/>
         <file name="xfs_repair"/>
         <file name="xfs_admin"/>
