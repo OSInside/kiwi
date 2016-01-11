@@ -8743,11 +8743,11 @@ function checkFilesystem {
     if [ "$FSTYPE" = "reiserfs" ];then
         reiserfsck -y $device
     elif [ "$FSTYPE" = "ext2" ];then
-        e2fsck -p $device
+        e2fsck -p -f $device
     elif [ "$FSTYPE" = "ext3" ];then
-        e2fsck -p $device
+        e2fsck -p -f $device
     elif [ "$FSTYPE" = "ext4" ];then
-        e2fsck -p $device
+        e2fsck -p -f $device
     elif [ "$FSTYPE" = "btrfs" ];then
         btrfsck $device
     elif [ "$FSTYPE" = "xfs" ];then
