@@ -26,7 +26,7 @@ class TestLoggerSchedulerFilter(object):
         ]
         for ignorable in ignorables:
             record = MyRecord(name=ignorable)
-            assert self.scheduler_filter.filter(record) == False
+            assert self.scheduler_filter.filter(record) is False
 
 
 class TestColorFormatter(object):
@@ -55,7 +55,7 @@ class TestInfoFilter(object):
             'levelno'
         )
         record = MyRecord(levelno=logging.INFO)
-        assert self.info_filter.filter(record) == True
+        assert self.info_filter.filter(record) is True
 
 
 class TestDebugFilter(object):
@@ -68,7 +68,7 @@ class TestDebugFilter(object):
             'levelno'
         )
         record = MyRecord(levelno=logging.DEBUG)
-        assert self.debug_filter.filter(record) == True
+        assert self.debug_filter.filter(record) is True
 
 
 class TestErrorFilter(object):
@@ -81,7 +81,7 @@ class TestErrorFilter(object):
             'levelno'
         )
         record = MyRecord(levelno=logging.ERROR)
-        assert self.error_filter.filter(record) == True
+        assert self.error_filter.filter(record) is True
 
 
 class TestWarningFilter(object):
@@ -94,7 +94,7 @@ class TestWarningFilter(object):
             'levelno'
         )
         record = MyRecord(levelno=logging.WARNING)
-        assert self.error_filter.filter(record) == True
+        assert self.error_filter.filter(record) is True
 
 
 class TestLogger(object):
@@ -107,7 +107,7 @@ class TestLogger(object):
         mock_stdout.flush.assert_called_once_with()
 
     def test_progress_raise(self):
-        assert log.progress(50, 0, 'foo') == None
+        assert log.progress(50, 0, 'foo') is None
 
     @patch('logging.FileHandler')
     def test_set_logfile(self, mock_file_handler):

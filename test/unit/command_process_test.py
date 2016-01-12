@@ -136,7 +136,7 @@ class TestCommandProcess(object):
         match_method = CommandProcess(None).create_match_method(
             self.fake_matcher
         )
-        assert match_method('a', 'b') == True
+        assert match_method('a', 'b') is True
 
     @patch('kiwi.command.Command')
     def test_destructor(self, mock_command):

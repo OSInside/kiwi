@@ -86,7 +86,7 @@ class TestBootImageTask(object):
 
     def test_required_false(self):
         self.xml_state.build_type.set_boot(None)
-        assert self.task.required() == False
+        assert self.task.required() is False
 
     @patch('kiwi.internal_boot_image_task.Command.run')
     @patch('os.path.exists')

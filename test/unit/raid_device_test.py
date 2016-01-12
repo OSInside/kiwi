@@ -72,7 +72,7 @@ class TestRaidDevice(object):
         self.raid.raid_device = None
 
     def test_is_loop(self):
-        assert self.raid.is_loop() == True
+        assert self.raid.is_loop() is True
 
     @patch('kiwi.raid_device.Command.run')
     @patch('kiwi.raid_device.log.warning')

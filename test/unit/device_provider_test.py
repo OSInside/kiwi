@@ -38,4 +38,4 @@ class TestDeviceProvider(object):
         )
 
     def test_is_loop(self):
-        assert self.provider.is_loop() == False
+        assert self.provider.is_loop() is False

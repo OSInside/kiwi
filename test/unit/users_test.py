@@ -21,9 +21,9 @@ class TestUsers(object):
 
     @patch('kiwi.users.Command.run')
     def test_user_exists_return_value(self, mock_command):
-        assert self.users.user_exists('user') == True
+        assert self.users.user_exists('user') is True
         mock_command.side_effect = Exception
-        assert self.users.user_exists('user') == False
+        assert self.users.user_exists('user') is False
 
     @patch('kiwi.users.Command.run')
     def test_group_exists(self, mock_command):

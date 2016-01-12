@@ -83,7 +83,7 @@ class TestLuksDevice(object):
         self.luks.luks_device = None
 
     def test_is_loop(self):
-        assert self.luks.is_loop() == True
+        assert self.luks.is_loop() is True
 
     @patch('kiwi.luks_device.Command.run')
     @patch('kiwi.luks_device.log.warning')

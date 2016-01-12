@@ -122,7 +122,7 @@ class TestXMLState(object):
         assert self.state.get_volume_management() == 'lvm'
 
     def test_get_volume_management_none(self):
-        assert self.boot_state.get_volume_management() == None
+        assert self.boot_state.get_volume_management() is None
 
     def test_get_volume_management_btrfs(self):
         description = XMLDescription('../data/example_btrfs_config.xml')

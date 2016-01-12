@@ -46,7 +46,7 @@ class TestFileSystemBase(object):
     def test_is_mounted_false(self, mock_command):
         mock_command.side_effect = Exception
         self.fsbase.mountpoint = 'tmpdir'
-        assert self.fsbase.is_mounted() == False
+        assert self.fsbase.is_mounted() is False
         self.fsbase.mountpoint = None
 
     @patch('kiwi.filesystem_base.Command.run')

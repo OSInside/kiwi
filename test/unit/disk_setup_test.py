@@ -53,39 +53,39 @@ class TestDiskSetup(object):
     def test_need_boot_partition_on_request(self):
         self.__init_bootpart_check()
         self.setup.bootpart_requested = True
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
         self.setup.bootpart_requested = False
-        assert self.setup.need_boot_partition() == False
+        assert self.setup.need_boot_partition() is False
 
     def test_need_boot_partition_mdraid(self):
         self.__init_bootpart_check()
         self.setup.mdraid = True
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
 
     def test_need_boot_partition_luks(self):
         self.__init_bootpart_check()
         self.setup.luks = True
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
 
     def test_need_boot_partition_lvm(self):
         self.__init_bootpart_check()
         self.setup.volume_manager = 'lvm'
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
 
     def test_need_boot_partition_btrfs(self):
         self.__init_bootpart_check()
         self.setup.filesystem = 'btrfs'
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
 
     def test_need_boot_partition_xfs(self):
         self.__init_bootpart_check()
         self.setup.filesystem = 'xfs'
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
 
     def test_need_boot_partition_grub2_s390x_emu(self):
         self.__init_bootpart_check()
         self.setup.bootloader = 'grub2_s390x_emu'
-        assert self.setup.need_boot_partition() == True
+        assert self.setup.need_boot_partition() is True
 
     def test_boot_partition_size(self):
         self.setup.bootpart_requested = True

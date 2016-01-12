@@ -100,7 +100,7 @@ class TestVolumeManagerBase(object):
     @patch('kiwi.volume_manager_base.Command.run')
     def test_is_mounted_true(self, mock_command):
         self.volume_manager.mountpoint = 'mountpoint'
-        assert self.volume_manager.is_mounted() == True
+        assert self.volume_manager.is_mounted() is True
         mock_command.assert_called_once_with(
             ['mountpoint', 'mountpoint']
         )
@@ -109,7 +109,7 @@ class TestVolumeManagerBase(object):
     def test_is_mounted_false(self, mock_command):
         mock_command.side_effect = Exception
         self.volume_manager.mountpoint = 'mountpoint'
-        assert self.volume_manager.is_mounted() == False
+        assert self.volume_manager.is_mounted() is False
         mock_command.assert_called_once_with(
             ['mountpoint', 'mountpoint']
         )

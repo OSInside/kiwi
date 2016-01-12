@@ -142,12 +142,12 @@ class TestPackageManagerZypper(object):
 
     @patch('kiwi.command.Command.run')
     def test_database_consistent(self, mock_command):
-        assert self.manager.database_consistent() == True
+        assert self.manager.database_consistent() is True
 
     @patch('kiwi.command.Command.run')
     def test_database_not_consistent(self, mock_command):
         mock_command.side_effect = Exception
-        assert self.manager.database_consistent() == False
+        assert self.manager.database_consistent() is False
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.package_manager_zypper.PackageManagerZypper.database_consistent')

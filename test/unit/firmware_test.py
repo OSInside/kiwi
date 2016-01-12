@@ -28,20 +28,20 @@ class TestFirmWare(object):
         assert self.firmware_efi.get_partition_table_type() == 'gpt'
 
     def test_legacy_bios_mode(self):
-        assert self.firmware_bios.legacy_bios_mode() == False
-        assert self.firmware_efi.legacy_bios_mode() == True
+        assert self.firmware_bios.legacy_bios_mode() is False
+        assert self.firmware_efi.legacy_bios_mode() is True
 
     def test_ec2_mode(self):
         assert self.firmware_ec2.ec2_mode() == 'ec2'
-        assert self.firmware_bios.ec2_mode() == None
+        assert self.firmware_bios.ec2_mode() is None
 
     def test_efi_mode(self):
-        assert self.firmware_bios.efi_mode() == None
+        assert self.firmware_bios.efi_mode() is None
         assert self.firmware_efi.efi_mode() == 'efi'
 
     def test_bios_mode(self):
-        assert self.firmware_bios.bios_mode() == True
-        assert self.firmware_efi.bios_mode() == False
+        assert self.firmware_bios.bios_mode() is True
+        assert self.firmware_efi.bios_mode() is False
 
     def test_get_legacy_bios_partition_size(self):
         assert self.firmware_bios.get_legacy_bios_partition_size() == 0

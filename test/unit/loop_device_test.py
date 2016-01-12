@@ -20,10 +20,10 @@ class TestLoopDevice(object):
         LoopDevice('loop-file-does-not-exist-and-no-size-given')
 
     def test_get_device(self):
-        assert self.loop.get_device() == None
+        assert self.loop.get_device() is None
 
     def test_is_loop(self):
-        assert self.loop.is_loop() == True
+        assert self.loop.is_loop() is True
 
     @patch('os.path.exists')
     @patch('kiwi.loop_device.Command.run')

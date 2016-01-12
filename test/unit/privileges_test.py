@@ -19,4 +19,4 @@ class TestPrivileges(object):
     @patch('os.geteuid')
     def test_check_for_root_permiossion_true(self, mock_euid):
         mock_euid.return_value = 0
-        assert Privileges.check_for_root_permissions() == True
+        assert Privileges.check_for_root_permissions() is True

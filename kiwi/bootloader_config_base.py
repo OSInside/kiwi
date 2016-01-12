@@ -120,7 +120,7 @@ class BootLoaderConfigBase(object):
         return timeout_seconds
 
     def failsafe_boot_entry_requested(self):
-        if self.xml_state.build_type.get_installprovidefailsafe() == False:
+        if self.xml_state.build_type.get_installprovidefailsafe() is False:
             return False
         return True
 

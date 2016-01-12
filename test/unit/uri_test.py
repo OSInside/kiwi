@@ -38,9 +38,9 @@ class TestUri(object):
 
     def test_is_remote(self):
         uri = Uri('https://example.com', 'rpm-md')
-        assert uri.is_remote() == True
+        assert uri.is_remote() is True
         uri = Uri('dir:///path/to/repo', 'rpm-md')
-        assert uri.is_remote() == False
+        assert uri.is_remote() is False
 
     def test_alias(self):
         uri = Uri('https://example.com', 'rpm-md')
