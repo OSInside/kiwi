@@ -8258,6 +8258,7 @@ function setupHybridCowDevice {
     mkdir -p /cow
     for i in 1 2 3;do
         if [ "$hybrid_fs" = "exfat" ]; then
+            mount $hybrid_device /cow ||\
             mount.exfat $hybrid_device /cow && break || sleep 2
         else
             mount -L hybrid /cow && break || sleep 2
