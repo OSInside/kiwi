@@ -1783,7 +1783,7 @@ div {
         ## hybrid ISO is used as disk on e.g a USB Stick. By default
         ## the btrfs filesystem is used
         attribute hybridpersistent_filesystem {
-            "btrfs" | "fat" | "ext4"
+            "btrfs" | "fat" | "ext4" | "xfs"
         }
     k.type.image.attribute =
         ## Specifies the image type
