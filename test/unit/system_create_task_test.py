@@ -50,6 +50,13 @@ class TestSystemCreateTask(object):
         kiwi.system_create_task.PxeBuilder = mock.Mock(
             return_value=self.pxe
         )
+        self.liveiso = mock.MagicMock()
+        self.liveiso.create = mock.Mock(
+            return_value=self.result
+        )
+        kiwi.system_create_task.LiveImageBuilder = mock.Mock(
+            return_value=self.liveiso
+        )
         self.task = SystemCreateTask()
 
     def __init_command_args(self):
@@ -66,6 +73,15 @@ class TestSystemCreateTask(object):
         self.task.command_args['create'] = True
         self.task.process()
         self.filesystem.create.assert_called_once_with()
+        self.result.print_results.assert_called_once_with()
+
+    @patch('kiwi.xml_state.XMLState.get_build_type_name')
+    def test_process_system_create_live_system(self, mock_type):
+        mock_type.return_value = 'iso'
+        self.__init_command_args()
+        self.task.command_args['create'] = True
+        self.task.process()
+        self.liveiso.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.get_build_type_name')
@@ -88,14 +104,6 @@ class TestSystemCreateTask(object):
         self.task.process()
         self.disk.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()
-
-    @patch('kiwi.xml_state.XMLState.get_build_type_name')
-    @raises(KiwiNotImplementedError)
-    def test_process_system_create_live(self, mock_type):
-        mock_type.return_value = 'iso'
-        self.__init_command_args()
-        self.task.command_args['create'] = True
-        self.task.process()
 
     @patch('kiwi.xml_state.XMLState.get_build_type_name')
     def test_process_system_create_archive(self, mock_type):

@@ -182,11 +182,13 @@ class BootLoaderConfigBase(object):
 
         return bootpath
 
-    def get_menu_entry_title(self):
+    def get_menu_entry_title(self, plain=False):
         title = self.xml_state.xml_data.get_displayname()
         if not title:
             title = self.xml_state.xml_data.get_name()
         type_name = self.xml_state.build_type.get_image()
+        if plain:
+            return title
         return title + ' [ ' + type_name.upper() + ' ]'
 
     def get_menu_entry_install_title(self):

@@ -123,8 +123,43 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
     def setup_live_image_config(
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
-        # TODO
-        pass
+        """
+            Create isolinux.cfg in memory from a template suitable to boot
+            a live system from an ISO image in BIOS boot mode
+        """
+        # mbrid parameter is not used, the information is placed as the
+        # application id when creating the iso filesystem. Thus not part
+        # of the configuration file
+        log.info('Creating live ISO config file from template')
+        parameters = {
+            'default_boot': self.get_menu_entry_title(plain=True),
+            'kernel_file': kernel,
+            'initrd_file': initrd,
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe,
+            'gfxmode': self.gfxmode,
+            'boot_timeout': self.timeout,
+            'title': self.get_menu_entry_title(plain=True)
+        }
+        if self.multiboot:
+            log.info('--> Using multiboot standard ISO template')
+            parameters['hypervisor'] = hypervisor
+            template = self.isolinux.get_multiboot_template(
+                self.failsafe_boot, self.__have_theme()
+            )
+        else:
+            log.info('--> Using standard ISO template')
+            template = self.isolinux.get_template(
+                self.failsafe_boot, self.__have_theme()
+            )
+        try:
+            self.config = template.substitute(parameters)
+            template = self.isolinux.get_message_template()
+            self.config_message = template.substitute(parameters)
+        except Exception as e:
+            raise KiwiTemplateError(
+                '%s: %s' % (type(e).__name__, format(e))
+            )
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         # mbrid parameter is not used, because only isolinux loader

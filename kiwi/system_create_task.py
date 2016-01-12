@@ -42,6 +42,7 @@ from defaults import Defaults
 from archive_builder import ArchiveBuilder
 from filesystem_builder import FileSystemBuilder
 from disk_builder import DiskBuilder
+from live_image_builder import LiveImageBuilder
 from pxe_builder import PxeBuilder
 from privileges import Privileges
 
@@ -85,10 +86,13 @@ class SystemCreateTask(CliTask):
                 result = disk.create()
                 result.print_results()
             elif requested_image_type in Defaults.get_live_image_types():
-                # TODO
-                raise KiwiNotImplementedError(
-                    'live image builder not yet implemented'
+                live_iso = LiveImageBuilder(
+                    self.xml_state,
+                    self.command_args['--target-dir'],
+                    self.command_args['--root']
                 )
+                result = live_iso.create()
+                result.print_results()
             elif requested_image_type in Defaults.get_network_image_types():
                 pxe = PxeBuilder(
                     self.xml_state,

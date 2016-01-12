@@ -134,6 +134,27 @@ class TestBootLoaderConfigIsoLinux(object):
             ]
         )
 
-    def test_setup_live_image_config(self):
-        # TODO
+    @raises(KiwiTemplateError)
+    def test_setup_live_image_config_invalid_template(self):
+        self.isolinux.get_message_template.side_effect = Exception
         self.bootloader.setup_live_image_config(mbrid=None)
+
+    def test_setup_live_image_config(self):
+        template_cfg = mock.Mock()
+        template_msg = mock.Mock()
+        self.isolinux.get_template.return_value = template_cfg
+        self.isolinux.get_message_template.return_value = template_msg
+
+        self.bootloader.setup_live_image_config(mbrid=None)
+        self.isolinux.get_template.assert_called_once_with(True, False)
+        self.isolinux.get_message_template.assert_called_once_with()
+        assert template_cfg.substitute.called
+        assert template_msg.substitute.called
+
+    def test_setup_live_image_config_multiboot(self):
+        self.bootloader.multiboot = True
+
+        self.bootloader.setup_live_image_config(mbrid=None)
+        self.isolinux.get_multiboot_template.assert_called_once_with(
+            True, False
+        )

@@ -142,6 +142,12 @@ class TestBootLoaderConfigBase(object):
             'LimeJeOS-openSUSE-13.2 [ OEM ]'
 
     @patch('kiwi.xml_parse.image.get_displayname')
+    def test_get_menu_entry_title_plain(self, mock_displayname):
+        mock_displayname.return_value = None
+        assert self.bootloader.get_menu_entry_title(plain=True) == \
+            'LimeJeOS-openSUSE-13.2'
+
+    @patch('kiwi.xml_parse.image.get_displayname')
     def test_get_menu_entry_install_title(self, mock_displayname):
         mock_displayname.return_value = None
         assert self.bootloader.get_menu_entry_install_title() == \

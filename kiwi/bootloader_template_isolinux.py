@@ -64,7 +64,7 @@ class BootLoaderTemplateIsoLinux(object):
             ui menu.c32
         ''').strip() + self.cr
 
-        self.menu_install_harddisk_entry = dedent('''
+        self.menu_harddisk_entry = dedent('''
             label Boot_from_Hard_Disk
                 localboot 0x80
         ''').strip() + self.cr
@@ -132,6 +132,37 @@ class BootLoaderTemplateIsoLinux(object):
         """
         return Template(self.message)
 
+    def get_template(self, failsafe=True, with_theme=True):
+        """
+            bootloader configuration template for live media
+        """
+        template_data = self.header
+        if with_theme:
+            template_data += self.ui_theme
+        else:
+            template_data += self.ui_plain
+        template_data += self.menu_entry
+        if failsafe:
+            template_data += self.menu_entry_failsafe
+        template_data += self.menu_harddisk_entry
+        return Template(template_data)
+
+    def get_multiboot_template(self, failsafe=True, with_theme=True):
+        """
+            bootloader configuration template for live media with
+            hypervisor, e.g Xen dom0
+        """
+        template_data = self.header
+        if with_theme:
+            template_data += self.ui_theme
+        else:
+            template_data += self.ui_plain
+        template_data += self.menu_entry_multiboot
+        if failsafe:
+            template_data += self.menu_entry_failsafe_multiboot
+        template_data += self.menu_harddisk_entry
+        return Template(template_data)
+
     def get_install_template(self, failsafe=True, with_theme=True):
         """
             bootloader configuration template for install media
@@ -141,7 +172,7 @@ class BootLoaderTemplateIsoLinux(object):
             template_data += self.ui_theme
         else:
             template_data += self.ui_plain
-        template_data += self.menu_install_harddisk_entry
+        template_data += self.menu_harddisk_entry
         template_data += self.menu_install_entry
         if failsafe:
             template_data += self.menu_install_entry_failsafe
@@ -157,7 +188,7 @@ class BootLoaderTemplateIsoLinux(object):
             template_data += self.ui_theme
         else:
             template_data += self.ui_plain
-        template_data += self.menu_install_harddisk_entry
+        template_data += self.menu_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
