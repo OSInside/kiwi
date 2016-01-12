@@ -8284,7 +8284,7 @@ function setupHybridCowDevice {
         fi
         qemu-img create "$hybrid_cow_filename" "$cowsize"
         if ! createFilesystem \
-            "$hybrid_cow_filename" "" "" "" "false" "ext4"
+            "$hybrid_cow_filename" "" "" "" "false" "ext4" "$HYBRID_EXT4_OPTS"
         then
             Echo "Failed to create hybrid persistent cow filesystem"
             return 1
