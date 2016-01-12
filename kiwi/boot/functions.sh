@@ -5465,6 +5465,7 @@ function setupReadWrite {
     local IFS=$IFS_ORIG
     local rwDir=/read-write
     local rwDevice=$(echo $UNIONFS_CONFIG | cut -d , -f 1)
+    local fstype=$(blkid $rwDevice -s TYPE -o value)
     local hybrid_fs=$HYBRID_PERSISTENT_FS
     local create_hybrid="no"
     local fs_opts
@@ -5479,17 +5480,16 @@ function setupReadWrite {
         # no further action on a standard boot/reboot or in unclean state
         return 0
     fi
+    if [ ! -z "$fstype" ];then
+        Echo "Checking filesystem for RW data on $rwDevice..."
+        checkFilesystem $rwDevice &>/dev/null
+    fi
     if [ "$RELOAD_IMAGE" = "yes" ]; then
         # create rw fs explicitly activated
         create_hybrid="yes"
     elif ! mount -o ro $rwDevice $rwDir &>/dev/null; then
-        # rw fs mount failed, try to check
-        Echo "Checking filesystem for RW data on $rwDevice..."
-        checkFilesystem $rwDevice &>/dev/null
-        if ! mount -o ro $rwDevice $rwDir &>/dev/null; then
-            # still failing after check, trigger creation of new rw fs
-            create_hybrid="yes"
-        fi
+        # still failing after check, trigger creation of new rw fs
+        create_hybrid="yes"
     fi
     mountpoint -q $rwDir && umount $rwDevice
     if [ "$create_hybrid" = "yes" ];then
