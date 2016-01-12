@@ -5623,7 +5623,7 @@ function mountSystemUnionFS {
             # When using an overlay writing to a block device safety has
             # less priority over speed. If this does not match your use
             # case please report an issue on the kiwi github
-            mount_options="-o defaults,async,relatime,nodiratime,barrier=1"
+            mount_options="-o defaults,async,relatime,nodiratime"
         fi
         if ! kiwiMount "$rwDevice" "$rwDir" "$mount_options";then
             Echo "Failed to mount read/write filesystem"
