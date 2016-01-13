@@ -42,6 +42,9 @@ class TestLiveImageBuilder(object):
             return_value=self.kernel
         )
         self.xml_state = mock.Mock()
+        self.xml_state.build_type.get_flags = mock.Mock(
+            return_value=None
+        )
         self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
@@ -64,7 +67,6 @@ class TestLiveImageBuilder(object):
         self.result = mock.Mock()
         self.live_image.result = self.result
         self.live_image.hybrid = True
-        self.live_image.flags = 'overlay'
 
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
@@ -82,7 +84,7 @@ class TestLiveImageBuilder(object):
             return tmpdir_name.pop()
 
         mock_dtemp.side_effect = side_effect
-        self.live_image.flags = 'overlay'
+        self.live_image.live_type = 'overlay'
         squashed_image = mock.Mock()
         mock_squashfs.return_value = squashed_image
         bootloader = mock.Mock()
@@ -165,7 +167,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.Command.run')
     @raises(KiwiLiveBootImageError)
     def test_create_invalid_iso_structure(self, mock_command, mock_dtemp):
-        self.live_image.flags = 'bogus'
+        self.live_image.live_type = 'bogus'
         self.live_image.create()
 
     @raises(KiwiLiveBootImageError)

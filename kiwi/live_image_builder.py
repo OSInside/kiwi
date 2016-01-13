@@ -47,12 +47,15 @@ class LiveImageBuilder(object):
         self.source_dir = source_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
-        self.flags = xml_state.build_type.get_flags()
+        self.live_type = xml_state.build_type.get_flags()
         self.hybrid = xml_state.build_type.get_hybrid()
         self.volume_id = xml_state.build_type.get_volid()
         self.machine = xml_state.get_build_type_machine_section()
         self.mbrid = ImageIdentifier()
         self.mbrid.calculate_id()
+
+        if not self.live_type:
+            self.live_type = Defaults.get_default_live_iso_type()
 
         self.boot_image_task = BootImageTask(
             xml_state, target_dir
@@ -103,7 +106,7 @@ class LiveImageBuilder(object):
         self.boot_image_task.prepare()
 
         # pack system into live boot structure
-        if not self.flags or self.flags == 'overlay':
+        if self.live_type == 'overlay':
             squashed_image = FileSystemSquashFs(
                 device_provider=None, source_dir=self.source_dir
             )
@@ -113,7 +116,8 @@ class LiveImageBuilder(object):
             )
         else:
             raise KiwiLiveBootImageError(
-                'live ISO structure type "%s" not supported' % self.flags
+                'live ISO type "%s" not supported, supported are %s' %
+                (self.live_type, Defaults.get_live_iso_types())
             )
 
         # TODO: create config.isoclient

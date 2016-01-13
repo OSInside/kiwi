@@ -132,6 +132,14 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_live_iso_types(self):
+        return ['overlay']
+
+    @classmethod
+    def get_default_live_iso_type(self):
+        return 'overlay'
+
+    @classmethod
     def get_disk_image_types(self):
         return ['oem', 'vmx']
 
