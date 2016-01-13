@@ -74,8 +74,9 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.FileSystemSquashFs')
     @patch('kiwi.live_image_builder.FileSystemIsoFs')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
+    @patch('kiwi.live_image_builder.SystemSize')
     def test_create_overlay_structure(
-        self, mock_bootloader, mock_isofs, mock_squashfs,
+        self, mock_size, mock_bootloader, mock_isofs, mock_squashfs,
         mock_hybrid, mock_command, mock_dtemp
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
@@ -92,6 +93,11 @@ class TestLiveImageBuilder(object):
         iso_image = mock.Mock()
         iso_image.create_on_file.return_value = 'offset'
         mock_isofs.return_value = iso_image
+        rootsize = mock.Mock()
+        rootsize.accumulate_mbyte_file_sizes = mock.Mock(
+            return_value=8192
+        )
+        mock_size.return_value = rootsize
 
         self.live_image.create()
 
@@ -144,13 +150,17 @@ class TestLiveImageBuilder(object):
         assert mock_command.call_args_list[1] == call(
             ['mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd']
         )
+        mock_size.assert_called_once_with(
+            'temp_media_dir'
+        )
+        rootsize.accumulate_mbyte_file_sizes.assert_called_once_with()
         mock_isofs.assert_called_once_with(
             custom_args=[
                 '-A', '0xffffffff',
-                '-allow-limited-size',
-                '-udf', '-p', '"KIWI - http://suse.github.com/kiwi"',
+                '-p', '"KIWI - http://suse.github.com/kiwi"',
                 '-publisher', '"SUSE LINUX GmbH"',
-                '-V', '"volid"'
+                '-V', '"volid"',
+                '-allow-limited-size', '-udf'
             ], device_provider=None, source_dir='temp_media_dir'
         )
         iso_image.create_on_file.assert_called_once_with(

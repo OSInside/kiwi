@@ -89,7 +89,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         # mbrid parameter is not used, the information is placed as the
         # application id when creating the iso filesystem. Thus not part
         # of the configuration file
-        log.info('Creating install config file from template')
+        log.info('Creating isolinux install config file from template')
         parameters = {
             'default_boot': 'Boot_from_Hard_Disk',
             'kernel_file': kernel,
@@ -130,7 +130,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         # mbrid parameter is not used, the information is placed as the
         # application id when creating the iso filesystem. Thus not part
         # of the configuration file
-        log.info('Creating live ISO config file from template')
+        log.info('Creating isolinux live ISO config file from template')
         parameters = {
             'default_boot': self.get_menu_entry_title(plain=True),
             'kernel_file': kernel,

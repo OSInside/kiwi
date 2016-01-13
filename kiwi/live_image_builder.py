@@ -23,6 +23,7 @@ from bootloader_config import BootLoaderConfig
 from filesystem_squashfs import FileSystemSquashFs
 from filesystem_isofs import FileSystemIsoFs
 from internal_boot_image_task import BootImageTask
+from system_size import SystemSize
 from firmware import FirmWare
 from defaults import Defaults
 from path import Path
@@ -89,15 +90,19 @@ class LiveImageBuilder(object):
         self.media_dir = mkdtemp(
             prefix='live-media.', dir=self.target_dir
         )
+        rootsize = SystemSize(self.media_dir)
 
         # custom iso metadata
+        log.info('Using following live ISO metadata:')
+        log.info('--> Application id: %s', self.mbrid.get_id())
+        log.info('--> Publisher: %s', Defaults.get_publisher())
         custom_iso_args = [
             '-A', self.mbrid.get_id(),
-            '-allow-limited-size', '-udf',
             '-p', '"' + Defaults.get_preparer() + '"',
             '-publisher', '"' + Defaults.get_publisher() + '"',
         ]
         if self.volume_id:
+            log.info('--> Volume id: %s', self.volume_id)
             custom_iso_args.append('-V')
             custom_iso_args.append('"' + self.volume_id + '"')
 
@@ -114,18 +119,18 @@ class LiveImageBuilder(object):
             Command.run(
                 ['mv', self.live_image_file, self.media_dir]
             )
+            # TODO: create config.isoclient
+            # Example:
+            # IMAGE='/dev/ram1;LimeJeOS-openSUSE-13.2.x86_64;1.13.2'
+            # UNIONFS_CONFIG='/dev/ram1,loop,clicfs'
         else:
             raise KiwiLiveBootImageError(
                 'live ISO type "%s" not supported, supported are %s' %
                 (self.live_type, Defaults.get_live_iso_types())
             )
 
-        # TODO: create config.isoclient
-
-        # TODO: create liveboot
-
         # setup bootloader config to boot the ISO via isolinux
-        log.info('Setting up live iso bootloader configuration')
+        log.info('Setting up isolinux bootloader configuration')
         bootloader_config_isolinux = BootLoaderConfig(
             'isolinux', self.xml_state, self.media_dir
         )
@@ -140,6 +145,7 @@ class LiveImageBuilder(object):
 
         # setup bootloader config to boot the ISO via EFI
         if self.firmware.efi_mode():
+            log.info('Setting up EFI grub bootloader configuration')
             bootloader_config_grub = BootLoaderConfig(
                 'grub2', self.xml_state, self.media_dir
             )
@@ -155,6 +161,12 @@ class LiveImageBuilder(object):
         # create initrd for live image
         log.info('Creating live ISO boot image')
         self.__create_live_iso_kernel_and_initrd()
+
+        # calculate size and decide if we need UDF
+        if rootsize.accumulate_mbyte_file_sizes() > 4096:
+            log.info('ISO exceeds 4G size, using UDF filesystem')
+            custom_iso_args.append('-allow-limited-size')
+            custom_iso_args.append('-udf')
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')

@@ -100,7 +100,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Create the grub.cfg in memory from a template suitable to boot
             from a disk image
         """
-        log.info('Creating config file from template')
+        log.info('Creating grub config file from template')
         parameters = {
             'search_params': '--fs-uuid --set=root ' + uuid,
             'default_boot': '0',
@@ -139,7 +139,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Create the grub.cfg in memory from a template suitable to boot
             from an ISO image in EFI boot mode
         """
-        log.info('Creating install config file from template')
+        log.info('Creating grub install config file from template')
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
@@ -179,7 +179,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Create the grub.cfg in memory from a template suitable to boot
             a live system from an ISO image in EFI boot mode
         """
-        log.info('Creating live ISO config file from template')
+        log.info('Creating grub live ISO config file from template')
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
