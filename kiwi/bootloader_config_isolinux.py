@@ -168,7 +168,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         # same action as for install media
-        self.setup_install_boot_images(None, lookup_path)
+        self.setup_install_boot_images(mbrid, lookup_path)
 
     def __copy_loader_data_to_boot_directory(self, lookup_path):
         if not lookup_path:

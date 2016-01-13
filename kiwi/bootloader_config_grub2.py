@@ -154,7 +154,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'bootpath': '/boot/x86_64/loader',
         }
         if self.multiboot:
-            log.info('--> Using multiboot install template')
+            log.info('--> Using EFI multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_install_template(
                 self.failsafe_boot, self.terminal
@@ -175,8 +175,42 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def setup_live_image_config(
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
-        # TODO
-        pass
+        """
+            Create the grub.cfg in memory from a template suitable to boot
+            a live system from an ISO image in EFI boot mode
+        """
+        log.info('Creating live ISO config file from template')
+        parameters = {
+            'search_params': '--file --set=root /boot/' + mbrid.get_id(),
+            'default_boot': '0',
+            'kernel_file': kernel,
+            'initrd_file': initrd,
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe,
+            'gfxmode': self.gfxmode,
+            'theme': self.theme,
+            'boot_timeout': self.timeout,
+            'title': self.get_menu_entry_title(plain=True),
+            'bootpath': '/boot/x86_64/loader',
+        }
+        if self.multiboot:
+            log.info('--> Using EFI multiboot template')
+            parameters['hypervisor'] = hypervisor
+            template = self.grub2.get_multiboot_iso_template(
+                self.failsafe_boot, self.terminal
+            )
+        else:
+            log.info('--> Using EFI boot template')
+            hybrid_boot = True
+            template = self.grub2.get_iso_template(
+                self.failsafe_boot, hybrid_boot, self.terminal
+            )
+        try:
+            self.config = template.substitute(parameters)
+        except Exception as e:
+            raise KiwiTemplateError(
+                '%s: %s' % (type(e).__name__, format(e))
+            )
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         """
@@ -186,7 +220,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             The non EFI boot of the install media is handled in the
             isolinux boot loader configuration
         """
-        log.info('Creating grub bootloader images for install image')
+        log.info('Creating grub bootloader images')
         self.efi_boot_path = self.create_efi_path(in_sub_dir='')
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
@@ -213,15 +247,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.__create_embedded_fat_efi_image()
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
-        # TODO
-        pass
+        # same action as for install media
+        self.setup_install_boot_images(mbrid, lookup_path)
 
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
             EFI and bios images needs to be build or used if provided
             by the distribution
         """
-        log.info('Creating grub bootloader images for disk image')
+        log.info('Creating grub bootloader images')
 
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()

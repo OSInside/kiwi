@@ -207,7 +207,7 @@ class BootLoaderTemplateGrub2(object):
             }
         ''').strip() + self.cr
 
-        self.menu_install_harddisk_entry = dedent('''
+        self.menu_iso_harddisk_entry = dedent('''
             menuentry "Boot from Hard Disk" --class os {
                 search --set=root --label EFI
                 chainloader ($${root})/EFI/BOOT/bootx64.efi
@@ -256,6 +256,50 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_entry_failsafe_multiboot
         return Template(template_data)
 
+    def get_iso_template(
+        self, failsafe=True, hybrid=True, terminal='gfxterm'
+    ):
+        """
+            bootloader configuration template for live ISO media
+        """
+        template_data = self.header
+        if hybrid:
+            template_data += self.header_hybrid
+        if terminal == 'gfxterm':
+            template_data += self.header_gfxterm
+        else:
+            template_data += self.header_serial
+        template_data += self.header_theme_iso
+        if hybrid:
+            template_data += self.menu_entry_hybrid
+            if failsafe:
+                template_data += self.menu_entry_failsafe_hybrid
+        else:
+            template_data += self.menu_entry
+            if failsafe:
+                template_data += self.menu_entry_failsafe
+        template_data += self.menu_iso_harddisk_entry
+        return Template(template_data)
+
+    def get_multiboot_iso_template(
+        self, failsafe=True, terminal='gfxterm'
+    ):
+        """
+            bootloader configuration template for live ISO media with
+            hypervisor, e.g Xen dom0
+        """
+        template_data = self.header
+        if terminal == 'gfxterm':
+            template_data += self.header_gfxterm
+        else:
+            template_data += self.header_serial
+        template_data += self.header_theme_iso
+        template_data += self.menu_entry_multiboot
+        if failsafe:
+            template_data += self.menu_entry_failsafe_multiboot
+        template_data += self.menu_iso_harddisk_entry
+        return Template(template_data)
+
     def get_install_template(
         self, failsafe=True, hybrid=True, terminal='gfxterm'
     ):
@@ -270,7 +314,7 @@ class BootLoaderTemplateGrub2(object):
         else:
             template_data += self.header_serial
         template_data += self.header_theme_iso
-        template_data += self.menu_install_harddisk_entry
+        template_data += self.menu_iso_harddisk_entry
         if hybrid:
             template_data += self.menu_install_entry_hybrid
             if failsafe:
@@ -294,7 +338,7 @@ class BootLoaderTemplateGrub2(object):
         else:
             template_data += self.header_serial
         template_data += self.header_theme_iso
-        template_data += self.menu_install_harddisk_entry
+        template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot

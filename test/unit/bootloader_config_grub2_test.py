@@ -93,6 +93,20 @@ class TestBootLoaderConfigGrub2(object):
             call('some-data')
         ]
 
+    def test_setup_live_image_config_multiboot(self):
+        self.bootloader.multiboot = True
+        self.bootloader.setup_live_image_config(self.mbrid)
+        self.grub2.get_multiboot_iso_template.assert_called_once_with(
+            True, 'gfxterm'
+        )
+
+    def test_setup_live_image_config_standard(self):
+        self.bootloader.multiboot = False
+        self.bootloader.setup_live_image_config(self.mbrid)
+        self.grub2.get_iso_template.assert_called_once_with(
+            True, True, 'gfxterm'
+        )
+
     def test_setup_disk_image_config_multiboot(self):
         self.bootloader.multiboot = True
         self.bootloader.setup_disk_image_config('uuid')
@@ -120,6 +134,17 @@ class TestBootLoaderConfigGrub2(object):
         self.grub2.get_install_template.assert_called_once_with(
             True, True, 'gfxterm'
         )
+
+    @raises(KiwiTemplateError)
+    def test_setup_iso_image_config_substitute_error(self):
+        self.bootloader.multiboot = True
+        template = mock.Mock()
+        template.substitute = mock.Mock()
+        template.substitute.side_effect = Exception
+        self.grub2.get_multiboot_iso_template = mock.Mock(
+            return_value=template
+        )
+        self.bootloader.setup_live_image_config(self.mbrid)
 
     @raises(KiwiTemplateError)
     def test_setup_disk_image_config_substitute_error(self):
@@ -459,10 +484,9 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_warn.called
 
-    def test_setup_live_image_config(self):
-        # TODO
-        self.bootloader.setup_live_image_config('mbrid')
-
-    def test_setup_live_boot_images(self):
-        # TODO
-        self.bootloader.setup_live_boot_images('mbrid')
+    @patch('kiwi.bootloader_config_grub2.BootLoaderConfigGrub2.setup_install_boot_images')
+    def test_setup_live_boot_images(self, mock_setup_install_boot_images):
+        self.bootloader.setup_live_boot_images(self.mbrid)
+        mock_setup_install_boot_images.assert_called_once_with(
+            self.mbrid, None
+        )

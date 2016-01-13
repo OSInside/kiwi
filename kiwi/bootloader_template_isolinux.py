@@ -84,13 +84,13 @@ class BootLoaderTemplateIsoLinux(object):
         self.menu_entry_multiboot = dedent('''
             label ${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_entry_failsafe_multiboot = dedent('''
             label Failsafe_--_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${failsafe_boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_install_entry = dedent('''
@@ -108,13 +108,13 @@ class BootLoaderTemplateIsoLinux(object):
         self.menu_entry = dedent('''
             label ${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} vga=${gfxmode} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} vga=${gfxmode} ${boot_options} kiwi_hybrid=1 showopts
         ''').strip() + self.cr
 
         self.menu_entry_failsafe = dedent('''
             label Failsafe_--_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} vga=${gfxmode} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} vga=${gfxmode} ${failsafe_boot_options} kiwi_hybrid=1 showopts
         ''').strip() + self.cr
 
     def get_install_message_template(self):
