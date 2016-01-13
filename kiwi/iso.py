@@ -143,7 +143,7 @@ class Iso(object):
                 log.debug('--> 512 byte blocks(isohybrid): %d', offset * 4)
                 log.debug('--> bytes(loop mount): %d', offset * 2048)
                 with open(self.header_end_file, 'w') as marker:
-                    for index in range(offset):
+                    for index in range(offset + 1):
                         marker.write(iso.read(2048))
             else:
                 raise KiwiIsoLoaderError(
