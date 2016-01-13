@@ -75,8 +75,9 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.FileSystemIsoFs')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
     @patch('kiwi.live_image_builder.SystemSize')
+    @patch('__builtin__.open')
     def test_create_overlay_structure(
-        self, mock_size, mock_bootloader, mock_isofs, mock_squashfs,
+        self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_squashfs,
         mock_hybrid, mock_command, mock_dtemp
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
@@ -85,6 +86,14 @@ class TestLiveImageBuilder(object):
             return tmpdir_name.pop()
 
         mock_dtemp.side_effect = side_effect
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
         self.live_image.live_type = 'overlay'
         squashed_image = mock.Mock()
         mock_squashfs.return_value = squashed_image
@@ -114,6 +123,14 @@ class TestLiveImageBuilder(object):
                 'temp_media_dir'
             ]
         )
+        mock_open.assert_called_once_with(
+            'temp_media_dir/config.isoclient', 'w'
+        )
+        assert file_mock.write.call_args_list == [
+            call('IMAGE="loop;result-image.x86_64;1.2.3"\n'),
+            call('UNIONFS_CONFIG="tmpfs,loop,overlay"\n')
+        ]
+
         assert mock_bootloader.call_args_list[0] == call(
             'isolinux', self.xml_state, 'temp_media_dir'
         )
@@ -190,17 +207,21 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
+    @patch('__builtin__.open')
     @raises(KiwiLiveBootImageError)
-    def test_create_no_kernel_found(self, mock_boot, mock_command, mock_dtemp):
+    def test_create_no_kernel_found(
+        self, mock_open, mock_boot, mock_command, mock_dtemp
+    ):
         self.kernel.get_kernel.return_value = False
         self.live_image.create()
 
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
+    @patch('__builtin__.open')
     @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
-        self, mock_boot, mock_command, mock_dtemp
+        self, mock_open, mock_boot, mock_command, mock_dtemp
     ):
         self.kernel.get_xen_hypervisor.return_value = False
         self.live_image.create()

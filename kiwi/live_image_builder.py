@@ -45,6 +45,7 @@ class LiveImageBuilder(object):
     """
     def __init__(self, xml_state, target_dir, source_dir):
         self.media_dir = None
+        self.arch = platform.machine()
         self.source_dir = source_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -74,7 +75,7 @@ class LiveImageBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '-read-only.', platform.machine(), '-',
+                '-read-only.', self.arch, '-',
                 xml_state.get_image_version()
             ]
         )
@@ -112,6 +113,7 @@ class LiveImageBuilder(object):
 
         # pack system into live boot structure
         if self.live_type == 'overlay':
+            # root system is packed into a compressed squashfs filesystem
             squashed_image = FileSystemSquashFs(
                 device_provider=None, source_dir=self.source_dir
             )
@@ -119,10 +121,10 @@ class LiveImageBuilder(object):
             Command.run(
                 ['mv', self.live_image_file, self.media_dir]
             )
-            # TODO: create config.isoclient
-            # Example:
-            # IMAGE='/dev/ram1;LimeJeOS-openSUSE-13.2.x86_64;1.13.2'
-            # UNIONFS_CONFIG='/dev/ram1,loop,clicfs'
+            # overlayfs based iso type uses a tmpfs as write space by default
+            self.__create_live_iso_client_config(
+                'tmpfs', 'overlay'
+            )
         else:
             raise KiwiLiveBootImageError(
                 'live ISO type "%s" not supported, supported are %s' %
@@ -214,6 +216,34 @@ class LiveImageBuilder(object):
                 boot_path + '/initrd'
             ]
         )
+
+    def __create_live_iso_client_config(self, union_device, iso_type):
+        """
+            Setup IMAGE and UNIONFS_CONFIG variables as they are used in
+            the kiwi isoboot code. Variable contents:
+
+            + IMAGE=target_device;live_iso_name_definition
+            + UNIONFS_CONFIG=rw_device,ro_device,union_type
+
+            If no real block device is used or can be predefined the
+            word 'loop' is set as a placeholder or indicator to use a loop
+            device. For more details please refer to the kiwi shell boot
+            code
+        """
+        iso_client_config_file = self.media_dir + '/config.isoclient'
+        system_device = 'loop'
+        with open(iso_client_config_file, 'w') as config:
+            config.write(
+                'IMAGE="%s;%s.%s;%s"\n' % (
+                    system_device,
+                    self.xml_state.xml_data.get_name(), self.arch,
+                    self.xml_state.get_image_version()
+                )
+            )
+            config.write(
+                'UNIONFS_CONFIG="%s,loop,%s"\n' %
+                (union_device, iso_type)
+            )
 
     def __del__(self):
         if self.media_dir:
