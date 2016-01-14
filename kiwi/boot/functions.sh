@@ -23,6 +23,7 @@ export ELOG_FILE=/var/log/boot.kiwi
 export TRANSFER_ERRORS_FILE=/tmp/transfer.errors
 export UFONT=/usr/share/fbiterm/fonts/b16.pcf.gz
 export CONSOLE_FONT=/usr/share/kbd/consolefonts/default8x16.gz
+export HYBRID_PERSISTENT_FILENAME="Live OS's persistent storage.fs"
 export HYBRID_PERSISTENT_FS=btrfs
 export HYBRID_PERSISTENT_ID=83
 export HYBRID_PERSISTENT_DIR=/read-write
@@ -39,6 +40,12 @@ export partitionerWriteStatus=0
 function lookup {
     bash -c "PATH=$PATH:/sbin:/usr/sbin:/bin:/usr/bin type -p $1"
 }
+
+#======================================
+# Exports (hybrid filesystem options)
+#--------------------------------------
+# Optimized for 512kB erase block size
+export HYBRID_EXT4_OPTS="-b 4096 -O ^has_journal -E stride=128,stripe-width=128"
 
 #======================================
 # Exports (console)
@@ -2966,6 +2973,7 @@ function probeFileSystem {
         xfs)         FSTYPE=xfs ;;
         udf)         FSTYPE=udf ;;
         zfs_member)  FSTYPE=zfs ;;
+        exfat)       FSTYPE=exfat ;;
         *)
             FSTYPE=unknown
         ;;
@@ -3177,7 +3185,7 @@ function probeDevices {
     #======================================
     # Manual loading of modules
     #--------------------------------------
-    for i in rd brd edd dm-mod xennet xenblk virtio_blk loop squashfs;do
+    for i in rd brd edd dm-mod xennet xenblk virtio_blk loop squashfs fuse;do
         modprobe $i &>/dev/null
     done
     udevPending
@@ -5456,32 +5464,41 @@ function setupReadWrite {
     # ----
     local IFS=$IFS_ORIG
     local rwDir=/read-write
-    local rwDevice=`echo $UNIONFS_CONFIG | cut -d , -f 1`
+    local rwDevice=$(echo $UNIONFS_CONFIG | cut -d , -f 1)
+    local fstype=$(blkid $rwDevice -s TYPE -o value)
+    local hybrid_fs=$HYBRID_PERSISTENT_FS
+    local create_hybrid="no"
+    local fs_opts
     mkdir -p $rwDir
-    if [ $LOCAL_BOOT = "no" ] && [ $systemIntegrity = "clean" ];then
-        if [ "$RELOAD_IMAGE" = "yes" ] || \
-            ! mount -o ro $rwDevice $rwDir &>/dev/null
+    if [ $hybrid_fs = "ext4" ];then
+        fs_opts="$HYBRID_EXT4_OPTS"
+    fi
+    if [ ! -z "$kiwi_hybridpersistent_filesystem" ];then
+        hybrid_fs=$kiwi_hybridpersistent_filesystem
+    fi
+    if [ $LOCAL_BOOT = "yes" ] || [ ! $systemIntegrity = "clean" ];then
+        # no further action on a standard boot/reboot or in unclean state
+        return 0
+    fi
+    if [ ! -z "$fstype" ];then
+        Echo "Checking filesystem for RW data on $rwDevice..."
+        checkFilesystem $rwDevice &>/dev/null
+    fi
+    if [ "$RELOAD_IMAGE" = "yes" ]; then
+        # create rw fs explicitly activated
+        create_hybrid="yes"
+    elif ! mount -o ro $rwDevice $rwDir &>/dev/null; then
+        # still failing after check, trigger creation of new rw fs
+        create_hybrid="yes"
+    fi
+    mountpoint -q $rwDir && umount $rwDevice
+    if [ "$create_hybrid" = "yes" ];then
+        Echo "Creating filesystem for RW data on $rwDevice..."
+        if ! createFilesystem \
+            "$rwDevice" "" "" "hybrid" "false" "$hybrid_fs" "$fs_opts"
         then
-            local hybrid_fs=$HYBRID_PERSISTENT_FS
-            if [ ! -z "$kiwi_hybridpersistent_filesystem" ];then
-                hybrid_fs=$kiwi_hybridpersistent_filesystem
-            fi
-            Echo "Checking filesystem for RW data on $rwDevice..."
-            checkFilesystem $rwDevice
-
-            if [ "$RELOAD_IMAGE" = "yes" ] || \
-                ! mount -o ro $rwDevice $rwDir &>/dev/null
-            then
-                Echo "Creating filesystem for RW data on $rwDevice..."
-                local exception_handling="false"
-                if ! createFilesystem $rwDevice "" "" "hybrid" $exception_handling $hybrid_fs; then
-                    Echo "Failed to create ext3 filesystem"
-                    return 1
-                fi
-                checkFilesystem $rwDevice >/dev/null
-            fi
-        else
-            umount $rwDevice
+            Echo "Failed to create ${hybrid_fs} filesystem"
+            return 1
         fi
     fi
     return 0
@@ -5555,6 +5572,7 @@ function mountSystemUnionFS {
     local roDevice=`echo $UNIONFS_CONFIG | cut -d , -f 2`
     local unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
     local prefix=/mnt
+    local mount_options
     #======================================
     # load fuse module
     #--------------------------------------
@@ -5601,7 +5619,13 @@ function mountSystemUnionFS {
         if [ ! "$roDevice" = "nfs" ] && ! setupReadWrite; then
             return 1
         fi
-        if ! kiwiMount "$rwDevice" "$rwDir";then
+        if [ "$kiwi_hybridpersistent" = "true" ];then
+            # When using an overlay writing to a block device safety has
+            # less priority over speed. If this does not match your use
+            # case please report an issue on the kiwi github
+            mount_options="-o defaults,async,relatime,nodiratime"
+        fi
+        if ! kiwiMount "$rwDevice" "$rwDir" "$mount_options";then
             Echo "Failed to mount read/write filesystem"
             return 1
         fi
@@ -8114,7 +8138,7 @@ function createHybridPersistent {
         local label=$(blkid $partd -s LABEL -o value)
         if [ "$label" = "hybrid" ];then
             Echo "Existing persistent hybrid partition found"
-            if [ $hybrid_fs = "fat" ];then
+            if [ "$hybrid_fs" = "fat" ] || [ "$hybrid_fs" = "exfat" ];then
                 if ! setupHybridCowDevice;then
                     Echo "Failed to setup hybrid cow device"
                     Echo "Persistent writing deactivated"
@@ -8166,6 +8190,7 @@ function createHybridPersistent {
         # based persistent write partitions to be created as first partition
         # on efi|uefi ISO hybrid images
         echo -e "n\np\n$pID\n\n\nw\nq" | fdisk $imageDiskDevice
+        blockdev --rereadpt $imageDiskDevice
     else
         createPartitionerInput \
             n p:lxrw $pID . . t $pID $HYBRID_PERSISTENT_ID
@@ -8190,9 +8215,12 @@ function createHybridPersistent {
     # create filesystem on write partition
     #--------------------------------------
     local hybrid_device=$(ddn $device $pID)
-    local exception_handling="false"
+    local fs_opts
+    if [ "$hybrid_fs" = "ext4" ];then
+        fs_opts="$HYBRID_EXT4_OPTS"
+    fi
     if ! createFilesystem \
-        $hybrid_device "" "" "hybrid" $exception_handling $hybrid_fs
+        $hybrid_device "" "" "hybrid" "false" "$hybrid_fs" "$fs_opts"
     then
         Echo "Failed to create hybrid persistent filesystem"
         Echo "Persistent writing deactivated"
@@ -8202,7 +8230,7 @@ function createHybridPersistent {
     #======================================
     # export read-write device name
     #--------------------------------------
-    if [ $hybrid_fs = "fat" ];then
+    if [ "$hybrid_fs" = "fat" ] || [ "$hybrid_fs" = "exfat" ];then
         # The fat filesystem is not really suitable to be used as rootfs
         # for linux. Therefore we create a btrfs based file which we store
         # on the fat filesystem and loop setup it. The size of the file
@@ -8229,25 +8257,41 @@ function setupHybridCowDevice {
     local hybrid_device=$1
     mkdir -p /cow
     for i in 1 2 3;do
-        mount -L hybrid /cow && break || sleep 2
+        if [ "$hybrid_fs" = "exfat" ]; then
+            mount $hybrid_device /cow ||\
+            mount.exfat $hybrid_device /cow && break || sleep 2
+        else
+            mount -L hybrid /cow && break || sleep 2
+        fi
     done
-    if [ ! $? = 0 ];then
+    if ! mountpoint -q /cow; then
         Echo "Failed to mount hybrid persistent filesystem !"
         return 1
     fi
-    if [ ! -e "/cow/cowfile" ];then
-        local cowsize=$(($(blockdev --getsize64 $hybrid_device) / 2))
-        local exception_handling="false"
-        qemu-img create /cow/cowfile $cowsize
+    local hybrid_cow_filename="/cow/${HYBRID_PERSISTENT_FILENAME}"
+    if [ ! -z "$kiwi_hybridpersistent_cow_filename" ];then
+        hybrid_cow_filename="/cow/${kiwi_hybridpersistent_cow_filename}"
+    fi
+    if [ ! -e "$hybrid_cow_filename" ];then
+        # default cow filesize is half of partition's capacity
+        local cowsize="$(($(blockdev --getsize64 $hybrid_device) / 2))"
+        # but not for FAT due to the 4G file size limit
+        if [ "$hybrid_fs" = "fat" ] && [ "$cowsize" -gt 4294967295 ];then
+            cowsize=4294967295
+        fi
+        if [ ! -z "$kiwi_hybridpersistent_filesize" ];then
+            cowsize=$kiwi_hybridpersistent_filesize
+        fi
+        qemu-img create "$hybrid_cow_filename" "$cowsize"
         if ! createFilesystem \
-            "/cow/cowfile" "" "" "" $exception_handling "btrfs"
+            "$hybrid_cow_filename" "" "" "" "false" "ext4" "$HYBRID_EXT4_OPTS"
         then
             Echo "Failed to create hybrid persistent cow filesystem"
             return 1
         fi
     fi
-    export HYBRID_RW=$(loop_setup /cow/cowfile)
-    if [ ! -e "$cowdevice" ];then
+    export HYBRID_RW=$(loop_setup "$hybrid_cow_filename")
+    if [ ! -e "$HYBRID_RW" ];then
         Echo "Failed to loop setup hybrid cow file !"
         return 1
     fi
@@ -8732,11 +8776,11 @@ function checkFilesystem {
     if [ "$FSTYPE" = "reiserfs" ];then
         reiserfsck -y $device
     elif [ "$FSTYPE" = "ext2" ];then
-        e2fsck -p $device
+        e2fsck -p -f $device
     elif [ "$FSTYPE" = "ext3" ];then
-        e2fsck -p $device
+        e2fsck -p -f $device
     elif [ "$FSTYPE" = "ext4" ];then
-        e2fsck -p $device
+        e2fsck -p -f $device
     elif [ "$FSTYPE" = "btrfs" ];then
         btrfsck $device
     elif [ "$FSTYPE" = "xfs" ];then
@@ -8911,33 +8955,39 @@ function createFilesystem {
         if [ ! -z "$label" ];then
             opts="$opts -L $label"
         fi
+    elif [ "$filesystem" = "exfat" ];then
+        if [ ! -z "$label" ];then
+            opts="$opts -n $label"
+        fi
     fi
     if [ "$filesystem" = "reiserfs" ];then
-        mkreiserfs $opts $deviceCreate $blocks 1>&2
+        mkreiserfs $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext2" ];then
-        mkfs.ext2 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext2 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext3" ];then
-        mkfs.ext3 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext3 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext4" ];then
-        mkfs.ext4 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext4 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "btrfs" ];then
         # delete potentially existing btrfs on the device because even
         # with the force option enabled mkfs.btrfs refuses to create a
         # filesystem if the existing metadata contains the same UUID
-        dd if=/dev/zero of=$deviceCreate bs=1M count=1 conv=notrunc
-        mkfs.btrfs $opts $deviceCreate
+        dd if=/dev/zero of="$deviceCreate" bs=1M count=1 conv=notrunc
+        mkfs.btrfs $opts "$deviceCreate"
     elif [ "$filesystem" = "xfs" ];then
-        mkfs.xfs $opts -f $deviceCreate
+        mkfs.xfs $opts -f "$deviceCreate"
         if [ ! -z "$uuid" ];then
-            xfs_admin -U $uuid $deviceCreate
+            xfs_admin -U $uuid "$deviceCreate"
         fi
     elif [ "$filesystem" = "fat" ];then
-        mkfs.fat $opts $deviceCreate $blocks 1>&2
+        mkfs.fat $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ntfs" ];then
-        mkfs.ntfs $opts $deviceCreate $blocks 1>&2
+        mkfs.ntfs $opts "$deviceCreate" $blocks 1>&2
+    elif [ "$filesystem" = "exfat" ];then
+        mkfs.exfat $opts "$deviceCreate" 1>&2
     else
         # use ext3 by default
-        mkfs.ext3 $opts $deviceCreate $blocks 1>&2
+        mkfs.ext3 $opts "$deviceCreate" $blocks 1>&2
     fi
     if [ $exception_handling = "false" ];then
         return $?
@@ -10385,12 +10435,12 @@ function backupGPT {
 #--------------------------------------
 function loop_setup {
     local IFS=$IFS_ORIG
-    local target=$1
+    local target="$@"
     local logical_sector_size
     if [ ! -z "$kiwi_target_blocksize" ];then
         logical_sector_size="-L $kiwi_target_blocksize"
     fi
-    local loop=$(losetup $logical_sector_size -f --show $target)
+    local loop=$(losetup $logical_sector_size -f --show "$target")
     if [ ! -e "$loop" ];then
         return 1
     fi
@@ -10401,8 +10451,8 @@ function loop_setup {
 #--------------------------------------
 function loop_delete {
     local IFS=$IFS_ORIG
-    local target=$1
-    losetup -d $target
+    local target="$@"
+    losetup -d "$target"
 }
 #======================================
 # startMultipathd
