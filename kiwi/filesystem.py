@@ -24,6 +24,7 @@ from filesystem_xfs import FileSystemXfs
 from filesystem_fat16 import FileSystemFat16
 from filesystem_fat32 import FileSystemFat32
 from filesystem_squashfs import FileSystemSquashFs
+from filesystem_clicfs import FileSystemClicFs
 
 from exceptions import (
     KiwiFileSystemSetupError
@@ -65,6 +66,10 @@ class FileSystem(object):
             )
         elif name == 'squashfs':
             return FileSystemSquashFs(
+                device_provider, source_dir, custom_args
+            )
+        elif name == 'clicfs':
+            return FileSystemClicFs(
                 device_provider, source_dir, custom_args
             )
         else:

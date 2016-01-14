@@ -61,3 +61,9 @@ class TestFileSystem(object):
         provider = mock.Mock()
         FileSystem('squashfs', provider, 'source_dir')
         mock_squashfs.assert_called_once_with(provider, 'source_dir', None)
+
+    @patch('kiwi.filesystem.FileSystemClicFs')
+    def test_filesystem_clicfs(self, mock_clicfs):
+        provider = mock.Mock()
+        FileSystem('clicfs', provider, 'source_dir')
+        mock_clicfs.assert_called_once_with(provider, 'source_dir', None)
