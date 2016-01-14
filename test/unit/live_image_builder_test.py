@@ -71,13 +71,13 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.Iso.create_hybrid')
-    @patch('kiwi.live_image_builder.FileSystemSquashFs')
+    @patch('kiwi.live_image_builder.FileSystem')
     @patch('kiwi.live_image_builder.FileSystemIsoFs')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
     @patch('kiwi.live_image_builder.SystemSize')
     @patch('__builtin__.open')
     def test_create_overlay_structure(
-        self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_squashfs,
+        self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
         mock_hybrid, mock_command, mock_dtemp
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
@@ -95,8 +95,8 @@ class TestLiveImageBuilder(object):
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
         self.live_image.live_type = 'overlay'
-        squashed_image = mock.Mock()
-        mock_squashfs.return_value = squashed_image
+        live_type_image = mock.Mock()
+        mock_fs.return_value = live_type_image
         bootloader = mock.Mock()
         mock_bootloader.return_value = bootloader
         iso_image = mock.Mock()
@@ -111,10 +111,10 @@ class TestLiveImageBuilder(object):
         self.live_image.create()
 
         self.live_image.boot_image_task.prepare.assert_called_once_with()
-        mock_squashfs.assert_called_once_with(
-            device_provider=None, source_dir='source_dir'
+        mock_fs.assert_called_once_with(
+            device_provider=None, name='squashfs', source_dir='source_dir'
         )
-        squashed_image.create_on_file.assert_called_once_with(
+        live_type_image.create_on_file.assert_called_once_with(
             'target_dir/result-image-read-only.x86_64-1.2.3'
         )
         assert mock_command.call_args_list[0] == call(

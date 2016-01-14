@@ -46,13 +46,14 @@ class TestFileSystemClicFs(object):
         mock_loop.assert_called_once_with(
             'tmpdir/fsdata.ext4', 42
         )
+        loop_provider.create.assert_called_once_with()
         mock_ext4.assert_called_once_with(
             loop_provider, 'source_dir'
         )
         filesystem.create_on_device.assert_called_once_with()
         assert mock_command.call_args_list == [
             call(
-                ['resize2fs', loop_provider.get_device(), '-M']
+                ['resize2fs', '-f', loop_provider.get_device(), '-M']
             ),
             call(
                 ['mkclicfs', 'tmpdir/fsdata.ext4', 'myimage']

@@ -43,14 +43,15 @@ class FileSystemClicFs(FileSystemBase):
             clicfs_container_filesystem,
             self.__get_container_filesystem_size_mbytes()
         )
+        loop_provider.create()
         filesystem = FileSystemExt4(
             loop_provider, self.source_dir
         )
         filesystem.create_on_device()
-        Command.run(
-            ['resize2fs', loop_provider.get_device(), '-M']
-        )
         filesystem.sync_data()
+        Command.run(
+            ['resize2fs', '-f', loop_provider.get_device(), '-M']
+        )
 
         # force cleanup and umount of container filesystem
         # before mkclicfs is called

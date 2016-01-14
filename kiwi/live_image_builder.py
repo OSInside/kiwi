@@ -20,7 +20,7 @@ import platform
 
 # project
 from bootloader_config import BootLoaderConfig
-from filesystem_squashfs import FileSystemSquashFs
+from filesystem import FileSystem
 from filesystem_isofs import FileSystemIsoFs
 from internal_boot_image_task import BootImageTask
 from system_size import SystemSize
@@ -50,6 +50,7 @@ class LiveImageBuilder(object):
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.live_type = xml_state.build_type.get_flags()
+        self.types = Defaults.get_live_iso_types()
         self.hybrid = xml_state.build_type.get_hybrid()
         self.volume_id = xml_state.build_type.get_volid()
         self.machine = xml_state.get_build_type_machine_section()
@@ -112,23 +113,21 @@ class LiveImageBuilder(object):
         self.boot_image_task.prepare()
 
         # pack system into live boot structure
-        if self.live_type == 'overlay':
-            # root system is packed into a compressed squashfs filesystem
-            squashed_image = FileSystemSquashFs(
-                device_provider=None, source_dir=self.source_dir
+        log.info('Packing system into live ISO type: %s', self.live_type)
+        if self.live_type in self.types:
+            live_type_image = FileSystem(
+                name=self.types[self.live_type],
+                device_provider=None,
+                source_dir=self.source_dir
             )
-            squashed_image.create_on_file(self.live_image_file)
+            live_type_image.create_on_file(self.live_image_file)
             Command.run(
                 ['mv', self.live_image_file, self.media_dir]
             )
-            # overlayfs based iso type uses a tmpfs as write space by default
-            self.__create_live_iso_client_config(
-                'tmpfs', 'overlay'
-            )
+            self.__create_live_iso_client_config(self.live_type)
         else:
             raise KiwiLiveBootImageError(
-                'live ISO type "%s" not supported, supported are %s' %
-                (self.live_type, Defaults.get_live_iso_types())
+                'live ISO type "%s" not supported' % self.live_type
             )
 
         # setup bootloader config to boot the ISO via isolinux
@@ -217,7 +216,7 @@ class LiveImageBuilder(object):
             ]
         )
 
-    def __create_live_iso_client_config(self, union_device, iso_type):
+    def __create_live_iso_client_config(self, iso_type):
         """
             Setup IMAGE and UNIONFS_CONFIG variables as they are used in
             the kiwi isoboot code. Variable contents:
@@ -231,7 +230,9 @@ class LiveImageBuilder(object):
             code
         """
         iso_client_config_file = self.media_dir + '/config.isoclient'
-        system_device = 'loop'
+        iso_client_params = Defaults.get_live_iso_client_parameters()
+        (system_device, union_device, union_type) = iso_client_params[iso_type]
+
         with open(iso_client_config_file, 'w') as config:
             config.write(
                 'IMAGE="%s;%s.%s;%s"\n' % (
@@ -242,7 +243,7 @@ class LiveImageBuilder(object):
             )
             config.write(
                 'UNIONFS_CONFIG="%s,loop,%s"\n' %
-                (union_device, iso_type)
+                (union_device, union_type)
             )
 
     def __del__(self):

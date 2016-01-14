@@ -133,7 +133,17 @@ class Defaults(object):
 
     @classmethod
     def get_live_iso_types(self):
-        return ['overlay']
+        return {
+            'overlay': 'squashfs',
+            'clic': 'clicfs'
+        }
+
+    @classmethod
+    def get_live_iso_client_parameters(self):
+        return {
+            'overlay': ['loop', 'tmpfs', 'overlay'],
+            'clic': ['/dev/ram1', '/dev/ram1', 'clicfs']
+        }
 
     @classmethod
     def get_default_live_iso_type(self):
