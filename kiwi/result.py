@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import marshal
+
 # project
 from logger import log
 
@@ -38,3 +40,10 @@ class Result(object):
             for key, value in self.result_files.iteritems():
                 if value:
                     log.info('--> %s: %s', key, value)
+
+    def dump(self, filename):
+        marshal.dump(self, filename)
+
+    @classmethod
+    def load(self, filename):
+        return marshal.load(filename)

@@ -67,6 +67,7 @@ class SystemCreateTask(CliTask):
             self.command_args['--root']
         )
 
+        result = None
         if self.command_args['create']:
             requested_image_type = self.xml_state.get_build_type_name()
             if requested_image_type in Defaults.get_filesystem_image_types():
@@ -76,7 +77,6 @@ class SystemCreateTask(CliTask):
                     self.command_args['--root']
                 )
                 result = filesystem.create()
-                result.print_results()
             elif requested_image_type in Defaults.get_disk_image_types():
                 disk = DiskBuilder(
                     self.xml_state,
@@ -84,7 +84,6 @@ class SystemCreateTask(CliTask):
                     self.command_args['--root']
                 )
                 result = disk.create()
-                result.print_results()
             elif requested_image_type in Defaults.get_live_image_types():
                 live_iso = LiveImageBuilder(
                     self.xml_state,
@@ -92,7 +91,6 @@ class SystemCreateTask(CliTask):
                     self.command_args['--root']
                 )
                 result = live_iso.create()
-                result.print_results()
             elif requested_image_type in Defaults.get_network_image_types():
                 pxe = PxeBuilder(
                     self.xml_state,
@@ -100,7 +98,6 @@ class SystemCreateTask(CliTask):
                     self.command_args['--root']
                 )
                 result = pxe.create()
-                result.print_results()
             elif requested_image_type in Defaults.get_archive_image_types():
                 archive = ArchiveBuilder(
                     self.xml_state,
@@ -108,7 +105,6 @@ class SystemCreateTask(CliTask):
                     self.command_args['--root']
                 )
                 result = archive.create()
-                result.print_results()
             elif requested_image_type in Defaults.get_container_image_types():
                 # TODO
                 raise KiwiNotImplementedError(
@@ -118,6 +114,12 @@ class SystemCreateTask(CliTask):
                 raise KiwiRequestedTypeError(
                     'requested image type %s not supported' %
                     requested_image_type
+                )
+
+            if result:
+                result.print_results()
+                result.dump(
+                    self.command_args['--target-dir'] + '/kiwi.result'
                 )
 
     def __help(self):

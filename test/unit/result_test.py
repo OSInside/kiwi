@@ -26,3 +26,15 @@ class TestResult(object):
         self.result.add('foo', 'bar')
         self.result.print_results()
         assert mock_info.called
+
+    @patch('marshal.dump')
+    def test_dump(self, mock_marshal_dump):
+        self.result.dump('kiwi.result')
+        mock_marshal_dump.assert_called_once_with(
+            self.result, 'kiwi.result'
+        )
+
+    @patch('marshal.load')
+    def test_load(self, mock_marshal_load):
+        Result.load('kiwi.result')
+        mock_marshal_load.assert_called_once_with('kiwi.result')
