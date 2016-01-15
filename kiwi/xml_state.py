@@ -341,6 +341,25 @@ class XMLState(object):
             volume_group_name = Defaults.get_default_volume_group_name()
         return volume_group_name
 
+    def get_users(self):
+        users_by_group_type = namedtuple(
+            'users_by_group_type', ['group_name', 'group_id', 'user_sections']
+        )
+        users_by_group = []
+        users_sections = self.get_users_sections()
+        if users_sections:
+            for users in users_sections:
+                user_sections = users.get_user()
+                if user_sections:
+                    users_by_group.append(
+                        users_by_group_type(
+                            group_name=users.get_group(),
+                            group_id=users.get_id(),
+                            user_sections=user_sections
+                        )
+                    )
+        return users_by_group
+
     def get_volumes(self):
         """
             get volumes section from systemdisk

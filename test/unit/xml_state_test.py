@@ -305,6 +305,10 @@ class TestXMLState(object):
         assert self.state.get_users_sections()[0].get_user()[0].get_name() == \
             'root'
 
+    def test_get_users(self):
+        assert self.state.get_users()[0].user_sections[0].get_name() == \
+            'root'
+
     def test_copy_displayname(self):
         self.state.copy_displayname(self.boot_state)
         assert self.boot_state.xml_data.get_displayname() == 'Bob'
