@@ -50,19 +50,19 @@ class Result(object):
         try:
             marshal.dump(self, filename)
         except Exception as e:
-            raise KiwiResultError (
+            raise KiwiResultError(
                 'Failed to marshal dump results: %s' % format(e)
             )
 
     @classmethod
     def load(self, filename):
         if not os.path.exists(filename):
-            raise KiwiResultError (
+            raise KiwiResultError(
                 'No result information %s found' % filename
             )
         try:
             return marshal.load(filename)
         except Exception as e:
-            raise KiwiResultError (
+            raise KiwiResultError(
                 'Failed to marshal load results: %s' % format(e)
             )

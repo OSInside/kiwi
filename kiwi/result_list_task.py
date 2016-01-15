@@ -46,9 +46,14 @@ class ResultListTask(CliTask):
         if self.__help():
             return
 
-        log.info('Listing results from %s')
+        result_directory = os.path.normpath(
+            self.command_args['--target-dir']
+        )
+        log.info(
+            'Listing results from %s', result_directory
+        )
         result = Result.load(
-            self.command_args['--target-dir'] + '/kiwi.result'
+            result_directory + '/kiwi.result'
         )
         result.print_results()
 
