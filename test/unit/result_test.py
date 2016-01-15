@@ -6,6 +6,7 @@ import mock
 import nose_helper
 
 from kiwi.result import Result
+from kiwi.exceptions import *
 
 
 class TestResult(object):
@@ -34,7 +35,29 @@ class TestResult(object):
             self.result, 'kiwi.result'
         )
 
+    @patch('marshal.dump')
+    @raises(KiwiResultError)
+    def test_dump_failed(self, mock_marshal_dump):
+        mock_marshal_dump.side_effect = Exception
+        self.result.dump('kiwi.result')
+
     @patch('marshal.load')
-    def test_load(self, mock_marshal_load):
+    @patch('os.path.exists')
+    def test_load(self, mock_exists, mock_marshal_load):
+        mock_exists.return_value = True
         Result.load('kiwi.result')
         mock_marshal_load.assert_called_once_with('kiwi.result')
+
+    @patch('os.path.exists')
+    @raises(KiwiResultError)
+    def test_load_result_not_present(self, mock_exists):
+        mock_exists.return_value = False
+        Result.load('kiwi.result')
+
+    @patch('marshal.load')
+    @patch('os.path.exists')
+    @raises(KiwiResultError)
+    def test_load_failed(self, mock_exists, mock_marshal_load):
+        mock_exists.return_value = True
+        mock_marshal_load.side_effect = Exception
+        Result.load('kiwi.result')

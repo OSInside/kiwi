@@ -18,6 +18,7 @@ class TestCli(object):
             '--logfile': None,
             '--version': False,
             '--debug': False,
+            'result': False,
             '--profile': [],
             '--help': False
         }
@@ -49,8 +50,24 @@ class TestCli(object):
         self.cli.show_and_exit_on_help_request()
         help_show.assert_called_once_with('kiwi')
 
-    def test_get_servicename(self):
-        assert self.cli.get_servicename() == 'system'
+    def test_get_servicename_system(self):
+        sys.argv = [
+            sys.argv[0],
+            'system', 'prepare',
+            '--description', 'description',
+            '--root', 'directory'
+        ]
+        cli = Cli()
+        assert cli.get_servicename() == 'system'
+
+    def test_get_servicename_result(self):
+        sys.argv = [
+            sys.argv[0],
+            'result', 'list',
+            '--target-dir', 'directory'
+        ]
+        cli = Cli()
+        assert cli.get_servicename() == 'result'
 
     def test_get_command(self):
         assert self.cli.get_command() == 'prepare'
@@ -60,7 +77,6 @@ class TestCli(object):
         assert self.cli.get_command_args() == self.command_args
 
     def test_get_global_args(self):
-        print self.cli.get_global_args()
         assert self.cli.get_global_args() == self.help_global_args
 
     def test_load_command(self):

@@ -17,6 +17,7 @@
 #
 """
 usage: kiwi -h | --help
+       kiwi result <command> [<args>...]
        kiwi [--profile=<name>...]
             [--type=<build_type>]
             [--logfile=<filename>]
@@ -84,6 +85,8 @@ class Cli(object):
     def get_servicename(self):
         if self.all_args['system']:
             return 'system'
+        elif self.all_args['result']:
+            return 'result'
         else:
             raise KiwiUnknownServiceName(
                 'Unknown/Invalid Servicename'
@@ -114,15 +117,15 @@ class Cli(object):
         )
         if not os.path.exists(command_source_file):
             raise KiwiUnknownCommand(
-                'Unknown command "%s", available are: %s' %
-                (command, self.__get_command_implementations())
+                'Unknown command "%s" for %s service, available are: %s' %
+                (command, service, self.__get_command_implementations(service))
             )
         self.command_loaded = importlib.import_module(
             'kiwi.' + service + '_' + command + '_task'
         )
         return self.command_loaded
 
-    def __get_command_implementations(self):
+    def __get_command_implementations(self, service):
         command_implementations = []
         glob_match = Defaults.project_file('.') + '/*task.py'
         for source_file in glob.iglob(glob_match):
@@ -130,10 +133,11 @@ class Cli(object):
                 for line in source:
                     if re.search('usage: (.*)', line):
                         command_path = os.path.basename(source_file).split('_')
-                        command_path.pop()
-                        command_implementations.append(
-                            ' '.join(command_path)
-                        )
+                        if command_path[0] == service:
+                            command_path.pop()
+                            command_implementations.append(
+                                ' '.join(command_path)
+                            )
                         break
         return command_implementations
 
