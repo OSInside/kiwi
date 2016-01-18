@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
 from collections import OrderedDict
 from tempfile import mkdtemp
 
@@ -33,7 +32,7 @@ class DiskFormatGce(DiskFormatBase):
         self.tag = None
         if custom_args:
             ordered_args = OrderedDict(custom_args.items())
-            for key, value in custom_args.iteritems():
+            for key, value in ordered_args.iteritems():
                 if key == '--tag':
                     self.tag = value
 

@@ -40,7 +40,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         self.tag = None
         if custom_args:
             ordered_args = OrderedDict(custom_args.items())
-            for key, value in custom_args.iteritems():
+            for key, value in ordered_args.iteritems():
                 if key == '--tag':
                     self.tag = value
                 else:

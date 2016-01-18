@@ -139,7 +139,6 @@ class CommandProcess(object):
         log.progress(
             100, 100, '[ INFO    ]: Processing'
         )
-        print
 
     def __update_progress(
         self, match_method, items_to_complete, command_output

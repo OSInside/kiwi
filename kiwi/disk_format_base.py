@@ -52,7 +52,7 @@ class DiskFormatBase(object):
         options = []
         if custom_args:
             ordered_args = OrderedDict(custom_args.items())
-            for key, value in custom_args.iteritems():
+            for key, value in ordered_args.iteritems():
                 options.append('-o')
                 options.append(key)
                 if value:
