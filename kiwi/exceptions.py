@@ -85,6 +85,10 @@ class KiwiConfigFileNotFound(KiwiError):
     pass
 
 
+class KiwiContainerSetupError(KiwiError):
+    pass
+
+
 class KiwiDataStructureError(KiwiError):
     pass
 
