@@ -38,11 +38,11 @@ class TestContainerBuilder(object):
         )
         container_setup.setup.assert_called_once_with()
         mock_image.assert_called_once_with(
-            'root_dir'
+            'docker', 'root_dir'
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.tar.xz'
+            'target_dir/image_name.docker.tar.xz'
         )
         self.container.result.add.assert_called_once_with(
-            'container', 'target_dir/image_name.tar.xz'
+            'container', 'target_dir/image_name.docker.tar.xz'
         )

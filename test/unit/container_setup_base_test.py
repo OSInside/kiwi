@@ -49,7 +49,9 @@ class TestContainerSetupBase(object):
         assert self.file_mock.call_args_list == []
 
     @patch('__builtin__.open')
-    def test_deactivate_bootloader_setup(self, mock_open):
+    @patch('os.path.exists')
+    def test_deactivate_bootloader_setup(self, mock_exists, mock_open):
+        mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = 'LOADER_LOCATION="mylocation"'
         self.container.deactivate_bootloader_setup()
@@ -61,7 +63,9 @@ class TestContainerSetupBase(object):
         ]
 
     @patch('__builtin__.open')
-    def test_deactivate_root_filesystem_check(self, mock_open):
+    @patch('os.path.exists')
+    def test_deactivate_root_filesystem_check(self, mock_exists, mock_open):
+        mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = None
         self.container.deactivate_root_filesystem_check()
@@ -99,13 +103,17 @@ class TestContainerSetupBase(object):
         self.container.deactivate_systemd_service('my.service')
 
     @patch('__builtin__.open')
-    def test_setup_root_console(self, mock_open):
+    @patch('os.path.exists')
+    def test_setup_root_console(self, mock_exists, mock_open):
+        mock_exists.return_value = False
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = None
         self.container.setup_root_console()
-        assert mock_open.call_args_list[0] == call(
-            'root_dir/etc/securetty', 'r'
-        )
+        assert mock_open.call_args_list == [
+            call('root_dir/etc/securetty', 'w'),
+            call('root_dir/etc/securetty', 'r'),
+            call('root_dir/etc/securetty', 'w')
+        ]
         assert self.file_mock.write.call_args_list == [
             call('console\n')
         ]

@@ -33,7 +33,8 @@ class ContainerBuilder(object):
         self.filename = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.tar.xz'
+                xml_state.xml_data.get_name(), '.',
+                self.requested_container_type, '.tar.xz'
             ]
         )
         self.result = Result()
@@ -55,7 +56,9 @@ class ContainerBuilder(object):
         log.info(
             '--> Creating container archive'
         )
-        container_image = ContainerImage(self.root_dir)
+        container_image = ContainerImage(
+            self.requested_container_type, self.root_dir
+        )
         container_image.create(
             self.filename
         )

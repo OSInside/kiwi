@@ -66,13 +66,15 @@ class ContainerSetupBase(object):
             tell the system there is no bootloader configuration
             it needs to care for. A container does not boot
         """
-        self.__update_config(
-            self.root_dir + '/etc/sysconfig/bootloader',
-            {
-                'LOADER_LOCATION': 'LOADER_LOCATION="none"',
-                'LOADER_TYPE': 'LOADER_TYPE="none"'
-            }
-        )
+        bootloader_setup = self.root_dir + '/etc/sysconfig/bootloader'
+        if os.path.exists(bootloader_setup):
+            self.__update_config(
+                bootloader_setup,
+                {
+                    'LOADER_LOCATION': 'LOADER_LOCATION="none"',
+                    'LOADER_TYPE': 'LOADER_TYPE="none"'
+                }
+            )
 
     def deactivate_root_filesystem_check(self):
         """
@@ -81,12 +83,14 @@ class ContainerSetupBase(object):
             for consistency as this is should be done by the container
             infrastructure
         """
-        self.__update_config(
-            self.root_dir + '/etc/sysconfig/boot',
-            {
-                'ROOTFS_BLKDEV': 'ROOTFS_BLKDEV="/dev/null"'
-            }
-        )
+        boot_setup = self.root_dir + '/etc/sysconfig/boot'
+        if os.path.exists(boot_setup):
+            self.__update_config(
+                boot_setup,
+                {
+                    'ROOTFS_BLKDEV': 'ROOTFS_BLKDEV="/dev/null"'
+                }
+            )
 
     def deactivate_systemd_service(self, name):
         """
@@ -113,8 +117,12 @@ class ContainerSetupBase(object):
         """
             /dev/console should be allowed to login by root
         """
+        securetty = self.root_dir + '/etc/securetty'
+        if not os.path.exists(securetty):
+            with open(securetty, 'w') as empty_securetty:
+                pass
         self.__update_config(
-            self.root_dir + '/etc/securetty',
+            securetty,
             {
                 'console': 'console'
             }
