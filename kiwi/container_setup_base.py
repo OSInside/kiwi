@@ -142,6 +142,9 @@ class ContainerSetupBase(object):
                 'Failed to create static container nodes %s' % format(e)
             )
 
+    def get_container_name(self):
+        return self.custom_args['container_name']
+
     def __update_config(self, filename, update_record):
         data = []
         with open(filename, 'r') as config:

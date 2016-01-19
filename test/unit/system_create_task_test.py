@@ -30,6 +30,13 @@ class TestSystemCreateTask(object):
         self.archive.create = mock.Mock(
             return_value=self.result
         )
+        self.container = mock.MagicMock()
+        self.container.create = mock.Mock(
+            return_value=self.result
+        )
+        kiwi.system_create_task.ContainerBuilder = mock.Mock(
+            return_value=self.container
+        )
         kiwi.system_create_task.ArchiveBuilder = mock.Mock(
             return_value=self.archive
         )
@@ -122,12 +129,12 @@ class TestSystemCreateTask(object):
         self.pxe.create.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.get_build_type_name')
-    @raises(KiwiNotImplementedError)
     def test_process_system_create_container(self, mock_type):
         mock_type.return_value = 'docker'
         self.__init_command_args()
         self.task.command_args['create'] = True
         self.task.process()
+        self.container.create.assert_called_once_with()
 
     @raises(KiwiRequestedTypeError)
     @patch('kiwi.xml_state.XMLState.get_build_type_name')

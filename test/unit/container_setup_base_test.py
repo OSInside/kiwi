@@ -36,6 +36,9 @@ class TestContainerSetupBase(object):
     def test_post_init(self):
         self.container.custom_args == {}
 
+    def test_get_container_name(self):
+        assert self.container.get_container_name() == 'systemContainer'
+
     @patch('__builtin__.open')
     def test_create_fstab(self, mock_open):
         mock_open.return_value = self.context_manager_mock

@@ -41,6 +41,7 @@ from help import Help
 from defaults import Defaults
 from archive_builder import ArchiveBuilder
 from filesystem_builder import FileSystemBuilder
+from container_builder import ContainerBuilder
 from disk_builder import DiskBuilder
 from live_image_builder import LiveImageBuilder
 from pxe_builder import PxeBuilder
@@ -106,10 +107,12 @@ class SystemCreateTask(CliTask):
                 )
                 result = archive.create()
             elif requested_image_type in Defaults.get_container_image_types():
-                # TODO
-                raise KiwiNotImplementedError(
-                    'container image builder not yet implemented'
+                container = ContainerBuilder(
+                    self.xml_state,
+                    self.command_args['--target-dir'],
+                    self.command_args['--root']
                 )
+                result = container.create()
             else:
                 raise KiwiRequestedTypeError(
                     'requested image type %s not supported' %
