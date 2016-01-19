@@ -35,6 +35,8 @@ options:
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
+import os
+
 # project
 from cli_task import CliTask
 from help import Help
@@ -46,6 +48,7 @@ from disk_builder import DiskBuilder
 from live_image_builder import LiveImageBuilder
 from pxe_builder import PxeBuilder
 from privileges import Privileges
+from path import Path
 
 from exceptions import (
     KiwiRequestedTypeError,
@@ -70,6 +73,9 @@ class SystemCreateTask(CliTask):
 
         result = None
         if self.command_args['create']:
+            if not os.path.exists(self.command_args['--target-dir']):
+                Path.create(self.command_args['--target-dir'])
+
             requested_image_type = self.xml_state.get_build_type_name()
             if requested_image_type in Defaults.get_filesystem_image_types():
                 filesystem = FileSystemBuilder(

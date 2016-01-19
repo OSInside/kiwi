@@ -34,6 +34,7 @@ class TestSystemCreateTask(object):
         self.container.create = mock.Mock(
             return_value=self.result
         )
+        kiwi.system_create_task.Path = mock.Mock()
         kiwi.system_create_task.ContainerBuilder = mock.Mock(
             return_value=self.container
         )
