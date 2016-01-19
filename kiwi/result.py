@@ -66,5 +66,5 @@ class Result(object):
                 return pickle.load(result)
         except Exception as e:
             raise KiwiResultError(
-                'Failed to pickle load results: %s' % format(e)
+                'Failed to pickle load results: %s' % type(e).__name__
             )
