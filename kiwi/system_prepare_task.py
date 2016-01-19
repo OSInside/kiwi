@@ -88,14 +88,14 @@ class SystemPrepareTask(CliTask):
 
         if self.command_args['prepare']:
             log.info('Preparing system')
-            self.system = System(
+            system = System(
                 self.xml_state,
                 self.command_args['--root'],
                 self.command_args['--allow-existing-root']
             )
-            manager = self.system.setup_repositories()
-            self.system.install_bootstrap(manager)
-            self.system.install_system(
+            manager = system.setup_repositories()
+            system.install_bootstrap(manager)
+            system.install_system(
                 manager
             )
 
@@ -104,25 +104,25 @@ class SystemPrepareTask(CliTask):
             defaults = Defaults()
             defaults.to_profile(profile)
 
-            self.setup = SystemSetup(
+            setup = SystemSetup(
                 self.xml_state,
                 self.command_args['--description'],
                 self.command_args['--root']
             )
-            self.setup.import_shell_environment(profile)
+            setup.import_shell_environment(profile)
 
-            self.setup.import_description()
-            self.setup.import_overlay_files()
-            self.setup.call_config_script()
-            self.setup.import_image_identifier()
-            self.setup.setup_groups()
-            self.setup.setup_users()
-            self.setup.setup_hardware_clock()
-            self.setup.setup_keyboard_map()
-            self.setup.setup_locale()
-            self.setup.setup_timezone()
+            setup.import_description()
+            setup.import_overlay_files()
+            setup.call_config_script()
+            setup.import_image_identifier()
+            setup.setup_groups()
+            setup.setup_users()
+            setup.setup_hardware_clock()
+            setup.setup_keyboard_map()
+            setup.setup_locale()
+            setup.setup_timezone()
 
-            self.system.pinch_system(
+            system.pinch_system(
                 manager
             )
 

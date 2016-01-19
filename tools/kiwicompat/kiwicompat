@@ -1,6 +1,12 @@
 #!/usr/bin/python
 """
 usage: kiwicompat -h | --help
+       kiwicompat --build=<description> --dest-dir=<destination>
+           [(--set-repo=<uri> [--set-repoalias=<alias>] [--set-repopriority=<priority>] [--set-repotype=<type>])]
+           [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
+           [--type=<image-type>]
+           [--logfile=<filename>]
+           [--debug]
        kiwicompat --prepare=<description> --root=<image-root>
            [--recycle-root]
            [--logfile=<filename>]
@@ -21,6 +27,7 @@ usage: kiwicompat -h | --help
 options:
     -p | --prepare
     -c | --create
+    -b | --build
     -d | --dest-dir
     -t | --type
     -u | --upgrade
@@ -86,6 +93,17 @@ class Translate(object):
             self.prepare(self.arguments['--prepare'])
         elif self.arguments['--upgrade']:
             self.upgrade(self.arguments['--upgrade'])
+        elif self.arguments['--build']:
+            self.build(self.arguments['--build'])
+
+    def build(self, description):
+        self.translated.append('system')
+        self.translated.append('build')
+        self.translated.append('--description')
+        self.translated.append(description)
+        self.translated.append('--target-dir')
+        self.translated.append(self.arguments['--dest-dir'])
+        self.__set_add_repo_arguments()
 
     def create(self, root):
         self.translated.append('system')
@@ -104,7 +122,23 @@ class Translate(object):
         self.translated.append(self.arguments['--root'])
         if self.arguments['--recycle-root']:
             self.translated.append('--allow-existing-root')
+        self.__set_add_repo_arguments()
 
+    def upgrade(self, root):
+        self.translated.append('system')
+        self.translated.append('update')
+        self.translated.append('--root')
+        if self.arguments['--add-package']:
+            for add_package in self.arguments['--add-package']:
+                self.translated.append('--add-package')
+                self.translated.append(add_package)
+        if self.arguments['--del-package']:
+            for del_package in self.arguments['--del-package']:
+                self.translated.append('--delete-package')
+                self.translated.append(del_package)
+        self.translated.append(root)
+
+    def __set_add_repo_arguments(self):
         if self.arguments['--add-repo']:
             for index in range(0, len(self.arguments['--add-repo'])):
                 repo_type = None
@@ -138,20 +172,6 @@ class Translate(object):
                 self.arguments['--set-repopriority']
             ))
 
-    def upgrade(self, root):
-        self.translated.append('system')
-        self.translated.append('update')
-        self.translated.append('--root')
-        if self.arguments['--add-package']:
-            for add_package in self.arguments['--add-package']:
-                self.translated.append('--add-package')
-                self.translated.append(add_package)
-        if self.arguments['--del-package']:
-            for del_package in self.arguments['--del-package']:
-                self.translated.append('--delete-package')
-                self.translated.append(del_package)
-        self.translated.append(root)
-
     def __repo_argument(self, source, repo_type, alias, priority):
         if not repo_type:
             repo_type = ''
@@ -168,14 +188,15 @@ class Command(object):
     @classmethod
     def execute(self, arguments):
         # expecting kiwi to be the new kiwi in path
-        os.execvp('kiwi', arguments)
+        os.execvp('kiwi', ['kiwi'] + arguments)
 
 
-logging.basicConfig(format='%(message)s')
+logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 try:
     app = Cli()
     arguments = Translate(app.compat_args)
+    logging.info('Calling: kiwi %s', ' '.join(arguments.translated))
     Command.execute(arguments.translated)
 except NotImplementedError as e:
     logging.error(format(e))
