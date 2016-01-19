@@ -48,7 +48,8 @@ class Result(object):
 
     def dump(self, filename):
         try:
-            marshal.dump(self, filename)
+            with open(filename, 'w') as result:
+                marshal.dump(self, result)
         except Exception as e:
             raise KiwiResultError(
                 'Failed to marshal dump results: %s' % format(e)
