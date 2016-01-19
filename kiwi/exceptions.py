@@ -89,6 +89,10 @@ class KiwiContainerSetupError(KiwiError):
     pass
 
 
+class KiwiContainerImageSetupError(KiwiError):
+    pass
+
+
 class KiwiDataStructureError(KiwiError):
     pass
 
