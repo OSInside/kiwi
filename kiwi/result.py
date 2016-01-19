@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import marshal
+import pickle
 import os
 
 # project
@@ -48,11 +48,11 @@ class Result(object):
 
     def dump(self, filename):
         try:
-            with open(filename, 'w') as result:
-                marshal.dump(self, result)
+            with open(filename, 'wb') as result:
+                pickle.dump(self, result)
         except Exception as e:
             raise KiwiResultError(
-                'Failed to marshal dump results: %s' % format(e)
+                'Failed to pickle dump results: %s' % format(e)
             )
 
     @classmethod
@@ -62,8 +62,9 @@ class Result(object):
                 'No result information %s found' % filename
             )
         try:
-            return marshal.load(filename)
+            with open(filename, 'rb') as result:
+                return pickle.load(result)
         except Exception as e:
             raise KiwiResultError(
-                'Failed to marshal load results: %s' % format(e)
+                'Failed to pickle load results: %s' % format(e)
             )

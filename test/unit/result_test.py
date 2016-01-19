@@ -36,31 +36,38 @@ class TestResult(object):
         self.result.print_results()
         assert mock_info.called
 
-    @patch('marshal.dump')
+    @patch('pickle.dump')
     @patch('__builtin__.open')
-    def test_dump(self, mock_open, mock_marshal_dump):
+    def test_dump(self, mock_open, mock_pickle_dump):
         mock_open.return_value = self.context_manager_mock
         self.result.dump('kiwi.result')
         mock_open.assert_called_once_with(
-            'kiwi.result', 'w'
+            'kiwi.result', 'wb'
         )
-        mock_marshal_dump.assert_called_once_with(
+        mock_pickle_dump.assert_called_once_with(
             self.result, self.file_mock
         )
 
-    @patch('marshal.dump')
+    @patch('pickle.dump')
     @patch('__builtin__.open')
     @raises(KiwiResultError)
-    def test_dump_failed(self, mock_open, mock_marshal_dump):
-        mock_marshal_dump.side_effect = Exception
+    def test_dump_failed(self, mock_open, mock_pickle_dump):
+        mock_pickle_dump.side_effect = Exception
         self.result.dump('kiwi.result')
 
-    @patch('marshal.load')
+    @patch('pickle.load')
     @patch('os.path.exists')
-    def test_load(self, mock_exists, mock_marshal_load):
+    @patch('__builtin__.open')
+    def test_load(self, mock_open, mock_exists, mock_pickle_load):
+        mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
         Result.load('kiwi.result')
-        mock_marshal_load.assert_called_once_with('kiwi.result')
+        mock_open.assert_called_once_with(
+            'kiwi.result', 'rb'
+        )
+        mock_pickle_load.assert_called_once_with(
+            self.file_mock
+        )
 
     @patch('os.path.exists')
     @raises(KiwiResultError)
@@ -68,10 +75,10 @@ class TestResult(object):
         mock_exists.return_value = False
         Result.load('kiwi.result')
 
-    @patch('marshal.load')
+    @patch('pickle.load')
     @patch('os.path.exists')
     @raises(KiwiResultError)
-    def test_load_failed(self, mock_exists, mock_marshal_load):
+    def test_load_failed(self, mock_exists, mock_pickle_load):
         mock_exists.return_value = True
-        mock_marshal_load.side_effect = Exception
+        mock_pickle_load.side_effect = Exception
         Result.load('kiwi.result')
