@@ -28,14 +28,14 @@ class BootLoaderConfig(object):
     """
         BootLoaderConfig factory
     """
-    def __new__(self, name, xml_state, source_dir):
+    def __new__(self, name, xml_state, root_dir):
         if name == 'grub2':
             return BootLoaderConfigGrub2(
-                xml_state, source_dir
+                xml_state, root_dir
             )
         elif name == 'isolinux':
             return BootLoaderConfigIsoLinux(
-                xml_state, source_dir
+                xml_state, root_dir
             )
         else:
             raise KiwiBootLoaderConfigSetupError(

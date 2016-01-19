@@ -20,7 +20,7 @@ class TestBootLoaderConfigBase(object):
             description.load()
         )
         self.bootloader = BootLoaderConfigBase(
-            self.state, 'source_dir'
+            self.state, 'root_dir'
         )
 
     @raises(NotImplementedError)
@@ -60,12 +60,12 @@ class TestBootLoaderConfigBase(object):
     @patch('kiwi.path.Path.create')
     def test_create_efi_path(self, mock_path):
         self.bootloader.create_efi_path()
-        mock_path.assert_called_once_with('source_dir/boot/efi/EFI/BOOT')
+        mock_path.assert_called_once_with('root_dir/boot/efi/EFI/BOOT')
 
     @patch('kiwi.path.Path.create')
     def test_create_efi_path_with_prefix(self, mock_path):
         self.bootloader.create_efi_path('')
-        mock_path.assert_called_once_with('source_dir//EFI/BOOT')
+        mock_path.assert_called_once_with('root_dir//EFI/BOOT')
 
     def test_get_boot_theme(self):
         assert self.bootloader.get_boot_theme() == 'openSUSE'

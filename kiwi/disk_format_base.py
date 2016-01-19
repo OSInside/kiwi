@@ -31,9 +31,9 @@ class DiskFormatBase(object):
     """
         base class to create disk formats from a raw disk image
     """
-    def __init__(self, xml_state, source_dir, target_dir, custom_args=None):
+    def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
-        self.source_dir = source_dir
+        self.root_dir = root_dir
         self.target_dir = target_dir
         self.custom_args = {}
         self.temp_image_dir = None

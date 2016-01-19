@@ -43,10 +43,10 @@ class LiveImageBuilder(object):
     """
         Live image builder
     """
-    def __init__(self, xml_state, target_dir, source_dir):
+    def __init__(self, xml_state, target_dir, root_dir):
         self.media_dir = None
         self.arch = platform.machine()
-        self.source_dir = source_dir
+        self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.live_type = xml_state.build_type.get_flags()
@@ -118,7 +118,7 @@ class LiveImageBuilder(object):
             live_type_image = FileSystem(
                 name=self.types[self.live_type],
                 device_provider=None,
-                source_dir=self.source_dir
+                root_dir=self.root_dir
             )
             live_type_image.create_on_file(self.live_image_file)
             Command.run(
@@ -173,7 +173,7 @@ class LiveImageBuilder(object):
         log.info('Creating live ISO image')
         iso_image = FileSystemIsoFs(
             device_provider=None,
-            source_dir=self.media_dir,
+            root_dir=self.media_dir,
             custom_args=custom_iso_args
         )
         iso_header_offset = iso_image.create_on_file(self.isoname)

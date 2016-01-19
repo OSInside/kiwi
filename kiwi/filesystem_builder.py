@@ -33,10 +33,10 @@ class FileSystemBuilder(object):
     """
         Filesystem image builder
     """
-    def __init__(self, xml_state, target_dir, source_dir):
+    def __init__(self, xml_state, target_dir, root_dir):
         self.custom_args = None
         self.label = None
-        self.source_dir = source_dir
+        self.root_dir = root_dir
         self.requested_image_type = xml_state.get_build_type_name()
         if self.requested_image_type == 'pxe':
             self.requested_filesystem = xml_state.build_type.get_filesystem()
@@ -54,7 +54,7 @@ class FileSystemBuilder(object):
             ]
         )
         self.blocksize = xml_state.build_type.get_target_blocksize()
-        self.filesystem_setup = FileSystemSetup(xml_state, source_dir)
+        self.filesystem_setup = FileSystemSetup(xml_state, root_dir)
         self.filesystems_no_device_node = [
             'squashfs'
         ]
@@ -88,7 +88,7 @@ class FileSystemBuilder(object):
         loop_provider.create()
         filesystem = FileSystem(
             self.requested_filesystem, loop_provider,
-            self.source_dir, self.custom_args
+            self.root_dir, self.custom_args
         )
         filesystem.create_on_device(self.label)
         log.info(
@@ -103,7 +103,7 @@ class FileSystemBuilder(object):
         default_provider = DeviceProvider()
         filesystem = FileSystem(
             self.requested_filesystem, default_provider,
-            self.source_dir, self.custom_args
+            self.root_dir, self.custom_args
         )
         filesystem.create_on_file(
             self.filename, self.label

@@ -12,10 +12,10 @@ from kiwi.bootloader_install import BootLoaderInstall
 class TestBootLoaderInstall(object):
     @raises(KiwiBootLoaderInstallSetupError)
     def test_bootloader_install_not_implemented(self):
-        BootLoaderInstall('foo', 'source_dir', mock.Mock())
+        BootLoaderInstall('foo', 'root_dir', mock.Mock())
 
     @patch('kiwi.bootloader_install.BootLoaderInstallGrub2')
     def test_bootloader_install_grub2(self, mock_grub2):
         device_provider = mock.Mock()
-        BootLoaderInstall('grub2', 'source_dir', device_provider)
-        mock_grub2.assert_called_once_with('source_dir', device_provider)
+        BootLoaderInstall('grub2', 'root_dir', device_provider)
+        mock_grub2.assert_called_once_with('root_dir', device_provider)

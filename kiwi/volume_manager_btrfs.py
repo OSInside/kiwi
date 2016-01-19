@@ -80,7 +80,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         log.info(
             'Creating %s sub volumes', filesystem_name
         )
-        self.create_volume_paths_in_source_dir()
+        self.create_volume_paths_in_root_dir()
 
         canonical_volume_list = self.get_canonical_volume_list()
         if canonical_volume_list.full_size_volume:
@@ -111,7 +111,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
     def sync_data(self, exclude=None):
         if self.mountpoint and self.is_mounted():
-            data = DataSync(self.source_dir, self.mountpoint + '/@')
+            data = DataSync(self.root_dir, self.mountpoint + '/@')
             data.sync_data(exclude)
 
     def __del__(self):

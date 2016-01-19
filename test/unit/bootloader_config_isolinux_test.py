@@ -33,7 +33,7 @@ class TestBootLoaderConfigIsoLinux(object):
             return_value=self.isolinux
         )
         self.bootloader = BootLoaderConfigIsoLinux(
-            self.state, 'source_dir'
+            self.state, 'root_dir'
         )
         self.bootloader.get_hypervisor_domain = mock.Mock(
             return_value='domU'
@@ -43,7 +43,7 @@ class TestBootLoaderConfigIsoLinux(object):
     @patch('platform.machine')
     def test_post_init_invalid_platform(self, mock_machine):
         mock_machine.return_value = 'unsupported-arch'
-        BootLoaderConfigIsoLinux(mock.Mock(), 'source_dir')
+        BootLoaderConfigIsoLinux(mock.Mock(), 'root_dir')
 
     @patch('os.path.exists')
     def test_post_init_dom0(self, mock_exists):
@@ -70,8 +70,8 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.write()
         assert mock_open.call_args_list == [
-            call('source_dir/boot/x86_64/loader/isolinux.cfg', 'w'),
-            call('source_dir/boot/x86_64/loader/isolinux.msg', 'w')
+            call('root_dir/boot/x86_64/loader/isolinux.cfg', 'w'),
+            call('root_dir/boot/x86_64/loader/isolinux.msg', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call('some-data'),
@@ -118,7 +118,7 @@ class TestBootLoaderConfigIsoLinux(object):
         mock_command.assert_called_once_with(
             [
                 'rsync', '-zav', 'lookup_dir/image/loader/',
-                'source_dir/boot/x86_64/loader'
+                'root_dir/boot/x86_64/loader'
             ]
         )
 
@@ -129,8 +129,8 @@ class TestBootLoaderConfigIsoLinux(object):
         )
         mock_command.assert_called_once_with(
             [
-                'rsync', '-zav', 'source_dir/image/loader/',
-                'source_dir/boot/x86_64/loader'
+                'rsync', '-zav', 'root_dir/image/loader/',
+                'root_dir/boot/x86_64/loader'
             ]
         )
 

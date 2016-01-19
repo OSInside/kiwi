@@ -17,7 +17,7 @@ class TestFileSystemFat32(object):
         provider.get_device = mock.Mock(
             return_value='/dev/foo'
         )
-        self.fat32 = FileSystemFat32(provider, 'source_dir')
+        self.fat32 = FileSystemFat32(provider, 'root_dir')
         self.fat32.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )

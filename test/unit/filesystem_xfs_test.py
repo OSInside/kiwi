@@ -17,7 +17,7 @@ class TestFileSystemXfs(object):
         provider.get_device = mock.Mock(
             return_value='/dev/foo'
         )
-        self.xfs = FileSystemXfs(provider, 'source_dir')
+        self.xfs = FileSystemXfs(provider, 'root_dir')
         self.xfs.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )

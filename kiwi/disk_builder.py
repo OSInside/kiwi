@@ -48,8 +48,8 @@ class DiskBuilder(object):
     """
         Disk image builder
     """
-    def __init__(self, xml_state, target_dir, source_dir):
-        self.source_dir = source_dir
+    def __init__(self, xml_state, target_dir, root_dir):
+        self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.custom_filesystem_args = None
@@ -71,10 +71,10 @@ class DiskBuilder(object):
             xml_state.build_type.get_bootfilesystem()
         self.bootloader = xml_state.build_type.get_bootloader()
         self.bootloader_config = BootLoaderConfig(
-            self.bootloader, xml_state, source_dir
+            self.bootloader, xml_state, root_dir
         )
         self.disk_setup = DiskSetup(
-            xml_state, source_dir
+            xml_state, root_dir
         )
         self.boot_image_task = BootImageTask(
             xml_state, target_dir
@@ -83,7 +83,7 @@ class DiskBuilder(object):
             xml_state.build_type.get_firmware()
         )
         self.system_setup = SystemSetup(
-            xml_state=xml_state, description_dir=None, root_dir=self.source_dir
+            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
         )
         self.diskname = ''.join(
             [
@@ -172,7 +172,7 @@ class DiskBuilder(object):
             }
             volume_manager = VolumeManager(
                 self.volume_manager_name, device_map['root'],
-                self.source_dir + '/',
+                self.root_dir + '/',
                 self.volumes, volume_manager_custom_parameters
             )
             volume_manager.setup(
@@ -191,7 +191,7 @@ class DiskBuilder(object):
             )
             filesystem = FileSystem(
                 self.requested_filesystem, device_map['root'],
-                self.source_dir + '/',
+                self.root_dir + '/',
                 self.custom_filesystem_args
             )
             filesystem.create_on_device(
@@ -272,7 +272,7 @@ class DiskBuilder(object):
             log.info('Creating %s Disk Format', self.image_format)
             disk_format = DiskFormat(
                 self.image_format, self.xml_state,
-                self.source_dir, self.target_dir
+                self.root_dir, self.target_dir
             )
             disk_format.create_image_format()
             self.result.add(
@@ -307,7 +307,7 @@ class DiskBuilder(object):
                 device_map['efi'].get_device()
             )
             filesystem = FileSystem(
-                'fat16', device_map['efi'], self.source_dir + '/boot/efi/'
+                'fat16', device_map['efi'], self.root_dir + '/boot/efi/'
             )
             filesystem.create_on_device(
                 label=self.disk_setup.get_efi_label()
@@ -323,7 +323,7 @@ class DiskBuilder(object):
                 boot_filesystem, device_map['boot'].get_device()
             )
             filesystem = FileSystem(
-                boot_filesystem, device_map['boot'], self.source_dir + '/boot/'
+                boot_filesystem, device_map['boot'], self.root_dir + '/boot/'
             )
             filesystem.create_on_device(
                 label=self.disk_setup.get_boot_label()
@@ -388,21 +388,21 @@ class DiskBuilder(object):
         if self.luks:
             log.info('Creating etc/crypttab')
             self.luks_root.create_crypttab(
-                self.source_dir + '/etc/crypttab'
+                self.root_dir + '/etc/crypttab'
             )
 
     def __write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())
         self.mbrid.write(
-            self.source_dir + '/boot/mbrid'
+            self.root_dir + '/boot/mbrid'
         )
 
     def __write_recovery_metadata_to_boot_image(self):
-        if os.path.exists(self.source_dir + '/recovery.partition.size'):
+        if os.path.exists(self.root_dir + '/recovery.partition.size'):
             log.info('Copying recovery metadata to boot image')
             Command.run(
                 [
-                    'cp', self.source_dir + '/recovery.partition.size',
+                    'cp', self.root_dir + '/recovery.partition.size',
                     self.boot_image_task.boot_root_directory
                 ]
             )
@@ -431,7 +431,7 @@ class DiskBuilder(object):
 
     def __install_bootloader(self, device_map):
         bootloader = BootLoaderInstall(
-            self.bootloader, self.source_dir,
+            self.bootloader, self.root_dir,
             self.disk.storage_provider
         )
         bootloader.install()
@@ -449,7 +449,7 @@ class DiskBuilder(object):
         if kernel.get_kernel():
             log.info('--> boot image kernel as first boot linux.vmx')
             kernel.copy_kernel(
-                self.source_dir, '/boot/linux.vmx'
+                self.root_dir, '/boot/linux.vmx'
             )
         else:
             raise KiwiDiskBootImageError(
@@ -460,7 +460,7 @@ class DiskBuilder(object):
             if kernel.get_xen_hypervisor():
                 log.info('--> boot image Xen hypervisor as xen.gz')
                 kernel.copy_xen_hypervisor(
-                    self.source_dir, '/boot/xen.gz'
+                    self.root_dir, '/boot/xen.gz'
                 )
             else:
                 raise KiwiDiskBootImageError(
@@ -471,6 +471,6 @@ class DiskBuilder(object):
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
-                self.source_dir + '/boot/initrd.vmx'
+                self.root_dir + '/boot/initrd.vmx'
             ]
         )

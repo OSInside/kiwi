@@ -17,7 +17,7 @@ class TestFileSystemBtrfs(object):
         provider.get_device = mock.Mock(
             return_value='/dev/foo'
         )
-        self.btrfs = FileSystemBtrfs(provider, 'source_dir')
+        self.btrfs = FileSystemBtrfs(provider, 'root_dir')
         self.btrfs.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )

@@ -31,12 +31,14 @@ class TestVolumeManagerBase(object):
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerBase(
-            self.device_provider, 'source_dir', mock.Mock()
+            self.device_provider, 'root_dir', mock.Mock()
         )
 
+    @patch('os.path.exists')
     @raises(KiwiVolumeManagerSetupError)
-    def test_source_dir_does_not_exist(self):
-        VolumeManagerBase(mock.Mock(), 'source_dir', mock.Mock())
+    def test_root_dir_does_not_exist(self, mock_exists):
+        mock_exists.return_value = False
+        VolumeManagerBase(mock.Mock(), 'root_dir', mock.Mock())
 
     def test_is_loop(self):
         assert self.volume_manager.is_loop() == \
@@ -56,7 +58,7 @@ class TestVolumeManagerBase(object):
 
     @patch('kiwi.volume_manager_base.Path.create')
     @patch('os.path.exists')
-    def test_create_volume_paths_in_source_dir(self, mock_os_path, mock_path):
+    def test_create_volume_paths_in_root_dir(self, mock_os_path, mock_path):
         mock_os_path.return_value = False
         self.volume_manager.volumes = [
             self.volume_type(
@@ -64,8 +66,8 @@ class TestVolumeManagerBase(object):
                 mountpoint='/etc', fullsize=False
             )
         ]
-        self.volume_manager.create_volume_paths_in_source_dir()
-        mock_path.assert_called_once_with('source_dir//etc')
+        self.volume_manager.create_volume_paths_in_root_dir()
+        mock_path.assert_called_once_with('root_dir/etc')
 
     def test_get_canonical_volume_list(self):
         self.volume_manager.volumes = [
@@ -123,7 +125,7 @@ class TestVolumeManagerBase(object):
         self.volume_manager.mountpoint = 'mountpoint'
         self.volume_manager.sync_data(['exclude_me'])
         mock_sync.assert_called_once_with(
-            'source_dir', 'mountpoint'
+            'root_dir', 'mountpoint'
         )
         data_sync.sync_data.assert_called_once_with(['exclude_me'])
 

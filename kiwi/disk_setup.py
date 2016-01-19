@@ -30,7 +30,7 @@ class DiskSetup(object):
         Implement disk setup methods providing information required
         before building a disk image
     """
-    def __init__(self, xml_state, source_dir):
+    def __init__(self, xml_state, root_dir):
         self.configured_size = xml_state.get_build_type_size()
         self.build_type_name = xml_state.get_build_type_name()
         self.filesystem = xml_state.build_type.get_filesystem()
@@ -47,10 +47,10 @@ class DiskSetup(object):
             xml_state.build_type.get_firmware()
         )
         self.rootsize = SystemSize(
-            source_dir
+            root_dir
         )
 
-        self.source_dir = source_dir
+        self.root_dir = root_dir
         self.xml_state = xml_state
 
     def get_disksize_mbytes(self):
@@ -276,7 +276,7 @@ class DiskSetup(object):
         volume_total = 0
         for volume in self.volumes:
             if volume.realpath and not volume.realpath == '/':
-                path_to_volume = self.source_dir + '/' + volume.realpath
+                path_to_volume = self.root_dir + '/' + volume.realpath
                 if os.path.exists(path_to_volume):
                     volume_size = SystemSize(path_to_volume)
                     volume_mbytes[volume.realpath] = volume_size.customize(

@@ -17,7 +17,7 @@ class TestFileSystemFat16(object):
         provider.get_device = mock.Mock(
             return_value='/dev/foo'
         )
-        self.fat16 = FileSystemFat16(provider, 'source_dir')
+        self.fat16 = FileSystemFat16(provider, 'root_dir')
         self.fat16.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )

@@ -131,7 +131,7 @@ class TestDiskBuilder(object):
             return_value=self.luks_root
         )
         self.disk_builder = DiskBuilder(
-            XMLState(description.load()), 'target_dir', 'source_dir'
+            XMLState(description.load()), 'target_dir', 'root_dir'
         )
         self.disk_builder.build_type_name = 'oem'
         self.machine = mock.Mock()
@@ -238,7 +238,7 @@ class TestDiskBuilder(object):
             ])
         assert mock_open.call_args_list == [
             call('boot_dir/config.partids', 'w'),
-            call('source_dir/boot/mbrid', 'w'),
+            call('root_dir/boot/mbrid', 'w'),
             call('/dev/some-loop', 'wb')
         ]
         assert file_mock.write.call_args_list == [
@@ -248,14 +248,14 @@ class TestDiskBuilder(object):
             call('\x0f\x0f\x0f\x0f')
         ]
         assert mock_command.call_args_list == [
-            call(['cp', 'source_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'initrd', 'source_dir/boot/initrd.vmx']),
+            call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
+            call(['mv', 'initrd', 'root_dir/boot/initrd.vmx']),
         ]
         self.kernel.copy_kernel.assert_called_once_with(
-            'source_dir', '/boot/linux.vmx'
+            'root_dir', '/boot/linux.vmx'
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
-            'source_dir', '/boot/xen.gz'
+            'root_dir', '/boot/xen.gz'
         )
 
     @patch('kiwi.disk_builder.FileSystem')
@@ -326,7 +326,7 @@ class TestDiskBuilder(object):
             passphrase='passphrase', os=None
         )
         self.luks_root.create_crypttab.assert_called_once_with(
-            'source_dir/etc/crypttab'
+            'root_dir/etc/crypttab'
         )
 
     @patch('kiwi.disk_builder.FileSystem')

@@ -36,7 +36,7 @@ class VolumeManagerBase(DeviceProvider):
     """
         Implements base class for volume management interface
     """
-    def __init__(self, device_provider, source_dir, volumes, custom_args=None):
+    def __init__(self, device_provider, root_dir, volumes, custom_args=None):
         # all volumes are combined into one mountpoint. This is
         # needed at sync_data time. How to mount the volumes is
         # special to the volume management class
@@ -47,7 +47,7 @@ class VolumeManagerBase(DeviceProvider):
         # the device should be released.
         self.device_provider = device_provider
 
-        self.source_dir = source_dir
+        self.root_dir = root_dir
         self.volumes = volumes
         self.volume_group = None
         self.volume_map = {}
@@ -55,9 +55,9 @@ class VolumeManagerBase(DeviceProvider):
 
         self.device = self.device_provider.get_device()
 
-        if not os.path.exists(source_dir):
+        if not os.path.exists(root_dir):
             raise KiwiVolumeManagerSetupError(
-                'given source directory %s does not exist' % source_dir
+                'given root directory %s does not exist' % root_dir
             )
 
         self.post_init(custom_args)
@@ -102,14 +102,16 @@ class VolumeManagerBase(DeviceProvider):
         """
         return self.device_provider.get_device()
 
-    def create_volume_paths_in_source_dir(self):
+    def create_volume_paths_in_root_dir(self):
         """
             Implements creation of volume paths in the given
-            source directory
+            root directory
         """
         for volume in self.volumes:
             if volume.realpath and not volume.realpath == '/':
-                volume_image_path = self.source_dir + '/' + volume.realpath
+                volume_image_path = os.path.normpath(
+                    self.root_dir + '/' + volume.realpath
+                )
                 if not os.path.exists(volume_image_path):
                     # not existing volume paths will be created in the image
                     # root directory. This happens hidden to the user but is
@@ -162,7 +164,7 @@ class VolumeManagerBase(DeviceProvider):
             #
             # You are invited to fix it :)
             volume_size = SystemSize(
-                self.source_dir + '/' + realpath
+                self.root_dir + '/' + realpath
             )
             mbsize = int(mbsize) + \
                 Defaults.get_min_volume_mbytes()
@@ -186,10 +188,10 @@ class VolumeManagerBase(DeviceProvider):
 
     def sync_data(self, exclude=None):
         """
-            Implements sync of source directory to mounted volumes
+            Implements sync of root directory to mounted volumes
         """
         if self.mountpoint and self.is_mounted():
-            data = DataSync(self.source_dir, self.mountpoint)
+            data = DataSync(self.root_dir, self.mountpoint)
             data.sync_data(exclude)
 
     def setup_mountpoint(self):

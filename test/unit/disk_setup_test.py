@@ -29,25 +29,25 @@ class TestDiskSetup(object):
             '../data/example_disk_size_config.xml'
         )
         self.setup = DiskSetup(
-            XMLState(description.load()), 'source_dir'
+            XMLState(description.load()), 'root_dir'
         )
         description = XMLDescription(
             '../data/example_disk_size_volume_config.xml'
         )
         self.setup_volumes = DiskSetup(
-            XMLState(description.load()), 'source_dir'
+            XMLState(description.load()), 'root_dir'
         )
         description = XMLDescription(
             '../data/example_disk_size_empty_vol_config.xml'
         )
         self.setup_empty_volumes = DiskSetup(
-            XMLState(description.load()), 'source_dir'
+            XMLState(description.load()), 'root_dir'
         )
         description = XMLDescription(
             '../data/example_disk_size_vol_root_config.xml'
         )
         self.setup_root_volume = DiskSetup(
-            XMLState(description.load()), 'source_dir'
+            XMLState(description.load()), 'root_dir'
         )
 
     def test_need_boot_partition_on_request(self):

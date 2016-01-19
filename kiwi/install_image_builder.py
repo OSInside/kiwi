@@ -108,7 +108,7 @@ class InstallImageBuilder(object):
         )
         squashed_image_file = self.diskname + '.squashfs'
         squashed_image = FileSystemSquashFs(
-            device_provider=None, source_dir=self.squashed_contents
+            device_provider=None, root_dir=self.squashed_contents
         )
         squashed_image.create_on_file(squashed_image_file)
         Command.run(
@@ -150,7 +150,7 @@ class InstallImageBuilder(object):
         log.info('Creating ISO filesystem')
         iso_image = FileSystemIsoFs(
             device_provider=None,
-            source_dir=self.media_dir,
+            root_dir=self.media_dir,
             custom_args=self.custom_iso_args
         )
         iso_header_offset = iso_image.create_on_file(self.isoname)

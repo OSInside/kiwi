@@ -31,14 +31,14 @@ class DiskFormat(object):
     """
         DiskFormat factory
     """
-    def __new__(self, name, xml_state, source_dir, target_dir):
+    def __new__(self, name, xml_state, root_dir, target_dir):
         if name == 'qcow2':
             return DiskFormatQcow2(
-                xml_state, source_dir, target_dir
+                xml_state, root_dir, target_dir
             )
         elif name == 'vhd':
             return DiskFormatVhd(
-                xml_state, source_dir, target_dir
+                xml_state, root_dir, target_dir
             )
         elif name == 'vhdfixed':
             custom_args = None
@@ -48,7 +48,7 @@ class DiskFormat(object):
                     '--tag': disk_tag
                 }
             return DiskFormatVhdFixed(
-                xml_state, source_dir, target_dir, custom_args
+                xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'gce':
             custom_args = None
@@ -58,7 +58,7 @@ class DiskFormat(object):
                     '--tag': gce_license_tag
                 }
             return DiskFormatGce(
-                xml_state, source_dir, target_dir, custom_args
+                xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vmdk':
             custom_args = None
@@ -69,7 +69,7 @@ class DiskFormat(object):
                     'adapter_type=%s' % vmdisk_section.get_controller(): None
                 }
             return DiskFormatVmdk(
-                xml_state, source_dir, target_dir, custom_args
+                xml_state, root_dir, target_dir, custom_args
             )
         else:
             raise KiwiDiskFormatSetupError(

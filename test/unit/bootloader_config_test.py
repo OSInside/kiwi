@@ -12,16 +12,16 @@ from kiwi.bootloader_config import BootLoaderConfig
 class TestBootLoaderConfig(object):
     @raises(KiwiBootLoaderConfigSetupError)
     def test_bootloader_config_not_implemented(self):
-        BootLoaderConfig('foo', mock.Mock(), 'source_dir')
+        BootLoaderConfig('foo', mock.Mock(), 'root_dir')
 
     @patch('kiwi.bootloader_config.BootLoaderConfigGrub2')
     def test_bootloader_config_grub2(self, mock_grub2):
         xml_state = mock.Mock()
-        BootLoaderConfig('grub2', xml_state, 'source_dir')
-        mock_grub2.assert_called_once_with(xml_state, 'source_dir')
+        BootLoaderConfig('grub2', xml_state, 'root_dir')
+        mock_grub2.assert_called_once_with(xml_state, 'root_dir')
 
     @patch('kiwi.bootloader_config.BootLoaderConfigIsoLinux')
     def test_bootloader_config_isolinux(self, mock_isolinux):
         xml_state = mock.Mock()
-        BootLoaderConfig('isolinux', xml_state, 'source_dir')
-        mock_isolinux.assert_called_once_with(xml_state, 'source_dir')
+        BootLoaderConfig('isolinux', xml_state, 'root_dir')
+        mock_isolinux.assert_called_once_with(xml_state, 'root_dir')

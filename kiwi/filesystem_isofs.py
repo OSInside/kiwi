@@ -31,14 +31,14 @@ class FileSystemIsoFs(FileSystemBase):
     def create_on_file(self, filename, label=None):
         # there is no label which could be set for an iso filesystem
         # thus this parameter is not used
-        iso = Iso(self.source_dir)
+        iso = Iso(self.root_dir)
         iso.init_iso_creation_parameters(self.custom_args)
         iso.add_efi_loader_parameters()
         Command.run(
             [
                 'genisoimage'
             ] + iso.get_iso_creation_parameters() + [
-                '-o', filename, self.source_dir
+                '-o', filename, self.root_dir
             ]
         )
         hybrid_offset = iso.create_header_end_block(filename)
@@ -48,7 +48,7 @@ class FileSystemIsoFs(FileSystemBase):
                 '-hide', iso.header_end_name,
                 '-hide-joliet', iso.header_end_name
             ] + iso.get_iso_creation_parameters() + [
-                '-o', filename, self.source_dir
+                '-o', filename, self.root_dir
             ]
         )
         return hybrid_offset

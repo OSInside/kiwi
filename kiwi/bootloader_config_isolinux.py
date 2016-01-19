@@ -172,7 +172,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
 
     def __copy_loader_data_to_boot_directory(self, lookup_path):
         if not lookup_path:
-            lookup_path = self.source_dir
+            lookup_path = self.root_dir
         loader_data = lookup_path + '/image/loader/'
         Path.create(self.__get_iso_boot_path())
         Command.run(
@@ -182,7 +182,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         )
 
     def __get_iso_boot_path(self):
-        return self.source_dir + '/boot/' + self.arch + '/loader'
+        return self.root_dir + '/boot/' + self.arch + '/loader'
 
     def __have_theme(self):
         if os.path.exists(self.__get_iso_boot_path() + '/bootlogo'):

@@ -55,7 +55,7 @@ class TestVolumeManagerLVM(object):
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerLVM(
-            self.device_provider, 'source_dir', self.volumes
+            self.device_provider, 'root_dir', self.volumes
         )
 
     def test_post_init(self):
@@ -129,9 +129,9 @@ class TestVolumeManagerLVM(object):
         etc_size = 200 + 42 + Defaults.get_min_volume_mbytes()
         root_size = 100 + 42 + Defaults.get_min_volume_mbytes()
         assert mock_command.call_args_list == [
-            call(['mkdir', '-p', 'source_dir//etc']),
-            call(['mkdir', '-p', 'source_dir//data']),
-            call(['mkdir', '-p', 'source_dir//home']),
+            call(['mkdir', '-p', 'root_dir/etc']),
+            call(['mkdir', '-p', 'root_dir/data']),
+            call(['mkdir', '-p', 'root_dir/home']),
             call([
                 'lvcreate', '-L', format(root_size), '-n', 'LVRoot',
                 'volume_group'

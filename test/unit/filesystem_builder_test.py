@@ -39,7 +39,7 @@ class TestFileSystemBuilder(object):
         )
         mock_fs_setup.return_value = fs_setup
         self.fs = FileSystemBuilder(
-            self.xml_state, 'target_dir', 'source_dir'
+            self.xml_state, 'target_dir', 'root_dir'
         )
 
     @raises(KiwiFileSystemSetupError)
@@ -52,7 +52,7 @@ class TestFileSystemBuilder(object):
             return_value='myimage'
         )
         fs = FileSystemBuilder(
-            xml_state, 'target_dir', 'source_dir'
+            xml_state, 'target_dir', 'root_dir'
         )
         fs.create()
 
@@ -65,7 +65,7 @@ class TestFileSystemBuilder(object):
         xml_state.build_type.get_filesystem = mock.Mock(
             return_value=None
         )
-        FileSystemBuilder(xml_state, 'target_dir', 'source_dir')
+        FileSystemBuilder(xml_state, 'target_dir', 'root_dir')
 
     @patch('kiwi.filesystem_builder.LoopDevice')
     @patch('kiwi.filesystem_builder.FileSystem')
@@ -78,7 +78,7 @@ class TestFileSystemBuilder(object):
         )
         self.loop_provider.create.assert_called_once_with()
         mock_fs.assert_called_once_with(
-            'ext3', self.loop_provider, 'source_dir', None
+            'ext3', self.loop_provider, 'root_dir', None
         )
         self.filesystem.create_on_device.assert_called_once_with(None)
         self.filesystem.sync_data.assert_called_once_with(
@@ -95,7 +95,7 @@ class TestFileSystemBuilder(object):
         self.fs.filename = 'target_dir/myimage.squashfs'
         self.fs.create()
         mock_fs.assert_called_once_with(
-            'squashfs', provider, 'source_dir', None
+            'squashfs', provider, 'root_dir', None
         )
         self.filesystem.create_on_file.assert_called_once_with(
             'target_dir/myimage.squashfs', None

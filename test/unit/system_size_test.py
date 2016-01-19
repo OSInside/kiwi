@@ -11,7 +11,7 @@ from kiwi.system_size import SystemSize
 
 class TestSystemSize(object):
     def setup(self):
-        self.size = SystemSize('source_dir')
+        self.size = SystemSize('directory')
 
     def test_customize_ext(self):
         self.size.accumulate_files = mock.Mock(
@@ -29,12 +29,12 @@ class TestSystemSize(object):
     def test_accumulate_mbyte_file_sizes(self, mock_command):
         self.size.accumulate_mbyte_file_sizes()
         mock_command.assert_called_once_with(
-            ['du', '-s', '--apparent-size', '--block-size', '1', 'source_dir']
+            ['du', '-s', '--apparent-size', '--block-size', '1', 'directory']
         )
 
     @patch('kiwi.system_size.Command.run')
     def test_accumulate_files(self, mock_command):
         self.size.accumulate_files()
         mock_command.assert_called_once_with(
-            ['bash', '-c', 'find source_dir | wc -l']
+            ['bash', '-c', 'find directory | wc -l']
         )

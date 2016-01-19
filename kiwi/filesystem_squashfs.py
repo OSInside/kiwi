@@ -28,5 +28,5 @@ class FileSystemSquashFs(FileSystemBase):
         # there is no label which could be set for a squashfs
         # thus this parameter is not used
         Command.run(
-            ['mksquashfs', self.source_dir, filename] + self.custom_args
+            ['mksquashfs', self.root_dir, filename] + self.custom_args
         )

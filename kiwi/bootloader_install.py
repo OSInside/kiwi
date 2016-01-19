@@ -27,10 +27,10 @@ class BootLoaderInstall(object):
     """
         BootLoaderInstall factory
     """
-    def __new__(self, name, source_dir, device_provider):
+    def __new__(self, name, root_dir, device_provider):
         if name == 'grub2':
             return BootLoaderInstallGrub2(
-                source_dir, device_provider
+                root_dir, device_provider
             )
         else:
             raise KiwiBootLoaderInstallSetupError(

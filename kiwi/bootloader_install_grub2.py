@@ -50,7 +50,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         # which causes grub2-probe to fail again
         self.temporary_boot_dir = mkdtemp(prefix='kiwi_bootloader.')
         Command.run(
-            ['cp', '-a', self.source_dir + '/boot/', self.temporary_boot_dir]
+            ['cp', '-a', self.root_dir + '/boot/', self.temporary_boot_dir]
         )
 
         Command.run(

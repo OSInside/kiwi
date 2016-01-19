@@ -23,12 +23,13 @@ from defaults import Defaults
 
 class FileSystemSetup(object):
     """
-        Implement filesystem setup methods providing information required
-        before building a filesystem image
+        Implement filesystem setup methods providing information
+        from the root directory required before building a
+        filesystem image
     """
-    def __init__(self, xml_state, source_dir):
+    def __init__(self, xml_state, root_dir):
         self.configured_size = xml_state.get_build_type_size()
-        self.size = SystemSize(source_dir)
+        self.size = SystemSize(root_dir)
         self.requested_image_type = xml_state.get_build_type_name()
         if self.requested_image_type in Defaults.get_filesystem_image_types():
             self.requested_filesystem = self.requested_image_type
@@ -36,9 +37,9 @@ class FileSystemSetup(object):
             self.requested_filesystem = xml_state.build_type.get_filesystem()
 
     def get_size_mbytes(self):
-        source_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
+        root_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
         filesystem_mbytes = self.size.customize(
-            source_dir_mbytes, self.requested_filesystem
+            root_dir_mbytes, self.requested_filesystem
         )
 
         if not self.configured_size:

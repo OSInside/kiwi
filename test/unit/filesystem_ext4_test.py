@@ -17,7 +17,7 @@ class TestFileSystemExt4(object):
         provider.get_device = mock.Mock(
             return_value='/dev/foo'
         )
-        self.ext4 = FileSystemExt4(provider, 'source_dir')
+        self.ext4 = FileSystemExt4(provider, 'root_dir')
         self.ext4.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )

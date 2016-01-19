@@ -56,10 +56,10 @@ class DiskFormatVmdk(DiskFormatBase):
             part of the image. If not found a warning is provided to the
             user and the VMDK descriptor stays untouched
         """
-        vmdk_vmtoolsd = self.source_dir + '/usr/bin/vmtoolsd'
+        vmdk_vmtoolsd = self.root_dir + '/usr/bin/vmtoolsd'
         if not os.path.exists(vmdk_vmtoolsd):
             log.warning(
-                'Could not find vmtoolsd in image root %s' % self.source_dir
+                'Could not find vmtoolsd in image root %s' % self.root_dir
             )
             log.warning(
                 'Update of VMDK metadata skipped'
@@ -93,7 +93,7 @@ class DiskFormatVmdk(DiskFormatBase):
 
     def __get_vmdk_tools_version(self):
         vmdk_tools_version_call = Command.run(
-            ['chroot', self.source_dir, 'vmtoolsd', '--version']
+            ['chroot', self.root_dir, 'vmtoolsd', '--version']
         )
         vmdk_tools_version = vmdk_tools_version_call.output
         vmdk_tools_version_format = re.match(

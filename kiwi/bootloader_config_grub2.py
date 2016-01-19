@@ -228,10 +228,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.__get_grub_boot_path()
         )
         mbrid.write(
-            self.source_dir + '/boot/' + mbrid.get_id()
+            self.root_dir + '/boot/' + mbrid.get_id()
         )
         mbrid.write(
-            self.source_dir + '/boot/mbrid'
+            self.root_dir + '/boot/mbrid'
         )
 
         self.__copy_theme_data_to_boot_directory(lookup_path)
@@ -278,7 +278,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
             use prebuilt and signed efi images provided by the distribution
         """
-        secure_efi_lookup_path = self.source_dir + '/usr/lib64/efi/'
+        secure_efi_lookup_path = self.root_dir + '/usr/lib64/efi/'
         if lookup_path:
             secure_efi_lookup_path = lookup_path
         shim_image = secure_efi_lookup_path + Defaults.get_shim_name()
@@ -299,9 +299,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def __create_embedded_fat_efi_image(self):
-        Path.create(self.source_dir + '/boot/' + self.arch)
+        Path.create(self.root_dir + '/boot/' + self.arch)
         efi_fat_image = ''.join(
-            [self.source_dir + '/boot/', self.arch, '/efi']
+            [self.root_dir + '/boot/', self.arch, '/efi']
         )
         Command.run(
             ['qemu-img', 'create', efi_fat_image, '4M']
@@ -312,7 +312,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Command.run(
             [
                 'mcopy', '-Do', '-s', '-i', efi_fat_image,
-                self.source_dir + '/EFI', '::'
+                self.root_dir + '/EFI', '::'
             ]
         )
 
@@ -376,7 +376,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
     def __get_grub_boot_path(self):
-        return self.source_dir + '/boot/grub2'
+        return self.root_dir + '/boot/grub2'
 
     def __get_basic_modules(self):
         return [
@@ -457,7 +457,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def __get_efi_modules_path(self, lookup_path=None):
         if not lookup_path:
-            lookup_path = self.source_dir
+            lookup_path = self.root_dir
         module_dir = ''.join(
             [
                 lookup_path, '/usr/lib/grub2/',
@@ -468,7 +468,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def __get_bios_modules_path(self, lookup_path=None):
         if not lookup_path:
-            lookup_path = self.source_dir
+            lookup_path = self.root_dir
         module_dir = ''.join(
             [
                 lookup_path, '/usr/lib/grub2/',
@@ -504,8 +504,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def __copy_theme_data_to_boot_directory(self, lookup_path):
         if not lookup_path:
-            lookup_path = self.source_dir
-        boot_unicode_font = self.source_dir + '/boot/unicode.pf2'
+            lookup_path = self.root_dir
+        boot_unicode_font = self.root_dir + '/boot/unicode.pf2'
         if not os.path.exists(boot_unicode_font):
             unicode_font = lookup_path + '/usr/share/grub2/unicode.pf2'
             try:
@@ -517,7 +517,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     'Unicode font %s not found' % unicode_font
                 )
 
-        boot_theme_dir = self.source_dir + '/boot/grub2/themes'
+        boot_theme_dir = self.root_dir + '/boot/grub2/themes'
         if self.theme and not os.path.exists(boot_theme_dir):
             Path.create(boot_theme_dir)
             theme_dir = \

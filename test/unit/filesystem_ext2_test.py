@@ -17,7 +17,7 @@ class TestFileSystemExt2(object):
         provider.get_device = mock.Mock(
             return_value='/dev/foo'
         )
-        self.ext2 = FileSystemExt2(provider, 'source_dir')
+        self.ext2 = FileSystemExt2(provider, 'root_dir')
         self.ext2.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )

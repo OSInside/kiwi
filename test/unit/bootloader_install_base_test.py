@@ -12,7 +12,7 @@ from kiwi.bootloader_install_base import BootLoaderInstallBase
 class TestBootLoaderInstallBase(object):
     def setup(self):
         self.bootloader = BootLoaderInstallBase(
-            'source_dir', mock.Mock()
+            'root_dir', mock.Mock()
         )
 
     @raises(NotImplementedError)

@@ -58,7 +58,7 @@ class TestLiveImageBuilder(object):
             return_value='custom_cmdline'
         )
         self.live_image = LiveImageBuilder(
-            self.xml_state, 'target_dir', 'source_dir'
+            self.xml_state, 'target_dir', 'root_dir'
         )
         self.live_image.machine = mock.Mock()
         self.live_image.machine.get_domain = mock.Mock(
@@ -112,7 +112,7 @@ class TestLiveImageBuilder(object):
 
         self.live_image.boot_image_task.prepare.assert_called_once_with()
         mock_fs.assert_called_once_with(
-            device_provider=None, name='squashfs', source_dir='source_dir'
+            device_provider=None, name='squashfs', root_dir='root_dir'
         )
         live_type_image.create_on_file.assert_called_once_with(
             'target_dir/result-image-read-only.x86_64-1.2.3'
@@ -178,7 +178,7 @@ class TestLiveImageBuilder(object):
                 '-publisher', '"SUSE LINUX GmbH"',
                 '-V', '"volid"',
                 '-allow-limited-size', '-udf'
-            ], device_provider=None, source_dir='temp_media_dir'
+            ], device_provider=None, root_dir='temp_media_dir'
         )
         iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.iso'

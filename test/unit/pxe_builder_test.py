@@ -40,7 +40,7 @@ class TestPxeBuilder(object):
             return_value=self.kernel
         )
         self.pxe = PxeBuilder(
-            self.xml_state, 'target_dir', 'source_dir'
+            self.xml_state, 'target_dir', 'root_dir'
         )
         self.machine = mock.Mock()
         self.machine.get_domain = mock.Mock(

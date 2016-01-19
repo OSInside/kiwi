@@ -12,22 +12,22 @@ from kiwi.disk_format import DiskFormat
 class TestDiskFormat(object):
     @raises(KiwiDiskFormatSetupError)
     def test_format_not_implemented(self):
-        DiskFormat('foo', mock.Mock(), 'source_dir', 'target_dir')
+        DiskFormat('foo', mock.Mock(), 'root_dir', 'target_dir')
 
     @patch('kiwi.disk_format.DiskFormatQcow2')
     def test_disk_format_qcow2(self, mock_qcow2):
         xml_state = mock.Mock()
-        DiskFormat('qcow2', xml_state, 'source_dir', 'target_dir')
+        DiskFormat('qcow2', xml_state, 'root_dir', 'target_dir')
         mock_qcow2.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir'
+            xml_state, 'root_dir', 'target_dir'
         )
 
     @patch('kiwi.disk_format.DiskFormatVhd')
     def test_disk_format_vhd(self, mock_vhd):
         xml_state = mock.Mock()
-        DiskFormat('vhd', xml_state, 'source_dir', 'target_dir')
+        DiskFormat('vhd', xml_state, 'root_dir', 'target_dir')
         mock_vhd.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir'
+            xml_state, 'root_dir', 'target_dir'
         )
 
     @patch('kiwi.disk_format.DiskFormatVhdFixed')
@@ -36,9 +36,9 @@ class TestDiskFormat(object):
         xml_state.build_type.get_vhdfixedtag = mock.Mock(
             return_value='disk-tag'
         )
-        DiskFormat('vhdfixed', xml_state, 'source_dir', 'target_dir')
+        DiskFormat('vhdfixed', xml_state, 'root_dir', 'target_dir')
         mock_vhdfixed.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir', {'--tag': 'disk-tag'}
+            xml_state, 'root_dir', 'target_dir', {'--tag': 'disk-tag'}
         )
 
     @patch('kiwi.disk_format.DiskFormatGce')
@@ -47,9 +47,9 @@ class TestDiskFormat(object):
         xml_state.build_type.get_gcelicense = mock.Mock(
             return_value='gce_license_tag'
         )
-        DiskFormat('gce', xml_state, 'source_dir', 'target_dir')
+        DiskFormat('gce', xml_state, 'root_dir', 'target_dir')
         mock_gce.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir', {'--tag': 'gce_license_tag'}
+            xml_state, 'root_dir', 'target_dir', {'--tag': 'gce_license_tag'}
         )
 
     @patch('kiwi.disk_format.DiskFormatVmdk')
@@ -65,8 +65,8 @@ class TestDiskFormat(object):
         xml_state.get_build_type_vmdisk_section = mock.Mock(
             return_value=vmdisk
         )
-        DiskFormat('vmdk', xml_state, 'source_dir', 'target_dir')
+        DiskFormat('vmdk', xml_state, 'root_dir', 'target_dir')
         mock_vmdk.assert_called_once_with(
-            xml_state, 'source_dir', 'target_dir',
+            xml_state, 'root_dir', 'target_dir',
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )

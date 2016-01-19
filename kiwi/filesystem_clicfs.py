@@ -45,7 +45,7 @@ class FileSystemClicFs(FileSystemBase):
         )
         loop_provider.create()
         filesystem = FileSystemExt4(
-            loop_provider, self.source_dir
+            loop_provider, self.root_dir
         )
         filesystem.create_on_device()
         filesystem.sync_data()
@@ -62,9 +62,9 @@ class FileSystemClicFs(FileSystemBase):
         )
 
     def __get_container_filesystem_size_mbytes(self):
-        size = SystemSize(self.source_dir)
-        source_dir_mbytes = size.accumulate_mbyte_file_sizes()
-        return size.customize(source_dir_mbytes, 'ext4')
+        size = SystemSize(self.root_dir)
+        root_dir_mbytes = size.accumulate_mbyte_file_sizes()
+        return size.customize(root_dir_mbytes, 'ext4')
 
     def __del__(self):
         if self.container_dir:

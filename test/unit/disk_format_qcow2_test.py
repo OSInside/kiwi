@@ -18,7 +18,7 @@ class TestDiskFormatQcow2(object):
         self.xml_state = mock.Mock()
         self.xml_state.xml_data = xml_data
         self.disk_format = DiskFormatQcow2(
-            self.xml_state, 'source_dir', 'target_dir'
+            self.xml_state, 'root_dir', 'target_dir'
         )
 
     def test_post_init(self):

@@ -25,7 +25,7 @@ class TestFileSystemSetup(object):
             return_value='ext4'
         )
         self.setup = FileSystemSetup(
-            self.xml_state, 'source_dir'
+            self.xml_state, 'root_dir'
         )
 
     def test_setup_with_pxe_type(self):
@@ -36,7 +36,7 @@ class TestFileSystemSetup(object):
             return_value='xfs'
         )
         setup = FileSystemSetup(
-            self.xml_state, 'source_dir'
+            self.xml_state, 'root_dir'
         )
         assert setup.requested_filesystem == 'xfs'
 

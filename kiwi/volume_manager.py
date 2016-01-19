@@ -29,15 +29,15 @@ class VolumeManager(object):
         VolumeManager factory
     """
     def __new__(
-        self, name, device_provider, source_dir, volumes, custom_args=None
+        self, name, device_provider, root_dir, volumes, custom_args=None
     ):
         if name == 'lvm':
             return VolumeManagerLVM(
-                device_provider, source_dir, volumes, custom_args
+                device_provider, root_dir, volumes, custom_args
             )
         elif name == 'btrfs':
             return VolumeManagerBtrfs(
-                device_provider, source_dir, volumes, custom_args
+                device_provider, root_dir, volumes, custom_args
             )
         else:
             raise KiwiVolumeManagerSetupError(

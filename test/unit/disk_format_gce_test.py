@@ -24,7 +24,7 @@ class TestDiskFormatGce(object):
             return_value='0.8.15'
         )
         self.disk_format = DiskFormatGce(
-            self.xml_state, 'source_dir', 'target_dir'
+            self.xml_state, 'root_dir', 'target_dir'
         )
 
     def test_post_init(self):

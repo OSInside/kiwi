@@ -35,42 +35,42 @@ class FileSystem(object):
     """
         FileSystem factory
     """
-    def __new__(self, name, device_provider, source_dir=None, custom_args=None):
+    def __new__(self, name, device_provider, root_dir=None, custom_args=None):
         if name == 'ext2':
             return FileSystemExt2(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'ext3':
             return FileSystemExt3(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'ext4':
             return FileSystemExt4(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'btrfs':
             return FileSystemBtrfs(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'xfs':
             return FileSystemXfs(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'fat16':
             return FileSystemFat16(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'fat32':
             return FileSystemFat32(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'squashfs':
             return FileSystemSquashFs(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         elif name == 'clicfs':
             return FileSystemClicFs(
-                device_provider, source_dir, custom_args
+                device_provider, root_dir, custom_args
             )
         else:
             raise KiwiFileSystemSetupError(

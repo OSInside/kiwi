@@ -36,14 +36,14 @@ class PxeBuilder(object):
         root filesystem image with a checksum. The result can be used
         within the kiwi PXE boot infrastructure
     """
-    def __init__(self, xml_state, target_dir, source_dir):
+    def __init__(self, xml_state, target_dir, root_dir):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.image_name = xml_state.xml_data.get_name()
         self.machine = xml_state.get_build_type_machine_section()
         self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
-            xml_state, target_dir, source_dir
+            xml_state, target_dir, root_dir
         )
         self.boot_image_task = BootImageTask(
             xml_state, target_dir

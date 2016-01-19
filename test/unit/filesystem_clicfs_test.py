@@ -13,7 +13,7 @@ class TestFileSystemClicFs(object):
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True
-        self.clicfs = FileSystemClicFs(mock.Mock(), 'source_dir')
+        self.clicfs = FileSystemClicFs(mock.Mock(), 'root_dir')
 
     @patch('kiwi.filesystem_clicfs.Command.run')
     @patch('kiwi.filesystem_clicfs.mkdtemp')
@@ -48,7 +48,7 @@ class TestFileSystemClicFs(object):
         )
         loop_provider.create.assert_called_once_with()
         mock_ext4.assert_called_once_with(
-            loop_provider, 'source_dir'
+            loop_provider, 'root_dir'
         )
         filesystem.create_on_device.assert_called_once_with()
         assert mock_command.call_args_list == [

@@ -81,7 +81,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         log.info(
             'Creating volumes(%s)', filesystem_name
         )
-        self.create_volume_paths_in_source_dir()
+        self.create_volume_paths_in_root_dir()
 
         canonical_volume_list = self.get_canonical_volume_list()
         for volume in canonical_volume_list.volumes:

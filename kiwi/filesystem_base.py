@@ -34,7 +34,7 @@ class FileSystemBase(object):
     """
         Implements base class for filesystem interface
     """
-    def __init__(self, device_provider, source_dir=None, custom_args=None):
+    def __init__(self, device_provider, root_dir=None, custom_args=None):
         # filesystems created with a block device stores the mountpoint
         # here. The file name of the file containing the filesystem is
         # stored in the device_provider if the filesystem is represented
@@ -47,7 +47,7 @@ class FileSystemBase(object):
         # filesystem required a block device to become created
         self.device_provider = device_provider
 
-        self.source_dir = source_dir
+        self.root_dir = root_dir
 
         # filesystems created without a block device stores the result
         # filesystem file name here
@@ -71,20 +71,20 @@ class FileSystemBase(object):
         raise NotImplementedError
 
     def sync_data(self, exclude=None):
-        if not self.source_dir:
+        if not self.root_dir:
             raise KiwiFileSystemSyncError(
-                'no source directory specified'
+                'no root directory specified'
             )
-        if not os.path.exists(self.source_dir):
+        if not os.path.exists(self.root_dir):
             raise KiwiFileSystemSyncError(
-                'given source directory %s does not exist' % self.source_dir
+                'given root directory %s does not exist' % self.root_dir
             )
         device = self.device_provider.get_device()
         Command.run(
             ['mount', device, self.__setup_mountpoint()]
         )
         if self.mountpoint and self.is_mounted():
-            data = DataSync(self.source_dir, self.mountpoint)
+            data = DataSync(self.root_dir, self.mountpoint)
             data.sync_data(exclude)
             Command.run(
                 ['umount', self.mountpoint]

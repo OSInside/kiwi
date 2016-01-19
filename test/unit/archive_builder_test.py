@@ -19,7 +19,7 @@ class TestArchiveBuilder(object):
             return_value='myimage'
         )
         self.archive = ArchiveBuilder(
-            self.xml_state, 'target_dir', 'source_dir'
+            self.xml_state, 'target_dir', 'root_dir'
         )
 
     @raises(KiwiArchiveSetupError)
@@ -32,7 +32,7 @@ class TestArchiveBuilder(object):
             return_value='myimage'
         )
         archive = ArchiveBuilder(
-            xml_state, 'target_dir', 'source_dir'
+            xml_state, 'target_dir', 'root_dir'
         )
         archive.create()
 
@@ -48,7 +48,7 @@ class TestArchiveBuilder(object):
             'target_dir/myimage.tar'
         )
         archive.create_xz_compressed.assert_called_once_with(
-            'source_dir'
+            'root_dir'
         )
         mock_checksum.assert_called_once_with(
             'target_dir/myimage.tar.xz'

@@ -31,8 +31,8 @@ class ArchiveBuilder(object):
     """
         root archive image builder
     """
-    def __init__(self, xml_state, target_dir, source_dir):
-        self.source_dir = source_dir
+    def __init__(self, xml_state, target_dir, root_dir):
+        self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.requested_archive_type = xml_state.get_build_type_name()
@@ -52,7 +52,7 @@ class ArchiveBuilder(object):
             archive = ArchiveTar(
                 self.__target_file_for('tar')
             )
-            archive.create_xz_compressed(self.source_dir)
+            archive.create_xz_compressed(self.root_dir)
             checksum = Checksum(self.filename)
             log.info('--> Creating archive checksum')
             checksum.md5(self.checksum)

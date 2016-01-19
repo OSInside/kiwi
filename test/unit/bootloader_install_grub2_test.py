@@ -17,7 +17,7 @@ class TestBootLoaderInstallGrub2(object):
             return_value='/dev/some-device'
         )
         self.bootloader = BootLoaderInstallGrub2(
-            'source_dir', device_provider
+            'root_dir', device_provider
         )
 
     def test_post_init(self):
@@ -49,7 +49,7 @@ class TestBootLoaderInstallGrub2(object):
             '(hd0) /dev/some-device\n'
         )
         assert mock_command.call_args_list == [
-            call(['cp', '-a', 'source_dir/boot/', 'tmpdir']),
+            call(['cp', '-a', 'root_dir/boot/', 'tmpdir']),
             call([
                 'grub2-bios-setup', '-f',
                 '-d', 'tmpdir/boot/grub2/i386-pc',

@@ -13,7 +13,7 @@ class TestFileSystemIsoFs(object):
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True
-        self.isofs = FileSystemIsoFs(mock.Mock(), 'source_dir')
+        self.isofs = FileSystemIsoFs(mock.Mock(), 'root_dir')
 
     def test_post_init(self):
         self.isofs.post_init(['args'])
@@ -36,11 +36,11 @@ class TestFileSystemIsoFs(object):
         )
         mock_command.call_args_list == [
             call([
-                'genisoimage', 'args', '-o', 'myimage', 'source_dir'
+                'genisoimage', 'args', '-o', 'myimage', 'root_dir'
             ]),
             call([
                 'genisoimage', '-hide', 'header_end',
                 '-hide-joliet', 'header_end', 'args', '-o', 'myimage',
-                'source_dir'
+                'root_dir'
             ])
         ]

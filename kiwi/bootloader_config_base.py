@@ -29,8 +29,8 @@ class BootLoaderConfigBase(object):
     """
         base class for bootloader configuration
     """
-    def __init__(self, xml_state, source_dir):
-        self.source_dir = source_dir
+    def __init__(self, xml_state, root_dir):
+        self.root_dir = root_dir
         self.xml_state = xml_state
 
         self.post_init()
@@ -101,7 +101,7 @@ class BootLoaderConfigBase(object):
         raise NotImplementedError
 
     def create_efi_path(self, in_sub_dir='boot/efi'):
-        efi_boot_path = self.source_dir + '/' + in_sub_dir + '/EFI/BOOT'
+        efi_boot_path = self.root_dir + '/' + in_sub_dir + '/EFI/BOOT'
         Path.create(efi_boot_path)
         return efi_boot_path
 
@@ -161,7 +161,7 @@ class BootLoaderConfigBase(object):
         bootpath = '/boot'
         need_boot_partition = False
         if target == 'disk':
-            disk_setup = DiskSetup(self.xml_state, self.source_dir)
+            disk_setup = DiskSetup(self.xml_state, self.root_dir)
             need_boot_partition = disk_setup.need_boot_partition()
             if need_boot_partition:
                 # if an extra boot partition is used we will find the

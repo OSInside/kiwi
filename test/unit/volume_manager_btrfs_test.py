@@ -49,7 +49,7 @@ class TestVolumeManagerBtrfs(object):
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerBtrfs(
-            self.device_provider, 'source_dir', self.volumes
+            self.device_provider, 'root_dir', self.volumes
         )
 
     def test_post_init(self):
@@ -126,17 +126,17 @@ class TestVolumeManagerBtrfs(object):
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
             call([
-                'mkdir', '-p', 'source_dir//etc'
+                'mkdir', '-p', 'root_dir/etc'
             ])
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call([
-                'mkdir', '-p', 'source_dir//data'
+                'mkdir', '-p', 'root_dir/data'
             ])
         call = mock_command.call_args_list[2]
         assert mock_command.call_args_list[2] == \
             call([
-                'mkdir', '-p', 'source_dir//home'
+                'mkdir', '-p', 'root_dir/home'
             ])
         call = mock_command.call_args_list[3]
         assert mock_command.call_args_list[3] == \
@@ -165,7 +165,7 @@ class TestVolumeManagerBtrfs(object):
         sync = mock.Mock()
         mock_sync.return_value = sync
         self.volume_manager.sync_data(['exclude_me'])
-        mock_sync.assert_called_once_with('source_dir', 'tmpdir/@')
+        mock_sync.assert_called_once_with('root_dir', 'tmpdir/@')
         sync.sync_data.assert_called_once_with(['exclude_me'])
 
     @patch('time.sleep')
