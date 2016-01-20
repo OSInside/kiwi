@@ -64,7 +64,7 @@ class LiveImageBuilder(object):
             xml_state, target_dir
         )
         self.firmware = FirmWare(
-            xml_state.build_type.get_firmware()
+            xml_state
         )
         self.isoname = ''.join(
             [

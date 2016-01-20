@@ -31,26 +31,34 @@ class FirmWare(object):
         image changes. This class provides methods to provide firmware
         dependent information
     """
-    def __init__(self, firmware):
-        if not firmware:
-            firmware = 'bios'
-        host_architecture = platform.machine()
-        firmware_types = Defaults.get_firmware_types()
-        if firmware not in firmware_types[host_architecture]:
-            raise KiwiNotImplementedError(
-                'support for firmware %s for arch %s not implemented' %
-                (firmware, host_architecture)
-            )
+    def __init__(self, xml_state):
+        self.host_architecture = platform.machine()
+        self.firmware = xml_state.build_type.get_firmware()
+        self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
         self.efi_capable_firmware_names = [
             'efi', 'uefi', 'vboot'
         ]
         self.ec2_firmware_names = [
             'ec2', 'ec2hvm'
         ]
-        self.firmware = firmware
+
+        firmware_types = Defaults.get_firmware_types()
+        if self.firmware:
+            if self.firmware not in firmware_types[self.host_architecture]:
+                raise KiwiNotImplementedError(
+                    'support for firmware %s for arch %s not implemented' %
+                    (self.firmware, self.host_architecture)
+                )
 
     def get_partition_table_type(self):
-        if self.efi_mode():
+        if 's390' in self.host_architecture:
+            if self.zipl_target_type and 'LDL' in self.zipl_target_type:
+                return 'dasd'
+            elif self.zipl_target_type and 'CDL' in self.zipl_target_type:
+                return 'dasd'
+            else:
+                return 'msdos'
+        elif self.efi_mode():
             return 'gpt'
         elif self.firmware == 'bios':
             return 'msdos'
@@ -62,11 +70,11 @@ class FirmWare(object):
             return False
 
     def efi_mode(self):
-        if self.firmware in self.efi_capable_firmware_names:
+        if self.firmware and self.firmware in self.efi_capable_firmware_names:
             return self.firmware
 
     def ec2_mode(self):
-        if self.firmware in self.ec2_firmware_names:
+        if self.firmware and self.firmware in self.ec2_firmware_names:
             return self.firmware
 
     def bios_mode(self):

@@ -44,7 +44,7 @@ class DiskSetup(object):
         self.volumes = xml_state.get_volumes()
 
         self.firmware = FirmWare(
-            xml_state.build_type.get_firmware()
+            xml_state
         )
         self.rootsize = SystemSize(
             root_dir

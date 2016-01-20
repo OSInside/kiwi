@@ -10,22 +10,41 @@ from kiwi.firmware import FirmWare
 
 
 class TestFirmWare(object):
-    def setup(self):
-        self.firmware_bios = FirmWare('bios')
-        self.firmware_efi = FirmWare('efi')
-        self.firmware_ec2 = FirmWare('ec2')
+    @patch('platform.machine')
+    def setup(self, mock_platform):
+        mock_platform.return_value = 'x86_64'
+        xml_state = mock.Mock()
+        xml_state.build_type.get_firmware = mock.Mock()
+        xml_state.build_type.get_firmware.return_value = 'bios'
+        self.firmware_bios = FirmWare(xml_state)
+        xml_state.build_type.get_firmware.return_value = 'efi'
+        self.firmware_efi = FirmWare(xml_state)
+        xml_state.build_type.get_firmware.return_value = 'ec2'
+        self.firmware_ec2 = FirmWare(xml_state)
+        mock_platform.return_value = 's390x'
+        xml_state.build_type.get_firmware.return_value = None
+        xml_state.build_type.get_zipl_targettype = mock.Mock()
+        xml_state.build_type.get_zipl_targettype.return_value = 'LDL'
+        self.firmware_s390_ldl = FirmWare(xml_state)
+        xml_state.build_type.get_zipl_targettype.return_value = 'CDL'
+        self.firmware_s390_cdl = FirmWare(xml_state)
+        xml_state.build_type.get_zipl_targettype.return_value = 'SCSI'
+        self.firmware_s390_scsi = FirmWare(xml_state)
 
     @raises(KiwiNotImplementedError)
     def test_firmware_unsupported(self):
-        FirmWare('foo')
-
-    def test_firmware_default(self):
-        firmware = FirmWare(None)
-        assert firmware.firmware == 'bios'
+        xml_state = mock.Mock()
+        xml_state.build_type.get_firmware = mock.Mock(
+            return_value='bogus'
+        )
+        FirmWare(xml_state)
 
     def test_get_partition_table_type(self):
         assert self.firmware_bios.get_partition_table_type() == 'msdos'
         assert self.firmware_efi.get_partition_table_type() == 'gpt'
+        assert self.firmware_s390_ldl.get_partition_table_type() == 'dasd'
+        assert self.firmware_s390_cdl.get_partition_table_type() == 'dasd'
+        assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'
 
     def test_legacy_bios_mode(self):
         assert self.firmware_bios.legacy_bios_mode() is False

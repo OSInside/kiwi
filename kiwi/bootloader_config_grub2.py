@@ -59,7 +59,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.hypervisor_domain = self.get_hypervisor_domain()
         self.firmware = FirmWare(
-            self.xml_state.build_type.get_firmware()
+            self.xml_state
         )
 
         self.hybrid_boot = True

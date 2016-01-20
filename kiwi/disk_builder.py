@@ -80,7 +80,7 @@ class DiskBuilder(object):
             xml_state, target_dir
         )
         self.firmware = FirmWare(
-            xml_state.build_type.get_firmware()
+            xml_state
         )
         self.system_setup = SystemSetup(
             xml_state=xml_state, description_dir=None, root_dir=self.root_dir

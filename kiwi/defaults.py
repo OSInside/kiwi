@@ -109,7 +109,7 @@ class Defaults(object):
             'ppc64': ['ofw'],
             'ppc64le': ['ofw'],
             's390': [],
-            's390x': [],
+            's390x': []
         }
 
     @classmethod
