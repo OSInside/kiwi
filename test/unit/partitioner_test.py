@@ -23,13 +23,33 @@ class TestPartitioner(object):
         Partitioner('foo', mock.Mock())
 
     @patch('kiwi.partitioner.PartitionerGpt')
-    def test_partitioner_gpt_new(self, mock_gpt):
+    @patch('platform.machine')
+    def test_partitioner_gpt(self, mock_machine, mock_gpt):
+        mock_machine.return_value = 'x86_64'
         storage_provider = mock.Mock()
         Partitioner('gpt', storage_provider)
         mock_gpt.assert_called_once_with(storage_provider)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
-    def test_partitioner_msdos_new(self, mock_dos):
+    @patch('platform.machine')
+    def test_partitioner_msdos(self, mock_machine, mock_dos):
+        mock_machine.return_value = 'x86_64'
+        storage_provider = mock.Mock()
+        Partitioner('msdos', storage_provider)
+        mock_dos.assert_called_once_with(storage_provider)
+
+    @patch('kiwi.partitioner.PartitionerDasd')
+    @patch('platform.machine')
+    def test_partitioner_s390_dasd(self, mock_machine, mock_dasd):
+        mock_machine.return_value = 's390'
+        storage_provider = mock.Mock()
+        Partitioner('dasd', storage_provider)
+        mock_dasd.assert_called_once_with(storage_provider)
+
+    @patch('kiwi.partitioner.PartitionerMsDos')
+    @patch('platform.machine')
+    def test_partitioner_s390_msdos(self, mock_machine, mock_dos):
+        mock_machine.return_value = 's390'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
         mock_dos.assert_called_once_with(storage_provider)

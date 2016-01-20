@@ -20,6 +20,7 @@ import platform
 # project
 from partitioner_gpt import PartitionerGpt
 from partitioner_msdos import PartitionerMsDos
+from partitioner_dasd import PartitionerDasd
 
 from exceptions import (
     KiwiPartitionerSetupError
@@ -42,6 +43,11 @@ class Partitioner(object):
                     'Support for %s partitioner not implemented' %
                     table_type
                 )
+        elif 's390' in host_architecture:
+            if table_type == 'dasd':
+                return PartitionerDasd(storage_provider)
+            else:
+                return PartitionerMsDos(storage_provider)
         else:
             raise KiwiPartitionerSetupError(
                 'Support for partitioner on %s architecture not implemented' %
