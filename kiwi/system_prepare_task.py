@@ -116,7 +116,6 @@ class SystemPrepareTask(CliTask):
         setup.import_image_identifier()
         setup.setup_groups()
         setup.setup_users()
-        setup.setup_hardware_clock()
         setup.setup_keyboard_map()
         setup.setup_locale()
         setup.setup_timezone()

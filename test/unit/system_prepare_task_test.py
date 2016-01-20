@@ -67,7 +67,6 @@ class TestSystemPrepareTask(object):
         self.setup.import_image_identifier.assert_called_once_with()
         self.setup.setup_groups.assert_called_once_with()
         self.setup.setup_users.assert_called_once_with()
-        self.setup.setup_hardware_clock.assert_called_once_with()
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
