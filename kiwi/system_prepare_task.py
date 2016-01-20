@@ -86,45 +86,44 @@ class SystemPrepareTask(CliTask):
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
-        if self.command_args['prepare']:
-            log.info('Preparing system')
-            system = System(
-                self.xml_state,
-                self.command_args['--root'],
-                self.command_args['--allow-existing-root']
-            )
-            manager = system.setup_repositories()
-            system.install_bootstrap(manager)
-            system.install_system(
-                manager
-            )
+        log.info('Preparing system')
+        system = System(
+            self.xml_state,
+            self.command_args['--root'],
+            self.command_args['--allow-existing-root']
+        )
+        manager = system.setup_repositories()
+        system.install_bootstrap(manager)
+        system.install_system(
+            manager
+        )
 
-            profile = Profile(self.xml_state)
+        profile = Profile(self.xml_state)
 
-            defaults = Defaults()
-            defaults.to_profile(profile)
+        defaults = Defaults()
+        defaults.to_profile(profile)
 
-            setup = SystemSetup(
-                self.xml_state,
-                self.command_args['--description'],
-                self.command_args['--root']
-            )
-            setup.import_shell_environment(profile)
+        setup = SystemSetup(
+            self.xml_state,
+            self.command_args['--description'],
+            self.command_args['--root']
+        )
+        setup.import_shell_environment(profile)
 
-            setup.import_description()
-            setup.import_overlay_files()
-            setup.call_config_script()
-            setup.import_image_identifier()
-            setup.setup_groups()
-            setup.setup_users()
-            setup.setup_hardware_clock()
-            setup.setup_keyboard_map()
-            setup.setup_locale()
-            setup.setup_timezone()
+        setup.import_description()
+        setup.import_overlay_files()
+        setup.call_config_script()
+        setup.import_image_identifier()
+        setup.setup_groups()
+        setup.setup_users()
+        setup.setup_hardware_clock()
+        setup.setup_keyboard_map()
+        setup.setup_locale()
+        setup.setup_timezone()
 
-            system.pinch_system(
-                manager
-            )
+        system.pinch_system(
+            manager
+        )
 
     def __help(self):
         if self.command_args['help']:
