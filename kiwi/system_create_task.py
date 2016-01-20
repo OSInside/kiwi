@@ -40,21 +40,11 @@ import os
 # project
 from cli_task import CliTask
 from help import Help
-from defaults import Defaults
-from archive_builder import ArchiveBuilder
-from filesystem_builder import FileSystemBuilder
-from container_builder import ContainerBuilder
-from disk_builder import DiskBuilder
-from live_image_builder import LiveImageBuilder
-from pxe_builder import PxeBuilder
+from image_builder import ImageBuilder
+from system_setup import SystemSetup
 from privileges import Privileges
 from path import Path
 from logger import log
-
-from exceptions import (
-    KiwiRequestedTypeError,
-    KiwiNotImplementedError
-)
 
 
 class SystemCreateTask(CliTask):
@@ -72,66 +62,27 @@ class SystemCreateTask(CliTask):
             self.command_args['--root']
         )
 
-        result = None
-        if self.command_args['create']:
-            log.info('Creating system image')
-            if not os.path.exists(self.command_args['--target-dir']):
-                Path.create(self.command_args['--target-dir'])
+        log.info('Creating system image')
+        if not os.path.exists(self.command_args['--target-dir']):
+            Path.create(self.command_args['--target-dir'])
 
-            requested_image_type = self.xml_state.get_build_type_name()
-            if requested_image_type in Defaults.get_filesystem_image_types():
-                filesystem = FileSystemBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    self.command_args['--root']
-                )
-                result = filesystem.create()
-            elif requested_image_type in Defaults.get_disk_image_types():
-                disk = DiskBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    self.command_args['--root']
-                )
-                result = disk.create()
-            elif requested_image_type in Defaults.get_live_image_types():
-                live_iso = LiveImageBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    self.command_args['--root']
-                )
-                result = live_iso.create()
-            elif requested_image_type in Defaults.get_network_image_types():
-                pxe = PxeBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    self.command_args['--root']
-                )
-                result = pxe.create()
-            elif requested_image_type in Defaults.get_archive_image_types():
-                archive = ArchiveBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    self.command_args['--root']
-                )
-                result = archive.create()
-            elif requested_image_type in Defaults.get_container_image_types():
-                container = ContainerBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    self.command_args['--root']
-                )
-                result = container.create()
-            else:
-                raise KiwiRequestedTypeError(
-                    'requested image type %s not supported' %
-                    requested_image_type
-                )
+        setup = SystemSetup(
+            xml_state=self.xml_state,
+            description_dir=self.command_args['--root'],
+            root_dir=self.command_args['--root']
+        )
+        setup.call_image_script()
 
-            if result:
-                result.print_results()
-                result.dump(
-                    self.command_args['--target-dir'] + '/kiwi.result'
-                )
+        image_builder = ImageBuilder(
+            self.xml_state,
+            self.command_args['--target-dir'],
+            self.command_args['--root']
+        )
+        result = image_builder.create()
+        result.print_results()
+        result.dump(
+            self.command_args['--target-dir'] + '/kiwi.result'
+        )
 
     def __help(self):
         if self.command_args['help']:

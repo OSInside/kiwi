@@ -48,22 +48,12 @@ from cli_task import CliTask
 from help import Help
 from system import System
 from system_setup import SystemSetup
+from image_builder import ImageBuilder
 from profile import Profile
 from defaults import Defaults
-from archive_builder import ArchiveBuilder
-from filesystem_builder import FileSystemBuilder
-from container_builder import ContainerBuilder
-from disk_builder import DiskBuilder
-from live_image_builder import LiveImageBuilder
-from pxe_builder import PxeBuilder
 from privileges import Privileges
 from path import Path
 from logger import log
-
-from exceptions import (
-    KiwiRequestedTypeError,
-    KiwiNotImplementedError
-)
 
 
 class SystemBuildTask(CliTask):
@@ -106,105 +96,61 @@ class SystemBuildTask(CliTask):
 
                 Path.create(self.command_args['--target-dir'])
 
-        result = None
-        if self.command_args['build']:
-            log.info('Preparing new root system')
+        log.info('Preparing new root system')
+        system = System(
+            self.xml_state, image_root, True
+        )
+        manager = system.setup_repositories()
+        system.install_bootstrap(manager)
+        system.install_system(
+            manager
+        )
 
-            system = System(
-                self.xml_state, image_root, True
-            )
-            manager = system.setup_repositories()
-            system.install_bootstrap(manager)
-            system.install_system(
-                manager
-            )
+        profile = Profile(self.xml_state)
 
-            profile = Profile(self.xml_state)
+        defaults = Defaults()
+        defaults.to_profile(profile)
 
-            defaults = Defaults()
-            defaults.to_profile(profile)
+        setup = SystemSetup(
+            self.xml_state,
+            self.command_args['--description'],
+            image_root
+        )
+        setup.import_shell_environment(profile)
 
-            setup = SystemSetup(
-                self.xml_state,
-                self.command_args['--description'],
-                image_root
-            )
-            setup.import_shell_environment(profile)
+        setup.import_description()
+        setup.import_overlay_files()
+        setup.call_config_script()
+        setup.import_image_identifier()
+        setup.setup_groups()
+        setup.setup_users()
+        setup.setup_hardware_clock()
+        setup.setup_keyboard_map()
+        setup.setup_locale()
+        setup.setup_timezone()
 
-            setup.import_description()
-            setup.import_overlay_files()
-            setup.call_config_script()
-            setup.import_image_identifier()
-            setup.setup_groups()
-            setup.setup_users()
-            setup.setup_hardware_clock()
-            setup.setup_keyboard_map()
-            setup.setup_locale()
-            setup.setup_timezone()
+        system.pinch_system(
+            manager
+        )
+        # make sure system instance is cleaned up now
+        del system
 
-            system.pinch_system(
-                manager
-            )
-            # make sure destructors cleanup the new root system
-            # before creating an image from the tree
-            del setup
-            del system
+        setup.call_image_script()
 
-            log.info('Creating system image')
-            requested_image_type = self.xml_state.get_build_type_name()
-            if requested_image_type in Defaults.get_filesystem_image_types():
-                filesystem = FileSystemBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    image_root
-                )
-                result = filesystem.create()
-            elif requested_image_type in Defaults.get_disk_image_types():
-                disk = DiskBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    image_root
-                )
-                result = disk.create()
-            elif requested_image_type in Defaults.get_live_image_types():
-                live_iso = LiveImageBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    image_root
-                )
-                result = live_iso.create()
-            elif requested_image_type in Defaults.get_network_image_types():
-                pxe = PxeBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    image_root
-                )
-                result = pxe.create()
-            elif requested_image_type in Defaults.get_archive_image_types():
-                archive = ArchiveBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    image_root
-                )
-                result = archive.create()
-            elif requested_image_type in Defaults.get_container_image_types():
-                container = ContainerBuilder(
-                    self.xml_state,
-                    self.command_args['--target-dir'],
-                    image_root
-                )
-                result = container.create()
-            else:
-                raise KiwiRequestedTypeError(
-                    'requested image type %s not supported' %
-                    requested_image_type
-                )
+        # make sure setup instance is cleaned up now
+        del setup
 
-            if result:
-                result.print_results()
-                result.dump(
-                    self.command_args['--target-dir'] + '/kiwi.result'
-                )
+        log.info('Creating system image')
+        image_builder = ImageBuilder(
+            self.xml_state,
+            self.command_args['--target-dir'],
+            image_root
+        )
+        result = image_builder.create()
+        result.print_results()
+        result.dump(
+            self.command_args['--target-dir'] + '/kiwi.result'
+        )
 
     def __help(self):
         if self.command_args['help']:
