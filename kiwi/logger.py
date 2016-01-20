@@ -202,9 +202,11 @@ class Logger(logging.Logger):
             return
         hashes = '#' * int(round(percent * bar_length))
         spaces = ' ' * (bar_length - len(hashes))
-        sys.stdout.write("\r{0}: [{1}] {2}%".format(
+        sys.stdout.write('\r{0}: [{1}] {2}%'.format(
             prefix, hashes + spaces, int(round(percent * 100))
         ))
+        if current == 100:
+            sys.stdout.write('\n')
         sys.stdout.flush()
 
     def __add_stream_handler(
