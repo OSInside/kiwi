@@ -478,7 +478,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return module_dir
 
     def __get_gfxmode(self):
-        selected_gfxmode = 'keep'
+        selected_gfxmode = '800x600'
         gfxmode = {
             '0x301': '640x480',
             '0x310': '640x480',
