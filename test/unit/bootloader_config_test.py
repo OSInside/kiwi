@@ -18,10 +18,10 @@ class TestBootLoaderConfig(object):
     def test_bootloader_config_grub2(self, mock_grub2):
         xml_state = mock.Mock()
         BootLoaderConfig('grub2', xml_state, 'root_dir')
-        mock_grub2.assert_called_once_with(xml_state, 'root_dir')
+        mock_grub2.assert_called_once_with(xml_state, 'root_dir', None)
 
     @patch('kiwi.bootloader_config.BootLoaderConfigIsoLinux')
     def test_bootloader_config_isolinux(self, mock_isolinux):
         xml_state = mock.Mock()
         BootLoaderConfig('isolinux', xml_state, 'root_dir')
-        mock_isolinux.assert_called_once_with(xml_state, 'root_dir')
+        mock_isolinux.assert_called_once_with(xml_state, 'root_dir', None)

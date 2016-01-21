@@ -70,9 +70,6 @@ class DiskBuilder(object):
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
         self.bootloader = xml_state.build_type.get_bootloader()
-        self.bootloader_config = BootLoaderConfig(
-            self.bootloader, xml_state, root_dir
-        )
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
@@ -142,6 +139,12 @@ class DiskBuilder(object):
 
         self.disk = Disk(
             self.firmware.get_partition_table_type(), loop_provider
+        )
+
+        # create the bootloader instance
+        self.bootloader_config = BootLoaderConfig(
+            self.bootloader, self.xml_state, self.root_dir,
+            {'targetbase': loop_provider.get_device()}
         )
 
         # create disk partitions and instance device map
