@@ -50,7 +50,7 @@ class TestBootLoaderConfigIsoLinux(object):
         self.bootloader.get_hypervisor_domain.return_value = 'dom0'
         mock_exists.return_value = True
 
-        self.bootloader.post_init()
+        self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
 
     @patch('__builtin__.open')

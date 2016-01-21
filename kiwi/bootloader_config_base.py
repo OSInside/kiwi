@@ -29,14 +29,14 @@ class BootLoaderConfigBase(object):
     """
         base class for bootloader configuration
     """
-    def __init__(self, xml_state, root_dir):
+    def __init__(self, xml_state, root_dir, custom_args=None):
         self.root_dir = root_dir
         self.xml_state = xml_state
 
-        self.post_init()
+        self.post_init(custom_args)
 
-    def post_init(self):
-        pass
+    def post_init(self, custom_args):
+        self.custom_args = custom_args
 
     def write(self):
         """

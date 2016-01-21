@@ -40,7 +40,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     """
         grub2 bootloader configuration.
     """
-    def post_init(self):
+    def post_init(self, custom_args):
+        self.custom_args = custom_args
         arch = platform.machine()
         if arch == 'x86_64':
             self.arch = arch
