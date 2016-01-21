@@ -65,6 +65,10 @@ class KiwiBootLoaderTargetError(KiwiError):
     pass
 
 
+class KiwiBootLoaderZiplPlatformError(KiwiError):
+    pass
+
+
 class KiwiBootStrapPhaseFailed(KiwiError):
     pass
 
@@ -114,6 +118,10 @@ class KiwiDiskFileSystemSetupError(KiwiError):
 
 
 class KiwiDiskFormatSetupError(KiwiError):
+    pass
+
+
+class KiwiDiskGeometryError(KiwiError):
     pass
 
 
