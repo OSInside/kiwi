@@ -15,10 +15,9 @@ from kiwi.bootloader_config_grub2 import BootLoaderConfigGrub2
 
 
 class TestBootLoaderConfigGrub2(object):
-    @patch('os.path.exists')
     @patch('kiwi.bootloader_config_grub2.FirmWare')
     @patch('platform.machine')
-    def setup(self, mock_machine, mock_firmware, mock_exists):
+    def setup(self, mock_machine, mock_firmware):
         mock_machine.return_value = 'x86_64'
         self.mbrid = mock.Mock()
         self.mbrid.get_id = mock.Mock(
@@ -32,7 +31,6 @@ class TestBootLoaderConfigGrub2(object):
             return_value=None
         )
         mock_firmware.return_value = self.firmware
-        mock_exists.return_value = True
         description = XMLDescription(
             '../data/example_config.xml'
         )
