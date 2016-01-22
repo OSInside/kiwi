@@ -17,7 +17,7 @@ class TestBootLoaderTemplateZipl(object):
             device='/dev/loop0',
             target_type='CDL',
             blocksize='4096',
-            offset='24',
+            offset=24,
             geometry='2912,15,12',
             default_boot='1',
             bootpath='boot/zipl',

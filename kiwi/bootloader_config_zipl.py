@@ -30,6 +30,7 @@ from firmware import FirmWare
 from exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderZiplPlatformError,
+    KiwiBootLoaderZiplSetupError,
     KiwiDiskGeometryError
 )
 
@@ -47,7 +48,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                 'host architecture %s not supported for zipl setup' % arch
             )
 
-        if 'targetbase' not in custom_args:
+        if not custom_args or 'targetbase' not in custom_args:
             raise KiwiBootLoaderZiplSetupError(
                 'targetbase device name is required for zipl setup'
             )
@@ -60,8 +61,6 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         self.cmdline_failsafe = self.get_failsafe_boot_cmdline()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.target_device = custom_args['targetbase']
-        self.target_offset = self.__get_target_offset()
-        self.target_geometry = self.__get_target_geometry()
         self.firmware = FirmWare(self.xml_state)
         self.target_table_type = self.firmware.get_partition_table_type()
 
@@ -81,7 +80,8 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                 config.write(self.config)
 
     def setup_disk_image_config(
-        self, uuid, hypervisor=None, kernel='linux.vmx', initrd='initrd.vmx'
+        self, uuid=None, hypervisor=None,
+        kernel='linux.vmx', initrd='initrd.vmx'
     ):
         """
             Create the zipl config in memory from a template suitable to
@@ -92,8 +92,8 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             'device': self.target_device,
             'target_type': self.target_type,
             'blocksize': self.target_blocksize,
-            'offset': self.target_offset,
-            'geometry': self.target_geometry,
+            'offset': self.__get_target_offset(),
+            'geometry': self.__get_target_geometry(),
             'default_boot': '1',
             'bootpath': self.bootpath,
             'boot_timeout': self.timeout,
@@ -167,7 +167,8 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         )
         sfdisk_output = sfdisk_call.output.lstrip()
         geometry_format = re.search(
-            '/dev.*: (.*) cylinders, (.*) heads, (.*) sectors/track', text
+            '/dev.*: (.*) cylinders, (.*) heads, (.*) sectors/track',
+            sfdisk_output
         )
         if not geometry_format:
             raise KiwiDiskGeometryError(

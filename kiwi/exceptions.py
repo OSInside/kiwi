@@ -69,6 +69,10 @@ class KiwiBootLoaderZiplPlatformError(KiwiError):
     pass
 
 
+class KiwiBootLoaderZiplSetupError(KiwiError):
+    pass
+
+
 class KiwiBootStrapPhaseFailed(KiwiError):
     pass
 
