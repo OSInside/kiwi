@@ -18,6 +18,7 @@
 # project
 from bootloader_config_grub2 import BootLoaderConfigGrub2
 from bootloader_config_isolinux import BootLoaderConfigIsoLinux
+from bootloader_config_zipl import BootLoaderConfigZipl
 
 from exceptions import (
     KiwiBootLoaderConfigSetupError
@@ -31,6 +32,10 @@ class BootLoaderConfig(object):
     def __new__(self, name, xml_state, root_dir, custom_args=None):
         if name == 'grub2':
             return BootLoaderConfigGrub2(
+                xml_state, root_dir, custom_args
+            )
+        elif name == 'grub2_s390x_emu':
+            return BootLoaderConfigZipl(
                 xml_state, root_dir, custom_args
             )
         elif name == 'isolinux':

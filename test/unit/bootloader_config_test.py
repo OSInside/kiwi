@@ -25,3 +25,9 @@ class TestBootLoaderConfig(object):
         xml_state = mock.Mock()
         BootLoaderConfig('isolinux', xml_state, 'root_dir')
         mock_isolinux.assert_called_once_with(xml_state, 'root_dir', None)
+
+    @patch('kiwi.bootloader_config.BootLoaderConfigZipl')
+    def test_bootloader_config_zipl(self, mock_zipl):
+        xml_state = mock.Mock()
+        BootLoaderConfig('grub2_s390x_emu', xml_state, 'root_dir')
+        mock_zipl.assert_called_once_with(xml_state, 'root_dir', None)
