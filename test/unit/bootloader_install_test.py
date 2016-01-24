@@ -18,4 +18,10 @@ class TestBootLoaderInstall(object):
     def test_bootloader_install_grub2(self, mock_grub2):
         device_provider = mock.Mock()
         BootLoaderInstall('grub2', 'root_dir', device_provider)
-        mock_grub2.assert_called_once_with('root_dir', device_provider)
+        mock_grub2.assert_called_once_with('root_dir', device_provider, None)
+
+    @patch('kiwi.bootloader_install.BootLoaderInstallZipl')
+    def test_bootloader_install_zipl(self, mock_zipl):
+        device_provider = mock.Mock()
+        BootLoaderInstall('grub2_s390x_emu', 'root_dir', device_provider)
+        mock_zipl.assert_called_once_with('root_dir', device_provider, None)

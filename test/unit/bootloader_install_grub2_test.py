@@ -21,7 +21,7 @@ class TestBootLoaderInstallGrub2(object):
         )
 
     def test_post_init(self):
-        self.bootloader.post_init()
+        self.bootloader.post_init(None)
         assert self.bootloader.temporary_boot_dir is None
 
     @patch('__builtin__.open')

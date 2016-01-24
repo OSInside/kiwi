@@ -21,16 +21,16 @@ class BootLoaderInstallBase(object):
     """
         base class for bootloader installation on device
     """
-    def __init__(self, root_dir, device_provider):
+    def __init__(self, root_dir, device_provider, custom_args=None):
         self.root_dir = root_dir
         self.device_provider = device_provider
 
         self.device = self.device_provider.get_device()
 
-        self.post_init()
+        self.post_init(custom_args)
 
-    def post_init(self):
-        pass
+    def post_init(self, custom_args):
+        self.custom_args = custom_args
 
     def install(self):
         """

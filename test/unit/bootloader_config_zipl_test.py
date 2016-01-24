@@ -80,7 +80,8 @@ class TestBootLoaderConfigZipl(object):
     @patch('__builtin__.open')
     @patch('os.path.exists')
     @patch('kiwi.bootloader_config_zipl.Path.create')
-    def test_write(self, mock_path, mock_exists, mock_open):
+    @patch('kiwi.bootloader_config_zipl.Command.run')
+    def test_write(self, mock_command, mock_path, mock_exists, mock_open):
         mock_exists.return_value = True
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
@@ -102,6 +103,14 @@ class TestBootLoaderConfigZipl(object):
         )
         file_mock.write.assert_called_once_with(
             'some-data'
+        )
+        mock_command.assert_called_once_with(
+            [
+                'mv',
+                'root_dir/boot/initrd.vmx',
+                'root_dir/boot/linux.vmx',
+                'root_dir/boot/zipl'
+            ]
         )
 
     @patch('kiwi.bootloader_config_zipl.Command.run')
@@ -198,7 +207,7 @@ class TestBootLoaderConfigZipl(object):
                 'boot_timeout': '200',
                 'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume edd=off powersaved=off nohz=off highres=off processsor.max+cstate=1 nomodeset x11failsafe',
                 'default_boot': '1',
-                'bootpath': 'boot/zipl'
+                'bootpath': '.'
             }
         )
 
@@ -238,6 +247,6 @@ class TestBootLoaderConfigZipl(object):
                 'boot_timeout': '200',
                 'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume edd=off powersaved=off nohz=off highres=off processsor.max+cstate=1 nomodeset x11failsafe',
                 'default_boot': '1',
-                'bootpath': 'boot/zipl'
+                'bootpath': '.'
             }
         )

@@ -17,6 +17,7 @@
 #
 # project
 from bootloader_install_grub2 import BootLoaderInstallGrub2
+from bootloader_install_zipl import BootLoaderInstallZipl
 
 from exceptions import (
     KiwiBootLoaderInstallSetupError
@@ -27,10 +28,14 @@ class BootLoaderInstall(object):
     """
         BootLoaderInstall factory
     """
-    def __new__(self, name, root_dir, device_provider):
+    def __new__(self, name, root_dir, device_provider, custom_args=None):
         if name == 'grub2':
             return BootLoaderInstallGrub2(
-                root_dir, device_provider
+                root_dir, device_provider, custom_args
+            )
+        elif name == 'grub2_s390x_emu':
+            return BootLoaderInstallZipl(
+                root_dir, device_provider, custom_args
             )
         else:
             raise KiwiBootLoaderInstallSetupError(

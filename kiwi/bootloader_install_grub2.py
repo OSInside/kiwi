@@ -29,7 +29,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     """
         grub2 bootloader installation
     """
-    def post_init(self):
+    def post_init(self, custom_args):
+        self.custom_args = custom_args
         self.temporary_boot_dir = None
 
     def install(self):

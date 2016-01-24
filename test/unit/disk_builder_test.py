@@ -1,6 +1,6 @@
 from nose.tools import *
 from mock import patch
-
+from mock import call
 import mock
 
 import kiwi
@@ -277,6 +277,24 @@ class TestDiskBuilder(object):
     ):
         self.kernel.get_xen_hypervisor.return_value = False
         self.disk_builder.create()
+
+    @patch('kiwi.disk_builder.FileSystem')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk_builder.Command.run')
+    def test_create_standard_root_s390_boot(
+        self, mock_command, mock_open, mock_fs
+    ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.firmware.efi_mode = mock.Mock(
+            return_value=False
+        )
+        self.disk_builder.bootloader = 'grub2_s390x_emu'
+        self.disk_builder.create()
+        assert mock_fs.call_args_list[1] == call(
+            'ext2', self.device_map['boot'], 'root_dir/boot/zipl/'
+        )
 
     @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')

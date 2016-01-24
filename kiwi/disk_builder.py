@@ -225,8 +225,6 @@ class DiskBuilder(object):
 
         self.__write_bootloader_config_to_system_image(device_map)
 
-        self.__install_bootloader(device_map)
-
         self.mbrid.write_to_disk(
             self.disk.storage_provider
         )
@@ -247,6 +245,9 @@ class DiskBuilder(object):
         self.system.sync_data(
             self.__get_exclude_list_for_root_data_sync(device_map)
         )
+
+        # install boot loader
+        self.__install_bootloader(device_map)
 
         self.result.add(
             'disk_image', self.diskname
@@ -321,12 +322,16 @@ class DiskBuilder(object):
             boot_filesystem = self.requested_boot_filesystem
             if not boot_filesystem:
                 boot_filesystem = self.requested_filesystem
+            boot_mount_directory = self.root_dir + '/boot/'
+            if self.bootloader == 'grub2_s390x_emu':
+                boot_mount_directory = self.root_dir + '/boot/zipl/'
+                boot_filesystem = 'ext2'
             log.info(
                 'Creating boot(%s) filesystem on %s',
                 boot_filesystem, device_map['boot'].get_device()
             )
             filesystem = FileSystem(
-                boot_filesystem, device_map['boot'], self.root_dir + '/boot/'
+                boot_filesystem, device_map['boot'], boot_mount_directory
             )
             filesystem.create_on_device(
                 label=self.disk_setup.get_boot_label()
@@ -433,15 +438,19 @@ class DiskBuilder(object):
         )
 
     def __install_bootloader(self, device_map):
+        boot_device = device_map['root']
+        custom_install_arguments = {}
+        if 'boot' in device_map:
+            boot_device = device_map['boot']
+            custom_install_arguments['boot_mount_path'] = \
+                self.system_boot.mountpoint
+
         bootloader = BootLoaderInstall(
-            self.bootloader, self.root_dir,
-            self.disk.storage_provider
+            self.bootloader, self.root_dir, self.disk.storage_provider,
+            custom_install_arguments
         )
         bootloader.install()
 
-        boot_device = device_map['root']
-        if 'boot' in device_map:
-            boot_device = device_map['boot']
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()
         )

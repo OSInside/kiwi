@@ -40,6 +40,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         zipl bootloader configuration.
     """
     def post_init(self, custom_args):
+        self.custom_args = custom_args
         arch = platform.machine()
         if 's390' in arch:
             self.arch = arch
@@ -53,7 +54,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                 'targetbase device name is required for zipl setup'
             )
 
-        self.bootpath = 'boot/zipl'
+        self.bootpath = '.'
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
         self.target_blocksize = self.xml_state.build_type.get_target_blocksize()
@@ -78,6 +79,16 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             Path.create(config_dir)
             with open(config_file, 'w') as config:
                 config.write(self.config)
+
+            log.info('Moving initrd/kernel to zipl boot directory')
+            Command.run(
+                [
+                    'mv',
+                    self.root_dir + '/boot/initrd.vmx',
+                    self.root_dir + '/boot/linux.vmx',
+                    self.__get_zipl_boot_path()
+                ]
+            )
 
     def setup_disk_image_config(
         self, uuid=None, hypervisor=None,

@@ -65,6 +65,10 @@ class KiwiBootLoaderTargetError(KiwiError):
     pass
 
 
+class KiwiBootLoaderZiplInstallError(KiwiError):
+    pass
+
+
 class KiwiBootLoaderZiplPlatformError(KiwiError):
     pass
 
