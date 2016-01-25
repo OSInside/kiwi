@@ -19,6 +19,7 @@
 from logger import log
 from disk_setup import DiskSetup
 from path import Path
+from defaults import Defaults
 
 from exceptions import (
     KiwiBootLoaderTargetError
@@ -116,7 +117,7 @@ class BootLoaderConfigBase(object):
     def get_boot_timeout_seconds(self):
         timeout_seconds = self.xml_state.build_type.get_boottimeout()
         if not timeout_seconds:
-            timeout_seconds = 10
+            timeout_seconds = Defaults.get_default_boot_timeout_seconds()
         return timeout_seconds
 
     def failsafe_boot_entry_requested(self):

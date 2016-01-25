@@ -113,6 +113,10 @@ class Defaults(object):
         }
 
     @classmethod
+    def get_default_boot_timeout_seconds(self):
+        return 10
+
+    @classmethod
     def get_default_inode_size(self):
         return 256
 
