@@ -46,7 +46,9 @@ class TestBootLoaderConfigIsoLinux(object):
         BootLoaderConfigIsoLinux(mock.Mock(), 'root_dir')
 
     @patch('os.path.exists')
-    def test_post_init_dom0(self, mock_exists):
+    @patch('platform.machine')
+    def test_post_init_dom0(self, mock_machine, mock_exists):
+        mock_machine.return_value = 'x86_64'
         self.bootloader.get_hypervisor_domain.return_value = 'dom0'
         mock_exists.return_value = True
 

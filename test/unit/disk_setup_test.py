@@ -14,7 +14,9 @@ from kiwi.xml_description import XMLDescription
 
 
 class TestDiskSetup(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         size = mock.Mock()
         size.customize = mock.Mock(
             return_value=42

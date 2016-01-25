@@ -11,7 +11,9 @@ from kiwi.live_image_builder import LiveImageBuilder
 
 
 class TestLiveImageBuilder(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
             return_value=True
