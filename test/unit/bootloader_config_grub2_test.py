@@ -340,7 +340,7 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb',
-                'xfs', 'btrfs', 'lvm', 'multiboot', 'part_gpt',
+                'xfs', 'btrfs', 'lvm', 'part_gpt',
                 'part_msdos', 'biosdisk', 'vga', 'vbe', 'chain',
                 'boot'
             ])

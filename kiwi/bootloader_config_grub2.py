@@ -380,7 +380,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return self.root_dir + '/boot/grub2'
 
     def __get_basic_modules(self):
-        return [
+        modules = [
             'ext2',
             'iso9660',
             'linux',
@@ -404,9 +404,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'video_fb',
             'xfs',
             'btrfs',
-            'lvm',
-            'multiboot'
+            'lvm'
         ]
+        if not self.firmware.ec2_mode():
+            modules.append('multiboot')
+        return modules
 
     def __get_efi_modules(self):
         modules = self.__get_basic_modules() + [
