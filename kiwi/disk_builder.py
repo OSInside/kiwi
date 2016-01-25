@@ -296,7 +296,10 @@ class DiskBuilder(object):
         exclude_list = [
             'image', '.profile', '.kconfig', 'var/cache/kiwi'
         ]
-        if 'boot' in device_map:
+        if 'boot' in device_map and self.bootloader == 'grub2_s390x_emu':
+            exclude_list.append('boot/zipl/*')
+            exclude_list.append('boot/zipl/.*')
+        elif 'boot' in device_map:
             exclude_list.append('boot/*')
             exclude_list.append('boot/.*')
         return exclude_list
