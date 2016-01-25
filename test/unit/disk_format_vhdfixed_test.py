@@ -2,6 +2,7 @@ from nose.tools import *
 from mock import patch
 from mock import call
 import mock
+import sys
 
 import nose_helper
 
@@ -63,10 +64,19 @@ class TestDiskFormatVhdFixed(object):
             call('/dev/null', 'rb'),
             call('target_dir/some-disk-image.vhdfixed', 'wb')
         ]
-        assert file_mock.write.call_args_list == [
-            call('dev_null_data'),
-            call('xV4\x124\x124\x12\x124\x124Vx\x99\x99')
-        ]
+        assert file_mock.write.call_args_list[0] == call(
+            'dev_null_data'
+        )
+        if sys.byteorder == 'little':
+            # on little endian machines
+            assert file_mock.write.call_args_list[1] == call(
+                'xV4\x124\x124\x12\x124\x124Vx\x99\x99'
+            )
+        else:
+            # on big endian machines
+            assert file_mock.write.call_args_list[1] == call(
+                '\x124Vx\x124\x124\x124\x124Vx\x99\x99'
+            )
         assert file_mock.seek.call_args_list == [
             call(65536, 0), call(0, 2),
             call(65536, 0), call(0, 2)
