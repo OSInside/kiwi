@@ -57,7 +57,7 @@ class PartitionerDasd(object):
             else:
                 partition.write('n\np\n\n+%dM\nw\nq\n' % mbsize)
         bash_command = ' '.join(
-            ['cat', fdasd_input.name, '|', 'fdasd -f', self.disk_device]
+            ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
         )
         Command.run(
             ['bash', '-c', bash_command]
@@ -70,9 +70,10 @@ class PartitionerDasd(object):
     def __setup_vtoc_table(self):
         fdasd_input = NamedTemporaryFile()
         with open(fdasd_input.name, 'w') as vtoc:
+            log.debug('fdasd: writing new VTOC table')
             vtoc.write('y\n\nw\nq\n')
         bash_command = ' '.join(
-            ['cat', fdasd_input.name, '|', 'fdasd -f', self.disk_device]
+            ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
         )
         Command.run(
             ['bash', '-c', bash_command]
