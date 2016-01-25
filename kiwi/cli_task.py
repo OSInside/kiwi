@@ -17,6 +17,7 @@
 #
 import os
 import logging
+import glob
 
 # project
 from cli import Cli
@@ -69,8 +70,14 @@ class CliTask(object):
         log.info('Loading XML description')
         config_file = description_directory + '/config.xml'
         if not os.path.exists(config_file):
-            # alternative config file lookup
+            # alternative config file lookup location
             config_file = description_directory + '/image/config.xml'
+        if not os.path.exists(config_file):
+            # glob config file search, first match wins
+            glob_match = description_directory + '/*.kiwi'
+            for kiwi_file in glob.iglob(glob_match):
+                config_file = kiwi_file
+                break
 
         if not os.path.exists(config_file):
             raise KiwiConfigFileNotFound(

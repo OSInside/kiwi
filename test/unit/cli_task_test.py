@@ -47,6 +47,11 @@ class TestCliTask(object):
         assert isinstance(self.task.xml_data, kiwi.xml_parse.image)
         assert self.task.xml_state.profiles == ['vmxFlavour']
 
+    def test_load_xml_description_buildservice(self):
+        self.task.load_xml_description('../data/description.buildservice')
+        assert self.task.config_file == \
+            '../data/description.buildservice/appliance.kiwi'
+
     @raises(KiwiConfigFileNotFound)
     def test_load_xml_description_raises(self):
         self.task.load_xml_description('foo')
