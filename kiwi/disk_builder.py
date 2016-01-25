@@ -325,16 +325,16 @@ class DiskBuilder(object):
             boot_filesystem = self.requested_boot_filesystem
             if not boot_filesystem:
                 boot_filesystem = self.requested_filesystem
-            boot_mount_directory = self.root_dir + '/boot/'
+            boot_directory = self.root_dir + '/boot/'
             if self.bootloader == 'grub2_s390x_emu':
-                boot_mount_directory = self.root_dir + '/boot/zipl/'
+                boot_directory = self.root_dir + '/boot/zipl/'
                 boot_filesystem = 'ext2'
             log.info(
                 'Creating boot(%s) filesystem on %s',
                 boot_filesystem, device_map['boot'].get_device()
             )
             filesystem = FileSystem(
-                boot_filesystem, device_map['boot'], boot_mount_directory
+                boot_filesystem, device_map['boot'], boot_directory
             )
             filesystem.create_on_device(
                 label=self.disk_setup.get_boot_label()
