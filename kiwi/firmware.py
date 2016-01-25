@@ -60,7 +60,7 @@ class FirmWare(object):
                 return 'msdos'
         elif self.efi_mode():
             return 'gpt'
-        elif self.firmware == 'bios':
+        else:
             return 'msdos'
 
     def legacy_bios_mode(self):
