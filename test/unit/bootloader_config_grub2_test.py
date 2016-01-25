@@ -341,8 +341,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb',
                 'xfs', 'btrfs', 'lvm', 'part_gpt',
-                'part_msdos', 'biosdisk', 'vga', 'vbe', 'chain',
-                'boot'
+                'part_msdos'
             ])
         ]
 

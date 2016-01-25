@@ -412,23 +412,29 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def __get_efi_modules(self):
         modules = self.__get_basic_modules() + [
-            'part_gpt',
-            'efi_gop',
-            'efi_uga',
-            'linuxefi'
+            'part_gpt'
         ]
+        if not self.firmware.ec2_mode():
+            modules += [
+                'efi_gop',
+                'efi_uga',
+                'linuxefi'
+            ]
         return modules
 
     def __get_bios_modules(self):
         modules = self.__get_basic_modules() + [
             'part_gpt',
-            'part_msdos',
-            'biosdisk',
-            'vga',
-            'vbe',
-            'chain',
-            'boot'
+            'part_msdos'
         ]
+        if not self.firmware.ec2_mode():
+            modules += [
+                'biosdisk',
+                'vga',
+                'vbe',
+                'chain',
+                'boot'
+            ]
         return modules
 
     def __get_efi_image_name(self):
