@@ -55,7 +55,7 @@ class LoopDevice(DeviceProvider):
         loop_options = []
         if self.blocksize_bytes and self.blocksize_bytes != 512:
             loop_options.append('-L')
-            loop_options.append(self.blocksize_bytes)
+            loop_options.append(format(self.blocksize_bytes))
         loop_call = Command.run(
             ['losetup'] + loop_options + ['-f', '--show', self.filename]
         )
