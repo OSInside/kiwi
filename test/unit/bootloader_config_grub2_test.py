@@ -59,7 +59,9 @@ class TestBootLoaderConfigGrub2(object):
         BootLoaderConfigGrub2(mock.Mock(), 'root_dir')
 
     @patch('os.path.exists')
-    def test_post_init_dom0(self, mock_exists):
+    @patch('platform.machine')
+    def test_post_init_dom0(self, mock_machine, mock_exists):
+        mock_machine.return_value = 'x86_64'
         self.bootloader.get_hypervisor_domain.return_value = 'dom0'
         mock_exists.return_value = True
         self.bootloader.post_init(None)
@@ -216,9 +218,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_grub2.Command.run')
     @patch('__builtin__.open')
     @patch('os.path.exists')
+    @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi(
-        self, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
         )
@@ -288,9 +292,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_grub2.Command.run')
     @patch('__builtin__.open')
     @patch('os.path.exists')
+    @patch('platform.machine')
     def test_setup_disk_boot_images_ec2(
-        self, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value=None
         )
@@ -343,9 +349,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_grub2.Command.run')
     @patch('__builtin__.open')
     @patch('os.path.exists')
+    @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot(
-        self, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
@@ -367,9 +375,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_grub2.Command.run')
     @patch('__builtin__.open')
     @patch('os.path.exists')
+    @patch('platform.machine')
     def test_setup_install_boot_images_efi(
-        self, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value=None
         )
@@ -428,9 +438,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_grub2.Command.run')
     @patch('__builtin__.open')
     @patch('os.path.exists')
+    @patch('platform.machine')
     def test_setup_install_boot_images_efi_secure_boot(
-        self, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
