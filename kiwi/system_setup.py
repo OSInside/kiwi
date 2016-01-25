@@ -436,7 +436,7 @@ class SystemSetup(object):
     def __call_script(self, name):
         if os.path.exists(self.root_dir + '/image/' + name):
             config_script = Command.call(
-                ['chroot', self.root_dir, '/image/' + name]
+                ['chroot', self.root_dir, 'bash', '/image/' + name]
             )
             process = CommandProcess(
                 command=config_script, log_topic='Calling ' + name + ' script'
