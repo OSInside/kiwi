@@ -465,9 +465,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('__builtin__.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
+    @patch('platform.machine')
     def test_setup_install_boot_images_with_theme(
-        self, mock_warn, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_warn, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         exists_results = [False, True, False, False]
 
@@ -486,9 +488,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('__builtin__.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
+    @patch('platform.machine')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_warn, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_warn, mock_exists, mock_open, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         mock_exists.return_value = False
         self.bootloader.setup_install_boot_images(self.mbrid)
