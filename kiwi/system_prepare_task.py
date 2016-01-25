@@ -21,6 +21,7 @@ usage: kiwi system prepare -h | --help
            [--allow-existing-root]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
+           [--obs-repo-internal]
        kiwi system prepare help
 
 commands:
@@ -44,6 +45,10 @@ options:
         repository in the XML description
     --add-repo=<source,type,alias,priority>
         add repository with given source, type, alias and priority.
+    --obs-repo-internal
+        when using obs:// repos resolve them using the SUSE internal
+        buildservice. This only works if access to SUSE's internal
+        buildservice is granted
 """
 # project
 from cli_task import CliTask
@@ -85,6 +90,9 @@ class SystemPrepareTask(CliTask):
                 self.xml_state.add_repository(
                     repo_source, repo_type, repo_alias, repo_prio
                 )
+
+        if self.command_args['--obs-repo-internal']:
+            self.xml_state.translate_obs_to_ibs_repositories()
 
         log.info('Preparing system')
         system = System(

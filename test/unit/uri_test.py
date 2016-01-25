@@ -46,6 +46,11 @@ class TestUri(object):
         uri = Uri('https://example.com', 'rpm-md')
         assert uri.alias() == hashlib.md5('https://example.com').hexdigest()
 
+    def test_translate_ibs_project(self):
+        uri = Uri('ibs://Devel:PubCloud/SLE_12_GA', 'rpm-md')
+        assert uri.translate() == \
+            'http://download.suse.de/ibs/Devel:/PubCloud/SLE_12_GA'
+
     def test_translate_obs_distro(self):
         uri = Uri('obs://13.2/repo/oss', 'yast2')
         assert uri.translate() == \

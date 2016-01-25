@@ -43,7 +43,8 @@ class Uri(object):
             'http': True,
             'https': True,
             'ftp': True,
-            'obs': True
+            'obs': True,
+            'ibs': True
         }
         self.local_uri_type = {
             'iso': True,
@@ -64,6 +65,10 @@ class Uri(object):
             )
         elif uri.scheme == 'obs':
             return self.__obs_project(
+                uri.netloc + uri.path
+            )
+        elif uri.scheme == 'ibs':
+            return self.__ibs_project(
                 uri.netloc + uri.path
             )
         elif uri.scheme == 'dir':
@@ -108,6 +113,10 @@ class Uri(object):
     def __obs_project(self, name):
         obs_project = 'http://download.opensuse.org/repositories/'
         return obs_project + name
+
+    def __ibs_project(self, name):
+        ibs_project = 'http://download.suse.de/ibs/'
+        return ibs_project + name.replace(':', ':/')
 
     def __obs_distribution(self, name):
         obs_distribution = 'http://download.opensuse.org/distribution/'

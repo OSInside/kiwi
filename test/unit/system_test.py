@@ -1,6 +1,6 @@
 from nose.tools import *
 from mock import patch
-
+from mock import call
 import mock
 
 import nose_helper
@@ -200,15 +200,20 @@ class TestSystem(object):
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name'
         )
-        # simulated local repo will be translated and bind mounted
-        uri.translate.assert_called_once_with()
-        self.system.root_bind.mount_shared_directory.assert_called_once_with(
-            'uri'
-        )
-        uri.alias.assert_called_once_with()
-        repo.add_repo.assert_called_once_with(
-            'uri-alias', 'uri', 'yast2', 42
-        )
+        # mock local repos will be translated and bind mounted
+        assert uri.translate.call_args_list == [
+            call(), call()
+        ]
+        assert self.system.root_bind.mount_shared_directory.call_args_list == [
+            call('uri'), call('uri')
+        ]
+        assert uri.alias.call_args_list == [
+            call(), call()
+        ]
+        assert repo.add_repo.call_args_list == [
+            call('uri-alias', 'uri', 'yast2', 42),
+            call('uri-alias', 'uri', 'rpm-md', None)
+        ]
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.ArchiveTar')

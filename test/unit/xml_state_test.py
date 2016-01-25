@@ -92,6 +92,12 @@ class TestXMLState(object):
     def test_get_bootstrap_collection_type(self):
         assert self.state.get_bootstrap_collection_type() == 'onlyRequired'
 
+    def test_translate_obs_to_ibs_repositories(self):
+        self.state.translate_obs_to_ibs_repositories()
+        source_path = self.state.xml_data.get_repository()[1].get_source()
+        assert source_path.get_path() == \
+            'ibs://Devel:PubCloud:AmazonEC2/SLE_12_GA'
+
     def test_set_repository(self):
         self.state.set_repository('repo', 'type', 'alias', 1)
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \
@@ -102,11 +108,11 @@ class TestXMLState(object):
 
     def test_add_repository(self):
         self.state.add_repository('repo', 'type', 'alias', 1)
-        assert self.state.xml_data.get_repository()[1].get_source().get_path() \
+        assert self.state.xml_data.get_repository()[2].get_source().get_path() \
             == 'repo'
-        assert self.state.xml_data.get_repository()[1].get_type() == 'type'
-        assert self.state.xml_data.get_repository()[1].get_alias() == 'alias'
-        assert self.state.xml_data.get_repository()[1].get_priority() == 1
+        assert self.state.xml_data.get_repository()[2].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[2].get_alias() == 'alias'
+        assert self.state.xml_data.get_repository()[2].get_priority() == 1
 
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == [

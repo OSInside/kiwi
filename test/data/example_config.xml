@@ -102,6 +102,9 @@
     <repository type="yast2" priority="42">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
+    <repository type="rpm-md">
+        <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
+    </repository>
     <packages type="image" patternType="plusRecommended">
         <namedCollection name="base"/>
         <product name="openSUSE"/>

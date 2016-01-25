@@ -563,6 +563,17 @@ class XMLState(object):
             self.xml_data.get_repository()
         )
 
+    def translate_obs_to_ibs_repositories(self):
+        """
+            change obs:// repotype to ibs:// type
+        """
+        for repository in self.get_repository_sections():
+            source_path = repository.get_source()
+            if 'obs://' in source_path.get_path():
+                source_path.set_path(
+                    source_path.get_path().replace('obs://', 'ibs://')
+                )
+
     def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):
         """
             overwrite repository data for the first repo in the list

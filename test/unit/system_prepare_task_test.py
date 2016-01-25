@@ -48,6 +48,7 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--allow-existing-root'] = False
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
+        self.task.command_args['--obs-repo-internal'] = False
 
     def test_process_system_prepare(self):
         self.__init_command_args()
@@ -92,6 +93,13 @@ class TestSystemPrepareTask(object):
         mock_state.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', None
         )
+
+    @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
+    def test_process_system_prepare_use_ibs_repos(self, mock_state):
+        self.__init_command_args()
+        self.task.command_args['--obs-repo-internal'] = True
+        self.task.process()
+        mock_state.assert_called_once_with()
 
     def test_process_system_prepare_help(self):
         self.__init_command_args()
