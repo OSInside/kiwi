@@ -182,6 +182,16 @@ class BootLoaderConfigBase(object):
 
         return bootpath
 
+    def quote_title(self, name):
+        """
+            quote characters in the title which causes problems for
+            older bootloaders like legacy grub or zipl
+        """
+        name = name.replace(' ', '_')
+        name = name.replace('[', '(')
+        name = name.replace(']', ')')
+        return name
+
     def get_menu_entry_title(self, plain=False):
         title = self.xml_state.xml_data.get_displayname()
         if not title:

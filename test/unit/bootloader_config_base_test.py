@@ -135,6 +135,9 @@ class TestBootLoaderConfigBase(object):
         mock_disk_setup.return_value = disk_setup
         assert self.bootloader.get_boot_path() == '/@/boot'
 
+    def test_quote_title(self):
+        assert self.bootloader.quote_title('aaa bbb [foo]') == 'aaa_bbb_(foo)'
+
     @patch('kiwi.xml_parse.image.get_displayname')
     def test_get_menu_entry_title(self, mock_displayname):
         mock_displayname.return_value = None
