@@ -36,6 +36,7 @@ class XMLState(object):
         Provides methods to get stateful information from the XML data
     """
     def __init__(self, xml_data, profiles=None, build_type=None):
+        self.host_architecture = platform.machine()
         self.xml_data = xml_data
         self.profiles = self.__used_profiles(
             profiles
@@ -103,14 +104,13 @@ class XMLState(object):
         """
         result = []
         if packages_sections:
-            host_architecture = platform.machine()
             for packages in packages_sections:
                 package_list = packages.get_package()
                 if package_list:
                     for package in package_list:
                         package_architecture = package.get_arch()
                         if package_architecture:
-                            if package_architecture == host_architecture:
+                            if package_architecture == self.host_architecture:
                                 result.append(package)
                         else:
                             result.append(package)

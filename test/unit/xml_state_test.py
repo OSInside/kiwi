@@ -12,7 +12,9 @@ from collections import namedtuple
 
 
 class TestXMLState(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         description = XMLDescription(
             '../data/example_config.xml'
         )
