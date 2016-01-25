@@ -35,14 +35,6 @@ class TestPartitionerDasd(object):
 
         self.partitioner = PartitionerDasd(disk_provider)
 
-        self.file_mock.write.assert_called_once_with(
-            'y\n\nw\nq\n'
-        )
-        mock_command.assert_called_once_with(
-            ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
-        )
-        self.file_mock.write.reset_mock()
-
     def test_get_id(self):
         assert self.partitioner.get_id() == 0
 

@@ -11,7 +11,18 @@ from kiwi.disk import Disk
 
 class TestDisk(object):
     @patch('kiwi.disk.Partitioner')
-    def setup(self, mock_partitioner):
+    @patch('__builtin__.open')
+    def setup(self, mock_open, mock_partitioner):
+        self.tempfile = mock.Mock()
+        self.tempfile.name = 'tempfile'
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
+
         self.partitioner = mock.Mock()
         self.partitioner.create = mock.Mock()
         self.partitioner.get_id = mock.Mock(
@@ -132,10 +143,25 @@ class TestDisk(object):
         self.partitioner.set_flag(1, 'f.active')
 
     @patch('kiwi.disk.Command.run')
-    def test_wipe(self, mock_command):
+    def test_wipe_gpt(self, mock_command):
         self.disk.wipe()
         mock_command.assert_called_once_with(
             ['sgdisk', '--zap-all', '/dev/loop0']
+        )
+
+    @patch('kiwi.disk.Command.run')
+    @patch('__builtin__.open')
+    @patch('kiwi.disk.NamedTemporaryFile')
+    def test_wipe_dasd(self, mock_temp, mock_open, mock_command):
+        self.disk.table_type = 'dasd'
+        mock_temp.return_value = self.tempfile
+        mock_open.return_value = self.context_manager_mock
+        self.disk.wipe()
+        self.file_mock.write.assert_called_once_with(
+            'y\n\nw\nq\n'
+        )
+        mock_command.assert_called_once_with(
+            ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
         )
 
     @patch('kiwi.disk.Command.run')

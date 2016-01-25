@@ -39,8 +39,6 @@ class PartitionerDasd(object):
             't.csm': None
         }
 
-        self.__setup_vtoc_table()
-
     def get_id(self):
         return self.partition_id
 
@@ -66,15 +64,3 @@ class PartitionerDasd(object):
     def set_flag(self, partition_id, flag_name):
         # on an s390 dasd device there are no such flags
         pass
-
-    def __setup_vtoc_table(self):
-        fdasd_input = NamedTemporaryFile()
-        with open(fdasd_input.name, 'w') as vtoc:
-            log.debug('fdasd: writing new VTOC table')
-            vtoc.write('y\n\nw\nq\n')
-        bash_command = ' '.join(
-            ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
-        )
-        Command.run(
-            ['bash', '-c', bash_command]
-        )

@@ -17,6 +17,7 @@
 #
 import os
 from collections import OrderedDict
+from tempfile import NamedTemporaryFile
 
 # project
 from command import Command
@@ -44,6 +45,8 @@ class Disk(DeviceProvider):
         self.partitioner = Partitioner(
             table_type, storage_provider
         )
+
+        self.table_type = table_type
 
     def get_device(self):
         """
@@ -112,12 +115,29 @@ class Disk(DeviceProvider):
     def wipe(self):
         """
             Zap (destroy) any GPT and MBR data structures if present
+            For DASD disks create a new VTOC table
         """
-        Command.run(
-            [
-                'sgdisk', '--zap-all', self.storage_provider.get_device()
-            ]
-        )
+        if 'dasd' in self.table_type:
+            log.debug('Initialize DASD disk with new VTOC table')
+            fdasd_input = NamedTemporaryFile()
+            with open(fdasd_input.name, 'w') as vtoc:
+                vtoc.write('y\n\nw\nq\n')
+            bash_command = ' '.join(
+                [
+                    'cat', fdasd_input.name, '|',
+                    'fdasd', '-f', self.storage_provider.get_device()
+                ]
+            )
+            Command.run(
+                ['bash', '-c', bash_command]
+            )
+        else:
+            log.debug('Initialize %s disk', self.table_type)
+            Command.run(
+                [
+                    'sgdisk', '--zap-all', self.storage_provider.get_device()
+                ]
+            )
 
     def map_partitions(self):
         if self.storage_provider.is_loop():
