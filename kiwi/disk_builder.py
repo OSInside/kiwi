@@ -442,8 +442,7 @@ class DiskBuilder(object):
         custom_install_arguments = {}
         if 'boot' in device_map:
             boot_device = device_map['boot']
-            custom_install_arguments['boot_mount_path'] = \
-                self.system_boot.mountpoint
+            custom_install_arguments['boot_device'] = boot_device.get_device()
 
         bootloader = BootLoaderInstall(
             self.bootloader, self.root_dir, self.disk.storage_provider,

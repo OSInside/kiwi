@@ -108,7 +108,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             'default_boot': '1',
             'bootpath': self.bootpath,
             'boot_timeout': self.timeout,
-            'title': self.get_menu_entry_title(),
+            'title': self.quote_title(self.get_menu_entry_title()),
             'kernel_file': kernel,
             'initrd_file': initrd,
             'boot_options': self.cmdline,
