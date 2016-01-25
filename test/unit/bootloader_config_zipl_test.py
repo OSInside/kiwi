@@ -113,6 +113,10 @@ class TestBootLoaderConfigZipl(object):
             ]
         )
 
+    def test_setup_disk_boot_images(self):
+        # does nothing on s390
+        self.bootloader.setup_disk_boot_images('uuid')
+
     @patch('kiwi.bootloader_config_zipl.Command.run')
     @raises(KiwiTemplateError)
     def test_setup_disk_image_config_template_error(self, mock_command):

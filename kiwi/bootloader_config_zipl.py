@@ -123,6 +123,10 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
+    def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
+        # on s390 no bootloader images needs to be created
+        pass
+
     def __get_zipl_boot_path(self):
         return self.root_dir + '/boot/zipl'
 
