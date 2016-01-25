@@ -128,6 +128,30 @@ class TestSystemSetup(object):
             ]
         )
 
+    @patch('kiwi.system_setup.ArchiveTar')
+    @patch('os.path.exists')
+    def test_import_overlay_files_from_archive(
+        self, mock_os_path, mock_archive
+    ):
+        archive = mock.Mock()
+        mock_archive.return_value = archive
+
+        exists_results = [True, False]
+
+        def side_effect(arg):
+            return exists_results.pop()
+
+        mock_os_path.side_effect = side_effect
+
+        self.setup.import_overlay_files()
+
+        mock_archive.assert_called_once_with(
+            'description_dir/root.tar.gz'
+        )
+        archive.extract.assert_called_once_with(
+            'root_dir'
+        )
+
     @patch('kiwi.system_setup.Command.run')
     def test_setup_hardware_clock(self, mock_command):
         self.setup.preferences['hwclock'] = 'clock'

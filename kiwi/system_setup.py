@@ -139,9 +139,12 @@ class SystemSetup(object):
     ):
         """
             copy overlay files from the image description to
-            the image root tree
+            the image root tree. Supported are a root/ directory
+            or a root.tar.gz tarball. The root/ directory takes
+            precedence over the tarball
         """
         overlay_directory = self.description_dir + '/root/'
+        overlay_archive = self.description_dir + '/root.tar.gz'
         if os.path.exists(overlay_directory):
             log.info('Copying user defined files to image tree')
             rsync_options = [
@@ -159,6 +162,10 @@ class SystemSetup(object):
                     overlay_directory, self.root_dir
                 ]
             )
+        elif os.path.exists(overlay_archive):
+            log.info('Extracting user defined files from archive to image tree')
+            archive = ArchiveTar(overlay_archive)
+            archive.extract(self.root_dir)
 
     def setup_hardware_clock(self):
         if 'hwclock' in self.preferences:
