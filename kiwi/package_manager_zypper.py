@@ -121,12 +121,12 @@ class PackageManagerZypper(PackageManagerBase):
         # be false positives due to sub package names starting with
         # the same base package name
         return re.match(
-            '.*Installing: ' + package_name + '.*', zypper_output
+            '.*Installing: ' + re.escape(package_name) + '.*', zypper_output
         )
 
     def match_package_deleted(self, package_name, zypper_output):
         return re.match(
-            '.*Removing: ' + package_name + '.*', zypper_output
+            '.*Removing: ' + re.escape(package_name) + '.*', zypper_output
         )
 
     def database_consistent(self):
