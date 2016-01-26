@@ -57,9 +57,11 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         self.bootpath = '.'
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
+        self.cmdline_failsafe = ' '.join(
+            [self.cmdline, self.get_failsafe_kernel_options()]
+        )
         self.target_blocksize = self.xml_state.build_type.get_target_blocksize()
         self.target_type = self.xml_state.build_type.get_zipl_targettype()
-        self.cmdline_failsafe = self.get_failsafe_boot_cmdline()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.target_device = custom_args['targetbase']
         self.firmware = FirmWare(self.xml_state)

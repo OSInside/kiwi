@@ -103,9 +103,9 @@ class TestBootLoaderConfigBase(object):
         mock_firmware.return_value = 'ec2hvm'
         assert self.bootloader.get_boot_cmdline() == 'splash root=/dev/hda1'
 
-    def test_get_failsafe_boot_cmdline(self):
-        assert self.bootloader.get_failsafe_boot_cmdline() == \
-            'splash ide=nodma apm=off noresume edd=off ' + \
+    def test_get_failsafe_kernel_options(self):
+        assert self.bootloader.get_failsafe_kernel_options() == \
+            'ide=nodma apm=off noresume edd=off ' + \
             'powersaved=off nohz=off highres=off processsor.max+cstate=1 ' + \
             'nomodeset x11failsafe'
 

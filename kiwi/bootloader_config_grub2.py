@@ -56,7 +56,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
-        self.cmdline_failsafe = self.get_failsafe_boot_cmdline()
+        self.cmdline_failsafe = ' '.join(
+            [self.cmdline, self.get_failsafe_kernel_options()]
+        )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.hypervisor_domain = self.get_hypervisor_domain()
         self.firmware = FirmWare(

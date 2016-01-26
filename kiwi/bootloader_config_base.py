@@ -140,11 +140,6 @@ class BootLoaderConfigBase(object):
             cmdline += ' ' + custom_root
         return cmdline.strip()
 
-    def get_failsafe_boot_cmdline(self):
-        cmdline = self.get_boot_cmdline()
-        cmdline += ' ' + self.__get_failsafe_kernel_options()
-        return cmdline
-
     def get_install_image_boot_id(self):
         boot_id = 0
         install_boot_name = self.xml_state.build_type.get_installboot()
@@ -208,7 +203,7 @@ class BootLoaderConfigBase(object):
             title = self.xml_state.xml_data.get_name()
         return title
 
-    def __get_failsafe_kernel_options(self):
+    def get_failsafe_kernel_options(self):
         return ' '.join(
             [
                 'ide=nodma',
