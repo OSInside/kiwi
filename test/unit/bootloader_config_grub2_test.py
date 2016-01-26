@@ -16,13 +16,17 @@ from kiwi.bootloader_config_grub2 import BootLoaderConfigGrub2
 
 class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_grub2.FirmWare')
+    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_boot_theme')
+    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
     @patch('platform.machine')
-    def setup(self, mock_machine, mock_firmware):
+    def setup(self, mock_machine, mock_domain, mock_theme, mock_firmware):
         mock_machine.return_value = 'x86_64'
-        self.mbrid = mock.Mock()
-        self.mbrid.get_id = mock.Mock(
-            return_value='0xffffffff'
-        )
+        mock_theme.return_value = None
+        mock_domain.return_value = None
+        kiwi.bootloader_config_grub2.Path = mock.Mock()
+        kiwi.bootloader_config_base.Path = mock.Mock()
+        kiwi.bootloader_config_grub2.Command = mock.Mock()
+
         self.firmware = mock.Mock()
         self.firmware.ec2_mode = mock.Mock(
             return_value=None
@@ -31,26 +35,23 @@ class TestBootLoaderConfigGrub2(object):
             return_value=None
         )
         mock_firmware.return_value = self.firmware
-        description = XMLDescription(
-            '../data/example_config.xml'
+
+        self.mbrid = mock.Mock()
+        self.mbrid.get_id = mock.Mock(
+            return_value='0xffffffff'
         )
-        self.state = XMLState(
-            description.load()
-        )
-        kiwi.bootloader_config_grub2.Path = mock.Mock()
-        kiwi.bootloader_config_base.Path = mock.Mock()
+
         self.grub2 = mock.Mock()
         kiwi.bootloader_config_grub2.BootLoaderTemplateGrub2 = mock.Mock(
             return_value=self.grub2
         )
-        kiwi.bootloader_config_grub2.Command = mock.Mock()
+
+        self.state = XMLState(
+            XMLDescription('../data/example_config.xml').load()
+        )
         self.bootloader = BootLoaderConfigGrub2(
             self.state, 'root_dir'
         )
-        self.bootloader.get_hypervisor_domain = mock.Mock(
-            return_value='domU'
-        )
-        self.bootloader.theme = None
 
     @raises(KiwiBootLoaderGrubPlatformError)
     @patch('platform.machine')
@@ -60,12 +61,36 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('os.path.exists')
     @patch('platform.machine')
-    def test_post_init_dom0(self, mock_machine, mock_exists):
+    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
+    def test_post_init_dom0(self, mock_domain, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
-        self.bootloader.get_hypervisor_domain.return_value = 'dom0'
+        mock_domain.return_value = 'dom0'
         mock_exists.return_value = True
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
+        assert self.bootloader.hybrid_boot is False
+        assert self.bootloader.xen_guest is False
+
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
+    def test_post_init_domU(self, mock_domain, mock_machine, mock_exists):
+        mock_machine.return_value = 'x86_64'
+        mock_domain.return_value = 'domU'
+        mock_exists.return_value = True
+        self.bootloader.post_init(None)
+        assert self.bootloader.multiboot is False
+        assert self.bootloader.hybrid_boot is False
+        assert self.bootloader.xen_guest is True
+
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    def test_post_init_ec2(self, mock_machine, mock_exists):
+        mock_machine.return_value = 'x86_64'
+        mock_exists.return_value = True
+        self.bootloader.firmware.ec2_mode.return_value = 'ec2hvm'
+        self.bootloader.post_init(None)
+        assert self.bootloader.xen_guest is True
 
     @patch('__builtin__.open')
     @patch('os.path.exists')
@@ -125,7 +150,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.multiboot = False
         self.bootloader.setup_disk_image_config('uuid')
         self.grub2.get_disk_template.assert_called_once_with(
-            True, False, 'gfxterm'
+            True, True, 'gfxterm'
         )
 
     def test_setup_install_image_config_standard(self):
@@ -293,16 +318,14 @@ class TestBootLoaderConfigGrub2(object):
     @patch('__builtin__.open')
     @patch('os.path.exists')
     @patch('platform.machine')
-    def test_setup_disk_boot_images_ec2(
+    def test_setup_disk_boot_images_xen_guest(
         self, mock_machine, mock_exists, mock_open, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value=None
         )
-        self.firmware.ec2_mode = mock.Mock(
-            return_value='ec2'
-        )
+        self.bootloader.xen_guest = True
         mock_exists.return_value = False
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
@@ -327,21 +350,25 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/boot/unicode.pf2'
             ]),
             call([
+                'cp', '-a', 'root_dir/usr/lib/grub2/i386-pc',
+                'root_dir/boot/grub2/i386-pc'
+            ]),
+            call([
                 'cp', '-a', 'root_dir/usr/lib/grub2/x86_64-xen',
                 'root_dir/boot/grub2/x86_64-xen'
             ]),
             call([
-                'grub2-mkimage', '-O', 'x86_64-xen',
-                '-o', 'root_dir/boot/grub2/x86_64-xen/core.img',
+                'grub2-mkimage', '-O', 'i386-pc',
+                '-o', 'root_dir/boot/grub2/i386-pc/core.img',
                 '-c', 'root_dir/boot/grub2/earlyboot.cfg',
                 '-p', '//grub2',
-                '-d', 'root_dir/boot/grub2/x86_64-xen',
+                '-d', 'root_dir/boot/grub2/i386-pc',
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
-                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb',
-                'xfs', 'btrfs', 'lvm', 'part_gpt',
-                'part_msdos'
+                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
+                'btrfs', 'lvm', 'multiboot', 'part_gpt', 'part_msdos',
+                'biosdisk', 'vga', 'vbe', 'chain', 'boot'
             ])
         ]
 

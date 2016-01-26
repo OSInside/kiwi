@@ -73,6 +73,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.hybrid_boot = False
                 self.multiboot = False
 
+        self.xen_guest = False
+        if self.hypervisor_domain == 'domU' or self.firmware.ec2_mode():
+            self.xen_guest = True
+
         self.grub2 = BootLoaderTemplateGrub2()
         self.config = None
         self.efi_boot_path = None
@@ -404,37 +408,30 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'video_fb',
             'xfs',
             'btrfs',
-            'lvm'
+            'lvm',
+            'multiboot'
         ]
-        if not self.firmware.ec2_mode():
-            modules.append('multiboot')
         return modules
 
     def __get_efi_modules(self):
         modules = self.__get_basic_modules() + [
-            'part_gpt'
+            'part_gpt',
+            'efi_gop',
+            'efi_uga',
+            'linuxefi'
         ]
-        if not self.firmware.ec2_mode():
-            modules += [
-                'efi_gop',
-                'efi_uga',
-                'linuxefi'
-            ]
         return modules
 
     def __get_bios_modules(self):
         modules = self.__get_basic_modules() + [
             'part_gpt',
-            'part_msdos'
+            'part_msdos',
+            'biosdisk',
+            'vga',
+            'vbe',
+            'chain',
+            'boot'
         ]
-        if not self.firmware.ec2_mode():
-            modules += [
-                'biosdisk',
-                'vga',
-                'vbe',
-                'chain',
-                'boot'
-            ]
         return modules
 
     def __get_efi_image_name(self):
@@ -459,32 +456,28 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             return 'x86_64-efi'
 
     def __get_bios_format(self):
-        if self.firmware.ec2_mode():
-            return 'x86_64-xen'
-        else:
-            return 'i386-pc'
+        return 'i386-pc'
+
+    def __get_xen_format(self):
+        return 'x86_64-xen'
 
     def __get_efi_modules_path(self, lookup_path=None):
-        if not lookup_path:
-            lookup_path = self.root_dir
-        module_dir = ''.join(
-            [
-                lookup_path, '/usr/lib/grub2/',
-                self.__get_efi_format()
-            ]
-        )
-        return module_dir
+        return self.__get_module_path(self.__get_efi_format(), lookup_path)
 
     def __get_bios_modules_path(self, lookup_path=None):
+        return self.__get_module_path(self.__get_bios_format(), lookup_path)
+
+    def __get_xen_modules_path(self, lookup_path=None):
+        return self.__get_module_path(self.__get_xen_format(), lookup_path)
+
+    def __get_module_path(self, format_name, lookup_path=None):
         if not lookup_path:
             lookup_path = self.root_dir
-        module_dir = ''.join(
+        return ''.join(
             [
-                lookup_path, '/usr/lib/grub2/',
-                self.__get_bios_format()
+                lookup_path, '/usr/lib/grub2/', format_name
             ]
         )
-        return module_dir
 
     def __get_gfxmode(self):
         selected_gfxmode = '800x600'
@@ -547,6 +540,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.__copy_modules_to_boot_directory_from(
             self.__get_bios_modules_path(lookup_path)
         )
+        if self.xen_guest:
+            self.__copy_modules_to_boot_directory_from(
+                self.__get_xen_modules_path(lookup_path)
+            )
 
     def __copy_modules_to_boot_directory_from(self, module_path):
         boot_module_path = \
