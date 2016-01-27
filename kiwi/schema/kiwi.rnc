@@ -1636,6 +1636,11 @@ div {
             "extlinux" | "grub" | "grub2" | "syslinux" |
             "zipl" | "yaboot" | "uboot" | "berryboot" | "grub2_s390x_emu"
         }
+    k.type.btrfs_root_is_snapshot =
+        ## Tell kiwi to install the system into a btrfs snapshot
+        ## The snapshot layout is compatible with the snapper management
+        ## toolkit. By default no snapshots are used
+        attribute btrfs_root_is_snapshot { xsd:boolean }
     k.type.target_blocksize =
         ## Specifies the image blocksize in bytes which has to match
         ## the logical (SSZ) blocksize of the target storage device.
@@ -1876,6 +1881,7 @@ div {
         k.type.bootpartsize.attribute? &
         k.type.bootprofile.attribute? &
         k.type.boottimeout.attribute? &
+        k.type.btrfs_root_is_snapshot? &
         k.type.checkprebuilt.attribute? &
         k.type.compressed.attribute? &
         k.type.container.attribute? &
