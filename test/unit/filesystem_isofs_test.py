@@ -44,3 +44,9 @@ class TestFileSystemIsoFs(object):
                 'root_dir'
             ])
         ]
+        iso.relocate_boot_catalog.assert_called_once_with(
+            'myimage'
+        )
+        iso.fix_boot_catalog.assert_called_once_with(
+            'myimage'
+        )

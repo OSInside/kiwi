@@ -177,6 +177,10 @@ class KiwiIsoLoaderError(KiwiError):
     pass
 
 
+class KiwiIsoMetaDataError(KiwiError):
+    pass
+
+
 class KiwiLiveBootImageError(KiwiError):
     pass
 

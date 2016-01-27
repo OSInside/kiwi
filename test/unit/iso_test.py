@@ -2,7 +2,7 @@ from nose.tools import *
 from mock import patch
 from mock import call
 import mock
-
+import struct
 import nose_helper
 
 from kiwi.exceptions import *
@@ -23,6 +23,14 @@ class TestIso(object):
         mock_tempfile.return_value = temp_type(
             name='sortfile'
         )
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
+
         self.iso = Iso('source-dir')
 
     @patch('__builtin__.open')
@@ -45,18 +53,11 @@ class TestIso(object):
             ('source-dir', ('bar', 'baz'), ('efi', 'eggs', 'header_end'))
         ]
         mock_exists.return_value = True
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
 
         self.iso.init_iso_creation_parameters(['custom_arg'])
 
-        assert file_mock.write.call_args_list == [
+        assert self.file_mock.write.call_args_list == [
             call('7984fc91-a43f-4e45-bf27-6d3aa08b24cf\n'),
             call('source-dir/boot/x86_64/boot.catalog 3\n'),
             call('source-dir/boot/x86_64/loader/isolinux.bin 2\n'),
@@ -141,10 +142,123 @@ class TestIso(object):
             ]
         )
 
-    def test_relocate_boot_catalog(self):
-        # TODO
-        Iso.relocate_boot_catalog('isofile')
-
-    def test_fix_boot_catalog(self):
-        # TODO
+    @patch('__builtin__.open')
+    @raises(KiwiIsoMetaDataError)
+    def test_iso_metadata_iso9660_invalid(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        self.file_mock.read.return_value = 'bogus'
         Iso.fix_boot_catalog('isofile')
+
+    @patch('__builtin__.open')
+    @raises(KiwiIsoMetaDataError)
+    def test_iso_metadata_not_bootable(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        self.file_mock.read.return_value = 'CD001'
+        Iso.fix_boot_catalog('isofile')
+
+    @patch('__builtin__.open')
+    @raises(KiwiIsoMetaDataError)
+    def test_iso_metadata_path_table_sector_invalid(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        read_results = ['EL TORITO SPECIFICATION', 'CD001']
+
+        def side_effect(arg):
+            return read_results.pop()
+
+        self.file_mock.read.side_effect = side_effect
+        Iso.fix_boot_catalog('isofile')
+
+    @patch('__builtin__.open')
+    @raises(KiwiIsoMetaDataError)
+    def test_iso_metadata_catalog_sector_invalid(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        volume_descriptor = \
+            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+        read_results = ['EL TORITO SPECIFICATION', volume_descriptor]
+
+        def side_effect(arg):
+            return read_results.pop()
+
+        self.file_mock.read.side_effect = side_effect
+        Iso.fix_boot_catalog('isofile')
+
+    @patch('__builtin__.open')
+    @raises(KiwiIsoMetaDataError)
+    def test_iso_metadata_catalog_invalid(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        volume_descriptor = \
+            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+        eltorito_descriptor = \
+            'EL TORITO SPECIFICATION' + '_' * (0x47 - 0x17) + '0x1d5f23a'
+        read_results = [eltorito_descriptor, volume_descriptor]
+
+        def side_effect(arg):
+            return read_results.pop()
+
+        self.file_mock.read.side_effect = side_effect
+        Iso.fix_boot_catalog('isofile')
+
+    @patch('__builtin__.open')
+    def test_relocate_boot_catalog(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        volume_descriptor = \
+            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+        eltorito_descriptor = \
+            'EL TORITO SPECIFICATION' + '_' * (0x47 - 0x17) + '0x1d5f23a'
+        new_volume_descriptor = \
+            'bogus'
+        next_new_volume_descriptor = \
+            'TEA01'
+        new_boot_catalog = format('\x00' * 0x800)
+        read_results = [
+            new_boot_catalog,
+            next_new_volume_descriptor,
+            new_volume_descriptor,
+            'catalog',
+            eltorito_descriptor,
+            volume_descriptor
+        ]
+
+        def side_effect(arg):
+            return read_results.pop()
+
+        self.file_mock.read.side_effect = side_effect
+
+        Iso.relocate_boot_catalog('isofile')
+        assert self.file_mock.write.call_args_list == [
+            call('catalog'),
+            call(
+                'EL TORITO SPECIFICATION' +
+                '_' * (0x47 - 0x17) + '\x13\x00\x00\x005f23a'
+            )
+        ]
+
+    @patch('__builtin__.open')
+    def test_fix_boot_catalog(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        volume_descriptor = \
+            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+        eltorito_descriptor = \
+            'EL TORITO SPECIFICATION' + '_' * (0x47 - 0x17) + '0x1d5f23a'
+        boot_catalog = '_' * 64 + struct.pack('B', 0x88) + '_' * 32
+        read_results = [
+            boot_catalog,
+            eltorito_descriptor,
+            volume_descriptor
+        ]
+
+        def side_effect(arg):
+            return read_results.pop()
+
+        self.file_mock.read.side_effect = side_effect
+
+        Iso.fix_boot_catalog('isofile')
+
+        assert self.file_mock.write.call_args_list == [
+            call(
+                '_' * 44 +
+                '\x01Legacy (isolinux)\x00\x00\x91\xef\x01' + '\x00' * 29 +
+                '\x88___________\x01UEFI (grub)' +
+                '\x00' * 8
+            )
+        ]

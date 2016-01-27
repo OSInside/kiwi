@@ -17,6 +17,7 @@
 #
 import os
 import re
+import struct
 import collections
 import platform
 from tempfile import NamedTemporaryFile
@@ -26,7 +27,8 @@ from collections import namedtuple
 from logger import log
 from command import Command
 from exceptions import (
-    KiwiIsoLoaderError
+    KiwiIsoLoaderError,
+    KiwiIsoMetaDataError
 )
 
 
@@ -59,13 +61,104 @@ class Iso(object):
 
     @classmethod
     def relocate_boot_catalog(self, isofile):
-        # TODO
-        pass
+        iso_metadata = Iso.__read_iso_metadata(isofile)
+        Iso.__validate_iso_metadata(iso_metadata)
+        with open(isofile, 'r+') as iso:
+            new_boot_catalog_sector = iso_metadata.path_table_sector - 1
+            new_volume_descriptor = Iso.__read_iso_sector(
+                new_boot_catalog_sector - 1, iso
+            )
+            new_volume_id = Iso.__sub_string(
+                data=new_volume_descriptor, length=7
+            )
+            if 'CD001' not in new_volume_id:
+                new_boot_catalog_sector = None
+                ref_sector = iso_metadata.boot_catalog_sector
+                for sector in range(0x12, 0x40):
+                    new_volume_descriptor = Iso.__read_iso_sector(sector, iso)
+                    new_volume_id = Iso.__sub_string(
+                        data=new_volume_descriptor, length=7
+                    )
+                    if 'TEA01' in new_volume_id or sector + 1 == ref_sector:
+                        new_boot_catalog_sector = sector + 1
+                        break
+            if iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
+                new_boot_catalog = Iso.__read_iso_sector(
+                    new_boot_catalog_sector, iso
+                )
+                empty_catalog = format('\x00' * 0x800)
+                if format(new_boot_catalog) == empty_catalog:
+                    eltorito_descriptor = Iso.__embed_string_in_segment(
+                        data=iso_metadata.eltorito_descriptor,
+                        string=struct.pack('<I', new_boot_catalog_sector),
+                        length=4,
+                        start=0x47
+                    )
+                    Iso.__write_iso_sector(
+                        new_boot_catalog_sector, iso_metadata.boot_catalog, iso
+                    )
+                    Iso.__write_iso_sector(
+                        0x11, eltorito_descriptor, iso
+                    )
+                    log.debug(
+                        'Relocated boot catalog from sector 0x%x to 0x%x',
+                        iso_metadata.boot_catalog_sector,
+                        new_boot_catalog_sector
+                    )
 
     @classmethod
     def fix_boot_catalog(self, isofile):
-        # TODO
-        pass
+        iso_metadata = Iso.__read_iso_metadata(isofile)
+        Iso.__validate_iso_metadata(iso_metadata)
+        boot_catalog = iso_metadata.boot_catalog
+        first_catalog_entry = Iso.__sub_string(
+            data=boot_catalog, length=32, start=32
+        )
+        first_catalog_entry = Iso.__embed_string_in_segment(
+            data=first_catalog_entry,
+            string=struct.pack('B19s', 1, 'Legacy (isolinux)'),
+            length=20,
+            start=12
+        )
+        boot_catalog = Iso.__embed_string_in_segment(
+            data=boot_catalog,
+            string=first_catalog_entry,
+            length=32,
+            start=32
+        )
+        second_catalog_entry = Iso.__sub_string(
+            data=boot_catalog, length=32, start=64
+        )
+        second_catalog_entry = Iso.__embed_string_in_segment(
+            data=second_catalog_entry,
+            string=struct.pack('B19s', 1, 'UEFI (grub)'),
+            length=20,
+            start=12
+        )
+        second_catalog_entry_sector = struct.unpack(
+            'B', second_catalog_entry[0]
+        )[0]
+        if second_catalog_entry_sector == 0x88:
+            boot_catalog = Iso.__embed_string_in_segment(
+                data=boot_catalog,
+                string=second_catalog_entry,
+                length=32,
+                start=96
+            )
+            second_catalog_entry = struct.pack(
+                'BBH28s', 0x91, 0xef, 1, ''
+            )
+            boot_catalog = Iso.__embed_string_in_segment(
+                data=boot_catalog,
+                string=second_catalog_entry,
+                length=32,
+                start=64
+            )
+            with open(isofile, 'r+') as iso:
+                Iso.__write_iso_sector(
+                    iso_metadata.boot_catalog_sector, boot_catalog, iso
+                )
+            log.debug('Fixed iso catalog contents')
 
     def init_iso_creation_parameters(self, custom_args=None):
         """
@@ -196,3 +289,113 @@ class Iso(object):
                         sortfile.write('%s/%s 1\n' % (basedir, filename))
                 for dirname in dirnames:
                     sortfile.write('%s/%s 1\n' % (basedir, dirname))
+
+    @staticmethod
+    def __read_iso_metadata(isofile):
+        iso_header_type = namedtuple(
+            'iso_header_type', [
+                'isofile',
+                'volume_descriptor',
+                'volume_id',
+                'eltorito_descriptor',
+                'eltorito_id',
+                'path_table_sector',
+                'boot_catalog_sector',
+                'boot_catalog'
+            ]
+        )
+        with open(isofile, 'r') as iso:
+            volume_descriptor = Iso.__read_iso_sector(0x10, iso)
+            volume_id = Iso.__sub_string(
+                data=volume_descriptor, length=7
+            )
+            eltorito_descriptor = Iso.__read_iso_sector(0x11, iso)
+            eltorito_id = Iso.__sub_string(
+                data=eltorito_descriptor, length=0x1e
+            )
+            try:
+                path_table_sector = struct.unpack(
+                    '<I', Iso.__sub_string(
+                        data=volume_descriptor, length=4, start=0x08c
+                    )
+                )[0]
+            except Exception:
+                # validation happens in __validate_iso_metadata
+                path_table_sector = 0
+            try:
+                boot_catalog_sector = struct.unpack(
+                    '<I', Iso.__sub_string(
+                        data=eltorito_descriptor, length=4, start=0x47
+                    )
+                )[0]
+            except Exception:
+                # validation happens in __validate_iso_metadata
+                boot_catalog_sector = 0
+            try:
+                boot_catalog = Iso.__read_iso_sector(
+                    boot_catalog_sector, iso
+                )
+            except Exception as e:
+                # validation happens in __validate_iso_metadata
+                boot_catalog = None
+
+            return iso_header_type(
+                isofile=isofile,
+                volume_descriptor=volume_descriptor,
+                volume_id=volume_id,
+                eltorito_descriptor=eltorito_descriptor,
+                eltorito_id=eltorito_id,
+                path_table_sector=path_table_sector,
+                boot_catalog_sector=boot_catalog_sector,
+                boot_catalog=boot_catalog
+            )
+
+    @staticmethod
+    def __validate_iso_metadata(iso_header):
+        if 'CD001' not in iso_header.volume_id:
+            raise KiwiIsoMetaDataError(
+                '%s: this is not an iso9660 filesystem' %
+                iso_header.isofile
+            )
+        if 'EL TORITO SPECIFICATION' not in iso_header.eltorito_id:
+            raise KiwiIsoMetaDataError(
+                '%s: this iso is not bootable' %
+                iso_header.isofile
+            )
+        if iso_header.path_table_sector < 0x11:
+            raise KiwiIsoMetaDataError(
+                'strange path table location: 0x%x' %
+                iso_header.path_table_sector
+            )
+        if iso_header.boot_catalog_sector < 0x12:
+            raise KiwiIsoMetaDataError(
+                'strange boot catalog location: 0x%x' %
+                iso_header.boot_catalog_sector
+            )
+        if not iso_header.boot_catalog:
+            raise KiwiIsoMetaDataError(
+                '%s: no boot catalog found' %
+                iso_header.isofile
+            )
+
+    @staticmethod
+    def __read_iso_sector(sector, handle):
+        handle.seek(sector * 0x800, 0)
+        return handle.read(0x800)
+
+    @staticmethod
+    def __write_iso_sector(sector, data, handle):
+        handle.seek(sector * 0x800, 0)
+        handle.write(data)
+
+    @staticmethod
+    def __sub_string(data, length, start=0):
+        return data[start:start + length]
+
+    @staticmethod
+    def __embed_string_in_segment(data, string, length, start):
+        start_segment = data[0:start]
+        end_segment = data[start + length:]
+        return ''.join(
+            [start_segment, string, end_segment]
+        )

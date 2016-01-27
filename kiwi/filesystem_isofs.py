@@ -51,4 +51,6 @@ class FileSystemIsoFs(FileSystemBase):
                 '-o', filename, self.root_dir
             ]
         )
+        iso.relocate_boot_catalog(filename)
+        iso.fix_boot_catalog(filename)
         return hybrid_offset
