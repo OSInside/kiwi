@@ -213,6 +213,7 @@ class BootImageTask(object):
             'bootloader',
             'bootprofile',
             'boottimeout',
+            'btrfs_root_is_snapshot',
             'devicepersistency',
             'filesystem',
             'firmware',

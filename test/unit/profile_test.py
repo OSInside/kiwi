@@ -30,6 +30,7 @@ class TestProfile(object):
         mock_temp.return_value = self.tmpfile
         result = self.profile.create()
         os.remove(self.tmpfile.name)
+        print self.profile.dot_profile
         assert self.profile.dot_profile == {
             'kiwi_allFreeVolume_bin_volume': 'size:all:LVusr_bin',
             'kiwi_allFreeVolume_LVusr_bin': 'size:all',
@@ -88,6 +89,7 @@ class TestProfile(object):
             'kiwi_oemvmcp_parmfile': None,
             'kiwi_profiles': '',
             'kiwi_ramonly': None,
+            'kiwi_btrfs_root_is_snapshot': None,
             'kiwi_showlicense': None,
             'kiwi_splash_theme': 'openSUSE',
             'kiwi_strip_delete': '',
