@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.2</db:releaseinfo>
@@ -2145,6 +2145,14 @@ At the moment grub, zipl and sys|extlinux are supported</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.type.btrfs_root_is_snapshot">
+      <attribute name="btrfs_root_is_snapshot">
+        <a:documentation>Tell kiwi to install the system into a btrfs snapshot
+The snapshot layout is compatible with the snapper management
+toolkit. By default no snapshots are used</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.type.target_blocksize">
       <attribute name="target_blocksize">
         <a:documentation>Specifies the image blocksize in bytes which has to match
@@ -2585,6 +2593,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.boottimeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_root_is_snapshot"/>
         </optional>
         <optional>
           <ref name="k.type.checkprebuilt.attribute"/>

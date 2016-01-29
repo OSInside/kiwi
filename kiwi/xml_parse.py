@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Jan 12 22:49:30 2016 by generateDS.py version 2.17a.
+# Generated Fri Jan 29 14:38:03 2016 by generateDS.py version 2.17a.
 #
 # Command line options:
 #   ('-f', '')
@@ -2610,7 +2610,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, vhdfixedtag=None, hybrid=None, hybridpersistent_filesystem=None, primary=None, devicepersistency=None, luksOS=None, formatoptions=None, container=None, zfsoptions=None, wwid_wait_timeout=None, installpxe=None, bootprofile=None, fsreadwrite=None, firmware=None, boot=None, vga=None, installprovidefailsafe=None, boottimeout=None, installstick=None, bootkernel=None, mdraid=None, editbootconfig=None, editbootinstall=None, image=None, zipl_targettype=None, format=None, fsmountoptions=None, hybridpersistent=None, bootfilesystem=None, compressed=None, bootpartition=None, ramonly=None, bootloader=None, target_blocksize=None, luks=None, gcelicense=None, checkprebuilt=None, fsnocheck=None, installboot=None, fsreadonly=None, bootpartsize=None, installiso=None, flags=None, kernelcmdline=None, filesystem=None, volid=None, machine=None, oemconfig=None, pxedeploy=None, size=None, split=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, vhdfixedtag=None, hybrid=None, hybridpersistent_filesystem=None, primary=None, devicepersistency=None, luksOS=None, formatoptions=None, container=None, zfsoptions=None, wwid_wait_timeout=None, installpxe=None, bootprofile=None, fsreadwrite=None, firmware=None, boot=None, vga=None, installprovidefailsafe=None, boottimeout=None, installstick=None, bootkernel=None, mdraid=None, editbootconfig=None, editbootinstall=None, image=None, zipl_targettype=None, format=None, fsmountoptions=None, hybridpersistent=None, bootfilesystem=None, compressed=None, bootpartition=None, ramonly=None, bootloader=None, target_blocksize=None, luks=None, gcelicense=None, btrfs_root_is_snapshot=None, fsnocheck=None, installboot=None, fsreadonly=None, bootpartsize=None, checkprebuilt=None, installiso=None, flags=None, kernelcmdline=None, filesystem=None, volid=None, machine=None, oemconfig=None, pxedeploy=None, size=None, split=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.hybrid = _cast(bool, hybrid)
@@ -2648,11 +2648,12 @@ class type_(GeneratedsSuper):
         self.target_blocksize = _cast(int, target_blocksize)
         self.luks = _cast(None, luks)
         self.gcelicense = _cast(None, gcelicense)
-        self.checkprebuilt = _cast(bool, checkprebuilt)
+        self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
         self.fsnocheck = _cast(bool, fsnocheck)
         self.installboot = _cast(None, installboot)
         self.fsreadonly = _cast(None, fsreadonly)
         self.bootpartsize = _cast(int, bootpartsize)
+        self.checkprebuilt = _cast(bool, checkprebuilt)
         self.installiso = _cast(bool, installiso)
         self.flags = _cast(None, flags)
         self.kernelcmdline = _cast(None, kernelcmdline)
@@ -2799,8 +2800,8 @@ class type_(GeneratedsSuper):
     def set_luks(self, luks): self.luks = luks
     def get_gcelicense(self): return self.gcelicense
     def set_gcelicense(self, gcelicense): self.gcelicense = gcelicense
-    def get_checkprebuilt(self): return self.checkprebuilt
-    def set_checkprebuilt(self, checkprebuilt): self.checkprebuilt = checkprebuilt
+    def get_btrfs_root_is_snapshot(self): return self.btrfs_root_is_snapshot
+    def set_btrfs_root_is_snapshot(self, btrfs_root_is_snapshot): self.btrfs_root_is_snapshot = btrfs_root_is_snapshot
     def get_fsnocheck(self): return self.fsnocheck
     def set_fsnocheck(self, fsnocheck): self.fsnocheck = fsnocheck
     def get_installboot(self): return self.installboot
@@ -2809,6 +2810,8 @@ class type_(GeneratedsSuper):
     def set_fsreadonly(self, fsreadonly): self.fsreadonly = fsreadonly
     def get_bootpartsize(self): return self.bootpartsize
     def set_bootpartsize(self, bootpartsize): self.bootpartsize = bootpartsize
+    def get_checkprebuilt(self): return self.checkprebuilt
+    def set_checkprebuilt(self, checkprebuilt): self.checkprebuilt = checkprebuilt
     def get_installiso(self): return self.installiso
     def set_installiso(self, installiso): self.installiso = installiso
     def get_flags(self): return self.flags
@@ -2959,9 +2962,9 @@ class type_(GeneratedsSuper):
         if self.gcelicense is not None and 'gcelicense' not in already_processed:
             already_processed.add('gcelicense')
             outfile.write(' gcelicense=%s' % (self.gds_format_string(quote_attrib(self.gcelicense).encode(ExternalEncoding), input_name='gcelicense'), ))
-        if self.checkprebuilt is not None and 'checkprebuilt' not in already_processed:
-            already_processed.add('checkprebuilt')
-            outfile.write(' checkprebuilt="%s"' % self.gds_format_boolean(self.checkprebuilt, input_name='checkprebuilt'))
+        if self.btrfs_root_is_snapshot is not None and 'btrfs_root_is_snapshot' not in already_processed:
+            already_processed.add('btrfs_root_is_snapshot')
+            outfile.write(' btrfs_root_is_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapshot, input_name='btrfs_root_is_snapshot'))
         if self.fsnocheck is not None and 'fsnocheck' not in already_processed:
             already_processed.add('fsnocheck')
             outfile.write(' fsnocheck="%s"' % self.gds_format_boolean(self.fsnocheck, input_name='fsnocheck'))
@@ -2974,6 +2977,9 @@ class type_(GeneratedsSuper):
         if self.bootpartsize is not None and 'bootpartsize' not in already_processed:
             already_processed.add('bootpartsize')
             outfile.write(' bootpartsize="%s"' % self.gds_format_integer(self.bootpartsize, input_name='bootpartsize'))
+        if self.checkprebuilt is not None and 'checkprebuilt' not in already_processed:
+            already_processed.add('checkprebuilt')
+            outfile.write(' checkprebuilt="%s"' % self.gds_format_boolean(self.checkprebuilt, input_name='checkprebuilt'))
         if self.installiso is not None and 'installiso' not in already_processed:
             already_processed.add('installiso')
             outfile.write(' installiso="%s"' % self.gds_format_boolean(self.installiso, input_name='installiso'))
@@ -3231,13 +3237,13 @@ class type_(GeneratedsSuper):
         if value is not None and 'gcelicense' not in already_processed:
             already_processed.add('gcelicense')
             self.gcelicense = value
-        value = find_attr_value_('checkprebuilt', node)
-        if value is not None and 'checkprebuilt' not in already_processed:
-            already_processed.add('checkprebuilt')
+        value = find_attr_value_('btrfs_root_is_snapshot', node)
+        if value is not None and 'btrfs_root_is_snapshot' not in already_processed:
+            already_processed.add('btrfs_root_is_snapshot')
             if value in ('true', '1'):
-                self.checkprebuilt = True
+                self.btrfs_root_is_snapshot = True
             elif value in ('false', '0'):
-                self.checkprebuilt = False
+                self.btrfs_root_is_snapshot = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('fsnocheck', node)
@@ -3268,6 +3274,15 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.bootpartsize < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('checkprebuilt', node)
+        if value is not None and 'checkprebuilt' not in already_processed:
+            already_processed.add('checkprebuilt')
+            if value in ('true', '1'):
+                self.checkprebuilt = True
+            elif value in ('false', '0'):
+                self.checkprebuilt = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('installiso', node)
         if value is not None and 'installiso' not in already_processed:
             already_processed.add('installiso')
