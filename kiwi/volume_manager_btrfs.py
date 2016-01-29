@@ -17,6 +17,7 @@
 #
 import time
 import re
+import os
 
 # project
 from command import Command
@@ -43,6 +44,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args = {}
         if 'root_label' not in self.custom_args:
             self.custom_args['root_label'] = 'ROOT'
+        if 'root_is_snapshot' not in self.custom_args:
+            self.custom_args['root_is_snapshot'] = False
+
+        self.subvol_mount_list = []
 
     def setup(self, name=None):
         filesystem = FileSystem(
@@ -59,22 +64,19 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         Command.run(
             ['btrfs', 'subvolume', 'create', root_volume]
         )
-        subvolume_list_call = Command.run(
-            ['btrfs', 'subvolume', 'list', self.mountpoint]
-        )
-        id_search = re.search('ID (\d+) ', subvolume_list_call.output)
-        if id_search:
-            root_volume_id = id_search.group(1)
+        if self.custom_args['root_is_snapshot']:
+            snapshot_volume = self.mountpoint + '/@/.snapshots'
             Command.run(
-                [
-                    'btrfs', 'subvolume', 'set-default',
-                    root_volume_id, self.mountpoint
-                ]
+                ['btrfs', 'subvolume', 'create', snapshot_volume]
             )
+            Path.create(snapshot_volume + '/1')
+            snapshot = self.mountpoint + '/@/.snapshots/1/snapshot'
+            Command.run(
+                ['btrfs', 'subvolume', 'snapshot', root_volume, snapshot]
+            )
+            self.__set_default_volume('@/.snapshots/1/snapshot')
         else:
-            raise KiwiVolumeRootIDError(
-                'Failed to detect btrfs root volume ID'
-            )
+            self.__set_default_volume('@')
 
     def create_volumes(self, filesystem_name):
         log.info(
@@ -97,41 +99,89 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 pass
             else:
                 log.info('--> sub volume %s', volume.realpath)
-                volume_path = self.mountpoint + '/@/'
-                for subvol_element in volume.realpath.split('/'):
-                    if subvol_element:
-                        volume_path = volume_path + subvol_element + '/'
-                        Command.run(
-                            ['btrfs', 'subvolume', 'create', volume_path]
-                        )
+                toplevel = self.mountpoint + '/@/'
+                volume_parent_path = os.path.normpath(
+                    toplevel + os.path.dirname(volume.realpath)
+                )
+                if not os.path.exists(volume_parent_path):
+                    Path.create(volume_parent_path)
+                Command.run(
+                    ['btrfs', 'subvolume', 'create', toplevel + volume.realpath]
+                )
+                self.subvol_mount_list.append(
+                    volume.realpath
+                )
 
     def mount_volumes(self):
-        # btrfs subvolumes doesn't need to be extra mounted
-        pass
+        if self.custom_args['root_is_snapshot']:
+            snapshot = self.mountpoint + '/@/.snapshots/1/snapshot/'
+            for subvol in self.subvol_mount_list:
+                volume_parent_path = os.path.normpath(
+                    os.path.dirname(snapshot + subvol)
+                )
+                if not os.path.exists(volume_parent_path):
+                    Path.create(volume_parent_path)
+                Command.run(
+                    [
+                        'mount', self.device,
+                        os.path.normpath(snapshot + subvol),
+                        '-o subvol=' + os.path.normpath('@/' + subvol)
+                    ]
+                )
 
     def sync_data(self, exclude=None):
         if self.mountpoint and self.is_mounted():
             data = DataSync(self.root_dir, self.mountpoint + '/@')
             data.sync_data(exclude)
 
+    def __set_default_volume(self, default_volume):
+        subvolume_list_call = Command.run(
+            ['btrfs', 'subvolume', 'list', self.mountpoint]
+        )
+        for subvolume in subvolume_list_call.output.split('\n'):
+            id_search = re.search('ID (\d+) .*path (.*)', subvolume)
+            if id_search:
+                volume_id = id_search.group(1)
+                volume_path = id_search.group(2)
+                if volume_path == default_volume:
+                    Command.run(
+                        [
+                            'btrfs', 'subvolume', 'set-default',
+                            volume_id, self.mountpoint
+                        ]
+                    )
+                    return
+
+        raise KiwiVolumeRootIDError(
+            'Failed to find btrfs volume: %s' % default_volume
+        )
+
+    def __try_umount(self, mount_point, wipe=True):
+        umounted_successfully = False
+        for busy in [1, 2, 3]:
+            try:
+                Command.run(['umount', os.path.normpath(mount_point)])
+                umounted_successfully = True
+                break
+            except Exception:
+                log.warning(
+                    '%d umount of %s failed, try again in 1sec',
+                    busy, mount_point
+                )
+                time.sleep(1)
+        if umounted_successfully and wipe:
+            Path.wipe(self.mountpoint)
+        elif not umounted_successfully:
+            log.warning(
+                'mount path %s still busy', mount_point
+            )
+
     def __del__(self):
         if self.is_mounted():
             log.info('Cleaning up %s instance', type(self).__name__)
-            umounted_successfully = False
-            for busy in [1, 2, 3]:
-                try:
-                    Command.run(['umount', self.device])
-                    umounted_successfully = True
-                    break
-                except Exception:
-                    log.warning(
-                        '%d umount of %s failed, try again in 1sec',
-                        busy, self.device
-                    )
-                    time.sleep(1)
-            if umounted_successfully:
-                Path.wipe(self.mountpoint)
-            else:
-                log.warning(
-                    'mount path %s still busy', self.mountpoint
-                )
+            for subvol in reversed(self.subvol_mount_list):
+                subvol_mount = \
+                    self.mountpoint + '/@/.snapshots/1/snapshot/' + subvol
+                self.__try_umount(mount_point=subvol_mount, wipe=False)
+
+            self.__try_umount(mount_point=self.device)

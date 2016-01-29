@@ -1,6 +1,6 @@
 from nose.tools import *
 from mock import patch
-
+from mock import call
 import mock
 
 import nose_helper
@@ -65,39 +65,58 @@ class TestVolumeManagerBtrfs(object):
     @patch('kiwi.volume_manager_btrfs.FileSystem')
     @patch('kiwi.volume_manager_btrfs.MappedDevice')
     @patch('kiwi.volume_manager_base.mkdtemp')
-    def test_setup(
+    def test_setup_no_snapshot(
         self, mock_temp, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
         mock_temp.return_value = 'tmpdir'
         command_call = mock.Mock()
-        command_call.output = 'ID 4711 xx'
+        command_call.output = 'ID 256 gen 23 top level 5 path @'
         mock_mapped_device.return_value = 'mapped_device'
         mock_os_exists.return_value = False
         mock_command.return_value = command_call
 
         self.volume_manager.setup()
 
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
+        assert mock_command.call_args_list == [
+            call(['mount', '/dev/storage', 'tmpdir']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
+            call(['btrfs', 'subvolume', 'list', 'tmpdir']),
+            call(['btrfs', 'subvolume', 'set-default', '256', 'tmpdir'])
+        ]
+
+    @patch('os.path.exists')
+    @patch('kiwi.volume_manager_btrfs.Command.run')
+    @patch('kiwi.volume_manager_btrfs.FileSystem')
+    @patch('kiwi.volume_manager_btrfs.MappedDevice')
+    @patch('kiwi.volume_manager_base.mkdtemp')
+    def test_setup_with_snapshot(
+        self, mock_temp, mock_mapped_device, mock_fs,
+        mock_command, mock_os_exists
+    ):
+        mock_temp.return_value = 'tmpdir'
+        command_call = mock.Mock()
+        command_call.output = \
+            'ID 258 gen 26 top level 257 path @/.snapshots/1/snapshot'
+        mock_mapped_device.return_value = 'mapped_device'
+        mock_os_exists.return_value = False
+        mock_command.return_value = command_call
+        self.volume_manager.custom_args['root_is_snapshot'] = True
+
+        self.volume_manager.setup()
+
+        assert mock_command.call_args_list == [
+            call(['mount', '/dev/storage', 'tmpdir']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots']),
+            call(['mkdir', '-p', 'tmpdir/@/.snapshots/1']),
             call([
-                'mount', '/dev/storage', 'tmpdir'
-            ])
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
-            call([
-                'btrfs', 'subvolume', 'create', 'tmpdir/@'
-            ])
-        call = mock_command.call_args_list[2]
-        assert mock_command.call_args_list[2] == \
-            call([
-                'btrfs', 'subvolume', 'list', 'tmpdir'
-            ])
-        call = mock_command.call_args_list[3]
-        assert mock_command.call_args_list[3] == \
-            call([
-                'btrfs', 'subvolume', 'set-default', '4711', 'tmpdir'
-            ])
+                'btrfs', 'subvolume', 'snapshot', 'tmpdir/@',
+                'tmpdir/@/.snapshots/1/snapshot'
+            ]),
+            call(['btrfs', 'subvolume', 'list', 'tmpdir']),
+            call(['btrfs', 'subvolume', 'set-default', '258', 'tmpdir'])
+        ]
 
     @raises(KiwiVolumeRootIDError)
     @patch('os.path.exists')
@@ -123,39 +142,46 @@ class TestVolumeManagerBtrfs(object):
         mock_os_exists.return_value = False
         self.volume_manager.create_volumes('btrfs')
 
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
-            call([
-                'mkdir', '-p', 'root_dir/etc'
-            ])
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
-            call([
-                'mkdir', '-p', 'root_dir/data'
-            ])
-        call = mock_command.call_args_list[2]
-        assert mock_command.call_args_list[2] == \
-            call([
-                'mkdir', '-p', 'root_dir/home'
-            ])
-        call = mock_command.call_args_list[3]
-        assert mock_command.call_args_list[3] == \
-            call([
-                'btrfs', 'subvolume', 'create', 'tmpdir/@/data/'
-            ])
-        call = mock_command.call_args_list[4]
-        assert mock_command.call_args_list[4] == \
-            call([
-                'btrfs', 'subvolume', 'create', 'tmpdir/@/etc/'
-            ])
-        call = mock_command.call_args_list[5]
-        assert mock_command.call_args_list[5] == \
-            call([
-                'btrfs', 'subvolume', 'create', 'tmpdir/@/home/'
-            ])
+        assert mock_command.call_args_list == [
+            call(['mkdir', '-p', 'root_dir/etc']),
+            call(['mkdir', '-p', 'root_dir/data']),
+            call(['mkdir', '-p', 'root_dir/home']),
+            call(['mkdir', '-p', 'tmpdir/@']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@//data']),
+            call(['mkdir', '-p', 'tmpdir/@']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@//etc']),
+            call(['mkdir', '-p', 'tmpdir/@']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@//home'])
+        ]
 
-    def test_mount_volumes(self):
+    @patch('os.path.exists')
+    @patch('kiwi.volume_manager_btrfs.Command.run')
+    def test_mount_volumes(self, mock_command, mock_os_exists):
+        mock_os_exists.return_value = False
+        self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.subvol_mount_list = [
+            '/var/log', '/etc'
+        ]
         self.volume_manager.mount_volumes()
+
+        assert mock_command.call_args_list == [
+            call([
+                'mkdir', '-p', 'tmpdir/@/.snapshots/1/snapshot/var'
+            ]),
+            call([
+                'mount', '/dev/storage',
+                'tmpdir/@/.snapshots/1/snapshot/var/log',
+                '-o subvol=@/var/log']),
+            call([
+                'mkdir', '-p', 'tmpdir/@/.snapshots/1/snapshot'
+            ]),
+            call([
+                'mount', '/dev/storage',
+                'tmpdir/@/.snapshots/1/snapshot/etc',
+                '-o subvol=@/etc'
+            ])
+        ]
 
     @patch('kiwi.volume_manager_btrfs.DataSync')
     @patch('kiwi.volume_manager_btrfs.VolumeManagerBtrfs.is_mounted')
@@ -176,9 +202,14 @@ class TestVolumeManagerBtrfs(object):
         self, mock_command, mock_wipe, mock_mounted, mock_time
     ):
         self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.subvol_mount_list = ['/var/log', 'etc']
         mock_mounted.return_value = True
         self.volume_manager.__del__()
-        mock_command.assert_called_once_with(['umount', '/dev/storage'])
+        assert mock_command.call_args_list == [
+            call(['umount', 'tmpdir/@/.snapshots/1/snapshot/etc']),
+            call(['umount', 'tmpdir/@/.snapshots/1/snapshot/var/log']),
+            call(['umount', '/dev/storage'])
+        ]
         mock_wipe.assert_called_once_with('tmpdir')
         self.volume_manager.mountpoint = None
 
