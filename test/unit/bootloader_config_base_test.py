@@ -125,8 +125,10 @@ class TestBootLoaderConfigBase(object):
     @patch('kiwi.bootloader_config_base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
     @patch('kiwi.xml_state.XMLState.get_volumes')
-    def test_get_boot_path(self, mock_volumes, mock_fs, mock_disk_setup):
-        mock_volumes.return_value = ['some-volumes']
+    def test_get_boot_path_btrfs(self, mock_volumes, mock_fs, mock_disk_setup):
+        volume = mock.Mock()
+        volume.name = 'boot'
+        mock_volumes.return_value = [volume]
         mock_fs.return_value = 'btrfs'
         disk_setup = mock.Mock()
         disk_setup.need_boot_partition = mock.Mock(
@@ -134,6 +136,26 @@ class TestBootLoaderConfigBase(object):
         )
         mock_disk_setup.return_value = disk_setup
         assert self.bootloader.get_boot_path() == '/@/boot'
+
+    @patch('kiwi.bootloader_config_base.DiskSetup')
+    @patch('kiwi.xml_parse.type_.get_filesystem')
+    @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapshot')
+    @patch('kiwi.xml_state.XMLState.get_volumes')
+    def test_get_boot_path_btrfs_snapshot(
+        self, mock_volumes, mock_snapshot, mock_fs, mock_disk_setup
+    ):
+        volume = mock.Mock()
+        volume.name = 'some-volume'
+        mock_volumes.return_value = [volume]
+        mock_fs.return_value = 'btrfs'
+        mock_snapshot.return_value = True
+        disk_setup = mock.Mock()
+        disk_setup.need_boot_partition = mock.Mock(
+            return_value=False
+        )
+        mock_disk_setup.return_value = disk_setup
+        assert self.bootloader.get_boot_path() == \
+            '/@/.snapshots/1/snapshot/boot'
 
     def test_quote_title(self):
         assert self.bootloader.quote_title('aaa bbb [foo]') == 'aaa_bbb_(foo)'

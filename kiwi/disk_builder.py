@@ -170,8 +170,12 @@ class DiskBuilder(object):
         # create volumes and filesystems for root system
         if self.volume_manager_name:
             volume_manager_custom_parameters = {
-                'root_filesystem_args': self.custom_filesystem_args,
-                'root_label': self.disk_setup.get_root_label(),
+                'root_filesystem_args':
+                    self.custom_filesystem_args,
+                'root_label':
+                    self.disk_setup.get_root_label(),
+                'root_is_snapshot':
+                    self.xml_state.build_type.get_btrfs_root_is_snapshot()
             }
             volume_manager = VolumeManager(
                 self.volume_manager_name, device_map['root'],

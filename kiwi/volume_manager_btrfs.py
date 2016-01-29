@@ -49,6 +49,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         self.subvol_mount_list = []
 
+    def get_device(self):
+        return {'root': self}
+
     def setup(self, name=None):
         filesystem = FileSystem(
             'btrfs', MappedDevice(device=self.device, device_provider=self)
@@ -106,7 +109,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 if not os.path.exists(volume_parent_path):
                     Path.create(volume_parent_path)
                 Command.run(
-                    ['btrfs', 'subvolume', 'create', toplevel + volume.realpath]
+                    [
+                        'btrfs', 'subvolume', 'create',
+                        os.path.normpath(toplevel + volume.realpath)
+                    ]
                 )
                 self.subvol_mount_list.append(
                     volume.realpath
@@ -117,7 +123,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             snapshot = self.mountpoint + '/@/.snapshots/1/snapshot/'
             for subvol in self.subvol_mount_list:
                 volume_parent_path = os.path.normpath(
-                    os.path.dirname(snapshot + subvol)
+                    snapshot + subvol
                 )
                 if not os.path.exists(volume_parent_path):
                     Path.create(volume_parent_path)
@@ -125,13 +131,16 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     [
                         'mount', self.device,
                         os.path.normpath(snapshot + subvol),
-                        '-o subvol=' + os.path.normpath('@/' + subvol)
+                        '-o', 'subvol=' + os.path.normpath('@/' + subvol)
                     ]
                 )
 
     def sync_data(self, exclude=None):
         if self.mountpoint and self.is_mounted():
-            data = DataSync(self.root_dir, self.mountpoint + '/@')
+            sync_target = self.mountpoint + '/@'
+            if self.custom_args['root_is_snapshot']:
+                sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
+            data = DataSync(self.root_dir, sync_target)
             data.sync_data(exclude)
 
     def __set_default_volume(self, default_volume):
@@ -179,9 +188,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
     def __del__(self):
         if self.is_mounted():
             log.info('Cleaning up %s instance', type(self).__name__)
-            for subvol in reversed(self.subvol_mount_list):
-                subvol_mount = \
-                    self.mountpoint + '/@/.snapshots/1/snapshot/' + subvol
-                self.__try_umount(mount_point=subvol_mount, wipe=False)
+            if self.custom_args['root_is_snapshot']:
+                for subvol in reversed(self.subvol_mount_list):
+                    subvol_mount = \
+                        self.mountpoint + '/@/.snapshots/1/snapshot/' + subvol
+                    self.__try_umount(mount_point=subvol_mount, wipe=False)
 
             self.__try_umount(mount_point=self.device)

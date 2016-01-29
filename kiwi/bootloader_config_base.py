@@ -170,11 +170,21 @@ class BootLoaderConfigBase(object):
                 filesystem = self.xml_state.build_type.get_filesystem()
                 volumes = self.xml_state.get_volumes()
                 if filesystem == 'btrfs' and volumes:
+                    root_is_snapshot = \
+                        self.xml_state.build_type.get_btrfs_root_is_snapshot()
+                    boot_is_on_volume = False
+                    for volume in volumes:
+                        if volume.name == 'boot' or volume.name == 'boot/grub2':
+                            boot_is_on_volume = True
+                            break
                     # if we directly boot a btrfs filesystem with a subvolume
                     # setup and no extra boot partition we have to care for
                     # the layout of the system which places all volumes below
-                    # a master volume called: @
-                    bootpath = '/@' + bootpath
+                    # a topleve volume or snapshot
+                    if not boot_is_on_volume and root_is_snapshot:
+                        bootpath = '/@/.snapshots/1/snapshot' + bootpath
+                    else:
+                        bootpath = '/@' + bootpath
 
         return bootpath
 

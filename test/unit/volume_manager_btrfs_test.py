@@ -58,7 +58,7 @@ class TestVolumeManagerBtrfs(object):
 
     def test_get_device(self):
         assert self.volume_manager.get_device() == \
-            self.volume_manager.device_provider.get_device()
+            {'root': self.volume_manager}
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager_btrfs.Command.run')
@@ -147,11 +147,11 @@ class TestVolumeManagerBtrfs(object):
             call(['mkdir', '-p', 'root_dir/data']),
             call(['mkdir', '-p', 'root_dir/home']),
             call(['mkdir', '-p', 'tmpdir/@']),
-            call(['btrfs', 'subvolume', 'create', 'tmpdir/@//data']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/data']),
             call(['mkdir', '-p', 'tmpdir/@']),
-            call(['btrfs', 'subvolume', 'create', 'tmpdir/@//etc']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/etc']),
             call(['mkdir', '-p', 'tmpdir/@']),
-            call(['btrfs', 'subvolume', 'create', 'tmpdir/@//home'])
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/home'])
         ]
 
     @patch('os.path.exists')
@@ -164,22 +164,21 @@ class TestVolumeManagerBtrfs(object):
             '/var/log', '/etc'
         ]
         self.volume_manager.mount_volumes()
-
         assert mock_command.call_args_list == [
             call([
-                'mkdir', '-p', 'tmpdir/@/.snapshots/1/snapshot/var'
+                'mkdir', '-p', 'tmpdir/@/.snapshots/1/snapshot/var/log'
             ]),
             call([
                 'mount', '/dev/storage',
                 'tmpdir/@/.snapshots/1/snapshot/var/log',
-                '-o subvol=@/var/log']),
+                '-o', 'subvol=@/var/log']),
             call([
-                'mkdir', '-p', 'tmpdir/@/.snapshots/1/snapshot'
+                'mkdir', '-p', 'tmpdir/@/.snapshots/1/snapshot/etc'
             ]),
             call([
                 'mount', '/dev/storage',
                 'tmpdir/@/.snapshots/1/snapshot/etc',
-                '-o subvol=@/etc'
+                '-o', 'subvol=@/etc'
             ])
         ]
 
@@ -188,10 +187,13 @@ class TestVolumeManagerBtrfs(object):
     def test_sync_data(self, mock_mounted, mock_sync):
         mock_mounted.return_value = True
         self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.custom_args['root_is_snapshot'] = True
         sync = mock.Mock()
         mock_sync.return_value = sync
         self.volume_manager.sync_data(['exclude_me'])
-        mock_sync.assert_called_once_with('root_dir', 'tmpdir/@')
+        mock_sync.assert_called_once_with(
+            'root_dir', 'tmpdir/@/.snapshots/1/snapshot'
+        )
         sync.sync_data.assert_called_once_with(['exclude_me'])
 
     @patch('time.sleep')
@@ -202,6 +204,7 @@ class TestVolumeManagerBtrfs(object):
         self, mock_command, mock_wipe, mock_mounted, mock_time
     ):
         self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.custom_args['root_is_snapshot'] = True
         self.volume_manager.subvol_mount_list = ['/var/log', 'etc']
         mock_mounted.return_value = True
         self.volume_manager.__del__()
