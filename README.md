@@ -12,30 +12,30 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Motivation](#motivation)
   * [Supported Distributions](#supported_distributions)
   * [Contributing](#contributing)
-  * [Packaging/Versioning](#packaging)
+  * [Packaging and Versioning](#packaging_and_versioning)
   
 ## Status
 
-**Development Status: 3 - Alpha(no release yet)**
+**Development Status: 4 - Beta(no release yet)**
 
 This project is in an early development phase and some parts
-the old KIWI version can do are not yet available in the new
+of the old KIWI version are not yet available in the new
 code base. If you are missing a feature at the time of the
-first release don't hesitate to open an issue such that I
-can collect them. Of course external contributions are very
-much appreciated.
+first release don't hesitate to open an issue to allow for
+a planing and implementing phase.
 
 ## Motivation
 
 During the last years KIWI has evolved a lot. Many features were
 added, even some which are not in use anymore because new technologies
 made them obsolete. There is a lot of legacy code in KIWI to support
-older distributions too. We would like to get rid of all of these and come
-back with a clean appliance building system.
+older distributions too. In order to become free from legacy code
+the decision to provide a new version which can co-exist with the
+existing implementation was made.
 
 However, the current design and the lack of tests in core parts of the
-code prevents us from major refactoring as I see them required. Because
-of that, a rewrite of KIWI with a stable version in the background
+current code basically prevents a major refactoring as I see it required.
+Because of that, a rewrite of KIWI with a stable version in the background
 seems to be the best way.
 
 Users will be able to use both versions in parallel. Also the new
@@ -104,7 +104,7 @@ In order to leave the development mode just call
 $ deactivate
 ```
 
-## Packaging/Versioning
+## Packaging and Versioning
 
 The version schema is based on python-bumpversion and follows the
 standard rules as shown below.
