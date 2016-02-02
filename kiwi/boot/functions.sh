@@ -2568,8 +2568,15 @@ function setupDefaultFstab {
     # If this is going to change add the missing entries here
     # ----
     local IFS=$IFS_ORIG
-    local prefix=$1
-    local nfstab=$prefix/etc/fstab
+    local prefix=/mnt
+    local config_tmp=$1
+    local nfstab=$config_tmp/etc/fstab
+    mkdir -p $config_tmp/etc
+    if [ -e "$prefix/etc/fstab" ];then
+        cp $prefix/etc/fstab $config_tmp/etc
+    else
+        touch $config_tmp/etc/fstab
+    fi
 }
 #======================================
 # updateRootDeviceFstab
