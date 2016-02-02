@@ -1,14 +1,10 @@
 buildroot = /
-
-kiwi_prefix = ${buildroot}/usr/share/kiwi
 bin_prefix  = ${buildroot}/usr/bin
-
-TOOLSVZ     = ${bin_prefix}
-LIVESTICKVZ = ${kiwi_prefix}/livestick
-KIWILOCVZ   = ${buildroot}/usr/share/kiwi/locale
 
 CC = gcc -Wall -fpic -O2
 LC = LC_MESSAGES
+
+version := $(shell python -c 'from kiwi.version import __version__; print __version__')
 
 TOOLS_OBJ = tools_bin tools_bin/startshell tools_bin/setctsid tools_bin/dcounter tools_bin/driveready tools_bin/utimer tools_bin/kversion tools_bin/isconsole
 
@@ -66,10 +62,8 @@ tools_bin/isconsole: tools/isconsole/isconsole.c
 	${CC} ${CFLAGS} tools/isconsole/isconsole.c -o tools_bin/isconsole
 
 install_tools:
-	install -d -m 755 ${TOOLSVZ} ${LIVESTICKVZ}
-	cp -a tools_bin/* ${TOOLSVZ}
-	cp -a tools/livestick/theme ${LIVESTICKVZ}
-	install -m 755 tools/livestick/livestick ${TOOLSVZ}
+	install -d -m 755 ${bin_prefix}
+	cp -a tools_bin/* ${bin_prefix}
 
 po:
 	./.locale
@@ -81,21 +75,25 @@ po:
 		fi \
 	done
 
-po_install:
-	install -d -m 755 ${KIWILOCVZ}
-	for i in `ls -1 kiwi/boot/locale`; do \
-		if [ -d ./kiwi/boot/locale/$$i ];then \
-			if [ ! "$$i" = "kiwi-help" ] && [ ! "$$i" = "kiwi-template" ];then \
-				install -d -m 755 ${KIWILOCVZ}/$$i/${LC} ;\
-				test -e ./kiwi/boot/locale/$$i/${LC}/kiwi.mo && \
-				install -m 644 ./kiwi/boot/locale/$$i/${LC}/kiwi.mo \
-					${KIWILOCVZ}/$$i/${LC} || true ;\
-			fi \
-		fi \
-	done
-
 po_status:
 	./.fuzzy
+
+.PHONY: completion
+completion:
+	mkdir -p completion && helper/completion_generator > completion/kiwi.sh
+
+build: pep8 test completion po
+	# the following is required to update the $Id$ git attribute
+	rm kiwi/version.py && git checkout kiwi/version.py
+	# now create my package sources
+	cat setup.py | sed -e "s@~=[0-9.]*'@'@g" > setup.build.py
+	python setup.build.py sdist
+	mv dist/kiwi-${version}.tar.bz2 dist/python-kiwi.tar.bz2
+	rm setup.build.py
+	git log | helper/changelog_generator |\
+		helper/changelog_descending > dist/python-kiwi.changes
+	cat package/spec-template | sed -e s'@%%VERSION@${version}@' \
+		> dist/python-kiwi.spec
 
 clean:
 	find -name *.pyc | xargs rm -f

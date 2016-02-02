@@ -12,6 +12,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Motivation](#motivation)
   * [Supported Distributions](#supported_distributions)
   * [Contributing](#contributing)
+  * [Packaging/Versioning](#packaging)
   
 ## Status
 
@@ -73,6 +74,7 @@ with minor corrections:
 
 ```
 $ sudo zypper in python-virtualenv
+$ sudo zypper in python-bumpversion
 
 $ virtualenv-2.7 .env2
 ```
@@ -102,14 +104,22 @@ In order to leave the development mode just call
 $ deactivate
 ```
 
-## Packaging
+## Packaging/Versioning
 
-The creation of an RPM package is still work in progress because there
-is still no release of this KIWI version. However, in order to create the
-source tarball, use the following command:
+The version schema is based on python-bumpversion and follows the
+standard rules as shown below.
 
 ```
-$ ./setup.py sdist
+$ bumpversion [patch | minor | major]
 ```
 
-The result can be found in the `dist/` directory.
+The creation of rpm package sources has to be done by calling
+the following make target:
+
+```
+$ make build
+```
+
+The sources are collected below the `dist/` directory. In there you
+will find all required files to submit a package to the open build
+service or just build it with rpmbuild

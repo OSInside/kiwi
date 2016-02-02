@@ -27,7 +27,7 @@ class AppHash:
         cur_path = ''
         self.result = AutoVivification()
         for line in cmd.communicate()[0].split('\n'):
-            usage = re.search('usage: (.*)', line)
+            usage = re.search('^usage: (.*)', line)
             if usage:
                 begin = True
                 if re.match('.*--help', line):
@@ -100,7 +100,7 @@ class AppHash:
         key_path = ''
         for key in key_list:
             key_path += '[\'' + key + '\']'
-        expression = 'self.result'+key_path
+        expression = 'self.result' + key_path
         exec(expression)
         return raw_key_path
 

@@ -1,0 +1,145 @@
+#
+# spec file for package kiwi
+#
+# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+#
+# Please submit bugfixes or comments via:
+#
+#       https://github.com/SUSE/kiwi/issues
+#
+Name:           kiwi
+Version:        %%VERSION
+Release:        0
+Url:            https://github.com/SUSE/azurectl
+Summary:        KIWI - Appliance Builder Next Generation
+License:        GPL-2.0+
+Group:          Development/Languages/Python
+Source:         python-kiwi.tar.bz2
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  python-devel
+BuildRequires:  python-setuptools
+Requires:       python-docopt
+Requires:       python-setuptools
+Requires:       python-lxml
+# tools used by kiwi
+Requires:       kiwi-tools >= %{version}
+Requires:       rsync
+Requires:       tar
+Requires:       gptfdisk
+Requires:       qemu-tools
+Requires:       dosfstools
+Requires:       genisoimage
+Requires:       e2fsprogs
+Requires:       lvm2
+Requires:       parted
+Requires:       multipath-tools
+Requires:       squashfs
+Requires:       grub2
+Requires:       syslinux
+Requires:       mtools
+%ifarch %arm aarch64
+Requires:       u-boot-tools
+%endif
+%ifarch x86_64
+Requires:       grub2-x86_64-efi
+%endif
+%ifarch s390 s390x
+Requires:       s390-tools
+%endif
+BuildArch:      noarch
+
+%description
+The KIWI Image System provides an operating system image builder
+for Linux supported hardware platforms as well as for virtualization
+and cloud systems like Xen, KVM, VMware, EC2 and more.
+
+%package -n kiwi-tools
+Summary:        KIWI - Collection of Boot Helper Tools
+License:        GPL-2.0+
+Group:          System/Management
+
+%description -n kiwi-tools
+This package contains a small set of helper tools used for the
+kiwi created initial ramdisk which is used to control the very
+first boot of an appliance. The tools are not meant to be used
+outside of the scope of kiwi appliance building.
+
+%prep
+%setup -q -n kiwi-%{version}
+
+%build
+test -e /.buildenv && . /.buildenv
+make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools
+python setup.build.py build
+
+%install
+make buildroot=%{buildroot} install_tools
+python setup.build.py install --prefix=%{_prefix} --root=%{buildroot}
+mkdir -p %{buildroot}/etc/bash_completion.d
+install -m 644 completion/kiwi.sh %{buildroot}/etc/bash_completion.d
+
+mkdir -p %{buildroot}/%{_mandir}/man1
+for i in doc/man/*.gz; do \
+    install -m 644 $i %{buildroot}/usr/share/man/man1 ;\
+done
+
+%ifarch %ix86 x86_64
+for i in KIWI pxelinux.cfg image upload boot; do \
+    mkdir -p %{buildroot}/srv/tftpboot/$i ;\
+done
+%endif
+
+%ifarch %ix86 x86_64
+%pre -n kiwi-pxeboot
+#============================================================
+# create user and group tftp if they does not exist
+if ! /usr/bin/getent group tftp >/dev/null; then
+    %{_sbindir}/groupadd -r tftp 2>/dev/null || :
+fi
+if ! /usr/bin/getent passwd tftp >/dev/null; then
+    %{_sbindir}/useradd -c "TFTP account" -d /srv/tftpboot -G tftp -g tftp \
+        -r -s /bin/false tftp 2>/dev/null || :
+fi
+
+%post -n kiwi-pxeboot
+#============================================================
+# create /srv/tftpboot/pxelinux.cfg/default only if not exist
+if ( [ ! -e srv/tftpboot/pxelinux.cfg/default  ] ) ; then
+    cp /srv/tftpboot/pxelinux.cfg/default.default \
+        /srv/tftpboot/pxelinux.cfg/default
+fi
+%endif
+
+%files
+%defattr(-,root,root,-)
+%{_bindir}/kiwi
+%{python_sitelib}/kiwi-%{version}-py%{py_ver}.egg-info
+%{python_sitelib}/kiwi
+%config /etc/bash_completion.d/kiwi.sh
+%doc %{_mandir}/man1/*
+
+%files -n kiwi-tools
+%defattr(-, root, root)
+/usr/bin/*
+
+%ifarch %ix86 x86_64
+%files -n kiwi-pxeboot
+%defattr(-, root, root)
+%dir %attr(0750,tftp,tftp) /srv/tftpboot
+%dir /srv/tftpboot/KIWI
+%dir /srv/tftpboot/pxelinux.cfg
+%dir /srv/tftpboot/image
+%dir /srv/tftpboot/upload
+%dir /srv/tftpboot/boot
+%endif
+
+%changelog

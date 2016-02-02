@@ -1,12 +1,12 @@
 # Manifest describing source package contents
 
-graft boot
-graft config
 graft doc
-graft schema
-graft test
 graft tools
-graft xsl
+graft completion
+graft kiwi/boot
+graft kiwi/xsl
+graft kiwi/schema
+graft kiwi/config
 
 include README*
 include LICENSE

@@ -1,6 +1,9 @@
 # compiled tools
 tools_bin
 
+# completion
+completion/kiwi.sh
+
 # Schema formats
 kiwi/schema/kiwi.xsd
 kiwi/schema/xsi.xsd
@@ -53,7 +56,6 @@ coverage.xml
 
 # Translations
 *.mo
-*.pot
 
 # Django stuff:
 *.log
