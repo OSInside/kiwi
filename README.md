@@ -10,9 +10,9 @@ you can find here: https://github.com/openSUSE/kiwi.
 
   * [Status](#status)
   * [Motivation](#motivation)
-  * [Supported Distributions](#supported_distributions)
+  * [Supported Distributions](#supported-distributions)
   * [Contributing](#contributing)
-  * [Packaging and Versioning](#packaging_and_versioning)
+  * [Packaging and Versioning](#packaging-and-versioning)
   
 ## Status
 
