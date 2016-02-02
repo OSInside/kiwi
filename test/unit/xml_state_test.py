@@ -98,6 +98,12 @@ class TestXMLState(object):
         assert source_path.get_path() == \
             'ibs://Devel:PubCloud:AmazonEC2/SLE_12_GA'
 
+    def test_translate_obs_to_suse_repositories(self):
+        self.state.translate_obs_to_suse_repositories()
+        source_path = self.state.xml_data.get_repository()[1].get_source()
+        assert source_path.get_path() == \
+            'suse://Devel:PubCloud:AmazonEC2/SLE_12_GA'
+
     def test_set_repository(self):
         self.state.set_repository('repo', 'type', 'alias', 1)
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \

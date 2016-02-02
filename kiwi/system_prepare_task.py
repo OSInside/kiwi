@@ -50,6 +50,8 @@ options:
         buildservice. This only works if access to SUSE's internal
         buildservice is granted
 """
+import os
+
 # project
 from cli_task import CliTask
 from help import Help
@@ -91,7 +93,14 @@ class SystemPrepareTask(CliTask):
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
-        if self.command_args['--obs-repo-internal']:
+        if os.path.exists('/.buildenv'):
+            # This build runs inside of a buildservice worker. Therefore
+            # the repo defintions is adapted accordingly
+            self.xml_state.translate_obs_to_suse_repositories()
+
+        elif self.command_args['--obs-repo-internal']:
+            # This build should use the internal SUSE buildservice
+            # Be aware that the buildhost has to provide access
             self.xml_state.translate_obs_to_ibs_repositories()
 
         log.info('Preparing system')

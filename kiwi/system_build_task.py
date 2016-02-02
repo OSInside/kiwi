@@ -20,6 +20,7 @@ usage: kiwi system build -h | --help
        kiwi system build --description=<directory> --target-dir=<directory>
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
+           [--obs-repo-internal]
        kiwi system build help
 
 commands:
@@ -40,6 +41,10 @@ options:
         repository in the XML description
     --add-repo=<source,type,alias,priority>
         add repository with given source, type, alias and priority.
+    --obs-repo-internal
+        when using obs:// repos resolve them using the SUSE internal
+        buildservice. This only works if access to SUSE's internal
+        buildservice is granted
 """
 import os
 
@@ -95,6 +100,16 @@ class SystemBuildTask(CliTask):
                 )
 
                 Path.create(self.command_args['--target-dir'])
+
+        if os.path.exists('/.buildenv'):
+            # This build runs inside of a buildservice worker. Therefore
+            # the repo defintions is adapted accordingly
+            self.xml_state.translate_obs_to_suse_repositories()
+
+        elif self.command_args['--obs-repo-internal']:
+            # This build should use the internal SUSE buildservice
+            # Be aware that the buildhost has to provide access
+            self.xml_state.translate_obs_to_ibs_repositories()
 
         log.info('Preparing new root system')
         system = System(

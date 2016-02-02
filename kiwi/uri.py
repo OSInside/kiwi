@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from tempfile import mkdtemp
 from urlparse import urlparse
 import hashlib
@@ -49,7 +50,7 @@ class Uri(object):
         self.local_uri_type = {
             'iso': True,
             'dir': True,
-            'this': True
+            'suse': True
         }
 
     def translate(self):
@@ -75,6 +76,10 @@ class Uri(object):
             return self.__local_directory(uri.path)
         elif uri.scheme == 'iso':
             return self.__iso_mount_path(uri.path)
+        elif uri.scheme == 'suse':
+            return self.__suse_buildservice_path(
+                uri.netloc + uri.path
+            )
         elif uri.scheme == 'http':
             return self.uri
         else:
@@ -108,7 +113,7 @@ class Uri(object):
         return iso_path
 
     def __local_directory(self, path):
-        return path
+        return os.path.normpath(path)
 
     def __obs_project(self, name):
         obs_project = 'http://download.opensuse.org/repositories/'
@@ -121,6 +126,16 @@ class Uri(object):
     def __obs_distribution(self, name):
         obs_distribution = 'http://download.opensuse.org/distribution/'
         return obs_distribution + name
+
+    def __suse_buildservice_path(self, name):
+        """
+            Special to openSUSE buildservice. If the buildservice builds
+            the image it arranges the repos for each build in a special
+            environment, the so called build worker.
+        """
+        return self.__local_directory(
+            '/usr/src/packages/SOURCES/repos/' + name
+        )
 
     def __del__(self):
         try:

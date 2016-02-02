@@ -80,6 +80,11 @@ class TestUri(object):
         )
         assert result == '/tmp/foo'
 
+    def test_translate_suse_buildservice_path(self):
+        uri = Uri('suse://openSUSE:13.2/standard', 'yast2')
+        assert uri.translate() == \
+            '/usr/src/packages/SOURCES/repos/openSUSE:13.2/standard'
+
     @patch('kiwi.command.Command.run')
     @patch('kiwi.uri.mkdtemp')
     def test_destructor(self, mock_mkdtemp, mock_command):

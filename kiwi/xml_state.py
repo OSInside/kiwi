@@ -566,12 +566,27 @@ class XMLState(object):
     def translate_obs_to_ibs_repositories(self):
         """
             change obs:// repotype to ibs:// type
+            This will result in pointing to build.suse.de instead of
+            build.opensuse.org
         """
         for repository in self.get_repository_sections():
             source_path = repository.get_source()
             if 'obs://' in source_path.get_path():
                 source_path.set_path(
                     source_path.get_path().replace('obs://', 'ibs://')
+                )
+
+    def translate_obs_to_suse_repositories(self):
+        """
+            change obs:// repotype to suse:// type
+            This will result in a local repo path suitable for a
+            buildservice worker instance
+        """
+        for repository in self.get_repository_sections():
+            source_path = repository.get_source()
+            if 'obs://' in source_path.get_path():
+                source_path.set_path(
+                    source_path.get_path().replace('obs://', 'suse://')
                 )
 
     def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):

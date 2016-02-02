@@ -61,6 +61,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['build'] = False
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
+        self.task.command_args['--obs-repo-internal'] = None
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
 
@@ -119,6 +120,27 @@ class TestSystemBuildTask(object):
         mock_add_repo.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', None
         )
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
+    def test_process_system_prepare_use_ibs_repos(
+        self, mock_ibs_repo, mock_log
+    ):
+        self.__init_command_args()
+        self.task.command_args['--obs-repo-internal'] = True
+        self.task.process()
+        mock_ibs_repo.assert_called_once_with()
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.xml_state.XMLState.translate_obs_to_suse_repositories')
+    @patch('os.path.exists')
+    def test_process_system_prepare_use_suse_repos(
+        self, mock_exists, mock_suse_repos, mock_log
+    ):
+        self.__init_command_args()
+        mock_exists.return_value = True
+        self.task.process()
+        mock_suse_repos.assert_called_once_with()
 
     def test_process_system_build_help(self):
         self.__init_command_args()

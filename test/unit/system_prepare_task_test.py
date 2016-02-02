@@ -101,6 +101,16 @@ class TestSystemPrepareTask(object):
         self.task.process()
         mock_state.assert_called_once_with()
 
+    @patch('kiwi.xml_state.XMLState.translate_obs_to_suse_repositories')
+    @patch('os.path.exists')
+    def test_process_system_prepare_use_suse_repos(
+        self, mock_exists, mock_suse_repos
+    ):
+        self.__init_command_args()
+        mock_exists.return_value = True
+        self.task.process()
+        mock_suse_repos.assert_called_once_with()
+
     def test_process_system_prepare_help(self):
         self.__init_command_args()
         self.task.command_args['help'] = True
