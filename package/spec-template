@@ -122,6 +122,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %{_bindir}/kiwi
+%{_bindir}/kiwicompat
 %{python_sitelib}/kiwi-%{version}-py%{py_ver}.egg-info
 %{python_sitelib}/kiwi
 %config /etc/bash_completion.d/kiwi.sh
@@ -129,7 +130,9 @@ fi
 
 %files -n kiwi-tools
 %defattr(-, root, root)
-/usr/bin/*
+%exclude %{_bindir}/kiwi
+%exclude %{_bindir}/kiwicompat
+%{_bindir}/*
 
 %ifarch %ix86 x86_64
 %files -n kiwi-pxeboot

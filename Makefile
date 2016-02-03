@@ -6,7 +6,7 @@ LC = LC_MESSAGES
 
 version := $(shell python -c 'from kiwi.version import __version__; print __version__')
 
-TOOLS_OBJ = tools_bin tools_bin/startshell tools_bin/setctsid tools_bin/dcounter tools_bin/driveready tools_bin/utimer tools_bin/kversion tools_bin/isconsole
+TOOLS_OBJ = tools_bin tools_bin/startshell tools_bin/setctsid tools_bin/dcounter tools_bin/driveready tools_bin/utimer tools_bin/kversion tools_bin/isconsole tools_bin/kiwicompat
 
 pep8:
 	helper/run-pep8
@@ -60,6 +60,9 @@ tools_bin/kversion: tools/kversion/kversion.c
 
 tools_bin/isconsole: tools/isconsole/isconsole.c
 	${CC} ${CFLAGS} tools/isconsole/isconsole.c -o tools_bin/isconsole
+
+tools_bin/kiwicompat: tools/kiwicompat/kiwicompat
+	install -m 755 tools/kiwicompat/kiwicompat tools_bin/kiwicompat
 
 install_tools:
 	install -d -m 755 ${bin_prefix}
