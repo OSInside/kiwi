@@ -21,48 +21,6 @@ from kiwi.xml_state import XMLState
 from kiwi.command import Command
 
 
-class FakeCommandCall(object):
-    def __init__(self, returncode=0):
-        self.process = self.__poll(returncode)
-        self.data = self.__read()
-        self.output = self.data
-        self.error = self.data
-
-    def output_available(self):
-        return True
-
-    def error_available(self):
-        return True
-
-    class __poll(object):
-        def __init__(self, returncode):
-            self.toggle_return_value = False
-            self.returncode = returncode
-            self.pid = 42
-
-        def returncode(self):
-            return self.returncode
-
-        def poll(self):
-            if not self.toggle_return_value:
-                self.toggle_return_value = True
-            else:
-                return True
-
-        def kill(self):
-            pass
-
-    class __read(object):
-        def __init__(self):
-            self.read_data = [
-                '', '\n', 'o', 'o', 'f', ':', 'g', 'n', 'i', 'l',
-                '', 'l', 'r', 'a', 'o', 't', 'r', 's', 'r', 'n', 'e', 'I'
-            ]
-
-        def read(self, byte):
-            return self.read_data.pop()
-
-
 class TestSystem(object):
     @patch('kiwi.system.RootInit')
     @patch('kiwi.system.RootBind')
@@ -100,76 +58,53 @@ class TestSystem(object):
         root_bind.mount_kernel_file_systems.assert_called_once_with()
 
     @raises(KiwiBootStrapPhaseFailed)
-    def test_install_bootstrap_packages_raises(self):
-        self.manager.process_install_requests_bootstrap = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_install_bootstrap_packages_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
         self.system.install_bootstrap(self.manager)
 
     @raises(KiwiBootStrapPhaseFailed)
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
     @patch('kiwi.system.ArchiveTar')
-    def test_install_bootstrap_archives_raises(self, mock_tar):
-        mock_tar.side_effect = KiwiBootStrapPhaseFailed
-        self.manager.process_install_requests_bootstrap = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
+    def test_install_bootstrap_archives_raises(self, mock_tar, mock_poll):
+        mock_tar.side_effect = Exception
         self.system.install_bootstrap(self.manager)
 
     @raises(KiwiSystemUpdateFailed)
-    def test_update_system_raises(self):
-        self.manager.update = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
+    @patch('kiwi.system.CommandProcess.poll')
+    def test_update_system_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
         self.system.update_system(self.manager)
 
     @raises(KiwiSystemInstallPackagesFailed)
-    def test_install_packages_raises(self):
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_install_packages_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
         self.system.install_packages(self.manager, ['package'])
 
     @raises(KiwiInstallPhaseFailed)
-    def test_install_system_packages_raises(self):
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_install_system_packages_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
         self.system.install_system(self.manager)
 
     @raises(KiwiInstallPhaseFailed)
-    def test_pinch_system_raises(self):
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.ArchiveTar')
+    def test_install_system_archives_raises(self, mock_tar, mock_poll):
+        mock_tar.side_effect = KiwiInstallPhaseFailed
+        self.system.install_system(self.manager)
+
+    @raises(KiwiInstallPhaseFailed)
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_pinch_system_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
         self.system.pinch_system(self.manager)
 
-    @raises(KiwiInstallPhaseFailed)
-    def test_install_system_packages_delete_raises(self):
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
-        self.manager.process_delete_requests = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
-        self.system.install_system(self.manager)
-
-    @raises(KiwiInstallPhaseFailed)
-    @patch('kiwi.system.ArchiveTar')
-    def test_install_system_archives_raises(self, mock_tar):
-        mock_tar.side_effect = KiwiInstallPhaseFailed
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
-        self.manager.process_delete_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
-        self.system.install_system(self.manager)
-
     @raises(KiwiSystemDeletePackagesFailed)
-    def test_delete_packages_raises(self):
-        self.manager.process_delete_requests = mock.Mock(
-            return_value=FakeCommandCall(1)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_delete_packages_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
         self.system.delete_packages(self.manager, ['package'])
 
     @patch('kiwi.system.Repository')
@@ -216,15 +151,13 @@ class TestSystem(object):
         ]
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
     @patch('kiwi.system.ArchiveTar')
-    def test_install_bootstrap(self, mock_tar, mock_collection_type):
+    def test_install_bootstrap(self, mock_tar, mock_poll, mock_collection_type):
         tar = mock.Mock()
         tar.extract = mock.Mock()
         mock_tar.return_value = tar
         mock_collection_type.return_value = 'onlyRequired'
-        self.manager.process_install_requests_bootstrap = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
         self.system.install_bootstrap(self.manager)
         self.manager.process_only_required.assert_called_once_with()
         self.manager.request_package.assert_any_call(
@@ -245,15 +178,13 @@ class TestSystem(object):
         tar.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.xml_state.XMLState.get_system_collection_type')
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
     @patch('kiwi.system.ArchiveTar')
-    def test_install_system(self, mock_tar, mock_collection_type):
+    def test_install_system(self, mock_tar, mock_poll, mock_collection_type):
         tar = mock.Mock()
         tar.extract = mock.Mock()
         mock_tar.return_value = tar
         mock_collection_type.return_value = 'onlyRequired'
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
         self.system.install_system(self.manager)
         self.manager.process_only_required.assert_called_once_with()
         self.manager.request_package.assert_any_call(
@@ -269,34 +200,26 @@ class TestSystem(object):
         mock_tar.assert_called_once_with('../data/image.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
-    def test_pinch_system(self):
-        self.manager.process_delete_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_pinch_system(self, mock_poll):
         self.system.pinch_system(self.manager)
         self.manager.request_package.assert_any_call(
             'kernel-debug'
         )
         self.manager.process_delete_requests.assert_called_once_with(False)
 
-    def test_install_packages(self):
-        self.manager.process_install_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_install_packages(self, mock_poll):
         self.system.install_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
 
-    def test_delete_packages(self):
-        self.manager.process_delete_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
+    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    def test_delete_packages(self, mock_poll):
         self.system.delete_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
 
-    def test_update_system(self):
-        self.manager.update = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
+    @patch('kiwi.system.CommandProcess.poll')
+    def test_update_system(self, mock_poll):
         self.system.update_system(self.manager)
         self.manager.update.assert_called_once_with()
 

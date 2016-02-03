@@ -30,22 +30,61 @@ class CommandProcess(object):
         with and without progress information
     """
     def __init__(self, command, log_topic='system'):
-        self.command = command
+        self.command = CommandIterator(command)
         self.log_topic = log_topic
         self.items_processed = 0
 
-    def poll_show_progress(self, items_to_complete, match_method):
-        self.__process_poll(
-            raise_on_error=True, watch=False,
-            items_to_complete=items_to_complete, match_method=match_method
-        )
-
     def poll(self):
-        self.__process_poll()
+        try:
+            while True:
+                line = self.command.next()
+                if line:
+                    log.debug('%s: %s', self.log_topic, line)
+        except StopIteration:
+            if self.command.get_error_code() != 0:
+                raise KiwiCommandError(
+                    self.command.get_error_output()
+                )
+
+    def poll_show_progress(self, items_to_complete, match_method):
+        self.__init_progress()
+        try:
+            while True:
+                line = self.command.next()
+                if line:
+                    log.debug('%s: %s', self.log_topic, line)
+                    self.__update_progress(
+                        match_method, items_to_complete, line
+                    )
+        except StopIteration:
+            self.__stop_progress()
+            if self.command.get_error_code() != 0:
+                raise KiwiCommandError(
+                    self.command.get_error_output()
+                )
 
     def poll_and_watch(self):
-        return self.__process_poll(
-            raise_on_error=False, watch=True
+        log.info(self.log_topic)
+        log.debug('--------------out start--------------')
+        try:
+            while True:
+                line = self.command.next()
+                if line:
+                    log.debug(line)
+        except StopIteration:
+            log.debug('--------------out stop--------------')
+
+        error_code = self.command.get_error_code()
+        error_output = self.command.get_error_output()
+        result = namedtuple(
+            'result', ['stderr', 'returncode']
+        )
+        if error_output:
+            log.debug('--------------err start--------------')
+            log.debug(error_output)
+            log.debug('--------------err stop--------------')
+        return result(
+            stderr=error_output, returncode=error_code
         )
 
     def create_match_method(self, method):
@@ -56,79 +95,6 @@ class CommandProcess(object):
         def create_method(item_to_match, data):
             return method(item_to_match, data)
         return create_method
-
-    def __process_poll(
-        self, raise_on_error=True, watch=False,
-        items_to_complete=None, match_method=None
-    ):
-        show_progress = False
-        if items_to_complete:
-            show_progress = True
-
-        if show_progress:
-            self.__init_progress()
-        elif watch:
-            log.info(self.log_topic)
-            log.debug('--------------start--------------')
-
-        command_error_output = ''
-        command_output_buffer_line = ''
-        while self.command.process.poll() is None:
-            output_eof_reached = False
-            errors_eof_reached = False
-            while True:
-                if self.command.output_available() and not output_eof_reached:
-                    byte_read = self.command.output.read(1)
-                    if not byte_read:
-                        output_eof_reached = True
-                    elif byte_read == '\n':
-                        if watch:
-                            log.debug(
-                                command_output_buffer_line
-                            )
-                        else:
-                            log.debug(
-                                '%s: %s', self.log_topic,
-                                command_output_buffer_line
-                            )
-                        if show_progress:
-                            self.__update_progress(
-                                match_method, items_to_complete,
-                                command_output_buffer_line
-                            )
-                        command_output_buffer_line = ''
-                    else:
-                        command_output_buffer_line += byte_read
-
-                if self.command.error_available() and not errors_eof_reached:
-                    byte_read = self.command.error.read(1)
-                    if not byte_read:
-                        errors_eof_reached = True
-                    else:
-                        command_error_output += byte_read
-
-                if output_eof_reached and errors_eof_reached:
-                    break
-
-        if show_progress:
-            self.__stop_progress()
-        elif watch:
-            log.debug('--------------stop--------------')
-
-        if raise_on_error and self.command.process.returncode != 0:
-            raise KiwiCommandError(command_error_output)
-        else:
-            result = namedtuple(
-                'result', ['stderr', 'returncode']
-            )
-            if watch:
-                log.debug(command_error_output)
-            else:
-                log.debug('%s: %s', self.log_topic, command_error_output)
-            return result(
-                stderr=command_error_output,
-                returncode=self.command.process.returncode
-            )
 
     def __init_progress(self):
         log.progress(
@@ -154,8 +120,56 @@ class CommandProcess(object):
                     )
 
     def __del__(self):
-        if self.command and self.command.process.returncode is None:
+        if self.command and self.command.get_error_code() is None:
             log.info(
-                'Terminating subprocess %d', self.command.process.pid
+                'Terminating subprocess %d', self.command.get_pid()
             )
-            self.command.process.kill()
+            self.command.kill()
+
+
+class CommandIterator(object):
+    def __init__(self, command):
+        self.command = command
+        self.command_error_output = ''
+        self.command_output_line = ''
+        self.output_eof_reached = False
+        self.errors_eof_reached = False
+
+    def next(self):
+        line_read = None
+        if self.command.process.poll() is not None:
+            raise StopIteration()
+
+        if self.command.output_available():
+            byte_read = self.command.output.read(1)
+            if not byte_read:
+                self.output_eof_reached = True
+            elif byte_read == '\n':
+                line_read = self.command_output_line
+                self.command_output_line = ''
+            else:
+                self.command_output_line += byte_read
+
+        if self.command.error_available():
+            byte_read = self.command.error.read(1)
+            if not byte_read:
+                self.errors_eof_reached = True
+            else:
+                self.command_error_output += byte_read
+
+        return line_read
+
+    def get_error_output(self):
+        return self.command_error_output
+
+    def get_error_code(self):
+        return self.command.process.returncode
+
+    def get_pid(self):
+        return self.command.process.pid
+
+    def kill(self):
+        self.command.process.kill()
+
+    def __iter__(self):
+        return self
