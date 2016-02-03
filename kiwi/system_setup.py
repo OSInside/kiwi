@@ -446,7 +446,6 @@ class SystemSetup(object):
                 raise KiwiScriptFailed(
                     '%s failed: %s' % (name, format(result.stderr))
                 )
-            log.debug(result.stderr)
 
     def __call_script_no_chroot(self, name, option_list):
         if os.path.exists(self.root_dir + '/image/' + name):
@@ -465,7 +464,6 @@ class SystemSetup(object):
                 raise KiwiScriptFailed(
                     '%s failed: %s' % (name, format(result.stderr))
                 )
-            log.debug(result.stderr)
 
     def __create_passwd_hash(self, password):
         openssl = Command.run(

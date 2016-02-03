@@ -122,7 +122,7 @@ class TestCommandProcess(object):
         result = process.poll_and_watch()
         call = mock_log_debug.call_args_list[0]
         assert mock_log_debug.call_args_list[0] == \
-            call('--------------out start--------------')
+            call('--------------out start-------------')
         call = mock_log_debug.call_args_list[1]
         assert mock_log_debug.call_args_list[1] == \
             call('data')

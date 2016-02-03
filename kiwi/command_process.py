@@ -65,7 +65,7 @@ class CommandProcess(object):
 
     def poll_and_watch(self):
         log.info(self.log_topic)
-        log.debug('--------------out start--------------')
+        log.debug('--------------out start-------------')
         try:
             while True:
                 line = self.command.next()
@@ -80,7 +80,7 @@ class CommandProcess(object):
             'result', ['stderr', 'returncode']
         )
         if error_output:
-            log.debug('--------------err start--------------')
+            log.debug('--------------err start-------------')
             log.debug(error_output)
             log.debug('--------------err stop--------------')
         return result(
