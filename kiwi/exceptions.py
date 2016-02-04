@@ -93,6 +93,10 @@ class KiwiCompressionFormatUnknown(KiwiError):
     pass
 
 
+class KiwiCompatError(KiwiError):
+    pass
+
+
 class KiwiConfigFileNotFound(KiwiError):
     pass
 

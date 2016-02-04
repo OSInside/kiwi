@@ -23,6 +23,7 @@ usage: kiwi -h | --help
             [--logfile=<filename>]
             [--debug]
            system <command> [<args>...]
+       kiwi --compat <legacy_args>...
        kiwi -v | --version
        kiwi help
 
@@ -39,6 +40,9 @@ global options:
         create a log file containing all log information including
         debug information even if this is was not requested by the
         debug switch
+    --compat
+        support legacy kiwi commandline, e.g
+        kiwi --compat -- --build /my/description --type vmx -d /my/dest
     --debug
         print debug information
     help
@@ -56,6 +60,7 @@ from exceptions import (
     KiwiUnknownServiceName,
     KiwiCommandNotLoaded,
     KiwiLoadCommandUndefined,
+    KiwiCompatError,
     KiwiUnknownCommand
 )
 from defaults import Defaults
@@ -87,9 +92,22 @@ class Cli(object):
             return 'system'
         elif self.all_args['result']:
             return 'result'
+        elif self.all_args['--compat']:
+            return 'compat'
         else:
             raise KiwiUnknownServiceName(
                 'Unknown/Invalid Servicename'
+            )
+
+    def invoke_kiwicompat(self, compat_args):
+        kiwicompat = '/usr/bin/kiwicompat'
+        if not os.path.exists(kiwicompat):
+            raise KiwiCompatError('%s not found' % kiwicompat)
+        try:
+            os.execvp('kiwicompat', ['kiwicompat'] + compat_args)
+        except Exception as e:
+            raise KiwiCompatError(
+                '%s: %s' % (type(e).__name__, format(e))
             )
 
     def get_command(self):
@@ -108,6 +126,10 @@ class Cli(object):
     def load_command(self):
         command = self.get_command()
         service = self.get_servicename()
+        if service == 'compat':
+            return self.invoke_kiwicompat(
+                self.all_args['<legacy_args>'][1:]
+            )
         if not command:
             raise KiwiLoadCommandUndefined(
                 'No command specified for %s service' % service

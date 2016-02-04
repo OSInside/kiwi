@@ -12,10 +12,12 @@ class TestCli(object):
     def setup(self):
         self.help_global_args = {
             'help': False,
+            '--compat': False,
             '--type': None,
             'system': True,
             '-h': False,
             '--logfile': None,
+            '<legacy_args>': [],
             '--version': False,
             '--debug': False,
             'result': False,
@@ -61,6 +63,17 @@ class TestCli(object):
         cli = Cli()
         assert cli.get_servicename() == 'system'
 
+    def test_get_servicename_compat(self):
+        sys.argv = [
+            sys.argv[0],
+            '--compat', '--',
+            '--build', 'description',
+            '--type', 'vmx',
+            '-d', 'destination'
+        ]
+        cli = Cli()
+        assert cli.get_servicename() == 'compat'
+
     def test_get_servicename_result(self):
         sys.argv = [
             sys.argv[0],
@@ -82,6 +95,35 @@ class TestCli(object):
 
     def test_load_command(self):
         assert self.cli.load_command() == self.loaded_command
+
+    @patch('kiwi.cli.Cli.invoke_kiwicompat')
+    def test_load_command_compat_mode(self, mock_compat):
+        sys.argv = [
+            sys.argv[0],
+            '--compat', '--',
+            '--build', 'description',
+            '--type', 'vmx',
+            '-d', 'destination'
+        ]
+        cli = Cli()
+        cli.load_command()
+        mock_compat.assert_called_once_with(
+            ['--build', 'description', '--type', 'vmx', '-d', 'destination']
+        )
+
+    @raises(KiwiCompatError)
+    @patch('os.path.exists')
+    def test_invoke_kiwicompat_does_not_exist(self, mock_exists):
+        mock_exists.return_value = False
+        self.cli.invoke_kiwicompat([])
+
+    @raises(KiwiCompatError)
+    @patch('os.path.exists')
+    @patch('os.execvp')
+    def test_invoke_kiwicompat_exec_failed(self, mock_exec, mock_exists):
+        mock_exists.return_value = True
+        mock_exec.side_effect = Exception
+        self.cli.invoke_kiwicompat([])
 
     @raises(KiwiUnknownCommand)
     def test_load_command_unknown(self):
