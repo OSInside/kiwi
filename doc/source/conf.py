@@ -47,6 +47,9 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+# The sub toctree documents.
+result_list_doc = 'index_result_list'
+
 # General information about the project.
 project = u'kiwi'
 copyright = u'2016, Marcus Schäfer'
@@ -254,8 +257,19 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'kiwi', u'kiwi Documentation',
-     [author], 1)
+    (
+        master_doc,
+        'kiwi', u'Creating Operating System Images',
+        [author],
+        1
+    ),
+    (
+        result_list_doc,
+        'kiwi::result::list',
+        u'List build results',
+        [author],
+        1
+    )
 ]
 
 # If true, show URL addresses after external links.

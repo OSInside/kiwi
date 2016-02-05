@@ -9,7 +9,7 @@ Welcome to kiwi's documentation!
 .. toctree::
    :maxdepth: 2
 
-   kiwing
+   result_list
 
 Indices and tables
 ==================
