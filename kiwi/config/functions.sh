@@ -716,11 +716,13 @@ function baseSetupInPlaceGITRepository {
         /base-system/ /.broken /.buildenv .bash_history /.kconfig /.profile
         /etc/mtab
     "
-    set -o noglob on
+    # disable globbing
+    set -o noglob
     for entry in $files;do
         echo $entry >> .gitignore
     done
-    set -o noglob off
+    # enable globbing
+    set +o noglob
     git init && git add -A && \
     git commit -m "deployed"
     popd
