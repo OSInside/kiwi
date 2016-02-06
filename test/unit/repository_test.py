@@ -15,7 +15,13 @@ class TestRepository(object):
         Repository('root_bind', 'ms-manager')
 
     @patch('kiwi.repository.RepositoryZypper')
-    def test_repository_zypper_new(self, mock_manager):
+    def test_repository_zypper(self, mock_manager):
         root_bind = mock.Mock()
         Repository(root_bind, 'zypper')
+        mock_manager.assert_called_once_with(root_bind, None)
+
+    @patch('kiwi.repository.RepositoryYum')
+    def test_repository_yum(self, mock_manager):
+        root_bind = mock.Mock()
+        Repository(root_bind, 'yum')
         mock_manager.assert_called_once_with(root_bind, None)

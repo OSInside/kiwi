@@ -17,6 +17,7 @@
 #
 # project
 from repository_zypper import RepositoryZypper
+from repository_yum import RepositoryYum
 
 from exceptions import (
     KiwiRepositorySetupError
@@ -30,6 +31,8 @@ class Repository(object):
     def __new__(self, root_bind, package_manager, custom_args=None):
         if package_manager == 'zypper':
             return RepositoryZypper(root_bind, custom_args)
+        elif package_manager == 'yum':
+            return RepositoryYum(root_bind, custom_args)
         else:
             raise KiwiRepositorySetupError(
                 'Support for %s repository manager not implemented' %
