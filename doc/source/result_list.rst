@@ -1,14 +1,17 @@
+kiwi result list
+================
+
 SYNOPSIS
 --------
+
+*kiwi* result list
 
 DESCRIPTION
 -----------
 
-SERVICE NAMES
--------------
+TODO
 
-COMMANDS
---------
+OPTIONS
+-------
 
-GLOBAL OPTIONS
---------------
+TODO
