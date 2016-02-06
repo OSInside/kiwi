@@ -179,27 +179,39 @@ class SystemSetup(object):
 
     def setup_keyboard_map(self):
         if 'keytable' in self.preferences:
-            log.info(
-                'Setting up keytable: %s', self.preferences['keytable']
-            )
-            Shell.run_common_function(
-                'baseUpdateSysConfig', [
-                    self.root_dir + '/etc/sysconfig/keyboard', 'KEYTABLE',
-                    '"' + self.preferences['keytable'] + '"'
-                ]
-            )
+            keyboard_config = self.root_dir + '/etc/sysconfig/keyboard'
+            if os.path.exists(keyboard_config):
+                log.info(
+                    'Setting up keytable: %s', self.preferences['keytable']
+                )
+                Shell.run_common_function(
+                    'baseUpdateSysConfig', [
+                        keyboard_config, 'KEYTABLE',
+                        '"' + self.preferences['keytable'] + '"'
+                    ]
+                )
+            else:
+                log.warning(
+                    'keyboard setup skipped etc/sysconfig/keyboard not found'
+                )
 
     def setup_locale(self):
         if 'locale' in self.preferences:
-            log.info(
-                'Setting up locale: %s', self.preferences['locale']
-            )
-            Shell.run_common_function(
-                'baseUpdateSysConfig', [
-                    self.root_dir + '/etc/sysconfig/language', 'RC_LANG',
-                    self.preferences['locale'].split(',')[0] + '.UTF-8'
-                ]
-            )
+            lang_config = self.root_dir + '/etc/sysconfig/language'
+            if os.path.exists(lang_config):
+                log.info(
+                    'Setting up locale: %s', self.preferences['locale']
+                )
+                Shell.run_common_function(
+                    'baseUpdateSysConfig', [
+                        lang_config, 'RC_LANG',
+                        self.preferences['locale'].split(',')[0] + '.UTF-8'
+                    ]
+                )
+            else:
+                log.warning(
+                    'locale setup skipped etc/sysconfig/language not found'
+                )
 
     def setup_timezone(self):
         if 'timezone' in self.preferences:
