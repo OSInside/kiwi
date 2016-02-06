@@ -1,6 +1,6 @@
 # Manifest describing source package contents
 
-graft doc
+graft doc/source
 graft tools
 graft completion
 graft kiwi/boot
@@ -8,6 +8,7 @@ graft kiwi/xsl
 graft kiwi/schema
 graft kiwi/config
 
+include doc/Makefile
 include README*
 include LICENSE
 
