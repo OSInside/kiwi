@@ -74,7 +74,7 @@ install_tools:
 
 install_man:
 	install -d -m 755 ${man_prefix}/man2
-	for man in doc/build/man/*; do \
+	for man in doc/build/man/*.2; do \
 		gzip -f $$man && install -m 644 $$man.gz ${man_prefix}/man2 ;\
 	done
 
