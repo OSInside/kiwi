@@ -27,6 +27,7 @@ Source:         python-kiwi.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
+BuildRequires:  python-Sphinx
 Requires:       python-docopt
 Requires:       python-setuptools
 Requires:       python-lxml
@@ -78,19 +79,16 @@ outside of the scope of kiwi appliance building.
 
 %build
 test -e /.buildenv && . /.buildenv
-make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools
+make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools_bin
+make buildroot=%{buildroot} man_bin
 python setup.build.py build
 
 %install
 make buildroot=%{buildroot} install_tools
+make buildroot=%{buildroot} install_man
 python setup.build.py install --prefix=%{_prefix} --root=%{buildroot}
 mkdir -p %{buildroot}/etc/bash_completion.d
 install -m 644 completion/kiwi.sh %{buildroot}/etc/bash_completion.d
-
-mkdir -p %{buildroot}/%{_mandir}/man1
-for i in doc/man/*.gz; do \
-    install -m 644 $i %{buildroot}/usr/share/man/man1 ;\
-done
 
 %ifarch %ix86 x86_64
 for i in KIWI pxelinux.cfg image upload boot; do \
@@ -126,7 +124,7 @@ fi
 %{python_sitelib}/kiwi-%{version}-py%{py_ver}.egg-info
 %{python_sitelib}/kiwi
 %config /etc/bash_completion.d/kiwi.sh
-%doc %{_mandir}/man1/*
+%doc %{_mandir}/man2/*
 
 %files -n kiwi-tools
 %defattr(-, root, root)

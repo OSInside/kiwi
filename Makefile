@@ -1,5 +1,6 @@
 buildroot = /
-bin_prefix  = ${buildroot}/usr/bin
+bin_prefix = ${buildroot}/usr/bin
+man_prefix = ${buildroot}/usr/share/man
 
 CC = gcc -Wall -fpic -O2
 LC = LC_MESSAGES
@@ -38,6 +39,9 @@ kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 tools_bin:
 	mkdir -p tools_bin
 
+man_bin:
+	${MAKE} -C doc man
+
 tools: ${TOOLS_OBJ}
 
 tools_bin/dcounter: tools/dcounter/dcounter.c
@@ -67,6 +71,12 @@ tools_bin/kiwicompat: tools/kiwicompat/kiwicompat
 install_tools:
 	install -d -m 755 ${bin_prefix}
 	cp -a tools_bin/* ${bin_prefix}
+
+install_man:
+	install -d -m 755 ${man_prefix}/man2
+	for man in doc/build/man/*; do \
+		gzip -f $$man && install -m 644 $$man.gz ${man_prefix}/man2 ;\
+	done
 
 po:
 	./.locale
