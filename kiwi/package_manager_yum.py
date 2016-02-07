@@ -63,6 +63,7 @@ class PackageManagerYum(PackageManagerBase):
             ] + self.yum_args + [
                 '--installroot', self.root_dir
             ] + self.custom_args + ['groupinstall'] + self.collection_requests
+        self.cleanup_requests()
         return Command.call(
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
@@ -85,6 +86,7 @@ class PackageManagerYum(PackageManagerBase):
             ] + chroot_yum_args + self.custom_args + [
                 'groupinstall'
             ] + self.collection_requests
+        self.cleanup_requests()
         return Command.call(
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
@@ -103,6 +105,7 @@ class PackageManagerYum(PackageManagerBase):
                 'None of the requested packages to delete are installed'
             )
         delete_options = ['--nodeps', '--allmatches', '--noscripts']
+        self.cleanup_requests()
         return Command.call(
             [
                 'chroot', self.root_dir, 'rpm', '-e'
