@@ -17,6 +17,7 @@
 #
 # project
 from package_manager_zypper import PackageManagerZypper
+from package_manager_yum import PackageManagerYum
 
 from exceptions import (
     KiwiPackageManagerSetupError
@@ -32,6 +33,8 @@ class PackageManager(object):
 
         if package_manager == 'zypper':
             manager = PackageManagerZypper(repository, custom_args)
+        elif package_manager == 'yum':
+            manager = PackageManagerYum(repository, custom_args)
         else:
             raise KiwiPackageManagerSetupError(
                 'Support for package manager %s not implemented' %

@@ -15,7 +15,13 @@ class TestPackageManager(object):
         PackageManager('repository', 'ms-manager')
 
     @patch('kiwi.package_manager.PackageManagerZypper')
-    def test_manager_zypper_new(self, mock_manager):
+    def test_manager_zypper(self, mock_manager):
         repository = mock.Mock()
         PackageManager(repository, 'zypper')
+        mock_manager.assert_called_once_with(repository, None)
+
+    @patch('kiwi.package_manager.PackageManagerYum')
+    def test_manager_yum(self, mock_manager):
+        repository = mock.Mock()
+        PackageManager(repository, 'yum')
         mock_manager.assert_called_once_with(repository, None)
