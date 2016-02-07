@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
+import copy
 import platform
 from collections import namedtuple
 
@@ -671,7 +672,11 @@ class XMLState(object):
             if wipe:
                 target_state.xml_data.set_repository([])
             for repository_section in repository_sections:
-                target_state.xml_data.add_repository(repository_section)
+                repository_copy = copy.deepcopy(repository_section)
+                # profiles are not copied because they might not exist
+                # in the target description
+                repository_copy.set_profiles(None)
+                target_state.xml_data.add_repository(repository_copy)
 
     def copy_preferences_subsections(self, section_names, target_state):
         target_preferences_sections = target_state.get_preferences_sections()
