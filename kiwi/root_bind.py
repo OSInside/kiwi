@@ -110,7 +110,9 @@ class RootBind(object):
     def move_to_root(self, elements):
         result = []
         for element in elements:
-            result.append(element.replace(self.root_dir, '/'))
+            result.append(
+                element.replace(os.path.normpath(self.root_dir), '/')
+            )
         return result
 
     def cleanup(self):
