@@ -138,7 +138,8 @@ class CommandIterator(object):
     def next(self):
         line_read = None
         if self.command.process.poll() is not None:
-            raise StopIteration()
+            if self.output_eof_reached and self.errors_eof_reached:
+                raise StopIteration()
 
         if self.command.output_available():
             byte_read = self.command.output.read(1)
