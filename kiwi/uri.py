@@ -107,7 +107,7 @@ class Uri(object):
                 )
 
     def __iso_mount_path(self, path):
-        iso_path = mkdtemp()
+        iso_path = mkdtemp(prefix='iso-mount.')
         Command.run(['mount', path, iso_path])
         self.mount_stack.append(iso_path)
         return iso_path

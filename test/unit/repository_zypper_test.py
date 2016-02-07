@@ -42,26 +42,32 @@ class TestRepositoryZypper(object):
             self.repo.command_env
 
     @patch('kiwi.command.Command.run')
-    def test_add_repo(self, mock_command):
-        self.repo.add_repo('foo', 'uri', 'rpm-md', 42)
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == call(
-            ['zypper'] + self.repo.zypper_args + [
-                '--root', '../data',
-                'addrepo', '-f',
-                '--type', 'YUM',
-                '--keep-packages',
-                'uri',
-                'foo'
-            ], self.repo.command_env
+    @patch('kiwi.repository_zypper.Path.wipe')
+    @patch('os.path.exists')
+    def test_add_repo(self, mock_exists, mock_wipe, mock_command):
+        mock_exists.return_value = False
+        self.repo.add_repo('foo', 'iso-mount/uri', 'rpm-md', 42)
+        mock_wipe.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
         )
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == call(
-            ['zypper'] + self.repo.zypper_args + [
-                '--root', '../data',
-                'modifyrepo', '-p', '42', 'foo'
-            ], self.repo.command_env
-        )
+        assert mock_command.call_args_list == [
+            call(
+                ['zypper'] + self.repo.zypper_args + [
+                    '--root', '../data',
+                    'addrepo', '-f',
+                    '--type', 'YUM',
+                    '--keep-packages',
+                    'iso-mount/uri',
+                    'foo'
+                ], self.repo.command_env
+            ),
+            call(
+                ['zypper'] + self.repo.zypper_args + [
+                    '--root', '../data',
+                    'modifyrepo', '-p', '42', 'foo'
+                ], self.repo.command_env
+            )
+        ]
 
     @patch('kiwi.command.Command.run')
     def test_delete_repo(self, mock_command):

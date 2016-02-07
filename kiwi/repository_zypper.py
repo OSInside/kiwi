@@ -40,7 +40,14 @@ class RepositoryZypper(RepositoryBase):
 
         self.repo_names = []
 
+        # zypper support by default point all actions into the root
+        # directory of the image system. This information is passed
+        # as arguments to zypper and adapted if the call runs as
+        # chrooted operation. Therefore the use of the shared location
+        # via RootBind::mount_shared_directory is optional but
+        # recommended to make use of the repo cache
         manager_base = self.root_dir + self.shared_location
+
         self.shared_zypper_dir = {
             'pkg-cache-dir': manager_base + '/packages',
             'reposd-dir': manager_base + '/zypper/repos',
@@ -99,6 +106,9 @@ class RepositoryZypper(RepositoryBase):
     def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
+        if 'iso-mount' in uri:
+            # iso mount point is a tmpdir, thus different each time we build
+            Path.wipe(repo_file)
         if not os.path.exists(repo_file):
             Command.run(
                 ['zypper'] + self.zypper_args + [
