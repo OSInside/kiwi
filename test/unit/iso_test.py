@@ -256,14 +256,10 @@ class TestIso(object):
         Iso.fix_boot_catalog('isofile')
 
         if sys.byteorder == 'big':
-            # on big endian machines, the pack of 'BBH28s' has one
-            # zero byte less. I'm not sure if this is the correct behavior
-            # but as long as iso filesystems on little endian machines like
-            # s390 are not used, this test succeeds
             assert self.file_mock.write.call_args_list == [
                 call(
                     '_' * 44 +
-                    '\x01Legacy (isolinux)\x00\x00\x91\xef\x01' + '\x00' * 28 +
+                    '\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01' + '\x00' * 28 +
                     '\x88___________\x01UEFI (grub)' +
                     '\x00' * 8
                 )
