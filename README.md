@@ -13,6 +13,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Supported Distributions](#supported-distributions)
   * [Contributing](#contributing)
   * [Packaging and Versioning](#packaging-and-versioning)
+  * [Documentation](#documentation)
   
 ## Status
 
@@ -75,6 +76,7 @@ with minor corrections:
 ```
 $ sudo zypper in python-virtualenv
 $ sudo zypper in python-bumpversion
+$ sudo zypper in python-Sphinx
 
 $ virtualenv-2.7 .env2
 ```
@@ -123,3 +125,14 @@ $ make build
 The sources are collected below the `dist/` directory. In there you
 will find all required files to submit a package to the open build
 service or just build it with rpmbuild
+
+## Documentation
+
+The documentation is implemented as manual pages based on Sphinx
+using the ReST markup. In order to build the manual pages for testing
+just call:
+
+```
+$ cd doc
+$ make man
+```
