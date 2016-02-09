@@ -1,4 +1,3 @@
-#!/bin/sh
 test -f /.kconfig && . /.kconfig
 test -f /.profile && . /.profile
 
