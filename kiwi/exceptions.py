@@ -325,10 +325,6 @@ class KiwiTypeNotFound(KiwiError):
     pass
 
 
-class KiwiUnknownCommand(KiwiError):
-    pass
-
-
 class KiwiUnknownServiceName(KiwiError):
     pass
 

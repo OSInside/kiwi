@@ -125,7 +125,7 @@ class TestCli(object):
         mock_exec.side_effect = Exception
         self.cli.invoke_kiwicompat([])
 
-    @raises(KiwiUnknownCommand)
+    @raises(SystemExit)
     def test_load_command_unknown(self):
         self.cli.loaded = False
         self.cli.all_args['<command>'] = 'foo'

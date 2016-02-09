@@ -60,8 +60,7 @@ from exceptions import (
     KiwiUnknownServiceName,
     KiwiCommandNotLoaded,
     KiwiLoadCommandUndefined,
-    KiwiCompatError,
-    KiwiUnknownCommand
+    KiwiCompatError
 )
 from defaults import Defaults
 from version import __version__
@@ -138,10 +137,11 @@ class Cli(object):
             service + '_' + command + '_task.py'
         )
         if not os.path.exists(command_source_file):
-            raise KiwiUnknownCommand(
-                'Unknown command "%s" for %s service, available are: %s' %
-                (command, service, self.__get_command_implementations(service))
-            )
+            from logger import log
+            log.info('Did you mean')
+            for service_command in self.__get_command_implementations(service):
+                log.info('--> kiwi %s', service_command)
+            raise SystemExit
         self.command_loaded = importlib.import_module(
             'kiwi.' + service + '_' + command + '_task'
         )
