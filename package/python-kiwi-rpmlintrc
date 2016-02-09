@@ -1,3 +1,6 @@
+# don't blame on auto generated code
+addFilter("non-executable-script .*/xml_parse.py.*")
+
 # don't check uid for tftpboot
 addFilter("non-standard-uid .*")
 
