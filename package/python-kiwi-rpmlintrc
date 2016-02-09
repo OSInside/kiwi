@@ -1,3 +1,9 @@
+# don't check uid for tftpboot
+addFilter("non-standard-uid .*")
+
+# don't check for buildroot usage, kiwi's Makefile uses the same var name
+addFilter("rpm-buildroot-usage .*")
+
 # don't check for file duplicates
 addFilter("files-duplicate .*")
 addFilter("cross-directory-hard-link .*")
