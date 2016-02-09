@@ -8,6 +8,7 @@ graft kiwi/xsl
 graft kiwi/schema
 graft kiwi/config
 
+include Makefile
 include doc/Makefile
 include README*
 include LICENSE

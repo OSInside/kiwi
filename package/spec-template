@@ -16,7 +16,7 @@
 #
 #       https://github.com/SUSE/kiwi/issues
 #
-Name:           kiwi
+Name:           python-kiwi
 Version:        %%VERSION
 Release:        0
 Url:            https://github.com/SUSE/azurectl
@@ -28,6 +28,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
 BuildRequires:  python-Sphinx
+BuildRequires:  fdupes
 Requires:       python-docopt
 Requires:       python-setuptools
 Requires:       python-lxml
@@ -56,7 +57,6 @@ Requires:       grub2-x86_64-efi
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
-BuildArch:      noarch
 
 %description
 The KIWI Image System provides an operating system image builder
@@ -74,13 +74,26 @@ kiwi created initial ramdisk which is used to control the very
 first boot of an appliance. The tools are not meant to be used
 outside of the scope of kiwi appliance building.
 
+%ifarch %ix86 x86_64
+%package -n kiwi-pxeboot
+Summary:        KIWI - PXE boot structure
+Requires:       syslinux
+License:        GPL-2.0+
+Group:          System/Management
+BuildArch:      noarch
+
+%description -n kiwi-pxeboot
+This package contains the basic PXE directory structure which is
+needed to serve kiwi built images via PXE.
+%endif
+
 %prep
 %setup -q -n kiwi-%{version}
 
 %build
 test -e /.buildenv && . /.buildenv
-make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools_bin
-make buildroot=%{buildroot} man_bin
+make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools
+make buildroot=%{buildroot} man
 python setup.build.py build
 
 %install
@@ -95,6 +108,10 @@ for i in KIWI pxelinux.cfg image upload boot; do \
     mkdir -p %{buildroot}/srv/tftpboot/$i ;\
 done
 %endif
+
+%fdupes %{buildroot}/srv/tftpboot
+%fdupes %{buildroot}/%{python_sitelib}/kiwi
+
 
 %ifarch %ix86 x86_64
 %pre -n kiwi-pxeboot

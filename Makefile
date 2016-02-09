@@ -39,7 +39,7 @@ kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 tools_bin:
 	mkdir -p tools_bin
 
-man_bin:
+man:
 	${MAKE} -C doc man
 
 tools: ${TOOLS_OBJ}
@@ -107,6 +107,7 @@ build: pep8 test completion po
 		helper/changelog_descending > dist/python-kiwi.changes
 	cat package/spec-template | sed -e s'@%%VERSION@${version}@' \
 		> dist/python-kiwi.spec
+	cp package/python-kiwi-rpmlintrc dist
 
 clean:
 	find -name *.pyc | xargs rm -f
