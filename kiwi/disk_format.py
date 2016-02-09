@@ -64,10 +64,13 @@ class DiskFormat(object):
             custom_args = None
             vmdisk_section = xml_state.get_build_type_vmdisk_section()
             if vmdisk_section:
-                custom_args = {
-                    'subformat=%s' % vmdisk_section.get_diskmode(): None,
-                    'adapter_type=%s' % vmdisk_section.get_controller(): None
-                }
+                custom_args = {}
+                disk_mode = vmdisk_section.get_diskmode()
+                disk_controller = vmdisk_section.get_controller()
+                if disk_mode:
+                    custom_args['subformat=%s' % disk_mode] = None
+                if disk_controller:
+                    custom_args['adapter_type=%s' % disk_controller] = None
             return DiskFormatVmdk(
                 xml_state, root_dir, target_dir, custom_args
             )
