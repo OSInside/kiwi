@@ -32,7 +32,8 @@ from exceptions import (
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubModulesError,
     KiwiBootLoaderGrubSecureBootError,
-    KiwiBootLoaderGrubFontError
+    KiwiBootLoaderGrubFontError,
+    KiwiBootLoaderGrubDataError
 )
 
 
@@ -82,6 +83,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.grub2 = BootLoaderTemplateGrub2()
         self.config = None
         self.efi_boot_path = None
+        self.boot_directory_name = 'grub2'
 
     def write(self):
         """
@@ -338,10 +340,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         Command.run(
             [
-                'grub2-mkimage', '-O', self.__get_efi_format(),
+                'grub2-mkimage',
+                '-O', self.__get_efi_format(),
                 '-o', self.__get_efi_image_name(),
                 '-c', early_boot_script,
-                '-p', self.get_boot_path() + '/grub2', '-d',
+                '-p', self.get_boot_path() + '/' + self.boot_directory_name,
+                '-d',
                 self.__get_grub_boot_path() + '/' + self.__get_efi_format()
             ] + self.__get_efi_modules()
         )
@@ -359,7 +363,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'grub2-mkimage', '-O', self.__get_bios_format(),
                 '-o', self.__get_bios_image_name(),
                 '-c', early_boot_script,
-                '-p', self.get_boot_path() + '/grub2', '-d',
+                '-p', self.get_boot_path() + '/' + self.boot_directory_name,
+                '-d',
                 self.__get_grub_boot_path() + '/' + self.__get_bios_format()
             ] + self.__get_bios_modules()
         )
@@ -370,7 +375,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'search --fs-uuid --set=root %s\n' % uuid
             )
             early_boot.write(
-                'set prefix=($root)%s/grub2\n' % self.get_boot_path()
+                'set prefix=($root)%s/%s\n' % (
+                    self.get_boot_path(), self.boot_directory_name
+                )
             )
 
     def __create_early_boot_script_for_mbrid_search(self, filename, mbrid):
@@ -379,11 +386,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'search --file --set=root /boot/%s\n' % mbrid.get_id()
             )
             early_boot.write(
-                'set prefix=($root)/boot/grub2\n'
+                'set prefix=($root)/boot/%s\n' % self.boot_directory_name
             )
 
     def __get_grub_boot_path(self):
-        return self.root_dir + '/boot/grub2'
+        return self.root_dir + '/boot/' + self.boot_directory_name
 
     def __get_basic_modules(self):
         modules = [
@@ -477,7 +484,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path = self.root_dir
         return ''.join(
             [
-                lookup_path, '/usr/lib/grub2/', format_name
+                self.__find_grub_data(lookup_path + '/usr/lib'),
+                '/', format_name
             ]
         )
 
@@ -511,7 +519,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path = self.root_dir
         boot_unicode_font = self.root_dir + '/boot/unicode.pf2'
         if not os.path.exists(boot_unicode_font):
-            unicode_font = lookup_path + '/usr/share/grub2/unicode.pf2'
+            unicode_font = self.__find_grub_data(lookup_path + '/usr/share') + \
+                '/unicode.pf2'
             try:
                 Command.run(
                     ['cp', unicode_font, boot_unicode_font]
@@ -521,11 +530,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     'Unicode font %s not found' % unicode_font
                 )
 
-        boot_theme_dir = self.root_dir + '/boot/grub2/themes'
+        boot_theme_dir = self.root_dir + '/boot/' + \
+            self.boot_directory_name + '/themes'
         if self.theme and not os.path.exists(boot_theme_dir):
             Path.create(boot_theme_dir)
-            theme_dir = \
-                lookup_path + '/usr/share/grub2/themes/' + self.theme
+            theme_dir = self.__find_grub_data(lookup_path + '/usr/share') + \
+                '/themes/' + self.theme
             if os.path.exists(theme_dir):
                 Command.run(
                     ['rsync', '-zav', theme_dir, boot_theme_dir],
@@ -559,3 +569,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 raise KiwiBootLoaderGrubModulesError(
                     'grub2 modules %s not found' % module_path
                 )
+
+    def __find_grub_data(self, lookup_path):
+        """
+            depending on the distribution grub could be installed below
+            a grub2 or grub directory. Therefore this information needs
+            to be dynamically looked up
+        """
+        for grub_name in ['grub2', 'grub']:
+            grub_path = lookup_path + '/' + grub_name
+            if os.path.exists(grub_path):
+                return grub_path
+
+        raise KiwiBootLoaderGrubDataError(
+            'No grub2 installation found in %s' % lookup_path
+        )

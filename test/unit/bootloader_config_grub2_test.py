@@ -20,6 +20,20 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_domain, mock_theme, mock_firmware):
+        self.os_exists = {
+            'root_dir/boot/unicode.pf2': True,
+            'root_dir/usr/share/grub2': True,
+            'root_dir/usr/share/grub': False,
+            'root_dir/boot/grub2/themes': False,
+            'root_dir/usr/share/grub2/themes/some-theme': True,
+            'root_dir/usr/lib/grub2': True,
+            'root_dir/usr/lib/grub': False,
+            'root_dir/boot/grub2/x86_64-efi': False,
+            'root_dir/boot/grub2/i386-pc': False,
+            'root_dir/boot/grub2/x86_64-xen': False,
+            'root_dir/usr/lib64/efi/shim.efi': True,
+            'root_dir/usr/lib64/efi/grub.efi': True
+        }
         mock_machine.return_value = 'x86_64'
         mock_theme.return_value = None
         mock_domain.return_value = None
@@ -223,20 +237,45 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
     @patch('os.path.exists')
+    @raises(KiwiBootLoaderGrubDataError)
+    def test_no_grub_installation_found(self, mock_exists, mock_command):
+        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2'] = False
+        self.os_exists['root_dir/usr/share/grub'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_disk_boot_images('0815')
+
+    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubFontError)
     def test_setup_disk_boot_images_raises_font_does_not_exist(
         self, mock_exists, mock_command
     ):
-        mock_exists.return_value = False
+        self.os_exists['root_dir/boot/unicode.pf2'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         mock_command.side_effect = Exception
         self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubModulesError)
     def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
-        self, mock_command
+        self, mock_exists, mock_command
     ):
-        self.bootloader.root_dir = '../data/root-dir'
+        self.os_exists['root_dir/boot/unicode.pf2'] = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         mock_command.side_effect = Exception
         self.bootloader.setup_disk_boot_images('0815')
 
@@ -251,7 +290,12 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
         )
-        mock_exists.return_value = False
+        self.os_exists['root_dir/boot/unicode.pf2'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
         file_mock = mock.Mock()
@@ -326,7 +370,12 @@ class TestBootLoaderConfigGrub2(object):
             return_value=None
         )
         self.bootloader.xen_guest = True
-        mock_exists.return_value = False
+        self.os_exists['root_dir/boot/unicode.pf2'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
         file_mock = mock.Mock()
@@ -409,7 +458,12 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value=None
         )
-        mock_exists.return_value = False
+        self.os_exists['root_dir/boot/unicode.pf2'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
         file_mock = mock.Mock()
@@ -472,7 +526,11 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
-        mock_exists.return_value = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
@@ -497,14 +555,15 @@ class TestBootLoaderConfigGrub2(object):
     ):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
-        exists_results = [False, True, False, False]
+        self.os_exists['root_dir/boot/grub2/themes'] = False
+        self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = True
 
         def side_effect(arg):
-            return exists_results.pop()
+            return self.os_exists[arg]
 
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
-        assert mock_command.call_args_list[1] == call([
+        assert mock_command.call_args_list[0] == call([
             'rsync', '-zav',
             'root_dir/usr/share/grub2/themes/some-theme',
             'root_dir/boot/grub2/themes'
@@ -520,7 +579,12 @@ class TestBootLoaderConfigGrub2(object):
     ):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
-        mock_exists.return_value = False
+        self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_warn.called
 
