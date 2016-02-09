@@ -27,4 +27,4 @@ class Help(object):
     def show(self, command=None):
         if not command:
             raise KiwiHelpNoCommandGiven("No help context specified")
-        subprocess.call('man ' + command, shell=True)
+        subprocess.call('man 2 ' + command, shell=True)

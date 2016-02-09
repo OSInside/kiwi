@@ -19,4 +19,4 @@ class TestHelp(object):
     @patch('subprocess.call')
     def test_show_command(self, mock_process):
         self.help.show('foo')
-        mock_process.assert_called_once_with('man foo', shell=True)
+        mock_process.assert_called_once_with('man 2 foo', shell=True)
