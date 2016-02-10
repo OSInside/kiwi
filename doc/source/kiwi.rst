@@ -113,3 +113,16 @@ GLOBAL OPTIONS
 --debug
 
   Print debug information on the commandline
+
+COMPATIBILITY
+-------------
+
+This version of kiwi uses a different caller syntax compared to
+former versions. However there is a compatibility mode which allows
+to use a legacy kiwi commandline as follows:
+
+.. code-block:: bash
+
+   $ kiwi --compat -- \
+       --build kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+       --type vmx -d /tmp/myimage
