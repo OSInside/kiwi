@@ -17,6 +17,7 @@
 #
 from tempfile import mkdtemp
 import os
+import platform
 
 # project
 from command import Command
@@ -49,20 +50,32 @@ class InstallImageBuilder(object):
         self.diskname = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.raw'
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+                '.raw'
             ]
         )
         self.isoname = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.install.iso'
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+                '.install.iso'
             ]
         )
         self.pxename = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.install.tar.xz'
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+                '.install.tar.xz'
             ]
+        )
+        self.squashed_diskname = ''.join(
+            [xml_state.xml_data.get_name(), '.raw']
         )
         self.md5name = ''.join(
             [xml_state.xml_data.get_name(), '.md5']
@@ -104,9 +117,16 @@ class InstallImageBuilder(object):
         # the system image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
         Command.run(
-            ['cp', '-l', self.diskname, self.squashed_contents]
+            [
+                'cp', '-l', self.diskname,
+                self.squashed_contents + '/' + self.squashed_diskname
+            ]
         )
-        squashed_image_file = self.diskname + '.squashfs'
+        squashed_image_file = ''.join(
+            [
+                self.target_dir, '/', self.squashed_diskname, '.squashfs'
+            ]
+        )
         squashed_image = FileSystemSquashFs(
             device_provider=None, root_dir=self.squashed_contents
         )
@@ -282,14 +302,13 @@ class InstallImageBuilder(object):
         )
 
     def __create_iso_install_trigger_files(self):
-        disk_base_name = os.path.basename(self.diskname)
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         iso_trigger = self.media_dir + '/config.isoclient'
         with open(initrd_trigger, 'w') as vmx_system:
-            vmx_system.write('IMAGE="%s"\n' % disk_base_name)
+            vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
         with open(iso_trigger, 'w') as iso_system:
-            iso_system.write('IMAGE="%s"\n' % disk_base_name)
+            iso_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

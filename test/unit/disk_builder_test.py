@@ -16,7 +16,9 @@ from kiwi.mapped_device import MappedDevice
 
 class TestDiskBuilder(object):
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    @patch('platform.machine')
+    def setup(self, mock_machine, mock_exists):
+        mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         description = XMLDescription(
             '../data/example_disk_config.xml'
@@ -209,7 +211,8 @@ class TestDiskBuilder(object):
         )
         self.bootloader_install.install.assert_called_once_with()
         self.system_setup.call_edit_boot_install_script.assert_called_once_with(
-            'target_dir/LimeJeOS-openSUSE-13.2.raw', '/dev/boot-device'
+            'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
+            '/dev/boot-device'
         )
         self.install_image.create_install_iso.assert_called_once_with()
         self.install_image.create_install_pxe_archive.assert_called_once_with()

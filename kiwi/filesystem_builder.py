@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
+
 # project
 from filesystem import FileSystem
 from loop_device import LoopDevice
@@ -50,7 +52,10 @@ class FileSystemBuilder(object):
         self.filename = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.', self.requested_filesystem
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+                '.', self.requested_filesystem
             ]
         )
         self.blocksize = xml_state.build_type.get_target_blocksize()

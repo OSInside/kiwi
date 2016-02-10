@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
+
 # project
 from defaults import Defaults
 from archive_tar import ArchiveTar
@@ -68,6 +70,9 @@ class ArchiveBuilder(object):
         return ''.join(
             [
                 self.target_dir, '/',
-                self.xml_state.xml_data.get_name(), '.', suffix
+                self.xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + self.xml_state.get_image_version(),
+                '.', suffix
             ]
         )

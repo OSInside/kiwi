@@ -183,13 +183,13 @@ class TestLiveImageBuilder(object):
             ], device_provider=None, root_dir='temp_media_dir'
         )
         iso_image.create_on_file.assert_called_once_with(
-            'target_dir/result-image.iso'
+            'target_dir/result-image.x86_64-1.2.3.iso'
         )
         mock_hybrid.assert_called_once_with(
-            'offset', self.mbrid, 'target_dir/result-image.iso'
+            'offset', self.mbrid, 'target_dir/result-image.x86_64-1.2.3.iso'
         )
         self.result.add.assert_called_once_with(
-            'live_image', 'target_dir/result-image.iso'
+            'live_image', 'target_dir/result-image.x86_64-1.2.3.iso'
         )
 
     @patch('kiwi.live_image_builder.mkdtemp')

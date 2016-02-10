@@ -11,7 +11,9 @@ from kiwi.install_image_builder import InstallImageBuilder
 
 
 class TestInstallImageBuilder(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         self.bootloader = mock.Mock()
         kiwi.install_image_builder.BootLoaderConfig = mock.Mock(
             return_value=self.bootloader
@@ -48,6 +50,9 @@ class TestInstallImageBuilder(object):
         self.xml_state = mock.Mock()
         self.xml_state.xml_data.get_name = mock.Mock(
             return_value='result-image'
+        )
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
         )
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='custom_kernel_options'
@@ -127,7 +132,9 @@ class TestInstallImageBuilder(object):
         )
         assert mock_command.call_args_list == [
             call([
-                'cp', '-l', 'target_dir/result-image.raw', 'temp-squashfs'
+                'cp', '-l',
+                'target_dir/result-image.x86_64-1.2.3.raw',
+                'temp-squashfs/result-image.raw'
             ]),
             call([
                 'mv', 'target_dir/result-image.raw.squashfs', 'temp_media_dir'
@@ -137,10 +144,10 @@ class TestInstallImageBuilder(object):
             ])
         ]
         self.iso_image.create_on_file.assert_called_once_with(
-            'target_dir/result-image.install.iso'
+            'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
         mock_hybrid.assert_called_once_with(
-            42, self.mbrid, 'target_dir/result-image.install.iso'
+            42, self.mbrid, 'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
 
     @patch('kiwi.install_image_builder.mkdtemp')
@@ -223,7 +230,7 @@ class TestInstallImageBuilder(object):
 
         mock_compress.assert_called_once_with(
             keep_source_on_compress=True,
-            source_filename='target_dir/result-image.raw'
+            source_filename='target_dir/result-image.x86_64-1.2.3.raw'
         )
         compress.xz.assert_called_once_with()
         assert mock_command.call_args_list[0] == call(
@@ -255,7 +262,7 @@ class TestInstallImageBuilder(object):
             ['mv', 'initrd', 'tmpdir/pxeboot.initrd.xz']
         )
         mock_archive.assert_called_once_with(
-            'target_dir/result-image.install.tar'
+            'target_dir/result-image.x86_64-1.2.3.install.tar'
         )
         archive.create_xz_compressed.assert_called_once_with(
             'tmpdir'

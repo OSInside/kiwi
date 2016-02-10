@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
+
 # project
 from container_image import ContainerImage
 from container_setup import ContainerSetup
@@ -33,8 +35,10 @@ class ContainerBuilder(object):
         self.filename = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.',
-                self.requested_container_type, '.tar.xz'
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+                '.', self.requested_container_type, '.tar.xz'
             ]
         )
         self.result = Result()

@@ -9,10 +9,15 @@ from kiwi.container_builder import ContainerBuilder
 
 
 class TestContainerBuilder(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         xml_state = mock.Mock()
         xml_state.build_type.get_container = mock.Mock(
             return_value='my-container'
+        )
+        xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
         )
         xml_state.get_build_type_name = mock.Mock(
             return_value='docker'
@@ -41,8 +46,8 @@ class TestContainerBuilder(object):
             'docker', 'root_dir'
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.docker.tar.xz'
+            'target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
         )
         self.container.result.add.assert_called_once_with(
-            'container', 'target_dir/image_name.docker.tar.xz'
+            'container', 'target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
         )

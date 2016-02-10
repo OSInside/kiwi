@@ -69,7 +69,10 @@ class LiveImageBuilder(object):
         self.isoname = ''.join(
             [
                 target_dir, '/',
-                xml_state.xml_data.get_name(), '.iso'
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+                '.iso'
             ]
         )
         self.live_image_file = ''.join(
