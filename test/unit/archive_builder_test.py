@@ -46,7 +46,9 @@ class TestArchiveBuilder(object):
 
     @patch('kiwi.archive_builder.ArchiveTar')
     @patch('kiwi.archive_builder.Checksum')
-    def test_create(self, mock_checksum, mock_tar):
+    @patch('platform.machine')
+    def test_create(self, mock_machine, mock_checksum, mock_tar):
+        mock_machine.return_value = 'x86_64'
         checksum = mock.Mock()
         mock_checksum.return_value = checksum
         archive = mock.Mock()
