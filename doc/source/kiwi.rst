@@ -49,6 +49,17 @@ KIWI supports the creation of the following image types:
 Depending on the image type a variety of different disk formats and
 architectures are supported.
 
+EXAMPLE
+-------
+
+.. code-block:: bash
+
+   $ git clone https://github.com/SUSE/kiwi-descriptions
+
+   $ kiwi --type vmx system build \
+       --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+       --target-dir /tmp/myimage
+
 COMMANDS
 --------
 
