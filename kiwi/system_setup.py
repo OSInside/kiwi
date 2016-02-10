@@ -317,6 +317,18 @@ class SystemSetup(object):
             with open(image_id_file, 'w') as identifier:
                 identifier.write('%s\n' % image_id)
 
+    def export_modprobe_setup(self, target_root_dir):
+        """
+            export etc/modprobe.d to given root_dir
+        """
+        modprobe_config = self.root_dir + '/etc/modprobe.d'
+        if os.path.exists(modprobe_config):
+            log.info('Export modprobe configuration')
+            Path.create(target_root_dir + '/etc')
+            Command.run(
+                ['rsync', '-zav', modprobe_config, target_root_dir + '/etc/']
+            )
+
     def call_config_script(self):
         self.__call_script('config.sh')
 

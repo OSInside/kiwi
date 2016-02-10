@@ -20,6 +20,7 @@ from internal_boot_image_task import BootImageTask
 from filesystem_builder import FileSystemBuilder
 from compress import Compress
 from checksum import Checksum
+from system_setup import SystemSetup
 from kernel import Kernel
 from logger import log
 from result import Result
@@ -44,6 +45,9 @@ class PxeBuilder(object):
         self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, root_dir
+        )
+        self.system_setup = SystemSetup(
+            xml_state=xml_state, description_dir=None, root_dir=root_dir
         )
         self.boot_image_task = BootImageTask(
             xml_state, target_dir
@@ -71,9 +75,16 @@ class PxeBuilder(object):
         checksum = Checksum(self.image)
         checksum.md5(self.filesystem_checksum)
 
+        # prepare boot(initrd) root system
         log.info('Creating PXE boot image')
         self.boot_image_task.prepare()
 
+        # export modprobe configuration to boot image
+        self.system_setup.export_modprobe_setup(
+            self.boot_image_task.boot_root_directory
+        )
+
+        # extract kernel from boot(initrd) root system
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         kernel_data = kernel.get_kernel()
         if kernel_data:
@@ -89,6 +100,7 @@ class PxeBuilder(object):
                 self.boot_image_task.boot_root_directory
             )
 
+        # extract hypervisor from boot(initrd) root system
         if self.machine and self.machine.get_domain() == 'dom0':
             kernel_data = kernel.get_xen_hypervisor()
             if kernel_data:
@@ -107,6 +119,7 @@ class PxeBuilder(object):
                     self.boot_image_task.boot_root_directory
                 )
 
+        # create initrd for pxe boot
         self.boot_image_task.create_initrd()
         self.result.add(
             'kernel', self.kernel_filename

@@ -214,14 +214,19 @@ class DiskBuilder(object):
         self.mbrid = ImageIdentifier()
         self.mbrid.calculate_id()
 
-        # create first stage metadata to boot
+        # create first stage metadata to boot image
         self.__write_partition_id_config_to_boot_image()
 
         self.__write_recovery_metadata_to_boot_image()
 
-        self.__write_image_identifier_to_system_image()
-
         self.__write_raid_config_to_boot_image()
+
+        self.system_setup.export_modprobe_setup(
+            self.boot_image_task.boot_root_directory
+        )
+
+        # create first stage metadata to system image
+        self.__write_image_identifier_to_system_image()
 
         self.__write_crypttab_to_system_image()
 

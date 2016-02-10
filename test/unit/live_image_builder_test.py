@@ -21,6 +21,10 @@ class TestLiveImageBuilder(object):
         kiwi.live_image_builder.FirmWare = mock.Mock(
             return_value=self.firmware
         )
+        self.system_setup = mock.Mock()
+        kiwi.live_image_builder.SystemSetup = mock.Mock(
+            return_value=self.system_setup
+        )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -113,6 +117,9 @@ class TestLiveImageBuilder(object):
         self.live_image.create()
 
         self.live_image.boot_image_task.prepare.assert_called_once_with()
+        self.system_setup.export_modprobe_setup.assert_called_once_with(
+            'initrd_dir'
+        )
         mock_fs.assert_called_once_with(
             device_provider=None, name='squashfs', root_dir='root_dir'
         )

@@ -184,6 +184,9 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
 
         self.system_setup.create_recovery_archive.assert_called_once_with()
+        self.system_setup.export_modprobe_setup.assert_called_once_with(
+            'boot_dir'
+        )
         self.disk_setup.get_disksize_mbytes.assert_called_once_with()
         self.loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()

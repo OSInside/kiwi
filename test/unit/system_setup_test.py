@@ -507,3 +507,14 @@ class TestSystemSetup(object):
         mock_wipe.assert_called_once_with(
             'root_dir/recovery.tar.gz'
         )
+
+    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system_setup.Path.create')
+    @patch('os.path.exists')
+    def test_export_modprobe_setup(self, mock_exists, mock_path, mock_command):
+        mock_exists.return_value = True
+        self.setup.export_modprobe_setup('target_root_dir')
+        mock_path.assert_called_once_with('target_root_dir/etc')
+        mock_command.assert_called_once_with(
+            ['rsync', '-zav', 'root_dir/etc/modprobe.d', 'target_root_dir/etc/']
+        )

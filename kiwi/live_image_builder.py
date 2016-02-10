@@ -24,6 +24,7 @@ from filesystem import FileSystem
 from filesystem_isofs import FileSystemIsoFs
 from internal_boot_image_task import BootImageTask
 from system_size import SystemSize
+from system_setup import SystemSetup
 from firmware import FirmWare
 from defaults import Defaults
 from path import Path
@@ -65,6 +66,9 @@ class LiveImageBuilder(object):
         )
         self.firmware = FirmWare(
             xml_state
+        )
+        self.system_setup = SystemSetup(
+            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
         )
         self.isoname = ''.join(
             [
@@ -114,6 +118,11 @@ class LiveImageBuilder(object):
         # prepare boot(initrd) root system
         log.info('Preparing live ISO boot system')
         self.boot_image_task.prepare()
+
+        # export modprobe configuration to boot image
+        self.system_setup.export_modprobe_setup(
+            self.boot_image_task.boot_root_directory
+        )
 
         # pack system into live boot structure
         log.info('Packing system into live ISO type: %s', self.live_type)

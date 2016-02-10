@@ -17,7 +17,12 @@ class TestPxeBuilder(object):
     @patch('kiwi.pxe_builder.FileSystemBuilder')
     @patch('kiwi.pxe_builder.BootImageTask')
     def setup(self, mock_boot, mock_filesystem):
+        self.system_setup = mock.Mock()
+        kiwi.pxe_builder.SystemSetup = mock.Mock(
+            return_value=self.system_setup
+        )
         self.boot_image_task = mock.MagicMock()
+        self.boot_image_task.boot_root_directory = 'initrd_dir'
         mock_boot.return_value = self.boot_image_task
         self.filesystem = mock.MagicMock()
         self.filesystem.filename = 'myimage'
@@ -58,7 +63,8 @@ class TestPxeBuilder(object):
 
     @patch('kiwi.pxe_builder.Checksum')
     @patch('kiwi.pxe_builder.Compress')
-    def test_create(self, mock_compress, mock_checksum):
+    @patch('kiwi.logger.log.warning')
+    def test_create(self, mock_log_warn, mock_compress, mock_checksum):
         compress = mock.Mock()
         mock_compress.return_value = compress
         checksum = mock.Mock()
@@ -71,7 +77,12 @@ class TestPxeBuilder(object):
         compress.xz.assert_called_once_with()
         checksum.md5.assert_called_once_with('myimage.md5')
         self.boot_image_task.prepare.assert_called_once_with()
+        self.system_setup.export_modprobe_setup.assert_called_once_with(
+            'initrd_dir'
+        )
         self.boot_image_task.create_initrd.assert_called_once_with()
+        # warning for not implemented pxedeploy handling
+        assert mock_log_warn.called
 
     @patch('kiwi.pxe_builder.Checksum')
     @patch('kiwi.pxe_builder.Compress')
