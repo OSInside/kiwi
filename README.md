@@ -3,48 +3,67 @@
 [![Build Status](https://travis-ci.org/SUSE/kiwi.svg?branch=master)](https://travis-ci.org/SUSE/kiwi)
 [![Health](https://landscape.io/github/SUSE/kiwi/master/landscape.svg?style=flat)](https://landscape.io/github/SUSE/kiwi/master)
 
-This is a rewrite of the current KIWI appliance builder which
+This is a rewrite of the former KIWI appliance builder which
 you can find here: https://github.com/openSUSE/kiwi.
 
 ## Contents
 
-  * [Status](#status)
   * [Motivation](#motivation)
+  * [Installation](#installation)
+  * [Quick Start](#quick-start)
   * [Supported Distributions](#supported-distributions)
   * [Contributing](#contributing)
   * [Packaging and Versioning](#packaging-and-versioning)
   * [Documentation](#documentation)
   
-## Status
-
-**Development Status: 4 - Beta(no release yet)**
-
-This project is in an early development phase and some parts
-of the old KIWI version are not yet available in the new
-code base. If you are missing a feature at the time of the
-first release don't hesitate to open an issue to allow for
-a planing and implementing phase.
-
 ## Motivation
 
 During the last years KIWI has evolved a lot. Many features were
 added, even some which are not in use anymore because new technologies
 made them obsolete. There is a lot of legacy code in KIWI to support
-older distributions too. In order to become free from legacy code
+older distributions. In order to become free from legacy code
 the decision to provide a new version which can co-exist with the
-existing implementation was made.
+former implementation was made.
 
 However, the current design and the lack of tests in core parts of the
-current code basically prevents a major refactoring as I see it required.
-Because of that, a rewrite of KIWI with a stable version in the background
-seems to be the best way.
+former code base, basically prevents a major refactoring as I see it
+required. Because of that, a rewrite of KIWI with a stable version in
+the background seems to be the best way.
 
 Users will be able to use both versions in parallel. Also the new
-KIWI will be 100% compatible with the current format of the image
+KIWI will be fully compatible with the current format of the image
 description. This means, you can build an image from the same image
-description with the old and the new KIWI if the new KIWI supports
+description with the old and the new KIWI, if the new KIWI supports
 the distribution and all features the image description has
 configured.
+
+## Installation
+
+packages for the new kiwi version are provided at the openSUSE buildservice:
+http://download.opensuse.org/repositories/Virtualization:/Appliances/
+
+```bash
+$ zypper in python-kiwi
+```
+
+## Quick Start
+
+Along with the appliance builder there is also a github project hosting
+example image descriptions. The following shows how to build your first
+image.
+
+```bash
+$ git clone https://github.com/SUSE/kiwi-descriptions
+
+$ kiwi --type vmx system build \
+       --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+       --target-dir /tmp/myimage
+
+$ cd /tmp/myimage
+
+$ qemu -drive \
+    file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio
+```
 
 ## Supported Distributions
 
@@ -53,12 +72,12 @@ which are equal or newer compared to the following list:
 
 * SUSE Linux Enterprise 12
 * Red Hat Enterprise 7
-* Fedora 22
 * openSUSE 13.2
 * SUSE Leap 42
 * SUSE Tumbleweed
 
-For anything older please consider to use the old version
+For anything older please consider to use the former
+kiwi version __v7.x.x__
 
 ## Contributing
 
