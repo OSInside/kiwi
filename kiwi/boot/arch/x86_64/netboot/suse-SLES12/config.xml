@@ -23,6 +23,11 @@
     </profiles>
     <drivers profiles="xen">
         <file name="drivers/xen/*"/>
+        <file name="drivers/block/xen-blkfront.ko"/>
+        <file name="drivers/net/xen-netfront.ko"/>
+        <file name="drivers/scsi/xen-scsifront.ko"/>
+        <file name="drivers/input/misc/xen-kbdfront.ko"/>
+        <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
     <drivers profiles="default,xen">
         <file name="crypto/*"/>

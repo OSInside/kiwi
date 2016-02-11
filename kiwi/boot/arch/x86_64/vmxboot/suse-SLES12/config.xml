@@ -70,6 +70,11 @@
     </drivers>
     <drivers profiles="xen,ec2">
         <file name="drivers/xen/*"/>
+        <file name="drivers/block/xen-blkfront.ko"/>
+        <file name="drivers/net/xen-netfront.ko"/>
+        <file name="drivers/scsi/xen-scsifront.ko"/>
+        <file name="drivers/input/misc/xen-kbdfront.ko"/>
+        <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
     <repository type="yast2" status="replaceable">
         <source path="obs://SUSE:SLE-12:GA/standard"/>
