@@ -40,6 +40,9 @@ class TestBootLoaderConfigZipl(object):
         )
 
         self.xml_state = mock.Mock()
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value=None
+        )
         self.xml_state.build_type.get_boottimeout = mock.Mock(
             return_value='200'
         )

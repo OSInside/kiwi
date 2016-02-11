@@ -96,12 +96,17 @@ class TestBootLoaderConfigBase(object):
     @patch('kiwi.xml_parse.type_.get_firmware')
     def test_get_boot_cmdline_firmware_ec2(self, mock_firmware):
         mock_firmware.return_value = 'ec2'
-        assert self.bootloader.get_boot_cmdline() == 'splash root=/dev/sda1'
+        assert self.bootloader.get_boot_cmdline('uuid') == \
+            'splash root=UUID=uuid'
 
     @patch('kiwi.xml_parse.type_.get_firmware')
-    def test_get_boot_cmdline_firmware_ec2hvm(self, mock_firmware):
-        mock_firmware.return_value = 'ec2hvm'
-        assert self.bootloader.get_boot_cmdline() == 'splash root=/dev/hda1'
+    @patch('kiwi.logger.log.warning')
+    def test_get_boot_cmdline_firmware_ec2_no_uuid(
+        self, mock_log_warn, mock_firmware
+    ):
+        mock_firmware.return_value = 'ec2'
+        self.bootloader.get_boot_cmdline()
+        assert mock_log_warn.called
 
     def test_get_failsafe_kernel_options(self):
         assert self.bootloader.get_failsafe_kernel_options() == \

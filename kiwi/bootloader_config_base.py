@@ -130,12 +130,12 @@ class BootLoaderConfigBase(object):
         if machine:
             return machine.get_domain()
 
-    def get_boot_cmdline(self):
+    def get_boot_cmdline(self, uuid=None):
         cmdline = ''
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
-        custom_root = self.__get_root_cmdline_parameter()
+        custom_root = self.__get_root_cmdline_parameter(uuid)
         if custom_root:
             cmdline += ' ' + custom_root
         return cmdline.strip()
@@ -229,38 +229,22 @@ class BootLoaderConfigBase(object):
             ]
         )
 
-    def __get_root_cmdline_parameter(self):
+    def __get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
         cmdline = self.xml_state.build_type.get_kernelcmdline()
         if 'root=' in cmdline:
             log.info(
                 'Kernel root device explicitly set via kernelcmdline'
             )
-        elif firmware == 'ec2':
+        elif firmware and 'ec2' in firmware:
             # EC2 requires to specifiy the root device in the bootloader
-            # configuration. EC2 extracts this information via pygrub and
-            # use it for the guest configuration which has an impact on
-            # the devices attached to the guest. With the current EC2
-            # implementation and linux kernel the storage device allways
-            # appears as /dev/sda1. Thus this value is set as fixed
-            # kernel commandline parameter
-            log.info(
-                'Kernel root device set to /dev/sda1 for ec2 firmware'
-            )
-            return 'root=/dev/sda1'
-        elif firmware == 'ec2hvm':
-            # Similar to the firmware type 'ec2', EC2 needs in case of HVM
-            # (hardware-assisted virtual machine) instances the root device
-            # to be explicitly set to /dev/hda1.
-            #
-            # During the first boot, kiwi tries to detect the root device via
-            # hwinfo --storage, takes the first entry and creates an initrd
-            # and bootlaoder configuration based on this assumption. The
-            # problem is, that the first entry refers to /dev/sda1 (the
-            # second is /dev/hda1). During the second reboot, /dev/sda will
-            # be removed from the system and therefore such an instance
-            # won't come up again.
-            log.info(
-                'Kernel root device set to /dev/hda1 for ec2hvm firmware'
-            )
-            return 'root=/dev/hda1'
+            # configuration. This is because the used pvgrub or hvmloader
+            # reads this information and passes it to the guest configuration
+            # which has an impact on the devices attached to the guest.
+            if uuid:
+                return 'root=UUID=%s' % format(uuid)
+            else:
+                log.warning(
+                    '%s firmware needs a root device but no uuid was given' %
+                    firmware
+                )

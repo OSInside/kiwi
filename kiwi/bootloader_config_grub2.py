@@ -56,10 +56,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.gfxmode = self.__get_gfxmode()
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
-        self.cmdline = self.get_boot_cmdline()
-        self.cmdline_failsafe = ' '.join(
-            [self.cmdline, self.get_failsafe_kernel_options()]
-        )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.hypervisor_domain = self.get_hypervisor_domain()
         self.firmware = FirmWare(
@@ -110,13 +106,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             from a disk image
         """
         log.info('Creating grub config file from template')
+        cmdline = self.get_boot_cmdline(uuid)
+        cmdline_failsafe = ' '.join(
+            [cmdline, self.get_failsafe_kernel_options()]
+        )
         parameters = {
             'search_params': '--fs-uuid --set=root ' + uuid,
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe,
+            'boot_options': cmdline,
+            'failsafe_boot_options': cmdline_failsafe,
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
@@ -149,13 +149,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             from an ISO image in EFI boot mode
         """
         log.info('Creating grub install config file from template')
+        cmdline = self.get_boot_cmdline()
+        cmdline_failsafe = ' '.join(
+            [cmdline, self.get_failsafe_kernel_options()]
+        )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe,
+            'boot_options': cmdline,
+            'failsafe_boot_options': cmdline_failsafe,
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
@@ -189,13 +193,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             a live system from an ISO image in EFI boot mode
         """
         log.info('Creating grub live ISO config file from template')
+        cmdline = self.get_boot_cmdline()
+        cmdline_failsafe = ' '.join(
+            [cmdline, self.get_failsafe_kernel_options()]
+        )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe,
+            'boot_options': cmdline,
+            'failsafe_boot_options': cmdline_failsafe,
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
