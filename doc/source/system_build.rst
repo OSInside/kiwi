@@ -13,9 +13,90 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-TODO
+build an image in one step. The build command combines kiwi's prepare and
+create steps in order to build an image with just one command call. The
+build command creates the root directory of the image below
+*<target-dir>/build/image-root* and if not specified differently writes
+a log file *<target-dir>/build/image-root.log*. The result image files
+are created in the specified target-dir.
 
 OPTIONS
 -------
 
-TODO
+--target-dir=<directory>
+
+  Path to store the build results.
+
+--description=<directory>
+
+  Path to the XML description. This is a directory containing at least
+  one _config.xml_ or _*.kiwi_ XML file.
+
+--set-repo=<source,type,alias,priority>
+
+  Overwrite the first repository entry in the XML description with the
+  provided information:
+
+  - **source**
+
+    source url, pointing to a package repository which must be in a format
+    supported by the selected package manager. See the URI_TYPES section for
+    details about the supported source locators.
+
+  - **type**
+
+    repository type, could be one of *rpm-md*, *rpm-dir* or *yast2*.
+
+  - **alias**
+
+    An alias name for the repository. If not specified kiwi calculates
+    an alias name as result from a sha sum. The sha sum is used to uniqly
+    identify the repository, but not very expressive. We recommend to
+    set an expressive and uniq alias name.
+
+  - **priority**
+
+    A number indicating the repository priority. How the value is evaluated
+    depends on the selected package manager. Please refer to the package
+    manager documentation for details about the supported priority ranges
+    and their meaning.
+
+--add-repo=<source,type,alias,priority>
+
+  Add a new repository to the existing repository setup in the XML
+  description. This option can be specified multiple times
+
+--obs-repo-internal
+
+  The repository source type obs:// by default points to
+  http://download.opensuse.org. With the *obs-repo-internal* option
+  the source type is changed to ibs:// and points to http://download.suse.de.
+  This allows to build images with repositories pointing to the SUSE
+  internal build service. Please note this requires that the build host
+  has access to the SUSE internal build service.
+
+URI_TYPES
+---------
+
+- **http://** | **https://** | **ftp://**
+
+  remote repository delivered via http or ftp protocol.
+
+- **obs://**
+
+  Open Buildservice repository. The source data is translated into
+  an http url pointing to http://download.opensuse.org.
+
+- **ibs://**
+
+  Internal Open Buildservice repository. The source data is translated into
+  an http url pointing to http://download.suse.de.
+
+- **iso://**
+
+  Local iso file. kiwi loop mounts the file and uses the mount point
+  as temporary directory source type
+
+- **dir://**
+
+  Local directory
