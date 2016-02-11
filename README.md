@@ -39,8 +39,8 @@ configured.
 
 ## Installation
 
-packages for the new kiwi version are provided at the openSUSE buildservice:
-http://download.opensuse.org/repositories/Virtualization:/Appliances/
+packages for the new kiwi version are provided at the
+[openSUSE buildservice](http://download.opensuse.org/repositories/Virtualization:/Appliances)
 
 ```bash
 $ zypper in python-kiwi
