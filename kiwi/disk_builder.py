@@ -75,7 +75,7 @@ class DiskBuilder(object):
             xml_state, root_dir
         )
         self.boot_image_task = BootImageTask(
-            xml_state, target_dir
+            'kiwi', xml_state, target_dir
         )
         self.firmware = FirmWare(
             xml_state
@@ -118,10 +118,6 @@ class DiskBuilder(object):
             raise KiwiInstallMediaError(
                 'Install media requires oem type setup, got %s' %
                 self.build_type_name
-            )
-        if not self.boot_image_task.required():
-            raise KiwiDiskBootImageError(
-                'disk images requires a boot setup in the type definition'
             )
 
         # setup recovery archive, cleanup and create archive if requested

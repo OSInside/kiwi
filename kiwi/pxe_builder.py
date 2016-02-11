@@ -50,17 +50,13 @@ class PxeBuilder(object):
             xml_state=xml_state, description_dir=None, root_dir=root_dir
         )
         self.boot_image_task = BootImageTask(
-            xml_state, target_dir
+            'kiwi', xml_state, target_dir
         )
         self.kernel_filename = None
         self.hypervisor_filename = None
         self.result = Result()
 
     def create(self):
-        if not self.boot_image_task.required():
-            raise KiwiPxeBootImageError(
-                'pxe images requires a boot setup in the type definition'
-            )
         log.info('Creating PXE root filesystem image')
         self.filesystem.create()
         self.image = self.filesystem.filename

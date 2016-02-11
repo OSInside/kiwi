@@ -62,7 +62,7 @@ class LiveImageBuilder(object):
             self.live_type = Defaults.get_default_live_iso_type()
 
         self.boot_image_task = BootImageTask(
-            xml_state, target_dir
+            'kiwi', xml_state, target_dir
         )
         self.firmware = FirmWare(
             xml_state
@@ -90,11 +90,6 @@ class LiveImageBuilder(object):
         self.result = Result()
 
     def create(self):
-        if not self.boot_image_task.required():
-            raise KiwiLiveBootImageError(
-                'live images requires a boot setup in the type definition'
-            )
-
         # media dir to store CD contents
         self.media_dir = mkdtemp(
             prefix='live-media.', dir=self.target_dir

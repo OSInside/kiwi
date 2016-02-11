@@ -206,13 +206,6 @@ class TestLiveImageBuilder(object):
         self.live_image.live_type = 'bogus'
         self.live_image.create()
 
-    @raises(KiwiLiveBootImageError)
-    def test_create_no_boot_task(self):
-        self.live_image.boot_image_task.required = mock.Mock(
-            return_value=False
-        )
-        self.live_image.create()
-
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.BootLoaderConfig')

@@ -148,15 +148,6 @@ class TestDiskBuilder(object):
         self.disk_builder.build_type_name = 'vmx'
         self.disk_builder.create()
 
-    @raises(KiwiDiskBootImageError)
-    def test_create_no_boot_setup(self):
-        self.disk_builder.install_iso = False
-        self.disk_builder.install_stick = False
-        self.boot_image_task.required = mock.Mock(
-            return_value=False
-        )
-        self.disk_builder.create()
-
     @patch('kiwi.disk_builder.FileSystem')
     @patch('__builtin__.open')
     @patch('random.randrange')

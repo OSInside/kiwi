@@ -54,13 +54,6 @@ class TestPxeBuilder(object):
         self.pxe.machine = self.machine
         self.pxe.image_name = 'myimage'
 
-    @raises(KiwiPxeBootImageError)
-    def test_create_no_boot_attribute_configured(self):
-        self.boot_image_task.required = mock.Mock(
-            return_value=False
-        )
-        self.pxe.create()
-
     @patch('kiwi.pxe_builder.Checksum')
     @patch('kiwi.pxe_builder.Compress')
     @patch('kiwi.logger.log.warning')

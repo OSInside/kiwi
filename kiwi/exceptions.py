@@ -33,6 +33,10 @@ class KiwiArchiveSetupError(KiwiError):
     pass
 
 
+class KiwiBootImageSetupError(KiwiError):
+    pass
+
+
 class KiwiBootLoaderConfigSetupError(KiwiError):
     pass
 
