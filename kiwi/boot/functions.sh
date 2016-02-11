@@ -3736,6 +3736,11 @@ function searchBIOSBootDevice {
     # Check root variable
     #--------------------------------------
     if [ ! -z "$root" ];then
+        if [[ $root =~ "UUID=" ]];then
+            root=/dev/disk/by-uuid/$(echo $root | cut -f2 -d=)
+        elif [[ $root =~ "LABEL=" ]];then
+            root=/dev/disk/by-label/$(echo $root | cut -f2 -d=)
+        fi
         if ! waitForStorageDevice $root;then
             Echo "Specified root device $root not found. Found devices:"
             hwinfo --disk
@@ -5321,7 +5326,7 @@ function includeKernelParameters {
         if [ "$translate" = "lowercase" ];then
             kernelKey=`echo $kernelKey | tr [:upper:] [:lower:]`
         fi
-        kernelVal=$(echo $i | cut -f2 -d=)
+        kernelVal=$(echo $i | cut -f2- -d=)
         kernelVal=$(echo $kernelVal | sed -e 's/\o30/ /g')
         eval export $kernelKey=$kernelVal
     done
