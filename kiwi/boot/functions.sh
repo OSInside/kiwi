@@ -3216,7 +3216,7 @@ function probeDevices {
     #======================================
     # Manual loading of modules
     #--------------------------------------
-    for i in rd brd edd dm-mod xennet xenblk virtio_blk loop squashfs fuse;do
+    for i in rd brd edd dm-mod xen:vif xen:vbd virtio_blk loop squashfs fuse;do
         modprobe $i &>/dev/null
     done
     udevPending
