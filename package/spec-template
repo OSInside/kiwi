@@ -24,6 +24,7 @@ Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-2.0+
 Group:          Development/Languages/Python
 Source:         python-kiwi.tar.bz2
+Source1:        python-kiwi-boot-packages
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
@@ -58,6 +59,37 @@ Requires:       grub2-x86_64-efi
 Requires:       s390-tools
 %endif
 
+# translate version id to distribution
+# name as it is used in kiwi
+%if 0%{?suse_version}
+%define distro %(echo `export VER=%{suse_version}; echo "suse-${VER:0:2}.${VER:2:1}"`)
+# redefine for the SLES case if no sles_version exists
+# SLE12:
+%if 0%{?suse_version} == 1315 && !0%{?is_opensuse}
+%define distro suse-SLES12
+%endif
+# Leap 42.1:
+%if 0%{?suse_version} == 1315 && 0%{?is_opensuse}
+%define distro suse-leap42.1
+%endif
+# Tumbleweed:
+# Current Tumbleweed version, moving target
+%if 0%{?suse_version} == 1330
+%define distro suse-tumbleweed
+%endif
+%endif
+
+# SLES with sles_version macro
+%if 0%{?sles_version}
+%define distro suse-SLES%{sles_version}
+%endif
+
+# RHEL // CentOS
+# use the rhel templates for CentOS, too
+%if 0%{?rhel_version} == 700 || 0%{?centos_version} == 700
+%define distro rhel-07.0
+%endif
+
 %description
 The KIWI Image System provides an operating system image builder
 for Linux supported hardware platforms as well as for virtualization
@@ -86,6 +118,23 @@ BuildArch:      noarch
 This package contains the basic PXE directory structure which is
 needed to serve kiwi built images via PXE.
 %endif
+
+%package -n kiwi-boot-requires
+Summary:        KIWI - buildservice package requirements for boot images
+Provides:       kiwi-boot:isoboot
+Provides:       kiwi-boot:vmxboot
+Provides:       kiwi-boot:netboot
+Provides:       kiwi-boot:oemboot
+Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
+License:        GPL-2.0+
+Group:          System/Management
+
+%description -n kiwi-boot-requires
+Meta package for the buildservice to pull in all required packages in
+order to have them in the buildservice created repositories to allow
+kiwi to build the boot image. This package must never be published
+nor installed by anybody else except for the buildservice, it is part
+of the kiwi - buildservice integration exclusively
 
 %prep
 %setup -q -n kiwi-%{version}
@@ -159,5 +208,8 @@ fi
 %dir /srv/tftpboot/upload
 %dir /srv/tftpboot/boot
 %endif
+
+%files -n kiwi-boot-requires
+%defattr(-, root, root)
 
 %changelog

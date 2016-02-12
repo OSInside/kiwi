@@ -1,3 +1,11 @@
+# don't blame on empty package, kiwi-boot-requires for obs
+# integration is used to provide a requires list but the package
+# itself comes with no content which is intentional. In addition
+# don't blame on lib dependency which are also an expected result
+# for this buildservice internal package
+addFilter("suse-filelist-empty .*")
+addFilter("explicit-lib-dependency .*")
+
 # don't blame on auto generated code
 addFilter("non-executable-script .*/xml_parse.py.*")
 

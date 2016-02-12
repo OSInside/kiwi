@@ -108,6 +108,7 @@ build: pep8 test completion po
 	cat package/spec-template | sed -e s'@%%VERSION@${version}@' \
 		> dist/python-kiwi.spec
 	cp package/python-kiwi-rpmlintrc dist
+	helper/python-kiwi-boot-packages > dist/python-kiwi-boot-packages
 
 clean:
 	find -name *.pyc | xargs rm -f

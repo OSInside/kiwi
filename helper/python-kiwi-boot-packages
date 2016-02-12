@@ -1,0 +1,47 @@
+#!/usr/bin/python
+
+import os
+import sys
+import glob
+from xml.dom import minidom
+from collections import OrderedDict
+
+def get_boot_description_packages(boot_description_dir):
+    package_list = []
+    file_name = boot_description_dir + '/config.xml'
+    xml_doc = minidom.parse(file_name)
+    for packages in xml_doc.getElementsByTagName('packages'):
+        package_type = packages.attributes['type'].value
+        if not package_type == 'delete':
+            for package in packages.getElementsByTagName('package'):
+                package_list.append(
+                    package.attributes['name'].value
+                )
+    return package_list
+
+def get_boot_distribution_names():
+    distro_names = []
+    for distro in glob.iglob('kiwi/boot/arch/*/*/*'):
+        if os.path.isdir(distro):
+            distro_names.append(os.path.basename(distro))
+    return list(
+        OrderedDict.fromkeys(distro_names)
+    )
+
+
+for distribution in get_boot_distribution_names():
+    for arch in glob.iglob('kiwi/boot/arch/*'):
+        package_list = []
+        for arch_distro in glob.iglob(arch + '/*/' + distribution):
+            package_list += get_boot_description_packages(arch_distro)
+
+        package_list = list(
+            OrderedDict.fromkeys(package_list)
+        )
+        topic = os.path.basename(arch) + ':' + distribution + ':'
+        if package_list:
+            print topic + ' '.join(package_list)
+        else:
+            print topic + 'no_boot_descriptions_for_%s_on_%s_available' % (
+                distribution, os.path.basename(arch)
+            )
