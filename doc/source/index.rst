@@ -11,6 +11,7 @@ Welcome to kiwi's documentation!
 
    kiwi
    result_list
+   result_bundle
    system_prepare
    system_create
    system_update

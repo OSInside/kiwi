@@ -28,6 +28,7 @@ master_doc = 'index'
 # The man page toctree documents.
 kiwi_doc = 'kiwi'
 result_list_doc = 'result_list'
+result_bundle_doc = 'result_bundle'
 system_prepare_doc = 'system_prepare'
 system_update_doc = 'system_update'
 system_build_doc = 'system_build'
@@ -79,6 +80,13 @@ man_pages = [
         result_list_doc,
         'kiwi::result::list',
         u'List build results',
+        [author],
+        2
+    ),
+    (
+        result_bundle_doc,
+        'kiwi::result::bundle',
+        u'Bundle build results',
         [author],
         2
     ),
