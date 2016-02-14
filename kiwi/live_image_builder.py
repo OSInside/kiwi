@@ -87,7 +87,7 @@ class LiveImageBuilder(object):
                 xml_state.get_image_version()
             ]
         )
-        self.result = Result()
+        self.result = Result(xml_state)
 
     def create(self):
         # media dir to store CD contents

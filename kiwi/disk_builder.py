@@ -111,7 +111,7 @@ class DiskBuilder(object):
         self.system_efi = None
 
         # result store
-        self.result = Result()
+        self.result = Result(xml_state)
 
     def create(self):
         if self.install_media and self.build_type_name != 'oem':

@@ -38,7 +38,7 @@ class ArchiveBuilder(object):
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.requested_archive_type = xml_state.get_build_type_name()
-        self.result = Result()
+        self.result = Result(xml_state)
         self.filename = self.__target_file_for('tar.xz')
         self.checksum = self.__target_file_for('md5')
 
@@ -62,7 +62,7 @@ class ArchiveBuilder(object):
                 'root_archive', self.filename
             )
             self.result.add(
-                'root_archive_checksum', self.checksum
+                'root_archive_md5', self.checksum
             )
         return self.result
 

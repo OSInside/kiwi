@@ -41,7 +41,7 @@ class ContainerBuilder(object):
                 '.', self.requested_container_type, '.tar.xz'
             ]
         )
-        self.result = Result()
+        self.result = Result(xml_state)
 
     def create(self):
         setup_options = {}

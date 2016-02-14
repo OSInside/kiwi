@@ -63,7 +63,7 @@ class FileSystemBuilder(object):
         self.filesystems_no_device_node = [
             'squashfs'
         ]
-        self.result = Result()
+        self.result = Result(xml_state)
 
     def create(self):
         log.info(

@@ -30,8 +30,9 @@ class Result(object):
     """
         Collect image building results
     """
-    def __init__(self):
+    def __init__(self, xml_state):
         self.result_files = {}
+        self.xml_state = xml_state
 
     def add(self, key, value):
         self.result_files[key] = value

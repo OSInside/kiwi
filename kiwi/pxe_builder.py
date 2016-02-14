@@ -54,7 +54,7 @@ class PxeBuilder(object):
         )
         self.kernel_filename = None
         self.hypervisor_filename = None
-        self.result = Result()
+        self.result = Result(xml_state)
 
     def create(self):
         log.info('Creating PXE root filesystem image')

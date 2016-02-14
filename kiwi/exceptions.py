@@ -89,6 +89,10 @@ class KiwiBootStrapPhaseFailed(KiwiError):
     pass
 
 
+class KiwiBundleError(KiwiError):
+    pass
+
+
 class KiwiCommandError(KiwiError):
     pass
 

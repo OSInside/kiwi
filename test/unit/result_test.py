@@ -19,7 +19,9 @@ class TestResult(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
-        self.result = Result()
+        self.xml_state = mock.Mock()
+
+        self.result = Result(self.xml_state)
 
     def test_add(self):
         self.result.add('foo', 'bar')
