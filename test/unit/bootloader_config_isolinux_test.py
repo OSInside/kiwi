@@ -45,6 +45,15 @@ class TestBootLoaderConfigIsoLinux(object):
         mock_machine.return_value = 'unsupported-arch'
         BootLoaderConfigIsoLinux(mock.Mock(), 'root_dir')
 
+    @patch('platform.machine')
+    def test_post_init_ix86_platform(self, mock_machine):
+        xml_state = XMLState(
+            XMLDescription('../data/example_config.xml').load()
+        )
+        mock_machine.return_value = 'i686'
+        bootloader = BootLoaderConfigIsoLinux(xml_state, 'root_dir')
+        assert bootloader.arch == 'ix86'
+
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_post_init_dom0(self, mock_machine, mock_exists):

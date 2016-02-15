@@ -46,6 +46,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         arch = platform.machine()
         if arch == 'x86_64':
             self.arch = arch
+        elif arch == 'i686' or arch == 'i586':
+            self.arch = 'ix86'
         else:
             raise KiwiBootLoaderGrubPlatformError(
                 'host architecture %s not supported for grub2 setup' % arch
@@ -164,7 +166,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_install_title(),
-            'bootpath': '/boot/x86_64/loader',
+            'bootpath': '/boot/' + self.arch + '/loader',
         }
         if self.multiboot:
             log.info('--> Using EFI multiboot install template')
@@ -208,7 +210,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(plain=True),
-            'bootpath': '/boot/x86_64/loader',
+            'bootpath': '/boot/' + self.arch + '/loader',
         }
         if self.multiboot:
             log.info('--> Using EFI multiboot template')
@@ -469,8 +471,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def __get_efi_format(self):
-        if self.arch == 'x86_64':
-            return 'x86_64-efi'
+        return 'x86_64-efi'
 
     def __get_bios_format(self):
         return 'i386-pc'

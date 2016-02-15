@@ -43,6 +43,13 @@ class TestIso(object):
         mock_exists.return_value = False
         self.iso.init_iso_creation_parameters()
 
+    @patch('kiwi.iso.NamedTemporaryFile')
+    @patch('platform.machine')
+    def test_init_for_ix86_platform(self, mock_machine, mock_tempfile):
+        mock_machine.return_value = 'i686'
+        iso = Iso('source-dir')
+        assert iso.arch == 'ix86'
+
     @patch('__builtin__.open')
     @patch('kiwi.iso.Command.run')
     @patch('os.path.exists')

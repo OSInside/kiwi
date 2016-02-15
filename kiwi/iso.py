@@ -37,11 +37,13 @@ class Iso(object):
         Implements helper methods around the creation of an iso filesystem
     """
     def __init__(self, source_dir):
+        self.arch = platform.machine()
+        if self.arch == 'i686' or self.arch == 'i586':
+            self.arch = 'ix86'
         self.source_dir = source_dir
         self.header_id = '7984fc91-a43f-4e45-bf27-6d3aa08b24cf'
         self.header_end_name = 'header_end'
         self.header_end_file = self.source_dir + '/' + self.header_end_name
-        self.arch = platform.machine()
         self.boot_path = 'boot/' + self.arch
         self.iso_sortfile = NamedTemporaryFile()
         self.iso_parameters = []

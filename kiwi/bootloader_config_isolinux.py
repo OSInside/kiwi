@@ -40,6 +40,8 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         arch = platform.machine()
         if arch == 'x86_64':
             self.arch = arch
+        elif arch == 'i686' or arch == 'i586':
+            self.arch = 'ix86'
         else:
             raise KiwiBootLoaderIsoLinuxPlatformError(
                 'host architecture %s not supported for isolinux setup' % arch

@@ -73,6 +73,16 @@ class TestBootLoaderConfigGrub2(object):
         mock_machine.return_value = 'unsupported-arch'
         BootLoaderConfigGrub2(mock.Mock(), 'root_dir')
 
+    @patch('platform.machine')
+    def test_post_init_ix86_platform(self, mock_machine):
+        xml_state = mock.MagicMock()
+        xml_state.build_type.get_firmware = mock.Mock(
+            return_value=None
+        )
+        mock_machine.return_value = 'i686'
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.arch == 'ix86'
+
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')

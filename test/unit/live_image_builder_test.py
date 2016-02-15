@@ -74,6 +74,21 @@ class TestLiveImageBuilder(object):
         self.live_image.result = self.result
         self.live_image.hybrid = True
 
+    @patch('platform.machine')
+    def test_init_for_ix86_platform(self, mock_machine):
+        xml_state = mock.Mock()
+        xml_state.xml_data.get_name = mock.Mock(
+            return_value='some-image'
+        )
+        xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
+        mock_machine.return_value = 'i686'
+        live_image = LiveImageBuilder(
+            xml_state, 'target_dir', 'root_dir'
+        )
+        assert live_image.arch == 'ix86'
+
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.Iso.create_hybrid')

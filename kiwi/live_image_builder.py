@@ -47,6 +47,8 @@ class LiveImageBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir):
         self.media_dir = None
         self.arch = platform.machine()
+        if self.arch == 'i686' or self.arch == 'i586':
+            self.arch = 'ix86'
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -197,7 +199,7 @@ class LiveImageBuilder(object):
         return self.result
 
     def __create_live_iso_kernel_and_initrd(self):
-        boot_path = self.media_dir + '/boot/x86_64/loader'
+        boot_path = self.media_dir + '/boot/' + self.arch + '/loader'
         Path.create(boot_path)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():
