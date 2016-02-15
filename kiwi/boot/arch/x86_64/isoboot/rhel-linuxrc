@@ -22,7 +22,10 @@
 export PATH="/sbin:/bin:/usr/sbin:/usr/bin"
 export IFS_ORIG=$IFS
 export DEBUG=0
-export ARCH=`arch`
+export ARCH=$(arch)
+if [[ $ARCH =~ i.86 ]];then
+    ARCH=ix86
+fi
 
 #======================================
 # Exports (Configuration)...
