@@ -95,7 +95,7 @@ po_status:
 completion:
 	mkdir -p completion && helper/completion_generator > completion/kiwi.sh
 
-build: pep8 test completion po
+build: pep8 test completion po man
 	# the following is required to update the $Id$ git attribute
 	rm kiwi/version.py && git checkout kiwi/version.py
 	# now create my package sources
