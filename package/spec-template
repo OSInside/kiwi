@@ -171,14 +171,6 @@ if ! /usr/bin/getent passwd tftp >/dev/null; then
     %{_sbindir}/useradd -c "TFTP account" -d /srv/tftpboot -G tftp -g tftp \
         -r -s /bin/false tftp 2>/dev/null || :
 fi
-
-%post -n kiwi-pxeboot
-#============================================================
-# create /srv/tftpboot/pxelinux.cfg/default only if not exist
-if ( [ ! -e srv/tftpboot/pxelinux.cfg/default  ] ) ; then
-    cp /srv/tftpboot/pxelinux.cfg/default.default \
-        /srv/tftpboot/pxelinux.cfg/default
-fi
 %endif
 
 %files
