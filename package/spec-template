@@ -33,7 +33,7 @@ Requires:       python-docopt
 Requires:       python-setuptools
 Requires:       python-lxml
 # tools used by kiwi
-Requires:       kiwi-tools >= %{version}
+Requires:       kiwi-tools
 Requires:       rsync
 Requires:       tar
 Requires:       gptfdisk
