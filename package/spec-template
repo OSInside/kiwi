@@ -29,6 +29,8 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
 BuildRequires:  fdupes
+BuildRequires:  update-alternatives
+Requires:       update-alternatives
 Requires:       python-docopt
 Requires:       python-setuptools
 Requires:       python-lxml
@@ -144,11 +146,18 @@ make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools
 python setup.build.py build
 
 %install
+
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+mkdir -p %{buildroot}%_sysconfdir/bash_completion.d
+install -m 644 completion/kiwi.sh \
+    %{buildroot}%_sysconfdir/bash_completion.d/kiwi-next-generation.sh
+touch %{buildroot}%{_sysconfdir}/alternatives/kiwi.sh
+ln -s %{_sysconfdir}/alternatives/kiwi.sh \
+    %{buildroot}%_sysconfdir/bash_completion.d/kiwi.sh
+
 make buildroot=%{buildroot} install_tools
 make buildroot=%{buildroot} install_man
 python setup.build.py install --prefix=%{_prefix} --root=%{buildroot}
-mkdir -p %{buildroot}/etc/bash_completion.d
-install -m 644 completion/kiwi.sh %{buildroot}/etc/bash_completion.d
 
 %ifarch %ix86 x86_64
 for i in KIWI pxelinux.cfg image upload boot; do \
@@ -159,6 +168,14 @@ done
 %fdupes %{buildroot}/srv/tftpboot
 %fdupes %{buildroot}/%{python_sitelib}/kiwi
 
+%post
+%{_sbindir}/update-alternatives \
+    --install %_sysconfdir/bash_completion.d/kiwi.sh kiwi.sh \
+    %_sysconfdir/bash_completion.d/kiwi-next-generation.sh 10
+
+%preun
+%{_sbindir}/update-alternatives --remove kiwi.sh \
+    %_sysconfdir/bash_completion.d/kiwi.sh
 
 %ifarch %ix86 x86_64
 %pre -n kiwi-pxeboot
@@ -179,7 +196,9 @@ fi
 %{_bindir}/kiwicompat
 %{python_sitelib}/kiwi-%{version}-py%{py_ver}.egg-info
 %{python_sitelib}/kiwi
-%config /etc/bash_completion.d/kiwi.sh
+%config %_sysconfdir/bash_completion.d/kiwi-next-generation.sh
+%ghost %_sysconfdir/bash_completion.d/kiwi.sh
+%ghost %_sysconfdir/alternatives/kiwi.sh
 %doc %{_mandir}/man2/*
 
 %files -n kiwi-tools
