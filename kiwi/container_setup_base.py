@@ -99,19 +99,16 @@ class ContainerSetupBase(object):
             Thus some services needs to be deactivated
         """
         service_file = self.root_dir + '/usr/lib/systemd/system/' + name
-        if not os.path.exists(service_file):
-            raise KiwiContainerSetupError(
-                'Systemd service %s does not exist' % service_file
-            )
-        try:
-            Command.run(
-                ['ln', '-s', '-f', '/dev/null', service_file]
-            )
-        except Exception as e:
-            raise KiwiContainerSetupError(
-                'Failed to deactivate service %s: %s' %
-                (name, format(e))
-            )
+        if os.path.exists(service_file):
+            try:
+                Command.run(
+                    ['ln', '-s', '-f', '/dev/null', service_file]
+                )
+            except Exception as e:
+                raise KiwiContainerSetupError(
+                    'Failed to deactivate service %s: %s' %
+                    (name, format(e))
+                )
 
     def setup_root_console(self):
         """

@@ -89,12 +89,6 @@ class TestContainerSetupBase(object):
         )
 
     @patch('os.path.exists')
-    @raises(KiwiContainerSetupError)
-    def test_deactivate_systemd_service_no_such_service(self, mock_exists):
-        mock_exists.return_value = False
-        self.container.deactivate_systemd_service('my.service')
-
-    @patch('os.path.exists')
     @patch('kiwi.container_setup_base.Command.run')
     @raises(KiwiContainerSetupError)
     def test_deactivate_systemd_service_failed(self, mock_command, mock_exists):
