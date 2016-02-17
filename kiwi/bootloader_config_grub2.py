@@ -19,15 +19,15 @@ import os
 import platform
 
 # project
-from logger import log
-from bootloader_config_base import BootLoaderConfigBase
-from bootloader_template_grub2 import BootLoaderTemplateGrub2
-from command import Command
-from path import Path
-from defaults import Defaults
-from firmware import FirmWare
+from .logger import log
+from .bootloader_config_base import BootLoaderConfigBase
+from .bootloader_template_grub2 import BootLoaderTemplateGrub2
+from .command import Command
+from .path import Path
+from .defaults import Defaults
+from .firmware import FirmWare
 
-from exceptions import (
+from .exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubModulesError,

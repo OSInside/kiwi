@@ -5,7 +5,7 @@ from mock import patch
 from mock import call
 import kiwi
 
-import nose_helper
+from . import nose_helper
 from kiwi.exceptions import *
 from kiwi.result_bundle_task import ResultBundleTask
 
@@ -67,7 +67,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Path.create')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_process_result_bundle_container(
         self, mock_open, mock_exists, mock_sha256,
         mock_path, mock_command, mock_load
@@ -104,7 +104,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Compress')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_process_result_bundle_filesystem_image(
         self, mock_open, mock_exists, mock_sha256, mock_compress,
         mock_path, mock_command, mock_load
@@ -140,7 +140,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Compress')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_process_result_bundle_disk_image(
         self, mock_open, mock_exists, mock_sha256, mock_compress,
         mock_path, mock_command, mock_load
@@ -194,7 +194,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Compress')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_process_result_bundle_live_image(
         self, mock_open, mock_exists, mock_sha256, mock_compress,
         mock_path, mock_command, mock_load
@@ -228,7 +228,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Compress')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_process_result_bundle_archive_image(
         self, mock_open, mock_exists, mock_sha256, mock_compress,
         mock_path, mock_command, mock_load
@@ -262,7 +262,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Compress')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_process_result_bundle_pxe_image(
         self, mock_open, mock_exists, mock_sha256, mock_compress,
         mock_path, mock_command, mock_load

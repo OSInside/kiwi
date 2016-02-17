@@ -19,12 +19,12 @@ import time
 from tempfile import mkdtemp
 
 # project
-from bootloader_install_base import BootLoaderInstallBase
-from command import Command
-from path import Path
-from logger import log
+from .bootloader_install_base import BootLoaderInstallBase
+from .command import Command
+from .path import Path
+from .logger import log
 
-from exceptions import(
+from .exceptions import(
     KiwiBootLoaderZiplInstallError
 )
 

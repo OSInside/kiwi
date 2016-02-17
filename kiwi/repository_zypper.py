@@ -16,15 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
-from command import Command
-from repository_base import RepositoryBase
-from path import Path
+from .command import Command
+from .repository_base import RepositoryBase
+from .path import Path
 
-from exceptions import (
+from .exceptions import (
     KiwiRepoTypeUnknown
 )
 
@@ -161,7 +161,7 @@ class RepositoryZypper(RepositoryBase):
             break
 
     def __create_zypper_runtime_environment(self):
-        for zypper_dir in self.shared_zypper_dir.values():
+        for zypper_dir in list(self.shared_zypper_dir.values()):
             Path.create(zypper_dir)
         return dict(
             os.environ,

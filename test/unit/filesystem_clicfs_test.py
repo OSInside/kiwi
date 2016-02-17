@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.filesystem_clicfs import FileSystemClicFs

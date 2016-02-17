@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from collections import namedtuple
 from kiwi.partitioner_dasd import PartitionerDasd
@@ -13,7 +13,7 @@ from kiwi.exceptions import *
 class TestPartitionerDasd(object):
     @patch('kiwi.partitioner_dasd.Command.run')
     @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def setup(self, mock_open, mock_temp, mock_command):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
@@ -40,7 +40,7 @@ class TestPartitionerDasd(object):
 
     @patch('kiwi.partitioner_dasd.Command.run')
     @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create(self, mock_open, mock_temp, mock_command):
         mock_temp.return_value = self.tempfile
         mock_open.return_value = self.context_manager_mock
@@ -56,7 +56,7 @@ class TestPartitionerDasd(object):
 
     @patch('kiwi.partitioner_dasd.Command.run')
     @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_all_free(
         self, mock_open, mock_temp, mock_command
     ):

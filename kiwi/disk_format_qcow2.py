@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from disk_format_base import DiskFormatBase
+from .command import Command
+from .disk_format_base import DiskFormatBase
 
 
 class DiskFormatQcow2(DiskFormatBase):

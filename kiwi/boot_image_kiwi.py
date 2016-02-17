@@ -18,20 +18,20 @@
 import os
 from tempfile import mkdtemp
 
-from defaults import Defaults
-from xml_description import XMLDescription
-from xml_state import XMLState
-from system import System
-from profile import Profile
-from system_setup import SystemSetup
-from logger import log
-from archive_cpio import ArchiveCpio
-from command import Command
-from compress import Compress
-from path import Path
-from boot_image_base import BootImageBase
+from .defaults import Defaults
+from .xml_description import XMLDescription
+from .xml_state import XMLState
+from .system import System
+from .profile import Profile
+from .system_setup import SystemSetup
+from .logger import log
+from .archive_cpio import ArchiveCpio
+from .command import Command
+from .compress import Compress
+from .path import Path
+from .boot_image_base import BootImageBase
 
-from exceptions import(
+from .exceptions import(
     KiwiConfigFileNotFound
 )
 

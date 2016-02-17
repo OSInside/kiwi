@@ -19,14 +19,14 @@ import logging
 import sys
 
 # project
-from exceptions import (
+from .exceptions import (
     KiwiLogFileSetupFailed
 )
 
 
 class ColorMessage(object):
     def __init__(self):
-        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = list(range(8))
         self.color = {
             'BLACK': BLACK,
             'WARNING': YELLOW,
@@ -63,7 +63,7 @@ class ColorMessage(object):
             '$LIGHTCOLOR',
             self.esc['color_light'] % (30 + self.color[level])
         )
-        for color_name, color_id in self.color.items():
+        for color_name, color_id in list(self.color.items()):
             message = message.replace(
                 '$' + color_name,
                 self.esc['color'] % (color_id + 30)

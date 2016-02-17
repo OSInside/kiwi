@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from collections import namedtuple
 from kiwi.partitioner_msdos import PartitionerMsDos
@@ -24,7 +24,7 @@ class TestPartitionerMsDos(object):
     @patch('kiwi.partitioner_msdos.Command.run')
     @patch('kiwi.partitioner_msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner_msdos.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create(self, mock_open, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
         temp_type = namedtuple(
@@ -60,7 +60,7 @@ class TestPartitionerMsDos(object):
     @patch('kiwi.partitioner_msdos.Command.run')
     @patch('kiwi.partitioner_msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner_msdos.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_all_free(
         self, mock_open, mock_temp, mock_flag, mock_command
     ):

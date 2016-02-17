@@ -18,10 +18,10 @@
 import os
 
 # project
-from command import Command
+from .command import Command
 from tempfile import NamedTemporaryFile
 
-from exceptions import (
+from .exceptions import (
     KiwiFileNotFound,
     KiwiCompressionFormatUnknown
 )

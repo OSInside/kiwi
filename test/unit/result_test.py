@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.result import Result
 from kiwi.exceptions import *
@@ -39,7 +39,7 @@ class TestResult(object):
         assert mock_info.called
 
     @patch('pickle.dump')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_dump(self, mock_open, mock_pickle_dump):
         mock_open.return_value = self.context_manager_mock
         self.result.dump('kiwi.result')
@@ -51,7 +51,7 @@ class TestResult(object):
         )
 
     @patch('pickle.dump')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiResultError)
     def test_dump_failed(self, mock_open, mock_pickle_dump):
         mock_pickle_dump.side_effect = Exception
@@ -59,7 +59,7 @@ class TestResult(object):
 
     @patch('pickle.load')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_load(self, mock_open, mock_exists, mock_pickle_load):
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True

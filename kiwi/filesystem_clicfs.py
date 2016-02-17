@@ -16,14 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from filesystem_base import FileSystemBase
-from filesystem_ext4 import FileSystemExt4
-from system_size import SystemSize
+from .command import Command
+from .filesystem_base import FileSystemBase
+from .filesystem_ext4 import FileSystemExt4
+from .system_size import SystemSize
 from tempfile import mkdtemp
-from path import Path
-from loop_device import LoopDevice
-from logger import log
+from .path import Path
+from .loop_device import LoopDevice
+from .logger import log
 
 
 class FileSystemClicFs(FileSystemBase):

@@ -4,7 +4,7 @@ from mock import call
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import (
     KiwiRepoTypeUnknown
@@ -17,7 +17,7 @@ from kiwi.root_bind import RootBind
 class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository_zypper.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def setup(self, mock_open, mock_temp, mock_command):
         tmpfile = mock.Mock()
         tmpfile.name = 'tmpfile'

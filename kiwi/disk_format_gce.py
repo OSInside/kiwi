@@ -19,9 +19,9 @@ from collections import OrderedDict
 from tempfile import mkdtemp
 
 # project
-from command import Command
-from disk_format_base import DiskFormatBase
-from archive_tar import ArchiveTar
+from .command import Command
+from .disk_format_base import DiskFormatBase
+from .archive_tar import ArchiveTar
 
 
 class DiskFormatGce(DiskFormatBase):
@@ -31,8 +31,8 @@ class DiskFormatGce(DiskFormatBase):
     def post_init(self, custom_args):
         self.tag = None
         if custom_args:
-            ordered_args = OrderedDict(custom_args.items())
-            for key, value in ordered_args.iteritems():
+            ordered_args = OrderedDict(list(custom_args.items()))
+            for key, value in list(ordered_args.items()):
                 if key == '--tag':
                     self.tag = value
 

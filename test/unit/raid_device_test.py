@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.raid_device import RaidDevice
@@ -50,7 +50,7 @@ class TestRaidDevice(object):
         self.raid.raid_device = None
 
     @patch('kiwi.raid_device.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_raid_config(self, mock_open, mock_command):
         self.raid.raid_device = '/dev/md0'
         command_call = mock.Mock()

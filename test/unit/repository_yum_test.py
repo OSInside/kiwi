@@ -4,7 +4,7 @@ from mock import call
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import (
     KiwiRepoTypeUnknown
@@ -16,7 +16,7 @@ from kiwi.root_bind import RootBind
 
 class TestRepositoryYum(object):
     @patch('kiwi.repository_yum.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.repository_yum.ConfigParser')
     @patch('kiwi.repository_yum.Path.create')
     def setup(self, mock_path, mock_config, mock_open, mock_temp):
@@ -55,7 +55,7 @@ class TestRepositoryYum(object):
 
     @patch('kiwi.repository_yum.ConfigParser')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.repository_yum.Path.wipe')
     def test_add_repo(self, mock_path, mock_open, mock_exists, mock_config):
         repo_config = mock.Mock()

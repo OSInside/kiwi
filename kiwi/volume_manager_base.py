@@ -20,14 +20,14 @@ from tempfile import mkdtemp
 import os
 
 # project
-from command import Command
-from device_provider import DeviceProvider
-from data_sync import DataSync
-from path import Path
-from system_size import SystemSize
-from defaults import Defaults
+from .command import Command
+from .device_provider import DeviceProvider
+from .data_sync import DataSync
+from .path import Path
+from .system_size import SystemSize
+from .defaults import Defaults
 
-from exceptions import (
+from .exceptions import (
     KiwiVolumeManagerSetupError
 )
 

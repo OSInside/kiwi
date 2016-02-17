@@ -20,17 +20,17 @@ from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
 # project
-from command import Command
-from command_process import CommandProcess
-from logger import log
-from defaults import Defaults
-from users import Users
-from shell import Shell
-from path import Path
-from archive_tar import ArchiveTar
-from compress import Compress
+from .command import Command
+from .command_process import CommandProcess
+from .logger import log
+from .defaults import Defaults
+from .users import Users
+from .shell import Shell
+from .path import Path
+from .archive_tar import ArchiveTar
+from .compress import Compress
 
-from exceptions import (
+from .exceptions import (
     KiwiScriptFailed
 )
 
@@ -78,7 +78,7 @@ class SystemSetup(object):
 
         script_target = self.root_dir + '/image/'
 
-        for name, bootloader_script in sorted_bootloader_scripts.iteritems():
+        for name, bootloader_script in list(sorted_bootloader_scripts.items()):
             if bootloader_script:
                 script_file = self.description_dir + '/' + bootloader_script
                 if os.path.exists(script_file):

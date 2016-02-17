@@ -13,12 +13,12 @@ config = {
     'author_email': 'ms@suse.com',
     'version': __version__,
     'install_requires': [
-        'docopt==0.6.2',
+        'docopt>=0.6.2',
         'lxml'
     ],
     'packages': ['kiwi'],
     'entry_points': {
-        'console_scripts': ['kiwi=kiwi.kiwi:main'],
+        'console_scripts': ['kiwi-py3=kiwi.kiwi:main'],
     },
 
     'include_package_data': True,
@@ -32,8 +32,7 @@ config = {
        'Intended Audience :: Developers',
        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
        'Operating System :: POSIX :: Linux',
-       'Programming Language :: Python :: 2.7',
-       'Programming Language :: Python :: 3.3',
+       'Programming Language :: Python :: 3.4',
        'Topic :: System :: Operating System',
     ],
 }

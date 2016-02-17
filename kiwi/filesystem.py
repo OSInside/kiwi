@@ -16,17 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from filesystem_ext2 import FileSystemExt2
-from filesystem_ext3 import FileSystemExt3
-from filesystem_ext4 import FileSystemExt4
-from filesystem_btrfs import FileSystemBtrfs
-from filesystem_xfs import FileSystemXfs
-from filesystem_fat16 import FileSystemFat16
-from filesystem_fat32 import FileSystemFat32
-from filesystem_squashfs import FileSystemSquashFs
-from filesystem_clicfs import FileSystemClicFs
+from .filesystem_ext2 import FileSystemExt2
+from .filesystem_ext3 import FileSystemExt3
+from .filesystem_ext4 import FileSystemExt4
+from .filesystem_btrfs import FileSystemBtrfs
+from .filesystem_xfs import FileSystemXfs
+from .filesystem_fat16 import FileSystemFat16
+from .filesystem_fat32 import FileSystemFat32
+from .filesystem_squashfs import FileSystemSquashFs
+from .filesystem_clicfs import FileSystemClicFs
 
-from exceptions import (
+from .exceptions import (
     KiwiFileSystemSetupError
 )
 

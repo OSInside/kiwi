@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from archive_tar import ArchiveTar
+from .command import Command
+from .archive_tar import ArchiveTar
 
 
 class ContainerImageDocker(object):

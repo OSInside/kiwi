@@ -4,7 +4,7 @@ from mock import call
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.bootloader_install_zipl import BootLoaderInstallZipl

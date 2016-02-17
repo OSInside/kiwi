@@ -19,27 +19,27 @@ import os
 import platform
 
 # project
-from bootloader_config import BootLoaderConfig
-from bootloader_install import BootLoaderInstall
-from image_identifier import ImageIdentifier
-from internal_boot_image_task import BootImageTask
-from disk_setup import DiskSetup
-from loop_device import LoopDevice
-from firmware import FirmWare
-from disk import Disk
-from raid_device import RaidDevice
-from luks_device import LuksDevice
-from filesystem import FileSystem
-from volume_manager import VolumeManager
-from logger import log
-from command import Command
-from system_setup import SystemSetup
-from install_image_builder import InstallImageBuilder
-from kernel import Kernel
-from disk_format import DiskFormat
-from result import Result
+from .bootloader_config import BootLoaderConfig
+from .bootloader_install import BootLoaderInstall
+from .image_identifier import ImageIdentifier
+from .internal_boot_image_task import BootImageTask
+from .disk_setup import DiskSetup
+from .loop_device import LoopDevice
+from .firmware import FirmWare
+from .disk import Disk
+from .raid_device import RaidDevice
+from .luks_device import LuksDevice
+from .filesystem import FileSystem
+from .volume_manager import VolumeManager
+from .logger import log
+from .command import Command
+from .system_setup import SystemSetup
+from .install_image_builder import InstallImageBuilder
+from .kernel import Kernel
+from .disk_format import DiskFormat
+from .result import Result
 
-from exceptions import (
+from .exceptions import (
     KiwiDiskBootImageError,
     KiwiInstallMediaError
 )
@@ -394,7 +394,7 @@ class DiskBuilder(object):
         filename = self.boot_image_task.boot_root_directory + '/config.partids'
         partition_id_map = self.disk.get_partition_id_map()
         with open(filename, 'w') as partids:
-            for id_name, id_value in partition_id_map.iteritems():
+            for id_name, id_value in list(partition_id_map.items()):
                 partids.write('%s="%s"\n' % (id_name, id_value))
 
     def __write_raid_config_to_boot_image(self):

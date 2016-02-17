@@ -6,7 +6,7 @@ from mock import call
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.boot_image_kiwi import BootImageKiwi
 from kiwi.xml_description import XMLDescription

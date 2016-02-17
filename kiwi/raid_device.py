@@ -18,12 +18,12 @@
 import os
 
 # project
-from command import Command
-from device_provider import DeviceProvider
-from mapped_device import MappedDevice
-from logger import log
+from .command import Command
+from .device_provider import DeviceProvider
+from .mapped_device import MappedDevice
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiRaidSetupError
 )
 

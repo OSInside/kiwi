@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from logger import log
+from .logger import log
 from collections import namedtuple
 
-from exceptions import (
+from .exceptions import (
     KiwiCommandError
 )
 
@@ -37,7 +37,7 @@ class CommandProcess(object):
     def poll(self):
         try:
             while True:
-                line = self.command.next()
+                line = next(self.command)
                 if line:
                     log.debug('%s: %s', self.log_topic, line)
         except StopIteration:
@@ -50,7 +50,7 @@ class CommandProcess(object):
         self.__init_progress()
         try:
             while True:
-                line = self.command.next()
+                line = next(self.command)
                 if line:
                     log.debug('%s: %s', self.log_topic, line)
                     self.__update_progress(
@@ -68,7 +68,7 @@ class CommandProcess(object):
         log.debug('--------------out start-------------')
         try:
             while True:
-                line = self.command.next()
+                line = next(self.command)
                 if line:
                     log.debug(line)
         except StopIteration:
@@ -130,12 +130,12 @@ class CommandProcess(object):
 class CommandIterator(object):
     def __init__(self, command):
         self.command = command
-        self.command_error_output = ''
-        self.command_output_line = ''
+        self.command_error_output = b''
+        self.command_output_line = b''
         self.output_eof_reached = False
         self.errors_eof_reached = False
 
-    def next(self):
+    def __next__(self):
         line_read = None
         if self.command.process.poll() is not None:
             if self.output_eof_reached and self.errors_eof_reached:
@@ -145,9 +145,9 @@ class CommandIterator(object):
             byte_read = self.command.output.read(1)
             if not byte_read:
                 self.output_eof_reached = True
-            elif byte_read == '\n':
-                line_read = self.command_output_line
-                self.command_output_line = ''
+            elif byte_read == b'\n':
+                line_read = self.command_output_line.decode()
+                self.command_output_line = b''
             else:
                 self.command_output_line += byte_read
 
@@ -161,7 +161,7 @@ class CommandIterator(object):
         return line_read
 
     def get_error_output(self):
-        return self.command_error_output
+        return self.command_error_output.decode()
 
     def get_error_code(self):
         return self.command.process.returncode

@@ -21,7 +21,7 @@ import subprocess
 from collections import namedtuple
 
 # project
-from exceptions import KiwiCommandError
+from .exceptions import KiwiCommandError
 
 
 class Command(object):
@@ -37,7 +37,7 @@ class Command(object):
             exception is thrown if the command exits with an error
             code not equal to zero
         """
-        from logger import log
+        from .logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
         if custom_env:
@@ -63,8 +63,8 @@ class Command(object):
             'command', ['output', 'error', 'returncode']
         )
         return command(
-            output=output,
-            error=error,
+            output=output.decode(),
+            error=error.decode(),
             returncode=process.returncode
         )
 
@@ -94,7 +94,7 @@ class Command(object):
             if cmd.process.returncode != 0:
                 print 'something failed: %s' % errors
         """
-        from logger import log
+        from .logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
         if custom_env:

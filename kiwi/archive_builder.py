@@ -18,13 +18,13 @@
 import platform
 
 # project
-from defaults import Defaults
-from archive_tar import ArchiveTar
-from checksum import Checksum
-from logger import log
-from result import Result
+from .defaults import Defaults
+from .archive_tar import ArchiveTar
+from .checksum import Checksum
+from .logger import log
+from .result import Result
 
-from exceptions import (
+from .exceptions import (
     KiwiArchiveSetupError
 )
 

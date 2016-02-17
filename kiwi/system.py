@@ -16,17 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from root_init import RootInit
-from root_bind import RootBind
-from repository import Repository
-from package_manager import PackageManager
-from command_process import CommandProcess
-from uri import Uri
-from archive_tar import ArchiveTar
+from .root_init import RootInit
+from .root_bind import RootBind
+from .repository import Repository
+from .package_manager import PackageManager
+from .command_process import CommandProcess
+from .uri import Uri
+from .archive_tar import ArchiveTar
 
-from logger import log
+from .logger import log
 
-from exceptions import(
+from .exceptions import(
     KiwiBootStrapPhaseFailed,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,

@@ -19,8 +19,8 @@ import collections
 from tempfile import NamedTemporaryFile
 
 # project
-from shell import Shell
-from defaults import Defaults
+from .shell import Shell
+from .defaults import Defaults
 
 
 class Profile(object):
@@ -53,7 +53,7 @@ class Profile(object):
         )
         temp_profile = NamedTemporaryFile()
         with open(temp_profile.name, 'w') as profile:
-            for key, value in sorted_profile.iteritems():
+            for key, value in list(sorted_profile.items()):
                 if value:
                     profile.write(
                         format(key) + '=' + self.__format(value) + '\n'

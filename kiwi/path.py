@@ -18,7 +18,7 @@
 import collections
 
 # project
-from command import Command
+from .command import Command
 
 
 class Path(object):

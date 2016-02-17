@@ -19,10 +19,10 @@ import os
 from collections import namedtuple
 
 # project
-from firmware import FirmWare
-from system_size import SystemSize
-from defaults import Defaults
-from logger import log
+from .firmware import FirmWare
+from .system_size import SystemSize
+from .defaults import Defaults
+from .logger import log
 
 
 class DiskSetup(object):

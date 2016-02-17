@@ -17,10 +17,10 @@
 #
 import os
 from tempfile import mkdtemp
-from command import Command
-from logger import log
+from .command import Command
+from .logger import log
 
-from exceptions import(
+from .exceptions import(
     KiwiTargetDirectoryNotFound
 )
 

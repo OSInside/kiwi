@@ -20,11 +20,11 @@ from tempfile import NamedTemporaryFile
 import os
 
 # project
-from command import Command
-from defaults import Defaults
-import xml_parse
+from .command import Command
+from .defaults import Defaults
+from . import xml_parse
 
-from exceptions import (
+from .exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,

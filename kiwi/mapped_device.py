@@ -18,8 +18,8 @@
 import os
 
 # project
-from device_provider import DeviceProvider
-from exceptions import (
+from .device_provider import DeviceProvider
+from .exceptions import (
     KiwiMappedDeviceError
 )
 

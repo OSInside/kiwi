@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.container_image_docker import ContainerImageDocker

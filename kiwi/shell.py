@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from command import Command
+from .command import Command
 from tempfile import NamedTemporaryFile
-from defaults import Defaults
+from .defaults import Defaults
 
 
 class Shell(object):

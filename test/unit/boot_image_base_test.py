@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.boot_image_base import BootImageBase
@@ -47,7 +47,7 @@ class TestBootImageBase(object):
     def test_destructor(self, mock_path, mock_command):
         mock_path.return_value = True
         self.task.__del__()
-        print mock_command.call_args_list
+        print(mock_command.call_args_list)
         assert mock_command.call_args_list == [
             call(['rm', '-r', '-f', 'boot-root-directory']),
         ]

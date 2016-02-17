@@ -24,9 +24,9 @@ from tempfile import NamedTemporaryFile
 from collections import namedtuple
 
 # project
-from logger import log
-from command import Command
-from exceptions import (
+from .logger import log
+from .command import Command
+from .exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError
 )
@@ -65,7 +65,7 @@ class Iso(object):
     def relocate_boot_catalog(self, isofile):
         iso_metadata = Iso.__read_iso_metadata(isofile)
         Iso.__validate_iso_metadata(iso_metadata)
-        with open(isofile, 'r+') as iso:
+        with open(isofile, 'rb+') as iso:
             new_boot_catalog_sector = iso_metadata.path_table_sector - 1
             new_volume_descriptor = Iso.__read_iso_sector(
                 new_boot_catalog_sector - 1, iso
@@ -73,7 +73,7 @@ class Iso(object):
             new_volume_id = Iso.__sub_string(
                 data=new_volume_descriptor, length=7
             )
-            if 'CD001' not in new_volume_id:
+            if b'CD001' not in new_volume_id:
                 new_boot_catalog_sector = None
                 ref_sector = iso_metadata.boot_catalog_sector
                 for sector in range(0x12, 0x40):
@@ -81,15 +81,15 @@ class Iso(object):
                     new_volume_id = Iso.__sub_string(
                         data=new_volume_descriptor, length=7
                     )
-                    if 'TEA01' in new_volume_id or sector + 1 == ref_sector:
+                    if b'TEA01' in new_volume_id or sector + 1 == ref_sector:
                         new_boot_catalog_sector = sector + 1
                         break
             if iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
                 new_boot_catalog = Iso.__read_iso_sector(
                     new_boot_catalog_sector, iso
                 )
-                empty_catalog = format('\x00' * 0x800)
-                if format(new_boot_catalog) == empty_catalog:
+                empty_catalog = b'\x00' * 0x800
+                if new_boot_catalog == empty_catalog:
                     eltorito_descriptor = Iso.__embed_string_in_segment(
                         data=iso_metadata.eltorito_descriptor,
                         string=struct.pack('<I', new_boot_catalog_sector),
@@ -118,7 +118,7 @@ class Iso(object):
         )
         first_catalog_entry = Iso.__embed_string_in_segment(
             data=first_catalog_entry,
-            string=struct.pack('B19s', 1, 'Legacy (isolinux)'),
+            string=struct.pack('B19s', 1, b'Legacy (isolinux)'),
             length=20,
             start=12
         )
@@ -133,13 +133,11 @@ class Iso(object):
         )
         second_catalog_entry = Iso.__embed_string_in_segment(
             data=second_catalog_entry,
-            string=struct.pack('B19s', 1, 'UEFI (grub)'),
+            string=struct.pack('B19s', 1, b'UEFI (grub)'),
             length=20,
             start=12
         )
-        second_catalog_entry_sector = struct.unpack(
-            'B', second_catalog_entry[0]
-        )[0]
+        second_catalog_entry_sector = second_catalog_entry[0]
         if second_catalog_entry_sector == 0x88:
             boot_catalog = Iso.__embed_string_in_segment(
                 data=boot_catalog,
@@ -148,7 +146,7 @@ class Iso(object):
                 start=96
             )
             second_catalog_entry = struct.pack(
-                'BBH28s', 0x91, 0xef, 1, ''
+                'BBH28s', 0x91, 0xef, 1, b''
             )
             boot_catalog = Iso.__embed_string_in_segment(
                 data=boot_catalog,
@@ -156,7 +154,7 @@ class Iso(object):
                 length=32,
                 start=64
             )
-            with open(isofile, 'r+') as iso:
+            with open(isofile, 'rb+') as iso:
                 Iso.__write_iso_sector(
                     iso_metadata.boot_catalog_sector, boot_catalog, iso
                 )
@@ -226,7 +224,7 @@ class Iso(object):
                     offset = start + index
                     iso.seek(offset << 11, 0)
                     read_buffer = iso.read(len(self.header_id))
-                    if read_buffer == self.header_id:
+                    if read_buffer == self.header_id.encode():
                         iso.seek(0, 0)
                         file_count = 8
                         found_id = True
@@ -237,7 +235,7 @@ class Iso(object):
                 log.debug('--> 2k blocks: %d', offset)
                 log.debug('--> 512 byte blocks(isohybrid): %d', offset * 4)
                 log.debug('--> bytes(loop mount): %d', offset * 2048)
-                with open(self.header_end_file, 'w') as marker:
+                with open(self.header_end_file, 'wb') as marker:
                     for index in range(offset + 1):
                         marker.write(iso.read(2048))
             else:
@@ -306,7 +304,7 @@ class Iso(object):
                 'boot_catalog'
             ]
         )
-        with open(isofile, 'r') as iso:
+        with open(isofile, 'rb') as iso:
             volume_descriptor = Iso.__read_iso_sector(0x10, iso)
             volume_id = Iso.__sub_string(
                 data=volume_descriptor, length=7
@@ -354,12 +352,12 @@ class Iso(object):
 
     @staticmethod
     def __validate_iso_metadata(iso_header):
-        if 'CD001' not in iso_header.volume_id:
+        if 'CD001' not in iso_header.volume_id.decode():
             raise KiwiIsoMetaDataError(
                 '%s: this is not an iso9660 filesystem' %
                 iso_header.isofile
             )
-        if 'EL TORITO SPECIFICATION' not in iso_header.eltorito_id:
+        if 'EL TORITO SPECIFICATION' not in iso_header.eltorito_id.decode():
             raise KiwiIsoMetaDataError(
                 '%s: this iso is not bootable' %
                 iso_header.isofile
@@ -398,6 +396,4 @@ class Iso(object):
     def __embed_string_in_segment(data, string, length, start):
         start_segment = data[0:start]
         end_segment = data[start + length:]
-        return ''.join(
-            [start_segment, string, end_segment]
-        )
+        return start_segment + string + end_segment

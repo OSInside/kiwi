@@ -5,7 +5,7 @@ man_prefix = ${buildroot}/usr/share/man
 CC = gcc -Wall -fpic -O2
 LC = LC_MESSAGES
 
-version := $(shell python -c 'from kiwi.version import __version__; print __version__')
+version := $(shell python3 -c 'from kiwi.version import __version__; print(__version__)')
 
 TOOLS_OBJ = tools_bin tools_bin/startshell tools_bin/setctsid tools_bin/dcounter tools_bin/driveready tools_bin/utimer tools_bin/kversion tools_bin/isconsole tools_bin/kiwicompat
 
@@ -99,16 +99,16 @@ build: pep8 test completion po man
 	# the following is required to update the $Id$ git attribute
 	rm kiwi/version.py && git checkout kiwi/version.py
 	# now create my package sources
-	cat setup.py | sed -e "s@~=[0-9.]*'@'@g" > setup.build.py
-	python setup.build.py sdist
-	mv dist/kiwi-${version}.tar.bz2 dist/python-kiwi.tar.bz2
+	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
+	python3 setup.build.py sdist
+	mv dist/kiwi-${version}.tar.bz2 dist/python3-kiwi.tar.bz2
 	rm setup.build.py
 	git log | helper/changelog_generator |\
-		helper/changelog_descending > dist/python-kiwi.changes
-	cat package/spec-template | sed -e s'@%%VERSION@${version}@' \
-		> dist/python-kiwi.spec
-	cp package/python-kiwi-rpmlintrc dist
-	helper/python-kiwi-boot-packages > dist/python-kiwi-boot-packages
+		helper/changelog_descending > dist/python3-kiwi.changes
+	cat package/python3-kiwi-spec-template | sed -e s'@%%VERSION@${version}@' \
+		> dist/python3-kiwi.spec
+	cp package/python3-kiwi-rpmlintrc dist
+	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
 
 clean:
 	find -name *.pyc | xargs rm -f

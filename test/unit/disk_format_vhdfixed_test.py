@@ -4,7 +4,7 @@ from mock import call
 import mock
 import sys
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.disk_format_vhdfixed import DiskFormatVhdFixed
@@ -36,7 +36,7 @@ class TestDiskFormatVhdFixed(object):
         self.disk_format.create_image_format()
 
     @patch('kiwi.disk_format_vhdfixed.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_image_format(self, mock_open, mock_command):
         self.disk_format.tag = '12345678-1234-1234-1234-123456789999'
         context_manager_mock = mock.Mock()
@@ -70,12 +70,12 @@ class TestDiskFormatVhdFixed(object):
         if sys.byteorder == 'little':
             # on little endian machines
             assert file_mock.write.call_args_list[1] == call(
-                'xV4\x124\x124\x12\x124\x124Vx\x99\x99'
+                b'xV4\x124\x124\x12\x124\x124Vx\x99\x99'
             )
         else:
             # on big endian machines
             assert file_mock.write.call_args_list[1] == call(
-                '\x124Vx\x124\x124\x124\x124Vx\x99\x99'
+                b'\x124Vx\x124\x124\x124\x124Vx\x99\x99'
             )
         assert file_mock.seek.call_args_list == [
             call(65536, 0), call(0, 2),

@@ -2,7 +2,7 @@ import sys
 from nose.tools import *
 from mock import patch
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.help import Help
 from kiwi.exceptions import *

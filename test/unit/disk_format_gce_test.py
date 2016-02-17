@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.disk_format_gce import DiskFormatGce
@@ -33,7 +33,7 @@ class TestDiskFormatGce(object):
 
     @patch('kiwi.disk_format_gce.Command.run')
     @patch('kiwi.disk_format_gce.ArchiveTar')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_format_gce.mkdtemp')
     def test_create_image_format(
         self, mock_mkdtemp, mock_open, mock_archive, mock_command

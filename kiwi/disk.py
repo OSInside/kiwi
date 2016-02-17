@@ -20,11 +20,11 @@ from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
 # project
-from command import Command
-from device_provider import DeviceProvider
-from mapped_device import MappedDevice
-from partitioner import Partitioner
-from logger import log
+from .command import Command
+from .device_provider import DeviceProvider
+from .mapped_device import MappedDevice
+from .partitioner import Partitioner
+from .logger import log
 
 
 class Disk(DeviceProvider):
@@ -54,7 +54,7 @@ class Disk(DeviceProvider):
             requires an explicit map() call
         """
         device_map = {}
-        for partition_name, device_node in self.partition_map.iteritems():
+        for partition_name, device_node in list(self.partition_map.items()):
             device_map[partition_name] = MappedDevice(
                 device=device_node, device_provider=self
             )

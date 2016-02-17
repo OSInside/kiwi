@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from logger import log
+from .command import Command
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiPartitionerGptFlagError
 )
 

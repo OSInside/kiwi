@@ -17,14 +17,14 @@
 #
 import os
 from tempfile import mkdtemp
-from urlparse import urlparse
+from urllib.parse import urlparse
 import hashlib
 
 # project
-from command import Command
-from path import Path
+from .command import Command
+from .path import Path
 
-from exceptions import (
+from .exceptions import (
     KiwiUriStyleUnknown,
     KiwiUriTypeUnknown
 )
@@ -88,7 +88,7 @@ class Uri(object):
             )
 
     def alias(self):
-        return hashlib.md5(self.uri).hexdigest()
+        return hashlib.md5(self.uri.encode()).hexdigest()
 
     def is_remote(self):
         uri = urlparse(self.uri)

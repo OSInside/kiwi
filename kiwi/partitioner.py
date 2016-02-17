@@ -18,11 +18,11 @@
 import platform
 
 # project
-from partitioner_gpt import PartitionerGpt
-from partitioner_msdos import PartitionerMsDos
-from partitioner_dasd import PartitionerDasd
+from .partitioner_gpt import PartitionerGpt
+from .partitioner_msdos import PartitionerMsDos
+from .partitioner_dasd import PartitionerDasd
 
-from exceptions import (
+from .exceptions import (
     KiwiPartitionerSetupError
 )
 

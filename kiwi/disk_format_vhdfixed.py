@@ -21,10 +21,10 @@ from binascii import unhexlify
 import re
 
 # project
-from command import Command
-from disk_format_base import DiskFormatBase
+from .command import Command
+from .disk_format_base import DiskFormatBase
 
-from exceptions import (
+from .exceptions import (
     KiwiVhdTagError
 )
 
@@ -39,8 +39,8 @@ class DiskFormatVhdFixed(DiskFormatBase):
         ]
         self.tag = None
         if custom_args:
-            ordered_args = OrderedDict(custom_args.items())
-            for key, value in ordered_args.iteritems():
+            ordered_args = OrderedDict(list(custom_args.items()))
+            for key, value in list(ordered_args.items()):
                 if key == '--tag':
                     self.tag = value
                 else:
@@ -103,13 +103,9 @@ class DiskFormatVhdFixed(DiskFormatBase):
         binary_tag_part_4 = unhexlify(tag_format.group(4))
         # pack fifth nibble into hex
         binary_tag_part_5 = unhexlify(tag_format.group(5))
-        return ''.join(
-            [
-                binary_tag_part_1, binary_tag_part_2,
-                binary_tag_part_3, binary_tag_part_4,
-                binary_tag_part_5
-            ]
-        )
+        return binary_tag_part_1 + binary_tag_part_2 + \
+            binary_tag_part_3 + binary_tag_part_4 + \
+            binary_tag_part_5
 
     def __write_vhd_tag(self, tag):
         """

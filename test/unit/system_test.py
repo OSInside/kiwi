@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,

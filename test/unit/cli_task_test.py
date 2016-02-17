@@ -4,7 +4,7 @@ from nose.tools import *
 from mock import patch
 
 import logging
-import nose_helper
+from . import nose_helper
 import inspect
 
 from kiwi.cli_task import CliTask
@@ -15,7 +15,7 @@ import kiwi.xml_parse
 
 class TestCliTask(object):
     @patch('os.path.isfile')
-    @patch('ConfigParser.ConfigParser.has_section')
+    @patch('configparser.ConfigParser.has_section')
     @patch('kiwi.logger.log.setLogLevel')
     @patch('kiwi.logger.log.set_logfile')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')

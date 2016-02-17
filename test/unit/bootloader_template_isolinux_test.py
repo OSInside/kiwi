@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.bootloader_template_isolinux import BootLoaderTemplateIsoLinux
 

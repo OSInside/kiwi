@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.container_setup_base import ContainerSetupBase
@@ -39,7 +39,7 @@ class TestContainerSetupBase(object):
     def test_get_container_name(self):
         assert self.container.get_container_name() == 'systemContainer'
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_fstab(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.container.create_fstab()
@@ -48,7 +48,7 @@ class TestContainerSetupBase(object):
         )
         assert self.file_mock.call_args_list == []
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_deactivate_bootloader_setup(self, mock_exists, mock_open):
         mock_exists.return_value = True
@@ -62,7 +62,7 @@ class TestContainerSetupBase(object):
             call('LOADER_LOCATION="none"\nLOADER_TYPE="none"\n')
         ]
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_deactivate_root_filesystem_check(self, mock_exists, mock_open):
         mock_exists.return_value = True
@@ -96,7 +96,7 @@ class TestContainerSetupBase(object):
         mock_command.side_effect = Exception
         self.container.deactivate_systemd_service('my.service')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_setup_root_console(self, mock_exists, mock_open):
         mock_exists.return_value = False

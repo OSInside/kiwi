@@ -21,10 +21,10 @@ import platform
 from collections import namedtuple
 
 # project
-import xml_parse
-from defaults import Defaults
+from . import xml_parse
+from .defaults import Defaults
 
-from exceptions import(
+from .exceptions import(
     KiwiProfileNotFound,
     KiwiTypeNotFound,
     KiwiInvalidVolumeName,

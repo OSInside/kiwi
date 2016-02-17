@@ -6,7 +6,7 @@ import mock
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from collections import namedtuple
 
@@ -80,7 +80,7 @@ class TestBootLoaderConfigZipl(object):
         mock_machine.return_value = 's390'
         BootLoaderConfigZipl(mock.Mock(), 'root_dir')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.bootloader_config_zipl.Path.create')
     @patch('kiwi.bootloader_config_zipl.Command.run')

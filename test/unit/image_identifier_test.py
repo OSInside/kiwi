@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.image_identifier import ImageIdentifier
 
@@ -21,7 +21,7 @@ class TestImageIdentifier(object):
         self.identifier.calculate_id()
         assert self.identifier.get_id() == '0x0f0f0f0f'
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_write(self, mock_open):
         self.identifier.image_id = 'some-id'
         context_manager_mock = mock.Mock()

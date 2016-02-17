@@ -4,7 +4,7 @@ from mock import call
 import mock
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.live_image_builder import LiveImageBuilder
@@ -96,7 +96,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.FileSystemIsoFs')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
     @patch('kiwi.live_image_builder.SystemSize')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_overlay_structure(
         self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
         mock_hybrid, mock_command, mock_dtemp
@@ -224,7 +224,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiLiveBootImageError)
     def test_create_no_kernel_found(
         self, mock_open, mock_boot, mock_command, mock_dtemp
@@ -235,7 +235,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.live_image_builder.mkdtemp')
     @patch('kiwi.live_image_builder.Command.run')
     @patch('kiwi.live_image_builder.BootLoaderConfig')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
         self, mock_open, mock_boot, mock_command, mock_dtemp

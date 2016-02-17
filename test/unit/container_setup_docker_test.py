@@ -5,7 +5,7 @@ import mock
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.container_setup_docker import ContainerSetupDocker
@@ -34,7 +34,7 @@ class TestContainerSetupDocker(object):
         self.container.setup_root_console = mock.Mock()
         self.container.deactivate_systemd_service = mock.Mock()
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.container_setup_docker.Path.create')
     @patch('kiwi.container_setup_docker.ContainerSetupDocker.create_lxc_fstab')
     @patch('kiwi.container_setup_docker.ContainerSetupDocker.create_lxc_config')
@@ -55,7 +55,7 @@ class TestContainerSetupDocker(object):
             call('proc-sys-fs-binfmt_misc.automount')
         ]
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_lxc_fstab(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.container.create_lxc_fstab()
@@ -67,7 +67,7 @@ class TestContainerSetupDocker(object):
             call('sysfs /var/lib/lxc/system/rootfs/sys sysfs defaults 0 0\n')
         ]
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_lxc_config(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.container.create_lxc_config()

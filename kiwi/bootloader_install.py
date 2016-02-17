@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from bootloader_install_grub2 import BootLoaderInstallGrub2
-from bootloader_install_zipl import BootLoaderInstallZipl
+from .bootloader_install_grub2 import BootLoaderInstallGrub2
+from .bootloader_install_zipl import BootLoaderInstallZipl
 
-from exceptions import (
+from .exceptions import (
     KiwiBootLoaderInstallSetupError
 )
 

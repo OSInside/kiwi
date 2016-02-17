@@ -19,23 +19,23 @@ from tempfile import mkdtemp
 import platform
 
 # project
-from bootloader_config import BootLoaderConfig
-from filesystem import FileSystem
-from filesystem_isofs import FileSystemIsoFs
-from internal_boot_image_task import BootImageTask
-from system_size import SystemSize
-from system_setup import SystemSetup
-from firmware import FirmWare
-from defaults import Defaults
-from path import Path
-from result import Result
-from iso import Iso
-from image_identifier import ImageIdentifier
-from kernel import Kernel
-from command import Command
-from logger import log
+from .bootloader_config import BootLoaderConfig
+from .filesystem import FileSystem
+from .filesystem_isofs import FileSystemIsoFs
+from .internal_boot_image_task import BootImageTask
+from .system_size import SystemSize
+from .system_setup import SystemSetup
+from .firmware import FirmWare
+from .defaults import Defaults
+from .path import Path
+from .result import Result
+from .iso import Iso
+from .image_identifier import ImageIdentifier
+from .kernel import Kernel
+from .command import Command
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiLiveBootImageError
 )
 

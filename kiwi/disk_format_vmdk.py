@@ -19,11 +19,11 @@ import os
 import re
 
 # project
-from command import Command
-from disk_format_base import DiskFormatBase
-from logger import log
+from .command import Command
+from .disk_format_base import DiskFormatBase
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiVmdkToolsError
 )
 

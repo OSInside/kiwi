@@ -4,7 +4,7 @@ from mock import call
 import mock
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.install_image_builder import InstallImageBuilder
@@ -69,7 +69,7 @@ class TestInstallImageBuilder(object):
         )
 
     @patch('kiwi.install_image_builder.mkdtemp')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.install_image_builder.Command.run')
     @patch('kiwi.install_image_builder.Iso.create_hybrid')
     def test_create_install_iso(
@@ -151,7 +151,7 @@ class TestInstallImageBuilder(object):
         )
 
     @patch('kiwi.install_image_builder.mkdtemp')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.install_image_builder.Command.run')
     @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_kernel_found(
@@ -161,7 +161,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_iso()
 
     @patch('kiwi.install_image_builder.mkdtemp')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.install_image_builder.Command.run')
     @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_hypervisor_found(
@@ -171,7 +171,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_iso()
 
     @patch('kiwi.install_image_builder.mkdtemp')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.install_image_builder.Command.run')
     @patch('kiwi.install_image_builder.Checksum')
     @patch('kiwi.install_image_builder.Compress')
@@ -184,7 +184,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_pxe_archive()
 
     @patch('kiwi.install_image_builder.mkdtemp')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.install_image_builder.Command.run')
     @patch('kiwi.install_image_builder.Checksum')
     @patch('kiwi.install_image_builder.Compress')
@@ -197,7 +197,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_pxe_archive()
 
     @patch('kiwi.install_image_builder.mkdtemp')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.install_image_builder.Command.run')
     @patch('kiwi.install_image_builder.ArchiveTar')
     @patch('kiwi.install_image_builder.Checksum')

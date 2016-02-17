@@ -53,14 +53,14 @@ options:
 import os
 
 # project
-from cli_task import CliTask
-from help import Help
-from privileges import Privileges
-from system import System
-from system_setup import SystemSetup
-from defaults import Defaults
-from profile import Profile
-from logger import log
+from .cli_task import CliTask
+from .help import Help
+from .privileges import Privileges
+from .system import System
+from .system_setup import SystemSetup
+from .defaults import Defaults
+from .profile import Profile
+from .logger import log
 
 
 class SystemPrepareTask(CliTask):

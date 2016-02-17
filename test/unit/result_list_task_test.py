@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 from kiwi.exceptions import *
 from kiwi.result_list_task import ResultListTask
 

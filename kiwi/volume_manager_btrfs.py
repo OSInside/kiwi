@@ -20,15 +20,15 @@ import re
 import os
 
 # project
-from command import Command
-from volume_manager_base import VolumeManagerBase
-from mapped_device import MappedDevice
-from filesystem import FileSystem
-from data_sync import DataSync
-from path import Path
-from logger import log
+from .command import Command
+from .volume_manager_base import VolumeManagerBase
+from .mapped_device import MappedDevice
+from .filesystem import FileSystem
+from .data_sync import DataSync
+from .path import Path
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiVolumeRootIDError
 )
 

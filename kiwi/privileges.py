@@ -17,7 +17,7 @@
 #
 import os
 
-from exceptions import (
+from .exceptions import (
     KiwiPrivilegesError
 )
 

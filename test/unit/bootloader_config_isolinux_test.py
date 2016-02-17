@@ -6,7 +6,7 @@ import mock
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
@@ -64,7 +64,7 @@ class TestBootLoaderConfigIsoLinux(object):
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_write(self, mock_exists, mock_open):
         mock_exists.return_value = True

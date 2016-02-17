@@ -49,16 +49,16 @@ options:
 import os
 
 # project
-from cli_task import CliTask
-from help import Help
-from system import System
-from system_setup import SystemSetup
-from image_builder import ImageBuilder
-from profile import Profile
-from defaults import Defaults
-from privileges import Privileges
-from path import Path
-from logger import log
+from .cli_task import CliTask
+from .help import Help
+from .system import System
+from .system_setup import SystemSetup
+from .image_builder import ImageBuilder
+from .profile import Profile
+from .defaults import Defaults
+from .privileges import Privileges
+from .path import Path
+from .logger import log
 
 
 class SystemBuildTask(CliTask):

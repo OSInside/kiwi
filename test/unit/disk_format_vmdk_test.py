@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.disk_format_vmdk import DiskFormatVmdk
@@ -56,7 +56,7 @@ class TestDiskFormatVmdk(object):
 
     @patch('kiwi.disk_format_vmdk.Command.run')
     @patch('os.path.exists')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_image_format(
         self, mock_open, mock_exists, mock_command
     ):

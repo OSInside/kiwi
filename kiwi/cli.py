@@ -56,15 +56,15 @@ import importlib
 from docopt import docopt
 
 # project
-from exceptions import (
+from .exceptions import (
     KiwiUnknownServiceName,
     KiwiCommandNotLoaded,
     KiwiLoadCommandUndefined,
     KiwiCompatError
 )
-from defaults import Defaults
-from version import __version__
-from help import Help
+from .defaults import Defaults
+from .version import __version__
+from .help import Help
 
 
 class Cli(object):
@@ -117,7 +117,7 @@ class Cli(object):
 
     def get_global_args(self):
         result = {}
-        for arg, value in self.all_args.iteritems():
+        for arg, value in list(self.all_args.items()):
             if not arg == '<command>' and not arg == '<args>':
                 result[arg] = value
         return result
@@ -137,7 +137,7 @@ class Cli(object):
             service + '_' + command + '_task.py'
         )
         if not os.path.exists(command_source_file):
-            from logger import log
+            from .logger import log
             log.info('Did you mean')
             for service_command in self.__get_command_implementations(service):
                 log.info('--> kiwi %s', service_command)

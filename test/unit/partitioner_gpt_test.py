@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.partitioner_gpt import PartitionerGpt
 from kiwi.exceptions import *

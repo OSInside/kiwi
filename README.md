@@ -88,7 +88,7 @@ taken from the old version of KIWI. Also the entire boot code
 
 The Python project uses `virtualenv` to setup a development
 environment for the desired Python version. The following procedure
-describes how to create such an environment for Python 2.7. Although
+describes how to create such an environment for Python 3.4. Although
 it's targetted for openSUSE, it's very similar for other distributions
 with minor corrections:
 
@@ -97,7 +97,7 @@ $ sudo zypper in python-virtualenv
 $ sudo zypper in python-bumpversion
 $ sudo zypper in python-Sphinx
 
-$ virtualenv-2.7 .env2
+$ virtualenv-3.4 .env3
 ```
 
 Once the development environment exists it needs to be activated
@@ -106,7 +106,7 @@ and initialized with the project required Python modules:
 ```
 $ . .env2/bin/activate
 
-$ pip install -r .virtualenv.dev-requirements.txt
+$ pip3.4 install -r .virtualenv.dev-requirements.txt
 
 $ ./setup.py develop
 ```

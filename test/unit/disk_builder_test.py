@@ -5,7 +5,7 @@ import mock
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 from collections import OrderedDict
 from kiwi.exceptions import *
 from kiwi.xml_description import XMLDescription
@@ -149,7 +149,7 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('random.randrange')
     @patch('kiwi.disk_builder.Command.run')
     @patch('os.path.exists')
@@ -242,7 +242,7 @@ class TestDiskBuilder(object):
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
-            call('\x0f\x0f\x0f\x0f')
+            call(b'\x0f\x0f\x0f\x0f')
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
@@ -256,7 +256,7 @@ class TestDiskBuilder(object):
         )
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     @raises(KiwiDiskBootImageError)
     def test_create_standard_root_no_kernel_found(
@@ -266,7 +266,7 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     @raises(KiwiDiskBootImageError)
     def test_create_standard_root_no_hypervisor_found(
@@ -276,7 +276,7 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_standard_root_s390_boot(
         self, mock_command, mock_open, mock_fs
@@ -294,7 +294,7 @@ class TestDiskBuilder(object):
         )
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_standard_root_secure_boot(
         self, mock_command, mock_open, mock_fs
@@ -310,7 +310,7 @@ class TestDiskBuilder(object):
         bootloader.setup_disk_boot_images.assert_called_once_with('0815')
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_mdraid_root(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
@@ -329,7 +329,7 @@ class TestDiskBuilder(object):
         )
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_luks_root(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
@@ -346,7 +346,7 @@ class TestDiskBuilder(object):
 
     @patch('kiwi.disk_builder.FileSystem')
     @patch('kiwi.disk_builder.VolumeManager')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_volume_managed_root(
         self, mock_command, mock_open, mock_volume_manager, mock_fs
@@ -372,7 +372,7 @@ class TestDiskBuilder(object):
         ])
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     def test_create_with_image_format(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
@@ -383,7 +383,7 @@ class TestDiskBuilder(object):
         self.disk_format.create_image_format.assert_called_once_with()
 
     @patch('kiwi.disk_builder.FileSystem')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
     @patch('kiwi.logger.log.warning')
     def test_create_with_ignore_format_on_install_media(

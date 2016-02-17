@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
@@ -44,7 +44,9 @@ class TestUri(object):
 
     def test_alias(self):
         uri = Uri('https://example.com', 'rpm-md')
-        assert uri.alias() == hashlib.md5('https://example.com').hexdigest()
+        assert uri.alias() == hashlib.md5(
+            'https://example.com'.encode()).hexdigest(
+        )
 
     def test_translate_ibs_project(self):
         uri = Uri('ibs://Devel:PubCloud/SLE_12_GA', 'rpm-md')

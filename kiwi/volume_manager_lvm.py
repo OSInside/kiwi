@@ -19,14 +19,14 @@ from collections import namedtuple
 import time
 
 # project
-from command import Command
-from volume_manager_base import VolumeManagerBase
-from mapped_device import MappedDevice
-from filesystem import FileSystem
-from path import Path
-from logger import log
+from .command import Command
+from .volume_manager_base import VolumeManagerBase
+from .mapped_device import MappedDevice
+from .filesystem import FileSystem
+from .path import Path
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiVolumeGroupConflict
 )
 
@@ -49,7 +49,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             requires an explicit create_volumes() call
         """
         device_map = {}
-        for volume_name, volume_node in self.volume_map.iteritems():
+        for volume_name, volume_node in list(self.volume_map.items()):
             if volume_name == 'LVRoot':
                 # LVRoot volume device takes precedence over the
                 # root partition device from the disk. Therefore use

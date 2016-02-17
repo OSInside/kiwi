@@ -18,15 +18,15 @@
 import platform
 
 # project
-from filesystem import FileSystem
-from loop_device import LoopDevice
-from device_provider import DeviceProvider
-from filesystem_setup import FileSystemSetup
-from defaults import Defaults
-from logger import log
-from result import Result
+from .filesystem import FileSystem
+from .loop_device import LoopDevice
+from .device_provider import DeviceProvider
+from .filesystem_setup import FileSystemSetup
+from .defaults import Defaults
+from .logger import log
+from .result import Result
 
-from exceptions import (
+from .exceptions import (
     KiwiFileSystemSetupError
 )
 

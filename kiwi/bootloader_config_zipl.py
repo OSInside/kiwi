@@ -20,14 +20,14 @@ import platform
 import re
 
 # project
-from logger import log
-from bootloader_config_base import BootLoaderConfigBase
-from bootloader_template_zipl import BootLoaderTemplateZipl
-from path import Path
-from command import Command
-from firmware import FirmWare
+from .logger import log
+from .bootloader_config_base import BootLoaderConfigBase
+from .bootloader_template_zipl import BootLoaderTemplateZipl
+from .path import Path
+from .command import Command
+from .firmware import FirmWare
 
-from exceptions import (
+from .exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderZiplPlatformError,
     KiwiBootLoaderZiplSetupError,

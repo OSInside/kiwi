@@ -16,13 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from device_provider import DeviceProvider
-from mapped_device import MappedDevice
+from .command import Command
+from .device_provider import DeviceProvider
+from .mapped_device import MappedDevice
 from tempfile import NamedTemporaryFile
-from logger import log
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiLuksSetupError
 )
 

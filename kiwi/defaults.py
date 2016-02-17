@@ -18,7 +18,7 @@
 import platform
 import re
 from pkg_resources import resource_filename
-from version import __githash__
+from .version import __githash__
 
 
 class Defaults(object):

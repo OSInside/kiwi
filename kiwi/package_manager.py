@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from package_manager_zypper import PackageManagerZypper
-from package_manager_yum import PackageManagerYum
+from .package_manager_zypper import PackageManagerZypper
+from .package_manager_yum import PackageManagerYum
 
-from exceptions import (
+from .exceptions import (
     KiwiPackageManagerSetupError
 )
 
@@ -29,7 +29,7 @@ class PackageManager(object):
         package manager factory
     """
     def __new__(self, repository, package_manager, custom_args=None):
-        from logger import log
+        from .logger import log
 
         if package_manager == 'zypper':
             manager = PackageManagerZypper(repository, custom_args)

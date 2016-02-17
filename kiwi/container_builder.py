@@ -18,10 +18,10 @@
 import platform
 
 # project
-from container_image import ContainerImage
-from container_setup import ContainerSetup
-from logger import log
-from result import Result
+from .container_image import ContainerImage
+from .container_setup import ContainerSetup
+from .logger import log
+from .result import Result
 
 
 class ContainerBuilder(object):

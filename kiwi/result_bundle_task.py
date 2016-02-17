@@ -44,16 +44,16 @@ import hashlib
 import os
 
 # project
-from cli_task import CliTask
-from help import Help
-from result import Result
-from logger import log
-from path import Path
-from defaults import Defaults
-from compress import Compress
-from command import Command
+from .cli_task import CliTask
+from .help import Help
+from .result import Result
+from .logger import log
+from .path import Path
+from .defaults import Defaults
+from .compress import Compress
+from .command import Command
 
-from exceptions import (
+from .exceptions import (
     KiwiRequestedTypeError,
     KiwiBundleError
 )

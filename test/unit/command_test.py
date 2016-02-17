@@ -6,7 +6,7 @@ import mock
 
 import os
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import KiwiCommandError
 from kiwi.command import Command
@@ -18,7 +18,7 @@ class TestCommand(object):
     def test_run_raises_error(self, mock_popen):
         mock_process = mock.Mock()
         mock_process.communicate = mock.Mock(
-            return_value=['stdout', 'stderr']
+            return_value=[str.encode('stdout'), str.encode('stderr')]
         )
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
@@ -28,7 +28,7 @@ class TestCommand(object):
     def test_run_does_not_raise_error(self, mock_popen):
         mock_process = mock.Mock()
         mock_process.communicate = mock.Mock(
-            return_value=['stdout', 'stderr']
+            return_value=[str.encode('stdout'), str.encode('stderr')]
         )
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
@@ -46,7 +46,7 @@ class TestCommand(object):
         )
         mock_process = mock.Mock()
         mock_process.communicate = mock.Mock(
-            return_value=['stdout', 'stderr']
+            return_value=[str.encode('stdout'), str.encode('stderr')]
         )
         mock_process.returncode = 0
         mock_popen.return_value = mock_process

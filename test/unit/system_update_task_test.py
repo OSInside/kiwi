@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.system_update_task import SystemUpdateTask
 

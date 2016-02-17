@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from collections import namedtuple
 from kiwi.filesystem_setup import FileSystemSetup

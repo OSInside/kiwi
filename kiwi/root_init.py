@@ -20,10 +20,10 @@ from shutil import rmtree
 import os
 
 # project
-from command import Command
-from path import Path
+from .command import Command
+from .path import Path
 
-from exceptions import (
+from .exceptions import (
     KiwiRootDirExists,
     KiwiRootInitCreationError
 )

@@ -4,7 +4,7 @@ from mock import call
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.bootloader_install_grub2 import BootLoaderInstallGrub2
@@ -24,7 +24,7 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.post_init(None)
         assert self.bootloader.temporary_boot_dir is None
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.bootloader_install_grub2.Command.run')
     @patch('kiwi.bootloader_install_grub2.mkdtemp')
     @patch('kiwi.bootloader_install_grub2.NamedTemporaryFile')

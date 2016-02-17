@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.luks_device import LuksDevice
@@ -43,7 +43,7 @@ class TestLuksDevice(object):
 
     @patch('kiwi.luks_device.Command.run')
     @patch('kiwi.luks_device.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_crypto_luks(self, mock_open, mock_tmpfile, mock_command):
         tmpfile = mock.Mock()
         tmpfile.name = 'tmpfile'
@@ -67,7 +67,7 @@ class TestLuksDevice(object):
         ]
         self.luks.luks_device = None
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_create_crypttab(self, mock_open):
         self.luks.luks_device = '/dev/mapper/luksRoot'
         context_manager_mock = mock.Mock()

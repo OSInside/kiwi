@@ -19,9 +19,9 @@ import pickle
 import os
 
 # project
-from logger import log
+from .logger import log
 
-from exceptions import (
+from .exceptions import (
     KiwiResultError
 )
 
@@ -43,7 +43,7 @@ class Result(object):
     def print_results(self):
         if self.result_files:
             log.info('Result files:')
-            for key, value in self.result_files.iteritems():
+            for key, value in list(self.result_files.items()):
                 if value:
                     log.info('--> %s: %s', key, value)
 

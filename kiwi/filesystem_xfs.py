@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from filesystem_base import FileSystemBase
+from .command import Command
+from .filesystem_base import FileSystemBase
 
 
 class FileSystemXfs(FileSystemBase):

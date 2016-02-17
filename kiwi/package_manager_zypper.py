@@ -18,9 +18,9 @@
 import re
 
 # project
-from command import Command
-from package_manager_base import PackageManagerBase
-from exceptions import (
+from .command import Command
+from .package_manager_base import PackageManagerBase
+from .exceptions import (
     KiwiRpmDatabaseReloadError,
     KiwiRequestError
 )

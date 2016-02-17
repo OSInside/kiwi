@@ -18,9 +18,9 @@
 import platform
 
 # project
-from defaults import Defaults
+from .defaults import Defaults
 
-from exceptions import (
+from .exceptions import (
     KiwiNotImplementedError
 )
 

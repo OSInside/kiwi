@@ -4,7 +4,7 @@ from mock import call
 
 import mock
 
-import nose_helper
+from . import nose_helper
 from collections import namedtuple
 
 from kiwi.system_setup import SystemSetup
@@ -37,7 +37,7 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.command.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_import_description(self, mock_path, mock_open, mock_command):
         mock_path.return_value = True
@@ -61,7 +61,7 @@ class TestSystemSetup(object):
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @raises(KiwiScriptFailed)
     def test_import_description_configured_editboot_scripts_not_found(
@@ -77,7 +77,7 @@ class TestSystemSetup(object):
             ['rm', '-r', '-f', '/.kconfig', '/image']
         )
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_import_shell_environment(self, mock_open):
         mock_profile = mock.MagicMock()
         mock_profile.create = mock.Mock(
@@ -289,7 +289,7 @@ class TestSystemSetup(object):
             ]
         )
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_import_image_identifier(self, mock_os_path, mock_open):
         self.xml_state.xml_data.get_id = mock.Mock(
@@ -428,7 +428,7 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system_setup.NamedTemporaryFile')
     @patch('kiwi.system_setup.ArchiveTar')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.system_setup.Compress')
     @patch('os.path.getsize')
     @patch('kiwi.system_setup.Path.wipe')

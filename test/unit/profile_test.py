@@ -4,7 +4,7 @@ from mock import patch
 import mock
 import os
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
@@ -30,7 +30,7 @@ class TestProfile(object):
         mock_temp.return_value = self.tmpfile
         result = self.profile.create()
         os.remove(self.tmpfile.name)
-        print self.profile.dot_profile
+        print(self.profile.dot_profile)
         assert self.profile.dot_profile == {
             'kiwi_allFreeVolume_bin_volume': 'size:all:LVusr_bin',
             'kiwi_allFreeVolume_LVusr_bin': 'size:all',
@@ -129,7 +129,7 @@ class TestProfile(object):
         ]
 
     @patch('kiwi.profile.NamedTemporaryFile')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.shell.Shell.quote_key_value_file')
     def test_create_cpio(self, mock_shell_quote, mock_open, mock_temp):
         mock_temp.return_value = self.tmpfile

@@ -5,7 +5,7 @@ from collections import namedtuple
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import (
     KiwiCommandError
@@ -40,8 +40,8 @@ class TestCommandProcess(object):
 
     def setup(self):
         self.data_flow = [True, None, None, None, None, None, None]
-        self.data_out = ['', '\n', 'a', 't', 'a', 'd']
-        self.data_err = ['', 'r', 'o', 'r', 'r', 'e']
+        self.data_out = [b'', b'\n', b'a', b't', b'a', b'd']
+        self.data_err = [b'', b'r', b'o', b'r', b'r', b'e']
         self.flow = self.create_flow_method(self.poll)
         self.flow_out_available = self.create_flow_method(self.outavailable)
         self.flow_err_available = self.create_flow_method(self.erravailable)

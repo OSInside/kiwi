@@ -3,7 +3,7 @@ from mock import patch
 from mock import call
 import mock
 import struct
-import nose_helper
+from . import nose_helper
 import sys
 
 from kiwi.exceptions import *
@@ -34,7 +34,7 @@ class TestIso(object):
 
         self.iso = Iso('source-dir')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @raises(KiwiIsoLoaderError)
     def test_init_iso_creation_parameters_no_loader(
@@ -50,7 +50,7 @@ class TestIso(object):
         iso = Iso('source-dir')
         assert iso.arch == 'ix86'
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.iso.Command.run')
     @patch('os.path.exists')
     @patch('os.walk')
@@ -150,25 +150,25 @@ class TestIso(object):
             ]
         )
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_iso9660_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = 'bogus'
+        self.file_mock.read.return_value = b'bogus'
         Iso.fix_boot_catalog('isofile')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_not_bootable(self, mock_open):
         mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = 'CD001'
+        self.file_mock.read.return_value = b'CD001'
         Iso.fix_boot_catalog('isofile')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_path_table_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
-        read_results = ['EL TORITO SPECIFICATION', 'CD001']
+        read_results = [b'EL TORITO SPECIFICATION', b'CD001']
 
         def side_effect(arg):
             return read_results.pop()
@@ -176,13 +176,13 @@ class TestIso(object):
         self.file_mock.read.side_effect = side_effect
         Iso.fix_boot_catalog('isofile')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_catalog_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
-        read_results = ['EL TORITO SPECIFICATION', volume_descriptor]
+            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
+        read_results = [b'EL TORITO SPECIFICATION', volume_descriptor]
 
         def side_effect(arg):
             return read_results.pop()
@@ -190,14 +190,14 @@ class TestIso(object):
         self.file_mock.read.side_effect = side_effect
         Iso.fix_boot_catalog('isofile')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_catalog_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
         eltorito_descriptor = \
-            'EL TORITO SPECIFICATION' + '_' * (0x47 - 0x17) + '0x1d5f23a'
+            b'EL TORITO SPECIFICATION' + b'_' * (0x47 - 0x17) + b'0x1d5f23a'
         read_results = [eltorito_descriptor, volume_descriptor]
 
         def side_effect(arg):
@@ -206,23 +206,23 @@ class TestIso(object):
         self.file_mock.read.side_effect = side_effect
         Iso.fix_boot_catalog('isofile')
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_relocate_boot_catalog(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
         eltorito_descriptor = \
-            'EL TORITO SPECIFICATION' + '_' * (0x47 - 0x17) + '0x1d5f23a'
+            b'EL TORITO SPECIFICATION' + b'_' * (0x47 - 0x17) + b'0x1d5f23a'
         new_volume_descriptor = \
-            'bogus'
+            b'bogus'
         next_new_volume_descriptor = \
-            'TEA01'
-        new_boot_catalog = format('\x00' * 0x800)
+            b'TEA01'
+        new_boot_catalog = b'\x00' * 0x800
         read_results = [
             new_boot_catalog,
             next_new_volume_descriptor,
             new_volume_descriptor,
-            'catalog',
+            b'catalog',
             eltorito_descriptor,
             volume_descriptor
         ]
@@ -234,21 +234,21 @@ class TestIso(object):
 
         Iso.relocate_boot_catalog('isofile')
         assert self.file_mock.write.call_args_list == [
-            call('catalog'),
+            call(b'catalog'),
             call(
-                'EL TORITO SPECIFICATION' +
-                '_' * (0x47 - 0x17) + '\x13\x00\x00\x005f23a'
+                b'EL TORITO SPECIFICATION' +
+                b'_' * (0x47 - 0x17) + b'\x13\x00\x00\x005f23a'
             )
         ]
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_fix_boot_catalog(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            'CD001' + '_' * (0x08c - 0x5) + '0x1d5f23a'
+            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
         eltorito_descriptor = \
-            'EL TORITO SPECIFICATION' + '_' * (0x47 - 0x17) + '0x1d5f23a'
-        boot_catalog = '_' * 64 + struct.pack('B', 0x88) + '_' * 32
+            b'EL TORITO SPECIFICATION' + b'_' * (0x47 - 0x17) + b'0x1d5f23a'
+        boot_catalog = b'_' * 64 + struct.pack('B', 0x88) + b'_' * 32
         read_results = [
             boot_catalog,
             eltorito_descriptor,
@@ -265,18 +265,20 @@ class TestIso(object):
         if sys.byteorder == 'big':
             assert self.file_mock.write.call_args_list == [
                 call(
-                    '_' * 44 +
-                    '\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01' + '\x00' * 28 +
-                    '\x88___________\x01UEFI (grub)' +
-                    '\x00' * 8
+                    b'_' * 44 +
+                    b'\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01' +
+                    b'\x00' * 28 +
+                    b'\x88___________\x01UEFI (grub)' +
+                    b'\x00' * 8
                 )
             ]
         else:
             assert self.file_mock.write.call_args_list == [
                 call(
-                    '_' * 44 +
-                    '\x01Legacy (isolinux)\x00\x00\x91\xef\x01' + '\x00' * 29 +
-                    '\x88___________\x01UEFI (grub)' +
-                    '\x00' * 8
+                    b'_' * 44 +
+                    b'\x01Legacy (isolinux)\x00\x00\x91\xef\x01' +
+                    b'\x00' * 29 +
+                    b'\x88___________\x01UEFI (grub)' +
+                    b'\x00' * 8
                 )
             ]

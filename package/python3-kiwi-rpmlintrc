@@ -1,3 +1,6 @@
+# There is a kiwi manual page, kiwi-py3 exists for the alternative system
+addFilter("no-manual-page-for-binary kiwi-py3")
+
 # don't blame on empty package, kiwi-boot-requires for obs
 # integration is used to provide a requires list but the package
 # itself comes with no content which is intentional. In addition

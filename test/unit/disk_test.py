@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.disk import Disk
@@ -11,7 +11,7 @@ from kiwi.disk import Disk
 
 class TestDisk(object):
     @patch('kiwi.disk.Partitioner')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def setup(self, mock_open, mock_partitioner):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
@@ -150,7 +150,7 @@ class TestDisk(object):
         )
 
     @patch('kiwi.disk.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('kiwi.disk.NamedTemporaryFile')
     def test_wipe_dasd(self, mock_temp, mock_open, mock_command):
         self.disk.table_type = 'dasd'

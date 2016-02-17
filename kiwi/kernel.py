@@ -19,7 +19,7 @@ import os
 from collections import namedtuple
 
 # project
-from command import Command
+from .command import Command
 
 
 class Kernel(object):

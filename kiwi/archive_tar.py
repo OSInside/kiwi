@@ -18,7 +18,7 @@
 import os
 
 # project
-from command import Command
+from .command import Command
 
 
 class ArchiveTar(object):

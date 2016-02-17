@@ -19,9 +19,9 @@ import sys
 import docopt
 
 # project
-import logger
-from app import App
-from exceptions import KiwiError
+from . import logger
+from .app import App
+from .exceptions import KiwiError
 
 
 def main():

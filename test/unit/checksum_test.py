@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.exceptions import *
 from kiwi.checksum import Checksum
@@ -22,7 +22,7 @@ class TestChecksum(object):
     @patch('kiwi.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_md5_xz(self, mock_open, mock_size, mock_md5, mock_compress):
         compress = mock.Mock()
         digest = mock.Mock()
@@ -57,7 +57,7 @@ class TestChecksum(object):
     @patch('kiwi.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     def test_md5(self, mock_open, mock_size, mock_md5, mock_compress):
         compress = mock.Mock()
         digest = mock.Mock()

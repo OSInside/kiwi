@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from logger import log
-from disk_setup import DiskSetup
-from path import Path
-from defaults import Defaults
+from .logger import log
+from .disk_setup import DiskSetup
+from .path import Path
+from .defaults import Defaults
 
-from exceptions import (
+from .exceptions import (
     KiwiBootLoaderTargetError
 )
 

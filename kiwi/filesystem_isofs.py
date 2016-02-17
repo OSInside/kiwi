@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from iso import Iso
-from command import Command
-from filesystem_base import FileSystemBase
+from .iso import Iso
+from .command import Command
+from .filesystem_base import FileSystemBase
 
 
 class FileSystemIsoFs(FileSystemBase):

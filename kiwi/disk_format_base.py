@@ -18,13 +18,13 @@
 import os
 from collections import OrderedDict
 
-from exceptions import (
+from .exceptions import (
     KiwiFormatSetupError
 )
 
-from defaults import Defaults
-from path import Path
-from logger import log
+from .defaults import Defaults
+from .path import Path
+from .logger import log
 
 
 class DiskFormatBase(object):
@@ -51,8 +51,8 @@ class DiskFormatBase(object):
     def get_qemu_option_list(self, custom_args):
         options = []
         if custom_args:
-            ordered_args = OrderedDict(custom_args.items())
-            for key, value in ordered_args.iteritems():
+            ordered_args = OrderedDict(sorted(custom_args.items()))
+            for key, value in list(ordered_args.items()):
                 options.append('-o')
                 options.append(key)
                 if value:

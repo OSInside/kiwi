@@ -5,7 +5,7 @@ import mock
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from collections import namedtuple
 

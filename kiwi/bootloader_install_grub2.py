@@ -19,10 +19,10 @@ from tempfile import NamedTemporaryFile
 from tempfile import mkdtemp
 
 # project
-from bootloader_install_base import BootLoaderInstallBase
-from command import Command
-from logger import log
-from path import Path
+from .bootloader_install_base import BootLoaderInstallBase
+from .command import Command
+from .logger import log
+from .path import Path
 
 
 class BootLoaderInstallGrub2(BootLoaderInstallBase):

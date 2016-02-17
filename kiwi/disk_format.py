@@ -16,13 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from disk_format_qcow2 import DiskFormatQcow2
-from disk_format_vhd import DiskFormatVhd
-from disk_format_vhdfixed import DiskFormatVhdFixed
-from disk_format_vmdk import DiskFormatVmdk
-from disk_format_gce import DiskFormatGce
+from .disk_format_qcow2 import DiskFormatQcow2
+from .disk_format_vhd import DiskFormatVhd
+from .disk_format_vhdfixed import DiskFormatVhdFixed
+from .disk_format_vmdk import DiskFormatVmdk
+from .disk_format_gce import DiskFormatGce
 
-from exceptions import (
+from .exceptions import (
     KiwiDiskFormatSetupError
 )
 

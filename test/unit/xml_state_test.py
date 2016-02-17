@@ -3,7 +3,7 @@ from mock import patch
 
 import mock
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription

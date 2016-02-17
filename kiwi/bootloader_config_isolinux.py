@@ -19,13 +19,13 @@ import os
 import platform
 
 # project
-from logger import log
-from bootloader_config_base import BootLoaderConfigBase
-from bootloader_template_isolinux import BootLoaderTemplateIsoLinux
-from command import Command
-from path import Path
+from .logger import log
+from .bootloader_config_base import BootLoaderConfigBase
+from .bootloader_template_isolinux import BootLoaderTemplateIsoLinux
+from .command import Command
+from .path import Path
 
-from exceptions import (
+from .exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderIsoLinuxPlatformError
 )

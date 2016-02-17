@@ -20,12 +20,12 @@ import time
 from tempfile import mkdtemp
 
 # project
-from command import Command
-from logger import log
-from path import Path
-from data_sync import DataSync
+from .command import Command
+from .logger import log
+from .path import Path
+from .data_sync import DataSync
 
-from exceptions import (
+from .exceptions import (
     KiwiFileSystemSyncError
 )
 

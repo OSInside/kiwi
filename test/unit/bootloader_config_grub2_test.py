@@ -6,7 +6,7 @@ import mock
 
 import kiwi
 
-import nose_helper
+from . import nose_helper
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
@@ -116,7 +116,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.post_init(None)
         assert self.bootloader.xen_guest is True
 
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     def test_write(self, mock_exists, mock_open):
         mock_exists.return_value = True
@@ -290,7 +290,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi(
@@ -369,7 +369,7 @@ class TestBootLoaderConfigGrub2(object):
         ]
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_xen_guest(
@@ -432,7 +432,7 @@ class TestBootLoaderConfigGrub2(object):
         ]
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot(
@@ -458,7 +458,7 @@ class TestBootLoaderConfigGrub2(object):
             ])
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_install_boot_images_efi(
@@ -526,7 +526,7 @@ class TestBootLoaderConfigGrub2(object):
         ]
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_install_boot_images_efi_secure_boot(
@@ -556,7 +556,7 @@ class TestBootLoaderConfigGrub2(object):
             ])
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
@@ -580,7 +580,7 @@ class TestBootLoaderConfigGrub2(object):
         ])
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('__builtin__.open')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')

@@ -2,7 +2,7 @@ from nose.tools import *
 from mock import patch
 from collections import namedtuple
 
-import nose_helper
+from . import nose_helper
 import logging
 
 from kiwi.logger import *

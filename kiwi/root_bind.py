@@ -18,11 +18,11 @@
 import os
 
 # project
-from command import Command
-from logger import log
-from path import Path
+from .command import Command
+from .logger import log
+from .path import Path
 
-from exceptions import (
+from .exceptions import (
     KiwiMountKernelFileSystemsError,
     KiwiMountSharedDirectoryError,
     KiwiSetupIntermediateConfigError

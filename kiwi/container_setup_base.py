@@ -19,9 +19,9 @@ import collections
 import os
 
 # project
-from command import Command
+from .command import Command
 
-from exceptions import (
+from .exceptions import (
     KiwiContainerSetupError
 )
 
@@ -158,7 +158,7 @@ class ContainerSetupBase(object):
         sorted_record = collections.OrderedDict(
             sorted(update_record.items())
         )
-        for current_value, new_value in sorted_record.iteritems():
+        for current_value, new_value in list(sorted_record.items()):
             entry_found = False
             for index in range(0, len(data)):
                 line = data[index]

@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from container_setup_docker import ContainerSetupDocker
+from .container_setup_docker import ContainerSetupDocker
 
-from exceptions import (
+from .exceptions import (
     KiwiContainerSetupError
 )
 

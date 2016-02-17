@@ -16,14 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
-from repository_base import RepositoryBase
-from path import Path
+from .repository_base import RepositoryBase
+from .path import Path
 
-from exceptions import (
+from .exceptions import (
     KiwiRepoTypeUnknown
 )
 
@@ -153,7 +153,7 @@ class RepositoryYum(RepositoryBase):
             break
 
     def __create_yum_runtime_environment(self):
-        for yum_dir in self.shared_yum_dir.values():
+        for yum_dir in list(self.shared_yum_dir.values()):
             Path.create(yum_dir)
         return dict(
             os.environ, LANG='C'
