@@ -144,7 +144,7 @@ class SystemBuildTask(CliTask):
         setup.setup_timezone()
 
         system.pinch_system(
-            manager
+            manager=manager, force=True
         )
         # make sure system instance is cleaned up now
         del system

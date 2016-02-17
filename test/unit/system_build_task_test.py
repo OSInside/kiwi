@@ -87,7 +87,9 @@ class TestSystemBuildTask(object):
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
-        self.system.pinch_system.assert_called_once_with(self.manager)
+        self.system.pinch_system.assert_called_once_with(
+            manager=self.manager, force=True
+        )
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()

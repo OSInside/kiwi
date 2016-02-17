@@ -138,7 +138,7 @@ class SystemPrepareTask(CliTask):
         setup.setup_timezone()
 
         system.pinch_system(
-            manager
+            manager=manager, force=True
         )
 
     def __help(self):

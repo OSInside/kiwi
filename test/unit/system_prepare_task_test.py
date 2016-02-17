@@ -72,7 +72,9 @@ class TestSystemPrepareTask(object):
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
 
-        self.system.pinch_system.assert_called_once_with(self.manager)
+        self.system.pinch_system.assert_called_once_with(
+            manager=self.manager, force=True
+        )
 
     @patch('kiwi.xml_state.XMLState.set_repository')
     def test_process_system_prepare_set_repo(self, mock_state):
