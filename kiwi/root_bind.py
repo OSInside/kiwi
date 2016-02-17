@@ -59,13 +59,14 @@ class RootBind(object):
     def mount_kernel_file_systems(self):
         try:
             for location in self.bind_locations:
-                Command.run(
-                    [
-                        'mount', '-n', '--bind', location,
-                        self.root_dir + location
-                    ]
-                )
-                self.mount_stack.append(location)
+                if os.path.exists(location):
+                    Command.run(
+                        [
+                            'mount', '-n', '--bind', location,
+                            self.root_dir + location
+                        ]
+                    )
+                    self.mount_stack.append(location)
         except Exception as e:
             self.cleanup()
             raise KiwiMountKernelFileSystemsError(
@@ -93,14 +94,15 @@ class RootBind(object):
     def setup_intermediate_config(self):
         try:
             for config in self.config_files:
-                self.cleanup_files.append(config + '.kiwi')
-                Command.run(
-                    ['cp', config, self.root_dir + config + '.kiwi']
-                )
-                link_target = os.path.basename(config) + '.kiwi'
-                Command.run(
-                    ['ln', '-s', '-f', link_target, self.root_dir + config]
-                )
+                if os.path.exists(config):
+                    self.cleanup_files.append(config + '.kiwi')
+                    Command.run(
+                        ['cp', config, self.root_dir + config + '.kiwi']
+                    )
+                    link_target = os.path.basename(config) + '.kiwi'
+                    Command.run(
+                        ['ln', '-s', '-f', link_target, self.root_dir + config]
+                    )
         except Exception as e:
             self.cleanup()
             raise KiwiSetupIntermediateConfigError(
@@ -144,13 +146,15 @@ class RootBind(object):
             )
 
     def __cleanup_mount_stack(self):
-        try:
-            Command.run(['umount', '-l'] + self.__build_mount_list())
-        except Exception as e:
-            log.warning(
-                'Image root directory %s not cleanly umounted: %s',
-                self.root_dir, format(e)
-            )
+        mount_list = self.__build_mount_list()
+        if mount_list:
+            try:
+                Command.run(['umount', '-l'] + mount_list)
+            except Exception as e:
+                log.warning(
+                    'Image root directory %s not cleanly umounted: %s',
+                    self.root_dir, format(e)
+                )
 
         del self.mount_stack[:]
 
