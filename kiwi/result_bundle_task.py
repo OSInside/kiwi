@@ -166,7 +166,7 @@ class ResultBundleTask(CliTask):
         elif image_type in Defaults.get_container_image_types():
             result_files_for_bundle.append(
                 result_file_type(
-                    filename=results['container'], compress=True
+                    filename=results['container'], compress=False
                 )
             )
         else:
