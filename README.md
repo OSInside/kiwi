@@ -43,7 +43,7 @@ packages for the new kiwi version are provided at the
 [openSUSE buildservice](http://download.opensuse.org/repositories/Virtualization:/Appliances)
 
 ```bash
-$ zypper in python-kiwi
+$ zypper in python3-kiwi
 ```
 
 ## Quick Start
@@ -93,9 +93,9 @@ it's targetted for openSUSE, it's very similar for other distributions
 with minor corrections:
 
 ```
-$ sudo zypper in python-virtualenv
-$ sudo zypper in python-bumpversion
-$ sudo zypper in python-Sphinx
+$ sudo zypper in python3-virtualenv
+$ sudo zypper in python3-bumpversion
+$ sudo zypper in python3-Sphinx
 
 $ virtualenv-3.4 .env3
 ```
@@ -127,7 +127,7 @@ $ deactivate
 
 ## Packaging and Versioning
 
-The version schema is based on python-bumpversion and follows the
+The version schema is based on python's bumpversion and follows the
 standard rules as shown below.
 
 ```
