@@ -19,7 +19,7 @@
 Name:           python3-kiwi
 Version:        %%VERSION
 Release:        0
-Url:            https://github.com/SUSE/azurectl
+Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-2.0+
 Group:          Development/Languages/Python
