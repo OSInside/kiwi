@@ -104,7 +104,7 @@ Once the development environment exists it needs to be activated
 and initialized with the project required Python modules:
 
 ```
-$ . .env2/bin/activate
+$ . .env3/bin/activate
 
 $ pip3.4 install -r .virtualenv.dev-requirements.txt
 
