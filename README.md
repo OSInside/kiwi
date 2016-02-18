@@ -94,6 +94,7 @@ with minor corrections:
 
 ```
 $ sudo zypper in python3-virtualenv
+$ sudo zypper in python3-devel
 $ sudo zypper in python3-bumpversion
 $ sudo zypper in python3-Sphinx
 
