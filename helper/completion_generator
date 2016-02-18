@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from textwrap import dedent
 
@@ -26,7 +26,7 @@ class AppHash:
         begin = False
         cur_path = ''
         self.result = AutoVivification()
-        for line in cmd.communicate()[0].split('\n'):
+        for line in cmd.communicate()[0].decode().split('\n'):
             usage = re.search('^usage: (.*)', line)
             if usage:
                 begin = True
@@ -47,6 +47,12 @@ class AppHash:
                     if re.match('.*--version', line):
                         mod_line = re.sub('[\[\]\|]', '', line)
                         mod_line = re.sub('-v ', '', mod_line)
+                        key_list = mod_line.split()
+                        result_keys = self.validate(key_list)
+                        cur_path = self.merge(result_keys, self.result)
+                    elif re.match('.*kiwi --compat', line):
+                        mod_line = re.sub('[\[\]\|]', '', line)
+                        mod_line = re.sub('<legacy_args>...', '', mod_line)
                         key_list = mod_line.split()
                         result_keys = self.validate(key_list)
                         cur_path = self.merge(result_keys, self.result)
@@ -161,7 +167,7 @@ tree.traverse()
 # pp = pprint.PrettyPrinter(indent=4)
 # pp.pprint(tree.completion.result)
 
-print dedent('''
+print(dedent('''
 #========================================
 # _kiwi
 #----------------------------------------
@@ -169,30 +175,30 @@ function _kiwi {
     local cur prev opts
     _get_comp_words_by_ref cur prev
     local cmd=$(echo $COMP_LINE | sed -e 's@-.*@@'| awk -F ' ' '{ print $NF }')
-''').strip()
+''').strip())
 
-print '    for comp in $prev $cmd;do'
-print '        case "$comp" in'
+print('    for comp in $prev $cmd;do')
+print('        case "$comp" in')
 for level in sorted(tree.level_dict):
     if level == '0':
         continue
     for sub in tree.level_dict[level]:
-        print '            "%s")' % (sub)
-        print '                __comp_reply "%s"' % \
-            (" ".join(tree.level_dict[level][sub]))
-        print '                return 0'
-        print '                ;;'
-print '        esac'
-print '    done'
-print '    if [[ $COMP_LINE =~ compute ]];then'
-print '        __comp_reply "--help"'
-print '    else'
-print '       __comp_reply "%s"' % \
-    (" ".join(tree.level_dict['0']['kiwi']))
-print '    fi'
-print '    return 0'
-print '}'
-print dedent('''
+        print('            "%s")' % (sub))
+        print('                __comp_reply "%s"' % \
+            (" ".join(tree.level_dict[level][sub])))
+        print('                return 0')
+        print('                ;;')
+print('        esac')
+print('    done')
+print('    if [[ $COMP_LINE =~ compute ]];then')
+print('        __comp_reply "--help"')
+print('    else')
+print('       __comp_reply "%s"' % \
+    (" ".join(tree.level_dict['0']['kiwi'])))
+print('    fi')
+print('    return 0')
+print('}')
+print(dedent('''
 #========================================
 # comp_reply
 #----------------------------------------
@@ -202,4 +208,4 @@ function __comp_reply {
 }
 
 complete -F _kiwi -o default kiwi
-''').strip()
+''').strip())

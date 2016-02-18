@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 
@@ -8,7 +8,7 @@ try:
     pre_tree = minidom.parse('test/unit/coverage.reference.xml')
     cur_tree = minidom.parse('test/unit/coverage.xml')
 except:
-    print "Coverage reference files missing"
+    print("Coverage reference files missing")
     sys.exit(1)
 
 summary = {}
@@ -31,11 +31,11 @@ for cls in pre_tree.getElementsByTagName('class'):
 code = 0
 for filename in summary:
     if summary[filename][1] > summary[filename][0]:
-        print '%s: Test code coverage violated current: %s previous: %s' % (
+        print('%s: Test code coverage violated current: %s previous: %s' % (
             format(filename),
             format(summary[filename][0])+'%',
             format(summary[filename][1])+'%'
-        )
+        ))
         code = 1
 
 sys.exit(code)
