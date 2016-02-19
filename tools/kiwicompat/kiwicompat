@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
 usage: kiwicompat -h | --help
        kiwicompat --build=<description> --dest-dir=<destination>
