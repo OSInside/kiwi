@@ -24,7 +24,7 @@ class TestResultBundleTask(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
-        self.file_mock.read.return_value = 'data'
+        self.file_mock.read.return_value = b'data'
 
         self.result = mock.Mock()
         self.result.xml_state.get_image_version = mock.Mock(
@@ -95,7 +95,7 @@ class TestResultBundleTask(object):
                 'bundle_dir/some-container-1.2.3-Build_42'
             ]
         )
-        mock_sha256.assert_called_once_with('data')
+        mock_sha256.assert_called_once_with(b'data')
         sha256.hexdigest.assert_called_once_with()
 
     @patch('kiwi.result_bundle_task.Result.load')
