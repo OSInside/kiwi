@@ -28,11 +28,13 @@ class TestCommand(object):
     def test_run_does_not_raise_error(self, mock_popen):
         mock_process = mock.Mock()
         mock_process.communicate = mock.Mock(
-            return_value=[str.encode('stdout'), str.encode('stderr')]
+            return_value=[str.encode('stdout'), str.encode('')]
         )
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
-        Command.run(['command', 'args'], os.environ, False)
+        result = Command.run(['command', 'args'], os.environ, False)
+        assert result.error == '(no output on stderr)'
+        assert result.output == 'stdout'
 
     @patch('subprocess.Popen')
     def test_run(self, mock_popen):
