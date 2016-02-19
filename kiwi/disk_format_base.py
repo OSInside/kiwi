@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import platform
 from collections import OrderedDict
 
 from .exceptions import (
@@ -34,6 +35,7 @@ class DiskFormatBase(object):
     def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
         self.root_dir = root_dir
+        self.arch = platform.machine()
         self.target_dir = target_dir
         self.custom_args = {}
         self.temp_image_dir = None
@@ -68,7 +70,10 @@ class DiskFormatBase(object):
         return ''.join(
             [
                 self.target_dir, '/',
-                self.xml_state.xml_data.get_name(), '.' + format_name
+                self.xml_state.xml_data.get_name(),
+                '.' + self.arch,
+                '-' + self.xml_state.get_image_version(),
+                '.' + format_name
             ]
         )
 

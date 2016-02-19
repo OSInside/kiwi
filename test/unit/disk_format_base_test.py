@@ -10,13 +10,18 @@ from kiwi.disk_format_base import DiskFormatBase
 
 
 class TestDiskFormatBase(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'
         )
         self.xml_state = mock.Mock()
         self.xml_state.xml_data = xml_data
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
         self.disk_format = DiskFormatBase(
             self.xml_state, 'root_dir', 'target_dir'
         )
@@ -44,7 +49,7 @@ class TestDiskFormatBase(object):
 
     def test_get_target_name_for_format(self):
         assert self.disk_format.get_target_name_for_format('vhd') == \
-            'target_dir/some-disk-image.vhd'
+            'target_dir/some-disk-image.x86_64-1.2.3.vhd'
 
     @patch('kiwi.disk_format_base.Path.wipe')
     @patch('os.path.exists')

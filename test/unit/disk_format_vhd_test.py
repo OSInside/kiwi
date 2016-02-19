@@ -10,13 +10,18 @@ from kiwi.disk_format_vhd import DiskFormatVhd
 
 
 class TestDiskFormatVhd(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'
         )
         self.xml_state = mock.Mock()
         self.xml_state.xml_data = xml_data
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
         self.disk_format = DiskFormatVhd(
             self.xml_state, 'root_dir', 'target_dir'
         )
@@ -31,7 +36,7 @@ class TestDiskFormatVhd(object):
         mock_command.assert_called_once_with(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw',
-                'target_dir/some-disk-image.raw', '-O', 'vpc',
-                'target_dir/some-disk-image.vhd'
+                'target_dir/some-disk-image.x86_64-1.2.3.raw', '-O', 'vpc',
+                'target_dir/some-disk-image.x86_64-1.2.3.vhd'
             ]
         )

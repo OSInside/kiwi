@@ -10,13 +10,18 @@ from kiwi.disk_format_vmdk import DiskFormatVmdk
 
 
 class TestDiskFormatVmdk(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'
         )
         self.xml_state = mock.Mock()
         self.xml_state.xml_data = xml_data
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
         self.disk_format = DiskFormatVmdk(
             self.xml_state, 'root_dir', 'target_dir'
         )
@@ -36,8 +41,8 @@ class TestDiskFormatVmdk(object):
         mock_command.assert_called_once_with(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw',
-                'target_dir/some-disk-image.raw', '-O', 'vmdk',
-                'target_dir/some-disk-image.vmdk'
+                'target_dir/some-disk-image.x86_64-1.2.3.raw', '-O', 'vmdk',
+                'target_dir/some-disk-image.x86_64-1.2.3.vmdk'
             ]
         )
         assert mock_log_warn.called
@@ -88,7 +93,7 @@ class TestDiskFormatVmdk(object):
         self.disk_format.create_image_format()
 
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.vmdk', 'wb')
+            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'wb')
         ]
         assert file_mock.write.call_args_list == [
             call('encoding="UTF-8"\ndd-out\nddb.toolsInstallType = "4"\nddb.toolsVersion = "9350"')

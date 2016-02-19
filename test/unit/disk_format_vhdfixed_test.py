@@ -11,13 +11,18 @@ from kiwi.disk_format_vhdfixed import DiskFormatVhdFixed
 
 
 class TestDiskFormatVhdFixed(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'
         )
         self.xml_state = mock.Mock()
         self.xml_state.xml_data = xml_data
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
         self.disk_format = DiskFormatVhdFixed(
             self.xml_state, 'root_dir', 'target_dir'
         )
@@ -54,15 +59,15 @@ class TestDiskFormatVhdFixed(object):
         mock_command.assert_called_once_with(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw',
-                'target_dir/some-disk-image.raw', '-O', 'vpc',
+                'target_dir/some-disk-image.x86_64-1.2.3.raw', '-O', 'vpc',
                 '-o', 'subformat=fixed',
-                'target_dir/some-disk-image.vhdfixed'
+                'target_dir/some-disk-image.x86_64-1.2.3.vhdfixed'
             ]
         )
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.vhdfixed', 'wb'),
+            call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'wb'),
             call('/dev/null', 'rb'),
-            call('target_dir/some-disk-image.vhdfixed', 'wb')
+            call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'wb')
         ]
         assert file_mock.write.call_args_list[0] == call(
             'dev_null_data'
