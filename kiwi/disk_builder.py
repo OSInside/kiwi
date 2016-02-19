@@ -290,9 +290,7 @@ class DiskBuilder(object):
             disk_format.create_image_format()
             self.result.add(
                 'disk_format_image',
-                self.target_dir + '/' + disk_format.get_target_name_for_format(
-                    self.image_format
-                )
+                disk_format.get_target_name_for_format(self.image_format)
             )
 
         return self.result
