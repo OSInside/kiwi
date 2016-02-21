@@ -83,10 +83,12 @@ class TestBootImageKiwi(object):
     @patch('kiwi.boot_image_kiwi.Command.run')
     @patch('kiwi.boot_image_base.BootImageBase.is_prepared')
     @patch('kiwi.boot_image_kiwi.mkdtemp')
+    @patch('platform.machine')
     def test_create_initrd(
-        self, mock_mkdtemp, mock_prepared, mock_command, mock_wipe,
-        mock_create, mock_compress, mock_cpio
+        self, mock_machine, mock_mkdtemp, mock_prepared, mock_command,
+        mock_wipe, mock_create, mock_compress, mock_cpio
     ):
+        mock_machine.return_value = 'x86_64'
         mock_mkdtemp.return_value = 'temp-boot-directory'
         mock_prepared.return_value = True
         mbrid = mock.Mock()
@@ -100,10 +102,12 @@ class TestBootImageKiwi(object):
             ['rsync', '-zav', 'boot-directory/', 'temp-boot-directory']
         )
         mock_cpio.assert_called_once_with(
-            self.task.target_dir + '/LimeJeOS-openSUSE-13.2.initrd'
+            self.task.target_dir +
+            '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
         )
         mock_compress.assert_called_once_with(
-            self.task.target_dir + '/LimeJeOS-openSUSE-13.2.initrd'
+            self.task.target_dir +
+            '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
         )
         mock_wipe.assert_called_once_with(
             'temp-boot-directory/boot'

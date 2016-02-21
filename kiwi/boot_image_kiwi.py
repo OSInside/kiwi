@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import platform
 from tempfile import mkdtemp
 
 from .defaults import Defaults
@@ -97,7 +98,10 @@ class BootImageKiwi(BootImageBase):
             initrd_file_name = ''.join(
                 [
                     self.target_dir, '/',
-                    self.xml_state.xml_data.get_name(), '.initrd'
+                    self.xml_state.xml_data.get_name(),
+                    '.' + platform.machine(),
+                    '-' + self.xml_state.get_image_version(),
+                    '.initrd'
                 ]
             )
             # we can't simply exclude boot when building the archive
