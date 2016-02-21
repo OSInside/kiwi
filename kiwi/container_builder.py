@@ -20,6 +20,7 @@ import platform
 # project
 from .container_image import ContainerImage
 from .container_setup import ContainerSetup
+from .system_setup import SystemSetup
 from .logger import log
 from .result import Result
 
@@ -30,8 +31,12 @@ class ContainerBuilder(object):
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir
+        self.target_dir = target_dir
         self.requested_container_name = xml_state.build_type.get_container()
         self.requested_container_type = xml_state.get_build_type_name()
+        self.system_setup = SystemSetup(
+            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
+        )
         self.filename = ''.join(
             [
                 target_dir, '/',
@@ -68,5 +73,17 @@ class ContainerBuilder(object):
         )
         self.result.add(
             'container', self.filename
+        )
+        self.result.add(
+            'image_packages',
+            self.system_setup.export_rpm_package_list(
+                self.target_dir
+            )
+        )
+        self.result.add(
+            'image_verified',
+            self.system_setup.export_rpm_package_verification(
+                self.target_dir
+            )
         )
         return self.result

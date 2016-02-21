@@ -2,6 +2,7 @@ from nose.tools import *
 from mock import patch
 
 import mock
+import kiwi
 
 from . import nose_helper
 
@@ -42,6 +43,11 @@ class TestFileSystemBuilder(object):
         self.fs_setup = mock.Mock()
         self.fs_setup.get_size_mbytes = mock.Mock(
             return_value=42
+        )
+
+        self.setup = mock.Mock()
+        kiwi.filesystem_builder.SystemSetup = mock.Mock(
+            return_value=self.setup
         )
 
     @raises(KiwiFileSystemSetupError)
@@ -92,6 +98,12 @@ class TestFileSystemBuilder(object):
         self.filesystem.sync_data.assert_called_once_with(
             ['image', '.profile', '.kconfig', 'var/cache/kiwi']
         )
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
+        )
 
     @patch('kiwi.filesystem_builder.FileSystem')
     @patch('kiwi.filesystem_builder.DeviceProvider')
@@ -115,4 +127,10 @@ class TestFileSystemBuilder(object):
         )
         self.filesystem.create_on_file.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.squashfs', None
+        )
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
         )

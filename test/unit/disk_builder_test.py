@@ -116,9 +116,9 @@ class TestDiskBuilder(object):
         kiwi.disk_builder.FirmWare = mock.Mock(
             return_value=self.firmware
         )
-        self.system_setup = mock.Mock()
+        self.setup = mock.Mock()
         kiwi.disk_builder.SystemSetup = mock.Mock(
-            return_value=self.system_setup
+            return_value=self.setup
         )
         self.install_image = mock.Mock()
         kiwi.disk_builder.InstallImageBuilder = mock.Mock(
@@ -174,8 +174,8 @@ class TestDiskBuilder(object):
 
         self.disk_builder.create()
 
-        self.system_setup.create_recovery_archive.assert_called_once_with()
-        self.system_setup.export_modprobe_setup.assert_called_once_with(
+        self.setup.create_recovery_archive.assert_called_once_with()
+        self.setup.export_modprobe_setup.assert_called_once_with(
             'boot_dir'
         )
         self.disk_setup.get_disksize_mbytes.assert_called_once_with()
@@ -200,11 +200,11 @@ class TestDiskBuilder(object):
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
             '0815'
         )
-        self.system_setup.call_edit_boot_config_script.assert_called_once_with(
+        self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
         )
         self.bootloader_install.install.assert_called_once_with()
-        self.system_setup.call_edit_boot_install_script.assert_called_once_with(
+        self.setup.call_edit_boot_install_script.assert_called_once_with(
             'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
             '/dev/boot-device'
         )
@@ -253,6 +253,12 @@ class TestDiskBuilder(object):
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
             'root_dir', '/boot/xen.gz'
+        )
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
         )
 
     @patch('kiwi.disk_builder.FileSystem')

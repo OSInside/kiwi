@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
+
 # project
 from .internal_boot_image_task import BootImageTask
 from .filesystem_builder import FileSystemBuilder
@@ -40,7 +42,6 @@ class PxeBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
-        self.image_name = xml_state.xml_data.get_name()
         self.machine = xml_state.get_build_type_machine_section()
         self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
@@ -51,6 +52,14 @@ class PxeBuilder(object):
         )
         self.boot_image_task = BootImageTask(
             'kiwi', xml_state, target_dir
+        )
+        self.image_name = ''.join(
+            [
+                target_dir, '/',
+                xml_state.xml_data.get_name(),
+                '.' + platform.machine(),
+                '-' + xml_state.get_image_version(),
+            ]
         )
         self.kernel_filename = None
         self.hypervisor_filename = None
@@ -128,6 +137,20 @@ class PxeBuilder(object):
         )
         self.result.add(
             'filesystem_md5', self.filesystem_checksum
+        )
+
+        # create image root metadata
+        self.result.add(
+            'image_packages',
+            self.system_setup.export_rpm_package_list(
+                self.target_dir
+            )
+        )
+        self.result.add(
+            'image_verified',
+            self.system_setup.export_rpm_package_verification(
+                self.target_dir
+            )
         )
 
         if self.pxedeploy:

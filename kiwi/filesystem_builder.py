@@ -22,6 +22,7 @@ from .filesystem import FileSystem
 from .loop_device import LoopDevice
 from .device_provider import DeviceProvider
 from .filesystem_setup import FileSystemSetup
+from .system_setup import SystemSetup
 from .defaults import Defaults
 from .logger import log
 from .result import Result
@@ -39,6 +40,7 @@ class FileSystemBuilder(object):
         self.custom_args = None
         self.label = None
         self.root_dir = root_dir
+        self.target_dir = target_dir
         self.requested_image_type = xml_state.get_build_type_name()
         if self.requested_image_type == 'pxe':
             self.requested_filesystem = xml_state.build_type.get_filesystem()
@@ -49,6 +51,9 @@ class FileSystemBuilder(object):
                 'No filesystem configured in %s type' %
                 self.requested_image_type
             )
+        self.system_setup = SystemSetup(
+            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
+        )
         self.filename = ''.join(
             [
                 target_dir, '/',
@@ -80,6 +85,18 @@ class FileSystemBuilder(object):
             self.__operate_on_file()
         self.result.add(
             'filesystem_image', self.filename
+        )
+        self.result.add(
+            'image_packages',
+            self.system_setup.export_rpm_package_list(
+                self.target_dir
+            )
+        )
+        self.result.add(
+            'image_verified',
+            self.system_setup.export_rpm_package_verification(
+                self.target_dir
+            )
         )
         return self.result
 

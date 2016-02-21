@@ -20,6 +20,7 @@ import platform
 # project
 from .defaults import Defaults
 from .archive_tar import ArchiveTar
+from .system_setup import SystemSetup
 from .checksum import Checksum
 from .logger import log
 from .result import Result
@@ -39,6 +40,9 @@ class ArchiveBuilder(object):
         self.xml_state = xml_state
         self.requested_archive_type = xml_state.get_build_type_name()
         self.result = Result(xml_state)
+        self.system_setup = SystemSetup(
+            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
+        )
         self.filename = self.__target_file_for('tar.xz')
         self.checksum = self.__target_file_for('md5')
 
@@ -63,6 +67,18 @@ class ArchiveBuilder(object):
             )
             self.result.add(
                 'root_archive_md5', self.checksum
+            )
+            self.result.add(
+                'image_packages',
+                self.system_setup.export_rpm_package_list(
+                    self.target_dir
+                )
+            )
+            self.result.add(
+                'image_verified',
+                self.system_setup.export_rpm_package_verification(
+                    self.target_dir
+                )
             )
         return self.result
 

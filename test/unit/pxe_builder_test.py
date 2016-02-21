@@ -17,9 +17,9 @@ class TestPxeBuilder(object):
     @patch('kiwi.pxe_builder.FileSystemBuilder')
     @patch('kiwi.pxe_builder.BootImageTask')
     def setup(self, mock_boot, mock_filesystem):
-        self.system_setup = mock.Mock()
+        self.setup = mock.Mock()
         kiwi.pxe_builder.SystemSetup = mock.Mock(
-            return_value=self.system_setup
+            return_value=self.setup
         )
         self.boot_image_task = mock.MagicMock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
@@ -27,7 +27,13 @@ class TestPxeBuilder(object):
         self.filesystem = mock.MagicMock()
         self.filesystem.filename = 'myimage'
         mock_filesystem.return_value = self.filesystem
-        self.xml_state = mock.MagicMock()
+        self.xml_state = mock.Mock()
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
+        self.xml_state.xml_data.get_name = mock.Mock(
+            return_value='some-image'
+        )
         kernel_type = namedtuple(
             'kernel', ['filename', 'version']
         )
@@ -70,10 +76,16 @@ class TestPxeBuilder(object):
         compress.xz.assert_called_once_with()
         checksum.md5.assert_called_once_with('myimage.md5')
         self.boot_image_task.prepare.assert_called_once_with()
-        self.system_setup.export_modprobe_setup.assert_called_once_with(
+        self.setup.export_modprobe_setup.assert_called_once_with(
             'initrd_dir'
         )
         self.boot_image_task.create_initrd.assert_called_once_with()
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
         # warning for not implemented pxedeploy handling
         assert mock_log_warn.called
 

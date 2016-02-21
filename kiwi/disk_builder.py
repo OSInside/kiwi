@@ -293,6 +293,20 @@ class DiskBuilder(object):
                 disk_format.get_target_name_for_format(self.image_format)
             )
 
+        # create image root metadata
+        self.result.add(
+            'image_packages',
+            self.system_setup.export_rpm_package_list(
+                self.target_dir
+            )
+        )
+        self.result.add(
+            'image_verified',
+            self.system_setup.export_rpm_package_verification(
+                self.target_dir
+            )
+        )
+
         return self.result
 
     def __install_image_requested(self):

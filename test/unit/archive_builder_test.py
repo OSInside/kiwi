@@ -2,6 +2,7 @@ from nose.tools import *
 from mock import patch
 
 import mock
+import kiwi
 
 from . import nose_helper
 
@@ -22,6 +23,10 @@ class TestArchiveBuilder(object):
         )
         self.xml_state.xml_data.get_name = mock.Mock(
             return_value='myimage'
+        )
+        self.setup = mock.Mock()
+        kiwi.archive_builder.SystemSetup = mock.Mock(
+            return_value=self.setup
         )
         self.archive = ArchiveBuilder(
             self.xml_state, 'target_dir', 'root_dir'
@@ -65,4 +70,10 @@ class TestArchiveBuilder(object):
         )
         checksum.md5.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.md5'
+        )
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
         )

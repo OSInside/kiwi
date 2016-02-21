@@ -196,6 +196,18 @@ class LiveImageBuilder(object):
         self.result.add(
             'live_image', self.isoname
         )
+        self.result.add(
+            'image_packages',
+            self.system_setup.export_rpm_package_list(
+                self.target_dir
+            )
+        )
+        self.result.add(
+            'image_verified',
+            self.system_setup.export_rpm_package_verification(
+                self.target_dir
+            )
+        )
         return self.result
 
     def __create_live_iso_kernel_and_initrd(self):

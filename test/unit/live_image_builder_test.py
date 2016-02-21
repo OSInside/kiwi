@@ -21,9 +21,9 @@ class TestLiveImageBuilder(object):
         kiwi.live_image_builder.FirmWare = mock.Mock(
             return_value=self.firmware
         )
-        self.system_setup = mock.Mock()
+        self.setup = mock.Mock()
         kiwi.live_image_builder.SystemSetup = mock.Mock(
-            return_value=self.system_setup
+            return_value=self.setup
         )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
@@ -128,11 +128,13 @@ class TestLiveImageBuilder(object):
             return_value=8192
         )
         mock_size.return_value = rootsize
+        self.setup.export_rpm_package_verification.return_value = '.verified'
+        self.setup.export_rpm_package_list.return_value = '.packages'
 
         self.live_image.create()
 
         self.live_image.boot_image_task.prepare.assert_called_once_with()
-        self.system_setup.export_modprobe_setup.assert_called_once_with(
+        self.setup.export_modprobe_setup.assert_called_once_with(
             'initrd_dir'
         )
         mock_fs.assert_called_once_with(
@@ -210,8 +212,16 @@ class TestLiveImageBuilder(object):
         mock_hybrid.assert_called_once_with(
             'offset', self.mbrid, 'target_dir/result-image.x86_64-1.2.3.iso'
         )
-        self.result.add.assert_called_once_with(
-            'live_image', 'target_dir/result-image.x86_64-1.2.3.iso'
+        assert self.result.add.call_args_list == [
+            call('live_image', 'target_dir/result-image.x86_64-1.2.3.iso'),
+            call('image_packages', '.packages'),
+            call('image_verified', '.verified')
+        ]
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
         )
 
     @patch('kiwi.live_image_builder.mkdtemp')
