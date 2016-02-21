@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import platform
 from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
@@ -328,6 +329,61 @@ class SystemSetup(object):
             Command.run(
                 ['rsync', '-zav', modprobe_config, target_root_dir + '/etc/']
             )
+
+    def export_rpm_package_list(self, target_dir):
+        """
+            export image rpm package list as metadata reference
+            used by the open buildservice
+        """
+        if os.path.exists(self.root_dir + '/var/lib/rpm/Packages'):
+            log.info('Export rpm packages metadata')
+            filename = ''.join(
+                [
+                    target_dir, '/',
+                    self.xml_state.xml_data.get_name(),
+                    '.' + platform.machine(),
+                    '-' + self.xml_state.get_image_version(),
+                    '.packages'
+                ]
+            )
+            query_call = Command.run(
+                [
+                    'rpm', '--root', self.root_dir, '-qa', '--qf',
+                    '|'.join(
+                        [
+                            '%{NAME}', '%{EPOCH}', '%{VERSION}', '%{RELEASE}',
+                            '%{ARCH}', '%{DISTURL}', '\\n'
+                        ]
+                    )
+                ]
+            )
+            with open(filename, 'w') as packages:
+                packages.write(query_call.output)
+            return filename
+
+    def export_rpm_package_verification(self, target_dir):
+        """
+            export rpm package verification result as metadata reference
+            used by the open buildservice
+        """
+        if os.path.exists(self.root_dir + '/var/lib/rpm/Packages'):
+            log.info('Export rpm verification metadata')
+            filename = ''.join(
+                [
+                    target_dir, '/',
+                    self.xml_state.xml_data.get_name(),
+                    '.' + platform.machine(),
+                    '-' + self.xml_state.get_image_version(),
+                    '.verified'
+                ]
+            )
+            query_call = Command.run(
+                command=['rpm', '--root', self.root_dir, '-Va'],
+                raise_on_error=False
+            )
+            with open(filename, 'w') as verified:
+                verified.write(query_call.output)
+            return filename
 
     def call_config_script(self):
         self.__call_script('config.sh')

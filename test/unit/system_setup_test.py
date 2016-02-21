@@ -20,6 +20,12 @@ class TestSystemSetup(object):
         self.xml_state.build_type.get_filesystem = mock.Mock(
             return_value='ext3'
         )
+        self.xml_state.xml_data.get_name = mock.Mock(
+            return_value='some-image'
+        )
+        self.xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
         self.setup = SystemSetup(
             self.xml_state, 'description_dir', 'root_dir'
         )
@@ -517,4 +523,48 @@ class TestSystemSetup(object):
         mock_path.assert_called_once_with('target_root_dir/etc')
         mock_command.assert_called_once_with(
             ['rsync', '-zav', 'root_dir/etc/modprobe.d', 'target_root_dir/etc/']
+        )
+
+    @patch('kiwi.system_setup.Command.run')
+    @patch('os.path.exists')
+    @patch('builtins.open')
+    @patch('platform.machine')
+    def test_export_rpm_package_list(
+        self, mock_machine, mock_open, mock_exists, mock_command
+    ):
+        mock_machine.return_value = 'x86_64'
+        command = mock.Mock()
+        command.output = 'packages_data'
+        mock_exists.return_value = True
+        mock_command.return_value = command
+        result = self.setup.export_rpm_package_list('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
+        mock_command.assert_called_once_with([
+            'rpm', '--root', 'root_dir', '-qa', '--qf',
+            '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}|\\n'
+        ])
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+        )
+
+    @patch('kiwi.system_setup.Command.run')
+    @patch('os.path.exists')
+    @patch('builtins.open')
+    @patch('platform.machine')
+    def test_export_rpm_package_verification(
+        self, mock_machine, mock_open, mock_exists, mock_command
+    ):
+        mock_machine.return_value = 'x86_64'
+        command = mock.Mock()
+        command.output = 'verification_data'
+        mock_exists.return_value = True
+        mock_command.return_value = command
+        result = self.setup.export_rpm_package_verification('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
+        mock_command.assert_called_once_with(
+            command=['rpm', '--root', 'root_dir', '-Va'],
+            raise_on_error=False
+        )
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.verified', 'w'
         )
