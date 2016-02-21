@@ -57,9 +57,17 @@ class PartitionerDasd(object):
         bash_command = ' '.join(
             ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
         )
-        Command.run(
-            ['bash', '-c', bash_command]
-        )
+        try:
+            Command.run(
+                ['bash', '-c', bash_command]
+            )
+        except Exception:
+            # unfortunately fdasd reports that it can't read in the partition
+            # table which I consider a bug in fdasd. However the table was
+            # correctly created and therefore we continue. Problem is that we
+            # are not able to detect real errors with the fdasd operation at
+            # that point.
+            log.debug('potential fdasd errors were ignored')
 
     def set_flag(self, partition_id, flag_name):
         # on an s390 dasd device there are no such flags

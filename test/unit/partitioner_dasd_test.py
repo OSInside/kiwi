@@ -41,7 +41,9 @@ class TestPartitionerDasd(object):
     @patch('kiwi.partitioner_dasd.Command.run')
     @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
     @patch('builtins.open')
-    def test_create(self, mock_open, mock_temp, mock_command):
+    @patch('kiwi.logger.log.debug')
+    def test_create(self, mock_debug, mock_open, mock_temp, mock_command):
+        mock_command.side_effect = Exception
         mock_temp.return_value = self.tempfile
         mock_open.return_value = self.context_manager_mock
 
@@ -53,6 +55,7 @@ class TestPartitionerDasd(object):
         mock_command.assert_called_once_with(
             ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
         )
+        assert mock_debug.called
 
     @patch('kiwi.partitioner_dasd.Command.run')
     @patch('kiwi.partitioner_dasd.NamedTemporaryFile')

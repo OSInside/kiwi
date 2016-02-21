@@ -152,7 +152,9 @@ class TestDisk(object):
     @patch('kiwi.disk.Command.run')
     @patch('builtins.open')
     @patch('kiwi.disk.NamedTemporaryFile')
-    def test_wipe_dasd(self, mock_temp, mock_open, mock_command):
+    @patch('kiwi.logger.log.debug')
+    def test_wipe_dasd(self, mock_debug, mock_temp, mock_open, mock_command):
+        mock_command.side_effect = Exception
         self.disk.table_type = 'dasd'
         mock_temp.return_value = self.tempfile
         mock_open.return_value = self.context_manager_mock
@@ -163,6 +165,7 @@ class TestDisk(object):
         mock_command.assert_called_once_with(
             ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
         )
+        assert mock_debug.called
 
     @patch('kiwi.disk.Command.run')
     def test_map_partitions_loop(self, mock_command):
