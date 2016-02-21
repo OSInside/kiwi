@@ -335,7 +335,7 @@ class Iso(object):
                 boot_catalog = Iso.__read_iso_sector(
                     boot_catalog_sector, iso
                 )
-            except Exception as e:
+            except Exception:
                 # validation happens in __validate_iso_metadata
                 boot_catalog = None
 

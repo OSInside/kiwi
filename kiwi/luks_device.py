@@ -77,7 +77,7 @@ class LuksDevice(DeviceProvider):
                     'no custom option configuration found for OS %s' % os
                 )
         storage_device = self.storage_provider.get_device()
-        log.info('Creating crypto LUKS on %s' % storage_device)
+        log.info('Creating crypto LUKS on %s', storage_device)
         log.info('--> Randomizing...')
         storage_size_mbytes = self.storage_provider.get_byte_size(
             storage_device

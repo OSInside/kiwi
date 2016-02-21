@@ -58,7 +58,7 @@ class ContainerSetupBase(object):
             initialize an empty fstab file, mount processes in a
             container are controlled by the container infrastructure
         """
-        with open(self.root_dir + '/etc/fstab', 'w') as fstab:
+        with open(self.root_dir + '/etc/fstab', 'w'):
             pass
 
     def deactivate_bootloader_setup(self):
@@ -116,7 +116,7 @@ class ContainerSetupBase(object):
         """
         securetty = self.root_dir + '/etc/securetty'
         if not os.path.exists(securetty):
-            with open(securetty, 'w') as empty_securetty:
+            with open(securetty, 'w'):
                 pass
         self.__update_config(
             securetty,
