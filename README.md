@@ -18,7 +18,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   
 ## Motivation
 
-During the last years KIWI has evolved a lot. Many features were
+During the last years KIWI has evolved a lot: Many features were
 added, even some which are not in use anymore because new technologies
 made them obsolete. There is a lot of legacy code in KIWI to support
 older distributions. In order to become free from legacy code
@@ -39,16 +39,20 @@ configured.
 
 ## Installation
 
-packages for the new kiwi version are provided at the
-[openSUSE buildservice](http://download.opensuse.org/repositories/Virtualization:/Appliances)
+Packages for the new KIWI version are provided at the
+[openSUSE buildservice](http://download.opensuse.org/repositories/Virtualization:/Appliances).
+Add the repository with `zypper ar` (see following code) and replace the placeholders.
+The best approach is to click through to your distribution and copy the complete URL
+of `Virtualization:Appliances.repo`. Use the following commands:
 
 ```bash
+$ zypper ar -f <URL>/<DIST>/Virtualization:Appliances.repo
 $ zypper in python3-kiwi
 ```
 
 ## Quick Start
 
-Along with the appliance builder there is also a github project hosting
+Along with the appliance builder there is also a GitHub project hosting
 example image descriptions. The following shows how to build your first
 image.
 
@@ -73,11 +77,11 @@ which are equal or newer compared to the following list:
 * SUSE Linux Enterprise 12
 * Red Hat Enterprise 7
 * openSUSE 13.2
-* SUSE Leap 42
-* SUSE Tumbleweed
+* openSUSE Leap 42
+* openSUSE Tumbleweed
 
 For anything older please consider to use the former
-kiwi version __v7.x.x__
+KIWI version __v7.x.x__
 
 ## Contributing
 
@@ -114,13 +118,13 @@ $ ./setup.py develop
 
 The __develop__ target of the `setup.py` script automatically creates
 the application entry point called __kiwi__, which allows to simply
-call the application from the current code base
+call the application from the current code base:
 
 ```
 $ kiwi --help
 ```
 
-In order to leave the development mode just call
+In order to leave the development mode just call:
 
 ```
 $ deactivate
@@ -128,14 +132,14 @@ $ deactivate
 
 ## Packaging and Versioning
 
-The version schema is based on python's bumpversion and follows the
+The version schema is based on `bumpversion` and follows the
 standard rules as shown below.
 
 ```
 $ bumpversion [patch | minor | major]
 ```
 
-The creation of rpm package sources has to be done by calling
+The creation of RPM package sources has to be done by calling
 the following make target:
 
 ```
@@ -143,8 +147,8 @@ $ make build
 ```
 
 The sources are collected below the `dist/` directory. In there you
-will find all required files to submit a package to the open build
-service or just build it with rpmbuild
+will find all required files to submit a package to the Open Build
+Service or just build it with `rpmbuild`.
 
 ## Documentation
 
