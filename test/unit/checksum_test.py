@@ -1,6 +1,6 @@
 from nose.tools import *
 from mock import patch
-
+from mock import call
 import mock
 
 from . import nose_helper
@@ -46,10 +46,10 @@ class TestChecksum(object):
 
         self.checksum.md5('outfile')
 
-        call = mock_open.call_args_list[0]
-        assert mock_open.call_args_list[0] == call('some-file')
-        call = mock_open.call_args_list[1]
-        assert mock_open.call_args_list[1] == call('outfile', 'w')
+        assert mock_open.call_args_list == [
+            call('some-file', 'rb'),
+            call('outfile', 'w')
+        ]
         file_mock.write.assert_called_once_with(
             'sum 163968 8192 163968 8192\n'
         )
@@ -81,10 +81,10 @@ class TestChecksum(object):
 
         self.checksum.md5('outfile')
 
-        call = mock_open.call_args_list[0]
-        assert mock_open.call_args_list[0] == call('some-file')
-        call = mock_open.call_args_list[1]
-        assert mock_open.call_args_list[1] == call('outfile', 'w')
+        assert mock_open.call_args_list == [
+            call('some-file', 'rb'),
+            call('outfile', 'w')
+        ]
         file_mock.write.assert_called_once_with(
             'sum 163968 8192\n'
         )

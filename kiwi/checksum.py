@@ -55,7 +55,7 @@ class Checksum(object):
             blocks = self.__block_list(
                 os.path.getsize(self.source_filename)
             )
-        with open(self.source_filename) as source:
+        with open(self.source_filename, 'rb') as source:
             checksum = hashlib.md5(source.read()).hexdigest()
         with open(filename, 'w') as md5:
             if compressed_blocks:
