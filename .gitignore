@@ -13,6 +13,12 @@ kiwi/schema/kiwi.revision
 __pycache__/
 *.py[cod]
 
+# Backup files
+*~
+*.kate-swp
+*.~
+
+
 # C extensions
 *.so
 

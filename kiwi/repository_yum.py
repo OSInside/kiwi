@@ -23,10 +23,6 @@ from tempfile import NamedTemporaryFile
 from .repository_base import RepositoryBase
 from .path import Path
 
-from .exceptions import (
-    KiwiRepoTypeUnknown
-)
-
 
 class RepositoryYum(RepositoryBase):
     """

@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from tempfile import mkdtemp
-import os
 import platform
 
 # project

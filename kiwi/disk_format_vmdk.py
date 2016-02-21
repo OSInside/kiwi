@@ -59,7 +59,7 @@ class DiskFormatVmdk(DiskFormatBase):
         vmdk_vmtoolsd = self.root_dir + '/usr/bin/vmtoolsd'
         if not os.path.exists(vmdk_vmtoolsd):
             log.warning(
-                'Could not find vmtoolsd in image root %s' % self.root_dir
+                'Could not find vmtoolsd in image root %s', self.root_dir
             )
             log.warning(
                 'Update of VMDK metadata skipped'

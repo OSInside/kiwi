@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
+
 import platform
 import re
 
@@ -159,7 +159,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             fdasd_output = fdasd_call.output
             try:
                 start_track = int(fdasd_output.split(' ')[2].lstrip())
-            except Exception as e:
+            except Exception:
                 raise KiwiDiskGeometryError(
                     'unknown partition format: %s' % fdasd_output
                 )
@@ -208,7 +208,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         fdasd_output = fdasd_call.output
         try:
             return int(fdasd_output.split(':')[1].lstrip())
-        except Exception as e:
+        except Exception:
             raise KiwiDiskGeometryError(
                 'unknown format for disk geometry: %s' % fdasd_output
             )
