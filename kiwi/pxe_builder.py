@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import platform
 
 # project
@@ -94,7 +95,10 @@ class PxeBuilder(object):
         kernel_data = kernel.get_kernel()
         if kernel_data:
             self.kernel_filename = ''.join(
-                [self.image_name, '-', kernel_data.version, '.kernel']
+                [
+                    os.path.basename(self.image_name), '-',
+                    kernel_data.version, '.kernel'
+                ]
             )
             kernel.copy_kernel(
                 self.target_dir, self.kernel_filename
@@ -110,14 +114,14 @@ class PxeBuilder(object):
             kernel_data = kernel.get_xen_hypervisor()
             if kernel_data:
                 self.hypervisor_filename = ''.join(
-                    [self.image_name, '-', kernel_data.name]
+                    [os.path.basename(self.image_name), '-', kernel_data.name]
                 )
                 kernel.copy_xen_hypervisor(
                     self.target_dir, self.hypervisor_filename
                 )
                 self.result.add(
                     key='xen_hypervisor',
-                    filename=self.hypervisor_filename,
+                    filename=self.target_dir + '/' + self.hypervisor_filename,
                     use_for_bundle=True,
                     compress=False,
                     shasum=True
@@ -130,9 +134,11 @@ class PxeBuilder(object):
 
         # create initrd for pxe boot
         self.boot_image_task.create_initrd()
+
+        # store results
         self.result.add(
             key='kernel',
-            filename=self.kernel_filename,
+            filename=self.target_dir + '/' + self.kernel_filename,
             use_for_bundle=True,
             compress=False,
             shasum=True
