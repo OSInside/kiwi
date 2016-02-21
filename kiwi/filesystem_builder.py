@@ -84,19 +84,29 @@ class FileSystemBuilder(object):
         else:
             self.__operate_on_file()
         self.result.add(
-            'filesystem_image', self.filename
+            key='filesystem_image',
+            filename=self.filename,
+            use_for_bundle=True,
+            compress=True,
+            shasum=True
         )
         self.result.add(
-            'image_packages',
-            self.system_setup.export_rpm_package_list(
+            key='image_packages',
+            filename=self.system_setup.export_rpm_package_list(
                 self.target_dir
-            )
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
         )
         self.result.add(
-            'image_verified',
-            self.system_setup.export_rpm_package_verification(
+            key='image_verified',
+            filename=self.system_setup.export_rpm_package_verification(
                 self.target_dir
-            )
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
         )
         return self.result
 

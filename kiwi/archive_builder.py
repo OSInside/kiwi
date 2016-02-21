@@ -63,22 +63,34 @@ class ArchiveBuilder(object):
             log.info('--> Creating archive checksum')
             checksum.md5(self.checksum)
             self.result.add(
-                'root_archive', self.filename
+                key='root_archive',
+                filename=self.filename,
+                use_for_bundle=True,
+                compress=False,
+                shasum=True
             )
             self.result.add(
-                'root_archive_md5', self.checksum
+                key='root_archive_md5',
+                filename=self.checksum,
+                use_for_bundle=False
             )
             self.result.add(
-                'image_packages',
-                self.system_setup.export_rpm_package_list(
+                key='image_packages',
+                filename=self.system_setup.export_rpm_package_list(
                     self.target_dir
-                )
+                ),
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
             )
             self.result.add(
-                'image_verified',
-                self.system_setup.export_rpm_package_verification(
+                key='image_verified',
+                filename=self.system_setup.export_rpm_package_verification(
                     self.target_dir
-                )
+                ),
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
             )
         return self.result
 

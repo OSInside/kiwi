@@ -25,7 +25,10 @@ class TestResult(object):
 
     def test_add(self):
         self.result.add('foo', 'bar')
-        assert self.result.get_results() == {'foo': 'bar'}
+        result = self.result.get_results()
+        assert result['foo'].filename == 'bar'
+        assert result['foo'].use_for_bundle is True
+        assert result['foo'].compress is False
 
     @patch('kiwi.logger.log.info')
     def test_print_results_no_data(self, mock_info):

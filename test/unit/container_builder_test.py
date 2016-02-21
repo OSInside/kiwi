@@ -57,16 +57,25 @@ class TestContainerBuilder(object):
         )
         assert self.container.result.add.call_args_list == [
             call(
-                'container',
-                'target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
+                key='container',
+                filename='target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
+                use_for_bundle=True,
+                compress=False,
+                shasum=True
             ),
             call(
-                'image_packages',
-                self.setup.export_rpm_package_list.return_value
+                key='image_packages',
+                filename='.packages',
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
             ),
             call(
-                'image_verified',
-                self.setup.export_rpm_package_verification.return_value
+                key='image_verified',
+                filename='.verified',
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
             )
         ]
         self.setup.export_rpm_package_verification.assert_called_once_with(

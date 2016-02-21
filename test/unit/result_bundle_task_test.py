@@ -8,6 +8,7 @@ import kiwi
 from . import nose_helper
 from kiwi.exceptions import *
 from kiwi.result_bundle_task import ResultBundleTask
+from kiwi.result import Result
 
 
 class TestResultBundleTask(object):
@@ -26,10 +27,17 @@ class TestResultBundleTask(object):
 
         self.file_mock.read.return_value = b'data'
 
-        self.result = mock.Mock()
-        self.result.xml_state.get_image_version = mock.Mock(
+        self.xml_state = mock.Mock()
+        self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
+
+        self.result = Result(self.xml_state)
+        self.result.add(
+            key='keyname', filename='filename-1.2.3',
+            use_for_bundle=True, compress=True, shasum=True
+        )
+
         kiwi.result_bundle_task.Help = mock.Mock(
             return_value=mock.Mock()
         )
@@ -51,263 +59,40 @@ class TestResultBundleTask(object):
         self.task.command_args['bundle'] = True
         self.task.process()
 
-    @raises(KiwiRequestedTypeError)
-    @patch('kiwi.result_bundle_task.Result.load')
-    def test_process_invalid_type_for_bundle(self, mock_load):
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='foo'
-        )
-        mock_load.return_value = self.result
-        self.__init_command_args()
-        self.task.command_args['bundle'] = True
-        self.task.process()
-
     @patch('kiwi.result_bundle_task.Result.load')
     @patch('kiwi.result_bundle_task.Command.run')
     @patch('kiwi.result_bundle_task.Path.create')
+    @patch('kiwi.result_bundle_task.Compress')
     @patch('kiwi.result_bundle_task.hashlib.sha256')
     @patch('os.path.exists')
     @patch('builtins.open')
-    def test_process_result_bundle_container(
-        self, mock_open, mock_exists, mock_sha256,
+    def test_process_result_bundle(
+        self, mock_open, mock_exists, mock_sha256, mock_compress,
         mock_path, mock_command, mock_load
     ):
         sha256 = mock.Mock()
         mock_sha256.return_value = sha256
         mock_exists.return_value = False
         mock_open.return_value = self.context_manager_mock
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='docker'
-        )
-        self.result.get_results = mock.Mock(
-            return_value={'container': 'some-container-1.2.3'}
-        )
         mock_load.return_value = self.result
         self.__init_command_args()
         self.task.command_args['bundle'] = True
+
         self.task.process()
 
         mock_load.assert_called_once_with('target_dir/kiwi.result')
         mock_path.assert_called_once_with('bundle_dir')
         mock_command.assert_called_once_with(
             [
-                'cp', '-l', 'some-container-1.2.3',
-                'bundle_dir/some-container-1.2.3-Build_42'
-            ]
-        )
-        mock_sha256.assert_called_once_with(b'data')
-        sha256.hexdigest.assert_called_once_with()
-
-    @patch('kiwi.result_bundle_task.Result.load')
-    @patch('kiwi.result_bundle_task.Command.run')
-    @patch('kiwi.result_bundle_task.Path.create')
-    @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.hashlib.sha256')
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    def test_process_result_bundle_filesystem_image(
-        self, mock_open, mock_exists, mock_sha256, mock_compress,
-        mock_path, mock_command, mock_load
-    ):
-        sha256 = mock.Mock()
-        mock_sha256.return_value = sha256
-        mock_open.return_value = self.context_manager_mock
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='ext4'
-        )
-        self.result.get_results = mock.Mock(
-            return_value={'filesystem_image': 'some-fs-1.2.3'}
-        )
-        mock_load.return_value = self.result
-        self.__init_command_args()
-        self.task.command_args['bundle'] = True
-        self.task.process()
-
-        mock_command.assert_called_once_with(
-            [
-                'cp', '-l', 'some-fs-1.2.3',
-                'bundle_dir/some-fs-1.2.3-Build_42'
+                'cp', '-l', 'filename-1.2.3',
+                'bundle_dir/filename-1.2.3-Build_42'
             ]
         )
         mock_compress.assert_called_once_with(
-            'bundle_dir/some-fs-1.2.3-Build_42'
+            'bundle_dir/filename-1.2.3-Build_42'
         )
+        mock_sha256.assert_called_once_with(b'data')
         sha256.hexdigest.assert_called_once_with()
-
-    @patch('kiwi.result_bundle_task.Result.load')
-    @patch('kiwi.result_bundle_task.Command.run')
-    @patch('kiwi.result_bundle_task.Path.create')
-    @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.hashlib.sha256')
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    def test_process_result_bundle_disk_image(
-        self, mock_open, mock_exists, mock_sha256, mock_compress,
-        mock_path, mock_command, mock_load
-    ):
-        sha256 = mock.Mock()
-        mock_sha256.return_value = sha256
-        mock_open.return_value = self.context_manager_mock
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='oem'
-        )
-        self.result.get_results = mock.Mock(
-            return_value={
-                'disk_image': 'some-disk-1.2.3',
-                'installation_image': 'some-install-1.2.3.iso',
-                'installation_pxe_archive': 'some-install-archive-1.2.3.tbz',
-                'disk_format_image': 'some-format-1.2.3.qcow2'
-            }
-        )
-        mock_load.return_value = self.result
-        self.__init_command_args()
-        self.task.command_args['bundle'] = True
-        self.task.process()
-
-        assert mock_command.call_args_list == [
-            call([
-                'cp', '-l', 'some-disk-1.2.3',
-                'bundle_dir/some-disk-1.2.3-Build_42'
-            ]),
-            call([
-                'cp', '-l', 'some-install-1.2.3.iso',
-                'bundle_dir/some-install-1.2.3-Build_42.iso'
-            ]),
-            call([
-                'cp', '-l', 'some-install-archive-1.2.3.tbz',
-                'bundle_dir/some-install-archive-1.2.3-Build_42.tbz'
-            ]),
-            call([
-                'cp', '-l', 'some-format-1.2.3.qcow2',
-                'bundle_dir/some-format-1.2.3-Build_42.qcow2'
-            ])
-        ]
-        assert mock_compress.call_args_list == [
-            call('bundle_dir/some-disk-1.2.3-Build_42'),
-            call('bundle_dir/some-format-1.2.3-Build_42.qcow2')
-        ]
-        assert len(sha256.hexdigest.call_args_list) == 4
-
-    @patch('kiwi.result_bundle_task.Result.load')
-    @patch('kiwi.result_bundle_task.Command.run')
-    @patch('kiwi.result_bundle_task.Path.create')
-    @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.hashlib.sha256')
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    def test_process_result_bundle_live_image(
-        self, mock_open, mock_exists, mock_sha256, mock_compress,
-        mock_path, mock_command, mock_load
-    ):
-        sha256 = mock.Mock()
-        mock_sha256.return_value = sha256
-        mock_open.return_value = self.context_manager_mock
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='iso'
-        )
-        self.result.get_results = mock.Mock(
-            return_value={'live_image': 'some-live-1.2.3'}
-        )
-        mock_load.return_value = self.result
-        self.__init_command_args()
-        self.task.command_args['bundle'] = True
-        self.task.process()
-
-        mock_command.assert_called_once_with(
-            [
-                'cp', '-l', 'some-live-1.2.3',
-                'bundle_dir/some-live-1.2.3-Build_42'
-            ]
-        )
-        assert mock_compress.call_args_list == []
-        sha256.hexdigest.assert_called_once_with()
-
-    @patch('kiwi.result_bundle_task.Result.load')
-    @patch('kiwi.result_bundle_task.Command.run')
-    @patch('kiwi.result_bundle_task.Path.create')
-    @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.hashlib.sha256')
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    def test_process_result_bundle_archive_image(
-        self, mock_open, mock_exists, mock_sha256, mock_compress,
-        mock_path, mock_command, mock_load
-    ):
-        sha256 = mock.Mock()
-        mock_sha256.return_value = sha256
-        mock_open.return_value = self.context_manager_mock
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='tbz'
-        )
-        self.result.get_results = mock.Mock(
-            return_value={'root_archive': 'some-tar-1.2.3'}
-        )
-        mock_load.return_value = self.result
-        self.__init_command_args()
-        self.task.command_args['bundle'] = True
-        self.task.process()
-
-        mock_command.assert_called_once_with(
-            [
-                'cp', '-l', 'some-tar-1.2.3',
-                'bundle_dir/some-tar-1.2.3-Build_42'
-            ]
-        )
-        assert mock_compress.call_args_list == []
-        sha256.hexdigest.assert_called_once_with()
-
-    @patch('kiwi.result_bundle_task.Result.load')
-    @patch('kiwi.result_bundle_task.Command.run')
-    @patch('kiwi.result_bundle_task.Path.create')
-    @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.hashlib.sha256')
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    def test_process_result_bundle_pxe_image(
-        self, mock_open, mock_exists, mock_sha256, mock_compress,
-        mock_path, mock_command, mock_load
-    ):
-        sha256 = mock.Mock()
-        mock_sha256.return_value = sha256
-        mock_open.return_value = self.context_manager_mock
-        self.result.xml_state.get_build_type_name = mock.Mock(
-            return_value='pxe'
-        )
-        self.result.get_results = mock.Mock(
-            return_value={
-                'filesystem_image': 'some-fs-1.2.3.ext3',
-                'filesystem_md5': 'some-fs-1.2.3.md5',
-                'kernel': 'some.kernel',
-                'initrd': 'some.initrd',
-                'xen_hypervisor': 'xen.gz'
-            }
-        )
-        mock_load.return_value = self.result
-        self.__init_command_args()
-        self.task.command_args['bundle'] = True
-        self.task.process()
-
-        assert mock_command.call_args_list == [
-            call([
-                'cp', '-l', 'some-fs-1.2.3.ext3',
-                'bundle_dir/some-fs-1.2.3-Build_42.ext3'
-            ]),
-            call([
-                'cp', '-l', 'some-fs-1.2.3.md5',
-                'bundle_dir/some-fs-1.2.3-Build_42.md5'
-            ]),
-            call([
-                'cp', '-l', 'some.kernel', 'bundle_dir/some.kernel'
-            ]),
-            call([
-                'cp', '-l', 'some.initrd', 'bundle_dir/some.initrd'
-            ]),
-            call([
-                'cp', '-l', 'xen.gz', 'bundle_dir/xen.gz'
-            ])
-        ]
-        assert mock_compress.call_args_list == []
-        assert len(sha256.hexdigest.call_args_list) == 5
 
     def test_process_result_bundle_help(self):
         self.__init_command_args()

@@ -116,7 +116,11 @@ class PxeBuilder(object):
                     self.target_dir, self.hypervisor_filename
                 )
                 self.result.add(
-                    'xen_hypervisor', self.hypervisor_filename
+                    key='xen_hypervisor',
+                    filename=self.hypervisor_filename,
+                    use_for_bundle=True,
+                    compress=False,
+                    shasum=True
                 )
             else:
                 raise KiwiPxeBootImageError(
@@ -127,30 +131,52 @@ class PxeBuilder(object):
         # create initrd for pxe boot
         self.boot_image_task.create_initrd()
         self.result.add(
-            'kernel', self.kernel_filename
+            key='kernel',
+            filename=self.kernel_filename,
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
         )
         self.result.add(
-            'initrd', self.boot_image_task.initrd_filename
+            key='initrd',
+            filename=self.boot_image_task.initrd_filename,
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
         )
         self.result.add(
-            'filesystem_image', self.image
+            key='filesystem_image',
+            filename=self.image,
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
         )
         self.result.add(
-            'filesystem_md5', self.filesystem_checksum
+            key='filesystem_md5',
+            filename=self.filesystem_checksum,
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
         )
 
         # create image root metadata
         self.result.add(
-            'image_packages',
-            self.system_setup.export_rpm_package_list(
+            key='image_packages',
+            filename=self.system_setup.export_rpm_package_list(
                 self.target_dir
-            )
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
         )
         self.result.add(
-            'image_verified',
-            self.system_setup.export_rpm_package_verification(
+            key='image_verified',
+            filename=self.system_setup.export_rpm_package_verification(
                 self.target_dir
-            )
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
         )
 
         if self.pxedeploy:

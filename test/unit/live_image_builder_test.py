@@ -213,9 +213,27 @@ class TestLiveImageBuilder(object):
             'offset', self.mbrid, 'target_dir/result-image.x86_64-1.2.3.iso'
         )
         assert self.result.add.call_args_list == [
-            call('live_image', 'target_dir/result-image.x86_64-1.2.3.iso'),
-            call('image_packages', '.packages'),
-            call('image_verified', '.verified')
+            call(
+                key='live_image',
+                filename='target_dir/result-image.x86_64-1.2.3.iso',
+                use_for_bundle=True,
+                compress=False,
+                shasum=True
+            ),
+            call(
+                key='image_packages',
+                filename='.packages',
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            ),
+            call(
+                key='image_verified',
+                filename='.verified',
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            )
         ]
         self.setup.export_rpm_package_verification.assert_called_once_with(
             'target_dir'

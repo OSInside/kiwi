@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from collections import namedtuple
 import pickle
 import os
 
@@ -25,6 +26,11 @@ from .exceptions import (
     KiwiResultError
 )
 
+# must be global to allow pickle to find it
+result_file_type = namedtuple(
+    'result_file_type', ['filename', 'use_for_bundle', 'compress', 'shasum']
+)
+
 
 class Result(object):
     """
@@ -32,10 +38,24 @@ class Result(object):
     """
     def __init__(self, xml_state):
         self.result_files = {}
+
+        # Instances of this class are stored as result reference.
+        # In order to handle class format changes any instance
+        # provides a version information
+        self.class_version = 1
+
         self.xml_state = xml_state
 
-    def add(self, key, value):
-        self.result_files[key] = value
+    def add(
+        self, key, filename, use_for_bundle=True, compress=False, shasum=True
+    ):
+        if key and filename:
+            self.result_files[key] = result_file_type(
+                filename=filename,
+                use_for_bundle=use_for_bundle,
+                compress=compress,
+                shasum=shasum
+            )
 
     def get_results(self):
         return self.result_files
@@ -43,9 +63,8 @@ class Result(object):
     def print_results(self):
         if self.result_files:
             log.info('Result files:')
-            for key, value in list(self.result_files.items()):
-                if value:
-                    log.info('--> %s: %s', key, value)
+            for key, value in sorted(list(self.result_files.items())):
+                log.info('--> %s: %s', key, value.filename)
 
     def dump(self, filename):
         try:

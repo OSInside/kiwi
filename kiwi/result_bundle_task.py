@@ -39,7 +39,7 @@ options:
     --bundle-dir=<directory>
         directory to store the bundle results
 """
-from collections import namedtuple
+from collections import OrderedDict
 import hashlib
 import os
 
@@ -49,12 +49,10 @@ from .help import Help
 from .result import Result
 from .logger import log
 from .path import Path
-from .defaults import Defaults
 from .compress import Compress
 from .command import Command
 
 from .exceptions import (
-    KiwiRequestedTypeError,
     KiwiBundleError
 )
 
@@ -82,130 +80,45 @@ class ResultBundleTask(CliTask):
         result = Result.load(
             result_directory + '/kiwi.result'
         )
-
-        # read results
-        results = result.get_results()
-        image_type = result.xml_state.get_build_type_name()
         image_version = result.xml_state.get_image_version()
-        result_files_for_bundle = []
-
-        # build result files and metadata for bundle
-        result_file_type = namedtuple(
-            'result_file_type', ['filename', 'compress']
-        )
-        if image_type in Defaults.get_filesystem_image_types():
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['filesystem_image'], compress=True
-                )
-            )
-        elif image_type in Defaults.get_disk_image_types():
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['disk_image'], compress=True
-                )
-            )
-            if 'installation_image' in results:
-                result_files_for_bundle.append(
-                    result_file_type(
-                        filename=results['installation_image'], compress=False
-                    )
-                )
-            if 'installation_pxe_archive' in results:
-                result_files_for_bundle.append(
-                    result_file_type(
-                        filename=results['installation_pxe_archive'],
-                        compress=False
-                    )
-                )
-            if 'disk_format_image' in results:
-                result_files_for_bundle.append(
-                    result_file_type(
-                        filename=results['disk_format_image'], compress=True
-                    )
-                )
-        elif image_type in Defaults.get_live_image_types():
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['live_image'], compress=False
-                )
-            )
-        elif image_type in Defaults.get_network_image_types():
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['filesystem_image'], compress=False
-                )
-            )
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['filesystem_md5'], compress=False
-                )
-            )
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['kernel'], compress=False
-                )
-            )
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['initrd'], compress=False
-                )
-            )
-            if 'xen_hypervisor' in results:
-                result_files_for_bundle.append(
-                    result_file_type(
-                        filename=results['xen_hypervisor'], compress=False
-                    )
-                )
-        elif image_type in Defaults.get_archive_image_types():
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['root_archive'], compress=False
-                )
-            )
-        elif image_type in Defaults.get_container_image_types():
-            result_files_for_bundle.append(
-                result_file_type(
-                    filename=results['container'], compress=False
-                )
-            )
-        else:
-            raise KiwiRequestedTypeError(
-                'Image type %s unknown for bundle' % image_type
-            )
+        ordered_results = OrderedDict(sorted(result.get_results().items()))
 
         # hard link bundle files, compress and build checksum
         if not os.path.exists(bundle_directory):
             Path.create(bundle_directory)
-        for result_file in result_files_for_bundle:
-            bundle_file_basename = os.path.basename(result_file.filename)
-            # The bundle id is only taken into account for image results
-            # which contains the image version in its nane
-            bundle_file_basename = bundle_file_basename.replace(
-                image_version, image_version + '-' + self.command_args['--id']
-            )
-            log.info('Creating %s', bundle_file_basename)
-            bundle_file = ''.join(
-                [bundle_directory, '/', bundle_file_basename]
-            )
-            checksum_file = ''.join(
-                [bundle_directory, '/', bundle_file_basename, '.sha256']
-            )
-            Command.run(
-                [
-                    'cp', '-l', result_file.filename, bundle_file
-                ]
-            )
-            if result_file.compress:
-                log.info('--> XZ compressing')
-                compress = Compress(bundle_file)
-                compress.xz()
-                bundle_file = compress.compressed_filename
-            log.info('--> Creating SHA 256 sum')
-            with open(bundle_file, 'rb') as data:
-                checksum = hashlib.sha256(data.read()).hexdigest()
-            with open(checksum_file, 'w') as sha256:
-                sha256.write(checksum)
+        for key, result_file in list(ordered_results.items()):
+            if result_file.use_for_bundle:
+                bundle_file_basename = os.path.basename(result_file.filename)
+                # The bundle id is only taken into account for image results
+                # which contains the image version in its nane
+                bundle_file_basename = bundle_file_basename.replace(
+                    image_version,
+                    image_version + '-' + self.command_args['--id']
+                )
+                log.info('Creating %s', bundle_file_basename)
+                bundle_file = ''.join(
+                    [bundle_directory, '/', bundle_file_basename]
+                )
+                checksum_file = ''.join(
+                    [bundle_directory, '/', bundle_file_basename, '.sha256']
+                )
+                Command.run(
+                    [
+                        'cp', '-l', result_file.filename, bundle_file
+                    ]
+                )
+                if result_file.compress:
+                    log.info('--> XZ compressing')
+                    compress = Compress(bundle_file)
+                    compress.xz()
+                    bundle_file = compress.compressed_filename
+                    checksum_file = compress.compressed_filename + '.sha256'
+                if result_file.shasum:
+                    log.info('--> Creating SHA 256 sum')
+                    with open(bundle_file, 'rb') as data:
+                        checksum = hashlib.sha256(data.read()).hexdigest()
+                    with open(checksum_file, 'w') as sha256:
+                        sha256.write(checksum)
 
     def __help(self):
         if self.command_args['help']:

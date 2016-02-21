@@ -259,7 +259,11 @@ class DiskBuilder(object):
         self.__install_bootloader(device_map)
 
         self.result.add(
-            'disk_image', self.diskname
+            key='disk_image',
+            filename=self.diskname,
+            use_for_bundle=True,
+            compress=True,
+            shasum=True
         )
 
         # create install media if requested
@@ -270,14 +274,22 @@ class DiskBuilder(object):
                 log.info('Creating hybrid ISO installation image')
                 self.install_image.create_install_iso()
                 self.result.add(
-                    'installation_image', self.install_image.isoname
+                    key='installation_image',
+                    filename=self.install_image.isoname,
+                    use_for_bundle=True,
+                    compress=False,
+                    shasum=True
                 )
 
             if self.install_pxe:
                 log.info('Creating PXE installation archive')
                 self.install_image.create_install_pxe_archive()
                 self.result.add(
-                    'installation_pxe_archive', self.install_image.pxename
+                    key='installation_pxe_archive',
+                    filename=self.install_image.pxename,
+                    use_for_bundle=True,
+                    compress=False,
+                    shasum=True
                 )
 
         # create disk image format if requested
@@ -289,22 +301,33 @@ class DiskBuilder(object):
             )
             disk_format.create_image_format()
             self.result.add(
-                'disk_format_image',
-                disk_format.get_target_name_for_format(self.image_format)
+                key='disk_format_image',
+                filename=disk_format.get_target_name_for_format(
+                    self.image_format
+                ),
+                use_for_bundle=True,
+                compress=True,
+                shasum=True
             )
 
         # create image root metadata
         self.result.add(
-            'image_packages',
-            self.system_setup.export_rpm_package_list(
+            key='image_packages',
+            filename=self.system_setup.export_rpm_package_list(
                 self.target_dir
-            )
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
         )
         self.result.add(
-            'image_verified',
-            self.system_setup.export_rpm_package_verification(
+            key='image_verified',
+            filename=self.system_setup.export_rpm_package_verification(
                 self.target_dir
-            )
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
         )
 
         return self.result
