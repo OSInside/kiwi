@@ -8855,17 +8855,17 @@ function resizeFilesystem {
     if [ "$FSTYPE" = "reiserfs" ];then
         resize_fs="resize_reiserfs -q $deviceResize"
     elif [ "$FSTYPE" = "ext2" ];then
-        resize_fs="resize2fs -f -F -p $deviceResize"
+        resize_fs="resize2fs -f -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
         fi
     elif [ "$FSTYPE" = "ext3" ];then
-        resize_fs="resize2fs -f -F -p $deviceResize"
+        resize_fs="resize2fs -f -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
         fi
     elif [ "$FSTYPE" = "ext4" ];then
-        resize_fs="resize2fs -f -F -p $deviceResize"
+        resize_fs="resize2fs -f -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
         fi
