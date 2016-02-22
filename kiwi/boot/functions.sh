@@ -8893,7 +8893,7 @@ function resizeFilesystem {
     if [ -z "$callme" ];then
         if [ $ramdisk -eq 0 ]; then
             Echo "Checking $FSTYPE filesystem on ${deviceResize}..."
-            checkFilesystem $check
+            checkFilesystem $deviceResize
         fi
         Echo "Resizing $FSTYPE filesystem on ${deviceResize}..."
         eval $resize_fs
