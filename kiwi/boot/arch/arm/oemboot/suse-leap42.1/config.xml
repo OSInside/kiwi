@@ -104,7 +104,6 @@
         <package name="fribidi"/>
         <package name="genisoimage"/>
         <package name="gettext-runtime"/>
-        <package name="grub2"/>
         <package name="grub2-arm64-efi" arch="aarch64"/>
         <package name="hwinfo"/>
         <package name="iputils"/>
