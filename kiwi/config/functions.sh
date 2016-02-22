@@ -1210,7 +1210,7 @@ function suseGFXBoot {
         mv /boot/*.img /image/loader &>/dev/null
         mv /boot/*.imx /image/loader &>/dev/null
         mv /boot/*.dtb /image/loader &>/dev/null
-        mv /boot/dtb/  /image/loader &>/dev/null
+        mv /boot/dtb*  /image/loader &>/dev/null
         mv /boot/*.elf /image/loader &>/dev/null
     else
         # boot loader binaries
@@ -1330,9 +1330,9 @@ function suseSetupProductInformation {
 }
 
 #======================================
-# suseStripFirmware
+# baseStripFirmware
 #--------------------------------------
-function suseStripFirmware {
+function baseStripFirmware {
     # /.../
     # check all kernel modules if they require a firmware and
     # strip out all firmware files which are not referenced
@@ -1353,6 +1353,8 @@ function suseStripFirmware {
                 bmdir=$(dirname $match)
                 mkdir -p /lib/firmware-required/$bmdir
                 mv /lib/firmware/$match /lib/firmware-required/$bmdir
+            else
+                echo "Deleting unwanted firmware: $match"
             fi
         done
     done
@@ -1361,9 +1363,9 @@ function suseStripFirmware {
 }
 
 #======================================
-# suseStripModules
+# baseStripModules
 #--------------------------------------
-function suseStripModules {
+function baseStripModules {
     # /.../
     # search for update modules and remove the old version
     # which might be provided by the standard kernel
@@ -1402,16 +1404,105 @@ function suseStripModules {
     # sort out duplicates prefer updates
     #--------------------------------------
     if [ -z "$modup" ];then
-        echo "suseStripModules: No update drivers found"
+        echo "baseStripModules: No old versions for update drivers found"
         return
     fi
     for file in $files;do
         for mod in $modup;do
             if [[ $file =~ $mod ]] && [[ ! $file =~ "updates" ]];then
-                echo "suseStripModules: Update driver found for $mod"
-                echo "suseStripModules: Removing old version: $file"
+                echo "baseStripModules: Update driver found for $mod"
+                echo "baseStripModules: Removing old version: $file"
                 rm -f $file
             fi
+        done
+    done
+}
+
+#======================================
+# baseCreateKernelTree
+#--------------------------------------
+function baseCreateKernelTree {
+    echo "Creating copy of kernel tree for strip operations"
+    mkdir -p /kernel-tree
+    cp -a /lib/modules/* /kernel-tree/
+}
+
+#======================================
+# baseSyncKernelTree
+#--------------------------------------
+function baseSyncKernelTree {
+    echo "Replace kernel tree with downsized version"
+    rm -rf /lib/modules/*
+    cp -a /kernel-tree/* /lib/modules/
+    rm -rf /kernel-tree
+}
+
+#======================================
+# baseKernelDriverMatches
+#--------------------------------------
+function baseKernelDriverMatches {
+    module=$1
+    for pattern in $(echo $kiwi_drivers | tr , ' '); do
+        if [[ $module =~ $pattern ]];then
+            return 0
+        fi
+    done
+    return 1
+}
+
+#======================================
+# baseStripKernelModules
+#--------------------------------------
+function baseStripKernelModules {
+    for kernel_dir in /kernel-tree/*;do
+        kernel_version=$(/usr/bin/basename $kernel_dir)
+        if [ ! -d /kernel-tree/$kernel_version/kernel ]; then
+            continue
+        fi
+        echo "Downsizing kernel modules for $kernel_dir"
+        for module in $(
+            find /kernel-tree/$kernel_version/kernel -name "*.ko" | sort
+        ); do
+            if ! baseKernelDriverMatches $module; then
+                echo "Deleting unwanted module: $module"
+                rm -f $module
+            fi
+        done
+    done
+}
+
+#======================================
+# baseFixupKernelModuleDependencies
+#--------------------------------------
+function baseFixupKernelModuleDependencies {
+    local kernel_dir
+    local kernel_version
+    local module
+    local module_name
+    local module_info
+    local dependency
+    for kernel_dir in /kernel-tree/*;do
+        echo "Checking kernel dependencies for $kernel_dir"
+        kernel_version=$(/usr/bin/basename $kernel_dir)
+
+        for module in $(find /kernel-tree/$kernel_version -name "*.ko");do
+            module_name=$(/usr/bin/basename $module)
+            module_info=$(/sbin/modprobe \
+                --set-version $kernel_version --ignore-install --show-depends \
+                ${module_name%.ko} | sed -ne 's:.*insmod /\?::p'
+            )
+
+            for dependency in $module_info; do
+                if [ ! -f /$dependency ]; then
+                    continue
+                fi
+                dependency_module=$(echo ${dependency/lib\/modules/kernel-tree})
+                if [ ! -f $dependency_module ];then
+                    echo -e "Fix $module:\n  --> needs: $dependency_module"
+                    mkdir -p $(/usr/bin/dirname $dependency_module)
+                    cp -a $dependency $dependency_module
+                fi
+            done
         done
     done
 }
@@ -1421,28 +1512,36 @@ function suseStripModules {
 #--------------------------------------
 function suseStripKernel {
     # /.../
-    # this function will strip the kernel according to the
-    # drivers information in the xml descr. It also will create
-    # the vmlinux.gz and vmlinuz files which are required
-    # for the kernel extraction in case of kiwi boot images
+    # this function will strip the kernel according to the drivers
+    # information in the xml description. It also creates the
+    # vmlinux.gz and vmlinuz files which are required for the
+    # kernel extraction in case of kiwi boot images
     # ----
-    local arch=$(uname -m)
-    local kversion
-    local i
-    local d
-    local mod
-    local stripdir
-    local kdata
-    for kversion in /lib/modules/*;do
-        if [ ! -d "$kversion" ];then
+    local kernel_dir
+    local kernel_names
+    local kernel_name
+    local kernel_version
+
+    baseCreateKernelTree
+    baseStripKernelModules
+    baseFixupKernelModuleDependencies
+    baseSyncKernelTree
+
+    for kernel_dir in /lib/modules/*;do
+        if [ ! -d "$kernel_dir" ];then
             continue
         fi
         if [ -x /bin/rpm ];then
-            kdata=$(rpm -qf $kversion)
+            # if we have a package database take the kernel name from
+            # the package name. This could result in multiple kernel
+            # names
+            kernel_names=$(rpm -qf $kernel_dir)
         else
-            kdata=$kversion
+            # without a package database take the installed kernel
+            # directory name as the kernel name
+            kernel_names=$kernel_dir
         fi
-        for p in $kdata;do
+        for kernel_name in $kernel_names;do
             #==========================================
             # get kernel VERSION information
             #------------------------------------------
@@ -1450,153 +1549,67 @@ function suseStripKernel {
                 # not in a package...
                 continue
             fi
-            if echo $p | grep -q "\-kmp\-";then  
+            if echo $kernel_name | grep -q "\-kmp\-";then
                 # a kernel module package...
                 continue
             fi
-            if echo $p | grep -q "\-source\-";then
+            if echo $kernel_name | grep -q "\-source\-";then
                 # a kernel source package...
                 continue
             fi
-            VERSION=$(/usr/bin/basename $kversion)
-            echo "Found kernel version: $VERSION"
-            echo "Stripping kernel $p: Image [$kiwi_iname]..."
+            kernel_version=$(/usr/bin/basename $kernel_dir)
             #==========================================
             # run depmod, deps should be up to date
             #------------------------------------------
-            if [ ! -f /boot/System.map-$VERSION ];then
-                # no system map for kernel
-                echo "no system map for kernel: $p found... skip it"
+            if [ ! -f /boot/System.map-$kernel_version ];then
+                # no system map for this kernel
+                echo "no system map for kernel: $kernel_name found... skip it"
                 continue
             fi
-            /sbin/depmod -F /boot/System.map-$VERSION $VERSION
-            #==========================================
-            # check for modules.order and backup it
-            #------------------------------------------
-            if [ -f $kversion/modules.order ];then
-                mv $kversion/modules.order /tmp
-            fi
-            #==========================================
-            # check for weak-/updates and backup them
-            #------------------------------------------
-            if [ -d $kversion/updates ];then
-                mv $kversion/updates /tmp
-            fi
-            if [ -d $kversion/weak-updates ];then
-                mv $kversion/weak-updates /tmp
-            fi
-            #==========================================
-            # strip the modules but take care for deps
-            #------------------------------------------
-            stripdir=/tmp/stripped_modules
-            for mod in $(echo $kiwi_drivers | tr , ' '); do
-                local path=`/usr/bin/dirname $mod`
-                local base=`/usr/bin/basename $mod`
-                for d in kernel;do
-                    if [ "$base" = "*" ];then
-                        if test -d $kversion/$d/$path ; then
-                            mkdir -pv $stripdir$kversion/$d/$path
-                            cp -avl $kversion/$d/$path/* \
-                                $stripdir$kversion/$d/$path
-                        fi
-                    else
-                        if test -f $kversion/$d/$mod ; then
-                            mkdir -pv $stripdir$kversion/$d/$path
-                            cp -avl $kversion/$d/$mod \
-                                $stripdir$kversion/$d/$mod
-                        elif test -L $kversion/$d/$base ; then
-                            mkdir -pv $stripdir$kversion/$d
-                            cp -avl $kversion/$d/$base \
-                                $stripdir$kversion/$d
-                        elif test -f $kversion/$d/$base ; then
-                            mkdir -pv $stripdir$kversion/$d
-                            cp -avl $kversion/$d/$base \
-                                $stripdir$kversion/$d
-                        fi
-                    fi
-                done
-            done
-            for mod in $(find $stripdir -name "*.ko");do
-                d=$(/usr/bin/basename $mod)
-                i=$(/sbin/modprobe \
-                    --set-version $VERSION \
-                    --ignore-install \
-                    --show-depends \
-                    ${d%.ko} | sed -ne 's:.*insmod /\?::p')
-                for d in $i; do
-                    case "$d" in
-                        *=*) ;;
-                        *)
-                        if [ -f $d ] && [ ! -f $stripdir/$d ]; then
-                            echo "Fixing kernel module Dependency: $d"
-                            mkdir -vp $(/usr/bin/dirname $stripdir/$d)
-                            cp -flav $d $stripdir/$d
-                        fi
-                        ;;
-                    esac
-                done
-            done
-            rm -rf $kversion
-            mv -v $stripdir/$kversion $kversion
-            rm -rf $stripdir
-            #==========================================
-            # restore backed up files and directories
-            #------------------------------------------
-            if [ -f /tmp/modules.order ];then
-                mv /tmp/modules.order $kversion
-            fi
-            if [ -d /tmp/updates ];then
-                mv /tmp/updates $kversion
-            fi
-            if [ -d /tmp/weak-updates ];then
-                mv /tmp/weak-updates $kversion
-            fi
-            #==========================================
-            # run depmod
-            #------------------------------------------
-            /sbin/depmod -F /boot/System.map-$VERSION $VERSION
+            /sbin/depmod -F /boot/System.map-$kernel_version $kernel_version
             #==========================================
             # create common kernel files, last wins !
             #------------------------------------------
             pushd /boot
-            if [ -f uImage-$VERSION ];then
+            if [ -f uImage-$kernel_version ];then
                 # dedicated to kernels on arm
-                mv uImage-$VERSION vmlinuz
-            elif [ -f Image-$VERSION ];then
+                mv uImage-$kernel_version vmlinuz
+            elif [ -f Image-$kernel_version ];then
                 # dedicated to kernels on arm
-                mv Image-$VERSION vmlinuz
-            elif [ -f zImage-$VERSION ];then
+                mv Image-$kernel_version vmlinuz
+            elif [ -f zImage-$kernel_version ];then
                 # dedicated to kernels on arm
-                mv zImage-$VERSION vmlinuz
-            elif [ -f vmlinuz-$VERSION.gz ];then
+                mv zImage-$kernel_version vmlinuz
+            elif [ -f vmlinuz-${kernel_version}.gz ];then
                 # dedicated to kernels on x86
-                mv vmlinuz-$VERSION vmlinuz
-            elif [ -f vmlinuz-$VERSION.el5 ];then
+                mv vmlinuz-$kernel_version vmlinuz
+            elif [ -f vmlinuz-${kernel_version}.el5 ];then
                 # dedicated to kernels on ppc
-                mv vmlinux-$VERSION.el5 vmlinuz
-            elif [ -f vmlinux-$VERSION ];then
+                mv vmlinux-${kernel_version}.el5 vmlinuz
+            elif [ -f vmlinux-$kernel_version ];then
                 # dedicated to kernels on ppc
-                mv vmlinux-$VERSION vmlinux
-            elif [ -f image-$VERSION ];then
+                mv vmlinux-$kernel_version vmlinux
+            elif [ -f image-$kernel_version ];then
                 # dedicated to kernels on s390
-                mv image-$VERSION vmlinuz
-            elif [ -f vmlinuz-$VERSION ];then
+                mv image-$kernel_version vmlinuz
+            elif [ -f vmlinuz-$kernel_version ];then
                 # dedicated to xz kernels
-                mv vmlinuz-$VERSION vmlinuz
+                mv vmlinuz-$kernel_version vmlinuz
             elif [ -f vmlinuz ];then
                 # nothing to map, vmlinuz already there
                 :
             else
                 echo "Failed to find a mapping kernel"
             fi
-            if [ -f vmlinux-$VERSION.gz ];then
-                mv vmlinux-$VERSION.gz vmlinux.gz
+            if [ -f vmlinux-${kernel_version}.gz ];then
+                mv vmlinux-${kernel_version}.gz vmlinux.gz
             fi
             popd
         done
     done
-    suseStripModules
-    suseStripFirmware
+
+    baseStripModules
+    baseStripFirmware
 }
 
 #======================================
@@ -1820,3 +1833,5 @@ function importDatabases {
         esac
     done
 }
+
+# vim: set noexpandtab:
