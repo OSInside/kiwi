@@ -232,7 +232,7 @@ class BootLoaderConfigBase(object):
     def __get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
         cmdline = self.xml_state.build_type.get_kernelcmdline()
-        if 'root=' in cmdline:
+        if cmdline and 'root=' in cmdline:
             log.info(
                 'Kernel root device explicitly set via kernelcmdline'
             )
