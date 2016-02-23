@@ -18,6 +18,7 @@
 #
 Name:           python3-kiwi
 Version:        %%VERSION
+Provides:       kiwi-schema = 6.2
 Release:        0
 Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
@@ -36,6 +37,11 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Provides:       kiwi-filesystem:btrfs
+Provides:       kiwi-filesystem:xfs
+Provides:       kiwi-filesystem:ext3
+Provides:       kiwi-filesystem:ext4
+Provides:       kiwi-filesystem:squashfs
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
