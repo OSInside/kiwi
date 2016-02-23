@@ -30,6 +30,12 @@ BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
 BuildRequires:  fdupes
 BuildRequires:  update-alternatives
+Provides:       kiwi-image:tbz
+Provides:       kiwi-image:docker
+Provides:       kiwi-image:iso
+Provides:       kiwi-image:vmx
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:oem
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
