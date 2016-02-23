@@ -87,6 +87,16 @@ po:
 			fi \
 		fi \
 	done
+	for boot_arch in kiwi/boot/arch/*; do \
+		if [ ! -L $$boot_arch ];then \
+			for boot_image in $$boot_arch/*/*/root; do \
+				mkdir -p $$boot_image/usr/share/locale ;\
+				cp -a kiwi/boot/locale/* $$boot_image/usr/share/locale/ ;\
+				rm -rf $$boot_image/usr/share/locale/kiwi-template ;\
+				rm -rf $$boot_image/usr/share/locale/*/LC_MESSAGES/kiwi.po ;\
+			done \
+		fi \
+	done
 
 po_status:
 	./.fuzzy
