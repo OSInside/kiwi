@@ -62,9 +62,8 @@ msgstr "No"
 msgid "OK"
 msgstr ""
 
-#, fuzzy
 msgid "Cancel"
-msgstr "C&ancel"
+msgstr ""
 
 msgid "Exit"
 msgstr ""
