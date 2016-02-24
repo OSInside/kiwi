@@ -18,7 +18,7 @@ OPTIONS
 
 --root=<directory>
 
-  Path to the image root directory. This directory is usally created
+  Path to the image root directory. This directory is usually created
   by the kiwi prepare command. If a directory is used which was not
   created by kiwi's prepare command, it's important to know that kiwi
   stores image build metadata below the image/ directory which needs

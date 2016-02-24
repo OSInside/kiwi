@@ -50,7 +50,7 @@ OPTIONS
   - **alias**
 
     An alias name for the repository. If not specified kiwi calculates
-    an alias name as result from a sha sum. The sha sum is used to uniqly
+    an alias name as result from a sha sum. The sha sum is used to uniquely
     identify the repository, but not very expressive. We recommend to
     set an expressive and uniq alias name.
 
@@ -68,12 +68,14 @@ OPTIONS
 
 --obs-repo-internal
 
-  The repository source type obs:// by default points to
-  http://download.opensuse.org. With the *obs-repo-internal* option
-  the source type is changed to ibs:// and points to http://download.suse.de.
+  The repository source type **obs://** by default points to the
+  `Open Build Service <http://download.opensuse.org>`_. With the
+  *--obs-repo-internal* option the source type is changed to the
+  **ibs://** type, pointing to the
+  `Internal Build Service <http://download.suse.de>`_.
   This allows to build images with repositories pointing to the SUSE
-  internal build service. Please note this requires that the build host
-  has access to the SUSE internal build service.
+  internal build service. Please note this requires access permissions
+  to the SUSE internal build service on the machine building the image.
 
 URI_TYPES
 ---------

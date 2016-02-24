@@ -44,7 +44,7 @@ KIWI supports the creation of the following image types:
 - ISO Live Systems
 - Virtual Disk for e.g cloud frameworks
 - OEM Expandable Disk for system deployment from ISO or the network
-- Filesystem images for deployment in a pxe boot environment
+- File system images for deployment in a pxe boot environment
 
 Depending on the image type a variety of different disk formats and
 architectures are supported.
