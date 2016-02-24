@@ -1,8 +1,29 @@
+# Spellchecking Wordlist
+# NOTE: Do NOT add empty lines!
+#
+# Sort this file by using (and overwrite the result after line 6):
+# cat doc/source/spelling_wordlist.txt | sed 1,6d | sort
+#
+args
 Buildservice
 chroot
+compat
+config
+dir
+filename
+http
+ibs
+Indices
+iso
 ISO
+opensuse
+pxe
 PXE
+sha
 SHA
+suse
 SUSE
+uniq
+xml
 XML
-
+xz
