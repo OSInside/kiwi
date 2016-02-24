@@ -37,11 +37,6 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
-Provides:       kiwi-filesystem:btrfs
-Provides:       kiwi-filesystem:xfs
-Provides:       kiwi-filesystem:ext3
-Provides:       kiwi-filesystem:ext4
-Provides:       kiwi-filesystem:squashfs
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
@@ -138,6 +133,12 @@ Provides:       kiwi-boot:isoboot
 Provides:       kiwi-boot:vmxboot
 Provides:       kiwi-boot:netboot
 Provides:       kiwi-boot:oemboot
+Provides:       kiwi-filesystem:btrfs
+Provides:       kiwi-filesystem:xfs
+Provides:       kiwi-filesystem:ext3
+Provides:       kiwi-filesystem:ext4
+Provides:       kiwi-filesystem:squashfs
+Requires:       python3-kiwi = %{version}
 Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
 License:        GPL-2.0+
 Group:          System/Management
