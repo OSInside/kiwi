@@ -14,7 +14,7 @@ test:
 	tox -e 3.4
 
 flake:
-	tox -e flake
+	tox -e check
 
 %.py:
 	tox -e 3.4_single $@
