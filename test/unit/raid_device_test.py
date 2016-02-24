@@ -38,7 +38,9 @@ class TestRaidDevice(object):
         self.raid.raid_device = None
 
     @patch('kiwi.raid_device.Command.run')
-    def test_create_degraded_raid(self, mock_command):
+    @patch('os.path.exists')
+    def test_create_degraded_raid(self, mock_path, mock_command):
+        mock_path.return_value = False
         self.raid.create_degraded_raid('mirroring')
         mock_command.assert_called_once_with(
             [
