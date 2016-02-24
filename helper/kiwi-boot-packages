@@ -6,7 +6,7 @@ import glob
 from xml.dom import minidom
 from collections import OrderedDict
 
-def get_boot_description_packages(boot_description_dir):
+def get_boot_description_packages_for_arch(boot_description_dir, arch):
     package_list = []
     file_name = boot_description_dir + '/config.xml'
     xml_doc = minidom.parse(file_name)
@@ -14,9 +14,18 @@ def get_boot_description_packages(boot_description_dir):
         package_type = packages.attributes['type'].value
         if not package_type == 'delete':
             for package in packages.getElementsByTagName('package'):
-                package_list.append(
-                    package.attributes['name'].value
-                )
+                for_arch = None
+                if 'arch' in package.attributes:
+                    for_arch = package.attributes['arch'].value
+                if for_arch:
+                    if for_arch == arch:
+                        package_list.append(
+                            package.attributes['name'].value
+                        )
+                else:
+                    package_list.append(
+                        package.attributes['name'].value
+                    )
     return package_list
 
 def get_boot_distribution_names():
@@ -33,7 +42,9 @@ for distribution in get_boot_distribution_names():
     for arch in glob.iglob('kiwi/boot/arch/*'):
         package_list = []
         for arch_distro in glob.iglob(arch + '/*/' + distribution):
-            package_list += get_boot_description_packages(arch_distro)
+            package_list += get_boot_description_packages_for_arch(
+                arch_distro, os.path.basename(arch)
+            )
 
         package_list = list(
             OrderedDict.fromkeys(package_list)
