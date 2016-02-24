@@ -68,7 +68,7 @@ class RepositoryYum(RepositoryBase):
             'main', 'reposdir', self.shared_yum_dir['reposd-dir']
         )
         self.runtime_yum_config.set(
-            'main', 'keepcache', '0'
+            'main', 'keepcache', '1'
         )
         self.runtime_yum_config.set(
             'main', 'debuglevel', '2'

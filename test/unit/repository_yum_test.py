@@ -36,7 +36,7 @@ class TestRepositoryYum(object):
         assert runtime_yum_config.set.call_args_list == [
             call('main', 'cachedir', '/shared-dir/yum/cache'),
             call('main', 'reposdir', '/shared-dir/yum/repos'),
-            call('main', 'keepcache', '0'),
+            call('main', 'keepcache', '1'),
             call('main', 'debuglevel', '2'),
             call('main', 'pkgpolicy', 'newest'),
             call('main', 'tolerant', '0'),
