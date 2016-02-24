@@ -2,3 +2,4 @@ flake8
 docopt
 coverage
 lxml
+tox
