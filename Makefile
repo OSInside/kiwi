@@ -9,23 +9,18 @@ version := $(shell python3 -c 'from kiwi.version import __version__; print(__ver
 
 TOOLS_OBJ = tools_bin tools_bin/startshell tools_bin/setctsid tools_bin/dcounter tools_bin/driveready tools_bin/utimer tools_bin/kversion tools_bin/isconsole tools_bin/kiwicompat
 
-pep8:
-	helper/run-pep8
-
 .PHONY: test
 test:
-	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
-	helper/coverage-check
+	tox -e 3.4
 
-coverage:
-	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
-	mv test/unit/coverage.xml test/unit/coverage.reference.xml
+flake:
+	tox -e flake
+
+%.py:
+	tox -e 3.4_single $@
 
 list_tests:
 	@for i in test/unit/*_test.py; do basename $$i;done | sort
-
-%.py:
-	nosetests $@
 
 kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 	trang -I rnc -O rng kiwi/schema/kiwi.rnc kiwi/schema/kiwi.rng
@@ -39,8 +34,8 @@ kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 tools_bin:
 	mkdir -p tools_bin
 
-man:
-	${MAKE} -C doc man
+tox:
+	tox
 
 tools: ${TOOLS_OBJ}
 
@@ -105,7 +100,8 @@ po_status:
 completion:
 	mkdir -p completion && helper/completion_generator > completion/kiwi.sh
 
-build: pep8 test completion po man
+build: completion po tox
+	rm -f dist/*
 	# the following is required to update the $Id$ git attribute
 	rm kiwi/version.py && git checkout kiwi/version.py
 	# now create my package sources
@@ -119,10 +115,3 @@ build: pep8 test completion po man
 		> dist/python3-kiwi.spec
 	cp package/python3-kiwi-rpmlintrc dist
 	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
-
-clean:
-	find -name *.pyc | xargs rm -f
-	find -name kiwi.mo | xargs rm -f
-	rm -rf build
-	rm -rf dist
-	rm -rf tools_bin

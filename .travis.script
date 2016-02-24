@@ -1,3 +1,5 @@
 #!/bin/bash
 
-make pep8 test
+flake8 kiwi
+nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
+helper/coverage-check
