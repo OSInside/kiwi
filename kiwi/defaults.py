@@ -168,6 +168,10 @@ class Defaults(object):
         return 2
 
     @classmethod
+    def get_default_prep_mbytes(self):
+        return 8
+
+    @classmethod
     def get_disk_format_types(self):
         return ['gce', 'qcow2', 'vmdk', 'vhd', 'vhdfixed']
 

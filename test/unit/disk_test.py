@@ -101,10 +101,25 @@ class TestDisk(object):
         assert self.disk.partition_id_map['kiwi_JumpPart'] == 1
 
     @patch('kiwi.storage.disk.Command.run')
+    def test_create_prep_partition(self):
+        self.disk.create_prep_partition(8)
+        self.partitioner.create.assert_called_once_with(
+            'p.prep', 8, 't.prep'
+        )
+        assert self.disk.partition_id_map['kiwi_PrepPart'] == 1
+
+    @patch('kiwi.storage.disk.Command.run')
     def test_device_map_loop(self, mock_command):
         self.disk.create_efi_partition(100)
         self.disk.map_partitions()
         assert self.disk.partition_map == {'efi': '/dev/mapper/loop0p1'}
+        self.disk.is_mapped = False
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_device_map_loop(self, mock_command):
+        self.disk.create_prep_partition(8)
+        self.disk.map_partitions()
+        assert self.disk.partition_map == {'prep': '/dev/mapper/loop0p1'}
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
@@ -139,6 +154,12 @@ class TestDisk(object):
     @patch('kiwi.storage.disk.Command.run')
     def test_activate_boot_partition_is_root_partition(self, mock_command):
         self.disk.create_root_partition(100)
+        self.disk.activate_boot_partition()
+        self.partitioner.set_flag(1, 'f.active')
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_activate_boot_partition_is_prep_partition(self, mock_command):
+        self.disk.create_prep_partition(8)
         self.disk.activate_boot_partition()
         self.partitioner.set_flag(1, 'f.active')
 
