@@ -399,6 +399,12 @@ class DiskBuilder(object):
                 self.firmware.get_efi_partition_size()
             )
 
+        if self.firmware.ofw_mode():
+            log.info('--> creating PReP partition')
+            self.disk.create_prep_partition(
+                self.firmware.get_prep_partition_size()
+            )
+
         if self.disk_setup.need_boot_partition():
             log.info('--> creating boot partition')
             self.disk.create_boot_partition(
@@ -419,6 +425,10 @@ class DiskBuilder(object):
 
         if self.firmware.bios_mode():
             log.info('--> setting active flag to primary boot partition')
+            self.disk.activate_boot_partition()
+
+        if self.firmware.ofw_mode():
+            log.info('--> setting active flag to primary PReP partition')
             self.disk.activate_boot_partition()
 
         self.disk.map_partitions()
