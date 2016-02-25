@@ -56,10 +56,17 @@ class Command(object):
         output, error = process.communicate()
         if process.returncode != 0 and not error:
             error = b'(no output on stderr)'
+        if process.returncode != 0 and not output:
+            output = b'(no output on stdout)'
         if process.returncode != 0 and raise_on_error:
-            log.debug('EXEC: Failed with %s', error.decode())
+            log.debug(
+                'EXEC: Failed with stderr: %s, stdout: %s',
+                error.decode(), output.decode()
+            )
             raise KiwiCommandError(
-                '%s: %s' % (command[0], error.decode())
+                '%s: stderr: %s, stdout: %s' % (
+                    command[0], error.decode(), output.decode()
+                )
             )
         command = namedtuple(
             'command', ['output', 'error', 'returncode']
