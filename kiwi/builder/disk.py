@@ -402,6 +402,12 @@ class DiskBuilder(object):
                 self.firmware.get_efi_partition_size()
             )
 
+        if self.firmware.ofw_mode():
+            log.info('--> creating PReP partition')
+            self.disk.create_prep_partition(
+                self.firmware.get_prep_partition_size()
+            )
+
         if self.disk_setup.need_boot_partition():
             log.info('--> creating boot partition')
             self.disk.create_boot_partition(
@@ -422,6 +428,10 @@ class DiskBuilder(object):
 
         if self.firmware.bios_mode():
             log.info('--> setting active flag to primary boot partition')
+            self.disk.activate_boot_partition()
+
+        if self.firmware.ofw_mode():
+            log.info('--> setting active flag to primary PReP partition')
             self.disk.activate_boot_partition()
 
         self.disk.map_partitions()
@@ -503,6 +513,16 @@ class DiskBuilder(object):
             'root_device': root_device.get_device()
         }
 
+        if 'prep' in device_map:
+            prep_device = device_map['prep']
+            custom_install_arguments.update(
+                {'prep_device': prep_device.get_device()}
+            )
+
+        log.debug(
+            "custom arguments for bootloader installation %s",
+            custom_install_arguments
+        )
         bootloader = BootLoaderInstall(
             self.bootloader, self.root_dir, self.disk.storage_provider,
             custom_install_arguments

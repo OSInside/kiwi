@@ -271,17 +271,22 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
+    @patch('builtins.open')
     @raises(KiwiBootLoaderGrubModulesError)
     def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
-        self, mock_exists, mock_command
+        self, mock_open, mock_exists, mock_command
     ):
-        self.os_exists['root_dir/boot/unicode.pf2'] = True
+        mock_exists.return_value = True
+        self.firmware.efi_mode = mock.Mock(
+            return_value='efi'
+        )
+        command_results = [False, True]
 
         def side_effect(arg):
-            return self.os_exists[arg]
+            if not command_results.pop():
+                raise Exception
 
-        mock_exists.side_effect = side_effect
-        mock_command.side_effect = Exception
+        mock_command.side_effect = side_effect
         self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -340,20 +345,13 @@ class TestBootLoaderConfigGrub2(object):
                 'efi_uga', 'linuxefi'
             ])
         ]
-        assert mock_sync.call_args_list == [
-            call(
-                'root_dir/usr/lib/grub2/x86_64-efi/',
-                'root_dir/boot/grub2/x86_64-efi'
-            ),
-            call(
-                'root_dir/usr/lib/grub2/i386-pc/',
-                'root_dir/boot/grub2/i386-pc'
-            )
-        ]
-        assert data.sync_data.call_args_list == [
-            call(options=['-z', '-a']),
-            call(options=['-z', '-a'])
-        ]
+        mock_sync.assert_called_once_with(
+            'root_dir/usr/lib/grub2/x86_64-efi/',
+            'root_dir/boot/grub2/x86_64-efi'
+        )
+        data.sync_data.assert_called_once_with(
+            options=['-z', '-a']
+        )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
@@ -382,16 +380,10 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/boot/unicode.pf2'
             ]
         )
-        assert mock_sync.call_args_list == [
-            call(
-                'root_dir/usr/lib/grub2/i386-pc/',
-                'root_dir/boot/grub2/i386-pc'
-            ),
-            call(
-                'root_dir/usr/lib/grub2/x86_64-xen/',
-                'root_dir/boot/grub2/x86_64-xen'
-            )
-        ]
+        mock_sync.assert_called_once_with(
+            'root_dir/usr/lib/grub2/x86_64-xen/',
+            'root_dir/boot/grub2/x86_64-xen'
+        )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')

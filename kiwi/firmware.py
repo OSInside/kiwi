@@ -43,6 +43,9 @@ class FirmWare(object):
         ]
 
         firmware_types = Defaults.get_firmware_types()
+        if self.host_architecture.startswith('ppc64'):
+            self.firmware = 'ofw'
+
         if self.firmware:
             if self.firmware not in firmware_types[self.host_architecture]:
                 raise KiwiNotImplementedError(
@@ -83,6 +86,12 @@ class FirmWare(object):
         else:
             return False
 
+    def ofw_mode(self):
+        if self.firmware == 'ofw':
+            return True
+        else:
+            return False
+
     def get_legacy_bios_partition_size(self):
         if self.legacy_bios_mode():
             return Defaults.get_default_legacy_bios_mbytes()
@@ -92,5 +101,11 @@ class FirmWare(object):
     def get_efi_partition_size(self):
         if self.efi_mode():
             return Defaults.get_default_efi_boot_mbytes()
+        else:
+            return 0
+
+    def get_prep_partition_size(self):
+        if self.ofw_mode():
+            return Defaults.get_default_prep_mbytes()
         else:
             return 0
