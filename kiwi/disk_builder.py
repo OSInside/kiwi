@@ -485,11 +485,15 @@ class DiskBuilder(object):
         )
 
     def __install_bootloader(self, device_map):
-        boot_device = device_map['root']
-        custom_install_arguments = {}
+        root_device = device_map['root']
+        boot_device = root_device
         if 'boot' in device_map:
             boot_device = device_map['boot']
-            custom_install_arguments['boot_device'] = boot_device.get_device()
+
+        custom_install_arguments = {
+            'boot_device': boot_device.get_device(),
+            'root_device': root_device.get_device()
+        }
 
         bootloader = BootLoaderInstall(
             self.bootloader, self.root_dir, self.disk.storage_provider,

@@ -354,12 +354,16 @@ class TestDiskBuilder(object):
     @patch('kiwi.disk_builder.VolumeManager')
     @patch('builtins.open')
     @patch('kiwi.disk_builder.Command.run')
+    @patch('os.path.exists')
     def test_create_volume_managed_root(
-        self, mock_command, mock_open, mock_volume_manager, mock_fs
+        self, mock_exists, mock_command, mock_open, mock_volume_manager, mock_fs
     ):
+        mock_exists.return_value = True
         volume_manager = mock.Mock()
         volume_manager.get_device = mock.Mock(
-            return_value={'root': '/dev/systemVG/LVRoot'}
+            return_value={
+                'root': MappedDevice('/dev/systemVG/LVRoot', mock.Mock())
+            }
         )
         mock_volume_manager.return_value = volume_manager
         filesystem = mock.Mock()

@@ -53,6 +53,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'host architecture %s not supported for grub2 setup' % arch
             )
 
+        self.gfxmode = '800x600'
         self.terminal = 'gfxterm'
         self.bootpath = self.get_boot_path()
         self.gfxmode = self.__get_gfxmode()
@@ -260,8 +261,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.__setup_secure_boot_efi_image(lookup_path)
         else:
             log.info('--> Creating unsigned efi image')
+            self.__create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
             self.__copy_efi_modules_to_boot_directory(lookup_path)
-            self.__create_efi_image(mbrid=mbrid)
 
         self.__create_embedded_fat_efi_image()
 
@@ -271,8 +272,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
-            EFI and bios images needs to be build or used if provided
-            by the distribution
+            EFI images needs to be build or used if provided
+            by the distribution. The bios core image is created
+            when grub2-install is called
         """
         log.info('Creating grub bootloader images')
 
@@ -283,15 +285,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
+            self.__create_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
             self.__copy_efi_modules_to_boot_directory(lookup_path)
-            self.__create_efi_image(uuid=boot_uuid)
         elif self.firmware.efi_mode() == 'uefi':
             log.info('--> Using signed secure boot efi image')
             self.__setup_secure_boot_efi_image(lookup_path)
 
         log.info('--> Creating bios core image')
         self.__copy_bios_modules_to_boot_directory(lookup_path)
-        self.__create_bios_boot_image(boot_uuid)
 
     def __setup_secure_boot_efi_image(self, lookup_path):
         """
@@ -335,7 +336,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-    def __create_efi_image(self, uuid=None, mbrid=None):
+    def __create_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
         """
             create efi image
         """
@@ -355,28 +356,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '-o', self.__get_efi_image_name(),
                 '-c', early_boot_script,
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d',
-                self.__get_grub_boot_path() + '/' + self.__get_efi_format()
-            ] + self.__get_efi_modules()
-        )
-
-    def __create_bios_boot_image(self, uuid):
-        """
-            create bios image
-        """
-        early_boot_script = self.__get_grub_boot_path() + '/earlyboot.cfg'
-        self.__create_early_boot_script_for_uuid_search(
-            early_boot_script, uuid
-        )
-        Command.run(
-            [
-                'grub2-mkimage', '-O', self.__get_bios_format(),
-                '-o', self.__get_bios_image_name(),
-                '-c', early_boot_script,
-                '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d',
-                self.__get_grub_boot_path() + '/' + self.__get_bios_format()
-            ] + self.__get_bios_modules()
+                '-d', self.__get_efi_modules_path(lookup_path)
+            ] + Defaults.get_grub_efi_modules()
         )
 
     def __create_early_boot_script_for_uuid_search(self, filename, uuid):
@@ -402,73 +383,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def __get_grub_boot_path(self):
         return self.root_dir + '/boot/' + self.boot_directory_name
 
-    def __get_basic_modules(self):
-        modules = [
-            'ext2',
-            'iso9660',
-            'linux',
-            'echo',
-            'configfile',
-            'search_label',
-            'search_fs_file',
-            'search',
-            'search_fs_uuid',
-            'ls',
-            'normal',
-            'gzio',
-            'png',
-            'fat',
-            'gettext',
-            'font',
-            'minicmd',
-            'gfxterm',
-            'gfxmenu',
-            'video',
-            'video_fb',
-            'xfs',
-            'btrfs',
-            'lvm',
-            'multiboot'
-        ]
-        return modules
-
-    def __get_efi_modules(self):
-        modules = self.__get_basic_modules() + [
-            'part_gpt',
-            'efi_gop',
-            'efi_uga',
-            'linuxefi'
-        ]
-        return modules
-
-    def __get_bios_modules(self):
-        modules = self.__get_basic_modules() + [
-            'part_gpt',
-            'part_msdos',
-            'biosdisk',
-            'vga',
-            'vbe',
-            'chain',
-            'boot'
-        ]
-        return modules
-
     def __get_efi_image_name(self):
-        efi_image_name = None
-        if self.arch == 'x86_64':
-            efi_image_name = 'bootx64.efi'
-        if efi_image_name:
-            return ''.join(
-                [self.efi_boot_path, '/', efi_image_name]
-            )
-
-    def __get_bios_image_name(self):
-        return ''.join(
-            [
-                self.__get_grub_boot_path(), '/',
-                self.__get_bios_format(), '/core.img'
-            ]
-        )
+        return self.efi_boot_path + '/bootx64.efi'
 
     def __get_efi_format(self):
         return 'x86_64-efi'
@@ -499,29 +415,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def __get_gfxmode(self):
-        selected_gfxmode = '800x600'
-        gfxmode = {
-            '0x301': '640x480',
-            '0x310': '640x480',
-            '0x311': '640x480',
-            '0x312': '640x480',
-            '0x303': '800x600',
-            '0x313': '800x600',
-            '0x314': '800x600',
-            '0x315': '800x600',
-            '0x305': '1024x768',
-            '0x316': '1024x768',
-            '0x317': '1024x768',
-            '0x318': '1024x768',
-            '0x307': '1280x1024',
-            '0x319': '1280x1024',
-            '0x31a': '1280x1024',
-            '0x31b': '1280x1024',
-        }
+        gfxmode = Defaults.get_video_mode_map()
         requested_gfxmode = self.xml_state.build_type.get_vga()
         if requested_gfxmode in gfxmode:
-            selected_gfxmode = gfxmode[requested_gfxmode]
-        return selected_gfxmode
+            self.gfxmode = gfxmode[requested_gfxmode].grub2
+        return self.gfxmode
 
     def __copy_theme_data_to_boot_directory(self, lookup_path):
         if not lookup_path:
@@ -547,7 +445,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '/themes/' + self.theme
             if os.path.exists(theme_dir):
                 Command.run(
-                    ['rsync', '-zav', theme_dir, boot_theme_dir],
+                    ['rsync', '-za', theme_dir, boot_theme_dir],
                 )
             else:
                 log.warning('Theme %s not found', theme_dir)
@@ -569,15 +467,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def __copy_modules_to_boot_directory_from(self, module_path):
         boot_module_path = \
             self.__get_grub_boot_path() + '/' + os.path.basename(module_path)
-        if not os.path.exists(boot_module_path):
-            try:
-                Command.run(
-                    ['cp', '-a', module_path, boot_module_path]
-                )
-            except Exception:
-                raise KiwiBootLoaderGrubModulesError(
-                    'grub2 modules %s not found' % module_path
-                )
+        try:
+            Command.run(
+                ['rsync', '-za', module_path + '/', boot_module_path]
+            )
+        except Exception as e:
+            raise KiwiBootLoaderGrubModulesError(
+                'Module synchronisation failed with: %s' % format(e)
+            )
 
     def __find_grub_data(self, lookup_path):
         """

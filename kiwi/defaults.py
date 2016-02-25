@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from collections import namedtuple
 import platform
 import re
 from pkg_resources import resource_filename
@@ -48,6 +49,83 @@ class Defaults(object):
             'kiwi_sectorsize',
             'kiwi_revision'
         ]
+
+    @classmethod
+    def get_video_mode_map(self):
+        video_type = namedtuple(
+            'video_type', ['grub2']
+        )
+        return {
+            '0x301': video_type(grub2='640x480'),
+            '0x310': video_type(grub2='640x480'),
+            '0x311': video_type(grub2='640x480'),
+            '0x312': video_type(grub2='640x480'),
+            '0x303': video_type(grub2='800x600'),
+            '0x313': video_type(grub2='800x600'),
+            '0x314': video_type(grub2='800x600'),
+            '0x315': video_type(grub2='800x600'),
+            '0x305': video_type(grub2='1024x768'),
+            '0x316': video_type(grub2='1024x768'),
+            '0x317': video_type(grub2='1024x768'),
+            '0x318': video_type(grub2='1024x768'),
+            '0x307': video_type(grub2='1280x1024'),
+            '0x319': video_type(grub2='1280x1024'),
+            '0x31a': video_type(grub2='1280x1024'),
+            '0x31b': video_type(grub2='1280x1024'),
+        }
+
+    @classmethod
+    def get_grub_basic_modules(self):
+        return [
+            'ext2',
+            'iso9660',
+            'linux',
+            'echo',
+            'configfile',
+            'search_label',
+            'search_fs_file',
+            'search',
+            'search_fs_uuid',
+            'ls',
+            'normal',
+            'gzio',
+            'png',
+            'fat',
+            'gettext',
+            'font',
+            'minicmd',
+            'gfxterm',
+            'gfxmenu',
+            'video',
+            'video_fb',
+            'xfs',
+            'btrfs',
+            'lvm',
+            'multiboot'
+        ]
+
+    @classmethod
+    def get_grub_efi_modules(self):
+        modules = Defaults.get_grub_basic_modules() + [
+            'part_gpt',
+            'efi_gop',
+            'efi_uga',
+            'linuxefi'
+        ]
+        return modules
+
+    @classmethod
+    def get_grub_bios_modules(self):
+        modules = Defaults.get_grub_basic_modules() + [
+            'part_gpt',
+            'part_msdos',
+            'biosdisk',
+            'vga',
+            'vbe',
+            'chain',
+            'boot'
+        ]
+        return modules
 
     @classmethod
     def get_preparer(self):

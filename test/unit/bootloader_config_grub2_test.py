@@ -316,13 +316,10 @@ class TestBootLoaderConfigGrub2(object):
         setattr(context_manager_mock, '__exit__', exit_mock)
         self.bootloader.setup_disk_boot_images('0815')
 
-        assert mock_open.call_args_list == [
-            call('root_dir/boot/efi/EFI/BOOT/earlyboot.cfg', 'w'),
-            call('root_dir/boot/grub2/earlyboot.cfg', 'w')
-        ]
+        mock_open.assert_called_once_with(
+            'root_dir/boot/efi/EFI/BOOT/earlyboot.cfg', 'w'
+        )
         assert file_mock.write.call_args_list == [
-            call('search --fs-uuid --set=root 0815\n'),
-            call('set prefix=($root)//grub2\n'),
             call('search --fs-uuid --set=root 0815\n'),
             call('set prefix=($root)//grub2\n')
         ]
@@ -332,15 +329,11 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/boot/unicode.pf2'
             ]),
             call([
-                'cp', '-a', 'root_dir/usr/lib/grub2/x86_64-efi',
-                'root_dir/boot/grub2/x86_64-efi'
-            ]),
-            call([
                 'grub2-mkimage', '-O', 'x86_64-efi',
                 '-o', 'root_dir/boot/efi/EFI/BOOT/bootx64.efi',
                 '-c', 'root_dir/boot/efi/EFI/BOOT/earlyboot.cfg',
                 '-p', '//grub2',
-                '-d', 'root_dir/boot/grub2/x86_64-efi',
+                '-d', 'root_dir/usr/lib/grub2/x86_64-efi',
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
@@ -349,31 +342,21 @@ class TestBootLoaderConfigGrub2(object):
                 'efi_uga', 'linuxefi'
             ]),
             call([
-                'cp', '-a', 'root_dir/usr/lib/grub2/i386-pc',
-                'root_dir/boot/grub2/i386-pc'
+                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/boot/grub2/x86_64-efi'
             ]),
             call([
-                'grub2-mkimage', '-O', 'i386-pc',
-                '-o', 'root_dir/boot/grub2/i386-pc/core.img',
-                '-c', 'root_dir/boot/grub2/earlyboot.cfg',
-                '-p', '//grub2',
-                '-d', 'root_dir/boot/grub2/i386-pc',
-                'ext2', 'iso9660', 'linux', 'echo', 'configfile',
-                'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
-                'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
-                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb',
-                'xfs', 'btrfs', 'lvm', 'multiboot', 'part_gpt',
-                'part_msdos', 'biosdisk', 'vga', 'vbe', 'chain',
-                'boot'
+                'rsync', '-za', 'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/boot/grub2/i386-pc'
             ])
         ]
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
-    @patch('builtins.open')
+    #@patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_xen_guest(
-        self, mock_machine, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -386,49 +369,22 @@ class TestBootLoaderConfigGrub2(object):
             return self.os_exists[arg]
 
         mock_exists.side_effect = side_effect
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+
         self.bootloader.setup_disk_boot_images('0815')
 
-        mock_open.assert_called_once_with(
-            'root_dir/boot/grub2/earlyboot.cfg', 'w'
-        )
-        assert file_mock.write.call_args_list == [
-            call('search --fs-uuid --set=root 0815\n'),
-            call('set prefix=($root)//grub2\n'),
-        ]
         assert mock_command.call_args_list == [
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
                 'root_dir/boot/unicode.pf2'
             ]),
             call([
-                'cp', '-a', 'root_dir/usr/lib/grub2/i386-pc',
+                'rsync', '-za', 'root_dir/usr/lib/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
-                'cp', '-a', 'root_dir/usr/lib/grub2/x86_64-xen',
-                'root_dir/boot/grub2/x86_64-xen'
-            ]),
-            call([
-                'grub2-mkimage', '-O', 'i386-pc',
-                '-o', 'root_dir/boot/grub2/i386-pc/core.img',
-                '-c', 'root_dir/boot/grub2/earlyboot.cfg',
-                '-p', '//grub2',
-                '-d', 'root_dir/boot/grub2/i386-pc',
-                'ext2', 'iso9660', 'linux', 'echo', 'configfile',
-                'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
-                'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
-                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'multiboot', 'part_gpt', 'part_msdos',
-                'biosdisk', 'vga', 'vbe', 'chain', 'boot'
-            ])
+                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-xen/',
+                'root_dir/boot/grub2/x86_64-xen']
+            )
         ]
 
     @patch('kiwi.bootloader_config_grub2.Command.run')
@@ -497,21 +453,21 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/boot/unicode.pf2'
             ]),
             call([
-                'cp', '-a', 'root_dir/usr/lib/grub2/x86_64-efi',
-                'root_dir/boot/grub2/x86_64-efi'
-            ]),
-            call([
                 'grub2-mkimage', '-O', 'x86_64-efi',
                 '-o', 'root_dir//EFI/BOOT/bootx64.efi',
                 '-c', 'root_dir//EFI/BOOT/earlyboot.cfg',
                 '-p', '//grub2',
-                '-d', 'root_dir/boot/grub2/x86_64-efi',
+                '-d', 'root_dir/usr/lib/grub2/x86_64-efi',
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
                 'btrfs', 'lvm', 'multiboot', 'part_gpt', 'efi_gop',
                 'efi_uga', 'linuxefi'
+            ]),
+            call([
+                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/boot/grub2/x86_64-efi'
             ]),
             call([
                 'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'
@@ -574,7 +530,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_command.call_args_list[0] == call([
-            'rsync', '-zav',
+            'rsync', '-za',
             'root_dir/usr/share/grub2/themes/some-theme',
             'root_dir/boot/grub2/themes'
         ])

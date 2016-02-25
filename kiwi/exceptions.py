@@ -49,6 +49,10 @@ class KiwiBootLoaderGrubFontError(KiwiError):
     pass
 
 
+class KiwiBootLoaderGrubInstallError(KiwiError):
+    pass
+
+
 class KiwiBootLoaderGrubModulesError(KiwiError):
     pass
 
