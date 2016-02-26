@@ -53,7 +53,11 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         self.setup_mountpoint()
 
     def get_device(self):
-        return {'root': self}
+        return {
+            'root': MappedDevice(
+                device=self.device, device_provider=self
+            )
+        }
 
     def setup(self, name=None):
         filesystem = FileSystem(

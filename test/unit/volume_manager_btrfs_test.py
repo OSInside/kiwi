@@ -58,9 +58,11 @@ class TestVolumeManagerBtrfs(object):
         self.volume_manager.post_init({'some-arg': 'some-val'})
         assert self.volume_manager.custom_args['some-arg'] == 'some-val'
 
-    def test_get_device(self):
-        assert self.volume_manager.get_device() == \
-            {'root': self.volume_manager}
+    @patch('os.path.exists')
+    def test_get_device(self, mock_exists):
+        mock_exists.return_value = True
+        assert self.volume_manager.get_device()['root'].get_device() == \
+            '/dev/storage'
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager_btrfs.Command.run')
