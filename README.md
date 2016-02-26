@@ -13,6 +13,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Quick Start](#quick-start)
   * [Supported Distributions](#supported-distributions)
   * [Contributing](#contributing)
+  * [Developing](#developing)
   * [Packaging and Versioning](#packaging-and-versioning)
   * [Documentation](#documentation)
   
@@ -90,37 +91,46 @@ test driven development rules. The XML, schema, and stylesheets are
 taken from the old version of KIWI. Also the entire boot code
 (written in bash) is taken from the old KIWI codebase.
 
-The Python project uses `virtualenv` to setup a development
-environment for the desired Python version. The following procedure
-describes how to create such an environment for Python 3.4. Although
-it's targetted for openSUSE, it's very similar for other distributions
-with minor corrections:
+The Python project uses `pyvenv` to setup a development environment
+for the desired Python version. The script `pyvenv` is already
+installed when using Python 3.3 and higher (see https://docs.python.org/3.3/whatsnew/3.3.html#pep-405-virtual-environments for details).
 
-```
-$ sudo zypper in python3-virtualenv
-$ sudo zypper in python3-devel
-$ sudo zypper in python3-bumpversion
-$ sudo zypper in python3-Sphinx
+The following procedure describes how to create such an environment:
 
-$ virtualenv-3.4 .env3
+1. Create the virtual environment:
+
+   ```
+$ pyvenv .env3
 ```
 
-Once the development environment exists it needs to be activated
-and initialized with the project required Python modules:
+2. Activate the virtual environment:
 
+   ```
+$ source .env3/bin/activate
 ```
-$ . .env3/bin/activate
 
+3. Install KIWI requirements inside the virtual environment:
+
+   ```
 $ pip3.4 install -r .virtualenv.dev-requirements.txt
+```
 
+4. Install KIWI in "development mode":
+
+   ```
 $ ./setup.py develop
 ```
 
+You're done!
+
+Once the development environment is activated and initialized with
+the project required Python modules, you are ready to work.
+
 The __develop__ target of the `setup.py` script automatically creates
-the application entry point called __kiwi__, which allows to simply
+the application entry point called `kiwi`, which allows to simply
 call the application from the current code base:
 
-```
+   ```
 $ kiwi --help
 ```
 
@@ -128,6 +138,35 @@ In order to leave the development mode just call:
 
 ```
 $ deactivate
+```
+
+To resume your work, change into your local Git repository and
+run `source .env3/bin/activate` again. Skip step 3 and 4 as
+the requirements are already installed.
+
+
+## Developing and Running Test Cases
+
+When developing KIWI, the preferred method is to use Tox:
+
+```
+$ tox
+```
+
+The previous call would run `tox` for different Python versions,
+checks the source code for errors, and builds the documentation.
+
+If you want to see the target, use the option `-l` to print a list:
+
+```
+$ tox -l
+```
+
+To only run a special target, use the `-e` option. The following
+example runs the test cases for the 3.4 interpreter only:
+
+```
+$ tox -e 3.4
 ```
 
 ## Packaging and Versioning
@@ -149,6 +188,7 @@ $ make build
 The sources are collected below the `dist/` directory. In there you
 will find all required files to submit a package to the Open Build
 Service or just build it with `rpmbuild`.
+
 
 ## Documentation
 
