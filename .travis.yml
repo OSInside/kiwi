@@ -1,7 +1,16 @@
 language: python
 
-python:
-  - "3.4"
+branches:
+    except:
+        - gh-pages
+
+matrix:
+    include:
+        - python: 3.4
+          env: TOXENV=3.4
+        - python: 3.5
+          env: TOXENV=3.5
+
 
 before_install:
     - sudo apt-get update -qq
@@ -9,6 +18,7 @@ before_install:
     - sudo apt-get install -y genisoimage
 
 install:
-  - pip install -r .travis.requirements.txt
+    - pip install -r .travis.requirements.txt
 
-script: ./.travis.script
+script:
+    - tox

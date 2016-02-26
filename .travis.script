@@ -1,4 +1,0 @@
-#!/bin/bash
-
-flake8 kiwi
-nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml --cover-min-percentage=100
