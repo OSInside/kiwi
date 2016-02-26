@@ -16,14 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import time
 from tempfile import mkdtemp
 
 # project
-from .command import Command
 from .logger import log
-from .path import Path
 from .data_sync import DataSync
+from .mount_manager import MountManager
 
 from .exceptions import (
     KiwiFileSystemSyncError
@@ -39,7 +37,7 @@ class FileSystemBase(object):
         # here. The file name of the file containing the filesystem is
         # stored in the device_provider if the filesystem is represented
         # as a file there
-        self.mountpoint = None
+        self.filesystem_mount = None
 
         # bind the block device providing class instance to this object.
         # This is done to guarantee the correct destructor order when
@@ -79,52 +77,18 @@ class FileSystemBase(object):
             raise KiwiFileSystemSyncError(
                 'given root directory %s does not exist' % self.root_dir
             )
-        device = self.device_provider.get_device()
-        Command.run(
-            ['mount', device, self.__setup_mountpoint()]
+        self.filesystem_mount = MountManager(
+            device=self.device_provider.get_device(),
+            mountpoint=mkdtemp(prefix='kiwi_filesystem.')
         )
-        if self.mountpoint and self.is_mounted():
-            data = DataSync(self.root_dir, self.mountpoint)
-            data.sync_data(exclude)
-            Command.run(
-                ['umount', self.mountpoint]
-            )
-            Path.remove(self.mountpoint)
-            self.mountpoint = None
-
-    def is_mounted(self):
-        if self.mountpoint:
-            try:
-                Command.run(['mountpoint', self.mountpoint])
-                return True
-            except Exception:
-                pass
-        return False
-
-    def __setup_mountpoint(self):
-        self.mountpoint = mkdtemp(prefix='kiwi_filesystem.')
-        return self.mountpoint
+        self.filesystem_mount.mount()
+        data = DataSync(
+            self.root_dir, self.filesystem_mount.mountpoint
+        )
+        data.sync_data(exclude)
+        self.filesystem_mount.umount()
 
     def __del__(self):
-        if self.mountpoint:
+        if self.filesystem_mount:
             log.info('Cleaning up %s instance', type(self).__name__)
-            if self.is_mounted():
-                umounted_successfully = False
-                for busy in [1, 2, 3]:
-                    try:
-                        Command.run(['umount', self.mountpoint])
-                        umounted_successfully = True
-                        break
-                    except Exception:
-                        log.warning(
-                            '%d umount of %s failed, try again in 1sec',
-                            busy, self.mountpoint
-                        )
-                        time.sleep(1)
-                if not umounted_successfully:
-                    log.warning(
-                        '%s still busy at %s',
-                        self.mountpoint, type(self).__name__
-                    )
-                else:
-                    Path.remove(self.mountpoint)
+            self.filesystem_mount.umount()

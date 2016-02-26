@@ -21,8 +21,7 @@ from urllib.parse import urlparse
 import hashlib
 
 # project
-from .command import Command
-from .path import Path
+from .mount_manager import MountManager
 
 from .exceptions import (
     KiwiUriStyleUnknown,
@@ -107,10 +106,12 @@ class Uri(object):
                 )
 
     def __iso_mount_path(self, path):
-        iso_path = mkdtemp(prefix='iso-mount.')
-        Command.run(['mount', path, iso_path])
-        self.mount_stack.append(iso_path)
-        return iso_path
+        iso_mount = MountManager(
+            device=path, mountpoint=mkdtemp(prefix='iso-mount.')
+        )
+        iso_mount.mount()
+        self.mount_stack.append(iso_mount)
+        return iso_mount.mountpoint
 
     def __local_directory(self, path):
         return os.path.normpath(path)
@@ -138,9 +139,5 @@ class Uri(object):
         )
 
     def __del__(self):
-        try:
-            for mount in reversed(self.mount_stack):
-                Command.run(['umount', mount])
-                Path.remove(mount)
-        except Exception:
-            pass
+        for mount in reversed(self.mount_stack):
+            mount.umount()

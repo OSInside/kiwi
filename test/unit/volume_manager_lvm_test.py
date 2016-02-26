@@ -13,12 +13,9 @@ from kiwi.defaults import Defaults
 
 class TestVolumeManagerLVM(object):
     @patch('os.path.exists')
-    def setup(self, mock_path):
-        self.mount_type = namedtuple(
-            'mount_type', [
-                'device', 'mountpoint'
-            ]
-        )
+    @patch('kiwi.volume_manager_base.mkdtemp')
+    def setup(self, mock_mkdtemp, mock_path):
+        mock_mkdtemp.return_value = 'tmpdir'
         self.volume_type = namedtuple(
             'volume_type', [
                 'name',
@@ -112,9 +109,10 @@ class TestVolumeManagerLVM(object):
     @patch('kiwi.volume_manager_lvm.Command.run')
     @patch('kiwi.volume_manager_lvm.FileSystem')
     @patch('kiwi.volume_manager_lvm.MappedDevice')
+    @patch('kiwi.volume_manager_lvm.MountManager')
     def test_create_volumes(
-        self, mock_mapped_device, mock_fs, mock_command, mock_size,
-        mock_os_exists
+        self, mock_mount, mock_mapped_device, mock_fs, mock_command,
+        mock_size, mock_os_exists
     ):
         mock_mapped_device.return_value = 'mapped_device'
         size = mock.Mock()
@@ -128,6 +126,13 @@ class TestVolumeManagerLVM(object):
         myvol_size = 500
         etc_size = 200 + 42 + Defaults.get_min_volume_mbytes()
         root_size = 100 + 42 + Defaults.get_min_volume_mbytes()
+
+        assert mock_mount.call_args_list == [
+            call(device='/dev/volume_group/LVRoot', mountpoint='tmpdir'),
+            call(device='/dev/volume_group/myvol', mountpoint='tmpdir//data'),
+            call(device='/dev/volume_group/LVetc', mountpoint='tmpdir//etc'),
+            call(device='/dev/volume_group/LVhome', mountpoint='tmpdir//home')
+        ]
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/etc']),
             call(['mkdir', '-p', 'root_dir/data']),
@@ -154,73 +159,47 @@ class TestVolumeManagerLVM(object):
             call('ext3', 'mapped_device'),
             call('ext3', 'mapped_device')
         ]
-        assert self.volume_manager.mount_list == [
-            self.mount_type(
-                device='/dev/volume_group/LVRoot', mountpoint='/'
-            ),
-            self.mount_type(
-                device='/dev/volume_group/myvol', mountpoint='//data'
-            ),
-            self.mount_type(
-                device='/dev/volume_group/LVetc', mountpoint='//etc'
-            ),
-            self.mount_type(
-                device='/dev/volume_group/LVhome', mountpoint='//home'
-            )
-        ]
         self.volume_manager.volume_group = None
 
     @patch('kiwi.volume_manager_lvm.Path')
-    @patch('kiwi.volume_manager_base.mkdtemp')
-    @patch('kiwi.volume_manager_lvm.Command.run')
-    def test_mount_volumes(self, mock_command, mock_temp, mock_path):
-        mock_temp.return_value = 'tmpdir'
-        self.volume_manager.mount_list = [
-            self.mount_type(device='/dev/volume_group/LVRoot', mountpoint='/')
-        ]
+    def test_mount_volumes(self, mock_path):
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = 'volume_mount_point'
+        self.volume_manager.mount_list = [volume_mount]
         self.volume_manager.mount_volumes()
-        mock_path.create.assert_called_once_with('tmpdir/')
-        mock_command.assert_called_once_with(
-            ['mount', '/dev/volume_group/LVRoot', 'tmpdir/']
-        )
+        mock_path.create.assert_called_once_with(volume_mount.mountpoint)
+        volume_mount.mount.assert_called_once_with()
 
-    @patch('time.sleep')
-    @patch('kiwi.volume_manager_lvm.VolumeManagerLVM.is_mounted')
     @patch('kiwi.volume_manager_lvm.Path.wipe')
     @patch('kiwi.volume_manager_lvm.Command.run')
-    def test_destructor_success(
-        self, mock_command, mock_wipe, mock_mounted, mock_time
-    ):
+    def test_destructor_busy_volumes(self, mock_command, mock_wipe):
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.mount_list = [
-            self.mount_type(device='/dev/volume_group/LVRoot', mountpoint='/')
-        ]
-        mock_mounted.return_value = True
         self.volume_manager.volume_group = 'volume_group'
+        volume_mount = mock.Mock()
+        volume_mount.is_mounted.return_value = True
+        volume_mount.umount.return_value = False
+        volume_mount.mountpoint = 'volume_mount_point'
+        volume_mount.device = '/dev/volume_group/LVRoot'
+        self.volume_manager.mount_list = [volume_mount]
+
         self.volume_manager.__del__()
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list == [
-            call(['umount', '/dev/volume_group/LVRoot']),
-            call(['vgchange', '-an', 'volume_group'])
-        ]
-        mock_wipe.assert_called_once_with('tmpdir')
+
+        volume_mount.umount.assert_called_once_with()
         self.volume_manager.volume_group = None
 
-    @patch('time.sleep')
-    @patch('kiwi.volume_manager_lvm.VolumeManagerLVM.is_mounted')
-    @patch('kiwi.volume_manager_lvm.Path')
+    @patch('kiwi.volume_manager_lvm.Path.wipe')
     @patch('kiwi.volume_manager_lvm.Command.run')
     @patch('kiwi.logger.log.warning')
-    def test_destructor_failed(
-        self, mock_log_warn, mock_command, mock_path, mock_mounted, mock_time
-    ):
-        self.volume_manager.mountpoint = 'tmpdir'
+    def test_destructor(self, mock_warn, mock_command, mock_wipe):
         mock_command.side_effect = Exception
-        self.volume_manager.mount_list = [
-            self.mount_type(device='/dev/volume_group/LVRoot', mountpoint='/')
-        ]
-        mock_mounted.return_value = True
+        self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.volume_group = 'volume_group'
+
         self.volume_manager.__del__()
-        assert mock_log_warn.called
+
+        mock_wipe.assert_called_once_with('tmpdir')
+        mock_command.assert_called_once_with(
+            ['vgchange', '-an', 'volume_group']
+        )
+        assert mock_warn.called
         self.volume_manager.volume_group = None

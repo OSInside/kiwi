@@ -15,12 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from collections import namedtuple
-import time
-
 # project
 from .command import Command
 from .volume_manager_base import VolumeManagerBase
+from .mount_manager import MountManager
 from .mapped_device import MappedDevice
 from .filesystem import FileSystem
 from .path import Path
@@ -42,6 +40,8 @@ class VolumeManagerLVM(VolumeManagerBase):
             self.custom_args = {}
         if 'root_label' not in self.custom_args:
             self.custom_args['root_label'] = 'ROOT'
+
+        self.setup_mountpoint()
 
     def get_device(self):
         """
@@ -124,12 +124,9 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
 
     def mount_volumes(self):
-        self.setup_mountpoint()
-        for mount in self.mount_list:
-            Path.create(self.mountpoint + mount.mountpoint)
-            Command.run(
-                ['mount', mount.device, self.mountpoint + mount.mountpoint]
-            )
+        for volume_mount in self.mount_list:
+            Path.create(volume_mount.mountpoint)
+            volume_mount.mount()
 
     def __create_filesystem(self, volume_name, filesystem_name):
         device_node = self.volume_map[volume_name]
@@ -145,25 +142,20 @@ class VolumeManagerLVM(VolumeManagerBase):
         )
 
     def __add_to_mount_list(self, volume_name, realpath):
-        mount_type = namedtuple(
-            'mount_type', [
-                'device', 'mountpoint'
-            ]
-        )
         device_node = self.volume_map[volume_name]
         if volume_name == 'LVRoot':
             # root volume must be first in the list
             self.mount_list.insert(
-                0, mount_type(
+                0, MountManager(
                     device=device_node,
-                    mountpoint='/'
+                    mountpoint=self.mountpoint
                 )
             )
         else:
             self.mount_list.append(
-                mount_type(
+                MountManager(
                     device=device_node,
-                    mountpoint='/' + realpath
+                    mountpoint=self.mountpoint + '/' + realpath
                 )
             )
 
@@ -184,33 +176,17 @@ class VolumeManagerLVM(VolumeManagerBase):
     def __del__(self):
         if self.volume_group:
             log.info('Cleaning up %s instance', type(self).__name__)
-            if self.is_mounted():
-                all_volumes_umounted = True
-                for mount in reversed(self.mount_list):
-                    umounted_successfully = False
-                    for busy in [1, 2, 3]:
-                        try:
-                            Command.run(['umount', mount.device])
-                            umounted_successfully = True
-                            break
-                        except Exception:
-                            log.warning(
-                                '%d umount of %s failed, try again in 1sec',
-                                busy, mount.device
-                            )
-                            time.sleep(1)
-                    if not umounted_successfully:
+            all_volumes_umounted = True
+            for volume_mount in reversed(self.mount_list):
+                if volume_mount.is_mounted():
+                    if not volume_mount.umount():
                         all_volumes_umounted = False
-                        log.warning(
-                            '%s still busy at %s',
-                            self.mountpoint + mount.mountpoint,
-                            type(self).__name__
-                        )
-                if all_volumes_umounted:
-                    Path.wipe(self.mountpoint)
-            try:
-                Command.run(['vgchange', '-an', self.volume_group])
-            except Exception:
-                log.warning(
-                    'volume group %s still busy', self.volume_group
-                )
+
+            if all_volumes_umounted:
+                Path.wipe(self.mountpoint)
+                try:
+                    Command.run(['vgchange', '-an', self.volume_group])
+                except Exception:
+                    log.warning(
+                        'volume group %s still busy', self.volume_group
+                    )

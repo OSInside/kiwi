@@ -5,11 +5,7 @@ import mock
 
 from . import nose_helper
 
-from kiwi.exceptions import (
-    KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
-)
-
+from kiwi.exceptions import *
 from kiwi.uri import Uri
 
 import hashlib
@@ -71,27 +67,34 @@ class TestUri(object):
         uri = Uri('http://example.com/foo', 'rpm-md')
         assert uri.translate() == 'http://example.com/foo'
 
-    @patch('kiwi.command.Command.run')
+    @patch('kiwi.uri.MountManager')
     @patch('kiwi.uri.mkdtemp')
-    def test_translate_iso_path(self, mock_mkdtemp, mock_command):
-        mock_mkdtemp.return_value = '/tmp/foo'
+    def test_translate_iso_path(self, mock_mkdtemp, mock_manager):
+        mock_mkdtemp.return_value = 'tmpdir'
+        manager = mock.Mock()
+        manager.mountpoint = mock_mkdtemp.return_value
+        mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
         result = uri.translate()
-        mock_command.assert_called_once_with(
-            ['mount', '/image/CDs/openSUSE-13.2-DVD-x86_64.iso', '/tmp/foo']
+        mock_manager.assert_called_once_with(
+            device='/image/CDs/openSUSE-13.2-DVD-x86_64.iso',
+            mountpoint='tmpdir'
         )
-        assert result == '/tmp/foo'
+        manager.mount.assert_called_once_with()
+        assert result == 'tmpdir'
 
     def test_translate_suse_buildservice_path(self):
         uri = Uri('suse://openSUSE:13.2/standard', 'yast2')
         assert uri.translate() == \
             '/usr/src/packages/SOURCES/repos/openSUSE:13.2/standard'
 
-    @patch('kiwi.command.Command.run')
+    @patch('kiwi.uri.MountManager')
     @patch('kiwi.uri.mkdtemp')
-    def test_destructor(self, mock_mkdtemp, mock_command):
-        mock_mkdtemp.return_value = '/tmp/foo'
+    def test_destructor(self, mock_mkdtemp, mock_manager):
+        manager = mock.Mock()
+        mock_mkdtemp.return_value = 'tmpdir'
+        mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
         result = uri.translate()
-        mock_command.side_effect = KeyError
-        del uri
+        uri.__del__()
+        manager.umount.assert_called_once_with()

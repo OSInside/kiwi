@@ -15,14 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import time
-from tempfile import mkdtemp
-
 # project
 from .bootloader_install_base import BootLoaderInstallBase
 from .command import Command
-from .path import Path
 from .logger import log
+from .mount_manager import MountManager
 
 from .exceptions import(
     KiwiBootLoaderZiplInstallError
@@ -40,9 +37,9 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
                 'boot device node name required for zipl installation'
             )
 
-        self.mountpoint = mkdtemp()
-        self.is_mounted = False
-        self.zipl_boot_device = custom_args['boot_device']
+        self.boot_mount = MountManager(
+            custom_args['boot_device']
+        )
 
     def install(self):
         """
@@ -50,12 +47,12 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
         """
         log.info('Installing zipl on disk %s', self.device)
 
-        self.__mount_boot_partition()
+        self.boot_mount.mount()
 
         bash_command = ' '.join(
             [
-                'cd', self.mountpoint, '&&',
-                'zipl', '-V', '-c', self.mountpoint + '/config',
+                'cd', self.boot_mount.mountpoint, '&&',
+                'zipl', '-V', '-c', self.boot_mount.mountpoint + '/config',
                 '-m', 'menu'
             ]
         )
@@ -64,40 +61,6 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
         )
         log.debug('zipl install succeeds with: %s', zipl_call.output)
 
-        self.__umount_boot_partition()
-
-    def __mount_boot_partition(self):
-        Command.run(
-            ['mount', self.zipl_boot_device, self.mountpoint]
-        )
-        self.is_mounted = True
-
-    def __umount_boot_partition(self):
-        Command.run(
-            ['umount', self.mountpoint]
-        )
-        Path.remove(self.mountpoint)
-        self.is_mounted = False
-
     def __del__(self):
-        if self.is_mounted:
-            log.info('Cleaning up %s instance', type(self).__name__)
-            umounted_successfully = False
-            for busy in [1, 2, 3]:
-                try:
-                    Command.run(['umount', self.mountpoint])
-                    umounted_successfully = True
-                    break
-                except Exception:
-                    log.warning(
-                        '%d umount of %s failed, try again in 1sec',
-                        busy, self.mountpoint
-                    )
-                    time.sleep(1)
-            if not umounted_successfully:
-                log.warning(
-                    '%s still busy at %s',
-                    self.mountpoint, type(self).__name__
-                )
-            else:
-                Path.remove(self.mountpoint)
+        log.info('Cleaning up %s instance', type(self).__name__)
+        self.boot_mount.umount()

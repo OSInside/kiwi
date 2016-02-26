@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import mkdtemp
-import time
-
 # project
 from .bootloader_install_base import BootLoaderInstallBase
 from .command import Command
 from .logger import log
-from .path import Path
 from .defaults import Defaults
+from .mount_manager import MountManager
 
 from .exceptions import(
     KiwiBootLoaderGrubInstallError
@@ -45,14 +42,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'root device node name required for grub2 installation'
             )
 
-        self.mountpoint_root = mkdtemp()
-        self.mountpoint_boot = mkdtemp()
-        self.grub2_boot_device = custom_args['boot_device']
-        self.grub2_root_device = custom_args['root_device']
-
-        self.extra_boot_partition = False
-        if not self.grub2_boot_device == self.grub2_root_device:
-            self.extra_boot_partition = True
+        self.root_mount = MountManager(
+            custom_args['root_device']
+        )
+        self.boot_mount = MountManager(
+            custom_args['boot_device']
+        )
 
     def install(self):
         """
@@ -60,15 +55,18 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         """
         log.info('Installing grub2 on disk %s', self.device)
 
-        if self.extra_boot_partition:
-            self.__mount_boot_partition()
-            self.__mount_root_partition()
-            module_directory = self.mountpoint_root + '/usr/lib/grub2/i386-pc'
-            boot_directory = self.mountpoint_boot
+        if not self.root_mount.device == self.boot_mount.device:
+            self.root_mount.mount()
+            self.boot_mount.mount()
+            module_directory = self.root_mount.mountpoint \
+                + '/usr/lib/grub2/i386-pc'
+            boot_directory = self.boot_mount.mountpoint
         else:
-            self.__mount_root_partition()
-            module_directory = self.mountpoint_root + '/usr/lib/grub2/i386-pc'
-            boot_directory = self.mountpoint_root + '/boot'
+            self.root_mount.mount()
+            module_directory = self.root_mount.mountpoint \
+                + '/usr/lib/grub2/i386-pc'
+            boot_directory = self.root_mount.mountpoint \
+                + '/boot'
 
         Command.run(
             [
@@ -82,47 +80,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             ]
         )
 
-    def __mount_boot_partition(self):
-        self.__mount(self.grub2_boot_device, self.mountpoint_boot)
-
-    def __mount_root_partition(self):
-        self.__mount(self.grub2_root_device, self.mountpoint_root)
-
-    def __is_mounted(self, mountpoint):
-        try:
-            Command.run(['mountpoint', mountpoint])
-            return True
-        except Exception:
-            return False
-
-    def __mount(self, device, mountpoint):
-        Command.run(['mount', device, mountpoint])
-        return True
-
-    def __umount(self, mountpoint):
-        if self.__is_mounted(mountpoint):
-            umounted_successfully = False
-            for busy in [1, 2, 3]:
-                try:
-                    Command.run(['umount', mountpoint])
-                    umounted_successfully = True
-                    break
-                except Exception:
-                    log.warning(
-                        '%d umount of %s failed, try again in 1sec',
-                        busy, mountpoint
-                    )
-                    time.sleep(1)
-            if not umounted_successfully:
-                log.warning(
-                    '%s still busy at %s', mountpoint, type(self).__name__
-                )
-                # skip removing the mountpoint directory
-                return
-
-        Path.remove(mountpoint)
-
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
-        self.__umount(self.mountpoint_root)
-        self.__umount(self.mountpoint_boot)
+        self.root_mount.umount()
+        self.boot_mount.umount()

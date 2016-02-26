@@ -20,8 +20,8 @@ from tempfile import mkdtemp
 import os
 
 # project
-from .command import Command
 from .device_provider import DeviceProvider
+from .mount_manager import MountManager
 from .data_sync import DataSync
 from .path import Path
 from .system_size import SystemSize
@@ -174,25 +174,15 @@ class VolumeManagerBase(DeviceProvider):
             )
         return mbsize
 
-    def is_mounted(self):
-        """
-            Implements check if volumes are mounted
-        """
-        if self.mountpoint:
-            try:
-                Command.run(['mountpoint', self.mountpoint])
-                return True
-            except Exception:
-                pass
-        return False
-
     def sync_data(self, exclude=None):
         """
             Implements sync of root directory to mounted volumes
         """
-        if self.mountpoint and self.is_mounted():
-            data = DataSync(self.root_dir, self.mountpoint)
-            data.sync_data(exclude)
+        if self.mountpoint:
+            root_mount = MountManager(device=None, mountpoint=self.mountpoint)
+            if root_mount.is_mounted():
+                data = DataSync(self.root_dir, self.mountpoint)
+                data.sync_data(exclude)
 
     def setup_mountpoint(self):
         """

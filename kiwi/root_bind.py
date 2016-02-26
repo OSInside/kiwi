@@ -21,6 +21,7 @@ import os
 from .command import Command
 from .logger import log
 from .path import Path
+from .mount_manager import MountManager
 
 from .exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -60,13 +61,11 @@ class RootBind(object):
         try:
             for location in self.bind_locations:
                 if os.path.exists(location):
-                    Command.run(
-                        [
-                            'mount', '-n', '--bind', location,
-                            self.root_dir + location
-                        ]
+                    shared_mount = MountManager(
+                        device=location, mountpoint=self.root_dir + location
                     )
-                    self.mount_stack.append(location)
+                    shared_mount.bind_mount()
+                    self.mount_stack.append(shared_mount)
         except Exception as e:
             self.cleanup()
             raise KiwiMountKernelFileSystemsError(
@@ -78,12 +77,11 @@ class RootBind(object):
             host_dir = self.shared_location
         try:
             Path.create(self.root_dir + host_dir)
-            Command.run(
-                [
-                    'mount', '-n', '--bind', host_dir, self.root_dir + host_dir
-                ]
+            shared_mount = MountManager(
+                device=host_dir, mountpoint=self.root_dir + host_dir
             )
-            self.mount_stack.append(host_dir)
+            shared_mount.bind_mount()
+            self.mount_stack.append(shared_mount)
             self.dir_stack.append(host_dir)
         except Exception as e:
             self.cleanup()
@@ -146,15 +144,17 @@ class RootBind(object):
             )
 
     def __cleanup_mount_stack(self):
-        mount_list = self.__build_mount_list()
-        if mount_list:
-            try:
-                Command.run(['umount', '-l'] + mount_list)
-            except Exception as e:
-                log.warning(
-                    'Image root directory %s not cleanly umounted: %s',
-                    self.root_dir, format(e)
-                )
+        for mount in reversed(self.mount_stack):
+            if mount.is_mounted():
+                try:
+                    mount.umount_lazy(delete_mountpoint=False)
+                except Exception as e:
+                    log.warning(
+                        'Image root directory %s not cleanly umounted: %s',
+                        self.root_dir, format(e)
+                    )
+            else:
+                log.warning('Path %s not a mountpoint', mount.mountpoint)
 
         del self.mount_stack[:]
 
@@ -167,14 +167,3 @@ class RootBind(object):
                     'Failed to remove directory %s: %s', location, format(e)
                 )
         del self.dir_stack[:]
-
-    def __build_mount_list(self):
-        mount_points = []
-        for location in reversed(self.mount_stack):
-            mount_path = self.root_dir + location
-            try:
-                Command.run(['mountpoint', '-q', mount_path])
-                mount_points.append(mount_path)
-            except Exception:
-                log.warning('Path %s not a mountpoint', mount_path)
-        return mount_points

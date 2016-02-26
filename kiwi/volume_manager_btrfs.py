@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import time
 import re
 import os
 
 # project
 from .command import Command
 from .volume_manager_base import VolumeManagerBase
+from .mount_manager import MountManager
 from .mapped_device import MappedDevice
 from .filesystem import FileSystem
 from .data_sync import DataSync
@@ -48,6 +48,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_is_snapshot'] = False
 
         self.subvol_mount_list = []
+        self.toplevel_mount = None
+
+        self.setup_mountpoint()
 
     def get_device(self):
         return {'root': self}
@@ -59,10 +62,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         filesystem.create_on_device(
             label=self.custom_args['root_label']
         )
-        self.setup_mountpoint()
-        Command.run(
-            ['mount', self.device, self.mountpoint]
+        self.toplevel_mount = MountManager(
+            device=self.device, mountpoint=self.mountpoint
         )
+        self.toplevel_mount.mount()
         root_volume = self.mountpoint + '/@'
         Command.run(
             ['btrfs', 'subvolume', 'create', root_volume]
@@ -114,29 +117,27 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                         os.path.normpath(toplevel + volume.realpath)
                     ]
                 )
-                self.subvol_mount_list.append(
-                    volume.realpath
-                )
+                if self.custom_args['root_is_snapshot']:
+                    snapshot = self.mountpoint + '/@/.snapshots/1/snapshot/'
+                    volume_mount = MountManager(
+                        device=self.device,
+                        mountpoint=os.path.normpath(snapshot + volume.realpath)
+                    )
+                    self.subvol_mount_list.append(
+                        volume_mount
+                    )
 
     def mount_volumes(self):
-        if self.custom_args['root_is_snapshot']:
-            snapshot = self.mountpoint + '/@/.snapshots/1/snapshot/'
-            for subvol in self.subvol_mount_list:
-                volume_parent_path = os.path.normpath(
-                    snapshot + subvol
-                )
-                if not os.path.exists(volume_parent_path):
-                    Path.create(volume_parent_path)
-                Command.run(
-                    [
-                        'mount', self.device,
-                        os.path.normpath(snapshot + subvol),
-                        '-o', 'subvol=' + os.path.normpath('@/' + subvol)
-                    ]
-                )
+        for volume_mount in self.subvol_mount_list:
+            if not os.path.exists(volume_mount.mountpoint):
+                Path.create(volume_mount.mountpoint)
+            subvol_name = os.path.basename(volume_mount.mountpoint)
+            volume_mount.mount(
+                options=['subvol=' + os.path.normpath('@/' + subvol_name)]
+            )
 
     def sync_data(self, exclude=None):
-        if self.mountpoint and self.is_mounted():
+        if self.toplevel_mount:
             sync_target = self.mountpoint + '/@'
             if self.custom_args['root_is_snapshot']:
                 sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
@@ -165,33 +166,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             'Failed to find btrfs volume: %s' % default_volume
         )
 
-    def __try_umount(self, mount_point, wipe=True):
-        umounted_successfully = False
-        for busy in [1, 2, 3]:
-            try:
-                Command.run(['umount', os.path.normpath(mount_point)])
-                umounted_successfully = True
-                break
-            except Exception:
-                log.warning(
-                    '%d umount of %s failed, try again in 1sec',
-                    busy, mount_point
-                )
-                time.sleep(1)
-        if umounted_successfully and wipe:
-            Path.wipe(self.mountpoint)
-        elif not umounted_successfully:
-            log.warning(
-                'mount path %s still busy', mount_point
-            )
-
     def __del__(self):
-        if self.is_mounted():
+        if self.toplevel_mount:
             log.info('Cleaning up %s instance', type(self).__name__)
-            if self.custom_args['root_is_snapshot']:
-                for subvol in reversed(self.subvol_mount_list):
-                    subvol_mount = \
-                        self.mountpoint + '/@/.snapshots/1/snapshot/' + subvol
-                    self.__try_umount(mount_point=subvol_mount, wipe=False)
+            for volume_mount in reversed(self.subvol_mount_list):
+                volume_mount.umount(delete_mountpoint=False)
 
-            self.__try_umount(mount_point=self.device)
+            self.toplevel_mount.umount()

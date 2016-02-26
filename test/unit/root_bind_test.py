@@ -27,29 +27,33 @@ class TestRootBind(object):
         self.bind_root.bind_locations = ['/proc']
 
         # stub files/dirs and mountpoints to cleanup
+        self.mount_manager = mock.Mock()
         self.bind_root.cleanup_files = ['/foo.kiwi']
-        self.bind_root.mount_stack = ['/mountpoint']
+        self.bind_root.mount_stack = [self.mount_manager]
         self.bind_root.dir_stack = ['/mountpoint']
 
     @raises(KiwiMountKernelFileSystemsError)
-    @patch('kiwi.command.Command.run')
+    @patch('kiwi.root_bind.MountManager.bind_mount')
     @patch('kiwi.root_bind.RootBind.cleanup')
     @patch('os.path.exists')
     def test_kernel_file_systems_raises_error(
-        self, mock_exists, mock_cleanup, mock_command
+        self, mock_exists, mock_cleanup, mock_mount
     ):
         mock_exists.return_value = True
-        mock_command.side_effect = KiwiMountKernelFileSystemsError(
+        mock_mount.side_effect = KiwiMountKernelFileSystemsError(
             'mount-error'
         )
         self.bind_root.mount_kernel_file_systems()
         mock.cleanup.assert_called_once_with()
 
     @raises(KiwiMountSharedDirectoryError)
-    @patch('kiwi.command.Command.run')
+    @patch('kiwi.root_bind.MountManager.bind_mount')
+    @patch('kiwi.root_bind.Path.create')
     @patch('kiwi.root_bind.RootBind.cleanup')
-    def test_shared_directory_raises_error(self, mock_cleanup, mock_command):
-        mock_command.side_effect = KiwiMountSharedDirectoryError(
+    def test_shared_directory_raises_error(
+        self, mock_cleanup, mock_path, mock_mount
+    ):
+        mock_mount.side_effect = KiwiMountSharedDirectoryError(
             'mount-error'
         )
         self.bind_root.mount_shared_directory()
@@ -69,25 +73,27 @@ class TestRootBind(object):
         self.bind_root.setup_intermediate_config()
         mock.cleanup.assert_called_once_with()
 
-    @patch('kiwi.command.Command.run')
-    def test_mount_kernel_file_systems(self, mock_command):
+    @patch('kiwi.root_bind.MountManager')
+    def test_mount_kernel_file_systems(self, mock_mount):
+        shared_mount = mock.Mock()
+        mock_mount.return_value = shared_mount
         self.bind_root.mount_kernel_file_systems()
-        mock_command.assert_called_once_with(
-            ['mount', '-n', '--bind', '/proc', 'root-dir/proc']
+        mock_mount.assert_called_once_with(
+            device='/proc', mountpoint='root-dir/proc'
         )
+        shared_mount.bind_mount.assert_called_once_with()
 
-    @patch('kiwi.command.Command.run')
-    def test_mount_shared_directory(self, mock_command):
+    @patch('kiwi.root_bind.MountManager')
+    @patch('kiwi.root_bind.Path.create')
+    def test_mount_shared_directory(self, mock_path, mock_mount):
+        shared_mount = mock.Mock()
+        mock_mount.return_value = shared_mount
         self.bind_root.mount_shared_directory()
-        assert mock_command.call_args_list == [
-            call([
-                'mkdir', '-p', 'root-dir/var/cache/kiwi'
-            ]),
-            call([
-                'mount', '-n', '--bind', '/var/cache/kiwi',
-                'root-dir/var/cache/kiwi'
-            ])
-        ]
+        mock_path.assert_called_once_with('root-dir/var/cache/kiwi')
+        mock_mount.assert_called_once_with(
+            device='/var/cache/kiwi', mountpoint='root-dir/var/cache/kiwi'
+        )
+        shared_mount.bind_mount.assert_called_once_with()
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
@@ -103,67 +109,57 @@ class TestRootBind(object):
             ])
         ]
 
-    @patch('kiwi.command.Command.run')
+    @patch('kiwi.root_bind.Command.run')
+    @patch('kiwi.root_bind.Path.remove_hierarchy')
     @patch('os.path.islink')
-    def test_cleanup(self, mock_islink, mock_command):
+    def test_cleanup(self, mock_islink, mock_remove_hierarchy, mock_command):
         mock_islink.return_value = True
         self.bind_root.cleanup()
+        self.mount_manager.umount_lazy.assert_called_once_with(
+            delete_mountpoint=False
+        )
+        mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
+        mock_command.assert_called_once_with(
+           ['rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo']
+        )
 
-        assert mock_command.call_args_list == [
-            call([
-                'mountpoint', '-q', 'root-dir/mountpoint'
-            ]),
-            call([
-                'umount', '-l', 'root-dir/mountpoint'
-            ]),
-            call([
-                'rmdir', '-p', '--ignore-fail-on-non-empty',
-                'root-dir/mountpoint'
-            ]),
-            call([
-                'rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo'
-            ])
-        ]
-
-    @patch('kiwi.command.Command.run')
     @patch('os.path.islink')
     @patch('kiwi.logger.log.warning')
-    def test_cleanup_continue_on_raise(
-        self, mock_warn, mock_islink, mock_command
-    ):
-
-        def side_effect(arg):
-            if arg[0] == 'mountpoint':
-                return
-            else:
-                raise Exception
-
-        mock_command.side_effect = side_effect
-        mock_islink.return_value = True
-        self.bind_root.cleanup()
-        assert mock_warn.called
-
     @patch('kiwi.command.Command.run')
-    @patch('os.path.islink')
-    @patch('kiwi.logger.log.warning')
-    def test_cleanup_mountpoint_invalid(
-        self, mock_warn, mock_islink, mock_command
+    @patch('kiwi.root_bind.Path.remove_hierarchy')
+    def test_cleanup_continue_on_error(
+        self, mock_remove_hierarchy, mock_command, mock_warn, mock_islink
     ):
         mock_islink.return_value = True
+        mock_remove_hierarchy.side_effect = Exception
         mock_command.side_effect = Exception
+        self.mount_manager.umount_lazy.side_effect = Exception
         self.bind_root.cleanup()
-        assert mock_command.call_args_list == [
-            call([
-                'mountpoint', '-q', 'root-dir/mountpoint'
-            ]),
-            call([
-                'rmdir', '-p', '--ignore-fail-on-non-empty',
-                'root-dir/mountpoint'
-            ]),
-            call([
-                'rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo'
-            ])
+        assert mock_warn.call_args_list == [
+            call(
+                'Image root directory %s not cleanly umounted: %s',
+                'root-dir', ''
+            ),
+            call(
+                'Failed to remove directory %s: %s', '/mountpoint', ''
+            ),
+            call(
+                'Failed to remove intermediate config files: %s', ''
+            )
         ]
+
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.root_bind.Path.remove_hierarchy')
+    def test_cleanup_nothing_mounted(
+        self, mock_remove_hierarchy, mock_command, mock_warn
+    ):
+        self.mount_manager.is_mounted.return_value = False
+        self.mount_manager.mountpoint = '/mountpoint'
+        self.bind_root.cleanup()
+        mock_warn.assert_called_once_with(
+            'Path %s not a mountpoint', '/mountpoint'
+        )
 
     def test_move_to_root(self):
         assert self.bind_root.move_to_root(

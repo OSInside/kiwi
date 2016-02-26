@@ -99,25 +99,8 @@ class TestVolumeManagerBase(object):
     def test_mount_volumes(self):
         self.volume_manager.mount_volumes()
 
-    @patch('kiwi.volume_manager_base.Command.run')
-    def test_is_mounted_true(self, mock_command):
-        self.volume_manager.mountpoint = 'mountpoint'
-        assert self.volume_manager.is_mounted() is True
-        mock_command.assert_called_once_with(
-            ['mountpoint', 'mountpoint']
-        )
-
-    @patch('kiwi.volume_manager_base.Command.run')
-    def test_is_mounted_false(self, mock_command):
-        mock_command.side_effect = Exception
-        self.volume_manager.mountpoint = 'mountpoint'
-        assert self.volume_manager.is_mounted() is False
-        mock_command.assert_called_once_with(
-            ['mountpoint', 'mountpoint']
-        )
-
     @patch('kiwi.volume_manager_base.DataSync')
-    @patch('kiwi.volume_manager_base.VolumeManagerBase.is_mounted')
+    @patch('kiwi.volume_manager_base.MountManager.is_mounted')
     def test_sync_data(self, mock_mounted, mock_sync):
         data_sync = mock.Mock()
         mock_sync.return_value = data_sync
