@@ -131,16 +131,12 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.config = 'some-data'
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
         self.bootloader.write()
-        call = mock_open.call_args_list[0]
-        assert mock_open.call_args_list[0] == \
-            call('root_dir/boot/grub2/grub.cfg', 'w')
-        call = mock_open.call_args_list[1]
-        assert mock_open.call_args_list[1] == \
-            call('root_dir/boot/efi/EFI/BOOT//grub.cfg', 'w')
-        assert file_mock.write.call_args_list == [
-            call('some-data'),
-            call('some-data')
-        ]
+        mock_open.assert_called_once_with(
+            'root_dir/boot/grub2/grub.cfg', 'w'
+        )
+        file_mock.write.assert_called_once_with(
+            'some-data'
+        )
 
     def test_setup_live_image_config_multiboot(self):
         self.bootloader.multiboot = True

@@ -96,11 +96,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-            if self.efi_boot_path:
-                config_file = self.efi_boot_path + '/grub.cfg'
-                with open(config_file, 'w') as config:
-                    config.write(self.config)
-
     def setup_disk_image_config(
         self, uuid, hypervisor='xen.gz', kernel='linux.vmx', initrd='initrd.vmx'
     ):
