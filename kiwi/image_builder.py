@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .archive_builder import ArchiveBuilder
-from .filesystem_builder import FileSystemBuilder
+from .archive.builder import ArchiveBuilder
+from .filesystem.builder import FileSystemBuilder
 from .container_builder import ContainerBuilder
-from .disk_builder import DiskBuilder
+from .disk.builder import DiskBuilder
 from .live_image_builder import LiveImageBuilder
 from .pxe_builder import PxeBuilder
 from .defaults import Defaults

@@ -10,7 +10,7 @@ from kiwi.exceptions import (
     KiwiUriTypeUnknown
 )
 
-from kiwi.repository_base import RepositoryBase
+from kiwi.repository.base import RepositoryBase
 from kiwi.root_bind import RootBind
 
 

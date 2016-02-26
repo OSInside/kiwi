@@ -6,12 +6,12 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.boot_image_base import BootImageBase
+from kiwi.boot.image.base import BootImageBase
 
 
 class TestBootImageBase(object):
-    @patch('kiwi.boot_image_base.mkdtemp')
-    @patch('kiwi.boot_image_base.os.path.exists')
+    @patch('kiwi.boot.image.base.mkdtemp')
+    @patch('kiwi.boot.image.base.os.path.exists')
     def setup(self, mock_exists, mock_mkdtemp):
         self.xml_state = mock.Mock()
         mock_mkdtemp.return_value = 'boot-root-directory'
@@ -42,7 +42,7 @@ class TestBootImageBase(object):
         mock_listdir.return_value = True
         assert self.task.is_prepared() == mock_listdir.return_value
 
-    @patch('kiwi.boot_image_base.Command.run')
+    @patch('kiwi.boot.image.base.Command.run')
     @patch('os.path.exists')
     def test_destructor(self, mock_path, mock_command):
         mock_path.return_value = True

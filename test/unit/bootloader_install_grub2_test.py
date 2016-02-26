@@ -7,12 +7,12 @@ import kiwi
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.bootloader_install_grub2 import BootLoaderInstallGrub2
+from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
 from kiwi.defaults import Defaults
 
 
 class TestBootLoaderInstallGrub2(object):
-    @patch('kiwi.bootloader_install_grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
     def setup(self, mock_mount):
         custom_args = {
             'boot_device': '/dev/mapper/loop0p2',
@@ -50,7 +50,7 @@ class TestBootLoaderInstallGrub2(object):
     def test_post_init_no_root_device(self):
         self.bootloader.post_init({'boot_device': 'a'})
 
-    @patch('kiwi.bootloader_install_grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.Command.run')
     def test_install_with_extra_boot_partition(self, mock_command):
         self.bootloader.install()
         self.bootloader.root_mount.mount.assert_called_once_with()
@@ -66,7 +66,7 @@ class TestBootLoaderInstallGrub2(object):
             ]
         )
 
-    @patch('kiwi.bootloader_install_grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.Command.run')
     def test_install(self, mock_command):
         self.bootloader.boot_mount.device = self.bootloader.root_mount.device
         self.bootloader.install()

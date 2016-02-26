@@ -5,7 +5,7 @@ import mock
 
 from . import nose_helper
 
-from kiwi.bootloader_template_grub2 import BootLoaderTemplateGrub2
+from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 
 
 class TestBootLoaderTemplateGrub2(object):

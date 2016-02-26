@@ -28,7 +28,7 @@ from .defaults import Defaults
 from .users import Users
 from .shell import Shell
 from .path import Path
-from .archive_tar import ArchiveTar
+from .archive.tar import ArchiveTar
 from .compress import Compress
 
 from .exceptions import (

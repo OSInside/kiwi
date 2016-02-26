@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_clicfs import FileSystemClicFs
+from kiwi.filesystem.clicfs import FileSystemClicFs
 
 
 class TestFileSystemClicFs(object):
@@ -15,12 +15,12 @@ class TestFileSystemClicFs(object):
         mock_exists.return_value = True
         self.clicfs = FileSystemClicFs(mock.Mock(), 'root_dir')
 
-    @patch('kiwi.filesystem_clicfs.Command.run')
-    @patch('kiwi.filesystem_clicfs.mkdtemp')
-    @patch('kiwi.filesystem_clicfs.LoopDevice')
-    @patch('kiwi.filesystem_clicfs.FileSystemExt4')
-    @patch('kiwi.filesystem_clicfs.SystemSize')
-    @patch('kiwi.filesystem_clicfs.Path.wipe')
+    @patch('kiwi.filesystem.clicfs.Command.run')
+    @patch('kiwi.filesystem.clicfs.mkdtemp')
+    @patch('kiwi.filesystem.clicfs.LoopDevice')
+    @patch('kiwi.filesystem.clicfs.FileSystemExt4')
+    @patch('kiwi.filesystem.clicfs.SystemSize')
+    @patch('kiwi.filesystem.clicfs.Path.wipe')
     def test_create_on_file(
         self, mock_wipe, mock_size, mock_ext4, mock_loop,
         mock_dtemp, mock_command
@@ -60,7 +60,7 @@ class TestFileSystemClicFs(object):
             )
         ]
 
-    @patch('kiwi.filesystem_clicfs.Path.wipe')
+    @patch('kiwi.filesystem.clicfs.Path.wipe')
     def test_destructor(self, mock_wipe):
         self.clicfs.container_dir = 'tmpdir'
         self.clicfs.__del__()

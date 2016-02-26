@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_xfs import FileSystemXfs
+from kiwi.filesystem.xfs import FileSystemXfs
 
 
 class TestFileSystemXfs(object):
@@ -22,7 +22,7 @@ class TestFileSystemXfs(object):
             return_value='some-mount-point'
         )
 
-    @patch('kiwi.filesystem_xfs.Command.run')
+    @patch('kiwi.filesystem.xfs.Command.run')
     def test_create_on_device(self, mock_command):
         self.xfs.create_on_device('label')
         call = mock_command.call_args_list[0]

@@ -11,7 +11,7 @@ from . import nose_helper
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import *
-from kiwi.bootloader_config_isolinux import BootLoaderConfigIsoLinux
+from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
 
 
 class TestBootLoaderConfigIsoLinux(object):
@@ -26,10 +26,10 @@ class TestBootLoaderConfigIsoLinux(object):
         self.state = XMLState(
             description.load()
         )
-        kiwi.bootloader_config_isolinux.Path = mock.Mock()
-        kiwi.bootloader_config_base.Path = mock.Mock()
+        kiwi.bootloader.config.isolinux.Path = mock.Mock()
+        kiwi.bootloader.config.base.Path = mock.Mock()
         self.isolinux = mock.Mock()
-        kiwi.bootloader_config_isolinux.BootLoaderTemplateIsoLinux = mock.Mock(
+        kiwi.bootloader.config.isolinux.BootLoaderTemplateIsoLinux = mock.Mock(
             return_value=self.isolinux
         )
         self.bootloader = BootLoaderConfigIsoLinux(
@@ -121,7 +121,7 @@ class TestBootLoaderConfigIsoLinux(object):
         self.isolinux.get_install_message_template.side_effect = Exception
         self.bootloader.setup_install_image_config(mbrid=None)
 
-    @patch('kiwi.bootloader_config_isolinux.Command.run')
+    @patch('kiwi.bootloader.config.isolinux.Command.run')
     def test_setup_install_boot_images(self, mock_command):
         self.bootloader.setup_install_boot_images(
             mbrid=None, lookup_path='lookup_dir'
@@ -133,7 +133,7 @@ class TestBootLoaderConfigIsoLinux(object):
             ]
         )
 
-    @patch('kiwi.bootloader_config_isolinux.Command.run')
+    @patch('kiwi.bootloader.config.isolinux.Command.run')
     def test_setup_live_boot_images(self, mock_command):
         self.bootloader.setup_live_boot_images(
             mbrid=None

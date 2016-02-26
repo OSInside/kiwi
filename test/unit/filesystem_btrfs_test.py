@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_btrfs import FileSystemBtrfs
+from kiwi.filesystem.btrfs import FileSystemBtrfs
 
 
 class TestFileSystemBtrfs(object):
@@ -22,7 +22,7 @@ class TestFileSystemBtrfs(object):
             return_value='some-mount-point'
         )
 
-    @patch('kiwi.filesystem_btrfs.Command.run')
+    @patch('kiwi.filesystem.btrfs.Command.run')
     def test_create_on_device(self, mock_command):
         self.btrfs.create_on_device('label')
         call = mock_command.call_args_list[0]

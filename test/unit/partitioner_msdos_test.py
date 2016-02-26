@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from collections import namedtuple
-from kiwi.partitioner_msdos import PartitionerMsDos
+from kiwi.partitioner.msdos import PartitionerMsDos
 from kiwi.exceptions import *
 
 
@@ -21,9 +21,9 @@ class TestPartitionerMsDos(object):
     def test_get_id(self):
         assert self.partitioner.get_id() == 0
 
-    @patch('kiwi.partitioner_msdos.Command.run')
-    @patch('kiwi.partitioner_msdos.PartitionerMsDos.set_flag')
-    @patch('kiwi.partitioner_msdos.NamedTemporaryFile')
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
+    @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
     @patch('builtins.open')
     def test_create(self, mock_open, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
@@ -57,9 +57,9 @@ class TestPartitionerMsDos(object):
         assert mock_flag.call_args_list[1] == \
             call(1, 'f.active')
 
-    @patch('kiwi.partitioner_msdos.Command.run')
-    @patch('kiwi.partitioner_msdos.PartitionerMsDos.set_flag')
-    @patch('kiwi.partitioner_msdos.NamedTemporaryFile')
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
+    @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
     @patch('builtins.open')
     def test_create_all_free(
         self, mock_open, mock_temp, mock_flag, mock_command
@@ -90,14 +90,14 @@ class TestPartitionerMsDos(object):
     def test_set_flag_invalid(self):
         self.partitioner.set_flag(1, 'foo')
 
-    @patch('kiwi.partitioner_msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.Command.run')
     def test_set_flag(self, mock_command):
         self.partitioner.set_flag(1, 't.linux')
         mock_command.assert_called_once_with(
             ['sfdisk', '-c', '/dev/loop0', '1', '83']
         )
 
-    @patch('kiwi.partitioner_msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.Command.run')
     def test_set_active(self, mock_command):
         self.partitioner.set_flag(1, 'f.active')
         mock_command.assert_called_once_with(

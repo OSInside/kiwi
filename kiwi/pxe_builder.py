@@ -20,7 +20,7 @@ import platform
 
 # project
 from .internal_boot_image_task import BootImageTask
-from .filesystem_builder import FileSystemBuilder
+from .filesystem.builder import FileSystemBuilder
 from .compress import Compress
 from .checksum import Checksum
 from .system_setup import SystemSetup

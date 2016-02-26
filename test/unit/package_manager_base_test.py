@@ -5,7 +5,7 @@ import mock
 
 from . import nose_helper
 
-from kiwi.package_manager_base import PackageManagerBase
+from kiwi.package_manager.base import PackageManagerBase
 
 
 class TestPackageManagerBase(object):

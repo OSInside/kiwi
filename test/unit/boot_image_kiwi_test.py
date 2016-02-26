@@ -8,15 +8,15 @@ import kiwi
 
 from . import nose_helper
 
-from kiwi.boot_image_kiwi import BootImageKiwi
+from kiwi.boot.image.kiwi import BootImageKiwi
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import *
 
 
 class TestBootImageKiwi(object):
-    @patch('kiwi.boot_image_base.mkdtemp')
-    @patch('kiwi.boot_image_base.os.path.exists')
+    @patch('kiwi.boot.image.base.mkdtemp')
+    @patch('kiwi.boot.image.base.os.path.exists')
     def setup(self, mock_exists, mock_mkdtemp):
         mock_exists.return_value = True
         description = XMLDescription('../data/example_config.xml')
@@ -32,13 +32,13 @@ class TestBootImageKiwi(object):
         self.system.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.boot_image_kiwi.System = mock.Mock(
+        kiwi.boot.image.kiwi.System = mock.Mock(
             return_value=self.system
         )
-        kiwi.boot_image_kiwi.SystemSetup = mock.Mock(
+        kiwi.boot.image.kiwi.SystemSetup = mock.Mock(
             return_value=self.setup
         )
-        kiwi.boot_image_kiwi.Profile = mock.Mock(
+        kiwi.boot.image.kiwi.Profile = mock.Mock(
             return_value=self.profile
         )
         mock_mkdtemp.return_value = 'boot-directory'
@@ -76,13 +76,13 @@ class TestBootImageKiwi(object):
         mock_os_path.return_value = False
         self.task.prepare()
 
-    @patch('kiwi.boot_image_kiwi.ArchiveCpio')
-    @patch('kiwi.boot_image_kiwi.Compress')
-    @patch('kiwi.boot_image_kiwi.Path.create')
-    @patch('kiwi.boot_image_kiwi.Path.wipe')
-    @patch('kiwi.boot_image_kiwi.Command.run')
-    @patch('kiwi.boot_image_base.BootImageBase.is_prepared')
-    @patch('kiwi.boot_image_kiwi.mkdtemp')
+    @patch('kiwi.boot.image.kiwi.ArchiveCpio')
+    @patch('kiwi.boot.image.kiwi.Compress')
+    @patch('kiwi.boot.image.kiwi.Path.create')
+    @patch('kiwi.boot.image.kiwi.Path.wipe')
+    @patch('kiwi.boot.image.kiwi.Command.run')
+    @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
+    @patch('kiwi.boot.image.kiwi.mkdtemp')
     @patch('platform.machine')
     def test_create_initrd(
         self, mock_machine, mock_mkdtemp, mock_prepared, mock_command,

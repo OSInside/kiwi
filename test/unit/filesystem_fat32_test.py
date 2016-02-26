@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_fat32 import FileSystemFat32
+from kiwi.filesystem.fat32 import FileSystemFat32
 
 
 class TestFileSystemFat32(object):
@@ -22,7 +22,7 @@ class TestFileSystemFat32(object):
             return_value='some-mount-point'
         )
 
-    @patch('kiwi.filesystem_fat32.Command.run')
+    @patch('kiwi.filesystem.fat32.Command.run')
     def test_create_on_device(self, mock_command):
         self.fat32.create_on_device('label')
         call = mock_command.call_args_list[0]
