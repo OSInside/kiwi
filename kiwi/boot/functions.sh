@@ -1603,21 +1603,11 @@ function setupInitrd {
         if [ -x "$dracutExec" ]; then
             # 1. dracut
             params=" --force"
-            if [[ $kiwi_initrdname =~ vmxboot ]];then
-                Echo "Creating dracut based initrd (background process)"
-                # run dracut in the background to speed up the boot.
-                # We loose the status check of the call and reboot is
-                # only safe after the call has finished. Therefore this
-                # is only done for simple vmx type images which are
-                # mostly used in cloud frameworks
-                $dracutExec $params &>/dev/null </dev/null &
-            else
-                Echo "Creating dracut based initrd"
-                if ! $dracutExec $params;then
-                    Echo "Can't create initrd with dracut"
-                    systemIntegrity=unknown
-                    bootLoaderOK=0
-                fi
+            Echo "Creating dracut based initrd"
+            if ! $dracutExec $params;then
+                Echo "Can't create initrd with dracut"
+                systemIntegrity=unknown
+                bootLoaderOK=0
             fi
         elif [ -x "$mkinitrdExec" ]; then
             # 2. mkinitrd
