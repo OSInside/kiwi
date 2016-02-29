@@ -44,7 +44,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def post_init(self, custom_args):
         self.custom_args = custom_args
         arch = platform.machine()
-        if arch == 'x86_64':
+        if arch == 'x86_64' or arch.startswith('ppc64'):
             self.arch = arch
         elif arch == 'i686' or arch == 'i586':
             self.arch = 'ix86'
@@ -64,7 +64,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.firmware = FirmWare(
             self.xml_state
         )
-
         self.hybrid_boot = True
         self.multiboot = False
         if self.hypervisor_domain:
@@ -128,7 +127,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.failsafe_boot, self.terminal
             )
         else:
-            log.info('--> Using EFI/BIOS hybrid boot disk template')
+            log.info('--> Using hybrid boot disk template')
             template = self.grub2.get_disk_template(
                 self.failsafe_boot, self.hybrid_boot, self.terminal
             )
@@ -286,9 +285,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Using signed secure boot efi image')
             self.__setup_secure_boot_efi_image(lookup_path)
 
-        log.info('--> Creating bios core image')
-        self.__copy_bios_modules_to_boot_directory(lookup_path)
-
     def __setup_secure_boot_efi_image(self, lookup_path):
         """
             use prebuilt and signed efi images provided by the distribution
@@ -386,6 +382,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def __get_bios_format(self):
         return 'i386-pc'
+
+    def __get_ofw_format(self):
+        return 'powerpc-ieee1275'
 
     def __get_xen_format(self):
         return 'x86_64-xen'

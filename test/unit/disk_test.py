@@ -101,7 +101,7 @@ class TestDisk(object):
         assert self.disk.partition_id_map['kiwi_JumpPart'] == 1
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_create_prep_partition(self):
+    def test_create_prep_partition(self, mock_command):
         self.disk.create_prep_partition(8)
         self.partitioner.create.assert_called_once_with(
             'p.prep', 8, 't.prep'

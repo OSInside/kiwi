@@ -190,6 +190,9 @@ class TestDiskBuilder(object):
         self.disk.create_boot_partition.assert_called_once_with(
             self.disk_setup.boot_partition_size()
         )
+        self.disk.create_prep_partition.assert_called_once_with(
+            self.firmware.get_prep_partition_size()
+        )
         self.disk.create_root_partition.assert_called_once_with(
             'all_free'
         )

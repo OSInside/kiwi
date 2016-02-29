@@ -271,21 +271,6 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    @patch('os.path.exists')
-    @raises(KiwiBootLoaderGrubModulesError)
-    def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
-        self, mock_exists, mock_command
-    ):
-        self.os_exists['root_dir/boot/unicode.pf2'] = True
-
-        def side_effect(arg):
-            return self.os_exists[arg]
-
-        mock_exists.side_effect = side_effect
-        mock_command.side_effect = Exception
-        self.bootloader.setup_disk_boot_images('0815')
-
-    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
@@ -340,10 +325,6 @@ class TestBootLoaderConfigGrub2(object):
             call([
                 'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/i386-pc/',
-                'root_dir/boot/grub2/i386-pc'
             ])
         ]
 
@@ -372,15 +353,7 @@ class TestBootLoaderConfigGrub2(object):
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
                 'root_dir/boot/unicode.pf2'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/i386-pc/',
-                'root_dir/boot/grub2/i386-pc'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-xen/',
-                'root_dir/boot/grub2/x86_64-xen']
-            )
+            ])
         ]
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
