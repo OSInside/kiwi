@@ -12,6 +12,7 @@ you can find here: https://github.com/openSUSE/kiwi.
   * [Installation](#installation)
   * [Quick Start](#quick-start)
   * [Supported Distributions](#supported-distributions)
+  * [Dropped Features](#dropped-features)
   * [Contributing](#contributing)
   * [Developing](#developing)
   * [Packaging and Versioning](#packaging-and-versioning)
@@ -89,6 +90,45 @@ which are equal or newer compared to the following list:
 
 For anything older please consider to use the former
 KIWI version __v7.x.x__
+
+## Dropped Features
+
+The following features have been dropped from KIWI:
+
+* Split systems
+
+  The legacy kiwi version supports building of split systems which
+  uses a static definition of files and directories marked as read-only
+  or read-write. Evolving technologies like overlayfs makes this
+  feature obsolete.
+
+* ZFS filesystem
+
+  The successor for zfs is btrfs in the opensource world. All major
+  distributions put on btrfs. This and the proprietary attitude of
+  zfs obsoletes the feature.
+
+* Reiserfs filesystem
+
+  The number of people using this filesystem is decreasing. For
+  image building reiserfs was an interesting filesystem however with
+  btrfs and xfs there are good non inode based alternatives out there.
+  Therefore we don't continue supporting reiserfs.
+
+* Btrfs seed based live systems
+
+  A btrfs seed device is an alternative for other copy on write
+  filesystems like overlayfs. Unfortunately the stability of the seed
+  device when used as cow part in a live system was not as good as
+  we provide with overlayfs and clicfs. Therefore this variant is
+  no longer supported. We might think of adding this feature back
+  if people demand it.
+
+* VDI image subformat
+
+  The vdi disk image format is supported by the legacy kiwi version
+  but we are not aware of any user. The missing business perspective
+  makes this feature obsolete.
 
 ## Contributing
 
