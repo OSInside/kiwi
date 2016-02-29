@@ -19,7 +19,7 @@ import os
 
 # project
 from .device_provider import DeviceProvider
-from .exceptions import (
+from ..exceptions import (
     KiwiMappedDeviceError
 )
 

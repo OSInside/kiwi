@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.raid_device import RaidDevice
+from kiwi.storage.raid_device import RaidDevice
 
 
 class TestRaidDevice(object):
@@ -37,7 +37,7 @@ class TestRaidDevice(object):
         assert self.raid.get_device().get_device() == '/dev/md0'
         self.raid.raid_device = None
 
-    @patch('kiwi.raid_device.Command.run')
+    @patch('kiwi.storage.raid_device.Command.run')
     @patch('os.path.exists')
     def test_create_degraded_raid(self, mock_path, mock_command):
         mock_path.return_value = False
@@ -51,7 +51,7 @@ class TestRaidDevice(object):
         )
         self.raid.raid_device = None
 
-    @patch('kiwi.raid_device.Command.run')
+    @patch('kiwi.storage.raid_device.Command.run')
     @patch('builtins.open')
     def test_create_raid_config(self, mock_open, mock_command):
         self.raid.raid_device = '/dev/md0'
@@ -76,8 +76,8 @@ class TestRaidDevice(object):
     def test_is_loop(self):
         assert self.raid.is_loop() is True
 
-    @patch('kiwi.raid_device.Command.run')
-    @patch('kiwi.raid_device.log.warning')
+    @patch('kiwi.storage.raid_device.Command.run')
+    @patch('kiwi.storage.raid_device.log.warning')
     def test_destructor(self, mock_log_warn, mock_command):
         self.raid.raid_device = '/dev/md0'
         mock_command.side_effect = Exception

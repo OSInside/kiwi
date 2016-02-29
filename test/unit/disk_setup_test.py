@@ -8,7 +8,7 @@ from . import nose_helper
 import kiwi
 
 from kiwi.exceptions import *
-from kiwi.disk.setup import DiskSetup
+from kiwi.storage.setup import DiskSetup
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 
@@ -24,7 +24,7 @@ class TestDiskSetup(object):
         size.accumulate_mbyte_file_sizes = mock.Mock(
             return_value=42
         )
-        kiwi.disk.setup.SystemSize = mock.Mock(
+        kiwi.storage.setup.SystemSize = mock.Mock(
             return_value=size
         )
         description = XMLDescription(

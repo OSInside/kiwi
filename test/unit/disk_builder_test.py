@@ -11,7 +11,7 @@ from kiwi.exceptions import *
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
-from kiwi.mapped_device import MappedDevice
+from kiwi.storage.mapped_device import MappedDevice
 
 
 class TestDiskBuilder(object):

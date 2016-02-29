@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk.subformat.base import DiskFormatBase
+from kiwi.storage.subformat.base import DiskFormatBase
 
 
 class TestDiskFormatBase(object):
@@ -51,7 +51,7 @@ class TestDiskFormatBase(object):
         assert self.disk_format.get_target_name_for_format('vhd') == \
             'target_dir/some-disk-image.x86_64-1.2.3.vhd'
 
-    @patch('kiwi.disk.subformat.base.Path.wipe')
+    @patch('kiwi.storage.subformat.base.Path.wipe')
     @patch('os.path.exists')
     def test_destructor(self, mock_exists, mock_wipe):
         mock_exists.return_value = True

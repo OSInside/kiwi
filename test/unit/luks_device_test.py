@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.luks_device import LuksDevice
+from kiwi.storage.luks_device import LuksDevice
 
 
 class TestLuksDevice(object):
@@ -41,8 +41,8 @@ class TestLuksDevice(object):
         assert self.luks.get_device().get_device() == '/dev/mapper/luksRoot'
         self.luks.luks_device = None
 
-    @patch('kiwi.luks_device.Command.run')
-    @patch('kiwi.luks_device.NamedTemporaryFile')
+    @patch('kiwi.storage.luks_device.Command.run')
+    @patch('kiwi.storage.luks_device.NamedTemporaryFile')
     @patch('builtins.open')
     def test_create_crypto_luks(self, mock_open, mock_tmpfile, mock_command):
         tmpfile = mock.Mock()
@@ -85,8 +85,8 @@ class TestLuksDevice(object):
     def test_is_loop(self):
         assert self.luks.is_loop() is True
 
-    @patch('kiwi.luks_device.Command.run')
-    @patch('kiwi.luks_device.log.warning')
+    @patch('kiwi.storage.luks_device.Command.run')
+    @patch('kiwi.storage.luks_device.log.warning')
     def test_destructor(self, mock_log_warn, mock_command):
         self.luks.luks_device = '/dev/mapper/luksRoot'
         mock_command.side_effect = Exception

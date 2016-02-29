@@ -21,8 +21,8 @@ from tempfile import NamedTemporaryFile
 
 # project
 from ..command import Command
-from ..device_provider import DeviceProvider
-from ..mapped_device import MappedDevice
+from .device_provider import DeviceProvider
+from .mapped_device import MappedDevice
 from ..partitioner import Partitioner
 from ..logger import log
 

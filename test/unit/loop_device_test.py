@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.loop_device import LoopDevice
+from kiwi.storage.loop_device import LoopDevice
 
 
 class TestLoopDevice(object):
@@ -26,7 +26,7 @@ class TestLoopDevice(object):
         assert self.loop.is_loop() is True
 
     @patch('os.path.exists')
-    @patch('kiwi.loop_device.Command.run')
+    @patch('kiwi.storage.loop_device.Command.run')
     def test_create(self, mock_command, mock_exists):
         mock_exists.return_value = False
         self.loop.create()
@@ -42,7 +42,7 @@ class TestLoopDevice(object):
             ])
         self.loop.node_name = None
 
-    @patch('kiwi.loop_device.Command.run')
+    @patch('kiwi.storage.loop_device.Command.run')
     @patch('kiwi.logger.log.warning')
     def test_destructor(self, mock_log_warn, mock_command):
         self.loop.node_name = '/dev/loop0'

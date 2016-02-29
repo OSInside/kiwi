@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.mapped_device import MappedDevice
+from kiwi.storage.mapped_device import MappedDevice
 
 
 class TestMappedDevice(object):

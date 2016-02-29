@@ -15,14 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from tempfile import NamedTemporaryFile
+
 # project
-from .command import Command
+from ..command import Command
 from .device_provider import DeviceProvider
 from .mapped_device import MappedDevice
-from tempfile import NamedTemporaryFile
-from .logger import log
+from ..logger import log
 
-from .exceptions import (
+from ..exceptions import (
     KiwiLuksSetupError
 )
 

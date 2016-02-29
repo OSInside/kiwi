@@ -20,8 +20,8 @@ import platform
 # project
 from ..filesystem import FileSystem
 from ..filesystem.setup import FileSystemSetup
-from ..loop_device import LoopDevice
-from ..device_provider import DeviceProvider
+from ..storage.loop_device import LoopDevice
+from ..storage.device_provider import DeviceProvider
 from ..system_setup import SystemSetup
 from ..defaults import Defaults
 from ..logger import log

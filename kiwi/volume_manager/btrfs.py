@@ -22,7 +22,7 @@ import os
 from ..command import Command
 from .base import VolumeManagerBase
 from ..mount_manager import MountManager
-from ..mapped_device import MappedDevice
+from ..storage.mapped_device import MappedDevice
 from ..filesystem import FileSystem
 from ..data_sync import DataSync
 from ..path import Path

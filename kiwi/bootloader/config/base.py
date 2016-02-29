@@ -17,7 +17,7 @@
 #
 # project
 from ...logger import log
-from ...disk.setup import DiskSetup
+from ...storage.setup import DiskSetup
 from ...path import Path
 from ...defaults import Defaults
 

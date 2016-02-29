@@ -23,12 +23,12 @@ from ..bootloader.config import BootLoaderConfig
 from ..bootloader.install import BootLoaderInstall
 from ..image_identifier import ImageIdentifier
 from ..internal_boot_image_task import BootImageTask
-from ..disk.setup import DiskSetup
-from ..loop_device import LoopDevice
+from ..storage.setup import DiskSetup
+from ..storage.loop_device import LoopDevice
 from ..firmware import FirmWare
-from ..disk.storage import Disk
-from ..raid_device import RaidDevice
-from ..luks_device import LuksDevice
+from ..storage.disk import Disk
+from ..storage.raid_device import RaidDevice
+from ..storage.luks_device import LuksDevice
 from ..filesystem import FileSystem
 from ..volume_manager import VolumeManager
 from ..logger import log
@@ -36,7 +36,7 @@ from ..command import Command
 from ..system_setup import SystemSetup
 from .install import InstallImageBuilder
 from ..kernel import Kernel
-from ..disk.subformat import DiskFormat
+from ..storage.subformat import DiskFormat
 from ..result import Result
 
 from ..exceptions import (

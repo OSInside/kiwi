@@ -20,7 +20,7 @@ from tempfile import mkdtemp
 import os
 
 # project
-from ..device_provider import DeviceProvider
+from ..storage.device_provider import DeviceProvider
 from ..mount_manager import MountManager
 from ..data_sync import DataSync
 from ..path import Path

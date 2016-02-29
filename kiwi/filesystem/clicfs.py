@@ -24,7 +24,7 @@ from .ext4 import FileSystemExt4
 from ..command import Command
 from ..system_size import SystemSize
 from ..path import Path
-from ..loop_device import LoopDevice
+from ..storage.loop_device import LoopDevice
 from ..logger import log
 
 

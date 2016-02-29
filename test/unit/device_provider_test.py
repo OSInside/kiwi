@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.device_provider import DeviceProvider
+from kiwi.storage.device_provider import DeviceProvider
 
 
 class TestDeviceProvider(object):
@@ -17,7 +17,7 @@ class TestDeviceProvider(object):
     def test_get_device(self):
         self.provider.get_device()
 
-    @patch('kiwi.device_provider.Command.run')
+    @patch('kiwi.storage.device_provider.Command.run')
     def test_get_uuid(self, mock_command):
         uuid_call = mock.Mock()
         uuid_call.output = '0815\n'
@@ -27,7 +27,7 @@ class TestDeviceProvider(object):
             ['blkid', '/dev/some-device', '-s', 'UUID', '-o', 'value']
         )
 
-    @patch('kiwi.device_provider.Command.run')
+    @patch('kiwi.storage.device_provider.Command.run')
     def test_get_byte_size(self, mock_command):
         blockdev_call = mock.Mock()
         blockdev_call.output = '1024\n'
