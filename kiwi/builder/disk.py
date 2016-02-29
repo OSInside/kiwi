@@ -26,7 +26,7 @@ from ..internal_boot_image_task import BootImageTask
 from ..disk.setup import DiskSetup
 from ..loop_device import LoopDevice
 from ..firmware import FirmWare
-from ..disk import Disk
+from ..disk.storage import Disk
 from ..raid_device import RaidDevice
 from ..luks_device import LuksDevice
 from ..filesystem import FileSystem

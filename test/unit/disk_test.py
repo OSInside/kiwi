@@ -6,11 +6,11 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk import Disk
+from kiwi.disk.storage import Disk
 
 
 class TestDisk(object):
-    @patch('kiwi.disk.Partitioner')
+    @patch('kiwi.disk.storage.Partitioner')
     @patch('builtins.open')
     def setup(self, mock_open, mock_partitioner):
         self.tempfile = mock.Mock()
@@ -100,14 +100,14 @@ class TestDisk(object):
         )
         assert self.disk.partition_id_map['kiwi_JumpPart'] == 1
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_device_map_loop(self, mock_command):
         self.disk.create_efi_partition(100)
         self.disk.map_partitions()
         assert self.disk.partition_map == {'efi': '/dev/mapper/loop0p1'}
         self.disk.is_mapped = False
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_device_map_linux_dev_sda(self, mock_command):
         self.storage_provider.is_loop.return_value = False
         self.storage_provider.get_device = mock.Mock(
@@ -118,7 +118,7 @@ class TestDisk(object):
         assert self.disk.partition_map == {'efi': '/dev/sda1'}
         self.disk.is_mapped = False
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_device_map_linux_dev_c0d0(self, mock_command):
         self.storage_provider.is_loop.return_value = False
         self.storage_provider.get_device = mock.Mock(
@@ -129,29 +129,29 @@ class TestDisk(object):
         assert self.disk.partition_map == {'efi': '/dev/c0d0p1'}
         self.disk.is_mapped = False
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_activate_boot_partition_is_boot_partition(self, mock_command):
         self.disk.create_boot_partition(100)
         self.disk.create_root_partition(100)
         self.disk.activate_boot_partition()
         self.partitioner.set_flag(1, 'f.active')
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_activate_boot_partition_is_root_partition(self, mock_command):
         self.disk.create_root_partition(100)
         self.disk.activate_boot_partition()
         self.partitioner.set_flag(1, 'f.active')
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_wipe_gpt(self, mock_command):
         self.disk.wipe()
         mock_command.assert_called_once_with(
             ['sgdisk', '--zap-all', '/dev/loop0']
         )
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     @patch('builtins.open')
-    @patch('kiwi.disk.NamedTemporaryFile')
+    @patch('kiwi.disk.storage.NamedTemporaryFile')
     @patch('kiwi.logger.log.debug')
     def test_wipe_dasd(self, mock_debug, mock_temp, mock_open, mock_command):
         mock_command.side_effect = Exception
@@ -167,7 +167,7 @@ class TestDisk(object):
         )
         assert mock_debug.called
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_map_partitions_loop(self, mock_command):
         self.disk.map_partitions()
         mock_command.assert_called_once_with(
@@ -175,7 +175,7 @@ class TestDisk(object):
         )
         self.disk.is_mapped = False
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     def test_map_partitions_other(self, mock_command):
         self.storage_provider.is_loop.return_value = False
         self.disk.map_partitions()
@@ -183,7 +183,7 @@ class TestDisk(object):
             ['partprobe', '/dev/loop0']
         )
 
-    @patch('kiwi.disk.Command.run')
+    @patch('kiwi.disk.storage.Command.run')
     @patch('kiwi.logger.log.warning')
     def test_destructor(self, mock_log_warn, mock_command):
         self.disk.is_mapped = True
