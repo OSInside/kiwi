@@ -128,6 +128,34 @@ class Defaults(object):
         return modules
 
     @classmethod
+    def get_grub_ofw_modules(self):
+        modules = [
+            'part_gpt',
+            'part_msdos',
+            'ext2',
+            'iso9660',
+            'linux',
+            'echo',
+            'configfile',
+            'search_label',
+            'search_fs_file',
+            'search',
+            'search_fs_uuid',
+            'ls',
+            'normal',
+            'gzio',
+            'fat',
+            'gettext',
+            'font',
+            'minicmd',
+            'xfs',
+            'btrfs',
+            'lvm',
+            'boot'
+        ]
+        return modules
+
+    @classmethod
     def get_preparer(self):
         return 'KIWI - http://suse.github.com/kiwi'
 

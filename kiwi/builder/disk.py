@@ -505,6 +505,13 @@ class DiskBuilder(object):
             'root_device': root_device.get_device()
         }
 
+        if 'prep' in device_map:
+            prep_device = device_map['prep']
+            custom_install_arguments.update({
+                'prep_device': prep_device.get_device()
+                })
+
+        log.info("custom_args_list %s", custom_install_arguments)
         bootloader = BootLoaderInstall(
             self.bootloader, self.root_dir, self.disk.storage_provider,
             custom_install_arguments
