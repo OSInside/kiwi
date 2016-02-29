@@ -5,11 +5,22 @@ graft tools
 graft helper
 graft completion
 graft kiwi/boot
+graft kiwi/archive
+graft kiwi/bootloader
+graft kiwi/builder
+graft kiwi/container
+graft kiwi/container_setup
+graft kiwi/filesystem
+graft kiwi/package_manager
+graft kiwi/partitioner
+graft kiwi/repository
+graft kiwi/schema
+graft kiwi/storage
+graft kiwi/volume_manager
 graft kiwi/xsl
 graft kiwi/schema
 graft kiwi/config
 graft package
-
 
 include Makefile
 include README*
