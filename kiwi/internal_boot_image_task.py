@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .boot_image_kiwi import BootImageKiwi
+from .boot.image.kiwi import BootImageKiwi
 
 from .exceptions import(
     KiwiBootImageSetupError

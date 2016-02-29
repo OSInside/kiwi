@@ -7,7 +7,7 @@ from . import nose_helper
 
 from collections import namedtuple
 from kiwi.exceptions import *
-from kiwi.volume_manager_base import VolumeManagerBase
+from kiwi.volume_manager.base import VolumeManagerBase
 
 
 class TestVolumeManagerBase(object):
@@ -56,7 +56,7 @@ class TestVolumeManagerBase(object):
     def test_create_volumes(self):
         self.volume_manager.create_volumes('ext3')
 
-    @patch('kiwi.volume_manager_base.Path.create')
+    @patch('kiwi.volume_manager.base.Path.create')
     @patch('os.path.exists')
     def test_create_volume_paths_in_root_dir(self, mock_os_path, mock_path):
         mock_os_path.return_value = False
@@ -84,7 +84,7 @@ class TestVolumeManagerBase(object):
         assert volume_list.volumes[0].name == 'LVetc'
         assert volume_list.full_size_volume.name == 'LVRoot'
 
-    @patch('kiwi.volume_manager_base.SystemSize')
+    @patch('kiwi.volume_manager.base.SystemSize')
     def test_get_volume_mbsize(self, mock_size):
         size = mock.Mock()
         size.customize = mock.Mock(
@@ -99,8 +99,8 @@ class TestVolumeManagerBase(object):
     def test_mount_volumes(self):
         self.volume_manager.mount_volumes()
 
-    @patch('kiwi.volume_manager_base.DataSync')
-    @patch('kiwi.volume_manager_base.MountManager.is_mounted')
+    @patch('kiwi.volume_manager.base.DataSync')
+    @patch('kiwi.volume_manager.base.MountManager.is_mounted')
     def test_sync_data(self, mock_mounted, mock_sync):
         data_sync = mock.Mock()
         mock_sync.return_value = data_sync
@@ -112,7 +112,7 @@ class TestVolumeManagerBase(object):
         )
         data_sync.sync_data.assert_called_once_with(['exclude_me'])
 
-    @patch('kiwi.volume_manager_base.mkdtemp')
+    @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup_mountpoint(self, mock_mkdtemp):
         mock_mkdtemp.return_value = 'tmpdir'
         self.volume_manager.setup_mountpoint()

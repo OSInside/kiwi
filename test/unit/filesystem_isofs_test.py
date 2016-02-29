@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_isofs import FileSystemIsoFs
+from kiwi.filesystem.isofs import FileSystemIsoFs
 
 
 class TestFileSystemIsoFs(object):
@@ -19,8 +19,8 @@ class TestFileSystemIsoFs(object):
         self.isofs.post_init(['args'])
         assert self.isofs.custom_args == ['args']
 
-    @patch('kiwi.filesystem_isofs.Command.run')
-    @patch('kiwi.filesystem_isofs.Iso')
+    @patch('kiwi.filesystem.isofs.Command.run')
+    @patch('kiwi.filesystem.isofs.Iso')
     def test_create_on_file(self, mock_iso, mock_command):
         iso = mock.Mock()
         iso.header_end_name = 'header_end'

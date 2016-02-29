@@ -7,12 +7,12 @@ from . import nose_helper
 from collections import namedtuple
 
 from kiwi.exceptions import *
-from kiwi.volume_manager_btrfs import VolumeManagerBtrfs
+from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 
 
 class TestVolumeManagerBtrfs(object):
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_base.mkdtemp')
+    @patch('kiwi.volume_manager.base.mkdtemp')
     def setup(self, mock_mkdtemp, mock_path):
         mock_mkdtemp.return_value = 'tmpdir'
         self.volume_type = namedtuple(
@@ -65,10 +65,10 @@ class TestVolumeManagerBtrfs(object):
             '/dev/storage'
 
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_btrfs.Command.run')
-    @patch('kiwi.volume_manager_btrfs.FileSystem')
-    @patch('kiwi.volume_manager_btrfs.MappedDevice')
-    @patch('kiwi.volume_manager_btrfs.MountManager')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.MappedDevice')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
     def test_setup_no_snapshot(
         self, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
@@ -94,10 +94,10 @@ class TestVolumeManagerBtrfs(object):
         ]
 
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_btrfs.Command.run')
-    @patch('kiwi.volume_manager_btrfs.FileSystem')
-    @patch('kiwi.volume_manager_btrfs.MappedDevice')
-    @patch('kiwi.volume_manager_btrfs.MountManager')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.MappedDevice')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
     def test_setup_with_snapshot(
         self, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
@@ -132,10 +132,10 @@ class TestVolumeManagerBtrfs(object):
 
     @raises(KiwiVolumeRootIDError)
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_btrfs.Command.run')
-    @patch('kiwi.volume_manager_btrfs.FileSystem')
-    @patch('kiwi.volume_manager_btrfs.MappedDevice')
-    @patch('kiwi.volume_manager_btrfs.MountManager')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.MappedDevice')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
     def test_setup_volume_id_not_detected(
         self, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
@@ -148,9 +148,9 @@ class TestVolumeManagerBtrfs(object):
         self.volume_manager.setup()
 
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_btrfs.Command.run')
-    @patch('kiwi.volume_manager_btrfs.MountManager')
-    @patch('kiwi.volume_manager_btrfs.Path.create')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.btrfs.Path.create')
     def test_create_volumes(
         self, mock_path, mock_mount, mock_command, mock_os_exists
     ):
@@ -191,7 +191,7 @@ class TestVolumeManagerBtrfs(object):
         ]
 
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_btrfs.Path.create')
+    @patch('kiwi.volume_manager.btrfs.Path.create')
     def test_mount_volumes(self, mock_path, mock_os_exists):
         mock_os_exists.return_value = False
         volume_mount = mock.Mock()
@@ -205,7 +205,7 @@ class TestVolumeManagerBtrfs(object):
             options=['subvol=@/subvol']
         )
 
-    @patch('kiwi.volume_manager_btrfs.DataSync')
+    @patch('kiwi.volume_manager.btrfs.DataSync')
     def test_sync_data(self, mock_sync):
         self.volume_manager.toplevel_mount = mock.Mock()
         self.volume_manager.mountpoint = 'tmpdir'

@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_base import FileSystemBase
+from kiwi.filesystem.base import FileSystemBase
 
 
 class TestFileSystemBase(object):
@@ -35,9 +35,9 @@ class TestFileSystemBase(object):
     def test_create_on_file(self):
         self.fsbase.create_on_file('myimage')
 
-    @patch('kiwi.filesystem_base.MountManager')
-    @patch('kiwi.filesystem_base.DataSync')
-    @patch('kiwi.filesystem_base.mkdtemp')
+    @patch('kiwi.filesystem.base.MountManager')
+    @patch('kiwi.filesystem.base.DataSync')
+    @patch('kiwi.filesystem.base.mkdtemp')
     @patch('os.path.exists')
     def test_sync_data(self, mock_exists, mock_mkdtemp, mock_sync, mock_mount):
         mock_mkdtemp.return_value = 'tmpdir'

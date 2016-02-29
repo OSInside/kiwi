@@ -20,9 +20,9 @@ import platform
 
 # project
 from .command import Command
-from .bootloader_config import BootLoaderConfig
-from .filesystem_squashfs import FileSystemSquashFs
-from .filesystem_isofs import FileSystemIsoFs
+from .bootloader.config import BootLoaderConfig
+from .filesystem.squashfs import FileSystemSquashFs
+from .filesystem.isofs import FileSystemIsoFs
 from .image_identifier import ImageIdentifier
 from .path import Path
 from .checksum import Checksum
@@ -30,7 +30,7 @@ from .logger import log
 from .kernel import Kernel
 from .iso import Iso
 from .compress import Compress
-from .archive_tar import ArchiveTar
+from .archive.tar import ArchiveTar
 
 from .exceptions import (
     KiwiInstallBootImageError

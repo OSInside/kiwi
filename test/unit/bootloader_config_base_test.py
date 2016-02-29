@@ -8,7 +8,7 @@ from . import nose_helper
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import *
-from kiwi.bootloader_config_base import BootLoaderConfigBase
+from kiwi.bootloader.config.base import BootLoaderConfigBase
 
 
 class TestBootLoaderConfigBase(object):
@@ -127,7 +127,7 @@ class TestBootLoaderConfigBase(object):
     def test_get_boot_path_raises(self):
         self.bootloader.get_boot_path('foo')
 
-    @patch('kiwi.bootloader_config_base.DiskSetup')
+    @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
     @patch('kiwi.xml_state.XMLState.get_volumes')
     def test_get_boot_path_btrfs(self, mock_volumes, mock_fs, mock_disk_setup):
@@ -142,7 +142,7 @@ class TestBootLoaderConfigBase(object):
         mock_disk_setup.return_value = disk_setup
         assert self.bootloader.get_boot_path() == '/@/boot'
 
-    @patch('kiwi.bootloader_config_base.DiskSetup')
+    @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
     @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapshot')
     @patch('kiwi.xml_state.XMLState.get_volumes')

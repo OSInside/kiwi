@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk_format_vhd import DiskFormatVhd
+from kiwi.disk.dformat.vhd import DiskFormatVhd
 
 
 class TestDiskFormatVhd(object):
@@ -30,7 +30,7 @@ class TestDiskFormatVhd(object):
         self.disk_format.post_init({'option': 'value'})
         assert self.disk_format.options == ['-o', 'option', 'value']
 
-    @patch('kiwi.disk_format_vhd.Command.run')
+    @patch('kiwi.disk.dformat.vhd.Command.run')
     def test_create_image_format(self, mock_command):
         self.disk_format.create_image_format()
         mock_command.assert_called_once_with(

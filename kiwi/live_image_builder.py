@@ -19,9 +19,9 @@ from tempfile import mkdtemp
 import platform
 
 # project
-from .bootloader_config import BootLoaderConfig
+from .bootloader.config import BootLoaderConfig
 from .filesystem import FileSystem
-from .filesystem_isofs import FileSystemIsoFs
+from .filesystem.isofs import FileSystemIsoFs
 from .internal_boot_image_task import BootImageTask
 from .system_size import SystemSize
 from .system_setup import SystemSetup

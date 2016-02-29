@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk_format_gce import DiskFormatGce
+from kiwi.disk.dformat.gce import DiskFormatGce
 
 
 class TestDiskFormatGce(object):
@@ -31,10 +31,10 @@ class TestDiskFormatGce(object):
         self.disk_format.post_init({'option': 'value', '--tag': 'tag'})
         assert self.disk_format.tag == 'tag'
 
-    @patch('kiwi.disk_format_gce.Command.run')
-    @patch('kiwi.disk_format_gce.ArchiveTar')
+    @patch('kiwi.disk.dformat.gce.Command.run')
+    @patch('kiwi.disk.dformat.gce.ArchiveTar')
     @patch('builtins.open')
-    @patch('kiwi.disk_format_gce.mkdtemp')
+    @patch('kiwi.disk.dformat.gce.mkdtemp')
     def test_create_image_format(
         self, mock_mkdtemp, mock_open, mock_archive, mock_command
     ):

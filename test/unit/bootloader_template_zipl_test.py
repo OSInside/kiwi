@@ -5,7 +5,7 @@ import mock
 
 from . import nose_helper
 
-from kiwi.bootloader_template_zipl import BootLoaderTemplateZipl
+from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
 
 
 class TestBootLoaderTemplateZipl(object):

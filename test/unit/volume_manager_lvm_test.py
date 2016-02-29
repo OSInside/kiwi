@@ -7,13 +7,13 @@ from . import nose_helper
 from collections import namedtuple
 
 from kiwi.exceptions import *
-from kiwi.volume_manager_lvm import VolumeManagerLVM
+from kiwi.volume_manager.lvm import VolumeManagerLVM
 from kiwi.defaults import Defaults
 
 
 class TestVolumeManagerLVM(object):
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_base.mkdtemp')
+    @patch('kiwi.volume_manager.base.mkdtemp')
     def setup(self, mock_mkdtemp, mock_path):
         mock_mkdtemp.return_value = 'tmpdir'
         self.volume_type = namedtuple(
@@ -70,7 +70,7 @@ class TestVolumeManagerLVM(object):
         assert self.volume_manager.get_device()['root'].get_device() == \
             '/dev/lvroot'
 
-    @patch('kiwi.volume_manager_lvm.Command.run')
+    @patch('kiwi.volume_manager.lvm.Command.run')
     def test_setup(self, mock_command):
         self.volume_manager.setup('volume_group')
         call = mock_command.call_args_list[0]
@@ -97,7 +97,7 @@ class TestVolumeManagerLVM(object):
         self.volume_manager.volume_group = None
 
     @raises(KiwiVolumeGroupConflict)
-    @patch('kiwi.volume_manager_lvm.Command.run')
+    @patch('kiwi.volume_manager.lvm.Command.run')
     def test_setup_volume_group_host_conflict(self, mock_command):
         command = mock.Mock()
         command.output = 'volume_group'
@@ -105,11 +105,11 @@ class TestVolumeManagerLVM(object):
         self.volume_manager.setup('volume_group')
 
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager_base.SystemSize')
-    @patch('kiwi.volume_manager_lvm.Command.run')
-    @patch('kiwi.volume_manager_lvm.FileSystem')
-    @patch('kiwi.volume_manager_lvm.MappedDevice')
-    @patch('kiwi.volume_manager_lvm.MountManager')
+    @patch('kiwi.volume_manager.base.SystemSize')
+    @patch('kiwi.volume_manager.lvm.Command.run')
+    @patch('kiwi.volume_manager.lvm.FileSystem')
+    @patch('kiwi.volume_manager.lvm.MappedDevice')
+    @patch('kiwi.volume_manager.lvm.MountManager')
     def test_create_volumes(
         self, mock_mount, mock_mapped_device, mock_fs, mock_command,
         mock_size, mock_os_exists
@@ -161,7 +161,7 @@ class TestVolumeManagerLVM(object):
         ]
         self.volume_manager.volume_group = None
 
-    @patch('kiwi.volume_manager_lvm.Path')
+    @patch('kiwi.volume_manager.lvm.Path')
     def test_mount_volumes(self, mock_path):
         volume_mount = mock.Mock()
         volume_mount.mountpoint = 'volume_mount_point'
@@ -170,8 +170,8 @@ class TestVolumeManagerLVM(object):
         mock_path.create.assert_called_once_with(volume_mount.mountpoint)
         volume_mount.mount.assert_called_once_with()
 
-    @patch('kiwi.volume_manager_lvm.Path.wipe')
-    @patch('kiwi.volume_manager_lvm.Command.run')
+    @patch('kiwi.volume_manager.lvm.Path.wipe')
+    @patch('kiwi.volume_manager.lvm.Command.run')
     def test_destructor_busy_volumes(self, mock_command, mock_wipe):
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.volume_group = 'volume_group'
@@ -187,8 +187,8 @@ class TestVolumeManagerLVM(object):
         volume_mount.umount.assert_called_once_with()
         self.volume_manager.volume_group = None
 
-    @patch('kiwi.volume_manager_lvm.Path.wipe')
-    @patch('kiwi.volume_manager_lvm.Command.run')
+    @patch('kiwi.volume_manager.lvm.Path.wipe')
+    @patch('kiwi.volume_manager.lvm.Command.run')
     @patch('kiwi.logger.log.warning')
     def test_destructor(self, mock_warn, mock_command, mock_wipe):
         mock_command.side_effect = Exception

@@ -22,7 +22,7 @@ from .repository import Repository
 from .package_manager import PackageManager
 from .command_process import CommandProcess
 from .uri import Uri
-from .archive_tar import ArchiveTar
+from .archive.tar import ArchiveTar
 
 from .logger import log
 

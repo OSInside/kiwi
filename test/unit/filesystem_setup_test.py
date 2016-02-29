@@ -6,11 +6,11 @@ import mock
 from . import nose_helper
 
 from collections import namedtuple
-from kiwi.filesystem_setup import FileSystemSetup
+from kiwi.filesystem.setup import FileSystemSetup
 
 
 class TestFileSystemSetup(object):
-    @patch('kiwi.filesystem_setup.SystemSize')
+    @patch('kiwi.filesystem.setup.SystemSize')
     def setup(self, mock_size):
         size = mock.Mock()
         size.accumulate_mbyte_file_sizes = mock.Mock(

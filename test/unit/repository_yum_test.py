@@ -10,15 +10,15 @@ from kiwi.exceptions import (
     KiwiRepoTypeUnknown
 )
 
-from kiwi.repository_yum import RepositoryYum
+from kiwi.repository.yum import RepositoryYum
 from kiwi.root_bind import RootBind
 
 
 class TestRepositoryYum(object):
-    @patch('kiwi.repository_yum.NamedTemporaryFile')
+    @patch('kiwi.repository.yum.NamedTemporaryFile')
     @patch('builtins.open')
-    @patch('kiwi.repository_yum.ConfigParser')
-    @patch('kiwi.repository_yum.Path.create')
+    @patch('kiwi.repository.yum.ConfigParser')
+    @patch('kiwi.repository.yum.Path.create')
     def setup(self, mock_path, mock_config, mock_open, mock_temp):
         runtime_yum_config = mock.Mock()
         mock_config.return_value = runtime_yum_config
@@ -53,10 +53,10 @@ class TestRepositoryYum(object):
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
-    @patch('kiwi.repository_yum.ConfigParser')
+    @patch('kiwi.repository.yum.ConfigParser')
     @patch('os.path.exists')
     @patch('builtins.open')
-    @patch('kiwi.repository_yum.Path.wipe')
+    @patch('kiwi.repository.yum.Path.wipe')
     def test_add_repo(self, mock_path, mock_open, mock_exists, mock_config):
         repo_config = mock.Mock()
         mock_config.return_value = repo_config

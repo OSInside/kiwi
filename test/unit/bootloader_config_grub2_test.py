@@ -11,13 +11,13 @@ from . import nose_helper
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import *
-from kiwi.bootloader_config_grub2 import BootLoaderConfigGrub2
+from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 
 
 class TestBootLoaderConfigGrub2(object):
-    @patch('kiwi.bootloader_config_grub2.FirmWare')
-    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_boot_theme')
-    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
+    @patch('kiwi.bootloader.config.grub2.FirmWare')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_domain, mock_theme, mock_firmware):
         self.os_exists = {
@@ -37,9 +37,9 @@ class TestBootLoaderConfigGrub2(object):
         mock_machine.return_value = 'x86_64'
         mock_theme.return_value = None
         mock_domain.return_value = None
-        kiwi.bootloader_config_grub2.Path = mock.Mock()
-        kiwi.bootloader_config_base.Path = mock.Mock()
-        kiwi.bootloader_config_grub2.Command = mock.Mock()
+        kiwi.bootloader.config.grub2.Path = mock.Mock()
+        kiwi.bootloader.config.base.Path = mock.Mock()
+        kiwi.bootloader.config.grub2.Command = mock.Mock()
 
         self.firmware = mock.Mock()
         self.firmware.ec2_mode = mock.Mock(
@@ -56,7 +56,7 @@ class TestBootLoaderConfigGrub2(object):
         )
 
         self.grub2 = mock.Mock()
-        kiwi.bootloader_config_grub2.BootLoaderTemplateGrub2 = mock.Mock(
+        kiwi.bootloader.config.grub2.BootLoaderTemplateGrub2 = mock.Mock(
             return_value=self.grub2
         )
 
@@ -85,7 +85,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('os.path.exists')
     @patch('platform.machine')
-    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
     def test_post_init_dom0(self, mock_domain, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
         mock_domain.return_value = 'dom0'
@@ -97,7 +97,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('os.path.exists')
     @patch('platform.machine')
-    @patch('kiwi.bootloader_config_base.BootLoaderConfigBase.get_hypervisor_domain')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
     def test_post_init_domU(self, mock_domain, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
         mock_domain.return_value = 'domU'
@@ -215,7 +215,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.defaults.Defaults.get_shim_name')
     @patch('kiwi.defaults.Defaults.get_signed_grub_name')
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_disk_boot_images_raises_no_shim(
         self, mock_command, mock_grub, mock_shim
@@ -229,7 +229,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.defaults.Defaults.get_shim_name')
     @patch('kiwi.defaults.Defaults.get_signed_grub_name')
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_disk_boot_images_raises_no_efigrub(
         self, mock_command, mock_grub, mock_shim
@@ -241,7 +241,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_grub.return_value = 'does-not-exist'
         self.bootloader.setup_disk_boot_images('uuid', '/')
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubDataError)
     def test_no_grub_installation_found(self, mock_exists, mock_command):
@@ -255,7 +255,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_exists.side_effect = side_effect
         self.bootloader.setup_disk_boot_images('0815')
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubFontError)
     def test_setup_disk_boot_images_raises_font_does_not_exist(
@@ -270,7 +270,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_command.side_effect = Exception
         self.bootloader.setup_disk_boot_images('0815')
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubModulesError)
     def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
@@ -285,7 +285,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_command.side_effect = Exception
         self.bootloader.setup_disk_boot_images('0815')
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
@@ -347,7 +347,7 @@ class TestBootLoaderConfigGrub2(object):
             ])
         ]
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     #@patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
@@ -383,7 +383,7 @@ class TestBootLoaderConfigGrub2(object):
             )
         ]
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
@@ -409,7 +409,7 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/boot/efi/EFI/BOOT'
             ])
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
@@ -477,7 +477,7 @@ class TestBootLoaderConfigGrub2(object):
             ])
         ]
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
@@ -507,7 +507,7 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir//EFI/BOOT'
             ])
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
@@ -531,7 +531,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/themes'
         ])
 
-    @patch('kiwi.bootloader_config_grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
@@ -550,7 +550,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_warn.called
 
-    @patch('kiwi.bootloader_config_grub2.BootLoaderConfigGrub2.setup_install_boot_images')
+    @patch('kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_install_boot_images')
     def test_setup_live_boot_images(self, mock_setup_install_boot_images):
         self.bootloader.setup_live_boot_images(self.mbrid)
         mock_setup_install_boot_images.assert_called_once_with(

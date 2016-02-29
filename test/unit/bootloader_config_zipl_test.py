@@ -13,11 +13,11 @@ from collections import namedtuple
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import *
-from kiwi.bootloader_config_zipl import BootLoaderConfigZipl
+from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
 
 
 class TestBootLoaderConfigZipl(object):
-    @patch('kiwi.bootloader_config_zipl.FirmWare')
+    @patch('kiwi.bootloader.config.zipl.FirmWare')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_firmware):
         self.command_type = namedtuple(
@@ -35,7 +35,7 @@ class TestBootLoaderConfigZipl(object):
         self.zipl = mock.Mock()
         self.template = mock.Mock()
         self.zipl.get_template.return_value = self.template
-        kiwi.bootloader_config_zipl.BootLoaderTemplateZipl = mock.Mock(
+        kiwi.bootloader.config.zipl.BootLoaderTemplateZipl = mock.Mock(
             return_value=self.zipl
         )
 
@@ -82,8 +82,8 @@ class TestBootLoaderConfigZipl(object):
 
     @patch('builtins.open')
     @patch('os.path.exists')
-    @patch('kiwi.bootloader_config_zipl.Path.create')
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Path.create')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     def test_write(self, mock_command, mock_path, mock_exists, mock_open):
         mock_exists.return_value = True
         context_manager_mock = mock.Mock()
@@ -120,13 +120,13 @@ class TestBootLoaderConfigZipl(object):
         # does nothing on s390
         self.bootloader.setup_disk_boot_images('uuid')
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     @raises(KiwiTemplateError)
     def test_setup_disk_image_config_template_error(self, mock_command):
         self.template.substitute.side_effect = Exception
         self.bootloader.setup_disk_image_config()
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_dasd_invalid_offset(self, mock_command):
         command_results = [
@@ -140,7 +140,7 @@ class TestBootLoaderConfigZipl(object):
         mock_command.side_effect = side_effect
         self.bootloader.setup_disk_image_config()
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_msdos_invalid_offset(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
@@ -155,7 +155,7 @@ class TestBootLoaderConfigZipl(object):
         mock_command.side_effect = side_effect
         self.bootloader.setup_disk_image_config()
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_dasd_invalid_geometry(self, mock_command):
         command_results = [
@@ -168,7 +168,7 @@ class TestBootLoaderConfigZipl(object):
         mock_command.side_effect = side_effect
         self.bootloader.setup_disk_image_config()
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_msdos_invalid_geometry(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
@@ -182,7 +182,7 @@ class TestBootLoaderConfigZipl(object):
         mock_command.side_effect = side_effect
         self.bootloader.setup_disk_image_config()
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     def test_setup_disk_image_config_dasd(self, mock_command):
         command_results = [
             self.command_type(output='  blocks per track .....: 12\n'),
@@ -218,7 +218,7 @@ class TestBootLoaderConfigZipl(object):
             }
         )
 
-    @patch('kiwi.bootloader_config_zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
     def test_setup_disk_image_config_fcp(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
         command_results = [

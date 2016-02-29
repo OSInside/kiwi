@@ -6,13 +6,13 @@ import mock
 from . import nose_helper
 
 from collections import namedtuple
-from kiwi.partitioner_dasd import PartitionerDasd
+from kiwi.partitioner.dasd import PartitionerDasd
 from kiwi.exceptions import *
 
 
 class TestPartitionerDasd(object):
-    @patch('kiwi.partitioner_dasd.Command.run')
-    @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
+    @patch('kiwi.partitioner.dasd.Command.run')
+    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
     @patch('builtins.open')
     def setup(self, mock_open, mock_temp, mock_command):
         self.tempfile = mock.Mock()
@@ -38,8 +38,8 @@ class TestPartitionerDasd(object):
     def test_get_id(self):
         assert self.partitioner.get_id() == 0
 
-    @patch('kiwi.partitioner_dasd.Command.run')
-    @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
+    @patch('kiwi.partitioner.dasd.Command.run')
+    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
     @patch('builtins.open')
     @patch('kiwi.logger.log.debug')
     def test_create(self, mock_debug, mock_open, mock_temp, mock_command):
@@ -57,8 +57,8 @@ class TestPartitionerDasd(object):
         )
         assert mock_debug.called
 
-    @patch('kiwi.partitioner_dasd.Command.run')
-    @patch('kiwi.partitioner_dasd.NamedTemporaryFile')
+    @patch('kiwi.partitioner.dasd.Command.run')
+    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
     @patch('builtins.open')
     def test_create_all_free(
         self, mock_open, mock_temp, mock_command

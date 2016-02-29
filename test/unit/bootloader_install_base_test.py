@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.bootloader_install_base import BootLoaderInstallBase
+from kiwi.bootloader.install.base import BootLoaderInstallBase
 
 
 class TestBootLoaderInstallBase(object):

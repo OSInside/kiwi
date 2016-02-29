@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_ext3 import FileSystemExt3
+from kiwi.filesystem.ext3 import FileSystemExt3
 
 
 class TestFileSystemExt3(object):
@@ -22,7 +22,7 @@ class TestFileSystemExt3(object):
             return_value='some-mount-point'
         )
 
-    @patch('kiwi.filesystem_ext3.Command.run')
+    @patch('kiwi.filesystem.ext3.Command.run')
     def test_create_on_device(self, mock_command):
         self.ext3.create_on_device('label')
         call = mock_command.call_args_list[0]

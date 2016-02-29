@@ -6,7 +6,7 @@ import re
 
 from . import nose_helper
 
-from kiwi.package_manager_zypper import PackageManagerZypper
+from kiwi.package_manager.zypper import PackageManagerZypper
 from kiwi.exceptions import *
 
 
@@ -150,7 +150,7 @@ class TestPackageManagerZypper(object):
         assert self.manager.database_consistent() is False
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.package_manager_zypper.PackageManagerZypper.database_consistent')
+    @patch('kiwi.package_manager.zypper.PackageManagerZypper.database_consistent')
     def test_reload_package_database(self, mock_consistent, mock_command):
         mock_consistent.return_value = False
         self.manager.dump_reload_package_database()

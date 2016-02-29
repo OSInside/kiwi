@@ -7,11 +7,11 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.bootloader_install_zipl import BootLoaderInstallZipl
+from kiwi.bootloader.install.zipl import BootLoaderInstallZipl
 
 
 class TestBootLoaderInstallZipl(object):
-    @patch('kiwi.bootloader_install_zipl.MountManager')
+    @patch('kiwi.bootloader.install.zipl.MountManager')
     def setup(self, mock_mount):
         custom_args = {
             'boot_device': '/dev/mapper/loop0p1'
@@ -34,7 +34,7 @@ class TestBootLoaderInstallZipl(object):
     def test_post_init_missing_boot_mount_path(self):
         self.bootloader.post_init(None)
 
-    @patch('kiwi.bootloader_install_zipl.Command.run')
+    @patch('kiwi.bootloader.install.zipl.Command.run')
     def test_install(self, mock_command):
         self.bootloader.install()
         self.bootloader.boot_mount.mount.assert_called_once_with()

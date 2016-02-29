@@ -10,13 +10,13 @@ from kiwi.exceptions import (
     KiwiRepoTypeUnknown
 )
 
-from kiwi.repository_zypper import RepositoryZypper
+from kiwi.repository.zypper import RepositoryZypper
 from kiwi.root_bind import RootBind
 
 
 class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository_zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.NamedTemporaryFile')
     @patch('builtins.open')
     def setup(self, mock_open, mock_temp, mock_command):
         tmpfile = mock.Mock()
@@ -42,7 +42,7 @@ class TestRepositoryZypper(object):
             self.repo.command_env
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository_zypper.Path.wipe')
+    @patch('kiwi.repository.zypper.Path.wipe')
     @patch('os.path.exists')
     def test_add_repo(self, mock_exists, mock_wipe, mock_command):
         mock_exists.return_value = False

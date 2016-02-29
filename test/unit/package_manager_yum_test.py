@@ -6,7 +6,7 @@ import re
 
 from . import nose_helper
 
-from kiwi.package_manager_yum import PackageManagerYum
+from kiwi.package_manager.yum import PackageManagerYum
 from kiwi.exceptions import *
 
 

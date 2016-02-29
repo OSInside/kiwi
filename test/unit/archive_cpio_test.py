@@ -5,14 +5,14 @@ import mock
 
 from . import nose_helper
 
-from kiwi.archive_cpio import ArchiveCpio
+from kiwi.archive.cpio import ArchiveCpio
 
 
 class TestArchiveCpio(object):
     def setup(self):
         self.archive = ArchiveCpio('foo.cpio')
 
-    @patch('kiwi.archive_cpio.Command.run')
+    @patch('kiwi.archive.cpio.Command.run')
     def test_create(self, mock_command):
         self.archive.create('source-dir', ['/boot', '/var/cache'])
         find_command = \
@@ -25,7 +25,7 @@ class TestArchiveCpio(object):
             ]
         )
 
-    @patch('kiwi.archive_cpio.Command.run')
+    @patch('kiwi.archive.cpio.Command.run')
     def test_extract(self, mock_command):
         self.archive.extract('dest-dir')
         bash_command = \

@@ -7,11 +7,11 @@ import kiwi
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.filesystem_builder import FileSystemBuilder
+from kiwi.filesystem.builder import FileSystemBuilder
 
 
 class TestFileSystemBuilder(object):
-    @patch('kiwi.filesystem_builder.FileSystemSetup')
+    @patch('kiwi.filesystem.builder.FileSystemSetup')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_fs_setup):
         mock_machine.return_value = 'x86_64'
@@ -46,7 +46,7 @@ class TestFileSystemBuilder(object):
         )
 
         self.setup = mock.Mock()
-        kiwi.filesystem_builder.SystemSetup = mock.Mock(
+        kiwi.filesystem.builder.SystemSetup = mock.Mock(
             return_value=self.setup
         )
 
@@ -72,9 +72,9 @@ class TestFileSystemBuilder(object):
             self.xml_state, 'target_dir', 'root_dir'
         )
 
-    @patch('kiwi.filesystem_builder.LoopDevice')
-    @patch('kiwi.filesystem_builder.FileSystem')
-    @patch('kiwi.filesystem_builder.FileSystemSetup')
+    @patch('kiwi.filesystem.builder.LoopDevice')
+    @patch('kiwi.filesystem.builder.FileSystem')
+    @patch('kiwi.filesystem.builder.FileSystemSetup')
     @patch('platform.machine')
     def test_create_on_loop(
         self, mock_machine, mock_fs_setup, mock_fs, mock_loop
@@ -105,8 +105,8 @@ class TestFileSystemBuilder(object):
             'target_dir'
         )
 
-    @patch('kiwi.filesystem_builder.FileSystem')
-    @patch('kiwi.filesystem_builder.DeviceProvider')
+    @patch('kiwi.filesystem.builder.FileSystem')
+    @patch('kiwi.filesystem.builder.DeviceProvider')
     @patch('platform.machine')
     def test_create_on_file(
         self, mock_machine, mock_provider, mock_fs

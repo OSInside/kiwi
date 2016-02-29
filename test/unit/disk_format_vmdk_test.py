@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk_format_vmdk import DiskFormatVmdk
+from kiwi.disk.dformat.vmdk import DiskFormatVmdk
 
 
 class TestDiskFormatVmdk(object):
@@ -30,7 +30,7 @@ class TestDiskFormatVmdk(object):
         self.disk_format.post_init({'option': 'value'})
         assert self.disk_format.options == ['-o', 'option', 'value']
 
-    @patch('kiwi.disk_format_vmdk.Command.run')
+    @patch('kiwi.disk.dformat.vmdk.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     def test_create_image_format_skip_descriptor_update(
@@ -48,7 +48,7 @@ class TestDiskFormatVmdk(object):
         assert mock_log_warn.called
 
     @raises(KiwiVmdkToolsError)
-    @patch('kiwi.disk_format_vmdk.Command.run')
+    @patch('kiwi.disk.dformat.vmdk.Command.run')
     @patch('os.path.exists')
     def test_create_image_format_invalid_tools_version(
         self, mock_exists, mock_command
@@ -59,7 +59,7 @@ class TestDiskFormatVmdk(object):
         mock_exists.return_value = True
         self.disk_format.create_image_format()
 
-    @patch('kiwi.disk_format_vmdk.Command.run')
+    @patch('kiwi.disk.dformat.vmdk.Command.run')
     @patch('os.path.exists')
     @patch('builtins.open')
     def test_create_image_format(

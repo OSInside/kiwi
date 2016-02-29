@@ -5,7 +5,7 @@ import mock
 
 from . import nose_helper
 
-from kiwi.partitioner_gpt import PartitionerGpt
+from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.exceptions import *
 
 
@@ -20,8 +20,8 @@ class TestPartitionerGpt(object):
     def test_get_id(self):
         assert self.partitioner.get_id() == 0
 
-    @patch('kiwi.partitioner_gpt.Command.run')
-    @patch('kiwi.partitioner_gpt.PartitionerGpt.set_flag')
+    @patch('kiwi.partitioner.gpt.Command.run')
+    @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create(self, mock_flag, mock_command):
         self.partitioner.create('name', 100, 't.linux', ['t.csm'])
         mock_command.assert_called_once_with(
@@ -34,8 +34,8 @@ class TestPartitionerGpt(object):
         assert mock_flag.call_args_list[1] == \
             call(1, 't.csm')
 
-    @patch('kiwi.partitioner_gpt.Command.run')
-    @patch('kiwi.partitioner_gpt.PartitionerGpt.set_flag')
+    @patch('kiwi.partitioner.gpt.Command.run')
+    @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create_all_free(self, mock_flag, mock_command):
         self.partitioner.create('name', 'all_free', 't.linux')
         mock_command.assert_called_once_with(
@@ -46,7 +46,7 @@ class TestPartitionerGpt(object):
     def test_set_flag_invalid(self):
         self.partitioner.set_flag(1, 'foo')
 
-    @patch('kiwi.partitioner_gpt.Command.run')
+    @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_flag(self, mock_command):
         self.partitioner.set_flag(1, 't.csm')
         mock_command.assert_called_once_with(
