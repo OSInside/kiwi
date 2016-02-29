@@ -51,6 +51,12 @@ $ zypper ar -f <URL>/<DIST>/Virtualization:Appliances.repo
 $ zypper in python3-kiwi
 ```
 
+Please note the package uses the alternatives mechanism to setup
+a symbolic link named `kiwi` to the real executable named `kiwi-py3`.
+If the link target `/usr/bin/kiwi` already exists on your system, the
+alternative setup will skip the creation of the link target because it
+already exists.
+
 ## Quick Start
 
 Along with the appliance builder there is also a GitHub project hosting
@@ -60,7 +66,7 @@ image.
 ```bash
 $ git clone https://github.com/SUSE/kiwi-descriptions
 
-$ kiwi --type vmx system build \
+$ kiwi-py3 --type vmx system build \
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
 
@@ -131,7 +137,7 @@ the application entry point called `kiwi`, which allows to simply
 call the application from the current code base:
 
    ```
-$ kiwi --help
+$ kiwi-py3 --help
 ```
 
 In order to leave the development mode just call:
