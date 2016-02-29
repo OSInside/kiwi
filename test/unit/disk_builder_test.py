@@ -67,12 +67,12 @@ class TestDiskBuilder(object):
         kiwi.builder.disk.Kernel = mock.Mock(
             return_value=self.kernel
         )
-        self.disk.dformat = mock.Mock()
-        self.disk.dformat.get_target_name_for_format = mock.Mock(
+        self.disk.subformat = mock.Mock()
+        self.disk.subformat.get_target_name_for_format = mock.Mock(
             return_value='some-target-format-name'
         )
         kiwi.builder.disk.DiskFormat = mock.Mock(
-            return_value=self.disk.dformat
+            return_value=self.disk.subformat
         )
         kiwi.builder.disk.Disk = mock.Mock(
             return_value=self.disk
@@ -390,7 +390,7 @@ class TestDiskBuilder(object):
         self.disk_builder.install_media = False
         self.disk_builder.image_format = 'vmdk'
         self.disk_builder.create()
-        self.disk.dformat.create_image_format.assert_called_once_with()
+        self.disk.subformat.create_image_format.assert_called_once_with()
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')

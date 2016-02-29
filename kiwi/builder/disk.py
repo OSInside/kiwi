@@ -36,7 +36,7 @@ from ..command import Command
 from ..system_setup import SystemSetup
 from .install import InstallImageBuilder
 from ..kernel import Kernel
-from ..disk.dformat import DiskFormat
+from ..disk.subformat import DiskFormat
 from ..result import Result
 
 from ..exceptions import (

@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk.dformat import DiskFormat
+from kiwi.disk.subformat import DiskFormat
 
 
 class TestDiskFormat(object):
@@ -14,7 +14,7 @@ class TestDiskFormat(object):
     def test_format_not_implemented(self):
         DiskFormat('foo', mock.Mock(), 'root_dir', 'target_dir')
 
-    @patch('kiwi.disk.dformat.DiskFormatQcow2')
+    @patch('kiwi.disk.subformat.DiskFormatQcow2')
     def test_disk_format_qcow2(self, mock_qcow2):
         xml_state = mock.Mock()
         DiskFormat('qcow2', xml_state, 'root_dir', 'target_dir')
@@ -22,7 +22,7 @@ class TestDiskFormat(object):
             xml_state, 'root_dir', 'target_dir'
         )
 
-    @patch('kiwi.disk.dformat.DiskFormatVhd')
+    @patch('kiwi.disk.subformat.DiskFormatVhd')
     def test_disk_format_vhd(self, mock_vhd):
         xml_state = mock.Mock()
         DiskFormat('vhd', xml_state, 'root_dir', 'target_dir')
@@ -30,7 +30,7 @@ class TestDiskFormat(object):
             xml_state, 'root_dir', 'target_dir'
         )
 
-    @patch('kiwi.disk.dformat.DiskFormatVhdFixed')
+    @patch('kiwi.disk.subformat.DiskFormatVhdFixed')
     def test_disk_format_vhdfixed(self, mock_vhdfixed):
         xml_state = mock.Mock()
         xml_state.build_type.get_vhdfixedtag = mock.Mock(
@@ -41,7 +41,7 @@ class TestDiskFormat(object):
             xml_state, 'root_dir', 'target_dir', {'--tag': 'disk-tag'}
         )
 
-    @patch('kiwi.disk.dformat.DiskFormatGce')
+    @patch('kiwi.disk.subformat.DiskFormatGce')
     def test_disk_format_gce(self, mock_gce):
         xml_state = mock.Mock()
         xml_state.build_type.get_gcelicense = mock.Mock(
@@ -52,7 +52,7 @@ class TestDiskFormat(object):
             xml_state, 'root_dir', 'target_dir', {'--tag': 'gce_license_tag'}
         )
 
-    @patch('kiwi.disk.dformat.DiskFormatVmdk')
+    @patch('kiwi.disk.subformat.DiskFormatVmdk')
     def test_disk_format_vmdk(self, mock_vmdk):
         xml_state = mock.Mock()
         vmdisk = mock.Mock()

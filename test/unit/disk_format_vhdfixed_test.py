@@ -7,7 +7,7 @@ import sys
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.disk.dformat.vhdfixed import DiskFormatVhdFixed
+from kiwi.disk.subformat.vhdfixed import DiskFormatVhdFixed
 
 
 class TestDiskFormatVhdFixed(object):
@@ -35,12 +35,12 @@ class TestDiskFormatVhdFixed(object):
         assert self.disk_format.tag == 'tag'
 
     @raises(KiwiVhdTagError)
-    @patch('kiwi.disk.dformat.vhdfixed.Command.run')
+    @patch('kiwi.disk.subformat.vhdfixed.Command.run')
     def test_create_image_format_invalid_tag(self, mock_command):
         self.disk_format.tag = 'invalid'
         self.disk_format.create_image_format()
 
-    @patch('kiwi.disk.dformat.vhdfixed.Command.run')
+    @patch('kiwi.disk.subformat.vhdfixed.Command.run')
     @patch('builtins.open')
     def test_create_image_format(self, mock_open, mock_command):
         self.disk_format.tag = '12345678-1234-1234-1234-123456789999'
