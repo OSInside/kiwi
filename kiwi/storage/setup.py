@@ -108,12 +108,6 @@ class DiskSetup(object):
                 recovery_mbytes
             )
 
-        if self.configured_size and self.build_type_name == 'oem':
-            log.warning(
-                'Fixed disk size setup not used for expandable oem image'
-            )
-            self.configured_size = None
-
         if not self.configured_size:
             log.info(
                 'Using calculated disk size: %d MB',

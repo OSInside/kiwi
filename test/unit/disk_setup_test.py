@@ -95,13 +95,11 @@ class TestDiskSetup(object):
         self.setup.bootpart_mbytes = 42
         assert self.setup.boot_partition_size() == 42
 
-    @patch('kiwi.logger.log.warning')
-    def test_get_disksize_mbytes(self, mock_log_warn):
+    def test_get_disksize_mbytes(self):
         self.setup.configured_size = mock.Mock()
         self.setup.configured_size.additive = False
         self.setup.configured_size.mbytes = 1024
-        assert self.setup.get_disksize_mbytes() == 784
-        assert mock_log_warn.called
+        assert self.setup.get_disksize_mbytes() == 1024
 
     def test_get_disksize_mbytes_configured_additive(self):
         self.setup.configured_size = mock.Mock()
