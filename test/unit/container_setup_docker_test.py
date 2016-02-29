@@ -8,7 +8,7 @@ import kiwi
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.container_setup_docker import ContainerSetupDocker
+from kiwi.container_setup.docker import ContainerSetupDocker
 
 
 class TestContainerSetupDocker(object):
@@ -35,9 +35,9 @@ class TestContainerSetupDocker(object):
         self.container.deactivate_systemd_service = mock.Mock()
 
     @patch('builtins.open')
-    @patch('kiwi.container_setup_docker.Path.create')
-    @patch('kiwi.container_setup_docker.ContainerSetupDocker.create_lxc_fstab')
-    @patch('kiwi.container_setup_docker.ContainerSetupDocker.create_lxc_config')
+    @patch('kiwi.container_setup.docker.Path.create')
+    @patch('kiwi.container_setup.docker.ContainerSetupDocker.create_lxc_fstab')
+    @patch('kiwi.container_setup.docker.ContainerSetupDocker.create_lxc_config')
     def test_setup(self, mock_lxc_config, mock_lxc_fstab, mock_path, mock_open):
         self.container.setup()
         mock_path.assert_called_once_with('root_dir/etc/lxc')

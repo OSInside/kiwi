@@ -6,14 +6,14 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.container_image_docker import ContainerImageDocker
+from kiwi.container.docker import ContainerImageDocker
 
 
 class TestContainerImageDocker(object):
     def setup(self):
         self.docker = ContainerImageDocker('root_dir')
 
-    @patch('kiwi.container_image_docker.ArchiveTar')
+    @patch('kiwi.container.docker.ArchiveTar')
     def test_create(self, mock_archive):
         archive = mock.Mock()
         mock_archive.return_value = archive

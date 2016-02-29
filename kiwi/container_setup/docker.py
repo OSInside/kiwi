@@ -17,8 +17,8 @@
 #
 
 # project
-from .path import Path
-from .container_setup_base import ContainerSetupBase
+from ..path import Path
+from .base import ContainerSetupBase
 
 
 class ContainerSetupDocker(ContainerSetupBase):

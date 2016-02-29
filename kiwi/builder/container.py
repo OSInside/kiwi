@@ -18,7 +18,7 @@
 import platform
 
 # project
-from ..container_image import ContainerImage
+from ..container import ContainerImage
 from ..container_setup import ContainerSetup
 from ..system_setup import SystemSetup
 from ..logger import log

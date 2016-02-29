@@ -19,9 +19,9 @@ import collections
 import os
 
 # project
-from .command import Command
+from ..command import Command
 
-from .exceptions import (
+from ..exceptions import (
     KiwiContainerSetupError
 )
 

@@ -16,25 +16,21 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .archive.tar import ArchiveTar
+from .docker import ContainerSetupDocker
+
+from ..exceptions import (
+    KiwiContainerSetupError
+)
 
 
-class ContainerImageDocker(object):
+class ContainerSetup(object):
     """
-        Create docker container from a root directory
+        container setup factory
     """
-    def __init__(self, root_dir):
-        self.root_dir = root_dir
-
-    def create(self, filename):
-        exclude_list = [
-            'image', '.profile', '.kconfig', 'var/cache/kiwi', 'boot'
-        ]
-        # replace potential suffix from filename because
-        # it is added by the archive creation call
-        archive = ArchiveTar(
-            filename.replace('.xz', '')
-        )
-        archive.create_xz_compressed(
-            source_dir=self.root_dir, exclude=exclude_list
-        )
+    def __new__(self, name, root_dir, custom_args=None):
+        if name == 'docker':
+            return ContainerSetupDocker(root_dir, custom_args)
+        else:
+            raise KiwiContainerSetupError(
+                'Support for %s container not implemented' % name
+            )

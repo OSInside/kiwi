@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.container_image import ContainerImage
+from kiwi.container import ContainerImage
 
 
 class TestContainerImage(object):
@@ -14,7 +14,7 @@ class TestContainerImage(object):
     def test_container_image_not_implemented(self):
         ContainerImage('foo', 'root_dir')
 
-    @patch('kiwi.container_image.ContainerImageDocker')
+    @patch('kiwi.container.ContainerImageDocker')
     def test_container_image_docker(self, mock_docker):
         ContainerImage('docker', 'root_dir')
         mock_docker.assert_called_once_with('root_dir')

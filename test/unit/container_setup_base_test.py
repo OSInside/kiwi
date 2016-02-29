@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.container_setup_base import ContainerSetupBase
+from kiwi.container_setup.base import ContainerSetupBase
 
 
 class TestContainerSetupBase(object):
@@ -77,7 +77,7 @@ class TestContainerSetupBase(object):
         ]
 
     @patch('os.path.exists')
-    @patch('kiwi.container_setup_base.Command.run')
+    @patch('kiwi.container_setup.base.Command.run')
     def test_deactivate_systemd_service(self, mock_command, mock_exists):
         mock_exists.return_value = True
         self.container.deactivate_systemd_service('my.service')
@@ -89,7 +89,7 @@ class TestContainerSetupBase(object):
         )
 
     @patch('os.path.exists')
-    @patch('kiwi.container_setup_base.Command.run')
+    @patch('kiwi.container_setup.base.Command.run')
     @raises(KiwiContainerSetupError)
     def test_deactivate_systemd_service_failed(self, mock_command, mock_exists):
         mock_exists.return_value = True
@@ -112,7 +112,7 @@ class TestContainerSetupBase(object):
             call('console\n')
         ]
 
-    @patch('kiwi.container_setup_base.Command.run')
+    @patch('kiwi.container_setup.base.Command.run')
     def test_setup_static_device_nodes(self, mock_command):
         self.container.setup_static_device_nodes()
         mock_command.assert_called_once_with(
@@ -122,7 +122,7 @@ class TestContainerSetupBase(object):
             ]
         )
 
-    @patch('kiwi.container_setup_base.Command.run')
+    @patch('kiwi.container_setup.base.Command.run')
     @raises(KiwiContainerSetupError)
     def test_setup_static_device_nodes_failed(self, mock_command):
         mock_command.side_effect = Exception
