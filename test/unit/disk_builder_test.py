@@ -106,7 +106,7 @@ class TestDiskBuilder(object):
         self.boot_image_task.kernel_filename = 'kernel'
         self.boot_image_task.initrd_filename = 'initrd'
         self.boot_image_task.xen_hypervisor_filename = 'xen_hypervisor'
-        kiwi.builder.disk.BootImageTask = mock.Mock(
+        kiwi.builder.disk.BootImage = mock.Mock(
             return_value=self.boot_image_task
         )
         self.firmware = mock.Mock()

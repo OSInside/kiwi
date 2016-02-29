@@ -22,7 +22,7 @@ import platform
 from ..bootloader.config import BootLoaderConfig
 from ..filesystem import FileSystem
 from ..filesystem.isofs import FileSystemIsoFs
-from ..internal_boot_image_task import BootImageTask
+from ..boot.image import BootImage
 from ..system_size import SystemSize
 from ..system_setup import SystemSetup
 from ..firmware import FirmWare
@@ -63,8 +63,8 @@ class LiveImageBuilder(object):
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
 
-        self.boot_image_task = BootImageTask(
-            'kiwi', xml_state, target_dir
+        self.boot_image_task = BootImage(
+            xml_state, target_dir
         )
         self.firmware = FirmWare(
             xml_state

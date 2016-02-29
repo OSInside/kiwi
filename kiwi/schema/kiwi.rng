@@ -2417,6 +2417,17 @@ the btrfs filesystem is used</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.type.initrd_system.attribute">
+      <attribute name="initrd_system">
+        <a:documentation>specify which initrd builder to use, default is kiwi's
+builtin architecture. Be aware that the dracut initrd
+system does not support all features of the kiwi initrd</a:documentation>
+        <choice>
+          <value>kiwi</value>
+          <value>dracut</value>
+        </choice>
+      </attribute>
+    </define>
     <define name="k.type.image.attribute">
       <attribute name="image">
         <a:documentation>Specifies the image type</a:documentation>
@@ -2650,6 +2661,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.hybridpersistent_filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.initrd_system.attribute"/>
         </optional>
         <ref name="k.type.image.attribute"/>
         <optional>

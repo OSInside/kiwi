@@ -97,7 +97,13 @@ class TestBootLoaderConfigBase(object):
     def test_get_boot_cmdline_firmware_ec2(self, mock_firmware):
         mock_firmware.return_value = 'ec2'
         assert self.bootloader.get_boot_cmdline('uuid') == \
-            'splash root=UUID=uuid'
+            'splash root=UUID=uuid rw'
+
+    @patch('kiwi.xml_parse.type_.get_initrd_system')
+    def test_get_boot_cmdline_initrd_system_is_dracut(self, mock_initrd):
+        mock_initrd.return_value = 'dracut'
+        assert self.bootloader.get_boot_cmdline('uuid') == \
+            'splash root=UUID=uuid rw'
 
     @patch('kiwi.xml_parse.type_.get_firmware')
     @patch('kiwi.logger.log.warning')

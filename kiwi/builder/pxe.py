@@ -19,7 +19,7 @@ import os
 import platform
 
 # project
-from ..internal_boot_image_task import BootImageTask
+from ..boot.image import BootImage
 from .filesystem import FileSystemBuilder
 from ..compress import Compress
 from ..checksum import Checksum
@@ -51,8 +51,8 @@ class PxeBuilder(object):
         self.system_setup = SystemSetup(
             xml_state=xml_state, description_dir=None, root_dir=root_dir
         )
-        self.boot_image_task = BootImageTask(
-            'kiwi', xml_state, target_dir
+        self.boot_image_task = BootImage(
+            xml_state, target_dir
         )
         self.image_name = ''.join(
             [

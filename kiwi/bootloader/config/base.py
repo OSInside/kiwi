@@ -231,18 +231,30 @@ class BootLoaderConfigBase(object):
 
     def __get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
+        initrd_system = self.xml_state.build_type.get_initrd_system()
         cmdline = self.xml_state.build_type.get_kernelcmdline()
         if cmdline and 'root=' in cmdline:
             log.info(
                 'Kernel root device explicitly set via kernelcmdline'
             )
-        elif firmware and 'ec2' in firmware:
+            return None
+
+        want_root_cmdline_parameter = False
+        if firmware and 'ec2' in firmware:
             # EC2 requires to specifiy the root device in the bootloader
             # configuration. This is because the used pvgrub or hvmloader
             # reads this information and passes it to the guest configuration
             # which has an impact on the devices attached to the guest.
+            want_root_cmdline_parameter = True
+
+        if initrd_system and 'dracut' in initrd_system:
+            # When using a dracut initrd we have to specify the location
+            # of the root device
+            want_root_cmdline_parameter = True
+
+        if want_root_cmdline_parameter:
             if uuid:
-                return 'root=UUID=%s' % format(uuid)
+                return 'root=UUID=%s rw' % format(uuid)
             else:
                 log.warning(
                     '%s firmware needs a root device but no uuid was given',

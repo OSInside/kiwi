@@ -15,7 +15,7 @@ from kiwi.builder.pxe import PxeBuilder
 
 class TestPxeBuilder(object):
     @patch('kiwi.builder.pxe.FileSystemBuilder')
-    @patch('kiwi.builder.pxe.BootImageTask')
+    @patch('kiwi.builder.pxe.BootImage')
     def setup(self, mock_boot, mock_filesystem):
         self.setup = mock.Mock()
         kiwi.builder.pxe.SystemSetup = mock.Mock(

@@ -28,7 +28,7 @@ class TestLiveImageBuilder(object):
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
-        kiwi.builder.live.BootImageTask = mock.Mock(
+        kiwi.builder.live.BootImage = mock.Mock(
             return_value=self.boot_image_task
         )
         self.mbrid = mock.Mock()

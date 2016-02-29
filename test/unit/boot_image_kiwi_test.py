@@ -17,7 +17,9 @@ from kiwi.exceptions import *
 class TestBootImageKiwi(object):
     @patch('kiwi.boot.image.base.mkdtemp')
     @patch('kiwi.boot.image.base.os.path.exists')
-    def setup(self, mock_exists, mock_mkdtemp):
+    @patch('platform.machine')
+    def setup(self, mock_machine, mock_exists, mock_mkdtemp):
+        mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         description = XMLDescription('../data/example_config.xml')
         self.xml_state = XMLState(
@@ -42,14 +44,14 @@ class TestBootImageKiwi(object):
             return_value=self.profile
         )
         mock_mkdtemp.return_value = 'boot-directory'
-        self.task = BootImageKiwi(
+        self.boot_image = BootImageKiwi(
             self.xml_state, 'some-target-dir'
         )
 
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
     def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'
-        self.task.prepare()
+        self.boot_image.prepare()
         self.system.setup_repositories.assert_called_once_with()
         self.system.install_bootstrap.assert_called_once_with(
             self.manager
@@ -74,7 +76,7 @@ class TestBootImageKiwi(object):
     @patch('os.path.exists')
     def test_prepare_no_boot_description_found(self, mock_os_path):
         mock_os_path.return_value = False
-        self.task.prepare()
+        self.boot_image.prepare()
 
     @patch('kiwi.boot.image.kiwi.ArchiveCpio')
     @patch('kiwi.boot.image.kiwi.Compress')
@@ -83,12 +85,10 @@ class TestBootImageKiwi(object):
     @patch('kiwi.boot.image.kiwi.Command.run')
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     @patch('kiwi.boot.image.kiwi.mkdtemp')
-    @patch('platform.machine')
     def test_create_initrd(
-        self, mock_machine, mock_mkdtemp, mock_prepared, mock_command,
+        self, mock_mkdtemp, mock_prepared, mock_command,
         mock_wipe, mock_create, mock_compress, mock_cpio
     ):
-        mock_machine.return_value = 'x86_64'
         mock_mkdtemp.return_value = 'temp-boot-directory'
         mock_prepared.return_value = True
         mbrid = mock.Mock()
@@ -97,16 +97,16 @@ class TestBootImageKiwi(object):
         compress = mock.Mock()
         mock_cpio.return_value = cpio
         mock_compress.return_value = compress
-        self.task.create_initrd(mbrid)
+        self.boot_image.create_initrd(mbrid)
         mock_command.assert_called_once_with(
             ['rsync', '-zav', 'boot-directory/', 'temp-boot-directory']
         )
         mock_cpio.assert_called_once_with(
-            self.task.target_dir +
+            self.boot_image.target_dir +
             '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
         )
         mock_compress.assert_called_once_with(
-            self.task.target_dir +
+            self.boot_image.target_dir +
             '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
         )
         mock_wipe.assert_called_once_with(
@@ -119,7 +119,7 @@ class TestBootImageKiwi(object):
             'temp-boot-directory/boot/mbrid'
         )
         cpio.create.assert_called_once_with(
-            source_dir=self.task.temp_boot_root_directory,
+            source_dir=self.boot_image.temp_boot_root_directory,
             exclude=['/var/cache', '/image', '/usr/lib/grub2']
         )
         compress.xz.assert_called_once_with()

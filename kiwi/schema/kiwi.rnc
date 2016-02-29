@@ -1790,6 +1790,13 @@ div {
         attribute hybridpersistent_filesystem {
             "btrfs" | "fat" | "exfat" | "ext4" | "xfs"
         }
+    k.type.initrd_system.attribute =
+        ## specify which initrd builder to use, default is kiwi's
+        ## builtin architecture. Be aware that the dracut initrd
+        ## system does not support all features of the kiwi initrd
+        attribute initrd_system {
+            "kiwi" | "dracut"
+        }
     k.type.image.attribute =
         ## Specifies the image type
         attribute image {
@@ -1900,6 +1907,7 @@ div {
         k.type.hybrid.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &
+        k.type.initrd_system.attribute? &
         k.type.image.attribute &
         k.type.installboot.attribute? &
         k.type.installprovidefailsafe.attribute? &

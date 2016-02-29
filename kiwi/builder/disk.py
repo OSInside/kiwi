@@ -22,7 +22,7 @@ import platform
 from ..bootloader.config import BootLoaderConfig
 from ..bootloader.install import BootLoaderInstall
 from ..image_identifier import ImageIdentifier
-from ..internal_boot_image_task import BootImageTask
+from ..boot.image import BootImage
 from ..storage.setup import DiskSetup
 from ..storage.loop_device import LoopDevice
 from ..firmware import FirmWare
@@ -74,8 +74,8 @@ class DiskBuilder(object):
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
-        self.boot_image_task = BootImageTask(
-            'kiwi', xml_state, target_dir
+        self.boot_image_task = BootImage(
+            xml_state, target_dir
         )
         self.firmware = FirmWare(
             xml_state

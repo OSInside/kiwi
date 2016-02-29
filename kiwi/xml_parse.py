@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Fri Feb 19 10:52:28 2016 by generateDS.py version 2.19b.
+# Generated Mon Feb 29 16:17:48 2016 by generateDS.py version 2.19b.
 #
 # Command line options:
 #   ('-f', '')
@@ -2736,7 +2736,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsreadonly=None, fsreadwrite=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, target_blocksize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, zfsoptions=None, machine=None, oemconfig=None, pxedeploy=None, size=None, split=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsreadonly=None, fsreadwrite=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, target_blocksize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, zfsoptions=None, machine=None, oemconfig=None, pxedeploy=None, size=None, split=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2767,6 +2767,7 @@ class type_(GeneratedsSuper):
         self.hybrid = _cast(bool, hybrid)
         self.hybridpersistent = _cast(bool, hybridpersistent)
         self.hybridpersistent_filesystem = _cast(None, hybridpersistent_filesystem)
+        self.initrd_system = _cast(None, initrd_system)
         self.image = _cast(None, image)
         self.installboot = _cast(None, installboot)
         self.installprovidefailsafe = _cast(bool, installprovidefailsafe)
@@ -2917,6 +2918,8 @@ class type_(GeneratedsSuper):
     def set_hybridpersistent(self, hybridpersistent): self.hybridpersistent = hybridpersistent
     def get_hybridpersistent_filesystem(self): return self.hybridpersistent_filesystem
     def set_hybridpersistent_filesystem(self, hybridpersistent_filesystem): self.hybridpersistent_filesystem = hybridpersistent_filesystem
+    def get_initrd_system(self): return self.initrd_system
+    def set_initrd_system(self, initrd_system): self.initrd_system = initrd_system
     def get_image(self): return self.image
     def set_image(self, image): self.image = image
     def get_installboot(self): return self.installboot
@@ -3072,6 +3075,9 @@ class type_(GeneratedsSuper):
         if self.hybridpersistent_filesystem is not None and 'hybridpersistent_filesystem' not in already_processed:
             already_processed.add('hybridpersistent_filesystem')
             outfile.write(' hybridpersistent_filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.hybridpersistent_filesystem), input_name='hybridpersistent_filesystem')), ))
+        if self.initrd_system is not None and 'initrd_system' not in already_processed:
+            already_processed.add('initrd_system')
+            outfile.write(' initrd_system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.initrd_system), input_name='initrd_system')), ))
         if self.image is not None and 'image' not in already_processed:
             already_processed.add('image')
             outfile.write(' image=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.image), input_name='image')), ))
@@ -3325,6 +3331,11 @@ class type_(GeneratedsSuper):
             already_processed.add('hybridpersistent_filesystem')
             self.hybridpersistent_filesystem = value
             self.hybridpersistent_filesystem = ' '.join(self.hybridpersistent_filesystem.split())
+        value = find_attr_value_('initrd_system', node)
+        if value is not None and 'initrd_system' not in already_processed:
+            already_processed.add('initrd_system')
+            self.initrd_system = value
+            self.initrd_system = ' '.join(self.initrd_system.split())
         value = find_attr_value_('image', node)
         if value is not None and 'image' not in already_processed:
             already_processed.add('image')
