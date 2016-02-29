@@ -133,11 +133,11 @@ class Disk(DeviceProvider):
                     ['bash', '-c', bash_command]
                 )
             except Exception:
-                # unfortunately fdasd reports that it can't read in the partition
-                # table which I consider a bug in fdasd. However the table was
-                # correctly created and therefore we continue. Problem is that we
-                # are not able to detect real errors with the fdasd operation at
-                # that point.
+                # unfortunately fdasd reports that it can't read in the
+                # partition table which I consider a bug in fdasd. However
+                # the table was correctly created and therefore we continue.
+                # Problem is that we are not able to detect real errors
+                # with the fdasd operation at that point.
                 log.debug('potential fdasd errors were ignored')
         else:
             log.debug('Initialize %s disk', self.table_type)

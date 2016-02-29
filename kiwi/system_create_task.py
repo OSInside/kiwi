@@ -40,7 +40,7 @@ import os
 # project
 from .cli_task import CliTask
 from .help import Help
-from .image_builder import ImageBuilder
+from .builder import ImageBuilder
 from .system_setup import SystemSetup
 from .privileges import Privileges
 from .path import Path

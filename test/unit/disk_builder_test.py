@@ -10,7 +10,7 @@ from collections import OrderedDict
 from kiwi.exceptions import *
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-from kiwi.disk.builder import DiskBuilder
+from kiwi.builder.disk import DiskBuilder
 from kiwi.mapped_device import MappedDevice
 
 
@@ -36,7 +36,7 @@ class TestDiskBuilder(object):
             sorted(self.id_map.items())
         )
         self.loop_provider = mock.Mock()
-        kiwi.disk.builder.LoopDevice = mock.Mock(
+        kiwi.builder.disk.LoopDevice = mock.Mock(
             return_value=self.loop_provider
         )
         self.disk = mock.Mock()
@@ -64,17 +64,17 @@ class TestDiskBuilder(object):
         self.kernel.get_xen_hypervisor = mock.Mock()
         self.kernel.copy_kernel = mock.Mock()
         self.kernel.copy_xen_hypervisor = mock.Mock()
-        kiwi.disk.builder.Kernel = mock.Mock(
+        kiwi.builder.disk.Kernel = mock.Mock(
             return_value=self.kernel
         )
         self.disk.dformat = mock.Mock()
         self.disk.dformat.get_target_name_for_format = mock.Mock(
             return_value='some-target-format-name'
         )
-        kiwi.disk.builder.DiskFormat = mock.Mock(
+        kiwi.builder.disk.DiskFormat = mock.Mock(
             return_value=self.disk.dformat
         )
-        kiwi.disk.builder.Disk = mock.Mock(
+        kiwi.builder.disk.Disk = mock.Mock(
             return_value=self.disk
         )
         self.disk_setup = mock.Mock()
@@ -91,14 +91,14 @@ class TestDiskBuilder(object):
             return_value=True
         )
         self.bootloader_install = mock.Mock()
-        kiwi.disk.builder.BootLoaderInstall = mock.MagicMock(
+        kiwi.builder.disk.BootLoaderInstall = mock.MagicMock(
             return_value=self.bootloader_install
         )
         self.bootloader_config = mock.Mock()
-        kiwi.disk.builder.BootLoaderConfig = mock.MagicMock(
+        kiwi.builder.disk.BootLoaderConfig = mock.MagicMock(
             return_value=self.bootloader_config
         )
-        kiwi.disk.builder.DiskSetup = mock.MagicMock(
+        kiwi.builder.disk.DiskSetup = mock.MagicMock(
             return_value=self.disk_setup
         )
         self.boot_image_task = mock.Mock()
@@ -106,30 +106,30 @@ class TestDiskBuilder(object):
         self.boot_image_task.kernel_filename = 'kernel'
         self.boot_image_task.initrd_filename = 'initrd'
         self.boot_image_task.xen_hypervisor_filename = 'xen_hypervisor'
-        kiwi.disk.builder.BootImageTask = mock.Mock(
+        kiwi.builder.disk.BootImageTask = mock.Mock(
             return_value=self.boot_image_task
         )
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
         )
-        kiwi.disk.builder.FirmWare = mock.Mock(
+        kiwi.builder.disk.FirmWare = mock.Mock(
             return_value=self.firmware
         )
         self.setup = mock.Mock()
-        kiwi.disk.builder.SystemSetup = mock.Mock(
+        kiwi.builder.disk.SystemSetup = mock.Mock(
             return_value=self.setup
         )
         self.install_image = mock.Mock()
-        kiwi.disk.builder.InstallImageBuilder = mock.Mock(
+        kiwi.builder.disk.InstallImageBuilder = mock.Mock(
             return_value=self.install_image
         )
         self.raid_root = mock.Mock()
-        kiwi.disk.builder.RaidDevice = mock.Mock(
+        kiwi.builder.disk.RaidDevice = mock.Mock(
             return_value=self.raid_root
         )
         self.luks_root = mock.Mock()
-        kiwi.disk.builder.LuksDevice = mock.Mock(
+        kiwi.builder.disk.LuksDevice = mock.Mock(
             return_value=self.luks_root
         )
         self.disk_builder = DiskBuilder(
@@ -148,10 +148,10 @@ class TestDiskBuilder(object):
         self.disk_builder.build_type_name = 'vmx'
         self.disk_builder.create()
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
     @patch('random.randrange')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     @patch('os.path.exists')
     def test_create_standard_root(
         self, mock_path, mock_command, mock_rand, mock_open, mock_fs
@@ -261,9 +261,9 @@ class TestDiskBuilder(object):
             'target_dir'
         )
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     @raises(KiwiDiskBootImageError)
     def test_create_standard_root_no_kernel_found(
         self, mock_command, mock_open, mock_fs
@@ -271,9 +271,9 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = False
         self.disk_builder.create()
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     @raises(KiwiDiskBootImageError)
     def test_create_standard_root_no_hypervisor_found(
         self, mock_command, mock_open, mock_fs
@@ -281,9 +281,9 @@ class TestDiskBuilder(object):
         self.kernel.get_xen_hypervisor.return_value = False
         self.disk_builder.create()
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     def test_create_standard_root_s390_boot(
         self, mock_command, mock_open, mock_fs
     ):
@@ -299,9 +299,9 @@ class TestDiskBuilder(object):
             'ext2', self.device_map['boot'], 'root_dir/boot/zipl/'
         )
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     def test_create_standard_root_secure_boot(
         self, mock_command, mock_open, mock_fs
     ):
@@ -315,9 +315,9 @@ class TestDiskBuilder(object):
         bootloader = self.bootloader_config
         bootloader.setup_disk_boot_images.assert_called_once_with('0815')
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     def test_create_mdraid_root(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -334,9 +334,9 @@ class TestDiskBuilder(object):
             'boot_dir/etc/mdadm.conf'
         )
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     def test_create_luks_root(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -350,10 +350,10 @@ class TestDiskBuilder(object):
             'root_dir/etc/crypttab'
         )
 
-    @patch('kiwi.disk.builder.FileSystem')
-    @patch('kiwi.disk.builder.VolumeManager')
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch('kiwi.builder.disk.VolumeManager')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     @patch('os.path.exists')
     def test_create_volume_managed_root(
         self, mock_exists, mock_command, mock_open, mock_volume_manager, mock_fs
@@ -381,9 +381,9 @@ class TestDiskBuilder(object):
             'boot/*', 'boot/.*'
         ])
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     def test_create_with_image_format(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -392,9 +392,9 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
         self.disk.dformat.create_image_format.assert_called_once_with()
 
-    @patch('kiwi.disk.builder.FileSystem')
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
-    @patch('kiwi.disk.builder.Command.run')
+    @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.logger.log.warning')
     def test_create_with_ignore_format_on_install_media(
         self, mock_log_warn, mock_command, mock_open, mock_fs

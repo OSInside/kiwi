@@ -6,7 +6,7 @@ import kiwi
 
 from . import nose_helper
 
-from kiwi.container_builder import ContainerBuilder
+from kiwi.builder.container import ContainerBuilder
 
 
 class TestContainerBuilder(object):
@@ -27,7 +27,7 @@ class TestContainerBuilder(object):
             return_value='image_name'
         )
         self.setup = mock.Mock()
-        kiwi.container_builder.SystemSetup = mock.Mock(
+        kiwi.builder.container.SystemSetup = mock.Mock(
             return_value=self.setup
         )
         self.container = ContainerBuilder(
@@ -35,8 +35,8 @@ class TestContainerBuilder(object):
         )
         self.container.result = mock.Mock()
 
-    @patch('kiwi.container_builder.ContainerSetup')
-    @patch('kiwi.container_builder.ContainerImage')
+    @patch('kiwi.builder.container.ContainerSetup')
+    @patch('kiwi.builder.container.ContainerImage')
     def test_create(self, mock_image, mock_setup):
         container_setup = mock.Mock()
         mock_setup.return_value = container_setup

@@ -16,15 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .archive.builder import ArchiveBuilder
-from .filesystem.builder import FileSystemBuilder
-from .container_builder import ContainerBuilder
-from .disk.builder import DiskBuilder
-from .live_image_builder import LiveImageBuilder
-from .pxe_builder import PxeBuilder
-from .defaults import Defaults
+from .archive import ArchiveBuilder
+from .filesystem import FileSystemBuilder
+from .container import ContainerBuilder
+from .disk import DiskBuilder
+from .live import LiveImageBuilder
+from .pxe import PxeBuilder
+from ..defaults import Defaults
 
-from .exceptions import (
+from ..exceptions import (
     KiwiRequestedTypeError
 )
 

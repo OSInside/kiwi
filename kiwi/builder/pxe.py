@@ -19,16 +19,16 @@ import os
 import platform
 
 # project
-from .internal_boot_image_task import BootImageTask
-from .filesystem.builder import FileSystemBuilder
-from .compress import Compress
-from .checksum import Checksum
-from .system_setup import SystemSetup
-from .kernel import Kernel
-from .logger import log
-from .result import Result
+from ..internal_boot_image_task import BootImageTask
+from .filesystem import FileSystemBuilder
+from ..compress import Compress
+from ..checksum import Checksum
+from ..system_setup import SystemSetup
+from ..kernel import Kernel
+from ..logger import log
+from ..result import Result
 
-from .exceptions import (
+from ..exceptions import (
     KiwiPxeBootImageError
 )
 

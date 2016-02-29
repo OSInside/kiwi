@@ -7,7 +7,7 @@ import kiwi
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.live_image_builder import LiveImageBuilder
+from kiwi.builder.live import LiveImageBuilder
 
 
 class TestLiveImageBuilder(object):
@@ -18,33 +18,33 @@ class TestLiveImageBuilder(object):
         self.firmware.efi_mode = mock.Mock(
             return_value=True
         )
-        kiwi.live_image_builder.FirmWare = mock.Mock(
+        kiwi.builder.live.FirmWare = mock.Mock(
             return_value=self.firmware
         )
         self.setup = mock.Mock()
-        kiwi.live_image_builder.SystemSetup = mock.Mock(
+        kiwi.builder.live.SystemSetup = mock.Mock(
             return_value=self.setup
         )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
-        kiwi.live_image_builder.BootImageTask = mock.Mock(
+        kiwi.builder.live.BootImageTask = mock.Mock(
             return_value=self.boot_image_task
         )
         self.mbrid = mock.Mock()
         self.mbrid.get_id = mock.Mock(
             return_value='0xffffffff'
         )
-        kiwi.live_image_builder.ImageIdentifier = mock.Mock(
+        kiwi.builder.live.ImageIdentifier = mock.Mock(
             return_value=self.mbrid
         )
-        kiwi.live_image_builder.Path = mock.Mock()
+        kiwi.builder.live.Path = mock.Mock()
         self.kernel = mock.Mock()
         self.kernel.get_kernel = mock.Mock()
         self.kernel.get_xen_hypervisor = mock.Mock()
         self.kernel.copy_kernel = mock.Mock()
         self.kernel.copy_xen_hypervisor = mock.Mock()
-        kiwi.live_image_builder.Kernel = mock.Mock(
+        kiwi.builder.live.Kernel = mock.Mock(
             return_value=self.kernel
         )
         self.xml_state = mock.Mock()
@@ -89,13 +89,13 @@ class TestLiveImageBuilder(object):
         )
         assert live_image.arch == 'ix86'
 
-    @patch('kiwi.live_image_builder.mkdtemp')
-    @patch('kiwi.live_image_builder.Command.run')
-    @patch('kiwi.live_image_builder.Iso.create_hybrid')
-    @patch('kiwi.live_image_builder.FileSystem')
-    @patch('kiwi.live_image_builder.FileSystemIsoFs')
-    @patch('kiwi.live_image_builder.BootLoaderConfig')
-    @patch('kiwi.live_image_builder.SystemSize')
+    @patch('kiwi.builder.live.mkdtemp')
+    @patch('kiwi.builder.live.Command.run')
+    @patch('kiwi.builder.live.Iso.create_hybrid')
+    @patch('kiwi.builder.live.FileSystem')
+    @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.BootLoaderConfig')
+    @patch('kiwi.builder.live.SystemSize')
     @patch('builtins.open')
     def test_create_overlay_structure(
         self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
@@ -242,16 +242,16 @@ class TestLiveImageBuilder(object):
             'target_dir'
         )
 
-    @patch('kiwi.live_image_builder.mkdtemp')
-    @patch('kiwi.live_image_builder.Command.run')
+    @patch('kiwi.builder.live.mkdtemp')
+    @patch('kiwi.builder.live.Command.run')
     @raises(KiwiLiveBootImageError)
     def test_create_invalid_iso_structure(self, mock_command, mock_dtemp):
         self.live_image.live_type = 'bogus'
         self.live_image.create()
 
-    @patch('kiwi.live_image_builder.mkdtemp')
-    @patch('kiwi.live_image_builder.Command.run')
-    @patch('kiwi.live_image_builder.BootLoaderConfig')
+    @patch('kiwi.builder.live.mkdtemp')
+    @patch('kiwi.builder.live.Command.run')
+    @patch('kiwi.builder.live.BootLoaderConfig')
     @patch('builtins.open')
     @raises(KiwiLiveBootImageError)
     def test_create_no_kernel_found(
@@ -260,9 +260,9 @@ class TestLiveImageBuilder(object):
         self.kernel.get_kernel.return_value = False
         self.live_image.create()
 
-    @patch('kiwi.live_image_builder.mkdtemp')
-    @patch('kiwi.live_image_builder.Command.run')
-    @patch('kiwi.live_image_builder.BootLoaderConfig')
+    @patch('kiwi.builder.live.mkdtemp')
+    @patch('kiwi.builder.live.Command.run')
+    @patch('kiwi.builder.live.BootLoaderConfig')
     @patch('builtins.open')
     @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
@@ -271,7 +271,7 @@ class TestLiveImageBuilder(object):
         self.kernel.get_xen_hypervisor.return_value = False
         self.live_image.create()
 
-    @patch('kiwi.live_image_builder.Path.wipe')
+    @patch('kiwi.builder.live.Path.wipe')
     def test_destructor(self, mock_wipe):
         self.live_image.media_dir = 'media-dir'
         self.live_image.__del__()

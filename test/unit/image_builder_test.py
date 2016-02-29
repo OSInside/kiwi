@@ -6,11 +6,11 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.image_builder import ImageBuilder
+from kiwi.builder import ImageBuilder
 
 
 class TestImageBuilder(object):
-    @patch('kiwi.image_builder.FileSystemBuilder')
+    @patch('kiwi.builder.FileSystemBuilder')
     def test_filesystem_builder(self, mock_builder):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -21,7 +21,7 @@ class TestImageBuilder(object):
             xml_state, 'target_dir', 'root_dir'
         )
 
-    @patch('kiwi.image_builder.DiskBuilder')
+    @patch('kiwi.builder.DiskBuilder')
     def test_disk_builder(self, mock_builder):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -32,7 +32,7 @@ class TestImageBuilder(object):
             xml_state, 'target_dir', 'root_dir'
         )
 
-    @patch('kiwi.image_builder.LiveImageBuilder')
+    @patch('kiwi.builder.LiveImageBuilder')
     def test_live_builder(self, mock_builder):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -43,7 +43,7 @@ class TestImageBuilder(object):
             xml_state, 'target_dir', 'root_dir'
         )
 
-    @patch('kiwi.image_builder.PxeBuilder')
+    @patch('kiwi.builder.PxeBuilder')
     def test_pxe_builder(self, mock_builder):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -54,7 +54,7 @@ class TestImageBuilder(object):
             xml_state, 'target_dir', 'root_dir'
         )
 
-    @patch('kiwi.image_builder.ArchiveBuilder')
+    @patch('kiwi.builder.ArchiveBuilder')
     def test_archive_builder(self, mock_builder):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -65,7 +65,7 @@ class TestImageBuilder(object):
             xml_state, 'target_dir', 'root_dir'
         )
 
-    @patch('kiwi.image_builder.ContainerBuilder')
+    @patch('kiwi.builder.ContainerBuilder')
     def test_container_builder(self, mock_builder):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(

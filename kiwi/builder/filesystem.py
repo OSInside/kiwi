@@ -18,8 +18,8 @@
 import platform
 
 # project
-from . import FileSystem
-from .setup import FileSystemSetup
+from ..filesystem import FileSystem
+from ..filesystem.setup import FileSystemSetup
 from ..loop_device import LoopDevice
 from ..device_provider import DeviceProvider
 from ..system_setup import SystemSetup

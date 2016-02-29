@@ -7,7 +7,7 @@ import kiwi
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.archive.builder import ArchiveBuilder
+from kiwi.builder.archive import ArchiveBuilder
 
 
 class TestArchiveBuilder(object):
@@ -25,7 +25,7 @@ class TestArchiveBuilder(object):
             return_value='myimage'
         )
         self.setup = mock.Mock()
-        kiwi.archive.builder.SystemSetup = mock.Mock(
+        kiwi.builder.archive.SystemSetup = mock.Mock(
             return_value=self.setup
         )
         self.archive = ArchiveBuilder(
@@ -49,8 +49,8 @@ class TestArchiveBuilder(object):
         )
         archive.create()
 
-    @patch('kiwi.archive.builder.ArchiveTar')
-    @patch('kiwi.archive.builder.Checksum')
+    @patch('kiwi.builder.archive.ArchiveTar')
+    @patch('kiwi.builder.archive.Checksum')
     @patch('platform.machine')
     def test_create(self, mock_machine, mock_checksum, mock_tar):
         mock_machine.return_value = 'x86_64'

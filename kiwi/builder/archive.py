@@ -19,7 +19,7 @@ import platform
 
 # project
 from ..defaults import Defaults
-from .tar import ArchiveTar
+from ..archive.tar import ArchiveTar
 from ..system_setup import SystemSetup
 from ..checksum import Checksum
 from ..logger import log

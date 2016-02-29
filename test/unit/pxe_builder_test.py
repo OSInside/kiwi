@@ -10,15 +10,15 @@ from . import nose_helper
 from collections import namedtuple
 
 from kiwi.exceptions import *
-from kiwi.pxe_builder import PxeBuilder
+from kiwi.builder.pxe import PxeBuilder
 
 
 class TestPxeBuilder(object):
-    @patch('kiwi.pxe_builder.FileSystemBuilder')
-    @patch('kiwi.pxe_builder.BootImageTask')
+    @patch('kiwi.builder.pxe.FileSystemBuilder')
+    @patch('kiwi.builder.pxe.BootImageTask')
     def setup(self, mock_boot, mock_filesystem):
         self.setup = mock.Mock()
-        kiwi.pxe_builder.SystemSetup = mock.Mock(
+        kiwi.builder.pxe.SystemSetup = mock.Mock(
             return_value=self.setup
         )
         self.boot_image_task = mock.MagicMock()
@@ -47,7 +47,7 @@ class TestPxeBuilder(object):
         self.kernel.get_xen_hypervisor = mock.Mock(
             return_value=xen_type(filename='hypervisor', name='xen.gz')
         )
-        kiwi.pxe_builder.Kernel = mock.Mock(
+        kiwi.builder.pxe.Kernel = mock.Mock(
             return_value=self.kernel
         )
         self.pxe = PxeBuilder(
@@ -60,8 +60,8 @@ class TestPxeBuilder(object):
         self.pxe.machine = self.machine
         self.pxe.image_name = 'myimage'
 
-    @patch('kiwi.pxe_builder.Checksum')
-    @patch('kiwi.pxe_builder.Compress')
+    @patch('kiwi.builder.pxe.Checksum')
+    @patch('kiwi.builder.pxe.Compress')
     @patch('kiwi.logger.log.warning')
     def test_create(self, mock_log_warn, mock_compress, mock_checksum):
         compress = mock.Mock()
@@ -89,15 +89,15 @@ class TestPxeBuilder(object):
         # warning for not implemented pxedeploy handling
         assert mock_log_warn.called
 
-    @patch('kiwi.pxe_builder.Checksum')
-    @patch('kiwi.pxe_builder.Compress')
+    @patch('kiwi.builder.pxe.Checksum')
+    @patch('kiwi.builder.pxe.Compress')
     @raises(KiwiPxeBootImageError)
     def test_create_no_kernel_found(self, mock_compress, mock_checksum):
         self.kernel.get_kernel.return_value = False
         self.pxe.create()
 
-    @patch('kiwi.pxe_builder.Checksum')
-    @patch('kiwi.pxe_builder.Compress')
+    @patch('kiwi.builder.pxe.Checksum')
+    @patch('kiwi.builder.pxe.Compress')
     @raises(KiwiPxeBootImageError)
     def test_create_no_hypervisor_found(self, mock_compress, mock_checksum):
         self.kernel.get_xen_hypervisor.return_value = False

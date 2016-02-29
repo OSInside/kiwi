@@ -7,7 +7,7 @@ import kiwi
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.install_image_builder import InstallImageBuilder
+from kiwi.builder.install import InstallImageBuilder
 
 
 class TestInstallImageBuilder(object):
@@ -15,28 +15,28 @@ class TestInstallImageBuilder(object):
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
         self.bootloader = mock.Mock()
-        kiwi.install_image_builder.BootLoaderConfig = mock.Mock(
+        kiwi.builder.install.BootLoaderConfig = mock.Mock(
             return_value=self.bootloader
         )
         self.squashed_image = mock.Mock()
-        kiwi.install_image_builder.FileSystemSquashFs = mock.Mock(
+        kiwi.builder.install.FileSystemSquashFs = mock.Mock(
             return_value=self.squashed_image
         )
         self.iso_image = mock.Mock()
         self.iso_image.create_on_file.return_value = 42
-        kiwi.install_image_builder.FileSystemIsoFs = mock.Mock(
+        kiwi.builder.install.FileSystemIsoFs = mock.Mock(
             return_value=self.iso_image
         )
         self.mbrid = mock.Mock()
         self.mbrid.get_id = mock.Mock(
             return_value='0xffffffff'
         )
-        kiwi.install_image_builder.ImageIdentifier = mock.Mock(
+        kiwi.builder.install.ImageIdentifier = mock.Mock(
             return_value=self.mbrid
         )
-        kiwi.install_image_builder.Path = mock.Mock()
+        kiwi.builder.install.Path = mock.Mock()
         self.checksum = mock.Mock()
-        kiwi.install_image_builder.Checksum = mock.Mock(
+        kiwi.builder.install.Checksum = mock.Mock(
             return_value=self.checksum
         )
         self.kernel = mock.Mock()
@@ -44,7 +44,7 @@ class TestInstallImageBuilder(object):
         self.kernel.get_xen_hypervisor = mock.Mock()
         self.kernel.copy_kernel = mock.Mock()
         self.kernel.copy_xen_hypervisor = mock.Mock()
-        kiwi.install_image_builder.Kernel = mock.Mock(
+        kiwi.builder.install.Kernel = mock.Mock(
             return_value=self.kernel
         )
         self.xml_state = mock.Mock()
@@ -68,10 +68,10 @@ class TestInstallImageBuilder(object):
             return_value='dom0'
         )
 
-    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
-    @patch('kiwi.install_image_builder.Command.run')
-    @patch('kiwi.install_image_builder.Iso.create_hybrid')
+    @patch('kiwi.builder.install.Command.run')
+    @patch('kiwi.builder.install.Iso.create_hybrid')
     def test_create_install_iso(
         self, mock_hybrid, mock_command, mock_open, mock_dtemp
     ):
@@ -150,9 +150,9 @@ class TestInstallImageBuilder(object):
             42, self.mbrid, 'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
 
-    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
-    @patch('kiwi.install_image_builder.Command.run')
+    @patch('kiwi.builder.install.Command.run')
     @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_kernel_found(
         self, mock_command, mock_open, mock_dtemp
@@ -160,9 +160,9 @@ class TestInstallImageBuilder(object):
         self.kernel.get_kernel.return_value = False
         self.install_image.create_install_iso()
 
-    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
-    @patch('kiwi.install_image_builder.Command.run')
+    @patch('kiwi.builder.install.Command.run')
     @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_hypervisor_found(
         self, mock_command, mock_open, mock_dtemp
@@ -170,11 +170,11 @@ class TestInstallImageBuilder(object):
         self.kernel.get_xen_hypervisor.return_value = False
         self.install_image.create_install_iso()
 
-    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
-    @patch('kiwi.install_image_builder.Command.run')
-    @patch('kiwi.install_image_builder.Checksum')
-    @patch('kiwi.install_image_builder.Compress')
+    @patch('kiwi.builder.install.Command.run')
+    @patch('kiwi.builder.install.Checksum')
+    @patch('kiwi.builder.install.Compress')
     @raises(KiwiInstallBootImageError)
     def test_create_install_pxe_no_kernel_found(
         self, mock_compress, mock_md5, mock_command, mock_open, mock_dtemp
@@ -183,11 +183,11 @@ class TestInstallImageBuilder(object):
         self.kernel.get_kernel.return_value = False
         self.install_image.create_install_pxe_archive()
 
-    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
-    @patch('kiwi.install_image_builder.Command.run')
-    @patch('kiwi.install_image_builder.Checksum')
-    @patch('kiwi.install_image_builder.Compress')
+    @patch('kiwi.builder.install.Command.run')
+    @patch('kiwi.builder.install.Checksum')
+    @patch('kiwi.builder.install.Compress')
     @raises(KiwiInstallBootImageError)
     def test_create_install_pxe_no_hypervisor_found(
         self, mock_compress, mock_md5, mock_command, mock_open, mock_dtemp
@@ -196,12 +196,12 @@ class TestInstallImageBuilder(object):
         self.kernel.get_xen_hypervisor.return_value = False
         self.install_image.create_install_pxe_archive()
 
-    @patch('kiwi.install_image_builder.mkdtemp')
+    @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
-    @patch('kiwi.install_image_builder.Command.run')
-    @patch('kiwi.install_image_builder.ArchiveTar')
-    @patch('kiwi.install_image_builder.Checksum')
-    @patch('kiwi.install_image_builder.Compress')
+    @patch('kiwi.builder.install.Command.run')
+    @patch('kiwi.builder.install.ArchiveTar')
+    @patch('kiwi.builder.install.Checksum')
+    @patch('kiwi.builder.install.Compress')
     def test_create_install_pxe_archive(
         self, mock_compress, mock_md5, mock_archive,
         mock_command, mock_open, mock_dtemp
@@ -268,7 +268,7 @@ class TestInstallImageBuilder(object):
             'tmpdir'
         )
 
-    @patch('kiwi.install_image_builder.Path.wipe')
+    @patch('kiwi.builder.install.Path.wipe')
     def test_destructor(self, mock_wipe):
         self.install_image.pxe_dir = 'pxe-dir'
         self.install_image.media_dir = 'media-dir'

@@ -53,7 +53,7 @@ from .cli_task import CliTask
 from .help import Help
 from .system import System
 from .system_setup import SystemSetup
-from .image_builder import ImageBuilder
+from .builder import ImageBuilder
 from .profile import Profile
 from .defaults import Defaults
 from .privileges import Privileges
