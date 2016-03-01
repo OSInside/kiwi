@@ -518,7 +518,8 @@ function OEMRepartLVM {
         # Add LVSwap if requested.
         #--------------------------------------
         if [ "$kiwi_oemswap" = "true" ];then
-            lvcreate --size $swapsize"M" -n LVSwap $kiwi_lvmgroup
+            lvcreate --yes --wipesignatures y \
+                --size $swapsize"M" -n LVSwap $kiwi_lvmgroup
             swapParam=yes
         fi
         #======================================
