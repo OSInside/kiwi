@@ -40,7 +40,6 @@ options:
         directory to store the bundle results
 """
 from collections import OrderedDict
-import hashlib
 import os
 
 # project
@@ -50,6 +49,7 @@ from .result import Result
 from .logger import log
 from .path import Path
 from .compress import Compress
+from .checksum import Checksum
 from .command import Command
 
 from .exceptions import (
@@ -115,10 +115,9 @@ class ResultBundleTask(CliTask):
                     checksum_file = compress.compressed_filename + '.sha256'
                 if result_file.shasum:
                     log.info('--> Creating SHA 256 sum')
-                    with open(bundle_file, 'rb') as data:
-                        checksum = hashlib.sha256(data.read()).hexdigest()
-                    with open(checksum_file, 'w') as sha256:
-                        sha256.write(checksum)
+                    checksum = Checksum(bundle_file)
+                    with open(checksum_file, 'w') as shasum:
+                        shasum.write(checksum.sha256())
 
     def __help(self):
         if self.command_args['help']:

@@ -63,15 +63,18 @@ class TestResultBundleTask(object):
     @patch('kiwi.result_bundle_task.Command.run')
     @patch('kiwi.result_bundle_task.Path.create')
     @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.hashlib.sha256')
+    @patch('kiwi.result_bundle_task.Checksum')
     @patch('os.path.exists')
     @patch('builtins.open')
     def test_process_result_bundle(
-        self, mock_open, mock_exists, mock_sha256, mock_compress,
+        self, mock_open, mock_exists, mock_checksum, mock_compress,
         mock_path, mock_command, mock_load
     ):
-        sha256 = mock.Mock()
-        mock_sha256.return_value = sha256
+        checksum = mock.Mock()
+        compress = mock.Mock()
+        compress.compressed_filename = 'compressed_filename'
+        mock_compress.return_value = compress
+        mock_checksum.return_value = checksum
         mock_exists.return_value = False
         mock_open.return_value = self.context_manager_mock
         mock_load.return_value = self.result
@@ -91,8 +94,10 @@ class TestResultBundleTask(object):
         mock_compress.assert_called_once_with(
             'bundle_dir/filename-1.2.3-Build_42'
         )
-        mock_sha256.assert_called_once_with(b'data')
-        sha256.hexdigest.assert_called_once_with()
+        mock_checksum.assert_called_once_with(
+            compress.compressed_filename
+        )
+        checksum.sha256.assert_called_once_with()
 
     def test_process_result_bundle_help(self):
         self.__init_command_args()

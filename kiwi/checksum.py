@@ -40,7 +40,27 @@ class Checksum(object):
         self.source_filename = source_filename
         self.checksum_filename = None
 
-    def md5(self, filename):
+    def md5(self, filename=None):
+        md5_checksum = self.__calculate_hash_hexdigest(
+            hashlib.md5(), self.source_filename
+        )
+        if filename:
+            self.__create_checksum_file(
+                md5_checksum, filename
+            )
+        return md5_checksum
+
+    def sha256(self, filename=None):
+        sha256_checksum = self.__calculate_hash_hexdigest(
+            hashlib.sha256(), self.source_filename
+        )
+        if filename:
+            self.__create_checksum_file(
+                sha256_checksum, filename
+            )
+        return sha256_checksum
+
+    def __create_checksum_file(self, checksum, filename):
         compressed_blocks = None
         compress = Compress(self.source_filename)
         if compress.get_format():
@@ -55,22 +75,27 @@ class Checksum(object):
             blocks = self.__block_list(
                 os.path.getsize(self.source_filename)
             )
-        with open(self.source_filename, 'rb') as source:
-            checksum = hashlib.md5(source.read()).hexdigest()
-        with open(filename, 'w') as md5:
+        with open(filename, 'w') as checksum_file:
             if compressed_blocks:
-                md5.write(
+                checksum_file.write(
                     '%s %s %s %s %s\n' % (
                         checksum, blocks.blocks, blocks.blocksize,
                         compressed_blocks.blocks, compressed_blocks.blocksize
                     )
                 )
             else:
-                md5.write(
+                checksum_file.write(
                     '%s %s %s\n' % (
                         checksum, blocks.blocks, blocks.blocksize
                     )
                 )
+
+    def __calculate_hash_hexdigest(self, digest, filename, digest_blocks=128):
+        chunk_size = digest_blocks * digest.block_size
+        with open(filename, 'rb') as source:
+            for chunk in iter(lambda: source.read(chunk_size), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
 
     def __block_list(self, file_size):
         blocksize = 1
