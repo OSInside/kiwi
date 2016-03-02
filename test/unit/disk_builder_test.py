@@ -198,7 +198,7 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            '0815'
+            uuid='0815', kernel='linux.vmx', initrd='initrd.vmx'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -259,6 +259,21 @@ class TestDiskBuilder(object):
         )
         self.setup.export_rpm_package_verification.assert_called_once_with(
             'target_dir'
+        )
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch('builtins.open')
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_standard_root_dracut_initrd_system(
+        self, mock_command, mock_open, mock_fs
+    ):
+        self.disk_builder.initrd_system = 'dracut'
+        kernel = mock.Mock()
+        kernel.version = '1.2.3'
+        self.kernel.get_kernel.return_value = kernel
+        self.disk_builder.create()
+        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+            uuid='0815', initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3'
         )
 
     @patch('kiwi.builder.disk.FileSystem')

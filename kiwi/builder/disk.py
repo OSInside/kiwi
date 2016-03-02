@@ -17,6 +17,7 @@
 #
 import os
 import platform
+from collections import namedtuple
 
 # project
 from ..bootloader.config import BootLoaderConfig
@@ -71,10 +72,11 @@ class DiskBuilder(object):
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
         self.bootloader = xml_state.build_type.get_bootloader()
+        self.initrd_system = xml_state.build_type.get_initrd_system()
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
-        self.boot_image_task = BootImage(
+        self.boot_image = BootImage(
             xml_state, target_dir
         )
         self.firmware = FirmWare(
@@ -94,7 +96,7 @@ class DiskBuilder(object):
         )
         self.install_media = self.__install_image_requested()
         self.install_image = InstallImageBuilder(
-            xml_state, target_dir, self.boot_image_task
+            xml_state, target_dir, self.boot_image
         )
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
@@ -125,7 +127,7 @@ class DiskBuilder(object):
 
         # prepare boot(initrd) root system
         log.info('Preparing boot system')
-        self.boot_image_task.prepare()
+        self.boot_image.prepare()
 
         # precalculate needed disk size
         disksize_mbytes = self.disk_setup.get_disksize_mbytes()
@@ -218,7 +220,7 @@ class DiskBuilder(object):
         self.__write_raid_config_to_boot_image()
 
         self.system_setup.export_modprobe_setup(
-            self.boot_image_task.boot_root_directory
+            self.boot_image.boot_root_directory
         )
 
         # create first stage metadata to system image
@@ -227,7 +229,7 @@ class DiskBuilder(object):
         self.__write_crypttab_to_system_image()
 
         # create initrd cpio archive
-        self.boot_image_task.create_initrd(self.mbrid)
+        self.boot_image.create_initrd(self.mbrid)
 
         # create second stage metadata to boot
         self.__copy_first_boot_files_to_system_image()
@@ -426,7 +428,7 @@ class DiskBuilder(object):
 
     def __write_partition_id_config_to_boot_image(self):
         log.info('Creating config.partids in boot system')
-        filename = self.boot_image_task.boot_root_directory + '/config.partids'
+        filename = self.boot_image.boot_root_directory + '/config.partids'
         partition_id_map = self.disk.get_partition_id_map()
         with open(filename, 'w') as partids:
             for id_name, id_value in list(partition_id_map.items()):
@@ -436,7 +438,7 @@ class DiskBuilder(object):
         if self.mdraid:
             log.info('Creating etc/mdadm.conf in boot system')
             self.raid_root.create_raid_config(
-                self.boot_image_task.boot_root_directory + '/etc/mdadm.conf'
+                self.boot_image.boot_root_directory + '/etc/mdadm.conf'
             )
 
     def __write_crypttab_to_system_image(self):
@@ -458,12 +460,13 @@ class DiskBuilder(object):
             Command.run(
                 [
                     'cp', self.root_dir + '/recovery.partition.size',
-                    self.boot_image_task.boot_root_directory
+                    self.boot_image.boot_root_directory
                 ]
             )
 
     def __write_bootloader_config_to_system_image(self, device_map):
         log.info('Creating %s bootloader configuration', self.bootloader)
+        boot_names = self.__get_boot_names()
         boot_device = device_map['root']
         if 'boot' in device_map:
             boot_device = device_map['boot']
@@ -477,7 +480,11 @@ class DiskBuilder(object):
             boot_device.get_device()
         )
         self.bootloader_config.setup_disk_boot_images(boot_uuid)
-        self.bootloader_config.setup_disk_image_config(boot_uuid)
+        self.bootloader_config.setup_disk_image_config(
+            uuid=boot_uuid,
+            kernel=boot_names.kernel_name,
+            initrd=boot_names.initrd_name
+        )
         self.bootloader_config.write()
 
         self.system_setup.call_edit_boot_config_script(
@@ -507,17 +514,14 @@ class DiskBuilder(object):
 
     def __copy_first_boot_files_to_system_image(self):
         log.info('Copy boot files to system image')
-        kernel = Kernel(self.boot_image_task.boot_root_directory)
-        if kernel.get_kernel():
-            log.info('--> boot image kernel as first boot linux.vmx')
-            kernel.copy_kernel(
-                self.root_dir, '/boot/linux.vmx'
-            )
-        else:
-            raise KiwiDiskBootImageError(
-                'No kernel in boot image tree %s found' %
-                self.boot_image_task.boot_root_directory
-            )
+        kernel = Kernel(self.boot_image.boot_root_directory)
+        boot_names = self.__get_boot_names()
+
+        log.info('--> boot image kernel as %s', boot_names.kernel_name)
+        kernel.copy_kernel(
+            self.root_dir, '/boot/' + boot_names.kernel_name
+        )
+
         if self.machine and self.machine.get_domain() == 'dom0':
             if kernel.get_xen_hypervisor():
                 log.info('--> boot image Xen hypervisor as xen.gz')
@@ -527,12 +531,39 @@ class DiskBuilder(object):
             else:
                 raise KiwiDiskBootImageError(
                     'No hypervisor in boot image tree %s found' %
-                    self.boot_image_task.boot_root_directory
+                    self.boot_image.boot_root_directory
                 )
-        log.info('--> initrd archive as first boot initrd.vmx')
+
+        log.info('--> initrd archive as %s', boot_names.initrd_name)
         Command.run(
             [
-                'mv', self.boot_image_task.initrd_filename,
-                self.root_dir + '/boot/initrd.vmx'
+                'mv', self.boot_image.initrd_filename,
+                self.root_dir + '/boot/' + boot_names.initrd_name
             ]
         )
+
+    def __get_boot_names(self):
+        boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
+        )
+        kernel = Kernel(
+            self.boot_image.boot_root_directory
+        )
+        kernel_info = kernel.get_kernel()
+        if not kernel_info:
+            raise KiwiDiskBootImageError(
+                'No kernel in boot image tree %s found' %
+                self.boot_image.boot_root_directory
+            )
+        if self.initrd_system and self.initrd_system == 'dracut':
+            # The naming of the kernel file might be architecture specific
+            # If you encounter an inconsistency please fix here
+            return boot_names_type(
+                kernel_name='vmlinuz-' + kernel_info.version,
+                initrd_name='initrd-' + kernel_info.version
+            )
+        else:
+            return boot_names_type(
+                kernel_name='linux.vmx',
+                initrd_name='initrd.vmx'
+            )
