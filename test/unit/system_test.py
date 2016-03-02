@@ -111,9 +111,12 @@ class TestSystem(object):
     @patch('kiwi.system.Uri')
     @patch('kiwi.system.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
+    @patch('os.path.exists')
     def test_setup_repositories(
-        self, mock_package_manager, mock_manager, mock_uri, mock_repo
+        self, mock_exists, mock_package_manager,
+        mock_manager, mock_uri, mock_repo
     ):
+        mock_exists.return_value = True
         mock_package_manager.return_value = 'package-manager-name'
         uri = mock.Mock()
         mock_uri.return_value = uri
@@ -149,6 +152,35 @@ class TestSystem(object):
             call('uri-alias', 'uri', 'yast2', 42),
             call('uri-alias', 'uri', 'rpm-md', None)
         ]
+
+    @patch('kiwi.system.Repository')
+    @patch('kiwi.system.Uri')
+    @patch('kiwi.system.PackageManager')
+    @patch('kiwi.xml_state.XMLState.get_package_manager')
+    @patch('os.path.exists')
+    @patch('kiwi.logger.log.warning')
+    def test_setup_repositories_local_not_existing(
+        self, mock_log_warn, mock_exists, mock_package_manager,
+        mock_manager, mock_uri, mock_repo
+    ):
+        mock_exists.return_value = False
+        mock_package_manager.return_value = 'package-manager-name'
+        uri = mock.Mock()
+        mock_uri.return_value = uri
+        self.system.root_bind = mock.Mock()
+        uri.is_remote = mock.Mock(
+            return_value=False
+        )
+        uri.translate = mock.Mock(
+            return_value='uri'
+        )
+        uri.alias = mock.Mock(
+            return_value='uri-alias'
+        )
+        repo = mock.Mock()
+        mock_repo.return_value = repo
+        self.system.setup_repositories()
+        assert mock_log_warn.called
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.CommandProcess.poll_show_progress')

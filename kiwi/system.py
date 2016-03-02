@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+
 # project
 from .root_init import RootInit
 from .root_bind import RootBind
@@ -90,11 +92,21 @@ class System(object):
             uri = Uri(repo_source, repo_type)
             repo_source_translated = uri.translate()
             log.info('--> Translated: %s', repo_source_translated)
-            if not uri.is_remote():
-                self.root_bind.mount_shared_directory(repo_source_translated)
             if not repo_alias:
                 repo_alias = uri.alias()
             log.info('--> Alias: %s', repo_alias)
+
+            if not uri.is_remote() and not os.path.exists(
+                repo_source_translated
+            ):
+                log.warning(
+                    'repository %s does not exist and will be skipped',
+                    repo_source
+                )
+                continue
+
+            if not uri.is_remote():
+                self.root_bind.mount_shared_directory(repo_source_translated)
 
             repo.add_repo(
                 repo_alias, repo_source_translated, repo_type, repo_priority
