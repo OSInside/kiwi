@@ -26,28 +26,27 @@ def get_boot_description_packages_for_arch(boot_description_dir, arch):
                     package_list.append(
                         package.attributes['name'].value
                     )
-    return package_list
+    return sorted(package_list)
 
 def get_boot_distribution_names():
     distro_names = []
     for distro in glob.iglob('kiwi/boot/arch/*/*/*'):
         if os.path.isdir(distro):
             distro_names.append(os.path.basename(distro))
-    return list(
-        OrderedDict.fromkeys(distro_names)
+    return sorted(
+        list(OrderedDict.fromkeys(distro_names))
     )
 
-
 for distribution in get_boot_distribution_names():
-    for arch in glob.iglob('kiwi/boot/arch/*'):
+    for arch in sorted(glob.iglob('kiwi/boot/arch/*')):
         package_list = []
         for arch_distro in glob.iglob(arch + '/*/' + distribution):
             package_list += get_boot_description_packages_for_arch(
                 arch_distro, os.path.basename(arch)
             )
 
-        package_list = list(
-            OrderedDict.fromkeys(package_list)
+        package_list = sorted(
+            list(OrderedDict.fromkeys(package_list))
         )
         topic = os.path.basename(arch) + ':' + distribution + ':'
         if package_list:
