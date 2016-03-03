@@ -25,9 +25,10 @@ class ArchiveTar(object):
     """
         extraction/creation of tar archives
     """
-    def __init__(self, filename, create_from_file_list=True):
+    def __init__(self, filename, create_from_file_list=True, file_list=None):
         self.filename = filename
         self.create_from_file_list = create_from_file_list
+        self.file_list = file_list
 
     def create(self, source_dir, exclude=None, options=None):
         if not options:
@@ -66,18 +67,27 @@ class ArchiveTar(object):
 
     def __get_archive_items(self, source_dir, exclude_list):
         if self.create_from_file_list:
-            return self.__get_archive_content_list(source_dir, exclude_list)
+            return self.__get_archive_content_list(
+                source_dir, exclude_list, self.file_list
+            )
         else:
             return ['.'] + self.__get_archive_exclude_list(exclude_list)
 
-    def __get_archive_content_list(self, source_dir, exclude_list=None):
-        archive_items = []
-        for item in os.listdir(source_dir):
+    def __get_archive_content_list(
+        self, source_dir, exclude_list=None, file_list=None
+    ):
+        final_archive_contents = []
+        archive_contents = file_list
+        if not archive_contents:
+            archive_contents = os.listdir(source_dir)
+
+        for item in archive_contents:
             if not exclude_list:
-                archive_items.append(item)
+                final_archive_contents.append(item)
             elif item not in exclude_list:
-                archive_items.append(item)
-        return archive_items
+                final_archive_contents.append(item)
+
+        return final_archive_contents
 
     def __get_archive_exclude_list(self, exclude_list):
         archive_items = []

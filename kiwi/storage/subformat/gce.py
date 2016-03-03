@@ -51,7 +51,7 @@ class DiskFormatGce(DiskFormatBase):
         )
         if self.tag:
             with open(self.temp_image_dir + '/manifest.json', 'w') as manifest:
-                manifest.write('{"licenses":["%s"]}' % self.tag)
+                manifest.write('{"licenses": ["%s"]}' % self.tag)
 
         archive_name = self.get_target_name_for_format('gce')
 
@@ -60,7 +60,8 @@ class DiskFormatGce(DiskFormatBase):
         archive_name = archive_name.replace('.gz', '')
 
         archive = ArchiveTar(
-            self.target_dir + '/' + archive_name
+            filename=self.target_dir + '/' + archive_name,
+            file_list=['manifest.json', 'disk.raw']
         )
         archive.create_gnu_gzip_compressed(
             self.temp_image_dir

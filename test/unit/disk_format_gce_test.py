@@ -60,10 +60,11 @@ class TestDiskFormatGce(object):
             call('tmpdir/manifest.json', 'w')
         ]
         assert file_mock.write.call_args_list == [
-            call('{"licenses":["gce-license"]}')
+            call('{"licenses": ["gce-license"]}')
         ]
         mock_archive.assert_called_once_with(
-            'target_dir/distribution-guest-gce-0.8.15.tar'
+            filename='target_dir/distribution-guest-gce-0.8.15.tar',
+            file_list=['manifest.json', 'disk.raw']
         )
         archive.create_gnu_gzip_compressed.assert_called_once_with(
             'tmpdir'
