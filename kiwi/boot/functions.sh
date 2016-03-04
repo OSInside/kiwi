@@ -1332,8 +1332,8 @@ EOF
     #======================================
     # install grub2 in BIOS mode
     #--------------------------------------
-    if [ ! -z "$kiwi_OfwGrub" ];then
-        local prepdev=$(ddn $imageDiskDevice $kiwi_OfwGrub)
+    if [ ! -z "$kiwi_PrepPart" ];then
+        local prepdev=$(ddn $imageDiskDevice $kiwi_PrepPart)
         # install powerpc grub2
         $instTool $prepdev 1>&2
         if [ ! $? = 0 ];then

@@ -29,7 +29,7 @@ from ...exceptions import(
 
 class BootLoaderInstallGrub2(BootLoaderInstallBase):
     """
-        grub2 bootloader installation for x86 bios platform
+        grub2 bootloader installation
     """
     def post_init(self, custom_args):
         self.custom_args = custom_args
@@ -42,12 +42,22 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'root device node name required for grub2 installation'
             )
 
+        self.grub2_target = 'i386-pc'
+        self.grub2_install_dev = self.device
         self.root_mount = MountManager(
             custom_args['root_device']
         )
         self.boot_mount = MountManager(
             custom_args['boot_device']
         )
+        self.modules =' '.join(Defaults.get_grub_bios_modules())
+        self.grub2_install_args = ['--skip-fs-probe']
+        if 'prep_device' in custom_args:
+            self.grub2_target = 'powerpc-ieee1275'
+            self.grub2_install_dev = custom_args['prep_device']
+            self.modules = ' '.join(Defaults.get_grub_ofw_modules())
+            self.grub2_install_args+=['--no-nvram']
+        self.grub2_modules_dir = '/usr/lib/grub2/' + self.grub2_target
 
     def install(self):
         """
@@ -59,24 +69,24 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.root_mount.mount()
             self.boot_mount.mount()
             module_directory = self.root_mount.mountpoint \
-                + '/usr/lib/grub2/i386-pc'
+                +  self.grub2_modules_dir
             boot_directory = self.boot_mount.mountpoint
         else:
             self.root_mount.mount()
             module_directory = self.root_mount.mountpoint \
-                + '/usr/lib/grub2/i386-pc'
+                + self.grub2_modules_dir
             boot_directory = self.root_mount.mountpoint \
                 + '/boot'
 
         Command.run(
             [
-                'grub2-install',
-                '--skip-fs-probe',
+                'grub2-install'
+                ] + self.grub2_install_args + [
                 '--directory', module_directory,
                 '--boot-directory', boot_directory,
-                '--target', 'i386-pc',
-                '--modules', ' '.join(Defaults.get_grub_bios_modules()),
-                self.device
+                '--target', self.grub2_target,
+                '--modules', self.modules,
+                self.grub2_install_dev
             ]
         )
 

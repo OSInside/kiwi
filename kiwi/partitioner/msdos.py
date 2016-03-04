@@ -40,7 +40,8 @@ class PartitionerMsDos(object):
             't.lvm': '8e',
             't.raid': 'fd',
             't.efi': None,
-            't.csm': None
+            't.csm': None,
+            't.prep': '41'
         }
 
     def get_id(self):

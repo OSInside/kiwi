@@ -100,6 +100,13 @@ class DiskSetup(object):
                 '--> EFI partition adding %s MB', efi_mbytes
             )
 
+        prep_mbytes = self.firmware.get_prep_partition_size()
+        if prep_mbytes:
+            calculated_disk_mbytes += prep_mbytes
+            log.info(
+                '--> PReP partition adding %s MB', prep_mbytes
+            )
+
         recovery_mbytes = self.__inplace_recovery_partition_size()
         if recovery_mbytes:
             calculated_disk_mbytes += recovery_mbytes
