@@ -914,6 +914,80 @@ function startDropBear {
     fi
 }
 #======================================
+# readVolumeSetup
+#--------------------------------------
+function readVolumeSetup {
+    # /.../
+    # read the volume setup from the profile file and return
+    # a list with the following values:
+    #
+    # volume_name,resize_mode,requested_size,mount_point ...
+    # ----
+    local profile=$1
+    local skip_all_free_volume=$2
+    local variable
+    local volume
+    local content
+    local mode
+    local size
+    local volpath
+    local mpoint
+    local result
+    local profile_search="kiwi_LVM_|kiwi_allFreeVolume"
+    if [ ! -z "$skip_all_free_volume" ];then
+        profile_search="kiwi_LVM_"
+    fi
+    for i in $(cat $1 | grep -E "$profile_search");do
+        variable=$(echo $i|cut -f1 -d=)
+        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
+        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
+        mode=$(echo $content | cut -f1 -d:)
+        size=$(echo $content | cut -f2 -d:)
+        volpath=$(echo $content | cut -f3 -d:)
+        if [ -z "$volpath" ];then
+            volpath=$(echo $volume | tr _ /)
+        fi
+        mpoint=$(echo $volpath | sed -e s@^LV@@)
+        if [ $volume = "LVRoot" ]; then
+            mpoint='noop'
+        elif [ $volume = "LVComp" ];then
+            mpoint='noop'
+        elif [ $volume = "LVSwap" ];then
+            mpoint='noop'
+        fi
+        if [ -z "$result" ];then
+            result="$volume,$mode,$size,$mpoint"
+        else
+            result="$result $volume,$mode,$size,$mpoint"
+        fi
+    done
+    echo $result
+}
+#======================================
+# getVolumeName
+#--------------------------------------
+function getVolumeName {
+    echo $1 | cut -f1 -d,
+}
+#======================================
+# getVolumeMountPoint
+#--------------------------------------
+function getVolumeMountPoint {
+    echo $1 | cut -f4 -d,
+}
+#======================================
+# getVolumeSizeMode
+#--------------------------------------
+function getVolumeSizeMode {
+    echo $1 | cut -f2 -d,
+}
+#======================================
+# getVolumeSize
+#--------------------------------------
+function getVolumeSize {
+    echo $1 | cut -f3 -d,
+}
+#======================================
 # installBootLoader
 #--------------------------------------
 function installBootLoader {
@@ -2613,30 +2687,21 @@ function updateRootDeviceFstab {
     # check for LVM volume setup
     #--------------------------------------
     if [ "$haveLVM" = "yes" ];then
-        local variable
-        local volume
-        local content
-        local volpath
-        local mpoint
-        local mppath
-        local syspath
-        for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
-            variable=$(echo $i|cut -f1 -d=)
-            volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-            content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
-            volpath=$(echo $content | cut -f3 -d:)
-            if [ -z "$volpath" ];then
-                volpath=$(echo $volume | tr _ /)
-            fi
-            mpoint=$(echo $volpath | sed -e s@^LV@@)
-            mppath="/dev/$kiwi_lvmgroup/$volume"
+        local volume_name
+        local mount_device
+        local mount_point
+        for i in $(readVolumeSetup "/.profile");do
+            volume_name=$(getVolumeName $i)
             if \
-                [ ! $volume = "LVRoot" ] && \
-                [ ! $volume = "LVComp" ] && \
-                [ ! $volume = "LVSwap" ]
+                [ $volume_name = "LVRoot" ] || \
+                [ $volume_name = "LVComp" ] || \
+                [ $volume_name = "LVSwap" ]
             then
-                echo "$mppath /$mpoint $FSTYPE $opts 1 2" >> $nfstab
+                continue
             fi
+            mount_point=$(getVolumeMountPoint $i)
+            mount_device="/dev/$kiwi_lvmgroup/$volume_name"
+            echo "$mount_device /$mount_point $FSTYPE $opts 1 2" >> $nfstab
         done
     elif [ "$FSTYPE" = "btrfs" ];then
         if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then
@@ -5992,32 +6057,32 @@ function mountSystemStandard {
     local mpoint
     local mppath
     local prefix=/mnt
-    if [ ! -z $FSTYPE ]          && 
-         [ ! $FSTYPE = "unknown" ] && 
-         [ ! $FSTYPE = "auto" ]
+    if \
+        [ ! -z $FSTYPE ] && \
+        [ ! $FSTYPE = "unknown" ] && \
+        [ ! $FSTYPE = "auto" ]
     then
         kiwiMount "$mountDevice" "$prefix"
     else
         mount $mountDevice $prefix >/dev/null
     fi
     if [ "$haveLVM" = "yes" ];then
-        for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
-            variable=$(echo $i|cut -f1 -d=)
-            volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-            content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
-            volpath=$(echo $content | cut -f3 -d:)
-            if [ -z "$volpath" ];then
-                volpath=$(echo $volume | tr _ /)
-            fi
-            mpoint=$(echo $volpath | sed -e s@^LV@@)
+        local volume_name
+        local mount_device
+        local mount_point
+        for i in $(readVolumeSetup "/.profile");do
+            volume_name=$(getVolumeName $i)
             if \
-                [ ! $volume = "LVRoot" ] && \
-                [ ! $volume = "LVComp" ] && \
-                [ ! $volume = "LVSwap" ]
+                [ $volume_name = "LVRoot" ] || \
+                [ $volume_name = "LVComp" ] || \
+                [ $volume_name = "LVSwap" ]
             then
-                mkdir -p $prefix/$mpoint
-                kiwiMount "/dev/$kiwi_lvmgroup/$volume" "$prefix/$mpoint"
+                continue
             fi
+            mount_point=$(getVolumeMountPoint $i)
+            mount_device="/dev/$kiwi_lvmgroup/$volume_name"
+            mkdir -p $prefix/$mount_point
+            kiwiMount "$mount_device" "$prefix/$mount_point"
         done
     elif [ "$FSTYPE" = "btrfs" ];then
         if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then
@@ -7191,27 +7256,19 @@ function cleanImage {
     #======================================
     # umount LVM root parts
     #--------------------------------------
-    local variable
-    local volume
-    local content
-    local volpath
-    local mpoint
-    for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
-        variable=$(echo $i|cut -f1 -d=)
-        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
-        volpath=$(echo $content | cut -f3 -d:)
-        if [ -z "$volpath" ];then
-            volpath=$(echo $volume | tr _ /)
-        fi
-        mpoint=$(echo $volpath | sed -e s@^LV@@)
+    local volume_name
+    local mount_point
+    for i in $(readVolumeSetup "/.profile");do
+        volume_name=$(getVolumeName $i)
         if \
-            [ ! $volume = "LVRoot" ] && \
-            [ ! $volume = "LVComp" ] && \
-            [ ! $volume = "LVSwap" ]
+            [ $volume_name = "LVRoot" ] || \
+            [ $volume_name = "LVComp" ] || \
+            [ $volume_name = "LVSwap" ]
         then
-            umount /$mpoint 1>&2
+            continue
         fi
+        mount_point=$(getVolumeMountPoint $i)
+        umount /$mount_point 1>&2
     done
     #======================================
     # umount image boot partition if any
@@ -9034,13 +9091,6 @@ function createFilesystem {
 function restoreBtrfsSubVolumes {
     local IFS=$IFS_ORIG
     local root=$1
-    local variable
-    local volume
-    local content
-    local volpath
-    local mpoint
-    local mppath
-    local volbase
     local top=@
     btrfs subvolume create $root/@ || return
     if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then
@@ -9051,20 +9101,15 @@ function restoreBtrfsSubVolumes {
     fi
     local rootid=$(btrfs subvolume list $root | grep $top | cut -f2 -d ' ')
     btrfs subvolume set-default $rootid $root || return
-    for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
-        variable=$(echo $i|cut -f1 -d=)
-        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
-        volpath=$(echo $content | cut -f3 -d:)
-        if [ -z "$volpath" ];then
-            volpath=$(echo $volume | tr _ /)
+    local mount_point
+    local volume_toplevel
+    for i in $(readVolumeSetup "/.profile");do
+        mount_point=$(getVolumeMountPoint $i)
+        volume_toplevel="$root/@/$(dirname $mount_point)"
+        if [ ! -d $volume_toplevel ];then
+            mkdir -p $volume_toplevel
         fi
-        mpoint=$(echo $volpath | sed -e s@^LV@@)
-        volbase="$root/@/$(dirname $mpoint)"
-        if [ ! -d $volbase ];then
-            mkdir -p $volbase
-        fi
-        btrfs subvolume create $root/@/$mpoint || return
+        btrfs subvolume create $root/@/$mount_point || return
     done
     umount $root && mount $imageRootDevice $root
     if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then

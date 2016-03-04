@@ -901,26 +901,22 @@ function disableRepart {
 # resizeLVMVolumes
 #--------------------------------------
 function resizeLVMVolumes {
-    local variable
-    local volume
-    local content
-    local mode
-    local size
-    for i in $(cat /.profile | grep kiwi_LVM_);do
-        variable=$(echo $i|cut -f1 -d=)
-        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(eval echo \$$variable)
-        mode=$(echo $content | cut -f1 -d:)
-        size=$(echo $content | cut -f2 -d:)
-        Echo "Resizing volume $volume..."
-        if [ $mode = "size" ];then
-            lvextend -L ${size}M /dev/$kiwi_lvmgroup/$volume
+    local volume_name
+    local resize_mode
+    local volume_size
+    for i in $(readVolumeSetup "/.profile" "skip_all_free_volume");do
+        volume_name=$(getVolumeName $i)
+        resize_mode=$(getVolumeSizeMode $i)
+        volume_size=$(getVolumeSize $i)
+        Echo "Resizing volume $volume_name..."
+        if [ $resize_mode = "size" ];then
+            lvextend -L ${volume_size}M /dev/$kiwi_lvmgroup/$volume_name
         else
-            lvextend -L +${size}M /dev/$kiwi_lvmgroup/$volume
+            lvextend -L +${volume_size}M /dev/$kiwi_lvmgroup/$volume_name
         fi
         if [ $? = 0 ];then
             unset FSTYPE
-            resizeFilesystem /dev/$kiwi_lvmgroup/$volume
+            resizeFilesystem /dev/$kiwi_lvmgroup/$volume_name
         else
             Echo "Warning: requested size cannot be reached !"
         fi
