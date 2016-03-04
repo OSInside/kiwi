@@ -145,11 +145,22 @@ class VolumeManagerBase(DeviceProvider):
             volumes=volume_list, full_size_volume=full_size_volume
         )
 
-    def get_volume_mbsize(self, mbsize, size_type, realpath, filesystem_name):
+    def get_volume_mbsize(
+        self, mbsize, size_type, realpath, filesystem_name, image_type=None
+    ):
         """
             Implements size lookup for the given path and desired
             filesystem according to the specified size type
         """
+        if image_type and image_type == 'oem':
+            # only for vmx types we need to create the volumes in the
+            # configured size. oem disks are self expandable and will
+            # resize to the configured sizes on first boot of the disk
+            # image. Therefore the requested size is set to null
+            # and we add the required minimum size to hold the data
+            size_type = 'freespace'
+            mbsize = 0
+
         if size_type == 'freespace':
             # Please note for nested volumes which contains other volumes
             # the freespace calculation is not correct. Example:

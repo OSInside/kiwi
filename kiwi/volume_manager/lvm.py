@@ -40,6 +40,8 @@ class VolumeManagerLVM(VolumeManagerBase):
             self.custom_args = {}
         if 'root_label' not in self.custom_args:
             self.custom_args['root_label'] = 'ROOT'
+        if 'image_type' not in self.custom_args:
+            self.custom_args['image_type'] = None
 
         self.setup_mountpoint()
 
@@ -87,7 +89,11 @@ class VolumeManagerLVM(VolumeManagerBase):
         for volume in canonical_volume_list.volumes:
             [size_type, volume_mbsize] = volume.size.split(':')
             volume_mbsize = self.get_volume_mbsize(
-                volume_mbsize, size_type, volume.realpath, filesystem_name
+                volume_mbsize,
+                size_type,
+                volume.realpath,
+                filesystem_name,
+                self.custom_args['image_type']
             )
             log.info(
                 '--> volume %s with %s MB', volume.name, volume_mbsize

@@ -95,6 +95,17 @@ class TestVolumeManagerBase(object):
             100, 'freespace', '/foo', 'ext3'
         ) == 172
 
+    @patch('kiwi.volume_manager.base.SystemSize')
+    def test_get_volume_mbsize_for_oem_type(self, mock_size):
+        size = mock.Mock()
+        size.customize = mock.Mock(
+            return_value=42
+        )
+        mock_size.return_value = size
+        assert self.volume_manager.get_volume_mbsize(
+            100, 'freespace', '/foo', 'ext3', 'oem'
+        ) == 72
+
     @raises(NotImplementedError)
     def test_mount_volumes(self):
         self.volume_manager.mount_volumes()

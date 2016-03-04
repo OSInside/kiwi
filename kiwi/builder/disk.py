@@ -177,7 +177,9 @@ class DiskBuilder(object):
                 'root_label':
                     self.disk_setup.get_root_label(),
                 'root_is_snapshot':
-                    self.xml_state.build_type.get_btrfs_root_is_snapshot()
+                    self.xml_state.build_type.get_btrfs_root_is_snapshot(),
+                'image_type':
+                    self.xml_state.get_build_type_name()
             }
             volume_manager = VolumeManager(
                 self.volume_manager_name, device_map['root'],
