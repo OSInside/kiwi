@@ -44,7 +44,7 @@ Requires:       python3-lxml
 # tools used by kiwi
 Requires:       kiwi-tools
 Requires:       rsync
-Requires:       tar
+Requires:       tar >= 1.2.7
 Requires:       gptfdisk
 Requires:       qemu-tools
 Requires:       dosfstools
