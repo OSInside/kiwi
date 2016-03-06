@@ -170,6 +170,13 @@ class TestVolumeManagerLVM(object):
         mock_path.create.assert_called_once_with(volume_mount.mountpoint)
         volume_mount.mount.assert_called_once_with()
 
+    def test_umount_volumes(self):
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = 'volume_mount_point'
+        self.volume_manager.mount_list = [volume_mount]
+        assert self.volume_manager.umount_volumes() is True
+        volume_mount.umount.assert_called_once_with()
+
     @patch('kiwi.volume_manager.lvm.Path.wipe')
     @patch('kiwi.volume_manager.lvm.Command.run')
     def test_destructor_busy_volumes(self, mock_command, mock_wipe):
@@ -187,16 +194,21 @@ class TestVolumeManagerLVM(object):
         volume_mount.umount.assert_called_once_with()
         self.volume_manager.volume_group = None
 
+    @patch('kiwi.volume_manager.lvm.VolumeManagerLVM.umount_volumes')
     @patch('kiwi.volume_manager.lvm.Path.wipe')
     @patch('kiwi.volume_manager.lvm.Command.run')
     @patch('kiwi.logger.log.warning')
-    def test_destructor(self, mock_warn, mock_command, mock_wipe):
+    def test_destructor(
+        self, mock_warn, mock_command, mock_wipe, mock_umount_volumes
+    ):
+        mock_umount_volumes.return_value = True
         mock_command.side_effect = Exception
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.volume_group = 'volume_group'
 
         self.volume_manager.__del__()
 
+        mock_umount_volumes.assert_called_once_with()
         mock_wipe.assert_called_once_with('tmpdir')
         mock_command.assert_called_once_with(
             ['vgchange', '-an', 'volume_group']

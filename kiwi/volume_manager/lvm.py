@@ -134,6 +134,14 @@ class VolumeManagerLVM(VolumeManagerBase):
             Path.create(volume_mount.mountpoint)
             volume_mount.mount()
 
+    def umount_volumes(self):
+        all_volumes_umounted = True
+        for volume_mount in reversed(self.mount_list):
+            if volume_mount.is_mounted():
+                if not volume_mount.umount():
+                    all_volumes_umounted = False
+        return all_volumes_umounted
+
     def __create_filesystem(self, volume_name, filesystem_name):
         device_node = self.volume_map[volume_name]
         label = None
@@ -182,13 +190,7 @@ class VolumeManagerLVM(VolumeManagerBase):
     def __del__(self):
         if self.volume_group:
             log.info('Cleaning up %s instance', type(self).__name__)
-            all_volumes_umounted = True
-            for volume_mount in reversed(self.mount_list):
-                if volume_mount.is_mounted():
-                    if not volume_mount.umount():
-                        all_volumes_umounted = False
-
-            if all_volumes_umounted:
+            if self.umount_volumes():
                 Path.wipe(self.mountpoint)
                 try:
                     Command.run(['vgchange', '-an', self.volume_group])

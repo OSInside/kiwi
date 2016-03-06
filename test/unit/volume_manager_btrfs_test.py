@@ -205,6 +205,16 @@ class TestVolumeManagerBtrfs(object):
             options=['subvol=@/subvol']
         )
 
+    def test_umount_volumes(self):
+        self.volume_manager.toplevel_mount = mock.Mock()
+        volume_mount = mock.Mock()
+        self.volume_manager.subvol_mount_list = [volume_mount]
+        self.volume_manager.umount_volumes()
+        volume_mount.umount.assert_called_once_with(
+            delete_mountpoint=False
+        )
+        self.volume_manager.toplevel_mount.umount.assert_called_once_with()
+
     @patch('kiwi.volume_manager.btrfs.DataSync')
     def test_sync_data(self, mock_sync):
         self.volume_manager.toplevel_mount = mock.Mock()
@@ -222,14 +232,8 @@ class TestVolumeManagerBtrfs(object):
             ['exclude_me']
         )
 
-    def test_destructor(self):
+    @patch('kiwi.volume_manager.btrfs.VolumeManagerBtrfs.umount_volumes')
+    def test_destructor(self, mock_umount_volumes):
         self.volume_manager.toplevel_mount = mock.Mock()
-        volume_mount = mock.Mock()
-        self.volume_manager.subvol_mount_list = [volume_mount]
-
         self.volume_manager.__del__()
-
-        volume_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
-        self.volume_manager.toplevel_mount.umount.assert_called_once_with()
+        mock_umount_volumes.assert_called_once_with()

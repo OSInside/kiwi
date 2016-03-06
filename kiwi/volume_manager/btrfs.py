@@ -140,6 +140,11 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 options=['subvol=' + os.path.normpath('@/' + subvol_name)]
             )
 
+    def umount_volumes(self):
+        for volume_mount in reversed(self.subvol_mount_list):
+            volume_mount.umount(delete_mountpoint=False)
+        self.toplevel_mount.umount()
+
     def sync_data(self, exclude=None):
         if self.toplevel_mount:
             sync_target = self.mountpoint + '/@'
@@ -173,7 +178,4 @@ class VolumeManagerBtrfs(VolumeManagerBase):
     def __del__(self):
         if self.toplevel_mount:
             log.info('Cleaning up %s instance', type(self).__name__)
-            for volume_mount in reversed(self.subvol_mount_list):
-                volume_mount.umount(delete_mountpoint=False)
-
-            self.toplevel_mount.umount()
+            self.umount_volumes()

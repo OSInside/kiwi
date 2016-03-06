@@ -390,7 +390,6 @@ class TestDiskBuilder(object):
         )
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
-        volume_manager.mount_volumes.assert_called_once_with()
         volume_manager.sync_data.assert_called_once_with([
             'image', '.profile', '.kconfig', 'var/cache/kiwi',
             'boot/*', 'boot/.*'

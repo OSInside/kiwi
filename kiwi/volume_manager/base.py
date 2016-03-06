@@ -82,6 +82,12 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
+    def umount_volumes(self):
+        """
+            Implements umounting of all volumes
+        """
+        raise NotImplementedError
+
     def post_init(self, custom_args):
         """
             Called after init to handle e.g custom arguments
@@ -191,9 +197,11 @@ class VolumeManagerBase(DeviceProvider):
         """
         if self.mountpoint:
             root_mount = MountManager(device=None, mountpoint=self.mountpoint)
-            if root_mount.is_mounted():
-                data = DataSync(self.root_dir, self.mountpoint)
-                data.sync_data(exclude)
+            if not root_mount.is_mounted():
+                self.mount_volumes()
+            data = DataSync(self.root_dir, self.mountpoint)
+            data.sync_data(exclude)
+            self.umount_volumes()
 
     def setup_mountpoint(self):
         """

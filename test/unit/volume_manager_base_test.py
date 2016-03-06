@@ -110,18 +110,28 @@ class TestVolumeManagerBase(object):
     def test_mount_volumes(self):
         self.volume_manager.mount_volumes()
 
+    @raises(NotImplementedError)
+    def test_umount_volumes(self):
+        self.volume_manager.umount_volumes()
+
     @patch('kiwi.volume_manager.base.DataSync')
     @patch('kiwi.volume_manager.base.MountManager.is_mounted')
-    def test_sync_data(self, mock_mounted, mock_sync):
+    @patch('kiwi.volume_manager.base.VolumeManagerBase.mount_volumes')
+    @patch('kiwi.volume_manager.base.VolumeManagerBase.umount_volumes')
+    def test_sync_data(
+        self, mock_umount_volumes, mock_mount_volumes, mock_mounted, mock_sync
+    ):
         data_sync = mock.Mock()
         mock_sync.return_value = data_sync
-        mock_mounted.return_value = True
+        mock_mounted.return_value = False
         self.volume_manager.mountpoint = 'mountpoint'
         self.volume_manager.sync_data(['exclude_me'])
+        mock_mount_volumes.assert_called_once_with()
         mock_sync.assert_called_once_with(
             'root_dir', 'mountpoint'
         )
         data_sync.sync_data.assert_called_once_with(['exclude_me'])
+        mock_umount_volumes.assert_called_once_with()
 
     @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup_mountpoint(self, mock_mkdtemp):
