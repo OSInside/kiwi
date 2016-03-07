@@ -23,6 +23,7 @@ from tempfile import NamedTemporaryFile
 # project
 from .command import Command
 from .command_process import CommandProcess
+from .data_sync import DataSync
 from .logger import log
 from .defaults import Defaults
 from .users import Users
@@ -148,20 +149,21 @@ class SystemSetup(object):
         overlay_archive = self.description_dir + '/root.tar.gz'
         if os.path.exists(overlay_directory):
             log.info('Copying user defined files to image tree')
-            rsync_options = [
+            sync_options = [
                 '-r', '-p', '-t', '-D', '-H', '-X', '-A', '--one-file-system'
             ]
             if follow_links:
-                rsync_options.append('--copy-links')
+                sync_options.append('--copy-links')
             else:
-                rsync_options.append('--links')
+                sync_options.append('--links')
             if preserve_owner_group:
-                rsync_options.append('-o')
-                rsync_options.append('-g')
-            Command.run(
-                ['rsync'] + rsync_options + [
-                    overlay_directory, self.root_dir
-                ]
+                sync_options.append('-o')
+                sync_options.append('-g')
+            data = DataSync(
+                overlay_directory, self.root_dir
+            )
+            data.sync_data(
+                options=sync_options
             )
         elif os.path.exists(overlay_archive):
             log.info('Extracting user defined files from archive to image tree')
@@ -326,8 +328,11 @@ class SystemSetup(object):
         if os.path.exists(modprobe_config):
             log.info('Export modprobe configuration')
             Path.create(target_root_dir + '/etc')
-            Command.run(
-                ['rsync', '-zav', modprobe_config, target_root_dir + '/etc/']
+            data = DataSync(
+                modprobe_config, target_root_dir + '/etc/'
+            )
+            data.sync_data(
+                options=['-z', '-a']
             )
 
     def export_rpm_package_list(self, target_dir):

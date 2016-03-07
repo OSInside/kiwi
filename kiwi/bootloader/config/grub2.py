@@ -26,6 +26,7 @@ from ...defaults import Defaults
 from ...firmware import FirmWare
 from ...logger import log
 from ...path import Path
+from ...data_sync import DataSync
 
 from ...exceptions import (
     KiwiTemplateError,
@@ -439,8 +440,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             theme_dir = self.__find_grub_data(lookup_path + '/usr/share') + \
                 '/themes/' + self.theme
             if os.path.exists(theme_dir):
-                Command.run(
-                    ['rsync', '-za', theme_dir, boot_theme_dir],
+                data = DataSync(
+                    theme_dir, boot_theme_dir
+                )
+                data.sync_data(
+                    options=['-z', '-a']
                 )
             else:
                 log.warning('Theme %s not found', theme_dir)
@@ -463,8 +467,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         boot_module_path = \
             self.__get_grub_boot_path() + '/' + os.path.basename(module_path)
         try:
-            Command.run(
-                ['rsync', '-za', module_path + '/', boot_module_path]
+            data = DataSync(
+                module_path + '/', boot_module_path
+            )
+            data.sync_data(
+                options=['-z', '-a']
             )
         except Exception as e:
             raise KiwiBootLoaderGrubModulesError(

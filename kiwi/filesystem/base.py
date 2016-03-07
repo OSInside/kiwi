@@ -85,7 +85,10 @@ class FileSystemBase(object):
         data = DataSync(
             self.root_dir, self.filesystem_mount.mountpoint
         )
-        data.sync_data(exclude)
+        data.sync_data(
+            options=['-a', '-H', '-X', '-A', '--one-file-system'],
+            exclude=exclude
+        )
         self.filesystem_mount.umount()
 
     def __del__(self):

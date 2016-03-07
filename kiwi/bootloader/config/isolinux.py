@@ -21,7 +21,7 @@ import platform
 # project
 from .base import BootLoaderConfigBase
 from ..template.isolinux import BootLoaderTemplateIsoLinux
-from ...command import Command
+from ...data_sync import DataSync
 from ...logger import log
 from ...path import Path
 
@@ -180,10 +180,11 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             lookup_path = self.root_dir
         loader_data = lookup_path + '/image/loader/'
         Path.create(self.__get_iso_boot_path())
-        Command.run(
-            [
-                'rsync', '-zav', loader_data, self.__get_iso_boot_path()
-            ]
+        data = DataSync(
+            loader_data, self.__get_iso_boot_path()
+        )
+        data.sync_data(
+            options=['-z', '-a']
         )
 
     def __get_iso_boot_path(self):

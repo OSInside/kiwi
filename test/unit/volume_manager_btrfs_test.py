@@ -229,7 +229,8 @@ class TestVolumeManagerBtrfs(object):
             'root_dir', 'tmpdir/@/.snapshots/1/snapshot'
         )
         sync.sync_data.assert_called_once_with(
-            ['exclude_me']
+            exclude=['exclude_me'],
+            options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
 
     @patch('kiwi.volume_manager.btrfs.VolumeManagerBtrfs.umount_volumes')

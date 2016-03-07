@@ -130,7 +130,10 @@ class TestVolumeManagerBase(object):
         mock_sync.assert_called_once_with(
             'root_dir', 'mountpoint'
         )
-        data_sync.sync_data.assert_called_once_with(['exclude_me'])
+        data_sync.sync_data.assert_called_once_with(
+            exclude=['exclude_me'],
+            options=['-a', '-H', '-X', '-A', '--one-file-system']
+        )
         mock_umount_volumes.assert_called_once_with()
 
     @patch('kiwi.volume_manager.base.mkdtemp')

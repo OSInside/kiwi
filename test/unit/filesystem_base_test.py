@@ -53,7 +53,10 @@ class TestFileSystemBase(object):
         self.fsbase.sync_data(['exclude_me'])
 
         mock_sync.assert_called_once_with('root_dir', 'tmpdir')
-        data_sync.sync_data.assert_called_once_with(['exclude_me'])
+        data_sync.sync_data.assert_called_once_with(
+            exclude=['exclude_me'],
+            options=['-a', '-H', '-X', '-A', '--one-file-system']
+        )
         mock_mount.assert_called_once_with(
             device='/dev/loop0', mountpoint='tmpdir'
         )

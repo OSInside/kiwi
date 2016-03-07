@@ -20,6 +20,7 @@ import os
 
 # project
 from ..command import Command
+from ..data_sync import DataSync
 
 from ..exceptions import (
     KiwiContainerSetupError
@@ -136,11 +137,9 @@ class ContainerSetupBase(object):
             limitation of this method and considered harmless
         """
         try:
-            Command.run(
-                [
-                    'rsync', '-zavx', '--devices', '--specials',
-                    '/dev/', self.root_dir + '/dev/'
-                ]
+            data = DataSync('/dev/', self.root_dir + '/dev/')
+            data.sync_data(
+                options=['-z', '-a', '-x', '--devices', '--specials']
             )
         except Exception as e:
             raise KiwiContainerSetupError(

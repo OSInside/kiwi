@@ -82,13 +82,15 @@ class TestBootImageKiwi(object):
     @patch('kiwi.boot.image.kiwi.Compress')
     @patch('kiwi.boot.image.kiwi.Path.create')
     @patch('kiwi.boot.image.kiwi.Path.wipe')
-    @patch('kiwi.boot.image.kiwi.Command.run')
+    @patch('kiwi.boot.image.kiwi.DataSync')
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     @patch('kiwi.boot.image.kiwi.mkdtemp')
     def test_create_initrd(
-        self, mock_mkdtemp, mock_prepared, mock_command,
+        self, mock_mkdtemp, mock_prepared, mock_sync,
         mock_wipe, mock_create, mock_compress, mock_cpio
     ):
+        data = mock.Mock()
+        mock_sync.return_value = data
         mock_mkdtemp.return_value = 'temp-boot-directory'
         mock_prepared.return_value = True
         mbrid = mock.Mock()
@@ -98,9 +100,10 @@ class TestBootImageKiwi(object):
         mock_cpio.return_value = cpio
         mock_compress.return_value = compress
         self.boot_image.create_initrd(mbrid)
-        mock_command.assert_called_once_with(
-            ['rsync', '-zav', 'boot-directory/', 'temp-boot-directory']
+        mock_sync.assert_called_once_with(
+            'boot-directory/', 'temp-boot-directory'
         )
+        data.sync_data.assert_called_once_with(options=['-z', '-a'])
         mock_cpio.assert_called_once_with(
             self.boot_image.target_dir +
             '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'

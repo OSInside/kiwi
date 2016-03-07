@@ -18,12 +18,12 @@
 from tempfile import mkdtemp
 
 from ...defaults import Defaults
+from ...data_sync import DataSync
 from ...system import System
 from ...profile import Profile
 from ...system_setup import SystemSetup
 from ...logger import log
 from ...archive.cpio import ArchiveCpio
-from ...command import Command
 from ...compress import Compress
 from ...path import Path
 from .base import BootImageBase
@@ -95,11 +95,12 @@ class BootImageKiwi(BootImageBase):
             # on other data in boot/ e.g the kernel to be available
             # for the entire image building process
             self.temp_boot_root_directory = mkdtemp()
-            Command.run(
-                [
-                    'rsync', '-zav', self.boot_root_directory + '/',
-                    self.temp_boot_root_directory
-                ]
+            data = DataSync(
+                self.boot_root_directory + '/',
+                self.temp_boot_root_directory
+            )
+            data.sync_data(
+                options=['-z', '-a']
             )
             boot_directory = self.temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)

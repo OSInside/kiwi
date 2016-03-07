@@ -200,7 +200,10 @@ class VolumeManagerBase(DeviceProvider):
             if not root_mount.is_mounted():
                 self.mount_volumes()
             data = DataSync(self.root_dir, self.mountpoint)
-            data.sync_data(exclude)
+            data.sync_data(
+                options=['-a', '-H', '-X', '-A', '--one-file-system'],
+                exclude=exclude
+            )
             self.umount_volumes()
 
     def setup_mountpoint(self):

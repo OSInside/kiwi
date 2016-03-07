@@ -28,8 +28,11 @@ class DataSync(object):
         self.source_dir = source_dir
         self.target_dir = target_dir
 
-    def sync_data(self, exclude=None):
+    def sync_data(self, options=None, exclude=None):
         exclude_options = []
+        rsync_options = []
+        if options:
+            rsync_options = options
         if exclude:
             for item in exclude:
                 exclude_options.append('--exclude')
@@ -37,9 +40,7 @@ class DataSync(object):
                     '/' + item
                 )
         Command.run(
-            [
-                'rsync', '-a', '-H', '-X', '-A', '--one-file-system'
-            ] + exclude_options + [
+            ['rsync'] + rsync_options + exclude_options + [
                 self.source_dir, self.target_dir
             ]
         )

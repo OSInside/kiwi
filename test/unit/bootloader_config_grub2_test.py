@@ -39,7 +39,6 @@ class TestBootLoaderConfigGrub2(object):
         mock_domain.return_value = None
         kiwi.bootloader.config.grub2.Path = mock.Mock()
         kiwi.bootloader.config.base.Path = mock.Mock()
-        kiwi.bootloader.config.grub2.Command = mock.Mock()
 
         self.firmware = mock.Mock()
         self.firmware.ec2_mode = mock.Mock(
@@ -286,12 +285,15 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi(
-        self, mock_machine, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_sync, mock_command
     ):
+        data = mock.Mock()
+        mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
@@ -336,23 +338,29 @@ class TestBootLoaderConfigGrub2(object):
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
                 'btrfs', 'lvm', 'multiboot', 'part_gpt', 'efi_gop',
                 'efi_uga', 'linuxefi'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-efi/',
-                'root_dir/boot/grub2/x86_64-efi'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/i386-pc/',
-                'root_dir/boot/grub2/i386-pc'
             ])
+        ]
+        assert mock_sync.call_args_list == [
+            call(
+                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/boot/grub2/x86_64-efi'
+            ),
+            call(
+                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/boot/grub2/i386-pc'
+            )
+        ]
+        assert data.sync_data.call_args_list == [
+            call(options=['-z', '-a']),
+            call(options=['-z', '-a'])
         ]
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    #@patch('builtins.open')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_xen_guest(
-        self, mock_machine, mock_exists, mock_command
+        self, mock_machine, mock_exists, mock_sync, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -368,27 +376,28 @@ class TestBootLoaderConfigGrub2(object):
 
         self.bootloader.setup_disk_boot_images('0815')
 
-        assert mock_command.call_args_list == [
-            call([
+        mock_command.assert_called_once_with(
+            [
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
                 'root_dir/boot/unicode.pf2'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/i386-pc/',
+            ]
+        )
+        assert mock_sync.call_args_list == [
+            call(
+                'root_dir/usr/lib/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
-            ]),
-            call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-xen/',
-                'root_dir/boot/grub2/x86_64-xen']
+            ),
+            call(
+                'root_dir/usr/lib/grub2/x86_64-xen/',
+                'root_dir/boot/grub2/x86_64-xen'
             )
         ]
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot(
-        self, mock_machine, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -410,12 +419,15 @@ class TestBootLoaderConfigGrub2(object):
             ])
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_install_boot_images_efi(
-        self, mock_machine, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_open, mock_sync, mock_command
     ):
+        data = mock.Mock()
+        mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value=None
@@ -462,10 +474,6 @@ class TestBootLoaderConfigGrub2(object):
                 'efi_uga', 'linuxefi'
             ]),
             call([
-                'rsync', '-za', 'root_dir/usr/lib/grub2/x86_64-efi/',
-                'root_dir/boot/grub2/x86_64-efi'
-            ]),
-            call([
                 'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'
             ]),
             call([
@@ -476,13 +484,19 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/EFI', '::'
             ])
         ]
+        mock_sync.assert_called_once_with(
+            'root_dir/usr/lib/grub2/x86_64-efi/',
+            'root_dir/boot/grub2/x86_64-efi'
+        )
+        data.sync_data.assert_called_once_with(
+            options=['-z', '-a']
+        )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_install_boot_images_efi_secure_boot(
-        self, mock_machine, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -508,13 +522,17 @@ class TestBootLoaderConfigGrub2(object):
             ])
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
     def test_setup_install_boot_images_with_theme(
-        self, mock_machine, mock_warn, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_warn, mock_exists, mock_open,
+        mock_sync, mock_command
     ):
+        data = mock.Mock()
+        mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/boot/grub2/themes'] = False
@@ -525,19 +543,21 @@ class TestBootLoaderConfigGrub2(object):
 
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
-        assert mock_command.call_args_list[0] == call([
-            'rsync', '-za',
+        assert mock_sync.call_args_list[0] == call(
             'root_dir/usr/share/grub2/themes/some-theme',
             'root_dir/boot/grub2/themes'
-        ])
+        )
+        assert data.sync_data.call_args_list[0] == call(options=['-z', '-a'])
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_machine, mock_warn, mock_exists, mock_open, mock_command
+        self, mock_machine, mock_warn, mock_exists, mock_open,
+        mock_sync, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'

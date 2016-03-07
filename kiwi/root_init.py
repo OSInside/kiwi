@@ -20,6 +20,7 @@ from shutil import rmtree
 import os
 
 # project
+from .data_sync import DataSync
 from .command import Command
 from .path import Path
 
@@ -105,10 +106,11 @@ class RootInit(object):
             Command.run(['ln', '-s', '/run', root + '/var/run'])
 
             self.__setup_config_templates(root)
-            Command.run(
-                ['rsync', '-a', '--ignore-existing', root + '/', self.root_dir]
+            data = DataSync(root + '/', self.root_dir)
+            data.sync_data(
+                options=['-a', '--ignore-existing']
             )
-            Command.run(['rm', '-r', root])
+            Path.wipe(root)
         except Exception as e:
             rmtree(root, ignore_errors=True)
             raise KiwiRootInitCreationError(

@@ -151,7 +151,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             if self.custom_args['root_is_snapshot']:
                 sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
             data = DataSync(self.root_dir, sync_target)
-            data.sync_data(exclude)
+            data.sync_data(
+                options=['-a', '-H', '-X', '-A', '--one-file-system'],
+                exclude=exclude
+            )
 
     def __set_default_volume(self, default_volume):
         subvolume_list_call = Command.run(

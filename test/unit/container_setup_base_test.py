@@ -117,7 +117,7 @@ class TestContainerSetupBase(object):
         self.container.setup_static_device_nodes()
         mock_command.assert_called_once_with(
             [
-                'rsync', '-zavx', '--devices', '--specials',
+                'rsync', '-z', '-a', '-x', '--devices', '--specials',
                 '/dev/', 'root_dir/dev/'
             ]
         )

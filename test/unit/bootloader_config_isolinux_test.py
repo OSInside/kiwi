@@ -121,28 +121,34 @@ class TestBootLoaderConfigIsoLinux(object):
         self.isolinux.get_install_message_template.side_effect = Exception
         self.bootloader.setup_install_image_config(mbrid=None)
 
-    @patch('kiwi.bootloader.config.isolinux.Command.run')
-    def test_setup_install_boot_images(self, mock_command):
+    @patch('kiwi.bootloader.config.isolinux.DataSync')
+    def test_setup_install_boot_images(self, mock_sync):
+        data = mock.Mock()
+        mock_sync.return_value = data
         self.bootloader.setup_install_boot_images(
             mbrid=None, lookup_path='lookup_dir'
         )
-        mock_command.assert_called_once_with(
-            [
-                'rsync', '-zav', 'lookup_dir/image/loader/',
-                'root_dir/boot/x86_64/loader'
-            ]
+        mock_sync.assert_called_once_with(
+            'lookup_dir/image/loader/',
+            'root_dir/boot/x86_64/loader'
+        )
+        data.sync_data.assert_called_once_with(
+            options=['-z', '-a']
         )
 
-    @patch('kiwi.bootloader.config.isolinux.Command.run')
-    def test_setup_live_boot_images(self, mock_command):
+    @patch('kiwi.bootloader.config.isolinux.DataSync')
+    def test_setup_live_boot_images(self, mock_sync):
+        data = mock.Mock()
+        mock_sync.return_value = data
         self.bootloader.setup_live_boot_images(
             mbrid=None
         )
-        mock_command.assert_called_once_with(
-            [
-                'rsync', '-zav', 'root_dir/image/loader/',
-                'root_dir/boot/x86_64/loader'
-            ]
+        mock_sync.assert_called_once_with(
+            'root_dir/image/loader/',
+            'root_dir/boot/x86_64/loader'
+        )
+        data.sync_data.assert_called_once_with(
+            options=['-z', '-a']
         )
 
     @raises(KiwiTemplateError)

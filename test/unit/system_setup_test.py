@@ -522,7 +522,10 @@ class TestSystemSetup(object):
         self.setup.export_modprobe_setup('target_root_dir')
         mock_path.assert_called_once_with('target_root_dir/etc')
         mock_command.assert_called_once_with(
-            ['rsync', '-zav', 'root_dir/etc/modprobe.d', 'target_root_dir/etc/']
+            [
+                'rsync', '-z', '-a',
+                'root_dir/etc/modprobe.d', 'target_root_dir/etc/'
+            ]
         )
 
     @patch('kiwi.system_setup.Command.run')
