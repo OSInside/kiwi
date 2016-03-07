@@ -16,6 +16,7 @@ graft kiwi/partitioner
 graft kiwi/repository
 graft kiwi/schema
 graft kiwi/storage
+graft kiwi/system
 graft kiwi/volume_manager
 graft kiwi/xsl
 graft kiwi/schema
