@@ -11,7 +11,7 @@ from kiwi.exceptions import (
 )
 
 from kiwi.repository.zypper import RepositoryZypper
-from kiwi.root_bind import RootBind
+from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryZypper(object):

@@ -21,9 +21,9 @@ from urllib.parse import urlparse
 import hashlib
 
 # project
-from .mount_manager import MountManager
+from ..mount_manager import MountManager
 
-from .exceptions import (
+from ..exceptions import (
     KiwiUriStyleUnknown,
     KiwiUriTypeUnknown
 )

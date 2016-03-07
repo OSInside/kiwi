@@ -45,7 +45,7 @@ import os
 # project
 from .cli_task import CliTask
 from .help import Help
-from .result import Result
+from .system.result import Result
 from .logger import log
 from .path import Path
 from .compress import Compress

@@ -26,12 +26,12 @@ class TestSystemBuildTask(object):
         )
 
         self.manager = mock.Mock()
-        self.system = mock.Mock()
-        self.system.setup_repositories = mock.Mock(
+        self.system_prepare = mock.Mock()
+        self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.system_build_task.System = mock.Mock(
-            return_value=self.system
+        kiwi.system_build_task.SystemPrepare = mock.Mock(
+            return_value=self.system_prepare
         )
 
         self.setup = mock.Mock()
@@ -70,9 +70,11 @@ class TestSystemBuildTask(object):
         self.__init_command_args()
         self.task.command_args['build'] = True
         self.task.process()
-        self.system.setup_repositories.assert_called_once_with()
-        self.system.install_bootstrap.assert_called_once_with(self.manager)
-        self.system.install_system.assert_called_once_with(
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.install_bootstrap.assert_called_once_with(
+            self.manager
+        )
+        self.system_prepare.install_system.assert_called_once_with(
             self.manager
         )
         self.setup.import_shell_environment.assert_called_once_with(
@@ -87,7 +89,7 @@ class TestSystemBuildTask(object):
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
-        self.system.pinch_system.assert_called_once_with(
+        self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
         )
         self.setup.call_image_script.assert_called_once_with()

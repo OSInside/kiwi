@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.shell import Shell
+from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
 
 
@@ -22,7 +22,7 @@ class TestShell(object):
             "strange='$a_foo'"
         ]
 
-    @patch('kiwi.shell.Command.run')
+    @patch('kiwi.system.shell.Command.run')
     def test_run_common_function(self, mock_command):
         Shell.run_common_function('foo', ['"param1"', '"param2"'])
         command_string = ' '.join(

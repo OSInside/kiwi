@@ -19,9 +19,9 @@ import random
 import struct
 
 
-class ImageIdentifier(object):
+class SystemIdentifier(object):
     """
-        Create a random ID to identify the image. The information
+        Create a random ID to identify the system. The information
         is used to create the mbrid file as an example
     """
     def __init__(self):

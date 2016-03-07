@@ -8,7 +8,7 @@ import kiwi
 from . import nose_helper
 from kiwi.exceptions import *
 from kiwi.result_bundle_task import ResultBundleTask
-from kiwi.result import Result
+from kiwi.system.result import Result
 
 
 class TestResultBundleTask(object):

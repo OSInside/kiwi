@@ -24,7 +24,7 @@ from ..storage.device_provider import DeviceProvider
 from ..mount_manager import MountManager
 from ..data_sync import DataSync
 from ..path import Path
-from ..system_size import SystemSize
+from ..system.size import SystemSize
 from ..defaults import Defaults
 
 from ..exceptions import (

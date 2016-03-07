@@ -19,9 +19,9 @@ from tempfile import mkdtemp
 
 from ...defaults import Defaults
 from ...data_sync import DataSync
-from ...system import System
-from ...profile import Profile
-from ...system_setup import SystemSetup
+from ...system.prepare import SystemPrepare
+from ...system.profile import Profile
+from ...system.setup import SystemSetup
 from ...logger import log
 from ...archive.cpio import ArchiveCpio
 from ...compress import Compress
@@ -46,7 +46,7 @@ class BootImageKiwi(BootImageBase):
         self.import_system_description_elements()
 
         log.info('Preparing boot image')
-        system = System(
+        system = SystemPrepare(
             xml_state=self.boot_xml_state,
             root_dir=self.boot_root_directory,
             allow_existing=True

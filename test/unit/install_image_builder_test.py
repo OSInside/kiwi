@@ -31,7 +31,7 @@ class TestInstallImageBuilder(object):
         self.mbrid.get_id = mock.Mock(
             return_value='0xffffffff'
         )
-        kiwi.builder.install.ImageIdentifier = mock.Mock(
+        kiwi.builder.install.SystemIdentifier = mock.Mock(
             return_value=self.mbrid
         )
         kiwi.builder.install.Path = mock.Mock()

@@ -23,10 +23,10 @@ from ..boot.image import BootImage
 from .filesystem import FileSystemBuilder
 from ..compress import Compress
 from ..checksum import Checksum
-from ..system_setup import SystemSetup
+from ..system.setup import SystemSetup
 from ..kernel import Kernel
 from ..logger import log
-from ..result import Result
+from ..system.result import Result
 
 from ..exceptions import (
     KiwiPxeBootImageError

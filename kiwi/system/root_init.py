@@ -20,11 +20,11 @@ from shutil import rmtree
 import os
 
 # project
-from .data_sync import DataSync
-from .command import Command
-from .path import Path
+from ..data_sync import DataSync
+from ..command import Command
+from ..path import Path
 
-from .exceptions import (
+from ..exceptions import (
     KiwiRootDirExists,
     KiwiRootInitCreationError
 )

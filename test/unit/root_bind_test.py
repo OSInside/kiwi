@@ -11,7 +11,7 @@ from kiwi.exceptions import (
     KiwiSetupIntermediateConfigError
 )
 
-from kiwi.root_bind import RootBind
+from kiwi.system.root_bind import RootBind
 
 from kiwi.exceptions import *
 
@@ -33,8 +33,8 @@ class TestRootBind(object):
         self.bind_root.dir_stack = ['/mountpoint']
 
     @raises(KiwiMountKernelFileSystemsError)
-    @patch('kiwi.root_bind.MountManager.bind_mount')
-    @patch('kiwi.root_bind.RootBind.cleanup')
+    @patch('kiwi.system.root_bind.MountManager.bind_mount')
+    @patch('kiwi.system.root_bind.RootBind.cleanup')
     @patch('os.path.exists')
     def test_kernel_file_systems_raises_error(
         self, mock_exists, mock_cleanup, mock_mount
@@ -47,9 +47,9 @@ class TestRootBind(object):
         mock.cleanup.assert_called_once_with()
 
     @raises(KiwiMountSharedDirectoryError)
-    @patch('kiwi.root_bind.MountManager.bind_mount')
-    @patch('kiwi.root_bind.Path.create')
-    @patch('kiwi.root_bind.RootBind.cleanup')
+    @patch('kiwi.system.root_bind.MountManager.bind_mount')
+    @patch('kiwi.system.root_bind.Path.create')
+    @patch('kiwi.system.root_bind.RootBind.cleanup')
     def test_shared_directory_raises_error(
         self, mock_cleanup, mock_path, mock_mount
     ):
@@ -61,7 +61,7 @@ class TestRootBind(object):
 
     @raises(KiwiSetupIntermediateConfigError)
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.root_bind.RootBind.cleanup')
+    @patch('kiwi.system.root_bind.RootBind.cleanup')
     @patch('os.path.exists')
     def test_intermediate_config_raises_error(
         self, mock_exists, mock_cleanup, mock_command
@@ -73,7 +73,7 @@ class TestRootBind(object):
         self.bind_root.setup_intermediate_config()
         mock.cleanup.assert_called_once_with()
 
-    @patch('kiwi.root_bind.MountManager')
+    @patch('kiwi.system.root_bind.MountManager')
     def test_mount_kernel_file_systems(self, mock_mount):
         shared_mount = mock.Mock()
         mock_mount.return_value = shared_mount
@@ -83,8 +83,8 @@ class TestRootBind(object):
         )
         shared_mount.bind_mount.assert_called_once_with()
 
-    @patch('kiwi.root_bind.MountManager')
-    @patch('kiwi.root_bind.Path.create')
+    @patch('kiwi.system.root_bind.MountManager')
+    @patch('kiwi.system.root_bind.Path.create')
     def test_mount_shared_directory(self, mock_path, mock_mount):
         shared_mount = mock.Mock()
         mock_mount.return_value = shared_mount
@@ -109,8 +109,8 @@ class TestRootBind(object):
             ])
         ]
 
-    @patch('kiwi.root_bind.Command.run')
-    @patch('kiwi.root_bind.Path.remove_hierarchy')
+    @patch('kiwi.system.root_bind.Command.run')
+    @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('os.path.islink')
     def test_cleanup(self, mock_islink, mock_remove_hierarchy, mock_command):
         mock_islink.return_value = True
@@ -126,7 +126,7 @@ class TestRootBind(object):
     @patch('os.path.islink')
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.root_bind.Path.remove_hierarchy')
+    @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     def test_cleanup_continue_on_error(
         self, mock_remove_hierarchy, mock_command, mock_warn, mock_islink
     ):
@@ -150,7 +150,7 @@ class TestRootBind(object):
 
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.root_bind.Path.remove_hierarchy')
+    @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     def test_cleanup_nothing_mounted(
         self, mock_remove_hierarchy, mock_command, mock_warn
     ):

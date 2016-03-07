@@ -18,7 +18,7 @@
 import os
 
 # project
-from ...system import System
+from ...system.prepare import SystemPrepare
 from ...compress import Compress
 from ...logger import log
 from ...command import Command
@@ -41,7 +41,7 @@ class BootImageDracut(BootImageBase):
         self.import_system_description_elements()
 
         log.info('Preparing boot image')
-        system = System(
+        system = SystemPrepare(
             xml_state=self.boot_xml_state,
             root_dir=self.boot_root_directory,
             allow_existing=True

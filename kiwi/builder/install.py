@@ -23,7 +23,7 @@ from ..command import Command
 from ..bootloader.config import BootLoaderConfig
 from ..filesystem.squashfs import FileSystemSquashFs
 from ..filesystem.isofs import FileSystemIsoFs
-from ..image_identifier import ImageIdentifier
+from ..system.identifier import SystemIdentifier
 from ..path import Path
 from ..checksum import Checksum
 from ..logger import log
@@ -80,7 +80,7 @@ class InstallImageBuilder(object):
             [xml_state.xml_data.get_name(), '.md5']
         )
 
-        self.mbrid = ImageIdentifier()
+        self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
 
         self.media_dir = None

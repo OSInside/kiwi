@@ -7,7 +7,7 @@ import mock
 from . import nose_helper
 from collections import namedtuple
 
-from kiwi.system_setup import SystemSetup
+from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import *
@@ -134,7 +134,7 @@ class TestSystemSetup(object):
             ]
         )
 
-    @patch('kiwi.system_setup.ArchiveTar')
+    @patch('kiwi.system.setup.ArchiveTar')
     @patch('os.path.exists')
     def test_import_overlay_files_from_archive(
         self, mock_os_path, mock_archive
@@ -158,7 +158,7 @@ class TestSystemSetup(object):
             'root_dir'
         )
 
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Command.run')
     def test_setup_hardware_clock(self, mock_command):
         self.setup.preferences['hwclock'] = 'clock'
         self.setup.setup_hardware_clock()
@@ -168,7 +168,7 @@ class TestSystemSetup(object):
             ]
         )
 
-    @patch('kiwi.system_setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('os.path.exists')
     def test_setup_keyboard_map(self, mock_path, mock_shell):
         mock_path.return_value = True
@@ -188,7 +188,7 @@ class TestSystemSetup(object):
         self.setup.setup_keyboard_map()
         assert mock_log_warn.called
 
-    @patch('kiwi.system_setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('os.path.exists')
     def test_setup_locale(self, mock_path, mock_shell):
         mock_path.return_value = True
@@ -208,7 +208,7 @@ class TestSystemSetup(object):
         self.setup.setup_locale()
         assert mock_log_warn.called
 
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Command.run')
     def test_setup_timezone(self, mock_command):
         self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
@@ -217,7 +217,7 @@ class TestSystemSetup(object):
             '/usr/share/zoneinfo/timezone', '/etc/localtime'
         ])
 
-    @patch('kiwi.system_setup.Users')
+    @patch('kiwi.system.setup.Users')
     def test_setup_groups(self, mock_users):
         users = mock.Mock()
         users.group_exists = mock.Mock(
@@ -230,8 +230,8 @@ class TestSystemSetup(object):
         users.group_exists.assert_called_once_with('root')
         users.group_add.assert_called_once_with('root', ['-g', 42])
 
-    @patch('kiwi.system_setup.Users')
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Users')
+    @patch('kiwi.system.setup.Command.run')
     def test_setup_users_add(self, mock_command, mock_users):
         users = mock.Mock()
         users.user_exists = mock.Mock(
@@ -254,8 +254,8 @@ class TestSystemSetup(object):
             ['openssl', 'passwd', '-1', '-salt', 'xyz', 'mypwd']
         )
 
-    @patch('kiwi.system_setup.Users')
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Users')
+    @patch('kiwi.system.setup.Command.run')
     def test_setup_users_modify(self, mock_command, mock_users):
         users = mock.Mock()
         users.user_exists = mock.Mock(
@@ -274,8 +274,8 @@ class TestSystemSetup(object):
             ]
         )
 
-    @patch('kiwi.system_setup.Users')
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Users')
+    @patch('kiwi.system.setup.Command.run')
     def test_setup_users_modify_group_name(self, mock_command, mock_users):
         # unset group id and expect use of group name now
         self.setup_with_real_xml.xml_state.xml_data.get_users()[0].set_id(None)
@@ -432,12 +432,12 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.system_setup.NamedTemporaryFile')
-    @patch('kiwi.system_setup.ArchiveTar')
+    @patch('kiwi.system.setup.NamedTemporaryFile')
+    @patch('kiwi.system.setup.ArchiveTar')
     @patch('builtins.open')
-    @patch('kiwi.system_setup.Compress')
+    @patch('kiwi.system.setup.Compress')
     @patch('os.path.getsize')
-    @patch('kiwi.system_setup.Path.wipe')
+    @patch('kiwi.system.setup.Path.wipe')
     def test_create_recovery_archive(
         self, mock_wipe, mock_getsize, mock_compress,
         mock_open, mock_archive, mock_temp, mock_command
@@ -514,8 +514,8 @@ class TestSystemSetup(object):
             'root_dir/recovery.tar.gz'
         )
 
-    @patch('kiwi.system_setup.Command.run')
-    @patch('kiwi.system_setup.Path.create')
+    @patch('kiwi.system.setup.Command.run')
+    @patch('kiwi.system.setup.Path.create')
     @patch('os.path.exists')
     def test_export_modprobe_setup(self, mock_exists, mock_path, mock_command):
         mock_exists.return_value = True
@@ -528,7 +528,7 @@ class TestSystemSetup(object):
             ]
         )
 
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
     @patch('builtins.open')
     @patch('platform.machine')
@@ -550,7 +550,7 @@ class TestSystemSetup(object):
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
         )
 
-    @patch('kiwi.system_setup.Command.run')
+    @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
     @patch('builtins.open')
     @patch('platform.machine')

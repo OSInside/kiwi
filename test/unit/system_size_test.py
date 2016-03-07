@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from collections import namedtuple
-from kiwi.system_size import SystemSize
+from kiwi.system.size import SystemSize
 
 
 class TestSystemSize(object):
@@ -25,14 +25,14 @@ class TestSystemSize(object):
     def test_customize_xfs(self):
         assert self.size.customize(42, 'xfs') == 50
 
-    @patch('kiwi.system_size.Command.run')
+    @patch('kiwi.system.size.Command.run')
     def test_accumulate_mbyte_file_sizes(self, mock_command):
         self.size.accumulate_mbyte_file_sizes()
         mock_command.assert_called_once_with(
             ['du', '-s', '--apparent-size', '--block-size', '1', 'directory']
         )
 
-    @patch('kiwi.system_size.Command.run')
+    @patch('kiwi.system.size.Command.run')
     def test_accumulate_files(self, mock_command):
         self.size.accumulate_files()
         mock_command.assert_called_once_with(

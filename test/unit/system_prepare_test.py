@@ -15,15 +15,15 @@ from kiwi.exceptions import (
 
 import kiwi
 
-from kiwi.system import System
+from kiwi.system.prepare import SystemPrepare
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.command import Command
 
 
-class TestSystem(object):
-    @patch('kiwi.system.RootInit')
-    @patch('kiwi.system.RootBind')
+class TestSystemPrepare(object):
+    @patch('kiwi.system.prepare.RootInit')
+    @patch('kiwi.system.prepare.RootBind')
     def setup(self, mock_root_bind, mock_root_init):
         description = XMLDescription('../data/example_config.xml')
         self.xml = description.load()
@@ -43,7 +43,7 @@ class TestSystem(object):
         self.state = XMLState(
             self.xml
         )
-        self.system = System(
+        self.system = SystemPrepare(
             xml_state=self.state, root_dir='root_dir',
             allow_existing=True
         )
@@ -58,58 +58,58 @@ class TestSystem(object):
         root_bind.mount_kernel_file_systems.assert_called_once_with()
 
     @raises(KiwiBootStrapPhaseFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_bootstrap_packages_raises(self, mock_poll):
         mock_poll.side_effect = Exception
         self.system.install_bootstrap(self.manager)
 
     @raises(KiwiBootStrapPhaseFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
-    @patch('kiwi.system.ArchiveTar')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
     def test_install_bootstrap_archives_raises(self, mock_tar, mock_poll):
         mock_tar.side_effect = Exception
         self.system.install_bootstrap(self.manager)
 
     @raises(KiwiSystemUpdateFailed)
-    @patch('kiwi.system.CommandProcess.poll')
+    @patch('kiwi.system.prepare.CommandProcess.poll')
     def test_update_system_raises(self, mock_poll):
         mock_poll.side_effect = Exception
         self.system.update_system(self.manager)
 
     @raises(KiwiSystemInstallPackagesFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_packages_raises(self, mock_poll):
         mock_poll.side_effect = Exception
         self.system.install_packages(self.manager, ['package'])
 
     @raises(KiwiInstallPhaseFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_system_packages_raises(self, mock_poll):
         mock_poll.side_effect = Exception
         self.system.install_system(self.manager)
 
     @raises(KiwiInstallPhaseFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
-    @patch('kiwi.system.ArchiveTar')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
     def test_install_system_archives_raises(self, mock_tar, mock_poll):
         mock_tar.side_effect = KiwiInstallPhaseFailed
         self.system.install_system(self.manager)
 
     @raises(KiwiInstallPhaseFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_pinch_system_raises(self, mock_poll):
         mock_poll.side_effect = Exception
         self.system.pinch_system(self.manager)
 
     @raises(KiwiSystemDeletePackagesFailed)
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_delete_packages_raises(self, mock_poll):
         mock_poll.side_effect = Exception
         self.system.delete_packages(self.manager, ['package'])
 
-    @patch('kiwi.system.Repository')
-    @patch('kiwi.system.Uri')
-    @patch('kiwi.system.PackageManager')
+    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.Uri')
+    @patch('kiwi.system.prepare.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
     @patch('os.path.exists')
     def test_setup_repositories(
@@ -153,9 +153,9 @@ class TestSystem(object):
             call('uri-alias', 'uri', 'rpm-md', None)
         ]
 
-    @patch('kiwi.system.Repository')
-    @patch('kiwi.system.Uri')
-    @patch('kiwi.system.PackageManager')
+    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.Uri')
+    @patch('kiwi.system.prepare.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
@@ -183,8 +183,8 @@ class TestSystem(object):
         assert mock_log_warn.called
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
-    @patch('kiwi.system.ArchiveTar')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
     def test_install_bootstrap(self, mock_tar, mock_poll, mock_collection_type):
         tar = mock.Mock()
         tar.extract = mock.Mock()
@@ -210,8 +210,8 @@ class TestSystem(object):
         tar.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.xml_state.XMLState.get_system_collection_type')
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
-    @patch('kiwi.system.ArchiveTar')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
     def test_install_system(self, mock_tar, mock_poll, mock_collection_type):
         tar = mock.Mock()
         tar.extract = mock.Mock()
@@ -232,7 +232,7 @@ class TestSystem(object):
         mock_tar.assert_called_once_with('../data/image.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_pinch_system(self, mock_poll):
         self.system.pinch_system(self.manager)
         self.manager.request_package.assert_any_call(
@@ -240,17 +240,17 @@ class TestSystem(object):
         )
         self.manager.process_delete_requests.assert_called_once_with(False)
 
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_packages(self, mock_poll):
         self.system.install_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.system.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_delete_packages(self, mock_poll):
         self.system.delete_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.system.CommandProcess.poll')
+    @patch('kiwi.system.prepare.CommandProcess.poll')
     def test_update_system(self, mock_poll):
         self.system.update_system(self.manager)
         self.manager.update.assert_called_once_with()

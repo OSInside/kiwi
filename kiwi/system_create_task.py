@@ -41,7 +41,7 @@ import os
 from .cli_task import CliTask
 from .help import Help
 from .builder import ImageBuilder
-from .system_setup import SystemSetup
+from .system.setup import SystemSetup
 from .privileges import Privileges
 from .path import Path
 from .logger import log

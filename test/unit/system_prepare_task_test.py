@@ -19,14 +19,14 @@ class TestSystemPrepareTask(object):
         ]
         self.setup = mock.Mock()
         self.manager = mock.Mock()
-        self.system = mock.Mock()
+        self.system_prepare = mock.Mock()
         self.profile = mock.Mock()
         kiwi.system_prepare_task.Privileges = mock.Mock()
-        self.system.setup_repositories = mock.Mock(
+        self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.system_prepare_task.System = mock.Mock(
-            return_value=self.system
+        kiwi.system_prepare_task.SystemPrepare = mock.Mock(
+            return_value=self.system_prepare
         )
         kiwi.system_prepare_task.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -54,9 +54,11 @@ class TestSystemPrepareTask(object):
         self.__init_command_args()
         self.task.command_args['prepare'] = True
         self.task.process()
-        self.system.setup_repositories.assert_called_once_with()
-        self.system.install_bootstrap.assert_called_once_with(self.manager)
-        self.system.install_system.assert_called_once_with(
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.install_bootstrap.assert_called_once_with(
+            self.manager
+        )
+        self.system_prepare.install_system.assert_called_once_with(
             self.manager
         )
         self.setup.import_shell_environment.assert_called_once_with(
@@ -72,7 +74,7 @@ class TestSystemPrepareTask(object):
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
 
-        self.system.pinch_system.assert_called_once_with(
+        self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
         )
 

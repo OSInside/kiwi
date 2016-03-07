@@ -56,10 +56,10 @@ import os
 from .cli_task import CliTask
 from .help import Help
 from .privileges import Privileges
-from .system import System
-from .system_setup import SystemSetup
+from .system.prepare import SystemPrepare
+from .system.setup import SystemSetup
 from .defaults import Defaults
-from .profile import Profile
+from .system.profile import Profile
 from .logger import log
 
 
@@ -104,7 +104,7 @@ class SystemPrepareTask(CliTask):
             self.xml_state.translate_obs_to_ibs_repositories()
 
         log.info('Preparing system')
-        system = System(
+        system = SystemPrepare(
             self.xml_state,
             self.command_args['--root'],
             self.command_args['--allow-existing-root']

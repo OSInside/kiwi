@@ -18,12 +18,12 @@
 import os
 
 # project
-from .command import Command
-from .logger import log
-from .path import Path
-from .mount_manager import MountManager
+from ..command import Command
+from ..logger import log
+from ..path import Path
+from ..mount_manager import MountManager
 
-from .exceptions import (
+from ..exceptions import (
     KiwiMountKernelFileSystemsError,
     KiwiMountSharedDirectoryError,
     KiwiSetupIntermediateConfigError

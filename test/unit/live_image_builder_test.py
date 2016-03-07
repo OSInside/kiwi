@@ -35,7 +35,7 @@ class TestLiveImageBuilder(object):
         self.mbrid.get_id = mock.Mock(
             return_value='0xffffffff'
         )
-        kiwi.builder.live.ImageIdentifier = mock.Mock(
+        kiwi.builder.live.SystemIdentifier = mock.Mock(
             return_value=self.mbrid
         )
         kiwi.builder.live.Path = mock.Mock()

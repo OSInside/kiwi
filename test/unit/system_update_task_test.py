@@ -17,13 +17,13 @@ class TestSystemUpdateTask(object):
             '--root', '../data/root-dir'
         ]
         self.manager = mock.Mock()
-        self.system = mock.Mock()
+        self.system_prepare = mock.Mock()
         kiwi.system_update_task.Privileges = mock.Mock()
-        self.system.setup_repositories = mock.Mock(
+        self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.system_update_task.System = mock.Mock(
-            return_value=self.system
+        kiwi.system_update_task.SystemPrepare = mock.Mock(
+            return_value=self.system_prepare
         )
         kiwi.system_update_task.Help = mock.Mock(
             return_value=mock.Mock()

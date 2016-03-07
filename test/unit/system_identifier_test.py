@@ -5,12 +5,12 @@ import mock
 
 from . import nose_helper
 
-from kiwi.image_identifier import ImageIdentifier
+from kiwi.system.identifier import SystemIdentifier
 
 
-class TestImageIdentifier(object):
+class TestSystemIdentifier(object):
     def setup(self):
-        self.identifier = ImageIdentifier()
+        self.identifier = SystemIdentifier()
 
     def test_get_id(self):
         pass

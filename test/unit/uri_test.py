@@ -6,7 +6,7 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.uri import Uri
+from kiwi.system.uri import Uri
 
 import hashlib
 
@@ -67,8 +67,8 @@ class TestUri(object):
         uri = Uri('http://example.com/foo', 'rpm-md')
         assert uri.translate() == 'http://example.com/foo'
 
-    @patch('kiwi.uri.MountManager')
-    @patch('kiwi.uri.mkdtemp')
+    @patch('kiwi.system.uri.MountManager')
+    @patch('kiwi.system.uri.mkdtemp')
     def test_translate_iso_path(self, mock_mkdtemp, mock_manager):
         mock_mkdtemp.return_value = 'tmpdir'
         manager = mock.Mock()
@@ -88,8 +88,8 @@ class TestUri(object):
         assert uri.translate() == \
             '/usr/src/packages/SOURCES/repos/openSUSE:13.2/standard'
 
-    @patch('kiwi.uri.MountManager')
-    @patch('kiwi.uri.mkdtemp')
+    @patch('kiwi.system.uri.MountManager')
+    @patch('kiwi.system.uri.mkdtemp')
     def test_destructor(self, mock_mkdtemp, mock_manager):
         manager = mock.Mock()
         mock_mkdtemp.return_value = 'tmpdir'

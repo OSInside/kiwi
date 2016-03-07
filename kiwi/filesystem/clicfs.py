@@ -22,7 +22,7 @@ from tempfile import mkdtemp
 from .base import FileSystemBase
 from .ext4 import FileSystemExt4
 from ..command import Command
-from ..system_size import SystemSize
+from ..system.size import SystemSize
 from ..path import Path
 from ..storage.loop_device import LoopDevice
 from ..logger import log

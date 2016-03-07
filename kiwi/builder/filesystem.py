@@ -22,10 +22,10 @@ from ..filesystem import FileSystem
 from ..filesystem.setup import FileSystemSetup
 from ..storage.loop_device import LoopDevice
 from ..storage.device_provider import DeviceProvider
-from ..system_setup import SystemSetup
+from ..system.setup import SystemSetup
 from ..defaults import Defaults
 from ..logger import log
-from ..result import Result
+from ..system.result import Result
 
 from ..exceptions import (
     KiwiFileSystemSetupError

@@ -20,10 +20,10 @@ import platform
 # project
 from ..defaults import Defaults
 from ..archive.tar import ArchiveTar
-from ..system_setup import SystemSetup
+from ..system.setup import SystemSetup
 from ..checksum import Checksum
 from ..logger import log
-from ..result import Result
+from ..system.result import Result
 
 from ..exceptions import (
     KiwiArchiveSetupError

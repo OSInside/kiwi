@@ -10,7 +10,7 @@ from kiwi.exceptions import (
     KiwiRootInitCreationError
 )
 
-from kiwi.root_init import RootInit
+from kiwi.system.root_init import RootInit
 
 
 class TestRootInit(object):

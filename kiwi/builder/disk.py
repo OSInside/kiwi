@@ -22,7 +22,7 @@ from collections import namedtuple
 # project
 from ..bootloader.config import BootLoaderConfig
 from ..bootloader.install import BootLoaderInstall
-from ..image_identifier import ImageIdentifier
+from ..system.identifier import SystemIdentifier
 from ..boot.image import BootImage
 from ..storage.setup import DiskSetup
 from ..storage.loop_device import LoopDevice
@@ -34,11 +34,11 @@ from ..filesystem import FileSystem
 from ..volume_manager import VolumeManager
 from ..logger import log
 from ..command import Command
-from ..system_setup import SystemSetup
+from ..system.setup import SystemSetup
 from .install import InstallImageBuilder
 from ..kernel import Kernel
 from ..storage.subformat import DiskFormat
-from ..result import Result
+from ..system.result import Result
 
 from ..exceptions import (
     KiwiDiskBootImageError,
@@ -210,7 +210,7 @@ class DiskBuilder(object):
             self.system = filesystem
 
         # create a random image identifier
-        self.mbrid = ImageIdentifier()
+        self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
 
         # create first stage metadata to boot image

@@ -42,7 +42,7 @@ options:
 from .cli_task import CliTask
 from .privileges import Privileges
 from .help import Help
-from .system import System
+from .system.prepare import SystemPrepare
 
 from .logger import log
 
@@ -69,7 +69,7 @@ class SystemUpdateTask(CliTask):
             package_requests = True
 
         log.info('Updating system')
-        self.system = System(
+        self.system = SystemPrepare(
             self.xml_state,
             self.command_args['--root'],
             allow_existing=True

@@ -11,7 +11,7 @@ from kiwi.exceptions import (
 )
 
 from kiwi.repository.yum import RepositoryYum
-from kiwi.root_bind import RootBind
+from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryYum(object):

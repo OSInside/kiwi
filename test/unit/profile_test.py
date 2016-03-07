@@ -11,7 +11,7 @@ from kiwi.exceptions import (
     KiwiUriTypeUnknown
 )
 
-from kiwi.profile import Profile
+from kiwi.system.profile import Profile
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 
@@ -25,7 +25,7 @@ class TestProfile(object):
             XMLState(description.load())
         )
 
-    @patch('kiwi.profile.NamedTemporaryFile')
+    @patch('kiwi.system.profile.NamedTemporaryFile')
     def test_create(self, mock_temp):
         mock_temp.return_value = self.tmpfile
         result = self.profile.create()
@@ -128,9 +128,9 @@ class TestProfile(object):
             "kiwi_type='oem'"
         ]
 
-    @patch('kiwi.profile.NamedTemporaryFile')
+    @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('builtins.open')
-    @patch('kiwi.shell.Shell.quote_key_value_file')
+    @patch('kiwi.system.shell.Shell.quote_key_value_file')
     def test_create_cpio(self, mock_shell_quote, mock_open, mock_temp):
         mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_dot_profile_config.xml')

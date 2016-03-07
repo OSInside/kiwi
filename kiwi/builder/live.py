@@ -23,14 +23,14 @@ from ..bootloader.config import BootLoaderConfig
 from ..filesystem import FileSystem
 from ..filesystem.isofs import FileSystemIsoFs
 from ..boot.image import BootImage
-from ..system_size import SystemSize
-from ..system_setup import SystemSetup
+from ..system.size import SystemSize
+from ..system.setup import SystemSetup
 from ..firmware import FirmWare
 from ..defaults import Defaults
 from ..path import Path
-from ..result import Result
+from ..system.result import Result
 from ..iso import Iso
-from ..image_identifier import ImageIdentifier
+from ..system.identifier import SystemIdentifier
 from ..kernel import Kernel
 from ..command import Command
 from ..logger import log
@@ -57,7 +57,7 @@ class LiveImageBuilder(object):
         self.hybrid = xml_state.build_type.get_hybrid()
         self.volume_id = xml_state.build_type.get_volid()
         self.machine = xml_state.get_build_type_machine_section()
-        self.mbrid = ImageIdentifier()
+        self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
 
         if not self.live_type:

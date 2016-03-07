@@ -26,12 +26,12 @@ class TestBootImageKiwi(object):
             description.load()
         )
         self.manager = mock.Mock()
-        self.system = mock.Mock()
-        self.system.setup_repositories = mock.Mock(
+        self.system_prepare = mock.Mock()
+        self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.boot.image.dracut.System = mock.Mock(
-            return_value=self.system
+        kiwi.boot.image.dracut.SystemPrepare = mock.Mock(
+            return_value=self.system_prepare
         )
         mock_mkdtemp.return_value = 'boot-directory'
         self.boot_image = BootImageDracut(
@@ -42,11 +42,11 @@ class TestBootImageKiwi(object):
     def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'
         self.boot_image.prepare()
-        self.system.setup_repositories.assert_called_once_with()
-        self.system.install_bootstrap.assert_called_once_with(
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )
-        self.system.install_system.assert_called_once_with(
+        self.system_prepare.install_system.assert_called_once_with(
             self.manager
         )
 

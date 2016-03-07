@@ -20,9 +20,9 @@ import pickle
 import os
 
 # project
-from .logger import log
+from ..logger import log
 
-from .exceptions import (
+from ..exceptions import (
     KiwiResultError
 )
 

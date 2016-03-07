@@ -51,10 +51,10 @@ import os
 # project
 from .cli_task import CliTask
 from .help import Help
-from .system import System
-from .system_setup import SystemSetup
+from .system.prepare import SystemPrepare
+from .system.setup import SystemSetup
 from .builder import ImageBuilder
-from .profile import Profile
+from .system.profile import Profile
 from .defaults import Defaults
 from .privileges import Privileges
 from .path import Path
@@ -112,7 +112,7 @@ class SystemBuildTask(CliTask):
             self.xml_state.translate_obs_to_ibs_repositories()
 
         log.info('Preparing new root system')
-        system = System(
+        system = SystemPrepare(
             self.xml_state, image_root, True
         )
         manager = system.setup_repositories()

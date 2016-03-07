@@ -20,7 +20,7 @@ from collections import namedtuple
 
 # project
 from ..firmware import FirmWare
-from ..system_size import SystemSize
+from ..system.size import SystemSize
 from ..defaults import Defaults
 from ..logger import log
 

@@ -27,15 +27,15 @@ class TestBootImageKiwi(object):
         )
 
         self.manager = mock.Mock()
-        self.system = mock.Mock()
+        self.system_prepare = mock.Mock()
         self.setup = mock.Mock()
         self.profile = mock.Mock()
         self.defaults = mock.Mock()
-        self.system.setup_repositories = mock.Mock(
+        self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.boot.image.kiwi.System = mock.Mock(
-            return_value=self.system
+        kiwi.boot.image.kiwi.SystemPrepare = mock.Mock(
+            return_value=self.system_prepare
         )
         kiwi.boot.image.kiwi.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -52,11 +52,11 @@ class TestBootImageKiwi(object):
     def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'
         self.boot_image.prepare()
-        self.system.setup_repositories.assert_called_once_with()
-        self.system.install_bootstrap.assert_called_once_with(
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )
-        self.system.install_system.assert_called_once_with(
+        self.system_prepare.install_system.assert_called_once_with(
             self.manager
         )
         self.setup.import_shell_environment.assert_called_once_with(
@@ -67,7 +67,7 @@ class TestBootImageKiwi(object):
             follow_links=True
         )
         self.setup.call_config_script.assert_called_once_with()
-        self.system.pinch_system.assert_called_once_with(
+        self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
         )
         self.setup.call_image_script.assert_called_once_with()

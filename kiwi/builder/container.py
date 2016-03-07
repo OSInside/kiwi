@@ -20,9 +20,9 @@ import platform
 # project
 from ..container import ContainerImage
 from ..container_setup import ContainerSetup
-from ..system_setup import SystemSetup
+from ..system.setup import SystemSetup
 from ..logger import log
-from ..result import Result
+from ..system.result import Result
 
 
 class ContainerBuilder(object):

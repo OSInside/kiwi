@@ -20,7 +20,7 @@ from tempfile import NamedTemporaryFile
 
 # project
 from .shell import Shell
-from .defaults import Defaults
+from ..defaults import Defaults
 
 
 class Profile(object):
