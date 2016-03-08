@@ -180,7 +180,10 @@ print(dedent('''
 function _kiwi {
     local cur prev opts
     _get_comp_words_by_ref cur prev
-    local cmd=$(echo $COMP_LINE | sed -e 's@-.*@@'| awk -F ' ' '{ print $NF }')
+    local cmd=$(
+        echo $COMP_LINE | sed -e 's@kiwi-py3@kiwi@' | sed -e 's@-.*@@'| \\
+        awk -F ' ' '{ print $NF }'
+    )
 ''').strip())
 
 print('    for comp in $prev $cmd;do')
@@ -197,13 +200,9 @@ for level in sorted_levels:
         print('                ;;')
 print('        esac')
 print('    done')
-print('    if [[ $COMP_LINE =~ compute ]];then')
-print('        __comp_reply "--help"')
-print('    else')
-print('       __comp_reply "%s"' % \
+print('    __comp_reply "%s"' % \
     (" ".join(sorted(sorted_levels['0']['kiwi'])))
 )
-print('    fi')
 print('    return 0')
 print('}')
 print(dedent('''
