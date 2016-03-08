@@ -24,7 +24,7 @@ from .filesystem import FileSystemBuilder
 from ..compress import Compress
 from ..checksum import Checksum
 from ..system.setup import SystemSetup
-from ..kernel import Kernel
+from ..system.kernel import Kernel
 from ..logger import log
 from ..system.result import Result
 

@@ -31,7 +31,7 @@ from ..path import Path
 from ..system.result import Result
 from ..iso import Iso
 from ..system.identifier import SystemIdentifier
-from ..kernel import Kernel
+from ..system.kernel import Kernel
 from ..command import Command
 from ..logger import log
 

@@ -8,7 +8,7 @@ from . import nose_helper
 from collections import namedtuple
 
 from kiwi.exceptions import *
-from kiwi.kernel import Kernel
+from kiwi.system.kernel import Kernel
 
 
 class TestKernel(object):
@@ -54,7 +54,7 @@ class TestKernel(object):
         assert data.filename == 'root-dir/boot/xen.gz'
         assert data.name == 'xen.gz'
 
-    @patch('kiwi.kernel.Kernel.get_kernel')
+    @patch('kiwi.system.kernel.Kernel.get_kernel')
     @patch('kiwi.command.Command.run')
     def test_copy_kernel(self, mock_run, mock_get_kernel):
         result = mock.MagicMock()
@@ -66,7 +66,7 @@ class TestKernel(object):
             ['cp', 'kernel', 'target-dir/kernel-42.kernel']
         )
 
-    @patch('kiwi.kernel.Kernel.get_xen_hypervisor')
+    @patch('kiwi.system.kernel.Kernel.get_xen_hypervisor')
     @patch('kiwi.command.Command.run')
     def test_copy_xen_hypervisor(self, mock_run, mock_get_xen):
         result = mock.MagicMock()

@@ -36,7 +36,7 @@ from ..logger import log
 from ..command import Command
 from ..system.setup import SystemSetup
 from .install import InstallImageBuilder
-from ..kernel import Kernel
+from ..system.kernel import Kernel
 from ..storage.subformat import DiskFormat
 from ..system.result import Result
 

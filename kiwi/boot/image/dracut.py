@@ -22,7 +22,7 @@ from ...system.prepare import SystemPrepare
 from ...compress import Compress
 from ...logger import log
 from ...command import Command
-from ...kernel import Kernel
+from ...system.kernel import Kernel
 from .base import BootImageBase
 
 

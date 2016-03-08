@@ -27,7 +27,7 @@ from ..system.identifier import SystemIdentifier
 from ..path import Path
 from ..checksum import Checksum
 from ..logger import log
-from ..kernel import Kernel
+from ..system.kernel import Kernel
 from ..iso import Iso
 from ..compress import Compress
 from ..archive.tar import ArchiveTar
