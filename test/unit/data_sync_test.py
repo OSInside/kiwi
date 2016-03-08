@@ -6,14 +6,14 @@ import mock
 from . import nose_helper
 
 from kiwi.exceptions import *
-from kiwi.data_sync import DataSync
+from kiwi.data.sync import DataSync
 
 
 class TestDataSync(object):
     def setup(self):
         self.sync = DataSync('source_dir', 'target_dir')
 
-    @patch('kiwi.data_sync.Command.run')
+    @patch('kiwi.data.sync.Command.run')
     def test_sync_data(self, mock_command):
         self.sync.sync_data(
             options=['-a', '-H', '-X', '-A', '--one-file-system'],

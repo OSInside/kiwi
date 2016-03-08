@@ -21,8 +21,8 @@ import platform
 # project
 from ..boot.image import BootImage
 from .filesystem import FileSystemBuilder
-from ..compress import Compress
-from ..checksum import Checksum
+from ..data.compress import Compress
+from ..data.checksum import Checksum
 from ..system.setup import SystemSetup
 from ..system.kernel import Kernel
 from ..logger import log

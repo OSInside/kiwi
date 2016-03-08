@@ -48,8 +48,8 @@ from .help import Help
 from .system.result import Result
 from .logger import log
 from .path import Path
-from .compress import Compress
-from .checksum import Checksum
+from .data.compress import Compress
+from .data.checksum import Checksum
 from .command import Command
 
 from .exceptions import (

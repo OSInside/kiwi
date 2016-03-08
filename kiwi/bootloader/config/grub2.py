@@ -26,7 +26,7 @@ from ...defaults import Defaults
 from ...firmware import FirmWare
 from ...logger import log
 from ...path import Path
-from ...data_sync import DataSync
+from ...data.sync import DataSync
 
 from ...exceptions import (
     KiwiTemplateError,

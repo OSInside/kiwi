@@ -5,6 +5,7 @@ graft tools
 graft helper
 graft completion
 graft kiwi/boot
+graft kiwi/data
 graft kiwi/archive
 graft kiwi/bootloader
 graft kiwi/builder

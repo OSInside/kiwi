@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .command import Command
+from ..command import Command
 
 
 class DataSync(object):

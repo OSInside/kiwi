@@ -20,7 +20,7 @@ from shutil import rmtree
 import os
 
 # project
-from ..data_sync import DataSync
+from ..data.sync import DataSync
 from ..command import Command
 from ..path import Path
 

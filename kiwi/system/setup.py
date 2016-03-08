@@ -23,14 +23,14 @@ from tempfile import NamedTemporaryFile
 # project
 from ..command import Command
 from ..command_process import CommandProcess
-from ..data_sync import DataSync
+from ..data.sync import DataSync
 from ..logger import log
 from ..defaults import Defaults
 from .users import Users
 from .shell import Shell
 from ..path import Path
 from ..archive.tar import ArchiveTar
-from ..compress import Compress
+from ..data.compress import Compress
 
 from ..exceptions import (
     KiwiScriptFailed

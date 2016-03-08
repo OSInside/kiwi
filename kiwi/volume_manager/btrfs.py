@@ -24,7 +24,7 @@ from .base import VolumeManagerBase
 from ..mount_manager import MountManager
 from ..storage.mapped_device import MappedDevice
 from ..filesystem import FileSystem
-from ..data_sync import DataSync
+from ..data.sync import DataSync
 from ..path import Path
 from ..logger import log
 

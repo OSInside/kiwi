@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-
-# project
-from .command import Command
 from tempfile import NamedTemporaryFile
 
-from .exceptions import (
+# project
+from ..command import Command
+
+from ..exceptions import (
     KiwiFileNotFound,
     KiwiCompressionFormatUnknown
 )

@@ -19,7 +19,7 @@ import os
 
 # project
 from ...system.prepare import SystemPrepare
-from ...compress import Compress
+from ...data.compress import Compress
 from ...logger import log
 from ...command import Command
 from ...system.kernel import Kernel

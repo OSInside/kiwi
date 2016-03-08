@@ -20,7 +20,7 @@ import os
 
 # project
 from ..command import Command
-from ..data_sync import DataSync
+from ..data.sync import DataSync
 
 from ..exceptions import (
     KiwiContainerSetupError
