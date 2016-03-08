@@ -30,6 +30,9 @@ class TestFirmWare(object):
         self.firmware_s390_cdl = FirmWare(xml_state)
         xml_state.build_type.get_zipl_targettype.return_value = 'SCSI'
         self.firmware_s390_scsi = FirmWare(xml_state)
+        mock_platform.return_value = 'ppc64le'
+        xml_state.build_type.get_firmware.return_value = 'ofw'
+        self.firmware_ofw = FirmWare(xml_state)
 
     @raises(KiwiNotImplementedError)
     def test_firmware_unsupported(self):
@@ -45,6 +48,7 @@ class TestFirmWare(object):
         assert self.firmware_s390_ldl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_cdl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'
+        assert self.firmware_ofw.get_partition_table_type() == 'msdos'
 
     def test_legacy_bios_mode(self):
         assert self.firmware_bios.legacy_bios_mode() is False
@@ -62,6 +66,10 @@ class TestFirmWare(object):
         assert self.firmware_bios.bios_mode() is True
         assert self.firmware_efi.bios_mode() is False
 
+    def test_ofw_mode(self):
+        assert self.firmware_ofw.ofw_mode() is True
+        assert self.firmware_efi.bios_mode() is False
+
     def test_get_legacy_bios_partition_size(self):
         assert self.firmware_bios.get_legacy_bios_partition_size() == 0
         assert self.firmware_efi.get_legacy_bios_partition_size() == 2
@@ -69,3 +77,6 @@ class TestFirmWare(object):
     def test_get_efi_partition_size(self):
         assert self.firmware_bios.get_efi_partition_size() == 0
         assert self.firmware_efi.get_efi_partition_size() == 200
+
+    def test_get_prep_partition_size(self):
+        assert self.firmware_ofw.get_prep_partition_size() == 8

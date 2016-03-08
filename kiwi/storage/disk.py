@@ -93,6 +93,11 @@ class Disk(DeviceProvider):
         self.__add_to_map('boot')
         self.__add_to_id_map('kiwi_BootPart')
 
+    def create_prep_partition(self, mbsize):
+        self.partitioner.create('p.prep', mbsize, 't.prep')
+        self.__add_to_map('prep')
+        self.__add_to_id_map('kiwi_PrepPart')
+
     def create_efi_csm_partition(self, mbsize):
         self.partitioner.create('p.legacy', mbsize, 't.csm')
         self.__add_to_map('efi_csm')
@@ -105,10 +110,13 @@ class Disk(DeviceProvider):
 
     def activate_boot_partition(self):
         partition_id = None
-        if 'boot' in self.partition_id:
+        if 'prep' in self.partition_id:
+            partition_id = self.partition_id['prep']
+        elif 'boot' in self.partition_id:
             partition_id = self.partition_id['boot']
         elif 'root' in self.partition_id:
             partition_id = self.partition_id['root']
+
         if partition_id:
             self.partitioner.set_flag(partition_id, 'f.active')
 

@@ -41,6 +41,10 @@ class Partitioner(object):
             return PartitionerMsDos(storage_provider)
         elif host_architecture == 'i586' and table_type == 'msdos':
             return PartitionerMsDos(storage_provider)
+        elif host_architecture.startswith('ppc64') and table_type == 'gpt':
+            return PartitionerGpt(storage_provider)
+        elif host_architecture.startswith('ppc64') and table_type == 'msdos':
+            return PartitionerMsDos(storage_provider)
         elif 's390' in host_architecture and table_type == 'dasd':
             return PartitionerDasd(storage_provider)
         elif 's390' in host_architecture and table_type == 'msdos':

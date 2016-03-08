@@ -13,7 +13,9 @@ from kiwi.defaults import Defaults
 
 class TestBootLoaderInstallGrub2(object):
     @patch('kiwi.bootloader.install.grub2.MountManager')
-    def setup(self, mock_mount):
+    @patch('platform.machine')
+    def setup(self, mock_machine, mock_mount):
+        mock_machine.return_value = 'x86_64'
         custom_args = {
             'boot_device': '/dev/mapper/loop0p2',
             'root_device': '/dev/mapper/loop0p1'
@@ -41,6 +43,44 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader = BootLoaderInstallGrub2(
             'root_dir', device_provider, custom_args
         )
+        assert self.bootloader.target == 'i386-pc'
+        assert self.bootloader.install_arguments == [
+            '--skip-fs-probe'
+        ]
+
+    @patch('platform.machine')
+    def test_post_init_ppc(self, mock_machine):
+        mock_machine.return_value = 'ppc64'
+        custom_args = {
+            'boot_device': '/dev/mapper/loop0p3',
+            'root_device': '/dev/mapper/loop0p1',
+            'prep_device': '/dev/mapper/loop0p2'
+        }
+        self.bootloader.post_init(custom_args)
+        assert self.bootloader.target == 'powerpc-ieee1275'
+        assert self.bootloader.install_arguments == [
+            '--skip-fs-probe', '--no-nvram'
+        ]
+
+    @patch('platform.machine')
+    @raises(KiwiBootLoaderGrubInstallError)
+    def test_post_init_ppc_no_prep_device(self, mock_machine):
+        mock_machine.return_value = 'ppc64'
+        custom_args = {
+            'boot_device': '/dev/mapper/loop0p3',
+            'root_device': '/dev/mapper/loop0p1',
+        }
+        self.bootloader.post_init(custom_args)
+
+    @patch('platform.machine')
+    @raises(KiwiBootLoaderGrubPlatformError)
+    def test_unsupported_platform(self, mock_machine):
+        mock_machine.return_value = 'unsupported'
+        custom_args = {
+            'boot_device': '/dev/mapper/loop0p3',
+            'root_device': '/dev/mapper/loop0p1',
+        }
+        self.bootloader.post_init(custom_args)
 
     @raises(KiwiBootLoaderGrubInstallError)
     def test_post_init_no_boot_device(self):
@@ -79,8 +119,53 @@ class TestBootLoaderInstallGrub2(object):
                 '--target', 'i386-pc',
                 '--modules', ' '.join(Defaults.get_grub_bios_modules()),
                 '/dev/some-device'
-            ]
+            ])
+
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    def test_install_ieee1275(self, mock_command, mock_mount):
+        custom_args = {
+            'boot_device': '/dev/mapper/loop0p2',
+            'root_device': '/dev/mapper/loop0p2',
+            'prep_device': '/dev/mapper/loop0p1'
+        }
+        root_mount = mock.Mock()
+        root_mount.device = custom_args['root_device']
+        root_mount.mountpoint = 'tmp_root'
+
+        boot_mount = mock.Mock()
+        boot_mount.device = custom_args['boot_device']
+        boot_mount.mountpoint = 'tmp_boot'
+
+        mount_managers = [boot_mount, root_mount]
+
+        def side_effect(arg):
+            return mount_managers.pop()
+
+        mock_mount.side_effect = side_effect
+
+        device_provider = mock.Mock()
+        device_provider.get_device = mock.Mock(
+            return_value='/dev/some-device'
         )
+
+        self.bootloader = BootLoaderInstallGrub2(
+            'root_dir', device_provider, custom_args
+        )
+        self.bootloader.extra_boot_partition = False
+        self.bootloader.boot_mount.device = self.bootloader.root_mount.device
+        self.bootloader.install()
+        self.bootloader.root_mount.mount.assert_called_once_with()
+        mock_command.assert_called_once_with == [
+            call([
+                'grub2-install', '--skip-fs-probe', '--no-nvram',
+                '--directory', 'tmp_root/usr/lib/grub2/powerpc-ieee1275',
+                '--boot-directory', 'tmp_root/boot',
+                '--target', 'powerpc-ieee1275',
+                '--modules', ' '.join(Defaults.get_grub_ofw_modules()),
+                '/dev/mapper/loop0p1'
+            ])
+        ]
 
     def test_destructor(self):
         self.bootloader.__del__()

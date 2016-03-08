@@ -52,6 +52,14 @@ class TestDiskSetup(object):
             XMLState(description.load()), 'root_dir'
         )
 
+        mock_machine.return_value = 'ppc64'
+        description = XMLDescription(
+            '../data/example_ppc_disk_size_config.xml'
+        )
+        self.setup_ppc = DiskSetup(
+            XMLState(description.load()), 'root_dir'
+        )
+
     def test_need_boot_partition_on_request(self):
         self.__init_bootpart_check()
         self.setup.bootpart_requested = True
@@ -100,6 +108,9 @@ class TestDiskSetup(object):
         self.setup.configured_size.additive = False
         self.setup.configured_size.mbytes = 1024
         assert self.setup.get_disksize_mbytes() == 1024
+
+    def test_get_disksize_mbytes_with_ppc_prep_partition(self):
+        assert self.setup_ppc.get_disksize_mbytes() == 250
 
     def test_get_disksize_mbytes_configured_additive(self):
         self.setup.configured_size = mock.Mock()
