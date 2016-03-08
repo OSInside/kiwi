@@ -7,68 +7,52 @@ import kiwi
 
 from . import nose_helper
 
-from kiwi.system_build_task import SystemBuildTask
-from kiwi.exceptions import *
+from kiwi.tasks.system_prepare import SystemPrepareTask
 
 
-class TestSystemBuildTask(object):
+class TestSystemPrepareTask(object):
     def setup(self):
         sys.argv = [
-            sys.argv[0], '--profile', 'vmxFlavour', 'system', 'build',
+            sys.argv[0], '--profile', 'vmxFlavour', 'system', 'prepare',
             '--description', '../data/description',
-            '--target-dir', 'some-target'
+            '--root', '../data/root-dir'
         ]
-        kiwi.system_build_task.Privileges = mock.Mock()
-        kiwi.system_build_task.Path = mock.Mock()
-
-        kiwi.system_build_task.Help = mock.Mock(
-            return_value=mock.Mock()
-        )
-
+        self.setup = mock.Mock()
         self.manager = mock.Mock()
         self.system_prepare = mock.Mock()
+        self.profile = mock.Mock()
+        kiwi.tasks.system_prepare.Privileges = mock.Mock()
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.system_build_task.SystemPrepare = mock.Mock(
+        kiwi.tasks.system_prepare.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
-
-        self.setup = mock.Mock()
-        kiwi.system_build_task.SystemSetup = mock.Mock(
+        kiwi.tasks.system_prepare.SystemSetup = mock.Mock(
             return_value=self.setup
         )
-
-        self.profile = mock.Mock()
-        kiwi.system_build_task.Profile = mock.Mock(
+        kiwi.tasks.system_prepare.Profile = mock.Mock(
             return_value=self.profile
         )
-
-        self.result = mock.Mock()
-        self.builder = mock.MagicMock()
-        self.builder.create = mock.Mock(
-            return_value=self.result
+        kiwi.tasks.system_prepare.Help = mock.Mock(
+            return_value=mock.Mock()
         )
-        kiwi.system_build_task.ImageBuilder = mock.Mock(
-            return_value=self.builder
-        )
-
-        self.task = SystemBuildTask()
+        self.task = SystemPrepareTask()
 
     def __init_command_args(self):
         self.task.command_args = {}
         self.task.command_args['help'] = False
-        self.task.command_args['build'] = False
+        self.task.command_args['prepare'] = False
         self.task.command_args['--description'] = '../data/description'
-        self.task.command_args['--target-dir'] = 'some-target'
-        self.task.command_args['--obs-repo-internal'] = None
+        self.task.command_args['--root'] = '../data/root-dir'
+        self.task.command_args['--allow-existing-root'] = False
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
+        self.task.command_args['--obs-repo-internal'] = False
 
-    @patch('kiwi.logger.Logger.set_logfile')
-    def test_process_system_build(self, mock_log):
+    def test_process_system_prepare(self):
         self.__init_command_args()
-        self.task.command_args['build'] = True
+        self.task.command_args['prepare'] = True
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with()
         self.system_prepare.install_bootstrap.assert_called_once_with(
@@ -89,68 +73,53 @@ class TestSystemBuildTask(object):
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
+
         self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
         )
-        self.setup.call_image_script.assert_called_once_with()
-        self.builder.create.assert_called_once_with()
-        self.result.print_results.assert_called_once_with()
-        self.result.dump.assert_called_once_with(
-            'some-target/kiwi.result'
-        )
 
     @patch('kiwi.xml_state.XMLState.set_repository')
-    @patch('kiwi.logger.Logger.set_logfile')
-    def test_process_system_build_prepare_stage_set_repo(
-        self, mock_log, mock_set_repo
-    ):
+    def test_process_system_prepare_set_repo(self, mock_state):
         self.__init_command_args()
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
-        mock_set_repo.assert_called_once_with(
+        mock_state.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', None
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
-    @patch('kiwi.logger.Logger.set_logfile')
-    def test_process_system_build_prepare_stage_add_repo(
-        self, mock_log, mock_add_repo
-    ):
+    def test_process_system_prepare_add_repo(self, mock_state):
         self.__init_command_args()
         self.task.command_args['--add-repo'] = [
             'http://example.com,yast2,alias'
         ]
         self.task.process()
-        mock_add_repo.assert_called_once_with(
+        mock_state.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', None
         )
 
-    @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
-    def test_process_system_prepare_use_ibs_repos(
-        self, mock_ibs_repo, mock_log
-    ):
+    def test_process_system_prepare_use_ibs_repos(self, mock_state):
         self.__init_command_args()
         self.task.command_args['--obs-repo-internal'] = True
         self.task.process()
-        mock_ibs_repo.assert_called_once_with()
+        mock_state.assert_called_once_with()
 
-    @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.translate_obs_to_suse_repositories')
     @patch('os.path.exists')
     def test_process_system_prepare_use_suse_repos(
-        self, mock_exists, mock_suse_repos, mock_log
+        self, mock_exists, mock_suse_repos
     ):
         self.__init_command_args()
         mock_exists.return_value = True
         self.task.process()
         mock_suse_repos.assert_called_once_with()
 
-    def test_process_system_build_help(self):
+    def test_process_system_prepare_help(self):
         self.__init_command_args()
         self.task.command_args['help'] = True
-        self.task.command_args['build'] = True
+        self.task.command_args['prepare'] = True
         self.task.process()
         self.task.manual.show.assert_called_once_with(
-            'kiwi::system::build'
+            'kiwi::system::prepare'
         )

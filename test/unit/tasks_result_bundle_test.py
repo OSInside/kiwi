@@ -7,7 +7,7 @@ import kiwi
 
 from . import nose_helper
 from kiwi.exceptions import *
-from kiwi.result_bundle_task import ResultBundleTask
+from kiwi.tasks.result_bundle import ResultBundleTask
 from kiwi.system.result import Result
 
 
@@ -38,7 +38,7 @@ class TestResultBundleTask(object):
             use_for_bundle=True, compress=True, shasum=True
         )
 
-        kiwi.result_bundle_task.Help = mock.Mock(
+        kiwi.tasks.result_bundle.Help = mock.Mock(
             return_value=mock.Mock()
         )
         self.task = ResultBundleTask()
@@ -59,11 +59,11 @@ class TestResultBundleTask(object):
         self.task.command_args['bundle'] = True
         self.task.process()
 
-    @patch('kiwi.result_bundle_task.Result.load')
-    @patch('kiwi.result_bundle_task.Command.run')
-    @patch('kiwi.result_bundle_task.Path.create')
-    @patch('kiwi.result_bundle_task.Compress')
-    @patch('kiwi.result_bundle_task.Checksum')
+    @patch('kiwi.tasks.result_bundle.Result.load')
+    @patch('kiwi.tasks.result_bundle.Command.run')
+    @patch('kiwi.tasks.result_bundle.Path.create')
+    @patch('kiwi.tasks.result_bundle.Compress')
+    @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     @patch('builtins.open')
     def test_process_result_bundle(

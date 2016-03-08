@@ -134,7 +134,7 @@ class Cli(object):
                 'No command specified for %s service' % service
             )
         command_source_file = Defaults.project_file(
-            service + '_' + command + '_task.py'
+            'tasks/' + service + '_' + command + '.py'
         )
         if not os.path.exists(command_source_file):
             from .logger import log
@@ -143,20 +143,21 @@ class Cli(object):
                 log.info('--> kiwi %s', service_command)
             raise SystemExit
         self.command_loaded = importlib.import_module(
-            'kiwi.' + service + '_' + command + '_task'
+            'kiwi.tasks.' + service + '_' + command
         )
         return self.command_loaded
 
     def __get_command_implementations(self, service):
         command_implementations = []
-        glob_match = Defaults.project_file('.') + '/*task.py'
+        glob_match = Defaults.project_file('/') + 'tasks/*.py'
         for source_file in glob.iglob(glob_match):
             with open(source_file, 'r') as source:
                 for line in source:
                     if re.search('usage: (.*)', line):
-                        command_path = os.path.basename(source_file).split('_')
+                        command_path = os.path.basename(
+                            source_file
+                        ).replace('.py', '').split('_')
                         if command_path[0] == service:
-                            command_path.pop()
                             command_implementations.append(
                                 ' '.join(command_path)
                             )

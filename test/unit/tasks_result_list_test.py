@@ -7,7 +7,7 @@ import kiwi
 
 from . import nose_helper
 from kiwi.exceptions import *
-from kiwi.result_list_task import ResultListTask
+from kiwi.tasks.result_list import ResultListTask
 
 
 class TestResultListTask(object):
@@ -16,7 +16,7 @@ class TestResultListTask(object):
             sys.argv[0], 'result', 'list', '--target-dir', 'directory'
         ]
         self.result = mock.Mock()
-        kiwi.result_list_task.Help = mock.Mock(
+        kiwi.tasks.result_list.Help = mock.Mock(
             return_value=mock.Mock()
         )
         self.task = ResultListTask()
@@ -27,7 +27,7 @@ class TestResultListTask(object):
         self.task.command_args['list'] = False
         self.task.command_args['--target-dir'] = 'directory'
 
-    @patch('kiwi.result_list_task.Result.load')
+    @patch('kiwi.tasks.result_list.Result.load')
     def test_process_result_list(self, mock_load):
         mock_load.return_value = self.result
         self.__init_command_args()

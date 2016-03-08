@@ -22,6 +22,7 @@ graft kiwi/volume_manager
 graft kiwi/xsl
 graft kiwi/schema
 graft kiwi/config
+graft kiwi/tasks
 graft package
 
 include Makefile

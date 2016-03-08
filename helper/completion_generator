@@ -6,7 +6,9 @@ import subprocess
 import re
 import sys
 
+import collections
 import pprint
+
 
 class AutoVivification(dict):
     def __getitem__(self, item):
@@ -19,7 +21,7 @@ class AutoVivification(dict):
 
 class AppHash:
     def __init__(self):
-        call_parm = ["bash", "-c", "cat kiwi/*.py"]
+        call_parm = ["bash", "-c", "cat kiwi/cli.py kiwi/tasks/*.py"]
         cmd = subprocess.Popen(
             call_parm, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
@@ -167,6 +169,10 @@ tree.traverse()
 # pp = pprint.PrettyPrinter(indent=4)
 # pp.pprint(tree.completion.result)
 
+sorted_levels = collections.OrderedDict(
+    sorted(tree.level_dict.items())
+)
+
 print(dedent('''
 #========================================
 # _kiwi
@@ -179,13 +185,14 @@ function _kiwi {
 
 print('    for comp in $prev $cmd;do')
 print('        case "$comp" in')
-for level in sorted(tree.level_dict):
+for level in sorted_levels:
     if level == '0':
         continue
-    for sub in tree.level_dict[level]:
+    for sub in sorted(sorted_levels[level]):
         print('            "%s")' % (sub))
         print('                __comp_reply "%s"' % \
-            (" ".join(tree.level_dict[level][sub])))
+            (" ".join(sorted(sorted_levels[level][sub])))
+        )
         print('                return 0')
         print('                ;;')
 print('        esac')
@@ -194,7 +201,8 @@ print('    if [[ $COMP_LINE =~ compute ]];then')
 print('        __comp_reply "--help"')
 print('    else')
 print('       __comp_reply "%s"' % \
-    (" ".join(tree.level_dict['0']['kiwi'])))
+    (" ".join(sorted(sorted_levels['0']['kiwi'])))
+)
 print('    fi')
 print('    return 0')
 print('}')
@@ -207,5 +215,5 @@ function __comp_reply {
     COMPREPLY=($(compgen -W "$word_list" -- ${cur}))
 }
 
-complete -F _kiwi -o default kiwi
+complete -F _kiwi -o default kiwi-py3
 ''').strip())

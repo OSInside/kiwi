@@ -16,30 +16,26 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system prepare -h | --help
-       kiwi system prepare --description=<directory> --root=<directory>
-           [--allow-existing-root]
+usage: kiwi system build -h | --help
+       kiwi system build --description=<directory> --target-dir=<directory>
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
            [--obs-repo-internal]
-       kiwi system prepare help
+       kiwi system build help
 
 commands:
-    prepare
-        prepare and install a new system for chroot access
-    prepare help
-        show manual page for prepare command
+    build
+        build a system image from the specified description. The
+        build command combines the prepare and create commands
+    build help
+        show manual page for build command
 
 options:
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
-    --root=<directory>
-        the path to the new root directory of the system
-    --allow-existing-root
-        allow to use an existing root directory. Use with caution
-        this could cause an inconsistent root tree if the existing
-        contents does not fit to the additional installation
+    --target-dir=<directory>
+        the target directory to store the system image file(s)
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
@@ -53,19 +49,21 @@ options:
 import os
 
 # project
-from .cli_task import CliTask
-from .help import Help
-from .privileges import Privileges
-from .system.prepare import SystemPrepare
-from .system.setup import SystemSetup
-from .defaults import Defaults
-from .system.profile import Profile
-from .logger import log
+from .base import CliTask
+from ..help import Help
+from ..system.prepare import SystemPrepare
+from ..system.setup import SystemSetup
+from ..builder import ImageBuilder
+from ..system.profile import Profile
+from ..defaults import Defaults
+from ..privileges import Privileges
+from ..path import Path
+from ..logger import log
 
 
-class SystemPrepareTask(CliTask):
+class SystemBuildTask(CliTask):
     """
-        Implements preparation and installation of a new root system
+        Implements building of system images
     """
     def process(self):
         self.manual = Help()
@@ -73,6 +71,14 @@ class SystemPrepareTask(CliTask):
             return
 
         Privileges.check_for_root_permissions()
+
+        image_root = self.command_args['--target-dir'] + '/build/image-root'
+        Path.create(image_root)
+
+        if not self.global_args['--logfile']:
+            log.set_logfile(
+                self.command_args['--target-dir'] + '/build/image-root.log'
+            )
 
         self.load_xml_description(
             self.command_args['--description']
@@ -93,6 +99,8 @@ class SystemPrepareTask(CliTask):
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
+                Path.create(self.command_args['--target-dir'])
+
         if os.path.exists('/.buildenv'):
             # This build runs inside of a buildservice worker. Therefore
             # the repo defintions is adapted accordingly
@@ -103,11 +111,9 @@ class SystemPrepareTask(CliTask):
             # Be aware that the buildhost has to provide access
             self.xml_state.translate_obs_to_ibs_repositories()
 
-        log.info('Preparing system')
+        log.info('Preparing new root system')
         system = SystemPrepare(
-            self.xml_state,
-            self.command_args['--root'],
-            self.command_args['--allow-existing-root']
+            self.xml_state, image_root, True
         )
         manager = system.setup_repositories()
         system.install_bootstrap(manager)
@@ -123,7 +129,7 @@ class SystemPrepareTask(CliTask):
         setup = SystemSetup(
             self.xml_state,
             self.command_args['--description'],
-            self.command_args['--root']
+            image_root
         )
         setup.import_shell_environment(profile)
 
@@ -140,10 +146,29 @@ class SystemPrepareTask(CliTask):
         system.pinch_system(
             manager=manager, force=True
         )
+        # make sure system instance is cleaned up now
+        del system
+
+        setup.call_image_script()
+
+        # make sure setup instance is cleaned up now
+        del setup
+
+        log.info('Creating system image')
+        image_builder = ImageBuilder(
+            self.xml_state,
+            self.command_args['--target-dir'],
+            image_root
+        )
+        result = image_builder.create()
+        result.print_results()
+        result.dump(
+            self.command_args['--target-dir'] + '/kiwi.result'
+        )
 
     def __help(self):
         if self.command_args['help']:
-            self.manual.show('kiwi::system::prepare')
+            self.manual.show('kiwi::system::build')
         else:
             return False
         return self.manual

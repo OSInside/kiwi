@@ -7,7 +7,7 @@ import logging
 from . import nose_helper
 import inspect
 
-from kiwi.cli_task import CliTask
+from kiwi.tasks.base import CliTask
 from kiwi.exceptions import *
 
 import kiwi.xml_parse

@@ -7,7 +7,7 @@ import kiwi
 
 from . import nose_helper
 
-from kiwi.system_create_task import SystemCreateTask
+from kiwi.tasks.system_create import SystemCreateTask
 from kiwi.exceptions import *
 
 
@@ -17,15 +17,15 @@ class TestSystemCreateTask(object):
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'create',
             '--root', '../data/root-dir', '--target-dir', 'some-target'
         ]
-        kiwi.system_create_task.Privileges = mock.Mock()
-        kiwi.system_create_task.Path = mock.Mock()
+        kiwi.tasks.system_create.Privileges = mock.Mock()
+        kiwi.tasks.system_create.Path = mock.Mock()
 
-        kiwi.system_create_task.Help = mock.Mock(
+        kiwi.tasks.system_create.Help = mock.Mock(
             return_value=mock.Mock()
         )
 
         self.setup = mock.Mock()
-        kiwi.system_create_task.SystemSetup = mock.Mock(
+        kiwi.tasks.system_create.SystemSetup = mock.Mock(
             return_value=self.setup
         )
 
@@ -34,7 +34,7 @@ class TestSystemCreateTask(object):
         self.builder.create = mock.Mock(
             return_value=self.result
         )
-        kiwi.system_create_task.ImageBuilder = mock.Mock(
+        kiwi.tasks.system_create.ImageBuilder = mock.Mock(
             return_value=self.builder
         )
 

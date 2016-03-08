@@ -39,12 +39,12 @@ options:
         delete the given package name
 """
 # project
-from .cli_task import CliTask
-from .privileges import Privileges
-from .help import Help
-from .system.prepare import SystemPrepare
+from .base import CliTask
+from ..privileges import Privileges
+from ..help import Help
+from ..system.prepare import SystemPrepare
 
-from .logger import log
+from ..logger import log
 
 
 class SystemUpdateTask(CliTask):

@@ -20,11 +20,11 @@ import logging
 import glob
 
 # project
-from .cli import Cli
-from .xml_state import XMLState
-from .xml_description import XMLDescription
+from ..cli import Cli
+from ..xml_state import XMLState
+from ..xml_description import XMLDescription
 
-from .exceptions import (
+from ..exceptions import (
     KiwiConfigFileNotFound
 )
 
@@ -35,7 +35,7 @@ class CliTask(object):
         the interface to the command options and the XML description
     """
     def __init__(self, should_perform_task_setup=True):
-        from .logger import log
+        from ..logger import log
 
         self.cli = Cli()
 
@@ -65,7 +65,7 @@ class CliTask(object):
                 )
 
     def load_xml_description(self, description_directory):
-        from .logger import log
+        from ..logger import log
 
         log.info('Loading XML description')
         config_file = description_directory + '/config.xml'

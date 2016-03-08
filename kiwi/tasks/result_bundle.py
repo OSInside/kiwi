@@ -43,16 +43,16 @@ from collections import OrderedDict
 import os
 
 # project
-from .cli_task import CliTask
-from .help import Help
-from .system.result import Result
-from .logger import log
-from .path import Path
-from .data.compress import Compress
-from .data.checksum import Checksum
-from .command import Command
+from .base import CliTask
+from ..help import Help
+from ..system.result import Result
+from ..logger import log
+from ..path import Path
+from ..data.compress import Compress
+from ..data.checksum import Checksum
+from ..command import Command
 
-from .exceptions import (
+from ..exceptions import (
     KiwiBundleError
 )
 

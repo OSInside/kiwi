@@ -7,7 +7,7 @@ import kiwi
 
 from . import nose_helper
 
-from kiwi.system_update_task import SystemUpdateTask
+from kiwi.tasks.system_update import SystemUpdateTask
 
 
 class TestSystemUpdateTask(object):
@@ -18,14 +18,14 @@ class TestSystemUpdateTask(object):
         ]
         self.manager = mock.Mock()
         self.system_prepare = mock.Mock()
-        kiwi.system_update_task.Privileges = mock.Mock()
+        kiwi.tasks.system_update.Privileges = mock.Mock()
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.system_update_task.SystemPrepare = mock.Mock(
+        kiwi.tasks.system_update.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
-        kiwi.system_update_task.Help = mock.Mock(
+        kiwi.tasks.system_update.Help = mock.Mock(
             return_value=mock.Mock()
         )
         self.task = SystemUpdateTask()
