@@ -43,7 +43,7 @@ class FirmWare(object):
         ]
 
         firmware_types = Defaults.get_firmware_types()
-        if self.host_architecture.startswith('ppc64'):
+        if not self.firmware and self.host_architecture.startswith('ppc64'):
             self.firmware = 'ofw'
 
         if self.firmware:
