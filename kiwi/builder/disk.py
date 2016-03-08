@@ -503,6 +503,11 @@ class DiskBuilder(object):
         )
 
     def __install_bootloader(self, device_map):
+        if platform.machine().startswith('ppc64') and self.firmware.opal_mode():
+            # OPAL doesn't need a grub2 stage1, just a config
+            # It just kexecs grub2 menu entry
+            return 'Not required'
+
         root_device = device_map['root']
         boot_device = root_device
         if 'boot' in device_map:
