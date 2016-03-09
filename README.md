@@ -50,7 +50,8 @@ distribution from the buildservice link above and there follow the
 __Go to download repository__ link
 
 ```bash
-$ zypper ar -f http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>/ kiwi-py3
+$ zypper ar -f \
+    http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>
 $ zypper in python3-kiwi
 ```
 
