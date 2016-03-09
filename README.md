@@ -220,8 +220,24 @@ $ tox -e 3.4
 The version schema is based on `bumpversion` and follows the
 standard rules as shown below.
 
+* For backwards-compatible bug fixes
+
 ```
-$ bumpversion [patch | minor | major]
+$ bumpversion patch
+```
+
+* For additional functionality in a backwards-compatible manner.
+  When changed set the patch level back to zero
+
+```
+$ bumpversion minor
+```
+
+* For incompatible API changes. When changed set the patch and minor
+  level back to zero
+
+```
+$ bumpversion major
 ```
 
 The creation of RPM package sources has to be done by calling
