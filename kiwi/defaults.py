@@ -164,14 +164,6 @@ class Defaults(object):
         return 'SUSE LINUX GmbH'
 
     @classmethod
-    def get_shim_name(self):
-        return 'shim.efi'
-
-    @classmethod
-    def get_signed_grub_name(self):
-        return 'grub.efi'
-
-    @classmethod
     def get_default_volume_group_name(self):
         return 'systemVG'
 

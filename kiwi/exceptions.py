@@ -61,10 +61,6 @@ class KiwiBootLoaderGrubPlatformError(KiwiError):
     pass
 
 
-class KiwiBootLoaderGrubSecureBootError(KiwiError):
-    pass
-
-
 class KiwiBootLoaderInstallSetupError(KiwiError):
     pass
 
