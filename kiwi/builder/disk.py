@@ -349,6 +349,9 @@ class DiskBuilder(object):
         elif 'boot' in device_map:
             exclude_list.append('boot/*')
             exclude_list.append('boot/.*')
+        if 'efi' in device_map:
+            exclude_list.append('boot/efi/*')
+            exclude_list.append('boot/efi/.*')
         return exclude_list
 
     def __get_exclude_list_for_boot_data_sync(self):
@@ -510,8 +513,15 @@ class DiskBuilder(object):
 
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),
-            'root_device': root_device.get_device()
+            'root_device': root_device.get_device(),
+            'firmware': self.xml_state.build_type.get_firmware()
         }
+
+        if 'efi' in device_map:
+            efi_device = device_map['efi']
+            custom_install_arguments.update(
+                {'efi_device': efi_device.get_device()}
+            )
 
         if 'prep' in device_map:
             prep_device = device_map['prep']

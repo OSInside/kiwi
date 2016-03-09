@@ -235,7 +235,7 @@ class TestDiskBuilder(object):
         assert filesystem.sync_data.call_args_list[2] == \
             call([
                 'image', '.profile', '.kconfig', 'var/cache/kiwi',
-                'boot/*', 'boot/.*'
+                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
         assert mock_open.call_args_list == [
             call('boot_dir/config.partids', 'w'),
@@ -396,7 +396,7 @@ class TestDiskBuilder(object):
         volume_manager.create_volumes.assert_called_once_with('btrfs')
         volume_manager.sync_data.assert_called_once_with([
             'image', '.profile', '.kconfig', 'var/cache/kiwi',
-            'boot/*', 'boot/.*'
+            'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
         ])
 
     @patch('kiwi.builder.disk.FileSystem')
