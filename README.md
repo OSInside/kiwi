@@ -149,7 +149,7 @@ The following procedure describes how to create such an environment:
 1. Create the virtual environment:
 
    ```
-$ pyvenv .env3
+$ pyvenv-3.4 .env3
 ```
 
 2. Activate the virtual environment:
