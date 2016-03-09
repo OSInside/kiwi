@@ -17,7 +17,7 @@
 #
 
 # project
-from ..path import Path
+from ...path import Path
 from .base import ContainerSetupBase
 
 

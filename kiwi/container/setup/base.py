@@ -19,10 +19,10 @@ import collections
 import os
 
 # project
-from ..command import Command
-from ..data.sync import DataSync
+from ...command import Command
+from ...data.sync import DataSync
 
-from ..exceptions import (
+from ...exceptions import (
     KiwiContainerSetupError
 )
 

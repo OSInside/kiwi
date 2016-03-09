@@ -19,7 +19,7 @@ import platform
 
 # project
 from ..container import ContainerImage
-from ..container_setup import ContainerSetup
+from ..container.setup import ContainerSetup
 from ..system.setup import SystemSetup
 from ..logger import log
 from ..system.result import Result

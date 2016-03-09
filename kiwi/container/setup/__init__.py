@@ -18,7 +18,7 @@
 # project
 from .docker import ContainerSetupDocker
 
-from ..exceptions import (
+from ...exceptions import (
     KiwiContainerSetupError
 )
 

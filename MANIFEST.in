@@ -10,7 +10,6 @@ graft kiwi/archive
 graft kiwi/bootloader
 graft kiwi/builder
 graft kiwi/container
-graft kiwi/container_setup
 graft kiwi/filesystem
 graft kiwi/package_manager
 graft kiwi/partitioner
