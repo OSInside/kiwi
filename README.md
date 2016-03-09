@@ -42,13 +42,15 @@ configured.
 ## Installation
 
 Packages for the new KIWI version are provided at the
-[openSUSE buildservice](http://download.opensuse.org/repositories/Virtualization:/Appliances).
-Add the repository with `zypper ar` (see following code) and replace the placeholders.
-The best approach is to click through to your distribution and copy the complete URL
-of `Virtualization:Appliances.repo`. Use the following commands:
+[openSUSE buildservice](https://build.opensuse.org/package/show/Virtualization:Appliances:Builder/python3-kiwi)
+
+Add the repository with `zypper ar` (see following code) and replace the
+distribution placeholder. The best approach is to click on the desired
+distribution from the buildservice link above and there follow the
+__Go to download repository__ link
 
 ```bash
-$ zypper ar -f <URL>/<DIST>/Virtualization:Appliances.repo
+$ zypper ar -f http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>/ kiwi-py3
 $ zypper in python3-kiwi
 ```
 
