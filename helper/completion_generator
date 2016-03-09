@@ -69,6 +69,16 @@ class AppHash:
                                 ['kiwi', global_opt]
                             )
                             cur_path = self.merge(result_keys, self.result)
+                    elif re.match('            \[', line):
+                        line = line.replace('[', '')
+                        line = line.replace(']', '')
+                        line = line.replace('|', '')
+                        key_list = line.split()
+                        for global_opt in key_list:
+                            result_keys = self.validate(
+                                ['kiwi', global_opt]
+                            )
+                            cur_path = self.merge(result_keys, self.result)
                     elif re.match('                \[', line):
                         opt_val = re.search('                \[(--.*)', line)
                         global_opt = opt_val.group(1)
@@ -177,13 +187,28 @@ print(dedent('''
 #========================================
 # _kiwi
 #----------------------------------------
+function setupCompletionLine {
+    local comp_line=$(echo $COMP_LINE | sed -e 's@kiwi-py3@kiwi@')
+    local result_comp_line
+    local prev_was_option=0
+    for item in $comp_line; do
+        if [ $prev_was_option = 1 ];then
+            prev_was_option=0
+            continue
+        fi
+        if [[ $item =~ -.* ]];then
+            prev_was_option=1
+            continue
+        fi
+        result_comp_line="$result_comp_line $item"
+    done
+    echo $result_comp_line
+}
+
 function _kiwi {
     local cur prev opts
     _get_comp_words_by_ref cur prev
-    local cmd=$(
-        echo $COMP_LINE | sed -e 's@kiwi-py3@kiwi@' | sed -e 's@-.*@@'| \\
-        awk -F ' ' '{ print $NF }'
-    )
+    local cmd=$(setupCompletionLine | awk -F ' ' '{ print $NF }')
 ''').strip())
 
 print('    for comp in $prev $cmd;do')
