@@ -33,20 +33,16 @@ class FirmWare(object):
     """
     def __init__(self, xml_state):
         self.host_architecture = platform.machine()
-        self.firmware = xml_state.build_type.get_firmware()
         self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
-        self.efi_capable_firmware_names = [
-            'efi', 'uefi', 'vboot'
-        ]
-        self.ec2_firmware_names = [
-            'ec2', 'ec2hvm'
-        ]
+        self.firmware = xml_state.build_type.get_firmware()
 
-        firmware_types = Defaults.get_firmware_types()
-        if self.host_architecture.startswith('ppc64'):
-            self.firmware = 'ofw'
+        if not self.firmware:
+            self.firmware = Defaults.get_default_firmware(
+                self.host_architecture
+            )
 
         if self.firmware:
+            firmware_types = Defaults.get_firmware_types()
             if self.firmware not in firmware_types[self.host_architecture]:
                 raise KiwiNotImplementedError(
                     'support for firmware %s for arch %s not implemented' %
@@ -73,11 +69,11 @@ class FirmWare(object):
             return False
 
     def efi_mode(self):
-        if self.firmware and self.firmware in self.efi_capable_firmware_names:
+        if self.firmware in Defaults.get_efi_capable_firmware_names():
             return self.firmware
 
     def ec2_mode(self):
-        if self.firmware and self.firmware in self.ec2_firmware_names:
+        if self.firmware in Defaults.get_ec2_capable_firmware_names():
             return self.firmware
 
     def bios_mode(self):

@@ -215,6 +215,35 @@ class Defaults(object):
         }
 
     @classmethod
+    def get_default_firmware(self, arch):
+        default_firmware = {
+            'x86_64': 'bios',
+            'i586': 'bios',
+            'i686': 'bios',
+            'aarch64': None,
+            'arm64': None,
+            'armv5el': None,
+            'armv5tel': None,
+            'armv6l': None,
+            'armv7l': None,
+            'ppc': 'ofw',
+            'ppc64': 'ofw',
+            'ppc64le': 'ofw',
+            's390': None,
+            's390x': None
+        }
+        if arch in default_firmware:
+            return default_firmware[arch]
+
+    @classmethod
+    def get_efi_capable_firmware_names(self):
+        return ['efi', 'uefi', 'vboot']
+
+    @classmethod
+    def get_ec2_capable_firmware_names(self):
+        return ['ec2', 'ec2hvm']
+
+    @classmethod
     def get_default_boot_timeout_seconds(self):
         return 10
 
