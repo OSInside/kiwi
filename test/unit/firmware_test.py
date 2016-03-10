@@ -33,6 +33,8 @@ class TestFirmWare(object):
         mock_platform.return_value = 'ppc64le'
         xml_state.build_type.get_firmware.return_value = 'ofw'
         self.firmware_ofw = FirmWare(xml_state)
+        xml_state.build_type.get_firmware.return_value = 'opal'
+        self.firmware_opal = FirmWare(xml_state)
 
     @raises(KiwiNotImplementedError)
     def test_firmware_unsupported(self):
@@ -48,7 +50,12 @@ class TestFirmWare(object):
         assert self.firmware_s390_ldl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_cdl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'
+
+    def test_get_partition_table_type_ppc_ofw_mode(self):
         assert self.firmware_ofw.get_partition_table_type() == 'msdos'
+
+    def test_get_partition_table_type_ppc_opal_mode(self):
+        assert self.firmware_opal.get_partition_table_type() == 'gpt'
 
     def test_legacy_bios_mode(self):
         assert self.firmware_bios.legacy_bios_mode() is False
@@ -68,7 +75,9 @@ class TestFirmWare(object):
 
     def test_ofw_mode(self):
         assert self.firmware_ofw.ofw_mode() is True
-        assert self.firmware_efi.bios_mode() is False
+
+    def test_opal_mode(self):
+        assert self.firmware_opal.opal_mode() is True
 
     def test_get_legacy_bios_partition_size(self):
         assert self.firmware_bios.get_legacy_bios_partition_size() == 0

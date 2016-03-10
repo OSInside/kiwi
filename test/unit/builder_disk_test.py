@@ -423,3 +423,14 @@ class TestDiskBuilder(object):
         self.disk_builder.image_format = 'vmdk'
         self.disk_builder.create()
         assert mock_log_warn.called
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch('builtins.open')
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_ppc_opal_mode(self, mock_command, mock_open, mock_fs):
+        self.disk_builder.arch = 'ppc64'
+        self.disk_builder.firmware.opal_mode = mock.Mock(
+            return_value=True
+        )
+        self.disk_builder.create()
+        assert self.bootloader_install.install.called is False
