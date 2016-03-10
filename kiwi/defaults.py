@@ -208,8 +208,8 @@ class Defaults(object):
             'armv6l': ['vboot'],
             'armv7l': ['vboot'],
             'ppc': ['ofw'],
-            'ppc64': ['ofw'],
-            'ppc64le': ['ofw'],
+            'ppc64': ['ofw', 'opal'],
+            'ppc64le': ['ofw', 'opal'],
             's390': [],
             's390x': []
         }
