@@ -2281,6 +2281,7 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>uefi</value>
           <value>vboot</value>
           <value>ofw</value>
+          <value>opal</value>
         </choice>
       </attribute>
     </define>

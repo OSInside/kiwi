@@ -43,7 +43,7 @@ class FirmWare(object):
         ]
 
         firmware_types = Defaults.get_firmware_types()
-        if self.host_architecture.startswith('ppc64'):
+        if not self.firmware and self.host_architecture.startswith('ppc64'):
             self.firmware = 'ofw'
 
         if self.firmware:
@@ -61,7 +61,7 @@ class FirmWare(object):
                 return 'dasd'
             else:
                 return 'msdos'
-        elif self.efi_mode():
+        elif self.efi_mode() or self.opal_mode():
             return 'gpt'
         else:
             return 'msdos'
@@ -88,6 +88,12 @@ class FirmWare(object):
 
     def ofw_mode(self):
         if self.firmware == 'ofw':
+            return True
+        else:
+            return False
+
+    def opal_mode(self):
+        if self.firmware == 'opal':
             return True
         else:
             return False
