@@ -182,7 +182,8 @@ class TestBootLoaderInstallGrub2(object):
                 'cp', 'tmp_root/bin/true', 'tmp_root/usr/sbin/grub2-install'
             ]),
             call([
-                'chroot', 'tmp_root', 'shim-install', '/dev/some-device'
+                'chroot', 'tmp_root', 'shim-install', '--removable',
+                '/dev/some-device'
             ]),
             call([
                 'cp', 'tmp_root/usr/sbin/grub2-install.orig',
