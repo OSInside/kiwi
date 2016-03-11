@@ -163,8 +163,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             Command.run(
                 [
                     'chroot', self.root_mount.mountpoint,
-                    'shim-install', '--removable',
-                    self.install_device
+                    'shim-install', self.install_device
                 ]
             )
             # restore the grub2-install noop
