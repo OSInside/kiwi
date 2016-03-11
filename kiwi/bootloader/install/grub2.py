@@ -85,7 +85,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         )
         self.boot_mount = MountManager(
             device=custom_args['boot_device'],
-            mountpoint=self.root_mount.mountpoint + 'boot'
+            mountpoint=self.root_mount.mountpoint + '/boot'
         )
         self.modules_dir = '/usr/lib/grub2/' + self.target
 
