@@ -57,6 +57,11 @@ class FirmWare(object):
                 return 'dasd'
             else:
                 return 'msdos'
+        elif 'ppc64' in self.host_architecture:
+            if self.opal_mode():
+                return 'gpt'
+            else:
+                return 'msdos'
         elif self.efi_mode():
             return 'gpt'
         else:
@@ -84,6 +89,12 @@ class FirmWare(object):
 
     def ofw_mode(self):
         if self.firmware == 'ofw':
+            return True
+        else:
+            return False
+
+    def opal_mode(self):
+        if self.firmware == 'opal':
             return True
         else:
             return False
