@@ -21,6 +21,7 @@
         <profile name="pae" description="KERNEL: pae"/>
         <profile name="desktop" description="KERNEL: Desktop kernel"/>
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
+        <profile name="pv" description="KERNEL: PV_OPS kernel"/>
     </profiles>
     <drivers profiles="xen">
         <file name="drivers/xen/*"/>
@@ -124,6 +125,9 @@
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
+    </packages>
+    <packages type="image" profiles="pv">
+        <package name="kernel-pv"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>

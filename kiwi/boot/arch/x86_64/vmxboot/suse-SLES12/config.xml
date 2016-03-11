@@ -14,6 +14,7 @@
     </preferences>
     <profiles>
         <profile name="default" description="Booting default setup"/>
+        <profile name="pv" description="KERNEL: PV_OPS kernel"/>
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
         <profile name="xen" description="Boot with xen mboot.c32 setup"/>
         <profile name="ec2" description="Boot using EC2 system"/>
@@ -81,6 +82,9 @@
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
+    </packages>
+    <packages type="image" profiles="pv">
+        <package name="kernel-pv"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>

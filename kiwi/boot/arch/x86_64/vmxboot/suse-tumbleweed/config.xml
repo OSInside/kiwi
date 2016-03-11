@@ -22,6 +22,7 @@
         <profile name="pae" description="KERNEL: pae kernel"/>
         <profile name="ec2k" description="KERNEL: EC2 kernel"/>
         <profile name="desktop" description="KERNEL: Desktop kernel"/>
+        <profile name="pv" description="KERNEL: PV_OPS kernel"/>
     </profiles>
     <drivers>
         <file name="crypto/*"/>
@@ -86,6 +87,9 @@
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>
         <package name="kernel-default" arch="i586"/>
+    </packages>
+    <packages type="image" profiles="pv">
+        <package name="kernel-pv"/>
     </packages>
     <packages type="image" profiles="xenk">
 <!-- xen kernel only supported on x86_64 -->
