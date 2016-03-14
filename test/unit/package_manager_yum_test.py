@@ -1,10 +1,10 @@
-from nose.tools import *
+
 from mock import patch
 
 import mock
 import re
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.package_manager.yum import PackageManagerYum
 from kiwi.exceptions import *

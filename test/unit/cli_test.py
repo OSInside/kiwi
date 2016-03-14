@@ -1,8 +1,8 @@
 import sys
-from nose.tools import *
+
 from mock import patch
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.cli import Cli
 from kiwi.exceptions import *

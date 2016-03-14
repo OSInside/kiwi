@@ -1,10 +1,10 @@
-from nose.tools import *
+
 from mock import patch
 from mock import call
 import mock
 import kiwi
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.exceptions import *
 from kiwi.builder.install import InstallImageBuilder

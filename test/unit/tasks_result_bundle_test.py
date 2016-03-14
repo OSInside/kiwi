@@ -1,11 +1,11 @@
 import sys
 import mock
-from nose.tools import *
+
 from mock import patch
 from mock import call
 import kiwi
 
-from . import nose_helper
+from .test_helper import *
 from kiwi.exceptions import *
 from kiwi.tasks.result_bundle import ResultBundleTask
 from kiwi.system.result import Result

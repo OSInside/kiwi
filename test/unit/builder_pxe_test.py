@@ -1,11 +1,11 @@
-from nose.tools import *
+
 from mock import patch
 
 import mock
 
 import kiwi
 
-from . import nose_helper
+from .test_helper import *
 
 from collections import namedtuple
 

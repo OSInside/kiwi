@@ -13,8 +13,10 @@
 # virtualenv-based automation of test activities
 tox
 
-# nose extends unittest to make testing easier
+# python unit testing framework
 nose
+pytest
+pytest-cov
 
 # Rolling backport of unittest.mock for all Pythons
 mock
