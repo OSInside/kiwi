@@ -14,7 +14,6 @@
 tox
 
 # python unit testing framework
-nose
 pytest
 pytest-cov
 
@@ -28,7 +27,7 @@ bumpversion
 wheel
 
 # Python style guide checker
-pep8
+flake8
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS
