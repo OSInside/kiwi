@@ -1,4 +1,4 @@
-from nose.tools import *
+
 from mock import patch
 from collections import namedtuple
 
@@ -6,7 +6,7 @@ import mock
 
 import os
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.exceptions import KiwiCommandError
 from kiwi.command import Command

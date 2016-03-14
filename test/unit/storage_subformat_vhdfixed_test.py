@@ -1,10 +1,10 @@
-from nose.tools import *
+
 from mock import patch
 from mock import call
 import mock
 import sys
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.exceptions import *
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed

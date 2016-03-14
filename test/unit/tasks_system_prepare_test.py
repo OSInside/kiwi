@@ -1,11 +1,11 @@
 import sys
 import mock
-from nose.tools import *
+
 from mock import patch
 
 import kiwi
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.tasks.system_prepare import SystemPrepareTask
 

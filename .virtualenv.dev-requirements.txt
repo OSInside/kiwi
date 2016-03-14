@@ -13,8 +13,9 @@
 # virtualenv-based automation of test activities
 tox
 
-# nose extends unittest to make testing easier
-nose
+# python unit testing framework
+pytest
+pytest-cov
 
 # Rolling backport of unittest.mock for all Pythons
 mock
@@ -26,7 +27,7 @@ bumpversion
 wheel
 
 # Python style guide checker
-pep8
+flake8
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS

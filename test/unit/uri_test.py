@@ -1,9 +1,9 @@
-from nose.tools import *
+import pytest
 from mock import patch
 
 import mock
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.exceptions import *
 from kiwi.system.uri import Uri
@@ -12,25 +12,34 @@ import hashlib
 
 
 class TestUri(object):
-    @raises(KiwiUriStyleUnknown)
+    @classmethod
+    def setup_class(self):
+        self.mock_mkdtemp = mock.Mock()
+        self.mock_manager = mock.Mock()
+
+    def setup_patch(self, patch):
+        patch.setattr('kiwi.system.uri.MountManager', self.mock_manager)
+        patch.setattr('kiwi.system.uri.mkdtemp', self.mock_mkdtemp)
+
     def test_is_remote_raises_style_error(self):
-        uri = Uri('xxx', 'rpm-md')
-        uri.is_remote()
+        with pytest.raises(KiwiUriStyleUnknown):
+            uri = Uri('xxx', 'rpm-md')
+            uri.is_remote()
 
-    @raises(KiwiUriTypeUnknown)
     def test_is_remote_raises_type_error(self):
-        uri = Uri('xtp://download.example.com', 'rpm-md')
-        uri.is_remote()
+        with pytest.raises(KiwiUriTypeUnknown):
+            uri = Uri('xtp://download.example.com', 'rpm-md')
+            uri.is_remote()
 
-    @raises(KiwiUriStyleUnknown)
     def test_translate_unknown_style(self):
-        uri = Uri('xxx', 'rpm-md')
-        uri.translate()
+        with pytest.raises(KiwiUriStyleUnknown):
+            uri = Uri('xxx', 'rpm-md')
+            uri.translate()
 
-    @raises(KiwiUriStyleUnknown)
     def test_translate_unsupported_style(self):
-        uri = Uri('ms://foo', 'rpm-md')
-        uri.translate()
+        with pytest.raises(KiwiUriStyleUnknown):
+            uri = Uri('ms://foo', 'rpm-md')
+            uri.translate()
 
     def test_is_remote(self):
         uri = Uri('https://example.com', 'rpm-md')
@@ -67,16 +76,15 @@ class TestUri(object):
         uri = Uri('http://example.com/foo', 'rpm-md')
         assert uri.translate() == 'http://example.com/foo'
 
-    @patch('kiwi.system.uri.MountManager')
-    @patch('kiwi.system.uri.mkdtemp')
-    def test_translate_iso_path(self, mock_mkdtemp, mock_manager):
-        mock_mkdtemp.return_value = 'tmpdir'
+    def test_translate_iso_path(self, monkeypatch):
+        self.setup_patch(monkeypatch)
+        self.mock_mkdtemp.return_value = 'tmpdir'
         manager = mock.Mock()
-        manager.mountpoint = mock_mkdtemp.return_value
-        mock_manager.return_value = manager
+        manager.mountpoint = self.mock_mkdtemp.return_value
+        self.mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
         result = uri.translate()
-        mock_manager.assert_called_once_with(
+        self.mock_manager.assert_called_once_with(
             device='/image/CDs/openSUSE-13.2-DVD-x86_64.iso',
             mountpoint='tmpdir'
         )
@@ -88,12 +96,11 @@ class TestUri(object):
         assert uri.translate() == \
             '/usr/src/packages/SOURCES/repos/openSUSE:13.2/standard'
 
-    @patch('kiwi.system.uri.MountManager')
-    @patch('kiwi.system.uri.mkdtemp')
-    def test_destructor(self, mock_mkdtemp, mock_manager):
+    def test_destructor(self, monkeypatch):
+        self.setup_patch(monkeypatch)
         manager = mock.Mock()
-        mock_mkdtemp.return_value = 'tmpdir'
-        mock_manager.return_value = manager
+        self.mock_mkdtemp.return_value = 'tmpdir'
+        self.mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
         result = uri.translate()
         uri.__del__()

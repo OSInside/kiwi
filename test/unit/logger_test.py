@@ -1,8 +1,8 @@
-from nose.tools import *
+
 from mock import patch
 from collections import namedtuple
 
-from . import nose_helper
+from .test_helper import *
 import logging
 
 from kiwi.logger import *

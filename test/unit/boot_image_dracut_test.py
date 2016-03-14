@@ -1,12 +1,12 @@
 import sys
 import mock
-from nose.tools import *
+
 from mock import patch
 from mock import call
 
 import kiwi
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription

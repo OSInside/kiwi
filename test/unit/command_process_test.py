@@ -1,11 +1,11 @@
-from nose.tools import *
+
 from mock import patch
 from mock import call
 from collections import namedtuple
 
 import mock
 
-from . import nose_helper
+from .test_helper import *
 
 from kiwi.exceptions import (
     KiwiCommandError

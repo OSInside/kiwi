@@ -1,10 +1,10 @@
 import sys
 import mock
-from nose.tools import *
+
 from mock import patch
 
 import logging
-from . import nose_helper
+from .test_helper import *
 import inspect
 
 from kiwi.tasks.base import CliTask
