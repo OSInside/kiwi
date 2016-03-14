@@ -184,6 +184,7 @@ done
 %endif
 
 %fdupes %{buildroot}/srv/tftpboot
+%fdupes %{buildroot}/%{python3_sitelib}/kiwi/boot
 
 %post
 %{_sbindir}/update-alternatives \
