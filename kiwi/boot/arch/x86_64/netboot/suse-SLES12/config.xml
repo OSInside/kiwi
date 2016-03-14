@@ -14,7 +14,6 @@
     </preferences>
     <profiles>
         <profile name="default" description="Booting default profile"/>
-        <profile name="pv" description="KERNEL: PV_OPS kernel"/>
         <profile name="diskless" description="Booting diskless thin clients"/>
         <profile name="xen" description="Booting with xen mboot.c32 setup"/>
         <profile name="std" description="KERNEL: Default"/>
@@ -157,9 +156,6 @@
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
-    </packages>
-    <packages type="image" profiles="pv">
-        <package name="kernel-pv"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>

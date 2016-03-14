@@ -22,7 +22,6 @@
         <profile name="pae" description="KERNEL: pae kernel"/>
         <profile name="ec2k" description="KERNEL: EC2 kernel"/>
         <profile name="desktop" description="KERNEL: Desktop kernel"/>
-        <profile name="pv" description="KERNEL: PV_OPS kernel"/>
     </profiles>
     <drivers>
         <file name="crypto/*"/>
@@ -96,9 +95,6 @@
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
-    </packages>
-    <packages type="image" profiles="pv">
-        <package name="kernel-pv"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>
