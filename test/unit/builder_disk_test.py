@@ -144,6 +144,18 @@ class TestDiskBuilder(object):
         self.disk_builder.machine = self.machine
         self.disk_builder.image_format = None
 
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    def test_setup_ix86(self, mock_machine, mock_exists):
+        mock_machine.return_value = 'i686'
+        description = XMLDescription(
+            '../data/example_disk_config.xml'
+        )
+        disk_builder = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        assert disk_builder.arch == 'ix86'
+
     @raises(KiwiInstallMediaError)
     def test_create_invalid_type_for_install_media(self):
         self.disk_builder.build_type_name = 'vmx'

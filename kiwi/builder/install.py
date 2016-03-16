@@ -42,6 +42,9 @@ class InstallImageBuilder(object):
         Installation image builder
     """
     def __init__(self, xml_state, target_dir, boot_image_task):
+        self.arch = platform.machine()
+        if self.arch == 'i686' or self.arch == 'i586':
+            self.arch = 'ix86'
         self.target_dir = target_dir
         self.machine = xml_state.get_build_type_machine_section()
         self.boot_image_task = boot_image_task
@@ -50,7 +53,7 @@ class InstallImageBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + self.arch,
                 '-' + xml_state.get_image_version(),
                 '.raw'
             ]
@@ -59,7 +62,7 @@ class InstallImageBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + self.arch,
                 '-' + xml_state.get_image_version(),
                 '.install.iso'
             ]
@@ -68,7 +71,7 @@ class InstallImageBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + self.arch,
                 '-' + xml_state.get_image_version(),
                 '.install.tar.xz'
             ]
@@ -274,7 +277,7 @@ class InstallImageBuilder(object):
         )
 
     def __create_iso_install_kernel_and_initrd(self):
-        boot_path = self.media_dir + '/boot/x86_64/loader'
+        boot_path = self.media_dir + '/boot/' + self.arch + '/loader'
         Path.create(boot_path)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():

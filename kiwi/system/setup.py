@@ -46,6 +46,9 @@ class SystemSetup(object):
         the desired image type.
     """
     def __init__(self, xml_state, description_dir, root_dir):
+        self.arch = platform.machine()
+        if self.arch == 'i686' or self.arch == 'i586':
+            self.arch = 'ix86'
         self.xml_state = xml_state
         self.description_dir = description_dir
         self.root_dir = root_dir
@@ -346,7 +349,7 @@ class SystemSetup(object):
                 [
                     target_dir, '/',
                     self.xml_state.xml_data.get_name(),
-                    '.' + platform.machine(),
+                    '.' + self.arch,
                     '-' + self.xml_state.get_image_version(),
                     '.packages'
                 ]
@@ -377,7 +380,7 @@ class SystemSetup(object):
                 [
                     target_dir, '/',
                     self.xml_state.xml_data.get_name(),
-                    '.' + platform.machine(),
+                    '.' + self.arch,
                     '-' + self.xml_state.get_image_version(),
                     '.verified'
                 ]

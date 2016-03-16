@@ -15,7 +15,9 @@ from kiwi.defaults import Defaults
 
 
 class TestSystemSetup(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         self.xml_state = mock.MagicMock()
         self.xml_state.build_type.get_filesystem = mock.Mock(
             return_value='ext3'
@@ -41,6 +43,14 @@ class TestSystemSetup(object):
             error='stderr',
             returncode=0
         )
+
+    @patch('platform.machine')
+    def test_setup_ix86(self, mock_machine):
+        mock_machine.return_value = 'i686'
+        setup = SystemSetup(
+            mock.MagicMock(), 'description_dir', 'root_dir'
+        )
+        assert setup.arch == 'ix86'
 
     @patch('kiwi.command.Command.run')
     @patch('builtins.open')
@@ -531,11 +541,9 @@ class TestSystemSetup(object):
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
     @patch('builtins.open')
-    @patch('platform.machine')
     def test_export_rpm_package_list(
-        self, mock_machine, mock_open, mock_exists, mock_command
+        self, mock_open, mock_exists, mock_command
     ):
-        mock_machine.return_value = 'x86_64'
         command = mock.Mock()
         command.output = 'packages_data'
         mock_exists.return_value = True
@@ -553,11 +561,9 @@ class TestSystemSetup(object):
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
     @patch('builtins.open')
-    @patch('platform.machine')
     def test_export_rpm_package_verification(
-        self, mock_machine, mock_open, mock_exists, mock_command
+        self, mock_open, mock_exists, mock_command
     ):
-        mock_machine.return_value = 'x86_64'
         command = mock.Mock()
         command.output = 'verification_data'
         mock_exists.return_value = True

@@ -68,6 +68,24 @@ class TestInstallImageBuilder(object):
             return_value='dom0'
         )
 
+    @patch('platform.machine')
+    def test_setup_ix86(self, mock_machine):
+        mock_machine.return_value = 'i686'
+        xml_state = mock.Mock()
+        xml_state.xml_data.get_name = mock.Mock(
+            return_value='result-image'
+        )
+        xml_state.get_image_version = mock.Mock(
+            return_value='1.2.3'
+        )
+        xml_state.build_type.get_kernelcmdline = mock.Mock(
+            return_value='custom_kernel_options'
+        )
+        install_image = InstallImageBuilder(
+            xml_state, 'target_dir', mock.Mock()
+        )
+        assert install_image.arch == 'ix86'
+
     @patch('kiwi.builder.install.mkdtemp')
     @patch('builtins.open')
     @patch('kiwi.builder.install.Command.run')

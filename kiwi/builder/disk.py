@@ -52,6 +52,8 @@ class DiskBuilder(object):
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.arch = platform.machine()
+        if self.arch == 'i686' or self.arch == 'i586':
+            self.arch = 'ix86'
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
