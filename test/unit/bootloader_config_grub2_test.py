@@ -82,6 +82,26 @@ class TestBootLoaderConfigGrub2(object):
         bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
         assert bootloader.arch == 'ix86'
 
+    @patch('platform.machine')
+    def test_post_init_ppc_platform(self, mock_machine):
+        xml_state = mock.MagicMock()
+        xml_state.build_type.get_firmware = mock.Mock(
+            return_value=None
+        )
+        mock_machine.return_value = 'ppc64'
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.arch == mock_machine.return_value
+
+    @patch('platform.machine')
+    def test_post_init_arm64_platform(self, mock_machine):
+        xml_state = mock.MagicMock()
+        xml_state.build_type.get_firmware = mock.Mock(
+            return_value=None
+        )
+        mock_machine.return_value = 'arm64'
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.arch == mock_machine.return_value
+
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
@@ -383,7 +403,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
-            return_value=None
+            return_value='efi'
         )
         self.os_exists['root_dir/boot/unicode.pf2'] = False
 

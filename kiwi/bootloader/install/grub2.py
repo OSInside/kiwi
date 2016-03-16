@@ -35,7 +35,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         grub2 bootloader installation
     """
     def post_init(self, custom_args):
-        arch = platform.machine()
+        self.arch = platform.machine()
         self.custom_args = custom_args
         self.firmware = None
         self.efi_mount = None
@@ -47,7 +47,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if custom_args and 'firmware' in custom_args:
             self.firmware = custom_args['firmware']
 
-        if self.firmware and 'efi' in self.firmware:
+        if self.firmware and self.firmware.efi_mode():
             if not custom_args or 'efi_device' not in custom_args:
                 raise KiwiBootLoaderGrubInstallError(
                     'EFI device name required for shim installation'
@@ -61,12 +61,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'root device name required for grub2 installation'
             )
 
-        if arch == 'x86_64' or arch == 'i686' or arch == 'i586':
+        if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
             self.target = 'i386-pc'
             self.install_device = self.device
             self.modules = ' '.join(Defaults.get_grub_bios_modules())
             self.install_arguments = ['--skip-fs-probe']
-        elif arch.startswith('ppc64'):
+        elif self.arch.startswith('ppc64'):
             if not custom_args or 'prep_device' not in custom_args:
                 raise KiwiBootLoaderGrubInstallError(
                     'prep device name required for grub2 installation on ppc'
@@ -77,7 +77,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.install_arguments = ['--skip-fs-probe', '--no-nvram']
         else:
             raise KiwiBootLoaderGrubPlatformError(
-                'host architecture %s not supported for grub2 install' % arch
+                'host architecture %s not supported for grub2 install' %
+                self.arch
             )
 
         self.root_mount = MountManager(
@@ -88,6 +89,23 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             mountpoint=self.root_mount.mountpoint + '/boot'
         )
         self.modules_dir = '/usr/lib/grub2/' + self.target
+
+    def install_required(self):
+        if 'ppc64' in self.arch and self.firmware.opal_mode():
+            # OPAL doesn't need a grub2 stage1, just a config file.
+            # The machine will be setup to kexec grub2 in user space
+            log.info(
+                'No grub boot code installation in opal mode on %s', self.arch
+            )
+            return False
+        elif self.arch == 'aarch64' or self.arch == 'arm64':
+            # On arm64 grub2 is used for EFI setup only, no install
+            # of grub2 boot code makes sense
+            log.info(
+                'No grub boot code installation on %s', self.arch
+            )
+            return False
+        return True
 
     def install(self):
         """
@@ -118,7 +136,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             ]
         )
 
-        if self.firmware == 'uefi':
+        if self.firmware and self.firmware.efi_mode() == 'uefi':
             self.efi_mount = MountManager(
                 device=self.custom_args['efi_device'],
                 mountpoint=self.root_mount.mountpoint + '/boot/efi'

@@ -75,6 +75,11 @@ class Defaults(object):
         }
 
     @classmethod
+    def get_default_video_mode(self):
+        # 800x600 default video mode
+        return '0x303'
+
+    @classmethod
     def get_grub_basic_modules(self):
         return [
             'ext2',
@@ -220,17 +225,9 @@ class Defaults(object):
             'x86_64': 'bios',
             'i586': 'bios',
             'i686': 'bios',
-            'aarch64': None,
-            'arm64': None,
-            'armv5el': None,
-            'armv5tel': None,
-            'armv6l': None,
-            'armv7l': None,
             'ppc': 'ofw',
             'ppc64': 'ofw',
-            'ppc64le': 'ofw',
-            's390': None,
-            's390x': None
+            'ppc64le': 'ofw'
         }
         if arch in default_firmware:
             return default_firmware[arch]
@@ -242,6 +239,32 @@ class Defaults(object):
     @classmethod
     def get_ec2_capable_firmware_names(self):
         return ['ec2', 'ec2hvm']
+
+    @classmethod
+    def get_efi_module_directory_name(self, arch):
+        default_module_directory_names = {
+            'x86_64': 'x86_64-efi',
+
+            # There is no dedicated xen architecture but there are
+            # modules provided for xen. Thus we treat it as an
+            # architecture
+            'x86_64_xen': 'x86_64-xen',
+
+            'aarch64': 'arm64-efi',
+            'arm64': 'arm64-efi'
+        }
+        if arch in default_module_directory_names:
+            return default_module_directory_names[arch]
+
+    @classmethod
+    def get_efi_image_name(self, arch):
+        default_efi_image_names = {
+            'x86_64': 'bootx64.efi',
+            'aarch64': 'bootaa64.efi',
+            'arm64': 'bootaa64.efi'
+        }
+        if arch in default_efi_image_names:
+            return default_efi_image_names[arch]
 
     @classmethod
     def get_default_boot_timeout_seconds(self):

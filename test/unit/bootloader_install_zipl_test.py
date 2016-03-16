@@ -34,6 +34,9 @@ class TestBootLoaderInstallZipl(object):
     def test_post_init_missing_boot_mount_path(self):
         self.bootloader.post_init(None)
 
+    def test_install_required(self):
+        assert self.bootloader.install_required() is True
+
     @patch('kiwi.bootloader.install.zipl.Command.run')
     def test_install(self, mock_command):
         self.bootloader.install()

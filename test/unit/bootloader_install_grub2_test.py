@@ -87,8 +87,27 @@ class TestBootLoaderInstallGrub2(object):
 
     @raises(KiwiBootLoaderGrubInstallError)
     def test_post_init_secure_boot_no_efi_device(self):
-        self.custom_args.update({'firmware': 'uefi'})
+        self.firmware = mock.Mock()
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+        self.custom_args.update({'firmware': self.firmware})
         self.bootloader.post_init(self.custom_args)
+
+    def test_install_required(self):
+        assert self.bootloader.install_required() is True
+
+    def test_install_required_ppc_opal(self):
+        self.bootloader.arch = 'ppc64'
+        self.bootloader.firmware = mock.Mock()
+        self.bootloader.firmware.opal_mode = mock.Mock(
+            return_value=True
+        )
+        assert self.bootloader.install_required() is False
+
+    def test_install_required_arm64(self):
+        self.bootloader.arch = 'arm64'
+        assert self.bootloader.install_required() is False
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     def test_install_with_extra_boot_partition(self, mock_command):
@@ -124,9 +143,13 @@ class TestBootLoaderInstallGrub2(object):
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     def test_install_secure_boot(self, mock_mount_manager, mock_command):
+        self.firmware = mock.Mock()
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
         self.custom_args.update({
             'efi_device': '/dev/mapper/loop0p3',
-            'firmware': 'uefi'
+            'firmware': self.firmware
         })
         root_mount = mock.Mock()
         root_mount.device = self.custom_args['root_device']

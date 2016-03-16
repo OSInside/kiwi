@@ -41,6 +41,9 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
             custom_args['boot_device']
         )
 
+    def install_required(self):
+        return True
+
     def install(self):
         """
             install bootloader on self.device

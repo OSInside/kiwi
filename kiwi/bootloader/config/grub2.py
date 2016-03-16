@@ -44,19 +44,26 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def post_init(self, custom_args):
         self.custom_args = custom_args
         arch = platform.machine()
-        if arch == 'x86_64' or arch.startswith('ppc64'):
+        if arch == 'x86_64':
+            # grub2 support for bios and efi systems
+            self.arch = arch
+        elif arch.startswith('ppc64'):
+            # grub2 support for ofw and opal systems
             self.arch = arch
         elif arch == 'i686' or arch == 'i586':
+            # grub2 support for bios systems
             self.arch = 'ix86'
+        elif arch == 'aarch64' or arch == 'arm64':
+            # grub2 support for efi systems
+            self.arch = arch
         else:
             raise KiwiBootLoaderGrubPlatformError(
                 'host architecture %s not supported for grub2 setup' % arch
             )
 
-        self.gfxmode = '800x600'
         self.terminal = 'gfxterm'
-        self.bootpath = self.get_boot_path()
         self.gfxmode = self.__get_gfxmode()
+        self.bootpath = self.get_boot_path()
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
@@ -84,9 +91,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.boot_directory_name = 'grub2'
 
     def write(self):
-        """
-            Write grub.cfg file to all required places
-        """
         log.info('Writing grub.cfg file')
         config_dir = self.__get_grub_boot_path()
         config_file = config_dir + '/grub.cfg'
@@ -142,8 +146,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-            Create the grub.cfg in memory from a template suitable to boot
-            from an ISO image in EFI boot mode
+            Create grub config file to boot from an ISO install image
         """
         log.info('Creating grub install config file from template')
         cmdline = self.get_boot_cmdline()
@@ -164,13 +167,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'bootpath': '/boot/' + self.arch + '/loader',
         }
         if self.multiboot:
-            log.info('--> Using EFI multiboot install template')
+            log.info('--> Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_install_template(
                 self.failsafe_boot, self.terminal
             )
         else:
-            log.info('--> Using EFI boot install template')
+            log.info('--> Using standard boot install template')
             hybrid_boot = True
             template = self.grub2.get_install_template(
                 self.failsafe_boot, hybrid_boot, self.terminal
@@ -186,8 +189,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-            Create the grub.cfg in memory from a template suitable to boot
-            a live system from an ISO image in EFI boot mode
+            Create grub config file to boot a live media ISO image
         """
         log.info('Creating grub live ISO config file from template')
         cmdline = self.get_boot_cmdline()
@@ -208,13 +210,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'bootpath': '/boot/' + self.arch + '/loader',
         }
         if self.multiboot:
-            log.info('--> Using EFI multiboot template')
+            log.info('--> Using multiboot template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_iso_template(
                 self.failsafe_boot, self.terminal
             )
         else:
-            log.info('--> Using EFI boot template')
+            log.info('--> Using standard boot template')
             hybrid_boot = True
             template = self.grub2.get_iso_template(
                 self.failsafe_boot, hybrid_boot, self.terminal
@@ -228,11 +230,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         """
-            Using grub2 to boot an install media means to support EFI
-            boot of the install media. Therefore an EFI image needs to
-            be build or used and transfered into an embedded vfat image.
-            The non EFI boot of the install media is handled in the
-            isolinux boot loader configuration
+            In order to boot from the ISO grub modules, images
+            and theme data needs to be created and provided at
+            the correct place on the iso filesystem
         """
         log.info('Creating grub bootloader images')
         self.efi_boot_path = self.create_efi_path(in_sub_dir='')
@@ -250,14 +250,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self.__copy_theme_data_to_boot_directory(lookup_path)
 
-        if self.firmware.efi_mode() == 'uefi':
-            log.info(
-                '--> Using signed secure boot efi image, done by shim-install'
-            )
-        else:
+        if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
             self.__create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
             self.__copy_efi_modules_to_boot_directory(lookup_path)
+        else:
+            log.info(
+                '--> Using signed secure boot efi image, done by shim-install'
+            )
 
         self.__create_embedded_fat_efi_image()
 
@@ -267,9 +267,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
-            EFI images needs to be build or used if provided
-            by the distribution. The bios core image is created
-            when grub2-install is called
+            In order to boot from the disk grub modules, images
+            and theme data needs to be created and provided at
+            the correct place in the filesystem
         """
         log.info('Creating grub bootloader images')
 
@@ -309,9 +309,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def __create_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
-        """
-            create efi image
-        """
         early_boot_script = self.efi_boot_path + '/earlyboot.cfg'
         if uuid:
             self.__create_early_boot_script_for_uuid_search(
@@ -324,7 +321,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Command.run(
             [
                 'grub2-mkimage',
-                '-O', self.__get_efi_format(),
+                '-O', Defaults.get_efi_module_directory_name(self.arch),
                 '-o', self.__get_efi_image_name(),
                 '-c', early_boot_script,
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
@@ -356,19 +353,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return self.root_dir + '/boot/' + self.boot_directory_name
 
     def __get_efi_image_name(self):
-        return self.efi_boot_path + '/bootx64.efi'
-
-    def __get_efi_format(self):
-        return 'x86_64-efi'
-
-    def __get_xen_format(self):
-        return 'x86_64-xen'
+        return self.efi_boot_path + '/' + Defaults.get_efi_image_name(self.arch)
 
     def __get_efi_modules_path(self, lookup_path=None):
-        return self.__get_module_path(self.__get_efi_format(), lookup_path)
+        return self.__get_module_path(
+            Defaults.get_efi_module_directory_name(self.arch),
+            lookup_path
+        )
 
     def __get_xen_modules_path(self, lookup_path=None):
-        return self.__get_module_path(self.__get_xen_format(), lookup_path)
+        return self.__get_module_path(
+            Defaults.get_efi_module_directory_name('x86_64_xen'),
+            lookup_path
+        )
 
     def __get_module_path(self, format_name, lookup_path=None):
         if not lookup_path:
@@ -382,10 +379,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def __get_gfxmode(self):
         gfxmode = Defaults.get_video_mode_map()
+        default_mode = Defaults.get_default_video_mode()
         requested_gfxmode = self.xml_state.build_type.get_vga()
         if requested_gfxmode in gfxmode:
-            self.gfxmode = gfxmode[requested_gfxmode].grub2
-        return self.gfxmode
+            return gfxmode[requested_gfxmode].grub2
+        else:
+            return gfxmode[default_mode].grub2
 
     def __copy_theme_data_to_boot_directory(self, lookup_path):
         if not lookup_path:

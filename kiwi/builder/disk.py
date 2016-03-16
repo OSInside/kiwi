@@ -260,8 +260,7 @@ class DiskBuilder(object):
         )
 
         # install boot loader
-        if self.__install_bootloader_required():
-            self.__install_bootloader(device_map)
+        self.__install_bootloader(device_map)
 
         self.result.add(
             key='disk_image',
@@ -507,13 +506,6 @@ class DiskBuilder(object):
             self.requested_filesystem, boot_partition_id
         )
 
-    def __install_bootloader_required(self):
-        if 'ppc64' in self.arch and self.firmware.opal_mode():
-            # OPAL doesn't need a grub2 stage1, just a config file.
-            # The machine will be setup to kexec grub2 in user space
-            return False
-        return True
-
     def __install_bootloader(self, device_map):
         root_device = device_map['root']
         boot_device = root_device
@@ -523,7 +515,7 @@ class DiskBuilder(object):
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),
             'root_device': root_device.get_device(),
-            'firmware': self.xml_state.build_type.get_firmware()
+            'firmware': self.firmware
         }
 
         if 'efi' in device_map:
@@ -546,7 +538,8 @@ class DiskBuilder(object):
             self.bootloader, self.root_dir, self.disk.storage_provider,
             custom_install_arguments
         )
-        bootloader.install()
+        if bootloader.install_required():
+            bootloader.install()
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()
