@@ -591,10 +591,11 @@ class DiskBuilder(object):
                 self.boot_image.boot_root_directory
             )
         if self.initrd_system and self.initrd_system == 'dracut':
-            # The naming of the kernel file might be architecture specific
-            # If you encounter an inconsistency please fix here
+            kernel_name_prefix = 'vmlinuz-'
+            if self.arch == 'aarch64' or self.arch.startswith('arm'):
+                kernel_name_prefix = 'zImage-'
             return boot_names_type(
-                kernel_name='vmlinuz-' + kernel_info.version,
+                kernel_name=kernel_name_prefix + kernel_info.version,
                 initrd_name='initrd-' + kernel_info.version
             )
         else:

@@ -295,6 +295,22 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
     @patch('kiwi.builder.disk.Command.run')
+    def test_create_standard_root_dracut_initrd_system_on_arm(
+        self, mock_command, mock_open, mock_fs
+    ):
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.arch = 'aarch64'
+        kernel = mock.Mock()
+        kernel.version = '1.2.3'
+        self.kernel.get_kernel.return_value = kernel
+        self.disk_builder.create()
+        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+            uuid='0815', initrd='initrd-1.2.3', kernel='zImage-1.2.3'
+        )
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch('builtins.open')
+    @patch('kiwi.builder.disk.Command.run')
     @raises(KiwiDiskBootImageError)
     def test_create_standard_root_no_kernel_found(
         self, mock_command, mock_open, mock_fs

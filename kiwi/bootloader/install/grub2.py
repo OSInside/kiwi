@@ -98,7 +98,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'No grub boot code installation in opal mode on %s', self.arch
             )
             return False
-        elif self.arch == 'aarch64' or self.arch == 'arm64':
+        elif self.arch == 'aarch64' or self.arch.startswith('arm'):
             # On arm64 grub2 is used for EFI setup only, no install
             # of grub2 boot code makes sense
             log.info(

@@ -53,7 +53,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         elif arch == 'i686' or arch == 'i586':
             # grub2 support for bios systems
             self.arch = 'ix86'
-        elif arch == 'aarch64' or arch == 'arm64':
+        elif arch == 'aarch64' or arch.startswith('arm'):
             # grub2 support for efi systems
             self.arch = arch
         else:
