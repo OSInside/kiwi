@@ -251,7 +251,11 @@ class Defaults(object):
             'x86_64_xen': 'x86_64-xen',
 
             'aarch64': 'arm64-efi',
-            'arm64': 'arm64-efi'
+            'arm64': 'arm64-efi',
+            'armv5el': 'arm-efi',
+            'armv5tel': 'arm-efi',
+            'armv6l': 'arm-efi',
+            'armv7l': 'arm-efi'
         }
         if arch in default_module_directory_names:
             return default_module_directory_names[arch]
@@ -261,7 +265,11 @@ class Defaults(object):
         default_efi_image_names = {
             'x86_64': 'bootx64.efi',
             'aarch64': 'bootaa64.efi',
-            'arm64': 'bootaa64.efi'
+            'arm64': 'bootaa64.efi',
+            'armv5el': 'bootarm.efi',
+            'armv5tel': 'bootarm.efi',
+            'armv6l': 'bootarm.efi',
+            'armv7l': 'bootarm.efi'
         }
         if arch in default_efi_image_names:
             return default_efi_image_names[arch]

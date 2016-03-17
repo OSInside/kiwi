@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import re
 
 # project
 from .defaults import Defaults
@@ -32,32 +33,30 @@ class FirmWare(object):
         dependent information
     """
     def __init__(self, xml_state):
-        self.host_architecture = platform.machine()
+        self.arch = platform.machine()
         self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
         self.firmware = xml_state.build_type.get_firmware()
 
         if not self.firmware:
-            self.firmware = Defaults.get_default_firmware(
-                self.host_architecture
-            )
+            self.firmware = Defaults.get_default_firmware(self.arch)
 
         if self.firmware:
             firmware_types = Defaults.get_firmware_types()
-            if self.firmware not in firmware_types[self.host_architecture]:
+            if self.firmware not in firmware_types[self.arch]:
                 raise KiwiNotImplementedError(
                     'support for firmware %s for arch %s not implemented' %
-                    (self.firmware, self.host_architecture)
+                    (self.firmware, self.arch)
                 )
 
     def get_partition_table_type(self):
-        if 's390' in self.host_architecture:
+        if 's390' in self.arch:
             if self.zipl_target_type and 'LDL' in self.zipl_target_type:
                 return 'dasd'
             elif self.zipl_target_type and 'CDL' in self.zipl_target_type:
                 return 'dasd'
             else:
                 return 'msdos'
-        elif 'ppc64' in self.host_architecture:
+        elif 'ppc64' in self.arch:
             if self.opal_mode():
                 return 'gpt'
             else:
@@ -69,7 +68,10 @@ class FirmWare(object):
 
     def legacy_bios_mode(self):
         if self.get_partition_table_type() == 'gpt':
-            return True
+            if self.arch == 'x86_64' or re.match('i.86', self.arch):
+                return True
+            else:
+                return False
         else:
             return False
 

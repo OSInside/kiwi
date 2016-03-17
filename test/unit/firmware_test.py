@@ -61,6 +61,10 @@ class TestFirmWare(object):
         assert self.firmware_bios.legacy_bios_mode() is False
         assert self.firmware_efi.legacy_bios_mode() is True
 
+    def test_legacy_bios_mode_non_x86_platform(self):
+        self.firmware_efi.arch = 'arm64'
+        assert self.firmware_efi.legacy_bios_mode() is False
+
     def test_ec2_mode(self):
         assert self.firmware_ec2.ec2_mode() == 'ec2'
         assert self.firmware_bios.ec2_mode() is None
