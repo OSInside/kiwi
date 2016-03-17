@@ -18,13 +18,13 @@
 from tempfile import mkdtemp
 
 from ...defaults import Defaults
-from ...data.sync import DataSync
+from ...utils.sync import DataSync
 from ...system.prepare import SystemPrepare
 from ...system.profile import Profile
 from ...system.setup import SystemSetup
 from ...logger import log
 from ...archive.cpio import ArchiveCpio
-from ...data.compress import Compress
+from ...utils.compress import Compress
 from ...path import Path
 from .base import BootImageBase
 

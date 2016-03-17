@@ -6,7 +6,7 @@ import mock
 from .test_helper import *
 
 from kiwi.exceptions import *
-from kiwi.data.checksum import Checksum
+from kiwi.utils.checksum import Checksum
 
 
 class TestChecksum(object):
@@ -34,7 +34,7 @@ class TestChecksum(object):
     def test_checksum_file_not_found(self):
         Checksum('some-file')
 
-    @patch('kiwi.data.checksum.Compress')
+    @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
     @patch('builtins.open')
@@ -63,7 +63,7 @@ class TestChecksum(object):
             'sum 163968 8192 163968 8192\n'
         )
 
-    @patch('kiwi.data.checksum.Compress')
+    @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
     @patch('builtins.open')
@@ -92,7 +92,7 @@ class TestChecksum(object):
             'sum 163968 8192\n'
         )
 
-    @patch('kiwi.data.checksum.Compress')
+    @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.sha256')
     @patch('os.path.getsize')
     @patch('builtins.open')

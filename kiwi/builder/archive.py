@@ -21,7 +21,7 @@ import platform
 from ..defaults import Defaults
 from ..archive.tar import ArchiveTar
 from ..system.setup import SystemSetup
-from ..data.checksum import Checksum
+from ..utils.checksum import Checksum
 from ..logger import log
 from ..system.result import Result
 

@@ -25,11 +25,11 @@ from ..filesystem.squashfs import FileSystemSquashFs
 from ..filesystem.isofs import FileSystemIsoFs
 from ..system.identifier import SystemIdentifier
 from ..path import Path
-from ..data.checksum import Checksum
+from ..utils.checksum import Checksum
 from ..logger import log
 from ..system.kernel import Kernel
 from ..iso import Iso
-from ..data.compress import Compress
+from ..utils.compress import Compress
 from ..archive.tar import ArchiveTar
 
 from ..exceptions import (

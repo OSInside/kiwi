@@ -22,7 +22,7 @@ import os
 # project
 from ..storage.device_provider import DeviceProvider
 from ..mount_manager import MountManager
-from ..data.sync import DataSync
+from ..utils.sync import DataSync
 from ..path import Path
 from ..system.size import SystemSize
 from ..defaults import Defaults

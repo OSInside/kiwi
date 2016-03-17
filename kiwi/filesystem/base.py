@@ -20,7 +20,7 @@ from tempfile import mkdtemp
 
 # project
 from ..logger import log
-from ..data.sync import DataSync
+from ..utils.sync import DataSync
 from ..mount_manager import MountManager
 
 from ..exceptions import (

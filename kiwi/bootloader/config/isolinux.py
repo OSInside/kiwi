@@ -21,7 +21,7 @@ import platform
 # project
 from .base import BootLoaderConfigBase
 from ..template.isolinux import BootLoaderTemplateIsoLinux
-from ...data.sync import DataSync
+from ...utils.sync import DataSync
 from ...logger import log
 from ...path import Path
 
