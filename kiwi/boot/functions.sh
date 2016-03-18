@@ -1930,9 +1930,6 @@ function setupBootLoaderGrub2Recovery {
     #--------------------------------------
     local rootByID=$(getDiskID $imageRootDevice)
     local diskByID=$(getDiskID $imageDiskDevice)
-    if [ "$FSTYPE" = "zfs" ];then
-        rootByID="ZFS=kiwipool/ROOT/system-1"
-    fi
     #======================================
     # operate only in recovery mode
     #--------------------------------------
@@ -2109,9 +2106,6 @@ function setupBootLoaderS390Grub {
     local rootByID=$(getDiskID $rdev)
     local swapByID=$(getDiskID $swap swap)
     local diskByID=$(getDiskID $imageDiskDevice)
-    if [ "$FSTYPE" = "zfs" ];then
-        rootByID="ZFS=kiwipool/ROOT/system-1"
-    fi
     #======================================
     # setup title name
     #--------------------------------------
@@ -2245,9 +2239,6 @@ function setupBootLoaderGrub2 {
     local rootByID=$(getDiskID $rdev)
     local swapByID=$(getDiskID $swap swap)
     local diskByID=$(getDiskID $imageDiskDevice)
-    if [ "$FSTYPE" = "zfs" ];then
-        rootByID="ZFS=kiwipool/ROOT/system-1"
-    fi
     #======================================
     # setup path names
     #--------------------------------------
@@ -2436,9 +2427,6 @@ function setupBootLoaderYaboot {
     #--------------------------------------
     local diskByID=`getDiskID $rdev`
     local swapByID=`getDiskID $swap swap`
-    if [ "$FSTYPE" = "zfs" ];then
-        diskByID="ZFS=kiwipool/ROOT/system-1"
-    fi
     #======================================
     # check for bootloader displayname
     #--------------------------------------
@@ -2685,7 +2673,7 @@ function updateRootDeviceFstab {
     #======================================
     # check for custom options
     #--------------------------------------
-    if [ ! -z "$kiwi_fsmountoptions" ] && [ ! $FSTYPE = "zfs" ];then
+    if [ ! -z "$kiwi_fsmountoptions" ];then
         opts=$kiwi_fsmountoptions
     fi
     #======================================
@@ -3080,7 +3068,6 @@ function probeFileSystem {
         clicfs)      FSTYPE=clicfs ;;
         xfs)         FSTYPE=xfs ;;
         udf)         FSTYPE=udf ;;
-        zfs_member)  FSTYPE=zfs ;;
         exfat)       FSTYPE=exfat ;;
         *)
             FSTYPE=unknown
@@ -5542,25 +5529,8 @@ function kiwiMount {
     if [ -z "$FSTYPE" ] || [ "$FSTYPE" = "unknown" ];then
         FSTYPE="auto"
     fi
-    if [ "$FSTYPE" = "zfs" ];then
-        if [ -b $src ];then
-            if ! zpool import -N kiwipool >/dev/null;then
-                return 1
-            fi
-        else
-            local basedir=$(dirname $src)
-            if ! zpool import -N -d $basedir kiwipool;then
-                return 1
-            fi
-        fi
-        zfs set mountpoint=$dst kiwipool/ROOT/system-1 && zfs mount -a
-        if [ ! $? = 0 ];then
-            return 1
-        fi
-    else
-        if ! mount -t $FSTYPE $opt $src $dst >/dev/null;then
-            return 1
-        fi
+    if ! mount -t $FSTYPE $opt $src $dst >/dev/null;then
+        return 1
     fi
     if [ ! -z "$FSTYPE_SAVE" ];then
         FSTYPE=$FSTYPE_SAVE
@@ -7408,45 +7378,6 @@ function bootImage {
     #--------------------------------------
     umount proc &>/dev/null && \
     umount proc &>/dev/null
-    if [ "$FSTYPE" = "zfs" ];then
-        #======================================
-        # setup shutdown script
-        #--------------------------------------
-        local halt=$prefix/run/initramfs/shutdown
-cat > $halt << EOF
-#!/bin/sh
-# if systemd is used this script is called after all
-# services are terminated and mount points unmounted
-# ---
-ACTION="\$1"
-EOF
-        #======================================
-        # shutdown: zfs -> export pool
-        #--------------------------------------
-        echo "zpool export kiwipool" >> $halt
-        #======================================
-        # shutdown: handle requested action
-        #--------------------------------------
-cat >> $halt << EOF
-case "\$ACTION" in
-    reboot)
-        reboot -f -d
-    ;;
-    poweroff)
-        reboot -f -d -p
-    ;;
-    halt)
-        halt
-    ;;
-    kexec)
-        kexec -e
-    ;;
-    *)
-        reboot -f -d
-    ;;
-esac
-EOF
-    fi
     #======================================
     # run preinit and cleanImage
     #--------------------------------------
@@ -8937,11 +8868,6 @@ function resizeFilesystem {
     elif [ "$FSTYPE" = "xfs" ];then
         resize_fs="mount $deviceResize $mpoint &&"
         resize_fs="$resize_fs xfs_growfs $mpoint;umount $mpoint"
-    elif [ "$FSTYPE" = "zfs" ];then
-        local device=$(getDiskID $deviceResize)
-        resize_fs="zpool import kiwipool && udevPending &&"
-        resize_fs="$resize_fs zpool online -e kiwipool $device;"
-        resize_fs="$resize_fs zpool export kiwipool"
     else
         # don't know how to resize this filesystem
         Echo "Don't know how to resize ${FSTYPE}... skip it"
