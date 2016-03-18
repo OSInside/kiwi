@@ -1024,10 +1024,6 @@ function installBootLoader {
         s390*-grub2)     installBootLoaderGrub2 ;;
         x86_64-grub2)    installBootLoaderGrub2 ;;
         ppc64*-grub2)    installBootLoaderGrub2 ;;
-        i*86-syslinux)   installBootLoaderSyslinux ;;
-        x86_64-syslinux) installBootLoaderSyslinux ;;
-        i*86-extlinux)   installBootLoaderSyslinux ;;
-        x86_64-extlinux) installBootLoaderSyslinux ;;
         s390-zipl)       installBootLoaderS390 ;;
         s390x-zipl)      installBootLoaderS390 ;;
         s390x-grub2_s390x_emu)  installBootLoaderS390Grub ;;
@@ -1083,10 +1079,6 @@ function installBootLoaderRecovery {
         i*86-grub2)      installBootLoaderGrub2Recovery ;;
         x86_64-grub2)    installBootLoaderGrub2Recovery ;;
         s390*-grub2)     installBootLoaderGrub2Recovery ;;
-        i*86-syslinux)   installBootLoaderSyslinuxRecovery ;;
-        x86_64-syslinux) installBootLoaderSyslinuxRecovery ;;
-        i*86-extlinux)   installBootLoaderSyslinuxRecovery ;;
-        x86_64-extlinux) installBootLoaderSyslinuxRecovery ;;
         s390-zipl)       installBootLoaderS390Recovery ;;
         s390x-zipl)      installBootLoaderS390Recovery ;;
         *)
@@ -1183,33 +1175,6 @@ function installBootLoaderS390 {
         fi
     else
         Echo "Image doesn't have zipl installed"
-        Echo "Can't install boot loader"
-        return 1
-    fi
-    return 0
-}
-#======================================
-# installBootLoaderSyslinux
-#--------------------------------------
-function installBootLoaderSyslinux {
-    local IFS=$IFS_ORIG
-    local syslmbr=/usr/share/syslinux/mbr.bin
-    if [ -e $syslmbr ];then
-        Echo "Installing boot loader..."
-        if [ $loader = "syslinux" ];then
-            if ! syslinux $imageBootDevice;then
-                Echo "Failed to install boot loader"
-                return 1
-            fi
-        else
-            if ! extlinux --install /boot/syslinux;then
-                Echo "Failed to install boot loader"
-                return 1
-            fi
-        fi
-        dd if=$syslmbr of=$imageDiskDevice bs=512 count=1 conv=notrunc
-    else
-        Echo "Image doesn't have syslinux (mbr.bin) installed"
         Echo "Can't install boot loader"
         return 1
     fi
@@ -1412,31 +1377,6 @@ function installBootLoaderS390Recovery {
     return 1
 }
 #======================================
-# installBootLoaderSyslinuxRecovery
-#--------------------------------------
-function installBootLoaderSyslinuxRecovery {
-    local IFS=$IFS_ORIG
-    local syslmbr=/usr/share/syslinux/mbr.bin
-    if [ -e $syslmbr ];then
-        if [ $loader = "syslinux" ];then
-            if ! syslinux $imageRecoveryDevice;then
-                Echo "Failed to install recovery boot loader"
-                return 1
-            fi
-        else
-            if ! extlinux --install /reco-save/boot/syslinux;then
-                Echo "Failed to install recovery boot loader"
-                return 1
-            fi
-        fi
-    else
-        Echo "Image doesn't have syslinux (mbr.bin) installed"
-        Echo "Can't install recovery boot loader"
-        return 1
-    fi
-    return 0
-}
-#======================================
 # installBootLoaderGrub2Recovery
 #--------------------------------------
 function installBootLoaderGrub2Recovery {
@@ -1622,29 +1562,6 @@ function setupInitrd {
             if [ -f /boot/linux.vmx ];then
                 rm -f /boot/linux.vmx
             fi
-        fi
-        #======================================
-        # Loader exceptions
-        #--------------------------------------
-        if [ "$loader" = "syslinux" ];then
-            # /.../
-            # if syslinux is used we need to make sure to copy
-            # the kernel and initrd to /boot on the boot partition.
-            # This is normally done by the boot -> . link but we
-            # can't create links on fat
-            # ----
-            IFS="," ; for i in $KERNEL_LIST;do
-                if test -z "$i";then
-                    continue
-                fi
-                kernel=`echo $i | cut -f1 -d:`
-                initrd=`echo $i | cut -f2 -d:`
-                break
-            done
-            IFS=$IFS_ORIG
-            mkdir -p /boot/boot
-            cp /boot/$kernel /boot/boot/
-            cp /boot/$initrd /boot/boot/
         fi
         #======================================
         # Cleanup mounts
@@ -6958,11 +6875,7 @@ function makeLabel {
     # underscore sign as as space in the boot menu
     # ---
     local IFS=$IFS_ORIG
-    if \
-        [ ! $loader = "syslinux" ] && \
-        [ ! $loader = "extlinux" ] && \
-        [ ! $loader = "grub2" ]
-    then
+    if [ ! $loader = "grub2" ]; then
         echo $1 | tr " " "_"
     else
         echo $1
@@ -9584,29 +9497,6 @@ function resetBootBind {
     # mount boot again
     #--------------------------------------
     chroot $bprefix mount $imageBootDevice /boot
-    #======================================
-    # check for syslinux requirements
-    #-------------------------------------- 
-    if [ "$loader" = "syslinux" ];then
-        # /.../
-        # if syslinux is used we need to make sure to copy
-        # the kernel and initrd to /boot on the boot partition.
-        # This is normally done by the boot -> . link but we
-        # can't create links on fat
-        # ----
-        IFS="," ; for i in $KERNEL_LIST;do
-            if test -z "$i";then
-                continue
-            fi
-            kernel=`echo $i | cut -f1 -d:`
-            initrd=`echo $i | cut -f2 -d:`
-            break
-        done
-        IFS=$IFS_ORIG
-        mkdir -p $bprefix/boot/boot
-        cp $bprefix/boot/$kernel $bprefix/boot/boot/
-        cp $bprefix/boot/$initrd $bprefix/boot/boot/
-    fi
 }
 #======================================
 # setupKernelLinks
@@ -9632,12 +9522,6 @@ function setupKernelLinks {
     #--------------------------------------
     pushd $prefix/boot >/dev/null
     #======================================
-    # remove garbage if possible 
-    #--------------------------------------
-    if [ "$loader" = "syslinux" ] || [ "$loader" = "extlinux" ];then
-        rm -rf grub
-    fi
-    #======================================
     # setup if overlay filesystem is used
     #--------------------------------------
     if  [ "$kiwi_oemkboot" = "true" ] || \
@@ -9658,22 +9542,14 @@ function setupKernelLinks {
             break
         done
         IFS=$IFS_ORIG
-        if [ "$loader" = "syslinux" ];then
-            rm -f $initrd && mv initrd.vmx $initrd
-            rm -f $kernel && mv linux.vmx  $kernel
-        elif [ "$PXE_KIWI_INITRD" = "yes" ];then
+        if [ "$PXE_KIWI_INITRD" = "yes" ];then
             if [ ! -f initrd.kiwi ] && [ ! -f linux.kiwi ];then
                 Echo "WARNING: can't find kiwi initrd/linux !"
                 Echo -b "local boot will not work, maybe you forgot"
                 Echo -b "to add KIWI_INITRD and KIWI_KERNEL in config.<MAC> ?"
             else
-                if [ "$loader" = "syslinux" ];then
-                    rm -f $initrd && mv initrd.kiwi $initrd
-                    rm -f $kernel && mv linux.kiwi  $kernel
-                else
-                    rm -f $initrd && ln -s initrd.kiwi $initrd
-                    rm -f $kernel && ln -s linux.kiwi  $kernel
-                fi
+                rm -f $initrd && ln -s initrd.kiwi $initrd
+                rm -f $kernel && ln -s linux.kiwi  $kernel
             fi
         else
             rm -f $initrd && ln -s initrd.vmx $initrd
