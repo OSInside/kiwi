@@ -218,8 +218,7 @@ function OEMRepartStandard {
 #--------------------------------------
 function OEMRepartSplit {
     # /.../
-    # repartition disk for overlay systems with aufs, clicfs
-    # and friends and also systems of image type split.
+    # repartition disk for overlay systems with
     # Initial partition table layout is:
     # =====================================
     # pX:   ( boot )
@@ -240,7 +239,7 @@ function OEMRepartSplit {
     # check for read-write partition
     #--------------------------------------
     if ! partitionSize $(ddn $imageDiskDevice 3) &>/dev/null;then
-        Echo "No read-write partition in this split/overlay image"
+        Echo "No read-write partition in this overlay image"
         disableOEMParameters
         disableRepart
     fi

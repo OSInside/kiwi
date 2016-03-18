@@ -57,7 +57,6 @@ test -z "$ELOG_EXCEPTION" && export ELOG_EXCEPTION=/dev/console
 # Exports (General)
 #--------------------------------------
 test -z "$RECOVERY_THEME"     && export RECOVERY_THEME=openSUSE
-test -z "$splitroot_size"     && export splitroot_size=512
 test -z "$arch"               && export arch=$(uname -m)
 test -z "$haveDASD"           && export haveDASD=0
 test -z "$haveZFCP"           && export haveZFCP=0
@@ -5399,13 +5398,6 @@ function includeKernelParameters {
     if [ ! -z "$kiwibrokenmodule" ];then
         kiwibrokenmodule=`echo $kiwibrokenmodule | tr , " "`
     fi
-    if \
-        [ ! -z "$kiwisplitroot_size" ]            && \
-        [[ $kiwisplitroot_size = *[[:digit:]]* ]] && \
-        [ $kiwisplitroot_size -gt $splitroot_size ]
-    then
-        splitroot_size=$kiwisplitroot_size
-    fi
     if [ ! -z "$ramdisk_size" ];then
         local modfile=/etc/modprobe.d/99-local.conf
         if [ ! -f $modfile ];then
@@ -5896,146 +5888,6 @@ function mountSystemClicFS {
     return 0
 }
 #======================================
-# mountSystemCombined
-#--------------------------------------
-function mountSystemCombined {
-    local IFS=$IFS_ORIG
-    local mountDevice=$1
-    local loopf=$2
-    local roDevice=$mountDevice
-    local rwDevice
-    local options
-    local rootfs
-    local meta
-    local inode_nr
-    local min_size
-    local haveKByte
-    local haveMByte
-    local needMByte
-    local prefix=/mnt
-    if [ -e "$HYBRID_RW" ];then
-        rwDevice=$HYBRID_RW
-    elif [ "$haveLuks" = "yes" ]; then
-        rwDevice="/dev/mapper/luksReadWrite"
-    elif [ "$haveLVM" = "yes" ]; then
-        rwDevice="/dev/$kiwi_lvmgroup/LVRoot"
-    else
-        rwDevice=$(getNextPartition $mountDevice)
-    fi
-    mkdir /read-only >/dev/null
-    # /.../
-    # mount the read-only partition to /read-only and use
-    # mount option -o ro for this filesystem
-    # ----
-    if ! kiwiMount "$roDevice" "/read-only" "" $loopf;then
-        Echo "Failed to mount read only filesystem"
-        return 1
-    fi
-    # /.../
-    # mount a tmpfs which will become the root fs (/) later on
-    # and extract the rootfs tarball with the RAM data and the read-only
-    # and read-write links into the tmpfs.
-    # ----
-    rootfs=/read-only/rootfs.tar
-    if [ ! -f $rootfs ];then
-        Echo "Can't find rootfs tarball"
-        umount "$roDevice" &>/dev/null
-        return 1
-    fi
-    meta=/read-only/rootfs.meta
-    if [ ! -f $inodes ];then
-        Echo "Can't find rootfs meta data"
-        umount "$roDevice" &>/dev/null
-        return 1
-    fi
-    # /.../
-    # source rootfs meta data variables:
-    # => min_size # minimum required tmpfs size in bytes
-    # => inode_nr # number of inodes
-    # ----
-    source $meta
-    # /.../
-    # check if rootfs tarball fits into memory
-    # ----
-    haveKByte=$(cat /proc/meminfo | grep MemFree | cut -f2 -d: | cut -f1 -dk)
-    haveMByte=$((haveKByte / 1024))
-    needMByte=$((min_size  / 1048576))
-    Echo "Have size: proc/meminfo -> $haveMByte MB"
-    Echo "Need size: $rootfs -> $needMByte MB"
-    if [ "$haveMByte" -lt "$needMByte" ];then
-        systemException \
-            "Not enough RAM space available for temporary data" \
-        "reboot"
-    fi
-    # /.../
-    # mount tmpfs, reserve max $splitroot_size for the rootfs data
-    # ----
-    options="size=${splitroot_size}M,nr_inodes=$inode_nr"
-    if ! mount -t tmpfs tmpfs -o $options $prefix;then
-        systemException \
-            "Failed to mount root tmpfs" \
-        "reboot"
-    fi
-    cd $prefix && tar xf $rootfs >/dev/null && cd /
-    # /.../
-    # check for a read-write data file and put it on the read-write
-    # device or to the root tmpfs
-    # ---
-    if [ -e ${loopf}-read-write ];then
-        local target=$prefix
-        if [ -e "$HYBRID_RW" ];then
-            mkdir -p $prefix/read-write
-            kiwiMount "$rwDevice" "$prefix/read-write"
-            target=$prefix/read-write
-        fi
-        mkdir -p $prefix-tmp
-        if ! mount -o loop ${loopf}-read-write $prefix-tmp;then
-            systemException \
-                "Failed to mount read-write data file" \
-            "reboot"
-        fi
-        pushd $prefix-tmp &>/dev/null
-        for item in *;do
-            if [ -L /$target/$item ];then
-                rm -f /$target/$item
-            fi
-            if [ ! -e /$target/$item ];then
-                if ! cp -a $prefix-tmp/$item $target;then
-                    systemException \
-                        "Failed to copy $item to $target" \
-                    "reboot"
-                fi
-            fi
-        done
-        popd &>/dev/null
-        if [ -e "$HYBRID_RW" ];then
-            umount $prefix/read-write
-        fi
-        umount $prefix-tmp
-        rmdir $prefix-tmp
-    fi
-    # /.../
-    # create a read-only mount point and move the /read-only
-    # mount into the root tree. After that remove the read-only
-    # directory and create a link to read-only instead
-    # ----
-    mkdir $prefix/read-only >/dev/null
-    mount --move /read-only $prefix/read-only >/dev/null
-    rm -rf /read-only >/dev/null
-    ln -s $prefix/read-only /read-only >/dev/null || return 1
-    if ! echo $rwDevice | grep -q loop;then
-        if partitionSize $rwDevice &>/dev/null;then
-            # /.../
-            # mount the read-write partition to read-write and create a link
-            # ----
-            mkdir -p $prefix/read-write >/dev/null
-            kiwiMount "$rwDevice" "$prefix/read-write"
-            rm -rf /read-write >/dev/null
-            ln -s $prefix/read-write /read-write >/dev/null
-        fi
-    fi
-}
-#======================================
 # mountSystemStandard
 #--------------------------------------
 function mountSystemStandard {
@@ -6104,10 +5956,7 @@ function mountSystem {
     #======================================
     # check root tree type
     #--------------------------------------
-    if [ ! -z "$COMBINED_IMAGE" ];then
-        mountSystemCombined "$mountDevice" $2
-        retval=$?
-    elif [ ! -z "$UNIONFS_CONFIG" ];then
+    if [ ! -z "$UNIONFS_CONFIG" ];then
         local unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
         if [ "$unionFST" = "clicfs" ];then
             mountSystemClicFS $2
@@ -7233,8 +7082,7 @@ function cleanImage {
         [ "$haveClicFS" = "yes" ] || \
         [ ! -z "$NFSROOT" ]       || \
         [ ! -z "$NBDROOT" ]       || \
-        [ ! -z "$AOEROOT" ]       || \
-        [ ! -z "$COMBINED_IMAGE" ]
+        [ ! -z "$AOEROOT" ]
     then
         return
     fi

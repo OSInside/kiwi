@@ -139,7 +139,7 @@ for i in $(echo $IMAGE | tr , ' ');do
     imageName="/cdrom/$imageName-$imageVersion"
     gzippName=$imageName.gz
     imageMD5s="$imageName.md5"
-    if [ ! -z "$UNIONFS_CONFIG" ] || [ ! -z "$COMBINED_IMAGE" ];then
+    if [ ! -z "$UNIONFS_CONFIG" ];then
         continue
     fi
     while true;do
@@ -211,7 +211,7 @@ fi
 # 12) Mount OS image to /mnt
 #--------------------------------------
 runHook premount
-if [ -z "$UNIONFS_CONFIG" ] && [ -z "$COMBINED_IMAGE" ];then
+if [ -z "$UNIONFS_CONFIG" ];then
     #======================================
     # 12.1) mount RW part and CD to /mnt
     #--------------------------------------
@@ -249,12 +249,7 @@ else
     #======================================
     # 12.1) mount CD to /mnt and unify
     #--------------------------------------
-    if [ ! -z "$COMBINED_IMAGE" ]; then
-        Echo "Mounting compressed split tree..."
-        imageReadOnly=$(echo $imageReadOnly | sed -e "s/-read-only//")
-    else
-        Echo "Mounting compressed unified tree..."
-    fi
+    Echo "Mounting compressed unified tree..."
     cdopt=$(CDMountOption $biosBootDevice)
     mountOrCopyLiveCD
     if ! mountSystem /dev/loop1 $LIVECD/$imageReadOnly;then

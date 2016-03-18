@@ -98,7 +98,7 @@ udevStart
 # 4) Include proc/cmdline information
 #--------------------------------------
 includeKernelParameters
-if [ ! -z $UNIONFS_CONFIG ] || [ "$COMBINED_IMAGE" = "local" ];then
+if [ ! -z $UNIONFS_CONFIG ];then
     # /.../
     # if the unionfs/combined information is already in place at this
     # stage it comes from the cmdline data which means we are not
@@ -172,7 +172,7 @@ if searchVolumeGroup; then
 elif [ ! -z "$kiwi_RaidDev" ];then
     if [ ! -z "$kiwi_ROPart" ] || [ ! -z "$kiwi_RWPart" ];then
         systemException \
-            "split systems not supported in software raid mode"
+            "overlay systems not supported in software raid mode"
         "reboot"
     fi
     activateMDRaid
@@ -249,9 +249,6 @@ if [ "$LOCAL_BOOT" = "no" ];then
     updateBootDeviceFstab /config $imageBootDevice
     if [ ! -z "$UNIONFS_CONFIG" ]; then
         export KIWI_INITRD_PARAMS="UNIONFS_CONFIG=yes"
-    fi
-    if [ ! -z "$COMBINED_IMAGE" ]; then
-        export KIWI_INITRD_PARAMS="COMBINED_IMAGE=local"
     fi
     setupBootLoader /mnt /config $(($bootid - 1)) $imageRootDevice VMX
     setupKernelModules /config

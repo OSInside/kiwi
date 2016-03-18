@@ -102,7 +102,7 @@ function setupInitialDeviceNames {
     elif [ ! -z "$kiwi_RaidDev" ];then
         if [ ! -z "$kiwi_ROPart" ] || [ ! -z "$kiwi_RWPart" ];then
             systemException \
-                "split systems not supported in software raid mode"
+                "overlay systems not supported in software raid mode"
             "reboot"
         fi
         activateMDRaid
@@ -190,10 +190,7 @@ udevStart
 # 4) Include proc/cmdline information
 #--------------------------------------
 includeKernelParameters
-if \
-    [ ! -z "$UNIONFS_CONFIG" ] || [ "$COMBINED_IMAGE" = "local" ] ||\
-    [ ! -z "$KIWI_RECOVERY" ]
-then
+if [ ! -z "$UNIONFS_CONFIG" ] || [ ! -z "$KIWI_RECOVERY" ]; then
     # /.../
     # if the unionfs/combined information is already in place at this
     # stage it comes from the cmdline data which means we are not
@@ -282,13 +279,7 @@ Echo "Filesystem of OEM system is: $FSTYPE -> $imageRootDevice"
 if [ "$LOCAL_BOOT" = "no" ];then
     deviceResize=$imageRootDevice
     fstypeRootFS=$FSTYPE
-    if [ ! -z $COMBINED_IMAGE ];then
-        deviceResize=$imageIOWRDevice
-        KIWI_INITRD_PARAMS="COMBINED_IMAGE=local"
-        probeFileSystem $deviceResize
-        export KIWI_INITRD_PARAMS
-    fi
-    if isFSTypeReadOnly && [ -z "$COMBINED_IMAGE" ];then
+    if isFSTypeReadOnly;then
         deviceResize=$imageIOWRDevice
         KIWI_INITRD_PARAMS="UNIONFS_CONFIG=yes"
         probeFileSystem $deviceResize

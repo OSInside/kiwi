@@ -64,7 +64,7 @@ fi
 #======================================
 # 7) create initrd on diskful
 #--------------------------------------
-if [ -z "$UNIONFS_CONFIG" ] && [ -z "$COMBINED_IMAGE" ]; then
+if [ -z "$UNIONFS_CONFIG" ]; then
     #======================================
     # use distro initrd tool
     #--------------------------------------

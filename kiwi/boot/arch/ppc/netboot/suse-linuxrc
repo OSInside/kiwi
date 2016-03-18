@@ -643,7 +643,7 @@ else
         setupNFSServices
         Echo "Mounting NFS root system: $nfsRootServer:$nfsRootDevice..."
         imageRootDevice="-o vers=3,rw,nolock $nfsRootServer:$nfsRootDevice"
-        if [ ! -z "$COMBINED_IMAGE" ] || [ ! -z "$UNIONFS_CONFIG" ];then
+        if [ ! -z "$UNIONFS_CONFIG" ];then
             imageRootDevice="-o vers=3,ro,nolock $nfsRootServer:$nfsRootDevice"
         fi
         imageRootName="NFSRoot-System"
@@ -761,10 +761,8 @@ else
         imageRootDevice=$nbdDevice
         imageRootName="NBDRoot-System"
         systemIntegrity="clean"
-        if [ -z "$COMBINED_IMAGE" ];then
-            imageRWDevice=$nbdwriteDevice
-            imageRODevice=$imageRootDevice
-        fi
+        imageRWDevice=$nbdwriteDevice
+        imageRODevice=$imageRootDevice
     fi
     #======================================
     # 15.5) Check for AOE root
@@ -797,10 +795,8 @@ else
         imageRootDevice=$aoeRODevice
         imageRootName="AOERoot-System"
         systemIntegrity="clean"
-        if [ -z "$COMBINED_IMAGE" ];then
-            imageRWDevice=$aoeRWDevice
-            imageRODevice=$imageRootDevice
-        fi
+        imageRWDevice=$aoeRWDevice
+        imageRODevice=$imageRootDevice
     fi
 fi
 runHook postdownload
@@ -972,10 +968,6 @@ if [ $LOCAL_BOOT = "no" ] || [ ! -z "$RELOAD_CONFIG" ];then
             rm -f /mnt/boot/linux*
             fetchFile $KIWI_KERNEL /mnt/boot/linux.kiwi
             KIWI_INITRD_PARAMS="IMAGE=local"
-            if [ ! -z "$COMBINED_IMAGE" ]; then
-                SPLIT="COMBINED_IMAGE=$COMBINED_IMAGE"
-                KIWI_INITRD_PARAMS="$KIWI_INITRD_PARAMS $SPLIT"
-            fi
             export PXE_KIWI_INITRD=yes
         fi
         if [ ! -z "$UNIONFS_CONFIG" ]; then
