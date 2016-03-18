@@ -1020,8 +1020,6 @@ function installBootLoader {
     local IFS=$IFS_ORIG
     local arch=$(uname -m)
     case $arch-$loader in
-        i*86-grub)       installBootLoaderGrub ;;
-        x86_64-grub)     installBootLoaderGrub ;;
         i*86-grub2)      installBootLoaderGrub2 ;;
         s390*-grub2)     installBootLoaderGrub2 ;;
         x86_64-grub2)    installBootLoaderGrub2 ;;
@@ -1085,8 +1083,6 @@ function installBootLoaderRecovery {
     local IFS=$IFS_ORIG
     local arch=$(uname -m)
     case $arch-$loader in
-        i*86-grub)       installBootLoaderGrubRecovery ;;
-        x86_64-grub)     installBootLoaderGrubRecovery ;;
         i*86-grub2)      installBootLoaderGrub2Recovery ;;
         x86_64-grub2)    installBootLoaderGrub2Recovery ;;
         s390*-grub2)     installBootLoaderGrub2Recovery ;;
@@ -1233,34 +1229,6 @@ function installBootLoaderSyslinux {
         dd if=$syslmbr of=$imageDiskDevice bs=512 count=1 conv=notrunc
     else
         Echo "Image doesn't have syslinux (mbr.bin) installed"
-        Echo "Can't install boot loader"
-        return 1
-    fi
-    return 0
-}
-#======================================
-# installBootLoaderGrub
-#--------------------------------------
-function installBootLoaderGrub {
-    # /.../
-    # install the grub according to the contents of
-    # /etc/grub.conf and /boot/grub/menu.lst
-    # ----
-    local IFS=$IFS_ORIG
-    if lookup grub &>/dev/null;then
-        Echo "Installing boot loader..."
-        grub --batch --no-floppy < /etc/grub.conf 1>&2
-        if [ ! $? = 0 ];then
-            Echo "Failed to install boot loader"
-            return 1
-        fi
-        if [[ $kiwi_initrdname =~ boot-rhel ]];then
-            # on rhel systems grub.conf is a link to menu.lst.
-            rm -f /etc/grub.conf
-            ln -s /boot/grub/menu.lst /etc/grub.conf
-        fi
-    else
-        Echo "Image doesn't have grub installed"
         Echo "Can't install boot loader"
         return 1
     fi
@@ -1504,42 +1472,6 @@ function installBootLoaderSyslinuxRecovery {
         fi
     else
         Echo "Image doesn't have syslinux (mbr.bin) installed"
-        Echo "Can't install recovery boot loader"
-        return 1
-    fi
-    return 0
-}
-#======================================
-# installBootLoaderGrubRecovery
-#--------------------------------------
-function installBootLoaderGrubRecovery {
-    # /.../
-    # install the grub into the recovery partition.
-    # By design the recovery partition is always the
-    # last primary partition of the disk
-    # ----
-    local IFS=$IFS_ORIG
-    local input=/grub.input
-    local gdevreco=$((recoid - 1))
-    if [ ! -e /etc/redhat-release ];then
-        echo "device (hd0) $imageDiskDevice" > $input
-    fi
-    echo "root (hd0,$gdevreco)"  >> $input
-    echo "setup (hd0,$gdevreco)" >> $input
-    echo "quit"          >> $input
-    if lookup grub &>/dev/null;then
-        if [ -e /etc/redhat-release ];then
-            mount -L recovery /mnt
-            (cd /mnt/boot/grub && ln -s menu.lst grub.conf)
-            umount /mnt
-        fi
-        if ! grub --batch < $input 1>&2;then
-            Echo "Failed to install recovery boot loader"
-            return 1
-        fi
-        rm -f $input
-    else
-        Echo "Image doesn't have grub installed"
         Echo "Can't install recovery boot loader"
         return 1
     fi
@@ -2926,9 +2858,8 @@ function getKernelBootParameters {
     local files="
         $prefix/boot/syslinux/syslinux.cfg
         $prefix/boot/syslinux/extlinux.conf
-        $prefix/boot/grub/menu.lst
-        $prefix/etc/lilo.conf
-        $prefix/etc/zipl.conf
+        $prefix/boot/grub2/grub.cfg
+        $prefix/boot/zipl/config
     "
     for c in $files;do
         if [ -f $c ];then
