@@ -218,3 +218,7 @@ class TestDisk(object):
 
     def test_get_partition_id_map(self):
         assert self.disk.get_partition_id_map() == {}
+
+    def test_create_hybrid_mbr(self):
+        self.disk.create_hybrid_mbr()
+        self.partitioner.set_hybrid_mbr.assert_called_once_with()

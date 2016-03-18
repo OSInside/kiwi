@@ -2334,6 +2334,13 @@ the btrfs filesystem is used</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.type.gpt_hybrid_mbr">
+      <attribute name="gpt_hybrid_mbr">
+        <a:documentation>for gpt disk types only:
+create a hybrid GPT/MBR partition table</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.type.initrd_system.attribute">
       <attribute name="initrd_system">
         <a:documentation>specify which initrd builder to use, default is kiwi's
@@ -2566,6 +2573,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.hybridpersistent_filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.gpt_hybrid_mbr"/>
         </optional>
         <optional>
           <ref name="k.type.initrd_system.attribute"/>

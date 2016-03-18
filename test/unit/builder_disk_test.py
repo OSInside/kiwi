@@ -430,6 +430,19 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch('builtins.open')
     @patch('kiwi.builder.disk.Command.run')
+    def test_create_hybrid_gpt_requested(
+        self, mock_command, mock_open, mock_fs
+    ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.install_media = False
+        self.disk_builder.hybrid_mbr = True
+        self.disk_builder.create()
+        self.disk.create_hybrid_mbr.assert_called_once_with()
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch('builtins.open')
+    @patch('kiwi.builder.disk.Command.run')
     def test_create_with_image_format(self, mock_command, mock_open, mock_fs):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem

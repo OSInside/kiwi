@@ -18,20 +18,18 @@
 # project
 from ..command import Command
 from ..logger import log
+from .base import PartitionerBase
 
 from ..exceptions import (
     KiwiPartitionerGptFlagError
 )
 
 
-class PartitionerGpt(object):
+class PartitionerGpt(PartitionerBase):
     """
         implement GPT partition setup
     """
-    def __init__(self, disk_provider):
-        self.disk_device = disk_provider.get_device()
-        self.partition_id = 0
-
+    def post_init(self):
         # gdisk partition type/flag map
         self.flag_map = {
             'f.active': None,
@@ -41,9 +39,6 @@ class PartitionerGpt(object):
             't.raid': 'FD00',
             't.efi': 'EF00'
         }
-
-    def get_id(self):
-        return self.partition_id
 
     def create(self, name, mbsize, type_name, flags=None):
         self.partition_id += 1
@@ -79,3 +74,11 @@ class PartitionerGpt(object):
             )
         else:
             log.warning('Flag %s ignored on GPT', flag_name)
+
+    def set_hybrid_mbr(self):
+        partition_ids = []
+        for number in range(1, self.partition_id + 1):
+            partition_ids.append(format(number))
+        Command.run(
+            ['sgdisk', '-h', ':'.join(partition_ids), self.disk_device]
+        )

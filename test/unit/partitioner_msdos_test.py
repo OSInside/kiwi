@@ -18,9 +18,6 @@ class TestPartitionerMsDos(object):
         )
         self.partitioner = PartitionerMsDos(disk_provider)
 
-    def test_get_id(self):
-        assert self.partitioner.get_id() == 0
-
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
