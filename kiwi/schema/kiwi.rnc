@@ -24,11 +24,11 @@ namespace db  = "http://docbook.org/ns/docbook"
 
 db:info [
     db:releaseinfo [
-        "$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $"
+        "$Id: $"
     ]
-    db:releaseinfo [ "RNC Schema Version 6.2" ]
+    db:releaseinfo [ "RNC Schema Version 6.3" ]
     db:pubdate [ "START" ]
-    db:pubdate [ "2008-01-08" ]
+    db:pubdate [ "2016-03-18" ]
 ]
 
 image-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
@@ -61,7 +61,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.2" }
+        attribute schemaversion { "6.3" }
     k.image.kiwirevision.attribute =
         ## A kiwi git revision number which is known to build
         ## a working image from this description. If the kiwi git
@@ -1223,26 +1223,6 @@ div {
 }
 
 #==========================================
-# common element <persistent>
-#
-div {
-    k.persistent.attlist = empty
-    k.persistent =
-        ## Specifies Filenames in the Read-Write Disk Area
-        [
-        db:para [
-            "As part of the split section the persistent element\x{a}"~
-            "specifies filenames which are in the read-write disk area"
-        ]
-        ]
-        element persistent {
-            k.persistent.attlist &
-            k.except* &
-            k.file+
-        }
-}
-
-#==========================================
 # common element <profile>
 #
 div {
@@ -1559,26 +1539,6 @@ div {
 }
 
 #==========================================
-# common element <temporary>
-#
-div {
-    k.temporary.attlist = empty
-    k.temporary =
-        ## Specifies Files in RAM
-        [
-        db:para [
-            "As part of the split section the temporary element\x{a}"~
-            "specifies file names which are in the RAM disk area."
-        ]
-        ]
-        element temporary {
-            k.temporary.attlist &
-            k.except* &
-            k.file+
-        }
-}
-
-#==========================================
 # common element <timeout>
 #
 div {
@@ -1633,8 +1593,7 @@ div {
         ## Specifies the bootloader used for booting the image.
         ## At the moment grub, zipl and sys|extlinux are supported
         attribute bootloader {
-            "extlinux" | "grub" | "grub2" | "syslinux" |
-            "zipl" | "yaboot" | "uboot" | "berryboot" | "grub2_s390x_emu"
+            "grub2" | "zipl" | "grub2_s390x_emu"
         }
     k.type.btrfs_root_is_snapshot =
         ## Tell kiwi to install the system into a btrfs snapshot
@@ -1703,7 +1662,7 @@ div {
         ## Specifies the root filesystem type
         attribute filesystem {
             "btrfs" | "clicfs" | "ext2" | "ext3" | "ext4" |
-            "overlayfs" | "reiserfs" | "squashfs" | "xfs" | "zfs"
+            "overlayfs" | "squashfs" | "xfs"
         }
     k.type.firmware.attribute =
         ## Specifies the boot firmware of the system. Most systems
@@ -1755,23 +1714,10 @@ div {
     k.type.fsnocheck.attribute =
         ## Turn off periodic filesystem checks on ext2/3/4.
         attribute fsnocheck { xsd:boolean }
-    k.type.fsreadonly.attribute =
-        ## Specifies the filesystem for the read-only part of a split image
-        attribute fsreadonly {
-            "squashfs"
-        }
-    k.type.fsreadwrite.attribute =
-        ## Specifies the filesystem for the read-write part of a split image
-        attribute fsreadwrite {
-            "btrfs" | "ext2" | "ext3" | "ext4" | "reiserfs" | "xfs"
-        }
     k.type.fsmountoptions.attribute =
         ## Specifies the filesystem mount options which also ends up in fstab
         ## The string given here is passed as value to the -o option of mount
         attribute fsmountoptions { text }
-    k.type.zfsoptions.attribute =
-        ## Specifies the zfs pool options used on creation of the pool
-        attribute zfsoptions { text }
     k.type.hybrid.attribute =
         ## for the iso type only:
         ## Specifies that the iso file should be turned into
@@ -1801,9 +1747,9 @@ div {
     k.type.image.attribute =
         ## Specifies the image type
         attribute image {
-            "aci" | "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
-            "ext4" | "iso" | "lxc" | "oem" | "product" | "pxe" | "reiserfs" |
-            "split" | "squashfs" | "tbz" | "vmx" | "xfs" | "zfs"
+            "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
+            "ext4" | "iso" | "oem" | "pxe" | "squashfs" | "tbz" |
+            "vmx" | "xfs"
         }
     k.type.installboot.attribute =
         ## Specifies the bootloader default boot entry for the"
@@ -1901,8 +1847,6 @@ div {
         k.type.format.attribute? &
         k.type.formatoptions.attribute? &
         k.type.fsnocheck.attribute? &
-        k.type.fsreadonly.attribute? &
-        k.type.fsreadwrite.attribute? &
         k.type.fsmountoptions.attribute? &
         k.type.gcelicense.attribute? &
         k.type.hybrid.attribute? &
@@ -1925,8 +1869,7 @@ div {
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &
-        k.type.wwid_wait_timeout.attribute? &
-        k.type.zfsoptions.attribute?
+        k.type.wwid_wait_timeout.attribute?
     k.type =
         ## The Image Type of the Logical Extend
         element type { 
@@ -1935,7 +1878,6 @@ div {
             k.oemconfig? &
             k.pxedeploy? &
             k.size? &
-            k.split? &
             k.systemdisk? &
             k.vagrantconfig*
         }
@@ -2771,8 +2713,8 @@ div {
 #
 div {
     k.packages.type.attribute = attribute type {
-        "aci" | "bootstrap" | "delete" | "docker" | "image" | "iso" |
-        "lxc" | "oem" | "pxe" | "split" | "testsuite" | "vmx"
+        "bootstrap" | "delete" | "docker" | "image" |
+        "iso" | "oem" | "pxe" | "vmx"
     }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =
@@ -2855,29 +2797,6 @@ div {
         element profiles {
             k.profiles.attlist &
             k.profile+
-        }
-}
-
-#==========================================
-# main block: <split>
-#
-div {
-    k.split.attlist = empty
-    k.split =  
-        ## Describes Images in Read-Only and Read-Write Portions
-        [
-        db:para [
-            "When the image type split is requested the image will be\x{a}"~
-            "splitted into a read-only and a read-write image portion.\x{a}"~
-            "Each portion can have different filesystems and the split\x{a}"~
-            "section describes which files/directories should go in\x{a}"~
-            "what portion."
-        ]
-        ]
-        element split {
-            k.split.attlist &
-            k.temporary? &
-            k.persistent?
         }
 }
 

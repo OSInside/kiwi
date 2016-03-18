@@ -22,10 +22,10 @@
 -->
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
-    <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
-    <db:releaseinfo>RNC Schema Version 6.2</db:releaseinfo>
+    <db:releaseinfo>$Id: $</db:releaseinfo>
+    <db:releaseinfo>RNC Schema Version 6.3</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
-    <db:pubdate>2008-01-08</db:pubdate>
+    <db:pubdate>2016-03-18</db:pubdate>
   </db:info>
   <define name="image-name">
     <data type="token">
@@ -96,7 +96,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.2</value>
+        <value>6.3</value>
       </attribute>
     </define>
     <define name="k.image.kiwirevision.attribute">
@@ -1545,32 +1545,6 @@ specifies the disk device name</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <persistent>
-    
-  -->
-  <div>
-    <define name="k.persistent.attlist">
-      <empty/>
-    </define>
-    <define name="k.persistent">
-      <element name="persistent">
-        <a:documentation>Specifies Filenames in the Read-Write Disk Area</a:documentation>
-        <db:para>As part of the split section the persistent element
-specifies filenames which are in the read-write disk area</db:para>
-        <interleave>
-          <ref name="k.persistent.attlist"/>
-          <zeroOrMore>
-            <ref name="k.except"/>
-          </zeroOrMore>
-          <oneOrMore>
-            <ref name="k.file"/>
-          </oneOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <profile>
     
   -->
@@ -2047,32 +2021,6 @@ volume management system</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <temporary>
-    
-  -->
-  <div>
-    <define name="k.temporary.attlist">
-      <empty/>
-    </define>
-    <define name="k.temporary">
-      <element name="temporary">
-        <a:documentation>Specifies Files in RAM</a:documentation>
-        <db:para>As part of the split section the temporary element
-specifies file names which are in the RAM disk area.</db:para>
-        <interleave>
-          <ref name="k.temporary.attlist"/>
-          <zeroOrMore>
-            <ref name="k.except"/>
-          </zeroOrMore>
-          <oneOrMore>
-            <ref name="k.file"/>
-          </oneOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <timeout>
     
   -->
@@ -2133,14 +2081,8 @@ information is passed as add-profile option</a:documentation>
         <a:documentation>Specifies the bootloader used for booting the image.
 At the moment grub, zipl and sys|extlinux are supported</a:documentation>
         <choice>
-          <value>extlinux</value>
-          <value>grub</value>
           <value>grub2</value>
-          <value>syslinux</value>
           <value>zipl</value>
-          <value>yaboot</value>
-          <value>uboot</value>
-          <value>berryboot</value>
           <value>grub2_s390x_emu</value>
         </choice>
       </attribute>
@@ -2257,10 +2199,8 @@ structure</a:documentation>
           <value>ext3</value>
           <value>ext4</value>
           <value>overlayfs</value>
-          <value>reiserfs</value>
           <value>squashfs</value>
           <value>xfs</value>
-          <value>zfs</value>
         </choice>
       </attribute>
     </define>
@@ -2356,34 +2296,10 @@ the -o option in the qemu-img call</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
-    <define name="k.type.fsreadonly.attribute">
-      <attribute name="fsreadonly">
-        <a:documentation>Specifies the filesystem for the read-only part of a split image</a:documentation>
-        <value>squashfs</value>
-      </attribute>
-    </define>
-    <define name="k.type.fsreadwrite.attribute">
-      <attribute name="fsreadwrite">
-        <a:documentation>Specifies the filesystem for the read-write part of a split image</a:documentation>
-        <choice>
-          <value>btrfs</value>
-          <value>ext2</value>
-          <value>ext3</value>
-          <value>ext4</value>
-          <value>reiserfs</value>
-          <value>xfs</value>
-        </choice>
-      </attribute>
-    </define>
     <define name="k.type.fsmountoptions.attribute">
       <attribute name="fsmountoptions">
         <a:documentation>Specifies the filesystem mount options which also ends up in fstab
 The string given here is passed as value to the -o option of mount</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.type.zfsoptions.attribute">
-      <attribute name="zfsoptions">
-        <a:documentation>Specifies the zfs pool options used on creation of the pool</a:documentation>
       </attribute>
     </define>
     <define name="k.type.hybrid.attribute">
@@ -2433,7 +2349,6 @@ system does not support all features of the kiwi initrd</a:documentation>
       <attribute name="image">
         <a:documentation>Specifies the image type</a:documentation>
         <choice>
-          <value>aci</value>
           <value>btrfs</value>
           <value>clicfs</value>
           <value>cpio</value>
@@ -2442,17 +2357,12 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>ext3</value>
           <value>ext4</value>
           <value>iso</value>
-          <value>lxc</value>
           <value>oem</value>
-          <value>product</value>
           <value>pxe</value>
-          <value>reiserfs</value>
-          <value>split</value>
           <value>squashfs</value>
           <value>tbz</value>
           <value>vmx</value>
           <value>xfs</value>
-          <value>zfs</value>
         </choice>
       </attribute>
     </define>
@@ -2643,12 +2553,6 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           <ref name="k.type.fsnocheck.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.fsreadonly.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.fsreadwrite.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.type.fsmountoptions.attribute"/>
         </optional>
         <optional>
@@ -2715,9 +2619,6 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         <optional>
           <ref name="k.type.wwid_wait_timeout.attribute"/>
         </optional>
-        <optional>
-          <ref name="k.type.zfsoptions.attribute"/>
-        </optional>
       </interleave>
     </define>
     <define name="k.type">
@@ -2736,9 +2637,6 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           </optional>
           <optional>
             <ref name="k.size"/>
-          </optional>
-          <optional>
-            <ref name="k.split"/>
           </optional>
           <optional>
             <ref name="k.systemdisk"/>
@@ -3995,17 +3893,13 @@ virtual machine when running the image.</db:para>
     <define name="k.packages.type.attribute">
       <attribute name="type">
         <choice>
-          <value>aci</value>
           <value>bootstrap</value>
           <value>delete</value>
           <value>docker</value>
           <value>image</value>
           <value>iso</value>
-          <value>lxc</value>
           <value>oem</value>
           <value>pxe</value>
-          <value>split</value>
-          <value>testsuite</value>
           <value>vmx</value>
         </choice>
       </attribute>
@@ -4160,35 +4054,6 @@ drivers can bind itself to one of the listed namespaces.</db:para>
           <oneOrMore>
             <ref name="k.profile"/>
           </oneOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <split>
-    
-  -->
-  <div>
-    <define name="k.split.attlist">
-      <empty/>
-    </define>
-    <define name="k.split">
-      <element name="split">
-        <a:documentation>Describes Images in Read-Only and Read-Write Portions</a:documentation>
-        <db:para>When the image type split is requested the image will be
-splitted into a read-only and a read-write image portion.
-Each portion can have different filesystems and the split
-section describes which files/directories should go in
-what portion.</db:para>
-        <interleave>
-          <ref name="k.split.attlist"/>
-          <optional>
-            <ref name="k.temporary"/>
-          </optional>
-          <optional>
-            <ref name="k.persistent"/>
-          </optional>
         </interleave>
       </element>
     </define>

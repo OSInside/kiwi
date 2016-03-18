@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Mar 10 14:22:39 2016 by generateDS.py version 2.19b.
+# Generated Fri Mar 18 11:20:19 2016 by generateDS.py version 2.19b.
 #
 # Command line options:
 #   ('-f', '')
@@ -1969,101 +1969,6 @@ class partitions(GeneratedsSuper):
 # end class partitions
 
 
-class persistent(GeneratedsSuper):
-    """Specifies Filenames in the Read-Write Disk Area"""
-    subclass = None
-    superclass = None
-    def __init__(self, except_=None, file=None):
-        self.original_tagname_ = None
-        if except_ is None:
-            self.except_ = []
-        else:
-            self.except_ = except_
-        if file is None:
-            self.file = []
-        else:
-            self.file = file
-    def factory(*args_, **kwargs_):
-        if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, persistent)
-            if subclass is not None:
-                return subclass(*args_, **kwargs_)
-        if persistent.subclass:
-            return persistent.subclass(*args_, **kwargs_)
-        else:
-            return persistent(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_except(self): return self.except_
-    def set_except(self, except_): self.except_ = except_
-    def add_except(self, value): self.except_.append(value)
-    def insert_except_at(self, index, value): self.except_.insert(index, value)
-    def replace_except_at(self, index, value): self.except_[index] = value
-    def get_file(self): return self.file
-    def set_file(self, file): self.file = file
-    def add_file(self, value): self.file.append(value)
-    def insert_file_at(self, index, value): self.file.insert(index, value)
-    def replace_file_at(self, index, value): self.file[index] = value
-    def hasContent_(self):
-        if (
-            self.except_ or
-            self.file
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='persistent', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='persistent')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='persistent', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='persistent'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='persistent', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        for except_ in self.except_:
-            except_.export(outfile, level, namespace_, name_='except', pretty_print=pretty_print)
-        for file_ in self.file:
-            file_.export(outfile, level, namespace_, name_='file', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'except':
-            obj_ = except_.factory()
-            obj_.build(child_)
-            self.except_.append(obj_)
-            obj_.original_tagname_ = 'except'
-        elif nodeName_ == 'file':
-            obj_ = file.factory()
-            obj_.build(child_)
-            self.file.append(obj_)
-            obj_.original_tagname_ = 'file'
-# end class persistent
-
-
 class profile(GeneratedsSuper):
     """Creates Profiles"""
     subclass = None
@@ -2637,106 +2542,11 @@ class systemdisk(GeneratedsSuper):
 # end class systemdisk
 
 
-class temporary(GeneratedsSuper):
-    """Specifies Files in RAM"""
-    subclass = None
-    superclass = None
-    def __init__(self, except_=None, file=None):
-        self.original_tagname_ = None
-        if except_ is None:
-            self.except_ = []
-        else:
-            self.except_ = except_
-        if file is None:
-            self.file = []
-        else:
-            self.file = file
-    def factory(*args_, **kwargs_):
-        if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, temporary)
-            if subclass is not None:
-                return subclass(*args_, **kwargs_)
-        if temporary.subclass:
-            return temporary.subclass(*args_, **kwargs_)
-        else:
-            return temporary(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_except(self): return self.except_
-    def set_except(self, except_): self.except_ = except_
-    def add_except(self, value): self.except_.append(value)
-    def insert_except_at(self, index, value): self.except_.insert(index, value)
-    def replace_except_at(self, index, value): self.except_[index] = value
-    def get_file(self): return self.file
-    def set_file(self, file): self.file = file
-    def add_file(self, value): self.file.append(value)
-    def insert_file_at(self, index, value): self.file.insert(index, value)
-    def replace_file_at(self, index, value): self.file[index] = value
-    def hasContent_(self):
-        if (
-            self.except_ or
-            self.file
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='temporary', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='temporary')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='temporary', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='temporary'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='temporary', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        for except_ in self.except_:
-            except_.export(outfile, level, namespace_, name_='except', pretty_print=pretty_print)
-        for file_ in self.file:
-            file_.export(outfile, level, namespace_, name_='file', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'except':
-            obj_ = except_.factory()
-            obj_.build(child_)
-            self.except_.append(obj_)
-            obj_.original_tagname_ = 'except'
-        elif nodeName_ == 'file':
-            obj_ = file.factory()
-            obj_.build(child_)
-            self.file.append(obj_)
-            obj_.original_tagname_ = 'file'
-# end class temporary
-
-
 class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsreadonly=None, fsreadwrite=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, target_blocksize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, zfsoptions=None, machine=None, oemconfig=None, pxedeploy=None, size=None, split=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, target_blocksize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2760,8 +2570,6 @@ class type_(GeneratedsSuper):
         self.format = _cast(None, format)
         self.formatoptions = _cast(None, formatoptions)
         self.fsnocheck = _cast(bool, fsnocheck)
-        self.fsreadonly = _cast(None, fsreadonly)
-        self.fsreadwrite = _cast(None, fsreadwrite)
         self.fsmountoptions = _cast(None, fsmountoptions)
         self.gcelicense = _cast(None, gcelicense)
         self.hybrid = _cast(bool, hybrid)
@@ -2785,7 +2593,6 @@ class type_(GeneratedsSuper):
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.volid = _cast(None, volid)
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
-        self.zfsoptions = _cast(None, zfsoptions)
         if machine is None:
             self.machine = []
         else:
@@ -2802,10 +2609,6 @@ class type_(GeneratedsSuper):
             self.size = []
         else:
             self.size = size
-        if split is None:
-            self.split = []
-        else:
-            self.split = split
         if systemdisk is None:
             self.systemdisk = []
         else:
@@ -2845,11 +2648,6 @@ class type_(GeneratedsSuper):
     def add_size(self, value): self.size.append(value)
     def insert_size_at(self, index, value): self.size.insert(index, value)
     def replace_size_at(self, index, value): self.size[index] = value
-    def get_split(self): return self.split
-    def set_split(self, split): self.split = split
-    def add_split(self, value): self.split.append(value)
-    def insert_split_at(self, index, value): self.split.insert(index, value)
-    def replace_split_at(self, index, value): self.split[index] = value
     def get_systemdisk(self): return self.systemdisk
     def set_systemdisk(self, systemdisk): self.systemdisk = systemdisk
     def add_systemdisk(self, value): self.systemdisk.append(value)
@@ -2904,10 +2702,6 @@ class type_(GeneratedsSuper):
     def set_formatoptions(self, formatoptions): self.formatoptions = formatoptions
     def get_fsnocheck(self): return self.fsnocheck
     def set_fsnocheck(self, fsnocheck): self.fsnocheck = fsnocheck
-    def get_fsreadonly(self): return self.fsreadonly
-    def set_fsreadonly(self, fsreadonly): self.fsreadonly = fsreadonly
-    def get_fsreadwrite(self): return self.fsreadwrite
-    def set_fsreadwrite(self, fsreadwrite): self.fsreadwrite = fsreadwrite
     def get_fsmountoptions(self): return self.fsmountoptions
     def set_fsmountoptions(self, fsmountoptions): self.fsmountoptions = fsmountoptions
     def get_gcelicense(self): return self.gcelicense
@@ -2954,15 +2748,12 @@ class type_(GeneratedsSuper):
     def set_volid(self, volid): self.volid = volid
     def get_wwid_wait_timeout(self): return self.wwid_wait_timeout
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
-    def get_zfsoptions(self): return self.zfsoptions
-    def set_zfsoptions(self, zfsoptions): self.zfsoptions = zfsoptions
     def hasContent_(self):
         if (
             self.machine or
             self.oemconfig or
             self.pxedeploy or
             self.size or
-            self.split or
             self.systemdisk or
             self.vagrantconfig
         ):
@@ -3054,12 +2845,6 @@ class type_(GeneratedsSuper):
         if self.fsnocheck is not None and 'fsnocheck' not in already_processed:
             already_processed.add('fsnocheck')
             outfile.write(' fsnocheck="%s"' % self.gds_format_boolean(self.fsnocheck, input_name='fsnocheck'))
-        if self.fsreadonly is not None and 'fsreadonly' not in already_processed:
-            already_processed.add('fsreadonly')
-            outfile.write(' fsreadonly=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fsreadonly), input_name='fsreadonly')), ))
-        if self.fsreadwrite is not None and 'fsreadwrite' not in already_processed:
-            already_processed.add('fsreadwrite')
-            outfile.write(' fsreadwrite=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fsreadwrite), input_name='fsreadwrite')), ))
         if self.fsmountoptions is not None and 'fsmountoptions' not in already_processed:
             already_processed.add('fsmountoptions')
             outfile.write(' fsmountoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fsmountoptions), input_name='fsmountoptions')), ))
@@ -3129,9 +2914,6 @@ class type_(GeneratedsSuper):
         if self.wwid_wait_timeout is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
             outfile.write(' wwid_wait_timeout="%s"' % self.gds_format_integer(self.wwid_wait_timeout, input_name='wwid_wait_timeout'))
-        if self.zfsoptions is not None and 'zfsoptions' not in already_processed:
-            already_processed.add('zfsoptions')
-            outfile.write(' zfsoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.zfsoptions), input_name='zfsoptions')), ))
     def exportChildren(self, outfile, level, namespace_='', name_='type', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3145,8 +2927,6 @@ class type_(GeneratedsSuper):
             pxedeploy_.export(outfile, level, namespace_, name_='pxedeploy', pretty_print=pretty_print)
         for size_ in self.size:
             size_.export(outfile, level, namespace_, name_='size', pretty_print=pretty_print)
-        for split_ in self.split:
-            split_.export(outfile, level, namespace_, name_='split', pretty_print=pretty_print)
         for systemdisk_ in self.systemdisk:
             systemdisk_.export(outfile, level, namespace_, name_='systemdisk', pretty_print=pretty_print)
         for vagrantconfig_ in self.vagrantconfig:
@@ -3290,16 +3070,6 @@ class type_(GeneratedsSuper):
                 self.fsnocheck = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('fsreadonly', node)
-        if value is not None and 'fsreadonly' not in already_processed:
-            already_processed.add('fsreadonly')
-            self.fsreadonly = value
-            self.fsreadonly = ' '.join(self.fsreadonly.split())
-        value = find_attr_value_('fsreadwrite', node)
-        if value is not None and 'fsreadwrite' not in already_processed:
-            already_processed.add('fsreadwrite')
-            self.fsreadwrite = value
-            self.fsreadwrite = ' '.join(self.fsreadwrite.split())
         value = find_attr_value_('fsmountoptions', node)
         if value is not None and 'fsmountoptions' not in already_processed:
             already_processed.add('fsmountoptions')
@@ -3448,10 +3218,6 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.wwid_wait_timeout < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
-        value = find_attr_value_('zfsoptions', node)
-        if value is not None and 'zfsoptions' not in already_processed:
-            already_processed.add('zfsoptions')
-            self.zfsoptions = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'machine':
             obj_ = machine.factory()
@@ -3473,11 +3239,6 @@ class type_(GeneratedsSuper):
             obj_.build(child_)
             self.size.append(obj_)
             obj_.original_tagname_ = 'size'
-        elif nodeName_ == 'split':
-            obj_ = split.factory()
-            obj_.build(child_)
-            self.split.append(obj_)
-            obj_.original_tagname_ = 'split'
         elif nodeName_ == 'systemdisk':
             obj_ = systemdisk.factory()
             obj_.build(child_)
@@ -7472,101 +7233,6 @@ class profiles(GeneratedsSuper):
 # end class profiles
 
 
-class split(GeneratedsSuper):
-    """Describes Images in Read-Only and Read-Write Portions"""
-    subclass = None
-    superclass = None
-    def __init__(self, temporary=None, persistent=None):
-        self.original_tagname_ = None
-        if temporary is None:
-            self.temporary = []
-        else:
-            self.temporary = temporary
-        if persistent is None:
-            self.persistent = []
-        else:
-            self.persistent = persistent
-    def factory(*args_, **kwargs_):
-        if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, split)
-            if subclass is not None:
-                return subclass(*args_, **kwargs_)
-        if split.subclass:
-            return split.subclass(*args_, **kwargs_)
-        else:
-            return split(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_temporary(self): return self.temporary
-    def set_temporary(self, temporary): self.temporary = temporary
-    def add_temporary(self, value): self.temporary.append(value)
-    def insert_temporary_at(self, index, value): self.temporary.insert(index, value)
-    def replace_temporary_at(self, index, value): self.temporary[index] = value
-    def get_persistent(self): return self.persistent
-    def set_persistent(self, persistent): self.persistent = persistent
-    def add_persistent(self, value): self.persistent.append(value)
-    def insert_persistent_at(self, index, value): self.persistent.insert(index, value)
-    def replace_persistent_at(self, index, value): self.persistent[index] = value
-    def hasContent_(self):
-        if (
-            self.temporary or
-            self.persistent
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='split', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='split')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='split', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='split'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='split', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        for temporary_ in self.temporary:
-            temporary_.export(outfile, level, namespace_, name_='temporary', pretty_print=pretty_print)
-        for persistent_ in self.persistent:
-            persistent_.export(outfile, level, namespace_, name_='persistent', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'temporary':
-            obj_ = temporary.factory()
-            obj_.build(child_)
-            self.temporary.append(obj_)
-            obj_.original_tagname_ = 'temporary'
-        elif nodeName_ == 'persistent':
-            obj_ = persistent.factory()
-            obj_.build(child_)
-            self.persistent.append(obj_)
-            obj_.original_tagname_ = 'persistent'
-# end class split
-
-
 class users(GeneratedsSuper):
     """A List of Users"""
     subclass = None
@@ -8132,7 +7798,6 @@ __all__ = [
     "packages",
     "partition",
     "partitions",
-    "persistent",
     "preferences",
     "product",
     "productinfo",
@@ -8148,11 +7813,9 @@ __all__ = [
     "requiredarch",
     "size",
     "source",
-    "split",
     "strip",
     "systemdisk",
     "target",
-    "temporary",
     "type_",
     "union",
     "user",
