@@ -1024,7 +1024,6 @@ function installBootLoader {
         s390*-grub2)     installBootLoaderGrub2 ;;
         x86_64-grub2)    installBootLoaderGrub2 ;;
         ppc64*-grub2)    installBootLoaderGrub2 ;;
-        arm*)            installBootLoaderUBoot ;;
         i*86-syslinux)   installBootLoaderSyslinux ;;
         x86_64-syslinux) installBootLoaderSyslinux ;;
         i*86-extlinux)   installBootLoaderSyslinux ;;
@@ -1032,7 +1031,6 @@ function installBootLoader {
         s390-zipl)       installBootLoaderS390 ;;
         s390x-zipl)      installBootLoaderS390 ;;
         s390x-grub2_s390x_emu)  installBootLoaderS390Grub ;;
-        aarch64-uboot)   installBootLoaderUBoot ;;
         aarch64-grub2)   installBootLoaderGrub2 ;;
         *)
         systemException \
@@ -1096,22 +1094,6 @@ function installBootLoaderRecovery {
             "*** boot loader setup for $arch-$loader not implemented ***" \
         "reboot"
     esac
-}
-#======================================
-# installBootLoaderUBoot
-#--------------------------------------
-function installBootLoaderUBoot {
-    # /.../
-    # installation of uboot can't be done in a generic
-    # way because each arm board behaves differently.
-    # Thus we are only calling a hook script here
-    # ----
-    local IFS=$IFS_ORIG
-    if [ "$kiwi_bootloader" = "berryboot" ];then
-        runHook installBerryBoot "$@"
-    else
-        runHook installUBoot "$@"
-    fi
 }
 #======================================
 # installBootLoaderS390Grub
@@ -1640,9 +1622,6 @@ function setupInitrd {
             if [ -f /boot/linux.vmx ];then
                 rm -f /boot/linux.vmx
             fi
-            if [ -f /boot/initrd.uboot ];then
-                rm -f /boot/initrd.uboot
-            fi
         fi
         #======================================
         # Loader exceptions
@@ -1717,10 +1696,8 @@ function setupBootLoader {
         ppc64*-grub2)    eval setupBootLoaderGrub2 $para ;;
         s390*-grub2)     eval setupBootLoaderGrub2 $para ;;
         s390x-grub2_s390x_emu)  eval setupBootLoaderS390Grub $para ;;
-        aarch64-uboot)   eval setupBootLoaderUBoot $para ;;
         aarch64-grub2)   eval setupBootLoaderGrub2 $para ;;
         arm*-grub2)      eval setupBootLoaderGrub2 $para ;;
-        arm*)            eval setupBootLoaderUBoot $para ;;
         *)
         systemException \
             "*** boot loader setup for $arch-$loader not implemented ***" \
@@ -1955,23 +1932,6 @@ menuentry 'Restore Factory System' --class os {
     \$initrd /boot/$initrd
 }
 EOF
-    fi
-}
-#======================================
-# setupBootLoaderUBoot
-#--------------------------------------
-function setupBootLoaderUBoot {
-    # /.../
-    # The setup of the uboot boot.script can't be done
-    # in a generic way because each arm board behaves
-    # differently. Thus we are only calling a hook
-    # script here
-    # ----
-    local IFS=$IFS_ORIG
-    if [ "$kiwi_bootloader" = "berryboot" ];then
-        runHook setupBerryBoot "$@"
-    else
-        runHook setupUBoot "$@"
     fi
 }
 #======================================
