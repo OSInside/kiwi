@@ -96,6 +96,14 @@ po:
 po_status:
 	./.fuzzy
 
+valid:
+	for i in `find test kiwi -name *.xml`; do \
+		if [ ! -L $$i ];then \
+			xsltproc -o $$i.converted kiwi/xsl/master.xsl $$i && \
+			mv $$i.converted $$i ;\
+		fi \
+	done
+
 .PHONY: completion
 completion:
 	mkdir -p completion && helper/completion_generator > completion/kiwi.sh
