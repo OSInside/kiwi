@@ -7408,18 +7408,6 @@ function bootImage {
     #--------------------------------------
     umount proc &>/dev/null && \
     umount proc &>/dev/null
-    #======================================
-    # copy initrd to /run/initramfs
-    #--------------------------------------
-    mkdir -p $prefix/run/initramfs
-    match='mnt|lost\+found|dev|boot|tmp|run|proc|sys|read-only|read-write'
-    for dir in /*;do
-        if [[ $dir =~ $match ]]; then
-            mkdir -p $prefix/run/initramfs/$dir
-            continue
-        fi
-        cp -a $dir $prefix/run/initramfs
-    done
     if [ "$FSTYPE" = "zfs" ];then
         #======================================
         # setup shutdown script
