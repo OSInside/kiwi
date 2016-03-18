@@ -3060,7 +3060,6 @@ function probeFileSystem {
         ext4)        FSTYPE=ext4 ;;
         ext3)        FSTYPE=ext3 ;;
         ext2)        FSTYPE=ext2 ;;
-        reiserfs)    FSTYPE=reiserfs ;;
         squashfs)    FSTYPE=squashfs ;;
         luks)        FSTYPE=luks ;;
         crypto_LUKS) FSTYPE=luks ;;
@@ -8801,9 +8800,7 @@ function checkFilesystem {
     if [ -z "$FSTYPE" ];then
         probeFileSystem $device
     fi
-    if [ "$FSTYPE" = "reiserfs" ];then
-        reiserfsck -y $device
-    elif [ "$FSTYPE" = "ext2" ];then
+    if [ "$FSTYPE" = "ext2" ];then
         e2fsck -p -f $device
     elif [ "$FSTYPE" = "ext3" ];then
         e2fsck -p -f $device
@@ -8840,9 +8837,7 @@ function resizeFilesystem {
     if [ -z "$FSTYPE" ];then
         probeFileSystem $deviceResize
     fi
-    if [ "$FSTYPE" = "reiserfs" ];then
-        resize_fs="resize_reiserfs -q $deviceResize"
-    elif [ "$FSTYPE" = "ext2" ];then
+    if [ "$FSTYPE" = "ext2" ];then
         resize_fs="resize2fs -f -p $deviceResize"
         if [ $ramdisk -eq 1 ];then
             resize_fs="resize2fs -f $deviceResize"
@@ -8946,14 +8941,6 @@ function createFilesystem {
         if [ ! -z "$label" ];then
             opts="$opts -L $label"
         fi
-    elif [ "$filesystem" = "reiserfs" ];then
-        opts="$opts -f"
-        if [ ! -z "$uuid" ];then
-            opts="$opts -d $uuid"
-        fi
-        if [ ! -z "$label" ];then
-            opts="$opts -l $label"
-        fi
     elif [ "$filesystem" = "btrfs" ];then
         opts="$opts -f"
         if [ ! -z "$uuid" ];then
@@ -8983,9 +8970,7 @@ function createFilesystem {
             opts="$opts -n $label"
         fi
     fi
-    if [ "$filesystem" = "reiserfs" ];then
-        mkreiserfs $opts "$deviceCreate" $blocks 1>&2
-    elif [ "$filesystem" = "ext2" ];then
+    if [ "$filesystem" = "ext2" ];then
         mkfs.ext2 $opts "$deviceCreate" $blocks 1>&2
     elif [ "$filesystem" = "ext3" ];then
         mkfs.ext3 $opts "$deviceCreate" $blocks 1>&2

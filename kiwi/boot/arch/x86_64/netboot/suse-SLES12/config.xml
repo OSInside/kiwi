@@ -72,7 +72,6 @@
         <file name="fs/nfs_common/*"/>
         <file name="fs/quota_v1.ko"/>
         <file name="fs/quota_v2.ko"/>
-        <file name="fs/reiserfs/*"/>
         <file name="fs/squashfs/*"/>
         <file name="fs/vfat/*"/>
         <file name="fs/xfs/*"/>
@@ -192,7 +191,6 @@
         <package name="parted"/>
         <package name="plymouth"/>
         <package name="plymouth-scripts"/>
-        <package name="reiserfs"/>
         <package name="tar"/>
         <package name="xfsprogs"/>
     </packages>
