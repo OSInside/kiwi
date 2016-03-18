@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.2" name="initrd-strip-metadata">
+<image schemaversion="6.3" name="initrd-strip-metadata">
     <description type="boot">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -12,7 +12,7 @@
     <repository>
         <source path="nope"/>
     </repository>
-    <!---
+<!---
     remove all files listed here
     -->
     <strip type="delete">
@@ -45,7 +45,7 @@
         <file name="usr/lib/rpm"/>
         <file name="var/log/*"/>
     </strip>
-    <!--
+<!--
     remove all binaries from bin|sbin /usr/bin|sbin
     locations except for the ones listed here
     -->
@@ -313,7 +313,7 @@
         <file name="zpool"/>
         <file name="zfs"/>
     </strip>
-    <!--
+<!--
     check with ldd and remove all those libraries with
     no reference except for the ones listed here
     -->
