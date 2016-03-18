@@ -92,13 +92,13 @@ fi
 # Exports (arch specific)
 #--------------------------------------
 if [[ $arch =~ ppc64 ]];then
-    test -z "$loader" && export loader=yaboot
+    test -z "$loader" && export loader=grub2
 elif [[ $arch =~ arm ]];then
-    test -z "$loader" && export loader=uboot
+    test -z "$loader" && export loader=grub2
 elif [[ $arch =~ s390 ]];then
     test -z "$loader" && export loader=zipl
 else
-    test -z "$loader" && export loader=grub
+    test -z "$loader" && export loader=grub2
 fi
 
 #======================================
@@ -1024,7 +1024,6 @@ function installBootLoader {
         s390*-grub2)     installBootLoaderGrub2 ;;
         x86_64-grub2)    installBootLoaderGrub2 ;;
         ppc64*-grub2)    installBootLoaderGrub2 ;;
-        ppc*)            installBootLoaderYaboot ;;
         arm*)            installBootLoaderUBoot ;;
         i*86-syslinux)   installBootLoaderSyslinux ;;
         x86_64-syslinux) installBootLoaderSyslinux ;;
@@ -1423,28 +1422,6 @@ EOF
     return 0
 }
 #======================================
-# installBootLoaderYaboot
-#--------------------------------------
-function installBootLoaderYaboot {
-    # /.../
-    # install the lilo/yaboot bootloader
-    # ----
-    local IFS=$IFS_ORIG
-    if [ -x /sbin/lilo ];then
-        Echo "Installing boot loader..."
-        /sbin/lilo 1>&2
-        if [ ! $? = 0 ];then
-            Echo "Failed to install boot loader"
-            return 1
-        fi
-    else
-        Echo "Image doesn't have lilo installed"
-        Echo "Can't install boot loader"
-        return 1
-    fi
-    return 0
-}
-#======================================
 # installBootLoaderS390Recovery
 #--------------------------------------
 function installBootLoaderS390Recovery {
@@ -1740,7 +1717,6 @@ function setupBootLoader {
         ppc64*-grub2)    eval setupBootLoaderGrub2 $para ;;
         s390*-grub2)     eval setupBootLoaderGrub2 $para ;;
         s390x-grub2_s390x_emu)  eval setupBootLoaderS390Grub $para ;;
-        ppc*)            eval setupBootLoaderYaboot $para ;;
         aarch64-uboot)   eval setupBootLoaderUBoot $para ;;
         aarch64-grub2)   eval setupBootLoaderGrub2 $para ;;
         arm*-grub2)      eval setupBootLoaderGrub2 $para ;;
@@ -2320,205 +2296,6 @@ EOF
     if [ ! -z "$needProtectiveMBR" ];then
         updateProtectiveMBR
     fi
-}
-#======================================
-# setupBootLoaderYaboot
-#--------------------------------------
-function setupBootLoaderYaboot {
-    # /.../
-    # create lilo.conf file used for installing the bootloader
-    # this file is converted to yaboot.conf therefore lilo.conf
-    # has some restrictions
-    # ----
-    local IFS=$IFS_ORIG
-    local mountPrefix=$1  # mount path of the image
-    local destsPrefix=$2  # base dir for the config files
-    local lnum=$3         # lilo boot partition ID
-    local rdev=$4         # lilo root partition
-    local lfix=$5         # lilo title postfix
-    local swap=$6         # optional swap partition
-    local conf=$destsPrefix/etc/lilo.conf
-    local sysb=$destsPrefix/etc/sysconfig/bootloader
-    local console=""
-    local kname=""
-    local kernel=""
-    local initrd=""
-    local title=""
-    local rdisk=""
-    local fbmode=$vga
-    local loader_type=lilo
-    if [[ $arch =~ ppc64 ]];then
-        loader_type=ppc
-    fi
-    if [ -z "$fbmode" ];then
-        fbmode=$DEFAULT_VGA
-    fi
-    #======================================
-    # check for device by ID
-    #--------------------------------------
-    local diskByID=`getDiskID $rdev`
-    local swapByID=`getDiskID $swap swap`
-    #======================================
-    # check for bootloader displayname
-    #--------------------------------------
-    if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
-        kiwi_oemtitle=$kiwi_displayname
-    fi
-    #======================================
-    # check for kernel options
-    #--------------------------------------
-    if [ ! -z "$kiwi_cmdline" ];then
-        KIWI_KERNEL_OPTIONS="$KIWI_KERNEL_OPTIONS $kiwi_cmdline"
-    fi
-    #======================================
-    # check for lilo title postfix
-    #--------------------------------------
-    if [ -z "$lfix" ];then
-        lfix="unknown"
-    fi
-    #======================================
-    # check for boot TIMEOUT
-    #--------------------------------------
-    if [ -z "$kiwi_boot_timeout" ];then
-        kiwi_boot_timeout=10;
-    fi
-    #======================================
-    # setup lilo boot device
-    #--------------------------------------
-    rdisk=`echo $rdev | sed -e s"@[0-9]@@g"`
-    if [ ! -z "$imageDiskDevice" ];then
-        rdisk=$imageDiskDevice
-    fi
-    rdev=$(ddn $(dn $rdisk) $lnum)
-    #======================================
-    # create directory structure
-    #--------------------------------------
-    for dir in $conf $sysb;do
-        dir=`dirname $dir`; mkdir -p $dir
-    done
-    #======================================
-    # create lilo.conf file
-    #--------------------------------------
-    local timeout=$((kiwi_boot_timeout * 10))
-    echo "boot=$rdev"                                        >  $conf
-    echo "activate"                                          >> $conf
-    echo "timeout=$timeout"                                  >> $conf
-    local count=1
-    IFS="," ; for i in $KERNEL_LIST;do
-        if test ! -z "$i";then
-            #======================================
-            # create lilo requirements
-            #--------------------------------------
-            kernel=`echo $i | cut -f1 -d:`
-            initrd=`echo $i | cut -f2 -d:`
-            kname=${KERNEL_NAME[$count]}
-            if ! echo $lfix | grep -E -q "OEM|USB|VMX|NET|unknown";then
-                if [ "$count" = "1" ];then
-                    title=$(makeLabel "$lfix")
-                else
-                    title=$(makeLabel "$kname [ $lfix ]")
-                fi
-            elif [ -z "$kiwi_oemtitle" ];then
-                title=$(makeLabel "$kname [ $lfix ]")
-            else
-                if [ "$count" = "1" ];then
-                    title=$(makeLabel "$kiwi_oemtitle [ $lfix ]")
-                else
-                    title=$(makeLabel "$kiwi_oemtitle-$kname [ $lfix ]")
-                fi
-            fi
-            #======================================
-            # create standard entry
-            #--------------------------------------
-            if xenServer $kname $mountPrefix;then
-                systemException \
-                    "*** lilo: Xen dom0 boot not implemented ***" \
-                "reboot"
-            else
-                echo "default=\"$title\""                 >> $conf
-                echo "image=/boot/$kernel"                    >> $conf
-                echo "label=\"$title\""                       >> $conf
-                echo "initrd=/boot/$initrd"                   >> $conf
-                echo -n "append=\"sysrq=1 panic=9"            >> $conf
-                echo -n " root=$diskByID"                     >> $conf
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)" >> $conf
-                fi
-                echo -n " $console vga=$fbmode"               >> $conf
-                if [ ! -z "$swap" ];then                     
-                    echo -n " resume=$swapByID"               >> $conf
-                fi
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"        >> $conf
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc0 console=tty"       >> $conf
-                fi
-                echo -n " $KIWI_INITRD_PARAMS"                >> $conf
-                echo -n " $KIWI_KERNEL_OPTIONS"               >> $conf
-                echo " showopts\""                            >> $conf
-            fi
-            #======================================
-            # create failsafe entry
-            #--------------------------------------
-            title=$(makeLabel "Failsafe -- $title")
-            if xenServer $kname $mountPrefix;then
-                systemException \
-                    "*** lilo: Xen dom0 boot not implemented ***" \
-                "reboot"
-            else
-                echo "image=/boot/$kernel"                    >> $conf
-                echo "label=\"$title\""                       >> $conf
-                echo "initrd=/boot/$initrd"                   >> $conf
-                echo -n "append=\"sysrq=1 panic=9"            >> $conf
-                echo -n " root=$diskByID"                     >> $conf
-                if [ ! -z "$imageDiskDevice" ];then
-                    echo -n " disk=$(getDiskID $imageDiskDevice)" >> $conf
-                fi
-                echo -n " $console vga=$fbmode"               >> $conf
-                if [ ! -z "$swap" ];then
-                    echo -n " resume=$swapByID"               >> $conf
-                fi
-                if [ -e /dev/xvc0 ];then
-                    echo -n " console=xvc console=tty"        >> $conf
-                elif [ -e /dev/hvc0 ];then
-                    echo -n " console=hvc0 console=tty"       >> $conf
-                fi
-                echo -n " $KIWI_INITRD_PARAMS"                >> $conf
-                echo -n " $KIWI_KERNEL_OPTIONS"               >> $conf
-                echo -n " $failsafe"                          >> $conf
-                echo " showopts\""                            >> $conf
-            fi
-            count=$((count + 1))
-        fi
-    done
-    #======================================
-    # create recovery entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_oemrecovery" ];then
-        systemException \
-            "*** lilo: recovery chain loading not implemented ***" \
-        "reboot"
-    fi
-    #======================================
-    # create sysconfig/bootloader
-    #--------------------------------------
-    echo "LOADER_TYPE=\"$loader_type\""                       > $sysb
-    echo "LOADER_LOCATION=\"mbr\""                           >> $sysb
-    echo "DEFAULT_VGA=\"$fbmode\""                           >> $sysb 
-    echo -n "DEFAULT_APPEND=\"root=$diskByID"                >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo " showopts\""                                       >> $sysb
-    echo "FAILSAFE_VGA=\"$fbmode\""                          >> $sysb
-    echo -n "FAILSAFE_APPEND=\"root=$diskByID"               >> $sysb
-    if [ ! -z "$swap" ];then
-        echo -n " resume=$swapByID"                          >> $sysb
-    fi
-    echo -n " $KIWI_INITRD_PARAMS $KIWI_KERNEL_OPTIONS"      >> $sysb
-    echo -n " $failsafe"                                     >> $sysb
-    echo "\""                                                >> $sysb
 }
 #======================================
 # setupDefaultPXENetwork
