@@ -135,17 +135,12 @@ if [ "$systemIntegrity" = "clean" ];then
 fi
 
 #======================================
-# 13) kernelCheck
-#--------------------------------------
-kernelCheck
-
-#======================================
-# 14) Run user script
+# 13) Run user script
 #--------------------------------------
 runHook preCallInit
 
 #======================================
-# 15) kill udev
+# 14) kill udev
 #--------------------------------------
 udevSystemStop
 umountSystemFilesystems
