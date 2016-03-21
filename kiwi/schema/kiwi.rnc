@@ -1737,6 +1737,10 @@ div {
         attribute hybridpersistent_filesystem {
             "btrfs" | "fat" | "exfat" | "ext4" | "xfs"
         }
+    k.type.gpt_hybrid_mbr =
+        ## for gpt disk types only:
+        ## create a hybrid GPT/MBR partition table
+        attribute gpt_hybrid_mbr { xsd:boolean }
     k.type.initrd_system.attribute =
         ## specify which initrd builder to use, default is kiwi's
         ## builtin architecture. Be aware that the dracut initrd
@@ -1852,6 +1856,7 @@ div {
         k.type.hybrid.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &
+        k.type.gpt_hybrid_mbr? &
         k.type.initrd_system.attribute? &
         k.type.image.attribute &
         k.type.installboot.attribute? &

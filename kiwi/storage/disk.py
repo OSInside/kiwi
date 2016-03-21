@@ -120,6 +120,9 @@ class Disk(DeviceProvider):
         if partition_id:
             self.partitioner.set_flag(partition_id, 'f.active')
 
+    def create_hybrid_mbr(self):
+        self.partitioner.set_hybrid_mbr()
+
     def wipe(self):
         """
             Zap (destroy) any GPT and MBR data structures if present

@@ -17,9 +17,6 @@ class TestPartitionerGpt(object):
         )
         self.partitioner = PartitionerGpt(disk_provider)
 
-    def test_get_id(self):
-        assert self.partitioner.get_id() == 0
-
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create(self, mock_flag, mock_command):
@@ -57,3 +54,11 @@ class TestPartitionerGpt(object):
     def test_set_flag_ignored(self, mock_warn):
         self.partitioner.set_flag(1, 'f.active')
         assert mock_warn.called
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    def test_set_hybrid_mbr(self, mock_command):
+        self.partitioner.partition_id = 3
+        self.partitioner.set_hybrid_mbr()
+        mock_command.assert_called_once_with(
+            ['sgdisk', '-h', '1:2:3', '/dev/loop0']
+        )

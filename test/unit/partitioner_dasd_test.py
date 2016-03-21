@@ -35,9 +35,6 @@ class TestPartitionerDasd(object):
 
         self.partitioner = PartitionerDasd(disk_provider)
 
-    def test_get_id(self):
-        assert self.partitioner.get_id() == 0
-
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
     @patch('builtins.open')
@@ -71,8 +68,3 @@ class TestPartitionerDasd(object):
         self.file_mock.write.assert_called_once_with(
             'n\np\n\n\nw\nq\n'
         )
-
-    def test_set_flag(self):
-        # This is a noop for fdasd, just does nothing but has to
-        # exist to complete the partitioner interface
-        self.partitioner.set_flag('id', 'flag_name')

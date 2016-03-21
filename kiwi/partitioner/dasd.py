@@ -15,20 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from tempfile import NamedTemporaryFile
+
 # project
 from ..command import Command
 from ..logger import log
-from tempfile import NamedTemporaryFile
+from .base import PartitionerBase
 
 
-class PartitionerDasd(object):
+class PartitionerDasd(PartitionerBase):
     """
         implement fdasd partition setup
     """
-    def __init__(self, disk_provider):
-        self.disk_device = disk_provider.get_device()
-        self.partition_id = 0
-
+    def post_init(self):
         # fdasd partition type/flag map
         self.flag_map = {
             'f.active': None,
@@ -38,9 +37,6 @@ class PartitionerDasd(object):
             't.efi': None,
             't.csm': None
         }
-
-    def get_id(self):
-        return self.partition_id
 
     def create(self, name, mbsize, type_name, flags=None):
         self.partition_id += 1
@@ -68,7 +64,3 @@ class PartitionerDasd(object):
             # are not able to detect real errors with the fdasd operation at
             # that point.
             log.debug('potential fdasd errors were ignored')
-
-    def set_flag(self, partition_id, flag_name):
-        # on an s390 dasd device there are no such flags
-        pass

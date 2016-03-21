@@ -15,24 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from tempfile import NamedTemporaryFile
+
 # project
 from ..command import Command
 from ..logger import log
-from tempfile import NamedTemporaryFile
+from .base import PartitionerBase
 
 from ..exceptions import (
     KiwiPartitionerMsDosFlagError
 )
 
 
-class PartitionerMsDos(object):
+class PartitionerMsDos(PartitionerBase):
     """
         implement old style msdos partition setup
     """
-    def __init__(self, disk_provider):
-        self.disk_device = disk_provider.get_device()
-        self.partition_id = 0
-
+    def post_init(self):
         # sfdisk partition type/flag map
         self.flag_map = {
             'f.active': True,
@@ -43,9 +42,6 @@ class PartitionerMsDos(object):
             't.csm': None,
             't.prep': '41'
         }
-
-    def get_id(self):
-        return self.partition_id
 
     def create(self, name, mbsize, type_name, flags=None):
         self.partition_id += 1
