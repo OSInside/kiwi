@@ -2167,12 +2167,6 @@ EOF
     echo "LOADER_LOCATION=\"mbr\""                >> $sysb
     echo "DEFAULT_APPEND=\"$cmdline\""            >> $sysb
     echo "FAILSAFE_APPEND=\"$failsafe $cmdline\"" >> $sysb
-    #======================================
-    # Cleanup protective MBR
-    #--------------------------------------
-    if [ ! -z "$needProtectiveMBR" ];then
-        updateProtectiveMBR
-    fi
 }
 #======================================
 # setupDefaultPXENetwork
@@ -9372,9 +9366,7 @@ function cleanPartitionTable {
 #--------------------------------------
 function updatePartitionTable {
     # /.../
-    # fix gpt geometry and backup gpt by using parted. parted asks
-    # for fixing the table when e.g the print command is called.
-    # We tell parted to fix the table
+    # fix table geometry and backup table if required
     # ----
     local IFS=$IFS_ORIG
     local device=$(getDiskDevice $1)
@@ -9386,6 +9378,7 @@ function updatePartitionTable {
     local stopp
     local label
     local pflag
+    local needProtectiveMBR=0
     #======================================
     # check for hybrid iso
     #--------------------------------------
@@ -9397,62 +9390,26 @@ function updatePartitionTable {
         return
     fi
     #======================================
-    # fix and store current table
+    # store a temp copy of the table
     #--------------------------------------
-    # the strange parted creates a gpt_sync_mbr if the disk
-    # geometry has changed. If this happened we have to rewrite
-    # the entire table with a new GPT label, thanks parted :(
-    # ----
     if ! parted -m -s $device unit s print > /tmp/table;then
         systemException \
             "Failed to store current partition table" \
         "reboot"
     fi
     #======================================
-    # check table type
+    # get table type
     #--------------------------------------
     plabel=$(cat /tmp/table | grep ^$device: | cut -f6 -d:)
+    #======================================
+    # update table
+    #--------------------------------------
     if [[ "$plabel" =~ gpt ]];then
+        #======================================
+        # relocate backup GPT to new disk end
+        #--------------------------------------
         relocateGPTAtEndOfDisk
     fi
-    if [ ! "$plabel" = "gpt_sync_mbr" ];then
-        return 0
-    fi
-    #======================================
-    # clone GPT table
-    #--------------------------------------
-    Echo "Updating GPT metadata..."
-    if ! parted -s $device mklabel gpt;then
-        systemException \
-            "Failed to create GPT label" \
-        "reboot"
-    fi
-    while read line;do
-        if [[ ! $line =~ ^[0-9]+: ]];then
-            continue
-        fi
-        line=$(echo "${line%?}")
-        partn=$(echo $line | cut -f1 -d:)
-        begin=$(echo $line | cut -f2 -d:)
-        stopp=$(echo $line | cut -f3 -d:)
-        label=$(echo $line | cut -f6 -d:)
-        pflag=$(echo $line | cut -f7 -d:)
-        if [ -z "$label" ];then
-            label=primary
-        fi
-        if ! parted -s $device mkpart $label $begin $stopp 1>&2;then
-            systemException \
-                "Failed to clone GPT table" \
-            "reboot"
-        fi
-        if [ ! -z "$pflag" ];then
-            # set flag, but ignore errors here
-            parted -s $device set $partn $pflag on &>/dev/null
-            if [ $pflag = "bios_grub" ];then
-                export needProtectiveMBR=1
-            fi
-        fi
-    done < /tmp/table
     return 0
 }
 #======================================
@@ -9591,30 +9548,6 @@ function activateBootPartition {
     local bootID=$(nd $device)
     local diskID=$(dn $device)
     sfdisk $diskID --force -A $bootID
-}
-#======================================
-# refreshProtectiveMBR
-#--------------------------------------
-function updateProtectiveMBR {
-    local IFS=$IFS_ORIG
-    local device=$1
-    local input=/part.input
-    if ! lookup gdisk &>/dev/null;then
-        Echo "Warning, gdisk tool not found"
-        Echo "This could prevent the system to boot via EFI"
-    fi
-    rm -f $input
-    if [ ! -e "$device" ];then
-        device=$imageDiskDevice
-    fi
-    for cmd in x n w y; do
-        echo $cmd >> $input
-    done
-    gdisk $device < $input 1>&2
-    if [ ! $? = 0 ]; then
-        Echo "Failed to create protective MBR !"
-        Echo "This could prevent the system to boot via EFI"
-    fi
 }
 #======================================
 # relocateGPTAtEndOfDisk

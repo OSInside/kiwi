@@ -354,7 +354,6 @@ if [ ! -z "$KIWI_RECOVERY" ];then
         fi
         umount $imageRecoveryDevice
         blockdev --rereadpt $imageDiskDevice
-        updateProtectiveMBR
         waitForStorageDevice $imageRecoveryDevice
         if ! mount -o ro $imageRecoveryDevice /reco-save >/dev/null;then
             systemException "Failed to remount recovery device" "reboot"
