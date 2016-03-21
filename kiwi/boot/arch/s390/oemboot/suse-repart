@@ -606,6 +606,10 @@ function OEMRepart {
         unset kiwi_oemrecovery
     fi
     #======================================
+    # Prepare partition table
+    #--------------------------------------
+    preparePartitionTable $imageDiskDevice
+    #======================================
     # Initialize
     #--------------------------------------
     OEMRepartInit
@@ -626,6 +630,10 @@ function OEMRepart {
     # activate boot partition
     #--------------------------------------
     activateBootPartition
+    #======================================
+    # Finalize partition table
+    #--------------------------------------
+    finalizePartitionTable $imageDiskDevice
     #======================================
     # setup luks maps
     #--------------------------------------

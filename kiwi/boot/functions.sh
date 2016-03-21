@@ -7658,7 +7658,6 @@ function createPartitionerInput {
     if [ $PARTITIONER = "fdasd" ];then
         createFDasdInput $@
     else
-        updatePartitionTable $imageDiskDevice
         Echo "Partition the disk according to real geometry [ parted ]"
         partedInit $imageDiskDevice
         partedSectorInit $imageDiskDevice
@@ -9362,11 +9361,12 @@ function cleanPartitionTable {
     fi
 }
 #======================================
-# updatePartitionTable
+# preparePartitionTable
 #--------------------------------------
-function updatePartitionTable {
+function preparePartitionTable {
     # /.../
-    # fix table geometry and backup table if required
+    # update partition table to allow resizing partitions
+    # for a new disk geometry
     # ----
     local IFS=$IFS_ORIG
     local device=$(getDiskDevice $1)
@@ -9378,7 +9378,6 @@ function updatePartitionTable {
     local stopp
     local label
     local pflag
-    local needProtectiveMBR=0
     #======================================
     # check for hybrid iso
     #--------------------------------------
@@ -9411,6 +9410,17 @@ function updatePartitionTable {
         relocateGPTAtEndOfDisk
     fi
     return 0
+}
+#======================================
+# finalizePartitionTable
+#--------------------------------------
+function finalizePartitionTable {
+    # /.../
+    # finalize partition table with flags which might get
+    # lost during repartition steps
+    # ----
+    local IFS=$IFS_ORIG
+    local device=$(getDiskDevice $1)
 }
 #======================================
 # resetBootBind
