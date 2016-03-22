@@ -9419,15 +9419,15 @@ function finalizePartitionTable {
     # ----
     local IFS=$IFS_ORIG
     #======================================
-    # activate boot partition
-    #--------------------------------------
-    if [[ $arch =~ i.86|x86_64 ]];then
-        activateBootPartition
-    fi
-    #======================================
     # get table type
     #--------------------------------------
     local plabel=$(partitionTableType)
+    #======================================
+    # activate boot partition
+    #--------------------------------------
+    if [[ $arch =~ i.86|x86_64 ]] && [ $plabel = "msdos" ];then
+        activateBootPartition
+    fi
     #======================================
     # finalize table
     #--------------------------------------
