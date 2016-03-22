@@ -37,7 +37,8 @@ class ArchiveTar(object):
             [
                 'tar', '-C', source_dir
             ] + options + [
-                '--xattrs', '-c', '-f', self.filename
+                '--xattrs', '--xattrs-include=*', '-c', '-f',
+                self.filename
             ] + self.__get_archive_items(source_dir, exclude)
         )
 
@@ -48,7 +49,8 @@ class ArchiveTar(object):
             [
                 'tar', '-C', source_dir
             ] + options + [
-                '--xattrs', '-c', '-J', '-f', self.filename + '.xz'
+                '--xattrs', '--xattrs-include=*', '-c', '-J', '-f',
+                self.filename + '.xz'
             ] + self.__get_archive_items(source_dir, exclude)
         )
 

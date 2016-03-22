@@ -27,7 +27,8 @@ class TestArchiveTar(object):
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'source-dir',
-                '--xattrs', '-c', '-f', 'foo.tar', 'foo', 'bar'
+                '--xattrs', '--xattrs-include=*',
+                '-c', '-f', 'foo.tar', 'foo', 'bar'
             ]
         )
 
@@ -37,8 +38,9 @@ class TestArchiveTar(object):
         archive.create('source-dir', ['foo', 'bar'])
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir', '--xattrs', '-c', '-f', 'foo.tar',
-                '.', '--exclude', './foo', '--exclude', './bar'
+                'tar', '-C', 'source-dir', '--xattrs', '--xattrs-include=*',
+                '-c', '-f', 'foo.tar', '.',
+                '--exclude', './foo', '--exclude', './bar'
             ]
         )
 
@@ -50,7 +52,8 @@ class TestArchiveTar(object):
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'source-dir',
-                '--xattrs', '-c', '-J', '-f', 'foo.tar.xz', 'foo', 'bar'
+                '--xattrs', '--xattrs-include=*',
+                '-c', '-J', '-f', 'foo.tar.xz', 'foo', 'bar'
             ]
         )
 
@@ -72,5 +75,8 @@ class TestArchiveTar(object):
         mock_os_dir.return_value = ['foo', 'bar']
         self.archive.create('source-dir', ['foo'])
         mock_command.assert_called_once_with(
-            ['tar', '-C', 'source-dir', '--xattrs', '-c', '-f', 'foo.tar', 'bar']
+            [
+                'tar', '-C', 'source-dir', '--xattrs', '--xattrs-include=*',
+                '-c', '-f', 'foo.tar', 'bar'
+            ]
         )
