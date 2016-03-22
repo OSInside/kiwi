@@ -57,7 +57,7 @@ class TestPartitionerGpt(object):
 
     @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_hybrid_mbr(self, mock_command):
-        self.partitioner.partition_id = 3
+        self.partitioner.partition_id = 5
         self.partitioner.set_hybrid_mbr()
         mock_command.assert_called_once_with(
             ['sgdisk', '-h', '1:2:3', '/dev/loop0']

@@ -162,6 +162,7 @@ class BootImageBase(object):
             'bootprofile',
             'boottimeout',
             'btrfs_root_is_snapshot',
+            'gpt_hybrid_mbr',
             'devicepersistency',
             'filesystem',
             'firmware',

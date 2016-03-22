@@ -90,6 +90,7 @@ class TestProfile(object):
             'kiwi_profiles': '',
             'kiwi_ramonly': None,
             'kiwi_btrfs_root_is_snapshot': None,
+            'kiwi_gpt_hybrid_mbr': None,
             'kiwi_showlicense': None,
             'kiwi_splash_theme': 'openSUSE',
             'kiwi_strip_delete': '',

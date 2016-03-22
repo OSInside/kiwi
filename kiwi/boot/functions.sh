@@ -9361,6 +9361,21 @@ function cleanPartitionTable {
     fi
 }
 #======================================
+# partitionTableType
+#--------------------------------------
+function partitionTableType {
+    # /.../
+    # get partition table type
+    # ----
+    local device=$(getDiskDevice $imageDiskDevice)
+    if ! parted -m -s $device unit s print > /tmp/table;then
+        systemException \
+            "Failed to retrieve current partition table" \
+        "reboot"
+    fi
+    cat /tmp/table | grep ^$device: | cut -f6 -d:
+}
+#======================================
 # preparePartitionTable
 #--------------------------------------
 function preparePartitionTable {
@@ -9369,15 +9384,6 @@ function preparePartitionTable {
     # for a new disk geometry
     # ----
     local IFS=$IFS_ORIG
-    local device=$(getDiskDevice $1)
-    local diskhd
-    local plabel
-    local line
-    local partn
-    local begin
-    local stopp
-    local label
-    local pflag
     #======================================
     # check for hybrid iso
     #--------------------------------------
@@ -9389,19 +9395,11 @@ function preparePartitionTable {
         return
     fi
     #======================================
-    # store a temp copy of the table
-    #--------------------------------------
-    if ! parted -m -s $device unit s print > /tmp/table;then
-        systemException \
-            "Failed to store current partition table" \
-        "reboot"
-    fi
-    #======================================
     # get table type
     #--------------------------------------
-    plabel=$(cat /tmp/table | grep ^$device: | cut -f6 -d:)
+    local plabel=$(partitionTableType)
     #======================================
-    # update table
+    # prepare table
     #--------------------------------------
     if [[ "$plabel" =~ gpt ]];then
         #======================================
@@ -9420,7 +9418,28 @@ function finalizePartitionTable {
     # lost during repartition steps
     # ----
     local IFS=$IFS_ORIG
-    local device=$(getDiskDevice $1)
+    #======================================
+    # activate boot partition
+    #--------------------------------------
+    if [[ $arch =~ i.86|x86_64 ]];then
+        activateBootPartition
+    fi
+    #======================================
+    # get table type
+    #--------------------------------------
+    local plabel=$(partitionTableType)
+    #======================================
+    # finalize table
+    #--------------------------------------
+    if [[ "$plabel" =~ gpt ]];then
+        #======================================
+        # check if GPT needs to be hybrid
+        #--------------------------------------
+        if [ "$kiwi_gpt_hybrid_mbr" = "true" ];then
+            createHybridGPT
+        fi
+    fi
+    return 0
 }
 #======================================
 # resetBootBind
@@ -9541,11 +9560,6 @@ function setupKernelLinks {
 # activateBootPartition
 #--------------------------------------
 function activateBootPartition {
-    if [[ ! $arch =~ i.86|x86_64 ]];then
-        # activation of a partition is only needed on
-        # x86 legacy BIOS implementations
-        return
-    fi
     local IFS=$IFS_ORIG
     local device=$imageBootDevice
     if [ ! -e $device ];then
@@ -9564,23 +9578,36 @@ function activateBootPartition {
 #--------------------------------------
 function relocateGPTAtEndOfDisk {
     local IFS=$IFS_ORIG
-    local device=$1
     local input=/part.input
     if ! lookup gdisk &>/dev/null;then
         Echo "Warning, gdisk tool not found"
         Echo "This could break the resize of the image"
     fi
     rm -f $input
-    if [ ! -e "$device" ];then
-        device=$imageDiskDevice
-    fi
     for cmd in x e w y; do
         echo $cmd >> $input
     done
-    gdisk $device < $input 1>&2
+    gdisk $imageDiskDevice < $input 1>&2
     if [ ! $? = 0 ]; then
         Echo "Failed to write backup GPT at end of disk !"
         Echo "This could break the resize of the image"
+    fi
+}
+#======================================
+# createHybridGPT
+#--------------------------------------
+function createHybridGPT {
+    local IFS=$IFS_ORIG
+    local partition_count=$(
+        sgdisk -p $imageDiskDevice | grep -E '^\s+[0-9]+' | wc -l
+    )
+    if [ $partition_count -gt 3 ]; then
+        # The max number of partitions to embed is 3
+        # see man sgdisk for details
+        partition_count=3
+    fi
+    if ! sgdisk -h $(seq -s : 1 $partition_count) $imageDiskDevice; then
+        Echo "Failed to create hybrid GPT/MBR !"
     fi
 }
 #======================================

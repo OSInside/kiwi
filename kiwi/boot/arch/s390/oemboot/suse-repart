@@ -608,7 +608,7 @@ function OEMRepart {
     #======================================
     # Prepare partition table
     #--------------------------------------
-    preparePartitionTable $imageDiskDevice
+    preparePartitionTable
     #======================================
     # Initialize
     #--------------------------------------
@@ -627,13 +627,9 @@ function OEMRepart {
     fi
     sleep 1
     #======================================
-    # activate boot partition
-    #--------------------------------------
-    activateBootPartition
-    #======================================
     # Finalize partition table
     #--------------------------------------
-    finalizePartitionTable $imageDiskDevice
+    finalizePartitionTable
     #======================================
     # setup luks maps
     #--------------------------------------

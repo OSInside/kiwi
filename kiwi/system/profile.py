@@ -280,6 +280,8 @@ class Profile(object):
             type_section.get_bootloader()
         self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
             type_section.get_btrfs_root_is_snapshot()
+        self.dot_profile['kiwi_gpt_hybrid_mbr'] = \
+            type_section.get_gpt_hybrid_mbr()
         self.dot_profile['kiwi_devicepersistency'] = \
             type_section.get_devicepersistency()
         self.dot_profile['kiwi_installboot'] = \

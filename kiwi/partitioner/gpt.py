@@ -77,7 +77,20 @@ class PartitionerGpt(PartitionerBase):
 
     def set_hybrid_mbr(self):
         partition_ids = []
-        for number in range(1, self.partition_id + 1):
+        partition_number_to_embed = self.partition_id
+        if partition_number_to_embed > 3:
+            # the max number of partitions to embed is 3
+            # for details see man sgdisk
+            log.debug(
+                'maximum number of GPT hybrid MBR partitions is 3, got %d',
+                partition_number_to_embed
+            )
+            partition_number_to_embed = 3
+            log.debug(
+                'reduced GPT hybrid MBR partition count to %d',
+                partition_number_to_embed
+            )
+        for number in range(1, partition_number_to_embed + 1):
             partition_ids.append(format(number))
         Command.run(
             ['sgdisk', '-h', ':'.join(partition_ids), self.disk_device]
