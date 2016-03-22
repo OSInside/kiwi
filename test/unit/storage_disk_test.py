@@ -98,7 +98,7 @@ class TestDisk(object):
         self.partitioner.create.assert_called_once_with(
             'p.UEFI', 100, 't.efi'
         )
-        assert self.disk.partition_id_map['kiwi_JumpPart'] == 1
+        assert self.disk.partition_id_map['kiwi_EfiPart'] == 1
 
     @patch('kiwi.storage.disk.Command.run')
     def test_create_prep_partition(self, mock_command):

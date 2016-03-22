@@ -566,22 +566,22 @@ if [ ! -z "$KIWI_RECOVERY" ];then
     # 15.7) restore boot files 2
     #--------------------------------------
     Echo "Restoring boot configuration archive part (2)..."
-    if [ ! -z "$kiwi_JumpPart" ];then
-        jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
-        umount $jdev &>/dev/null
-        if ! mkdosfs -F16 -I -n 'EFI' $jdev;then
+    if [ ! -z "$kiwi_EfiPart" ];then
+        efidev=$(ddn $imageDiskDevice $kiwi_EfiPart)
+        umount $efidev &>/dev/null
+        if ! mkdosfs -F16 -I -n 'EFI' $efidev;then
             systemException "Failed to create EFI fat filesystem" "reboot"
         fi
         mkdir -p /mnt/boot/efi
-        if ! mount $jdev /mnt/boot/efi;then
+        if ! mount $efidev /mnt/boot/efi;then
             systemException "Failed to mount EFI boot partition" "reboot"
         fi
     fi
     if ! tar -xf /reco-save/boot-2.tgz -C /mnt;then
         systemException "Failed to restore boot configuration" "reboot"
     fi
-    if [ ! -z "$kiwi_JumpPart" ];then
-        umount $jdev
+    if [ ! -z "$kiwi_EfiPart" ];then
+        umount $efidev
     fi
     #======================================
     # 15.8) run post recovery hook

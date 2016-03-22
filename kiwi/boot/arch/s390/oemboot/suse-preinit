@@ -122,12 +122,12 @@ if [ "$LOCAL_BOOT" = "no" ] && [ ! -z "$kiwi_oemrecovery" ];then
         systemException "Failed to tar up recovery boot-1.tgz" "reboot"
     fi
     Echo "Store recovery boot files phase 2)..."
-    if [ ! -z "$kiwi_JumpPart" ];then
-        jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
-        label=$(blkid $jdev -s LABEL -o value)
+    if [ ! -z "$kiwi_EfiPart" ];then
+        efidev=$(ddn $imageDiskDevice $kiwi_EfiPart)
+        label=$(blkid $efidev -s LABEL -o value)
         if [ "$label" = "EFI" ];then
             mkdir -p /boot/efi
-            if ! mountpoint -q /boot/efi && ! mount $jdev /boot/efi;then
+            if ! mountpoint -q /boot/efi && ! mount $efidev /boot/efi;then
                 systemException "Failed to mount EFI boot partition" "reboot"
             fi
         fi

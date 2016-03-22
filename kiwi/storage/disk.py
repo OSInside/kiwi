@@ -106,7 +106,7 @@ class Disk(DeviceProvider):
     def create_efi_partition(self, mbsize):
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
         self.__add_to_map('efi')
-        self.__add_to_id_map('kiwi_JumpPart')
+        self.__add_to_id_map('kiwi_EfiPart')
 
     def activate_boot_partition(self):
         partition_id = None

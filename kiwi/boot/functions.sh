@@ -1109,10 +1109,10 @@ function installBootLoaderS390Grub {
     local active_devs=/boot/zipl/active_devices.txt
     local deviceID=$(cat /sys/firmware/ipl/device)
     #======================================
-    # mount zipl jump partition
+    # mount zipl EFI partition
     #--------------------------------------
-    if [ ! -z "$kiwi_JumpPart" ];then
-        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+    if [ ! -z "$kiwi_EfiPart" ];then
+        local jdev=$(ddn $imageDiskDevice $kiwi_EfiPart)
         local label=$(blkid $jdev -s LABEL -o value)
         if [ "$label" = "ZIPL" ];then
             mkdir -p /boot/zipl
@@ -1202,8 +1202,8 @@ function installBootLoaderGrub2 {
     #======================================
     # check for EFI and mount EFI partition
     #--------------------------------------
-    if [ ! -z "$kiwi_JumpPart" ];then
-        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+    if [ ! -z "$kiwi_EfiPart" ];then
+        local jdev=$(ddn $imageDiskDevice $kiwi_EfiPart)
         local label=$(blkid $jdev -s LABEL -o value)
         if [ "$label" = "EFI" ];then
             mkdir -p /boot/efi
@@ -1395,8 +1395,8 @@ function installBootLoaderGrub2Recovery {
     #======================================
     # check for EFI and mount EFI partition
     #--------------------------------------
-    if [ ! -z "$kiwi_JumpPart" ];then
-        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+    if [ ! -z "$kiwi_EfiPart" ];then
+        local jdev=$(ddn $imageDiskDevice $kiwi_EfiPart)
         local label=$(blkid $jdev -s LABEL -o value)
         if [ "$label" = "EFI" ];then
             mkdir -p /boot/efi
@@ -2354,8 +2354,8 @@ function updateBootDeviceFstab {
     #======================================
     # Store boot/efi entry
     #--------------------------------------
-    if [ ! -z "$kiwi_JumpPart" ];then
-        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+    if [ ! -z "$kiwi_EfiPart" ];then
+        local jdev=$(ddn $imageDiskDevice $kiwi_EfiPart)
         local fstype=$(blkid $jdev -s TYPE -o value)
         local label=$(blkid $jdev -s LABEL -o value)
         if [ ! -z "$fstype" ] && [ "$label" = "EFI" ];then
