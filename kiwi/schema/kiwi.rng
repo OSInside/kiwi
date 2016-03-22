@@ -2126,6 +2126,14 @@ size is set to 200 MB</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
+    <define name="k.type.vbootsize.attribute">
+      <attribute name="vbootsize">
+        <a:documentation>For images with a an extra virtual boot space
+specifies the size in MB. If not set the min vboot
+size is set to 10 MB</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
         <a:documentation>Specifies the boot profile defined in the boot image
@@ -2616,6 +2624,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.target_blocksize"/>
+        </optional>
+        <optional>
+          <ref name="k.type.vbootsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>

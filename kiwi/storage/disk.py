@@ -108,6 +108,11 @@ class Disk(DeviceProvider):
         self.__add_to_map('efi')
         self.__add_to_id_map('kiwi_EfiPart')
 
+    def create_vboot_partition(self, mbsize):
+        self.partitioner.create('p.vboot', mbsize, 't.linux')
+        self.__add_to_map('vboot')
+        self.__add_to_id_map('kiwi_VbootPart')
+
     def activate_boot_partition(self):
         partition_id = None
         if 'prep' in self.partition_id:

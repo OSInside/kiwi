@@ -35,6 +35,7 @@ class FirmWare(object):
     def __init__(self, xml_state):
         self.arch = platform.machine()
         self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
+        self.vboot_mbsize = xml_state.build_type.get_vbootsize()
         self.firmware = xml_state.build_type.get_firmware()
 
         if not self.firmware:
@@ -101,6 +102,12 @@ class FirmWare(object):
         else:
             return False
 
+    def vboot_mode(self):
+        if self.efi_mode() == 'vboot':
+            return True
+        else:
+            return False
+
     def get_legacy_bios_partition_size(self):
         if self.legacy_bios_mode():
             return Defaults.get_default_legacy_bios_mbytes()
@@ -110,6 +117,15 @@ class FirmWare(object):
     def get_efi_partition_size(self):
         if self.efi_mode():
             return Defaults.get_default_efi_boot_mbytes()
+        else:
+            return 0
+
+    def get_vboot_partition_size(self):
+        if self.vboot_mode():
+            if self.vboot_mbsize:
+                return self.vboot_mbsize
+            else:
+                return Defaults.get_default_vboot_mbytes()
         else:
             return 0
 

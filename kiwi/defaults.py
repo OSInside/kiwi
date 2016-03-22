@@ -181,6 +181,10 @@ class Defaults(object):
         return 200
 
     @classmethod
+    def get_default_vboot_mbytes(self):
+        return 10
+
+    @classmethod
     def get_default_efi_boot_mbytes(self):
         return 200
 

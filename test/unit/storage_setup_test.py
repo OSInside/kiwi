@@ -11,40 +11,44 @@ from kiwi.exceptions import *
 from kiwi.storage.setup import DiskSetup
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
-
+from kiwi.defaults import Defaults
 
 class TestDiskSetup(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        size = mock.Mock()
-        size.customize = mock.Mock(
+        self.size = mock.Mock()
+        self.size.customize = mock.Mock(
             return_value=42
         )
-        size.accumulate_mbyte_file_sizes = mock.Mock(
+        self.size.accumulate_mbyte_file_sizes = mock.Mock(
             return_value=42
         )
         kiwi.storage.setup.SystemSize = mock.Mock(
-            return_value=size
+            return_value=self.size
         )
+
         description = XMLDescription(
             '../data/example_disk_size_config.xml'
         )
         self.setup = DiskSetup(
             XMLState(description.load()), 'root_dir'
         )
+
         description = XMLDescription(
             '../data/example_disk_size_volume_config.xml'
         )
         self.setup_volumes = DiskSetup(
             XMLState(description.load()), 'root_dir'
         )
+
         description = XMLDescription(
             '../data/example_disk_size_empty_vol_config.xml'
         )
         self.setup_empty_volumes = DiskSetup(
             XMLState(description.load()), 'root_dir'
         )
+
         description = XMLDescription(
             '../data/example_disk_size_vol_root_config.xml'
         )
@@ -57,6 +61,14 @@ class TestDiskSetup(object):
             '../data/example_ppc_disk_size_config.xml'
         )
         self.setup_ppc = DiskSetup(
+            XMLState(description.load()), 'root_dir'
+        )
+
+        mock_machine.return_value = 'arm64'
+        description = XMLDescription(
+            '../data/example_arm_disk_size_config.xml'
+        )
+        self.setup_arm = DiskSetup(
             XMLState(description.load()), 'root_dir'
         )
 
@@ -99,7 +111,8 @@ class TestDiskSetup(object):
 
     def test_boot_partition_size(self):
         self.setup.bootpart_requested = True
-        assert self.setup.boot_partition_size() == 200
+        assert self.setup.boot_partition_size() == \
+            Defaults.get_default_boot_mbytes()
         self.setup.bootpart_mbytes = 42
         assert self.setup.boot_partition_size() == 42
 
@@ -107,17 +120,35 @@ class TestDiskSetup(object):
         self.setup.configured_size = mock.Mock()
         self.setup.configured_size.additive = False
         self.setup.configured_size.mbytes = 1024
-        assert self.setup.get_disksize_mbytes() == 1024
+        assert self.setup.get_disksize_mbytes() == \
+            self.setup.configured_size.mbytes
 
     def test_get_disksize_mbytes_with_ppc_prep_partition(self):
-        assert self.setup_ppc.get_disksize_mbytes() == 250
+        assert self.setup_ppc.get_disksize_mbytes() == \
+            Defaults.get_default_boot_mbytes() + \
+            Defaults.get_default_prep_mbytes() + \
+            self.size.accumulate_mbyte_file_sizes.return_value
+
+    def test_get_disksize_mbytes_with_vboot_partition(self):
+        configured_vboot_size = 42
+        assert self.setup_arm.get_disksize_mbytes() == \
+            configured_vboot_size + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            self.size.accumulate_mbyte_file_sizes.return_value
 
     def test_get_disksize_mbytes_configured_additive(self):
         self.setup.configured_size = mock.Mock()
         self.setup.build_type_name = 'vmx'
         self.setup.configured_size.additive = True
         self.setup.configured_size.mbytes = 42
-        assert self.setup.get_disksize_mbytes() == 784 + 42
+        root_size = self.size.accumulate_mbyte_file_sizes.return_value
+        assert self.setup.get_disksize_mbytes() == \
+            Defaults.get_default_legacy_bios_mbytes() + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            root_size + 42 + \
+            200 * 1.7
 
     @patch('kiwi.logger.log.warning')
     def test_get_disksize_mbytes_configured(self, mock_log_warn):
@@ -125,24 +156,42 @@ class TestDiskSetup(object):
         self.setup.build_type_name = 'vmx'
         self.setup.configured_size.additive = False
         self.setup.configured_size.mbytes = 42
-        assert self.setup.get_disksize_mbytes() == 42
+        assert self.setup.get_disksize_mbytes() == \
+            self.setup.configured_size.mbytes
         assert mock_log_warn.called
 
     def test_get_disksize_mbytes_empty_volumes(self):
-        assert self.setup_empty_volumes.get_disksize_mbytes() == 444
+        assert self.setup_empty_volumes.get_disksize_mbytes() == \
+            Defaults.get_default_legacy_bios_mbytes() + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            self.size.accumulate_mbyte_file_sizes.return_value
 
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     def test_get_disksize_mbytes_volumes(self, mock_log_warn, mock_exists):
         mock_exists.return_value = True
-        assert self.setup_volumes.get_disksize_mbytes() == 2076
+        root_size = self.size.accumulate_mbyte_file_sizes.return_value
+        assert self.setup_volumes.get_disksize_mbytes() == \
+            Defaults.get_default_legacy_bios_mbytes() + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            root_size + \
+            1024 - root_size + \
+            500 + Defaults.get_min_volume_mbytes() + \
+            30 + Defaults.get_min_volume_mbytes()
         assert mock_log_warn.called
 
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     def test_get_disksize_mbytes_root_volume(self, mock_log_warn, mock_exists):
         mock_exists.return_value = True
-        assert self.setup_root_volume.get_disksize_mbytes() == 444
+        root_size = self.size.accumulate_mbyte_file_sizes.return_value
+        assert self.setup_root_volume.get_disksize_mbytes() == \
+            Defaults.get_default_legacy_bios_mbytes() + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            root_size
         assert mock_log_warn.called
 
     def test_get_boot_label(self):

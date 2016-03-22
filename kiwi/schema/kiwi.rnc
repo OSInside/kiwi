@@ -1619,6 +1619,11 @@ div {
         ## specifies the size in MB. If not set the min bootpart
         ## size is set to 200 MB
         attribute bootpartsize { xsd:nonNegativeInteger }
+    k.type.vbootsize.attribute =
+        ## For images with a an extra virtual boot space
+        ## specifies the size in MB. If not set the min vboot
+        ## size is set to 10 MB
+        attribute vbootsize { xsd:nonNegativeInteger }
     k.type.bootprofile.attribute =
         ## Specifies the boot profile defined in the boot image
         ## description. When kiwi builds the boot image the
@@ -1871,6 +1876,7 @@ div {
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.target_blocksize? &
+        k.type.vbootsize.attribute? &
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &

@@ -100,6 +100,13 @@ class TestDisk(object):
         )
         assert self.disk.partition_id_map['kiwi_EfiPart'] == 1
 
+    def test_create_vboot_partition(self):
+        self.disk.create_vboot_partition(42)
+        self.partitioner.create.assert_called_once_with(
+            'p.vboot', 42, 't.linux'
+        )
+        assert self.disk.partition_id_map['kiwi_VbootPart'] == 1
+
     @patch('kiwi.storage.disk.Command.run')
     def test_create_prep_partition(self, mock_command):
         self.disk.create_prep_partition(8)

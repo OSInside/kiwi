@@ -397,6 +397,12 @@ class DiskBuilder(object):
 
     def __build_and_map_disk_partitions(self):
         self.disk.wipe()
+        if self.firmware.vboot_mode():
+            log.info('--> creating Virtual boot partition')
+            self.disk.create_vboot_partition(
+                self.firmware.get_vboot_partition_size()
+            )
+
         if self.firmware.legacy_bios_mode():
             log.info('--> creating EFI CSM(legacy bios) partition')
             self.disk.create_efi_csm_partition(
