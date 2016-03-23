@@ -85,3 +85,19 @@ class TestPartitioner(object):
         storage_provider = mock.Mock()
         Partitioner('gpt', storage_provider)
         mock_gpt.assert_called_once_with(storage_provider)
+
+    @patch('kiwi.partitioner.PartitionerGpt')
+    @patch('platform.machine')
+    def test_partitioner_arm_gpt(self, mock_machine, mock_gpt):
+        mock_machine.return_value = 'aarch64'
+        storage_provider = mock.Mock()
+        Partitioner('gpt', storage_provider)
+        mock_gpt.assert_called_once_with(storage_provider)
+
+    @patch('kiwi.partitioner.PartitionerMsDos')
+    @patch('platform.machine')
+    def test_partitioner_arm_msdos(self, mock_machine, mock_dos):
+        mock_machine.return_value = 'armv7l'
+        storage_provider = mock.Mock()
+        Partitioner('msdos', storage_provider)
+        mock_dos.assert_called_once_with(storage_provider)

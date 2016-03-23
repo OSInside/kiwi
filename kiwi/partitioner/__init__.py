@@ -33,24 +33,35 @@ class Partitioner(object):
     """
     def __new__(self, table_type, storage_provider):
         host_architecture = platform.machine()
-        if host_architecture == 'x86_64' and table_type == 'gpt':
-            return PartitionerGpt(storage_provider)
-        elif host_architecture == 'x86_64' and table_type == 'msdos':
-            return PartitionerMsDos(storage_provider)
-        elif host_architecture == 'i686' and table_type == 'msdos':
-            return PartitionerMsDos(storage_provider)
-        elif host_architecture == 'i586' and table_type == 'msdos':
-            return PartitionerMsDos(storage_provider)
-        elif host_architecture.startswith('ppc64') and table_type == 'gpt':
-            return PartitionerGpt(storage_provider)
-        elif host_architecture.startswith('ppc64') and table_type == 'msdos':
-            return PartitionerMsDos(storage_provider)
-        elif 's390' in host_architecture and table_type == 'dasd':
-            return PartitionerDasd(storage_provider)
-        elif 's390' in host_architecture and table_type == 'msdos':
-            return PartitionerMsDos(storage_provider)
-        else:
-            raise KiwiPartitionerSetupError(
-                'Support for partitioner on %s architecture not implemented' %
-                host_architecture
-            )
+        if host_architecture == 'x86_64':
+            if table_type == 'gpt':
+                return PartitionerGpt(storage_provider)
+            elif table_type == 'msdos':
+                return PartitionerMsDos(storage_provider)
+
+        elif host_architecture == 'i686' or host_architecture == 'i586':
+            if table_type == 'msdos':
+                return PartitionerMsDos(storage_provider)
+
+        elif 'ppc64' in host_architecture:
+            if table_type == 'gpt':
+                return PartitionerGpt(storage_provider)
+            elif table_type == 'msdos':
+                return PartitionerMsDos(storage_provider)
+
+        elif 's390' in host_architecture:
+            if table_type == 'dasd':
+                return PartitionerDasd(storage_provider)
+            elif table_type == 'msdos':
+                return PartitionerMsDos(storage_provider)
+
+        elif 'arm' in host_architecture or host_architecture == 'aarch64':
+            if table_type == 'gpt':
+                return PartitionerGpt(storage_provider)
+            elif table_type == 'msdos':
+                return PartitionerMsDos(storage_provider)
+
+        raise KiwiPartitionerSetupError(
+            'Support for partitioner on %s architecture not implemented' %
+            host_architecture
+        )
