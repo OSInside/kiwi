@@ -116,6 +116,7 @@ class Defaults(object):
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'efi_gop',
+            'efi_uga',
             'linuxefi'
         ]
         return modules
