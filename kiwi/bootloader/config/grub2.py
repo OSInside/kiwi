@@ -62,7 +62,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
         self.terminal = 'gfxterm'
-        self.gfxmode = self.__get_gfxmode()
+        self.gfxmode = self.get_gfxmode('grub2')
         self.bootpath = self.get_boot_path()
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
@@ -376,15 +376,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '/', format_name
             ]
         )
-
-    def __get_gfxmode(self):
-        gfxmode = Defaults.get_video_mode_map()
-        default_mode = Defaults.get_default_video_mode()
-        requested_gfxmode = self.xml_state.build_type.get_vga()
-        if requested_gfxmode in gfxmode:
-            return gfxmode[requested_gfxmode].grub2
-        else:
-            return gfxmode[default_mode].grub2
 
     def __copy_theme_data_to_boot_directory(self, lookup_path):
         if not lookup_path:

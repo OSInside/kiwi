@@ -47,7 +47,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
                 'host architecture %s not supported for isolinux setup' % arch
             )
 
-        self.gfxmode = self.xml_state.build_type.get_vga()
+        self.gfxmode = self.get_gfxmode('isolinux')
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(

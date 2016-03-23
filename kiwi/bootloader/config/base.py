@@ -229,6 +229,21 @@ class BootLoaderConfigBase(object):
             ]
         )
 
+    def get_gfxmode(self, target):
+        gfxmode = Defaults.get_video_mode_map()
+        default_mode = Defaults.get_default_video_mode()
+        requested_gfxmode = self.xml_state.build_type.get_vga()
+        if requested_gfxmode in gfxmode:
+            if target == 'grub2':
+                return gfxmode[requested_gfxmode].grub2
+            else:
+                return requested_gfxmode
+        else:
+            if target == 'grub2':
+                return gfxmode[default_mode].grub2
+            else:
+                return default_mode
+
     def __get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
         initrd_system = self.xml_state.build_type.get_initrd_system()
