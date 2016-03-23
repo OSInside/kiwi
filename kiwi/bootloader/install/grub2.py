@@ -64,7 +64,9 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
             self.target = 'i386-pc'
             self.install_device = self.device
-            self.modules = ' '.join(Defaults.get_grub_bios_modules())
+            self.modules = ' '.join(
+                Defaults.get_grub_bios_modules(multiboot=True)
+            )
             self.install_arguments = ['--skip-fs-probe']
         elif self.arch.startswith('ppc64'):
             if not custom_args or 'prep_device' not in custom_args:

@@ -326,7 +326,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '-c', early_boot_script,
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
                 '-d', self.__get_efi_modules_path(lookup_path)
-            ] + Defaults.get_grub_efi_modules()
+            ] + Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
         )
 
     def __create_early_boot_script_for_uuid_search(self, filename, uuid):

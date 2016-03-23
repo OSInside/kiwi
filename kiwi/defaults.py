@@ -80,8 +80,8 @@ class Defaults(object):
         return '0x303'
 
     @classmethod
-    def get_grub_basic_modules(self):
-        return [
+    def get_grub_basic_modules(self, multiboot):
+        modules = [
             'ext2',
             'iso9660',
             'linux',
@@ -105,13 +105,15 @@ class Defaults(object):
             'video_fb',
             'xfs',
             'btrfs',
-            'lvm',
-            'multiboot'
+            'lvm'
         ]
+        if multiboot:
+            modules.append('multiboot')
+        return modules
 
     @classmethod
-    def get_grub_efi_modules(self):
-        modules = Defaults.get_grub_basic_modules() + [
+    def get_grub_efi_modules(self, multiboot=False):
+        modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'efi_gop',
             'efi_uga',
@@ -120,8 +122,8 @@ class Defaults(object):
         return modules
 
     @classmethod
-    def get_grub_bios_modules(self):
-        modules = Defaults.get_grub_basic_modules() + [
+    def get_grub_bios_modules(self, multiboot=False):
+        modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'part_msdos',
             'biosdisk',
@@ -134,28 +136,9 @@ class Defaults(object):
 
     @classmethod
     def get_grub_ofw_modules(self):
-        modules = [
+        modules = Defaults.get_grub_basic_modules(multiboot=False) + [
             'part_gpt',
             'part_msdos',
-            'ext2',
-            'iso9660',
-            'linux',
-            'echo',
-            'configfile',
-            'search_label',
-            'search_fs_file',
-            'search',
-            'search_fs_uuid',
-            'ls',
-            'normal',
-            'gzio',
-            'fat',
-            'gettext',
-            'font',
-            'minicmd',
-            'xfs',
-            'btrfs',
-            'lvm',
             'boot'
         ]
         return modules

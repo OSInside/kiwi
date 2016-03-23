@@ -120,7 +120,9 @@ class TestBootLoaderInstallGrub2(object):
                 '--directory', 'tmp_root/usr/lib/grub2/i386-pc',
                 '--boot-directory', 'tmp_boot',
                 '--target', 'i386-pc',
-                '--modules', ' '.join(Defaults.get_grub_bios_modules()),
+                '--modules', ' '.join(
+                    Defaults.get_grub_bios_modules(multiboot=True)
+                ),
                 '/dev/some-device'
             ]
         )
@@ -136,7 +138,9 @@ class TestBootLoaderInstallGrub2(object):
                 '--directory', 'tmp_root/usr/lib/grub2/i386-pc',
                 '--boot-directory', 'tmp_root/boot',
                 '--target', 'i386-pc',
-                '--modules', ' '.join(Defaults.get_grub_bios_modules()),
+                '--modules', ' '.join(
+                    Defaults.get_grub_bios_modules(multiboot=True)
+                ),
                 '/dev/some-device'
             ])
 
@@ -198,7 +202,9 @@ class TestBootLoaderInstallGrub2(object):
                 '--directory', 'tmp_root/usr/lib/grub2/i386-pc',
                 '--boot-directory', 'tmp_root/boot',
                 '--target', 'i386-pc',
-                '--modules', ' '.join(Defaults.get_grub_bios_modules()),
+                '--modules', ' '.join(
+                    Defaults.get_grub_bios_modules(multiboot=True)
+                ),
                 '/dev/some-device'
             ]),
             call([
