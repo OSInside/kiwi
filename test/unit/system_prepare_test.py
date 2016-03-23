@@ -25,7 +25,10 @@ class TestSystemPrepare(object):
     @patch('kiwi.system.prepare.RootInit')
     @patch('kiwi.system.prepare.RootBind')
     def setup(self, mock_root_bind, mock_root_init):
-        description = XMLDescription('../data/example_config.xml')
+        description = XMLDescription(
+            description='../data/example_config.xml',
+            derived_from='derived/description'
+        )
         self.xml = description.load()
 
         self.manager = mock.MagicMock(
@@ -185,7 +188,11 @@ class TestSystemPrepare(object):
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     @patch('kiwi.system.prepare.ArchiveTar')
-    def test_install_bootstrap(self, mock_tar, mock_poll, mock_collection_type):
+    @patch('os.path.exists')
+    def test_install_bootstrap(
+        self, mock_exists, mock_tar, mock_poll, mock_collection_type
+    ):
+        mock_exists.return_value = True
         tar = mock.Mock()
         tar.extract = mock.Mock()
         mock_tar.return_value = tar
@@ -209,10 +216,27 @@ class TestSystemPrepare(object):
         mock_tar.assert_called_once_with('../data/bootstrap.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
+    @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
+    @patch('os.path.exists')
+    def test_install_bootstrap_archive_from_derived_description(
+        self, mock_exists, mock_tar, mock_poll, mock_collection_type
+    ):
+        mock_exists.return_value = False
+        self.system.install_bootstrap(self.manager)
+        mock_tar.assert_called_once_with(
+            'derived/description/bootstrap.tgz'
+        )
+
     @patch('kiwi.xml_state.XMLState.get_system_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     @patch('kiwi.system.prepare.ArchiveTar')
-    def test_install_system(self, mock_tar, mock_poll, mock_collection_type):
+    @patch('os.path.exists')
+    def test_install_system(
+        self, mock_exists, mock_tar, mock_poll, mock_collection_type
+    ):
+        mock_exists.return_value = True
         tar = mock.Mock()
         tar.extract = mock.Mock()
         mock_tar.return_value = tar

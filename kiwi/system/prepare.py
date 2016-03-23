@@ -303,9 +303,18 @@ class SystemPrepare(object):
         log.info("Installing archives")
         for archive in archive_list:
             log.info("--> archive: %s", archive)
-            tar = ArchiveTar(
-                self.xml_state.xml_data.description_dir + '/' + archive
+            description_dir = \
+                self.xml_state.xml_data.description_dir
+            derived_description_dir = \
+                self.xml_state.xml_data.derived_description_dir
+            archive_file = '/'.join(
+                [description_dir, archive]
             )
+            if not os.path.exists(archive_file) and derived_description_dir:
+                archive_file = '/'.join(
+                    [derived_description_dir, archive]
+                )
+            tar = ArchiveTar(archive_file)
             tar.extract(self.root_bind.root_dir)
 
     def __setup_requests(

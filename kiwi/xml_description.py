@@ -39,9 +39,10 @@ class XMLDescription(object):
         - Schema Validation based on RelaxNG schema
         - Loading XML data into internal data structures
     """
-    def __init__(self, description):
+    def __init__(self, description, derived_from=None):
         self.description_xslt_processed = NamedTemporaryFile()
         self.description = description
+        self.derived_from = derived_from
 
     def load(self):
         self.__xsltproc()
@@ -73,7 +74,10 @@ class XMLDescription(object):
             parse = xml_parse.parse(
                 self.description_xslt_processed.name, True
             )
-            parse.description_dir = os.path.dirname(self.description)
+            parse.description_dir = os.path.dirname(
+                self.description
+            )
+            parse.derived_description_dir = self.derived_from
             return parse
         except Exception as e:
             raise KiwiDataStructureError(

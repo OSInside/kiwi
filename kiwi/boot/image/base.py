@@ -90,7 +90,8 @@ class BootImageBase(object):
                 boot_description_directory
             )
         boot_description = XMLDescription(
-            boot_config_file
+            description=boot_config_file,
+            derived_from=self.xml_state.xml_data.description_dir
         )
 
         boot_image_profile = self.xml_state.build_type.get_bootprofile()
