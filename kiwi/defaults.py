@@ -210,12 +210,14 @@ class Defaults(object):
             'x86_64': ['efi', 'uefi', 'bios', 'ec2hvm', 'ec2'],
             'i586': ['bios'],
             'i686': ['bios'],
-            'aarch64': ['vboot'],
-            'arm64': ['vboot'],
-            'armv5el': ['vboot'],
-            'armv5tel': ['vboot'],
-            'armv6l': ['vboot'],
-            'armv7l': ['vboot'],
+            'aarch64': ['efi', 'uefi', 'vboot'],
+            'arm64': ['efi', 'uefi', 'vboot'],
+            'armv5el': ['efi', 'uefi', 'vboot'],
+            'armv5tel': ['efi', 'uefi', 'vboot'],
+            'armv6hl': ['efi', 'uefi', 'vboot'],
+            'armv6l': ['efi', 'uefi', 'vboot'],
+            'armv7hl': ['efi', 'uefi', 'vboot'],
+            'armv7l': ['efi', 'uefi', 'vboot'],
             'ppc': ['ofw'],
             'ppc64': ['ofw', 'opal'],
             'ppc64le': ['ofw', 'opal'],
@@ -231,7 +233,14 @@ class Defaults(object):
             'i686': 'bios',
             'ppc': 'ofw',
             'ppc64': 'ofw',
-            'ppc64le': 'ofw'
+            'ppc64le': 'ofw',
+            'arm64': 'efi',
+            'armv5el': 'efi',
+            'armv5tel': 'efi',
+            'armv6hl': 'efi',
+            'armv6l': 'efi',
+            'armv7hl': 'efi',
+            'armv7l': 'efi'
         }
         if arch in default_firmware:
             return default_firmware[arch]
