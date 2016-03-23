@@ -1019,6 +1019,7 @@ function installBootLoader {
     # ----
     local IFS=$IFS_ORIG
     local arch=$(uname -m)
+    runHook preInstallBootLoader
     case $arch-$loader in
         i*86-grub2)      installBootLoaderGrub2 ;;
         s390*-grub2)     installBootLoaderGrub2 ;;
@@ -1063,6 +1064,7 @@ function installBootLoader {
             echo "skiped writing MBR ID for $arch"
             ;;
     esac
+    runHook postInstallBootLoader
 }
 #======================================
 # installBootLoaderRecovery
@@ -1607,6 +1609,7 @@ function setupBootLoader {
         para="$para '$arg'"
         shift
     done
+    runHook preSetupBootLoader
     case $arch-$loader in
         i*86-grub2)      eval setupBootLoaderGrub2 $para ;;
         x86_64-grub2)    eval setupBootLoaderGrub2 $para ;;
@@ -1621,6 +1624,7 @@ function setupBootLoader {
         "reboot"
     esac
     setupBootThemes "/config"
+    runHook postSetupBootLoader
 }
 #======================================
 # setupBootThemes
