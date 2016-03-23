@@ -321,7 +321,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
                 'btrfs', 'lvm', 'multiboot', 'part_gpt', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'linuxefi'
             ])
         ]
 
@@ -378,7 +378,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
                 'btrfs', 'lvm', 'part_gpt', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'linuxefi'
             ])
         ]
         mock_sync.assert_called_once_with(
@@ -488,7 +488,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
                 'btrfs', 'lvm', 'part_gpt', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'linuxefi'
             ]),
             call([
                 'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'
