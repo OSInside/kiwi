@@ -14,6 +14,7 @@
     </preferences>
     <profiles>
         <profile name="default" description="Booting default setup"/>
+        <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
         <profile name="std" description="KERNEL: Default"/>
     </profiles>
     <drivers>
@@ -82,6 +83,7 @@
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
     </packages>
+    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
         <package name="kbd"/>
         <package name="gptfdisk"/>
