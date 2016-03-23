@@ -113,12 +113,16 @@ class Defaults(object):
 
     @classmethod
     def get_grub_efi_modules(self, multiboot=False):
+        host_architecture = platform.machine()
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
-            'efi_gop',
-            'efi_uga',
-            'linuxefi'
+            'efi_gop'
         ]
+        if host_architecture == 'x86_64':
+            modules += [
+                'efi_uga',
+                'linuxefi'
+            ]
         return modules
 
     @classmethod
