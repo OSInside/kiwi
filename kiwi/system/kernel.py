@@ -42,7 +42,9 @@ class Kernel(object):
         for kernel_name in self.kernel_names:
             kernel_file = self.root_dir + '/boot/' + kernel_name
             if os.path.exists(kernel_file):
-                version = Command.run(['kversion', kernel_file]).output
+                version = Command.run(
+                    command=['kversion', kernel_file], raise_on_error=False
+                ).output
                 if not version:
                     version = 'no-version-found'
                 version = version.rstrip('\n')

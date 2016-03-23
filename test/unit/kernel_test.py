@@ -26,7 +26,8 @@ class TestKernel(object):
         mock_run.return_value = result
         data = self.kernel.get_kernel()
         mock_run.assert_called_once_with(
-            ['kversion', 'root-dir/boot/vmlinux']
+            command=['kversion', 'root-dir/boot/vmlinux'],
+            raise_on_error=False
         )
         assert data.filename == 'root-dir/boot/vmlinux'
         assert data.version == '42'
@@ -42,7 +43,8 @@ class TestKernel(object):
         mock_run.return_value = result
         data = self.kernel.get_kernel()
         mock_run.assert_called_once_with(
-            ['kversion', 'root-dir/boot/vmlinux']
+            command=['kversion', 'root-dir/boot/vmlinux'],
+            raise_on_error=False
         )
         assert data.filename == 'root-dir/boot/vmlinux'
         assert data.version == 'no-version-found'
