@@ -264,10 +264,12 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
     @patch('builtins.open')
+    @patch('platform.machine')
     @raises(KiwiBootLoaderGrubModulesError)
     def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
-        self, mock_open, mock_exists, mock_command
+        self, mock_machine, mock_open, mock_exists, mock_command
     ):
+        mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'

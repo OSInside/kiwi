@@ -142,7 +142,11 @@ class TestBootLoaderInstallGrub2(object):
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
-    def test_install_secure_boot(self, mock_mount_manager, mock_command):
+    @patch('platform.machine')
+    def test_install_secure_boot(
+        self, mock_machine, mock_mount_manager, mock_command
+    ):
+        mock_machine.return_value = 'x86_64'
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
