@@ -61,37 +61,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'root device name required for grub2 installation'
             )
 
-        if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
-            self.target = 'i386-pc'
-            self.install_device = self.device
-            self.modules = ' '.join(
-                Defaults.get_grub_bios_modules(multiboot=True)
-            )
-            self.install_arguments = ['--skip-fs-probe']
-        elif self.arch.startswith('ppc64'):
-            if not custom_args or 'prep_device' not in custom_args:
-                raise KiwiBootLoaderGrubInstallError(
-                    'prep device name required for grub2 installation on ppc'
-                )
-            self.target = 'powerpc-ieee1275'
-            self.install_device = custom_args['prep_device']
-            self.modules = ' '.join(Defaults.get_grub_ofw_modules())
-            self.install_arguments = ['--skip-fs-probe', '--no-nvram']
-        else:
-            raise KiwiBootLoaderGrubPlatformError(
-                'host architecture %s not supported for grub2 install' %
-                self.arch
-            )
-
-        self.root_mount = MountManager(
-            device=custom_args['root_device']
-        )
-        self.boot_mount = MountManager(
-            device=custom_args['boot_device'],
-            mountpoint=self.root_mount.mountpoint + '/boot'
-        )
-        self.modules_dir = '/usr/lib/grub2/' + self.target
-
     def install_required(self):
         if 'ppc64' in self.arch and self.firmware.opal_mode():
             # OPAL doesn't need a grub2 stage1, just a config file.
@@ -100,8 +69,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'No grub boot code installation in opal mode on %s', self.arch
             )
             return False
-        elif self.arch == 'aarch64' or self.arch.startswith('arm'):
-            # On arm64 grub2 is used for EFI setup only, no install
+        elif 'arm' in self.arch or self.arch == 'aarch64':
+            # On arm grub2 is used for EFI setup only, no install
             # of grub2 boot code makes sense
             log.info(
                 'No grub boot code installation on %s', self.arch
@@ -114,6 +83,37 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             install bootloader on disk device
         """
         log.info('Installing grub2 on disk %s', self.device)
+
+        if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
+            self.target = 'i386-pc'
+            self.install_device = self.device
+            self.modules = ' '.join(
+                Defaults.get_grub_bios_modules(multiboot=True)
+            )
+            self.install_arguments = ['--skip-fs-probe']
+        elif self.arch.startswith('ppc64'):
+            if not self.custom_args or 'prep_device' not in self.custom_args:
+                raise KiwiBootLoaderGrubInstallError(
+                    'prep device name required for grub2 installation on ppc'
+                )
+            self.target = 'powerpc-ieee1275'
+            self.install_device = self.custom_args['prep_device']
+            self.modules = ' '.join(Defaults.get_grub_ofw_modules())
+            self.install_arguments = ['--skip-fs-probe', '--no-nvram']
+        else:
+            raise KiwiBootLoaderGrubPlatformError(
+                'host architecture %s not supported for grub2 install' %
+                self.arch
+            )
+
+        self.root_mount = MountManager(
+            device=self.custom_args['root_device']
+        )
+        self.boot_mount = MountManager(
+            device=self.custom_args['boot_device'],
+            mountpoint=self.root_mount.mountpoint + '/boot'
+        )
+        self.modules_dir = '/usr/lib/grub2/' + self.target
 
         if not self.root_mount.device == self.boot_mount.device:
             self.root_mount.mount()
