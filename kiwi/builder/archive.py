@@ -41,7 +41,7 @@ class ArchiveBuilder(object):
         self.requested_archive_type = xml_state.get_build_type_name()
         self.result = Result(xml_state)
         self.system_setup = SystemSetup(
-            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
+            xml_state=xml_state, root_dir=self.root_dir
         )
         self.filename = self.__target_file_for('tar.xz')
         self.checksum = self.__target_file_for('md5')

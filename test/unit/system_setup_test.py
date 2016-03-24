@@ -28,15 +28,16 @@ class TestSystemSetup(object):
         self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
+        self.xml_state.xml_data.description_dir = 'description_dir'
         self.setup = SystemSetup(
-            self.xml_state, 'description_dir', 'root_dir'
+            self.xml_state, 'root_dir'
         )
         description = XMLDescription(
             description='../data/example_config.xml',
             derived_from='derived/description'
         )
         self.setup_with_real_xml = SystemSetup(
-            XMLState(description.load()), 'description_dir', 'root_dir'
+            XMLState(description.load()), 'root_dir'
         )
         command_run = namedtuple(
             'command', ['output', 'error', 'returncode']
@@ -51,7 +52,7 @@ class TestSystemSetup(object):
     def test_setup_ix86(self, mock_machine):
         mock_machine.return_value = 'i686'
         setup = SystemSetup(
-            mock.MagicMock(), 'description_dir', 'root_dir'
+            mock.MagicMock(), 'root_dir'
         )
         assert setup.arch == 'ix86'
 
@@ -63,18 +64,18 @@ class TestSystemSetup(object):
         self.setup_with_real_xml.import_description()
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
-            call(['cp', 'description_dir/image.tgz', 'root_dir/image/']),
-            call(['cp', 'description_dir/bootstrap.tgz', 'root_dir/image/']),
+            call(['cp', '../data/image.tgz', 'root_dir/image/']),
+            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/']),
             call([
-                'cp', 'description_dir/my_edit_boot_script',
+                'cp', '../data/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'
             ]),
             call([
-                'cp', 'description_dir/my_edit_boot_install',
+                'cp', '../data/my_edit_boot_install',
                 'root_dir/image/edit_boot_install.sh'
             ]),
-            call(['cp', 'description_dir/config.sh', 'root_dir/image/']),
-            call(['cp', 'description_dir/images.sh', 'root_dir/image/']),
+            call(['cp', '../data/config.sh', 'root_dir/image/']),
+            call(['cp', '../data/images.sh', 'root_dir/image/']),
             call([
                 'cp', Defaults.project_file('config/functions.sh'),
                 'root_dir/.kconfig'
@@ -105,15 +106,15 @@ class TestSystemSetup(object):
                 'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
             ]),
             call([
-                'cp', 'description_dir/my_edit_boot_script',
+                'cp', '../data/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'
             ]),
             call([
-                'cp', 'description_dir/my_edit_boot_install',
+                'cp', '../data/my_edit_boot_install',
                 'root_dir/image/edit_boot_install.sh'
             ]),
-            call(['cp', 'description_dir/config.sh', 'root_dir/image/']),
-            call(['cp', 'description_dir/images.sh', 'root_dir/image/']),
+            call(['cp', '../data/config.sh', 'root_dir/image/']),
+            call(['cp', '../data/images.sh', 'root_dir/image/']),
             call([
                 'cp', Defaults.project_file('config/functions.sh'),
                 'root_dir/.kconfig'

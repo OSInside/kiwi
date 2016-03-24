@@ -127,9 +127,7 @@ class SystemBuildTask(CliTask):
         defaults.to_profile(profile)
 
         setup = SystemSetup(
-            self.xml_state,
-            self.command_args['--description'],
-            image_root
+            self.xml_state, image_root
         )
         setup.import_shell_environment(profile)
 

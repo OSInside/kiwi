@@ -68,7 +68,6 @@ class SystemCreateTask(CliTask):
 
         setup = SystemSetup(
             xml_state=self.xml_state,
-            description_dir=self.command_args['--root'],
             root_dir=self.command_args['--root']
         )
         setup.call_image_script()

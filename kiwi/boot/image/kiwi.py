@@ -66,9 +66,7 @@ class BootImageKiwi(BootImageBase):
         defaults.to_profile(profile)
 
         setup = SystemSetup(
-            self.boot_xml_state,
-            self.get_boot_description_directory(),
-            self.boot_root_directory
+            self.boot_xml_state, self.boot_root_directory
         )
         setup.import_shell_environment(profile)
         setup.import_description()

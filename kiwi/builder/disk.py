@@ -87,7 +87,7 @@ class DiskBuilder(object):
             xml_state
         )
         self.system_setup = SystemSetup(
-            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
+            xml_state=xml_state, root_dir=self.root_dir
         )
         self.diskname = ''.join(
             [

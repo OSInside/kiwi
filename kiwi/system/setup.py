@@ -46,12 +46,13 @@ class SystemSetup(object):
         a minimal work environment inside of the image according to
         the desired image type.
     """
-    def __init__(self, xml_state, description_dir, root_dir):
+    def __init__(self, xml_state, root_dir):
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
             self.arch = 'ix86'
         self.xml_state = xml_state
-        self.description_dir = description_dir
+        self.description_dir = \
+            xml_state.xml_data.description_dir
         self.derived_description_dir = \
             xml_state.xml_data.derived_description_dir
         self.root_dir = root_dir

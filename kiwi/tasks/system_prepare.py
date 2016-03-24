@@ -121,9 +121,7 @@ class SystemPrepareTask(CliTask):
         defaults.to_profile(profile)
 
         setup = SystemSetup(
-            self.xml_state,
-            self.command_args['--description'],
-            self.command_args['--root']
+            self.xml_state, self.command_args['--root']
         )
         setup.import_shell_environment(profile)
 

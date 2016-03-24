@@ -49,7 +49,7 @@ class PxeBuilder(object):
             xml_state, target_dir, root_dir
         )
         self.system_setup = SystemSetup(
-            xml_state=xml_state, description_dir=None, root_dir=root_dir
+            xml_state=xml_state, root_dir=root_dir
         )
         self.boot_image_task = BootImage(
             xml_state, target_dir

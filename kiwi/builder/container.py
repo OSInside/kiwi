@@ -35,7 +35,7 @@ class ContainerBuilder(object):
         self.requested_container_name = xml_state.build_type.get_container()
         self.requested_container_type = xml_state.get_build_type_name()
         self.system_setup = SystemSetup(
-            xml_state=xml_state, description_dir=None, root_dir=self.root_dir
+            xml_state=xml_state, root_dir=self.root_dir
         )
         self.filename = ''.join(
             [
