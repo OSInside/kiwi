@@ -60,6 +60,8 @@ class TestSystemSetup(object):
         self.setup_with_real_xml.import_description()
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
+            call(['cp', 'description_dir/image.tgz', 'root_dir/image/']),
+            call(['cp', 'description_dir/bootstrap.tgz', 'root_dir/image/']),
             call([
                 'cp', 'description_dir/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'
@@ -79,8 +81,25 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
-    @raises(KiwiScriptFailed)
+    @raises(KiwiImportDescriptionError)
     def test_import_description_configured_editboot_scripts_not_found(
+        self, mock_path, mock_open, mock_command
+    ):
+        path_return_values = [False, True, True]
+
+        def side_effect(arg):
+            return path_return_values.pop()
+
+        mock_path.side_effect = side_effect
+
+        mock_path.return_value = False
+        self.setup_with_real_xml.import_description()
+
+    @patch('kiwi.command.Command.run')
+    @patch('builtins.open')
+    @patch('os.path.exists')
+    @raises(KiwiImportDescriptionError)
+    def test_import_description_configured_archives_not_found(
         self, mock_path, mock_open, mock_command
     ):
         mock_path.return_value = False

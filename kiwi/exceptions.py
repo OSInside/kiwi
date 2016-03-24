@@ -173,6 +173,10 @@ class KiwiHelpNoCommandGiven(KiwiError):
     pass
 
 
+class KiwiImportDescriptionError(KiwiError):
+    pass
+
+
 class KiwiInstallBootImageError(KiwiError):
     pass
 
