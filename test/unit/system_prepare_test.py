@@ -216,6 +216,19 @@ class TestSystemPrepare(object):
         mock_tar.assert_called_once_with('../data/bootstrap.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
+    @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
+    @patch('os.path.exists')
+    def test_install_bootstrap_archive_from_derived_description(
+        self, mock_exists, mock_tar, mock_poll, mock_collection_type
+    ):
+        mock_exists.return_value = False
+        self.system.install_bootstrap(self.manager)
+        mock_tar.assert_called_once_with(
+            'derived/description/bootstrap.tgz'
+        )
+
     @patch('kiwi.xml_state.XMLState.get_system_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     @patch('kiwi.system.prepare.ArchiveTar')
