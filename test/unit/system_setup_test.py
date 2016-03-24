@@ -31,7 +31,10 @@ class TestSystemSetup(object):
         self.setup = SystemSetup(
             self.xml_state, 'description_dir', 'root_dir'
         )
-        description = XMLDescription('../data/example_config.xml')
+        description = XMLDescription(
+            description='../data/example_config.xml',
+            derived_from='derived/description'
+        )
         self.setup_with_real_xml = SystemSetup(
             XMLState(description.load()), 'description_dir', 'root_dir'
         )
@@ -62,6 +65,45 @@ class TestSystemSetup(object):
             call(['mkdir', '-p', 'root_dir/image']),
             call(['cp', 'description_dir/image.tgz', 'root_dir/image/']),
             call(['cp', 'description_dir/bootstrap.tgz', 'root_dir/image/']),
+            call([
+                'cp', 'description_dir/my_edit_boot_script',
+                'root_dir/image/edit_boot_config.sh'
+            ]),
+            call([
+                'cp', 'description_dir/my_edit_boot_install',
+                'root_dir/image/edit_boot_install.sh'
+            ]),
+            call(['cp', 'description_dir/config.sh', 'root_dir/image/']),
+            call(['cp', 'description_dir/images.sh', 'root_dir/image/']),
+            call([
+                'cp', Defaults.project_file('config/functions.sh'),
+                'root_dir/.kconfig'
+            ])
+        ]
+
+    @patch('kiwi.command.Command.run')
+    @patch('builtins.open')
+    @patch('os.path.exists')
+    def test_import_description_from_derived(
+        self, mock_path, mock_open, mock_command
+    ):
+        path_return_values = [
+            True, True, True, True, True, True, False, True, False
+        ]
+
+        def side_effect(arg):
+            return path_return_values.pop()
+
+        mock_path.side_effect = side_effect
+        self.setup_with_real_xml.import_description()
+        assert mock_command.call_args_list == [
+            call(['mkdir', '-p', 'root_dir/image']),
+            call([
+                'cp', 'derived/description/image.tgz', 'root_dir/image/'
+            ]),
+            call([
+                'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
+            ]),
             call([
                 'cp', 'description_dir/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'

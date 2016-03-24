@@ -52,6 +52,8 @@ class SystemSetup(object):
             self.arch = 'ix86'
         self.xml_state = xml_state
         self.description_dir = description_dir
+        self.derived_description_dir = \
+            xml_state.xml_data.derived_description_dir
         self.root_dir = root_dir
         self.__preferences_lookup()
         self.__oemconfig_lookup()
@@ -94,7 +96,12 @@ class SystemSetup(object):
             archive_list += bootstrap_archives
         for archive in archive_list:
             archive_file = self.description_dir + '/' + archive
-            if os.path.exists(archive_file):
+            archive_exists = os.path.exists(archive_file)
+            if not archive_exists and self.derived_description_dir:
+                archive_file = self.derived_description_dir + '/' + archive
+                archive_exists = os.path.exists(archive_file)
+
+            if archive_exists:
                 log.info(
                     '--> Importing %s archive as %s',
                     archive_file, 'image/' + archive
