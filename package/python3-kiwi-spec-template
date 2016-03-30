@@ -55,7 +55,6 @@ Requires:       parted
 Requires:       multipath-tools
 Requires:       squashfs
 Requires:       grub2
-Requires:       syslinux
 Requires:       mtools
 %ifarch %arm aarch64
 Requires:       u-boot-tools
