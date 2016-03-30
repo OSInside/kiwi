@@ -37,6 +37,8 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Provides:       kiwi-packagemanager:yum
+Provides:       kiwi-packagemanager:zypper
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
