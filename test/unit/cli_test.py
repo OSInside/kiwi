@@ -17,6 +17,7 @@ class TestCli(object):
             'system': True,
             '-h': False,
             '--logfile': None,
+            '--color-output': False,
             '<legacy_args>': [],
             '--version': False,
             '--debug': False,

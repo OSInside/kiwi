@@ -1,5 +1,6 @@
 
 from mock import patch
+from mock import call
 from collections import namedtuple
 
 from .test_helper import *
@@ -113,6 +114,15 @@ class TestLogger(object):
     def test_set_logfile(self, mock_file_handler):
         log.set_logfile('logfile')
         mock_file_handler.assert_called_once_with('logfile')
+
+    @patch('kiwi.logger.ColorFormatter')
+    def test_set_color_format(self, mock_color_format):
+        log.set_color_format()
+        assert mock_color_format.call_args_list == [
+            call('$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s', '%H:%M:%S'),
+            call('$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s', '%H:%M:%S'),
+            call('$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s', '%H:%M:%S')
+        ]
 
     @raises(KiwiLogFileSetupFailed)
     @patch('logging.FileHandler')

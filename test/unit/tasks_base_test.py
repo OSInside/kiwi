@@ -18,14 +18,17 @@ class TestCliTask(object):
     @patch('configparser.ConfigParser.has_section')
     @patch('kiwi.logger.log.setLogLevel')
     @patch('kiwi.logger.log.set_logfile')
+    @patch('kiwi.logger.log.set_color_format')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
     def setup(
-        self, mock_help, mock_setlog, mock_setlevel, mock_section, mock_isfile
+        self, mock_help, mock_color, mock_setlog, mock_setlevel,
+        mock_section, mock_isfile
     ):
         sys.argv = [
             sys.argv[0],
             '--debug',
             '--logfile', 'log',
+            '--color-output',
             '--profile', 'vmxFlavour',
             'system',
             'prepare',
@@ -37,6 +40,7 @@ class TestCliTask(object):
         mock_help.assert_called_once_with()
         mock_setlevel.assert_called_once_with(logging.DEBUG)
         mock_setlog.assert_called_once_with('log')
+        mock_color.assert_called_once_with()
 
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]

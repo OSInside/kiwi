@@ -138,25 +138,29 @@ class Logger(logging.Logger):
     """
     def __init__(self, name):
         logging.Logger.__init__(self, name)
-        self.console_handlers = []
+        self.console_handlers = {}
         # log INFO to stdout
         self.__add_stream_handler(
+            'info',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [InfoFilter(), LoggerSchedulerFilter()]
         )
         # log WARNING messages to stdout
         self.__add_stream_handler(
-            '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
+            'warning',
+            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [WarningFilter()]
         )
         # log DEBUG messages to stdout
         self.__add_stream_handler(
-            '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
+            'debug',
+            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [DebugFilter()]
         )
         # log ERROR messages to stderr
         self.__add_stream_handler(
-            '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
+            'error',
+            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [ErrorFilter()],
             sys.__stderr__
         )
@@ -170,8 +174,23 @@ class Logger(logging.Logger):
             set custom log level for all console handlers
         """
         self.log_level = level
-        for handler in self.console_handlers:
-            handler.setLevel(level)
+        for handler_type in self.console_handlers:
+            self.console_handlers[handler_type].setLevel(level)
+
+    def set_color_format(self):
+        for handler_type in self.console_handlers:
+            message_format = None
+            if handler_type == 'debug':
+                message_format = \
+                    '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s'
+            elif handler_type == 'warning' or handler_type == 'error':
+                message_format = \
+                    '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s'
+
+            if message_format:
+                self.console_handlers[handler_type].setFormatter(
+                    ColorFormatter(message_format, '%H:%M:%S')
+                )
 
     def set_logfile(self, filename):
         try:
@@ -210,16 +229,17 @@ class Logger(logging.Logger):
         sys.stdout.flush()
 
     def __add_stream_handler(
-        self, message_format, message_filter, channel=sys.__stdout__
+        self, handler_type, message_format, message_filter,
+        channel=sys.__stdout__
     ):
         handler = logging.StreamHandler(channel)
         handler.setFormatter(
-            ColorFormatter(message_format, '%H:%M:%S')
+            logging.Formatter(message_format, '%H:%M:%S')
         )
         for rule in message_filter:
             handler.addFilter(rule)
         self.addHandler(handler)
-        self.console_handlers.append(handler)
+        self.console_handlers[handler_type] = handler
 
 
 def init():

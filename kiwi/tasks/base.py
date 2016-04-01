@@ -64,6 +64,9 @@ class CliTask(object):
                     self.global_args['--logfile']
                 )
 
+            if self.global_args['--color-output']:
+                log.set_color_format()
+
     def load_xml_description(self, description_directory):
         from ..logger import log
 

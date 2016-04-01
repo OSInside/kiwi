@@ -18,10 +18,13 @@
 """
 usage: kiwi -h | --help
        kiwi result <command> [<args>...]
+           [--debug]
+           [--color-output]
        kiwi [--profile=<name>...]
-            [--type=<build_type>]
-            [--logfile=<filename>]
-            [--debug]
+           [--type=<build_type>]
+           [--logfile=<filename>]
+           [--debug]
+           [--color-output]
            system <command> [<args>...]
        kiwi --compat <legacy_args>...
        kiwi -v | --version
