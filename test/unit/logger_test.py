@@ -118,10 +118,19 @@ class TestLogger(object):
     @patch('kiwi.logger.ColorFormatter')
     def test_set_color_format(self, mock_color_format):
         log.set_color_format()
-        assert mock_color_format.call_args_list == [
-            call('$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s', '%H:%M:%S'),
-            call('$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s', '%H:%M:%S'),
-            call('$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s', '%H:%M:%S')
+        assert sorted(mock_color_format.call_args_list) == [
+            call(
+                '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
+                '%H:%M:%S'
+            ),
+            call(
+                '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
+                '%H:%M:%S'
+            ),
+            call(
+                '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
+                '%H:%M:%S'
+            )
         ]
 
     @raises(KiwiLogFileSetupFailed)
