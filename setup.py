@@ -33,6 +33,7 @@ config = {
        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
        'Operating System :: POSIX :: Linux',
        'Programming Language :: Python :: 3.4',
+       'Programming Language :: Python :: 3.5',
        'Topic :: System :: Operating System',
     ],
 }
