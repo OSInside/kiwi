@@ -2109,8 +2109,12 @@ EOF
     #======================================
     # write etc/default/grub_installdevice
     #--------------------------------------
+    local grub_install_device=$diskByID
+    if [ ! -z "$kiwi_OfwGrub" ];then
+        grub_install_device=$(ddn $imageDiskDevice $kiwi_OfwGrub)
+    fi
 cat > $inst_default_grubdev << EOF
-$diskByID
+$grub_install_device
 EOF
     #======================================
     # write boot/grub2/device.map
