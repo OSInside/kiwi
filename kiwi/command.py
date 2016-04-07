@@ -83,25 +83,8 @@ class Command(object):
             Execute a program and return an io file handle pair back.
             stdout and stderr are both on different channels. The caller
             must read from the output file handles in order to actually
-            run the command. This can be done as follows:
-
-            cmd = Command.call(...)
-
-            errors = ''
-            while cmd.process.poll() is None:
-                while cmd.output_available():
-                    data = cmd.output.readline()
-                    if not data:
-                        break
-                    print data
-                while cmd.error_available():
-                    error = cmd.error.readline()
-                    if not error:
-                        break
-                    errors += error
-
-            if cmd.process.returncode != 0:
-                print 'something failed: %s' % errors
+            run the command. This can be done using the CommandIterator
+            from command_process
         """
         from .logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
