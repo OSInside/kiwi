@@ -6,12 +6,34 @@
 import sys
 import os
 
+# autodoc imports all from kiwi, thus we need the global log
+from kiwi import logger
+
+logger.init()
+
 extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinxcontrib.spelling',
+    'sphinx.ext.autodoc'
 ]
 
+docopt_ignore = [
+    'kiwi.cli',
+    'kiwi.tasks.system_build',
+    'kiwi.tasks.system_prepare',
+    'kiwi.tasks.system_update',
+    'kiwi.tasks.system_create',
+    'kiwi.tasks.result_list',
+    'kiwi.tasks.result_bundle'
+]
+
+def remove_module_docstring(app, what, name, obj, options, lines):
+    if what == "module" and name in docopt_ignore:
+        del lines[:]
+
+def setup(app):
+    app.connect("autodoc-process-docstring", remove_module_docstring)
 
 spelling_lang = 'en_US'
 spelling_show_suggestions = True

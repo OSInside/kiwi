@@ -7,3 +7,4 @@ KIWI Appliance Builder manual
    :maxdepth: 1
 
    manual/kiwi
+   api/kiwi
