@@ -1,23 +1,18 @@
-kiwi
-====
+KIWI Manual Pages
+=================
 
 SYNOPSIS
 --------
 
-*kiwi* [global-options] *system* <command> [<args>...]
+.. program-output:: kiwi-py3
 
-*kiwi* *result* <command> [<args>...]
-
-*kiwi* --compat <legacy_args>...
-
-*kiwi* -v | --version
 
 DESCRIPTION
 -----------
 
 KIWI is an imaging solution that is based on an image XML description.
 Such a description is represented by a directory which includes at least
-one config.xml or .kiwi file and may as well include other files like
+one :file:`config.xml` or :file:`.kiwi` file and may as well include other files like
 scripts or configuration data.
 
 A collection of example image descriptions can be found on the github
@@ -49,48 +44,6 @@ KIWI supports the creation of the following image types:
 Depending on the image type a variety of different disk formats and
 architectures are supported.
 
-EXAMPLE
--------
-
-.. code-block:: bash
-
-   $ git clone https://github.com/SUSE/kiwi-descriptions
-
-   $ kiwi --type vmx system build \
-       --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
-       --target-dir /tmp/myimage
-
-COMMANDS
---------
-
-- *result* list
-
-    List build results. See *kiwi::result::list* manual page for further
-    details
-
-- *system* prepare
-
-    Prepare image root system below a given directory.
-    See *kiwi::system::prepare* manual page for further details
-
-- *system* create
-
-    Create image from a previous prepare or build command. See
-    *kiwi::system::build* manual page for further details
-
-- *system* build
-
-    Build image in one step. This command combines the prepare and create
-    steps to build one image target. See *kiwi::system::build* manual page
-    for further details
-
-- *system* update
-
-    Update image root system with latest updates according to the
-    configured repositories. The update command also allows to remove
-    or install new packages. See *kiwi::system::update* manual page for
-    further details
-
 GLOBAL OPTIONS
 --------------
 
@@ -110,16 +63,47 @@ GLOBAL OPTIONS
   Specify log file. the logfile contains detailed information about
   the process.
 
+--compat
+
+  Support legacy kiwi commandline, see COMPATIBILITY section for details
+
 --debug
 
   Print debug information on the commandline
 
+--version
+
+  Show program version
+
+EXAMPLE
+-------
+
+.. code-block:: bash
+
+   $ git clone https://github.com/SUSE/kiwi-descriptions
+
+   $ kiwi --type vmx system build \
+       --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+       --target-dir /tmp/myimage
+
+SERVICES and COMMANDS
+---------------------
+
+.. toctree::
+
+   result_list
+   result_bundle
+   system_prepare
+   system_create
+   system_update
+   system_build
+
 COMPATIBILITY
 -------------
 
-This version of kiwi uses a different caller syntax compared to
+This version of KIWI uses a different caller syntax compared to
 former versions. However there is a compatibility mode which allows
-to use a legacy kiwi commandline as follows:
+to use a legacy KIWI commandline as follows:
 
 .. code-block:: bash
 

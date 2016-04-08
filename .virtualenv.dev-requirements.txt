@@ -33,8 +33,13 @@ flake8
 # http://pythonhosted.org/generateDS
 generateDS==2.9a
 
-# For Python2 -> 3 transition
-six
+# for building documentation
+sphinx
+sphinx_rtd_theme
+sphinxcontrib-programoutput
+sphinxcontrib-spelling
+pyenchant
+
 
 # for test coverage
 coverage

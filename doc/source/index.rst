@@ -1,25 +1,10 @@
-.. kiwi documentation master file, created by
-   sphinx-quickstart on Fri Feb  5 11:03:18 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. kiwi documentation master file
 
-Welcome to kiwi's documentation!
-================================
+KIWI Appliance Builder Manual
+=============================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   kiwi
-   result_list
-   result_bundle
-   system_prepare
-   system_create
-   system_update
-   system_build
-
-Indices and tables
-==================
-
-.. * :ref:`genindex`
-   * :ref:`modindex`
-   * :ref:`search`
+   manual/kiwi
+   api/kiwi

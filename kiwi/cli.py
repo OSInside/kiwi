@@ -72,7 +72,22 @@ from .help import Help
 
 class Cli(object):
     """
-        Commandline interface
+    Implements the main command line interface
+
+    An instance of the Cli class builds the entry point for the
+    application and implements methods to load further command plugins
+    which itself provides their own command line interface
+
+    Attributes
+
+    * :attr:`all_args`
+        docopt parse result, all arguments dict
+
+    * :attr:`command_args`
+        subset of docopt argument dict for selected command
+
+    * :attr:`command_loaded`
+        result of importlib command load operation
     """
     def __init__(self):
         self.all_args = docopt(
@@ -84,12 +99,21 @@ class Cli(object):
         self.command_loaded = None
 
     def show_and_exit_on_help_request(self):
+        """
+        Execute man to show the selected manual page
+        """
         if self.all_args['help']:
             manual = Help()
             manual.show('kiwi')
             sys.exit(0)
 
     def get_servicename(self):
+        """
+        Extract service name from argument parse result
+
+        :return: service name
+        :rtype: string
+        """
         if self.all_args['system']:
             return 'system'
         elif self.all_args['result']:
@@ -102,6 +126,11 @@ class Cli(object):
             )
 
     def invoke_kiwicompat(self, compat_args):
+        """
+        Execute kiwicompat with provided command line arguments
+
+        :param list compat_args: raw arguments
+        """
         kiwicompat = '/usr/bin/kiwicompat'
         if not os.path.exists(kiwicompat):
             raise KiwiCompatError('%s not found' % kiwicompat)
@@ -113,12 +142,30 @@ class Cli(object):
             )
 
     def get_command(self):
+        """
+        Extract selected command name
+
+        :return: command name
+        :rtype: string
+        """
         return self.all_args['<command>']
 
     def get_command_args(self):
+        """
+        Extract argument dict for selected command
+
+        :return: command arguments
+        :rtype: dict
+        """
         return self.__load_command_args()
 
     def get_global_args(self):
+        """
+        Extract argument dict for global arguments
+
+        :return: global arguments
+        :rtype: dict
+        """
         result = {}
         for arg, value in list(self.all_args.items()):
             if not arg == '<command>' and not arg == '<args>':
@@ -126,6 +173,9 @@ class Cli(object):
         return result
 
     def load_command(self):
+        """
+        Loads task class plugin according to service and command name
+        """
         command = self.get_command()
         service = self.get_servicename()
         if service == 'compat':
