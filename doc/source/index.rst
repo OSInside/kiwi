@@ -1,6 +1,6 @@
 .. kiwi documentation master file
 
-KIWI Appliance Builder manual
+KIWI Appliance Builder Manual
 =============================
 
 .. toctree::

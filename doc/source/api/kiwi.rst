@@ -1,5 +1,5 @@
-kiwi package
-============
+KIWI API Documentation
+======================
 
 Subpackages
 -----------

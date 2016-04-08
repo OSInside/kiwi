@@ -35,8 +35,11 @@ generateDS==2.9a
 
 # for building documentation
 sphinx
+sphinx_rtd_theme
+sphinxcontrib-programoutput
 sphinxcontrib-spelling
 pyenchant
+
 
 # for test coverage
 coverage
