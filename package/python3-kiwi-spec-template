@@ -121,7 +121,6 @@ Summary:        KIWI - PXE boot structure
 Requires:       syslinux
 License:        GPL-2.0+
 Group:          System/Management
-BuildArch:      noarch
 
 %description -n kiwi-pxeboot
 This package contains the basic PXE directory structure which is
