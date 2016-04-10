@@ -21,7 +21,10 @@ from .tasks.base import CliTask
 
 class App(object):
     """
-        Application class to create task instances and process them
+    Implements creation of task instances
+
+    Each task class implements a process method which is called
+    when constructing an instance of App
     """
     def __init__(self):
         app = CliTask(should_perform_task_setup=False)

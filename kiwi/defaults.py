@@ -24,7 +24,13 @@ from .version import __githash__
 
 class Defaults(object):
     """
-        Default values and export methods
+    Default values and export methods
+
+    * :attr:`defaults`
+        dict of default profile values
+
+    * :attr:`profile_key_list`
+        list of profile keys to import into an instance of Profile
     """
     def __init__(self):
         self.defaults = {
@@ -52,6 +58,15 @@ class Defaults(object):
 
     @classmethod
     def get_video_mode_map(self):
+        """
+        Implements video mode map
+
+        Assign a tuple to each kernel vesa hex id for each of the
+        supported bootloaders
+
+        :return: video type map
+        :rtype: dict
+        """
         video_type = namedtuple(
             'video_type', ['grub2']
         )
@@ -76,11 +91,24 @@ class Defaults(object):
 
     @classmethod
     def get_default_video_mode(self):
-        # 800x600 default video mode
+        """
+        Implements 800x600 default video mode
+
+        :return: video mode name
+        :rtype: string
+        """
         return '0x303'
 
     @classmethod
     def get_grub_basic_modules(self, multiboot):
+        """
+        Implements list of basic grub modules
+
+        :param bool multiboot: grub multiboot mode
+
+        :return: module name
+        :rtype: string
+        """
         modules = [
             'ext2',
             'iso9660',
@@ -113,6 +141,14 @@ class Defaults(object):
 
     @classmethod
     def get_grub_efi_modules(self, multiboot=False):
+        """
+        Implements list of grub efi modules
+
+        :param bool multiboot: grub multiboot mode
+
+        :return: module name
+        :rtype: string
+        """
         host_architecture = platform.machine()
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
@@ -127,6 +163,14 @@ class Defaults(object):
 
     @classmethod
     def get_grub_bios_modules(self, multiboot=False):
+        """
+        Implements list of grub bios modules
+
+        :param bool multiboot: grub multiboot mode
+
+        :return: module name
+        :rtype: string
+        """
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'part_msdos',
@@ -140,6 +184,12 @@ class Defaults(object):
 
     @classmethod
     def get_grub_ofw_modules(self):
+        """
+        Implements list of grub ofw modules (ppc)
+
+        :return: module name
+        :rtype: string
+        """
         modules = Defaults.get_grub_basic_modules(multiboot=False) + [
             'part_gpt',
             'part_msdos',
@@ -149,50 +199,122 @@ class Defaults(object):
 
     @classmethod
     def get_preparer(self):
+        """
+        Implements ISO preparer name
+
+        :return: name
+        :rtype: string
+        """
         return 'KIWI - http://suse.github.com/kiwi'
 
     @classmethod
     def get_publisher(self):
+        """
+        Implements ISO publisher name
+
+        :return: name
+        :rtype: string
+        """
         return 'SUSE LINUX GmbH'
 
     @classmethod
     def get_default_volume_group_name(self):
+        """
+        Implements default LVM volume group name
+
+        :return: name
+        :rtype: string
+        """
         return 'systemVG'
 
     @classmethod
     def get_min_volume_mbytes(self):
+        """
+        Implements default minimum LVM volume size in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 30
 
     @classmethod
     def get_default_boot_mbytes(self):
+        """
+        Implements default boot partition size in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 200
 
     @classmethod
     def get_default_vboot_mbytes(self):
+        """
+        Implements default virtual partition size in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 10
 
     @classmethod
     def get_default_efi_boot_mbytes(self):
+        """
+        Implements default EFI partition size in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 200
 
     @classmethod
     def get_recovery_spare_mbytes(self):
+        """
+        Implements spare size of recovery partition in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 300
 
     @classmethod
     def get_default_legacy_bios_mbytes(self):
+        """
+        Implements default size of bios_grub partition in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 2
 
     @classmethod
     def get_default_prep_mbytes(self):
+        """
+        Implements default size of prep partition in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
         return 8
 
     @classmethod
     def get_disk_format_types(self):
+        """
+        Implements supported disk format types
+
+        :return: disk types
+        :rtype: list
+        """
         return ['gce', 'qcow2', 'vmdk', 'vhd', 'vhdfixed']
 
     @classmethod
     def get_firmware_types(self):
+        """
+        Implements supported architecture specific firmware types
+
+        :return: firmware types
+        :rtype: dict
+        """
         return {
             'x86_64': ['efi', 'uefi', 'bios', 'ec2hvm', 'ec2'],
             'i586': ['bios'],
@@ -214,6 +336,14 @@ class Defaults(object):
 
     @classmethod
     def get_default_firmware(self, arch):
+        """
+        Implements default firmware for specified architecture
+
+        :param string arch: platform.machine
+
+        :return: firmware
+        :rtype: string
+        """
         default_firmware = {
             'x86_64': 'bios',
             'i586': 'bios',
@@ -234,14 +364,39 @@ class Defaults(object):
 
     @classmethod
     def get_efi_capable_firmware_names(self):
+        """
+        Implements list of EFI capable firmware names. These are
+        those for which kiwi supports the creation of an EFI
+        bootable disk image
+
+        :return: firmware names
+        :rtype: list
+        """
         return ['efi', 'uefi', 'vboot']
 
     @classmethod
     def get_ec2_capable_firmware_names(self):
+        """
+        Implements list of EC2 capable firmware names. These are
+        those for which kiwi supports the creation of disk images
+        bootable within the Amazon EC2 public cloud
+
+        :return: firmware names
+        :rtype: list
+        """
         return ['ec2', 'ec2hvm']
 
     @classmethod
     def get_efi_module_directory_name(self, arch):
+        """
+        Implements architecture specific EFI directory name which
+        stores the EFI binaries for the desired architecture.
+
+        :param string arch: platform.machine
+
+        :return: directory name
+        :rtype: string
+        """
         default_module_directory_names = {
             'x86_64': 'x86_64-efi',
 
@@ -262,6 +417,14 @@ class Defaults(object):
 
     @classmethod
     def get_efi_image_name(self, arch):
+        """
+        Implements architecture specific EFI boot binary name
+
+        :param string arch: platform.machine
+
+        :return: name
+        :rtype: string
+        """
         default_efi_image_names = {
             'x86_64': 'bootx64.efi',
             'aarch64': 'bootaa64.efi',
@@ -276,22 +439,53 @@ class Defaults(object):
 
     @classmethod
     def get_default_boot_timeout_seconds(self):
+        """
+        Implements default boot timeout in seconds
+
+        :return: seconds
+        :rtype: int
+        """
         return 10
 
     @classmethod
     def get_default_inode_size(self):
+        """
+        Implements default size of inodes in bytes. This is only
+        relevant for inode based filesystems
+
+        :return: bytesize
+        :rtype: int
+        """
         return 256
 
     @classmethod
     def get_archive_image_types(self):
+        """
+        Implements list of supported archive image types
+
+        :return: archive names
+        :rtype: list
+        """
         return ['tbz']
 
     @classmethod
     def get_container_image_types(self):
+        """
+        Implements list of supported container image types
+
+        :return: container names
+        :rtype: list
+        """
         return ['docker', 'aci']
 
     @classmethod
     def get_filesystem_image_types(self):
+        """
+        Implements list of supported filesystem image types
+
+        :return: filesystem names
+        :rtype: list
+        """
         return [
             'ext2', 'ext3', 'ext4', 'btrfs', 'squashfs',
             'xfs', 'fat16', 'fat32'
@@ -299,6 +493,12 @@ class Defaults(object):
 
     @classmethod
     def get_live_iso_types(self):
+        """
+        Implements list of supported live ISO image types
+
+        :return: live iso names
+        :rtype: list
+        """
         return {
             'overlay': 'squashfs',
             'clic': 'clicfs'
@@ -306,6 +506,16 @@ class Defaults(object):
 
     @classmethod
     def get_live_iso_client_parameters(self):
+        """
+        Implements parameters to setup the overlay filesystem used
+        for the live ISO image. Each supported overlay filesystem
+        needs the information about the target block device, the
+        copy on write device and the used kernel union filesystem
+        name
+
+        :return: union client parameters
+        :rtype: dict
+        """
         return {
             'overlay': ['loop', 'tmpfs', 'overlay'],
             'clic': ['/dev/ram1', '/dev/ram1', 'clicfs']
@@ -313,49 +523,131 @@ class Defaults(object):
 
     @classmethod
     def get_default_live_iso_type(self):
+        """
+        Implements default live iso union type
+
+        :return: live iso type
+        :rtype: string
+        """
         return 'overlay'
 
     @classmethod
     def get_disk_image_types(self):
+        """
+        Implements supported disk image types
+
+        :return: disk image type names
+        :rtype: list
+        """
         return ['oem', 'vmx']
 
     @classmethod
     def get_live_image_types(self):
+        """
+        Implements supported live image types
+
+        :return: live image type names
+        :rtype: list
+        """
         return ['iso']
 
     @classmethod
     def get_network_image_types(self):
+        """
+        Implements supported pxe image types
+
+        :return: pxe image type names
+        :rtype: list
+        """
         return ['pxe']
 
     @classmethod
     def get_boot_image_description_path(self):
+        """
+        Implements bootloader path for ISO images
+
+        :return: directory path
+        :rtype: string
+        """
         return Defaults.project_file('boot/arch/' + platform.machine())
 
     @classmethod
     def get_boot_image_strip_file(self):
+        """
+        Implements file path to bootloader strip metadata.
+        This file contains information about the files and directories
+        automatically striped out from the kiwi initrd
+
+        :return: file path
+        :rtype: string
+        """
         return Defaults.project_file('config/strip.xml')
 
     @classmethod
     def get_schema_file(self):
+        """
+        Implements file path to kiwi RNG schema
+
+        :return: file path
+        :rtype: string
+        """
         return Defaults.project_file('schema/kiwi.rng')
 
     @classmethod
     def get_common_functions_file(self):
+        """
+        Implements file path to bootloader functions metadata.
+        This file contains bash functions used in the boot code
+        from the kiwi initrd
+
+        :return: file path
+        :rtype: string
+        """
         return Defaults.project_file('config/functions.sh')
 
     @classmethod
     def get_xsl_stylesheet_file(self):
+        """
+        Implements file path to kiwi XSLT style sheets
+
+        :return: file path
+        :rtype: string
+        """
         return Defaults.project_file('xsl/master.xsl')
 
     @classmethod
     def project_file(self, filename):
+        """
+        Implements python module base directory search path
+        The method uses the resource_filename method to identify
+        files and directories from the application
+
+        :param string filename: relative project file
+
+        :return: full qualified filename
+        :rtype: string
+        """
         return resource_filename('kiwi', filename)
 
     def get(self, key):
+        """
+        Implements get method for profile elements
+
+        :param string key: profile keyname
+
+        :return: key value
+        :rtype: string
+        """
         if key in self.defaults:
             return self.defaults[key]
 
     def to_profile(self, profile):
+        """
+        Implements method to add list of profile keys and their values
+        to the specified instance of a Profile class
+
+        :param object profile: Profile instance
+        """
         for key in sorted(self.profile_key_list):
             profile.add(key, self.get(key))
 

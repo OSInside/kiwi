@@ -26,8 +26,10 @@ from .exceptions import (
 
 class CommandProcess(object):
     """
-        Implements processing of non blocking Command calls
-        with and without progress information
+    Implements processing of non blocking Command calls
+
+    Provides methods to iterate over non blocking instances of
+    the Command class with and without progress information
     """
     def __init__(self, command, log_topic='system'):
         self.command = CommandIterator(command)
@@ -35,6 +37,9 @@ class CommandProcess(object):
         self.items_processed = 0
 
     def poll(self):
+        """
+        Iterate over process, raise on error and log output
+        """
         try:
             while True:
                 line = next(self.command)
@@ -47,6 +52,13 @@ class CommandProcess(object):
                 )
 
     def poll_show_progress(self, items_to_complete, match_method):
+        """
+        Iterate over process and show progress in percent
+        raise on error and log output
+
+        :param list items_to_complete: all items
+        :param function match_method: method matching item
+        """
         self.__init_progress()
         try:
             while True:
@@ -64,6 +76,10 @@ class CommandProcess(object):
                 )
 
     def poll_and_watch(self):
+        """
+        Iterate over process don't raise on error and log
+        stdout and stderr
+        """
         log.info(self.log_topic)
         log.debug('--------------out start-------------')
         try:
@@ -89,8 +105,10 @@ class CommandProcess(object):
 
     def create_match_method(self, method):
         """
-            create a matcher method with the following interface
-            f(item_to_match, data)
+        create a matcher method with the following interface
+        f(item_to_match, data)
+
+        :param function method: f(item_to_match, data)
         """
         def create_method(item_to_match, data):
             return method(item_to_match, data)

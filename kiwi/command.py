@@ -26,16 +26,29 @@ from .exceptions import KiwiCommandError
 
 class Command(object):
     """
-        Implements command invocation
+    Implements command invocation
+
+    An instance of Command provides methods to invoke external
+    commands in blocking and non blocking mode. Control of
+    stdout and stderr is given to the caller
     """
     @classmethod
     def run(self, command, custom_env=None, raise_on_error=True):
         """
-            Execute a program and block the caller. The return value
-            is a hash containing the stdout, stderr and return code
-            information. Unless raise_on_error is set to false an
-            exception is thrown if the command exits with an error
-            code not equal to zero
+        Execute a program and block the caller. The return value
+        is a hash containing the stdout, stderr and return code
+        information. Unless raise_on_error is set to false an
+        exception is thrown if the command exits with an error
+        code not equal to zero
+
+        :param list command: command and arguments
+        :param list custom_env: custom os.environ
+        :param bool raise_on_error: control error behaviour
+
+        :return: (string).output
+        :return: (string).error
+        :return: (int).returncode
+        :rtype: tuple
         """
         from .logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
@@ -80,11 +93,19 @@ class Command(object):
     @classmethod
     def call(self, command, custom_env=None):
         """
-            Execute a program and return an io file handle pair back.
-            stdout and stderr are both on different channels. The caller
-            must read from the output file handles in order to actually
-            run the command. This can be done using the CommandIterator
-            from command_process
+        Execute a program and return an io file handle pair back.
+        stdout and stderr are both on different channels. The caller
+        must read from the output file handles in order to actually
+        run the command. This can be done using the CommandIterator
+        from command_process
+
+        :param list command: command and arguments
+        :param list custom_env: custom os.environ
+
+        :return: (string).output
+        :return: (string).error
+        :return: (subprocess).process
+        :rtype: tuple
         """
         from .logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
