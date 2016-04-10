@@ -151,14 +151,6 @@ kiwi.xml_description module
     :undoc-members:
     :show-inheritance:
 
-kiwi.xml_parse module
----------------------
-
-.. automodule:: kiwi.xml_parse
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 kiwi.xml_state module
 ---------------------
 
