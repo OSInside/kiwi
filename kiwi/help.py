@@ -22,9 +22,20 @@ from .exceptions import KiwiHelpNoCommandGiven
 
 class Help(object):
     """
-        Implements man page help for kiwi commands
+    Implements man page help for kiwi commands
+
+    Each kiwi command implements their own manual page, which is
+    shown if the positional argument 'help' is passed to the
+    command.
     """
     def show(self, command=None):
+        """
+        Call man to show the command specific manual page
+
+        All kiwi commands store their manual page in the section '2'
+        of the man system. The calling process is replaced by the
+        man process
+        """
         if not command:
             raise KiwiHelpNoCommandGiven("No help context specified")
         subprocess.call('man 2 ' + command, shell=True)

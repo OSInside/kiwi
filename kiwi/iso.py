@@ -34,7 +34,36 @@ from .exceptions import (
 
 class Iso(object):
     """
-        Implements helper methods around the creation of an iso filesystem
+    Implements helper methods around the creation of ISO filesystems
+
+    Attributes
+
+    * :attr:`arch`
+        system architecture
+
+    * :attr:`header_id`
+        static identifier string for self written headers
+
+    * :attr:`header_end_name`
+        file name to store the header_id to
+
+    * :attr:`header_end_name`
+        file name to store the header_id to
+
+    * :attr:`header_end_file`
+        full file path for the header_end_name file
+
+    * :attr:`boot_path`
+        architecture specific boot path on the ISO
+
+    * :attr:`iso_sortfile`
+        named temporary file used as ISO sortfile
+
+    * :attr:`iso_parameters`
+        list of ISO creation parameters
+
+    * :attr:`iso_loaders`
+        list of ISO loaders to embed
     """
     def __init__(self, source_dir):
         self.arch = platform.machine()
@@ -51,6 +80,17 @@ class Iso(object):
 
     @classmethod
     def create_hybrid(self, offset, mbrid, isofile):
+        """
+        Create hybrid ISO
+
+        A hybrid ISO embeds both, an isolinux signature as well as a
+        disk signature. kiwi always adds an msdos and a GPT table for
+        the disk signatures
+
+        :param string offset: hex offset
+        :param string mbrid: boot record id
+        :param string isofile: path to the ISO file
+        """
         Command.run(
             [
                 'isohybrid',
@@ -63,6 +103,14 @@ class Iso(object):
 
     @classmethod
     def relocate_boot_catalog(self, isofile):
+        """
+        Move ISO boot catalog to the standardized place
+
+        Check location of the boot catalog and move it to the place where
+        all BIOS and firwmare implementations expects it
+
+        :param string isofile: path to the ISO file
+        """
         iso_metadata = Iso.__read_iso_metadata(isofile)
         Iso.__validate_iso_metadata(iso_metadata)
         with open(isofile, 'rb+') as iso:
@@ -110,6 +158,14 @@ class Iso(object):
 
     @classmethod
     def fix_boot_catalog(self, isofile):
+        """
+        Fixup inconsistencies in boot catalog
+
+        Make sure all catalog entries are in correct order and provide
+        complete metadata information e.g catalog name
+
+        :param string isofile: path to the ISO file
+        """
         iso_metadata = Iso.__read_iso_metadata(isofile)
         Iso.__validate_iso_metadata(iso_metadata)
         boot_catalog = iso_metadata.boot_catalog
@@ -162,13 +218,16 @@ class Iso(object):
 
     def init_iso_creation_parameters(self, custom_args=None):
         """
-            create a set of standard parameters for the main isolinux loader
-            In addition a sort file with the contents of the iso is created.
-            The kiwi iso file is also prepared to become a hybrid iso image.
-            In order to do this the offest address of the end of the first iso
-            block is required. In order to lookup the address a reference file
-            named 'header_end' is created and will show up as last file in
-            the block.
+        Create a set of standard parameters for the main isolinux loader
+
+        In addition a sort file with the contents of the iso is created.
+        The kiwi iso file is also prepared to become a hybrid iso image.
+        In order to do this the offest address of the end of the first iso
+        block is required. In order to lookup the address a reference file
+        named 'header_end' is created and will show up as last file in
+        the block.
+
+        :param list custom_args: custom ISO creation args
         """
         loader_file = self.boot_path + '/loader/isolinux.bin'
         catalog_file = self.boot_path + '/boot.catalog'
@@ -200,6 +259,16 @@ class Iso(object):
         self.__create_sortfile()
 
     def add_efi_loader_parameters(self):
+        """
+        Add ISO creation parameters to embed the EFI loader
+
+        In order to boot the ISO from EFI, the EFI binary is added as
+        alternative loader to the ISO creation parameter list. The
+        EFI binary must be included into a fat filesystem in order
+        to become recognized by the firmware. For details about this
+        file refer to __create_embedded_fat_efi_image() from
+        bootloader/config/grub2.py
+        """
         loader_file = self.boot_path + '/efi'
         if os.path.exists(self.source_dir + '/' + loader_file):
             self.iso_loaders += [
@@ -208,9 +277,26 @@ class Iso(object):
             ]
 
     def get_iso_creation_parameters(self):
+        """
+        Return current list of ISO creation parameters
+
+        :return: genisoimage args
+        :rtype: list
+        """
         return self.iso_parameters + self.iso_loaders
 
     def create_header_end_block(self, isofile):
+        """
+        Find offset address of file containing the header_id and
+        replace it by a list of 2k blocks in range 0 - offset + 1
+        This is the required preparation to support hybrid ISO
+        images, meaning to let isohybrid work correctly
+
+        :param string isofile: path to the ISO file
+
+        :return: 512 byte blocks offset address
+        :rtype: int
+        """
         file_count = 0
         offset = 0
         found_id = False
@@ -245,6 +331,14 @@ class Iso(object):
             return offset * 4
 
     def isols(self, isofile):
+        """
+        List contents of an ISO image
+
+        :param string isofile: path to the ISO file
+
+        :return: formatted isoinfo result
+        :rtype: dict
+        """
         listing_type = namedtuple(
             'listing_type', ['name', 'filetype', 'start']
         )

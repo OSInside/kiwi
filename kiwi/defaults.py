@@ -26,6 +26,8 @@ class Defaults(object):
     """
     Default values and export methods
 
+    Attributes
+
     * :attr:`defaults`
         dict of default profile values
 

@@ -19,8 +19,14 @@
 
 class KiwiError(Exception):
     """
-        Base class to handle all known exceptions. Specific exceptions
-        are sub classes of this base class
+    Base class to handle all known exceptions.
+
+    Specific exceptions are implemented as sub classes of KiwiError
+
+    Attributes
+
+    * :attr:`message`
+        Exception message text
     """
     def __init__(self, message):
         self.message = message

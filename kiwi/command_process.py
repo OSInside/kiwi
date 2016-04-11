@@ -146,6 +146,9 @@ class CommandProcess(object):
 
 
 class CommandIterator(object):
+    """
+    Implements Iterator for Instances of Command
+    """
     def __init__(self, command):
         self.command = command
         self.command_error_output = b''
@@ -179,15 +182,36 @@ class CommandIterator(object):
         return line_read
 
     def get_error_output(self):
+        """
+        Provide data sent to stderr channel
+
+        :return: stderr data
+        :rtype: string
+        """
         return self.command_error_output.decode()
 
     def get_error_code(self):
+        """
+        Provide return value from processed command
+
+        :return: errorcode
+        :rtype: int
+        """
         return self.command.process.returncode
 
     def get_pid(self):
+        """
+        Provide process ID of command while running
+
+        :return: pid
+        :rtype: int
+        """
         return self.command.process.pid
 
     def kill(self):
+        """
+        Send kill signal SIGTERM to command process
+        """
         self.command.process.kill()
 
     def __iter__(self):

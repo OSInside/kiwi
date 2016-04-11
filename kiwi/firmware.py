@@ -28,9 +28,25 @@ from .exceptions import (
 
 class FirmWare(object):
     """
-        According to the selected firmware some parameters in a disk
-        image changes. This class provides methods to provide firmware
-        dependent information
+    Implements firmware specific image information
+
+    According to the selected firmware some parameters in a disk
+    image changes. This class provides methods to provide firmware
+    dependant information
+
+    Attributes
+
+    * :attr:`arch`
+        machine architecture
+
+    * :attr:`zipl_target_type`
+        XML configured zipl target type
+
+    * :attr:`vboot_mbsize`
+        XML configured virtual boot partition size
+
+    * :attr:`firmware`
+        XML configured firmware name
     """
     def __init__(self, xml_state):
         self.arch = platform.machine()
@@ -50,6 +66,12 @@ class FirmWare(object):
                 )
 
     def get_partition_table_type(self):
+        """
+        Partition table type according to architecture and firmware
+
+        :return: partition table name
+        :rtype: string
+        """
         if 's390' in self.arch:
             if self.zipl_target_type and 'LDL' in self.zipl_target_type:
                 return 'dasd'
@@ -68,6 +90,11 @@ class FirmWare(object):
             return 'msdos'
 
     def legacy_bios_mode(self):
+        """
+        Check if the legacy boot from BIOS systems should be activated
+
+        :rtype: bool
+        """
         if self.get_partition_table_type() == 'gpt':
             if self.arch == 'x86_64' or re.match('i.86', self.arch):
                 return True
@@ -77,50 +104,101 @@ class FirmWare(object):
             return False
 
     def efi_mode(self):
+        """
+        Check if EFI mode is requested
+
+        :rtype: bool
+        """
         if self.firmware in Defaults.get_efi_capable_firmware_names():
             return self.firmware
 
     def ec2_mode(self):
+        """
+        Check if EC2 mode is requested
+
+        :rtype: bool
+        """
         if self.firmware in Defaults.get_ec2_capable_firmware_names():
             return self.firmware
 
     def bios_mode(self):
+        """
+        Check if BIOS mode is requested
+
+        :rtype: bool
+        """
         if self.firmware == 'bios':
             return True
         else:
             return False
 
     def ofw_mode(self):
+        """
+        Check if OFW mode is requested
+
+        :rtype: bool
+        """
         if self.firmware == 'ofw':
             return True
         else:
             return False
 
     def opal_mode(self):
+        """
+        Check if Opal mode is requested
+
+        :rtype: bool
+        """
         if self.firmware == 'opal':
             return True
         else:
             return False
 
     def vboot_mode(self):
+        """
+        Check if vboot (virtual boot partition) mode is requested
+
+        :rtype: bool
+        """
         if self.efi_mode() == 'vboot':
             return True
         else:
             return False
 
     def get_legacy_bios_partition_size(self):
+        """
+        Size of legacy bios_grub partition if legacy BIOS mode is
+        required. Returns 0 if no such partition is needed
+
+        :return: mbsize
+        :rtype: int
+        """
         if self.legacy_bios_mode():
             return Defaults.get_default_legacy_bios_mbytes()
         else:
             return 0
 
     def get_efi_partition_size(self):
+        """
+        Size of EFI partition.
+        Returns 0 if no such partition is needed
+
+        :return: mbsize
+        :rtype: int
+        """
         if self.efi_mode():
             return Defaults.get_default_efi_boot_mbytes()
         else:
             return 0
 
     def get_vboot_partition_size(self):
+        """
+        Size of virtual boot partition.
+        Returns 0 if no such partition is needed
+
+        :return: mbsize
+        :rtype: int
+        """
         if self.vboot_mode():
             if self.vboot_mbsize:
                 return self.vboot_mbsize
@@ -130,6 +208,13 @@ class FirmWare(object):
             return 0
 
     def get_prep_partition_size(self):
+        """
+        Size of Prep partition if OFW mode is requested.
+        Returns 0 if no such partition is needed
+
+        :return: mbsize
+        :rtype: int
+        """
         if self.ofw_mode():
             return Defaults.get_default_prep_mbytes()
         else:
