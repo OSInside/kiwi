@@ -26,7 +26,13 @@ from .exceptions import KiwiError
 
 def main():
     """
-        kiwi - main entry
+    kiwi - main application entry point
+
+    Initializes a global log object and handles all errors of the
+    application. Every known error is inherited from KiwiError,
+    everything else is passed down until the generic Exception
+    which is handled as unexpected error including the python
+    backtrace
     """
     logger.init()
     try:

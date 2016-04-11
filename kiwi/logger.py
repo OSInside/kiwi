@@ -25,6 +25,12 @@ from .exceptions import (
 
 
 class ColorMessage(object):
+    """
+    Implements color messages for python logging facility
+
+    Has to implement the format_message method to serve as
+    message formatter
+    """
     def __init__(self):
         BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = list(range(8))
         self.color = {
@@ -50,6 +56,25 @@ class ColorMessage(object):
         }
 
     def format_message(self, level, message):
+        """
+        Message formatter with support for embeded color sequences
+
+        The Message is allowed to contain the following color metadata:
+
+        * $RESET, reset to no color mode
+        * $BOLD, bold
+        * $COLOR, color the following text
+        * $LIGHTCOLOR, light color the following text
+
+        The color of the message depends on the level and is defined
+        in the ColorMessage constructor
+
+        :param int level: color level number
+        :param string message: text
+
+        :return: color message with escape sequences
+        :rtype: string
+        """
         message = message.replace(
             '$RESET',
             self.esc['reset']
@@ -78,11 +103,22 @@ class ColorMessage(object):
 
 
 class ColorFormatter(logging.Formatter):
+    """
+    Extended standard logging Formatter supporting text with color metadata
+    """
     def __init__(self, *args, **kwargs):
         # can't do super(...) here because Formatter is an old school class
         logging.Formatter.__init__(self, *args, **kwargs)
 
     def format(self, record):
+        """
+        Creates a logging Formatter with support for color messages
+
+        :param tuple record: logging message record
+
+        :return: result from format_message
+        :rtype: string
+        """
         color = ColorMessage()
         levelname = record.levelname
         message = logging.Formatter.format(self, record)
@@ -90,9 +126,19 @@ class ColorFormatter(logging.Formatter):
 
 
 class LoggerSchedulerFilter(logging.Filter):
+    """
+    Extended standard logging Filter
+    """
     def filter(self, record):
-        # messages from apscheduler scheduler instances are filtered out
-        # they conflict with console progress information
+        """
+        Messages from apscheduler scheduler instances are filtered out
+        They conflict with console progress information
+
+        :param tuple record: logging message record
+
+        :return: record.name
+        :rtype: string
+        """
         ignorables = [
             'apscheduler.scheduler',
             'apscheduler.executors.default'
@@ -101,40 +147,80 @@ class LoggerSchedulerFilter(logging.Filter):
 
 
 class InfoFilter(logging.Filter):
+    """
+    Extended standard logging Filter
+    """
     def filter(self, record):
-        # only messages with record level INFO and WARNING can pass
-        # for messages with another level an extra handler is used
+        """
+        Only messages with record level INFO and WARNING can pass
+        for messages with another level an extra handler is used
+
+        :param tuple record: logging message record
+
+        :return: record.name
+        :rtype: string
+        """
         if record.levelno == logging.INFO:
             return True
 
 
 class DebugFilter(logging.Filter):
+    """
+    Extended standard logging Filter
+    """
     def filter(self, record):
-        # only messages with record level DEBUG can pass
-        # for messages with another level an extra handler is used
+        """
+        Only messages with record level DEBUG can pass
+        for messages with another level an extra handler is used
+
+        :param tuple record: logging message record
+
+        :return: record.name
+        :rtype: string
+        """
         if record.levelno == logging.DEBUG:
             return True
 
 
 class ErrorFilter(logging.Filter):
+    """
+    Extended standard logging Filter
+    """
     def filter(self, record):
-        # only messages with record level DEBUG can pass
-        # for messages with another level an extra handler is used
+        """
+        Only messages with record level DEBUG can pass
+        for messages with another level an extra handler is used
+
+        :param tuple record: logging message record
+
+        :return: record.name
+        :rtype: string
+        """
         if record.levelno == logging.ERROR:
             return True
 
 
 class WarningFilter(logging.Filter):
+    """
+    Extended standard logging Filter
+    """
     def filter(self, record):
-        # only messages with record level WARNING can pass
-        # for messages with another level an extra handler is used
+        """
+        Only messages with record level WARNING can pass
+        for messages with another level an extra handler is used
+
+        :param tuple record: logging message record
+
+        :return: record.name
+        :rtype: string
+        """
         if record.levelno == logging.WARNING:
             return True
 
 
 class Logger(logging.Logger):
     """
-        kiwi logging facility based on python logging
+    Extended logging facility based on python logging
     """
     def __init__(self, name):
         logging.Logger.__init__(self, name)
@@ -167,17 +253,28 @@ class Logger(logging.Logger):
         self.log_level = self.level
 
     def getLogLevel(self):
+        """
+        Return currently used log level
+
+        :return: log level number
+        :rtype: int
+        """
         return self.log_level
 
     def setLogLevel(self, level):
         """
-            set custom log level for all console handlers
+        Set custom log level for all console handlers
+
+        :param int level: log level number
         """
         self.log_level = level
         for handler_type in self.console_handlers:
             self.console_handlers[handler_type].setLevel(level)
 
     def set_color_format(self):
+        """
+        Set color format for all console handlers
+        """
         for handler_type in self.console_handlers:
             message_format = None
             if handler_type == 'debug':
@@ -193,6 +290,11 @@ class Logger(logging.Logger):
                 )
 
     def set_logfile(self, filename):
+        """
+        Set logfile handler
+
+        :param string filename: logfile file path
+        """
         try:
             logfile = logging.FileHandler(filename)
             logfile.setFormatter(
@@ -207,10 +309,15 @@ class Logger(logging.Logger):
 
     def progress(self, current, total, prefix, bar_length=40):
         """
-            custom progress log information. progress information is
-            intentionally only logged to stdout and will bypass any
-            handlers. We don't want this information to show up in
-            the log file
+        Custom progress log information. progress information is
+        intentionally only logged to stdout and will bypass any
+        handlers. We don't want this information to show up in
+        the log file
+
+        :param int current: current item
+        :param int total: total number of items
+        :param string prefix: prefix name
+        :param int bar_length: length of progress bar
         """
         try:
             percent = float(current) / total
@@ -243,12 +350,17 @@ class Logger(logging.Logger):
 
 
 def init():
+    """
+    Create an application global log instance
+
+    Set the highest log level possible as the default log level
+    in the main Logger class. This is needed to allow any logfile
+    handler to log all messages by default and to allow custom log
+    levels per handler. Our own implementation in Logger::setLogLevel
+    will then set the log level on a handler basis
+    """
     global log
     logging.setLoggerClass(Logger)
     log = logging.getLogger("kiwi")
-    # set the highest log level possible as the default log level
-    # in the main Logger class. This is needed to allow any logfile
-    # handler to log all messages by default and to allow custom log
-    # levels per handler. Our own implementation in Logger::setLogLevel
-    # will then set the log level on a handler basis
+
     log.setLevel(logging.DEBUG)
