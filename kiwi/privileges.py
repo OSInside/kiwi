@@ -24,10 +24,16 @@ from .exceptions import (
 
 class Privileges(object):
     """
-        implement check for root privileges
+    Implements check for root privileges
     """
     @classmethod
     def check_for_root_permissions(self):
+        """
+        Check if we are effectively root on the system. If not
+        an exception is thrown
+
+        :rtype: bool
+        """
         if os.geteuid() != 0:
             raise KiwiPrivilegesError(
                 'operation requires root permissions'

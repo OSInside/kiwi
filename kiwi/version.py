@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-    Global version information used in kiwi and the package
+Global version information used in kiwi and the package
 """
 __version__ = '8.10.1'
 __githash__ = '$Id$'

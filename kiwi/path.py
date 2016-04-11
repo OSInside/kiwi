@@ -23,12 +23,17 @@ from .command import Command
 
 class Path(object):
     """
-        directory path helper
+    Directory path helpers
     """
     @classmethod
     def sort_by_hierarchy(self, path_list):
         """
-            sort given list of path names by their hierachy in the tree
+        Sort given list of path names by their hierachy in the tree
+
+        :param list path_list: list of path names
+
+        :return: sorted path_list
+        :rtype: list
         """
         paths_at_depth = {}
         for path in path_list:
@@ -48,18 +53,33 @@ class Path(object):
 
     @classmethod
     def create(self, path):
+        """
+        Create path and all sub directories to target
+
+        :param string path: path name
+        """
         Command.run(
             ['mkdir', '-p', path]
         )
 
     @classmethod
     def wipe(self, path):
+        """
+        Delete path and all contents
+
+        :param string path: path name
+        """
         Command.run(
             ['rm', '-r', '-f', path]
         )
 
     @classmethod
     def remove(self, path):
+        """
+        Delete empty path, causes an error if target is not empty
+
+        :param string path: path name
+        """
         Command.run(
             ['rmdir', path]
         )
@@ -67,8 +87,10 @@ class Path(object):
     @classmethod
     def remove_hierarchy(self, path):
         """
-            recursively remove an empty path and its sub directories
-            ignore non empty paths and leave them untouched
+        Recursively remove an empty path and its sub directories
+        ignore non empty paths and leave them untouched
+
+        :param string path: path name
         """
         Command.run(
             ['rmdir', '-p', '--ignore-fail-on-non-empty', path]

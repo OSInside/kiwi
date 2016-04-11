@@ -26,11 +26,20 @@ from .logger import log
 
 class MountManager(object):
     """
-        Provide methods for mounting, umounting and mount checking
-        If a MountManager instance is used to mount a device the caller
-        must care for the time when umount needs to be called. The class
-        does not automatically release the mounted device, which is
-        intentional
+    Provide methods for mounting, umounting and mount checking
+
+    If a MountManager instance is used to mount a device the caller
+    must care for the time when umount needs to be called. The class
+    does not automatically release the mounted device, which is
+    intentional
+
+    Attributes
+
+    * :attr:`device`
+        device node name
+
+    * :attr:`mountpoint`
+        mountpoint directory name
     """
     def __init__(self, device, mountpoint=None):
         self.device = device
@@ -40,12 +49,20 @@ class MountManager(object):
             self.mountpoint = mountpoint
 
     def bind_mount(self):
+        """
+        Bind mount the device to the mountpoint
+        """
         if not self.is_mounted():
             Command.run(
                 ['mount', '-n', '--bind', self.device, self.mountpoint]
             )
 
     def mount(self, options=None):
+        """
+        Standard mount the device to the mountpoint
+
+        :param list options: mount options
+        """
         if not self.is_mounted():
             option_list = []
             if options:
@@ -55,12 +72,30 @@ class MountManager(object):
             )
 
     def umount_lazy(self, delete_mountpoint=True):
+        """
+        Umount by the mountpoint directory in lazy mode
+
+        Release the mount in any case, however the time when the mounted
+        resource is released by the kernel depends on when the resource
+        enters the non busy state
+
+        :param bool delete_mountpoint: delete mount directory
+        """
         if self.is_mounted():
             Command.run(['umount', '-l', self.mountpoint])
         if delete_mountpoint:
             Path.wipe(self.mountpoint)
 
     def umount(self, delete_mountpoint=True):
+        """
+        Umount by the mountpoint directory
+
+        If the resource is busy the call will return False
+
+        :param bool delete_mountpoint: delete mount directory
+
+        :rtype: bool
+        """
         if self.is_mounted():
             umounted_successfully = False
             for busy in [1, 2, 3]:
@@ -87,6 +122,11 @@ class MountManager(object):
         return True
 
     def is_mounted(self):
+        """
+        Check if mounted
+
+        :rtype: bool
+        """
         mountpoint_call = Command.run(
             command=['mountpoint', self.mountpoint],
             raise_on_error=False
