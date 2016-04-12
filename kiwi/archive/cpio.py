@@ -21,12 +21,23 @@ from ..command import Command
 
 class ArchiveCpio(object):
     """
-        extraction/creation of cpio archives
+    Extraction/Creation of cpio archives
+
+    Attributes
+
+    * :attr:`filename`
+        filename to use for archive extraction or creation
     """
     def __init__(self, filename):
         self.filename = filename
 
     def create(self, source_dir, exclude=None):
+        """
+        Create cpio archive
+
+        :param string source_dir: data source directory
+        :param list exclude: list of excluded items
+        """
         find_excludes = []
         find_command = ['cd', source_dir, '&&', 'find', '.']
         cpio_command = [
@@ -49,6 +60,11 @@ class ArchiveCpio(object):
         )
 
     def extract(self, dest_dir):
+        """
+        Extract cpio archive contents
+
+        :param string dest_dir: target data directory
+        """
         bash_command = [
             'cd', dest_dir, '&&',
             'cat', self.filename, '|',

@@ -23,7 +23,18 @@ from ..command import Command
 
 class ArchiveTar(object):
     """
-        extraction/creation of tar archives
+    Extraction/Creation of tar archives
+
+    Attributes
+
+    * :attr:`filename`
+        filename to use for archive extraction or creation
+
+    * :attr:`create_from_file_list`
+        use file list not entire directory to create the archive
+
+    * :attr:`file_list`
+        list of files and directories to pack
     """
     def __init__(self, filename, create_from_file_list=True, file_list=None):
         self.filename = filename
@@ -31,6 +42,13 @@ class ArchiveTar(object):
         self.file_list = file_list
 
     def create(self, source_dir, exclude=None, options=None):
+        """
+        Create uncompressed tar archive
+
+        :param string source_dir: data source directory
+        :param list exclude: list of excluded items
+        :param list options: custom creation options
+        """
         if not options:
             options = []
         Command.run(
@@ -43,6 +61,13 @@ class ArchiveTar(object):
         )
 
     def create_xz_compressed(self, source_dir, exclude=None, options=None):
+        """
+        Create XZ compressed tar archive
+
+        :param string source_dir: data source directory
+        :param list exclude: list of excluded items
+        :param list options: custom creation options
+        """
         if not options:
             options = []
         Command.run(
@@ -55,6 +80,12 @@ class ArchiveTar(object):
         )
 
     def create_gnu_gzip_compressed(self, source_dir, exclude=None):
+        """
+        Create gzip compressed tar archive
+
+        :param string source_dir: data source directory
+        :param list exclude: list of excluded items
+        """
         Command.run(
             [
                 'tar', '-C', source_dir,
@@ -63,6 +94,11 @@ class ArchiveTar(object):
         )
 
     def extract(self, dest_dir):
+        """
+        Extract tar archive contents
+
+        :param string dest_dir: target data directory
+        """
         Command.run(
             ['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename]
         )
