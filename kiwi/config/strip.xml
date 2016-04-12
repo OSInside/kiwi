@@ -204,7 +204,6 @@
         <file name="mount"/>
         <file name="mount.nfs"/>
         <file name="mount.nfs4"/>
-        <file name="mount.zfs"/>
         <file name="mpath_id"/>
         <file name="mpath_wait"/>
         <file name="mv"/>
@@ -311,7 +310,6 @@
         <file name="zfcp_host_configure"/>
         <file name="kmod"/>
         <file name="zpool"/>
-        <file name="zfs"/>
     </strip>
 <!--
     check with ldd and remove all those libraries with

@@ -649,7 +649,7 @@ class XMLState(object):
         :return: name of volume manager
         :rtype: string
         """
-        volume_filesystems = ['btrfs', 'zfs']
+        volume_filesystems = ['btrfs']
         selected_filesystem = self.build_type.get_filesystem()
         selected_system_disk = self.get_build_type_system_disk_section()
         volume_management = None
