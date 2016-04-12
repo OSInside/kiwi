@@ -34,7 +34,25 @@ from ...exceptions import(
 
 class BootImageBase(object):
     """
-        Base class for boot image(initrd) task
+    Base class for boot image(initrd) task
+
+    Attributes
+
+    * :attr:`xml_state`
+        Instance of XMLState of the system image description
+
+    * :attr:`target_dir`
+        target dir to store the initrd
+
+    * :attr:`initrd_filename`
+        initrd file name
+
+    * :attr:`temp_boot_root_directory`
+        temporary directory to create the initrd system
+
+    * :attr:`boot_xml_state`
+        Instance of XMLState of the boot image description
+
     """
     def __init__(self, xml_state, target_dir, root_dir=None):
         self.xml_state = xml_state
@@ -66,21 +84,31 @@ class BootImageBase(object):
 
     def prepare(self):
         """
-            prepare new root system to create initrd from. Implementation
-            is only needed if there is no other root system available
+        Prepare new root system to create initrd from. Implementation
+        is only needed if there is no other root system available
         """
         raise NotImplementedError
 
     def create_initrd(self):
         """
-            implements creation of the initrd
+        Implements creation of the initrd
         """
         raise NotImplementedError
 
     def is_prepared(self):
+        """
+        Check if initrd system is prepared
+
+        :return: initrd system preparation status
+        :rtype: bool
+        """
         return os.listdir(self.boot_root_directory)
 
     def load_boot_xml_description(self):
+        """
+        Load the boot image description referenced by the system image
+        description boot attribute
+        """
         log.info('Loading Boot XML description')
         boot_description_directory = self.get_boot_description_directory()
         boot_config_file = boot_description_directory + '/config.xml'
@@ -117,6 +145,10 @@ class BootImageBase(object):
             )
 
     def import_system_description_elements(self):
+        """
+        Copy information from the system image relevant to create the
+        boot image to the boot image state XML description
+        """
         self.xml_state.copy_displayname(
             self.boot_xml_state
         )
@@ -192,6 +224,12 @@ class BootImageBase(object):
         )
 
     def get_boot_description_directory(self):
+        """
+        Provide path to the boot image XML description
+
+        :return: path name
+        :rtype: string
+        """
         boot_description = self.xml_state.build_type.get_boot()
         if boot_description:
             if not boot_description[0] == '/':

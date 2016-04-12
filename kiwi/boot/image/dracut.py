@@ -28,14 +28,15 @@ from .base import BootImageBase
 
 class BootImageDracut(BootImageBase):
     """
-        Implements preparation and creation of kiwi boot(initrd) images
-        The kiwi initrd is a customized first boot initrd which allows
-        to control the first boot an appliance. The kiwi initrd replaces
-        itself after first boot by the result of dracut.
+    Implements preparation and creation of kiwi boot(initrd) images
+    The kiwi initrd is a customized first boot initrd which allows
+    to control the first boot an appliance. The kiwi initrd replaces
+    itself after first boot by the result of dracut.
     """
     def prepare(self):
         """
-            prepare new root system suitable to create an initrd from it
+        Prepare new root system suitable to run dracut as chrooted
+        operation to create the initrd
         """
         self.load_boot_xml_description()
         self.import_system_description_elements()
@@ -55,6 +56,9 @@ class BootImageDracut(BootImageBase):
         )
 
     def create_initrd(self, mbrid=None):
+        """
+        Call dracut to create the initrd and XZ compress the result
+        """
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')
             kernel_info = Kernel(self.boot_root_directory)

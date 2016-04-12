@@ -31,14 +31,14 @@ from .base import BootImageBase
 
 class BootImageKiwi(BootImageBase):
     """
-        Implements preparation and creation of kiwi boot(initrd) images
-        The kiwi initrd is a customized first boot initrd which allows
-        to control the first boot an appliance. The kiwi initrd replaces
-        itself after first boot by the result of dracut.
+    Implements preparation and creation of kiwi boot(initrd) images
+    The kiwi initrd is a customized first boot initrd which allows
+    to control the first boot an appliance. The kiwi initrd replaces
+    itself after first boot by the result of dracut.
     """
     def prepare(self):
         """
-            prepare new root system suitable to create an initrd from it
+        Prepare new root system suitable to create a kiwi initrd from it
         """
         self.load_boot_xml_description()
         boot_image_name = self.boot_xml_state.xml_data.get_name()
@@ -83,6 +83,9 @@ class BootImageKiwi(BootImageBase):
         setup.create_init_link_from_linuxrc()
 
     def create_initrd(self, mbrid=None):
+        """
+        Create initrd from prepared boot system tree and compress the result
+        """
         if self.is_prepared():
             log.info('Creating initrd cpio archive')
             # we can't simply exclude boot when building the archive
