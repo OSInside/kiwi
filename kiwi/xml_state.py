@@ -34,7 +34,21 @@ from .exceptions import(
 
 class XMLState(object):
     """
-        Provides methods to get stateful information from the XML data
+    Implements methods to get stateful information from the XML data
+
+    Attributes
+
+    * :attr:`host_architecture`
+        system architecture, result from platform.machine
+
+    * :attr:`xml_data`
+        instance of XMLDescription
+
+    * :attr:`profiles`
+        list of used profiles
+
+    * :attr:`build_type`
+        build type section reference
     """
     def __init__(self, xml_data, profiles=None, build_type=None):
         self.host_architecture = platform.machine()
@@ -48,26 +62,45 @@ class XMLState(object):
 
     def get_preferences_sections(self):
         """
-            get all preferences sections for selected profiles
+        All preferences sections for the selected profiles
+
+        :return: <preferences>
+        :rtype: list
         """
         return self.__profiled(
             self.xml_data.get_preferences()
         )
 
     def get_users_sections(self):
+        """
+        All users sections for the selected profiles
+
+        :return: <users>
+        :rtype: list
+        """
         return self.__profiled(
             self.xml_data.get_users()
         )
 
     def get_build_type_name(self):
         """
-            get default build type name
+        Default build type name
+
+        :return: image attribute from build type
+        :rtype: string
         """
         return self.build_type.get_image()
 
     def get_image_version(self):
         """
-            get image version
+        Image version from preferences section.
+
+        Multiple occurences of version in preferences sections are not
+        forbidden, however only the first version found defines the
+        final image version
+
+        :return: <version>
+        :rtype: string
         """
         for preferences in self.get_preferences_sections():
             version = preferences.get_version()
@@ -76,16 +109,24 @@ class XMLState(object):
 
     def get_package_manager(self):
         """
-            get configured package manager
+        Configured package manager
+
+        :return: <packagemanager>
+        :rtype: string
         """
         for preferences in self.get_preferences_sections():
             package_manager = preferences.get_packagemanager()
             if package_manager:
                 return package_manager[0]
 
-    def get_packages_sections(self, section_types='image'):
+    def get_packages_sections(self, section_types=['image']):
         """
-            get list of packages sections matching given section type
+        List of packages sections matching given section type(s)
+
+        :param list section_types: type name(s) from packages sections
+
+        :return: <packages>
+        :rtype: list
         """
         result = []
         packages_sections = self.__profiled(
@@ -99,9 +140,15 @@ class XMLState(object):
 
     def get_package_sections(self, packages_sections):
         """
-            get list of package sections from the given packages sections.
-            If a package entry specfies an architecture, it is only taken if
-            the host architecture matches the configured architecture
+        List of package sections from the given packages sections.
+
+        If a package entry specfies an architecture, it is only taken if
+        the host architecture matches the configured architecture
+
+        :param list packages_sections: <packages>
+
+        :return: <package>
+        :rtype: list
         """
         result = []
         if packages_sections:
@@ -119,7 +166,10 @@ class XMLState(object):
 
     def get_to_become_deleted_packages(self):
         """
-            get list of packages from the type = delete section
+        List of packages from the type="delete" packages section(s)
+
+        :return: package names
+        :rtype: list
         """
         result = []
         to_become_deleted_packages_sections = self.get_packages_sections(
@@ -135,13 +185,19 @@ class XMLState(object):
 
     def get_bootstrap_packages_sections(self):
         """
-            get list of bootstrap packages sections
+        List of packages sections matching type="bootstrap"
+
+        :return: <packages>
+        :rtype: list
         """
         return self.get_packages_sections(['bootstrap'])
 
     def get_bootstrap_packages(self):
         """
-            get list of bootstrap packages
+        List of packages from the type="bootstrap" packages section(s)
+
+        :return: package names
+        :rtype: list
         """
         result = []
         bootstrap_packages_sections = self.get_bootstrap_packages_sections()
@@ -155,7 +211,11 @@ class XMLState(object):
 
     def get_system_packages(self):
         """
-            get list of system packages, take build_type into account
+        List of packages from the packages sections matching
+        type="image" and type=build_type
+
+        :return: package names
+        :rtype: list
         """
         result = []
         image_packages_sections = self.get_packages_sections(
@@ -171,7 +231,10 @@ class XMLState(object):
 
     def get_bootstrap_archives(self):
         """
-            get list of bootstrap archives
+        List of archives from the type="bootstrap" packages section(s)
+
+        :return: archive names
+        :rtype: list
         """
         result = []
         bootstrap_packages_sections = self.get_bootstrap_packages_sections()
@@ -185,7 +248,11 @@ class XMLState(object):
 
     def get_system_archives(self):
         """
-            get list of system archives, take build_type into account
+        List of archives from the packages sections matching
+        type="image" and type=build_type
+
+        :return: archive names
+        :rtype: list
         """
         result = []
         image_packages_sections = self.get_packages_sections(
@@ -198,9 +265,16 @@ class XMLState(object):
 
     def get_collection_type(self, section_type='image'):
         """
-            get collection type specified in system packages sections
-            if no collection type is specified only required packages
-            are taken into account
+        Collection type from packages sections matching given section
+        type.
+
+        If no collection type is specified the default collection
+        type is set to: onlyRequired
+
+        :param string section_type: type name from packages section
+
+        :return: collection type name
+        :rtype: string
         """
         typed_packages_sections = self.get_packages_sections(
             [section_type, self.get_build_type_name()]
@@ -214,14 +288,30 @@ class XMLState(object):
         return collection_type
 
     def get_bootstrap_collection_type(self):
+        """
+        Collection type for packages sections matching type="bootstrap"
+
+        :return: collection type name
+        :rtype: string
+        """
         return self.get_collection_type('bootstrap')
 
     def get_system_collection_type(self):
+        """
+        Collection type for packages sections matching type="image"
+
+        :return: collection type name
+        :rtype: string
+        """
         return self.get_collection_type('image')
 
     def get_collections(self, section_type='image'):
         """
-            get list of collections matching given section and build type
+        List of collection names from the packages sections matching
+        type=section_type and type=build_type
+
+        :return: collection names
+        :rtype: list
         """
         result = []
         typed_packages_sections = self.get_packages_sections(
@@ -234,19 +324,33 @@ class XMLState(object):
 
     def get_bootstrap_collections(self):
         """
-            collections defined in bootstrap section
+        List of collection names from the packages sections
+        matching type="bootstrap"
+
+        :return: collection names
+        :rtype: list
         """
         return self.get_collections('bootstrap')
 
     def get_system_collections(self):
         """
-            collections defined in image sections
+        List of collection names from the packages sections
+        matching type="image"
+
+        :return: collection names
+        :rtype: list
         """
         return self.get_collections('image')
 
     def get_products(self, section_type='image'):
         """
-            get list of products matching section and build type
+        List of product names from the packages sections matching
+        type=section_type and type=build_type
+
+        :param string section_type: type name from packages section
+
+        :return: product names
+        :rtype: list
         """
         result = []
         typed_packages_sections = self.get_packages_sections(
@@ -259,19 +363,30 @@ class XMLState(object):
 
     def get_bootstrap_products(self):
         """
-            get list of products in bootstrap section
+        List of product names from the packages sections
+        matching type="bootstrap"
+
+        :return: product names
+        :rtype: list
         """
         return self.get_products('bootstrap')
 
     def get_system_products(self):
         """
-            get list of products in system sections
+        List of product names from the packages sections
+        matching type="image"
+
+        :return: product names
+        :rtype: list
         """
         return self.get_products('image')
 
     def get_build_type_system_disk_section(self):
         """
-            get system disk section
+        First system disk section from the build type section
+
+        :return: <systemdisk>
+        :rtype: xml_parse::systemdisk instance
         """
         systemdisk_sections = self.build_type.get_systemdisk()
         if systemdisk_sections:
@@ -279,7 +394,10 @@ class XMLState(object):
 
     def get_build_type_pxedeploy_section(self):
         """
-            get pxedeploy section from build type
+        First pxedeploy section from the build type section
+
+        :return: <pxedeploy>
+        :rtype: xml_parse::pxedeploy instance
         """
         pxedeploy_sections = self.build_type.get_pxedeploy()
         if pxedeploy_sections:
@@ -287,7 +405,10 @@ class XMLState(object):
 
     def get_build_type_machine_section(self):
         """
-            get machine section from build type
+        First machine section from the build type section
+
+        :return: <machine>
+        :rtype: xml_parse::machine instance
         """
         machine_sections = self.build_type.get_machine()
         if machine_sections:
@@ -295,7 +416,11 @@ class XMLState(object):
 
     def get_build_type_vmdisk_section(self):
         """
-            get vmdisk section from build type
+        First vmdisk section from the first machine section in the
+        build type section
+
+        :return: <vmdisk>
+        :rtype: xml_parse::vmdisk instance
         """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
@@ -305,7 +430,10 @@ class XMLState(object):
 
     def get_build_type_oemconfig_section(self):
         """
-            get oemconfig section from build type
+        First oemconfig section from the build type section
+
+        :return: <oemconfig>
+        :rtype: xml_parse::oemconfig instance
         """
         oemconfig_sections = self.build_type.get_oemconfig()
         if oemconfig_sections:
@@ -313,8 +441,11 @@ class XMLState(object):
 
     def get_build_type_size(self):
         """
-            get size value from build type in mega bytes
-            if no unit is set the value is treated as mega bytes
+        Size information from the build type section.
+        If no unit is set the value is treated as mbytes
+
+        :return: mbytes
+        :rtype: int
         """
         size_section = self.build_type.get_size()
         if size_section:
@@ -332,7 +463,10 @@ class XMLState(object):
 
     def get_volume_group_name(self):
         """
-            get volume group name from systemdisk
+        Volume group name from systemdisk section
+
+        :return: volume group name
+        :rtype: string
         """
         systemdisk_section = self.get_build_type_system_disk_section()
         volume_group_name = None
@@ -343,6 +477,19 @@ class XMLState(object):
         return volume_group_name
 
     def get_users(self):
+        """
+        List of configured users.
+
+        Each entry in the list is a tuple with the following information
+
+        * group_name, name of the group
+        * group_id, id of the group
+        * user_sections, list of xml_parse::users instances which belong
+          to the group name and id of this tuple
+
+        :return: user data
+        :rtype: list
+        """
         users_by_group_type = namedtuple(
             'users_by_group_type', ['group_name', 'group_id', 'user_sections']
         )
@@ -363,7 +510,19 @@ class XMLState(object):
 
     def get_volumes(self):
         """
-            get volumes section from systemdisk
+        List of configured systemdisk volumes.
+
+        Each entry in the list is a tuple with the following information
+
+        * name: name of the volume
+        * size: size of the volume
+        * realpath: system path to lookup volume data. If no mountpoint
+          is set the volume name is used as data path.
+        * mountpoint: volume mount point and volume data path
+        * fullsize: takes all space true|false
+
+        :return: volume data
+        :rtype: list
         """
         volume_type_list = []
         systemdisk_section = self.get_build_type_system_disk_section()
@@ -485,8 +644,10 @@ class XMLState(object):
 
     def get_volume_management(self):
         """
-            provide information if a volume management system is
-            selected and if so return the name
+        Provides information which volume management system is used
+
+        :return: name of volume manager
+        :rtype: string
         """
         volume_filesystems = ['btrfs', 'zfs']
         selected_filesystem = self.build_type.get_filesystem()
@@ -510,7 +671,11 @@ class XMLState(object):
 
     def get_drivers_list(self):
         """
-            provide list of drivers for configured profiles
+        List of driver names from all drivers sections matching
+        configured profiles
+
+        :return: driver names
+        :rtype: list
         """
         drivers_sections = self.__profiled(
             self.xml_data.get_drivers()
@@ -524,8 +689,13 @@ class XMLState(object):
 
     def get_strip_list(self, section_type):
         """
-            provide list of strip names of the given type for
-            configured profiles
+        List of strip names matching the given section type
+        and profiles
+
+        :param string section_type: type name from packages section
+
+        :return: strip names
+        :rtype: list
         """
         strip_sections = self.__profiled(
             self.xml_data.get_strip()
@@ -540,25 +710,37 @@ class XMLState(object):
 
     def get_strip_files_to_delete(self):
         """
-            strip names for delete type
+        Items to delete from strip section
+
+        :return: items to delete
+        :rtype: list
         """
         return self.get_strip_list('delete')
 
     def get_strip_tools_to_keep(self):
         """
-            strip names for tools type
+        Tools to keep from strip section
+
+        :return: tools to keep
+        :rtype: list
         """
         return self.get_strip_list('tools')
 
     def get_strip_libraries_to_keep(self):
         """
-            strip names for libs type
+        Libraries to keep from strip section
+
+        :return: libraries to keep
+        :rtype: list
         """
         return self.get_strip_list('libs')
 
     def get_repository_sections(self):
         """
-            provide repository sections for configured profiles
+        List of all repository sections matching configured profiles
+
+        :return: <repository>
+        :rtype: list
         """
         return self.__profiled(
             self.xml_data.get_repository()
@@ -566,9 +748,10 @@ class XMLState(object):
 
     def translate_obs_to_ibs_repositories(self):
         """
-            change obs:// repotype to ibs:// type
-            This will result in pointing to build.suse.de instead of
-            build.opensuse.org
+        Change obs:// repotype to ibs:// type
+
+        This will result in pointing to build.suse.de instead of
+        build.opensuse.org
         """
         for repository in self.get_repository_sections():
             source_path = repository.get_source()
@@ -579,9 +762,10 @@ class XMLState(object):
 
     def translate_obs_to_suse_repositories(self):
         """
-            change obs:// repotype to suse:// type
-            This will result in a local repo path suitable for a
-            buildservice worker instance
+        Change obs:// repotype to suse:// type
+
+        This will result in a local repo path suitable for a
+        buildservice worker instance
         """
         for repository in self.get_repository_sections():
             source_path = repository.get_source()
@@ -592,7 +776,12 @@ class XMLState(object):
 
     def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):
         """
-            overwrite repository data for the first repo in the list
+        Overwrite repository data of the first repository
+
+        :param string repo_source: repository URI
+        :param string repo_type: type name defined by schema
+        :param string repo_alias: alias name
+        :param string repo_prio: priority number, package manager specific
         """
         repository = self.get_repository_sections()[0]
         if repo_alias:
@@ -606,7 +795,12 @@ class XMLState(object):
 
     def add_repository(self, repo_source, repo_type, repo_alias, repo_prio):
         """
-            add a new repository section as specified
+        Add a new repository section at the end of the list
+
+        :param string repo_source: repository URI
+        :param string repo_type: type name defined by schema
+        :param string repo_alias: alias name
+        :param string repo_prio: priority number, package manager specific
         """
         self.xml_data.add_repository(
             xml_parse.repository(
@@ -618,16 +812,31 @@ class XMLState(object):
         )
 
     def copy_displayname(self, target_state):
+        """
+        Copy image displayname from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         displayname = self.xml_data.get_displayname()
         if displayname:
             target_state.xml_data.set_displayname(displayname)
 
     def copy_name(self, target_state):
+        """
+        Copy image name from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         target_state.xml_data.set_name(
             self.xml_data.get_name()
         )
 
     def copy_drivers_sections(self, target_state):
+        """
+        Copy drivers sections from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         drivers_sections = self.__profiled(
             self.xml_data.get_drivers()
         )
@@ -636,6 +845,11 @@ class XMLState(object):
                 target_state.xml_data.add_drivers(drivers_section)
 
     def copy_systemdisk_section(self, target_state):
+        """
+        Copy systemdisk sections from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         systemdisk_section = self.get_build_type_system_disk_section()
         if systemdisk_section:
             target_state.build_type.set_systemdisk(
@@ -643,6 +857,11 @@ class XMLState(object):
             )
 
     def copy_strip_sections(self, target_state):
+        """
+        Copy strip sections from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         strip_sections = self.__profiled(
             self.xml_data.get_strip()
         )
@@ -651,6 +870,11 @@ class XMLState(object):
                 target_state.xml_data.add_strip(strip_section)
 
     def copy_machine_section(self, target_state):
+        """
+        Copy machine sections from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
             target_state.build_type.set_machine(
@@ -658,6 +882,11 @@ class XMLState(object):
             )
 
     def copy_oemconfig_section(self, target_state):
+        """
+        Copy oemconfig sections from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
         oemconfig_section = self.get_build_type_oemconfig_section()
         if oemconfig_section:
             target_state.build_type.set_oemconfig(
@@ -665,6 +894,12 @@ class XMLState(object):
             )
 
     def copy_repository_sections(self, target_state, wipe=False):
+        """
+        Copy repository sections from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        :param bool wipe: delete all repos in target prior to copy
+        """
         repository_sections = self.__profiled(
             self.xml_data.get_repository()
         )
@@ -679,6 +914,13 @@ class XMLState(object):
                 target_state.xml_data.add_repository(repository_copy)
 
     def copy_preferences_subsections(self, section_names, target_state):
+        """
+        Copy subsections of the preferences sections, matching given
+        section names, from this xml state to the target xml state
+
+        :param list section_names: preferences subsection names
+        :param object target_state: XMLState instance
+        """
         target_preferences_sections = target_state.get_preferences_sections()
         if target_preferences_sections:
             target_preferences_section = target_preferences_sections[0]
@@ -695,6 +937,13 @@ class XMLState(object):
                         set_section_method(section)
 
     def copy_build_type_attributes(self, attribute_names, target_state):
+        """
+        Copy specified attributes from this build type section to the
+        target xml state build type section
+
+        :param list attribute_names: type section attributes
+        :param object target_state: XMLState instance
+        """
         for attribute in attribute_names:
             get_type_method = getattr(
                 self.build_type, 'get_' + attribute
@@ -708,9 +957,12 @@ class XMLState(object):
 
     def copy_bootincluded_packages(self, target_state):
         """
-            add packages marked as bootinclude to the packages type=bootstrap
-            section. The package will also be removed from the packages
-            type=delete section if added there
+        Copy packages marked as bootinclude to the packages type=bootstrap
+        section in the target xml state. The package will also be removed
+        from the packages type=delete section in the target xml state
+        if present there
+
+        :param object target_state: XMLState instance
         """
         target_bootstrap_packages_sections = \
             target_state.get_bootstrap_packages_sections()
@@ -748,8 +1000,10 @@ class XMLState(object):
 
     def copy_bootincluded_archives(self, target_state):
         """
-            add archives marked as bootinclude to the
-            packages type=bootstrap section
+        Copy archives marked as bootinclude to the packages type=bootstrap
+        section in the target xml state
+
+        :param object target_state: XMLState instance
         """
         target_bootstrap_packages_sections = \
             target_state.get_bootstrap_packages_sections()
@@ -772,8 +1026,10 @@ class XMLState(object):
 
     def copy_bootdelete_packages(self, target_state):
         """
-            add packages marked as bootdelete to the
-            packages type=delete section
+        Copy packages marked as bootdelete to the packages type=delete
+        section in the target xml state
+
+        :param object target_state: XMLState instance
         """
         target_delete_packages_sections = target_state.get_packages_sections(
             ['delete']
@@ -797,6 +1053,17 @@ class XMLState(object):
                         )
 
     def get_distribution_name_from_boot_attribute(self):
+        """
+        Extract the distribution name from the boot attribute of the
+        build type section.
+
+        If no boot attribute is configured or the contents does not
+        match the kiwi defined naming schema for boot image descriptions,
+        an exception is thrown
+
+        :return: lowercase distribution name
+        :rtype: string
+        """
         boot_attribute = self.build_type.get_boot()
         if not boot_attribute:
             raise KiwiDistributionNameError(
