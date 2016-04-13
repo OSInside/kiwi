@@ -33,9 +33,43 @@ from ...exceptions import (
 
 class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
     """
-        isolinux bootloader configuration.
+    isolinux bootloader configuration.
+
+    Attributes
+
+    * :attr:`gfxmode`
+        configured or default graphics mode
+
+    * :attr:`timeout`
+        configured or default boot timeout
+
+    * :attr:`cmdline`
+        kernel boot arguments
+
+    * :attr:`cmdline_failsafe`
+        kernel failsafe boot arguments
+
+    * :attr:`hypervisor_domain`
+        configured hypervisor domain name or none
+
+    * :attr:`multiboot`
+        multiboot requested true|false
+
+    * :attr:`isolinux`
+        Instance of config template: BootLoaderTemplateIsoLinux
+
+    * :attr:`config`
+        Configuration data from template substitution
+
+    * :attr:`config_message`
+        Configuration text message if graphics mode failed
     """
     def post_init(self, custom_args):
+        """
+        isolinux post initialization method
+
+        Setup class attributes
+        """
         self.custom_args = custom_args
         arch = platform.machine()
         if arch == 'x86_64':
@@ -69,7 +103,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
 
     def write(self):
         """
-            Write isolinux.cfg and isolinux.msg file
+        Write isolinux.cfg and isolinux.msg file
         """
         log.info('Writing isolinux.cfg file')
         config_dir = self.__get_iso_boot_path()
@@ -88,8 +122,13 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-            Create isolinux.cfg in memory from a template suitable to boot
-            from an ISO image in BIOS boot mode
+        Create isolinux.cfg in memory from a template suitable to boot
+        from an ISO image in BIOS boot mode
+
+        :param string mbrid: mbrid file name on boot device
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
         """
         # mbrid parameter is not used, the information is placed as the
         # application id when creating the iso filesystem. Thus not part
@@ -129,8 +168,13 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-            Create isolinux.cfg in memory from a template suitable to boot
-            a live system from an ISO image in BIOS boot mode
+        Create isolinux.cfg in memory from a template suitable to boot
+        a live system from an ISO image in BIOS boot mode
+
+        :param string mbrid: mbrid file name on boot device
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
         """
         # mbrid parameter is not used, the information is placed as the
         # application id when creating the iso filesystem. Thus not part
@@ -167,12 +211,23 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             )
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
-        # mbrid parameter is not used, because only isolinux loader
-        # binary and possible theming files are copied
+        """
+        Provide isolinux boot metadata
+
+        The mbrid parameter is not used, because only isolinux
+        loader binary and possible theming files are copied
+
+        :param string mbrid: unused
+        :param string lookup_path: custom module lookup path
+        """
         self.__copy_loader_data_to_boot_directory(lookup_path)
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
-        # same action as for install media
+        """
+        Provide isolinux boot metadata
+
+        Calls setup_install_boot_images because no different action required
+        """
         self.setup_install_boot_images(mbrid, lookup_path)
 
     def __copy_loader_data_to_boot_directory(self, lookup_path):

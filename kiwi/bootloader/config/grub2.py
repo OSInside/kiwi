@@ -39,9 +39,61 @@ from ...exceptions import (
 
 class BootLoaderConfigGrub2(BootLoaderConfigBase):
     """
-        grub2 bootloader configuration.
+    grub2 bootloader configuration.
+
+    Attributes
+
+    * :attr:`terminal`
+        terminal mode set to gfxterm
+
+    * :attr:`gfxmode`
+        configured or default graphics mode
+
+    * :attr:`bootpath`
+        boot path according to configuration
+
+    * :attr:`theme`
+        configured bootloader theme or none
+
+    * :attr:`timeout`
+        configured or default boot timeout
+
+    * :attr:`failsafe_boot`
+        failsafe mode requested true|false
+
+    * :attr:`hypervisor_domain`
+        configured hypervisor domain name or none
+
+    * :attr:`firmware`
+        Instance of FirmWare
+
+    * :attr:`hybrid_boot`
+        hybrid boot requested true|false
+
+    * :attr:`multiboot`
+        multiboot requested true|false
+
+    * :attr:`xen_guest`
+        Xen guest setup true|false
+
+    * :attr:`grub2`
+        Instance of config template: BootLoaderTemplateGrub2
+
+    * :attr:`config`
+        Configuration data from template substitution
+
+    * :attr:`efi_boot_path`
+        EFI boot path according to configuration
+
+    * :attr:`boot_directory_name`
+        grub boot directory below boot path set to: grub2
     """
     def post_init(self, custom_args):
+        """
+        grub2 post initialization method
+
+        Setup class attributes
+        """
         self.custom_args = custom_args
         arch = platform.machine()
         if arch == 'x86_64':
@@ -91,6 +143,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.boot_directory_name = 'grub2'
 
     def write(self):
+        """
+        Write grub.cfg file
+        """
         log.info('Writing grub.cfg file')
         config_dir = self.__get_grub_boot_path()
         config_file = config_dir + '/grub.cfg'
@@ -103,8 +158,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, uuid, hypervisor='xen.gz', kernel='linux.vmx', initrd='initrd.vmx'
     ):
         """
-            Create the grub.cfg in memory from a template suitable to boot
-            from a disk image
+        Create the grub.cfg in memory from a template suitable to boot
+        from a disk image
+
+        :param string uuid: boot device UUID
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
         """
         log.info('Creating grub config file from template')
         cmdline = self.get_boot_cmdline(uuid)
@@ -146,7 +206,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-            Create grub config file to boot from an ISO install image
+        Create grub config file to boot from an ISO install image
+
+        :param string mbrid: mbrid file name on boot device
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
         """
         log.info('Creating grub install config file from template')
         cmdline = self.get_boot_cmdline()
@@ -189,7 +254,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-            Create grub config file to boot a live media ISO image
+        Create grub config file to boot a live media ISO image
+
+        :param string mbrid: mbrid file name on boot device
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
         """
         log.info('Creating grub live ISO config file from template')
         cmdline = self.get_boot_cmdline()
@@ -230,9 +300,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         """
-            In order to boot from the ISO grub modules, images
-            and theme data needs to be created and provided at
-            the correct place on the iso filesystem
+        Create/Provide grub boot images and metadata
+
+        In order to boot from the ISO grub modules, images and theme
+        data needs to be created and provided at the correct place on
+        the iso filesystem
+
+        :param string mbrid: mbrid file name on boot device
+        :param string lookup_path: custom module lookup path
         """
         log.info('Creating grub bootloader images')
         self.efi_boot_path = self.create_efi_path(in_sub_dir='')
@@ -262,14 +337,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.__create_embedded_fat_efi_image()
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
-        # same action as for install media
+        """
+        Create/Provide grub boot images and metadata
+
+        Calls setup_install_boot_images because no different action required
+        """
         self.setup_install_boot_images(mbrid, lookup_path)
 
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
-            In order to boot from the disk grub modules, images
-            and theme data needs to be created and provided at
-            the correct place in the filesystem
+        Create/Provide grub boot images and metadata
+
+        In order to boot from the disk grub modules, images and theme
+        data needs to be created and provided at the correct place in
+        the filesystem
+
+        :param string boot_uuid: boot device UUID
+        :param string lookup_path: custom module lookup path
         """
         log.info('Creating grub bootloader images')
 

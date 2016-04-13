@@ -37,9 +37,55 @@ from ...exceptions import (
 
 class BootLoaderConfigZipl(BootLoaderConfigBase):
     """
-        zipl bootloader configuration.
+    zipl bootloader configuration.
+
+    Attributes
+
+    * :attr:`arch`
+        platform.machine
+
+    * :attr:`timeout`
+        configured or default boot timeout
+
+    * :attr:`bootpath`
+        boot path set to: '.'
+
+    * :attr:`cmdline`
+        kernel boot arguments
+
+    * :attr:`cmdline_failsafe`
+        kernel failsafe boot arguments
+
+    * :attr:`target_blocksize`
+        configured or default target blocksize
+
+    * :attr:`target_type`
+        configured or default zipl target type
+
+    * :attr:`failsafe_boot`
+        failsafe mode requested true|false
+
+    * :attr:`target_device`
+        device node of target device
+
+    * :attr:`firmware`
+        Instance of FirmWare
+
+    * :attr:`target_table_type`
+        disk table type according to target device
+
+    * :attr:`zipl`
+        Instance of config template: BootLoaderTemplateZipl
+
+    * :attr:`config`
+        Configuration data from template substitution
     """
     def post_init(self, custom_args):
+        """
+        zipl post initialization method
+
+        Setup class attributes
+        """
         self.custom_args = custom_args
         arch = platform.machine()
         if 's390' in arch:
@@ -72,7 +118,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
 
     def write(self):
         """
-            Write zipl config file
+        Write zipl config file
         """
         log.info('Writing zipl config file')
         config_dir = self.__get_zipl_boot_path()
@@ -97,8 +143,13 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         kernel='linux.vmx', initrd='initrd.vmx'
     ):
         """
-            Create the zipl config in memory from a template suitable to
-            boot from a disk image
+        Create the zipl config in memory from a template suitable to
+        boot from a disk image.
+
+        :param string uuid: unused
+        :param string hypervisor: unused
+        :param string kernel: kernel name
+        :param string initrd: initrd name
         """
         log.info('Creating zipl config file from template')
         parameters = {
@@ -126,7 +177,9 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             )
 
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
-        # on s390 no bootloader images needs to be created
+        """
+        On s390 no bootloader images needs to be created
+        """
         pass
 
     def __get_zipl_boot_path(self):
