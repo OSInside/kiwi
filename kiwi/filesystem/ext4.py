@@ -22,9 +22,14 @@ from ..command import Command
 
 class FileSystemExt4(FileSystemBase):
     """
-        Implements creation of ext4 filesystem
+    Implements creation of ext4 filesystem
     """
     def create_on_device(self, label=None):
+        """
+        Create ext4 filesystem on block device
+
+        :param string label: label name
+        """
         device = self.device_provider.get_device()
         if label:
             self.custom_args.append('-L')

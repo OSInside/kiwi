@@ -22,11 +22,18 @@ from ..command import Command
 
 class FileSystemSquashFs(FileSystemBase):
     """
-        Implements creation of squashfs filesystem
+    Implements creation of squashfs filesystem
     """
     def create_on_file(self, filename, label=None):
-        # there is no label which could be set for a squashfs
-        # thus this parameter is not used
+        """
+        Create squashfs filesystem from data tree
+
+        There is no label which could be set for clicfs
+        thus this parameter is not used
+
+        :param string filename: result file path name
+        :param string label: unused
+        """
         Command.run(
             ['mksquashfs', self.root_dir, filename] + self.custom_args
         )

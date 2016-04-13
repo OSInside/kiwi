@@ -30,7 +30,27 @@ from ..exceptions import (
 
 class FileSystemBase(object):
     """
-        Implements base class for filesystem interface
+    Implements base class for filesystem interface
+
+    Attributes
+
+    * :attr:`filesystem_mount`
+        mount point when the filesystem is mounted for data sync
+
+    * :attr:`device_provider`
+        Instance of a class based on DeviceProvider
+        required for filesystems which needs a block device for
+        creation. In most cases the DeviceProvider is a LoopDevice
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`filename`
+        filesystem file if no block device is needed to create
+        it, e.g squashfs
+
+    * :attr:`custom_args`
+        custom filesystem arguments
     """
     def __init__(self, device_provider, root_dir=None, custom_args=None):
         # filesystems created with a block device stores the mountpoint
@@ -55,20 +75,44 @@ class FileSystemBase(object):
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
-        # overwrite in specialized filesystem class when needed
+        """
+        Post initialization method
+
+        Implementation in specialized filesystem class
+
+        :param list custom_args: unused
+        """
         pass
 
     def create_on_device(self, label=None):
-        # implement for filesystems which requires a block device to
-        # become created, e.g ext4.
+        """
+        Create filesystem on block device
+
+        Implement in specialized filesystem class for filesystems which
+        requires a block device for creation, e.g ext4.
+
+        :param string label: label name
+        """
         raise NotImplementedError
 
     def create_on_file(self, filename, label=None):
-        # implement for filesystems which doesn't need a block device
-        # to become created, e.g squashfs
+        """
+        Create filesystem from root data tree
+
+        Implement in specialized filesystem class for filesystems which
+        requires a data tree for creation, e.g squashfs.
+
+        :param string filename: result file path name
+        :param string label: label name
+        """
         raise NotImplementedError
 
     def sync_data(self, exclude=None):
+        """
+        Copy root data tree into filesystem
+
+        :param list exclude: list of items to exclude
+        """
         if not self.root_dir:
             raise KiwiFileSystemSyncError(
                 'no root directory specified'

@@ -30,15 +30,34 @@ from ..logger import log
 
 class FileSystemClicFs(FileSystemBase):
     """
-        Implements creation of clicfs filesystem
+    Implements creation of clicfs filesystem
     """
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Store custom arguments
+
+        Attributes
+
+        * :attr:`container_dir`
+            Temporary directory to store clicfs embeded filesystem
+
+        :param list custom_args: list of arguments
+        """
         self.container_dir = None
         self.custom_args = custom_args
 
     def create_on_file(self, filename, label=None):
-        # there is no label which could be set for clicfs
-        # thus this parameter is not used
+        """
+        Create clicfs filesystem from data tree
+
+        There is no label which could be set for clicfs
+        thus this parameter is not used
+
+        :param string filename: result file path name
+        :param string label: unused
+        """
         self.container_dir = mkdtemp()
         clicfs_container_filesystem = self.container_dir + '/fsdata.ext4'
         loop_provider = LoopDevice(

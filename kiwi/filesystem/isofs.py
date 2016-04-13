@@ -23,14 +23,28 @@ from ..iso import Iso
 
 class FileSystemIsoFs(FileSystemBase):
     """
-        Implements creation of iso filesystem
+    Implements creation of iso filesystem
     """
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Store custom arguments
+
+        :param list custom_args: list of arguments
+        """
         self.custom_args = custom_args
 
     def create_on_file(self, filename, label=None):
-        # there is no label which could be set for an iso filesystem
-        # thus this parameter is not used
+        """
+        Create iso filesystem from data tree
+
+        There is no label which could be set for iso filesystem
+        thus this parameter is not used
+
+        :param string filename: result file path name
+        :param string label: unused
+        """
         iso = Iso(self.root_dir)
         iso.init_iso_creation_parameters(self.custom_args)
         iso.add_efi_loader_parameters()

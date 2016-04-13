@@ -22,9 +22,14 @@ from ..command import Command
 
 class FileSystemXfs(FileSystemBase):
     """
-        Implements creation of xfs filesystem
+    Implements creation of xfs filesystem
     """
     def create_on_device(self, label=None):
+        """
+        Create xfs filesystem on block device
+
+        :param string label: label name
+        """
         device = self.device_provider.get_device()
         if label:
             self.custom_args.append('-L')

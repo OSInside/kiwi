@@ -23,9 +23,23 @@ from ..defaults import Defaults
 
 class FileSystemSetup(object):
     """
-        Implement filesystem setup methods providing information
-        from the root directory required before building a
-        filesystem image
+    Implement filesystem setup methods providing information
+    from the root directory required before building a
+    filesystem image
+
+    Attributes
+
+    * :attr:`configured_size`
+        Configured size section from the build type section
+
+    * :attr:`size`
+        Instance of Size
+
+    * :attr:`requested_image_type`
+        Configured image type name
+
+    * :attr:`requested_filesystem`
+        Configured filesystem name
     """
     def __init__(self, xml_state, root_dir):
         self.configured_size = xml_state.get_build_type_size()
@@ -37,6 +51,15 @@ class FileSystemSetup(object):
             self.requested_filesystem = xml_state.build_type.get_filesystem()
 
     def get_size_mbytes(self):
+        """
+        Precalculate the requires size in mbytes to store all data
+        from the root directory in the requested filesystem. Return
+        the configured value if present, if not return the calculated
+        result
+
+        :return: mbytes
+        :rtype: int
+        """
         root_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
         filesystem_mbytes = self.size.customize(
             root_dir_mbytes, self.requested_filesystem
