@@ -35,10 +35,42 @@ from ..exceptions import (
 
 class PxeBuilder(object):
     """
-        Filesystem based PXE image builder. This results in creating
-        a boot image(initrd) plus its appropriate kernel files and the
-        root filesystem image with a checksum. The result can be used
-        within the kiwi PXE boot infrastructure
+    Filesystem based PXE image builder.
+
+    Attributes
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`compressed`
+        Request to XZ compress filesystem image
+
+    * :attr:`machine`
+        Configured build type machine section
+
+    * :attr:`pxedeploy`
+        Configured build type pxedeploy section
+
+    * :attr:`filesystem`
+        Instance of FileSystemBuilder
+
+    * :attr:`system_setup`
+        Instance of SystemSetup
+
+    * :attr:`boot_image_task`
+        Instance of BootImage
+
+    * :attr:`image_name`
+        File name of the filesystem image
+
+    * :attr:`kernel_filename`
+        File name of the kernel image
+
+    * :attr:`hypervisor_filename`
+        File name of the hypervisor image
+
+    * :attr:`result`
+        Instance of Result
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.target_dir = target_dir
@@ -67,6 +99,16 @@ class PxeBuilder(object):
         self.result = Result(xml_state)
 
     def create(self):
+        """
+        Build a pxe image set consisting out of a boot image(initrd)
+        plus its appropriate kernel files and the root filesystem
+        image with a checksum. The result can be used within the kiwi
+        PXE boot infrastructure
+
+        Image types which triggers this builder are:
+
+        * image="pxe"
+        """
         log.info('Creating PXE root filesystem image')
         self.filesystem.create()
         self.image = self.filesystem.filename

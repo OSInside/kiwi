@@ -48,7 +48,119 @@ from ..exceptions import (
 
 class DiskBuilder(object):
     """
-        Disk image builder
+    Disk image builder
+
+    Attributes
+
+    * :attr:`arch`
+        platform.machine
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`custom_filesystem_args`
+        Configured custom filesystem arguments
+
+    * :attr:`build_type_name`
+        Configured build type name, oem or vmx
+
+    * :attr:`image_format`
+        Configured disk image format
+
+    * :attr:`install_iso`
+        Request for install ISO image
+
+    * :attr:`install_stick`
+        Request for install Stick image, converts into a request
+        for the install ISO image because it can handle both cases
+        by the hybrid ISO setup
+
+    * :attr:`install_pxe`
+        Request for install PXE archive
+
+    * :attr:`blocksize`
+        Configured disk blocksize
+
+    * :attr:`volume_manager_name`
+        Configured volume manager
+
+    * :attr:`volumes`
+        Configured disk volumes
+
+    * :attr:`volume_group_name`
+        Configured volume group name
+
+    * :attr:`mdraid`
+        Request for md raid, degraded setup
+
+    * :attr:`hybrid_mbr`
+        Request to convert partition table to hybrid GPT/MBR'
+
+    * :attr:`luks`
+        LUKS encryption credentials, also triggers to
+        encrypt the disk
+
+    * :attr:`luks_os`
+        Target operating system name for LUKS encryption
+
+    * :attr:`machine`
+        Configured build type machine section
+
+    * :attr:`requested_filesystem`
+        Configured root filesystem
+
+    * :attr:`requested_boot_filesystem`
+        Configured boot filesystem
+
+    * :attr:`bootloader`
+        Configured boot loader
+
+    * :attr:`initrd_system`
+        Configured initrd system
+
+    * :attr:`disk_setup`
+        Instance of DiskSetup
+
+    * :attr:`boot_image`
+        Instance of BootImage
+
+    * :attr:`firmware`
+        Instance of FirmWare
+
+    * :attr:`system_setup`
+        Instance of SystemSetup
+
+    * :attr:`diskname`
+        File name of the disk image
+
+    * :attr:`install_media`
+        Build of install media requested true|false
+
+    * :attr:`install_image`
+        Instance of InstallImageBuilder
+
+    * :attr:`system`
+        Instance of a class with the sync_data capability
+        representing the entire image system except for the boot/ area
+        which could live on other parts of the disk
+
+    * :attr:`system_boot`
+        Instance of a class with the sync_data capability
+        representing the boot/ area of the disk if not part of
+        system
+
+    * :attr:`system_efi`
+        Instance of a class with the sync_data capability
+        representing the boot/efi area of the disk
+
+    * :attr:`result`
+        Instance of Result
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.arch = platform.machine()
@@ -120,6 +232,16 @@ class DiskBuilder(object):
         self.result = Result(xml_state)
 
     def create(self):
+        """
+        Build a bootable disk image and optional installation image
+        The installation image is a bootable hybrid ISO image which
+        embeds the disk image and an image installer
+
+        Image types which triggers this builder are:
+
+        * image="oem"
+        * image="vmx"
+        """
         if self.install_media and self.build_type_name != 'oem':
             raise KiwiInstallMediaError(
                 'Install media requires oem type setup, got %s' %

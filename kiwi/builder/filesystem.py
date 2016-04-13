@@ -34,7 +34,43 @@ from ..exceptions import (
 
 class FileSystemBuilder(object):
     """
-        Filesystem image builder
+    Filesystem image builder
+
+    Attributes
+
+    * :attr:`label`
+        filesystem label
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`requested_image_type`
+        Configured image type
+
+    * :attr:`requested_filesystem`
+        Requested filesystem name
+
+    * :attr:`system_setup`
+        Instance of SystemSetup
+
+    * :attr:`filename`
+        File name of the filesystem image
+
+    * :attr:`blocksize`
+        Configured disk blocksize
+
+    * :attr:`filesystem_setup`
+        Instance of FileSystemSetup
+
+    * :attr:`filesystems_no_device_node`
+        List of filesystems which are created from a data tree
+        and do not require a block device e.g loop
+
+    * :attr:`result`
+        Instance of Result
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.custom_args = None
@@ -71,6 +107,17 @@ class FileSystemBuilder(object):
         self.result = Result(xml_state)
 
     def create(self):
+        """
+        Build a mountable filesystem image
+
+        Image types which triggers this builder are:
+
+        * image="ext2"
+        * image="ext3"
+        * image="ext4"
+        * image="btrfs"
+        * image="xfs"
+        """
         log.info(
             'Creating %s filesystem', self.requested_filesystem
         )

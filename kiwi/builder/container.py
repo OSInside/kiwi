@@ -27,7 +27,30 @@ from ..system.result import Result
 
 class ContainerBuilder(object):
     """
-        container image builder
+    Container image builder
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`requested_container_name`
+        Configured container name or default
+
+    * :attr:`requested_container_type`
+        Configured container type
+
+    * :attr:`system_setup`
+        Instance of SystemSetup
+
+    * :attr:`filename`
+        File name of the container image
+
+    * :attr:`result`
+        Instance of Result
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir
@@ -49,6 +72,14 @@ class ContainerBuilder(object):
         self.result = Result(xml_state)
 
     def create(self):
+        """
+        Builds a container image which is usually a tarball including
+        container specific metadata.
+
+        Image types which triggers this builder are:
+
+        * image="docker"
+        """
         setup_options = {}
         if self.requested_container_name:
             setup_options['container_name'] = self.requested_container_name

@@ -32,7 +32,33 @@ from ..exceptions import (
 
 class ArchiveBuilder(object):
     """
-        root archive image builder
+    Root archive image builder
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`requested_archive_type`
+        Configured archive type
+
+    * :attr:`result`
+        Instance of Result
+
+    * :attr:`system_setup`
+        Instance of SystemSetup
+
+    * :attr:`filename`
+        File name of the archive file
+
+    * :attr:`checksum`
+        File name of the checksum file
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir
@@ -47,6 +73,15 @@ class ArchiveBuilder(object):
         self.checksum = self.__target_file_for('md5')
 
     def create(self):
+        """
+        Create a root archive tarball
+
+        Build a simple XZ compressed root tarball from the image root tree
+
+        Image types which triggers this builder are:
+
+        * image="tbz"
+        """
         supported_archives = Defaults.get_archive_image_types()
         if self.requested_archive_type not in supported_archives:
             raise KiwiArchiveSetupError(

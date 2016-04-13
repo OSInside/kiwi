@@ -42,7 +42,57 @@ from ..exceptions import (
 
 class LiveImageBuilder(object):
     """
-        Live image builder
+    Live image builder
+
+    Attributes
+
+    * :attr:`media_dir`
+        Temporary directory to collect the install ISO contents
+
+    * :attr:`arch`
+        platform.machine
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`live_type`
+        Configured live ISO type name
+
+    * :attr:`types`
+        List of supported live ISO types
+
+    * :attr:`hybrid`
+        Request for hybrid ISO: true|false
+
+    * :attr:`volume_id`
+        Configured ISO volume ID or default
+
+    * :attr:`mbrid`
+        Instance of SystemIdentifier
+
+    * :attr:`boot_image_task`
+        Instance of BootImage
+
+    * :attr:`firmware`
+        Instance of FirmWare
+
+    * :attr:`system_setup`
+        Instance of SystemSetup
+
+    * :attr:`isoname`
+        File name of the live ISO image
+
+    * :attr:`live_image_file`
+        File name of compressed image on the ISO
+
+    * :attr:`result`
+        Instance of Result
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.media_dir = None
@@ -92,6 +142,13 @@ class LiveImageBuilder(object):
         self.result = Result(xml_state)
 
     def create(self):
+        """
+        Build a bootable hybrid live ISO image
+
+        Image types which triggers this builder are:
+
+        * image="iso"
+        """
         # media dir to store CD contents
         self.media_dir = mkdtemp(
             prefix='live-media.', dir=self.target_dir
