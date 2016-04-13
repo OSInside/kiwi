@@ -21,7 +21,7 @@ from textwrap import dedent
 
 class BootLoaderTemplateIsoLinux(object):
     """
-        isolinux configuraton file templates
+    isolinux configuraton file templates
     """
     def __init__(self):
         self.cr = '\n'
@@ -119,22 +119,31 @@ class BootLoaderTemplateIsoLinux(object):
 
     def get_install_message_template(self):
         """
-            bootloader template for text message file in install mode.
-            isolinux displays this as menu if no graphics mode can be
-            initialized
+        Bootloader template for text message file in install mode.
+        isolinux displays this as menu if no graphics mode can be
+        initialized
+
+        :rtype: Template
         """
         return Template(self.install_message)
 
     def get_message_template(self):
         """
-            bootloader template for text message file. isolinux
-            displays this as menu if no graphics mode can be initialized
+        Bootloader template for text message file. isolinux
+        displays this as menu if no graphics mode can be initialized
+
+        :rtype: Template
         """
         return Template(self.message)
 
     def get_template(self, failsafe=True, with_theme=True):
         """
-            bootloader configuration template for live media
+        Bootloader configuration template for live media
+
+        :param bool failsafe: with failsafe true|false
+        :param bool with_theme: with graphics theme true|false
+
+        :rtype: Template
         """
         template_data = self.header
         if with_theme:
@@ -149,8 +158,13 @@ class BootLoaderTemplateIsoLinux(object):
 
     def get_multiboot_template(self, failsafe=True, with_theme=True):
         """
-            bootloader configuration template for live media with
-            hypervisor, e.g Xen dom0
+        Bootloader configuration template for live media with
+        hypervisor, e.g Xen dom0
+
+        :param bool failsafe: with failsafe true|false
+        :param bool with_theme: with graphics theme true|false
+
+        :rtype: Template
         """
         template_data = self.header
         if with_theme:
@@ -165,7 +179,12 @@ class BootLoaderTemplateIsoLinux(object):
 
     def get_install_template(self, failsafe=True, with_theme=True):
         """
-            bootloader configuration template for install media
+        Bootloader configuration template for install media
+
+        :param bool failsafe: with failsafe true|false
+        :param bool with_theme: with graphics theme true|false
+
+        :rtype: Template
         """
         template_data = self.header
         if with_theme:
@@ -180,8 +199,13 @@ class BootLoaderTemplateIsoLinux(object):
 
     def get_multiboot_install_template(self, failsafe=True, with_theme=True):
         """
-            bootloader configuration template for install media with
-            hypervisor, e.g Xen dom0
+        Bootloader configuration template for install media with
+        hypervisor, e.g Xen dom0
+
+        :param bool failsafe: with failsafe true|false
+        :param bool with_theme: with graphics theme true|false
+
+        :rtype: Template
         """
         template_data = self.header
         if with_theme:

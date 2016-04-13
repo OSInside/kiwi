@@ -21,7 +21,7 @@ from textwrap import dedent
 
 class BootLoaderTemplateGrub2(object):
     """
-        grub2 configuraton file templates
+    grub2 configuraton file templates
     """
     def __init__(self):
         self.cr = '\n'
@@ -218,7 +218,13 @@ class BootLoaderTemplateGrub2(object):
         self, failsafe=True, hybrid=True, terminal='gfxterm'
     ):
         """
-            bootloader configuration template for disk image
+        Bootloader configuration template for disk image
+
+        :param bool failsafe: with failsafe true|false
+        :param bool hybrid: with hybrid true|false
+        :param string terminal: output terminal name
+
+        :rtype: Template
         """
         template_data = self.header
         if hybrid:
@@ -242,8 +248,13 @@ class BootLoaderTemplateGrub2(object):
         self, failsafe=True, terminal='gfxterm'
     ):
         """
-            bootloader configuration template for disk image with
-            hypervisor, e.g Xen dom0
+        Bootloader configuration template for disk image with
+        hypervisor, e.g Xen dom0
+
+        :param bool failsafe: with failsafe true|false
+        :param string terminal: output terminal name
+
+        :rtype: Template
         """
         template_data = self.header
         if terminal == 'gfxterm':
@@ -260,7 +271,13 @@ class BootLoaderTemplateGrub2(object):
         self, failsafe=True, hybrid=True, terminal='gfxterm'
     ):
         """
-            bootloader configuration template for live ISO media
+        Bootloader configuration template for live ISO media
+
+        :param bool failsafe: with failsafe true|false
+        :param bool hybrid: with hybrid true|false
+        :param string terminal: output terminal name
+
+        :rtype: Template
         """
         template_data = self.header
         if hybrid:
@@ -285,8 +302,13 @@ class BootLoaderTemplateGrub2(object):
         self, failsafe=True, terminal='gfxterm'
     ):
         """
-            bootloader configuration template for live ISO media with
-            hypervisor, e.g Xen dom0
+        Bootloader configuration template for live ISO media with
+        hypervisor, e.g Xen dom0
+
+        :param bool failsafe: with failsafe true|false
+        :param string terminal: output terminal name
+
+        :rtype: Template
         """
         template_data = self.header
         if terminal == 'gfxterm':
@@ -304,7 +326,13 @@ class BootLoaderTemplateGrub2(object):
         self, failsafe=True, hybrid=True, terminal='gfxterm'
     ):
         """
-            bootloader configuration template for install media
+        Bootloader configuration template for install media
+
+        :param bool failsafe: with failsafe true|false
+        :param bool hybrid: with hybrid true|false
+        :param string terminal: output terminal name
+
+        :rtype: Template
         """
         template_data = self.header
         if hybrid:
@@ -329,8 +357,13 @@ class BootLoaderTemplateGrub2(object):
         self, failsafe=True, terminal='gfxterm'
     ):
         """
-            bootloader configuration template for install media with
-            hypervisor, e.g Xen dom0
+        Bootloader configuration template for install media with
+        hypervisor, e.g Xen dom0
+
+        :param bool failsafe: with failsafe true|false
+        :param string terminal: output terminal name
+
+        :rtype: Template
         """
         template_data = self.header
         if terminal == 'gfxterm':
