@@ -19,7 +19,28 @@
 
 class PackageManagerBase(object):
     """
-        Implements base class for package manager install tasks
+    Implements base class for installation/deletion of
+    packages and collections using a package manager
+
+    Attributes
+
+    * :attr:`repository`
+        Instance of Repository
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`root_bind`
+        Instance of RootBind
+
+    * :attr:`package_requests`
+        list of packages to install or delete
+
+    * :attr:`collection_requests`
+        list of collections to install
+
+    * :attr:`product_requests`
+        list of products to install
     """
     def __init__(self, repository, custom_args=None):
         self.repository = repository
@@ -32,45 +53,132 @@ class PackageManagerBase(object):
         self.post_init(custom_args)
 
     def post_init(self, custom_args=None):
+        """
+        Post initialization method
+
+        Implementation in specialized package manager class
+
+        :param list custom_args: unused
+        """
         pass
 
     def request_package(self, name):
+        """
+        Queue a package request
+
+        Implementation in specialized package manager class
+
+        :param string name: unused
+        """
         raise NotImplementedError
 
     def request_collection(self, name):
+        """
+        Queue a package collection
+
+        Implementation in specialized package manager class
+
+        :param string name: unused
+        """
         raise NotImplementedError
 
     def request_product(self, name):
+        """
+        Queue a product request
+
+        Implementation in specialized package manager class
+
+        :param string name: unused
+        """
         raise NotImplementedError
 
     def process_install_requests_bootstrap(self):
+        """
+        Process package install requests for bootstrap phase (no chroot)
+
+        Implementation in specialized package manager class
+        """
         raise NotImplementedError
 
     def process_install_requests(self):
+        """
+        Process package install requests for image phase (chroot)
+
+        Implementation in specialized package manager class
+        """
         raise NotImplementedError
 
     def process_delete_requests(self, force=False):
+        """
+        Process package delete requests (chroot)
+
+        Implementation in specialized package manager class
+
+        :param bool force: unused
+        """
         raise NotImplementedError
 
     def update(self):
+        """
+        Process package update requests (chroot)
+
+        Implementation in specialized package manager class
+        """
         raise NotImplementedError
 
     def process_only_required(self):
+        """
+        Setup package processing only for required packages
+
+        Implementation in specialized package manager class
+        """
         raise NotImplementedError
 
     def match_package_installed(self, package_list, log_line):
+        """
+        Match expression to indicate a package has been installed
+
+        Implementation in specialized package manager class
+
+        :param list package_list: unused
+        :param string log_line: unused
+        """
         raise NotImplementedError
 
     def match_package_deleted(self, package_list, log_line):
+        """
+        Match expression to indicate a package has been deleted
+
+        Implementation in specialized package manager class
+
+        :param list package_list: unused
+        :param string log_line: unused
+        """
         raise NotImplementedError
 
     def database_consistent(self):
+        """
+        Check if package database is consistent
+
+        Implementation in specialized package manager class
+        """
         raise NotImplementedError
 
     def dump_reload_package_database(self, version=45):
+        """
+        For rpm based package managers, dump and reload the database
+        to match the desired rpm db version
+
+        Implementation in specialized package manager class
+
+        :param string version: unused
+        """
         raise NotImplementedError
 
     def cleanup_requests(self):
+        """
+        Cleanup request queues
+        """
         del self.package_requests[:]
         del self.collection_requests[:]
         del self.product_requests[:]

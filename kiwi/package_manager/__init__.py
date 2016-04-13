@@ -26,7 +26,18 @@ from ..exceptions import (
 
 class PackageManager(object):
     """
-        package manager factory
+    Package manager factory
+
+    Attributes
+
+    * :attr:`repository`
+        Instance of Repository
+
+    * :attr:`package_manager`
+        package manager name
+
+    * :attr:`custom_args`
+        custom package manager arguments list
     """
     def __new__(self, repository, package_manager, custom_args=None):
         from ..logger import log

@@ -28,9 +28,25 @@ from ..exceptions import (
 
 class PackageManagerZypper(PackageManagerBase):
     """
-        Implements install tasks for the zypper package manager
+    Implements base class for installation/deletion of
+    packages and collections using zypper
     """
     def post_init(self, custom_args=None):
+        """
+        Post initialization method
+
+        Store custom zypper arguments
+
+        Attributes
+
+        * :attr:`zypper_args`
+            zypper arguments from repository runtime configuration
+
+        * :attr:`command_env`
+            zypper command environment from repository runtime configuration
+
+        :param list custom_args: custom zypper arguments
+        """
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
@@ -40,15 +56,33 @@ class PackageManagerZypper(PackageManagerBase):
         self.command_env = runtime_config['command_env']
 
     def request_package(self, name):
+        """
+        Queue a package request
+
+        :param string name: package name
+        """
         self.package_requests.append(name)
 
     def request_collection(self, name):
+        """
+        Queue a collection request
+
+        :param string name: zypper pattern name
+        """
         self.collection_requests.append('pattern:' + name)
 
     def request_product(self, name):
+        """
+        Queue a product request
+
+        :param string name: zypper product name
+        """
         self.product_requests.append('product:' + name)
 
     def process_install_requests_bootstrap(self):
+        """
+        Process package install requests for bootstrap phase (no chroot)
+        """
         command = ['zypper'] + self.zypper_args + [
             '--root', self.root_dir,
             'install', '--auto-agree-with-licenses'
@@ -58,6 +92,9 @@ class PackageManagerZypper(PackageManagerBase):
         )
 
     def process_install_requests(self):
+        """
+        Process package install requests for image phase (chroot)
+        """
         chroot_zypper_args = self.root_bind.move_to_root(
             self.zypper_args
         )
@@ -69,6 +106,11 @@ class PackageManagerZypper(PackageManagerBase):
         )
 
     def process_delete_requests(self, force=False):
+        """
+        Process package delete requests (chroot)
+
+        :param bool force: force deletion: true|false
+        """
         delete_items = []
         for delete_item in self.__delete_items():
             try:
@@ -101,6 +143,9 @@ class PackageManagerZypper(PackageManagerBase):
             )
 
     def update(self):
+        """
+        Process package update requests (chroot)
+        """
         chroot_zypper_args = self.root_bind.move_to_root(
             self.zypper_args
         )
@@ -112,24 +157,43 @@ class PackageManagerZypper(PackageManagerBase):
         )
 
     def process_only_required(self):
+        """
+        Setup package processing only for required packages
+        """
         if '--no-recommends' not in self.custom_args:
             self.custom_args.append('--no-recommends')
 
     def match_package_installed(self, package_name, zypper_output):
-        # this match for the package to be installed in the output
-        # of the zypper command is not 100% accurate. There might
-        # be false positives due to sub package names starting with
-        # the same base package name
+        """
+        Match expression to indicate a package has been installed
+
+        This match for the package to be installed in the output
+        of the zypper command is not 100% accurate. There might
+        be false positives due to sub package names starting with
+        the same base package name
+
+        :param list package_list: list of all packages
+        :param string log_line: zypper status line
+        """
         return re.match(
             '.*Installing: ' + re.escape(package_name) + '.*', zypper_output
         )
 
     def match_package_deleted(self, package_name, zypper_output):
+        """
+        Match expression to indicate a package has been deleted
+
+        :param list package_list: list of all packages
+        :param string log_line: zypper status line
+        """
         return re.match(
             '.*Removing: ' + re.escape(package_name) + '.*', zypper_output
         )
 
     def database_consistent(self):
+        """
+        Check if rpm package database is consistent
+        """
         try:
             Command.run(['chroot', self.root_dir, 'rpmdb', '--initdb'])
             return True
@@ -137,6 +201,15 @@ class PackageManagerZypper(PackageManagerBase):
             return False
 
     def dump_reload_package_database(self, version=45):
+        """
+        Dump and reload the rpm database to match the desired rpm db version
+        Supported target rpm database db versions are
+
+        * 45 (db45_load)
+        * 48 (db48_load)
+
+        :param string version: target rpm db version
+        """
         db_load_for_version = {
             45: 'db45_load',
             48: 'db48_load'
