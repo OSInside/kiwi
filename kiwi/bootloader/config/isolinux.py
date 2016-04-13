@@ -24,6 +24,7 @@ from ..template.isolinux import BootLoaderTemplateIsoLinux
 from ...utils.sync import DataSync
 from ...logger import log
 from ...path import Path
+from ...defaults import Defaults
 
 from ...exceptions import (
     KiwiTemplateError,
@@ -85,7 +86,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
-            [self.cmdline, self.get_failsafe_kernel_options()]
+            [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.hypervisor_domain = self.get_hypervisor_domain()

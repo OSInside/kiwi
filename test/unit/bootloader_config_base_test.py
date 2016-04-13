@@ -114,12 +114,6 @@ class TestBootLoaderConfigBase(object):
         self.bootloader.get_boot_cmdline()
         assert mock_log_warn.called
 
-    def test_get_failsafe_kernel_options(self):
-        assert self.bootloader.get_failsafe_kernel_options() == \
-            'ide=nodma apm=off noresume edd=off ' + \
-            'powersaved=off nohz=off highres=off processsor.max+cstate=1 ' + \
-            'nomodeset x11failsafe'
-
     @patch('kiwi.xml_parse.type_.get_installboot')
     def test_get_install_image_boot_id(self, mock_installboot):
         mock_installboot.return_value = None

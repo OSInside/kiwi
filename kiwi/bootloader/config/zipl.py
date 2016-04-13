@@ -26,6 +26,7 @@ from ...command import Command
 from ...logger import log
 from ...path import Path
 from ...firmware import FirmWare
+from ...defaults import Defaults
 
 from ...exceptions import (
     KiwiTemplateError,
@@ -104,7 +105,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
-            [self.cmdline, self.get_failsafe_kernel_options()]
+            [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.target_blocksize = self.xml_state.build_type.get_target_blocksize()
         self.target_type = self.xml_state.build_type.get_zipl_targettype()

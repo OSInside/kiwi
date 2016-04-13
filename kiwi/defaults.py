@@ -59,6 +59,29 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_failsafe_kernel_options(self):
+        """
+        Failsafe boot kernel options
+
+        :return: kernel options list
+        :rtype: list
+        """
+        return ' '.join(
+            [
+                'ide=nodma',
+                'apm=off',
+                'noresume',
+                'edd=off',
+                'powersaved=off',
+                'nohz=off',
+                'highres=off',
+                'processsor.max+cstate=1',
+                'nomodeset',
+                'x11failsafe'
+            ]
+        )
+
+    @classmethod
     def get_video_mode_map(self):
         """
         Implements video mode map

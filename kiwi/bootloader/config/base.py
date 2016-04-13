@@ -324,28 +324,6 @@ class BootLoaderConfigBase(object):
             title = self.xml_state.xml_data.get_name()
         return title
 
-    def get_failsafe_kernel_options(self):
-        """
-        Failsafe boot kernel options
-
-        :return: kernel options list
-        :rtype: list
-        """
-        return ' '.join(
-            [
-                'ide=nodma',
-                'apm=off',
-                'noresume',
-                'edd=off',
-                'powersaved=off',
-                'nohz=off',
-                'highres=off',
-                'processsor.max+cstate=1',
-                'nomodeset',
-                'x11failsafe'
-            ]
-        )
-
     def get_gfxmode(self, target):
         """
         Graphics mode according to bootloader target

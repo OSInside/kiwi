@@ -169,7 +169,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         log.info('Creating grub config file from template')
         cmdline = self.get_boot_cmdline(uuid)
         cmdline_failsafe = ' '.join(
-            [cmdline, self.get_failsafe_kernel_options()]
+            [cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
             'search_params': '--fs-uuid --set=root ' + uuid,
@@ -216,7 +216,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         log.info('Creating grub install config file from template')
         cmdline = self.get_boot_cmdline()
         cmdline_failsafe = ' '.join(
-            [cmdline, self.get_failsafe_kernel_options()]
+            [cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
@@ -264,7 +264,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         log.info('Creating grub live ISO config file from template')
         cmdline = self.get_boot_cmdline()
         cmdline_failsafe = ' '.join(
-            [cmdline, self.get_failsafe_kernel_options()]
+            [cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
