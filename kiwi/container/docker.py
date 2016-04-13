@@ -21,12 +21,22 @@ from ..archive.tar import ArchiveTar
 
 class ContainerImageDocker(object):
     """
-        Create docker container from a root directory
+    Create docker container from a root directory
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
     """
     def __init__(self, root_dir):
         self.root_dir = root_dir
 
     def create(self, filename):
+        """
+        Create compressed docker system container tar archive
+
+        :param string filename: archive file name
+        """
         exclude_list = [
             'image', '.profile', '.kconfig', 'var/cache/kiwi', 'boot'
         ]

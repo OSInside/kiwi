@@ -23,13 +23,23 @@ from .base import ContainerSetupBase
 
 class ContainerSetupDocker(ContainerSetupBase):
     """
-        docker container setup
+    Docker container setup
     """
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Store custom arguments
+
+        :param list custom_args: custom bootloader arguments
+        """
         if custom_args:
             self.custom_args = custom_args
 
     def setup(self):
+        """
+        Setup system for use with docker
+        """
         Path.create(self.root_dir + '/etc/lxc')
 
         services_to_deactivate = [
@@ -52,6 +62,9 @@ class ContainerSetupDocker(ContainerSetupBase):
             self.deactivate_systemd_service(service)
 
     def create_lxc_fstab(self):
+        """
+        Docker container lxc fstab setup
+        """
         with open(self.root_dir + '/etc/lxc/fstab', 'w') as lxtab:
             lxtab.write(
                 'proc /var/lib/lxc/%s/rootfs/proc proc defaults 0 0\n' %
@@ -63,6 +76,9 @@ class ContainerSetupDocker(ContainerSetupBase):
             )
 
     def create_lxc_config(self):
+        """
+        Docker container lxc config file setup
+        """
         lxc_name = self.custom_args['container_name']
         host_bind_mounts = [
             # use name resolution setup from host in container

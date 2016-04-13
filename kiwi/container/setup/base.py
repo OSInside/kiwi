@@ -29,10 +29,18 @@ from ...exceptions import (
 
 class ContainerSetupBase(object):
     """
-        Base class for setting up the root system to create
-        a container image from for e.g docker. The methods here
-        are generic to linux systems following the FHS standard
-        and modern enough e.g based on systemd
+    Base class for setting up the root system to create
+    a container image from for e.g docker. The methods here
+    are generic to linux systems following the FHS standard
+    and modern enough e.g based on systemd
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`custom_args`
+        dict of custom arguments
     """
     def __init__(self, root_dir, custom_args=None):
         if not os.path.exists(root_dir):
@@ -46,26 +54,39 @@ class ContainerSetupBase(object):
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Implementation in specialized container setup class
+
+        :param list custom_args: unused
+        """
         pass
 
     def setup(self):
         """
-            implement in specialized container setup class
+        Setup container metadata
+
+        Implementation in specialized bootloader class required
         """
         raise NotImplementedError
 
     def create_fstab(self):
         """
-            initialize an empty fstab file, mount processes in a
-            container are controlled by the container infrastructure
+        Container boot mount setup
+
+        Initialize an empty fstab file, mount processes in a
+        container are controlled by the container infrastructure
         """
         with open(self.root_dir + '/etc/fstab', 'w'):
             pass
 
     def deactivate_bootloader_setup(self):
         """
-            tell the system there is no bootloader configuration
-            it needs to care for. A container does not boot
+        Container bootloader setup
+
+        Tell the system there is no bootloader configuration
+        it needs to care for. A container does not boot
         """
         bootloader_setup = self.root_dir + '/etc/sysconfig/bootloader'
         if os.path.exists(bootloader_setup):
@@ -79,10 +100,12 @@ class ContainerSetupBase(object):
 
     def deactivate_root_filesystem_check(self):
         """
-            the root filesystem of a container could be an overlay
-            or a mapped device. In any case it should not be checked
-            for consistency as this is should be done by the container
-            infrastructure
+        Container filesystem check setup
+
+        The root filesystem of a container could be an overlay
+        or a mapped device. In any case it should not be checked
+        for consistency as this is should be done by the container
+        infrastructure
         """
         boot_setup = self.root_dir + '/etc/sysconfig/boot'
         if os.path.exists(boot_setup):
@@ -95,9 +118,13 @@ class ContainerSetupBase(object):
 
     def deactivate_systemd_service(self, name):
         """
-            init systems among others also controls services which
-            starts at boot time. A container does not really boot.
-            Thus some services needs to be deactivated
+        Container system services setup
+
+        Init systems among others also controls services which
+        starts at boot time. A container does not really boot.
+        Thus some services needs to be deactivated
+
+        :param string name: systemd service name
         """
         service_file = self.root_dir + '/usr/lib/systemd/system/' + name
         if os.path.exists(service_file):
@@ -113,7 +140,9 @@ class ContainerSetupBase(object):
 
     def setup_root_console(self):
         """
-            /dev/console should be allowed to login by root
+        Container console setup
+
+        /dev/console should be allowed to login by root
         """
         securetty = self.root_dir + '/etc/securetty'
         if not os.path.exists(securetty):
@@ -128,13 +157,15 @@ class ContainerSetupBase(object):
 
     def setup_static_device_nodes(self):
         """
-            without subsystems like udev running in a container it is
-            required to provide a set of device nodes to let the
-            system in the container function correctly. This is
-            done by syncing the host system nodes to the container.
-            That this will also create device nodes which are not
-            necessarily present in the container later is a know
-            limitation of this method and considered harmless
+        Container device node setup
+
+        Without subsystems like udev running in a container it is
+        required to provide a set of device nodes to let the
+        system in the container function correctly. This is
+        done by syncing the host system nodes to the container.
+        That this will also create device nodes which are not
+        necessarily present in the container later is a know
+        limitation of this method and considered harmless
         """
         try:
             data = DataSync('/dev/', self.root_dir + '/dev/')
@@ -147,6 +178,12 @@ class ContainerSetupBase(object):
             )
 
     def get_container_name(self):
+        """
+        Container name
+
+        :return: name
+        :rtype: string
+        """
         return self.custom_args['container_name']
 
     def __update_config(self, filename, update_record):

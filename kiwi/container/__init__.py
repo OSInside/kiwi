@@ -25,7 +25,10 @@ from ..exceptions import (
 
 class ContainerImage(object):
     """
-        Container Image factory
+    Container Image factory
+
+    :param string name: container system name
+    :param string root_dir: root directory path name
     """
     def __new__(self, name, root_dir):
         if name == 'docker':
