@@ -18,3 +18,7 @@ class TestBootLoaderInstallBase(object):
     @raises(NotImplementedError)
     def test_install(self):
         self.bootloader.install()
+
+    @raises(NotImplementedError)
+    def test_install_required(self):
+        self.bootloader.install_required()

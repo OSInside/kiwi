@@ -50,6 +50,14 @@ class BootLoaderInstallBase(object):
         """
         self.custom_args = custom_args
 
+    def install_required(self):
+        """
+        Check if bootloader needs to be installed
+
+        Implementation in specialized bootloader install class required
+        """
+        raise NotImplementedError
+
     def install(self):
         """
         Istall bootloader on self.device
