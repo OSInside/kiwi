@@ -28,7 +28,12 @@ from ...exceptions import(
 
 class BootLoaderInstallZipl(BootLoaderInstallBase):
     """
-        zipl bootloader installation
+    zipl bootloader installation
+
+    Attributes
+
+    * :attr:`boot_mount`
+        Instance of MountManager for boot device
     """
     def post_init(self, custom_args):
         self.custom_args = custom_args
@@ -42,11 +47,18 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
         )
 
     def install_required(self):
+        """
+        Check if zipl has to be installed
+
+        Allways required
+
+        :rtype: True
+        """
         return True
 
     def install(self):
         """
-            install bootloader on self.device
+        Install bootloader on self.device
         """
         log.info('Installing zipl on disk %s', self.device)
 

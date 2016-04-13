@@ -19,7 +19,18 @@
 
 class BootLoaderInstallBase(object):
     """
-        base class for bootloader installation on device
+    Base class for bootloader installation on device
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`device_provider`
+        Instance of class based on DeviceProvider
+
+    * :attr:`device`
+        device node name
     """
     def __init__(self, root_dir, device_provider, custom_args=None):
         self.root_dir = root_dir
@@ -30,10 +41,19 @@ class BootLoaderInstallBase(object):
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Store custom arguments by default
+
+        :param list custom_args: custom bootloader arguments
+        """
         self.custom_args = custom_args
 
     def install(self):
         """
-            install bootloader on self.device
+        Istall bootloader on self.device
+
+        Implementation in specialized bootloader install class required
         """
         raise NotImplementedError

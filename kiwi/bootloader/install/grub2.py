@@ -32,9 +32,40 @@ from ...exceptions import(
 
 class BootLoaderInstallGrub2(BootLoaderInstallBase):
     """
-        grub2 bootloader installation
+    grub2 bootloader installation
+
+    Attributes
+
+    * :attr:`arch`
+        platform.machine
+
+    * :attr:`firmware`
+        Instance of FirmWare
+
+    * :attr:`efi_mount`
+        Instance of MountManager for EFI device
+
+    * :attr:`root_mount`
+        Instance of MountManager for root device
+
+    * :attr:`boot_mount`
+        Instance of MountManager for boot device
+
+    * :attr:`device_mount`
+        Instance of MountManager for /dev tree
+
+    * :attr:`proc_mount`
+        Instance of MountManager for proc
+
+    * :attr:`sysfs_mount`
+        Instance of MountManager for sysfs
     """
     def post_init(self, custom_args):
+        """
+        grub2 post initialization method
+
+        Setup class attributes
+        """
         self.arch = platform.machine()
         self.custom_args = custom_args
         self.firmware = None
@@ -62,6 +93,14 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             )
 
     def install_required(self):
+        """
+        Check if grub2 has to be installed
+
+        Take architecture and firmware setup into account to check if
+        bootloader code in a boot record is required
+
+        :rtype: bool
+        """
         if 'ppc64' in self.arch and self.firmware.opal_mode():
             # OPAL doesn't need a grub2 stage1, just a config file.
             # The machine will be setup to kexec grub2 in user space
@@ -80,7 +119,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
     def install(self):
         """
-            install bootloader on disk device
+        Install bootloader on disk device
         """
         log.info('Installing grub2 on disk %s', self.device)
 
