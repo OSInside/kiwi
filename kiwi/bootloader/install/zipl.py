@@ -50,7 +50,7 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
         """
         Check if zipl has to be installed
 
-        Allways required
+        Always required
 
         :rtype: True
         """
