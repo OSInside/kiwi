@@ -24,25 +24,46 @@ from ..exceptions import (
 
 class DeviceProvider(object):
     """
-        base class for any class providing storage devices
+    Base class for any class providing storage devices
     """
     def get_device(self):
-        # could provide one ore more devices representing the storage
+        """
+        Representation of device nodes
+
+        Could provide one ore more devices representing the storage
+        Implementation in specialized device provider class
+        """
         raise KiwiDeviceProviderError(
             'No storage device(s) provided'
         )
 
     def get_uuid(self, device):
+        """
+        UUID of device
+
+        :param string device: node name
+        """
         uuid_call = Command.run(
             ['blkid', device, '-s', 'UUID', '-o', 'value']
         )
         return uuid_call.output.rstrip('\n')
 
     def get_byte_size(self, device):
+        """
+        Size of device in bytes
+
+        :param string device: node name
+        """
         blockdev_call = Command.run(
             ['blockdev', '--getsize64', device]
         )
         return int(blockdev_call.output.rstrip('\n'))
 
     def is_loop(self):
+        """
+        Check if device provider is loop based
+
+        By default this is always False and needs an implementation
+        in the the specialized device provider class
+        """
         return False

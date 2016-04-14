@@ -54,7 +54,7 @@ class TestDiskBuilder(object):
         self.disk.get_uuid = mock.Mock(
             return_value='0815'
         )
-        self.disk.get_partition_id_map = mock.Mock(
+        self.disk.get_public_partition_id_map = mock.Mock(
             return_value=self.id_map_sorted
         )
         self.disk.get_device = mock.Mock(

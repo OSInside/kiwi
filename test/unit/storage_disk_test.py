@@ -59,53 +59,53 @@ class TestDisk(object):
         self.partitioner.create.assert_called_once_with(
             'p.lxroot', 200, 't.linux'
         )
-        assert self.disk.partition_id_map['kiwi_RootPart'] == 1
-        assert self.disk.partition_id_map['kiwi_BootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
 
     def test_create_root_lvm_partition(self):
         self.disk.create_root_lvm_partition(100)
         self.partitioner.create.assert_called_once_with(
             'p.lxlvm', 100, 't.lvm'
         )
-        assert self.disk.partition_id_map['kiwi_RootPart'] == 1
-        assert self.disk.partition_id_map['kiwi_RootPartVol'] == 'LVRoot'
+        assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_RootPartVol'] == 'LVRoot'
 
     def test_create_root_raid_partition(self):
         self.disk.create_root_raid_partition(100)
         self.partitioner.create.assert_called_once_with(
             'p.lxraid', 100, 't.raid'
         )
-        assert self.disk.partition_id_map['kiwi_RootPart'] == 1
-        assert self.disk.partition_id_map['kiwi_RaidPart'] == 1
-        assert self.disk.partition_id_map['kiwi_RaidDev'] == '/dev/md0'
+        assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_RaidPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_RaidDev'] == '/dev/md0'
 
     def test_create_boot_partition(self):
         self.disk.create_boot_partition(100)
         self.partitioner.create.assert_called_once_with(
             'p.lxboot', 100, 't.linux'
         )
-        assert self.disk.partition_id_map['kiwi_BootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
 
     def test_create_efi_csm_partition(self):
         self.disk.create_efi_csm_partition(100)
         self.partitioner.create.assert_called_once_with(
             'p.legacy', 100, 't.csm'
         )
-        assert self.disk.partition_id_map['kiwi_BiosGrub'] == 1
+        assert self.disk.public_partition_id_map['kiwi_BiosGrub'] == 1
 
     def test_create_efi_partition(self):
         self.disk.create_efi_partition(100)
         self.partitioner.create.assert_called_once_with(
             'p.UEFI', 100, 't.efi'
         )
-        assert self.disk.partition_id_map['kiwi_EfiPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_EfiPart'] == 1
 
     def test_create_vboot_partition(self):
         self.disk.create_vboot_partition(42)
         self.partitioner.create.assert_called_once_with(
             'p.vboot', 42, 't.linux'
         )
-        assert self.disk.partition_id_map['kiwi_VbootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_VbootPart'] == 1
 
     @patch('kiwi.storage.disk.Command.run')
     def test_create_prep_partition(self, mock_command):
@@ -113,7 +113,7 @@ class TestDisk(object):
         self.partitioner.create.assert_called_once_with(
             'p.prep', 8, 't.prep'
         )
-        assert self.disk.partition_id_map['kiwi_PrepPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_PrepPart'] == 1
 
     @patch('kiwi.storage.disk.Command.run')
     def test_device_map_loop(self, mock_command):
@@ -223,8 +223,8 @@ class TestDisk(object):
         assert mock_log_warn.called
         self.disk.is_mapped = False
 
-    def test_get_partition_id_map(self):
-        assert self.disk.get_partition_id_map() == {}
+    def test_get_public_partition_id_map(self):
+        assert self.disk.get_public_partition_id_map() == {}
 
     def test_create_hybrid_mbr(self):
         self.disk.create_hybrid_mbr()

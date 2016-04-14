@@ -29,7 +29,30 @@ from ..logger import log
 
 class Disk(DeviceProvider):
     """
-        implement storage disk and partition table setup
+    Implements storage disk and partition table setup
+
+    Attributes
+
+    * :attr:`storage_provider`
+        Instance of class based on DeviceProvider
+
+    * :attr:`partition_map`
+        Dict of internal partition names to device node name
+
+    * :attr:`public_partition_id_map`
+        Dict of public partition names to partition number
+
+    * :attr:`partition_id_map`
+        Dict of internal partition names to partition number
+
+    * :attr:`is_mapped`
+        Indicate if partitions are kpartx mapped
+
+    * :attr:`partitioner`
+        Instance of Partitioner
+
+    * :attr:`table_type`
+        Partition table type
     """
     def __init__(self, table_type, storage_provider):
         # bind the underlaying block device providing class instance
@@ -38,8 +61,8 @@ class Disk(DeviceProvider):
         self.storage_provider = storage_provider
 
         self.partition_map = {}
+        self.public_partition_id_map = {}
         self.partition_id_map = {}
-        self.partition_id = {}
         self.is_mapped = False
 
         self.partitioner = Partitioner(
@@ -71,56 +94,56 @@ class Disk(DeviceProvider):
     def create_root_partition(self, mbsize):
         self.partitioner.create('p.lxroot', mbsize, 't.linux')
         self.__add_to_map('root')
-        self.__add_to_id_map('kiwi_RootPart')
-        if 'kiwi_BootPart' not in self.partition_id_map:
-            self.__add_to_id_map('kiwi_BootPart')
+        self.__add_to_public_id_map('kiwi_RootPart')
+        if 'kiwi_BootPart' not in self.public_partition_id_map:
+            self.__add_to_public_id_map('kiwi_BootPart')
 
     def create_root_lvm_partition(self, mbsize):
         self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
         self.__add_to_map('root')
-        self.__add_to_id_map('kiwi_RootPart')
-        self.__add_to_id_map('kiwi_RootPartVol', 'LVRoot')
+        self.__add_to_public_id_map('kiwi_RootPart')
+        self.__add_to_public_id_map('kiwi_RootPartVol', 'LVRoot')
 
     def create_root_raid_partition(self, mbsize):
         self.partitioner.create('p.lxraid', mbsize, 't.raid')
         self.__add_to_map('root')
-        self.__add_to_id_map('kiwi_RootPart')
-        self.__add_to_id_map('kiwi_RaidPart')
-        self.__add_to_id_map('kiwi_RaidDev', '/dev/md0')
+        self.__add_to_public_id_map('kiwi_RootPart')
+        self.__add_to_public_id_map('kiwi_RaidPart')
+        self.__add_to_public_id_map('kiwi_RaidDev', '/dev/md0')
 
     def create_boot_partition(self, mbsize):
         self.partitioner.create('p.lxboot', mbsize, 't.linux')
         self.__add_to_map('boot')
-        self.__add_to_id_map('kiwi_BootPart')
+        self.__add_to_public_id_map('kiwi_BootPart')
 
     def create_prep_partition(self, mbsize):
         self.partitioner.create('p.prep', mbsize, 't.prep')
         self.__add_to_map('prep')
-        self.__add_to_id_map('kiwi_PrepPart')
+        self.__add_to_public_id_map('kiwi_PrepPart')
 
     def create_efi_csm_partition(self, mbsize):
         self.partitioner.create('p.legacy', mbsize, 't.csm')
         self.__add_to_map('efi_csm')
-        self.__add_to_id_map('kiwi_BiosGrub')
+        self.__add_to_public_id_map('kiwi_BiosGrub')
 
     def create_efi_partition(self, mbsize):
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
         self.__add_to_map('efi')
-        self.__add_to_id_map('kiwi_EfiPart')
+        self.__add_to_public_id_map('kiwi_EfiPart')
 
     def create_vboot_partition(self, mbsize):
         self.partitioner.create('p.vboot', mbsize, 't.linux')
         self.__add_to_map('vboot')
-        self.__add_to_id_map('kiwi_VbootPart')
+        self.__add_to_public_id_map('kiwi_VbootPart')
 
     def activate_boot_partition(self):
         partition_id = None
-        if 'prep' in self.partition_id:
-            partition_id = self.partition_id['prep']
-        elif 'boot' in self.partition_id:
-            partition_id = self.partition_id['boot']
-        elif 'root' in self.partition_id:
-            partition_id = self.partition_id['root']
+        if 'prep' in self.partition_id_map:
+            partition_id = self.partition_id_map['prep']
+        elif 'boot' in self.partition_id_map:
+            partition_id = self.partition_id_map['boot']
+        elif 'root' in self.partition_id_map:
+            partition_id = self.partition_id_map['root']
 
         if partition_id:
             self.partitioner.set_flag(partition_id, 'f.active')
@@ -174,15 +197,15 @@ class Disk(DeviceProvider):
                 ['partprobe', self.storage_provider.get_device()]
             )
 
-    def get_partition_id_map(self):
+    def get_public_partition_id_map(self):
         return OrderedDict(
-            sorted(self.partition_id_map.items())
+            sorted(self.public_partition_id_map.items())
         )
 
-    def __add_to_id_map(self, name, value=None):
+    def __add_to_public_id_map(self, name, value=None):
         if not value:
             value = self.partitioner.get_id()
-        self.partition_id_map[name] = value
+        self.public_partition_id_map[name] = value
 
     def __add_to_map(self, name):
         device_node = None
@@ -204,7 +227,7 @@ class Disk(DeviceProvider):
                 )
         if device_node:
             self.partition_map[name] = device_node
-            self.partition_id[name] = partition_number
+            self.partition_id_map[name] = partition_number
 
     def __del__(self):
         if self.storage_provider.is_loop() and self.is_mapped:

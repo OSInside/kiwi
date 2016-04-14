@@ -579,7 +579,7 @@ class DiskBuilder(object):
     def __write_partition_id_config_to_boot_image(self):
         log.info('Creating config.partids in boot system')
         filename = self.boot_image.boot_root_directory + '/config.partids'
-        partition_id_map = self.disk.get_partition_id_map()
+        partition_id_map = self.disk.get_public_partition_id_map()
         with open(filename, 'w') as partids:
             for id_name, id_value in list(partition_id_map.items()):
                 partids.write('%s="%s"\n' % (id_name, id_value))
@@ -621,7 +621,7 @@ class DiskBuilder(object):
         if 'boot' in device_map:
             boot_device = device_map['boot']
 
-        partition_id_map = self.disk.get_partition_id_map()
+        partition_id_map = self.disk.get_public_partition_id_map()
         boot_partition_id = partition_id_map['kiwi_RootPart']
         if 'kiwi_BootPart' in partition_id_map:
             boot_partition_id = partition_id_map['kiwi_BootPart']
