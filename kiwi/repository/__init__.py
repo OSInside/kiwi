@@ -26,7 +26,19 @@ from ..exceptions import (
 
 class Repository(object):
     """
-        Repository factory
+    Repository factory
+
+    Attributes
+
+    * :attr:`root_bind`
+        Instance of RootBind
+
+    * :attr:`package_manager`
+        package manager name
+
+    * :attr:`custom_args`
+        list of custom package manager arguments
+        to setup the repository
     """
     def __new__(self, root_bind, package_manager, custom_args=None):
         if package_manager == 'zypper':

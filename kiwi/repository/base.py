@@ -19,7 +19,18 @@
 
 class RepositoryBase(object):
     """
-        Implements base class for package manager repo handling
+    Implements base class for package manager repository handling
+
+    Attributes
+
+    * :attr:`root_bind`
+        Instance of RootBind
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`shared_location`
+        shared directory between image root and build system root
     """
     def __init__(self, root_bind, custom_args=None):
         self.root_bind = root_bind
@@ -29,19 +40,61 @@ class RepositoryBase(object):
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Implementation in specialized repository class
+
+        :param list custom_args: unused
+        """
         pass
 
     def runtime_config(self):
+        """
+        Rrepository runtime configuration and environment
+
+        Implementation in specialized repository class
+        """
         raise NotImplementedError
 
     def add_repo(self, name, uri, repo_type, prio):
+        """
+        Add repository
+
+        Implementation in specialized repository class
+
+        :param string name: unused
+        :param string uri: unused
+        :param repo_type: unused
+        :param int prio: unused
+        """
         raise NotImplementedError
 
     def cleanup_unused_repos(self):
+        """
+        Cleanup/Delete unused repositories
+
+        Only configured repositories according to the image configuration
+        are allowed to be active when building
+
+        Implementation in specialized repository class
+        """
         raise NotImplementedError
 
     def delete_repo(self, name):
+        """
+        Delete repository
+
+        Implementation in specialized repository class
+
+        :param string name: unused
+        """
         raise NotImplementedError
 
     def delete_all_repos(self):
+        """
+        Delete all repositories
+
+        Implementation in specialized repository class
+        """
         raise NotImplementedError

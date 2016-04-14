@@ -31,9 +31,37 @@ from ..exceptions import (
 
 class RepositoryZypper(RepositoryBase):
     """
-        Implements repo handling for zypper package manager
+    Implements repo handling for zypper package manager
     """
     def post_init(self, custom_args=None):
+        """
+        Post initialization method
+
+        Store custom zypper arguments and create runtime configuration
+        and environment
+
+        Attributes
+
+        * :attr:`shared_zypper_dir`
+            shared directory between image root and build system root
+
+        * :attr:`runtime_zypper_config_file`
+            zypper runtime config file name
+
+        * :attr:`runtime_zypp_config_file`
+            libzypp runtime config file name
+
+        * :attr:`zypper_args`
+            zypper caller args plus additional custom args
+
+        * :attr:`command_env`
+            customized os.environ for zypper
+
+        * :attr:`runtime_zypper_config`
+            Instance of ConfigParser
+
+        :param list custom_args: zypper arguments
+        """
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
@@ -98,12 +126,23 @@ class RepositoryZypper(RepositoryBase):
         self.__write_runtime_config()
 
     def runtime_config(self):
+        """
+        zypper runtime configuration and environment
+        """
         return {
             'zypper_args': self.zypper_args,
             'command_env': self.command_env
         }
 
     def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
+        """
+        Add zypper repository
+
+        :param string name: repository name
+        :param string uri: repository URI
+        :param repo_type: repostory type name
+        :param int prio: yum repostory priority
+        """
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
         if 'iso-mount' in uri:
@@ -131,6 +170,11 @@ class RepositoryZypper(RepositoryBase):
                 )
 
     def delete_repo(self, name):
+        """
+        Delete zypper repository
+
+        :param string name: repository name
+        """
         Command.run(
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir, 'removerepo', name
@@ -139,20 +183,28 @@ class RepositoryZypper(RepositoryBase):
         )
 
     def delete_all_repos(self):
+        """
+        Delete all zypper repositories
+        """
         Path.wipe(self.shared_zypper_dir['reposd-dir'])
         Path.create(self.shared_zypper_dir['reposd-dir'])
 
     def cleanup_unused_repos(self):
-        # zypper creates a system solvable which is unwanted for the
-        # purpose of building images. In addition zypper fails with
-        # an error message 'Failed to cache rpm database' if such a
-        # system solvable exists and a new root system is created
+        """
+        Delete unused zypper repositories
+
+        zypper creates a system solvable which is unwanted for the
+        purpose of building images. In addition zypper fails with
+        an error message 'Failed to cache rpm database' if such a
+        system solvable exists and a new root system is created
+
+        All other repository configurations which are not used for
+        this build must be removed too, otherwise they are taken into
+        account for the package installations
+        """
         solv_dir = self.shared_zypper_dir['solv-cache-dir']
         Path.wipe(solv_dir + '/@System')
 
-        # repository configurations which are not used for this build
-        # must be removed otherwise they are taken into account for
-        # the package installations
         repos_dir = self.shared_zypper_dir['reposd-dir']
         for elements in os.walk(repos_dir):
             for repo_file in list(elements[2]):

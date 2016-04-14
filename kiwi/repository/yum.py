@@ -26,9 +26,31 @@ from ..path import Path
 
 class RepositoryYum(RepositoryBase):
     """
-        Implements repo handling for yum package manager
+    Implements repository handling for yum package manager
     """
     def post_init(self, custom_args=None):
+        """
+        Post initialization method
+
+        Store custom yum arguments and create runtime configuration
+        and environment
+
+        Attributes
+
+        * :attr:`shared_yum_dir`
+            shared directory between image root and build system root
+
+        * :attr:`runtime_yum_config_file`
+            yum runtime config file name
+
+        * :attr:`command_env`
+            customized os.environ for yum
+
+        * :attr:`runtime_yum_config`
+            Instance of ConfigParser
+
+        :param list custom_args: yum arguments
+        """
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
@@ -98,12 +120,23 @@ class RepositoryYum(RepositoryBase):
         self.__write_runtime_config()
 
     def runtime_config(self):
+        """
+        yum runtime configuration and environment
+        """
         return {
             'yum_args': self.yum_args,
             'command_env': self.command_env
         }
 
     def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
+        """
+        Add yum repository
+
+        :param string name: repository base file name
+        :param string uri: repository URI
+        :param repo_type: repostory type name
+        :param int prio: yum repostory priority
+        """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
         if 'iso-mount' in uri:
@@ -129,18 +162,30 @@ class RepositoryYum(RepositoryBase):
                 repo_config.write(repo)
 
     def delete_repo(self, name):
+        """
+        Delete yum repository
+
+        :param string name: repository base file name
+        """
         Path.wipe(
             self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         )
 
     def delete_all_repos(self):
+        """
+        Delete all yum repositories
+        """
         Path.wipe(self.shared_yum_dir['reposd-dir'])
         Path.create(self.shared_yum_dir['reposd-dir'])
 
     def cleanup_unused_repos(self):
-        # repository configurations which are not used for this build
-        # must be removed otherwise they are taken into account for
-        # the package installations
+        """
+        Delete unused yum repositories
+
+        Repository configurations which are not used for this build
+        must be removed otherwise they are taken into account for
+        the package installations
+        """
         repos_dir = self.shared_yum_dir['reposd-dir']
         for elements in os.walk(repos_dir):
             for repo_file in list(elements[2]):
