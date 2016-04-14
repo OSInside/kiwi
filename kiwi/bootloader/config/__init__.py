@@ -27,7 +27,21 @@ from ...exceptions import (
 
 class BootLoaderConfig(object):
     """
-        BootLoaderConfig factory
+    BootLoaderConfig factory
+
+    Attributes
+
+    * :attr:`name`
+        bootloader name
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`custom_args`
+        list of custom bootloader arguments
     """
     def __new__(self, name, xml_state, root_dir, custom_args=None):
         if name == 'grub2':
