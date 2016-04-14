@@ -14,7 +14,8 @@
     - [Dropped Features](#dropped-features)
   * [Building in the buildservice](#building-in-the-buildservice)
   * [Contributing](#contributing)
-  * [Developing](#developing)
+    - [Running Test Cases](#running-test-cases)
+    - [Signing GIT patches](#signing-git-patches)
   * [Packaging and Versioning](#packaging-and-versioning)
   * [Documentation](#documentation)
   
@@ -221,26 +222,26 @@ The following procedure describes how to create such an environment:
 1. Create the virtual environment:
 
    ```
-$ pyvenv-3.4 .env3
-```
+   $ pyvenv-3.4 .env3
+   ```
 
 2. Activate the virtual environment:
 
    ```
-$ source .env3/bin/activate
-```
+   $ source .env3/bin/activate
+   ```
 
 3. Install KIWI requirements inside the virtual environment:
 
    ```
-$ pip3.4 install -r .virtualenv.dev-requirements.txt
-```
+   $ pip3.4 install -r .virtualenv.dev-requirements.txt
+   ```
 
 4. Install KIWI in "development mode":
 
    ```
-$ ./setup.py develop
-```
+   $ ./setup.py develop
+   ```
 
 You're done!
 
@@ -251,7 +252,7 @@ The __develop__ target of the `setup.py` script automatically creates
 the application entry point called `kiwi`, which allows to simply
 call the application from the current code base:
 
-   ```
+```
 $ kiwi-py3 --help
 ```
 
@@ -265,10 +266,12 @@ To resume your work, change into your local Git repository and
 run `source .env3/bin/activate` again. Skip step 3 and 4 as
 the requirements are already installed.
 
+### Running Test Cases
 
-## Developing and Running Test Cases
-
-When developing KIWI, the preferred method is to use Tox:
+For running test cases, the preferred method is to use Tox.
+The Tox execution environment can be used to run any kind of
+target, tests are just one, documentation is another one.
+Refer to tox.ini for more details
 
 ```
 $ tox
@@ -289,6 +292,67 @@ example runs the test cases for the 3.4 interpreter only:
 ```
 $ tox -e 3.4
 ```
+
+### Signing GIT patches
+
+With ssh keys being widely available and the increasing compute power available
+to many people refactoring of SSH keys is in the range of possibilities.
+Therefore SSH keys as used by GitHub as a 'login/authentication' mechanism no
+longer provide the security they once did. See
+[github ssh keys](http://cryptosense.com/batch-gcding-github-ssh-keys) and
+[github users keys](https://blog.benjojo.co.uk/post/auditing-github-users-keys)
+as reference. In an effort to ensure the integrity of the repository and the
+code base patches sent for inclusion must be GPG signed. Follow the
+instructions below to let git sign your commits.
+
+1. Create a key suitable for signing (its not recommended to use
+   existing keys to not mix it up with your email environment etc):
+
+   ```
+   $ gpg --gen-key
+   ```
+
+   Choose a DSA key (3) with a keysize of 2048 bits (default) and
+   a validation of 3 years (3y). Enter your name/email and gpg
+   will generate a DSA key for you:
+
+   You can also choose to use an empty passphrase, despite GPG's warning,
+   because you are only going to sign your public git commits with it and
+   dont need it for protecting any of your secrets. That might ease later
+   use if you are not using an gpg-agent that caches your passphrase between
+   multiple signed git commits.
+
+2. Add the key ID to your git config
+
+   In above case, the ID is 11223344 so you add it to either your global
+   __~/.gitconfig__ or even better to your __.git/config__ inside your
+   repo:
+
+   ```
+   [user]
+       name = Joe Developer
+       email = developer@foo.bar
+       signingkey = 11223344
+   ```
+
+   That's basically it.
+
+3. Signing your commits
+
+   Instead of 'git commit -a' use the following command to sign your commit
+
+   ```
+   $ git commit -S -a
+   ```
+
+4. Show signatures of the commit history
+
+   The signatures created by this can later be verified using the following
+   command:
+
+   ```
+   $ git log --show-signature
+   ```
 
 ## Packaging and Versioning
 
