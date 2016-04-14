@@ -79,35 +79,16 @@ $ sudo zypper ar -f \
 $ sudo zypper in python3-kiwi
 ```
 
-Please note the package uses the alternatives mechanism to setup
-a symbolic link named `kiwi` to the real executable named `kiwi-py3`.
-If the link target `/usr/bin/kiwi` already exists on your system, the
-alternative setup will skip the creation of the link target because it
-already exists.
-
 ### Compatibility
 
 The legacy KIWI version can be installed and used together with
-the next generation KIWI. The python3-kiwi package makes use
-of the alternatives mechanism as follows. If both versions are
-installed users will reach the legacy KIWI with
+the next generation KIWI.
 
-```
-$ sudo kiwi ...
-```
-
-and the next generation KIWI with
-
-```
-$ sudo kiwi-py3 ...
-```
-
-If only the next generation kiwi is installed the alternatives link __kiwi__
-exists. The next generation KIWI provides a completion like we have it
-in the legacy KIWI too. However if both versions are installed the
-completion for the next generation KIWI conflicts with the legacy KIWI
-and thus can only be reached if invoked with __sudo kiwi-py3__
-because of the __kiwi__ name conflict.
+Please note the python3-kiwi package uses the alternatives mechanism to
+setup a symbolic link named `kiwi` to the real executable named `kiwi-py3`.
+If the link target `/usr/bin/kiwi` already exists on your system, the
+alternative setup will skip the creation of the link target because it
+already exists.
 
 From an appliance description perspective both KIWI versions are fully
 compatible. Users can build their appliances with both versions and the
@@ -119,7 +100,7 @@ legacy KIWI, unless the appliance description properly encapsulates the
 differences into a profile.
 
 The next generation KIWI also provides the __--compat__ option and the
-__kiwicompat__ tool to be able to use the same commandline as provided
+`kiwicompat` tool to be able to use the same commandline as provided
 with the legacy KIWI version.
 
 ### Example Appliance Descriptions
