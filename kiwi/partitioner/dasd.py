@@ -25,10 +25,14 @@ from .base import PartitionerBase
 
 class PartitionerDasd(PartitionerBase):
     """
-        implement fdasd partition setup
+    Implements DASD partition setup
     """
     def post_init(self):
-        # fdasd partition type/flag map
+        """
+        Post initialization method
+
+        Setup fdasd partition type/flag map
+        """
         self.flag_map = {
             'f.active': None,
             't.linux': '1',
@@ -39,6 +43,14 @@ class PartitionerDasd(PartitionerBase):
         }
 
     def create(self, name, mbsize, type_name, flags=None):
+        """
+        Create DASD partition
+
+        :param string name: partition name
+        :param int mbsize: partition size
+        :param string type_name: unused
+        :param list flags: unused
+        """
         self.partition_id += 1
         fdasd_input = NamedTemporaryFile()
         with open(fdasd_input.name, 'w') as partition:

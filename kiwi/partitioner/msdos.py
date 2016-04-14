@@ -29,10 +29,14 @@ from ..exceptions import (
 
 class PartitionerMsDos(PartitionerBase):
     """
-        implement old style msdos partition setup
+    Implement old style msdos partition setup
     """
     def post_init(self):
-        # sfdisk partition type/flag map
+        """
+        Post initialization method
+
+        Setup sfdisk partition type/flag map
+        """
         self.flag_map = {
             'f.active': True,
             't.linux': '83',
@@ -44,6 +48,14 @@ class PartitionerMsDos(PartitionerBase):
         }
 
     def create(self, name, mbsize, type_name, flags=None):
+        """
+        Create msdos partition
+
+        :param string name: partition name
+        :param int mbsize: partition size
+        :param string type_name: partition type
+        :param list flags: additional flags
+        """
         self.partition_id += 1
         fdisk_input = NamedTemporaryFile()
         with open(fdisk_input.name, 'w') as partition:
@@ -81,6 +93,12 @@ class PartitionerMsDos(PartitionerBase):
                 self.set_flag(self.partition_id, flag_name)
 
     def set_flag(self, partition_id, flag_name):
+        """
+        Set msdos partition flag
+
+        :param int partition_id: partition number
+        :param string flag_name: name from flag map
+        """
         if flag_name not in self.flag_map:
             raise KiwiPartitionerMsDosFlagError(
                 'Unknown partition flag %s' % flag_name

@@ -19,28 +19,74 @@
 
 class PartitionerBase(object):
     """
-        base class for partitioners
+    Base class for partitioners
+
+    Attributes
+
+    * :attr:`disk_device`
+        disk device node
+
+    * :attr:`partition_id`
+        current partition number
+
+    * :attr:`flag_map`
+        initial partition type/flag map
     """
     def __init__(self, disk_provider):
         self.disk_device = disk_provider.get_device()
         self.partition_id = 0
 
-        # initial partition type/flag map
         self.flag_map = None
 
         self.post_init()
 
     def post_init(self):
+        """
+        Post initialization method
+
+        Implementation in specialized partitioner class
+        """
         pass
 
     def get_id(self):
+        """
+        Current partition number
+
+        Zero indicates no partition has been created so far
+
+        :return: partition number
+        :rtype: int
+        """
         return self.partition_id
 
     def create(self, name, mbsize, type_name, flags=None):
+        """
+        Create partition
+
+        Implementation in specialized partitioner class
+
+        :param string name: unused
+        :param int mbsize: unused
+        :param string type_name: unused
+        :param list flags: unused
+        """
         raise NotImplementedError
 
     def set_flag(self, partition_id, flag_name):
+        """
+        Set partition flag
+
+        Implementation in specialized partitioner class
+
+        :param int partition_id: unused
+        :param string flag_name: unused
+        """
         raise NotImplementedError
 
     def set_hybrid_mbr(self):
+        """
+        Turn partition table into hybrid table if supported
+
+        Implementation in specialized partitioner class
+        """
         raise NotImplementedError

@@ -27,10 +27,14 @@ from ..exceptions import (
 
 class PartitionerGpt(PartitionerBase):
     """
-        implement GPT partition setup
+    Implements GPT partition setup
     """
     def post_init(self):
-        # gdisk partition type/flag map
+        """
+        Post initialization method
+
+        Setup gdisk partition type/flag map
+        """
         self.flag_map = {
             'f.active': None,
             't.csm': 'EF02',
@@ -41,6 +45,14 @@ class PartitionerGpt(PartitionerBase):
         }
 
     def create(self, name, mbsize, type_name, flags=None):
+        """
+        Create GPT partition
+
+        :param string name: partition name
+        :param int mbsize: partition size
+        :param string type_name: partition type
+        :param list flags: additional flags
+        """
         self.partition_id += 1
         if mbsize == 'all_free':
             partition_end = '0'
@@ -60,6 +72,12 @@ class PartitionerGpt(PartitionerBase):
                 self.set_flag(self.partition_id, flag_name)
 
     def set_flag(self, partition_id, flag_name):
+        """
+        Set GPT partition flag
+
+        :param int partition_id: partition number
+        :param string flag_name: name from flag map
+        """
         if flag_name not in self.flag_map:
             raise KiwiPartitionerGptFlagError(
                 'Unknown partition flag %s' % flag_name
@@ -76,6 +94,9 @@ class PartitionerGpt(PartitionerBase):
             log.warning('Flag %s ignored on GPT', flag_name)
 
     def set_hybrid_mbr(self):
+        """
+        Turn partition table into hybrid GPT/MBR table
+        """
         partition_ids = []
         partition_number_to_embed = self.partition_id
         if partition_number_to_embed > 3:

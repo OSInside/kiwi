@@ -29,7 +29,15 @@ from ..exceptions import (
 
 class Partitioner(object):
     """
-        Partitioner factory
+    Partitioner factory
+
+    Attributes
+
+    * :attr:`table_type`
+        Table type name
+
+    * :attr:`storage_provider`
+        Instance of class based on DeviceProvider
     """
     def __new__(self, table_type, storage_provider):
         host_architecture = platform.machine()
