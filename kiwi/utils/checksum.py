@@ -30,7 +30,15 @@ from ..exceptions import (
 
 class Checksum(object):
     """
-        manage checksum creation for files
+    Manage checksum creation for files
+
+    Attributes
+
+    * :attr:`source_filename`
+        source file name to build checksum for
+
+    * :attr:`checksum_filename`
+        target file with checksum information
     """
     def __init__(self, source_filename):
         if not os.path.exists(source_filename):
@@ -41,6 +49,11 @@ class Checksum(object):
         self.checksum_filename = None
 
     def md5(self, filename=None):
+        """
+        Create md5 checksum
+
+        :param string filename: filename for checksum
+        """
         md5_checksum = self.__calculate_hash_hexdigest(
             hashlib.md5(), self.source_filename
         )
@@ -51,6 +64,11 @@ class Checksum(object):
         return md5_checksum
 
     def sha256(self, filename=None):
+        """
+        Create sha256 checksum
+
+        :param string filename: filename for checksum
+        """
         sha256_checksum = self.__calculate_hash_hexdigest(
             hashlib.sha256(), self.source_filename
         )

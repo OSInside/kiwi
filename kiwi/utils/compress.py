@@ -29,7 +29,24 @@ from ..exceptions import (
 
 class Compress(object):
     """
-        File compression / decompression
+    File compression / decompression
+
+    Attributes
+
+    * :attr:`keep_source`
+        Request to keep the uncompressed source
+
+    * :attr:`source_filename`
+        Source file name to compress
+
+    * :attr:`supported_zipper`
+        List of supported compression tools
+
+    * :attr:`compressed_filename`
+        Compressed file name path with compression suffix
+
+    * :attr:`uncompressed_filename`
+        Uncompressed file name path
     """
     def __init__(self, source_filename, keep_source_on_compress=False):
         if not os.path.exists(source_filename):
@@ -45,6 +62,9 @@ class Compress(object):
         self.uncompressed_filename = None
 
     def xz(self):
+        """
+        Create XZ compressed file
+        """
         options = [
             '--check=crc32',
             '--lzma2=dict=512KiB'
@@ -57,6 +77,9 @@ class Compress(object):
         self.compressed_filename = self.source_filename + '.xz'
 
     def gzip(self):
+        """
+        Create gzip(max compression) compressed file
+        """
         options = [
             '-9'
         ]
@@ -68,6 +91,15 @@ class Compress(object):
         self.compressed_filename = self.source_filename + '.gz'
 
     def uncompress(self, temporary=False):
+        """
+        Uncompress with format autodetection
+
+        By default the original source file will be changed into
+        the uncompressed variant. If temporary is set to True
+        a temporary file is created instead
+
+        :param bool temporary: uncompress to a temporary file
+        """
         zipper = self.get_format()
         if not zipper:
             raise KiwiCompressionFormatUnknown(
@@ -87,6 +119,12 @@ class Compress(object):
             self.uncompressed_filename = self.temp_file.name
 
     def get_format(self):
+        """
+        Detect compression format
+
+        :return: compression format name
+        :rtype: string
+        """
         for zipper in self.supported_zipper:
             try:
                 Command.run([zipper, '-l', self.source_filename])

@@ -21,14 +21,28 @@ from ..command import Command
 
 class DataSync(object):
     """
-        sync data from a source directory to a target directory
-        using the rsync protocol
+    Sync data from a source directory to a target directory
+    using the rsync protocol
+
+    Attributes
+
+    * :attr:`source_dir`
+        source directory path name
+
+    * :attr:`target_dir`
+        target directory path name
     """
     def __init__(self, source_dir, target_dir):
         self.source_dir = source_dir
         self.target_dir = target_dir
 
     def sync_data(self, options=None, exclude=None):
+        """
+        Sync data from source to target using rsync
+
+        :param list options: rsync options
+        :param list exclude: file patterns to exclude
+        """
         exclude_options = []
         rsync_options = []
         if options:
