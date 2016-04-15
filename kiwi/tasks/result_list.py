@@ -39,9 +39,17 @@ from ..logger import log
 
 class ResultListTask(CliTask):
     """
-        Implements result listing
+    Implements result listing
+
+    Attributes
+
+    * :attr:`manual`
+        Instance of Help
     """
     def process(self):
+        """
+        List result information from a previous system command
+        """
         self.manual = Help()
         if self.__help():
             return

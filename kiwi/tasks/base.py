@@ -31,8 +31,22 @@ from ..exceptions import (
 
 class CliTask(object):
     """
-        Base class for all task classes, loads the task and provides
-        the interface to the command options and the XML description
+    Base class for all task classes, loads the task and provides
+    the interface to the command options and the XML description
+
+    Attributes
+
+    * :attr:`cli`
+        Instance of Cli
+
+    * :attr:`task`
+        Instance of imported task class
+
+    * :attr:`command_args`
+        command specific docopt arguments dictionary
+
+    * :attr:`global_args`
+        global docopt arguments dictionary
     """
     def __init__(self, should_perform_task_setup=True):
         from ..logger import log
@@ -68,6 +82,20 @@ class CliTask(object):
                 log.set_color_format()
 
     def load_xml_description(self, description_directory):
+        """
+        Load, upgrade, validate XML description
+
+        Attributes
+
+        * :attr:`xml_data`
+            instance of XML data toplevel domain (image), stateless data
+
+        * :attr:`config_file`
+            used config file path
+
+        * :attr:`xml_state`
+            Instance of XMLState, stateful data
+        """
         from ..logger import log
 
         log.info('Loading XML description')
@@ -111,5 +139,14 @@ class CliTask(object):
             )
 
     def quadruple_token(self, option):
+        """
+        Helper method for commandline options of the form --option a,b,c,d
+
+        Make sure to provide a common result for option values which
+        separates the information in a comma separated list of values
+
+        :return: common option value representation
+        :rtype: string
+        """
         tokens = option.split(',', 3)
         return [tokens.pop(0) if len(tokens) else None for _ in range(0, 4)]

@@ -49,9 +49,19 @@ from ..logger import log
 
 class SystemCreateTask(CliTask):
     """
-        Implements creation of system images
+    Implements creation of system images
+
+    Attributes
+
+    * :attr:`manual`
+        Instance of Help
     """
     def process(self):
+        """
+        Create a system image from the specified root directory
+        the root directory is the result of a system prepare
+        command
+        """
         self.manual = Help()
         if self.__help():
             return

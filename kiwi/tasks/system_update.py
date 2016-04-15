@@ -49,9 +49,19 @@ from ..logger import log
 
 class SystemUpdateTask(CliTask):
     """
-        Implements update and maintenance of root systems
+    Implements update and maintenance of root systems
+
+    Attributes
+
+    * :attr:`manual`
+        Instance of Help
     """
     def process(self):
+        """
+        Update root system with latest repository updates
+        and optionally allow to add or delete packages. the options
+        to add or delete packages can be used multiple times
+        """
         self.manual = Help()
         if self.__help():
             return

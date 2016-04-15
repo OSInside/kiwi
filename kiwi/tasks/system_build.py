@@ -63,9 +63,18 @@ from ..logger import log
 
 class SystemBuildTask(CliTask):
     """
-        Implements building of system images
+    Implements building of system images
+
+    Attributes
+
+    * :attr:`manual`
+        Instance of Help
     """
     def process(self):
+        """
+        Build a system image from the specified description. The
+        build command combines the prepare and create commands
+        """
         self.manual = Help()
         if self.__help():
             return

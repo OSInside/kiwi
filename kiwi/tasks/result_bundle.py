@@ -59,9 +59,21 @@ from ..exceptions import (
 
 class ResultBundleTask(CliTask):
     """
-        Implements result bundler
+    Implements result bundler
+
+    Attributes
+
+    * :attr:`manual`
+        Instance of Help
     """
     def process(self):
+        """
+        Create result bundle from the image build results in the
+        specified target directory. Each result image will contain
+        the specified bundle identifier as part of its filename.
+        Uncompressed image files will also become xz compressed
+        and a sha sum will be created from every result image
+        """
         self.manual = Help()
         if self.__help():
             return

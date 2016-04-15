@@ -65,9 +65,17 @@ from ..logger import log
 
 class SystemPrepareTask(CliTask):
     """
-        Implements preparation and installation of a new root system
+    Implements preparation and installation of a new root system
+
+    Attributes
+
+    * :attr:`manual`
+        Instance of Help
     """
     def process(self):
+        """
+        Prepare and install a new system for chroot access
+        """
         self.manual = Help()
         if self.__help():
             return
