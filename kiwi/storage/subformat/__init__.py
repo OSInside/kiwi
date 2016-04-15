@@ -29,7 +29,21 @@ from ...exceptions import (
 
 class DiskFormat(object):
     """
-        DiskFormat factory
+    DiskFormat factory
+
+    Attributes
+
+    * :attr:`name`
+        Format name
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`target_dir`
+        target directory path name
     """
     def __new__(self, name, xml_state, root_dir, target_dir):
         if name == 'qcow2':

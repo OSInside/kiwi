@@ -30,12 +30,25 @@ from ...exceptions import (
 
 class DiskFormatVmdk(DiskFormatBase):
     """
-        create vmdk image format
+    Create vmdk disk format
     """
     def post_init(self, custom_args):
+        """
+        vmdk disk format post initialization method
+
+        Store qemu options as list from custom args dict
+
+        Attributes
+
+        * :attr:`options`
+            qemu format conversion options
+        """
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
+        """
+        Create vmdk disk format
+        """
         Command.run(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
@@ -48,13 +61,13 @@ class DiskFormatVmdk(DiskFormatBase):
 
     def __update_vmdk_descriptor(self):
         """
-            Update the VMDK descriptor with the VMware tools version
-            and type information. This is done to let VMware's virtualization
-            infrastructure know about the installed VMware tools at boot
-            time of the image within a VMware virtual environment
-            e.g VCloud Air. It's required to have vmtoolsd installed as
-            part of the image. If not found a warning is provided to the
-            user and the VMDK descriptor stays untouched
+        Update the VMDK descriptor with the VMware tools version
+        and type information. This is done to let VMware's virtualization
+        infrastructure know about the installed VMware tools at boot
+        time of the image within a VMware virtual environment
+        e.g VCloud Air. It's required to have vmtoolsd installed as
+        part of the image. If not found a warning is provided to the
+        user and the VMDK descriptor stays untouched
         """
         vmdk_vmtoolsd = self.root_dir + '/usr/bin/vmtoolsd'
         if not os.path.exists(vmdk_vmtoolsd):

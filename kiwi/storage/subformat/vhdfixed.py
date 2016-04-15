@@ -31,9 +31,23 @@ from ...exceptions import (
 
 class DiskFormatVhdFixed(DiskFormatBase):
     """
-        create vhd image format in fixed subformat
+    Create vhd image format in fixed subformat
     """
     def post_init(self, custom_args):
+        """
+        vhd disk format post initialization method
+
+        Store qemu options as list from custom args dict
+        Extract disk tag from custom args
+
+        Attributes
+
+        * :attr:`options`
+            qemu format conversion options
+
+        * :attr:`tag`
+            vhd disk tag, billing code
+        """
         self.options = [
             '-o', 'subformat=fixed'
         ]
@@ -49,6 +63,9 @@ class DiskFormatVhdFixed(DiskFormatBase):
                         self.options.append(value)
 
     def create_image_format(self):
+        """
+        Create vhd fixed disk format
+        """
         Command.run(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
@@ -62,8 +79,8 @@ class DiskFormatVhdFixed(DiskFormatBase):
 
     def __pack_net_guid_tag(self, tag):
         """
-            pack tag format into 16 byte binary representation. String format
-            of the tag is: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+        Pack tag format into 16 byte binary representation. String format
+        of the tag is: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
         """
         tag_format = re.match(
             ''.join(
@@ -109,15 +126,15 @@ class DiskFormatVhdFixed(DiskFormatBase):
 
     def __write_vhd_tag(self, tag):
         """
-            Azure service uses a tag injected into the disk
-            image to identify the OS. The tag is 512B long,
-            starting with a GUID, and is placed at a 64K offset
-            from the start of the disk image.
-            +------------------------------+
-            | jump       | GUID(16B)000... |
-            +------------------------------|
-            | 64K offset | TAG (512B)      |
-            +------------+-----------------+
+        Azure service uses a tag injected into the disk
+        image to identify the OS. The tag is 512B long,
+        starting with a GUID, and is placed at a 64K offset
+        from the start of the disk image.
+        +------------------------------+
+        | jump       | GUID(16B)000... |
+        +------------------------------|
+        | 64K offset | TAG (512B)      |
+        +------------+-----------------+
         """
         binary_tag = self.__pack_net_guid_tag(tag)
         vhd_fixed_image = self.get_target_name_for_format('vhdfixed')

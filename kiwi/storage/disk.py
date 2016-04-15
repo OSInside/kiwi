@@ -73,8 +73,12 @@ class Disk(DeviceProvider):
 
     def get_device(self):
         """
-            return names of partition devices, note that the mapping
-            requires an explicit map() call
+        Names of partition devices
+
+        Note that the mapping requires an explicit map() call
+
+        :return: instances of MappedDevice
+        :rtype: dict
         """
         device_map = {}
         for partition_name, device_node in list(self.partition_map.items()):
@@ -85,13 +89,22 @@ class Disk(DeviceProvider):
 
     def is_loop(self):
         """
-            returns if this disk is based on a loop device. The
-            information is taken from the storage provider. If the
-            storage provider is loop based the disk is it too
+        Check if storage provider is loop based
+
+        The information is taken from the storage provider. If
+        the storage provider is loop based the disk is it too
         """
         return self.storage_provider.is_loop()
 
     def create_root_partition(self, mbsize):
+        """
+        Create root partition
+
+        Populates kiwi_RootPart(id) and kiwi_BootPart(id) if no extra
+        boot partition is requested
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.lxroot', mbsize, 't.linux')
         self.__add_to_map('root')
         self.__add_to_public_id_map('kiwi_RootPart')
@@ -99,12 +112,28 @@ class Disk(DeviceProvider):
             self.__add_to_public_id_map('kiwi_BootPart')
 
     def create_root_lvm_partition(self, mbsize):
+        """
+        Create root partition for use with LVM
+
+        Populates kiwi_RootPart(id) and kiwi_RootPartVol(LVRoot)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
         self.__add_to_map('root')
         self.__add_to_public_id_map('kiwi_RootPart')
         self.__add_to_public_id_map('kiwi_RootPartVol', 'LVRoot')
 
     def create_root_raid_partition(self, mbsize):
+        """
+        Create root partition for use with MD Raid
+
+        Populates kiwi_RootPart(id) and kiwi_RaidPart(id) as well
+        as the default raid device node at boot time which is
+        configured to be kiwi_RaidDev(/dev/md0)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.lxraid', mbsize, 't.raid')
         self.__add_to_map('root')
         self.__add_to_public_id_map('kiwi_RootPart')
@@ -112,31 +141,71 @@ class Disk(DeviceProvider):
         self.__add_to_public_id_map('kiwi_RaidDev', '/dev/md0')
 
     def create_boot_partition(self, mbsize):
+        """
+        Create boot partition
+
+        Populates kiwi_BootPart(id)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.lxboot', mbsize, 't.linux')
         self.__add_to_map('boot')
         self.__add_to_public_id_map('kiwi_BootPart')
 
     def create_prep_partition(self, mbsize):
+        """
+        Create prep partition
+
+        Populates kiwi_PrepPart(id)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.prep', mbsize, 't.prep')
         self.__add_to_map('prep')
         self.__add_to_public_id_map('kiwi_PrepPart')
 
     def create_efi_csm_partition(self, mbsize):
+        """
+        Create EFI bios grub partition
+
+        Populates kiwi_BiosGrub(id)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.legacy', mbsize, 't.csm')
         self.__add_to_map('efi_csm')
         self.__add_to_public_id_map('kiwi_BiosGrub')
 
     def create_efi_partition(self, mbsize):
+        """
+        Create EFI partition
+
+        Populates kiwi_EfiPart(id)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
         self.__add_to_map('efi')
         self.__add_to_public_id_map('kiwi_EfiPart')
 
     def create_vboot_partition(self, mbsize):
+        """
+        Create virtual boot partition
+
+        Populates kiwi_VbootPart(id)
+
+        :param int mbsize: partition size
+        """
         self.partitioner.create('p.vboot', mbsize, 't.linux')
         self.__add_to_map('vboot')
         self.__add_to_public_id_map('kiwi_VbootPart')
 
     def activate_boot_partition(self):
+        """
+        Activate boot partition
+
+        Note: not all Partitioner instances supports this
+        """
         partition_id = None
         if 'prep' in self.partition_id_map:
             partition_id = self.partition_id_map['prep']
@@ -149,12 +218,17 @@ class Disk(DeviceProvider):
             self.partitioner.set_flag(partition_id, 'f.active')
 
     def create_hybrid_mbr(self):
+        """
+        Turn partition table into a hybrid GPT/MBR table
+
+        Note: only GPT tables supports this
+        """
         self.partitioner.set_hybrid_mbr()
 
     def wipe(self):
         """
-            Zap (destroy) any GPT and MBR data structures if present
-            For DASD disks create a new VTOC table
+        Zap (destroy) any GPT and MBR data structures if present
+        For DASD disks create a new VTOC table
         """
         if 'dasd' in self.table_type:
             log.debug('Initialize DASD disk with new VTOC table')
@@ -187,6 +261,12 @@ class Disk(DeviceProvider):
             )
 
     def map_partitions(self):
+        """
+        Map/Activate partitions
+
+        In order to access the partitions through a device node it is
+        required to map them if the storage provider is loop based
+        """
         if self.storage_provider.is_loop():
             Command.run(
                 ['kpartx', '-s', '-a', self.storage_provider.get_device()]
@@ -198,6 +278,9 @@ class Disk(DeviceProvider):
             )
 
     def get_public_partition_id_map(self):
+        """
+        Populated partition name to number map
+        """
         return OrderedDict(
             sorted(self.public_partition_id_map.items())
         )

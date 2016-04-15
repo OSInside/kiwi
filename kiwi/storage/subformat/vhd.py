@@ -22,12 +22,25 @@ from ...command import Command
 
 class DiskFormatVhd(DiskFormatBase):
     """
-        create vhd image format
+    Create vhd disk format
     """
     def post_init(self, custom_args):
+        """
+        vhd disk format post initialization method
+
+        Store qemu options as list from custom args dict
+
+        Attributes
+
+        * :attr:`options`
+            qemu format conversion options
+        """
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
+        """
+        Create vhd disk format
+        """
         Command.run(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,

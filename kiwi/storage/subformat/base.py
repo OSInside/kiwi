@@ -30,7 +30,30 @@ from ...logger import log
 
 class DiskFormatBase(object):
     """
-        base class to create disk formats from a raw disk image
+    Base class to create disk formats from a raw disk image
+
+    Attributes
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`arch`
+        platform.machine
+
+    * :attr:`target_dir`
+        target directory path name
+
+    * :attr:`custom_args`
+        list of custom format options
+
+    * :attr:`temp_image_dir`
+        temporary manifest directory
+
+    * :attr:`diskname`
+        raw disk file path name
     """
     def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
@@ -44,13 +67,32 @@ class DiskFormatBase(object):
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
-        # overwrite in specialized format class when needed
+        """
+        Post initialization method
+
+        Implementation in specialized disk format class if required
+
+        :param list custom_args: unused
+        """
         pass
 
     def create_image_format(self):
+        """
+        Create disk format
+
+        Implementation in specialized disk format class required
+        """
         raise NotImplementedError
 
     def get_qemu_option_list(self, custom_args):
+        """
+        Create list of qemu options from custom_args dict
+
+        :param dict custom_args: arguments
+
+        :return: qemu option list
+        :rtype: list
+        """
         options = []
         if custom_args:
             ordered_args = OrderedDict(sorted(custom_args.items()))
@@ -62,6 +104,14 @@ class DiskFormatBase(object):
         return options
 
     def get_target_name_for_format(self, format_name):
+        """
+        Create target file path name for specified format
+
+        :param string format_name: disk format name
+
+        :return: file path name
+        :rtype: string
+        """
         if format_name != 'raw':
             if format_name not in Defaults.get_disk_format_types():
                 raise KiwiFormatSetupError(

@@ -27,8 +27,55 @@ from ..logger import log
 
 class DiskSetup(object):
     """
-        Implement disk setup methods providing information required
-        before building a disk image
+    Implement disk setup methods providing information required
+    before building a disk image
+
+    Attributes
+
+    * :attr:`configured_size`
+        Configured size setup
+
+    * :attr:`build_type_name`
+        Configured build type name
+
+    * :attr:`filesystem`
+        Configured filesystem name
+
+    * :attr:`bootpart_requested`
+        Configured request for a boot partition
+
+    * :attr:`bootpart_mbytes`
+        Configured boot partition size
+
+    * :attr:`mdraid`
+        Configured raid setup
+
+    * :attr:`luks`
+        Configured LUKS credentials
+
+    * :attr:`volume_manager`
+        Configured volume manager name
+
+    * :attr:`bootloader`
+        Configured bootloader
+
+    * :attr:`oemconfig`
+        Configured oemconfig section
+
+    * :attr:`volumes`
+        Configured volumes
+
+    * :attr:`firmware`
+        Instance of FirmWare
+
+    * :attr:`rootsize`
+        Instance of SystemSize
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`xml_state`
+        Instance of XMLState
     """
     def __init__(self, xml_state, root_dir):
         self.configured_size = xml_state.get_build_type_size()
@@ -54,6 +101,12 @@ class DiskSetup(object):
         self.xml_state = xml_state
 
     def get_disksize_mbytes(self):
+        """
+        Precalculate disk size requirements in mbytes
+
+        :return: disk size mbytes
+        :rtype: int
+        """
         log.info('Precalculating required disk size')
         calculated_disk_mbytes = 0
         root_filesystem_mbytes = self.rootsize.customize(
@@ -153,10 +206,12 @@ class DiskSetup(object):
 
     def need_boot_partition(self):
         """
-            Decide if an extra boot partition is needed. This is done with
-            the bootpartition attribute from the type, however if it is not
-            set it depends on some other type configuration parameters if
-            we need a boot partition or not
+        Decide if an extra boot partition is needed. This is done with
+        the bootpartition attribute from the type, however if it is not
+        set it depends on some other type configuration parameters if
+        we need a boot partition or not
+
+        :rtype: bool
         """
         if self.bootpart_requested is True:
             return True
@@ -176,18 +231,42 @@ class DiskSetup(object):
             return True
 
     def get_boot_label(self):
+        """
+        Filesystem Label to use for the boot partition
+
+        :return: label name
+        :rtype: string
+        """
         label = 'BOOT'
         if self.bootloader == 'grub2_s390x_emu':
             label = 'ZIPL'
         return label
 
     def get_root_label(self):
+        """
+        Filesystem Label to use for the root partition
+
+        :return: label name
+        :rtype: string
+        """
         return 'ROOT'
 
     def get_efi_label(self):
+        """
+        Filesystem Label to use for the EFI partition
+
+        :return: label name
+        :rtype: string
+        """
         return 'EFI'
 
     def boot_partition_size(self):
+        """
+        Size of the boot partition in mbytes
+
+        :return: boot size mbytes
+        :rtype: int
+        """
         if self.need_boot_partition():
             if self.bootpart_mbytes:
                 return self.bootpart_mbytes
@@ -196,13 +275,13 @@ class DiskSetup(object):
 
     def __inplace_recovery_partition_size(self):
         """
-            in inplace recovery mode the recovery archive is created at
-            install time. This requires free space on the disk. The
-            amount of free space is specified with the oem-recovery-part-size
-            attribute. If specified we add the given size to the disk.
-            If not specified an inplace setup at install time will be
-            moved to the first boot of an oem image when the recovery
-            partition has been created
+        In inplace recovery mode the recovery archive is created at
+        install time. This requires free space on the disk. The
+        amount of free space is specified with the oem-recovery-part-size
+        attribute. If specified we add the given size to the disk.
+        If not specified an inplace setup at install time will be
+        moved to the first boot of an oem image when the recovery
+        partition has been created
         """
         if self.oemconfig and self.oemconfig.get_oem_inplace_recovery():
             recovery_mbytes = self.oemconfig.get_oem_recovery_part_size()
@@ -211,8 +290,8 @@ class DiskSetup(object):
 
     def __accumulate_volume_size(self, root_mbytes):
         """
-            calculate number of mbytes to add to the disk to allow
-            the creaton of the volumes with their configured size
+        Calculate number of mbytes to add to the disk to allow
+        the creaton of the volumes with their configured size
         """
         disk_volume_mbytes = 0
 
@@ -257,9 +336,9 @@ class DiskSetup(object):
 
     def __get_root_volume_configuration(self):
         """
-            provide LVRoot volume configuration if present and in
-            use according to the selected volume management. So far
-            this only affects the LVM volume manager
+        Provide LVRoot volume configuration if present and in
+        use according to the selected volume management. So far
+        this only affects the LVM volume manager
         """
         root_volume_type = namedtuple(
             'root_volume_type', ['size_type', 'req_size']
@@ -275,8 +354,8 @@ class DiskSetup(object):
 
     def __calculate_volume_mbytes(self):
         """
-            calculate the number of mbytes each volume path currently
-            consumes and also provide a total number of these values
+        Calculate the number of mbytes each volume path currently
+        consumes and also provide a total number of these values
         """
         volume_mbytes_type = namedtuple(
             'volume_mbytes_type', ['volume', 'total']

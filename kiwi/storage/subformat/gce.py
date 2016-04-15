@@ -26,9 +26,19 @@ from ...archive.tar import ArchiveTar
 
 class DiskFormatGce(DiskFormatBase):
     """
-        create GCE - Google Compute Engine image format
+    Create GCE - Google Compute Engine image format
     """
     def post_init(self, custom_args):
+        """
+        GCE disk format post initialization method
+
+        Store disk tag from custom args
+
+        Attributes
+
+        * :attr:`tag`
+            GCE disk tag, billing code
+        """
         self.tag = None
         if custom_args:
             ordered_args = OrderedDict(list(custom_args.items()))
@@ -37,6 +47,9 @@ class DiskFormatGce(DiskFormatBase):
                     self.tag = value
 
     def create_image_format(self):
+        """
+        Create GCE disk format and manifest
+        """
         self.temp_image_dir = mkdtemp(
             dir=self.target_dir
         )
@@ -69,9 +82,14 @@ class DiskFormatGce(DiskFormatBase):
 
     def get_target_name_for_format(self, format_name):
         """
-            Google requires the image name to follow their naming
-            convetion. Therefore it's required to provide a suitable
-            name by overriding the base class method
+        Google requires the image name to follow their naming
+        convetion. Therefore it's required to provide a suitable
+        name by overriding the base class method
+
+        :param string format_name: gce
+
+        :return: file path name
+        :rtype: string
         """
         if format_name == 'gce':
             format_name = 'tar.gz'

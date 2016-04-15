@@ -26,7 +26,15 @@ from ..exceptions import (
 
 class MappedDevice(DeviceProvider):
     """
-        Hold a reference on a single device
+    Hold a reference on a single device
+
+    Attributes
+
+    * :attr:`device_provider`
+        Instance of class based on DeviceProvider
+
+    * :attr:`device`
+        Device node name
     """
     def __init__(self, device, device_provider):
         if not os.path.exists(device):
@@ -37,7 +45,20 @@ class MappedDevice(DeviceProvider):
         self.device = device
 
     def get_device(self):
+        """
+        Mapped device node name
+
+        :return: device node name
+        :rtype: string
+        """
         return self.device
 
     def is_loop(self):
+        """
+        Check if storage provider is loop based
+
+        Return loop status from base storage provider
+
+        :rtype: bool
+        """
         return self.device_provider.is_loop()

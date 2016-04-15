@@ -30,7 +30,21 @@ from ..exceptions import (
 
 class LuksDevice(DeviceProvider):
     """
-        implement luks setup on a storage device
+    Implements luks setup on a storage device
+
+    Attributes
+
+    * :attr:`storage_provider`
+        Instance of class based on DeviceProvider
+
+    * :attr:`luks_device`
+        LUKS device node name
+
+    * :attr:`luks_name`
+        LUKS map name, set to: luksRoot
+
+    * :attr:`option_map`
+        dict of distribution specific luks options
     """
     def __init__(self, storage_provider):
         # bind the underlaying block device providing class instance
@@ -51,7 +65,10 @@ class LuksDevice(DeviceProvider):
 
     def get_device(self):
         """
-            return an instance of mapped device providing the luks device
+        Instance of MappedDevice providing the luks device
+
+        :return: mapped luks device
+        :rtype: MappedDevice
         """
         if self.luks_device:
             return MappedDevice(
@@ -60,9 +77,9 @@ class LuksDevice(DeviceProvider):
 
     def create_crypto_luks(self, passphrase, os=None, options=None):
         """
-            create luks device. Please note the passphrase is readable
-            at creation time of this image. Make sure your host system
-            is secure while this process runs
+        Create luks device. Please note the passphrase is readable
+        at creation time of this image. Make sure your host system
+        is secure while this process runs
         """
         if not options:
             options = []
@@ -110,6 +127,9 @@ class LuksDevice(DeviceProvider):
         self.luks_device = '/dev/mapper/' + self.luks_name
 
     def create_crypttab(self, filename):
+        """
+        Create crypttab, setting the UUID of the storage device
+        """
         storage_device = self.storage_provider.get_device()
         with open(filename, 'w') as crypttab:
             crypttab.write(
@@ -120,7 +140,11 @@ class LuksDevice(DeviceProvider):
 
     def is_loop(self):
         """
-            return loop status from base storage provider
+        Check if storage provider is loop based
+
+        Return loop status from base storage provider
+
+        :rtype: bool
         """
         return self.storage_provider.is_loop()
 

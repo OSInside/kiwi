@@ -29,7 +29,21 @@ from ..exceptions import (
 
 class LoopDevice(DeviceProvider):
     """
-        Create and manage loop device file for block operations
+    Create and manage loop device file for block operations
+
+    Attributes
+
+    * :attr:`node_name`
+        loop device node name
+
+    * :attr:`filename`
+        loop file name to create
+
+    * :attr:`filesize_mbytes`
+        size of the loop file
+
+    * :attr:`blocksize_bytes`
+        blocksize used in loop driver
     """
     def __init__(self, filename, filesize_mbytes=None, blocksize_bytes=None):
         self.node_name = None
@@ -42,12 +56,26 @@ class LoopDevice(DeviceProvider):
         self.blocksize_bytes = blocksize_bytes
 
     def get_device(self):
+        """
+        Device node name
+
+        :return: device node name
+        :rtype: string
+        """
         return self.node_name
 
     def is_loop(self):
+        """
+        Always True
+
+        :rtype: bool
+        """
         return True
 
     def create(self):
+        """
+        Setup a loop device of the specified size and blocksize
+        """
         qemu_img_size = format(self.filesize_mbytes) + 'M'
         Command.run(
             ['qemu-img', 'create', self.filename, qemu_img_size]

@@ -23,12 +23,25 @@ from ...command import Command
 
 class DiskFormatQcow2(DiskFormatBase):
     """
-        create qcow2 image format
+    Create qcow2 disk format
     """
     def post_init(self, custom_args):
+        """
+        qcow2 disk format post initialization method
+
+        Store qemu options as list from custom args dict
+
+        Attributes
+
+        * :attr:`options`
+            qemu format conversion options
+        """
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
+        """
+        Create qcow2 disk format
+        """
         Command.run(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,

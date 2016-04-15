@@ -30,7 +30,15 @@ from ..exceptions import (
 
 class RaidDevice(DeviceProvider):
     """
-        implement raid setup on a storage device
+    Implement raid setup on a storage device
+
+    Attributes
+
+    * :attr:`storage_provider`
+        Instance of class based on DeviceProvider
+
+    * :attr:`raid_level_map`
+        dict mapping raid level name to number
     """
     def __init__(self, storage_provider):
         # bind the underlaying block device providing class instance
@@ -46,7 +54,10 @@ class RaidDevice(DeviceProvider):
 
     def get_device(self):
         """
-            return an instance of mapped device providing the raid device
+        Instance of MappedDevice providing the raid device
+
+        :return: mapped raid device
+        :rtype: MappedDevice
         """
         if self.raid_device:
             return MappedDevice(
@@ -55,8 +66,10 @@ class RaidDevice(DeviceProvider):
 
     def create_degraded_raid(self, raid_level):
         """
-            create a raid array in degraded mode with one device missing.
-            This only works in the raid levels 0(striping) and 1(mirroring)
+        Create a raid array in degraded mode with one device missing.
+        This only works in the raid levels 0(striping) and 1(mirroring)
+
+        :param string raid_level: raid level name
         """
         if raid_level not in self.raid_level_map:
             raise KiwiRaidSetupError(
@@ -88,6 +101,11 @@ class RaidDevice(DeviceProvider):
         self.raid_device = raid_device
 
     def create_raid_config(self, filename):
+        """
+        Create mdadm config file from mdadm request
+
+        :param string filename: config file name
+        """
         mdadm_call = Command.run(
             ['mdadm', '-Db', self.raid_device]
         )
@@ -96,7 +114,11 @@ class RaidDevice(DeviceProvider):
 
     def is_loop(self):
         """
-            return loop status from base storage provider
+        Check if storage provider is loop based
+
+        Return loop status from base storage provider
+
+        :rtype: bool
         """
         return self.storage_provider.is_loop()
 
