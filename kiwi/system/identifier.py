@@ -21,25 +21,51 @@ import struct
 
 class SystemIdentifier(object):
     """
-        Create a random ID to identify the system. The information
-        is used to create the mbrid file as an example
+    Create a random ID to identify the system. The information
+    is used to create the mbrid file as an example
+
+    Attributes
+
+    * :attr:`image_id`
+        Hex identifier string
     """
     def __init__(self):
         self.image_id = None
 
     def get_id(self):
+        """
+        Current hex identifier
+
+        :return: hex id
+        :rtype: string
+        """
         return self.image_id
 
     def calculate_id(self):
+        """
+        Calculate random hex id
+
+        Using 4 tuples of rand in range from 1..0xfe
+        """
         self.image_id = '0x%02x%02x%02x%02x' % (
             self.__rand(), self.__rand(), self.__rand(), self.__rand()
         )
 
     def write(self, filename):
+        """
+        Write current hex identifier to file
+
+        :param string filename: file path name
+        """
         with open(filename, 'w') as identifier:
             identifier.write('%s\n' % self.image_id)
 
     def write_to_disk(self, device_provider):
+        """
+        Write current hex identifier to MBR at offset 0x1b8 on disk
+
+        :param object device_provider: Instance based on DeviceProvider
+        """
         if self.image_id:
             packed_id = struct.pack('<I', int(self.image_id, 16))
             with open(device_provider.get_device(), 'wb') as disk:

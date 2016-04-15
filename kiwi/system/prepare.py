@@ -39,13 +39,27 @@ from ..exceptions import(
 
 class SystemPrepare(object):
     """
-        Implements preparation and installation of a new root system
+    Implements preparation and installation of a new root system
+
+    Attributes
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`profiles`
+        list of configured profiles
+
+    * :attr:`root_bind`
+        Instance of RootBind
+
+    * :attr:`uri_list`
+        A list of Uri references
     """
     def __init__(
         self, xml_state, root_dir, allow_existing=False
     ):
         """
-            setup and host bind new root system at given root_dir directory
+        Setup and host bind new root system at given root_dir directory
         """
         log.info('Setup root directory: %s', root_dir)
         root = RootInit(
@@ -71,8 +85,11 @@ class SystemPrepare(object):
 
     def setup_repositories(self):
         """
-            set up repositories for software installation and return a
-            package manager for performing software installation tasks
+        Set up repositories for software installation and return a
+        package manager for performing software installation tasks
+
+        :return: Instance of PackageManager
+        :rtype: PackageManager
         """
         repository_sections = self.xml_state.get_repository_sections()
         package_manager = self.xml_state.get_package_manager()
@@ -119,8 +136,8 @@ class SystemPrepare(object):
 
     def install_bootstrap(self, manager):
         """
-            install system software using the package manager
-            from the host, also known as bootstrapping
+        Install system software using the package manager
+        from the host, also known as bootstrapping
         """
         log.info('Installing bootstrap packages')
         bootstrap_packages = self.xml_state.get_bootstrap_packages()
@@ -168,10 +185,12 @@ class SystemPrepare(object):
 
     def install_system(self, manager):
         """
-            install system software using the package manager inside
-            of the new root directory. This is done via a chroot operation
-            and requires the desired package manager to became installed
-            via the bootstrap phase
+        Install system software using the package manager inside
+        of the new root directory. This is done via a chroot operation
+        and requires the desired package manager to became installed
+        via the bootstrap phase
+
+        :param object manager: PackageManager
         """
         log.info(
             'Installing system (chroot) for build type: %s',
@@ -218,7 +237,10 @@ class SystemPrepare(object):
 
     def pinch_system(self, manager, force=False):
         """
-            delete packages marked for deletion in the XML description
+        Delete packages marked for deletion in the XML description
+
+        :param object manager: PackageManager
+        :param bool force: force deletion true|false
         """
         to_become_deleted_packages = \
             self.xml_state.get_to_become_deleted_packages()
@@ -233,8 +255,11 @@ class SystemPrepare(object):
 
     def install_packages(self, manager, packages):
         """
-            install one or more packages using the package manager inside
-            of the new root directory
+        Install one or more packages using the package manager inside
+        of the new root directory
+
+        :param object manager: PackageManager
+        :param list packages: package list
         """
         log.info('Installing system packages (chroot)')
         all_install_items = self.__setup_requests(
@@ -258,8 +283,12 @@ class SystemPrepare(object):
 
     def delete_packages(self, manager, packages, force=False):
         """
-            delete one or more packages using the package manager inside
-            of the new root directory
+        Delete one or more packages using the package manager inside
+        of the new root directory
+
+        :param object manager: PackageManager
+        :param list packages: package list
+        :param bool force: force deletion true|false
         """
         log.info('Deleting system packages (chroot)')
         all_delete_items = self.__setup_requests(
@@ -284,9 +313,11 @@ class SystemPrepare(object):
 
     def update_system(self, manager):
         """
-            install package updates from the used repositories.
-            the process uses the package manager from inside of the
-            new root directory
+        Install package updates from the used repositories.
+        the process uses the package manager from inside of the
+        new root directory
+
+        :param object manager: PackageManager
         """
         log.info('Update system (chroot)')
         process = CommandProcess(

@@ -34,7 +34,18 @@ result_file_type = namedtuple(
 
 class Result(object):
     """
-        Collect image building results
+    Collect image building results
+
+    Attributes
+
+    * :attr:`result_files`
+        List of result files
+
+    * :attr:`class_version`
+        Result class version
+
+    * :attr:`xml_state`
+        Instance of XMLState
     """
     def __init__(self, xml_state):
         self.result_files = {}
@@ -49,6 +60,15 @@ class Result(object):
     def add(
         self, key, filename, use_for_bundle=True, compress=False, shasum=True
     ):
+        """
+        Add result tuple to result_files list
+
+        :param string key: name
+        :param string filename: file path name
+        :param boot use_for_bundle: use when bundling results true|false
+        :param bool compress: compress when bundling true|false
+        :param bool shasum: create shasum when bundling true|false
+        """
         if key and filename:
             self.result_files[key] = result_file_type(
                 filename=filename,
@@ -58,15 +78,26 @@ class Result(object):
             )
 
     def get_results(self):
+        """
+        Current list of result tuples
+        """
         return self.result_files
 
     def print_results(self):
+        """
+        Print results human readable
+        """
         if self.result_files:
             log.info('Result files:')
             for key, value in sorted(list(self.result_files.items())):
                 log.info('--> %s: %s', key, value.filename)
 
     def dump(self, filename):
+        """
+        Picke dump this instance to a file
+
+        :param string filename: file path name
+        """
         try:
             with open(filename, 'wb') as result:
                 pickle.dump(self, result)
@@ -77,6 +108,11 @@ class Result(object):
 
     @classmethod
     def load(self, filename):
+        """
+        Load pickle dumped filename into a Result instance
+
+        :param string filename: file path name
+        """
         if not os.path.exists(filename):
             raise KiwiResultError(
                 'No result information %s found' % filename

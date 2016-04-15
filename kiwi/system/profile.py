@@ -25,9 +25,17 @@ from ..defaults import Defaults
 
 class Profile(object):
     """
-        create bash readable .profile environment from the XML
-        description. The information is used by the kiwi first
-        boot code.
+    Create bash readable .profile environment from the XML
+    description. The information is used by the kiwi first
+    boot code.
+
+    Attributes
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`dot_profile`
+        profile dictionary
     """
     def __init__(self, xml_state):
         self.xml_state = xml_state
@@ -45,9 +53,21 @@ class Profile(object):
         self.__drivers_to_profile()
 
     def add(self, key, value):
+        """
+        Add key/value pair to profile dictionary
+
+        :param string key: profile key
+        :param string value: profile value
+        """
         self.dot_profile[key] = value
 
     def create(self):
+        """
+        Create bash quoted profile
+
+        :return: profile dump for bash
+        :rtype: string
+        """
         sorted_profile = collections.OrderedDict(
             sorted(self.dot_profile.items())
         )
@@ -325,9 +345,9 @@ class Profile(object):
 
     def __text(self, section_content):
         """
-            helper method to return the text for XML elements of the
-            following structure: <section>text</section>. The data
-            structure builder will return the text as a list
+        Helper method to return the text for XML elements of the
+        following structure: <section>text</section>. The data
+        structure builder will return the text as a list
         """
         if section_content:
             content = section_content[0]
@@ -338,8 +358,8 @@ class Profile(object):
 
     def __format(self, value):
         """
-            helper method to format bool profile values in the way
-            the boot code expects them
+        Helper method to format bool profile values in the way
+        the boot code expects them
         """
         if value is True:
             return 'true'

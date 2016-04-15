@@ -32,9 +32,14 @@ from ..exceptions import (
 
 class RootInit(object):
     """
-        Implements creation of new root directory for a linux system.
-        Host system independent static default files and device nodes
-        are created to initialize a new base system
+    Implements creation of new root directory for a linux system.
+    Host system independent static default files and device nodes
+    are created to initialize a new base system
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
     """
     def __init__(self, root_dir, allow_existing=False):
         if not allow_existing and os.path.exists(root_dir):
@@ -44,9 +49,27 @@ class RootInit(object):
         self.root_dir = root_dir
 
     def delete(self):
+        """
+        Force delete root directory and its contents
+        """
         Command.run(['rm', '-r', '-f', self.root_dir])
 
     def create(self):
+        """
+        Create new system root directory
+
+        The method creates a temporary directory and initializes it
+        for the purpose of building a system image from it. This
+        includes the following setup:
+
+        * create static core device nodes
+        * create core system paths
+
+        On success the contents of the temporary location are
+        synced to the specified root_dir and the temporary location
+        will be deleted. That way we never work on an incomplete
+        initial setup
+        """
         root = mkdtemp()
         try:
             Path.create(root)

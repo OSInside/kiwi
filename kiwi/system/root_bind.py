@@ -32,8 +32,31 @@ from ..exceptions import (
 
 class RootBind(object):
     """
-        Implements binding/copying of host system paths
-        into the new root directory
+    Implements binding/copying of host system paths
+    into the new root directory
+
+    Attributes
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`cleanup_files`
+        list of files to cleanup, delete
+
+    * :attr:`mount_stack`
+        list of mounted directories for cleanup
+
+    * :attr:`dir_stack`
+        list of directories for cleanup
+
+    * :attr:`config_files`
+        list of initial config files
+
+    * :attr:`bind_locations`
+        list of kernel filesystems to bind mount
+
+    * :attr:`shared_location`
+        shared directory between image root and build system root
     """
     def __init__(self, root_init):
         self.root_dir = root_init.root_dir
@@ -58,6 +81,9 @@ class RootBind(object):
         self.shared_location = '/var/cache/kiwi'
 
     def mount_kernel_file_systems(self):
+        """
+        Bind mount kernel filesystems
+        """
         try:
             for location in self.bind_locations:
                 if os.path.exists(location):
@@ -73,6 +99,17 @@ class RootBind(object):
             )
 
     def mount_shared_directory(self, host_dir=None):
+        """
+        Bind mount shared location
+
+        The shared location is a directory which shares data from
+        the image buildsystem host with the image root system. It
+        is used for the repository setup and the package manager
+        cache to allow chroot operations without being forced to
+        duplicate this data
+
+        :param string host_dir: directory on the host to share
+        """
         if not host_dir:
             host_dir = self.shared_location
         try:
@@ -90,6 +127,15 @@ class RootBind(object):
             )
 
     def setup_intermediate_config(self):
+        """
+        Create intermediate config files
+
+        Some config files e.g etc/hosts needs to be temporarly copied
+        from the buildsystem host to the image root system in order to
+        allow e.g DNS resolution in the way as it is configured on the
+        buildsystem host. These config files only exists during the image
+        build process and are not part of the final image
+        """
         try:
             for config in self.config_files:
                 if os.path.exists(config):
@@ -108,6 +154,14 @@ class RootBind(object):
             )
 
     def move_to_root(self, elements):
+        """
+        Change the given path elements to a new root directory
+
+        :param list elements: list of path names
+
+        :return: changed elements
+        :rtype: list
+        """
         result = []
         for element in elements:
             normalized_element = os.path.normpath(element)
@@ -117,6 +171,9 @@ class RootBind(object):
         return result
 
     def cleanup(self):
+        """
+        Cleanup mounted locations, directories and intermediate config files
+        """
         self.__cleanup_mount_stack()
         self.__cleanup_dir_stack()
         self.__cleanup_intermediate_config()
