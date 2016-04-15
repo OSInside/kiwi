@@ -22,14 +22,32 @@ from ..defaults import Defaults
 
 class SystemSize(object):
     """
-        Provide source tree size information
+    Provide source tree size information
+
+    Attributes
+
+    * :attr:`source_dir`
+        source directory path name
     """
     def __init__(self, source_dir):
         self.source_dir = source_dir
 
     def customize(self, size, requested_filesystem):
         """
-            increase the sum of all file sizes by an empiric factor
+        Increase the sum of all file sizes by an empiric factor
+
+        Each filesystem has some overhead it needs to manage itself.
+        Thus the plain data size is always smaller as the size of
+        the container which embeds it. This method increases the
+        given size by a filesystem specific empiric factor to
+        ensure the given data size can be stored in a filesystem
+        of the customized size
+
+        :param int size: mbsize to update
+        :param string requested_filesystem: filesystem name
+
+        :return: mbytes
+        :rtype: int
         """
         if requested_filesystem.startswith('ext'):
             size *= 1.5
@@ -45,6 +63,12 @@ class SystemSize(object):
         return int(size)
 
     def accumulate_mbyte_file_sizes(self):
+        """
+        Calculate data size of all data in the source tree
+
+        :return: mbytes
+        :rtype: int
+        """
         du_call = Command.run(
             [
                 'du', '-s', '--apparent-size', '--block-size', '1',
@@ -54,6 +78,12 @@ class SystemSize(object):
         return int(du_call.output.split('\t')[0]) / 1048576
 
     def accumulate_files(self):
+        """
+        Calculate sum of all files in the source tree
+
+        :return: number of files
+        :rtype: int
+        """
         bash_comand = [
             'find', self.source_dir, '|', 'wc', '-l'
         ]

@@ -31,8 +31,25 @@ from ..exceptions import (
 
 class Uri(object):
     """
-        normalize url types available in a kiwi configuration into
-        standard mime types.
+    Normalize url types available in a kiwi configuration into
+    standard mime types.
+
+    Attributes
+
+    * :attr:`repo_type`
+        Repository type name
+
+    * :attr:`uri`
+        URI, repository location, file
+
+    * :attr:`mount_stack`
+        list of mounted locations
+
+    * :attr:`remote_uri_types`
+        dictionary of remote uri type names
+
+    * :attr:`local_uri_type`
+        dictionary of local uri type names
     """
     def __init__(self, uri, repo_type):
         self.repo_type = repo_type
@@ -53,6 +70,14 @@ class Uri(object):
         }
 
     def translate(self):
+        """
+        Translate repository location according to their URI type
+
+        Depending on the URI type the provided location needs to
+        be adapted e.g loop mounted in case of an ISO or updated
+        by the service URL in case of an open buildservice project
+        name
+        """
         uri = urlparse(self.uri)
         if not uri.scheme:
             raise KiwiUriStyleUnknown(
@@ -87,9 +112,25 @@ class Uri(object):
             )
 
     def alias(self):
+        """
+        Create hexdigest from URI as alias
+
+        If the repository definition from the XML description does
+        not provide an alias, kiwi creates one for you. However it's
+        better to assign a human readable alias in the XML
+        configuration
+
+        :return: alias name as hexdigest
+        :rtype: string
+        """
         return hashlib.md5(self.uri.encode()).hexdigest()
 
     def is_remote(self):
+        """
+        Check if URI is a remote or local location
+
+        :rtype: bool
+        """
         uri = urlparse(self.uri)
         if not uri.scheme:
             raise KiwiUriStyleUnknown(
@@ -130,9 +171,9 @@ class Uri(object):
 
     def __suse_buildservice_path(self, name):
         """
-            Special to openSUSE buildservice. If the buildservice builds
-            the image it arranges the repos for each build in a special
-            environment, the so called build worker.
+        Special to openSUSE buildservice. If the buildservice builds
+        the image it arranges the repos for each build in a special
+        environment, the so called build worker.
         """
         return self.__local_directory(
             '/usr/src/packages/SOURCES/repos/' + name

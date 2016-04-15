@@ -24,16 +24,21 @@ from ..defaults import Defaults
 
 class Shell(object):
     """
-        special character handling for shell evaluated code
+    Special character handling for shell evaluated code
     """
     @classmethod
     def quote(self, message):
         """
-            quote characters which have a special meaning for bash
-            but should be used as normal characters. actually I had
-            planned to use pipes.quote but it does not quote as I
-            had expected it. e.g 'name_wit_a_$' does not quote the $
-            so we do it on our own for the scope of kiwi
+        Quote characters which have a special meaning for bash
+        but should be used as normal characters. actually I had
+        planned to use pipes.quote but it does not quote as I
+        had expected it. e.g 'name_wit_a_$' does not quote the $
+        so we do it on our own for the scope of kiwi
+
+        :param string message: message text
+
+        :return: quoted text
+        :rtype: string
         """
         # \\ quoting must be first in the list
         quote_characters = ['\\', '$', '"', '`', '!']
@@ -44,8 +49,13 @@ class Shell(object):
     @classmethod
     def quote_key_value_file(self, filename):
         """
-            quote given input file which has to be of the form
-            key=value to be able to become sourced by the shell
+        Quote given input file which has to be of the form
+        key=value to be able to become sourced by the shell
+
+        :param string filename: file path name
+
+        :return: quoted text
+        :rtype: string
         """
         temp_copy = NamedTemporaryFile()
         Command.run(['cp', filename, temp_copy.name])
@@ -55,6 +65,12 @@ class Shell(object):
 
     @classmethod
     def run_common_function(self, name, parameters):
+        """
+        Run a function implemented in boot/functions.sh
+
+        :param string name: function name
+        :param list parameters: function arguments
+        """
         Command.run([
             'bash', '-c',
             'source ' + Defaults.get_common_functions_file() +

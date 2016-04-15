@@ -40,11 +40,33 @@ from ..exceptions import (
 
 class SystemSetup(object):
     """
-        Implementation of system setup steps supported by kiwi.
-        kiwi is not responsible for the system configuration, however
-        some setup steps needs to be performed in order to provide
-        a minimal work environment inside of the image according to
-        the desired image type.
+    Implementation of system setup steps supported by kiwi.
+    kiwi is not responsible for the system configuration, however
+    some setup steps needs to be performed in order to provide
+    a minimal work environment inside of the image according to
+    the desired image type.
+
+    Attributes
+
+    * :attr:`arch`
+        platform.machine
+        The 32bit x86 platform is handled as 'ix86'
+
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`description_dir`
+        path to image description directory
+
+    * :attr:`derived_description_dir`
+        path to derived_description_dir
+        boot image descriptions inherits data from the system image
+        description, thus they are derived from another image
+        description directory which is needed to e.g find system
+        image archives, overlay files
+
+    * :attr:`root_dir`
+        root directory path name
     """
     def __init__(self, xml_state, root_dir):
         self.arch = platform.machine()
@@ -61,8 +83,8 @@ class SystemSetup(object):
 
     def import_description(self):
         """
-            import XML descriptions, custom scripts, archives and
-            script helper methods
+        Import XML descriptions, custom scripts, archives and
+        script helper methods
         """
         log.info('Importing Image description to system tree')
         description = self.root_dir + '/image/config.xml'
@@ -155,15 +177,17 @@ class SystemSetup(object):
 
     def cleanup(self):
         """
-            delete all traces of a kiwi description which are not
-            required in the later image
+        Delete all traces of a kiwi description which are not
+        required in the later image
         """
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
     def import_shell_environment(self, profile):
         """
-            create profile environment to let scripts consume
-            information from the XML description.
+        Create profile environment to let scripts consume
+        information from the XML description.
+
+        :param object profile: Instance of Profile
         """
         profile_file = self.root_dir + '/.profile'
         log.info('Creating .profile environment')
@@ -177,10 +201,13 @@ class SystemSetup(object):
         self, follow_links=False, preserve_owner_group=False
     ):
         """
-            copy overlay files from the image description to
-            the image root tree. Supported are a root/ directory
-            or a root.tar.gz tarball. The root/ directory takes
-            precedence over the tarball
+        Copy overlay files from the image description to
+        the image root tree. Supported are a root/ directory
+        or a root.tar.gz tarball. The root/ directory takes
+        precedence over the tarball
+
+        :param bool follow_links: follow symlinks true|false
+        :param bool preserve_owner_group: preserve permissions true|false
         """
         overlay_directory = self.description_dir + '/root/'
         overlay_archive = self.description_dir + '/root.tar.gz'
@@ -208,6 +235,9 @@ class SystemSetup(object):
             archive.extract(self.root_dir)
 
     def setup_hardware_clock(self):
+        """
+        Setup etc/adjtime by running hwclock
+        """
         if 'hwclock' in self.preferences:
             log.info(
                 'Setting up hardware clock: %s', self.preferences['hwclock']
@@ -218,6 +248,9 @@ class SystemSetup(object):
             ])
 
     def setup_keyboard_map(self):
+        """
+        Setup etc/sysconfig/keyboard console keyboard
+        """
         if 'keytable' in self.preferences:
             keyboard_config = self.root_dir + '/etc/sysconfig/keyboard'
             if os.path.exists(keyboard_config):
@@ -236,6 +269,9 @@ class SystemSetup(object):
                 )
 
     def setup_locale(self):
+        """
+        Setup etc/sysconfig/language UTF8 locale
+        """
         if 'locale' in self.preferences:
             lang_config = self.root_dir + '/etc/sysconfig/language'
             if os.path.exists(lang_config):
@@ -254,6 +290,9 @@ class SystemSetup(object):
                 )
 
     def setup_timezone(self):
+        """
+        Setup timezone symlink
+        """
         if 'timezone' in self.preferences:
             log.info(
                 'Setting up timezone: %s', self.preferences['timezone']
@@ -266,7 +305,7 @@ class SystemSetup(object):
 
     def setup_groups(self):
         """
-            add groups for configured users
+        Add groups for configured users
         """
         system_users = Users(self.root_dir)
 
@@ -283,7 +322,7 @@ class SystemSetup(object):
 
     def setup_users(self):
         """
-            add/modify configured users
+        Add/Modify configured users
         """
         system_users = Users(self.root_dir)
 
@@ -348,7 +387,7 @@ class SystemSetup(object):
 
     def import_image_identifier(self):
         """
-            create an /etc/ImageID identifier file
+        Create etc/ImageID identifier file
         """
         image_id = self.xml_state.xml_data.get_id()
         if image_id and os.path.exists(self.root_dir + '/etc'):
@@ -359,7 +398,9 @@ class SystemSetup(object):
 
     def export_modprobe_setup(self, target_root_dir):
         """
-            export etc/modprobe.d to given root_dir
+        Export etc/modprobe.d to given root_dir
+
+        :param string target_root_dir: path name
         """
         modprobe_config = self.root_dir + '/etc/modprobe.d'
         if os.path.exists(modprobe_config):
@@ -374,8 +415,10 @@ class SystemSetup(object):
 
     def export_rpm_package_list(self, target_dir):
         """
-            export image rpm package list as metadata reference
-            used by the open buildservice
+        Export image rpm package list as metadata reference
+        used by the open buildservice
+
+        :param string target_dir: path name
         """
         if os.path.exists(self.root_dir + '/var/lib/rpm/Packages'):
             log.info('Export rpm packages metadata')
@@ -405,8 +448,10 @@ class SystemSetup(object):
 
     def export_rpm_package_verification(self, target_dir):
         """
-            export rpm package verification result as metadata reference
-            used by the open buildservice
+        Export rpm package verification result as metadata reference
+        used by the open buildservice
+
+        :param string target_dir: path name
         """
         if os.path.exists(self.root_dir + '/var/lib/rpm/Packages'):
             log.info('Export rpm verification metadata')
@@ -428,26 +473,50 @@ class SystemSetup(object):
             return filename
 
     def call_config_script(self):
+        """
+        Call config.sh script chrooted
+        """
         self.__call_script('config.sh')
 
     def call_image_script(self):
+        """
+        Call images.sh script chrooted
+        """
         self.__call_script('images.sh')
 
     def call_edit_boot_config_script(self, filesystem, boot_part_id):
+        """
+        Call configured editbootconfig script _NON_ chrooted
+
+        Pass the boot filesystem name and the partition number of
+        the boot partition as parameters to the call
+
+        :param string filesystem: boot filesystem name
+        :param int boot_part_id: boot partition number
+        """
         self.__call_script_no_chroot(
             'edit_boot_config.sh', [filesystem, format(boot_part_id)]
         )
 
     def call_edit_boot_install_script(self, diskname, boot_device_node):
+        """
+        Call configured editbootinstall script _NON_ chrooted
+
+        Pass the disk file name and the device node of the boot partition
+        as parameters to the call
+
+        :param string diskname: file path name
+        :param string boot_device_node: boot device node name
+        """
         self.__call_script_no_chroot(
             'edit_boot_install.sh', [diskname, boot_device_node]
         )
 
     def create_init_link_from_linuxrc(self):
         """
-            kiwi boot images provides the linuxrc script, however the kernel
-            also expects an init executable to be present. This method creates
-            a hard link to the linuxrc file
+        kiwi boot images provides the linuxrc script, however the kernel
+        also expects an init executable to be present. This method creates
+        a hard link to the linuxrc file
         """
         Command.run(
             ['ln', self.root_dir + '/linuxrc', self.root_dir + '/init']
@@ -455,10 +524,10 @@ class SystemSetup(object):
 
     def create_recovery_archive(self):
         """
-            create a compressed recovery archive from the root tree
-            for use with kiwi's recvoery system. The method creates
-            additional data into the image root filesystem which is
-            deleted prior to the creation of a new recovery data set
+        Create a compressed recovery archive from the root tree
+        for use with kiwi's recvoery system. The method creates
+        additional data into the image root filesystem which is
+        deleted prior to the creation of a new recovery data set
         """
         # cleanup
         bash_comand = [
@@ -623,8 +692,8 @@ class SystemSetup(object):
 
     def __text(self, section_content):
         """
-            helper method to return the text for XML elements of the
-            following structure: <section>text</section>.
+        Helper method to return the text for XML elements of the
+        following structure: <section>text</section>.
         """
         if section_content:
             content = section_content[0]
