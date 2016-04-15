@@ -52,7 +52,7 @@ class RootInit(object):
         """
         Force delete root directory and its contents
         """
-        Command.run(['rm', '-r', '-f', self.root_dir])
+        Path.wipe(self.root_dir)
 
     def create(self):
         """
