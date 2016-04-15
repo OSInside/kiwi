@@ -44,9 +44,11 @@ class TestVolumeManagerBase(object):
         assert self.volume_manager.is_loop() == \
             self.device_provider.is_loop()
 
-    def test_get_device(self):
-        assert self.volume_manager.get_device() == \
-            self.device_provider.get_device()
+    @patch('os.path.exists')
+    def test_get_device(self, mock_exists):
+        mock_exists.return_value = True
+        assert self.volume_manager.get_device()['root'].get_device() == \
+            '/dev/storage'
 
     @raises(NotImplementedError)
     def test_setup(self):

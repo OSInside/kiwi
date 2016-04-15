@@ -35,9 +35,24 @@ from ..exceptions import (
 
 class VolumeManagerBtrfs(VolumeManagerBase):
     """
-        Implements btrfs sub-volume management
+    Implements btrfs sub-volume management
     """
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Store custom btrfs initialization arguments
+
+        Attributes
+
+        * :attr:`subvol_mount_list`
+            list of mounted btrfs subvolumes
+
+        * :attr:`toplevel_mount`
+            MountManager for root mountpoint
+
+        :param list custom_args: custom btrfs volume manager arguments
+        """
         if custom_args:
             self.custom_args = custom_args
         else:
@@ -52,14 +67,18 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         self.setup_mountpoint()
 
-    def get_device(self):
-        return {
-            'root': MappedDevice(
-                device=self.device, device_provider=self
-            )
-        }
-
     def setup(self, name=None):
+        """
+        Setup btrfs volume management
+
+        In case of btrfs a toplevel(@) subvolume is created and marked
+        as default volume. If snapshots are activated via the custom_args
+        the setup method also created the @/.snapshots/1/snapshot
+        subvolumes. There is no concept of a volume manager name, thus
+        the name argument is not used for btrfs
+
+        :param string name: unused
+        """
         filesystem = FileSystem(
             'btrfs', MappedDevice(device=self.device, device_provider=self)
         )
@@ -89,6 +108,15 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.__set_default_volume('@')
 
     def create_volumes(self, filesystem_name):
+        """
+        Create configured btrfs subvolumes
+
+        Any btrfs subvolume is of the same btrfs filesystem. There is no
+        way to have different filesystems per btrfs subvolume. Thus
+        the filesystem_name has no effect for btrfs
+
+        :param string filesystem_name: unused
+        """
         log.info(
             'Creating %s sub volumes', filesystem_name
         )
@@ -132,6 +160,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     )
 
     def mount_volumes(self):
+        """
+        Mount btrfs subvolumes
+        """
         for volume_mount in self.subvol_mount_list:
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
@@ -141,11 +172,20 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
 
     def umount_volumes(self):
+        """
+        Umount btrfs subvolumes
+        """
         for volume_mount in reversed(self.subvol_mount_list):
             volume_mount.umount(delete_mountpoint=False)
         self.toplevel_mount.umount()
 
     def sync_data(self, exclude=None):
+        """
+        Sync data into btrfs filesystem
+
+        If snapshots are activated the root filesystem is synced
+        into the first snapshot
+        """
         if self.toplevel_mount:
             sync_target = self.mountpoint + '/@'
             if self.custom_args['root_is_snapshot']:

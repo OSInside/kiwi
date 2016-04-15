@@ -31,9 +31,16 @@ from ..exceptions import (
 
 class VolumeManagerLVM(VolumeManagerBase):
     """
-        Implements LVM volume management
+    Implements LVM volume management
     """
     def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Store custom lvm initialization arguments
+
+        :param list custom_args: custom lvm volume manager arguments
+        """
         if custom_args:
             self.custom_args = custom_args
         else:
@@ -47,8 +54,12 @@ class VolumeManagerLVM(VolumeManagerBase):
 
     def get_device(self):
         """
-            return names of volume devices, note that the mapping
-            requires an explicit create_volumes() call
+        Dictionary of MappedDevice instances per volume
+
+        Note: The mapping requires an explicit create_volumes() call
+
+        :return: root plus volume device map
+        :rtype: dict
         """
         device_map = {}
         for volume_name, volume_node in list(self.volume_map.items()):
@@ -63,6 +74,14 @@ class VolumeManagerLVM(VolumeManagerBase):
         return device_map
 
     def setup(self, volume_group_name='systemVG'):
+        """
+        Setup lvm volume management
+
+        In case of LVM a new volume group is created on a PV
+        initialized storage device
+
+        :param string name: volume group name
+        """
         if self.__volume_group_in_use_on_host_system(volume_group_name):
             raise KiwiVolumeGroupConflict(
                 'Requested volume group %s is in use on this host' %
@@ -80,6 +99,13 @@ class VolumeManagerLVM(VolumeManagerBase):
         self.volume_group = volume_group_name
 
     def create_volumes(self, filesystem_name):
+        """
+        Create configured lvm volumes and filesystems
+
+        All volumes receive the same filesystem
+
+        :param string filesystem_name: volumes filesystem name
+        """
         log.info(
             'Creating volumes(%s)', filesystem_name
         )
@@ -130,11 +156,17 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
 
     def mount_volumes(self):
+        """
+        Mount lvm volumes
+        """
         for volume_mount in self.mount_list:
             Path.create(volume_mount.mountpoint)
             volume_mount.mount()
 
     def umount_volumes(self):
+        """
+        Umount lvm volumes
+        """
         all_volumes_umounted = True
         for volume_mount in reversed(self.mount_list):
             if volume_mount.is_mounted():

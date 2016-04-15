@@ -26,7 +26,24 @@ from ..exceptions import (
 
 class VolumeManager(object):
     """
-        VolumeManager factory
+    VolumeManager factory
+
+    Attributes
+
+    * :attr:`name`
+        volume management name
+
+    * :attr:`device_provider`
+        Instance of a class based on DeviceProvider
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`volumes`
+        list of volumes from XMLState::get_volumes()
+
+    * :attr:`custom_args`
+        dictionary of custom volume manager arguments
     """
     def __new__(
         self, name, device_provider, root_dir, volumes, custom_args=None

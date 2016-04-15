@@ -22,6 +22,7 @@ import os
 # project
 from ..storage.device_provider import DeviceProvider
 from ..mount_manager import MountManager
+from ..storage.mapped_device import MappedDevice
 from ..utils.sync import DataSync
 from ..path import Path
 from ..system.size import SystemSize
@@ -34,7 +35,33 @@ from ..exceptions import (
 
 class VolumeManagerBase(DeviceProvider):
     """
-        Implements base class for volume management interface
+    Implements base class for volume management interface
+
+    Attributes
+
+    * :attr:`mountpoint`
+        root mountpoint for volumes
+
+    * :attr:`device_provider`
+        Instance of class based on DeviceProvider
+
+    * :attr:`root_dir`
+        root directory path name
+
+    * :attr:`volumes`
+        list of volumes from XMLState::get_volumes()
+
+    * :attr:`volume_group`
+        volume group name
+
+    * :attr:`volume_map`
+        map volume name to device node
+
+    * :attr:`mount_list`
+        list of volume MountManager's
+
+    * :attr:`device`
+        storage device node name
     """
     def __init__(self, device_provider, root_dir, volumes, custom_args=None):
         # all volumes are combined into one mountpoint. This is
@@ -62,56 +89,79 @@ class VolumeManagerBase(DeviceProvider):
 
         self.post_init(custom_args)
 
+    def post_init(self, custom_args):
+        """
+        Post initialization method
+
+        Implementation in specialized volume manager class if required
+
+        :param list custom_args: unused
+        """
+        pass
+
     def setup(self, name=None):
         """
-            Implements setup required prior to the creation
-            of storage volumes
+        Implements setup required prior to the creation of volumes
+
+        Implementation in specialized volume manager class required
+
+        :param string name: unused
         """
         raise NotImplementedError
 
     def create_volumes(self, filesystem_name):
         """
-            Implements creation of storage volumes
+        Implements creation of volumes
+
+        Implementation in specialized volume manager class required
+
+        :param string filesystem_name: unused
         """
         raise NotImplementedError
 
     def mount_volumes(self):
         """
-            Implements mounting of all volumes below one
-            master directory
+        Implements mounting of all volumes below one master directory
+
+        Implementation in specialized volume manager class required
         """
         raise NotImplementedError
 
     def umount_volumes(self):
         """
-            Implements umounting of all volumes
+        Implements umounting of all volumes
+
+        Implementation in specialized volume manager class required
         """
         raise NotImplementedError
 
-    def post_init(self, custom_args):
-        """
-            Called after init to handle e.g custom arguments
-        """
-        pass
-
     def is_loop(self):
         """
-            Is this device provider loop based
+        Check if storage provider is loop based
+
+        The information is taken from the storage provider. If
+        the storage provider is loop based the volume manager is it too
+
+        :rtype: bool
         """
         return self.device_provider.is_loop()
 
     def get_device(self):
         """
-            Return device map for this device provider
-            overwrite if specialized volume management creates
-            new devices like it is the case for e.g LVM
+        Dictionary with instance of MappedDevice for the root device node
+
+        :return: root device map
+        :rtype: dict
         """
-        return self.device_provider.get_device()
+        return {
+            'root': MappedDevice(
+                device=self.device, device_provider=self
+            )
+        }
 
     def create_volume_paths_in_root_dir(self):
         """
-            Implements creation of volume paths in the given
-            root directory
+        Implements creation of volume paths in the given root directory
         """
         for volume in self.volumes:
             if volume.realpath and not volume.realpath == '/':
@@ -127,9 +177,12 @@ class VolumeManagerBase(DeviceProvider):
 
     def get_canonical_volume_list(self):
         """
-            Implements hierarchical sorting of volumes according to their
-            paths and provides information about the volume configured as
-            the one eating all the rest space
+        Implements hierarchical sorting of volumes according to their
+        paths and provides information about the volume configured as
+        the one eating all the rest space
+
+        :return: list of canonical_volume_type tuples
+        :rtype: list
         """
         canonical_volume_type = namedtuple(
             'canonical_volume_type', [
@@ -155,8 +208,17 @@ class VolumeManagerBase(DeviceProvider):
         self, mbsize, size_type, realpath, filesystem_name, image_type=None
     ):
         """
-            Implements size lookup for the given path and desired
-            filesystem according to the specified size type
+        Implements size lookup for the given path and desired
+        filesystem according to the specified size type
+
+        :param int mbsize: configured volume size
+        :param string size_type: relative or absolute size setup
+        :param string realpath: volume real path name
+        :param string filesystem_name: filesystem name
+        :param image_type: build type name
+
+        :return: mbsize
+        :rtype: int
         """
         if image_type and image_type == 'oem':
             # only for vmx types we need to create the volumes in the
@@ -193,7 +255,9 @@ class VolumeManagerBase(DeviceProvider):
 
     def sync_data(self, exclude=None):
         """
-            Implements sync of root directory to mounted volumes
+        Implements sync of root directory to mounted volumes
+
+        :param list exclude: file patterns to exclude
         """
         if self.mountpoint:
             root_mount = MountManager(device=None, mountpoint=self.mountpoint)
@@ -208,15 +272,15 @@ class VolumeManagerBase(DeviceProvider):
 
     def setup_mountpoint(self):
         """
-            Implements creation of a master directory holding
-            the mounts of all volumes
+        Implements creation of a master directory holding
+        the mounts of all volumes
         """
         self.mountpoint = mkdtemp(prefix='kiwi_volumes.')
 
     def __del__(self):
         """
-            Implements destructor to cleanup all volume subsystems
-            and mount processes. overwrite in specialized volume
-            management class
+        Implements destructor to cleanup all volume subsystems
+        and mount processes. overwrite in specialized volume
+        management class
         """
         pass
