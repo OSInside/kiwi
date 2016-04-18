@@ -58,6 +58,7 @@ Requires:       multipath-tools
 Requires:       squashfs
 Requires:       grub2
 Requires:       mtools
+Requires:       libxslt-tools
 %ifarch %arm aarch64
 Requires:       u-boot-tools
 %endif
