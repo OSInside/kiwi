@@ -8,8 +8,9 @@
   * [Motivation](#motivation)
   * [Installation](#installation)
     - [Compatibility](#compatibility)
-    - [Example Appliance Descriptions](#example-appliance-descriptions)
   * [Quick Start](#quick-start)
+    - [Example image build on host system](example-image-build-on-host-system)
+    - [Example image build in container](example-image-build-in-container)
   * [Supported Distributions](#supported-distributions)
     - [Dropped Features](#dropped-features)
   * [Building in the buildservice](#building-in-the-buildservice)
@@ -104,7 +105,7 @@ The next generation KIWI also provides the __--compat__ option and the
 `kiwicompat` tool to be able to use the same commandline as provided
 with the legacy KIWI version.
 
-### Example Appliance Descriptions
+## Quick Start
 
 For use with the next generation KIWI there is also a GitHub project hosting
 example appliance descriptions. Users who need an example to start with
@@ -114,18 +115,32 @@ should checkout the project as follows:
 $ git clone https://github.com/SUSE/kiwi-descriptions
 ```
 
-## Quick Start
+### Example image build on host system
 
-Once installed building and testing an image from the Examples
-GitHub can be done as follows:
+Install python3-kiwi as explained above and build as follows:
 
 ```bash
 $ sudo kiwi-py3 --type vmx system build \
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
 
-$ cd /tmp/myimage
+Find the image with the suffix `.raw` below `/tmp/myimage`
+```
 
+### Example image build in container
+
+Install [dice](https://github.com/SUSE/dice) and build as follows:
+
+```bash
+$ dice build kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS
+$ dice status kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS
+
+Find the image in a tarball displayed by the `status` command
+```
+
+In order to run your image build call qemu as follows:
+
+```bash
 $ qemu -drive \
     file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio
 ```
