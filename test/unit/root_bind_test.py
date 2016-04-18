@@ -89,7 +89,10 @@ class TestRootBind(object):
         shared_mount = mock.Mock()
         mock_mount.return_value = shared_mount
         self.bind_root.mount_shared_directory()
-        mock_path.assert_called_once_with('root-dir/var/cache/kiwi')
+        mock_path.call_args_list = [
+            call('root-dir/var/cache/kiwi'),
+            call('/var/cache/kiwi')
+        ]
         mock_mount.assert_called_once_with(
             device='/var/cache/kiwi', mountpoint='root-dir/var/cache/kiwi'
         )

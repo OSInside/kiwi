@@ -114,6 +114,7 @@ class RootBind(object):
             host_dir = self.shared_location
         try:
             Path.create(self.root_dir + host_dir)
+            Path.create('/' + host_dir)
             shared_mount = MountManager(
                 device=host_dir, mountpoint=self.root_dir + host_dir
             )
