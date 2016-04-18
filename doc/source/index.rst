@@ -47,12 +47,12 @@ Installation and Quick Start
 ----------------------------
 
 Take a look on the github project page how to install and build your
-first image with KIWI: https://github.com/SUSE/kiwi#installation
+first image with KIWI: https://github.com/SUSE/kiwi
 
 Need Help with KIWI
 -------------------
 
-- Mailing list: http://groups.google.com/group/kiwi-images
+- Mailing list: https://groups.google.com/forum/#!forum/kiwi-images
 - IRC: `#opensuse-kiwi` on irc.freenode.net
 
 The `kiwi-images` group is an open group and anyone can subscribe, even
