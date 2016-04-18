@@ -7,9 +7,9 @@ branches:
 matrix:
     include:
         - python: 3.4
-          env: TOXENV=3.4
+          env: TOXENV=3.4,check,doc_travis
         - python: 3.5
-          env: TOXENV=3.5
+          env: TOXENV=3.5,check,doc_travis
 
 
 before_install:
@@ -22,7 +22,6 @@ install:
 
 script:
     - tox
-    - tox -e doc_travis
 
 after_success:
     - tox -e doc_travis_deploy
