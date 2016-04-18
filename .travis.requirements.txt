@@ -1,1 +1,2 @@
 tox
+travis-sphinx==1.2.0

@@ -22,3 +22,6 @@ install:
 
 script:
     - tox
+
+after_success:
+    - travis-sphinx deploy
