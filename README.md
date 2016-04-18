@@ -123,9 +123,9 @@ Install python3-kiwi as explained above and build as follows:
 $ sudo kiwi-py3 --type vmx system build \
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
+```
 
 Find the image with the suffix `.raw` below `/tmp/myimage`
-```
 
 ### Example image build in container
 
@@ -134,9 +134,9 @@ Install [dice](https://github.com/SUSE/dice) and build as follows:
 ```bash
 $ dice build kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS
 $ dice status kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS
+```
 
 Find the image in a tarball displayed by the `status` command
-```
 
 In order to run your image build call qemu as follows:
 
