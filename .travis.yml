@@ -22,7 +22,7 @@ install:
 
 script:
     - tox
+    - travis-sphinx --nowarn --source doc/source build
 
 after_success:
-    - travis-sphinx -n --source doc/source build
     - travis-sphinx deploy
