@@ -22,6 +22,7 @@ install:
 
 script:
     - tox
+    - tox -e doc_travis
 
 after_success:
-    - tox -e doc_travis
+    - tox -e doc_travis_deploy
