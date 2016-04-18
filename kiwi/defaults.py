@@ -177,6 +177,7 @@ class Defaults(object):
         host_architecture = platform.machine()
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
+            'part_msdos',
             'efi_gop'
         ]
         if host_architecture == 'x86_64':

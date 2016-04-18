@@ -320,8 +320,8 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'multiboot', 'part_gpt', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'btrfs', 'lvm', 'multiboot', 'part_gpt', 'part_msdos',
+                'efi_gop', 'efi_uga', 'linuxefi'
             ])
         ]
 
@@ -377,7 +377,7 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'part_gpt', 'efi_gop',
+                'btrfs', 'lvm', 'part_gpt', 'part_msdos', 'efi_gop',
                 'efi_uga', 'linuxefi'
             ])
         ]
@@ -487,7 +487,7 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'part_gpt', 'efi_gop',
+                'btrfs', 'lvm', 'part_gpt', 'part_msdos', 'efi_gop',
                 'efi_uga', 'linuxefi'
             ]),
             call([
