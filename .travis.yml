@@ -24,4 +24,5 @@ script:
     - tox
 
 after_success:
+    - travis-sphinx -n --source doc/source build
     - travis-sphinx deploy
