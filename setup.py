@@ -18,7 +18,7 @@ config = {
     ],
     'packages': ['kiwi'],
     'entry_points': {
-        'console_scripts': ['kiwi-py3=kiwi.kiwi:main'],
+        'console_scripts': ['kiwi-ng=kiwi.kiwi:main'],
     },
 
     'include_package_data': True,

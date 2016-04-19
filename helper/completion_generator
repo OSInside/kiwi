@@ -188,7 +188,7 @@ print(dedent('''
 # _kiwi
 #----------------------------------------
 function setupCompletionLine {
-    local comp_line=$(echo $COMP_LINE | sed -e 's@kiwi-py3@kiwi@')
+    local comp_line=$(echo $COMP_LINE | sed -e 's@kiwi-ng@kiwi@')
     local result_comp_line
     local prev_was_option=0
     for item in $comp_line; do
@@ -239,5 +239,5 @@ function __comp_reply {
     COMPREPLY=($(compgen -W "$word_list" -- ${cur}))
 }
 
-complete -F _kiwi -o default kiwi-py3
+complete -F _kiwi -o default kiwi-ng
 ''').strip())

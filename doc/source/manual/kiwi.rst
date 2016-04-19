@@ -4,7 +4,7 @@ KIWI Manual Pages
 SYNOPSIS
 --------
 
-.. program-output:: kiwi-py3
+.. program-output:: kiwi-ng
 
 
 DESCRIPTION

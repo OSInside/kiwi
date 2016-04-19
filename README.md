@@ -87,7 +87,7 @@ The legacy KIWI version can be installed and used together with
 the next generation KIWI.
 
 Please note the python3-kiwi package uses the alternatives mechanism to
-setup a symbolic link named `kiwi` to the real executable named `kiwi-py3`.
+setup a symbolic link named `kiwi` to the real executable named `kiwi-ng`.
 If the link target `/usr/bin/kiwi` already exists on your system, the
 alternative setup will skip the creation of the link target because it
 already exists.
@@ -120,7 +120,7 @@ $ git clone https://github.com/SUSE/kiwi-descriptions
 Install python3-kiwi as explained above and build as follows:
 
 ```bash
-$ sudo kiwi-py3 --type vmx system build \
+$ sudo kiwi-ng --type vmx system build \
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
 ```
@@ -268,7 +268,7 @@ the application entry point called `kiwi`, which allows to simply
 call the application from the current code base:
 
 ```
-$ kiwi-py3 --help
+$ kiwi-ng --help
 ```
 
 In order to leave the development mode just call:
