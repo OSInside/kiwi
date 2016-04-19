@@ -34,17 +34,18 @@ future challenges ?
 
 To my mind the former [KIWI](https://github.com/openSUSE/kiwi) version
 has some major weaknesses which has to be fixed prior to continue
-future development:
+with future development. I found the following issues most relevant:
 
 * Not based on a modern programming language
-* Major design flaws but hardly any unit tests
+* Major design flaws but hardly any unit tests. The risk for regressions
+  on refactoring is high
 * No arch specific build integration tests
 * Lots of legacy code for old distributions
 
 In order to address all of these the question came up:
 
 How to modernize the project without producing regressions or
-making any user unhappy ?
+making our user's unhappy ?
 
 As I did not see a good way to achieve this in the former code
 base the decision to start a rewrite of KIWI with a maintained
