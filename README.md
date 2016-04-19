@@ -408,11 +408,14 @@ Service or just build it with `rpmbuild`.
 
 ## Documentation
 
-The documentation is implemented as manual pages based on Sphinx
-using the ReST markup. In order to build the manual pages for testing
-just call:
+The documentation is implemented using Sphinx with the ReST markup.
+In order to build the documentation just call:
 
 ```
-$ cd doc
-$ make man
+tox -e doc
 ```
+
+Whenever a change in the documentation is pushed to the git, it will
+be automatically updated via travis-sphinx and is available at
+
+https://suse.github.io/kiwi
