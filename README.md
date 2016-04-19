@@ -45,7 +45,7 @@ with future development. I found the following issues most relevant:
 In order to address all of these the question came up:
 
 `How to modernize the project without producing regressions or
-making our user's unhappy ?`
+making our users unhappy ?`
 
 As I did not see a good way to achieve this in the former code
 base the decision to start a rewrite of KIWI with a maintained
