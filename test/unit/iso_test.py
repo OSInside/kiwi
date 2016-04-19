@@ -107,17 +107,56 @@ class TestIso(object):
         self.iso.iso_loaders = ['b']
         assert self.iso.get_iso_creation_parameters() == ['a', 'b']
 
+    @raises(KiwiIsoToolError)
+    @patch('os.path.exists')
+    def test_isols_no_tool_found(self, mock_exists):
+        mock_exists.return_value = False
+        self.iso.isols('some-iso')
+
+    @patch('os.path.exists')
     @patch('kiwi.iso.Command.run')
-    def test_isols(self, mock_command):
+    @patch('builtins.open')
+    def test_isols_usr_bin_isoinfo_used(
+        self, mock_open, mock_command, mock_exists
+    ):
+        exists_results = [False, True]
+
+        def side_effect(self):
+            return exists_results.pop()
+
+        mock_exists.side_effect = side_effect
+        self.iso.isols('some-iso')
+        mock_command.assert_called_once_with(
+            ['/usr/bin/isoinfo', '-R', '-l', '-i', 'some-iso']
+        )
+
+    @patch('os.path.exists')
+    @patch('kiwi.iso.Command.run')
+    @patch('builtins.open')
+    def test_isols_usr_lib_genisoimage_isoinfo_used(
+        self, mock_open, mock_command, mock_exists
+    ):
+        exists_results = [True, False]
+
+        def side_effect(self):
+            return exists_results.pop()
+
+        mock_exists.side_effect = side_effect
+        self.iso.isols('some-iso')
+        mock_command.assert_called_once_with(
+            ['/usr/lib/genisoimage/isoinfo', '-R', '-l', '-i', 'some-iso']
+        )
+
+    @patch('kiwi.iso.Command.run')
+    @patch('os.path.exists')
+    def test_isols(self, mock_exists, mock_command):
+        mock_exists.return_value = True
         output_type = namedtuple('output_type', ['output'])
         output_data = ''
         with open('../data/iso_listing.txt') as iso:
             output_data = iso.read()
         mock_command.return_value = output_type(output=output_data)
         result = self.iso.isols('some-iso')
-        mock_command.assert_called_once_with(
-            ['isoinfo', '-R', '-l', '-i', 'some-iso']
-        )
         assert result[2158].name == 'header_end'
 
     def test_create_header_end_block(self):

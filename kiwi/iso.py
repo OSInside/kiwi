@@ -28,7 +28,8 @@ from .logger import log
 from .command import Command
 from .exceptions import (
     KiwiIsoLoaderError,
-    KiwiIsoMetaDataError
+    KiwiIsoMetaDataError,
+    KiwiIsoToolError
 )
 
 
@@ -343,7 +344,7 @@ class Iso(object):
             'listing_type', ['name', 'filetype', 'start']
         )
         listing = Command.run(
-            ['isoinfo', '-R', '-l', '-i', isofile]
+            [self.__find_isoinfo_tool(), '-R', '-l', '-i', isofile]
         )
         listing_result = {}
         for line in listing.output.split('\n'):
@@ -362,6 +363,22 @@ class Iso(object):
                     )
         return collections.OrderedDict(
             sorted(listing_result.items())
+        )
+
+    def __find_isoinfo_tool(self):
+        """
+        There are tools by J.Schilling and tools from the community
+        Depending on what is installed a decision needs to be done
+        """
+        isoinfo_tools = [
+            '/usr/bin/isoinfo', '/usr/lib/genisoimage/isoinfo'
+        ]
+        for tool in isoinfo_tools:
+            if os.path.exists(tool):
+                return tool
+        raise KiwiIsoToolError(
+            'No isoinfo tool found, searched for: %s' %
+            isoinfo_tools
         )
 
     def __create_sortfile(self):
