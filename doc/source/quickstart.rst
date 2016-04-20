@@ -2,52 +2,6 @@ KIWI Quickstart
 ===============
 
 
-Motivation
-----------
-
-The idea of KIWI is simple: Provide a human readable appliance
-description and build the system for any kind of target or service.
-
-Since the early days the project was well received and within SUSE all
-product appliances, product media, appliances for private and public
-cloud as well as on top projects like SUSE Studio uses KIWI. New
-opportunities with partners, other distribution vendors and technologies
-are ahead. However, is KIWI really well prepared for future challenges?
-
-To my mind the former `KIWI <https://github.com/openSUSE/kiwi>`__
-version has some major weaknesses which has to be fixed prior to
-continue with future development. I found the following issues most
-relevant:
-
-*  Not based on a modern programming language
-*  Major design flaws but hardly any unit tests. The risk for
-   regressions on refactoring is high
-*  No arch specific build integration tests
-*  Lots of legacy code for old distributions
-
-In order to address all of these the question came up:
-
-  "How to modernize the project without producing regressions or making our users unhappy ?"
-
-As I did not see a good way to achieve this in the former code base the
-decision to start a rewrite of KIWI with a maintained and stable version
-in the background was made.
-
-After some coffee, lots of hacking hours and peanuts later, I'm happy to
-introduce this next generation KIWI project to you.
-
-Users will be able to use both versions in parallel. In addition the
-next generation KIWI will be fully compatible with the current format of
-the appliance description. This means, users can build an appliance from
-the same appliance description with the legacy and the next generation
-KIWI, if the distribution and all configured features are supported by
-the used KIWI version.
-
-This provides an opportunity for users to test the next generation KIWI
-with their appliance descriptions without risk. If it builds and works
-as expected I recommend to switch to the next generation KIWI, if not
-please open an Issue on https://github.com/SUSE/kiwi.
-
 Installation
 ------------
 
