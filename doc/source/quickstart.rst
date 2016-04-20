@@ -365,10 +365,4 @@ order to build the documentation just call:
 Whenever a change in the documentation is pushed to the git, it will be
 automatically updated via travis-sphinx and is available at
 
-|DOC|
-
-.. |Build Status| image:: https://travis-ci.org/SUSE/kiwi.svg?branch=master
-   :target: https://travis-ci.org/SUSE/kiwi
-.. |Health| image:: https://landscape.io/github/SUSE/kiwi/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/SUSE/kiwi/master
-.. |DOC| replace:: https://suse.github.io/kiwi
+https://suse.github.io/kiwi
