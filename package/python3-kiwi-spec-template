@@ -37,13 +37,21 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
-Provides:       kiwi-packagemanager:yum
-Provides:       kiwi-packagemanager:zypper
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
 Requires:       python3-lxml
 # tools used by kiwi
+%if 0%{?suse_version}
+Requires:       zypper
+Requires:       squashfs
+Provides:       kiwi-packagemanager:zypper
+%endif
+%if 0%{?rhel_version} || 0%{?centos_version}
+Requires:       yum
+Requires:       squashfs-tools
+Provides:       kiwi-packagemanager:yum
+%endif
 Requires:       genisoimage
 Requires:       kiwi-tools
 Requires:       rsync
@@ -56,7 +64,6 @@ Requires:       e2fsprogs
 Requires:       lvm2
 Requires:       parted
 Requires:       multipath-tools
-Requires:       squashfs
 Requires:       grub2
 Requires:       mtools
 Requires:       libxslt-tools
