@@ -1,8 +1,6 @@
 KIWI Quickstart
 ===============
 
-|Build Status| |Health|
-
 
 Motivation
 ----------
@@ -92,8 +90,8 @@ The next generation KIWI also provides the :option:`--compat` option and
 the :command:`kiwicompat` tool to be able to use the same commandline
 as provided with the legacy KIWI version.
 
-Quick Start
------------
+Example Appliance Descriptions
+------------------------------
 
 For use with the next generation KIWI there is also a GitHub project
 hosting example appliance descriptions. Users who need an example to
