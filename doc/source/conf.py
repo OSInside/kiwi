@@ -144,11 +144,12 @@ autosummary_generate = True
     ##}
 
 #except ImportError:
-    #pass
+    #print("sphinx_rtd_theme package not found, using default", file=sys.stderr)
 
 #html_short_title = '%s-%s' % (project, version)
 #html_last_updated_fmt = '%b %d, %Y'
 #html_split_index = True
+html_logo = 'img/kiwi-logo.png'
 
 
 # -- Options for manual page output ---------------------------------------
