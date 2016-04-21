@@ -3,8 +3,8 @@ KIWI Development Quickstart
 
 .. topic:: Abstract
 
-   This document describes the development process of KIWI, an OS image and
-   an appliance builder.
+   This document describes the development process of KIWI,
+   an OS appliance builder.
 
 
 Installation
@@ -48,7 +48,7 @@ features like the selection of the initrd system, it's not possible to
 build that with the legacy KIWI, unless the appliance description
 properly encapsulates the differences into a profile.
 
-The next generation KIWI also provides the :option:`--compat` option and
+The next generation KIWI also provides the `--compat` option and
 the :command:`kiwicompat` tool to be able to use the same commandline
 as provided with the legacy KIWI version.
 
@@ -131,13 +131,13 @@ details
 The previous call would run :command:`tox` for different Python versions,
 checks the source code for errors, and builds the documentation.
 
-If you want to see the target, use the option :option:`-l` to print a list:
+If you want to see the target, use the option `-l` to print a list:
 
 .. code:: bash
 
     $ tox -l
 
-To only run a special target, use the :option:`-e` option. The following
+To only run a special target, use the `-e` option. The following
 example runs the test cases for the 3.4 interpreter only:
 
 .. code:: bash
@@ -207,11 +207,12 @@ following command:
 Raising Versions
 ----------------
 
-The KIWI project follows the `Semantic Versioning <http://semver.org>`__ method.
-To make it easier to follow this method, :command:`bumpversion` is used as
-a tool.
+The KIWI project follows the `Semantic Versioning <http://semver.org>`__
+method. To make it easier to follow this method, :command:`bumpversion` is
+used as a tool.
 
-Follow these instructions to raise the major, minor, or patch part of a version:
+Follow these instructions to raise the major, minor, or patch part of a
+version:
 
 *  For backwards-compatible bug fixes:
 
@@ -311,8 +312,8 @@ Install python3-kiwi as explained above and build as follows:
 .. code:: bash
 
     $ sudo kiwi-ng --type vmx system build \
-           --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
-           --target-dir /tmp/myimage
+        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+        --target-dir /tmp/myimage
 
 Find the image with the suffix :file:`.raw` below :file:`/tmp/myimage`.
 
