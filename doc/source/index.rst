@@ -139,9 +139,9 @@ The following issues are most relevant:
 
 In order to address all of these the questions came up:
 
-  `How to modernize the project without producing regressions`
+  `How to modernize the project without producing regressions?`
 
-  `How to change/drop features without making anybody unhappy ?`
+  `How to change/drop features without making anybody unhappy?`
 
 As there is no good way to achieve this in the former code base the
 decision was made to start a rewrite of KIWI with a maintained and
