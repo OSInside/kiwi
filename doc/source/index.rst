@@ -1,60 +1,189 @@
 .. kiwi documentation master file
 
+
 KIWI Appliance Builder
 ======================
+
+.. sidebar:: Links
+
+   * `GitHub Project <https://github.com/SUSE/kiwi>`__
+   * `Sources <https://github.com/SUSE/kiwi/releases>`__
+   * `RPM Packages <https://build.opensuse.org/package/show/Virtualization:Appliances:Builder/python3-kiwi>`__
 
 .. toctree::
    :maxdepth: 1
 
+   quickstart
    manual/kiwi
    api/kiwi
 
-KIWI is an imaging solution that is based on an image XML description.
-Such a description is represented by a directory which includes at least
-one :file:`config.xml` or :file:`.kiwi` file and may as well include
-other files like scripts or configuration data.
 
-A collection of example image descriptions can be found on the github
-repository here: https://github.com/SUSE/kiwi-descriptions. Most of the
-descriptions provide a so called JeOS image. JeOS means Just enough
-Operating System. A JeOS is a small, text only based image including a
+What is KIWI?
+-------------
+
+KIWI is an OS image and an appliance builder.
+
+It is based on an image XML description. Such a description is represented by
+a directory which includes at least one :file:`config.xml` or :file:`.kiwi`
+file and may as well include other files like scripts or configuration data.
+
+
+Motivation
+----------
+
+The idea of KIWI is simple: Provide a human readable appliance
+description and build the system for any kind of target or service.
+
+Since the early days the project was well received and within SUSE all
+product appliances, product media, appliances for private and public
+cloud as well as on top projects like SUSE Studio uses KIWI. New
+opportunities with partners, other distribution vendors and technologies
+are ahead. However, is KIWI really well prepared for future challenges?
+
+The former `KIWI <https://github.com/openSUSE/kiwi>`__
+version has some major weaknesses which has to be fixed prior to
+continue with future development. The following issues are most
+relevant:
+
+*  Not based on a modern programming language
+*  Major design flaws but hardly any unit tests. The risk for
+   regressions on refactoring is high
+*  No arch specific build integration tests
+*  Lots of legacy code for old distributions
+
+In order to address all of these the question came up:
+
+  "How to modernize the project without producing regressions or making our users unhappy ?"
+
+As there is no good way to achieve this in the former code base the
+decision was made to start a rewrite of KIWI with a maintained and stable version
+in the background.
+
+After some coffee, lots of hacking hours and peanuts later, I'm happy to
+introduce this next generation KIWI project to you.
+
+Users will be able to use both versions in parallel. In addition, the
+next generation KIWI will be fully compatible with the current format of
+the appliance description. This means, users can build an appliance from
+the same appliance description with the legacy and the next generation
+KIWI, if the distribution and all configured features are supported by
+the used KIWI version.
+
+This provides an opportunity for users to test the next generation KIWI
+with their appliance descriptions without risk. If it builds and works
+as expected, I recommend to switch to the next generation KIWI. If not,
+please open an issue on https://github.com/SUSE/kiwi.
+
+Feature Highlights
+------------------
+
+* Distribution independent design
+* GPL v2 license
+* Complete rewrite from Perl to Python
+* openSUSE, SLES, RHEL [CentOS] supported
+* Build images for virtualization systems, cloud, ISOs and more
+* Supports the following image types:
+
+  * ISO Hybrid Live Systems
+  * Virtual Disk for e.g cloud frameworks
+  * OEM Expandable Disk for system deployment from ISO or the network
+  * File system images for deployment in a pxe boot environment
+* Supported architectures: x86, x86_64, s390, ppc
+* Help on mailinglist and IRC
+* and many more
+
+
+Supported Distributions
+-----------------------
+
+"KIWI NG (Next Generation)" can build appliances for distributions
+which are equal or newer compared to the following list:
+
+*  SUSE Linux Enterprise 12
+*  Red Hat Enterprise 7
+*  openSUSE 13.2
+*  openSUSE Leap 42
+*  openSUSE Tumbleweed
+
+For anything older please consider to use the legacy KIWI version v7.x.x.
+
+
+Example Descriptions
+--------------------
+
+A collection of example image descriptions can be found on the GitHub
+repository here: https://github.com/SUSE/kiwi-descriptions.
+
+Most of the descriptions provide a so called "JeOS image" ("Just enough
+Operating System"). A JeOS is a small, text only based image including a
 predefined remote source setup to allow installation of missing
 software components at a later point in time.
 
+Concept
+-------
+
 KIWI operates in two steps. The system build command combines
-both steps into one to make it easier to start with KIWI. The first
-step is the preparation step and if that step was successful, a
-creation step follows which is able to create different image output
-types.
+both steps into one to make it easier to start with KIWI.
 
-In the preparation step, you prepare a directory including the contents
-of your new filesystem based on one or more software package source(s)
-The creation step is based on the result of the preparation step and
-uses the contents of the new image root tree to create the output
-image.
+The first step is the *preparation step* and if that step was successful, a
+*creation step* follows which is able to create different image output
+types:
 
-KIWI supports the creation of the following image types:
+1. In the *preparation step*, you prepare a directory including the
+   contents of your new filesystem based on one or more software package source(s).
 
-- ISO Hybrid Live Systems
-- Virtual Disk for e.g cloud frameworks
-- OEM Expandable Disk for system deployment from ISO or the network
-- File system images for deployment in a pxe boot environment
+2. The *creation step* is based on the result of the preparation step and
+   uses the contents of the new image root tree to create the output image.
 
-Depending on the image type a variety of different disk formats
-architectures and distributions are supported.
 
-Installation and Quick Start
-----------------------------
+Dropped Features
+----------------
 
-Take a look on the github project page how to install and build your
-first image with KIWI: https://github.com/SUSE/kiwi
+The following features have been dropped:
 
-Need Help with KIWI
--------------------
+*  Split systems
 
-- Mailing list: https://groups.google.com/forum/#!forum/kiwi-images
-- IRC: `#opensuse-kiwi` on irc.freenode.net
+   The legacy KIWI version supports building of split systems
+   which uses a static definition of files and directories marked
+   as read-only or read-write. Evolving technologies like overlayfs
+   makes this feature obsolete.
 
-The `kiwi-images` group is an open group and anyone can subscribe, even
-if you do not have a Google account. Simply send mail to
-mailto:kiwi-images+subscribe@googlegroups.com
+*  ZFS filesystem
+
+   The successor for zfs is btrfs in the opensource world. All major
+   distributions put on btrfs. This and the proprietary attitude of
+   zfs obsoletes the feature.
+
+*  Reiserfs filesystem
+
+   The number of people using this filesystem is decreasing. For image
+   building reiserfs was an interesting filesystem however with btrfs and
+   xfs there are good non inode based alternatives out there. Therefore we
+   don't continue supporting reiserfs.
+
+*  Btrfs seed based live systems
+
+   A btrfs seed device is an alternative for other copy on write
+   filesystems like overlayfs. Unfortunately the stability of the seed
+   device when used as cow part in a live system was not as good as we
+   provide with overlayfs and clicfs. Therefore this variant is no longer
+   supported. We might think of adding this feature back if people demand
+   it.
+
+*  VDI image subformat
+
+   The vdi disk image format is supported by the legacy KIWI version but
+   we are not aware of any user. The missing business perspective makes
+   this feature obsolete.
+
+Help
+----
+
+* Mailing list: https://groups.google.com/forum/#!forum/kiwi-images
+
+  The `kiwi-images` group is an open group and anyone can subscribe, even
+  if you do not have a Google account.
+
+  Send mail to `kiwi-images+subscribe@googlegroups.com
+  <mailto:kiwi-images+subscribe@googlegroups.com>`__.
+* IRC: `#opensuse-kiwi` on irc.freenode.net
