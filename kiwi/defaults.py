@@ -17,7 +17,6 @@
 #
 from collections import namedtuple
 import platform
-import re
 from pkg_resources import resource_filename
 from .version import __githash__
 
@@ -49,7 +48,7 @@ class Defaults(object):
             # minimum inode number for inode based filesystems
             'kiwi_min_inodes': 20000,
             # kiwi git revision
-            'kiwi_revision': self.__kiwi_revision()
+            'kiwi_revision': __githash__
         }
         self.profile_key_list = [
             'kiwi_align',
@@ -676,8 +675,3 @@ class Defaults(object):
         """
         for key in sorted(self.profile_key_list):
             profile.add(key, self.get(key))
-
-    def __kiwi_revision(self):
-        githash = re.match('\$Id: (.*) \$', __githash__)
-        if githash:
-            return githash.group(1)

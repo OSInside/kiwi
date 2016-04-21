@@ -110,11 +110,13 @@ completion:
 
 build: completion po tox
 	rm -f dist/*
-	# the following is required to update the $Id$ git attribute
-	rm kiwi/version.py && git checkout kiwi/version.py
+	# the following is required to update the $Format:%H$ git attribute
+	git archive HEAD kiwi/version.py | tar -x
 	# now create my package sources
 	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
 	python3 setup.build.py sdist
+	# go back to origin template of version.py
+	git checkout kiwi/version.py
 	mv dist/kiwi-${version}.tar.bz2 dist/python3-kiwi.tar.bz2
 	rm setup.build.py
 	git log | helper/changelog_generator |\
