@@ -147,6 +147,9 @@ Provides:       kiwi-filesystem:xfs
 Provides:       kiwi-filesystem:ext3
 Provides:       kiwi-filesystem:ext4
 Provides:       kiwi-filesystem:squashfs
+Requires:       btrfsprogs
+Requires:       e2fsprogs
+Requires:       xfsprogs
 Requires:       python3-kiwi = %{version}
 Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
 License:        GPL-2.0+
