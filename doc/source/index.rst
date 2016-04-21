@@ -10,7 +10,7 @@ introduce this Next Generation KIWI project.
 
    * `GitHub Project <https://github.com/SUSE/kiwi>`__
    * `Sources <https://github.com/SUSE/kiwi/releases>`__
-   * `RPM Packages <https://build.opensuse.org/package/show/Virtualization:Appliances:Builder/python3-kiwi>`__
+   * `RPM Packages <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
 
 .. toctree::
    :maxdepth: 1
@@ -162,7 +162,7 @@ please open an issue on https://github.com/SUSE/kiwi.
 The legacy KIWI version will be further developed in maintenance mode.
 There won't be any new features added in that code base though.
 Packages will be available at the known place:
-`Legacy KIWI packages <https://build.opensuse.org/package/show/Virtualization:Appliances/kiwi>`__
+`Legacy KIWI packages <http://download.opensuse.org/repositories/Virtualization:/Appliances>`__
 
 Dropped Features
 ----------------

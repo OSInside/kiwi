@@ -11,7 +11,7 @@ Installation
 ------------
 
 Packages for the new KIWI version are provided at the `openSUSE
-buildservice <https://build.opensuse.org/package/show/Virtualization:Appliances:Builder/python3-kiwi>`__.
+buildservice <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__.
 
 Add the repository with :command:`zypper ar` (see following code) and replace
 the distribution placeholder. The best approach is to click on the
@@ -152,7 +152,7 @@ available to many people refactoring of SSH keys is in the range of
 possibilities. Therefore SSH keys as used by GitHub as a
 "login/authentication" mechanism no longer provide the security they
 once did. See `Github SSH keys
-<http://cryptosense.com/batch-gcding-github-ssh-keys>`__ and
+<https://cryptosense.com/batch-gcding-github-ssh-keys>`__ and
 `Github Users keys <https://blog.benjojo.co.uk/post/auditing-github-users-keys>`__ as
 reference. In an effort to ensure the integrity of the repository and
 the code base patches sent for inclusion must be GPG signed.
@@ -264,7 +264,7 @@ order to build the documentation just call:
 Whenever a change in the documentation is pushed to the git, it will be
 automatically updated via travis-sphinx and is available at
 
-https://suse.github.io/kiwi
+http://suse.github.io/kiwi
 
 
 
@@ -273,9 +273,9 @@ Using KIWI NG from Build Service
 
 The next generation KIWI is fully integrated with the buildservice. As
 an example you can find the integration testing system in the
-buildservice here:
+buildservice project `Virtualization:Appliances:Images` at:
 
-https://build.opensuse.org/project/subprojects/Virtualization:Appliances:Images
+https://build.opensuse.org
 
 In order to use the next generation KIWI to build an appliance in the
 buildservice it is only required to add the Builder project as
