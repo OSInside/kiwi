@@ -1,5 +1,5 @@
-KIWI Development Quickstart
-===========================
+KIWI Development Quick Start
+============================
 
 .. topic:: Abstract
 
@@ -15,7 +15,7 @@ buildservice <http://download.opensuse.org/repositories/Virtualization:/Applianc
 
 Add the repository with :command:`zypper ar` (see following code) and replace
 the distribution placeholder. The best approach is to click on the
-desired distribution from the buildservice link above and there follow
+desired distribution from the build service link above and there follow
 the **Go to download repository** link.
 
 .. code:: bash
@@ -121,8 +121,8 @@ Running Test Cases
 
 For running test cases, the preferred method is to use Tox. The Tox
 execution environment can be used to run any kind of target, tests are
-just one, documentation is another one. Refer to tox.ini for more
-details
+just one, documentation is another one. Refer to :file:`tox.ini` for more
+details.
 
 .. code:: bash
 
@@ -166,14 +166,14 @@ To prepare Git to sign commits, follow these one-time instructions:
 
     $ gpg --gen-key
 
-2. Choose a DSA key (3) with a keysize of 2048 bits (default) and a
-   validation of 3 years (3y). Enter your name/email and gpg will
+2. Choose a DSA key (3) with a key size of 2048 bits (default) and a
+   validation of 3 years (3y). Enter your name/email and GPG will
    generate a DSA key for you.
 
    You can also choose to use an empty passphrase, despite GPG's warning,
    because you are only going to sign your public git commits with it and
-   dont need it for protecting any of your secrets. That might ease later
-   use if you are not using an gpg-agent that caches your passphrase
+   don't need it for protecting any of your secrets. That might ease later
+   use if you are not using an :command:`gpg-agent` that caches your passphrase
    between multiple signed Git commits.
 
 3. Add the key ID to your git config
@@ -262,7 +262,7 @@ order to build the documentation just call:
     tox -e doc
 
 Whenever a change in the documentation is pushed to the git, it will be
-automatically updated via travis-sphinx and is available at
+automatically updated via :command:`travis-sphinx` and is available at:
 
 http://suse.github.io/kiwi
 
@@ -271,14 +271,14 @@ http://suse.github.io/kiwi
 Using KIWI NG from Build Service
 ---------------------------------
 
-The next generation KIWI is fully integrated with the buildservice. As
+The next generation KIWI is fully integrated with the build service. As
 an example you can find the integration testing system in the
 buildservice project `Virtualization:Appliances:Images` at:
 
 https://build.opensuse.org
 
 In order to use the next generation KIWI to build an appliance in the
-buildservice it is only required to add the Builder project as
+build service it is only required to add the Builder project as
 repository to the KIWI XML configuration like in the following example:
 
 .. code:: xml
@@ -287,7 +287,7 @@ repository to the KIWI XML configuration like in the following example:
     <source path="obs://Virtualization:Appliances:Builder/SLE_12_SP1"/>
  </repository>
 
-The Builder project configuration in the buildservice is setup to prefer
+The Builder project configuration in the build service is setup to prefer
 the next generation KIWI over the legacy version. Thus adding the
 Builder repository inherits this project setup and activates building
 with the next generation KIWI.

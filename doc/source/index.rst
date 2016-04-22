@@ -65,7 +65,7 @@ Feature Highlights
   * Virtual Disk for e.g cloud frameworks
   * OEM Expandable Disk for system deployment from ISO or the network
   * File system images for deployment in a pxe boot environment
-  * Container images for e.g docker
+  * Container images for e.g. docker
 * Supported architectures: x86/x86_64, s390/s390x, ppc/ppc64, arm/aarch64
 * Help on mailinglist and IRC
 * and many more
@@ -179,20 +179,20 @@ consider to use the legacy KIWI version.
 
 *  ZFS filesystem
 
-   The successor for zfs is btrfs in the opensource world. All major
-   distributions put on btrfs. This and the proprietary attitude of
-   zfs obsoletes the feature.
+   The successor for ZFS is Btrfs in the opensource world. All major
+   distributions put on Btrfs. This and the proprietary attitude of
+   ZFS obsoletes the feature.
 
 *  Reiserfs filesystem
 
    The number of people using this filesystem is decreasing. For image
-   building reiserfs was an interesting filesystem however with btrfs and
-   xfs there are good non inode based alternatives out there. Therefore we
-   don't continue supporting reiserfs.
+   building reiserfs was an interesting filesystem however with Btrfs and
+   XFS there are good non inode based alternatives out there. Therefore we
+   don't continue supporting Reiserfs.
 
 *  Btrfs seed based live systems
 
-   A btrfs seed device is an alternative for other copy on write
+   A Btrfs seed device is an alternative for other copy on write
    filesystems like overlayfs. Unfortunately the stability of the seed
    device when used as cow part in a live system was not as good as we
    provide with overlayfs and clicfs. Therefore this variant is no longer
