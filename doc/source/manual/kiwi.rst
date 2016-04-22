@@ -5,6 +5,7 @@ SYNOPSIS
 --------
 
 .. program-output:: kiwi-ng
+   :returncode: 1
 
 
 DESCRIPTION
