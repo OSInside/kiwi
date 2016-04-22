@@ -1,5 +1,6 @@
-KIWI API Documentation
-======================
+KIWI API Documentation |version|
+================================
+
 
 Subpackages
 -----------
