@@ -67,14 +67,27 @@ class TestBootLoaderInstallGrub2(object):
             'root_dir', device_provider, self.custom_args
         )
 
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @raises(KiwiBootLoaderGrubInstallError)
-    def test_post_init_ppc_no_prep_device(self):
+    def test_post_init_ppc_no_prep_device(self, mock_grub_path):
         self.bootloader.arch = 'ppc64'
         del self.custom_args['prep_device']
         self.bootloader.install()
 
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @raises(KiwiBootLoaderGrubDataError)
+    def test_grub2_bootloader_not_installed(
+        self, mock_grub_path, mock_mount_manager, mock_command
+    ):
+        mock_grub_path.return_value = None
+        self.bootloader.arch = 'x86_64'
+        self.bootloader.install()
+
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @raises(KiwiBootLoaderGrubPlatformError)
-    def test_unsupported_platform(self):
+    def test_unsupported_platform(self, mock_grub_path):
         self.bootloader.arch = 'unsupported'
         self.bootloader.install()
 
@@ -109,9 +122,12 @@ class TestBootLoaderInstallGrub2(object):
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     def test_install_with_extra_boot_partition(
-        self, mock_mount_manager, mock_command
+        self, mock_grub_path, mock_mount_manager, mock_command
     ):
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2'
 
         def side_effect(device, mountpoint=None):
             return self.mount_managers.pop()
@@ -136,9 +152,12 @@ class TestBootLoaderInstallGrub2(object):
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     def test_install_ppc_ieee1275(
-        self, mock_mount_manager, mock_command
+        self, mock_grub_path, mock_mount_manager, mock_command
     ):
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2'
         self.bootloader.arch = 'ppc64'
 
         def side_effect(device, mountpoint=None):
@@ -164,7 +183,10 @@ class TestBootLoaderInstallGrub2(object):
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
-    def test_install(self, mock_mount_manager, mock_command):
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    def test_install(self, mock_grub_path, mock_mount_manager, mock_command):
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2'
         self.boot_mount.device = self.root_mount.device
 
         def side_effect(device, mountpoint=None):
@@ -188,9 +210,12 @@ class TestBootLoaderInstallGrub2(object):
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     def test_install_secure_boot(
-        self, mock_mount_manager, mock_command
+        self, mock_grub_path, mock_mount_manager, mock_command
     ):
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2'
         self.firmware.efi_mode.return_value = 'uefi'
         self.boot_mount.device = self.root_mount.device
 
@@ -235,7 +260,8 @@ class TestBootLoaderInstallGrub2(object):
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
-    def test_destructor(self, mock_mount_manager, mock_command):
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    def test_destructor(self, mock_grub_path, mock_mount_manager, mock_command):
         self.firmware.efi_mode.return_value = 'uefi'
 
         def side_effect(device, mountpoint=None):

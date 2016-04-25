@@ -639,3 +639,13 @@ class TestSystemSetup(object):
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.verified', 'w'
         )
+
+    @patch('kiwi.system.setup.Command.run')
+    def test_set_selinux_file_contexts(self, mock_command):
+        self.setup.set_selinux_file_contexts('security_context_file')
+        mock_command.assert_called_once_with(
+            [
+                'chroot', 'root_dir',
+                'setfiles', 'security_context_file', '/', '-v'
+            ]
+        )

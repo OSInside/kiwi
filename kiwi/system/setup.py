@@ -396,6 +396,21 @@ class SystemSetup(object):
             with open(image_id_file, 'w') as identifier:
                 identifier.write('%s\n' % image_id)
 
+    def set_selinux_file_contexts(self, security_context_file):
+        """
+        Initialize the security context fields (extended attributes)
+        on the files matching the security_context_file
+
+        :param string security_context_file: path file name
+        """
+        log.info('Processing SELinux file security contexts')
+        Command.run(
+            [
+                'chroot', self.root_dir,
+                'setfiles', security_context_file, '/', '-v'
+            ]
+        )
+
     def export_modprobe_setup(self, target_root_dir):
         """
         Export etc/modprobe.d to given root_dir

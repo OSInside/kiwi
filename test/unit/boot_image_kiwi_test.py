@@ -123,6 +123,6 @@ class TestBootImageKiwi(object):
         )
         cpio.create.assert_called_once_with(
             source_dir=self.boot_image.temp_boot_root_directory,
-            exclude=['/var/cache', '/image', '/usr/lib/grub2']
+            exclude=['/var/cache', '/image', '/usr/lib/grub*']
         )
         compress.xz.assert_called_once_with()

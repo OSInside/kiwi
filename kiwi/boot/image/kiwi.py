@@ -118,7 +118,7 @@ class BootImageKiwi(BootImageBase):
             # during the process of creating an image but not when the
             # image is actually booting with this initrd
             exclude_from_archive = [
-                '/var/cache', '/image', '/usr/lib/grub2'
+                '/var/cache', '/image', '/usr/lib/grub*'
             ]
             cpio.create(
                 source_dir=self.temp_boot_root_directory,
