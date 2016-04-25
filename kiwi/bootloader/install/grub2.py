@@ -26,7 +26,8 @@ from ...mount_manager import MountManager
 
 from ...exceptions import(
     KiwiBootLoaderGrubInstallError,
-    KiwiBootLoaderGrubPlatformError
+    KiwiBootLoaderGrubPlatformError,
+    KiwiBootLoaderGrubDataError
 )
 
 
@@ -152,20 +153,23 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             device=self.custom_args['boot_device'],
             mountpoint=self.root_mount.mountpoint + '/boot'
         )
-        self.modules_dir = '/usr/lib/grub2/' + self.target
-
         if not self.root_mount.device == self.boot_mount.device:
             self.root_mount.mount()
             self.boot_mount.mount()
-            module_directory = self.root_mount.mountpoint \
-                + self.modules_dir
             boot_directory = self.boot_mount.mountpoint
         else:
             self.root_mount.mount()
-            module_directory = self.root_mount.mountpoint \
-                + self.modules_dir
             boot_directory = self.root_mount.mountpoint \
                 + '/boot'
+
+        grub_directory = Defaults.get_grub_path(
+            self.root_mount.mountpoint + '/usr/lib'
+        )
+        if not grub_directory:
+            raise KiwiBootLoaderGrubDataError(
+                'No grub2 installation found in %s' % self.root_mount.mountpoint
+            )
+        module_directory = grub_directory + '/' + self.target
 
         Command.run(
             ['grub2-install'] + self.install_arguments + [

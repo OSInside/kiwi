@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from collections import namedtuple
 import platform
 from pkg_resources import resource_filename
+
+# project
 from .version import __githash__
 
 
@@ -221,6 +224,23 @@ class Defaults(object):
             'boot'
         ]
         return modules
+
+    @classmethod
+    def get_grub_path(self, lookup_path):
+        """
+        Depending on the distribution grub could be installed below
+        a grub2 or grub directory. Therefore this information needs
+        to be dynamically looked up
+
+        :param string lookup_path: path name
+
+        :return: grub2 install directory path name
+        :rtype: string
+        """
+        for grub_name in ['grub2', 'grub']:
+            grub_path = lookup_path + '/' + grub_name
+            if os.path.exists(grub_path):
+                return grub_path
 
     @classmethod
     def get_preparer(self):

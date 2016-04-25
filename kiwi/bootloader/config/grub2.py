@@ -519,15 +519,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
     def __find_grub_data(self, lookup_path):
-        """
-            depending on the distribution grub could be installed below
-            a grub2 or grub directory. Therefore this information needs
-            to be dynamically looked up
-        """
-        for grub_name in ['grub2', 'grub']:
-            grub_path = lookup_path + '/' + grub_name
-            if os.path.exists(grub_path):
-                return grub_path
+        grub_path = Defaults.get_grub_path(lookup_path)
+        if grub_path:
+            return grub_path
 
         raise KiwiBootLoaderGrubDataError(
             'No grub2 installation found in %s' % lookup_path
