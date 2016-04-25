@@ -191,6 +191,9 @@ class TestDiskBuilder(object):
         self.setup.export_modprobe_setup.assert_called_once_with(
             'boot_dir'
         )
+        self.setup.set_selinux_file_contexts.assert_called_once_with(
+            '/etc/selinux/targeted/contexts/files/file_contexts'
+        )
         self.disk_setup.get_disksize_mbytes.assert_called_once_with()
         self.loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()

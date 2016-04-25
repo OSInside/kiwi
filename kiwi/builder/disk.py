@@ -367,6 +367,9 @@ class DiskBuilder(object):
             self.disk.storage_provider
         )
 
+        # set SELinux file security contexts if context exists
+        self.__setup_selinux_file_contexts()
+
         # syncing system data to disk image
         log.info('Syncing system to image')
         if self.system_efi:
@@ -460,6 +463,13 @@ class DiskBuilder(object):
         )
 
         return self.result
+
+    def __setup_selinux_file_contexts(self):
+        security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
+        if os.path.exists(self.root_dir + security_context):
+            self.system_setup.set_selinux_file_contexts(
+                security_context
+            )
 
     def __install_image_requested(self):
         if self.install_iso or self.install_stick or self.install_pxe:
