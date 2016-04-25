@@ -1,7 +1,7 @@
 .. kiwi documentation master file
 
-KIWI Appliance Builder
-======================
+KIWI Appliance Builder |version|
+================================
 
 After some coffee, lots of hacking hours and peanuts later, I'm happy to
 introduce this Next Generation KIWI project.

@@ -5,6 +5,7 @@ KIWI Development Quick Start
 
    This document describes the development process of KIWI,
    an OS appliance builder.
+   This description applies for version |version|.
 
 
 Installation
