@@ -135,22 +135,25 @@ autosummary_generate = True
 
 # -- Options for HTML output ----------------------------------------------
 
-#try:
-    #import sphinx_rtd_theme
-    #html_theme = 'sphinx_rtd_theme'
-    #html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-    ##html_sidebars = {
-    ##    '**': ['searchbox.html', 'globaltoc.html', 'sourcelink.html'],
-    ##}
-
-#except ImportError:
-    #print("sphinx_rtd_theme package not found, using default", file=sys.stderr)
-
 #html_short_title = '%s-%s' % (project, version)
 #html_last_updated_fmt = '%b %d, %Y'
 #html_split_index = True
 html_logo = 'img/kiwi-logo.png'
 
+html_sidebars = {
+   '**': [
+          'localtoc.html', 'relations.html',
+          'about.html', 'searchbox.html',
+         ]
+}
+
+html_theme_options = {
+    "github_button": True,
+    "github_banner": True,
+    "travis_button": True,
+    "github_user": "SUSE",
+    "github_repo": "kiwi",
+}
 
 # -- Options for manual page output ---------------------------------------
 
