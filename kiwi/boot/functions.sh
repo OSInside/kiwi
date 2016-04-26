@@ -9780,6 +9780,24 @@ function stopMultipathd {
     done
 }
 #======================================
+# loadSELinuxPolicy
+#--------------------------------------
+function loadSELinuxPolicy {
+    # /.../
+    # load selinux policy and enforce selinux
+    # ----
+    local IFS=$IFS_ORIG
+    if ! lookup load_policy &>/dev/null;then
+        Echo "load_policy not found"
+    fi
+    if ! lookup restorecon &>/dev/null;then
+        Echo "restorecon not found"
+    fi
+    load_policy -i
+    echo 0 > /selinux/enforce
+    restorecon -F -R /dev
+}
+#======================================
 # initialize
 #--------------------------------------
 function initialize {

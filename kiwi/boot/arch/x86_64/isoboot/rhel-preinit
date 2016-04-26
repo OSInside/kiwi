@@ -46,6 +46,11 @@ setupConsole
 createFramebufferDevices
 
 #======================================
-# 6) clean mount
+# 6) Load SELinux policy
+#--------------------------------------
+loadSELinuxPolicy
+
+#======================================
+# 7) clean mount
 #--------------------------------------
 umountSystemFilesystems

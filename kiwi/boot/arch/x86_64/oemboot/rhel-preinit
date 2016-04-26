@@ -140,12 +140,17 @@ fi
 setupConsole
 
 #======================================
-# 10) Run user script
+# 10) Load SELinux policy
+#--------------------------------------
+loadSELinuxPolicy
+
+#======================================
+# 11) Run user script
 #--------------------------------------
 runHook preCallInit
 
 #======================================
-# 11) kill udev
+# 12) kill udev
 #--------------------------------------
 udevSystemStop
 umountSystemFilesystems
