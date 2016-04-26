@@ -154,10 +154,12 @@ class InstallImageBuilder(object):
             prefix='install-media.', dir=self.target_dir
         )
         # custom iso metadata
-        self.custom_iso_args = [
-            '-V', '"KIWI Installation System"',
-            '-A', self.mbrid.get_id()
-        ]
+        self.custom_iso_args = {
+            'create_options': [
+                '-V', '"KIWI Installation System"',
+                '-A', self.mbrid.get_id()
+            ]
+        }
 
         # the system image transfer is checked against a checksum
         log.info('Creating disk image checksum')

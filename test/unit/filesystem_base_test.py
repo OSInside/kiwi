@@ -60,7 +60,7 @@ class TestFileSystemBase(object):
         mock_mount.assert_called_once_with(
             device='/dev/loop0', mountpoint='tmpdir'
         )
-        filesystem_mount.mount.assert_called_once_with()
+        filesystem_mount.mount.assert_called_once_with([])
         filesystem_mount.umount.assert_called_once_with()
 
     def test_destructor_valid_mountpoint(self):

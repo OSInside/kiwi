@@ -25,16 +25,6 @@ class FileSystemIsoFs(FileSystemBase):
     """
     Implements creation of iso filesystem
     """
-    def post_init(self, custom_args):
-        """
-        Post initialization method
-
-        Store custom arguments
-
-        :param list custom_args: list of arguments
-        """
-        self.custom_args = custom_args
-
     def create_on_file(self, filename, label=None):
         """
         Create iso filesystem from data tree
@@ -46,7 +36,9 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         """
         iso = Iso(self.root_dir)
-        iso.init_iso_creation_parameters(self.custom_args)
+        iso.init_iso_creation_parameters(
+            self.custom_args['create_options']
+        )
         iso.add_efi_loader_parameters()
         Command.run(
             [

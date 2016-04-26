@@ -32,7 +32,7 @@ class FileSystemClicFs(FileSystemBase):
     """
     Implements creation of clicfs filesystem
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args=None):
         """
         Post initialization method
 
@@ -43,10 +43,9 @@ class FileSystemClicFs(FileSystemBase):
         * :attr:`container_dir`
             Temporary directory to store clicfs embeded filesystem
 
-        :param list custom_args: list of arguments
+        :param dict custom_args: unused
         """
         self.container_dir = None
-        self.custom_args = custom_args
 
     def create_on_file(self, filename, label=None):
         """

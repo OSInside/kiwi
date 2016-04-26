@@ -159,15 +159,17 @@ class LiveImageBuilder(object):
         log.info('Using following live ISO metadata:')
         log.info('--> Application id: %s', self.mbrid.get_id())
         log.info('--> Publisher: %s', Defaults.get_publisher())
-        custom_iso_args = [
-            '-A', self.mbrid.get_id(),
-            '-p', '"' + Defaults.get_preparer() + '"',
-            '-publisher', '"' + Defaults.get_publisher() + '"',
-        ]
+        custom_iso_args = {
+            'create_options': [
+                '-A', self.mbrid.get_id(),
+                '-p', '"' + Defaults.get_preparer() + '"',
+                '-publisher', '"' + Defaults.get_publisher() + '"'
+            ]
+        }
         if self.volume_id:
             log.info('--> Volume id: %s', self.volume_id)
-            custom_iso_args.append('-V')
-            custom_iso_args.append('"' + self.volume_id + '"')
+            custom_iso_args['create_options'].append('-V')
+            custom_iso_args['create_options'].append('"' + self.volume_id + '"')
 
         # prepare boot(initrd) root system
         log.info('Preparing live ISO boot system')
@@ -232,8 +234,8 @@ class LiveImageBuilder(object):
         # calculate size and decide if we need UDF
         if rootsize.accumulate_mbyte_file_sizes() > 4096:
             log.info('ISO exceeds 4G size, using UDF filesystem')
-            custom_iso_args.append('-allow-limited-size')
-            custom_iso_args.append('-udf')
+            custom_iso_args['create_options'].append('-allow-limited-size')
+            custom_iso_args['create_options'].append('-udf')
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')

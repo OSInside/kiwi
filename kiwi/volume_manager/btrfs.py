@@ -88,6 +88,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         self.toplevel_mount = MountManager(
             device=self.device, mountpoint=self.mountpoint
         )
+        # FIXME: we need custom mount options passed in here
         self.toplevel_mount.mount()
         root_volume = self.mountpoint + '/@'
         Command.run(
@@ -167,6 +168,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
             subvol_name = os.path.basename(volume_mount.mountpoint)
+            # FIXME: we need custom mount options passed in here
             volume_mount.mount(
                 options=['subvol=' + os.path.normpath('@/' + subvol_name)]
             )

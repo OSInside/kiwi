@@ -71,18 +71,26 @@ class FileSystemBase(object):
         # filesystem file name here
         self.filename = None
 
-        self.custom_args = []
+        self.custom_args = {}
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
         """
         Post initialization method
 
-        Implementation in specialized filesystem class
+        Store dictionary of custom arguments if not empty. This
+        overrides the default custom argument hash
 
-        :param list custom_args: unused
+        :param dict custom_args: custom arguments
         """
-        pass
+        if custom_args:
+            self.custom_args = custom_args
+
+        if 'create_options' not in self.custom_args:
+            self.custom_args['create_options'] = []
+
+        if 'mount_options' not in self.custom_args:
+            self.custom_args['mount_options'] = []
 
     def create_on_device(self, label=None):
         """
@@ -125,7 +133,9 @@ class FileSystemBase(object):
             device=self.device_provider.get_device(),
             mountpoint=mkdtemp(prefix='kiwi_filesystem.')
         )
-        self.filesystem_mount.mount()
+        self.filesystem_mount.mount(
+            self.custom_args['mount_options']
+        )
         data = DataSync(
             self.root_dir, self.filesystem_mount.mountpoint
         )

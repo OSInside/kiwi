@@ -198,13 +198,15 @@ class TestLiveImageBuilder(object):
         )
         rootsize.accumulate_mbyte_file_sizes.assert_called_once_with()
         mock_isofs.assert_called_once_with(
-            custom_args=[
-                '-A', '0xffffffff',
-                '-p', '"KIWI - http://suse.github.com/kiwi"',
-                '-publisher', '"SUSE LINUX GmbH"',
-                '-V', '"volid"',
-                '-allow-limited-size', '-udf'
-            ], device_provider=None, root_dir='temp_media_dir'
+            custom_args={
+                'create_options': [
+                    '-A', '0xffffffff',
+                    '-p', '"KIWI - http://suse.github.com/kiwi"',
+                    '-publisher', '"SUSE LINUX GmbH"',
+                    '-V', '"volid"',
+                    '-allow-limited-size', '-udf'
+                ]
+            }, device_provider=None, root_dir='temp_media_dir'
         )
         iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.iso'

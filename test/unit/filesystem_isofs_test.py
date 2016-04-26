@@ -16,8 +16,10 @@ class TestFileSystemIsoFs(object):
         self.isofs = FileSystemIsoFs(mock.Mock(), 'root_dir')
 
     def test_post_init(self):
-        self.isofs.post_init(['args'])
-        assert self.isofs.custom_args == ['args']
+        self.isofs.post_init({'some_args': 'data'})
+        assert self.isofs.custom_args['create_options'] == []
+        assert self.isofs.custom_args['mount_options'] == []
+        assert self.isofs.custom_args['some_args'] == 'data'
 
     @patch('kiwi.filesystem.isofs.Command.run')
     @patch('kiwi.filesystem.isofs.Iso')
@@ -29,7 +31,7 @@ class TestFileSystemIsoFs(object):
         )
         mock_iso.return_value = iso
         self.isofs.create_on_file('myimage', None)
-        iso.init_iso_creation_parameters.assert_called_once_with(None)
+        iso.init_iso_creation_parameters.assert_called_once_with([])
         iso.add_efi_loader_parameters.assert_called_once_with()
         iso.create_header_end_block.assert_called_once_with(
             'myimage'

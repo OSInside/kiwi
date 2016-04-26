@@ -35,5 +35,7 @@ class FileSystemSquashFs(FileSystemBase):
         :param string label: unused
         """
         Command.run(
-            ['mksquashfs', self.root_dir, filename] + self.custom_args
+            [
+                'mksquashfs', self.root_dir, filename
+            ] + self.custom_args['create_options']
         )

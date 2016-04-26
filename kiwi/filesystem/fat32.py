@@ -32,8 +32,10 @@ class FileSystemFat32(FileSystemBase):
         """
         device = self.device_provider.get_device()
         if label:
-            self.custom_args.append('-n')
-            self.custom_args.append(label)
+            self.custom_args['create_options'].append('-n')
+            self.custom_args['create_options'].append(label)
         Command.run(
-            ['mkdosfs', '-F32', '-I'] + self.custom_args + [device]
+            [
+                'mkdosfs', '-F32', '-I'
+            ] + self.custom_args['create_options'] + [device]
         )

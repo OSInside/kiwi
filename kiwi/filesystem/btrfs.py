@@ -32,8 +32,8 @@ class FileSystemBtrfs(FileSystemBase):
         """
         device = self.device_provider.get_device()
         if label:
-            self.custom_args.append('-L')
-            self.custom_args.append(label)
+            self.custom_args['create_options'].append('-L')
+            self.custom_args['create_options'].append(label)
         Command.run(
-            ['mkfs.btrfs'] + self.custom_args + [device]
+            ['mkfs.btrfs'] + self.custom_args['create_options'] + [device]
         )

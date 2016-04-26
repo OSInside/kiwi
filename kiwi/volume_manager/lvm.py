@@ -161,6 +161,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         for volume_mount in self.mount_list:
             Path.create(volume_mount.mountpoint)
+            # FIXME: we need custom mount options passed in here
             volume_mount.mount()
 
     def umount_volumes(self):
