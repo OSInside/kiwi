@@ -26,31 +26,26 @@ Echo "Calling pre-init stage in system image"
 errorLogStart
 
 #======================================
-# 2) update auth config 
-#--------------------------------------
-authconfig --updateall
-
-#======================================
-# 3) update mount table
+# 2) update mount table
 #--------------------------------------
 updateMTAB
 
 #======================================
-# 4) setup console
+# 3) setup console
 #--------------------------------------
 setupConsole
 
 #======================================
-# 5) create framebuffer devices
+# 4) create framebuffer devices
 #--------------------------------------
 createFramebufferDevices
 
 #======================================
-# 6) Load SELinux policy
+# 5) Load SELinux policy
 #--------------------------------------
 loadSELinuxPolicy
 
 #======================================
-# 7) clean mount
+# 6) clean mount
 #--------------------------------------
 umountSystemFilesystems

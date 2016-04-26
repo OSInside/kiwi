@@ -76,22 +76,17 @@ fi
 setupConsole
 
 #======================================
-# 9) update auth config 
-#--------------------------------------
-authconfig --updateall
-
-#======================================
-# 10) Load SELinux policy
+# 9) Load SELinux policy
 #--------------------------------------
 loadSELinuxPolicy
 
 #======================================
-# 11) Run user script
+# 10) Run user script
 #--------------------------------------
 runHook preCallInit
 
 #======================================
-# 12) kill udev
+# 11) kill udev
 #--------------------------------------
 udevSystemStop
 umountSystemFilesystems
