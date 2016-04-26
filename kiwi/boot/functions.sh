@@ -9794,7 +9794,7 @@ function loadSELinuxPolicy {
         Echo "restorecon not found"
     fi
     load_policy -i
-    echo 0 > /selinux/enforce
+    echo 0 > /sys/fs/selinux/enforce
     restorecon -F -R /dev
 }
 #======================================
