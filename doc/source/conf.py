@@ -59,6 +59,9 @@ def setup(app):
 
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
+spelling_ignore_acronyms = True
+spelling_ignore_importable_modules = True
+spelling_ignore_python_builtins = True
 spelling_ignore_pypi_package_names = True
 spelling_word_list_filename = 'spelling_wordlist.txt'
 
@@ -76,6 +79,7 @@ source_encoding = 'utf-8-sig'
 # The master toctree document.
 master_doc = 'index'
 
+default_role="py:obj"
 
 # General information about the project.
 project = u'kiwi'
