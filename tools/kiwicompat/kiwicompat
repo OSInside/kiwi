@@ -78,6 +78,8 @@ class Translate(object):
         self.arguments = arguments
 
         self.translated = []
+        if self.arguments['--version']:
+            self.translated.append('--version')
         if self.arguments['--logfile']:
             self.translated.append('--logfile')
             self.translated.append(self.arguments['--logfile'])
