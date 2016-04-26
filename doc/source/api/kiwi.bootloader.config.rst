@@ -1,35 +1,35 @@
-kiwi.bootloader.config package
+kiwi.bootloader.config Package
 ==============================
 
 Submodules
 ----------
 
-kiwi.bootloader.config.base module
-----------------------------------
+`kiwi.bootloader.config.base` Module
+------------------------------------
 
 .. automodule:: kiwi.bootloader.config.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.bootloader.config.grub2 module
------------------------------------
+`kiwi.bootloader.config.grub2` Module
+-------------------------------------
 
 .. automodule:: kiwi.bootloader.config.grub2
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.bootloader.config.isolinux module
---------------------------------------
+`kiwi.bootloader.config.isolinux` Module
+----------------------------------------
 
 .. automodule:: kiwi.bootloader.config.isolinux
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.bootloader.config.zipl module
-----------------------------------
+`kiwi.bootloader.config.zipl` Module
+------------------------------------
 
 .. automodule:: kiwi.bootloader.config.zipl
     :members:
@@ -37,7 +37,7 @@ kiwi.bootloader.config.zipl module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.bootloader.config

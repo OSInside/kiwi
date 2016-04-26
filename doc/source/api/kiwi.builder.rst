@@ -1,59 +1,59 @@
-kiwi.builder package
+kiwi.builder Package
 ====================
 
 Submodules
 ----------
 
-kiwi.builder.archive module
----------------------------
+`kiwi.builder.archive` Module
+-----------------------------
 
 .. automodule:: kiwi.builder.archive
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.builder.container module
------------------------------
+`kiwi.builder.container` Module
+-------------------------------
 
 .. automodule:: kiwi.builder.container
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.builder.disk module
-------------------------
+`kiwi.builder.disk` Module
+--------------------------
 
 .. automodule:: kiwi.builder.disk
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.builder.filesystem module
-------------------------------
+`kiwi.builder.filesystem` Module
+--------------------------------
 
 .. automodule:: kiwi.builder.filesystem
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.builder.install module
----------------------------
+`kiwi.builder.install` Module
+-----------------------------
 
 .. automodule:: kiwi.builder.install
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.builder.live module
-------------------------
+`kiwi.builder.live` Module
+--------------------------
 
 .. automodule:: kiwi.builder.live
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.builder.pxe module
------------------------
+`kiwi.builder.pxe` Module
+-------------------------
 
 .. automodule:: kiwi.builder.pxe
     :members:
@@ -61,7 +61,7 @@ kiwi.builder.pxe module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.builder

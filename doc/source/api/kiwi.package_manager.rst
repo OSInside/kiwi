@@ -1,27 +1,27 @@
-kiwi.package_manager package
+kiwi.package_manager Package
 ============================
 
 Submodules
 ----------
 
-kiwi.package_manager.base module
---------------------------------
+`kiwi.package_manager.base` Module
+----------------------------------
 
 .. automodule:: kiwi.package_manager.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.package_manager.yum module
--------------------------------
+`kiwi.package_manager.yum` Module
+---------------------------------
 
 .. automodule:: kiwi.package_manager.yum
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.package_manager.zypper module
-----------------------------------
+`kiwi.package_manager.zypper` Module
+------------------------------------
 
 .. automodule:: kiwi.package_manager.zypper
     :members:
@@ -29,7 +29,7 @@ kiwi.package_manager.zypper module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.package_manager

@@ -1,19 +1,19 @@
-kiwi.container.setup package
+kiwi.container.setup Package
 ============================
 
 Submodules
 ----------
 
-kiwi.container.setup.base module
---------------------------------
+`kiwi.container.setup.base` Module
+----------------------------------
 
 .. automodule:: kiwi.container.setup.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.container.setup.docker module
-----------------------------------
+`kiwi.container.setup.docker` Module
+------------------------------------
 
 .. automodule:: kiwi.container.setup.docker
     :members:
@@ -21,7 +21,7 @@ kiwi.container.setup.docker module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.container.setup

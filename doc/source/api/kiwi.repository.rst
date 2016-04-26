@@ -1,27 +1,27 @@
-kiwi.repository package
+kiwi.repository Package
 =======================
 
 Submodules
 ----------
 
-kiwi.repository.base module
----------------------------
+`kiwi.repository.base` Module
+-----------------------------
 
 .. automodule:: kiwi.repository.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.repository.yum module
---------------------------
+`kiwi.repository.yum` Module
+----------------------------
 
 .. automodule:: kiwi.repository.yum
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.repository.zypper module
------------------------------
+`kiwi.repository.zypper` Module
+-------------------------------
 
 .. automodule:: kiwi.repository.zypper
     :members:
@@ -29,7 +29,7 @@ kiwi.repository.zypper module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.repository
