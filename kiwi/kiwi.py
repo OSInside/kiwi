@@ -22,6 +22,21 @@ import docopt
 from . import logger
 from .app import App
 from .exceptions import KiwiError
+from .defaults import Defaults
+
+
+def extras(help, version, options, doc):
+    """
+    Overwritten method from docopt
+
+    We want to show our own usage for -h|--help
+    """
+    if help and any((o.name in ('-h', '--help')) and o.value for o in options):
+        usage(doc.strip("\n"))
+        sys.exit(1)
+    if version and any(o.name == '--version' and o.value for o in options):
+        print(version)
+        sys.exit()
 
 
 def main():
@@ -34,6 +49,7 @@ def main():
     which is handled as unexpected error including the python
     backtrace
     """
+    docopt.__dict__['extras'] = extras
     logger.init()
     try:
         App()
@@ -44,9 +60,10 @@ def main():
     except KeyboardInterrupt:
         logger.log.error('kiwi aborted by keyboard interrupt')
         sys.exit(1)
-    except docopt.DocoptExit:
-        # exception caught by docopt, results in usage message
-        raise
+    except docopt.DocoptExit as e:
+        # exception thrown by docopt, results in usage message
+        usage(e)
+        sys.exit(1)
     except SystemExit:
         # user exception, program aborted by user
         sys.exit(1)
@@ -54,3 +71,36 @@ def main():
         # exception we did no expect, show python backtrace
         logger.log.error('Unexpected error:')
         raise
+
+
+def usage(command_usage):
+    """
+    Instead of the docopt way to show the usage information we
+    provide a kiwi specific usage information. The usage
+    data now always consists out of:
+
+    1. the generic call
+       kiwi [global options] service <command> [<args>]
+
+    2. the command specific usage defined by the docopt string
+       short form by default, long form with -h | --help
+
+    3. the global options
+    """
+    with open(Defaults.project_file('cli.py'), 'r') as cli:
+        program_code = cli.readlines()
+
+    global_options = '\n'
+    process_lines = False
+    for line in program_code:
+        if line.rstrip() == 'global options:':
+            process_lines = True
+        if line.rstrip() == '"""':
+            process_lines = False
+        if process_lines:
+            global_options += format(line)
+
+    print('usage: kiwi [global options] service <command> [<args>]\n')
+    print(format(command_usage))
+    if 'global options:' not in format(command_usage):
+        print(format(global_options))
