@@ -76,6 +76,9 @@ class LiveImageBuilder(object):
     * :attr:`mbrid`
         Instance of SystemIdentifier
 
+    * :attr:`filesystem_custom_parameters`
+        Configured custom filesystem mount and creation arguments
+
     * :attr:`boot_image_task`
         Instance of BootImage
 
@@ -109,6 +112,9 @@ class LiveImageBuilder(object):
         self.machine = xml_state.get_build_type_machine_section()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
+        self.filesystem_custom_parameters = {
+            'mount_options': xml_state.get_fs_mount_option_list()
+        }
 
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
@@ -186,7 +192,8 @@ class LiveImageBuilder(object):
             live_type_image = FileSystem(
                 name=self.types[self.live_type],
                 device_provider=None,
-                root_dir=self.root_dir
+                root_dir=self.root_dir,
+                custom_args=self.filesystem_custom_parameters
             )
             live_type_image.create_on_file(self.live_image_file)
             Command.run(

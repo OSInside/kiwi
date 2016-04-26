@@ -69,11 +69,13 @@ class FileSystemBuilder(object):
         List of filesystems which are created from a data tree
         and do not require a block device e.g loop
 
+    * :attr:`filesystem_custom_parameters`
+        Configured custom filesystem mount and creation arguments
+
     * :attr:`result`
         Instance of Result
     """
     def __init__(self, xml_state, target_dir, root_dir):
-        self.custom_args = None
         self.label = None
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -87,6 +89,9 @@ class FileSystemBuilder(object):
                 'No filesystem configured in %s type' %
                 self.requested_image_type
             )
+        self.filesystem_custom_parameters = {
+            'mount_options': xml_state.get_fs_mount_option_list()
+        }
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
@@ -167,7 +172,7 @@ class FileSystemBuilder(object):
         loop_provider.create()
         filesystem = FileSystem(
             self.requested_filesystem, loop_provider,
-            self.root_dir, self.custom_args
+            self.root_dir, self.filesystem_custom_parameters
         )
         filesystem.create_on_device(self.label)
         log.info(
@@ -182,7 +187,7 @@ class FileSystemBuilder(object):
         default_provider = DeviceProvider()
         filesystem = FileSystem(
             self.requested_filesystem, default_provider,
-            self.root_dir, self.custom_args
+            self.root_dir, self.filesystem_custom_parameters
         )
         filesystem.create_on_file(
             self.filename, self.label

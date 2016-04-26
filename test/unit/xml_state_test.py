@@ -402,6 +402,9 @@ class TestXMLState(object):
         assert self.state.get_distribution_name_from_boot_attribute() == \
             'distribution'
 
+    def test_get_fs_mount_option_list(self):
+        assert self.state.get_fs_mount_option_list() == ['async']
+
     @raises(KiwiDistributionNameError)
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_no_boot(self, mock_boot):

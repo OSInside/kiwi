@@ -64,8 +64,8 @@ class DiskBuilder(object):
     * :attr:`xml_state`
         Instance of XMLState
 
-    * :attr:`custom_filesystem_args`
-        Configured custom filesystem arguments
+    * :attr:`custom_root_mount_args`
+        Configured custom root mount arguments
 
     * :attr:`build_type_name`
         Configured build type name, oem or vmx
@@ -169,7 +169,7 @@ class DiskBuilder(object):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
-        self.custom_filesystem_args = None
+        self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.build_type_name = xml_state.get_build_type_name()
         self.image_format = xml_state.build_type.get_format()
         self.install_iso = xml_state.build_type.get_installiso()
@@ -298,8 +298,8 @@ class DiskBuilder(object):
         # create volumes and filesystems for root system
         if self.volume_manager_name:
             volume_manager_custom_parameters = {
-                'root_filesystem_args':
-                    self.custom_filesystem_args,
+                'fs_mount_options':
+                    self.custom_root_mount_args,
                 'root_label':
                     self.disk_setup.get_root_label(),
                 'root_is_snapshot':
@@ -310,7 +310,8 @@ class DiskBuilder(object):
             volume_manager = VolumeManager(
                 self.volume_manager_name, device_map['root'],
                 self.root_dir + '/',
-                self.volumes, volume_manager_custom_parameters
+                self.volumes,
+                volume_manager_custom_parameters
             )
             volume_manager.setup(
                 self.volume_group_name
@@ -325,10 +326,13 @@ class DiskBuilder(object):
                 'Creating root(%s) filesystem on %s',
                 self.requested_filesystem, device_map['root'].get_device()
             )
+            filesystem_custom_parameters = {
+                'mount_options': self.custom_root_mount_args
+            }
             filesystem = FileSystem(
                 self.requested_filesystem, device_map['root'],
                 self.root_dir + '/',
-                self.custom_filesystem_args
+                filesystem_custom_parameters
             )
             filesystem.create_on_device(
                 label=self.disk_setup.get_root_label()

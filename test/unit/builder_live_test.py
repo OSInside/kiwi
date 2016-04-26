@@ -48,6 +48,9 @@ class TestLiveImageBuilder(object):
             return_value=self.kernel
         )
         self.xml_state = mock.Mock()
+        self.xml_state.get_fs_mount_option_list = mock.Mock(
+            return_value='async'
+        )
         self.xml_state.build_type.get_flags = mock.Mock(
             return_value=None
         )
@@ -138,6 +141,7 @@ class TestLiveImageBuilder(object):
             'initrd_dir'
         )
         mock_fs.assert_called_once_with(
+            custom_args={'mount_options': 'async'},
             device_provider=None, name='squashfs', root_dir='root_dir'
         )
         live_type_image.create_on_file.assert_called_once_with(

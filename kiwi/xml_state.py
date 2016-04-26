@@ -1080,6 +1080,24 @@ class XMLState(object):
             )
         return boot_attribute_expression.group(1).lower()
 
+    def get_fs_mount_option_list(self):
+        """
+        List of root filesystem mount options
+
+        The list contains one element with the information from the
+        fsmountoptions attribute. The value there is passed along to
+        the -o mount option
+
+        :return: max one element list with mount option string
+        :rtype: list
+        """
+        option_list = []
+        mount_options = self.build_type.get_fsmountoptions()
+        if mount_options:
+            option_list = [mount_options]
+
+        return option_list
+
     def __used_profiles(self, profiles=None):
         """
             return list of profiles to use. The method looks up the
