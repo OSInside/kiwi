@@ -80,7 +80,7 @@ class TestVolumeManagerBtrfs(object):
         mock_mount.assert_called_once_with(
             device='/dev/storage', mountpoint='tmpdir'
         )
-        toplevel_mount.mount.assert_called_once_with()
+        toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
             call(['btrfs', 'subvolume', 'list', 'tmpdir']),
@@ -111,7 +111,7 @@ class TestVolumeManagerBtrfs(object):
         mock_mount.assert_called_once_with(
             device='/dev/storage', mountpoint='tmpdir'
         )
-        toplevel_mount.mount.assert_called_once_with()
+        toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots']),

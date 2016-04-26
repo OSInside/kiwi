@@ -80,7 +80,11 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         :param string name: unused
         """
         filesystem = FileSystem(
-            'btrfs', MappedDevice(device=self.device, device_provider=self)
+            name='btrfs',
+            device_provider=MappedDevice(
+                device=self.device, device_provider=self
+            ),
+            custom_args=self.custom_filesystem_args
         )
         filesystem.create_on_device(
             label=self.custom_args['root_label']
@@ -88,8 +92,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         self.toplevel_mount = MountManager(
             device=self.device, mountpoint=self.mountpoint
         )
-        # FIXME: we need custom mount options passed in here
-        self.toplevel_mount.mount()
+        self.toplevel_mount.mount(
+            self.custom_filesystem_args['mount_options']
+        )
         root_volume = self.mountpoint + '/@'
         Command.run(
             ['btrfs', 'subvolume', 'create', root_volume]
@@ -168,9 +173,13 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
             subvol_name = os.path.basename(volume_mount.mountpoint)
-            # FIXME: we need custom mount options passed in here
+            subvol_options = ','.join(
+                [
+                    'subvol=' + os.path.normpath('@/' + subvol_name)
+                ] + self.custom_filesystem_args['mount_options']
+            )
             volume_mount.mount(
-                options=['subvol=' + os.path.normpath('@/' + subvol_name)]
+                options=[subvol_options]
             )
 
     def umount_volumes(self):

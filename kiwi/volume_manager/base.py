@@ -62,6 +62,15 @@ class VolumeManagerBase(DeviceProvider):
 
     * :attr:`device`
         storage device node name
+
+    * :attr:`custom_args`
+        custom volume manager arguments for all volume manager
+        and filesystem specific tasks
+
+    * :attr:`custom_filesystem_args`
+        custom filesystem creation and mount arguments, subset
+        of the custom_args information suitable to be passed
+        to a FileSystem instance
     """
     def __init__(self, device_provider, root_dir, volumes, custom_args=None):
         # all volumes are combined into one mountpoint. This is
@@ -87,6 +96,20 @@ class VolumeManagerBase(DeviceProvider):
                 'given root directory %s does not exist' % root_dir
             )
 
+        self.custom_args = {}
+        self.custom_filesystem_args = {
+            'create_options': [],
+            'mount_options': []
+        }
+
+        if custom_args and 'fs_create_options' in custom_args:
+            self.custom_filesystem_args['create_options'] = \
+                custom_args['fs_create_options']
+
+        if custom_args and 'fs_mount_options' in custom_args:
+            self.custom_filesystem_args['mount_options'] = \
+                custom_args['fs_mount_options']
+
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
@@ -95,7 +118,7 @@ class VolumeManagerBase(DeviceProvider):
 
         Implementation in specialized volume manager class if required
 
-        :param list custom_args: unused
+        :param dict custom_args: unused
         """
         pass
 

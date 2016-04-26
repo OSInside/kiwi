@@ -35,6 +35,21 @@ class TestVolumeManagerBase(object):
         )
 
     @patch('os.path.exists')
+    def test_init_custom_args(self, mock_exists):
+        mock_exists.return_value = True
+        volume_manager = VolumeManagerBase(
+            mock.Mock(), 'root_dir', mock.Mock(),
+            {
+                'fs_create_options': 'create-opts',
+                'fs_mount_options': 'mount-opts'
+            }
+        )
+        assert volume_manager.custom_filesystem_args['mount_options'] == \
+            'mount-opts'
+        assert volume_manager.custom_filesystem_args['create_options'] == \
+            'create-opts'
+
+    @patch('os.path.exists')
     @raises(KiwiVolumeManagerSetupError)
     def test_root_dir_does_not_exist(self, mock_exists):
         mock_exists.return_value = False

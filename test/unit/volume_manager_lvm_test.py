@@ -154,10 +154,26 @@ class TestVolumeManagerLVM(object):
             ])
         ]
         assert mock_fs.call_args_list == [
-            call('ext3', 'mapped_device'),
-            call('ext3', 'mapped_device'),
-            call('ext3', 'mapped_device'),
-            call('ext3', 'mapped_device')
+            call(
+                custom_args={'create_options': [], 'mount_options': []},
+                device_provider='mapped_device',
+                name='ext3'
+            ),
+            call(
+                custom_args={'create_options': [], 'mount_options': []},
+                device_provider='mapped_device',
+                name='ext3'
+            ),
+            call(
+                custom_args={'create_options': [], 'mount_options': []},
+                device_provider='mapped_device',
+                name='ext3'
+            ),
+            call(
+                custom_args={'create_options': [], 'mount_options': []},
+                device_provider='mapped_device',
+                name='ext3'
+            )
         ]
         self.volume_manager.volume_group = None
 
@@ -168,7 +184,7 @@ class TestVolumeManagerLVM(object):
         self.volume_manager.mount_list = [volume_mount]
         self.volume_manager.mount_volumes()
         mock_path.create.assert_called_once_with(volume_mount.mountpoint)
-        volume_mount.mount.assert_called_once_with()
+        volume_mount.mount.assert_called_once_with([])
 
     def test_umount_volumes(self):
         volume_mount = mock.Mock()

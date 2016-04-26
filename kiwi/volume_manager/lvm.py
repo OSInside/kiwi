@@ -161,8 +161,9 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         for volume_mount in self.mount_list:
             Path.create(volume_mount.mountpoint)
-            # FIXME: we need custom mount options passed in here
-            volume_mount.mount()
+            volume_mount.mount(
+                self.custom_filesystem_args['mount_options']
+            )
 
     def umount_volumes(self):
         """
@@ -181,8 +182,11 @@ class VolumeManagerLVM(VolumeManagerBase):
         if volume_name == 'LVRoot':
             label = self.custom_args['root_label']
         filesystem = FileSystem(
-            filesystem_name,
-            MappedDevice(device=device_node, device_provider=self)
+            name=filesystem_name,
+            device_provider=MappedDevice(
+                device=device_node, device_provider=self
+            ),
+            custom_args=self.custom_filesystem_args
         )
         filesystem.create_on_device(
             label=label
