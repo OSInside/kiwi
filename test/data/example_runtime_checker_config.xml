@@ -99,7 +99,7 @@
     <users group="root" id="42">
         <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
     </users>
-    <repository type="yast2" priority="42">
+    <repository type="yast2" priority="42" imageinclude="true">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
     <repository type="rpm-md">

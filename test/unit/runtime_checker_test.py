@@ -20,6 +20,7 @@ class TestRuntimeChecker(object):
         )
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
+    @raises(KiwiRuntimeError)
     def test_check_image_include_repos_http_resolvable(self):
         self.runtime_checker.check_image_include_repos_http_resolvable()
 

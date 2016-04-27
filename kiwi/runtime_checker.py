@@ -15,7 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from textwrap import dedent
+
 # project
+from .system.uri import Uri
+from .defaults import Defaults
+from .exceptions import (
+    KiwiRuntimeError
+)
 
 
 class RuntimeChecker(object):
@@ -38,7 +45,24 @@ class RuntimeChecker(object):
         Verify that all repos marked with the imageinclude attribute
         can be resolved into a http based web URL
         """
-        pass
+
+        message = dedent('''
+            Repository: %s is not publicly available.
+            Therefore it can't be included into the system image
+            repository configuration. Please check the setup of
+            the <imageinclude> attribute for this repository.
+        ''')
+
+        repository_sections = self.xml_state.get_repository_sections()
+        for xml_repo in repository_sections:
+            repo_marked_for_image_include = xml_repo.get_imageinclude()
+
+            if repo_marked_for_image_include:
+                repo_source = xml_repo.get_source().get_path()
+                repo_type = xml_repo.get_type()
+                uri = Uri(repo_source, repo_type)
+                if not uri.is_remote():
+                    raise KiwiRuntimeError(message % repo_source)
 
     def check_target_directory_not_in_shared_cache(self, target_dir):
         """
@@ -49,4 +73,5 @@ class RuntimeChecker(object):
 
         :param string target_dir: path name
         """
-        pass
+        shared_cache_location = Defaults.get_shared_cache_location()
+        print(shared_cache_location)
