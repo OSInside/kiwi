@@ -1,27 +1,27 @@
-kiwi.bootloader.template package
+kiwi.bootloader.template Package
 ================================
 
 Submodules
 ----------
 
-kiwi.bootloader.template.grub2 module
--------------------------------------
+`kiwi.bootloader.template.grub2` Module
+---------------------------------------
 
 .. automodule:: kiwi.bootloader.template.grub2
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.bootloader.template.isolinux module
-----------------------------------------
+`kiwi.bootloader.template.isolinux` Module
+------------------------------------------
 
 .. automodule:: kiwi.bootloader.template.isolinux
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.bootloader.template.zipl module
-------------------------------------
+`kiwi.bootloader.template.zipl` Module
+--------------------------------------
 
 .. automodule:: kiwi.bootloader.template.zipl
     :members:
@@ -29,7 +29,7 @@ kiwi.bootloader.template.zipl module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.bootloader.template

@@ -1,27 +1,27 @@
-kiwi.utils package
+kiwi.utils Package
 ==================
 
 Submodules
 ----------
 
-kiwi.utils.checksum module
---------------------------
+`kiwi.utils.checksum` Module
+----------------------------
 
 .. automodule:: kiwi.utils.checksum
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.utils.compress module
---------------------------
+`kiwi.utils.compress` Module
+----------------------------
 
 .. automodule:: kiwi.utils.compress
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.utils.sync module
-----------------------
+`kiwi.utils.sync` Module
+------------------------
 
 .. automodule:: kiwi.utils.sync
     :members:
@@ -29,7 +29,7 @@ kiwi.utils.sync module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.utils

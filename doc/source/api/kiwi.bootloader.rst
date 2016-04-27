@@ -1,4 +1,4 @@
-kiwi.bootloader package
+kiwi.bootloader Package
 =======================
 
 Subpackages
@@ -10,7 +10,7 @@ Subpackages
     kiwi.bootloader.install
     kiwi.bootloader.template
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.bootloader

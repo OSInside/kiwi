@@ -1,19 +1,19 @@
-kiwi.archive package
+kiwi.archive Package
 ====================
 
 Submodules
 ----------
 
-kiwi.archive.cpio module
-------------------------
+`kiwi.archive.cpio` Module
+--------------------------
 
 .. automodule:: kiwi.archive.cpio
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.archive.tar module
------------------------
+`kiwi.archive.tar` Module
+-------------------------
 
 .. automodule:: kiwi.archive.tar
     :members:
@@ -21,7 +21,7 @@ kiwi.archive.tar module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.archive

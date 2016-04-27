@@ -1,6 +1,7 @@
 KIWI API Documentation |version|
 ================================
 
+.. default-domain:: py
 
 Subpackages
 -----------
@@ -24,136 +25,136 @@ Subpackages
 Submodules
 ----------
 
-kiwi.app module
----------------
+`kiwi.app` Module
+-----------------
 
 .. automodule:: kiwi.app
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.cli module
----------------
+`kiwi.cli` Module
+-----------------
 
 .. automodule:: kiwi.cli
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.command module
--------------------
+`kiwi.command` Module
+---------------------
 
 .. automodule:: kiwi.command
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.command_process module
----------------------------
+`kiwi.command_process` Module
+-----------------------------
 
 .. automodule:: kiwi.command_process
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.defaults module
---------------------
+`kiwi.defaults` Module
+----------------------
 
 .. automodule:: kiwi.defaults
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.exceptions module
-----------------------
+`kiwi.exceptions` Module
+------------------------
 
 .. automodule:: kiwi.exceptions
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.firmware module
---------------------
+`kiwi.firmware` Module
+----------------------
 
 .. automodule:: kiwi.firmware
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.help module
-----------------
+`kiwi.help` Module
+------------------
 
 .. automodule:: kiwi.help
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.iso module
----------------
+`kiwi.iso` Module
+-----------------
 
 .. automodule:: kiwi.iso
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.kiwi module
-----------------
+`kiwi.kiwi` Module
+------------------
 
 .. automodule:: kiwi.kiwi
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.logger module
-------------------
+`kiwi.logger` Module
+--------------------
 
 .. automodule:: kiwi.logger
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.mount_manager module
--------------------------
+`kiwi.mount_manager` Module
+---------------------------
 
 .. automodule:: kiwi.mount_manager
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.path module
-----------------
+`kiwi.path` Module
+------------------
 
 .. automodule:: kiwi.path
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.privileges module
-----------------------
+`kiwi.privileges` Module
+------------------------
 
 .. automodule:: kiwi.privileges
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.version module
--------------------
+`kiwi.version` Module
+---------------------
 
 .. automodule:: kiwi.version
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.xml_description module
----------------------------
+`kiwi.xml_description` Module
+-----------------------------
 
 .. automodule:: kiwi.xml_description
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.xml_state module
----------------------
+`kiwi.xml_state` Module
+-----------------------
 
 .. automodule:: kiwi.xml_state
     :members:
@@ -161,7 +162,7 @@ kiwi.xml_state module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi

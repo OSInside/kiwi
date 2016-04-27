@@ -1,4 +1,4 @@
-kiwi.container package
+kiwi.container Package
 ======================
 
 Subpackages
@@ -11,8 +11,8 @@ Subpackages
 Submodules
 ----------
 
-kiwi.container.docker module
-----------------------------
+`kiwi.container.docker` Module
+------------------------------
 
 .. automodule:: kiwi.container.docker
     :members:
@@ -20,7 +20,7 @@ kiwi.container.docker module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.container

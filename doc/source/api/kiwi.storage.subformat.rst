@@ -1,51 +1,51 @@
-kiwi.storage.subformat package
+kiwi.storage.subformat Package
 ==============================
 
 Submodules
 ----------
 
-kiwi.storage.subformat.base module
-----------------------------------
+`kiwi.storage.subformat.base` Module
+------------------------------------
 
 .. automodule:: kiwi.storage.subformat.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.storage.subformat.gce module
----------------------------------
+`kiwi.storage.subformat.gce` Module
+-----------------------------------
 
 .. automodule:: kiwi.storage.subformat.gce
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.storage.subformat.qcow2 module
------------------------------------
+`kiwi.storage.subformat.qcow2` Module
+-------------------------------------
 
 .. automodule:: kiwi.storage.subformat.qcow2
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.storage.subformat.vhd module
----------------------------------
+`kiwi.storage.subformat.vhd` Module
+-----------------------------------
 
 .. automodule:: kiwi.storage.subformat.vhd
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.storage.subformat.vhdfixed module
---------------------------------------
+`kiwi.storage.subformat.vhdfixed` Module
+----------------------------------------
 
 .. automodule:: kiwi.storage.subformat.vhdfixed
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.storage.subformat.vmdk module
-----------------------------------
+`kiwi.storage.subformat.vmdk` Module
+------------------------------------
 
 .. automodule:: kiwi.storage.subformat.vmdk
     :members:
@@ -53,7 +53,7 @@ kiwi.storage.subformat.vmdk module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.storage.subformat

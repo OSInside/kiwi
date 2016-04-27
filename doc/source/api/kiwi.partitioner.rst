@@ -1,35 +1,35 @@
-kiwi.partitioner package
+kiwi.partitioner Package
 ========================
 
 Submodules
 ----------
 
-kiwi.partitioner.base module
-----------------------------
+`kiwi.partitioner.base` Module
+------------------------------
 
 .. automodule:: kiwi.partitioner.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.partitioner.dasd module
-----------------------------
+`kiwi.partitioner.dasd` Module
+------------------------------
 
 .. automodule:: kiwi.partitioner.dasd
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.partitioner.gpt module
----------------------------
+`kiwi.partitioner.gpt` Module
+-----------------------------
 
 .. automodule:: kiwi.partitioner.gpt
     :members:
     :undoc-members:
     :show-inheritance:
 
-kiwi.partitioner.msdos module
------------------------------
+`kiwi.partitioner.msdos` Module
+-------------------------------
 
 .. automodule:: kiwi.partitioner.msdos
     :members:
@@ -37,7 +37,7 @@ kiwi.partitioner.msdos module
     :show-inheritance:
 
 
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: kiwi.partitioner
