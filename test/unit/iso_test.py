@@ -93,6 +93,34 @@ class TestIso(object):
             ]
         )
 
+    @patch('builtins.open')
+    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso.Path.create')
+    @patch('os.path.exists')
+    @patch('os.walk')
+    def test_init_iso_creation_parameters_failed_isolinux_config(
+        self, mock_walk, mock_exists, mock_path, mock_command, mock_open
+    ):
+        mock_exists.return_value = True
+        mock_open.return_value = self.context_manager_mock
+        command_raises = [False, True]
+
+        def side_effect(arg):
+            if command_raises.pop():
+                raise Exception
+
+        mock_command.side_effect = side_effect
+
+        self.iso.init_iso_creation_parameters(['custom_arg'])
+
+        mock_path.assert_called_once_with('source-dir/isolinux')
+        assert mock_command.call_args_list[1] == call(
+            [
+                'bash', '-c',
+                'ln source-dir/boot/x86_64/loader/* source-dir/isolinux'
+            ]
+        )
+
     @patch('os.path.exists')
     def test_add_efi_loader_parameters(self, mock_exists):
         mock_exists.return_value = True

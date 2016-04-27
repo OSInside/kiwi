@@ -25,6 +25,7 @@ from collections import namedtuple
 
 # project
 from .logger import log
+from .path import Path
 from .command import Command
 from .exceptions import (
     KiwiIsoLoaderError,
@@ -251,12 +252,7 @@ class Iso(object):
         self.iso_loaders += [
             '-b', loader_file, '-c', catalog_file
         ]
-        Command.run(
-            [
-                'isolinux-config', '--base', self.boot_path + '/loader',
-                self.source_dir + '/' + loader_file
-            ]
-        )
+        self.__setup_isolinux_boot_path()
         self.__create_sortfile()
 
     def add_efi_loader_parameters(self):
@@ -364,6 +360,38 @@ class Iso(object):
         return collections.OrderedDict(
             sorted(listing_result.items())
         )
+
+    def __setup_isolinux_boot_path(self):
+        """
+        Write the isolinux base boot path into the loader
+        """
+        loader_base_directory = self.boot_path + '/loader'
+        loader_file = '/'.join(
+            [self.source_dir, self.boot_path, 'loader/isolinux.bin']
+        )
+        try:
+            Command.run(
+                [
+                    'isolinux-config', '--base', loader_base_directory,
+                    loader_file
+                ]
+            )
+        except Exception:
+            # Setup of the base directory failed. This happens if
+            # isolinux-config was not able to identify the isolinux
+            # signature. As a workaround a compat directory /isolinux
+            # is created which hardlinks all loader files
+            compat_base_directory = self.source_dir + '/isolinux'
+            loader_files = '/'.join(
+                [self.source_dir, self.boot_path, 'loader/*']
+            )
+            Path.create(compat_base_directory)
+            bash_command = ' '.join(
+                ['ln', loader_files, compat_base_directory]
+            )
+            Command.run(
+                ['bash', '-c', bash_command]
+            )
 
     def __find_isoinfo_tool(self):
         """
