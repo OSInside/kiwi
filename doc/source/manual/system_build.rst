@@ -4,11 +4,7 @@ kiwi system build
 SYNOPSIS
 --------
 
-*kiwi* system build --description=<directory> --target-dir=<directory>
-
-    | [--set-repo=<source,type,alias,priority>]
-    | [--add-repo=<source,type,alias,priority>...]
-    | [--obs-repo-internal]
+.. program-output:: bash -c "kiwi-ng system build | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
 
 DESCRIPTION
 -----------

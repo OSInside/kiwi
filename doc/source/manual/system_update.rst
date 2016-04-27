@@ -4,10 +4,7 @@ kiwi system update
 SYNOPSIS
 --------
 
-*kiwi* system update --root=<directory>
-
-    | [--add-package=<name>...]
-    | [--delete-package=<name>...]
+.. program-output:: bash -c "kiwi-ng system update | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
 
 DESCRIPTION
 -----------

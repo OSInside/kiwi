@@ -4,9 +4,7 @@ KIWI Manual Pages
 SYNOPSIS
 --------
 
-.. program-output:: kiwi-ng
-   :returncode: 1
-
+.. program-output:: bash -c "kiwi-ng | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
 
 DESCRIPTION
 -----------

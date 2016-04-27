@@ -4,8 +4,7 @@ kiwi result bundle
 SYNOPSIS
 --------
 
-*kiwi* result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
-
+.. program-output:: bash -c "kiwi-ng result bundle | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
 
 DESCRIPTION
 -----------

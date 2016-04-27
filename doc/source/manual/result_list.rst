@@ -4,7 +4,7 @@ kiwi result list
 SYNOPSIS
 --------
 
-*kiwi* result list --target-dir=<directory>
+.. program-output:: bash -c "kiwi-ng result list | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
 
 DESCRIPTION
 -----------

@@ -4,7 +4,7 @@ kiwi system create
 SYNOPSIS
 --------
 
-*kiwi* system create --root=<directory> --target-dir=<directory>
+.. program-output:: bash -c "kiwi-ng system create | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
 
 DESCRIPTION
 -----------
