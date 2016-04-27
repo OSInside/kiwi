@@ -329,7 +329,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Creating unsigned efi image')
             self.__create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
             self.__copy_efi_modules_to_boot_directory(lookup_path)
-        else:
+        elif self.firmware.efi_mode() == 'uefi':
             log.info(
                 '--> Using signed secure boot efi image, done by shim-install'
             )
