@@ -179,7 +179,8 @@ class FileSystemBuilder(object):
             '--> Syncing data to filesystem on %s', loop_provider.get_device()
         )
         exclude_list = [
-            'image', '.profile', '.kconfig', 'var/cache/kiwi'
+            'image', '.profile', '.kconfig',
+            Defaults.get_shared_cache_location()
         ]
         filesystem.sync_data(exclude_list)
 

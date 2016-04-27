@@ -17,6 +17,7 @@
 #
 # project
 from ..archive.tar import ArchiveTar
+from ..defaults import Defaults
 
 
 class ContainerImageDocker(object):
@@ -38,7 +39,8 @@ class ContainerImageDocker(object):
         :param string filename: archive file name
         """
         exclude_list = [
-            'image', '.profile', '.kconfig', 'var/cache/kiwi', 'boot'
+            'image', '.profile', '.kconfig', 'boot',
+            Defaults.get_shared_cache_location()
         ]
         # replace potential suffix from filename because
         # it is added by the archive creation call

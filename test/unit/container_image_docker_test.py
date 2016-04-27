@@ -21,6 +21,6 @@ class TestContainerImageDocker(object):
         mock_archive.assert_called_once_with('result.tar')
         archive.create_xz_compressed.assert_called_once_with(
             exclude=[
-                'image', '.profile', '.kconfig', 'var/cache/kiwi', 'boot'
+                'image', '.profile', '.kconfig', 'boot', 'var/cache/kiwi'
             ], source_dir='root_dir'
         )

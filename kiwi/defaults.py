@@ -61,6 +61,14 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_shared_cache_location(self):
+        """
+        The shared location is a directory which shares data from
+        the image buildsystem host with the image root system.
+        """
+        return 'var/cache/kiwi'
+
+    @classmethod
     def get_failsafe_kernel_options(self):
         """
         Failsafe boot kernel options
