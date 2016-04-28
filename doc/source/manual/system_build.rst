@@ -19,14 +19,36 @@ are created in the specified target-dir.
 OPTIONS
 -------
 
---target-dir=<directory>
+--add-package=<name>
 
-  Path to store the build results.
+  specify package to add(install). The option can be specified
+  multiple times
+
+--add-repo=<source,type,alias,priority>
+
+  Add a new repository to the existing repository setup in the XML
+  description. This option can be specified multiple times
+
+--delete-package=<name>
+
+  specify package to delete. The option can be specified
+  multiple times
 
 --description=<directory>
 
   Path to the XML description. This is a directory containing at least
   one _config.xml_ or _*.kiwi_ XML file.
+
+--obs-repo-internal
+
+  The repository source type **obs://** by default points to the
+  `Open Build Service <http://download.opensuse.org>`_. With the
+  *--obs-repo-internal* option the source type is changed to the
+  **ibs://** type, pointing to the
+  `Internal Build Service <http://download.suse.de>`_.
+  This allows to build images with repositories pointing to the SUSE
+  internal build service. Please note this requires access permissions
+  to the SUSE internal build service on the machine building the image.
 
 --set-repo=<source,type,alias,priority>
 
@@ -57,21 +79,9 @@ OPTIONS
     manager documentation for details about the supported priority ranges
     and their meaning.
 
---add-repo=<source,type,alias,priority>
+--target-dir=<directory>
 
-  Add a new repository to the existing repository setup in the XML
-  description. This option can be specified multiple times
-
---obs-repo-internal
-
-  The repository source type **obs://** by default points to the
-  `Open Build Service <http://download.opensuse.org>`_. With the
-  *--obs-repo-internal* option the source type is changed to the
-  **ibs://** type, pointing to the
-  `Internal Build Service <http://download.suse.de>`_.
-  This allows to build images with repositories pointing to the SUSE
-  internal build service. Please note this requires access permissions
-  to the SUSE internal build service on the machine building the image.
+  Path to store the build results.
 
 URI_TYPES
 ---------

@@ -64,6 +64,8 @@ class TestSystemBuildTask(object):
         self.task.command_args['--obs-repo-internal'] = None
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
+        self.task.command_args['--add-package'] = []
+        self.task.command_args['--delete-package'] = []
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build(self, mock_log):
@@ -97,6 +99,26 @@ class TestSystemBuildTask(object):
         self.result.print_results.assert_called_once_with()
         self.result.dump.assert_called_once_with(
             'some-target/kiwi.result'
+        )
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_build_add_package(self, mock_log):
+        self.__init_command_args()
+        self.task.command_args['--add-package'] = ['vim']
+        self.task.process()
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.install_packages.assert_called_once_with(
+            self.manager, ['vim']
+        )
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_update_delete_package(self, mock_log):
+        self.__init_command_args()
+        self.task.command_args['--delete-package'] = ['vim']
+        self.task.process()
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.delete_packages.assert_called_once_with(
+            self.manager, ['vim']
         )
 
     @patch('kiwi.xml_state.XMLState.set_repository')

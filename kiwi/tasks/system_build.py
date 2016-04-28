@@ -21,6 +21,8 @@ usage: kiwi system build -h | --help
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
            [--obs-repo-internal]
+           [--add-package=<name>...]
+           [--delete-package=<name>...]
        kiwi system build help
 
 commands:
@@ -31,20 +33,24 @@ commands:
         show manual page for build command
 
 options:
+    --add-package=<name>
+        install the given package name
+    --add-repo=<source,type,alias,priority>
+        add repository with given source, type, alias and priority.
+    --delete-package=<name>
+        delete the given package name
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
-    --target-dir=<directory>
-        the target directory to store the system image file(s)
-    --set-repo=<source,type,alias,priority>
-        overwrite the repo source, type, alias or priority for the first
-        repository in the XML description
-    --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority.
     --obs-repo-internal
         when using obs:// repos resolve them using the SUSE internal
         buildservice. This only works if access to SUSE's internal
         buildservice is granted
+    --set-repo=<source,type,alias,priority>
+        overwrite the repo source, type, alias or priority for the first
+        repository in the XML description
+    --target-dir=<directory>
+        the target directory to store the system image file(s)
 """
 import os
 
@@ -120,6 +126,12 @@ class SystemBuildTask(CliTask):
             # Be aware that the buildhost has to provide access
             self.xml_state.translate_obs_to_ibs_repositories()
 
+        package_requests = False
+        if self.command_args['--add-package']:
+            package_requests = True
+        if self.command_args['--delete-package']:
+            package_requests = True
+
         log.info('Preparing new root system')
         system = SystemPrepare(
             self.xml_state, image_root, True
@@ -129,6 +141,15 @@ class SystemBuildTask(CliTask):
         system.install_system(
             manager
         )
+        if package_requests:
+            if self.command_args['--add-package']:
+                system.install_packages(
+                    manager, self.command_args['--add-package']
+                )
+            if self.command_args['--delete-package']:
+                system.delete_packages(
+                    manager, self.command_args['--delete-package']
+                )
 
         profile = Profile(self.xml_state)
 
