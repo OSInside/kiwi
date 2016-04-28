@@ -177,6 +177,9 @@ class SystemBuildTask(CliTask):
         # make sure system instance is cleaned up now
         del system
 
+        # setup permanent image repositories after cleanup
+        setup.import_repositories_marked_as_imageinclude()
+
         setup.call_image_script()
 
         # make sure setup instance is cleaned up now

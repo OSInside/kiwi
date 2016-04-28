@@ -125,6 +125,18 @@ class RepositoryZypper(RepositoryBase):
 
         self.__write_runtime_config()
 
+    def use_default_location(self):
+        """
+        Setup zypper repository operations to store all data
+        in the default places
+        """
+        self.shared_zypper_dir['reposd-dir'] = \
+            self.root_dir + '/etc/zypp/repos.d'
+        self.zypper_args = [
+            '--non-interactive', '--no-gpg-checks'
+        ] + self.custom_args
+        self.command_env = dict(os.environ, LANG='C')
+
     def runtime_config(self):
         """
         zypper runtime configuration and environment

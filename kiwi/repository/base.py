@@ -49,9 +49,17 @@ class RepositoryBase(object):
         """
         pass
 
+    def use_default_location(self):
+        """
+        Call repository operations with default repository manager setup
+
+        Implementation in specialized repository class
+        """
+        raise NotImplementedError
+
     def runtime_config(self):
         """
-        Rrepository runtime configuration and environment
+        Repository runtime configuration and environment
 
         Implementation in specialized repository class
         """

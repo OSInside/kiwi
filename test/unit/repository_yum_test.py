@@ -47,6 +47,28 @@ class TestRepositoryYum(object):
             call('main', 'group_command', 'compat')
         ]
 
+    @patch('builtins.open')
+    @patch('kiwi.repository.yum.ConfigParser')
+    def test_use_default_location(self, mock_config, mock_open):
+        runtime_yum_config = mock.Mock()
+        mock_config.return_value = runtime_yum_config
+
+        self.repo.use_default_location()
+
+        assert runtime_yum_config.set.call_args_list == [
+            call('main', 'cachedir', '../data/var/cache/yum'),
+            call('main', 'reposdir', '../data/etc/yum/repos.d'),
+            call('main', 'keepcache', '1'),
+            call('main', 'debuglevel', '2'),
+            call('main', 'pkgpolicy', 'newest'),
+            call('main', 'tolerant', '0'),
+            call('main', 'exactarch', '1'),
+            call('main', 'obsoletes', '1'),
+            call('main', 'plugins', '1'),
+            call('main', 'metadata_expire', '1800'),
+            call('main', 'group_command', 'compat')
+        ]
+
     def test_runtime_config(self):
         assert self.repo.runtime_config()['yum_args'] == \
             self.repo.yum_args

@@ -3,6 +3,7 @@ from mock import patch
 from mock import call
 
 import mock
+import os
 
 from .test_helper import *
 
@@ -34,6 +35,17 @@ class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     def test_add_repo_raises(self, mock_command):
         self.repo.add_repo('foo', 'uri', 'xxx')
+
+    def test_use_default_location(self):
+        self.repo.use_default_location()
+        assert self.repo.zypper_args == [
+            '--non-interactive', '--no-gpg-checks'
+        ]
+        assert self.repo.shared_zypper_dir['reposd-dir'] == \
+            '../data/etc/zypp/repos.d'
+        assert self.repo.command_env == dict(
+            os.environ, LANG='C'
+        )
 
     def test_runtime_config(self):
         assert self.repo.runtime_config()['zypper_args'] == \

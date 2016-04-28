@@ -80,43 +80,19 @@ class RepositoryYum(RepositoryBase):
         self.command_env = self.__create_yum_runtime_environment()
 
         # config file parameters for yum tool
-        self.runtime_yum_config = ConfigParser()
-        self.runtime_yum_config.add_section('main')
+        self.__create_runtime_config_parser()
+        self.__write_runtime_config()
 
-        self.runtime_yum_config.set(
-            'main', 'cachedir', self.shared_yum_dir['cache-dir']
-        )
-        self.runtime_yum_config.set(
-            'main', 'reposdir', self.shared_yum_dir['reposd-dir']
-        )
-        self.runtime_yum_config.set(
-            'main', 'keepcache', '1'
-        )
-        self.runtime_yum_config.set(
-            'main', 'debuglevel', '2'
-        )
-        self.runtime_yum_config.set(
-            'main', 'pkgpolicy', 'newest'
-        )
-        self.runtime_yum_config.set(
-            'main', 'tolerant', '0'
-        )
-        self.runtime_yum_config.set(
-            'main', 'exactarch', '1'
-        )
-        self.runtime_yum_config.set(
-            'main', 'obsoletes', '1'
-        )
-        self.runtime_yum_config.set(
-            'main', 'plugins', '1'
-        )
-        self.runtime_yum_config.set(
-            'main', 'metadata_expire', '1800'
-        )
-        self.runtime_yum_config.set(
-            'main', 'group_command', 'compat'
-        )
-
+    def use_default_location(self):
+        """
+        Setup yum repository operations to store all data
+        in the default places
+        """
+        self.shared_yum_dir['reposd-dir'] = \
+            self.root_dir + '/etc/yum/repos.d'
+        self.shared_yum_dir['cache-dir'] = \
+            self.root_dir + '/var/cache/yum'
+        self.__create_runtime_config_parser()
         self.__write_runtime_config()
 
     def runtime_config(self):
@@ -198,6 +174,44 @@ class RepositoryYum(RepositoryBase):
             Path.create(yum_dir)
         return dict(
             os.environ, LANG='C'
+        )
+
+    def __create_runtime_config_parser(self):
+        self.runtime_yum_config = ConfigParser()
+        self.runtime_yum_config.add_section('main')
+
+        self.runtime_yum_config.set(
+            'main', 'cachedir', self.shared_yum_dir['cache-dir']
+        )
+        self.runtime_yum_config.set(
+            'main', 'reposdir', self.shared_yum_dir['reposd-dir']
+        )
+        self.runtime_yum_config.set(
+            'main', 'keepcache', '1'
+        )
+        self.runtime_yum_config.set(
+            'main', 'debuglevel', '2'
+        )
+        self.runtime_yum_config.set(
+            'main', 'pkgpolicy', 'newest'
+        )
+        self.runtime_yum_config.set(
+            'main', 'tolerant', '0'
+        )
+        self.runtime_yum_config.set(
+            'main', 'exactarch', '1'
+        )
+        self.runtime_yum_config.set(
+            'main', 'obsoletes', '1'
+        )
+        self.runtime_yum_config.set(
+            'main', 'plugins', '1'
+        )
+        self.runtime_yum_config.set(
+            'main', 'metadata_expire', '1800'
+        )
+        self.runtime_yum_config.set(
+            'main', 'group_command', 'compat'
         )
 
     def __write_runtime_config(self):

@@ -168,6 +168,12 @@ class SystemPrepareTask(CliTask):
             manager=manager, force=True
         )
 
+        # make sure system instance is cleaned up now
+        del system
+
+        # setup permanent image repositories after cleanup
+        setup.import_repositories_marked_as_imageinclude()
+
     def __help(self):
         if self.command_args['help']:
             self.manual.show('kiwi::system::prepare')

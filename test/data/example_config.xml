@@ -102,7 +102,7 @@
     <repository type="yast2" priority="42">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
-    <repository type="rpm-md">
+    <repository type="rpm-md" imageinclude="true">
         <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
     </repository>
     <packages type="image" patternType="plusRecommended">

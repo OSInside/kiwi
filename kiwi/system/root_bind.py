@@ -98,7 +98,7 @@ class RootBind(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def mount_shared_directory(self, host_dir=None):
+    def mount_shared_directory(self):
         """
         Bind mount shared location
 
@@ -107,11 +107,8 @@ class RootBind(object):
         is used for the repository setup and the package manager
         cache to allow chroot operations without being forced to
         duplicate this data
-
-        :param string host_dir: directory on the host to share
         """
-        if not host_dir:
-            host_dir = self.shared_location
+        host_dir = self.shared_location
         try:
             Path.create(self.root_dir + host_dir)
             Path.create('/' + host_dir)

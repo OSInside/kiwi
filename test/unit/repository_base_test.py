@@ -22,6 +22,10 @@ class TestRepositoryBase(object):
         self.repo.shared_location = 'shared-dir'
 
     @raises(NotImplementedError)
+    def test_use_default_location(self):
+        self.repo.use_default_location()
+
+    @raises(NotImplementedError)
     def test_runtime_config(self):
         self.repo.runtime_config()
 

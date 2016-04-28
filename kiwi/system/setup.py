@@ -21,6 +21,10 @@ from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
 # project
+from .uri import Uri
+from ..repository import Repository
+from ..system.root_bind import RootBind
+from ..system.root_init import RootInit
 from ..command import Command
 from ..command_process import CommandProcess
 from ..utils.sync import DataSync
@@ -181,6 +185,41 @@ class SystemSetup(object):
         required in the later image
         """
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
+
+    def import_repositories_marked_as_imageinclude(self):
+        """
+        Those <repository> sections which are marked with the
+        imageinclude attribute should be permanently added to
+        the image repository configuration
+        """
+        repository_sections = self.xml_state.get_repository_sections()
+        root = RootInit(
+            root_dir=self.root_dir, allow_existing=True
+        )
+        repo = Repository(
+            RootBind(root), self.xml_state.get_package_manager()
+        )
+        repo.use_default_location()
+        repo.delete_all_repos()
+        for xml_repo in repository_sections:
+            repo_marked_for_image_include = xml_repo.get_imageinclude()
+
+            if repo_marked_for_image_include:
+                repo_type = xml_repo.get_type()
+                repo_source = xml_repo.get_source().get_path()
+                repo_alias = xml_repo.get_alias()
+                repo_priority = xml_repo.get_priority()
+                uri = Uri(repo_source, repo_type)
+                repo_source_translated = uri.translate()
+                if not repo_alias:
+                    repo_alias = uri.alias()
+                log.info('Setting up image repository %s', repo_source)
+                log.info('--> Type: %s', repo_type)
+                log.info('--> Translated: %s', repo_source_translated)
+                log.info('--> Alias: %s', repo_alias)
+                repo.add_repo(
+                    repo_alias, repo_source_translated, repo_type, repo_priority
+                )
 
     def import_shell_environment(self, profile):
         """
