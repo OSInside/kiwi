@@ -239,5 +239,6 @@ function __comp_reply {
     COMPREPLY=($(compgen -W "$word_list" -- ${cur}))
 }
 
+complete -F _kiwi -o default kiwi
 complete -F _kiwi -o default kiwi-ng
 ''').strip())
