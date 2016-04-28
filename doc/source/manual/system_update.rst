@@ -27,3 +27,7 @@ OPTIONS
 
   specify package to delete. The option can be specified
   multiple times
+
+--root=<directory>
+
+  Path to the root directory of the image.

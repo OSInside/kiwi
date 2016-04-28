@@ -29,15 +29,15 @@ commands:
         and a sha sum will be created from every result image.
 
 options:
-    --target-dir=<directory>
-        the target directory to expect image build results
+    --bundle-dir=<directory>
+        directory to store the bundle results
 
     --id=<bundle_id>
         the bundle id. A free form text appended to the version
         information of the result image filename
 
-    --bundle-dir=<directory>
-        directory to store the bundle results
+    --target-dir=<directory>
+        the target directory to expect image build results
 """
 from collections import OrderedDict
 import os

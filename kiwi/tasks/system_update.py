@@ -31,12 +31,12 @@ commands:
         show manual page for update command
 
 options:
-    --root=<directory>
-        the path to the new root directory of the system
     --add-package=<name>
         install the given package name
     --delete-package=<name>
         delete the given package name
+    --root=<directory>
+        path to the root directory of the image
 """
 # project
 from .base import CliTask

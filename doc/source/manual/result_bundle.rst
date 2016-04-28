@@ -17,10 +17,6 @@ compressed and a sha sum will be created from every result image.
 OPTIONS
 -------
 
---target-dir=<directory>
-
-  directory containing the kiwi build results
-
 --bundle-dir=<directory>
 
   directory containing the bundle results, compressed versions of
@@ -30,3 +26,7 @@ OPTIONS
 
   bundle id, could be a free form text and is appended to the image
   version information if present as part of the result image filename
+
+--target-dir=<directory>
+
+  directory containing the kiwi build results

@@ -21,27 +21,27 @@ As the root user you can enter this system via chroot as follows:
 OPTIONS
 -------
 
---description=<directory>
+--add-repo=<source,type,alias,priority>
 
-  Path to the kiwi XML description. Inside of that directory there
-  must be at least a config.xml of \*.kiwi XML description.
-
---root=<directory>
-
-  Path to create the new root system.
+  See the kiwi::system::build manual page for further details
 
 --allow-existing-root
 
   allow to re-use an existing image root directory
 
---set-repo=<source,type,alias,priority>
+--description=<directory>
 
-  See the kiwi::system::build manual page for further details
-
---add-repo=<source,type,alias,priority>
-
-  See the kiwi::system::build manual page for further details
+  Path to the kiwi XML description. Inside of that directory there
+  must be at least a config.xml of \*.kiwi XML description.
 
 --obs-repo-internal
+
+  See the kiwi::system::build manual page for further details
+
+--root=<directory>
+
+  Path to create the new root system.
+
+--set-repo=<source,type,alias,priority>
 
   See the kiwi::system::build manual page for further details

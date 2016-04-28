@@ -31,24 +31,24 @@ commands:
         show manual page for prepare command
 
 options:
-    --description=<directory>
-        the description must be a directory containing a kiwi XML
-        description and optional metadata files
-    --root=<directory>
-        the path to the new root directory of the system
+    --add-repo=<source,type,alias,priority>
+        add repository with given source, type, alias and priority.
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
         contents does not fit to the additional installation
-    --set-repo=<source,type,alias,priority>
-        overwrite the repo source, type, alias or priority for the first
-        repository in the XML description
-    --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority.
+    --description=<directory>
+        the description must be a directory containing a kiwi XML
+        description and optional metadata files
     --obs-repo-internal
         when using obs:// repos resolve them using the SUSE internal
         buildservice. This only works if access to SUSE's internal
         buildservice is granted
+    --root=<directory>
+        the path to the new root directory of the system
+    --set-repo=<source,type,alias,priority>
+        overwrite the repo source, type, alias or priority for the first
+        repository in the XML description
 """
 import os
 
