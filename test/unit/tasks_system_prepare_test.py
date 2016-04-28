@@ -49,6 +49,8 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--obs-repo-internal'] = False
+        self.task.command_args['--add-package'] = []
+        self.task.command_args['--delete-package'] = []
 
     def test_process_system_prepare(self):
         self.__init_command_args()
@@ -76,6 +78,24 @@ class TestSystemPrepareTask(object):
 
         self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
+        )
+
+    def test_process_system_prepare_add_package(self):
+        self.__init_command_args()
+        self.task.command_args['--add-package'] = ['vim']
+        self.task.process()
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.install_packages.assert_called_once_with(
+            self.manager, ['vim']
+        )
+
+    def test_process_system_prepare_delete_package(self):
+        self.__init_command_args()
+        self.task.command_args['--delete-package'] = ['vim']
+        self.task.process()
+        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.delete_packages.assert_called_once_with(
+            self.manager, ['vim']
         )
 
     @patch('kiwi.xml_state.XMLState.set_repository')

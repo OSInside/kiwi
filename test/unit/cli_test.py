@@ -33,6 +33,8 @@ class TestCli(object):
             '--obs-repo-internal': False,
             '--root': 'directory',
             '--set-repo': None,
+            '--add-package': [],
+            '--delete-package': [],
             '-h': False,
             'help': False,
             'prepare': True,

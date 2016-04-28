@@ -21,6 +21,11 @@ As the root user you can enter this system via chroot as follows:
 OPTIONS
 -------
 
+--add-package=<name>
+
+  specify package to add(install). The option can be specified
+  multiple times
+
 --add-repo=<source,type,alias,priority>
 
   See the kiwi::system::build manual page for further details
@@ -28,6 +33,11 @@ OPTIONS
 --allow-existing-root
 
   allow to re-use an existing image root directory
+
+--delete-package=<name>
+
+  specify package to delete. The option can be specified
+  multiple times
 
 --description=<directory>
 

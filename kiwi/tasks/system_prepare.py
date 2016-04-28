@@ -22,6 +22,8 @@ usage: kiwi system prepare -h | --help
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
            [--obs-repo-internal]
+           [--add-package=<name>...]
+           [--delete-package=<name>...]
        kiwi system prepare help
 
 commands:
@@ -31,8 +33,12 @@ commands:
         show manual page for prepare command
 
 options:
+    --add-package=<name>
+        install the given package name
     --add-repo=<source,type,alias,priority>
         add repository with given source, type, alias and priority.
+    --delete-package=<name>
+        delete the given package name
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
@@ -111,6 +117,12 @@ class SystemPrepareTask(CliTask):
             # Be aware that the buildhost has to provide access
             self.xml_state.translate_obs_to_ibs_repositories()
 
+        package_requests = False
+        if self.command_args['--add-package']:
+            package_requests = True
+        if self.command_args['--delete-package']:
+            package_requests = True
+
         log.info('Preparing system')
         system = SystemPrepare(
             self.xml_state,
@@ -122,6 +134,15 @@ class SystemPrepareTask(CliTask):
         system.install_system(
             manager
         )
+        if package_requests:
+            if self.command_args['--add-package']:
+                system.install_packages(
+                    manager, self.command_args['--add-package']
+                )
+            if self.command_args['--delete-package']:
+                system.delete_packages(
+                    manager, self.command_args['--delete-package']
+                )
 
         profile = Profile(self.xml_state)
 
