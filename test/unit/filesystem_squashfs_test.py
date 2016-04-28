@@ -19,5 +19,5 @@ class TestFileSystemSquashfs(object):
     def test_create_on_file(self, mock_command):
         self.squashfs.create_on_file('myimage', 'label')
         mock_command.assert_called_once_with(
-            ['mksquashfs', 'root_dir', 'myimage']
+            ['mksquashfs', 'root_dir', 'myimage', '-comp', 'xz']
         )

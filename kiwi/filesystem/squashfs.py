@@ -34,6 +34,10 @@ class FileSystemSquashFs(FileSystemBase):
         :param string filename: result file path name
         :param string label: unused
         """
+        if '-comp' not in self.custom_args['create_options']:
+            self.custom_args['create_options'].append('-comp')
+            self.custom_args['create_options'].append('xz')
+
         Command.run(
             [
                 'mksquashfs', self.root_dir, filename
