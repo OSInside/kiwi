@@ -101,6 +101,6 @@ def usage(command_usage):
             global_options += format(line)
 
     print('usage: kiwi [global options] service <command> [<args>]\n')
-    print(format(command_usage))
+    print(format(command_usage).replace('usage:', '      '))
     if 'global options:' not in format(command_usage):
         print(format(global_options))
