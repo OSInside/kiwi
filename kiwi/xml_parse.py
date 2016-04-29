@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Mar 22 11:10:46 2016 by generateDS.py version 2.19b.
+# Generated Fri Apr 29 16:16:24 2016 by generateDS.py version 2.19b.
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   /usr/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
-#   kiwi-horizon
+#   kiwi
 #
 
 import sys
@@ -2546,7 +2546,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2589,6 +2589,7 @@ class type_(GeneratedsSuper):
         self.mdraid = _cast(None, mdraid)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
+        self.rootfs_label = _cast(None, rootfs_label)
         self.target_blocksize = _cast(int, target_blocksize)
         self.vbootsize = _cast(int, vbootsize)
         self.vga = _cast(None, vga)
@@ -2742,6 +2743,8 @@ class type_(GeneratedsSuper):
     def set_primary(self, primary): self.primary = primary
     def get_ramonly(self): return self.ramonly
     def set_ramonly(self, ramonly): self.ramonly = ramonly
+    def get_rootfs_label(self): return self.rootfs_label
+    def set_rootfs_label(self, rootfs_label): self.rootfs_label = rootfs_label
     def get_target_blocksize(self): return self.target_blocksize
     def set_target_blocksize(self, target_blocksize): self.target_blocksize = target_blocksize
     def get_vbootsize(self): return self.vbootsize
@@ -2908,6 +2911,9 @@ class type_(GeneratedsSuper):
         if self.ramonly is not None and 'ramonly' not in already_processed:
             already_processed.add('ramonly')
             outfile.write(' ramonly="%s"' % self.gds_format_boolean(self.ramonly, input_name='ramonly'))
+        if self.rootfs_label is not None and 'rootfs_label' not in already_processed:
+            already_processed.add('rootfs_label')
+            outfile.write(' rootfs_label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.rootfs_label), input_name='rootfs_label')), ))
         if self.target_blocksize is not None and 'target_blocksize' not in already_processed:
             already_processed.add('target_blocksize')
             outfile.write(' target_blocksize="%s"' % self.gds_format_integer(self.target_blocksize, input_name='target_blocksize'))
@@ -3209,6 +3215,10 @@ class type_(GeneratedsSuper):
                 self.ramonly = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('rootfs_label', node)
+        if value is not None and 'rootfs_label' not in already_processed:
+            already_processed.add('rootfs_label')
+            self.rootfs_label = value
         value = find_attr_value_('target_blocksize', node)
         if value is not None and 'target_blocksize' not in already_processed:
             already_processed.add('target_blocksize')

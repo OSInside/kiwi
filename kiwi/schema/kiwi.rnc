@@ -1812,6 +1812,9 @@ div {
         ## for use with overlay filesystems only:
         ## will force any COW action to happen in RAM
         attribute ramonly { xsd:boolean }
+    k.type.rootfs_label.attribute =
+        ## label to set for the root filesystem. By default ROOT is used
+        attribute rootfs_label { text }
     k.type.vga.attribute =
         ## Specifies the kernel framebuffer mode. More information
         ## about the possible values can be found by calling
@@ -1875,6 +1878,7 @@ div {
         k.type.mdraid.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
+        k.type.rootfs_label.attribute? &
         k.type.target_blocksize? &
         k.type.vbootsize.attribute? &
         k.type.vga.attribute? &

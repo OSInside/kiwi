@@ -202,8 +202,11 @@ class TestDiskSetup(object):
     def test_get_efi_label(self):
         assert self.setup.get_efi_label() == 'EFI'
 
-    def test_get_root_label(self):
+    def test_get_default_root_label(self):
         assert self.setup.get_root_label() == 'ROOT'
+
+    def test_get_custom_root_label(self):
+        assert self.setup_ppc.get_root_label() == 'MYLABEL'
 
     def __init_bootpart_check(self):
         self.setup.bootpart_requested = None

@@ -246,10 +246,16 @@ class DiskSetup(object):
         """
         Filesystem Label to use for the root partition
 
+        If not specified in the XML configuration the default
+        root label is set to 'ROOT'
+
         :return: label name
         :rtype: string
         """
-        return 'ROOT'
+        root_label = self.xml_state.build_type.get_rootfs_label()
+        if not root_label:
+            root_label = 'ROOT'
+        return root_label
 
     def get_efi_label(self):
         """

@@ -2466,6 +2466,11 @@ will force any COW action to happen in RAM</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.type.rootfs_label.attribute">
+      <attribute name="rootfs_label">
+        <a:documentation>label to set for the root filesystem. By default ROOT is used</a:documentation>
+      </attribute>
+    </define>
     <define name="k.type.vga.attribute">
       <attribute name="vga">
         <a:documentation>Specifies the kernel framebuffer mode. More information
@@ -2621,6 +2626,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.ramonly.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.rootfs_label.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.target_blocksize"/>
