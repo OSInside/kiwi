@@ -98,7 +98,7 @@ class RootBind(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def mount_shared_directory(self):
+    def mount_shared_directory(self, host_dir=None):
         """
         Bind mount shared location
 
@@ -108,7 +108,8 @@ class RootBind(object):
         cache to allow chroot operations without being forced to
         duplicate this data
         """
-        host_dir = self.shared_location
+        if not host_dir:
+            host_dir = self.shared_location
         try:
             Path.create(self.root_dir + host_dir)
             Path.create('/' + host_dir)
