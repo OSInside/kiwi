@@ -93,7 +93,7 @@ def usage(command_usage):
     global_options = '\n'
     process_lines = False
     for line in program_code:
-        if line.rstrip() == 'global options:':
+        if line.rstrip().startswith('global options'):
             process_lines = True
         if line.rstrip() == '"""':
             process_lines = False
@@ -102,5 +102,5 @@ def usage(command_usage):
 
     print('usage: kiwi [global options] service <command> [<args>]\n')
     print(format(command_usage).replace('usage:', '      '))
-    if 'global options:' not in format(command_usage):
+    if 'global options' not in format(command_usage):
         print(format(global_options))

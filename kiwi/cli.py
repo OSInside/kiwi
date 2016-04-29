@@ -31,25 +31,29 @@ usage: kiwi -h | --help
        kiwi help
 
 global options:
+    --color-output
+        use colors for warning and error messages
+    --compat
+        support legacy kiwi commandline, e.g
+        kiwi --compat -- --build /my/description --type vmx -d /my/dest
+    --debug
+        print debug information
     -v --version
         show program version
+    help
+        show manual page
+
+global options for service: system
+    --logfile=<filename>
+        create a log file containing all log information including
+        debug information even if this is was not requested by the
+        debug switch
     --profile=<name>
         profile name, multiple profiles can be selected by passing
         this option multiple times
     --type=<build_type>
         image build type. If not set the default XML specified
         build type will be used
-    --logfile=<filename>
-        create a log file containing all log information including
-        debug information even if this is was not requested by the
-        debug switch
-    --compat
-        support legacy kiwi commandline, e.g
-        kiwi --compat -- --build /my/description --type vmx -d /my/dest
-    --debug
-        print debug information
-    help
-        show manual page
 """
 import sys
 import glob
@@ -190,10 +194,10 @@ class Cli(object):
             'tasks/' + service + '_' + command + '.py'
         )
         if not os.path.exists(command_source_file):
-            from .logger import log
-            log.info('Did you mean')
+            prefix = 'usage:'
             for service_command in self.__get_command_implementations(service):
-                log.info('--> kiwi %s', service_command)
+                print('%s kiwi %s' % (prefix, service_command))
+                prefix = '      '
             raise SystemExit
         self.command_loaded = importlib.import_module(
             'kiwi.tasks.' + service + '_' + command
