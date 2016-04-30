@@ -349,18 +349,15 @@ class Logger(logging.Logger):
         self.console_handlers[handler_type] = handler
 
 
-def init():
-    """
-    Create an application global log instance
+# Create an application global log instance
+#
+# Set the highest log level possible as the default log level
+# in the main Logger class. This is needed to allow any logfile
+# handler to log all messages by default and to allow custom log
+# levels per handler. Our own implementation in Logger::setLogLevel
+# will then set the log level on a handler basis
 
-    Set the highest log level possible as the default log level
-    in the main Logger class. This is needed to allow any logfile
-    handler to log all messages by default and to allow custom log
-    levels per handler. Our own implementation in Logger::setLogLevel
-    will then set the log level on a handler basis
-    """
-    global log
-    logging.setLoggerClass(Logger)
-    log = logging.getLogger("kiwi")
+logging.setLoggerClass(Logger)
+log = logging.getLogger("kiwi")
 
-    log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
