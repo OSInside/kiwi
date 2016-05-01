@@ -40,16 +40,13 @@ class CommandProcess(object):
         """
         Iterate over process, raise on error and log output
         """
-        try:
-            while True:
-                line = next(self.command)
-                if line:
-                    log.debug('%s: %s', self.log_topic, line)
-        except StopIteration:
-            if self.command.get_error_code() != 0:
-                raise KiwiCommandError(
-                    self.command.get_error_output()
-                )
+        for line in self.command:
+            if line:
+                log.debug('%s: %s', self.log_topic, line)
+        if self.command.get_error_code() != 0:
+            raise KiwiCommandError(
+                self.command.get_error_output()
+            )
 
     def poll_show_progress(self, items_to_complete, match_method):
         """
@@ -60,20 +57,17 @@ class CommandProcess(object):
         :param function match_method: method matching item
         """
         self.__init_progress()
-        try:
-            while True:
-                line = next(self.command)
-                if line:
-                    log.debug('%s: %s', self.log_topic, line)
-                    self.__update_progress(
-                        match_method, items_to_complete, line
-                    )
-        except StopIteration:
-            self.__stop_progress()
-            if self.command.get_error_code() != 0:
-                raise KiwiCommandError(
-                    self.command.get_error_output()
+        for line in self.command:
+            if line:
+                log.debug('%s: %s', self.log_topic, line)
+                self.__update_progress(
+                    match_method, items_to_complete, line
                 )
+        self.__stop_progress()
+        if self.command.get_error_code() != 0:
+            raise KiwiCommandError(
+                self.command.get_error_output()
+            )
 
     def poll_and_watch(self):
         """
@@ -82,13 +76,10 @@ class CommandProcess(object):
         """
         log.info(self.log_topic)
         log.debug('--------------out start-------------')
-        try:
-            while True:
-                line = next(self.command)
-                if line:
-                    log.debug(line)
-        except StopIteration:
-            log.debug('--------------out stop--------------')
+        for line in self.command:
+            if line:
+                log.debug(line)
+        log.debug('--------------out stop--------------')
 
         error_code = self.command.get_error_code()
         error_output = self.command.get_error_output()
