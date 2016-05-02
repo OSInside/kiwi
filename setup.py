@@ -14,7 +14,8 @@ config = {
     'version': __version__,
     'install_requires': [
         'docopt>=0.6.2',
-        'lxml'
+        'lxml',
+        'xattr'
     ],
     'packages': ['kiwi'],
     'entry_points': {

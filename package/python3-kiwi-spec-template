@@ -41,6 +41,7 @@ Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
 Requires:       python3-lxml
+Requires:       python3-xattr
 # tools used by kiwi
 %if 0%{?suse_version}
 Requires:       zypper

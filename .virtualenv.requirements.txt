@@ -13,3 +13,6 @@ docopt
 
 # Powerful and Pythonic XML processing library
 lxml
+
+# Python wrapper for extended filesystem attributes
+xattr
