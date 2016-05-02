@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import xattr
+
 # project
+from ..logger import log
 from ..command import Command
 
 
@@ -47,6 +50,19 @@ class DataSync(object):
         rsync_options = []
         if options:
             rsync_options = options
+        if not self.target_supports_extended_attributes():
+            warn_me = False
+            if '-X' in rsync_options:
+                rsync_options.remove('-X')
+                warn_me = True
+            if '-A' in rsync_options:
+                rsync_options.remove('-A')
+                warn_me = True
+            if warn_me:
+                log.warning(
+                    'Extended attributes not supported for target: %s',
+                    self.target_dir
+                )
         if exclude:
             for item in exclude:
                 exclude_options.append('--exclude')
@@ -58,3 +74,18 @@ class DataSync(object):
                 self.source_dir, self.target_dir
             ]
         )
+
+    def target_supports_extended_attributes(self):
+        """
+        Check if the target directory supports extended filesystem
+        attributes
+
+        :rtype: bool
+        """
+        try:
+            xattr.getxattr(self.target_dir, 'user.mime_type')
+        except Exception as e:
+            if format(e).startswith('[Errno 95]'):
+                # libc interface [Errno 95] Operation not supported:
+                return False
+        return True
