@@ -51,7 +51,7 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         Command.run(
             [
-                'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
+                'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vmdk'
             ] + self.options + [
                 self.get_target_name_for_format('vmdk')

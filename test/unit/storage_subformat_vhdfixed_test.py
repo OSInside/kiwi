@@ -58,7 +58,7 @@ class TestDiskFormatVhdFixed(object):
 
         mock_command.assert_called_once_with(
             [
-                'qemu-img', 'convert', '-c', '-f', 'raw',
+                'qemu-img', 'convert', '-f', 'raw',
                 'target_dir/some-disk-image.x86_64-1.2.3.raw', '-O', 'vpc',
                 '-o', 'subformat=fixed',
                 'target_dir/some-disk-image.x86_64-1.2.3.vhdfixed'

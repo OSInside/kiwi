@@ -43,7 +43,7 @@ class DiskFormatVhd(DiskFormatBase):
         """
         Command.run(
             [
-                'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
+                'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vpc'
             ] + self.options + [
                 self.get_target_name_for_format('vhd')
