@@ -50,8 +50,6 @@ class VolumeManagerLVM(VolumeManagerBase):
         if 'image_type' not in self.custom_args:
             self.custom_args['image_type'] = None
 
-        self.setup_mountpoint()
-
     def get_device(self):
         """
         Dictionary of MappedDevice instances per volume
@@ -82,6 +80,8 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         :param string name: volume group name
         """
+        self.setup_mountpoint()
+
         if self.__volume_group_in_use_on_host_system(volume_group_name):
             raise KiwiVolumeGroupConflict(
                 'Requested volume group %s is in use on this host' %

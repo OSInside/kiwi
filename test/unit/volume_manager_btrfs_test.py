@@ -12,9 +12,7 @@ from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 
 class TestVolumeManagerBtrfs(object):
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager.base.mkdtemp')
-    def setup(self, mock_mkdtemp, mock_path):
-        mock_mkdtemp.return_value = 'tmpdir'
+    def setup(self, mock_path):
         self.volume_type = namedtuple(
             'volume_type', [
                 'name',
@@ -63,10 +61,12 @@ class TestVolumeManagerBtrfs(object):
     @patch('kiwi.volume_manager.btrfs.FileSystem')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup_no_snapshot(
-        self, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
+        mock_mkdtemp.return_value = 'tmpdir'
         toplevel_mount = mock.Mock()
         mock_mount.return_value = toplevel_mount
         command_call = mock.Mock()
@@ -92,10 +92,12 @@ class TestVolumeManagerBtrfs(object):
     @patch('kiwi.volume_manager.btrfs.FileSystem')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup_with_snapshot(
-        self, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
+        mock_mkdtemp.return_value = 'tmpdir'
         toplevel_mount = mock.Mock()
         mock_mount.return_value = toplevel_mount
         command_call = mock.Mock()

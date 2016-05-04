@@ -13,9 +13,7 @@ from kiwi.defaults import Defaults
 
 class TestVolumeManagerLVM(object):
     @patch('os.path.exists')
-    @patch('kiwi.volume_manager.base.mkdtemp')
-    def setup(self, mock_mkdtemp, mock_path):
-        mock_mkdtemp.return_value = 'tmpdir'
+    def setup(self, mock_path):
         self.volume_type = namedtuple(
             'volume_type', [
                 'name',
@@ -71,7 +69,9 @@ class TestVolumeManagerLVM(object):
             '/dev/lvroot'
 
     @patch('kiwi.volume_manager.lvm.Command.run')
-    def test_setup(self, mock_command):
+    @patch('kiwi.volume_manager.base.mkdtemp')
+    def test_setup(self, mock_mkdtemp, mock_command):
+        mock_mkdtemp.return_value = 'tmpdir'
         self.volume_manager.setup('volume_group')
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
@@ -111,9 +111,10 @@ class TestVolumeManagerLVM(object):
     @patch('kiwi.volume_manager.lvm.MappedDevice')
     @patch('kiwi.volume_manager.lvm.MountManager')
     def test_create_volumes(
-        self, mock_mount, mock_mapped_device, mock_fs, mock_command,
-        mock_size, mock_os_exists
+        self, mock_mount, mock_mapped_device, mock_fs,
+        mock_command, mock_size, mock_os_exists
     ):
+        self.volume_manager.mountpoint = 'tmpdir'
         mock_mapped_device.return_value = 'mapped_device'
         size = mock.Mock()
         size.customize = mock.Mock(

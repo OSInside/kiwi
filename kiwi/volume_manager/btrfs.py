@@ -65,8 +65,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         self.subvol_mount_list = []
         self.toplevel_mount = None
 
-        self.setup_mountpoint()
-
     def setup(self, name=None):
         """
         Setup btrfs volume management
@@ -79,6 +77,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         :param string name: unused
         """
+        self.setup_mountpoint()
+
         filesystem = FileSystem(
             name='btrfs',
             device_provider=MappedDevice(
