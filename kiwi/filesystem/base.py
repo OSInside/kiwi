@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from tempfile import mkdtemp
 
 # project
 from ..logger import log
@@ -130,8 +129,7 @@ class FileSystemBase(object):
                 'given root directory %s does not exist' % self.root_dir
             )
         self.filesystem_mount = MountManager(
-            device=self.device_provider.get_device(),
-            mountpoint=mkdtemp(prefix='kiwi_filesystem.')
+            device=self.device_provider.get_device()
         )
         self.filesystem_mount.mount(
             self.custom_args['mount_options']

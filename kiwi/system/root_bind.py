@@ -204,7 +204,7 @@ class RootBind(object):
         for mount in reversed(self.mount_stack):
             if mount.is_mounted():
                 try:
-                    mount.umount_lazy(delete_mountpoint=False)
+                    mount.umount_lazy()
                 except Exception as e:
                     log.warning(
                         'Image root directory %s not cleanly umounted: %s',

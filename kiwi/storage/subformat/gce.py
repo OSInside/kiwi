@@ -51,7 +51,7 @@ class DiskFormatGce(DiskFormatBase):
         Create GCE disk format and manifest
         """
         self.temp_image_dir = mkdtemp(
-            dir=self.target_dir
+            prefix='kiwi_gce_subformat.', dir=self.target_dir
         )
         diskname = ''.join(
             [

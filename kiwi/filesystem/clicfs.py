@@ -57,7 +57,7 @@ class FileSystemClicFs(FileSystemBase):
         :param string filename: result file path name
         :param string label: unused
         """
-        self.container_dir = mkdtemp()
+        self.container_dir = mkdtemp(prefix='kiwi_clicfs.')
         clicfs_container_filesystem = self.container_dir + '/fsdata.ext4'
         loop_provider = LoopDevice(
             clicfs_container_filesystem,

@@ -58,7 +58,7 @@ class TestRepositoryZypper(object):
     @patch('os.path.exists')
     def test_add_repo(self, mock_exists, mock_wipe, mock_command):
         mock_exists.return_value = False
-        self.repo.add_repo('foo', 'iso-mount/uri', 'rpm-md', 42)
+        self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
         mock_wipe.assert_called_once_with(
             '../data/shared-dir/zypper/repos/foo.repo'
         )
@@ -69,7 +69,7 @@ class TestRepositoryZypper(object):
                     'addrepo', '-f',
                     '--type', 'YUM',
                     '--keep-packages',
-                    'iso-mount/uri',
+                    'kiwi_iso_mount/uri',
                     'foo'
                 ], self.repo.command_env
             ),

@@ -157,7 +157,7 @@ class RepositoryZypper(RepositoryBase):
         """
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
-        if 'iso-mount' in uri:
+        if 'kiwi_iso_mount' in uri:
             # iso mount point is a tmpdir, thus different each time we build
             Path.wipe(repo_file)
         if not os.path.exists(repo_file):

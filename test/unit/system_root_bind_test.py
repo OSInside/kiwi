@@ -118,9 +118,7 @@ class TestRootBind(object):
     def test_cleanup(self, mock_islink, mock_remove_hierarchy, mock_command):
         mock_islink.return_value = True
         self.bind_root.cleanup()
-        self.mount_manager.umount_lazy.assert_called_once_with(
-            delete_mountpoint=False
-        )
+        self.mount_manager.umount_lazy.assert_called_once_with()
         mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
         mock_command.assert_called_once_with(
            ['rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo']

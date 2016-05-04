@@ -40,15 +40,13 @@ class TestMountManager(object):
         )
 
     @patch('kiwi.mount_manager.Command.run')
-    @patch('kiwi.mount_manager.Path.wipe')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
-    def test_umount_lazy(self, mock_mounted, mock_path, mock_command):
+    def test_umount_lazy(self, mock_mounted, mock_command):
         mock_mounted.return_value = True
         self.mount_manager.umount_lazy()
         mock_command.assert_called_once_with(
             ['umount', '-l', '/some/mountpoint']
         )
-        mock_path.assert_called_once_with('/some/mountpoint')
 
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
@@ -68,18 +66,12 @@ class TestMountManager(object):
         assert mock_warn.called
 
     @patch('kiwi.mount_manager.Command.run')
-    @patch('kiwi.mount_manager.Path.wipe')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
-    def test_umount_success(
-        self, mock_mounted, mock_path, mock_command
-    ):
+    def test_umount_success(self, mock_mounted, mock_command):
         mock_mounted.return_value = True
         assert self.mount_manager.umount() is True
         mock_command.assert_called_once_with(
             ['umount', '/some/mountpoint']
-        )
-        mock_path.assert_called_once_with(
-            '/some/mountpoint'
         )
 
     @patch('kiwi.mount_manager.Command.run')
@@ -95,3 +87,11 @@ class TestMountManager(object):
         command.returncode = 1
         mock_command.return_value = command
         assert self.mount_manager.is_mounted() is False
+
+    @patch('kiwi.mount_manager.Path.wipe')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
+    def test_destructor(self, mock_mounted, mock_wipe):
+        self.mount_manager.mountpoint_created_by_mount_manager = True
+        mock_mounted.return_value = False
+        self.mount_manager.__del__()
+        mock_wipe.assert_called_once_with('/some/mountpoint')

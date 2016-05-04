@@ -37,14 +37,12 @@ class TestFileSystemBase(object):
 
     @patch('kiwi.filesystem.base.MountManager')
     @patch('kiwi.filesystem.base.DataSync')
-    @patch('kiwi.filesystem.base.mkdtemp')
     @patch('os.path.exists')
-    def test_sync_data(self, mock_exists, mock_mkdtemp, mock_sync, mock_mount):
-        mock_mkdtemp.return_value = 'tmpdir'
+    def test_sync_data(self, mock_exists, mock_sync, mock_mount):
         mock_exists.return_value = True
 
         filesystem_mount = mock.Mock()
-        filesystem_mount.mountpoint = mock_mkdtemp.return_value
+        filesystem_mount.mountpoint = 'tmpdir'
         mock_mount.return_value = filesystem_mount
 
         data_sync = mock.Mock()
@@ -58,7 +56,7 @@ class TestFileSystemBase(object):
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
         mock_mount.assert_called_once_with(
-            device='/dev/loop0', mountpoint='tmpdir'
+            device='/dev/loop0'
         )
         filesystem_mount.mount.assert_called_once_with([])
         filesystem_mount.umount.assert_called_once_with()

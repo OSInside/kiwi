@@ -272,19 +272,9 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.install()
         self.bootloader.__del__()
 
-        self.device_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
-        self.proc_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
-        self.sysfs_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
-        self.efi_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
-        self.boot_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
+        self.device_mount.umount.assert_called_once_with()
+        self.proc_mount.umount.assert_called_once_with()
+        self.sysfs_mount.umount.assert_called_once_with()
+        self.efi_mount.umount.assert_called_once_with()
+        self.boot_mount.umount.assert_called_once_with()
         self.root_mount.umount.assert_called_once_with()

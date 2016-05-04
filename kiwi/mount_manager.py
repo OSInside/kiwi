@@ -43,8 +43,10 @@ class MountManager(object):
     """
     def __init__(self, device, mountpoint=None):
         self.device = device
+        self.mountpoint_created_by_mount_manager = False
         if not mountpoint:
-            self.mountpoint = mkdtemp()
+            self.mountpoint = mkdtemp(prefix='kiwi_mount_manager.')
+            self.mountpoint_created_by_mount_manager = True
         else:
             self.mountpoint = mountpoint
 
@@ -71,28 +73,22 @@ class MountManager(object):
                 ['mount'] + option_list + [self.device, self.mountpoint]
             )
 
-    def umount_lazy(self, delete_mountpoint=True):
+    def umount_lazy(self):
         """
         Umount by the mountpoint directory in lazy mode
 
         Release the mount in any case, however the time when the mounted
         resource is released by the kernel depends on when the resource
         enters the non busy state
-
-        :param bool delete_mountpoint: delete mount directory
         """
         if self.is_mounted():
             Command.run(['umount', '-l', self.mountpoint])
-        if delete_mountpoint:
-            Path.wipe(self.mountpoint)
 
-    def umount(self, delete_mountpoint=True):
+    def umount(self):
         """
         Umount by the mountpoint directory
 
         If the resource is busy the call will return False
-
-        :param bool delete_mountpoint: delete mount directory
 
         :rtype: bool
         """
@@ -116,9 +112,6 @@ class MountManager(object):
                 # skip removing the mountpoint directory
                 return False
 
-        if delete_mountpoint:
-            Path.wipe(self.mountpoint)
-
         return True
 
     def is_mounted(self):
@@ -135,3 +128,7 @@ class MountManager(object):
             return True
         else:
             return False
+
+    def __del__(self):
+        if not self.is_mounted() and self.mountpoint_created_by_mount_manager:
+            Path.wipe(self.mountpoint)

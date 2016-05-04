@@ -32,7 +32,7 @@ class TestBootImageBase(object):
             self.xml_state, 'some-target-dir'
         )
         mock_mkdtemp.assert_called_once_with(
-            prefix='boot-image.', dir='some-target-dir'
+            prefix='kiwi_boot_root.', dir='some-target-dir'
         )
 
     @raises(KiwiTargetDirectoryNotFound)
@@ -77,11 +77,9 @@ class TestBootImageBase(object):
         assert self.boot_image.get_boot_description_directory() == \
             'boot_path/oemboot/suse-13.2'
 
-    @patch('kiwi.boot.image.base.Command.run')
+    @patch('kiwi.boot.image.base.Path.wipe')
     @patch('os.path.exists')
-    def test_destructor(self, mock_path, mock_command):
+    def test_destructor(self, mock_path, mock_wipe):
         mock_path.return_value = True
         self.boot_image.__del__()
-        assert mock_command.call_args_list == [
-            call(['rm', '-r', '-f', 'boot-root-directory']),
-        ]
+        mock_wipe.assert_called_once_with('boot-root-directory')

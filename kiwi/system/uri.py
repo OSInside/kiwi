@@ -22,6 +22,7 @@ import hashlib
 
 # project
 from ..mount_manager import MountManager
+from ..path import Path
 
 from ..exceptions import (
     KiwiUriStyleUnknown,
@@ -147,11 +148,15 @@ class Uri(object):
                 )
 
     def __iso_mount_path(self, path):
+        # The prefix name 'kiwi_iso_mount' has a meaning here because the
+        # zypper repository manager looks up iso mount paths by its repo
+        # source name
+        iso_mount_path = mkdtemp(prefix='kiwi_iso_mount.')
         iso_mount = MountManager(
-            device=path, mountpoint=mkdtemp(prefix='iso-mount.')
+            device=path, mountpoint=iso_mount_path
         )
-        iso_mount.mount()
         self.mount_stack.append(iso_mount)
+        iso_mount.mount()
         return iso_mount.mountpoint
 
     def __local_directory(self, path):
@@ -181,4 +186,6 @@ class Uri(object):
 
     def __del__(self):
         for mount in reversed(self.mount_stack):
-            mount.umount()
+            if mount.is_mounted():
+                if mount.umount():
+                    Path.wipe(mount.mountpoint)

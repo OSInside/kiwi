@@ -95,15 +95,20 @@ class BootImageKiwi(BootImageBase):
             # boot directory should not be changed because we rely
             # on other data in boot/ e.g the kernel to be available
             # for the entire image building process
-            self.temp_boot_root_directory = mkdtemp()
+            temp_boot_root_directory = mkdtemp(
+                prefix='kiwi_boot_root_copy.'
+            )
+            self.temp_directories.append(
+                temp_boot_root_directory
+            )
             data = DataSync(
                 self.boot_root_directory + '/',
-                self.temp_boot_root_directory
+                temp_boot_root_directory
             )
             data.sync_data(
                 options=['-z', '-a']
             )
-            boot_directory = self.temp_boot_root_directory + '/boot'
+            boot_directory = temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)
             if mbrid:
                 log.info(
@@ -121,7 +126,7 @@ class BootImageKiwi(BootImageBase):
                 '/var/cache', '/image', '/usr/lib/grub*'
             ]
             cpio.create(
-                source_dir=self.temp_boot_root_directory,
+                source_dir=temp_boot_root_directory,
                 exclude=exclude_from_archive
             )
             log.info(

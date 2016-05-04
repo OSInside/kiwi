@@ -151,7 +151,7 @@ class InstallImageBuilder(object):
         * installstick="true|false"
         """
         self.media_dir = mkdtemp(
-            prefix='install-media.', dir=self.target_dir
+            prefix='kiwi_install_media.', dir=self.target_dir
         )
         # custom iso metadata
         self.custom_iso_args = {
@@ -164,7 +164,7 @@ class InstallImageBuilder(object):
         # the system image transfer is checked against a checksum
         log.info('Creating disk image checksum')
         self.squashed_contents = mkdtemp(
-            prefix='install-squashfs.', dir=self.target_dir
+            prefix='kiwi_install_squashfs.', dir=self.target_dir
         )
         checksum = Checksum(self.diskname)
         checksum.md5(self.squashed_contents + '/' + self.md5name)
@@ -253,7 +253,7 @@ class InstallImageBuilder(object):
         * installpxe="true|false"
         """
         self.pxe_dir = mkdtemp(
-            prefix='pxe-install-media.', dir=self.target_dir
+            prefix='kiwi_pxe_install_media.', dir=self.target_dir
         )
         # the system image is transfered as xz compressed variant
         log.info('xz compressing disk image')

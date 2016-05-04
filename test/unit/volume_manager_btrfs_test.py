@@ -202,12 +202,44 @@ class TestVolumeManagerBtrfs(object):
     def test_umount_volumes(self):
         self.volume_manager.toplevel_mount = mock.Mock()
         volume_mount = mock.Mock()
+        volume_mount.is_mounted = mock.Mock(
+            return_value=True
+        )
+        self.volume_manager.toplevel_mount.is_mounted = mock.Mock(
+            return_value=True
+        )
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.umount_volumes()
-        volume_mount.umount.assert_called_once_with(
-            delete_mountpoint=False
-        )
+        volume_mount.is_mounted.assert_called_once_with()
+        volume_mount.umount.assert_called_once_with()
+        self.volume_manager.toplevel_mount.is_mounted.assert_called_once_with()
         self.volume_manager.toplevel_mount.umount.assert_called_once_with()
+
+    def test_umount_sub_volumes_busy(self):
+        self.volume_manager.toplevel_mount = mock.Mock()
+        volume_mount = mock.Mock()
+        volume_mount.is_mounted = mock.Mock(
+            return_value=True
+        )
+        volume_mount.umount = mock.Mock(
+            return_value=False
+        )
+        self.volume_manager.subvol_mount_list = [volume_mount]
+        assert self.volume_manager.umount_volumes() is False
+
+    def test_umount_toplevel_busy(self):
+        self.volume_manager.toplevel_mount = mock.Mock()
+        volume_mount = mock.Mock()
+        volume_mount.is_mounted = mock.Mock(
+            return_value=True
+        )
+        self.volume_manager.toplevel_mount.is_mounted = mock.Mock(
+            return_value=True
+        )
+        self.volume_manager.toplevel_mount.umount = mock.Mock(
+            return_value=False
+        )
+        assert self.volume_manager.umount_volumes() is False
 
     @patch('kiwi.volume_manager.btrfs.DataSync')
     def test_sync_data(self, mock_sync):
@@ -228,7 +260,10 @@ class TestVolumeManagerBtrfs(object):
         )
 
     @patch('kiwi.volume_manager.btrfs.VolumeManagerBtrfs.umount_volumes')
-    def test_destructor(self, mock_umount_volumes):
+    @patch('kiwi.volume_manager.btrfs.Path.wipe')
+    def test_destructor(self, mock_wipe, mock_umount_volumes):
+        mock_umount_volumes.return_value = True
         self.volume_manager.toplevel_mount = mock.Mock()
         self.volume_manager.__del__()
         mock_umount_volumes.assert_called_once_with()
+        mock_wipe.assert_called_once_with(self.volume_manager.mountpoint)

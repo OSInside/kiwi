@@ -90,7 +90,7 @@ class TestRepositoryYum(object):
 
         mock_exists.side_effect = side_effect
 
-        self.repo.add_repo('foo', 'iso-mount/uri', 'rpm-md', 42)
+        self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
 
         mock_path.assert_called_once_with(
             '/shared-dir/yum/repos/foo.repo'
@@ -99,7 +99,7 @@ class TestRepositoryYum(object):
         repo_config.add_section.assert_called_once_with('foo')
         assert repo_config.set.call_args_list == [
             call('foo', 'name', 'foo'),
-            call('foo', 'baseurl', 'file://iso-mount/uri'),
+            call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
             call('foo', 'priority', '42')
         ]
         mock_open.assert_called_once_with(

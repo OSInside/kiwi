@@ -115,7 +115,7 @@ class RepositoryYum(RepositoryBase):
         """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
-        if 'iso-mount' in uri:
+        if 'kiwi_iso_mount' in uri:
             # iso mount point is a tmpdir, thus different each time we build
             Path.wipe(repo_file)
         if os.path.exists(uri):

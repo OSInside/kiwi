@@ -70,9 +70,8 @@ class RootInit(object):
         will be deleted. That way we never work on an incomplete
         initial setup
         """
-        root = mkdtemp()
+        root = mkdtemp(prefix='kiwi_root.')
         try:
-            Path.create(root)
             base_system_paths = [
                 '/dev/pts',
                 '/proc',

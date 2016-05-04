@@ -23,8 +23,8 @@ from tempfile import mkdtemp
 from ...defaults import Defaults
 from ...xml_description import XMLDescription
 from ...xml_state import XMLState
-from ...command import Command
 from ...logger import log
+from ...path import Path
 
 from ...exceptions import(
     KiwiTargetDirectoryNotFound,
@@ -58,13 +58,16 @@ class BootImageBase(object):
         self.xml_state = xml_state
         self.target_dir = target_dir
         self.initrd_filename = None
-        self.temp_boot_root_directory = None
         self.boot_xml_state = None
+        self.temp_directories = []
 
         self.boot_root_directory = root_dir
         if not self.boot_root_directory:
             self.boot_root_directory = mkdtemp(
-                prefix='boot-image.', dir=self.target_dir
+                prefix='kiwi_boot_root.', dir=self.target_dir
+            )
+            self.temp_directories.append(
+                self.boot_root_directory
             )
 
         if not os.path.exists(target_dir):
@@ -240,12 +243,6 @@ class BootImageBase(object):
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
-        temp_directories = [
-            self.boot_root_directory,
-            self.temp_boot_root_directory
-        ]
-        for directory in temp_directories:
+        for directory in self.temp_directories:
             if directory and os.path.exists(directory):
-                Command.run(
-                    ['rm', '-r', '-f', directory]
-                )
+                Path.wipe(directory)
