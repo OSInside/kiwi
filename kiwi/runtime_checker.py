@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from textwrap import dedent
 
 # project
@@ -73,5 +74,18 @@ class RuntimeChecker(object):
 
         :param string target_dir: path name
         """
+
+        message = dedent('''
+            Target directory %s specified below kiwi's shared cache
+            directory %s. This is going to create a busy loop mount.
+            Please choose another target directory.
+        ''')
+
         shared_cache_location = Defaults.get_shared_cache_location()
-        print(shared_cache_location)
+        absolute_target_dir = os.path.abspath(
+            os.path.normpath(target_dir)
+        ).replace('//', '/')
+        if absolute_target_dir.startswith('/' + shared_cache_location):
+            raise KiwiRuntimeError(
+                message % (target_dir, shared_cache_location)
+            )

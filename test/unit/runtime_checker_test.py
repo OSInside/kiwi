@@ -1,4 +1,5 @@
 import sys
+import os
 
 from mock import patch
 
@@ -24,7 +25,28 @@ class TestRuntimeChecker(object):
     def test_check_image_include_repos_http_resolvable(self):
         self.runtime_checker.check_image_include_repos_http_resolvable()
 
-    def test_check_target_directory_not_in_shared_cache(self):
+    @raises(KiwiRuntimeError)
+    def test_check_target_directory_not_in_shared_cache_1(self):
         self.runtime_checker.check_target_directory_not_in_shared_cache(
-            'target-dir'
+            '/var/cache//kiwi/foo'
+        )
+
+    @raises(KiwiRuntimeError)
+    def test_check_target_directory_not_in_shared_cache_2(self):
+        self.runtime_checker.check_target_directory_not_in_shared_cache(
+            '/var/cache/kiwi'
+        )
+
+    @raises(KiwiRuntimeError)
+    @patch('os.getcwd')
+    def test_check_target_directory_not_in_shared_cache_3(self, mock_getcwd):
+        mock_getcwd.return_value = '/'
+        self.runtime_checker.check_target_directory_not_in_shared_cache(
+            'var/cache/kiwi'
+        )
+
+    @raises(KiwiRuntimeError)
+    def test_check_target_directory_not_in_shared_cache_4(self):
+        self.runtime_checker.check_target_directory_not_in_shared_cache(
+            '//var/cache//kiwi/foo'
         )
