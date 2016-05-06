@@ -132,6 +132,7 @@ todo_include_todos = True
 extlinks = {
     'issue': ('https://github.com/SUSE/kiwi/issues/%s', '#'),
     'pr': ('https://github.com/SUSE/kiwi/pull/%s', 'PR #'),
+    'ghkiwi': ('https://github.com/SUSE/kiwi/blob/master/%s', '')
 }
 
 

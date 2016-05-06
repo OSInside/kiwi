@@ -7,6 +7,24 @@ KIWI Development Quick Start
    an OS appliance builder.
    This description applies for version |version|.
 
+Requirements
+------------
+
+KIWI requires the following Python packages to run:
+
+* :mod:`lxml`
+* :mod:`docopt`
+* :mod:`xattr`
+
+Further requirements include header files and compilers:
+
+* XML processing with libxml2 and libxslt (for :mod:`lxml`)
+* Foreign function interface library (libffi48)
+* GCC
+
+For development, KIWI uses the additional packages from
+:ghkiwi:`.virtualenv.dev-requirements.txt`.
+
 
 Installation
 ------------
