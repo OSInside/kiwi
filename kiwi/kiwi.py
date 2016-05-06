@@ -50,7 +50,6 @@ def main():
     backtrace
     """
     docopt.__dict__['extras'] = extras
-    logger.init()
     try:
         App()
     except KiwiError as e:
