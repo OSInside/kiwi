@@ -16,7 +16,6 @@ sys.path.insert(0, _path)
 
 # autodoc imports all from kiwi, thus we need the global log
 from kiwi import logger
-logger.init()
 
 
 # -- General configuration ------------------------------------------------
