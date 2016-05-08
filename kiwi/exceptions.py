@@ -311,6 +311,10 @@ class KiwiRpmDatabaseReloadError(KiwiError):
     pass
 
 
+class KiwiRuntimeError(KiwiError):
+    pass
+
+
 class KiwiSchemaImportError(KiwiError):
     pass
 

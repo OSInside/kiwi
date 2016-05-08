@@ -30,6 +30,12 @@ class TestSystemBuildTask(object):
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
+
+        self.runtime_checker = mock.Mock()
+        kiwi.tasks.base.RuntimeChecker = mock.Mock(
+            return_value=self.runtime_checker
+        )
+
         kiwi.tasks.system_build.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
@@ -72,6 +78,8 @@ class TestSystemBuildTask(object):
         self.__init_command_args()
         self.task.command_args['build'] = True
         self.task.process()
+        self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
+        self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with('some-target')
         self.system_prepare.setup_repositories.assert_called_once_with()
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager

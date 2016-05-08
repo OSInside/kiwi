@@ -98,6 +98,10 @@ class SystemBuildTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
+        self.runtime_checker.check_image_include_repos_http_resolvable()
+        self.runtime_checker.check_target_directory_not_in_shared_cache(
+            self.command_args['--target-dir']
+        )
 
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \

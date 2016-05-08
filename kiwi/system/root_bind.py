@@ -19,6 +19,7 @@ import os
 
 # project
 from ..command import Command
+from ..defaults import Defaults
 from ..logger import log
 from ..path import Path
 from ..mount_manager import MountManager
@@ -78,7 +79,7 @@ class RootBind(object):
             '/sys'
         ]
         # share the following directory with the host
-        self.shared_location = '/var/cache/kiwi'
+        self.shared_location = '/' + Defaults.get_shared_cache_location()
 
     def mount_kernel_file_systems(self):
         """

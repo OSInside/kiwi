@@ -23,6 +23,7 @@ import glob
 from ..cli import Cli
 from ..xml_state import XMLState
 from ..xml_description import XMLDescription
+from ..runtime_checker import RuntimeChecker
 
 from ..exceptions import (
     KiwiConfigFileNotFound
@@ -47,13 +48,19 @@ class CliTask(object):
 
     * :attr:`global_args`
         global docopt arguments dictionary
+
+    * :attr:`runtime_checker`
+        Instance of RuntimeChecker
     """
     def __init__(self, should_perform_task_setup=True):
         from ..logger import log
 
         self.cli = Cli()
 
-        # want some help
+        # initialize runtime checker
+        self.runtime_checker = None
+
+        # help requested
         self.cli.show_and_exit_on_help_request()
 
         # load/import task module
@@ -137,6 +144,8 @@ class CliTask(object):
                 '--> Selected profiles: %s',
                 ','.join(self.xml_state.profiles)
             )
+
+        self.runtime_checker = RuntimeChecker(self.xml_state)
 
     def quadruple_token(self, option):
         """
