@@ -21,7 +21,6 @@ from tempfile import mkdtemp
 # project
 from .command import Command
 from .path import Path
-from .logger import log
 
 
 class MountManager(object):
@@ -96,6 +95,7 @@ class MountManager(object):
 
         :rtype: bool
         """
+        from .logger import log
         if self.is_mounted():
             umounted_successfully = False
             for busy in [1, 2, 3]:
