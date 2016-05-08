@@ -71,6 +71,9 @@ class SystemCreateTask(CliTask):
         self.load_xml_description(
             self.command_args['--root']
         )
+        self.runtime_checker.check_target_directory_not_in_shared_cache(
+            self.command_args['--target-dir']
+        )
 
         log.info('Creating system image')
         if not os.path.exists(self.command_args['--target-dir']):

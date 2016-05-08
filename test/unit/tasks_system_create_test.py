@@ -24,6 +24,11 @@ class TestSystemCreateTask(object):
             return_value=mock.Mock()
         )
 
+        self.runtime_checker = mock.Mock()
+        kiwi.tasks.base.RuntimeChecker = mock.Mock(
+            return_value=self.runtime_checker
+        )
+
         self.setup = mock.Mock()
         kiwi.tasks.system_create.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -51,6 +56,7 @@ class TestSystemCreateTask(object):
         self.__init_command_args()
         self.task.command_args['create'] = True
         self.task.process()
+        self.runtime_checker.check_target_directory_not_in_shared_cache.called_once_with('some-target')
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()

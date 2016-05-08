@@ -17,23 +17,33 @@ class TestSystemPrepareTask(object):
             '--description', '../data/description',
             '--root', '../data/root-dir'
         ]
-        self.setup = mock.Mock()
-        self.manager = mock.Mock()
-        self.system_prepare = mock.Mock()
-        self.profile = mock.Mock()
         kiwi.tasks.system_prepare.Privileges = mock.Mock()
-        self.system_prepare.setup_repositories = mock.Mock(
-            return_value=self.manager
+
+        self.runtime_checker = mock.Mock()
+        kiwi.tasks.base.RuntimeChecker = mock.Mock(
+            return_value=self.runtime_checker
         )
+
+        self.system_prepare = mock.Mock()
         kiwi.tasks.system_prepare.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
+
+        self.manager = mock.Mock()
+        self.system_prepare.setup_repositories = mock.Mock(
+            return_value=self.manager
+        )
+        
+        self.setup = mock.Mock()
         kiwi.tasks.system_prepare.SystemSetup = mock.Mock(
             return_value=self.setup
         )
+
+        self.profile = mock.Mock()
         kiwi.tasks.system_prepare.Profile = mock.Mock(
             return_value=self.profile
         )
+
         kiwi.tasks.system_prepare.Help = mock.Mock(
             return_value=mock.Mock()
         )
@@ -54,6 +64,8 @@ class TestSystemPrepareTask(object):
         self.__init_command_args()
         self.task.command_args['prepare'] = True
         self.task.process()
+        self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
+        self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with('../data/root-dir')
         self.system_prepare.setup_repositories.assert_called_once_with()
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
