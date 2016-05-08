@@ -47,7 +47,7 @@ class RuntimeChecker(object):
         can be resolved into a http based web URL
         """
 
-        message = dedent('''
+        message = dedent('''\n
             Repository: %s is not publicly available.
             Therefore it can't be included into the system image
             repository configuration. Please check the setup of
@@ -75,8 +75,8 @@ class RuntimeChecker(object):
         :param string target_dir: path name
         """
 
-        message = dedent('''
-            Target directory %s specified below kiwi's shared cache
+        message = dedent('''\n
+            Target directory %s conflicts with kiwi's shared cache
             directory %s. This is going to create a busy loop mount.
             Please choose another target directory.
         ''')
