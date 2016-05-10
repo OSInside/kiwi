@@ -253,7 +253,7 @@ class TestSystemPrepare(object):
             'openSUSE'
         )
         self.manager.process_install_requests.assert_called_once_with()
-        mock_tar.assert_called_once_with('../data/image.tgz')
+        mock_tar.assert_called_once_with('/absolute/path/to/image.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')

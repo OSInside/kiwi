@@ -64,14 +64,14 @@ class TestSystemSetup(object):
         self.setup_with_real_xml.import_description()
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
-            call(['cp', '../data/image.tgz', 'root_dir/image/']),
+            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
             call(['cp', '../data/bootstrap.tgz', 'root_dir/image/']),
             call([
                 'cp', '../data/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'
             ]),
             call([
-                'cp', '../data/my_edit_boot_install',
+                'cp', '/absolute/path/to/my_edit_boot_install',
                 'root_dir/image/edit_boot_install.sh'
             ]),
             call(['cp', '../data/config.sh', 'root_dir/image/']),
@@ -89,7 +89,7 @@ class TestSystemSetup(object):
         self, mock_path, mock_open, mock_command
     ):
         path_return_values = [
-            True, True, True, True, True, True, False, True, False
+            True, True, True, True, True, True, False, True
         ]
 
         def side_effect(arg):
@@ -100,7 +100,7 @@ class TestSystemSetup(object):
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
             call([
-                'cp', 'derived/description/image.tgz', 'root_dir/image/'
+                'cp', '/absolute/path/to/image.tgz', 'root_dir/image/'
             ]),
             call([
                 'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
@@ -110,7 +110,7 @@ class TestSystemSetup(object):
                 'root_dir/image/edit_boot_config.sh'
             ]),
             call([
-                'cp', '../data/my_edit_boot_install',
+                'cp', '/absolute/path/to/my_edit_boot_install',
                 'root_dir/image/edit_boot_install.sh'
             ]),
             call(['cp', '../data/config.sh', 'root_dir/image/']),

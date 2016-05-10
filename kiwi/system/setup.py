@@ -122,9 +122,13 @@ class SystemSetup(object):
         if bootstrap_archives:
             archive_list += bootstrap_archives
         for archive in archive_list:
-            archive_file = self.description_dir + '/' + archive
+            archive_is_absolute = archive.startswith('/')
+            if archive_is_absolute:
+                archive_file = archive
+            else:
+                archive_file = self.description_dir + '/' + archive
             archive_exists = os.path.exists(archive_file)
-            if not archive_exists and self.derived_description_dir:
+            if not archive_is_absolute and not archive_exists and self.derived_description_dir:
                 archive_file = self.derived_description_dir + '/' + archive
                 archive_exists = os.path.exists(archive_file)
 
@@ -145,7 +149,10 @@ class SystemSetup(object):
 
         for name, bootloader_script in list(sorted_bootloader_scripts.items()):
             if bootloader_script:
-                script_file = self.description_dir + '/' + bootloader_script
+                if bootloader_script.startswith('/'):
+                    script_file = bootloader_script
+                else:
+                    script_file = self.description_dir + '/' + bootloader_script
                 if os.path.exists(script_file):
                     log.info(
                         '--> Importing %s script as %s',

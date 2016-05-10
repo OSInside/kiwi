@@ -72,7 +72,7 @@ class TestXMLState(object):
 
     def test_get_system_archives(self):
         assert self.state.get_system_archives() == [
-            'image.tgz'
+            '/absolute/path/to/image.tgz'
         ]
 
     def test_get_system_collection_type(self):
@@ -380,7 +380,7 @@ class TestXMLState(object):
     def test_copy_bootincluded_archives(self):
         self.state.copy_bootincluded_archives(self.boot_state)
         bootstrap_archives = self.boot_state.get_bootstrap_archives()
-        assert 'image.tgz' in bootstrap_archives
+        assert '/absolute/path/to/image.tgz' in bootstrap_archives
 
     def test_copy_bootdelete_packages(self):
         self.state.copy_bootdelete_packages(self.boot_state)

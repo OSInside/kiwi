@@ -338,10 +338,15 @@ class SystemPrepare(object):
                 self.xml_state.xml_data.description_dir
             derived_description_dir = \
                 self.xml_state.xml_data.derived_description_dir
-            archive_file = '/'.join(
-                [description_dir, archive]
-            )
-            if not os.path.exists(archive_file) and derived_description_dir:
+            archive_is_absolute = archive.startswith('/')
+            if archive_is_absolute:
+                archive_file = archive
+            else:
+                archive_file = '/'.join(
+                    [description_dir, archive]
+                )
+            archive_exists = os.path.exists(archive_file)
+            if not archive_is_absolute and not archive_exists and derived_description_dir:
                 archive_file = '/'.join(
                     [derived_description_dir, archive]
                 )
