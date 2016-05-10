@@ -205,6 +205,12 @@ consider to use the legacy KIWI version.
    we are not aware of any user. The missing business perspective makes
    this feature obsolete.
 
+*  lxc container format
+
+   lxc has a successor in docker based on the former lxc technology.
+   Many distributions also dropped the lxc tools from the distribution
+   in favour of docker.
+
 Help
 ----
 
