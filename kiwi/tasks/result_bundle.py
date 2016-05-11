@@ -98,7 +98,7 @@ class ResultBundleTask(CliTask):
         # hard link bundle files, compress and build checksum
         if not os.path.exists(bundle_directory):
             Path.create(bundle_directory)
-        for key, result_file in list(ordered_results.items()):
+        for result_file in list(ordered_results.values()):
             if result_file.use_for_bundle:
                 bundle_file_basename = os.path.basename(result_file.filename)
                 # The bundle id is only taken into account for image results
