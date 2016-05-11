@@ -104,7 +104,10 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_name_for_format(self.image_format)
+                self.get_target_name_for_format(self.image_format),
+            'virtual_hardware_version': '9',
+            'guest_os': 'suse-64',
+            'disk_id': '0'
         }
 
         # Basic setup
@@ -112,16 +115,16 @@ class DiskFormatVmdk(DiskFormatBase):
         memory_setup = None
         cpu_setup = None
         if machine_setup:
-            template_record['virtual_hardware_version'] = \
-                machine_setup.get_HWversion() or '9'
-            template_record['guest_os'] = \
-                machine_setup.get_guestOS() or 'suse-64'
-
             memory_setup = machine_setup.get_memory()
+            hardware_version = machine_setup.get_HWversion()
+            guest_os = machine_setup.get_guestOS()
+            cpu_setup = machine_setup.get_ncpus()
+            if hardware_version:
+                template_record['virtual_hardware_version'] = hardware_version
+            if guest_os:
+                template_record['guest_os'] = guest_os
             if memory_setup:
                 template_record['memory_size'] = memory_setup
-
-            cpu_setup = machine_setup.get_ncpus()
             if cpu_setup:
                 template_record['number_of_cpus'] = cpu_setup
 
@@ -154,8 +157,11 @@ class DiskFormatVmdk(DiskFormatBase):
         disk_controller = 'ide'
         if disk_setup:
             disk_controller = disk_setup.get_controller() or disk_controller
-            template_record['disk_id'] = disk_setup.get_id() or '0'
-            template_record['scsi_controller_name'] = disk_controller
+            disk_id = disk_setup.get_id()
+            if not disk_controller == 'ide':
+                template_record['scsi_controller_name'] = disk_controller
+            if disk_id:
+                template_record['disk_id'] = disk_id
 
         # Build settings template and write settings file
         settings_template = VmwareSettingsTemplate().get_template(
