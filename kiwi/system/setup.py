@@ -98,93 +98,8 @@ class SystemSetup(object):
             config.write('<?xml version="1.0" encoding="utf-8"?>')
             self.xml_state.xml_data.export(outfile=config, level=0)
 
-        need_script_helper_functions = False
-        config_script = self.description_dir + '/config.sh'
-        image_script = self.description_dir + '/images.sh'
-
-        bootloader_scripts = {
-            'edit_boot_config.sh':
-                self.xml_state.build_type.get_editbootconfig(),
-            'edit_boot_install.sh':
-                self.xml_state.build_type.get_editbootinstall()
-        }
-        sorted_bootloader_scripts = OrderedDict(
-            sorted(bootloader_scripts.items())
-        )
-
-        description_target = self.root_dir + '/image/'
-
-        archive_list = []
-        system_archives = self.xml_state.get_system_archives()
-        bootstrap_archives = self.xml_state.get_bootstrap_archives()
-        if system_archives:
-            archive_list += system_archives
-        if bootstrap_archives:
-            archive_list += bootstrap_archives
-        for archive in archive_list:
-            archive_is_absolute = archive.startswith('/')
-            if archive_is_absolute:
-                archive_file = archive
-            else:
-                archive_file = self.description_dir + '/' + archive
-            archive_exists = os.path.exists(archive_file)
-            if not archive_is_absolute and not archive_exists and self.derived_description_dir:
-                archive_file = self.derived_description_dir + '/' + archive
-                archive_exists = os.path.exists(archive_file)
-
-            if archive_exists:
-                log.info(
-                    '--> Importing %s archive as %s',
-                    archive_file, 'image/' + archive
-                )
-                Command.run(
-                    [
-                        'cp', archive_file, description_target
-                    ]
-                )
-            else:
-                raise KiwiImportDescriptionError(
-                    'Specified archive %s does not exist' % archive_file
-                )
-
-        for name, bootloader_script in list(sorted_bootloader_scripts.items()):
-            if bootloader_script:
-                if bootloader_script.startswith('/'):
-                    script_file = bootloader_script
-                else:
-                    script_file = self.description_dir + '/' + bootloader_script
-                if os.path.exists(script_file):
-                    log.info(
-                        '--> Importing %s script as %s',
-                        bootloader_script, 'image/' + name
-                    )
-                    Command.run(
-                        [
-                            'cp', script_file, description_target + name
-                        ]
-                    )
-                else:
-                    raise KiwiImportDescriptionError(
-                        'Specified script %s does not exist' % script_file
-                    )
-
-        if os.path.exists(config_script):
-            log.info('--> Importing config script as image/config.sh')
-            Command.run(['cp', config_script, description_target])
-            need_script_helper_functions = True
-
-        if os.path.exists(image_script):
-            log.info('--> Importing image script as image/images.sh')
-            Command.run(['cp', image_script, description_target])
-            need_script_helper_functions = True
-
-        if need_script_helper_functions:
-            script_functions = Defaults.get_common_functions_file()
-            script_functions_target = self.root_dir + '/.kconfig'
-            log.info('--> Importing script helper functions')
-            Command.run([
-                'cp', script_functions, script_functions_target
-            ])
+        self.__import_custom_scripts()
+        self.__import_custom_archives()
 
     def cleanup(self):
         """
@@ -684,6 +599,97 @@ class SystemSetup(object):
                 '--> Inplace recovery requested, deleting archive'
             )
             Path.wipe(metadata['archive_name'] + '.gz')
+
+    def __import_custom_archives(self):
+        """
+        Import custom tar archive files
+        """
+        archive_list = []
+        system_archives = self.xml_state.get_system_archives()
+        bootstrap_archives = self.xml_state.get_bootstrap_archives()
+        if system_archives:
+            archive_list += system_archives
+        if bootstrap_archives:
+            archive_list += bootstrap_archives
+
+        description_target = self.root_dir + '/image/'
+
+        for archive in archive_list:
+            archive_is_absolute = archive.startswith('/')
+            if archive_is_absolute:
+                archive_file = archive
+            else:
+                archive_file = self.description_dir + '/' + archive
+
+            archive_exists = os.path.exists(archive_file)
+
+            if not archive_exists:
+                if self.derived_description_dir and not archive_is_absolute:
+                    archive_file = self.derived_description_dir + '/' + archive
+                    archive_exists = os.path.exists(archive_file)
+
+            if archive_exists:
+                log.info(
+                    '--> Importing %s archive as %s',
+                    archive_file, 'image/' + archive
+                )
+                Command.run(
+                    ['cp', archive_file, description_target]
+                )
+            else:
+                raise KiwiImportDescriptionError(
+                    'Specified archive %s does not exist' % archive_file
+                )
+
+    def __import_custom_scripts(self):
+        """
+        Import custom scripts
+        """
+        custom_scripts = {
+            'config.sh':
+                'config.sh',
+            'images.sh':
+                'images.sh',
+            'edit_boot_config.sh':
+                self.xml_state.build_type.get_editbootconfig(),
+            'edit_boot_install.sh':
+                self.xml_state.build_type.get_editbootinstall()
+        }
+        sorted_custom_scripts = OrderedDict(
+            sorted(custom_scripts.items())
+        )
+
+        description_target = self.root_dir + '/image/'
+        need_script_helper_functions = False
+
+        for name, script in list(sorted_custom_scripts.items()):
+            if script:
+                if script.startswith('/'):
+                    script_file = script
+                else:
+                    script_file = self.description_dir + '/' + script
+                if os.path.exists(script_file):
+                    log.info(
+                        '--> Importing %s script as %s', script, 'image/' + name
+                    )
+                    Command.run(
+                        ['cp', script_file, description_target + name]
+                    )
+                    need_script_helper_functions = True
+                else:
+                    raise KiwiImportDescriptionError(
+                        'Specified script %s does not exist' % script_file
+                    )
+
+        if need_script_helper_functions:
+            log.info('--> Importing script helper functions')
+            Command.run(
+                [
+                    'cp',
+                    Defaults.get_common_functions_file(),
+                    self.root_dir + '/.kconfig'
+                ]
+            )
 
     def __call_script(self, name):
         if os.path.exists(self.root_dir + '/image/' + name):

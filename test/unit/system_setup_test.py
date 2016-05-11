@@ -62,10 +62,10 @@ class TestSystemSetup(object):
     def test_import_description(self, mock_path, mock_open, mock_command):
         mock_path.return_value = True
         self.setup_with_real_xml.import_description()
+
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
-            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
-            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/']),
+            call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
             call([
                 'cp', '../data/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'
@@ -74,22 +74,22 @@ class TestSystemSetup(object):
                 'cp', '/absolute/path/to/my_edit_boot_install',
                 'root_dir/image/edit_boot_install.sh'
             ]),
-            call(['cp', '../data/config.sh', 'root_dir/image/']),
-            call(['cp', '../data/images.sh', 'root_dir/image/']),
+            call(['cp', '../data/images.sh', 'root_dir/image/images.sh']),
             call([
                 'cp', Defaults.project_file('config/functions.sh'),
                 'root_dir/.kconfig'
-            ])
-        ]
+            ]),
+            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
+            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/'])]
 
     @patch('kiwi.command.Command.run')
     @patch('builtins.open')
     @patch('os.path.exists')
-    def test_import_description_from_derived(
+    def test_import_description_archive_from_derived(
         self, mock_path, mock_open, mock_command
     ):
         path_return_values = [
-            True, True, True, True, True, True, False, True
+            True, False, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -97,14 +97,10 @@ class TestSystemSetup(object):
 
         mock_path.side_effect = side_effect
         self.setup_with_real_xml.import_description()
+
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
-            call([
-                'cp', '/absolute/path/to/image.tgz', 'root_dir/image/'
-            ]),
-            call([
-                'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
-            ]),
+            call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
             call([
                 'cp', '../data/my_edit_boot_script',
                 'root_dir/image/edit_boot_config.sh'
@@ -113,11 +109,14 @@ class TestSystemSetup(object):
                 'cp', '/absolute/path/to/my_edit_boot_install',
                 'root_dir/image/edit_boot_install.sh'
             ]),
-            call(['cp', '../data/config.sh', 'root_dir/image/']),
-            call(['cp', '../data/images.sh', 'root_dir/image/']),
+            call(['cp', '../data/images.sh', 'root_dir/image/images.sh']),
             call([
                 'cp', Defaults.project_file('config/functions.sh'),
                 'root_dir/.kconfig'
+            ]),
+            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
+            call([
+                'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
             ])
         ]
 
@@ -134,8 +133,6 @@ class TestSystemSetup(object):
             return path_return_values.pop()
 
         mock_path.side_effect = side_effect
-
-        mock_path.return_value = False
         self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
@@ -145,7 +142,12 @@ class TestSystemSetup(object):
     def test_import_description_configured_archives_not_found(
         self, mock_path, mock_open, mock_command
     ):
-        mock_path.return_value = False
+        path_return_values = [False, False, True, True, True, True]
+
+        def side_effect(arg):
+            return path_return_values.pop()
+
+        mock_path.side_effect = side_effect
         self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
