@@ -130,5 +130,5 @@ class MountManager(object):
             return False
 
     def __del__(self):
-        if not self.is_mounted() and self.mountpoint_created_by_mount_manager:
+        if self.mountpoint_created_by_mount_manager and not self.is_mounted():
             Path.wipe(self.mountpoint)
