@@ -119,7 +119,7 @@ class XMLState(object):
             if package_manager:
                 return package_manager[0]
 
-    def get_packages_sections(self, section_types=['image']):
+    def get_packages_sections(self, section_types):
         """
         List of packages sections matching given section type(s)
 
