@@ -25,13 +25,13 @@ from .exceptions import KiwiError
 from .defaults import Defaults
 
 
-def extras(help, version, options, doc):
+def extras(help_, version, options, doc):
     """
     Overwritten method from docopt
 
     We want to show our own usage for -h|--help
     """
-    if help and any((o.name in ('-h', '--help')) and o.value for o in options):
+    if help_ and any((o.name in ('-h', '--help')) and o.value for o in options):
         usage(doc.strip("\n"))
         sys.exit(1)
     if version and any(o.name == '--version' and o.value for o in options):
