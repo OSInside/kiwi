@@ -66,6 +66,33 @@ class DiskFormatVmdk(DiskFormatBase):
         self.__update_vmdk_descriptor()
         self.__create_vmware_settings_file()
 
+    def store_to_result(self, result):
+        """
+        Store result files of the vmdk format conversion into the
+        provided result instance. This includes the vmdk image file
+        and the VMware settings file
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=self.get_target_name_for_format(
+                self.image_format
+            ),
+            use_for_bundle=True,
+            compress=True,
+            shasum=True
+        )
+        result.add(
+            key='disk_format_machine_settings',
+            filename=self.get_target_name_for_format(
+                'vmx'
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=False
+        )
+
     def __create_vmware_settings_file(self):
         """
         In order to run a vmdk image in VMware products a settings file is

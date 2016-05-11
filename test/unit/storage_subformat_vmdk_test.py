@@ -139,6 +139,26 @@ class TestDiskFormatVmdk(object):
         self.disk_format.post_init({'option': 'value'})
         assert self.disk_format.options == ['-o', 'option', 'value']
 
+    def test_store_to_result(self):
+        result = mock.Mock()
+        self.disk_format.store_to_result(result)
+        assert result.add.call_args_list == [
+            call(
+                compress=True,
+                filename='target_dir/some-disk-image.x86_64-1.2.3.vmdk',
+                key='disk_format_image',
+                shasum=True,
+                use_for_bundle=True
+            ),
+            call(
+                compress=False,
+                filename='target_dir/some-disk-image.x86_64-1.2.3.vmx',
+                key='disk_format_machine_settings',
+                shasum=False,
+                use_for_bundle=True
+            )
+        ]
+
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
