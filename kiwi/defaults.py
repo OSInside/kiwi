@@ -358,7 +358,7 @@ class Defaults(object):
         :return: disk types
         :rtype: list
         """
-        return ['gce', 'qcow2', 'vmdk', 'vhd', 'vhdfixed']
+        return ['gce', 'qcow2', 'vmdk', 'vmx', 'vhd', 'vhdfixed']
 
     @classmethod
     def get_firmware_types(self):

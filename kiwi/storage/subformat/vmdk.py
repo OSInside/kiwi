@@ -22,9 +22,11 @@ import re
 from .base import DiskFormatBase
 from ...command import Command
 from ...logger import log
+from .template.vmware_settings import VmwareSettingsTemplate
 
 from ...exceptions import (
-    KiwiVmdkToolsError
+    KiwiVmdkToolsError,
+    KiwiTemplateError
 )
 
 
@@ -47,7 +49,7 @@ class DiskFormatVmdk(DiskFormatBase):
 
     def create_image_format(self):
         """
-        Create vmdk disk format
+        Create vmdk disk format and machine settings file
         """
         Command.run(
             [
@@ -58,6 +60,92 @@ class DiskFormatVmdk(DiskFormatBase):
             ]
         )
         self.__update_vmdk_descriptor()
+        self.__create_vmware_settings_file()
+
+    def __create_vmware_settings_file(self):
+        """
+        In order to run a vmdk image in VMware products a settings file is
+        needed or the possibility to convert machine settings into an ovf
+        via VMware's proprietary ovftool
+        """
+        template_record = {
+            'display_name':
+                self.xml_state.xml_data.get_displayname() or
+                self.xml_state.xml_data.get_name(),
+            'vmdk_file':
+                self.get_target_name_for_format('vmdk')
+        }
+
+        # Basic setup
+        machine_setup = self.xml_state.get_build_type_machine_section()
+        memory_setup = None
+        cpu_setup = None
+        if machine_setup:
+            template_record['virtual_hardware_version'] = \
+                machine_setup.get_HWversion() or '9'
+            template_record['guest_os'] = \
+                machine_setup.get_guestOS() or 'suse-64'
+
+            memory_setup = machine_setup.get_memory()
+            if memory_setup:
+                template_record['memory_size'] = memory_setup
+
+            cpu_setup = machine_setup.get_ncpus()
+            if cpu_setup:
+                template_record['number_of_cpus'] = cpu_setup
+
+        # CD/DVD setup
+        iso_setup = self.xml_state.get_build_type_vmdvd_section()
+        iso_controller = 'ide'
+        if iso_setup:
+            iso_controller = iso_setup.get_controller() or iso_controller
+            template_record['iso_id'] = iso_setup.get_id()
+
+        # Network setup
+        network_setup = self.xml_state.get_build_type_vmnic_section()
+        network_driver = None
+        network_connection_type = None
+        network_mac = 'generated'
+        if network_setup:
+            network_driver = network_setup.get_driver()
+            network_connection_type = network_setup.get_mode()
+            network_mac = network_setup.get_mac() or network_mac
+            template_record['nic_id'] = network_setup.get_interface() or '0'
+            template_record['mac_address'] = \
+                network_mac
+            template_record['network_connection_type'] = \
+                network_connection_type
+            template_record['network_driver'] = \
+                network_driver
+
+        # Disk setup
+        disk_setup = self.xml_state.get_build_type_vmdisk_section()
+        disk_controller = 'ide'
+        if disk_setup:
+            disk_controller = disk_setup.get_controller() or disk_controller
+            template_record['disk_id'] = disk_setup.get_id() or '0'
+            template_record['scsi_controller_name'] = disk_controller
+
+        # Build settings template and write settings file
+        settings_template = VmwareSettingsTemplate().get_template(
+            memory_setup,
+            cpu_setup,
+            network_setup,
+            iso_setup,
+            disk_controller,
+            iso_controller,
+            network_mac,
+            network_driver,
+            network_connection_type
+        )
+        try:
+            settings_file = self.get_target_name_for_format('vmx')
+            with open(settings_file, 'w') as config:
+                config.write(settings_template.substitute(template_record))
+        except Exception as e:
+            raise KiwiTemplateError(
+                '%s: %s' % (type(e).__name__, format(e))
+            )
 
     def __update_vmdk_descriptor(self):
         """
