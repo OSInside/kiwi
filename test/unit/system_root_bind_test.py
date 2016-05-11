@@ -112,10 +112,15 @@ class TestRootBind(object):
             ])
         ]
 
+    @patch('kiwi.system.root_bind.MountManager.is_mounted')
     @patch('kiwi.system.root_bind.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('os.path.islink')
-    def test_cleanup(self, mock_islink, mock_remove_hierarchy, mock_command):
+    def test_cleanup(
+        self, mock_islink, mock_remove_hierarchy,
+        mock_command, mock_is_mounted
+    ):
+        mock_is_mounted.return_value = False
         mock_islink.return_value = True
         self.bind_root.cleanup()
         self.mount_manager.umount_lazy.assert_called_once_with()

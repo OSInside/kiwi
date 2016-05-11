@@ -1,4 +1,3 @@
-
 from mock import patch
 
 import mock

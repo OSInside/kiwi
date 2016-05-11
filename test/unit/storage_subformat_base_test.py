@@ -51,6 +51,18 @@ class TestDiskFormatBase(object):
         assert self.disk_format.get_target_name_for_format('vhd') == \
             'target_dir/some-disk-image.x86_64-1.2.3.vhd'
 
+    def test_store_to_result(self):
+        result = mock.Mock()
+        self.disk_format.image_format = 'qcow2'
+        self.disk_format.store_to_result(result)
+        result.add.assert_called_once_with(
+            compress=True,
+            filename='target_dir/some-disk-image.x86_64-1.2.3.qcow2',
+            key='disk_format_image',
+            shasum=True,
+            use_for_bundle=True
+        )
+
     @patch('kiwi.storage.subformat.base.Path.wipe')
     @patch('os.path.exists')
     def test_destructor(self, mock_exists, mock_wipe):
