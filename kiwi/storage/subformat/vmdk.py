@@ -44,7 +44,11 @@ class DiskFormatVmdk(DiskFormatBase):
 
         * :attr:`options`
             qemu format conversion options
+
+        * :attr:`image_format`
+            disk format name: vmdk
         """
+        self.image_format = 'vmdk'
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
@@ -54,9 +58,9 @@ class DiskFormatVmdk(DiskFormatBase):
         Command.run(
             [
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', 'vmdk'
+                '-O', self.image_format
             ] + self.options + [
-                self.get_target_name_for_format('vmdk')
+                self.get_target_name_for_format(self.image_format)
             ]
         )
         self.__update_vmdk_descriptor()
@@ -73,7 +77,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_name_for_format('vmdk')
+                self.get_target_name_for_format(self.image_format)
         }
 
         # Basic setup

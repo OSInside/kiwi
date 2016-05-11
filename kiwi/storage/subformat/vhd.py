@@ -34,7 +34,11 @@ class DiskFormatVhd(DiskFormatBase):
 
         * :attr:`options`
             qemu format conversion options
+
+        * :attr:`image_format`
+            disk format name: vhd
         """
+        self.image_format = 'vhd'
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
@@ -46,6 +50,6 @@ class DiskFormatVhd(DiskFormatBase):
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vpc'
             ] + self.options + [
-                self.get_target_name_for_format('vhd')
+                self.get_target_name_for_format(self.image_format)
             ]
         )

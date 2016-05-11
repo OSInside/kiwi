@@ -437,15 +437,7 @@ class DiskBuilder(object):
                 self.root_dir, self.target_dir
             )
             disk_format.create_image_format()
-            self.result.add(
-                key='disk_format_image',
-                filename=disk_format.get_target_name_for_format(
-                    self.image_format
-                ),
-                use_for_bundle=True,
-                compress=True,
-                shasum=True
-            )
+            disk_format.store_to_result(self.result)
 
         # create image root metadata
         self.result.add(

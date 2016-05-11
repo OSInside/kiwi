@@ -38,7 +38,11 @@ class DiskFormatGce(DiskFormatBase):
 
         * :attr:`tag`
             GCE disk tag, billing code
+
+        * :attr:`image_format`
+            disk format name: gce
         """
+        self.image_format = 'gce'
         self.tag = None
         if custom_args:
             ordered_args = OrderedDict(list(custom_args.items()))
@@ -66,7 +70,7 @@ class DiskFormatGce(DiskFormatBase):
             with open(self.temp_image_dir + '/manifest.json', 'w') as manifest:
                 manifest.write('{"licenses": ["%s"]}' % self.tag)
 
-        archive_name = self.get_target_name_for_format('gce')
+        archive_name = self.get_target_name_for_format(self.image_format)
 
         # delete the '.gz' suffix from the name. The suffix is appended by
         # the archive creation method depending on the creation type.

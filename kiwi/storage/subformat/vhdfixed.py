@@ -47,7 +47,11 @@ class DiskFormatVhdFixed(DiskFormatBase):
 
         * :attr:`tag`
             vhd disk tag, billing code
+
+        * :attr:`image_format`
+            disk format name: vhdfixed
         """
+        self.image_format = 'vhdfixed'
         self.options = [
             '-o', 'subformat=fixed'
         ]
@@ -71,7 +75,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vpc'
             ] + self.options + [
-                self.get_target_name_for_format('vhdfixed')
+                self.get_target_name_for_format(self.image_format)
             ]
         )
         if self.tag:

@@ -54,6 +54,9 @@ class DiskFormatBase(object):
 
     * :attr:`diskname`
         raw disk file path name
+
+    * :attr:`image_format`
+        disk format name
     """
     def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
@@ -62,6 +65,7 @@ class DiskFormatBase(object):
         self.target_dir = target_dir
         self.custom_args = {}
         self.temp_image_dir = None
+        self.image_format = None
         self.diskname = self.get_target_name_for_format('raw')
 
         self.post_init(custom_args)
@@ -125,6 +129,27 @@ class DiskFormatBase(object):
                 '-' + self.xml_state.get_image_version(),
                 '.' + format_name
             ]
+        )
+
+    def store_to_result(self, result):
+        """
+        Store result file of the format conversion into the
+        provided result instance.
+
+        By default only the converted image file will be stored.
+        Subformats which creates additional metadata files needs
+        to overwrite this method
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=self.get_target_name_for_format(
+                self.image_format
+            ),
+            use_for_bundle=True,
+            compress=True,
+            shasum=True
         )
 
     def __del__(self):

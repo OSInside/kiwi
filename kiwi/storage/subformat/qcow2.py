@@ -35,7 +35,11 @@ class DiskFormatQcow2(DiskFormatBase):
 
         * :attr:`options`
             qemu format conversion options
+
+        * :attr:`image_format`
+            disk format name: qcow2
         """
+        self.image_format = 'qcow2'
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
@@ -45,8 +49,8 @@ class DiskFormatQcow2(DiskFormatBase):
         Command.run(
             [
                 'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
-                '-O', 'qcow2'
+                '-O', self.image_format
             ] + self.options + [
-                self.get_target_name_for_format('qcow2')
+                self.get_target_name_for_format(self.image_format)
             ]
         )
