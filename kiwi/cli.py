@@ -198,7 +198,7 @@ class Cli(object):
             for service_command in self.__get_command_implementations(service):
                 print('%s kiwi %s' % (prefix, service_command))
                 prefix = '      '
-            raise SystemExit
+            raise SystemExit(1)
         self.command_loaded = importlib.import_module(
             'kiwi.tasks.' + service + '_' + command
         )
