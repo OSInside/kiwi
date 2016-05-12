@@ -18,6 +18,7 @@
 import os
 import platform
 from collections import OrderedDict
+from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 # project
@@ -645,15 +646,33 @@ class SystemSetup(object):
         """
         Import custom scripts
         """
+        # custom_scripts defines a dictionary with all script hooks
+        # for each script name a the filepath and additional flags
+        # are defined. the filepath could be either a relative or
+        # absolute information. If filepath is set to None this indicates
+        # the script hook is not used. The raise_if_not_exists flag
+        # causes kiwi to raise an exception if a specified script
+        # filepath does not exist
+        script_type = namedtuple(
+            'script_type', ['filepath', 'raise_if_not_exists']
+        )
         custom_scripts = {
-            'config.sh':
-                'config.sh',
-            'images.sh':
-                'images.sh',
-            'edit_boot_config.sh':
-                self.xml_state.build_type.get_editbootconfig(),
-            'edit_boot_install.sh':
-                self.xml_state.build_type.get_editbootinstall()
+            'config.sh': script_type(
+                filepath='config.sh',
+                raise_if_not_exists=False
+            ),
+            'images.sh': script_type(
+                filepath='images.sh',
+                raise_if_not_exists=False
+            ),
+            'edit_boot_config.sh': script_type(
+                filepath=self.xml_state.build_type.get_editbootconfig(),
+                raise_if_not_exists=True
+            ),
+            'edit_boot_install.sh': script_type(
+                filepath=self.xml_state.build_type.get_editbootinstall(),
+                raise_if_not_exists=True
+            )
         }
         sorted_custom_scripts = OrderedDict(
             sorted(custom_scripts.items())
@@ -663,20 +682,21 @@ class SystemSetup(object):
         need_script_helper_functions = False
 
         for name, script in list(sorted_custom_scripts.items()):
-            if script:
-                if script.startswith('/'):
-                    script_file = script
+            if script.filepath:
+                if script.filepath.startswith('/'):
+                    script_file = script.filepath
                 else:
-                    script_file = self.description_dir + '/' + script
+                    script_file = self.description_dir + '/' + script.filepath
                 if os.path.exists(script_file):
                     log.info(
-                        '--> Importing %s script as %s', script, 'image/' + name
+                        '--> Importing %s script as %s',
+                        script.filepath, 'image/' + name
                     )
                     Command.run(
                         ['cp', script_file, description_target + name]
                     )
                     need_script_helper_functions = True
-                else:
+                elif script.raise_if_not_exists:
                     raise KiwiImportDescriptionError(
                         'Specified script %s does not exist' % script_file
                     )
