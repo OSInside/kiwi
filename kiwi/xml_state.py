@@ -141,27 +141,42 @@ class XMLState(object):
     def get_package_sections(self, packages_sections):
         """
         List of package sections from the given packages sections.
+        Each list element contains a tuple with the <package> section
+        reference and the <packages> section this package belongs to
 
         If a package entry specfies an architecture, it is only taken if
         the host architecture matches the configured architecture
 
         :param list packages_sections: <packages>
 
-        :return: <package>
+        :return: package_type tuple list
         :rtype: list
         """
+        package_type = namedtuple(
+            'package_type', ['packages_section', 'package_section']
+        )
         result = []
         if packages_sections:
-            for packages in packages_sections:
-                package_list = packages.get_package()
+            for packages_section in packages_sections:
+                package_list = packages_section.get_package()
                 if package_list:
                     for package in package_list:
                         package_architecture = package.get_arch()
                         if package_architecture:
                             if package_architecture == self.host_architecture:
-                                result.append(package)
+                                result.append(
+                                    package_type(
+                                        packages_section=packages_section,
+                                        package_section=package
+                                    )
+                                )
                         else:
-                            result.append(package)
+                            result.append(
+                                package_type(
+                                    packages_section=packages_section,
+                                    package_section=package
+                                )
+                            )
         return result
 
     def get_to_become_deleted_packages(self):
@@ -180,8 +195,8 @@ class XMLState(object):
         )
         if package_list:
             for package in package_list:
-                result.append(package.get_name())
-        return result
+                result.append(package.package_section.get_name())
+        return sorted(list(set(result)))
 
     def get_bootstrap_packages_sections(self):
         """
@@ -206,7 +221,7 @@ class XMLState(object):
         )
         if package_list:
             for package in package_list:
-                result.append(package.get_name())
+                result.append(package.package_section.get_name())
         return sorted(list(set(result)))
 
     def get_system_packages(self):
@@ -226,7 +241,7 @@ class XMLState(object):
         )
         if package_list:
             for package in package_list:
-                result.append(package.get_name())
+                result.append(package.package_section.get_name())
         return sorted(list(set(result)))
 
     def get_bootstrap_archives(self):
@@ -1006,14 +1021,14 @@ class XMLState(object):
             )
             if package_list:
                 for package in package_list:
-                    if package.get_bootinclude():
+                    if package.package_section.get_bootinclude():
                         target_bootstrap_packages_section.add_package(
                             xml_parse.package(
-                                name=package.get_name()
+                                name=package.package_section.get_name()
                             )
                         )
                         package_names_added.append(
-                            package.get_name()
+                            package.package_section.get_name()
                         )
             delete_packages_sections = target_state.get_packages_sections(
                 ['delete']
@@ -1023,8 +1038,11 @@ class XMLState(object):
             )
             if package_list:
                 for package in package_list:
-                    if package.get_name() in package_names_added:
-                        package.set_name(None)
+                    package_name = package.package_section.get_name()
+                    if package_name in package_names_added:
+                        package.packages_section.package.remove(
+                            package.package_section
+                        )
 
     def copy_bootincluded_archives(self, target_state):
         """
@@ -1073,10 +1091,10 @@ class XMLState(object):
             )
             if package_list:
                 for package in package_list:
-                    if package.get_bootdelete():
+                    if package.package_section.get_bootdelete():
                         target_delete_packages_section.add_package(
                             xml_parse.package(
-                                name=package.get_name()
+                                name=package.package_section.get_name()
                             )
                         )
 
