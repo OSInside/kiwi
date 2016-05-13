@@ -7493,6 +7493,19 @@ function createHybridPersistent {
         unset kiwi_hybridpersistent
         return
     fi
+    # Check if device is writable
+    # Please note, this checks if the device is a read only device.
+    # It does not check if the media given to the device is a read
+    # only media. Example: hybrid live iso on readonly CD booted
+    # from a CD/DVD RW device. An additional media check might be
+    # required in the future
+    local ro_device_class=/sys/class/block/$(basename $device)/ro
+    if [ -e $ro_device_class ] && [ $(cat $ro_device_class) = 1 ];then
+        Echo "Device $device is marked readonly"
+        Echo "Persistent writing deactivated"
+        unset kiwi_hybridpersistent
+        return
+    fi
     # Find partition ID we could use to create a new write partition
     for pID in 1 2 3 4;do
         local partd=$(ddn $device $pID)
@@ -7520,6 +7533,7 @@ function createHybridPersistent {
         # based persistent write partitions to be created as first partition
         # on efi|uefi ISO hybrid images
         echo -e "n\np\n$pID\n\n\nw\nq" | fdisk $imageDiskDevice
+        partitionerWriteStatus=$?
         blockdev --rereadpt $imageDiskDevice
     else
         createPartitionerInput \
