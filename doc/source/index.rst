@@ -16,6 +16,7 @@ introduce this Next Generation KIWI project.
    :maxdepth: 1
 
    quickstart
+   contributing
    manual/kiwi
    api/kiwi
 
