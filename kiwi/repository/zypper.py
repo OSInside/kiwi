@@ -157,29 +157,31 @@ class RepositoryZypper(RepositoryBase):
         """
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
-        if 'kiwi_iso_mount' in uri:
-            # iso mount point is a tmpdir, thus different each time we build
+
+        if os.path.exists(repo_file):
             Path.wipe(repo_file)
-        if not os.path.exists(repo_file):
+
+        Command.run(
+            ['zypper'] + self.zypper_args + [
+                '--root', self.root_dir,
+                'addrepo',
+                '--refresh',
+                '--type', self.__translate_repo_type(repo_type),
+                '--keep-packages',
+                '-C',
+                uri,
+                name
+            ],
+            self.command_env
+        )
+        if prio:
             Command.run(
                 ['zypper'] + self.zypper_args + [
                     '--root', self.root_dir,
-                    'addrepo', '-f',
-                    '--type', self.__translate_repo_type(repo_type),
-                    '--keep-packages',
-                    uri,
-                    name
+                    'modifyrepo', '--priority', format(prio), name
                 ],
                 self.command_env
             )
-            if prio:
-                Command.run(
-                    ['zypper'] + self.zypper_args + [
-                        '--root', self.root_dir,
-                        'modifyrepo', '-p', format(prio), name
-                    ],
-                    self.command_env
-                )
 
     def delete_repo(self, name):
         """
