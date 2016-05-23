@@ -45,6 +45,9 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + self.cr
 
         self.header_gfxterm = dedent('''
+            if [ "$${grub_platform}" = "efi" ]; then
+                echo "Please press 't' to show the boot menu on this console"
+            fi
             set gfxmode=${gfxmode}
             insmod all_video
             insmod gfxterm
@@ -76,6 +79,15 @@ class BootLoaderTemplateGrub2(object):
                 loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans12.pf2
                 loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2
                 set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
+            fi
+        ''').strip() + self.cr
+
+        self.menu_entry_console_switch = dedent('''
+            if [ "$${grub_platform}" = "efi" ]; then
+                hiddenentry "Text mode" --hotkey "t" {
+                    set textmode=true
+                    terminal_output console
+                }
             fi
         ''').strip() + self.cr
 
@@ -242,6 +254,8 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_entry
             if failsafe:
                 template_data += self.menu_entry_failsafe
+        if terminal == 'gfxterm':
+            template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_multiboot_disk_template(
@@ -265,6 +279,8 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
+        if terminal == 'gfxterm':
+            template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_iso_template(
@@ -296,6 +312,8 @@ class BootLoaderTemplateGrub2(object):
             if failsafe:
                 template_data += self.menu_entry_failsafe
         template_data += self.menu_iso_harddisk_entry
+        if terminal == 'gfxterm':
+            template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_multiboot_iso_template(
@@ -320,6 +338,8 @@ class BootLoaderTemplateGrub2(object):
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
         template_data += self.menu_iso_harddisk_entry
+        if terminal == 'gfxterm':
+            template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_install_template(
@@ -351,6 +371,8 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_install_entry
             if failsafe:
                 template_data += self.menu_install_entry_failsafe
+        if terminal == 'gfxterm':
+            template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_multiboot_install_template(
@@ -375,4 +397,6 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_install_entry_multiboot
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
+        if terminal == 'gfxterm':
+            template_data += self.menu_entry_console_switch
         return Template(template_data)
