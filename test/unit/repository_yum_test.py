@@ -78,23 +78,12 @@ class TestRepositoryYum(object):
     @patch('kiwi.repository.yum.ConfigParser')
     @patch('os.path.exists')
     @patch('builtins.open')
-    @patch('kiwi.repository.yum.Path.wipe')
-    def test_add_repo(self, mock_path, mock_open, mock_exists, mock_config):
+    def test_add_repo(self, mock_open, mock_exists, mock_config):
         repo_config = mock.Mock()
         mock_config.return_value = repo_config
-
-        exists_results = [False, True]
-
-        def side_effect(arg):
-            return exists_results.pop()
-
-        mock_exists.side_effect = side_effect
+        mock_exists.return_value = True
 
         self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
-
-        mock_path.assert_called_once_with(
-            '/shared-dir/yum/repos/foo.repo'
-        )
 
         repo_config.add_section.assert_called_once_with('foo')
         assert repo_config.set.call_args_list == [

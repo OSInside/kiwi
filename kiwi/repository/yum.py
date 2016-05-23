@@ -115,27 +115,23 @@ class RepositoryYum(RepositoryBase):
         """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
-        if 'kiwi_iso_mount' in uri:
-            # iso mount point is a tmpdir, thus different each time we build
-            Path.wipe(repo_file)
         if os.path.exists(uri):
             # yum requires local paths to take the file: type
             uri = 'file://' + uri
-        if not os.path.exists(repo_file):
-            repo_config = ConfigParser()
-            repo_config.add_section(name)
+        repo_config = ConfigParser()
+        repo_config.add_section(name)
+        repo_config.set(
+            name, 'name', name
+        )
+        repo_config.set(
+            name, 'baseurl', uri
+        )
+        if prio:
             repo_config.set(
-                name, 'name', name
+                name, 'priority', format(prio)
             )
-            repo_config.set(
-                name, 'baseurl', uri
-            )
-            if prio:
-                repo_config.set(
-                    name, 'priority', format(prio)
-                )
-            with open(repo_file, 'w') as repo:
-                repo_config.write(repo)
+        with open(repo_file, 'w') as repo:
+            repo_config.write(repo)
 
     def delete_repo(self, name):
         """
