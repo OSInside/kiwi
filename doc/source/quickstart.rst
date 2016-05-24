@@ -95,11 +95,11 @@ In order to run your image build, call :command:`qemu` as follows:
         file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio
 
 Using KIWI NG from Build Service
----------------------------------
+--------------------------------
 
 The next generation KIWI is fully integrated with the build service. As
 an example you can find the integration testing system in the
-buildservice project `Virtualization:Appliances:Images` at:
+buildservice project `Virtualization:Appliances:Images:Testing_<arch>` at:
 
 https://build.opensuse.org
 
@@ -110,10 +110,61 @@ repository to the KIWI XML configuration like in the following example:
 .. code:: xml
 
  <repository type="rpm-md" alias="kiwi-next-generation">
-    <source path="obs://Virtualization:Appliances:Builder/SLE_12_SP1"/>
+     <source path="obs://Virtualization:Appliances:Builder/Factory"/>
  </repository>
 
 The Builder project configuration in the build service is setup to prefer
 the next generation KIWI over the legacy version. Thus adding the
 Builder repository inherits this project setup and activates building
 with the next generation KIWI.
+
+Using KIWI NG in a python3 project
+----------------------------------
+
+KIWI NG can also function as a module for other python3 projects.
+The following example demonstrates how to read an existing image
+description, add a new repository definition and export the
+modified description on stdout.
+
+.. code:: python
+
+    import sys
+    import logging
+
+    from kiwi.xml_description import XMLDescription
+    from kiwi.xml_state import XMLState
+
+    # Import of log handler only needed if default logging
+    # setup is not appropriate for the project
+    # from kiwi.logger import log
+
+    # By default the logging level is set to DEBUG, which
+    # can be changed by the following call
+    # log.setLogLevel(logging.INFO)
+
+    # Logging can also be disabled completely
+    # log.disabled = True
+
+    description = XMLDescription('path/to/kiwi/XML/config.xml')
+
+    xml_data = description.load()
+
+    xml_state = XMLState(
+        xml_data=xml_data, profiles=[], build_type='iso'
+    )
+
+    xml_state.add_repository(
+        repo_source='http://repo',
+        repo_type='rpm-md',
+        repo_alias='myrepo',
+        repo_prio=99
+    )
+
+    xml_data.export(
+        outfile=sys.stdout, level=0
+    )
+
+All classes are written in a way to care for a single responsibility
+in order to allow for re-use on other use cases. Therefore it is possible
+to use KIWI NG outside of the main image building scope to manage e.g
+the setup of loop devices, filesystems, partitions, etc...
