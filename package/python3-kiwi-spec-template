@@ -179,9 +179,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/alternatives
 mkdir -p %{buildroot}%_sysconfdir/bash_completion.d
 install -m 644 completion/kiwi.sh \
     %{buildroot}%_sysconfdir/bash_completion.d/kiwi-ng.sh
-touch %{buildroot}%{_sysconfdir}/alternatives/kiwi.sh
-ln -s %{_sysconfdir}/alternatives/kiwi.sh \
-    %{buildroot}%_sysconfdir/bash_completion.d/kiwi.sh
 
 make buildroot=%{buildroot} install_tools
 make buildroot=%{buildroot} install_man
@@ -202,14 +199,9 @@ done
 
 %post
 %{_sbindir}/update-alternatives \
-    --install %_sysconfdir/bash_completion.d/kiwi.sh kiwi.sh \
-    %_sysconfdir/bash_completion.d/kiwi-ng.sh 10
-%{_sbindir}/update-alternatives \
     --install %_bindir/kiwi kiwi %_bindir/kiwi-ng 10
 
 %preun
-%{_sbindir}/update-alternatives --remove kiwi.sh \
-    %_sysconfdir/bash_completion.d/kiwi.sh
 %{_sbindir}/update-alternatives --remove kiwi %_bindir/kiwi
 
 %ifarch %ix86 x86_64
@@ -233,8 +225,6 @@ fi
 %{_bindir}/kiwicompat
 %{python3_sitelib}/*
 %config %_sysconfdir/bash_completion.d/kiwi-ng.sh
-%ghost %_sysconfdir/bash_completion.d/kiwi.sh
-%ghost %_sysconfdir/alternatives/kiwi.sh
 %doc %{_mandir}/man2/*
 
 %files -n kiwi-tools
