@@ -21,7 +21,11 @@ class AutoVivification(dict):
 
 class AppHash:
     def __init__(self):
-        call_parm = ["bash", "-c", "cat kiwi/cli.py kiwi/tasks/*.py"]
+        tasks = [
+            'kiwi/cli.py',
+            'kiwi/tasks/*.py'
+        ]
+        call_parm = ['bash', '-c', 'cat %s' % ' '.join(tasks)]
         cmd = subprocess.Popen(
             call_parm, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
@@ -105,6 +109,8 @@ class AppHash:
                                 result_keys = self.validate(key_list)
                                 self.merge(result_keys, self.result)
                     else:
+                        if 'kiwi --' in cur_path:
+                            cur_path = ''
                         for mod_line in line.strip().split('|'):
                             mod_line = cur_path + ' ' + mod_line
                             mod_line = re.sub('[\[\]]', '', mod_line)
