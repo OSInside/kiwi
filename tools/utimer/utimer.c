@@ -14,11 +14,12 @@ void printTime (int);
 
 int main (void) {
     struct timeval tv;
+    int child;
+    FILE* fd;
     gettimeofday (&tv,NULL);
     time_start = tv.tv_sec + tv.tv_usec*1E-6;
     signal (SIGHUP,printTime);
-    int child = fork();
-    FILE* fd;
+    child = fork();
     switch (child) {
         case -1:
             printf ("%d\n",-1);
@@ -42,9 +43,10 @@ int main (void) {
 
 void printTime (int s) {
     struct timeval tv;
-    gettimeofday (&tv,NULL);
-    double time_next = tv.tv_sec + tv.tv_usec*1E-6 - time_start;
+    double time_next;
     FILE* fd;
+    gettimeofday (&tv,NULL);
+    time_next = tv.tv_sec + tv.tv_usec*1E-6 - time_start;
     if ((fd = fopen ("/tmp/utimer","w")) != NULL) {
         fprintf (fd,"[%12f]\n",time_next);
         fclose (fd);
