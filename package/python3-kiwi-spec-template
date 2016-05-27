@@ -43,6 +43,8 @@ Requires:       python3-docopt
 Requires:       python3-setuptools
 Requires:       python3-lxml
 Requires:       python3-xattr
+Requires(post): update-alternatives
+Requires(postun): update-alternatives
 # tools used by kiwi
 %if 0%{?suse_version}
 Requires:       zypper
@@ -202,7 +204,8 @@ done
     --install %_bindir/kiwi kiwi %_bindir/kiwi-ng 10
 
 %preun
-%{_sbindir}/update-alternatives --remove kiwi %_bindir/kiwi
+%{_sbindir}/update-alternatives \
+    --remove kiwi %_bindir/kiwi
 
 %ifarch %ix86 x86_64
 %pre -n kiwi-pxeboot
@@ -220,7 +223,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %{_bindir}/kiwi-ng
-%{_bindir}/kiwi
+%ghost %{_bindir}/kiwi
 %ghost %_sysconfdir/alternatives/kiwi
 %{_bindir}/kiwicompat
 %{python3_sitelib}/*
