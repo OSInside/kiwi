@@ -38,7 +38,6 @@ include .bumpversion.cfg
 include .coverage*
 include .landscape.yml
 include .travis*
-include .releasetags
 
 include .virtualenv.requirements.txt
 include .virtualenv.dev-requirements.txt
