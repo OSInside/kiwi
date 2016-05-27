@@ -24,22 +24,30 @@ class FileSystemSquashFs(FileSystemBase):
     """
     Implements creation of squashfs filesystem
     """
-    def create_on_file(self, filename, label=None):
+    def create_on_file(self, filename, label=None, exclude=None):
         """
         Create squashfs filesystem from data tree
 
-        There is no label which could be set for clicfs
+        There is no label which could be set for squashfs
         thus this parameter is not used
 
         :param string filename: result file path name
         :param string label: unused
+        :param list exclude: list of exclude dirs/files
         """
+        exclude_options = []
+
         if '-comp' not in self.custom_args['create_options']:
             self.custom_args['create_options'].append('-comp')
             self.custom_args['create_options'].append('xz')
 
+        if exclude:
+            exclude_options.append('-e')
+            for item in exclude:
+                exclude_options.append(item)
+
         Command.run(
             [
-                'mksquashfs', self.root_dir, filename
-            ] + self.custom_args['create_options']
+                'mksquashfs', self.root_dir, filename, '-noappend'
+            ] + self.custom_args['create_options'] + exclude_options
         )

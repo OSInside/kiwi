@@ -18,6 +18,7 @@
 import os
 import platform
 from collections import namedtuple
+from tempfile import NamedTemporaryFile
 
 # project
 from ..defaults import Defaults
@@ -32,6 +33,7 @@ from ..storage.disk import Disk
 from ..storage.raid_device import RaidDevice
 from ..storage.luks_device import LuksDevice
 from ..filesystem import FileSystem
+from ..filesystem.squashfs import FileSystemSquashFs
 from ..volume_manager import VolumeManager
 from ..logger import log
 from ..command import Command
@@ -43,7 +45,8 @@ from ..system.result import Result
 
 from ..exceptions import (
     KiwiDiskBootImageError,
-    KiwiInstallMediaError
+    KiwiInstallMediaError,
+    KiwiVolumeManagerSetupError
 )
 
 
@@ -170,6 +173,10 @@ class DiskBuilder(object):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
+
+        # FIXME: needs to be set by an XML attribute
+        self.root_filesystem_is_overlay = True
+
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.build_type_name = xml_state.get_build_type_name()
         self.image_format = xml_state.build_type.get_format()
@@ -247,6 +254,11 @@ class DiskBuilder(object):
             raise KiwiInstallMediaError(
                 'Install media requires oem type setup, got %s' %
                 self.build_type_name
+            )
+
+        if self.root_filesystem_is_overlay and self.volume_manager_name:
+            raise KiwiVolumeManagerSetupError(
+                'Volume management together with root overlay is not supported'
             )
 
         # setup recovery archive, cleanup and create archive if requested
@@ -388,9 +400,26 @@ class DiskBuilder(object):
             )
 
         log.info('--> Syncing root filesystem data')
-        self.system.sync_data(
-            self.__get_exclude_list_for_root_data_sync(device_map)
-        )
+        if self.root_filesystem_is_overlay:
+            squashed_root_file = NamedTemporaryFile()
+            squashed_root = FileSystemSquashFs(
+                device_provider=None, root_dir=self.root_dir
+            )
+            squashed_root.create_on_file(
+                filename=squashed_root_file.name,
+                exclude=self.__get_exclude_list_for_root_data_sync(device_map)
+            )
+            Command.run(
+                [
+                    'dd',
+                    'if=%s' % squashed_root_file.name,
+                    'of=%s' % device_map['readonly'].get_device()
+                ]
+            )
+        else:
+            self.system.sync_data(
+                self.__get_exclude_list_for_root_data_sync(device_map)
+            )
 
         # install boot loader
         self.__install_bootloader(device_map)
@@ -557,6 +586,23 @@ class DiskBuilder(object):
                 self.disk_setup.boot_partition_size()
             )
 
+        if self.root_filesystem_is_overlay:
+            log.info('--> creating readonly root partition')
+            squashed_root_file = NamedTemporaryFile()
+            squashed_root = FileSystemSquashFs(
+                device_provider=None, root_dir=self.root_dir
+            )
+            squashed_root.create_on_file(
+                filename=squashed_root_file.name,
+                exclude=[Defaults.get_shared_cache_location()]
+            )
+            squashed_rootfs_mbsize = os.path.getsize(
+                squashed_root_file.name
+            ) / 1048576
+            self.disk.create_root_readonly_partition(
+                int(squashed_rootfs_mbsize + 50)
+            )
+
         if self.volume_manager_name and self.volume_manager_name == 'lvm':
             log.info('--> creating LVM root partition')
             self.disk.create_root_lvm_partition('all_free')
@@ -654,6 +700,9 @@ class DiskBuilder(object):
         boot_device = root_device
         if 'boot' in device_map:
             boot_device = device_map['boot']
+
+        if 'readonly' in device_map:
+            root_device = device_map['readonly']
 
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),

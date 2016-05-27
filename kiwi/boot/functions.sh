@@ -6784,8 +6784,8 @@ function setupUnionFS {
     # devices are stores by disk ID if possible
     # ----
     local IFS=$IFS_ORIG
-    local rwDevice=`getDiskID $1`
-    local roDevice=`getDiskID $2`
+    local rwDevice=$(getDiskID $1)
+    local roDevice=$(getDiskID $2)
     local unionFST=$3
     if [[ "$roDevice" =~ aoe|nbd ]]; then
         roDevice=$imageRootDevice
