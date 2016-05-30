@@ -34,8 +34,6 @@ options:
     -l | --logfile
     -v --version
 """
-
-import sys
 import os
 import logging
 from docopt import docopt
@@ -189,22 +187,21 @@ class Translate(object):
 class Command(object):
     @classmethod
     def execute(self, arguments):
-        # legacy kiwi binary lives in /usr/sbin, the new kiwi
-        # lives in /usr/bin. In order to avoid conflicts the path
-        # to the kiwi we want to use is specificly set here
-        kiwi = '/usr/bin/kiwi'
+        kiwi = '/usr/bin/kiwi-ng'
         if not os.path.exists(kiwi):
             raise OSError('%s not found' % kiwi)
         os.execvp(kiwi, ['kiwi'] + arguments)
 
-logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-try:
-    app = Cli()
-    arguments = Translate(app.compat_args)
-    # logging.info('Calling: kiwi %s', ' '.join(arguments.translated))
-    Command.execute(arguments.translated)
-except NotImplementedError as e:
-    logging.error('KiwiCompatError: %s' % format(e))
-except OSError as e:
-    logging.error('KiwiCompatError: %s' % format(e))
+def main():
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
+
+    try:
+        app = Cli()
+        arguments = Translate(app.compat_args)
+        # logging.info('Calling: kiwi %s', ' '.join(arguments.translated))
+        Command.execute(arguments.translated)
+    except NotImplementedError as e:
+        logging.error('KiwiCompatError: %s' % format(e))
+    except OSError as e:
+        logging.error('KiwiCompatError: %s' % format(e))

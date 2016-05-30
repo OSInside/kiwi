@@ -1,8 +1,5 @@
-# compiled tools
-tools_bin
-
 # completion
-completion/kiwi.sh
+completion/kiwi-ng.sh
 
 # Schema formats
 kiwi/schema/kiwi.xsd

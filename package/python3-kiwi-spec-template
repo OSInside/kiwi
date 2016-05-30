@@ -170,26 +170,18 @@ of the kiwi - buildservice integration exclusively
 %setup -q -n kiwi-%{version}
 
 %build
-test -e /.buildenv && . /.buildenv
-make buildroot=%{buildroot} CFLAGS="${RPM_OPT_FLAGS}" tools
-python3 setup.build.py build
+python3 setup.build.py build --cflags="${RPM_OPT_FLAGS}"
 
 %install
-
-mkdir -p %{buildroot}%{_sysconfdir}/alternatives
-
-mkdir -p %{buildroot}%_sysconfdir/bash_completion.d
-install -m 644 completion/kiwi.sh \
-    %{buildroot}%_sysconfdir/bash_completion.d/kiwi-ng.sh
-
-make buildroot=%{buildroot} install_tools
-make buildroot=%{buildroot} install_man
 python3 setup.build.py install --prefix=%{_prefix} --root=%{buildroot}
 
+# alternatives setup for kiwi -> kiwi-ng binary
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
 touch %{buildroot}%{_sysconfdir}/alternatives/kiwi
 ln -s %{_sysconfdir}/alternatives/kiwi \
     %{buildroot}%_bindir/kiwi
 
+# kiwi pxeboot directory structure to be packed in kiwi-pxeboot
 %ifarch %ix86 x86_64
 for i in KIWI pxelinux.cfg image upload boot; do \
     mkdir -p %{buildroot}/srv/tftpboot/$i ;\
