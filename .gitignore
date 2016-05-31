@@ -6,6 +6,15 @@ kiwi/schema/kiwi.xsd
 kiwi/schema/xsi.xsd
 kiwi/schema/kiwi.revision
 
+# C tool binaries
+tools/dcounter
+tools/driveready
+tools/isconsole
+tools/kversion
+tools/setctsid
+tools/startshell
+tools/utimer
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
