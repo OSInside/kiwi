@@ -2202,14 +2202,22 @@ structure</a:documentation>
         <a:documentation>Specifies the root filesystem type</a:documentation>
         <choice>
           <value>btrfs</value>
-          <value>clicfs</value>
           <value>ext2</value>
           <value>ext3</value>
           <value>ext4</value>
-          <value>overlayfs</value>
           <value>squashfs</value>
           <value>xfs</value>
         </choice>
+      </attribute>
+    </define>
+    <define name="k.type.overlayroot.attribute">
+      <attribute name="overlayroot">
+        <a:documentation>Specifies to use an overlay root system consisting
+out of a squashfs compressed read-only root system
+overlayed using the overlayfs filesystem into an
+extra read-write partition. Available for the disk
+image types, vmx and oem</a:documentation>
+        <data type="boolean"/>
       </attribute>
     </define>
     <define name="k.type.firmware.attribute">
@@ -2620,6 +2628,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.mdraid.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.overlayroot.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.primary.attribute"/>

@@ -173,10 +173,7 @@ class DiskBuilder(object):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
-
-        # FIXME: needs to be set by an XML attribute
-        self.root_filesystem_is_overlay = True
-
+        self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.build_type_name = xml_state.get_build_type_name()
         self.image_format = xml_state.build_type.get_format()

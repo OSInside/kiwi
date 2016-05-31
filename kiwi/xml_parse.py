@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Fri Apr 29 16:16:24 2016 by generateDS.py version 2.19b.
+# Generated Tue May 31 17:33:14 2016 by generateDS.py version 2.19b.
 #
 # Command line options:
 #   ('-f', '')
@@ -2546,7 +2546,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2587,6 +2587,7 @@ class type_(GeneratedsSuper):
         self.luks = _cast(None, luks)
         self.luksOS = _cast(None, luksOS)
         self.mdraid = _cast(None, mdraid)
+        self.overlayroot = _cast(bool, overlayroot)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
@@ -2739,6 +2740,8 @@ class type_(GeneratedsSuper):
     def set_luksOS(self, luksOS): self.luksOS = luksOS
     def get_mdraid(self): return self.mdraid
     def set_mdraid(self, mdraid): self.mdraid = mdraid
+    def get_overlayroot(self): return self.overlayroot
+    def set_overlayroot(self, overlayroot): self.overlayroot = overlayroot
     def get_primary(self): return self.primary
     def set_primary(self, primary): self.primary = primary
     def get_ramonly(self): return self.ramonly
@@ -2905,6 +2908,9 @@ class type_(GeneratedsSuper):
         if self.mdraid is not None and 'mdraid' not in already_processed:
             already_processed.add('mdraid')
             outfile.write(' mdraid=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mdraid), input_name='mdraid')), ))
+        if self.overlayroot is not None and 'overlayroot' not in already_processed:
+            already_processed.add('overlayroot')
+            outfile.write(' overlayroot="%s"' % self.gds_format_boolean(self.overlayroot, input_name='overlayroot'))
         if self.primary is not None and 'primary' not in already_processed:
             already_processed.add('primary')
             outfile.write(' primary="%s"' % self.gds_format_boolean(self.primary, input_name='primary'))
@@ -3197,6 +3203,15 @@ class type_(GeneratedsSuper):
             already_processed.add('mdraid')
             self.mdraid = value
             self.mdraid = ' '.join(self.mdraid.split())
+        value = find_attr_value_('overlayroot', node)
+        if value is not None and 'overlayroot' not in already_processed:
+            already_processed.add('overlayroot')
+            if value in ('true', '1'):
+                self.overlayroot = True
+            elif value in ('false', '0'):
+                self.overlayroot = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('primary', node)
         if value is not None and 'primary' not in already_processed:
             already_processed.add('primary')
