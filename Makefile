@@ -82,9 +82,17 @@ valid:
 		fi \
 	done
 
-build: clean po tox
+git_attributes:
 	# the following is required to update the $Format:%H$ git attribute
+	# for details on when this target is called see setup.py
 	git archive HEAD kiwi/version.py | tar -x
+
+clean_git_attributes:
+	# cleanup version.py to origin state
+	# for details on when this target is called see setup.py
+	git checkout kiwi/version.py
+
+build: clean po tox
 	# create setup.py variant for rpm build.
 	# delete module versions from setup.py for building an rpm
 	# the dependencies to the python module rpm packages is
@@ -92,8 +100,6 @@ build: clean po tox
 	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
 	# build the sdist source tarball
 	python3 setup.build.py sdist
-	# cleanup version.py to origin state
-	git checkout kiwi/version.py
 	# cleanup setup.py variant used for rpm build
 	rm -f setup.build.py
 	# provide rpm source tarball
@@ -111,7 +117,7 @@ build: clean po tox
 	# buildservice this data is needed
 	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
 
-clean:
+clean: clean_git_attributes
 	rm -f setup.build.py
 	rm -rf dist
 	rm -rf build

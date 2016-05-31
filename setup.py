@@ -4,15 +4,50 @@
 from setuptools import setup
 from distutils.command import build as distutils_build
 from distutils.command import install as distutils_install
+from setuptools.command import sdist as setuptools_sdist
 import distutils
 import subprocess
+import os
 
 from kiwi.version import __version__
+
+
+class sdist(setuptools_sdist.sdist):
+    """
+    Custom sdist command
+    Host requirements: git
+    """
+    def run(self):
+        """
+        Run first the git commit format update $Format:%H$
+        and after that the usual Python sdist
+        """
+        # git attributes
+        command = ['make', 'git_attributes']
+        self.announce(
+            'Running make git_attributes target: %s' % str(command),
+            level=distutils.log.INFO
+        )
+        self.announce(
+            subprocess.check_output(command).decode(),
+            level=distutils.log.INFO
+        )
+
+        # standard sdist process
+        setuptools_sdist.sdist.run(self)
+
+        # cleanup attributes
+        command = ['make', 'clean_git_attributes']
+        self.announce(
+            subprocess.check_output(command).decode(),
+            level=distutils.log.INFO
+        )
 
 
 class build(distutils_build.build):
     """
     Custom build command
+    Host requirements: make, C compiler, glibc
     """
     distutils_build.build.user_options += [
         ('cflags=', None, 'compile flags')
@@ -52,6 +87,7 @@ class build(distutils_build.build):
 class install(distutils_install.install):
     """
     Custom install command
+    Host requirements: make
     """
     sub_commands = [
         ('install_lib', lambda self:True),
@@ -100,7 +136,8 @@ config = {
     'packages': ['kiwi'],
     'cmdclass': {
         'build': build,
-        'install': install
+        'install': install,
+        'sdist': sdist
     },
     'entry_points': {
         'console_scripts': [
