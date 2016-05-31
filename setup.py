@@ -148,12 +148,8 @@ config = {
     'include_package_data': True,
     'zip_safe': False,
     'classifiers': [
-       # complete classifier list:
-       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
-       #'Development Status :: 3 - Alpha',
-       #'Development Status :: 4 - Beta',
-       #'Development Status :: 5 - Production/Stable',
-       'Development Status :: 4 - Beta',
+       # classifier: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+       'Development Status :: 5 - Production/Stable',
        'Intended Audience :: Developers',
        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
        'Operating System :: POSIX :: Linux',
