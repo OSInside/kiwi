@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """
 usage: kiwicompat -h | --help
        kiwicompat --build=<description> --dest-dir=<destination>
@@ -187,7 +186,7 @@ class Translate(object):
 class Command(object):
     @classmethod
     def execute(self, arguments):
-        kiwi = '/usr/bin/kiwi-ng'
+        kiwi = 'kiwi-ng'
         if not os.path.exists(kiwi):
             raise OSError('%s not found' % kiwi)
         os.execvp(kiwi, ['kiwi'] + arguments)
