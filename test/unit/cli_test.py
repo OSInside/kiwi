@@ -116,12 +116,6 @@ class TestCli(object):
 
     @raises(KiwiCompatError)
     @patch('os.path.exists')
-    def test_invoke_kiwicompat_does_not_exist(self, mock_exists):
-        mock_exists.return_value = False
-        self.cli.invoke_kiwicompat([])
-
-    @raises(KiwiCompatError)
-    @patch('os.path.exists')
     @patch('os.execvp')
     def test_invoke_kiwicompat_exec_failed(self, mock_exec, mock_exists):
         mock_exists.return_value = True

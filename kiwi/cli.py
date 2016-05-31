@@ -135,9 +135,6 @@ class Cli(object):
 
         :param list compat_args: raw arguments
         """
-        kiwicompat = '/usr/bin/kiwicompat'
-        if not os.path.exists(kiwicompat):
-            raise KiwiCompatError('%s not found' % kiwicompat)
         try:
             os.execvp('kiwicompat', ['kiwicompat'] + compat_args)
         except Exception as e:
