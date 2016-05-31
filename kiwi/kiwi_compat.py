@@ -186,10 +186,7 @@ class Translate(object):
 class Command(object):
     @classmethod
     def execute(self, arguments):
-        kiwi = 'kiwi-ng'
-        if not os.path.exists(kiwi):
-            raise OSError('%s not found' % kiwi)
-        os.execvp(kiwi, ['kiwi'] + arguments)
+        os.execvp('kiwi-ng', ['kiwi'] + arguments)
 
 
 def main():
