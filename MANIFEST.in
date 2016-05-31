@@ -3,7 +3,6 @@
 graft doc/build/man
 graft tools
 graft helper
-graft completion
 graft kiwi/boot
 graft kiwi/utils
 graft kiwi/archive

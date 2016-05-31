@@ -33,8 +33,8 @@ install:
 	done
 	# completion
 	install -d -m 755 ${buildroot}etc/bash_completion.d
-	install -m 644 completion/kiwi-ng.sh \
-		${buildroot}etc/bash_completion.d
+	helper/completion_generator \
+		> ${buildroot}etc/bash_completion.d/kiwi-ng.sh
 
 tox:
 	tox
@@ -82,29 +82,37 @@ valid:
 		fi \
 	done
 
-.PHONY: completion
-completion:
-	mkdir -p completion && helper/completion_generator > completion/kiwi-ng.sh
-
-build: clean completion po tox
+build: clean po tox
 	# the following is required to update the $Format:%H$ git attribute
 	git archive HEAD kiwi/version.py | tar -x
-	# now create my package sources
+	# create setup.py variant for rpm build.
+	# delete module versions from setup.py for building an rpm
+	# the dependencies to the python module rpm packages is
+	# managed in the spec file
 	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
+	# build the sdist source tarball
 	python3 setup.build.py sdist
-	# go back to origin template of version.py
+	# cleanup version.py to origin state
 	git checkout kiwi/version.py
+	# cleanup setup.py variant used for rpm build
+	rm -f setup.build.py
+	# provide rpm source tarball
 	mv dist/kiwi-${version}.tar.bz2 dist/python3-kiwi.tar.bz2
-	rm setup.build.py
+	# provide rpm changelog from git changelog
 	git log | helper/changelog_generator |\
 		helper/changelog_descending > dist/python3-kiwi.changes
+	# update package version in spec file
 	cat package/python3-kiwi-spec-template | sed -e s'@%%VERSION@${version}@' \
 		> dist/python3-kiwi.spec
+	# provide rpm rpmlintrc
 	cp package/python3-kiwi-rpmlintrc dist
+	# provide rpm boot packages source
+	# metadata for the buildservice when kiwi is used in the
+	# buildservice this data is needed
 	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
 
 clean:
+	rm -f setup.build.py
 	rm -rf dist
 	rm -rf build
-	rm -rf completion
 	${MAKE} -C tools clean
