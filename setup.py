@@ -2,20 +2,19 @@
 # -*- encoding: utf-8 -*-
 
 from setuptools import setup
-from distutils.command import build
-from distutils.command import install
-#from distutils.command import install_scripts
+from distutils.command import build as distutils_build
+from distutils.command import install as distutils_install
 import distutils
 import subprocess
 
 from kiwi.version import __version__
 
 
-class kiwi_build(build.build):
+class build(distutils_build.build):
     """
     Custom build command
     """
-    build.build.user_options += [
+    distutils_build.build.user_options += [
         ('cflags=', None, 'compile flags')
     ]
 
@@ -24,7 +23,7 @@ class kiwi_build(build.build):
         Set default values for options
         Each user option must be listed here with their default value.
         """
-        build.build.initialize_options(self)
+        distutils_build.build.initialize_options(self)
         self.cflags = ''
 
     def run(self):
@@ -47,10 +46,10 @@ class kiwi_build(build.build):
         )
 
         # standard build process
-        build.build.run(self)
+        distutils_build.build.run(self)
 
 
-class kiwi_install(install.install):
+class install(distutils_install.install):
     """
     Custom install command
     """
@@ -82,7 +81,7 @@ class kiwi_install(install.install):
         )
 
         # standard installation
-        install.install.run(self)
+        distutils_install.install.run(self)
 
 
 config = {
@@ -100,8 +99,8 @@ config = {
     ],
     'packages': ['kiwi'],
     'cmdclass': {
-        'build': kiwi_build,
-        'install': kiwi_install
+        'build': build,
+        'install': install
     },
     'entry_points': {
         'console_scripts': [
