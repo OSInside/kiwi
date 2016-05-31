@@ -106,7 +106,7 @@ config = {
     'entry_points': {
         'console_scripts': [
             'kiwi-ng=kiwi.kiwi:main',
-            'kiwicompat=kiwi.kiwicompat:main'
+            'kiwicompat=kiwi.kiwi_compat:main'
         ]
     },
     'include_package_data': True,
