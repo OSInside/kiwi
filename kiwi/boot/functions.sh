@@ -1881,6 +1881,7 @@ function setupBootLoaderS390Grub {
     local title
     local cmdline
     local vesa
+    local fstype=$(probeFileSystem $rdev)
     #======================================
     # setup path names
     #--------------------------------------
@@ -1950,7 +1951,7 @@ EOF
     #======================================
     # enable rollback capability
     #--------------------------------------
-    if [ "$FSTYPE" = "btrfs" ];then
+    if [ "$fstype" = "btrfs" ];then
         echo "SUSE_BTRFS_SNAPSHOT_BOOTING=true" >> $inst_default_grub
     fi
     #======================================
@@ -2002,6 +2003,7 @@ function setupBootLoaderGrub2 {
     local timeout
     local vesa
     local loader_type="grub2"
+    local fstype=$(probeFileSystem $rdev)
     #======================================
     # vesa hex => resolution table
     #--------------------------------------
@@ -2163,7 +2165,7 @@ EOF
     #======================================
     # enable rollback capability
     #--------------------------------------
-    if [ "$FSTYPE" = "btrfs" ];then
+    if [ "$fstype" = "btrfs" ];then
         echo "SUSE_BTRFS_SNAPSHOT_BOOTING=true" >> $inst_default_grub
     fi
     #======================================
@@ -2252,6 +2254,7 @@ function updateRootDeviceFstab {
     local rdev=$2
     local nfstab=$config_tmp/etc/fstab
     local diskByID=$(getDiskID $rdev)
+    local fstype=$(probeFileSystem $rdev)
     local opts=defaults
     local devicepersistency="by-uuid"
     if [ ! -z "$kiwi_devicepersistency" ];then
@@ -2276,7 +2279,7 @@ function updateRootDeviceFstab {
     # check for device by ID
     #--------------------------------------
     if [ -z "$UNIONFS_CONFIG" ]; then
-        echo "$diskByID / $FSTYPE $opts 1 1" >> $nfstab
+        echo "$diskByID / $fstype $opts 1 1" >> $nfstab
     else
         echo "/dev/root / auto defaults 1 1" >> $nfstab
     fi
@@ -2298,9 +2301,9 @@ function updateRootDeviceFstab {
             fi
             mount_point=$(getVolumeMountPoint $i)
             mount_device="/dev/$kiwi_lvmgroup/$volume_name"
-            echo "$mount_device /$mount_point $FSTYPE $opts 1 2" >> $nfstab
+            echo "$mount_device /$mount_point $fstype $opts 1 2" >> $nfstab
         done
-    elif [ "$FSTYPE" = "btrfs" ];then
+    elif [ "$fstype" = "btrfs" ];then
         if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then
             if [ $devicepersistency = "by-label" ];then
                 local device="LABEL=$(blkid $rdev -s LABEL -o value)"
@@ -2341,23 +2344,18 @@ function updateBootDeviceFstab {
     local nfstab=$config_tmp/etc/fstab
     local mount=boot_bind
     local prefix=/mnt
+    local fstype
     #======================================
     # Store boot entry
     #--------------------------------------
     if [ -e $prefix/$mount ];then
         local diskByID=$(getDiskID $sdev)
-        if [ ! -z "$FSTYPE" ];then
-            FSTYPE_SAVE=$FSTYPE
+        fstype=$(probeFileSystem $sdev)
+        if [ "$fstype" = "unknown" ];then
+            fstype=auto
         fi
-        probeFileSystem $sdev
-        if [ -z "$FSTYPE" ] || [ "$FSTYPE" = "unknown" ];then
-            FSTYPE="auto"
-        fi
-        echo "$diskByID /$mount $FSTYPE defaults 1 2" >> $nfstab
+        echo "$diskByID /$mount $fstype defaults 1 2" >> $nfstab
         echo "/$mount/boot /boot none bind 0 0" >> $nfstab
-        if [ ! -z "$FSTYPE_SAVE" ];then
-            FSTYPE=$FSTYPE_SAVE
-        fi
     fi
     #======================================
     # Store boot/efi entry
@@ -2394,6 +2392,7 @@ function updateOtherDeviceFstab {
     local count=0
     local device
     local diskByID
+    local fstype
     local IFS=","
     if [ -z "$prefix" ];then
         prefix=/mnt
@@ -2419,13 +2418,13 @@ function updateOtherDeviceFstab {
             else
                 device=$(ddn $DISK $count)
             fi
-            probeFileSystem $device
-            if [ ! "$FSTYPE" = "luks" ] && [ ! "$FSTYPE" = "unknown" ];then
+            fstype=$(probeFileSystem $device)
+            if [ ! "$fstype" = "luks" ] && [ ! "$fstype" = "unknown" ];then
                 if [ ! -d $prefix/$partMount ];then
                     mkdir -p $prefix/$partMount
                 fi
                 diskByID=$(getDiskID $device)
-                echo "$diskByID $partMount $FSTYPE defaults 0 0" >> $nfstab
+                echo "$diskByID $partMount $fstype defaults 0 0" >> $nfstab
             fi
         fi
     done
@@ -2505,43 +2504,30 @@ function setupKernelModules {
 #--------------------------------------
 function probeFileSystem {
     # /.../
-    # probe for the filesystem type. The function will
-    # read 128 kB of the given device and check the
-    # filesystem header data to detect the type of the
-    # filesystem
+    # probe for the filesystem type. The function uses the
+    # result from blkid. If blkid could not detect the
+    # filesystem type the first 128 kB of the given device
+    # are read and checked for a known signature
     # ----
     local IFS=$IFS_ORIG
-    FSTYPE=unknown
-    FSTYPE=$(blkid $1 -s TYPE -o value)
-    case $FSTYPE in
-        btrfs)       FSTYPE=btrfs ;;
-        ext4)        FSTYPE=ext4 ;;
-        ext3)        FSTYPE=ext3 ;;
-        ext2)        FSTYPE=ext2 ;;
-        squashfs)    FSTYPE=squashfs ;;
-        luks)        FSTYPE=luks ;;
-        crypto_LUKS) FSTYPE=luks ;;
-        vfat)        FSTYPE=vfat ;;
-        clicfs)      FSTYPE=clicfs ;;
-        xfs)         FSTYPE=xfs ;;
-        udf)         FSTYPE=udf ;;
-        exfat)       FSTYPE=exfat ;;
-        *)
-            FSTYPE=unknown
-        ;;
-    esac
-    if [ $FSTYPE = "unknown" ];then
-        dd if=$1 of=/tmp/filesystem-$$ bs=128k count=1 >/dev/null
+    local fstype
+    fstype=$(blkid $1 -s TYPE -o value)
+    if [ -z "$fstype" ];then
+        fstype=unknown
     fi
-    if [ $FSTYPE = "unknown" ];then
+    if [ "$fstype" = "crypto_LUKS" ];then
+        fstype=luks
+    fi
+    if [ $fstype = "unknown" ];then
+        dd if=$1 of=/tmp/filesystem-$$ bs=128k count=1 >/dev/null
         if grep -q ^CLIC /tmp/filesystem-$$;then
-            FSTYPE=clicfs
+            fstype=clicfs
         fi
         if grep -q ^hsqs /tmp/filesystem-$$;then
-            FSTYPE=squashfs
+            fstype=squashfs
         fi
     fi
-    export FSTYPE
+    echo $fstype
 }
 #======================================
 # getSystemIntegrity
@@ -3363,12 +3349,13 @@ function searchVolumeGroup {
     local IFS=$IFS_ORIG
     local vg_count=0
     local vg_found
+    local fstype
     if [ ! "$kiwi_lvm" = "true" ];then
         return 1
     fi
     local rootdevice=$(ddn $imageDiskDevice $kiwi_RootPart)
-    probeFileSystem $rootdevice
-    if [ "$FSTYPE" = "luks" ];then
+    fstype=$(probeFileSystem $rootdevice)
+    if [ "$fstype" = "luks" ];then
         luksOpen $rootdevice
         export haveLuks=yes
     fi
@@ -4920,21 +4907,6 @@ function umountSystem {
     return $retval
 }
 #======================================
-# isFSTypeReadOnly
-#--------------------------------------
-function isFSTypeReadOnly {
-    local IFS=$IFS_ORIG
-    if [ "$FSTYPE" = "squashfs" ];then
-        export unionFST=overlay
-        return 0
-    fi
-    if [ "$FSTYPE" = "clicfs" ];then
-        export unionFST=clicfs
-        return 0
-    fi
-    return 1
-}
-#======================================
 # kiwiMount
 #--------------------------------------
 function kiwiMount {
@@ -4943,16 +4915,11 @@ function kiwiMount {
     local dst=$2
     local opt=$3
     local lop=$4
+    local fstype
     #======================================
     # load not autoloadable fs modules
     #--------------------------------------
     modprobe squashfs &>/dev/null
-    #======================================
-    # store old FSTYPE value
-    #--------------------------------------
-    if [ ! -z "$FSTYPE" ];then
-        FSTYPE_SAVE=$FSTYPE
-    fi
     #======================================
     # decide for a mount method
     #--------------------------------------
@@ -4973,17 +4940,16 @@ function kiwiMount {
     #======================================
     # probe filesystem
     #--------------------------------------
-    if [ ! "$FSTYPE" = "nfs" ];then
-        probeFileSystem $src
+    if [ ! -z "$NFSROOT" ];then
+        fstype=nfs
+    else
+        fstype=$(probeFileSystem $src)
     fi
-    if [ -z "$FSTYPE" ] || [ "$FSTYPE" = "unknown" ];then
-        FSTYPE="auto"
+    if [ "$fstyoe" = "unknown" ];then
+        fstype="auto"
     fi
-    if ! mount -t $FSTYPE $opt $src $dst >/dev/null;then
+    if ! mount -t $fstype $opt $src $dst >/dev/null;then
         return 1
-    fi
-    if [ ! -z "$FSTYPE_SAVE" ];then
-        FSTYPE=$FSTYPE_SAVE
     fi
     return 0
 }
@@ -5028,7 +4994,7 @@ function setupReadWrite {
     if [ "$create_hybrid" = "yes" ];then
         Echo "Creating filesystem for RW data on $rwDevice..."
         if ! createFilesystem \
-            "$rwDevice" "" "" "hybrid" "false" "$hybrid_fs" "$fs_opts"
+            "$rwDevice" "$hybrid_fs" "" "" "hybrid" "false" "$fs_opts"
         then
             Echo "Failed to create ${hybrid_fs} filesystem"
             return 1
@@ -5359,11 +5325,8 @@ function mountSystemStandard {
     local mpoint
     local mppath
     local prefix=/mnt
-    if \
-        [ ! -z $FSTYPE ] && \
-        [ ! $FSTYPE = "unknown" ] && \
-        [ ! $FSTYPE = "auto" ]
-    then
+    local fstype=$(probeFileSystem $mountDevice)
+    if [ ! $fstype = "unknown" ]; then
         kiwiMount "$mountDevice" "$prefix"
     else
         mount $mountDevice $prefix >/dev/null
@@ -5386,7 +5349,7 @@ function mountSystemStandard {
             mkdir -p $prefix/$mount_point
             kiwiMount "$mount_device" "$prefix/$mount_point"
         done
-    elif [ "$FSTYPE" = "btrfs" ];then
+    elif [ "$fstype" = "btrfs" ];then
         if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then
             mountBtrfsSubVolumes $mountDevice $prefix
         fi
@@ -6765,10 +6728,10 @@ function bootImage {
         exec chroot . /sbin/halt -fihp
     fi
     if lookup switch_root &>/dev/null;then
-        exec switch_root . $init $option
+        exec switch_root . $init $option &>/dev/null
     else
         if lookup pivot_root &>/dev/null;then
-            pivot_root . run/initramfs
+            pivot_root . run/initramfs &>/dev/null
         fi
         exec chroot . $init $option
     fi
@@ -6784,8 +6747,8 @@ function setupUnionFS {
     # devices are stores by disk ID if possible
     # ----
     local IFS=$IFS_ORIG
-    local rwDevice=`getDiskID $1`
-    local roDevice=`getDiskID $2`
+    local rwDevice=$(getDiskID $1)
+    local roDevice=$(getDiskID $2)
     local unionFST=$3
     if [[ "$roDevice" =~ aoe|nbd ]]; then
         roDevice=$imageRootDevice
@@ -7564,7 +7527,7 @@ function createHybridPersistent {
         fs_opts="$HYBRID_EXT4_OPTS"
     fi
     if ! createFilesystem \
-        $hybrid_device "" "" "hybrid" "false" "$hybrid_fs" "$fs_opts"
+        $hybrid_device "$hybrid_fs" "" "" "hybrid" "false" "$fs_opts"
     then
         Echo "Failed to create hybrid persistent filesystem"
         Echo "Persistent writing deactivated"
@@ -7628,7 +7591,7 @@ function setupHybridCowDevice {
         fi
         qemu-img create "$hybrid_cow_filename" "$cowsize"
         if ! createFilesystem \
-            "$hybrid_cow_filename" "" "" "" "false" "ext4" "$HYBRID_EXT4_OPTS"
+            "$hybrid_cow_filename" "ext4" "" "" "" "false" "$HYBRID_EXT4_OPTS"
         then
             Echo "Failed to create hybrid persistent cow filesystem"
             return 1
@@ -8112,27 +8075,22 @@ function reloadKernel {
 #--------------------------------------
 function checkFilesystem {
     local device=$1
-    local FSTYPE_SAVE=$FS_TYPE
-    if [ -z "$FSTYPE" ];then
-        probeFileSystem $device
-    fi
-    if [ "$FSTYPE" = "ext2" ];then
-        e2fsck -p -f $device
-    elif [ "$FSTYPE" = "ext3" ];then
-        e2fsck -p -f $device
-    elif [ "$FSTYPE" = "ext4" ];then
-        e2fsck -p -f $device
-    elif [ "$FSTYPE" = "btrfs" ];then
-        btrfsck $device
-    elif [ "$FSTYPE" = "xfs" ];then
-        xfs_repair -n $device
-    else
-        FSTYPE=$FSTYPE_SAVE
-        # don't know how to check this filesystem
-        Echo "Don't know how to check ${FSTYPE}... skip it"
-        return
-    fi
-    FSTYPE=$FSTYPE_SAVE
+    local fstype=$(probeFileSystem $device)
+    case $fstype in
+        ext2|ext3|ext4)
+            e2fsck -p -f $device
+        ;;
+        btrfs)
+            btrfsck $device
+        ;;
+        xfs)
+            xfs_repair -n $device
+        ;;
+        *)
+            # don't know how to check this filesystem
+            Echo "Don't know how to check ${fstype}... skip it"
+        ;;
+    esac
 }
 #======================================
 # resizeFilesystem
@@ -8146,50 +8104,43 @@ function resizeFilesystem {
     local check
     local mpoint=/fs-resize
     udevPending
+    local fstype=$(probeFileSystem $deviceResize)
     mkdir -p $mpoint
     if echo $deviceResize | grep -qi "/dev/ram";then
         ramdisk=1
     fi
-    if [ -z "$FSTYPE" ];then
-        probeFileSystem $deviceResize
-    fi
-    if [ "$FSTYPE" = "ext2" ];then
-        resize_fs="resize2fs -f -p $deviceResize"
-        if [ $ramdisk -eq 1 ];then
-            resize_fs="resize2fs -f $deviceResize"
-        fi
-    elif [ "$FSTYPE" = "ext3" ];then
-        resize_fs="resize2fs -f -p $deviceResize"
-        if [ $ramdisk -eq 1 ];then
-            resize_fs="resize2fs -f $deviceResize"
-        fi
-    elif [ "$FSTYPE" = "ext4" ];then
-        resize_fs="resize2fs -f -p $deviceResize"
-        if [ $ramdisk -eq 1 ];then
-            resize_fs="resize2fs -f $deviceResize"
-        fi
-    elif [ "$FSTYPE" = "btrfs" ];then
-        resize_fs="mount $deviceResize $mpoint &&"
-        if lookup btrfs &>/dev/null;then
-            resize_fs="$resize_fs btrfs filesystem resize max $mpoint"
-            resize_fs="$resize_fs;umount $mpoint"
-        else
-            resize_fs="$resize_fs btrfsctl -r max $mpoint;umount $mpoint"
-        fi
-    elif [ "$FSTYPE" = "xfs" ];then
-        resize_fs="mount $deviceResize $mpoint &&"
-        resize_fs="$resize_fs xfs_growfs $mpoint;umount $mpoint"
-    else
-        # don't know how to resize this filesystem
-        Echo "Don't know how to resize ${FSTYPE}... skip it"
-        return
-    fi
+    case $fstype in
+        ext2|ext3|ext4)
+            resize_fs="resize2fs -f -p $deviceResize"
+            if [ $ramdisk -eq 1 ];then
+                resize_fs="resize2fs -f $deviceResize"
+            fi
+        ;;
+        btrfs)
+            resize_fs="mount $deviceResize $mpoint &&"
+            if lookup btrfs &>/dev/null;then
+                resize_fs="$resize_fs btrfs filesystem resize max $mpoint"
+                resize_fs="$resize_fs;umount $mpoint"
+            else
+                resize_fs="$resize_fs btrfsctl -r max $mpoint;umount $mpoint"
+            fi
+        ;;
+        xfs)
+            resize_fs="mount $deviceResize $mpoint &&"
+            resize_fs="$resize_fs xfs_growfs $mpoint;umount $mpoint"
+        ;;
+        *)
+            # don't know how to resize this filesystem
+            Echo "Don't know how to resize ${fstype}... skip it"
+            return
+        ;;
+    esac
     if [ -z "$callme" ];then
         if [ $ramdisk -eq 0 ]; then
-            Echo "Checking $FSTYPE filesystem on ${deviceResize}..."
+            Echo "Checking $fstype filesystem on ${deviceResize}..."
             checkFilesystem $deviceResize
         fi
-        Echo "Resizing $FSTYPE filesystem on ${deviceResize}..."
+        Echo "Resizing $fstype filesystem on ${deviceResize}..."
         eval $resize_fs
         if [ ! $? = 0 ];then
             systemException \
@@ -8205,7 +8156,7 @@ function resizeFilesystem {
 #--------------------------------------
 function resetMountCounter {
     local IFS=$IFS_ORIG
-    local curtype=$FSTYPE
+    local fstype
     local command
     for device in \
         $imageRootDevice $imageBootDevice \
@@ -8214,20 +8165,18 @@ function resetMountCounter {
         if [ ! -e $device ];then
             continue
         fi
-        probeFileSystem $device
-        if [ "$FSTYPE" = "ext2" ];then
-            command="tune2fs -c -1 -i 0"
-        elif [ "$FSTYPE" = "ext3" ];then
-            command="tune2fs -c -1 -i 0"
-        elif [ "$FSTYPE" = "ext4" ];then
-            command="tune2fs -c -1 -i 0"
-        else
-            # nothing to do here...
-            continue
-        fi
+        fstype=$(probeFileSystem $device)
+        case $fstype in
+            ext2|ext3|ext4)
+                command="tune2fs -c -1 -i 0"
+            ;;
+            *)
+                # nothing to do here...
+                continue
+            ;;
+        esac
         eval $command $device 1>&2
     done
-    FSTYPE=$curtype
 }
 #======================================
 # createFilesystem
@@ -8235,15 +8184,12 @@ function resetMountCounter {
 function createFilesystem {
     local IFS=$IFS_ORIG
     local deviceCreate=$1
-    local blocks=$2
-    local uuid=$3
-    local label=$4
-    local exception_handling=$5
-    local filesystem=$6
+    local filesystem=$2
+    local blocks=$3
+    local uuid=$4
+    local label=$5
+    local exception_handling=$6
     local opts=$7
-    if [ -z "$filesystem" ];then
-        filesystem=$FSTYPE
-    fi
     if [ -z "$exception_handling" ];then
         exception_handling="true"
     else
@@ -9038,8 +8984,7 @@ function setupBootPartitionPXE {
     # Variable setup
     #--------------------------------------
     local IFS=$IFS_ORIG
-    local fs_type
-    local FSTYPE_SAVE=$FSTYPE
+    local fstype
     local mpoint=boot_bind
     unset NETBOOT_ONLY
     local prefix=/mnt
@@ -9093,13 +9038,12 @@ function setupBootPartitionPXE {
     #======================================
     # Probe boot/root filesystem
     #--------------------------------------
-    probeFileSystem $imageRootDevice
-    fs_type=$FSTYPE ; FSTYPE=$FSTYPE_SAVE
+    fstype=$(probeFileSystem $imageRootDevice)
     #======================================
     # return if no extra boot partition
     #--------------------------------------
     if [ $imageBootDevice = $imageRootDevice ];then
-        if [ $fs_type = "unknown" ] || [ "$haveLuks" = "yes" ];then
+        if [ $fstype = "unknown" ] || [ "$haveLuks" = "yes" ];then
             # /.../
             # there is no extra boot device and the root device has an
             # unsupported boot filesystem or layer, mark as netboot only
@@ -9112,17 +9056,18 @@ function setupBootPartitionPXE {
     #======================================
     # Check boot partition filesystem
     #--------------------------------------
-    if [ $fs_type = "unknown" ];then
+    local fstype_boot=$(probeFileSystem $imageBootDevice)
+    if [ $fstype_boot = "unknown" ];then
         # /.../
         # there is a boot device with an unknown filesystem
         # create boot filesystem
         # ----
-        createFilesystem $imageBootDevice
+        createFilesystem $imageBootDevice $fstype
     fi
     #======================================
     # export bootpart relevant variables
     #--------------------------------------
-    export bootPartitionFSType=$fs_type
+    export bootPartitionFSType=$fstype
     export kiwi_BootPart=$bootid
     #======================================
     # copy boot data from image to bootpart
@@ -9142,10 +9087,8 @@ function setupBootPartitionPXE {
     # standard /boot mount when the bootloader will be
     # installed in preinit.
     # ---
-    if ! isFSTypeReadOnly;then
-        rm -rf $prefix/boot
-        mkdir $prefix/boot
-    fi
+    rm -rf $prefix/boot
+    mkdir $prefix/boot
     mkdir $prefix/$mpoint
     mount $imageBootDevice $prefix/$mpoint
     mount --bind \
@@ -9161,8 +9104,7 @@ function setupBootPartition {
     local IFS=$IFS_ORIG
     local label=undef
     local mpoint=boot_bind
-    local FSTYPE_SAVE=$FSTYPE
-    local fs_type=undef
+    local fstype
     local BID=1
     local prefix=/mnt
     #======================================
@@ -9185,9 +9127,8 @@ function setupBootPartition {
     #======================================
     # Probe boot partition filesystem
     #--------------------------------------
-    probeFileSystem $(ddn $imageDiskDevice $BID)
-    fs_type=$FSTYPE ; FSTYPE=$FSTYPE_SAVE
-    export bootPartitionFSType=$fs_type
+    fstype=$(probeFileSystem $(ddn $imageDiskDevice $BID))
+    export bootPartitionFSType=$fstype
     #======================================
     # Export bootid if not yet done
     #--------------------------------------
@@ -9218,10 +9159,8 @@ function setupBootPartition {
     # standard /boot mount when the bootloader will be
     # installed in preinit.
     # ---
-    if ! isFSTypeReadOnly;then
-        rm -rf $prefix/boot
-        mkdir $prefix/boot
-    fi
+    rm -rf $prefix/boot
+    mkdir $prefix/boot
     mkdir $prefix/$mpoint
     mount $imageBootDevice $prefix/$mpoint
     mount --bind \
@@ -9534,7 +9473,7 @@ function setupKernelLinks {
     #--------------------------------------
     if  [ "$kiwi_oemkboot" = "true" ] || \
         [ "$PXE_KIWI_INITRD" = "yes" ] || \
-        isFSTypeReadOnly
+        [ ! -z "$kiwi_ROPart" ]
     then
         # /.../
         # we are using a special root setup based on an overlay

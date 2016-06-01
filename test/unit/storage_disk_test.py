@@ -54,13 +54,22 @@ class TestDisk(object):
             'p.lxroot', 100, 't.linux'
         )
 
-    def test_create_root_and_boot_partition(self):
+    def test_create_root_which_is_also_boot_partition(self):
         self.disk.create_root_partition(200)
         self.partitioner.create.assert_called_once_with(
             'p.lxroot', 200, 't.linux'
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
+
+    def test_create_root_which_is_also_read_write_partition(self):
+        self.disk.public_partition_id_map['kiwi_ROPart'] = 1
+        self.disk.create_root_partition(200)
+        self.partitioner.create.assert_called_once_with(
+            'p.lxroot', 200, 't.linux'
+        )
+        assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
+        assert self.disk.public_partition_id_map['kiwi_RWPart'] == 1
 
     def test_create_root_lvm_partition(self):
         self.disk.create_root_lvm_partition(100)
@@ -78,6 +87,13 @@ class TestDisk(object):
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_RaidPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_RaidDev'] == '/dev/md0'
+
+    def test_create_root_readonly_partition(self):
+        self.disk.create_root_readonly_partition(100)
+        self.partitioner.create.assert_called_once_with(
+            'p.lxreadonly', 100, 't.linux'
+        )
+        assert self.disk.public_partition_id_map['kiwi_ROPart'] == 1
 
     def test_create_boot_partition(self):
         self.disk.create_boot_partition(100)

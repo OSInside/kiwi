@@ -47,15 +47,19 @@ class FileSystemClicFs(FileSystemBase):
         """
         self.container_dir = None
 
-    def create_on_file(self, filename, label=None):
+    def create_on_file(self, filename, label=None, exclude=None):
         """
         Create clicfs filesystem from data tree
 
         There is no label which could be set for clicfs
         thus this parameter is not used
 
+        There is no option to exclude data from clicfs
+        thus this parameter is not used
+
         :param string filename: result file path name
         :param string label: unused
+        :param list exclude: unused
         """
         self.container_dir = mkdtemp(prefix='kiwi_clicfs.')
         clicfs_container_filesystem = self.container_dir + '/fsdata.ext4'

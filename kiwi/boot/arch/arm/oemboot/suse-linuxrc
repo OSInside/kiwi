@@ -133,29 +133,26 @@ function setupInitialDeviceNames {
     #======================================
     # Probe root filesystem type
     #--------------------------------------
-    probeFileSystem $imageRootDevice
+    fstype=$(probeFileSystem $imageRootDevice)
     #======================================
     # Check for LUKS extension on root fs
     #--------------------------------------
-    if [ "$FSTYPE" = "luks" ];then
+    if [ "$fstype" = "luks" ];then
         luksOpen $imageRootDevice
         imageRootDevice=$luksDeviceOpened
         if [ -e /dev/$kiwi_lvmgroup/LVComp ];then
             imageRODevice=$imageRootDevice
         fi
-        probeFileSystem $imageRootDevice
         export haveLuks=yes
     fi
     #======================================
     # Check for LUKS extension on rw fs
     #--------------------------------------
-    if isFSTypeReadOnly;then
-        FSTYPE_OLD=$FSTYPE
-        probeFileSystem $imageRWDevice
-        if [ "$FSTYPE" = "luks" ];then
+    if [ ! -z "$kiwi_ROPart" ];then
+        fstype=$(probeFileSystem $imageRWDevice)
+        if [ "$fstype" = "luks" ];then
             export haveLuks=yes
         fi
-        FSTYPE=$FSTYPE_OLD
     fi
 }
 
@@ -257,8 +254,8 @@ setupInitialDeviceNames
 #======================================
 # 11) Check for read-only filesystem
 #--------------------------------------
-if isFSTypeReadOnly;then
-    setupUnionFS $imageRWDevice $imageRODevice $unionFST
+if [ ! -z "$kiwi_ROPart" ];then
+    setupUnionFS $imageRWDevice $imageRODevice overlay
 fi
 
 #======================================
@@ -271,11 +268,11 @@ fi
 #======================================
 # 13) Resize filesystem to full space
 #--------------------------------------
-Echo "Filesystem of OEM system is: $FSTYPE -> $imageRootDevice"
+fstypeRootFS=$(probeFileSystem $imageRootDevice)
+Echo "Filesystem of OEM system is: $fstypeRootFS -> $imageRootDevice"
 if [ "$LOCAL_BOOT" = "no" ];then
     deviceResize=$imageRootDevice
-    fstypeRootFS=$FSTYPE
-    if isFSTypeReadOnly;then
+    if [ ! -z "$kiwi_ROPart" ];then
         deviceResize=$imageIOWRDevice
         KIWI_INITRD_PARAMS="UNIONFS_CONFIG=yes"
         probeFileSystem $deviceResize
@@ -311,7 +308,6 @@ if [ "$LOCAL_BOOT" = "no" ];then
             KIWI_INITRD_PARAMS="$KIWI_INITRD_PARAMS LOCAL_BOOT=yes"
         fi
     fi
-    FSTYPE=$fstypeRootFS
 fi
 
 #======================================
@@ -377,13 +373,13 @@ if [ ! -z "$KIWI_RECOVERY" ];then
         #--------------------------------------
         if [ ! -z "$RESTORE" ];then
             getText "Clean sweep..." > /progress
-            export FSTYPE=$(cat /reco-save/recovery.tar.filesystem)
-            createFilesystem $imageRootDevice "" $(cat /reco-save/root.uuid)
+            fstype=$(cat /reco-save/recovery.tar.filesystem)
+            createFilesystem $imageRootDevice $fstype "" $(cat /reco-save/root.uuid)
             if ! mountSystem $imageRootDevice;then
                 Echo "Failed to mount root filesystem"
                 exit 1
             fi
-            if [ "$FSTYPE" = "btrfs" ];then
+            if [ "$fstype" = "btrfs" ];then
                 if ! restoreBtrfsSubVolumes /mnt;then
                     Echo "Failed to restore btrfs subvolumes"
                     exit 1
@@ -549,8 +545,9 @@ if [ ! -z "$KIWI_RECOVERY" ];then
             imageBootMountP=$(echo $imageBootDevice | cut -f2 -d:)
             imageBootDevice=$(echo $imageBootDevice | cut -f1 -d:)
             rm -rf /mnt/boot
-            probeFileSystem $imageBootDevice
-            createFilesystem $imageBootDevice "" $(cat /reco-save/boot.uuid)
+            fstype_boot=$(probeFileSystem $imageBootDevice)
+            createFilesystem \
+                $imageBootDevice $fstype_boot "" $(cat /reco-save/boot.uuid)
             mkdir -p /mnt/$imageBootMountP
             mount $imageBootDevice /mnt/$imageBootMountP
             pushd /mnt/$imageBootMountP >/dev/null

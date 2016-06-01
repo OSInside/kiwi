@@ -191,15 +191,15 @@ fi
 #======================================
 # 10) Get filesystem type
 #--------------------------------------
-probeFileSystem $imageRootDevice
-if [ "$FSTYPE" = "luks" ];then
+fstype=$(probeFileSystem $imageRootDevice)
+if [ "$fstype" = "luks" ];then
     luksOpen $imageRootDevice
     imageRootDevice=$luksDeviceOpened
     imageRODevice=$imageRootDevice
-    probeFileSystem $imageRootDevice
+    fstype=$(probeFileSystem $imageRootDevice)
     export haveLuks=yes
 fi
-if [ "$FSTYPE" = "unknown" ];then
+if [ "$fstype" = "unknown" ];then
     systemException \
         "Couldn't determine filesystem type... abort" \
     "reboot"
@@ -208,9 +208,9 @@ fi
 #======================================
 # 11) Check filesystem
 #--------------------------------------
-Echo "Filesystem of VMX system is: $FSTYPE -> $imageRootDevice"
-if isFSTypeReadOnly;then
-    setupUnionFS $imageRWDevice $imageRODevice $unionFST
+Echo "Filesystem of VMX system is: $fstype -> $imageRootDevice"
+if [ ! -z "$kiwi_ROPart" ];then
+    setupUnionFS $imageRWDevice $imageRODevice overlay
 fi
 
 #======================================

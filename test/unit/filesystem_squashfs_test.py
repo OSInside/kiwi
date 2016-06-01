@@ -19,5 +19,15 @@ class TestFileSystemSquashfs(object):
     def test_create_on_file(self, mock_command):
         self.squashfs.create_on_file('myimage', 'label')
         mock_command.assert_called_once_with(
-            ['mksquashfs', 'root_dir', 'myimage', '-comp', 'xz']
+            ['mksquashfs', 'root_dir', 'myimage', '-noappend', '-comp', 'xz']
+        )
+
+    @patch('kiwi.filesystem.squashfs.Command.run')
+    def test_create_on_file_exclude_data(self, mock_command):
+        self.squashfs.create_on_file('myimage', 'label', ['foo'])
+        mock_command.assert_called_once_with(
+            [
+                'mksquashfs', 'root_dir', 'myimage',
+                '-noappend', '-comp', 'xz', '-e', 'foo'
+            ]
         )

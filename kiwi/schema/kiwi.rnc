@@ -1666,9 +1666,15 @@ div {
     k.type.filesystem.attribute = 
         ## Specifies the root filesystem type
         attribute filesystem {
-            "btrfs" | "clicfs" | "ext2" | "ext3" | "ext4" |
-            "overlayfs" | "squashfs" | "xfs"
+            "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs"
         }
+    k.type.overlayroot.attribute =
+        ## Specifies to use an overlay root system consisting
+        ## out of a squashfs compressed read-only root system
+        ## overlayed using the overlayfs filesystem into an
+        ## extra read-write partition. Available for the disk
+        ## image types, vmx and oem
+        attribute overlayroot { xsd:boolean }
     k.type.firmware.attribute =
         ## Specifies the boot firmware of the system. Most systems
         ## uses a standard BIOS but there are also other firmware
@@ -1876,6 +1882,7 @@ div {
         k.type.luks.attribute? &
         k.type.luksOS.attribute? &
         k.type.mdraid.attribute? &
+        k.type.overlayroot.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &

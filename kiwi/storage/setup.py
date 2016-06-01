@@ -78,6 +78,7 @@ class DiskSetup(object):
         Instance of XMLState
     """
     def __init__(self, xml_state, root_dir):
+        self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.configured_size = xml_state.get_build_type_size()
         self.build_type_name = xml_state.get_build_type_name()
         self.filesystem = xml_state.build_type.get_filesystem()
@@ -224,6 +225,8 @@ class DiskSetup(object):
         if self.filesystem == 'btrfs':
             return True
         if self.filesystem == 'xfs':
+            return True
+        if self.root_filesystem_is_overlay:
             return True
         if self.bootloader == 'grub2_s390x_emu':
             return True

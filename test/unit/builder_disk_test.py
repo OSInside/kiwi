@@ -25,6 +25,7 @@ class TestDiskBuilder(object):
         )
         self.device_map = {
             'root': MappedDevice('/dev/root-device', mock.Mock()),
+            'readonly': MappedDevice('/dev/readonly-root-device', mock.Mock()),
             'boot': MappedDevice('/dev/boot-device', mock.Mock()),
             'prep': MappedDevice('/dev/prep-device', mock.Mock()),
             'efi': MappedDevice('/dev/efi-device', mock.Mock())
@@ -136,6 +137,7 @@ class TestDiskBuilder(object):
         self.disk_builder = DiskBuilder(
             XMLState(description.load()), 'target_dir', 'root_dir'
         )
+        self.disk_builder.root_filesystem_is_overlay = False
         self.disk_builder.build_type_name = 'oem'
         self.machine = mock.Mock()
         self.machine.get_domain = mock.Mock(
@@ -159,6 +161,12 @@ class TestDiskBuilder(object):
     @raises(KiwiInstallMediaError)
     def test_create_invalid_type_for_install_media(self):
         self.disk_builder.build_type_name = 'vmx'
+        self.disk_builder.create()
+
+    @raises(KiwiVolumeManagerSetupError)
+    def test_create_overlay_with_volume_setup_not_supported(self):
+        self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.volume_manager_name = 'lvm'
         self.disk_builder.create()
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -293,6 +301,42 @@ class TestDiskBuilder(object):
         self.disk_builder.create()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
             uuid='0815', initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3'
+        )
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch('kiwi.builder.disk.FileSystemSquashFs')
+    @patch('builtins.open')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.NamedTemporaryFile')
+    def test_create_standard_root_is_overlay(
+        self, mock_temp, mock_getsize, mock_exists, mock_command,
+        mock_open, mock_squashfs, mock_fs
+    ):
+        self.disk_builder.root_filesystem_is_overlay = True
+        squashfs = mock.Mock()
+        mock_squashfs.return_value = squashfs
+        mock_getsize.return_value = 1048576
+        tempfile = mock.Mock()
+        tempfile.name = 'tempname'
+        mock_temp.return_value = tempfile
+        mock_exists.return_value = True
+        self.disk_builder.create()
+        assert mock_squashfs.call_args_list == [
+            call(device_provider=None, root_dir='root_dir'),
+            call(device_provider=None, root_dir='root_dir')
+        ]
+        assert squashfs.create_on_file.call_args_list == [
+            call(exclude=['var/cache/kiwi'], filename='tempname'),
+            call(exclude=[
+                'image', '.profile', '.kconfig', 'var/cache/kiwi',
+                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
+            ], filename='tempname')
+        ]
+        self.disk.create_root_readonly_partition.assert_called_once_with(51)
+        assert mock_command.call_args_list.pop() == call(
+            ['dd', 'if=tempname', 'of=/dev/readonly-root-device']
         )
 
     @patch('kiwi.builder.disk.FileSystem')

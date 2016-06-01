@@ -102,7 +102,7 @@ class FileSystemBase(object):
         """
         raise NotImplementedError
 
-    def create_on_file(self, filename, label=None):
+    def create_on_file(self, filename, label=None, exclude=None):
         """
         Create filesystem from root data tree
 
@@ -111,6 +111,7 @@ class FileSystemBase(object):
 
         :param string filename: result file path name
         :param string label: label name
+        :param list exclude: list of exclude dirs/files
         """
         raise NotImplementedError
 
@@ -118,7 +119,7 @@ class FileSystemBase(object):
         """
         Copy root data tree into filesystem
 
-        :param list exclude: list of items to exclude
+        :param list exclude: list of exclude dirs/files
         """
         if not self.root_dir:
             raise KiwiFileSystemSyncError(

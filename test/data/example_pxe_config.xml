@@ -19,7 +19,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="pxe" filesystem="overlayfs" boot="netboot/suse-13.2">
+        <type image="pxe" filesystem="squashfs" boot="netboot/suse-13.2">
             <pxedeploy server="192.168.100.2" blocksize="4096">
                 <partitions device="/dev/sda">
                     <partition type="swap" number="1" size="5"/>

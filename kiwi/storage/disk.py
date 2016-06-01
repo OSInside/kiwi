@@ -108,6 +108,8 @@ class Disk(DeviceProvider):
         self.partitioner.create('p.lxroot', mbsize, 't.linux')
         self.__add_to_map('root')
         self.__add_to_public_id_map('kiwi_RootPart')
+        if 'kiwi_ROPart' in self.public_partition_id_map:
+            self.__add_to_public_id_map('kiwi_RWPart')
         if 'kiwi_BootPart' not in self.public_partition_id_map:
             self.__add_to_public_id_map('kiwi_BootPart')
 
@@ -139,6 +141,21 @@ class Disk(DeviceProvider):
         self.__add_to_public_id_map('kiwi_RootPart')
         self.__add_to_public_id_map('kiwi_RaidPart')
         self.__add_to_public_id_map('kiwi_RaidDev', '/dev/md0')
+
+    def create_root_readonly_partition(self, mbsize):
+        """
+        Create root readonly partition for use with overlayfs
+
+        Populates kiwi_ReadOnlyPart(id), the partition is meant to
+        contain a squashfs readonly filesystem. The partition size
+        should be the size of the squashfs filesystem in order to
+        avoid wasting disk space
+
+        :param int mbsize: partition size
+        """
+        self.partitioner.create('p.lxreadonly', mbsize, 't.linux')
+        self.__add_to_map('readonly')
+        self.__add_to_public_id_map('kiwi_ROPart')
 
     def create_boot_partition(self, mbsize):
         """

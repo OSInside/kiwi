@@ -94,6 +94,11 @@ class TestDiskSetup(object):
         self.setup.volume_manager = 'lvm'
         assert self.setup.need_boot_partition() is True
 
+    def test_need_boot_partition_overlay(self):
+        self.__init_bootpart_check()
+        self.setup.root_filesystem_is_overlay = True
+        assert self.setup.need_boot_partition() is True
+
     def test_need_boot_partition_btrfs(self):
         self.__init_bootpart_check()
         self.setup.filesystem = 'btrfs'
@@ -209,6 +214,7 @@ class TestDiskSetup(object):
         assert self.setup_ppc.get_root_label() == 'MYLABEL'
 
     def __init_bootpart_check(self):
+        self.setup.root_filesystem_is_overlay = None
         self.setup.bootpart_requested = None
         self.setup.mdraid = None
         self.setup.volume_manager = None
