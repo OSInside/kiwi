@@ -298,7 +298,7 @@ class Defaults(object):
         :return: mbsize
         :rtype: int
         """
-        return 200
+        return 300
 
     @classmethod
     def get_default_vboot_mbytes(self):
