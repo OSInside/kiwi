@@ -218,7 +218,7 @@ function OEMRepartStandard {
 #--------------------------------------
 function OEMRepartSplit {
     # /.../
-    # repartition disk for overlay systems with
+    # repartition disk for overlay systems
     # Initial partition table layout is:
     # =====================================
     # pX:   ( boot )
@@ -619,7 +619,7 @@ function OEMRepart {
         OEMPartitionInstall
     elif [ ! -z "$haveLVM" ];then
         OEMRepartLVM
-    elif isFSTypeReadOnly;then
+    elif [ ! -z "$kiwi_ROPart" ];then
         OEMRepartSplit
     else
         OEMRepartStandard
@@ -636,14 +636,13 @@ function OEMRepart {
         createLuksMaps
     fi
     #======================================
-    # find fstype for root partition
+    # wait for root device to appear
     #--------------------------------------
     if ! waitForStorageDevice $imageRootDevice &>/dev/null;then
         systemException \
             "Device $imageRootDevice doesn't appear... fatal !" \
         "reboot"
     fi
-    probeFileSystem $imageRootDevice
     #======================================
     # Activate swap space
     #--------------------------------------
@@ -871,7 +870,7 @@ function createLuksMaps {
         export imageRootDevice=$luksDeviceOpened
         luksResize
     fi
-    if isFSTypeReadOnly;then
+    if [ ! -z "$kiwi_ROPart" ];then
         luksOpen $imageIOWRDevice luksReadWrite
         export imageIOWRDevice=$luksDeviceOpened
         export imageRWDevice=$imageIOWRDevice
@@ -914,7 +913,6 @@ function resizeLVMVolumes {
             lvextend -L +${volume_size}M /dev/$kiwi_lvmgroup/$volume_name
         fi
         if [ $? = 0 ];then
-            unset FSTYPE
             resizeFilesystem /dev/$kiwi_lvmgroup/$volume_name
         else
             Echo "Warning: requested size cannot be reached !"

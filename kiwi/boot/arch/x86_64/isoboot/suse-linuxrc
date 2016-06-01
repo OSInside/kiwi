@@ -189,11 +189,10 @@ CDUmount
 # 10) Get filesystem type
 #--------------------------------------
 if [ -z "$UNIONFS_CONFIG" ] && [ -e "$imageDevice" ];then
-    probeFileSystem $imageDevice
-    if [ "$FSTYPE" = "luks" ];then
+    fstype=$(probeFileSystem $imageDevice)
+    if [ "$fstype" = "luks" ];then
         luksOpen $imageDevice
         imageDevice=$luksDeviceOpened
-        probeFileSystem $imageDevice
         export haveLuks=yes
     fi
     resizeFilesystem $imageDevice

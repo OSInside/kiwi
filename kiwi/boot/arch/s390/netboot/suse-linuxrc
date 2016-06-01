@@ -335,13 +335,12 @@ if [ $LOCAL_BOOT = "no" ] && [ $haveDisk = "1" ];then
         done
         updateNeeded initialize
         if [ "$partOK" = "1" ] ;then
-            probeFileSystem $imageDevice
-            if [ "$FSTYPE" = "luks" ];then
+            fstype=$(probeFileSystem $imageDevice)
+            if [ "$fstype" = "luks" ];then
                 luks_open_can_fail=yes
                 if luksOpen $imageDevice ; then
                     imageDevice=$luksDeviceOpened
                     imageRODevice=$imageDevice
-                    probeFileSystem $imageRootDevice
                     export haveLuks=yes
                 fi
                 unset luks_open_can_fail
@@ -414,12 +413,12 @@ then
         #--------------------------------------
         if ! waitForStorageDevice $raidDiskFirst;then
             systemException \
-                "Disk $raidDiskFirst doesn't appear... fatal !" \
+                "Disk $raidDiskFirst does not appear... fatal !" \
             "reboot"
         fi
         if ! waitForStorageDevice $raidDiskSecond;then
             systemException \
-                "Disk $raidDiskSecond doesn't appear... fatal !" \
+                "Disk $raidDiskSecond does not appear... fatal !" \
             "reboot"
         fi
         #======================================
@@ -464,7 +463,8 @@ then
     if [ -z "$RAID" ];then
         export imageBootDevice=$(pxeBootDevice)
         if [ ! -z "$imageBootDevice" ];then
-            createFilesystem $imageBootDevice
+            fstype_boot=$(probeFileSystem $imageBootDevice)
+            createFilesystem $imageBootDevice $fstype_boot
         fi
     fi
     runHook postpartition
@@ -665,11 +665,10 @@ else
         fi
         imageRootName="NFSRoot-System"
         systemIntegrity="clean"
-        export FSTYPE=nfs
         if [ ! -z "$UNIONFS_CONFIG" ];then
-            imageRWDevice=`echo $UNIONFS_CONFIG | cut -d , -f 1`
-            imageRODevice=`echo $UNIONFS_CONFIG | cut -d , -f 2`
-            unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
+            imageRWDevice=$(echo $UNIONFS_CONFIG | cut -d , -f 1)
+            imageRODevice=$(echo $UNIONFS_CONFIG | cut -d , -f 2)
+            unionFST=$(echo $UNIONFS_CONFIG | cut -d , -f 3)
             if [ "$unionFST" = "clicfs" ];then
                 systemException "clicfs over NFSROOT is not supported" "reboot"
             fi
@@ -679,7 +678,7 @@ else
     # 15.4) Check for NBD root
     #--------------------------------------
     if [ ! -z "$NBDROOT" ];then
-        unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
+        unionFST=$(echo $UNIONFS_CONFIG | cut -d , -f 3)
         if ! modprobe nbd;then
             systemException "Failed to load network blk device module" "reboot"
         fi
@@ -714,18 +713,18 @@ else
         fi
         waitForBlockDevice $nbdDevice
         if [ ! -b $nbdDevice ];then
-            systemException "Device $nbdDevice doesn't appear" "reboot"
+            systemException "Device $nbdDevice does not appear" "reboot"
         fi
         if [ ! -z "$nbdwriteName" ];then
             waitForBlockDevice $nbdwriteDevice
             if [ ! -b $nbdwriteDevice ];then
-                systemException "Device $nbdwriteDevice doesn't appear" "reboot"
+                systemException "Device $nbdwriteDevice does not appear" "reboot"
             fi
         fi
         if [ ! -z "$nbdswapName" ];then
             waitForBlockDevice $nbdswapDevice
             if [ ! -b $nbdswapDevice ];then
-                systemException "Device $nbdswapDevice doesn't appear" "reboot"
+                systemException "Device $nbdswapDevice does not appear" "reboot"
             fi
         fi
         # /.../
@@ -770,7 +769,9 @@ else
         # ----
         Echo "Mounting NBD root system: $nbdServer [$nbdName] [$nbdDevice]..."
         if ! nbd-client -N $nbdName $nbdServer $nbdDevice -persist;then
-            systemException "Failed to setup $nbdDevice device" "reboot"
+            systemException \
+                "Failed to setup $nbdDevice device" \
+            "reboot"
         fi
         # /.../
         # setup union if basic root filesystem is read-only
@@ -785,9 +786,9 @@ else
     # 15.5) Check for AOE root
     #--------------------------------------
     if [ ! -z "$AOEROOT" ];then
-        aoeRODevice=`echo $AOEROOT | cut -d , -f 1`
-        aoeRWDevice=`echo $AOEROOT | cut -d , -f 2`
-        unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
+        aoeRODevice=$(echo $AOEROOT | cut -d , -f 1)
+        aoeRWDevice=$(echo $AOEROOT | cut -d , -f 2)
+        unionFST=$(echo $UNIONFS_CONFIG | cut -d , -f 3)
         if [ -z "$aoeRWDevice" ] || [ "$aoeRODevice" = "$aoeRWDevice" ];then
             aoeRWDevice=/dev/ram1
         fi
@@ -796,7 +797,7 @@ else
         fi
         waitForBlockDevice $aoeRODevice
         if [ ! -b $aoeRODevice ];then
-            systemException "Device $aoeRODevice doesn't appear" "reboot"
+            systemException "Device $aoeRODevice does not appear" "reboot"
         fi
         # /.../
         # check ram space, if we don't have more than 62MB
@@ -822,15 +823,15 @@ runHook postdownload
 # 16) Get filesystem type
 #--------------------------------------
 if [ -b $imageRootDevice ];then
-    probeFileSystem $imageRootDevice
-    if [ "$FSTYPE" = "luks" ];then
+    fstype=$(probeFileSystem $imageRootDevice)
+    if [ "$fstype" = "luks" ];then
         luksOpen $imageRootDevice
         imageRootDevice=$luksDeviceOpened
         imageRODevice=$imageRootDevice
-        probeFileSystem $imageRootDevice
+        fstype=$(probeFileSystem $imageRootDevice)
         export haveLuks=yes
     fi
-    if [ "$FSTYPE" = "unknown" ];then
+    if [ "$fstype" = "unknown" ];then
         systemException \
             "Couldn't determine filesystem type... abort" \
         "reboot"
@@ -849,8 +850,8 @@ fi
 #======================================
 # 18) Check filesystem
 #--------------------------------------
-Echo "Filesystem of PXE system is: $FSTYPE -> $imageRootDevice"
-if isFSTypeReadOnly || [ ! -z "$UNIONFS_CONFIG" ]; then
+Echo "Filesystem of PXE system is: $fstype -> $imageRootDevice"
+if [ ! -z "$kiwi_ROPart" ] || [ ! -z "$UNIONFS_CONFIG" ]; then
     if [ ! -z "$imageRWDevice" ] && [ ! -z "$imageRODevice" ];then
         setupUnionFS $imageRWDevice $imageRODevice $unionFST
     fi
@@ -997,12 +998,9 @@ fi
 runHook postconfig
 
 #======================================
-# 21) check filesystem and kernels
+# 21) check kernels
 #--------------------------------------
 if [ $LOCAL_BOOT = "no" ] && [ $systemIntegrity = "clean" ];then
-    if [ "$FSTYPE" != "nfs" ];then
-        probeFileSystem $imageRootDevice
-    fi
     kernelList /mnt
 fi
 
