@@ -117,6 +117,9 @@ build: clean po tox
 	# buildservice this data is needed
 	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
 
+pypi: clean po tox
+	python3 setup.py sdist upload
+
 clean: clean_git_attributes
 	rm -f setup.build.py
 	rm -rf dist
