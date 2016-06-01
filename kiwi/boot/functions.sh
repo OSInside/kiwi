@@ -6728,10 +6728,10 @@ function bootImage {
         exec chroot . /sbin/halt -fihp
     fi
     if lookup switch_root &>/dev/null;then
-        exec switch_root . $init $option
+        exec switch_root . $init $option &>/dev/null
     else
         if lookup pivot_root &>/dev/null;then
-            pivot_root . run/initramfs
+            pivot_root . run/initramfs &>/dev/null
         fi
         exec chroot . $init $option
     fi
