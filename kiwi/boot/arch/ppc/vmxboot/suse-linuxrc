@@ -211,7 +211,7 @@ fi
 #--------------------------------------
 Echo "Filesystem of VMX system is: $fstype -> $imageRootDevice"
 if [ ! -z "$kiwi_ROPart" ];then
-    setupUnionFS $imageRWDevice $imageRODevice $unionFST
+    setupUnionFS $imageRWDevice $imageRODevice overlay
 fi
 
 #======================================

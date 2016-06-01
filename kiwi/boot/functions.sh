@@ -4907,22 +4907,6 @@ function umountSystem {
     return $retval
 }
 #======================================
-# isFSTypeReadOnly
-#--------------------------------------
-function isFSTypeReadOnly {
-    local IFS=$IFS_ORIG
-    local fstype=$1
-    if [ "$fstype" = "squashfs" ];then
-        export unionFST=overlay
-        return 0
-    fi
-    if [ "$fstype" = "clicfs" ];then
-        export unionFST=clicfs
-        return 0
-    fi
-    return 1
-}
-#======================================
 # kiwiMount
 #--------------------------------------
 function kiwiMount {
@@ -9103,10 +9087,8 @@ function setupBootPartitionPXE {
     # standard /boot mount when the bootloader will be
     # installed in preinit.
     # ---
-    if ! isFSTypeReadOnly $fstype_boot;then
-        rm -rf $prefix/boot
-        mkdir $prefix/boot
-    fi
+    rm -rf $prefix/boot
+    mkdir $prefix/boot
     mkdir $prefix/$mpoint
     mount $imageBootDevice $prefix/$mpoint
     mount --bind \
@@ -9177,10 +9159,8 @@ function setupBootPartition {
     # standard /boot mount when the bootloader will be
     # installed in preinit.
     # ---
-    if ! isFSTypeReadOnly $bootPartitionFSType;then
-        rm -rf $prefix/boot
-        mkdir $prefix/boot
-    fi
+    rm -rf $prefix/boot
+    mkdir $prefix/boot
     mkdir $prefix/$mpoint
     mount $imageBootDevice $prefix/$mpoint
     mount --bind \

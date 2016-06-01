@@ -259,7 +259,7 @@ setupInitialDeviceNames
 # 11) Check for read-only filesystem
 #--------------------------------------
 if [ ! -z "$kiwi_ROPart" ];then
-    setupUnionFS $imageRWDevice $imageRODevice $unionFST
+    setupUnionFS $imageRWDevice $imageRODevice overlay
 fi
 
 #======================================

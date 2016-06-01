@@ -972,7 +972,7 @@ if [ $LOCAL_BOOT = "no" ] || [ ! -z "$RELOAD_CONFIG" ];then
             export PXE_KIWI_INITRD=yes
         fi
         if [ ! -z "$UNIONFS_CONFIG" ]; then
-            unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
+            unionFST=$(echo $UNIONFS_CONFIG | cut -d , -f 3)
             UNIONED="UNIONFS_CONFIG=$unionFST"
             KIWI_INITRD_PARAMS="$KIWI_INITRD_PARAMS $UNIONED"
         fi

@@ -214,8 +214,8 @@ fi
 # 11) Check filesystem
 #--------------------------------------
 Echo "Filesystem of VMX system is: $fstype -> $imageRootDevice"
-if isFSTypeReadOnly $fstype;then
-    setupUnionFS $imageRWDevice $imageRODevice $unionFST
+if [ ! -z "$kiwi_ROPart" ];then
+    setupUnionFS $imageRWDevice $imageRODevice overlay
 fi
 
 #======================================
