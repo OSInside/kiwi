@@ -146,7 +146,10 @@ class RepositoryZypper(RepositoryBase):
             'command_env': self.command_env
         }
 
-    def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
+    def add_repo(
+        self, name, uri, repo_type='rpm-md',
+        prio=None, dist=None, components=None
+    ):
         """
         Add zypper repository
 
@@ -154,6 +157,8 @@ class RepositoryZypper(RepositoryBase):
         :param string uri: repository URI
         :param repo_type: repostory type name
         :param int prio: yum repostory priority
+        :param dist: unused
+        :param components: unused
         """
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')

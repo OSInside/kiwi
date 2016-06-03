@@ -62,11 +62,11 @@ class RepositoryYum(RepositoryBase):
         # persistent use of the files in and outside of a chroot call
         # an active bind mount from RootBind::mount_shared_directory
         # is expected and required
-        manager_base = self.shared_location
+        manager_base = self.shared_location + '/yum'
 
         self.shared_yum_dir = {
-            'reposd-dir': manager_base + '/yum/repos',
-            'cache-dir': manager_base + '/yum/cache'
+            'reposd-dir': manager_base + '/repos',
+            'cache-dir': manager_base + '/cache'
         }
 
         self.runtime_yum_config_file = NamedTemporaryFile(
@@ -104,7 +104,10 @@ class RepositoryYum(RepositoryBase):
             'command_env': self.command_env
         }
 
-    def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
+    def add_repo(
+        self, name, uri, repo_type='rpm-md',
+        prio=None, dist=None, components=None
+    ):
         """
         Add yum repository
 
@@ -112,6 +115,8 @@ class RepositoryYum(RepositoryBase):
         :param string uri: repository URI
         :param repo_type: repostory type name
         :param int prio: yum repostory priority
+        :param dist: unused
+        :param components: unused
         """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')

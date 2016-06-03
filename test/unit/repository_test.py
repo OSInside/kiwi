@@ -25,3 +25,9 @@ class TestRepository(object):
         root_bind = mock.Mock()
         Repository(root_bind, 'yum')
         mock_manager.assert_called_once_with(root_bind, None)
+
+    @patch('kiwi.repository.RepositoryApt')
+    def test_repository_apt(self, mock_manager):
+        root_bind = mock.Mock()
+        Repository(root_bind, 'apt-get')
+        mock_manager.assert_called_once_with(root_bind, None)
