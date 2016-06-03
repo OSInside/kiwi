@@ -58,6 +58,8 @@ class RepositoryApt(RepositoryBase):
         if not custom_args:
             self.custom_args = []
 
+        self.distribution = None
+        self.distribution_path = None
         self.repo_names = []
 
         # apt-get support is based on creating a sources file which
@@ -99,7 +101,9 @@ class RepositoryApt(RepositoryBase):
         """
         return {
             'apt_get_args': self.apt_get_args,
-            'command_env': self.command_env
+            'command_env': self.command_env,
+            'distribution': self.distribution,
+            'distribution_path': self.distribution_path
         }
 
     def add_repo(
@@ -114,7 +118,7 @@ class RepositoryApt(RepositoryBase):
         :param repo_type: unused
         :param int prio: unused
         :param dist: distribution name for non flat deb repos
-        :param components: list of distribution categories
+        :param components: distribution categories
         """
         list_file = self.shared_apt_get_dir['sources-dir'] + \
             '/' + name + '.list'
@@ -123,7 +127,7 @@ class RepositoryApt(RepositoryBase):
             # apt-get requires local paths to take the file: type
             uri = 'file:/' + uri
         if not components:
-            components = ['main']
+            components = 'main'
         with open(list_file, 'w') as repo:
             if not dist:
                 # create a debian flat repository setup. We consider the
@@ -132,12 +136,14 @@ class RepositoryApt(RepositoryBase):
                 # service creates debian repositories and should be
                 # done in the same way for other repositories when used
                 # with kiwi
-                repo.write('deb %s ./' % uri)
+                repo.write('deb %s ./\n' % uri)
             else:
                 # create a debian distributon repository setup for the
                 # specified distributon name and components
-                repo.write('deb %s %s %s' % (
-                    uri, dist, ' '.join(components))
+                self.distribution = dist
+                self.distribution_path = uri
+                repo.write(
+                    'deb %s %s %s\n' % (uri, dist, components)
                 )
 
     def delete_repo(self, name):

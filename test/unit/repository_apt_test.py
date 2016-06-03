@@ -67,10 +67,10 @@ class TestRepositoryApt(object):
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
         self.repo.add_repo(
-            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', ['a', 'b']
+            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b'
         )
         self.file_mock.write.assert_called_once_with(
-            'deb file:/kiwi_iso_mount/uri xenial a b'
+            'deb file:/kiwi_iso_mount/uri xenial a b\n'
         )
         mock_open.assert_called_once_with(
             '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
@@ -87,7 +87,7 @@ class TestRepositoryApt(object):
             'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial'
         )
         self.file_mock.write.assert_called_once_with(
-            'deb file:/kiwi_iso_mount/uri xenial main'
+            'deb file:/kiwi_iso_mount/uri xenial main\n'
         )
         mock_open.assert_called_once_with(
             '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
@@ -102,7 +102,7 @@ class TestRepositoryApt(object):
             'foo', 'http://repo.com', 'deb'
         )
         self.file_mock.write.assert_called_once_with(
-            'deb http://repo.com ./'
+            'deb http://repo.com ./\n'
         )
         mock_open.assert_called_once_with(
             '/shared-dir/apt-get/sources.list.d/foo.list', 'w'

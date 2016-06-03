@@ -132,6 +132,8 @@ class SystemSetup(object):
                 repo_source = xml_repo.get_source().get_path()
                 repo_alias = xml_repo.get_alias()
                 repo_priority = xml_repo.get_priority()
+                repo_dist = xml_repo.get_distribution()
+                repo_components = xml_repo.get_components()
                 uri = Uri(repo_source, repo_type)
                 repo_source_translated = uri.translate()
                 if not repo_alias:
@@ -141,7 +143,8 @@ class SystemSetup(object):
                 log.info('--> Translated: %s', repo_source_translated)
                 log.info('--> Alias: %s', repo_alias)
                 repo.add_repo(
-                    repo_alias, repo_source_translated, repo_type, repo_priority
+                    repo_alias, repo_source_translated,
+                    repo_type, repo_priority, repo_dist, repo_components
                 )
 
     def import_shell_environment(self, profile):
