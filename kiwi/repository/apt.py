@@ -79,7 +79,7 @@ class RepositoryApt(RepositoryBase):
         )
 
         self.apt_get_args = [
-            '-c', self.runtime_apt_get_config_file.name, '-y'
+            '-q', '-c', self.runtime_apt_get_config_file.name, '-y'
         ] + self.custom_args
 
         self.command_env = self.__create_apt_get_runtime_environment()
@@ -182,7 +182,7 @@ class RepositoryApt(RepositoryBase):
         for apt_get_dir in list(self.shared_apt_get_dir.values()):
             Path.create(apt_get_dir)
         return dict(
-            os.environ, LANG='C'
+            os.environ, LANG='C', DEBIAN_FRONTEND='noninteractive'
         )
 
     def __write_runtime_config(self, system_default=False):
