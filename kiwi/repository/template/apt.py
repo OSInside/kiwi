@@ -44,7 +44,9 @@ class PackageManagerTemplateAptGet(object):
             {
                 Get
                 {
-                    Force-Yes "true";
+                    AllowDowngrades "true";
+                    AllowRemoveEssential "true";
+                    AllowChangeHeldPackages "true";
                     AllowUnauthenticated "true";
                 }
             };
