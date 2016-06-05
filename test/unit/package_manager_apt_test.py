@@ -1,6 +1,6 @@
 
 from mock import patch
-
+from mock import call
 import mock
 import re
 
@@ -90,12 +90,15 @@ class TestPackageManagerApt(object):
         data.sync_data.assert_called_once_with(
             options=['-a', '-H', '-X', '-A']
         )
-        mock_run.assert_called_once_with(
-            [
-                'debootstrap', '--no-check-gpg', 'xenial',
-                'root-dir.debootstrap', 'xenial_path'
-            ], ['env']
-        )
+        assert mock_run.call_args_list == [
+            call(command=['mountpoint', 'root-dir/dev'], raise_on_error=False),
+            call(
+                [
+                    'debootstrap', '--no-check-gpg', 'xenial',
+                    'root-dir.debootstrap', 'xenial_path'
+                ], ['env']
+            )
+        ]
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',

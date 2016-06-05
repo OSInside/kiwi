@@ -20,6 +20,7 @@ import os
 
 # project
 from ..command import Command
+from ..mount_manager import MountManager
 from ..logger import log
 from ..utils.sync import DataSync
 from ..path import Path
@@ -117,6 +118,10 @@ class PackageManagerApt(PackageManagerBase):
         )
         bootstrap_dir = self.root_dir + '.debootstrap'
         try:
+            dev_mount = MountManager(
+                device='/dev', mountpoint=self.root_dir + '/dev'
+            )
+            dev_mount.umount()
             Command.run(
                 [
                     'debootstrap', '--no-check-gpg', self.distribution,
