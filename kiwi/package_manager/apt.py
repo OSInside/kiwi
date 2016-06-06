@@ -113,6 +113,9 @@ class PackageManagerApt(PackageManagerBase):
                 self.distribution
             )
         bootstrap_dir = self.root_dir + '.debootstrap'
+        if 'apt-get' in self.package_requests:
+            # debootstrap takes care to install apt-get
+            self.package_requests.remove('apt-get')
         try:
             dev_mount = MountManager(
                 device='/dev', mountpoint=self.root_dir + '/dev'

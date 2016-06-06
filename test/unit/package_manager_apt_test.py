@@ -67,6 +67,7 @@ class TestPackageManagerApt(object):
     def test_process_install_requests_bootstrap_failed_debootstrap(
         self, mock_wipe, mock_exists, mock_run
     ):
+        self.manager.request_package('apt-get')
         mock_run.side_effect = Exception
         mock_exists.return_value = True
         self.manager.process_install_requests_bootstrap()
@@ -78,6 +79,7 @@ class TestPackageManagerApt(object):
     def test_process_install_requests_bootstrap(
         self, mock_sync, mock_exists, mock_run, mock_call
     ):
+        self.manager.request_package('apt-get')
         self.manager.request_package('vim')
         data = mock.Mock()
         mock_sync.return_value = data
