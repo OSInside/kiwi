@@ -112,10 +112,6 @@ class PackageManagerApt(PackageManagerBase):
                 'debootstrap script for %s distribution not found' %
                 self.distribution
             )
-        self.cleanup_requests()
-        log.warning(
-            'kiwi bootstrap information not used by debootstrap'
-        )
         bootstrap_dir = self.root_dir + '.debootstrap'
         try:
             dev_mount = MountManager(
@@ -148,9 +144,10 @@ class PackageManagerApt(PackageManagerBase):
         ] + chroot_apt_get_args + self.custom_args + [
             'update'
         ]
-        return Command.call(
+        Command.run(
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
+        return self.process_install_requests()
 
     def process_install_requests(self):
         """

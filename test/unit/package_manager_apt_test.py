@@ -63,10 +63,9 @@ class TestPackageManagerApt(object):
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.package_manager.apt.Path.wipe')
-    @patch('kiwi.logger.log.warning')
     @raises(KiwiRequestError)
     def test_process_install_requests_bootstrap_failed_debootstrap(
-        self, mock_log_warn, mock_wipe, mock_exists, mock_run
+        self, mock_wipe, mock_exists, mock_run
     ):
         mock_run.side_effect = Exception
         mock_exists.return_value = True
@@ -76,10 +75,10 @@ class TestPackageManagerApt(object):
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.package_manager.apt.DataSync')
-    @patch('kiwi.logger.log.warning')
     def test_process_install_requests_bootstrap(
-        self, mock_log_warn, mock_sync, mock_exists, mock_run, mock_call
+        self, mock_sync, mock_exists, mock_run, mock_call
     ):
+        self.manager.request_package('vim')
         data = mock.Mock()
         mock_sync.return_value = data
         mock_exists.return_value = True
@@ -97,13 +96,19 @@ class TestPackageManagerApt(object):
                     'debootstrap', '--no-check-gpg', 'xenial',
                     'root-dir.debootstrap', 'xenial_path'
                 ], ['env']
+            ),
+            call(
+                [
+                    'bash', '-c',
+                    'rm -r -f root-dir.debootstrap &&' + \
+                    ' chroot root-dir apt-get root-moved-arguments update'
+                ], ['env']
             )
         ]
         mock_call.assert_called_once_with(
             [
-                'bash', '-c',
-                'rm -r -f root-dir.debootstrap &&' + \
-                ' chroot root-dir apt-get root-moved-arguments update'
+                'chroot', 'root-dir', 'apt-get',
+                'root-moved-arguments', 'install', 'vim'
             ], ['env']
         )
 
