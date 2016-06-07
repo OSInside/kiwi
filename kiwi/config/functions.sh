@@ -990,6 +990,13 @@ function rhelGFXBoot {
 }
 
 #======================================
+# debianGFXBoot
+#--------------------------------------
+function debianGFXBoot {
+    debianGFXBoot $@
+}
+
+#======================================
 # rhelSplashToGrub
 #--------------------------------------
 function rhelSplashToGrub {
