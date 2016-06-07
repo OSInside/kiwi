@@ -57,7 +57,6 @@ class TestProfile(object):
             'kiwi_language': 'en_US',
             'kiwi_loader_theme': 'openSUSE',
             'kiwi_LVM_etc_volume': 'freespace:30:LVetc',
-            'kiwi_lvmgroup': None,
             'kiwi_LVM_LVRoot': 'freespace:500',
             'kiwi_LVM_LVusr_lib': 'size:1024',
             'kiwi_lvm': 'true',
