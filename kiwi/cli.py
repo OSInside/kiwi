@@ -55,6 +55,7 @@ global options for service: system
         image build type. If not set the default XML specified
         build type will be used
 """
+from __future__ import print_function
 import sys
 import glob
 import re
