@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
+
+from builtins import object
 from .logger import log
 from collections import namedtuple
 
