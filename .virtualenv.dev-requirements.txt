@@ -43,3 +43,7 @@ pyenchant
 
 # for test coverage
 coverage
+
+# Python 2 compatibility
+future
+six
