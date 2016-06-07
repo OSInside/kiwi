@@ -41,7 +41,7 @@ class TestDiskFormatVhdFixed(object):
         self.disk_format.create_image_format()
 
     @patch('kiwi.storage.subformat.vhdfixed.Command.run')
-    @patch('builtins.open')
+    @patch_open
     def test_create_image_format(self, mock_open, mock_command):
         self.disk_format.tag = '12345678-1234-1234-1234-123456789999'
         context_manager_mock = mock.Mock()

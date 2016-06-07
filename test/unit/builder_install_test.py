@@ -87,7 +87,7 @@ class TestInstallImageBuilder(object):
         assert install_image.arch == 'ix86'
 
     @patch('kiwi.builder.install.mkdtemp')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Iso.create_hybrid')
     def test_create_install_iso(
@@ -169,7 +169,7 @@ class TestInstallImageBuilder(object):
         )
 
     @patch('kiwi.builder.install.mkdtemp')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.builder.install.Command.run')
     @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_kernel_found(
@@ -179,7 +179,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_iso()
 
     @patch('kiwi.builder.install.mkdtemp')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.builder.install.Command.run')
     @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_hypervisor_found(
@@ -189,7 +189,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_iso()
 
     @patch('kiwi.builder.install.mkdtemp')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
@@ -202,7 +202,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_pxe_archive()
 
     @patch('kiwi.builder.install.mkdtemp')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
@@ -215,7 +215,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_pxe_archive()
 
     @patch('kiwi.builder.install.mkdtemp')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.ArchiveTar')
     @patch('kiwi.builder.install.Checksum')

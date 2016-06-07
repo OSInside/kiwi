@@ -21,7 +21,7 @@ class TestPartitionerMsDos(object):
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     def test_create(self, mock_open, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
         temp_type = namedtuple(
@@ -57,7 +57,7 @@ class TestPartitionerMsDos(object):
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     def test_create_all_free(
         self, mock_open, mock_temp, mock_flag, mock_command
     ):

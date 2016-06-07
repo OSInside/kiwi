@@ -43,7 +43,7 @@ class TestLuksDevice(object):
 
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     def test_create_crypto_luks(self, mock_open, mock_tmpfile, mock_command):
         tmpfile = mock.Mock()
         tmpfile.name = 'tmpfile'
@@ -67,7 +67,7 @@ class TestLuksDevice(object):
         ]
         self.luks.luks_device = None
 
-    @patch('builtins.open')
+    @patch_open
     def test_create_crypttab(self, mock_open):
         self.luks.luks_device = '/dev/mapper/luksRoot'
         context_manager_mock = mock.Mock()

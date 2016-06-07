@@ -135,7 +135,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.post_init(None)
         assert self.bootloader.xen_guest is True
 
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     def test_write(self, mock_exists, mock_open):
         mock_exists.return_value = True
@@ -263,7 +263,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     @patch('platform.machine')
     @raises(KiwiBootLoaderGrubModulesError)
     def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
@@ -285,7 +285,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_xen_guest_efi_image_needs_multiboot(
@@ -327,7 +327,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_disk_boot_images_bios_plus_efi(
@@ -437,7 +437,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_setup_install_boot_images_efi(
@@ -542,7 +542,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
@@ -570,7 +570,7 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')

@@ -33,7 +33,7 @@ class TestIso(object):
 
         self.iso = Iso('source-dir')
 
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @raises(KiwiIsoLoaderError)
     def test_init_iso_creation_parameters_no_loader(
@@ -49,7 +49,7 @@ class TestIso(object):
         iso = Iso('source-dir')
         assert iso.arch == 'ix86'
 
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.iso.Command.run')
     @patch('os.path.exists')
     @patch('os.walk')
@@ -92,7 +92,7 @@ class TestIso(object):
             ]
         )
 
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.iso.Command.run')
     @patch('kiwi.iso.Path.create')
     @patch('os.path.exists')
@@ -142,7 +142,7 @@ class TestIso(object):
 
     @patch('os.path.exists')
     @patch('kiwi.iso.Command.run')
-    @patch('builtins.open')
+    @patch_open
     def test_isols_usr_bin_isoinfo_used(
         self, mock_open, mock_command, mock_exists
     ):
@@ -159,7 +159,7 @@ class TestIso(object):
 
     @patch('os.path.exists')
     @patch('kiwi.iso.Command.run')
-    @patch('builtins.open')
+    @patch_open
     def test_isols_usr_lib_genisoimage_isoinfo_used(
         self, mock_open, mock_command, mock_exists
     ):
@@ -216,21 +216,21 @@ class TestIso(object):
             ]
         )
 
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_iso9660_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = b'bogus'
         Iso.fix_boot_catalog('isofile')
 
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_not_bootable(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = b'CD001'
         Iso.fix_boot_catalog('isofile')
 
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_path_table_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
@@ -242,7 +242,7 @@ class TestIso(object):
         self.file_mock.read.side_effect = side_effect
         Iso.fix_boot_catalog('isofile')
 
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_catalog_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
@@ -256,7 +256,7 @@ class TestIso(object):
         self.file_mock.read.side_effect = side_effect
         Iso.fix_boot_catalog('isofile')
 
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_catalog_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
@@ -272,7 +272,7 @@ class TestIso(object):
         self.file_mock.read.side_effect = side_effect
         Iso.fix_boot_catalog('isofile')
 
-    @patch('builtins.open')
+    @patch_open
     def test_relocate_boot_catalog(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
@@ -307,7 +307,7 @@ class TestIso(object):
             )
         ]
 
-    @patch('builtins.open')
+    @patch_open
     def test_fix_boot_catalog(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \

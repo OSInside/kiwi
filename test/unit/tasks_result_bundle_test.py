@@ -65,7 +65,7 @@ class TestResultBundleTask(object):
     @patch('kiwi.tasks.result_bundle.Compress')
     @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_process_result_bundle(
         self, mock_open, mock_exists, mock_checksum, mock_compress,
         mock_path, mock_command, mock_load

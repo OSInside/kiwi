@@ -57,7 +57,7 @@ class TestSystemSetup(object):
         assert setup.arch == 'ix86'
 
     @patch('kiwi.command.Command.run')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     def test_import_description(self, mock_path, mock_open, mock_command):
         mock_path.return_value = True
@@ -83,7 +83,7 @@ class TestSystemSetup(object):
             call(['cp', '../data/bootstrap.tgz', 'root_dir/image/'])]
 
     @patch('kiwi.command.Command.run')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     def test_import_description_archive_from_derived(
         self, mock_path, mock_open, mock_command
@@ -121,7 +121,7 @@ class TestSystemSetup(object):
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @raises(KiwiImportDescriptionError)
     def test_import_description_configured_editboot_scripts_not_found(
@@ -136,7 +136,7 @@ class TestSystemSetup(object):
         self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @raises(KiwiImportDescriptionError)
     def test_import_description_configured_archives_not_found(
@@ -157,7 +157,7 @@ class TestSystemSetup(object):
             ['rm', '-r', '-f', '/.kconfig', '/image']
         )
 
-    @patch('builtins.open')
+    @patch_open
     def test_import_shell_environment(self, mock_open):
         mock_profile = mock.MagicMock()
         mock_profile.create = mock.Mock(
@@ -369,7 +369,7 @@ class TestSystemSetup(object):
             ]
         )
 
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     def test_import_image_identifier(self, mock_os_path, mock_open):
         self.xml_state.xml_data.get_id = mock.Mock(
@@ -508,7 +508,7 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.NamedTemporaryFile')
     @patch('kiwi.system.setup.ArchiveTar')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.system.setup.Compress')
     @patch('os.path.getsize')
     @patch('kiwi.system.setup.Path.wipe')
@@ -604,7 +604,7 @@ class TestSystemSetup(object):
 
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_export_rpm_package_list(
         self, mock_open, mock_exists, mock_command
     ):
@@ -624,7 +624,7 @@ class TestSystemSetup(object):
 
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_export_rpm_package_verification(
         self, mock_open, mock_exists, mock_command
     ):

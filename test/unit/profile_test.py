@@ -129,7 +129,7 @@ class TestProfile(object):
         ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.system.shell.Shell.quote_key_value_file')
     def test_create_cpio(self, mock_shell_quote, mock_open, mock_temp):
         mock_temp.return_value = self.tmpfile

@@ -33,7 +33,7 @@ class TestDiskFormatGce(object):
 
     @patch('kiwi.storage.subformat.gce.Command.run')
     @patch('kiwi.storage.subformat.gce.ArchiveTar')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.storage.subformat.gce.mkdtemp')
     def test_create_image_format(
         self, mock_mkdtemp, mock_open, mock_archive, mock_command

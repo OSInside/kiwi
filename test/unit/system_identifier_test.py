@@ -21,7 +21,7 @@ class TestSystemIdentifier(object):
         self.identifier.calculate_id()
         assert self.identifier.get_id() == '0x0f0f0f0f'
 
-    @patch('builtins.open')
+    @patch_open
     def test_write(self, mock_open):
         self.identifier.image_id = 'some-id'
         context_manager_mock = mock.Mock()

@@ -18,7 +18,7 @@ from kiwi.system.root_bind import RootBind
 class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     def setup(self, mock_open, mock_temp, mock_command):
         tmpfile = mock.Mock()
         tmpfile.name = 'tmpfile'
