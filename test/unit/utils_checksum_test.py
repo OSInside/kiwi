@@ -1,5 +1,3 @@
-
-from mock import patch
 from mock import call
 import mock
 
@@ -7,6 +5,8 @@ from .test_helper import *
 
 from kiwi.exceptions import *
 from kiwi.utils.checksum import Checksum
+
+from builtins import bytes
 
 
 class TestChecksum(object):
@@ -20,7 +20,7 @@ class TestChecksum(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
-        read_results = [b'', b'data']
+        read_results = [bytes(b''), bytes(b'data')]
 
         def side_effect(arg):
             return read_results.pop()
@@ -37,7 +37,7 @@ class TestChecksum(object):
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
-    @patch('builtins.open')
+    @patch_open
     def test_md5_xz(self, mock_open, mock_size, mock_md5, mock_compress):
         compress = mock.Mock()
         digest = mock.Mock()
@@ -66,7 +66,7 @@ class TestChecksum(object):
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
-    @patch('builtins.open')
+    @patch_open
     def test_md5(self, mock_open, mock_size, mock_md5, mock_compress):
         compress = mock.Mock()
         digest = mock.Mock()
@@ -95,7 +95,7 @@ class TestChecksum(object):
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.sha256')
     @patch('os.path.getsize')
-    @patch('builtins.open')
+    @patch_open
     def test_sha256(self, mock_open, mock_size, mock_sha256, mock_compress):
         compress = mock.Mock()
         digest = mock.Mock()
@@ -122,7 +122,7 @@ class TestChecksum(object):
         )
 
     @patch('hashlib.sha256')
-    @patch('builtins.open')
+    @patch_open
     def test_sha256_plain(self, mock_open, mock_sha256):
         digest = mock.Mock()
         digest.block_size = 1024
@@ -134,7 +134,7 @@ class TestChecksum(object):
         assert self.checksum.sha256() == digest.hexdigest.return_value
 
     @patch('hashlib.md5')
-    @patch('builtins.open')
+    @patch_open
     def test_md5_plain(self, mock_open, mock_md5):
         digest = mock.Mock()
         digest.block_size = 1024

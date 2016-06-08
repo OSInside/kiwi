@@ -11,7 +11,7 @@ from kiwi.storage.disk import Disk
 
 class TestDisk(object):
     @patch('kiwi.storage.disk.Partitioner')
-    @patch('builtins.open')
+    @patch_open
     def setup(self, mock_open, mock_partitioner):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
@@ -194,7 +194,7 @@ class TestDisk(object):
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.storage.disk.NamedTemporaryFile')
     @patch('kiwi.logger.log.debug')
     def test_wipe_dasd(self, mock_debug, mock_temp, mock_open, mock_command):

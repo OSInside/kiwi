@@ -52,7 +52,7 @@ class TestRaidDevice(object):
         self.raid.raid_device = None
 
     @patch('kiwi.storage.raid_device.Command.run')
-    @patch('builtins.open')
+    @patch_open
     def test_create_raid_config(self, mock_open, mock_command):
         self.raid.raid_device = '/dev/md0'
         command_call = mock.Mock()

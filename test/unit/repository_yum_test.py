@@ -16,7 +16,7 @@ from kiwi.system.root_bind import RootBind
 
 class TestRepositoryYum(object):
     @patch('kiwi.repository.yum.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.repository.yum.ConfigParser')
     @patch('kiwi.repository.yum.Path.create')
     def setup(self, mock_path, mock_config, mock_open, mock_temp):
@@ -47,7 +47,7 @@ class TestRepositoryYum(object):
             call('main', 'group_command', 'compat')
         ]
 
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.repository.yum.ConfigParser')
     def test_use_default_location(self, mock_config, mock_open):
         runtime_yum_config = mock.Mock()
@@ -77,7 +77,7 @@ class TestRepositoryYum(object):
 
     @patch('kiwi.repository.yum.ConfigParser')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_add_repo(self, mock_open, mock_exists, mock_config):
         repo_config = mock.Mock()
         mock_config.return_value = repo_config

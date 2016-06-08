@@ -57,7 +57,6 @@ class TestProfile(object):
             'kiwi_language': 'en_US',
             'kiwi_loader_theme': 'openSUSE',
             'kiwi_LVM_etc_volume': 'freespace:30:LVetc',
-            'kiwi_lvmgroup': None,
             'kiwi_LVM_LVRoot': 'freespace:500',
             'kiwi_LVM_LVusr_lib': 'size:1024',
             'kiwi_lvm': 'true',
@@ -130,7 +129,7 @@ class TestProfile(object):
         ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.system.shell.Shell.quote_key_value_file')
     def test_create_cpio(self, mock_shell_quote, mock_open, mock_temp):
         mock_temp.return_value = self.tmpfile

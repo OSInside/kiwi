@@ -19,6 +19,7 @@ import select
 import os
 import subprocess
 from collections import namedtuple
+from builtins import bytes
 
 # project
 from .exceptions import KiwiCommandError
@@ -68,9 +69,9 @@ class Command(object):
             )
         output, error = process.communicate()
         if process.returncode != 0 and not error:
-            error = b'(no output on stderr)'
+            error = bytes(b'(no output on stderr)')
         if process.returncode != 0 and not output:
-            output = b'(no output on stdout)'
+            output = bytes(b'(no output on stdout)')
         if process.returncode != 0 and raise_on_error:
             log.debug(
                 'EXEC: Failed with stderr: %s, stdout: %s',

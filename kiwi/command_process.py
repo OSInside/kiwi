@@ -16,8 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
+
+from builtins import object
 from .logger import log
 from collections import namedtuple
+from builtins import bytes
 
 from .exceptions import (
     KiwiCommandError
@@ -142,8 +145,8 @@ class CommandIterator(object):
     """
     def __init__(self, command):
         self.command = command
-        self.command_error_output = b''
-        self.command_output_line = b''
+        self.command_error_output = bytes(b'')
+        self.command_output_line = bytes(b'')
         self.output_eof_reached = False
         self.errors_eof_reached = False
 
@@ -157,9 +160,9 @@ class CommandIterator(object):
             byte_read = self.command.output.read(1)
             if not byte_read:
                 self.output_eof_reached = True
-            elif byte_read == b'\n':
+            elif byte_read == bytes(b'\n'):
                 line_read = self.command_output_line.decode()
-                self.command_output_line = b''
+                self.command_output_line = bytes(b'')
             else:
                 self.command_output_line += byte_read
 

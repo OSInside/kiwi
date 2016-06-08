@@ -16,3 +16,7 @@ lxml
 
 # Python wrapper for extended filesystem attributes
 xattr
+
+# Python 2 compatibility
+future
+six

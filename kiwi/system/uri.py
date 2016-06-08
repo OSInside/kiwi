@@ -17,7 +17,7 @@
 #
 import os
 from tempfile import mkdtemp
-from urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse
 import hashlib
 
 # project

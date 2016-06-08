@@ -1,17 +1,13 @@
-
-from mock import patch
 from mock import call
-from collections import namedtuple
-
 import mock
 
 from .test_helper import *
 
-from kiwi.exceptions import (
-    KiwiCommandError
-)
+from kiwi.exceptions import KiwiCommandError
 from kiwi.command_process import CommandProcess
 from kiwi.command_process import CommandIterator
+
+from builtins import bytes
 
 
 class TestCommandProcess(object):
@@ -40,8 +36,8 @@ class TestCommandProcess(object):
 
     def setup(self):
         self.data_flow = [True, None, None, None, None, None, None]
-        self.data_out = [b'', b'\n', b'a', b't', b'a', b'd']
-        self.data_err = [b'', b'r', b'o', b'r', b'r', b'e']
+        self.data_out = [bytes(b''), bytes(b'\n'), bytes(b'a'), bytes(b't'), bytes(b'a'), bytes(b'd')]
+        self.data_err = [bytes(b''), bytes(b'r'), bytes(b'o'), bytes(b'r'), bytes(b'r'), bytes(b'e')]
         self.flow = self.create_flow_method(self.poll)
         self.flow_out_available = self.create_flow_method(self.outavailable)
         self.flow_err_available = self.create_flow_method(self.erravailable)

@@ -99,7 +99,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.builder.live.FileSystemIsoFs')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch('kiwi.builder.live.SystemSize')
-    @patch('builtins.open')
+    @patch_open
     def test_create_overlay_structure(
         self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
         mock_hybrid, mock_command, mock_dtemp
@@ -258,7 +258,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.BootLoaderConfig')
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiLiveBootImageError)
     def test_create_no_kernel_found(
         self, mock_open, mock_boot, mock_command, mock_dtemp
@@ -269,7 +269,7 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.BootLoaderConfig')
-    @patch('builtins.open')
+    @patch_open
     @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
         self, mock_open, mock_boot, mock_command, mock_dtemp

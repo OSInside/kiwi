@@ -64,7 +64,7 @@ class TestBootLoaderConfigIsoLinux(object):
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
 
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     def test_write(self, mock_exists, mock_open):
         mock_exists.return_value = True

@@ -162,7 +162,7 @@ class TestDiskFormatVmdk(object):
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
-    @patch('builtins.open')
+    @patch_open
     def test_create_image_format_skip_descriptor_update(
         self, mock_open, mock_log_warn, mock_exists, mock_command
     ):
@@ -193,7 +193,7 @@ class TestDiskFormatVmdk(object):
     @patch('kiwi.storage.subformat.vmdk.VmwareSettingsTemplate.get_template')
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_create_image_format_template_error(
         self, mock_open, mock_exists, mock_command, mock_get_template
     ):
@@ -219,7 +219,7 @@ class TestDiskFormatVmdk(object):
 
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_create_image_format(
         self, mock_open, mock_exists, mock_command
     ):

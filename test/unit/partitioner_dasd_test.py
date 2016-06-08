@@ -13,7 +13,7 @@ from kiwi.exceptions import *
 class TestPartitionerDasd(object):
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     def setup(self, mock_open, mock_temp, mock_command):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
@@ -37,7 +37,7 @@ class TestPartitionerDasd(object):
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.logger.log.debug')
     def test_create(self, mock_debug, mock_open, mock_temp, mock_command):
         mock_command.side_effect = Exception
@@ -56,7 +56,7 @@ class TestPartitionerDasd(object):
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     def test_create_all_free(
         self, mock_open, mock_temp, mock_command
     ):

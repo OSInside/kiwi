@@ -83,7 +83,7 @@ class TestBootLoaderConfigZipl(object):
         mock_machine.return_value = 's390'
         BootLoaderConfigZipl(mock.Mock(), 'root_dir')
 
-    @patch('builtins.open')
+    @patch_open
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.zipl.Path.create')
     @patch('kiwi.bootloader.config.zipl.Command.run')
