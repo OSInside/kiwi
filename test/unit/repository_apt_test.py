@@ -12,7 +12,7 @@ from kiwi.system.root_bind import RootBind
 
 class TestRepositoryApt(object):
     @patch('kiwi.repository.apt.NamedTemporaryFile')
-    @patch('builtins.open')
+    @patch_open
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
     @patch('kiwi.repository.apt.Path.create')
     def setup(self, mock_path, mock_template, mock_open, mock_temp):
@@ -47,7 +47,7 @@ class TestRepositoryApt(object):
             {'apt_shared_base': '/shared-dir/apt-get'}
         )
         
-    @patch('builtins.open')
+    @patch_open
     def test_use_default_location(self, mock_open):
         template = mock.Mock()
         self.apt_conf.get_image_template.return_value = template
@@ -62,7 +62,7 @@ class TestRepositoryApt(object):
             self.repo.command_env
 
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_add_repo_distribution(self, mock_open, mock_exists):
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
@@ -77,7 +77,7 @@ class TestRepositoryApt(object):
         )
 
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_add_repo_distribution_default_component(
         self, mock_open, mock_exists
     ):
@@ -94,7 +94,7 @@ class TestRepositoryApt(object):
         )
 
     @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch_open
     def test_add_repo_flat(self, mock_open, mock_exists):
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = False
