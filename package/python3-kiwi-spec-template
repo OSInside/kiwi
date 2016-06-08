@@ -43,6 +43,8 @@ Requires:       python3-docopt
 Requires:       python3-setuptools
 Requires:       python3-lxml
 Requires:       python3-xattr
+Requires:       python3-six
+Requires:       python3-future
 Requires(post): update-alternatives
 Requires(postun): update-alternatives
 # tools used by kiwi
