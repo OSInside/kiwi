@@ -62,24 +62,12 @@ class BootLoaderTemplateGrub2(object):
 
         self.header_theme = dedent('''
             set font=($$root)${bootpath}/unicode.pf2
-            if loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2;then
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans10.pf2
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans12.pf2
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2
-                set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
-            fi
+            set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
         ''').strip() + self.cr
 
         self.header_theme_iso = dedent('''
             set font=($$root)/boot/unicode.pf2
-            if loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2;then
-                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans10.pf2
-                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans12.pf2
-                loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2
-                set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
-            fi
+            set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
         ''').strip() + self.cr
 
         self.menu_entry_console_switch = dedent('''
