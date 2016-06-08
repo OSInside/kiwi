@@ -22,6 +22,7 @@ import collections
 import platform
 from tempfile import NamedTemporaryFile
 from collections import namedtuple
+from builtins import bytes
 
 # project
 from .logger import log
@@ -123,7 +124,7 @@ class Iso(object):
             new_volume_id = Iso.__sub_string(
                 data=new_volume_descriptor, length=7
             )
-            if b'CD001' not in new_volume_id:
+            if bytes(b'CD001') not in new_volume_id:
                 new_boot_catalog_sector = None
                 ref_sector = iso_metadata.boot_catalog_sector
                 for sector in range(0x12, 0x40):
@@ -131,14 +132,14 @@ class Iso(object):
                     new_volume_id = Iso.__sub_string(
                         data=new_volume_descriptor, length=7
                     )
-                    if b'TEA01' in new_volume_id or sector + 1 == ref_sector:
+                    if bytes(b'TEA01') in new_volume_id or sector + 1 == ref_sector:
                         new_boot_catalog_sector = sector + 1
                         break
             if iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
                 new_boot_catalog = Iso.__read_iso_sector(
                     new_boot_catalog_sector, iso
                 )
-                empty_catalog = b'\x00' * 0x800
+                empty_catalog = bytes(b'\x00') * 0x800
                 if new_boot_catalog == empty_catalog:
                     eltorito_descriptor = Iso.__embed_string_in_segment(
                         data=iso_metadata.eltorito_descriptor,
@@ -176,7 +177,7 @@ class Iso(object):
         )
         first_catalog_entry = Iso.__embed_string_in_segment(
             data=first_catalog_entry,
-            string=struct.pack('B19s', 1, b'Legacy (isolinux)'),
+            string=struct.pack('B19s', 1, bytes(b'Legacy (isolinux)')),
             length=20,
             start=12
         )
@@ -191,7 +192,7 @@ class Iso(object):
         )
         second_catalog_entry = Iso.__embed_string_in_segment(
             data=second_catalog_entry,
-            string=struct.pack('B19s', 1, b'UEFI (grub)'),
+            string=struct.pack('B19s', 1, bytes(b'UEFI (grub)')),
             length=20,
             start=12
         )
@@ -204,7 +205,7 @@ class Iso(object):
                 start=96
             )
             second_catalog_entry = struct.pack(
-                'BBH28s', 0x91, 0xef, 1, b''
+                'BBH28s', 0x91, 0xef, 1, bytes(b'')
             )
             boot_catalog = Iso.__embed_string_in_segment(
                 data=boot_catalog,

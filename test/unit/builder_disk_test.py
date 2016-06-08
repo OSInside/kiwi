@@ -1,5 +1,3 @@
-
-from mock import patch
 from mock import call
 import mock
 
@@ -12,6 +10,8 @@ from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
 from kiwi.storage.mapped_device import MappedDevice
+
+from builtins import bytes
 
 
 class TestDiskBuilder(object):
@@ -269,7 +269,7 @@ class TestDiskBuilder(object):
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
-            call(b'\x0f\x0f\x0f\x0f')
+            call(bytes(b'\x0f\x0f\x0f\x0f'))
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),

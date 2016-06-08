@@ -1,5 +1,3 @@
-
-from mock import patch
 from mock import call
 import mock
 
@@ -7,6 +5,8 @@ from .test_helper import *
 
 from kiwi.exceptions import *
 from kiwi.utils.checksum import Checksum
+
+from builtins import bytes
 
 
 class TestChecksum(object):
@@ -20,7 +20,7 @@ class TestChecksum(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
-        read_results = [b'', b'data']
+        read_results = [bytes(b''), bytes(b'data')]
 
         def side_effect(arg):
             return read_results.pop()

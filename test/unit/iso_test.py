@@ -1,9 +1,9 @@
-from mock import patch
 from mock import call
 import mock
 import struct
 from .test_helper import *
 import sys
+from builtins import bytes
 
 from kiwi.exceptions import *
 
@@ -220,21 +220,21 @@ class TestIso(object):
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_iso9660_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = b'bogus'
+        self.file_mock.read.return_value = bytes(b'bogus')
         Iso.fix_boot_catalog('isofile')
 
     @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_not_bootable(self, mock_open):
         mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = b'CD001'
+        self.file_mock.read.return_value = bytes(b'CD001')
         Iso.fix_boot_catalog('isofile')
 
     @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_path_table_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
-        read_results = [b'EL TORITO SPECIFICATION', b'CD001']
+        read_results = [bytes(b'EL TORITO SPECIFICATION'), bytes(b'CD001')]
 
         def side_effect(arg):
             return read_results.pop()
@@ -247,8 +247,8 @@ class TestIso(object):
     def test_iso_metadata_catalog_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
-        read_results = [b'EL TORITO SPECIFICATION', volume_descriptor]
+            bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
+        read_results = [bytes(b'EL TORITO SPECIFICATION'), volume_descriptor]
 
         def side_effect(arg):
             return read_results.pop()
@@ -261,9 +261,9 @@ class TestIso(object):
     def test_iso_metadata_catalog_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
+            bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            b'EL TORITO SPECIFICATION' + b'_' * (0x47 - 0x17) + b'0x1d5f23a'
+            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
         read_results = [eltorito_descriptor, volume_descriptor]
 
         def side_effect(arg):
@@ -276,19 +276,19 @@ class TestIso(object):
     def test_relocate_boot_catalog(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
+            bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            b'EL TORITO SPECIFICATION' + b'_' * (0x47 - 0x17) + b'0x1d5f23a'
+            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
         new_volume_descriptor = \
-            b'bogus'
+            bytes(b'bogus')
         next_new_volume_descriptor = \
-            b'TEA01'
-        new_boot_catalog = b'\x00' * 0x800
+            bytes(b'TEA01')
+        new_boot_catalog = bytes(b'\x00') * 0x800
         read_results = [
             new_boot_catalog,
             next_new_volume_descriptor,
             new_volume_descriptor,
-            b'catalog',
+            bytes(b'catalog'),
             eltorito_descriptor,
             volume_descriptor
         ]
@@ -300,10 +300,10 @@ class TestIso(object):
 
         Iso.relocate_boot_catalog('isofile')
         assert self.file_mock.write.call_args_list == [
-            call(b'catalog'),
+            call(bytes(b'catalog')),
             call(
-                b'EL TORITO SPECIFICATION' +
-                b'_' * (0x47 - 0x17) + b'\x13\x00\x00\x005f23a'
+                bytes(b'EL TORITO SPECIFICATION') +
+                bytes(b'_') * (0x47 - 0x17) + bytes(b'\x13\x00\x00\x005f23a')
             )
         ]
 
@@ -311,10 +311,10 @@ class TestIso(object):
     def test_fix_boot_catalog(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
-            b'CD001' + b'_' * (0x08c - 0x5) + b'0x1d5f23a'
+            bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            b'EL TORITO SPECIFICATION' + b'_' * (0x47 - 0x17) + b'0x1d5f23a'
-        boot_catalog = b'_' * 64 + struct.pack('B', 0x88) + b'_' * 32
+            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+        boot_catalog = bytes(b'_') * 64 + struct.pack('B', 0x88) + bytes(b'_') * 32
         read_results = [
             boot_catalog,
             eltorito_descriptor,
@@ -331,20 +331,20 @@ class TestIso(object):
         if sys.byteorder == 'big':
             assert self.file_mock.write.call_args_list == [
                 call(
-                    b'_' * 44 +
-                    b'\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01' +
-                    b'\x00' * 28 +
-                    b'\x88___________\x01UEFI (grub)' +
-                    b'\x00' * 8
+                    bytes(b'_') * 44 +
+                    bytes(b'\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01') +
+                    bytes(b'\x00') * 28 +
+                    bytes(b'\x88___________\x01UEFI (grub)') +
+                    bytes(b'\x00') * 8
                 )
             ]
         else:
             assert self.file_mock.write.call_args_list == [
                 call(
-                    b'_' * 44 +
-                    b'\x01Legacy (isolinux)\x00\x00\x91\xef\x01' +
-                    b'\x00' * 29 +
-                    b'\x88___________\x01UEFI (grub)' +
-                    b'\x00' * 8
+                    bytes(b'_') * 44 +
+                    bytes(b'\x01Legacy (isolinux)\x00\x00\x91\xef\x01') +
+                    bytes(b'\x00') * 29 +
+                    bytes(b'\x88___________\x01UEFI (grub)') +
+                    bytes(b'\x00') * 8
                 )
             ]

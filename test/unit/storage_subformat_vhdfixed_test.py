@@ -1,13 +1,12 @@
-
-from mock import patch
 from mock import call
 import mock
-import sys
 
 from .test_helper import *
 
 from kiwi.exceptions import *
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
+
+from builtins import bytes
 
 
 class TestDiskFormatVhdFixed(object):
@@ -75,12 +74,12 @@ class TestDiskFormatVhdFixed(object):
         if sys.byteorder == 'little':
             # on little endian machines
             assert file_mock.write.call_args_list[1] == call(
-                b'xV4\x124\x124\x12\x124\x124Vx\x99\x99'
+                bytes(b'xV4\x124\x124\x12\x124\x124Vx\x99\x99')
             )
         else:
             # on big endian machines
             assert file_mock.write.call_args_list[1] == call(
-                b'\x124Vx\x124\x124\x124\x124Vx\x99\x99'
+                bytes(b'\x124Vx\x124\x124\x124\x124Vx\x99\x99')
             )
         assert file_mock.seek.call_args_list == [
             call(65536, 0), call(0, 2),
