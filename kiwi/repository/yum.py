@@ -163,11 +163,10 @@ class RepositoryYum(RepositoryBase):
         the package installations
         """
         repos_dir = self.shared_yum_dir['reposd-dir']
-        for elements in os.walk(repos_dir):
-            for repo_file in list(elements[2]):
-                if repo_file not in self.repo_names:
-                    Path.wipe(repos_dir + '/' + repo_file)
-            break
+        repo_files = list(os.walk(repos_dir))[0][2]
+        for repo_file in repo_files:
+            if repo_file not in self.repo_names:
+                Path.wipe(repos_dir + '/' + repo_file)
 
     def __create_yum_runtime_environment(self):
         for yum_dir in list(self.shared_yum_dir.values()):
