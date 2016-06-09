@@ -19,6 +19,7 @@ from lxml import etree
 from tempfile import NamedTemporaryFile
 import os
 from six import BytesIO
+from builtins import bytes
 
 # project
 from .command import Command
@@ -55,7 +56,7 @@ class XMLDescription(object):
     """
     def __init__(self, description=None, derived_from=None, content=None):
         self.description_xslt_processed = NamedTemporaryFile()
-        self.description = content and BytesIO(content) or description
+        self.description = content and BytesIO(bytes(content)) or description
         self.derived_from = derived_from
 
     def load(self):
@@ -113,6 +114,6 @@ class XMLDescription(object):
         :return:
         """
         transform = etree.XSLT(etree.parse(Defaults.get_xsl_stylesheet_file()))
-        with open(self.description_xslt_processed.name, "w") as xsltout:
+        with open(self.description_xslt_processed.name, "wb") as xsltout:
             xsltout.write(etree.tostring(transform(etree.parse(self.description))))
 

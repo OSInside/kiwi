@@ -1,6 +1,5 @@
-
-import lxml
 import mock
+from builtins import bytes
 
 from .test_helper import *
 
@@ -15,10 +14,10 @@ from kiwi.xml_description import XMLDescription
 
 class TestSchema(object):
     def setup(self):
-        test_xml = """<?xml version="1.0" encoding="utf-8"?>
+        test_xml = bytes(b"""<?xml version="1.0" encoding="utf-8"?>
 <image schemaversion="6.3" name="LimeJeOS-Leap-42.1">
 </image>
-"""
+""")
         self.description = XMLDescription(content=test_xml)
 
     @raises(KiwiSchemaImportError)
