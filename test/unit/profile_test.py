@@ -129,9 +129,8 @@ class TestProfile(object):
         ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
-    @patch_open
     @patch('kiwi.system.shell.Shell.quote_key_value_file')
-    def test_create_cpio(self, mock_shell_quote, mock_open, mock_temp):
+    def test_create_cpio(self, mock_shell_quote, mock_temp):
         mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_dot_profile_config.xml')
         profile = Profile(

@@ -107,11 +107,11 @@ class XMLDescription(object):
             )
 
     def _xsltproc(self):
-        '''
+        """
         Transform XML description with the Kiwi rules.
 
         :return:
-        '''
+        """
         transform = etree.XSLT(etree.parse(Defaults.get_xsl_stylesheet_file()))
         with open(self.description_xslt_processed.name, "w") as xsltout:
             xsltout.write(etree.tostring(transform(etree.parse(self.description))))

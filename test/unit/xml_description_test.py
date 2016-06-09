@@ -1,6 +1,5 @@
 
-from mock import patch
-
+import lxml
 import mock
 
 from .test_helper import *
@@ -16,11 +15,15 @@ from kiwi.xml_description import XMLDescription
 
 class TestSchema(object):
     def setup(self):
-        self.description = XMLDescription('description')
+        test_xml = """<?xml version="1.0" encoding="utf-8"?>
+<image schemaversion="6.3" name="LimeJeOS-Leap-42.1">
+</image>
+"""
+        self.description = XMLDescription(content=test_xml)
 
     @raises(KiwiSchemaImportError)
     @patch('lxml.etree.RelaxNG')
-    @patch('kiwi.command.Command.run')
+    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_import_error(self, mock_xslt, mock_relax):
         mock_relax.side_effect = KiwiSchemaImportError(
             'ImportError'
@@ -30,7 +33,7 @@ class TestSchema(object):
     @raises(KiwiValidationError)
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
-    @patch('kiwi.command.Command.run')
+    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_validation_error(
         self, mock_xslt, mock_parse, mock_relax
     ):
@@ -44,7 +47,7 @@ class TestSchema(object):
     @raises(KiwiDescriptionInvalid)
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
-    @patch('kiwi.command.Command.run')
+    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_invalid(
         self, mock_xslt, mock_parse, mock_relax
     ):
@@ -59,9 +62,9 @@ class TestSchema(object):
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.xml_parse.parse')
-    @patch('kiwi.command.Command.run')
+    @patch.object(XMLDescription, '_xsltproc')
     def test_load_data_structure_error(
-        self, mock_xslt, mock_xml_parse, mock_etree_parse, mock_relax
+        self, mock_xsltproc, mock_xml_parse, mock_etree_parse, mock_relax
     ):
         mock_validate = mock.Mock()
         mock_validate.validate = mock.Mock(
