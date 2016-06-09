@@ -12,7 +12,7 @@ baseSetupBuildDay
 #==========================================
 # remove unneded kernel files
 #------------------------------------------
-suseStripKernel
+debianStripKernel
 
 #==========================================
 # umount

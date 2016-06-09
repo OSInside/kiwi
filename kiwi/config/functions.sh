@@ -1627,6 +1627,13 @@ function rhelStripKernel {
 }
 
 #======================================
+# debianStripKernel
+#--------------------------------------
+function debianStripKernel {
+    suseStripKernel
+}
+
+#======================================
 # suseSetupProduct
 #--------------------------------------
 function suseSetupProduct {
