@@ -156,48 +156,47 @@ class PackageManagerApt(PackageManagerBase):
         """
         Process package install requests for image phase (chroot)
         """
-        chroot_apt_get_args = self.root_bind.move_to_root(
-            self.apt_get_args
-        )
+        apt_get_command = ['chroot', self.root_dir, 'apt-get']
+        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(self.custom_args)
+        apt_get_command.append('install')
+        apt_get_command.extend(self.__package_requests())
+
         return Command.call(
-            [
-                'chroot', self.root_dir, 'apt-get'
-            ] + chroot_apt_get_args + self.custom_args + [
-                'install'
-            ] + self.__package_requests(), self.command_env
+            apt_get_command, self.command_env
         )
 
     def process_delete_requests(self, force=False):
         """
         Process package delete requests (chroot)
 
+        Note: force deletion of packages is not required for apt-get
+        because the apt-get configuration template already enforces
+        to process the request as we want it
+
         :param bool force: unused
         """
-        chroot_apt_get_args = self.root_bind.move_to_root(
-            self.apt_get_args
-        )
+        apt_get_command = ['chroot', self.root_dir, 'apt-get']
+        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(self.custom_args)
+        apt_get_command.append('remove')
+        apt_get_command.extend(self.__package_requests())
+
         return Command.call(
-            [
-                'chroot', self.root_dir, 'apt-get'
-            ] + chroot_apt_get_args + self.custom_args + [
-                'remove'
-            ] + self.__package_requests(), self.command_env
+            apt_get_command, self.command_env
         )
 
     def update(self):
         """
         Process package update requests (chroot)
         """
-        chroot_apt_get_args = self.root_bind.move_to_root(
-            self.apt_get_args
-        )
+        apt_get_command = ['chroot', self.root_dir, 'apt-get']
+        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(self.custom_args)
+        apt_get_command.append('upgrade')
+
         return Command.call(
-            [
-                'chroot', self.root_dir, 'apt-get'
-            ] + chroot_apt_get_args + self.custom_args + [
-                'upgrade'
-            ],
-            self.command_env
+            apt_get_command, self.command_env
         )
 
     def process_only_required(self):
@@ -254,7 +253,6 @@ class PackageManagerApt(PackageManagerBase):
         pass
 
     def __package_requests(self):
-        items = []
-        items += self.package_requests
+        items = self.package_requests[:]
         self.cleanup_requests()
         return items

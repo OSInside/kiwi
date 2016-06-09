@@ -25,7 +25,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/usr/share/grub2': True,
             'root_dir/usr/share/grub': False,
             'root_dir/boot/grub2/themes': False,
-            'root_dir/boot/grub/themes/': False,
+            'root_dir/boot/grub/themes': False,
             'root_dir/boot/grub/unicode.pf2': False,
             'root_dir/usr/lib/grub2': True,
             'root_dir/usr/lib/grub': False,
@@ -583,14 +583,16 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
+    @patch('shutil.copytree')
+    @patch('shutil.copy')
     def test_setup_install_boot_images_with_legacy_grub_theme(
-        self, mock_machine, mock_warn, mock_exists, mock_open,
-        mock_sync, mock_command
+        self, mock_copy, mock_copytree, mock_machine, mock_warn,
+        mock_exists, mock_open, mock_sync, mock_command
     ):
         data = mock.Mock()
         mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
-        self.os_exists['root_dir/boot/grub/themes/'] = True
+        self.os_exists['root_dir/boot/grub/themes'] = True
         self.os_exists['root_dir/boot/grub/unicode.pf2'] = True
 
         def side_effect(arg):
@@ -599,12 +601,12 @@ class TestBootLoaderConfigGrub2(object):
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
 
-        assert mock_command.call_args_list[0] == call([
-            'cp', '-a', 'root_dir/boot/grub/themes/', 'root_dir/boot/grub2/'
-        ])
-        assert mock_command.call_args_list[1] == call([
-            'cp', 'root_dir/boot/grub/unicode.pf2', 'root_dir/boot/grub2/'
-        ])
+        mock_copytree.assert_called_once_with(
+            'root_dir/boot/grub/themes', 'root_dir/boot/grub2'
+        )
+        mock_copy.assert_called_once_with(
+            'root_dir/boot/grub/unicode.pf2', 'root_dir/boot/grub2'
+        )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
