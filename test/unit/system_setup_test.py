@@ -43,7 +43,7 @@ class TestSystemSetup(object):
             'command', ['output', 'error', 'returncode']
         )
         self.run_result = command_run(
-            output='password-hash',
+            output='password-hash\n',
             error='stderr',
             returncode=0
         )

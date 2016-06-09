@@ -747,7 +747,7 @@ class SystemSetup(object):
         openssl = Command.run(
             ['openssl', 'passwd', '-1', '-salt', 'xyz', password]
         )
-        return openssl.output
+        return openssl.output[:-1]
 
     def __preferences_lookup(self):
         self.preferences = {}
