@@ -22,7 +22,6 @@ from six import BytesIO
 from builtins import bytes
 
 # project
-from .command import Command
 from .defaults import Defaults
 from . import xml_parse
 
@@ -116,4 +115,3 @@ class XMLDescription(object):
         transform = etree.XSLT(etree.parse(Defaults.get_xsl_stylesheet_file()))
         with open(self.description_xslt_processed.name, "wb") as xsltout:
             xsltout.write(etree.tostring(transform(etree.parse(self.description))))
-
