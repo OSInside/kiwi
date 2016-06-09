@@ -93,25 +93,20 @@ class TestPackageManagerApt(object):
         )
         assert mock_run.call_args_list == [
             call(command=['mountpoint', 'root-dir/dev'], raise_on_error=False),
-            call(
-                [
-                    'debootstrap', '--no-check-gpg', 'xenial',
-                    'root-dir.debootstrap', 'xenial_path'
-                ], ['env']
-            ),
-            call(
-                [
-                    'bash', '-c',
-                    'rm -r -f root-dir.debootstrap &&' + \
-                    ' chroot root-dir apt-get root-moved-arguments update'
-                ], ['env']
-            )
+            call([
+                'debootstrap', '--no-check-gpg', 'xenial',
+                'root-dir.debootstrap', 'xenial_path'],
+                ['env']),
+            call([
+                'bash', '-c',
+                'rm -r -f root-dir.debootstrap &&' + \
+                ' chroot root-dir apt-get root-moved-arguments update'],
+                ['env'])
         ]
-        mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'apt-get',
-                'root-moved-arguments', 'install', 'vim'
-            ], ['env']
+        mock_call.assert_called_once_with([
+            'chroot', 'root-dir', 'apt-get',
+            'root-moved-arguments', 'install', 'vim'],
+            ['env']
         )
 
     @patch('kiwi.command.Command.call')
@@ -122,11 +117,10 @@ class TestPackageManagerApt(object):
         chroot_apt_get_args = self.manager.root_bind.move_to_root(
             self.manager.apt_get_args
         )
-        mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'apt-get',
-                'root-moved-arguments', 'install', 'vim'
-            ], ['env']
+        mock_call.assert_called_once_with([
+            'chroot', 'root-dir', 'apt-get',
+            'root-moved-arguments', 'install', 'vim'],
+            ['env']
         )
 
     @patch('kiwi.command.Command.call')
@@ -134,11 +128,10 @@ class TestPackageManagerApt(object):
     def test_process_delete_requests(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
-        mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'apt-get',
-                'root-moved-arguments', 'remove', 'vim'
-            ], ['env']
+        mock_call.assert_called_once_with([
+            'chroot', 'root-dir', 'apt-get',
+            'root-moved-arguments', 'remove', 'vim'],
+            ['env']
         )
 
     @patch('kiwi.command.Command.call')
@@ -147,11 +140,10 @@ class TestPackageManagerApt(object):
         chroot_apt_get_args = self.manager.root_bind.move_to_root(
             self.manager.apt_get_args
         )
-        mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'apt-get',
-                'root-moved-arguments', 'upgrade'
-            ], ['env']
+        mock_call.assert_called_once_with([
+            'chroot', 'root-dir', 'apt-get',
+            'root-moved-arguments', 'upgrade'],
+            ['env']
         )
 
     def test_process_only_required(self):

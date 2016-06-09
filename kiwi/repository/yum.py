@@ -105,8 +105,7 @@ class RepositoryYum(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='rpm-md',
-        prio=None, dist=None, components=None
+        self, name, uri, repo_type='rpm-md', prio=None, dist=None, components=None
     ):
         """
         Add yum repository

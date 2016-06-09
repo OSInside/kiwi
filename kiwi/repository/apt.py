@@ -107,8 +107,7 @@ class RepositoryApt(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='deb',
-        prio=None, dist=None, components=None
+        self, name, uri, repo_type='deb', prio=None, dist=None, components=None
     ):
         """
         Add apt_get repository
@@ -120,8 +119,9 @@ class RepositoryApt(RepositoryBase):
         :param dist: distribution name for non flat deb repos
         :param components: distribution categories
         """
-        list_file = self.shared_apt_get_dir['sources-dir'] + \
-            '/' + name + '.list'
+        list_file = '/'.join(
+            [self.shared_apt_get_dir['sources-dir'], name + '.list']
+        )
         self.repo_names.append(name + '.list')
         if os.path.exists(uri):
             # apt-get requires local paths to take the file: type

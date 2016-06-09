@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from string import Template
 from textwrap import dedent
 
@@ -24,20 +25,18 @@ class PackageManagerTemplateAptGet(object):
     apt-get configuration file template
     """
     def __init__(self):
-        self.cr = '\n'
-
         self.host_header = dedent('''
             # kiwi generated apt-get config file
             Dir "/";
             Dir::State "${apt_shared_base}/";
             Dir::Cache "${apt_shared_base}/";
             Dir::Etc   "${apt_shared_base}/";
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.image_header = dedent('''
             # kiwi generated apt-get config file
             Dir "/";
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.apt = dedent('''
             APT
@@ -50,14 +49,14 @@ class PackageManagerTemplateAptGet(object):
                     AllowUnauthenticated "true";
                 }
             };
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.dpkg = dedent('''
             DPkg
             {
                 Options {"--force-all";}
             };
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
     def get_host_template(self):
         """
@@ -66,10 +65,9 @@ class PackageManagerTemplateAptGet(object):
 
         :rtype: Template
         """
-        template_data = self.host_header
-        template_data += self.apt
-        template_data += self.dpkg
-        return Template(template_data)
+        return Template(
+            ''.join([self.host_header, self.apt, self.dpkg])
+        )
 
     def get_image_template(self):
         """
@@ -78,7 +76,6 @@ class PackageManagerTemplateAptGet(object):
 
         :rtype: Template
         """
-        template_data = self.image_header
-        template_data += self.apt
-        template_data += self.dpkg
-        return Template(template_data)
+        return Template(
+            ''.join([self.image_header, self.apt, self.dpkg])
+        )
