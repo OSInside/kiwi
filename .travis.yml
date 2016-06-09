@@ -28,9 +28,9 @@ after_success:
     - tox -e doc_travis_deploy
 
 deploy:
-  provider: pypi
-  user: suse
-  password:
-    secure: hipkM1ibvuDEG0lUg4vm07vy69cRCChLvF/5vpEjWw4EMl1OPccvAd0BWcrBFpO3ARaK3JD5KOYngMomgLvWvVMBM4LbIrDwgMWhVtrhWOEQ2n6b1RakYqXhtgsU3MTSuu90tQ6n9jV2/tJBtYQuh3hGvAaa/0wv0ZmClIAJiUrUUftxcB6Qh/z9BgAQEL7oThnK+Pui/EnD2nZn191+j4AQhYxwTpUHMqXCg/R9aQLm2c1vz9Ht7vo0DQyqTSDWFZQxg6C6DeQCM7HY0o/6g1xJDcvacrr6lNlOFWVsGjpnCBNnf9a1pt21+ncaTwohtDNHGdlb96SEFaRaSJxJnJAPDCtXixZwuxUWhu1K9eh6H0r/LPAUEEcJP9BtytUgBe/sGY+yhS35TiBipNPadIZaT427UepW+UCTi/q1zGokY8mi94gVyy2csKHIDbQ5Z9u6z5qtIopMQeyR6d/Db7CEnQhwqs96qON419Y6CxWkmi2pXdSVexqv4nhpVDJhDT36Lb/dyGh1yVuJWl5bp+t7V6xVHVSNFSA1TlLkEUANn3nkPRHL3B+7G6+cObZHMAXq6hAmNC9o+YVsVAWPg26yPW53//4/zzzNlZdMpOVFSopbPCQRfouc6x/0al7KkCVe9Mgm/xHcVssCytWPWOdMZiyVvFLlSC9p7Nc7Zno=
-  on:
-    tags: true
+    provider: pypi
+    user: suse
+    password:
+        secure: hipkM1ibvuDEG0lUg4vm07vy69cRCChLvF/5vpEjWw4EMl1OPccvAd0BWcrBFpO3ARaK3JD5KOYngMomgLvWvVMBM4LbIrDwgMWhVtrhWOEQ2n6b1RakYqXhtgsU3MTSuu90tQ6n9jV2/tJBtYQuh3hGvAaa/0wv0ZmClIAJiUrUUftxcB6Qh/z9BgAQEL7oThnK+Pui/EnD2nZn191+j4AQhYxwTpUHMqXCg/R9aQLm2c1vz9Ht7vo0DQyqTSDWFZQxg6C6DeQCM7HY0o/6g1xJDcvacrr6lNlOFWVsGjpnCBNnf9a1pt21+ncaTwohtDNHGdlb96SEFaRaSJxJnJAPDCtXixZwuxUWhu1K9eh6H0r/LPAUEEcJP9BtytUgBe/sGY+yhS35TiBipNPadIZaT427UepW+UCTi/q1zGokY8mi94gVyy2csKHIDbQ5Z9u6z5qtIopMQeyR6d/Db7CEnQhwqs96qON419Y6CxWkmi2pXdSVexqv4nhpVDJhDT36Lb/dyGh1yVuJWl5bp+t7V6xVHVSNFSA1TlLkEUANn3nkPRHL3B+7G6+cObZHMAXq6hAmNC9o+YVsVAWPg26yPW53//4/zzzNlZdMpOVFSopbPCQRfouc6x/0al7KkCVe9Mgm/xHcVssCytWPWOdMZiyVvFLlSC9p7Nc7Zno=
+    on:
+        tags: true
