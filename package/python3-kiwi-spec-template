@@ -22,7 +22,7 @@ Provides:       kiwi-schema = 6.2
 Release:        0
 Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
-License:        GPL-2.0+
+License:        GPL-3.0+
 Group:          Development/Languages/Python
 Source:         %{name}.tar.bz2
 Source1:        %{name}-boot-packages
@@ -121,7 +121,7 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 
 %package -n kiwi-tools
 Summary:        KIWI - Collection of Boot Helper Tools
-License:        GPL-2.0+
+License:        GPL-3.0+
 Group:          System/Management
 
 %description -n kiwi-tools
@@ -134,7 +134,7 @@ outside of the scope of kiwi appliance building.
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
 Requires:       syslinux
-License:        GPL-2.0+
+License:        GPL-3.0+
 Group:          System/Management
 
 %description -n kiwi-pxeboot
@@ -158,7 +158,7 @@ Requires:       e2fsprogs
 Requires:       xfsprogs
 Requires:       python3-kiwi = %{version}
 Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
-License:        GPL-2.0+
+License:        GPL-3.0+
 Group:          System/Management
 
 %description -n kiwi-boot-requires
