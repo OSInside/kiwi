@@ -18,6 +18,7 @@
 from lxml import etree
 from tempfile import NamedTemporaryFile
 import os
+from six import BytesIO
 
 # project
 from .command import Command
@@ -52,9 +53,9 @@ class XMLDescription(object):
         path to base XML description file
 
     """
-    def __init__(self, description, derived_from=None):
+    def __init__(self, description=None, derived_from=None, content=None):
         self.description_xslt_processed = NamedTemporaryFile()
-        self.description = description
+        self.description = content and BytesIO(content) or description
         self.derived_from = derived_from
 
     def load(self):
@@ -66,7 +67,7 @@ class XMLDescription(object):
         :return: instance of XML toplevel domain (image)
         :rtype: object
         """
-        self.__xsltproc()
+        self._xsltproc()
         try:
             relaxng = etree.RelaxNG(
                 etree.parse(Defaults.get_schema_file())
