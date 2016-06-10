@@ -17,6 +17,12 @@
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
         <profile name="std" description="KERNEL: Generic"/>
     </profiles>
+    <drivers>
+        <file name="crypto/*"/>
+        <file name="drivers/*"/>
+        <file name="fs/*"/>
+        <file name="lib/*"/>
+    </drivers>
     <repository type="apt-deb" status="replaceable">
         <source path="http://ftp.halifax.rwth-aachen.de/ubuntu"/>
     </repository>
