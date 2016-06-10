@@ -27,7 +27,7 @@ msgstr ""
 #. boot code for KIWI 
 #.
 msgid "Boot continues in 10 sec"
-msgstr ""
+msgstr "Krovimas vyks toliau po 10 sekundžių"
 
 msgid "Enter LUKS passphrase"
 msgstr "Įveskite LUKS slaptąją frazę"
@@ -80,7 +80,7 @@ msgid "Exit"
 msgstr "Išeiti"
 
 msgid "Bootloader installation has failed"
-msgstr ""
+msgstr "Nepavyko įdėti sistemos paleidyklė"
 
 msgid ""
 "The system will not be able to reboot. Please make sure to fixup and install "
@@ -113,7 +113,7 @@ msgid "Select %1 partition for installation:"
 msgstr "Pasirinkite %1 skaidinį diegimui:"
 
 msgid "System will be shutdown. Remove USB stick before power on"
-msgstr ""
+msgstr "Prieš perkraudami pašalinkite USB atmintinė"
 
 #
 #, fuzzy
