@@ -602,7 +602,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_install_boot_images(self.mbrid)
 
         mock_copytree.assert_called_once_with(
-            'root_dir/boot/grub/themes', 'root_dir/boot/grub2'
+            'root_dir/boot/grub/themes', 'root_dir/boot/grub2/themes'
         )
         mock_copy.assert_called_once_with(
             'root_dir/boot/grub/unicode.pf2', 'root_dir/boot/grub2'

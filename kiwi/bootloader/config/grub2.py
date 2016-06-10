@@ -470,8 +470,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if os.path.exists(legacy_grub_theme_dir):
             # found grub2 theme directory in legacy grub directory
-            Path.create(grub_dir)
-            shutil.copytree(legacy_grub_theme_dir, grub_dir)
+            shutil.copytree(legacy_grub_theme_dir, grub_dir + '/themes')
         if os.path.exists(legacy_font):
             # found grub2 unicode font in legacy grub directory
             shutil.copy(legacy_font, grub_dir)
