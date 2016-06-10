@@ -146,7 +146,10 @@ class RepositoryZypper(RepositoryBase):
             'command_env': self.command_env
         }
 
-    def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
+    def add_repo(
+        self, name, uri, repo_type='rpm-md',
+        prio=None, dist=None, components=None
+    ):
         """
         Add zypper repository
 
@@ -154,6 +157,8 @@ class RepositoryZypper(RepositoryBase):
         :param string uri: repository URI
         :param repo_type: repostory type name
         :param int prio: yum repostory priority
+        :param dist: unused
+        :param components: unused
         """
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -220,11 +225,10 @@ class RepositoryZypper(RepositoryBase):
         Path.wipe(solv_dir + '/@System')
 
         repos_dir = self.shared_zypper_dir['reposd-dir']
-        for elements in os.walk(repos_dir):
-            for repo_file in list(elements[2]):
-                if repo_file not in self.repo_names:
-                    Path.wipe(repos_dir + '/' + repo_file)
-            break
+        repo_files = list(os.walk(repos_dir))[0][2]
+        for repo_file in repo_files:
+            if repo_file not in self.repo_names:
+                Path.wipe(repos_dir + '/' + repo_file)
 
     def __create_zypper_runtime_environment(self):
         for zypper_dir in list(self.shared_zypper_dir.values()):

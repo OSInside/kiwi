@@ -990,6 +990,13 @@ function rhelGFXBoot {
 }
 
 #======================================
+# debianGFXBoot
+#--------------------------------------
+function debianGFXBoot {
+    debianGFXBoot $@
+}
+
+#======================================
 # rhelSplashToGrub
 #--------------------------------------
 function rhelSplashToGrub {
@@ -1616,6 +1623,13 @@ function suseStripKernel {
 # rhelStripKernel
 #--------------------------------------
 function rhelStripKernel {
+    suseStripKernel
+}
+
+#======================================
+# debianStripKernel
+#--------------------------------------
+function debianStripKernel {
     suseStripKernel
 }
 

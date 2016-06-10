@@ -18,6 +18,7 @@
 # project
 from .zypper import RepositoryZypper
 from .yum import RepositoryYum
+from .apt import RepositoryApt
 
 from ..exceptions import (
     KiwiRepositorySetupError
@@ -45,6 +46,8 @@ class Repository(object):
             return RepositoryZypper(root_bind, custom_args)
         elif package_manager == 'yum':
             return RepositoryYum(root_bind, custom_args)
+        elif package_manager == 'apt-get':
+            return RepositoryApt(root_bind, custom_args)
         else:
             raise KiwiRepositorySetupError(
                 'Support for %s repository manager not implemented' %

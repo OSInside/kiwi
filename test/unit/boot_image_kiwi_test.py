@@ -30,7 +30,6 @@ class TestBootImageKiwi(object):
         self.system_prepare = mock.Mock()
         self.setup = mock.Mock()
         self.profile = mock.Mock()
-        self.defaults = mock.Mock()
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )

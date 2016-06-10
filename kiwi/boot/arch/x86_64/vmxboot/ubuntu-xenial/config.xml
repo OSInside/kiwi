@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.3" name="initrd-vmxboot-ubuntu-xenial">
+    <description type="boot">
+        <author>Marcus Schaefer</author>
+        <contact>ms@suse.com</contact>
+        <specification>boot/initrd image for virtual machines</specification>
+    </description>
+    <preferences>
+        <type image="cpio" bootprofile="default" bootkernel="std"/>
+        <version>16.0.4</version>
+        <packagemanager>apt-get</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <profiles>
+        <profile name="default" description="Booting default setup"/>
+        <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
+        <profile name="std" description="KERNEL: Generic"/>
+    </profiles>
+    <drivers>
+        <file name="crypto/*"/>
+        <file name="drivers/*"/>
+        <file name="fs/*"/>
+        <file name="lib/*"/>
+    </drivers>
+    <repository type="apt-deb" status="replaceable">
+        <source path="http://ftp.halifax.rwth-aachen.de/ubuntu"/>
+    </repository>
+    <packages type="bootstrap" profiles="std">
+        <package name="linux-generic"/>
+    </packages>
+    <packages type="bootstrap" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="image">
+        <package name="dialog"/>
+        <package name="plymouth"/>
+        <package name="dracut"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="initramfs-tools"/>
+    </packages>
+</image>

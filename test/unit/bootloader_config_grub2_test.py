@@ -25,7 +25,8 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/usr/share/grub2': True,
             'root_dir/usr/share/grub': False,
             'root_dir/boot/grub2/themes': False,
-            'root_dir/usr/share/grub2/themes/some-theme': True,
+            'root_dir/boot/grub/themes': False,
+            'root_dir/boot/grub/unicode.pf2': False,
             'root_dir/usr/lib/grub2': True,
             'root_dir/usr/lib/grub': False,
             'root_dir/boot/grub2/x86_64-efi': False,
@@ -270,17 +271,21 @@ class TestBootLoaderConfigGrub2(object):
         self, mock_machine, mock_open, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
-        mock_exists.return_value = True
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
         )
         command_results = [False, True]
 
-        def side_effect(arg):
+        def side_effect_mock_exists(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect_mock_exists
+
+        def side_effect_mock_command(arg):
             if not command_results.pop():
                 raise Exception
 
-        mock_command.side_effect = side_effect
+        mock_command.side_effect = side_effect_mock_command
         self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -431,7 +436,11 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
-        mock_exists.return_value = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
         self.bootloader.setup_disk_boot_images('uuid')
         assert mock_log.called
 
@@ -571,6 +580,37 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch_open
+    @patch('os.path.exists')
+    @patch('kiwi.logger.log.warning')
+    @patch('platform.machine')
+    @patch('shutil.copytree')
+    @patch('shutil.copy')
+    def test_setup_install_boot_images_with_legacy_grub_theme(
+        self, mock_copy, mock_copytree, mock_machine, mock_warn,
+        mock_exists, mock_open, mock_sync, mock_command
+    ):
+        data = mock.Mock()
+        mock_sync.return_value = data
+        mock_machine.return_value = 'x86_64'
+        self.os_exists['root_dir/boot/grub/themes'] = True
+        self.os_exists['root_dir/boot/grub/unicode.pf2'] = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_install_boot_images(self.mbrid)
+
+        mock_copytree.assert_called_once_with(
+            'root_dir/boot/grub/themes', 'root_dir/boot/grub2/themes'
+        )
+        mock_copy.assert_called_once_with(
+            'root_dir/boot/grub/unicode.pf2', 'root_dir/boot/grub2'
+        )
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch('builtins.open')
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')

@@ -25,6 +25,8 @@ class TestBootImageKiwi(object):
         self.xml_state = XMLState(
             description.load()
         )
+        self.setup = mock.Mock()
+        self.profile = mock.Mock()
         self.manager = mock.Mock()
         self.system_prepare = mock.Mock()
         self.system_prepare.setup_repositories = mock.Mock(
@@ -32,6 +34,12 @@ class TestBootImageKiwi(object):
         )
         kiwi.boot.image.dracut.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
+        )
+        kiwi.boot.image.dracut.SystemSetup = mock.Mock(
+            return_value=self.setup
+        )
+        kiwi.boot.image.dracut.Profile = mock.Mock(
+            return_value=self.profile
         )
         mock_mkdtemp.return_value = 'boot-directory'
         self.boot_image = BootImageDracut(
@@ -49,6 +57,11 @@ class TestBootImageKiwi(object):
         self.system_prepare.install_system.assert_called_once_with(
             self.manager
         )
+        self.setup.import_shell_environment.assert_called_once_with(
+            self.profile
+        )
+        self.setup.import_description.assert_called_once_with()
+        self.setup.call_image_script.assert_called_once_with()
 
     @raises(KiwiConfigFileNotFound)
     @patch('os.path.exists')

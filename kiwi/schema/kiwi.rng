@@ -1418,9 +1418,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
     <define name="k.packagemanager.content">
       <choice>
         <value>apt-get</value>
-        <value>smart</value>
         <value>zypper</value>
-        <value>ensconce</value>
         <value>yum</value>
       </choice>
     </define>

@@ -101,6 +101,8 @@ class SystemPrepare(object):
             repo_source = xml_repo.get_source().get_path()
             repo_alias = xml_repo.get_alias()
             repo_priority = xml_repo.get_priority()
+            repo_dist = xml_repo.get_distribution()
+            repo_components = xml_repo.get_components()
             log.info('Setting up repository %s', repo_source)
             log.info('--> Type: %s', repo_type)
             if repo_priority:
@@ -126,7 +128,8 @@ class SystemPrepare(object):
                 self.root_bind.mount_shared_directory(repo_source_translated)
 
             repo.add_repo(
-                repo_alias, repo_source_translated, repo_type, repo_priority
+                repo_alias, repo_source_translated,
+                repo_type, repo_priority, repo_dist, repo_components
             )
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()

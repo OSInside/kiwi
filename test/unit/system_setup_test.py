@@ -662,5 +662,7 @@ class TestSystemSetup(object):
             '95811799a6d1889c5b2363d3886986de',
             'http://download.opensuse.org/repositories/Devel:PubCloud:AmazonEC2/SLE_12_GA',
             'rpm-md',
+            None,
+            None,
             None
         )

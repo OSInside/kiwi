@@ -17,6 +17,7 @@
 #
 import os
 import platform
+import shutil
 
 # project
 from .base import BootLoaderConfigBase
@@ -461,7 +462,21 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
+    def __fixup_legacy_grub_location(self):
+        legacy_grub_theme_dir = self.root_dir + '/boot/grub/themes'
+        legacy_font = self.root_dir + '/boot/grub/unicode.pf2'
+        grub_dir = '/'.join(
+            [self.root_dir, 'boot', self.boot_directory_name]
+        )
+        if os.path.exists(legacy_grub_theme_dir):
+            # found grub2 theme directory in legacy grub directory
+            shutil.copytree(legacy_grub_theme_dir, grub_dir + '/themes')
+        if os.path.exists(legacy_font):
+            # found grub2 unicode font in legacy grub directory
+            shutil.copy(legacy_font, grub_dir)
+
     def __copy_theme_data_to_boot_directory(self, lookup_path):
+        self.__fixup_legacy_grub_location()
         if not lookup_path:
             lookup_path = self.root_dir
         boot_unicode_font = self.root_dir + '/boot/unicode.pf2'
