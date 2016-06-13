@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import stat
+from pwd import getpwnam
 from tempfile import mkdtemp
 from shutil import rmtree
 import os
@@ -72,67 +74,15 @@ class RootInit(object):
         """
         root = mkdtemp(prefix='kiwi_root.')
         try:
-            base_system_paths = [
-                '/dev/pts',
-                '/proc',
-                '/etc/sysconfig',
-                '/var/cache',
-                '/run',
-                '/sys'
-            ]
-            for path in base_system_paths:
-                Path.create(root + path)
-                Command.run(['chown', 'root:root', root + path])
-
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/null', 'c', '1', '3']
-            )
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/zero', 'c', '1', '5']
-            )
-            Command.run(
-                ['mknod', '-m', '622', root + '/dev/full', 'c', '1', '7']
-            )
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/random', 'c', '1', '8']
-            )
-            Command.run(
-                ['mknod', '-m', '644', root + '/dev/urandom', 'c', '1', '9']
-            )
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/tty', 'c', '5', '0']
-            )
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/ptmx', 'c', '5', '2']
-            )
-            Command.run(
-                ['mknod', '-m', '640', root + '/dev/loop0', 'b', '7', '0']
-            )
-            Command.run(
-                ['mknod', '-m', '640', root + '/dev/loop1', 'b', '7', '1']
-            )
-            Command.run(
-                ['mknod', '-m', '640', root + '/dev/loop2', 'b', '7', '2']
-            )
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/loop3', 'b', '7', '3']
-            )
-            Command.run(
-                ['mknod', '-m', '666', root + '/dev/loop4', 'b', '7', '4']
-            )
-
-            Command.run(['ln', '-s', '/proc/self/fd', root + '/dev/fd'])
-            Command.run(['ln', '-s', 'fd/2', root + '/dev/stderr'])
-            Command.run(['ln', '-s', 'fd/0', root + '/dev/stdin'])
-            Command.run(['ln', '-s', 'fd/1', root + '/dev/stdout'])
-            Command.run(['ln', '-s', '/run', root + '/var/run'])
-
+            self._create_base_directories(root)
+            self._create_device_nodes(root)
+            self._create_base_links(root)
             self.__setup_config_templates(root)
             data = DataSync(root + '/', self.root_dir)
             data.sync_data(
                 options=['-a', '--ignore-existing']
             )
-            Path.wipe(root)
+            rmtree(root, ignore_errors=True)
         except Exception as e:
             rmtree(root, ignore_errors=True)
             raise KiwiRootInitCreationError(
@@ -149,3 +99,61 @@ class RootInit(object):
             Command.run(['cp', passwd_template, root + '/etc/passwd'])
         if os.path.exists(proxy_template):
             Command.run(['cp', proxy_template, root + '/etc/sysconfig/proxy'])
+
+    def _create_device_nodes(self, root):
+        """
+        Create minimum set of device nodes for a new root system
+        """
+        mknod_data = [
+            (0o666, 'dev/null', stat.S_IFCHR, (1, 3)),
+            (0o666, 'dev/zero', stat.S_IFCHR, (1, 5)),
+            (0o622, 'dev/full', stat.S_IFCHR, (1, 7)),
+            (0o666, 'dev/random', stat.S_IFCHR, (1, 8)),
+            (0o644, 'dev/urandom', stat.S_IFCHR, (1, 9)),
+            (0o666, 'dev/tty', stat.S_IFCHR, (5, 0)),
+            (0o666, 'dev/ptmx', stat.S_IFCHR, (5, 2)),
+            (0o640, 'dev/loop0', stat.S_IFBLK, (7, 0)),
+            (0o640, 'dev/loop1', stat.S_IFBLK, (7, 1)),
+            (0o640, 'dev/loop2', stat.S_IFBLK, (7, 2)),
+            (0o666, 'dev/loop3', stat.S_IFBLK, (7, 3)),
+            (0o666, 'dev/loop4', stat.S_IFBLK, (7, 4))
+        ]
+        for d_mode, d_path, d_type, d_dev in mknod_data:
+            root_path = os.sep.join([root, d_path])
+            os.mknod(root_path, d_mode | d_type, os.makedev(*d_dev))
+
+    def _create_base_directories(self, root):
+        """
+        Create minimum collection of directories in the new
+        root system required for kiwi to operate
+        """
+        base_system_paths = (
+            'dev/pts',
+            'proc',
+            'etc/sysconfig',
+            'var/cache',
+            'run',
+            'sys'
+        )
+        root_uid = getpwnam('root').pw_uid
+        root_gid = getpwnam('root').pw_gid
+        for path in base_system_paths:
+            root_path = os.sep.join([root, path])
+            os.makedirs(root_path)
+            os.chown(root_path, root_uid, root_gid)
+
+    def _create_base_links(self, root):
+        """
+        Create minimum collection of file handle and runtime
+        links which needs to be present prior to any package
+        installation
+        """
+        base_system_links = (
+            ('/proc/self/fd', '%s/dev/fd'),
+            ('fd/2', '%s/dev/stderr'),
+            ('fd/0', '%s/dev/stdin'),
+            ('fd/1', '%s/dev/stdout'),
+            ('/run', '%s/var/run')
+        )
+        for src, target in base_system_links:
+            os.symlink(src, target % root, )
