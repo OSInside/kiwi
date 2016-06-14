@@ -37,7 +37,7 @@ The Python project uses :command:`pyvenv` to setup a development environment
 for the desired Python version. The script :command:`pyvenv` is already
 installed when using Python 3.3 and higher (see
 https://docs.python.org/3.3/whatsnew/3.3.html#pep-405-virtual-environments
-for details).
+for details). For Python 2.7 use :command:`virtualenv`.
 
 The following procedure describes how to create such an environment:
 

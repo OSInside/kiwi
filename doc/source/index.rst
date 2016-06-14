@@ -56,7 +56,8 @@ Feature Highlights
 
 * Distribution independent design
 * GPL v2 license
-* Complete rewrite from Perl to Python3
+* Complete rewrite from Perl to Python
+* Supports Python 2.7 and 3
 * openSUSE, SLES, RHEL [CentOS] supported
 * Build images for private and public clouds, e.g Amazon EC2
 * Build images for data center deployment
