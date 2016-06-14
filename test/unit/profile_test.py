@@ -129,14 +129,14 @@ class TestProfile(object):
         ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
-    @patch('kiwi.system.shell.Shell.quote_key_value_file')
-    def test_create_cpio(self, mock_shell_quote, mock_temp):
+    def test_create_cpio(self, mock_temp):
         mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_dot_profile_config.xml')
         profile = Profile(
             XMLState(description.load(), None, 'cpio')
         )
         profile.create()
+        os.remove(self.tmpfile.name)
         assert profile.dot_profile['kiwi_cpio_name'] == 'LimeJeOS-openSUSE-13.2'
 
     def test_add(self):
