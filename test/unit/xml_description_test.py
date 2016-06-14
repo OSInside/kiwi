@@ -3,7 +3,13 @@ from builtins import bytes
 
 from .test_helper import *
 
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiSchemaImportError,
+    KiwiValidationError,
+    KiwiDescriptionInvalid,
+    KiwiDataStructureError,
+    KiwiDescriptionConflict
+)
 from kiwi.xml_description import XMLDescription
 
 
