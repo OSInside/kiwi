@@ -129,9 +129,8 @@ class XMLDescription(object):
             etree.parse(Defaults.get_xsl_stylesheet_file())
         )
 
-        xml_source = self.description
-        if self.xml_content:
-            xml_source = BytesIO(bytes(self.xml_content))
+        xml_source = self.description if self.description else \
+            BytesIO(bytes(self.xml_content))
 
         with open(self.description_xslt_processed.name, "wb") as xsltout:
             xsltout.write(
