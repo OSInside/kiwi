@@ -96,7 +96,9 @@ class XMLDescription(object):
             )
         if not validation_ok:
             if self.description:
-                message = 'Schema validation for %s failed' % self.description
+                message = 'Schema validation for {description} failed'.format(
+                    description=self.description
+                )
             else:
                 message = 'Schema validation for XML content failed'
             raise KiwiDescriptionInvalid(message)
