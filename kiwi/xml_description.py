@@ -29,7 +29,8 @@ from .exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
-    KiwiDataStructureError
+    KiwiDataStructureError,
+    KiwiDescriptionConflict
 )
 
 
@@ -52,11 +53,19 @@ class XMLDescription(object):
     * :attr:`derived_from`
         path to base XML description file
 
+    * :attr:`xml_content`
+        XML description data as content string
     """
-    def __init__(self, description=None, derived_from=None, content=None):
+    def __init__(self, description=None, derived_from=None, xml_content=None):
+        if description and xml_content:
+            raise KiwiDescriptionConflict(
+                'description and xml_content are mutually exclusive'
+            )
         self.description_xslt_processed = NamedTemporaryFile()
-        self.description = content and BytesIO(bytes(content)) or description
         self.derived_from = derived_from
+
+        self.description = description
+        self.xml_content = xml_content
 
     def load(self):
         """
@@ -86,9 +95,11 @@ class XMLDescription(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
         if not validation_ok:
-            raise KiwiDescriptionInvalid(
-                'Schema validation for %s failed' % self.description
-            )
+            if self.description:
+                message = 'Schema validation for %s failed' % self.description
+            else:
+                message = 'Schema validation for XML content failed'
+            raise KiwiDescriptionInvalid(message)
         return self.__parse()
 
     def __parse(self):
@@ -96,7 +107,7 @@ class XMLDescription(object):
             parse = xml_parse.parse(
                 self.description_xslt_processed.name, True
             )
-            parse.description_dir = os.path.dirname(
+            parse.description_dir = self.description and os.path.dirname(
                 self.description
             )
             parse.derived_description_dir = self.derived_from
@@ -108,10 +119,21 @@ class XMLDescription(object):
 
     def _xsltproc(self):
         """
-        Transform XML description with the Kiwi rules.
+        Apply XSLT style sheet rules to the XML data
 
-        :return:
+        The result of the XSLT processing is stored in a named
+        temporary file and used for further schema validation
+        and parsing into the data structure classes
         """
-        transform = etree.XSLT(etree.parse(Defaults.get_xsl_stylesheet_file()))
+        xslt_transform = etree.XSLT(
+            etree.parse(Defaults.get_xsl_stylesheet_file())
+        )
+
+        xml_source = self.description
+        if self.xml_content:
+            xml_source = BytesIO(bytes(self.xml_content))
+
         with open(self.description_xslt_processed.name, "wb") as xsltout:
-            xsltout.write(etree.tostring(transform(etree.parse(self.description))))
+            xsltout.write(
+                etree.tostring(xslt_transform(etree.parse(xml_source)))
+            )
