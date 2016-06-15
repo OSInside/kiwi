@@ -26,8 +26,7 @@ from ..utils.sync import DataSync
 from ..path import Path
 from .base import PackageManagerBase
 from ..exceptions import (
-    KiwiRequestError,
-    KiwiRuntimeError
+    KiwiDebootstrapError
 )
 
 
@@ -102,13 +101,13 @@ class PackageManagerApt(PackageManagerBase):
         information is not used in this case
         """
         if not self.distribution:
-            raise KiwiRuntimeError(
+            raise KiwiDebootstrapError(
                 'No main distribution repository is configured'
             )
         bootstrap_script = '/usr/share/debootstrap/scripts/' + \
             self.distribution
         if not os.path.exists(bootstrap_script):
-            raise KiwiRequestError(
+            raise KiwiDebootstrapError(
                 'debootstrap script for %s distribution not found' %
                 self.distribution
             )
@@ -135,7 +134,7 @@ class PackageManagerApt(PackageManagerBase):
             )
         except Exception as e:
             Path.wipe(bootstrap_dir)
-            raise KiwiRequestError(
+            raise KiwiDebootstrapError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
         chroot_apt_get_args = self.root_bind.move_to_root(

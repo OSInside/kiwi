@@ -7,7 +7,7 @@ import re
 from .test_helper import *
 
 from kiwi.package_manager.apt import PackageManagerApt
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiDebootstrapError
 
 
 class TestPackageManagerApt(object):
@@ -47,13 +47,13 @@ class TestPackageManagerApt(object):
         assert self.manager.product_requests == []
         assert mock_log_warn.called
 
-    @raises(KiwiRuntimeError)
+    @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_no_dist(self):
         self.manager.distribution = None
         self.manager.process_install_requests_bootstrap()
 
     @patch('os.path.exists')
-    @raises(KiwiRequestError)
+    @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_no_debootstrap_script(
         self, mock_exists
     ):
@@ -63,7 +63,7 @@ class TestPackageManagerApt(object):
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.package_manager.apt.Path.wipe')
-    @raises(KiwiRequestError)
+    @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_failed_debootstrap(
         self, mock_wipe, mock_exists, mock_run
     ):
