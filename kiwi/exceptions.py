@@ -131,6 +131,10 @@ class KiwiDataStructureError(KiwiError):
     pass
 
 
+class KiwiDescriptionConflict(KiwiError):
+    pass
+
+
 class KiwiDescriptionInvalid(KiwiError):
     pass
 

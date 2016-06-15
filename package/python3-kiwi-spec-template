@@ -72,7 +72,6 @@ Requires:       parted
 Requires:       multipath-tools
 Requires:       grub2
 Requires:       mtools
-Requires:       libxslt-tools
 %ifarch %arm aarch64
 Requires:       u-boot-tools
 %endif

@@ -18,9 +18,10 @@
 from lxml import etree
 from tempfile import NamedTemporaryFile
 import os
+from six import BytesIO
+from builtins import bytes
 
 # project
-from .command import Command
 from .defaults import Defaults
 from . import xml_parse
 
@@ -28,7 +29,8 @@ from .exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
-    KiwiDataStructureError
+    KiwiDataStructureError,
+    KiwiDescriptionConflict
 )
 
 
@@ -51,11 +53,19 @@ class XMLDescription(object):
     * :attr:`derived_from`
         path to base XML description file
 
+    * :attr:`xml_content`
+        XML description data as content string
     """
-    def __init__(self, description, derived_from=None):
+    def __init__(self, description=None, derived_from=None, xml_content=None):
+        if description and xml_content:
+            raise KiwiDescriptionConflict(
+                'description and xml_content are mutually exclusive'
+            )
         self.description_xslt_processed = NamedTemporaryFile()
-        self.description = description
         self.derived_from = derived_from
+
+        self.description = description
+        self.xml_content = xml_content
 
     def load(self):
         """
@@ -66,7 +76,7 @@ class XMLDescription(object):
         :return: instance of XML toplevel domain (image)
         :rtype: object
         """
-        self.__xsltproc()
+        self._xsltproc()
         try:
             relaxng = etree.RelaxNG(
                 etree.parse(Defaults.get_schema_file())
@@ -85,9 +95,13 @@ class XMLDescription(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
         if not validation_ok:
-            raise KiwiDescriptionInvalid(
-                'Schema validation for %s failed' % self.description
-            )
+            if self.description:
+                message = 'Schema validation for {description} failed'.format(
+                    description=self.description
+                )
+            else:
+                message = 'Schema validation for XML content failed'
+            raise KiwiDescriptionInvalid(message)
         return self.__parse()
 
     def __parse(self):
@@ -95,7 +109,7 @@ class XMLDescription(object):
             parse = xml_parse.parse(
                 self.description_xslt_processed.name, True
             )
-            parse.description_dir = os.path.dirname(
+            parse.description_dir = self.description and os.path.dirname(
                 self.description
             )
             parse.derived_description_dir = self.derived_from
@@ -105,11 +119,22 @@ class XMLDescription(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def __xsltproc(self):
-        Command.run(
-            [
-                'xsltproc', '-o', self.description_xslt_processed.name,
-                Defaults.get_xsl_stylesheet_file(),
-                self.description
-            ]
+    def _xsltproc(self):
+        """
+        Apply XSLT style sheet rules to the XML data
+
+        The result of the XSLT processing is stored in a named
+        temporary file and used for further schema validation
+        and parsing into the data structure classes
+        """
+        xslt_transform = etree.XSLT(
+            etree.parse(Defaults.get_xsl_stylesheet_file())
         )
+
+        xml_source = self.description if self.description else \
+            BytesIO(bytes(self.xml_content))
+
+        with open(self.description_xslt_processed.name, "wb") as xsltout:
+            xsltout.write(
+                etree.tostring(xslt_transform(etree.parse(xml_source)))
+            )
