@@ -7,9 +7,7 @@ import re
 from .test_helper import *
 
 from kiwi.package_manager.apt import PackageManagerApt
-from kiwi.exceptions import (
-    KiwiDebootstrapError
-)
+from kiwi.exceptions import KiwiDebootstrapError
 
 
 class TestPackageManagerApt(object):
