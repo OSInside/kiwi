@@ -1,5 +1,6 @@
 import mock
 from builtins import bytes
+from lxml import etree
 
 from .test_helper import *
 
@@ -43,8 +44,15 @@ class TestSchema(object):
         XMLDescription(description='description', xml_content='content')
 
     def test_load_schema_from_xml_content(self):
+        schema = etree.parse('../../kiwi/schema/kiwi.rng')
+        lookup = '{http://relaxng.org/ns/structure/1.0}attribute'
+        for attribute in schema.iter(lookup):
+            if attribute.get('name') == 'schemaversion':
+                schemaversion = attribute.find(
+                    '{http://relaxng.org/ns/structure/1.0}value'
+                ).text
         parsed = self.description_from_data.load()
-        assert parsed.get_schemaversion() == '6.3'
+        assert parsed.get_schemaversion() == schemaversion
 
     @raises(KiwiSchemaImportError)
     @patch('lxml.etree.RelaxNG')
