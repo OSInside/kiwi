@@ -172,8 +172,9 @@ class SystemPrepareTask(CliTask):
             manager=manager, force=True
         )
 
-        # make sure system instance is cleaned up now
+        # make sure system and manager instances are cleaned up now
         del system
+        del manager
 
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
