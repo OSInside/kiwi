@@ -57,7 +57,7 @@ class ArchiveTar(object):
             ] + options + [
                 '--xattrs', '--xattrs-include=*', '-c', '-f',
                 self.filename
-            ] + self.__get_archive_items(source_dir, exclude)
+            ] + self._get_archive_items(source_dir, exclude)
         )
 
     def create_xz_compressed(self, source_dir, exclude=None, options=None):
@@ -76,7 +76,7 @@ class ArchiveTar(object):
             ] + options + [
                 '--xattrs', '--xattrs-include=*', '-c', '-J', '-f',
                 self.filename + '.xz'
-            ] + self.__get_archive_items(source_dir, exclude)
+            ] + self._get_archive_items(source_dir, exclude)
         )
 
     def create_gnu_gzip_compressed(self, source_dir, exclude=None):
@@ -90,7 +90,7 @@ class ArchiveTar(object):
             [
                 'tar', '-C', source_dir,
                 '--format=gnu', '-cSz', '-f', self.filename + '.gz'
-            ] + self.__get_archive_items(source_dir, exclude)
+            ] + self._get_archive_items(source_dir, exclude)
         )
 
     def extract(self, dest_dir):
@@ -103,15 +103,15 @@ class ArchiveTar(object):
             ['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename]
         )
 
-    def __get_archive_items(self, source_dir, exclude_list):
+    def _get_archive_items(self, source_dir, exclude_list):
         if self.create_from_file_list:
-            return self.__get_archive_content_list(
+            return self._get_archive_content_list(
                 source_dir, exclude_list, self.file_list
             )
         else:
-            return ['.'] + self.__get_archive_exclude_list(exclude_list)
+            return ['.'] + self._get_archive_exclude_list(exclude_list)
 
-    def __get_archive_content_list(
+    def _get_archive_content_list(
         self, source_dir, exclude_list=None, file_list=None
     ):
         final_archive_contents = []
@@ -127,7 +127,7 @@ class ArchiveTar(object):
 
         return final_archive_contents
 
-    def __get_archive_exclude_list(self, exclude_list):
+    def _get_archive_exclude_list(self, exclude_list):
         archive_items = []
         for exclude in exclude_list:
             archive_items.append('--exclude')

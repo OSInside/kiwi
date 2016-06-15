@@ -196,7 +196,7 @@ class BootLoaderConfigBase(object):
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
-        custom_root = self.__get_root_cmdline_parameter(uuid)
+        custom_root = self._get_root_cmdline_parameter(uuid)
         if custom_root:
             cmdline += ' ' + custom_root
         return cmdline.strip()
@@ -353,7 +353,7 @@ class BootLoaderConfigBase(object):
             else:
                 return default_mode
 
-    def __get_root_cmdline_parameter(self, uuid):
+    def _get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
         initrd_system = self.xml_state.build_type.get_initrd_system()
         cmdline = self.xml_state.build_type.get_kernelcmdline()

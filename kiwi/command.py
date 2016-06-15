@@ -126,7 +126,7 @@ class Command(object):
             )
 
         def output_available():
-            def __select():
+            def _select():
                 descriptor_lists = select.select(
                     [process.stdout], [], [process.stdout], 1e-4
                 )
@@ -134,10 +134,10 @@ class Command(object):
                 exceptional = descriptor_lists[2]
                 if readable and not exceptional:
                     return True
-            return __select
+            return _select
 
         def error_available():
-            def __select():
+            def _select():
                 descriptor_lists = select.select(
                     [process.stderr], [], [process.stderr], 1e-4
                 )
@@ -145,7 +145,7 @@ class Command(object):
                 exceptional = descriptor_lists[2]
                 if readable and not exceptional:
                     return True
-            return __select
+            return _select
 
         command = namedtuple(
             'command', [

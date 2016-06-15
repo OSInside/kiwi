@@ -86,7 +86,7 @@ class PackageManagerZypper(PackageManagerBase):
         command = ['zypper'] + self.zypper_args + [
             '--root', self.root_dir,
             'install', '--auto-agree-with-licenses'
-        ] + self.custom_args + self.__install_items()
+        ] + self.custom_args + self._install_items()
         return Command.call(
             command, self.command_env
         )
@@ -101,7 +101,7 @@ class PackageManagerZypper(PackageManagerBase):
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
-            ] + self.custom_args + self.__install_items(),
+            ] + self.custom_args + self._install_items(),
             self.command_env
         )
 
@@ -112,7 +112,7 @@ class PackageManagerZypper(PackageManagerBase):
         :param bool force: force deletion: true|false
         """
         delete_items = []
-        for delete_item in self.__delete_items():
+        for delete_item in self._delete_items():
             try:
                 Command.run(['chroot', self.root_dir, 'rpm', '-q', delete_item])
                 delete_items.append(delete_item)
@@ -239,13 +239,13 @@ class PackageManagerZypper(PackageManagerBase):
                 'chroot', self.root_dir, 'rpm', '--rebuilddb'
             ])
 
-    def __install_items(self):
+    def _install_items(self):
         items = self.package_requests + self.collection_requests \
             + self.product_requests
         self.cleanup_requests()
         return items
 
-    def __delete_items(self):
+    def _delete_items(self):
         # collections and products can't be deleted
         items = []
         items += self.package_requests

@@ -159,7 +159,7 @@ class PackageManagerApt(PackageManagerBase):
         apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('install')
-        apt_get_command.extend(self.__package_requests())
+        apt_get_command.extend(self._package_requests())
 
         return Command.call(
             apt_get_command, self.command_env
@@ -179,7 +179,7 @@ class PackageManagerApt(PackageManagerBase):
         apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('remove')
-        apt_get_command.extend(self.__package_requests())
+        apt_get_command.extend(self._package_requests())
 
         return Command.call(
             apt_get_command, self.command_env
@@ -251,7 +251,7 @@ class PackageManagerApt(PackageManagerBase):
         """
         pass
 
-    def __package_requests(self):
+    def _package_requests(self):
         items = self.package_requests[:]
         self.cleanup_requests()
         return items

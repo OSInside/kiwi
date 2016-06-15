@@ -30,7 +30,7 @@ class TestSystemUpdateTask(object):
         )
         self.task = SystemUpdateTask()
 
-    def __init_command_args(self):
+    def _init_command_args(self):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['update'] = False
@@ -39,14 +39,14 @@ class TestSystemUpdateTask(object):
         self.task.command_args['--root'] = '../data/root-dir'
 
     def test_process_system_update(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['update'] = True
         self.task.process()
         self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.update_system.assert_called_once_with(self.manager)
 
     def test_process_system_update_add_package(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['update'] = True
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
@@ -56,7 +56,7 @@ class TestSystemUpdateTask(object):
         )
 
     def test_process_system_update_delete_package(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['update'] = True
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
@@ -66,7 +66,7 @@ class TestSystemUpdateTask(object):
         )
 
     def test_process_system_update_help(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['help'] = True
         self.task.command_args['update'] = True
         self.task.process()

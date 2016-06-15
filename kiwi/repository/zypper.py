@@ -101,7 +101,7 @@ class RepositoryZypper(RepositoryBase):
             '--config', self.runtime_zypper_config_file.name
         ] + self.custom_args
 
-        self.command_env = self.__create_zypper_runtime_environment()
+        self.command_env = self._create_zypper_runtime_environment()
 
         # config file parameters for zypper tool
         self.runtime_zypper_config = ConfigParser()
@@ -123,7 +123,7 @@ class RepositoryZypper(RepositoryBase):
             'main', 'packagesdir', self.shared_zypper_dir['pkg-cache-dir']
         )
 
-        self.__write_runtime_config()
+        self._write_runtime_config()
 
     def use_default_location(self):
         """
@@ -171,7 +171,7 @@ class RepositoryZypper(RepositoryBase):
                 '--root', self.root_dir,
                 'addrepo',
                 '--refresh',
-                '--type', self.__translate_repo_type(repo_type),
+                '--type', self._translate_repo_type(repo_type),
                 '--keep-packages',
                 '-C',
                 uri,
@@ -230,7 +230,7 @@ class RepositoryZypper(RepositoryBase):
             if repo_file not in self.repo_names:
                 Path.wipe(repos_dir + '/' + repo_file)
 
-    def __create_zypper_runtime_environment(self):
+    def _create_zypper_runtime_environment(self):
         for zypper_dir in list(self.shared_zypper_dir.values()):
             Path.create(zypper_dir)
         return dict(
@@ -239,13 +239,13 @@ class RepositoryZypper(RepositoryBase):
             ZYPP_CONF=self.runtime_zypp_config_file.name
         )
 
-    def __write_runtime_config(self):
+    def _write_runtime_config(self):
         with open(self.runtime_zypper_config_file.name, 'w') as config:
             self.runtime_zypper_config.write(config)
         with open(self.runtime_zypp_config_file.name, 'w') as config:
             self.runtime_zypp_config.write(config)
 
-    def __translate_repo_type(self, repo_type):
+    def _translate_repo_type(self, repo_type):
         """
             Translate kiwi supported common repo type names from the schema
             into the name the zyper package manager understands

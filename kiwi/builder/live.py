@@ -199,7 +199,7 @@ class LiveImageBuilder(object):
             Command.run(
                 ['mv', self.live_image_file, self.media_dir]
             )
-            self.__create_live_iso_client_config(self.live_type)
+            self._create_live_iso_client_config(self.live_type)
         else:
             raise KiwiLiveBootImageError(
                 'live ISO type "%s" not supported' % self.live_type
@@ -236,7 +236,7 @@ class LiveImageBuilder(object):
 
         # create initrd for live image
         log.info('Creating live ISO boot image')
-        self.__create_live_iso_kernel_and_initrd()
+        self._create_live_iso_kernel_and_initrd()
 
         # calculate size and decide if we need UDF
         if rootsize.accumulate_mbyte_file_sizes() > 4096:
@@ -286,7 +286,7 @@ class LiveImageBuilder(object):
         )
         return self.result
 
-    def __create_live_iso_kernel_and_initrd(self):
+    def _create_live_iso_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/' + self.arch + '/loader'
         Path.create(boot_path)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
@@ -313,7 +313,7 @@ class LiveImageBuilder(object):
             ]
         )
 
-    def __create_live_iso_client_config(self, iso_type):
+    def _create_live_iso_client_config(self, iso_type):
         """
             Setup IMAGE and UNIONFS_CONFIG variables as they are used in
             the kiwi isoboot code. Variable contents:

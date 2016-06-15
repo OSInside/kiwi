@@ -122,7 +122,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         Write zipl config file
         """
         log.info('Writing zipl config file')
-        config_dir = self.__get_zipl_boot_path()
+        config_dir = self._get_zipl_boot_path()
         config_file = config_dir + '/config'
         if self.config:
             Path.create(config_dir)
@@ -135,7 +135,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                     'mv',
                     self.root_dir + '/boot/initrd.vmx',
                     self.root_dir + '/boot/linux.vmx',
-                    self.__get_zipl_boot_path()
+                    self._get_zipl_boot_path()
                 ]
             )
 
@@ -157,8 +157,8 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             'device': self.target_device,
             'target_type': self.target_type,
             'blocksize': self.target_blocksize,
-            'offset': self.__get_target_offset(),
-            'geometry': self.__get_target_geometry(),
+            'offset': self._get_target_offset(),
+            'geometry': self._get_target_geometry(),
             'default_boot': '1',
             'bootpath': self.bootpath,
             'boot_timeout': self.timeout,
@@ -183,26 +183,26 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         """
         pass
 
-    def __get_zipl_boot_path(self):
+    def _get_zipl_boot_path(self):
         return self.root_dir + '/boot/zipl'
 
-    def __get_target_geometry(self):
+    def _get_target_geometry(self):
         if self.target_table_type == 'dasd':
             return '%d,%d,%d' % (
-                self.__read_dasd_disk_geometry('cylinders'),
-                self.__read_dasd_disk_geometry('tracks per cylinder'),
-                self.__read_dasd_disk_geometry('blocks per track')
+                self._read_dasd_disk_geometry('cylinders'),
+                self._read_dasd_disk_geometry('tracks per cylinder'),
+                self._read_dasd_disk_geometry('blocks per track')
             )
         else:
             return '%d,%d,%d' % (
-                self.__read_msdos_disk_geometry('cylinders'),
-                self.__read_msdos_disk_geometry('tracks per cylinder'),
-                self.__read_msdos_disk_geometry('blocks per track')
+                self._read_msdos_disk_geometry('cylinders'),
+                self._read_msdos_disk_geometry('tracks per cylinder'),
+                self._read_msdos_disk_geometry('blocks per track')
             )
 
-    def __get_target_offset(self):
+    def _get_target_offset(self):
         if self.target_table_type == 'dasd':
-            blocks = self.__read_dasd_disk_geometry('blocks per track')
+            blocks = self._read_dasd_disk_geometry('blocks per track')
             bash_command = [
                 'fdasd', '-f', '-s', '-p', self.target_device,
                 '|', 'head', '-n', '1', '|', 'tr', '-s', '" "'
@@ -219,7 +219,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                 )
             return start_track * blocks
         else:
-            blocks = self.__read_msdos_disk_geometry('blocks per track')
+            blocks = self._read_msdos_disk_geometry('blocks per track')
             parted_call = Command.run(
                 ['parted', '-m', self.target_device, 'unit', 's', 'print']
             )
@@ -232,7 +232,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             start_track = int(first_partition_format.group(1))
             return start_track * blocks
 
-    def __read_msdos_disk_geometry(self, value):
+    def _read_msdos_disk_geometry(self, value):
         sfdisk_call = Command.run(
             ['sfdisk', '-g', self.target_device]
         )
@@ -253,7 +253,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         if value in result:
             return int(result[value])
 
-    def __read_dasd_disk_geometry(self, value):
+    def _read_dasd_disk_geometry(self, value):
         fdasd = ['fdasd', '-f', '-p', self.target_device]
         bash_command = fdasd + ['|', 'grep', '"' + value + '"']
         fdasd_call = Command.run(

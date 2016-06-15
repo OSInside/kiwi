@@ -155,7 +155,7 @@ class SystemPrepare(object):
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
-        all_install_items = self.__setup_requests(
+        all_install_items = self._setup_requests(
             manager,
             bootstrap_packages,
             bootstrap_collections,
@@ -180,7 +180,7 @@ class SystemPrepare(object):
         # process archive installations
         if bootstrap_archives:
             try:
-                self.__install_archives(bootstrap_archives)
+                self._install_archives(bootstrap_archives)
             except Exception as e:
                 raise KiwiBootStrapPhaseFailed(
                     'Bootstrap archive installation failed: %s' % format(e)
@@ -208,7 +208,7 @@ class SystemPrepare(object):
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
-        all_install_items = self.__setup_requests(
+        all_install_items = self._setup_requests(
             manager,
             system_packages,
             system_collections,
@@ -232,7 +232,7 @@ class SystemPrepare(object):
         # process archive installations
         if system_archives:
             try:
-                self.__install_archives(system_archives)
+                self._install_archives(system_archives)
             except Exception as e:
                 raise KiwiInstallPhaseFailed(
                     'System archive installation failed: %s' % format(e)
@@ -265,7 +265,7 @@ class SystemPrepare(object):
         :param list packages: package list
         """
         log.info('Installing system packages (chroot)')
-        all_install_items = self.__setup_requests(
+        all_install_items = self._setup_requests(
             manager, packages
         )
         if all_install_items:
@@ -294,7 +294,7 @@ class SystemPrepare(object):
         :param bool force: force deletion true|false
         """
         log.info('Deleting system packages (chroot)')
-        all_delete_items = self.__setup_requests(
+        all_delete_items = self._setup_requests(
             manager, packages
         )
         if all_delete_items:
@@ -333,7 +333,7 @@ class SystemPrepare(object):
                 'System update failed: %s' % format(e)
             )
 
-    def __install_archives(self, archive_list):
+    def _install_archives(self, archive_list):
         log.info("Installing archives")
         for archive in archive_list:
             log.info("--> archive: %s", archive)
@@ -356,7 +356,7 @@ class SystemPrepare(object):
             tar = ArchiveTar(archive_file)
             tar.extract(self.root_bind.root_dir)
 
-    def __setup_requests(
+    def _setup_requests(
         self, manager, packages, collections=None, products=None
     ):
         if packages:

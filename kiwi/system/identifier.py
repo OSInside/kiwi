@@ -48,7 +48,7 @@ class SystemIdentifier(object):
         Using 4 tuples of rand in range from 1..0xfe
         """
         self.image_id = '0x%02x%02x%02x%02x' % (
-            self.__rand(), self.__rand(), self.__rand(), self.__rand()
+            self._rand(), self._rand(), self._rand(), self._rand()
         )
 
     def write(self, filename):
@@ -72,5 +72,5 @@ class SystemIdentifier(object):
                 disk.seek(440, 0)
                 disk.write(packed_id)
 
-    def __rand(self):
+    def _rand(self):
         return random.randrange(1, 0xfe)

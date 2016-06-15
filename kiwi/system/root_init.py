@@ -77,7 +77,7 @@ class RootInit(object):
             self._create_base_directories(root)
             self._create_device_nodes(root)
             self._create_base_links(root)
-            self.__setup_config_templates(root)
+            self._setup_config_templates(root)
             data = DataSync(root + '/', self.root_dir)
             data.sync_data(
                 options=['-a', '--ignore-existing']
@@ -89,7 +89,7 @@ class RootInit(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def __setup_config_templates(self, root):
+    def _setup_config_templates(self, root):
         group_template = '/var/adm/fillup-templates/group.aaa_base'
         passwd_template = '/var/adm/fillup-templates/passwd.aaa_base'
         proxy_template = '/var/adm/fillup-templates/sysconfig.proxy'

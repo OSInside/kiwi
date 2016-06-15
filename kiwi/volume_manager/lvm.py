@@ -82,7 +82,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         self.setup_mountpoint()
 
-        if self.__volume_group_in_use_on_host_system(volume_group_name):
+        if self._volume_group_in_use_on_host_system(volume_group_name):
             raise KiwiVolumeGroupConflict(
                 'Requested volume group %s is in use on this host' %
                 volume_group_name
@@ -130,11 +130,11 @@ class VolumeManagerLVM(VolumeManagerBase):
                     volume.name, self.volume_group
                 ]
             )
-            self.__add_to_volume_map(volume.name)
-            self.__create_filesystem(
+            self._add_to_volume_map(volume.name)
+            self._create_filesystem(
                 volume.name, filesystem_name
             )
-            self.__add_to_mount_list(
+            self._add_to_mount_list(
                 volume.name, volume.realpath
             )
 
@@ -147,11 +147,11 @@ class VolumeManagerLVM(VolumeManagerBase):
                     self.volume_group
                 ]
             )
-            self.__add_to_volume_map(full_size_volume.name)
-            self.__create_filesystem(
+            self._add_to_volume_map(full_size_volume.name)
+            self._create_filesystem(
                 full_size_volume.name, filesystem_name
             )
-            self.__add_to_mount_list(
+            self._add_to_mount_list(
                 full_size_volume.name, full_size_volume.realpath
             )
 
@@ -176,7 +176,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                     all_volumes_umounted = False
         return all_volumes_umounted
 
-    def __create_filesystem(self, volume_name, filesystem_name):
+    def _create_filesystem(self, volume_name, filesystem_name):
         device_node = self.volume_map[volume_name]
         label = None
         if volume_name == 'LVRoot':
@@ -192,7 +192,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             label=label
         )
 
-    def __add_to_mount_list(self, volume_name, realpath):
+    def _add_to_mount_list(self, volume_name, realpath):
         device_node = self.volume_map[volume_name]
         if volume_name == 'LVRoot':
             # root volume must be first in the list
@@ -210,12 +210,12 @@ class VolumeManagerLVM(VolumeManagerBase):
                 )
             )
 
-    def __add_to_volume_map(self, volume_name):
+    def _add_to_volume_map(self, volume_name):
         self.volume_map[volume_name] = ''.join(
             ['/dev/', self.volume_group, '/', volume_name]
         )
 
-    def __volume_group_in_use_on_host_system(self, volume_group_name):
+    def _volume_group_in_use_on_host_system(self, volume_group_name):
         vgs_call = Command.run(
             ['vgs', '--noheadings', '-o', 'vg_name']
         )

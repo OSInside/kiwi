@@ -148,7 +148,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Write grub.cfg file
         """
         log.info('Writing grub.cfg file')
-        config_dir = self.__get_grub_boot_path()
+        config_dir = self._get_grub_boot_path()
         config_file = config_dir + '/grub.cfg'
         if self.config:
             Path.create(config_dir)
@@ -315,7 +315,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
         Path.create(
-            self.__get_grub_boot_path()
+            self._get_grub_boot_path()
         )
         mbrid.write(
             self.root_dir + '/boot/' + mbrid.get_id()
@@ -324,18 +324,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.root_dir + '/boot/mbrid'
         )
 
-        self.__copy_theme_data_to_boot_directory(lookup_path)
+        self._copy_theme_data_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
-            self.__create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
-            self.__copy_efi_modules_to_boot_directory(lookup_path)
+            self._create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
+            self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             log.info(
                 '--> Using signed secure boot efi image, done by shim-install'
             )
 
-        self.__create_embedded_fat_efi_image()
+        self._create_embedded_fat_efi_image()
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
@@ -361,21 +361,21 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()
 
-        self.__copy_theme_data_to_boot_directory(lookup_path)
+        self._copy_theme_data_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
-            self.__create_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
-            self.__copy_efi_modules_to_boot_directory(lookup_path)
+            self._create_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
+            self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             log.info(
                 '--> Using signed secure boot efi image, done by shim-install'
             )
 
         if self.xen_guest:
-            self.__copy_xen_modules_to_boot_directory(lookup_path)
+            self._copy_xen_modules_to_boot_directory(lookup_path)
 
-    def __create_embedded_fat_efi_image(self):
+    def _create_embedded_fat_efi_image(self):
         Path.create(self.root_dir + '/boot/' + self.arch)
         efi_fat_image = ''.join(
             [self.root_dir + '/boot/', self.arch, '/efi']
@@ -393,28 +393,28 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-    def __create_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
+    def _create_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
         early_boot_script = self.efi_boot_path + '/earlyboot.cfg'
         if uuid:
-            self.__create_early_boot_script_for_uuid_search(
+            self._create_early_boot_script_for_uuid_search(
                 early_boot_script, uuid
             )
         else:
-            self.__create_early_boot_script_for_mbrid_search(
+            self._create_early_boot_script_for_mbrid_search(
                 early_boot_script, mbrid
             )
         Command.run(
             [
                 'grub2-mkimage',
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
-                '-o', self.__get_efi_image_name(),
+                '-o', self._get_efi_image_name(),
                 '-c', early_boot_script,
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d', self.__get_efi_modules_path(lookup_path)
+                '-d', self._get_efi_modules_path(lookup_path)
             ] + Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
         )
 
-    def __create_early_boot_script_for_uuid_search(self, filename, uuid):
+    def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
             early_boot.write(
                 'search --fs-uuid --set=root %s\n' % uuid
@@ -425,7 +425,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             )
 
-    def __create_early_boot_script_for_mbrid_search(self, filename, mbrid):
+    def _create_early_boot_script_for_mbrid_search(self, filename, mbrid):
         with open(filename, 'w') as early_boot:
             early_boot.write(
                 'search --file --set=root /boot/%s\n' % mbrid.get_id()
@@ -434,35 +434,35 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'set prefix=($root)/boot/%s\n' % self.boot_directory_name
             )
 
-    def __get_grub_boot_path(self):
+    def _get_grub_boot_path(self):
         return self.root_dir + '/boot/' + self.boot_directory_name
 
-    def __get_efi_image_name(self):
+    def _get_efi_image_name(self):
         return self.efi_boot_path + '/' + Defaults.get_efi_image_name(self.arch)
 
-    def __get_efi_modules_path(self, lookup_path=None):
-        return self.__get_module_path(
+    def _get_efi_modules_path(self, lookup_path=None):
+        return self._get_module_path(
             Defaults.get_efi_module_directory_name(self.arch),
             lookup_path
         )
 
-    def __get_xen_modules_path(self, lookup_path=None):
-        return self.__get_module_path(
+    def _get_xen_modules_path(self, lookup_path=None):
+        return self._get_module_path(
             Defaults.get_efi_module_directory_name('x86_64_xen'),
             lookup_path
         )
 
-    def __get_module_path(self, format_name, lookup_path=None):
+    def _get_module_path(self, format_name, lookup_path=None):
         if not lookup_path:
             lookup_path = self.root_dir
         return ''.join(
             [
-                self.__find_grub_data(lookup_path + '/usr/lib'),
+                self._find_grub_data(lookup_path + '/usr/lib'),
                 '/', format_name
             ]
         )
 
-    def __fixup_legacy_grub_location(self):
+    def _fixup_legacy_grub_location(self):
         legacy_grub_theme_dir = self.root_dir + '/boot/grub/themes'
         legacy_font = self.root_dir + '/boot/grub/unicode.pf2'
         grub_dir = '/'.join(
@@ -475,13 +475,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # found grub2 unicode font in legacy grub directory
             shutil.copy(legacy_font, grub_dir)
 
-    def __copy_theme_data_to_boot_directory(self, lookup_path):
-        self.__fixup_legacy_grub_location()
+    def _copy_theme_data_to_boot_directory(self, lookup_path):
+        self._fixup_legacy_grub_location()
         if not lookup_path:
             lookup_path = self.root_dir
         boot_unicode_font = self.root_dir + '/boot/unicode.pf2'
         if not os.path.exists(boot_unicode_font):
-            unicode_font = self.__find_grub_data(lookup_path + '/usr/share') + \
+            unicode_font = self._find_grub_data(lookup_path + '/usr/share') + \
                 '/unicode.pf2'
             try:
                 Command.run(
@@ -496,7 +496,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.boot_directory_name + '/themes'
         if self.theme and not os.path.exists(boot_theme_dir):
             Path.create(boot_theme_dir)
-            theme_dir = self.__find_grub_data(lookup_path + '/usr/share') + \
+            theme_dir = self._find_grub_data(lookup_path + '/usr/share') + \
                 '/themes/' + self.theme
             if os.path.exists(theme_dir):
                 data = DataSync(
@@ -508,19 +508,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             else:
                 log.warning('Theme %s not found', theme_dir)
 
-    def __copy_efi_modules_to_boot_directory(self, lookup_path):
-        self.__copy_modules_to_boot_directory_from(
-            self.__get_efi_modules_path(lookup_path)
+    def _copy_efi_modules_to_boot_directory(self, lookup_path):
+        self._copy_modules_to_boot_directory_from(
+            self._get_efi_modules_path(lookup_path)
         )
 
-    def __copy_xen_modules_to_boot_directory(self, lookup_path):
-        self.__copy_modules_to_boot_directory_from(
-            self.__get_xen_modules_path(lookup_path)
+    def _copy_xen_modules_to_boot_directory(self, lookup_path):
+        self._copy_modules_to_boot_directory_from(
+            self._get_xen_modules_path(lookup_path)
         )
 
-    def __copy_modules_to_boot_directory_from(self, module_path):
+    def _copy_modules_to_boot_directory_from(self, module_path):
         boot_module_path = \
-            self.__get_grub_boot_path() + '/' + os.path.basename(module_path)
+            self._get_grub_boot_path() + '/' + os.path.basename(module_path)
         try:
             data = DataSync(
                 module_path + '/', boot_module_path
@@ -533,7 +533,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'Module synchronisation failed with: %s' % format(e)
             )
 
-    def __find_grub_data(self, lookup_path):
+    def _find_grub_data(self, lookup_path):
         grub_path = Defaults.get_grub_path(lookup_path)
         if grub_path:
             return grub_path

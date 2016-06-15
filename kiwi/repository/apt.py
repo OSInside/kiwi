@@ -82,18 +82,18 @@ class RepositoryApt(RepositoryBase):
             '-q', '-c', self.runtime_apt_get_config_file.name, '-y'
         ] + self.custom_args
 
-        self.command_env = self.__create_apt_get_runtime_environment()
+        self.command_env = self._create_apt_get_runtime_environment()
 
         # config file for apt-get tool
         self.apt_conf = PackageManagerTemplateAptGet()
-        self.__write_runtime_config()
+        self._write_runtime_config()
 
     def use_default_location(self):
         """
         Setup apt-get repository operations to store all data
         in the default places
         """
-        self.__write_runtime_config(system_default=True)
+        self._write_runtime_config(system_default=True)
 
     def runtime_config(self):
         """
@@ -177,14 +177,14 @@ class RepositoryApt(RepositoryBase):
             if repo_file not in self.repo_names:
                 Path.wipe(repos_dir + '/' + repo_file)
 
-    def __create_apt_get_runtime_environment(self):
+    def _create_apt_get_runtime_environment(self):
         for apt_get_dir in list(self.shared_apt_get_dir.values()):
             Path.create(apt_get_dir)
         return dict(
             os.environ, LANG='C', DEBIAN_FRONTEND='noninteractive'
         )
 
-    def __write_runtime_config(self, system_default=False):
+    def _write_runtime_config(self, system_default=False):
         if not system_default:
             parameters = {
                 'apt_shared_base': self.manager_base

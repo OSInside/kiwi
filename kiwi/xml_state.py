@@ -53,10 +53,10 @@ class XMLState(object):
     def __init__(self, xml_data, profiles=None, build_type=None):
         self.host_architecture = platform.machine()
         self.xml_data = xml_data
-        self.profiles = self.__used_profiles(
+        self.profiles = self._used_profiles(
             profiles
         )
-        self.build_type = self.__build_type_section(
+        self.build_type = self._build_type_section(
             build_type
         )
 
@@ -67,7 +67,7 @@ class XMLState(object):
         :return: <preferences>
         :rtype: list
         """
-        return self.__profiled(
+        return self._profiled(
             self.xml_data.get_preferences()
         )
 
@@ -78,7 +78,7 @@ class XMLState(object):
         :return: <users>
         :rtype: list
         """
-        return self.__profiled(
+        return self._profiled(
             self.xml_data.get_users()
         )
 
@@ -129,7 +129,7 @@ class XMLState(object):
         :rtype: list
         """
         result = []
-        packages_sections = self.__profiled(
+        packages_sections = self._profiled(
             self.xml_data.get_packages()
         )
         for packages in packages_sections:
@@ -613,7 +613,7 @@ class XMLState(object):
                                 'mountpoint attribute required for volume %s' %
                                 name
                             )
-                        name = 'LV' + self.__to_volume_name(name)
+                        name = 'LV' + self._to_volume_name(name)
                     else:
                         # if a mountpoint path is specified the value is turned
                         # into a path variable and name stays untouched. However
@@ -626,7 +626,7 @@ class XMLState(object):
                                 'mountpoint %s must not contain "_"' %
                                 mountpoint
                             )
-                        mountpoint = 'LV' + self.__to_volume_name(mountpoint)
+                        mountpoint = 'LV' + self._to_volume_name(mountpoint)
 
                     # the given name is used as shell variable in the kiwi boot
                     # code. Thus the name must follow the bash variable name
@@ -638,11 +638,11 @@ class XMLState(object):
 
                     if size:
                         size = 'size:' + format(
-                            self.__to_mega_byte(size)
+                            self._to_mega_byte(size)
                         )
                     elif freespace:
                         size = 'freespace:' + format(
-                            self.__to_mega_byte(freespace)
+                            self._to_mega_byte(freespace)
                         )
                     else:
                         size = 'freespace:' + format(
@@ -720,7 +720,7 @@ class XMLState(object):
         :return: driver names
         :rtype: list
         """
-        drivers_sections = self.__profiled(
+        drivers_sections = self._profiled(
             self.xml_data.get_drivers()
         )
         result = []
@@ -740,7 +740,7 @@ class XMLState(object):
         :return: strip names
         :rtype: list
         """
-        strip_sections = self.__profiled(
+        strip_sections = self._profiled(
             self.xml_data.get_strip()
         )
         result = []
@@ -785,7 +785,7 @@ class XMLState(object):
         :return: <repository>
         :rtype: list
         """
-        return self.__profiled(
+        return self._profiled(
             self.xml_data.get_repository()
         )
 
@@ -880,7 +880,7 @@ class XMLState(object):
 
         :param object target_state: XMLState instance
         """
-        drivers_sections = self.__profiled(
+        drivers_sections = self._profiled(
             self.xml_data.get_drivers()
         )
         if drivers_sections:
@@ -905,7 +905,7 @@ class XMLState(object):
 
         :param object target_state: XMLState instance
         """
-        strip_sections = self.__profiled(
+        strip_sections = self._profiled(
             self.xml_data.get_strip()
         )
         if strip_sections:
@@ -943,7 +943,7 @@ class XMLState(object):
         :param object target_state: XMLState instance
         :param bool wipe: delete all repos in target prior to copy
         """
-        repository_sections = self.__profiled(
+        repository_sections = self._profiled(
             self.xml_data.get_repository()
         )
         if repository_sections:
@@ -1144,7 +1144,7 @@ class XMLState(object):
 
         return option_list
 
-    def __used_profiles(self, profiles=None):
+    def _used_profiles(self, profiles=None):
         """
             return list of profiles to use. The method looks up the
             profiles section in the XML description and searches for
@@ -1172,7 +1172,7 @@ class XMLState(object):
                     )
             return profiles
 
-    def __build_type_section(self, build_type=None):
+    def _build_type_section(self, build_type=None):
         """
             find type section matching build type and profiles or default
         """
@@ -1199,7 +1199,7 @@ class XMLState(object):
         if image_type_sections:
             return image_type_sections[0]
 
-    def __profiled(self, xml_abstract):
+    def _profiled(self, xml_abstract):
         """
             return only those sections matching the instance stored
             profile list from the given XML abstract. Sections without
@@ -1218,7 +1218,7 @@ class XMLState(object):
                 result.append(section)
         return result
 
-    def __to_volume_name(self, name):
+    def _to_volume_name(self, name):
         """
             build a valid volume name
         """
@@ -1227,7 +1227,7 @@ class XMLState(object):
         name = name.replace('/', '_')
         return name
 
-    def __to_mega_byte(self, size):
+    def _to_mega_byte(self, size):
         value = re.search('(\d+)([MG]*)', format(size))
         if value:
             number = value.group(1)

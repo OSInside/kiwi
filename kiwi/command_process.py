@@ -59,14 +59,14 @@ class CommandProcess(object):
         :param list items_to_complete: all items
         :param function match_method: method matching item
         """
-        self.__init_progress()
+        self._init_progress()
         for line in self.command:
             if line:
                 log.debug('%s: %s', self.log_topic, line)
-                self.__update_progress(
+                self._update_progress(
                     match_method, items_to_complete, line
                 )
-        self.__stop_progress()
+        self._stop_progress()
         if self.command.get_error_code() != 0:
             raise KiwiCommandError(
                 self.command.get_error_output()
@@ -108,17 +108,17 @@ class CommandProcess(object):
             return method(item_to_match, data)
         return create_method
 
-    def __init_progress(self):
+    def _init_progress(self):
         log.progress(
             0, 100, '[ INFO    ]: Processing'
         )
 
-    def __stop_progress(self):
+    def _stop_progress(self):
         log.progress(
             100, 100, '[ INFO    ]: Processing'
         )
 
-    def __update_progress(
+    def _update_progress(
         self, match_method, items_to_complete, command_output
     ):
         items_count = len(items_to_complete)

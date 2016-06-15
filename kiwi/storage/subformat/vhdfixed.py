@@ -79,9 +79,9 @@ class DiskFormatVhdFixed(DiskFormatBase):
             ]
         )
         if self.tag:
-            self.__write_vhd_tag(self.tag)
+            self._write_vhd_tag(self.tag)
 
-    def __pack_net_guid_tag(self, tag):
+    def _pack_net_guid_tag(self, tag):
         """
         Pack tag format into 16 byte binary representation. String format
         of the tag is: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
@@ -128,7 +128,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
             binary_tag_part_3 + binary_tag_part_4 + \
             binary_tag_part_5
 
-    def __write_vhd_tag(self, tag):
+    def _write_vhd_tag(self, tag):
         """
         Azure service uses a tag injected into the disk
         image to identify the OS. The tag is 512B long,
@@ -140,7 +140,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         | 64K offset | TAG (512B)      |
         +------------+-----------------+
         """
-        binary_tag = self.__pack_net_guid_tag(tag)
+        binary_tag = self._pack_net_guid_tag(tag)
         vhd_fixed_image = self.get_target_name_for_format('vhdfixed')
         # seek to 64k offset and zero out 512 byte
         with open(vhd_fixed_image, 'wb') as vhd_fixed:

@@ -45,7 +45,7 @@ class TestSystemCreateTask(object):
 
         self.task = SystemCreateTask()
 
-    def __init_command_args(self):
+    def _init_command_args(self):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['create'] = False
@@ -53,7 +53,7 @@ class TestSystemCreateTask(object):
         self.task.command_args['--target-dir'] = 'some-target'
 
     def test_process_system_create(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['create'] = True
         self.task.process()
         self.runtime_checker.check_target_directory_not_in_shared_cache.called_once_with('some-target')
@@ -65,7 +65,7 @@ class TestSystemCreateTask(object):
         )
 
     def test_process_system_create_help(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['help'] = True
         self.task.command_args['create'] = True
         self.task.process()

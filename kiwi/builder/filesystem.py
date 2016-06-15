@@ -132,9 +132,9 @@ class FileSystemBuilder(object):
                 'Unknown filesystem: %s' % self.requested_filesystem
             )
         if self.requested_filesystem not in self.filesystems_no_device_node:
-            self.__operate_on_loop()
+            self._operate_on_loop()
         else:
-            self.__operate_on_file()
+            self._operate_on_file()
         self.result.add(
             key='filesystem_image',
             filename=self.filename,
@@ -162,7 +162,7 @@ class FileSystemBuilder(object):
         )
         return self.result
 
-    def __operate_on_loop(self):
+    def _operate_on_loop(self):
         filesystem = None
         loop_provider = LoopDevice(
             self.filename,
@@ -184,7 +184,7 @@ class FileSystemBuilder(object):
         ]
         filesystem.sync_data(exclude_list)
 
-    def __operate_on_file(self):
+    def _operate_on_file(self):
         default_provider = DeviceProvider()
         filesystem = FileSystem(
             self.requested_filesystem, default_provider,

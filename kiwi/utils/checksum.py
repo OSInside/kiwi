@@ -54,11 +54,11 @@ class Checksum(object):
 
         :param string filename: filename for checksum
         """
-        md5_checksum = self.__calculate_hash_hexdigest(
+        md5_checksum = self._calculate_hash_hexdigest(
             hashlib.md5(), self.source_filename
         )
         if filename:
-            self.__create_checksum_file(
+            self._create_checksum_file(
                 md5_checksum, filename
             )
         return md5_checksum
@@ -69,28 +69,28 @@ class Checksum(object):
 
         :param string filename: filename for checksum
         """
-        sha256_checksum = self.__calculate_hash_hexdigest(
+        sha256_checksum = self._calculate_hash_hexdigest(
             hashlib.sha256(), self.source_filename
         )
         if filename:
-            self.__create_checksum_file(
+            self._create_checksum_file(
                 sha256_checksum, filename
             )
         return sha256_checksum
 
-    def __create_checksum_file(self, checksum, filename):
+    def _create_checksum_file(self, checksum, filename):
         compressed_blocks = None
         compress = Compress(self.source_filename)
         if compress.get_format():
-            compressed_blocks = self.__block_list(
+            compressed_blocks = self._block_list(
                 os.path.getsize(self.source_filename)
             )
             compress.uncompress(temporary=True)
-            blocks = self.__block_list(
+            blocks = self._block_list(
                 os.path.getsize(compress.uncompressed_filename)
             )
         else:
-            blocks = self.__block_list(
+            blocks = self._block_list(
                 os.path.getsize(self.source_filename)
             )
         with open(filename, 'w') as checksum_file:
@@ -108,16 +108,16 @@ class Checksum(object):
                     )
                 )
 
-    def __calculate_hash_hexdigest(self, digest, filename, digest_blocks=128):
+    def _calculate_hash_hexdigest(self, digest, filename, digest_blocks=128):
         chunk_size = digest_blocks * digest.block_size
         with open(filename, 'rb') as source:
             for chunk in iter(lambda: source.read(chunk_size), b''):
                 digest.update(chunk)
         return digest.hexdigest()
 
-    def __block_list(self, file_size):
+    def _block_list(self, file_size):
         blocksize = 1
-        for factor in self.__prime_factors(file_size):
+        for factor in self._prime_factors(file_size):
             if blocksize * factor > 8192:
                 break
             blocksize *= factor
@@ -130,7 +130,7 @@ class Checksum(object):
             blocks=blocks
         )
 
-    def __prime_factors(self, number):
+    def _prime_factors(self, number):
         factor_call = Command.run(['factor', format(number)])
         for factor in factor_call.output.split(':')[1].lstrip().split(' '):
             yield int(factor)

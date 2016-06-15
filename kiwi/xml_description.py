@@ -102,9 +102,9 @@ class XMLDescription(object):
             else:
                 message = 'Schema validation for XML content failed'
             raise KiwiDescriptionInvalid(message)
-        return self.__parse()
+        return self._parse()
 
-    def __parse(self):
+    def _parse(self):
         try:
             parse = xml_parse.parse(
                 self.description_xslt_processed.name, True

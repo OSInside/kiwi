@@ -77,11 +77,11 @@ class RepositoryYum(RepositoryBase):
             '-c', self.runtime_yum_config_file.name, '-y'
         ] + self.custom_args
 
-        self.command_env = self.__create_yum_runtime_environment()
+        self.command_env = self._create_yum_runtime_environment()
 
         # config file parameters for yum tool
-        self.__create_runtime_config_parser()
-        self.__write_runtime_config()
+        self._create_runtime_config_parser()
+        self._write_runtime_config()
 
     def use_default_location(self):
         """
@@ -92,8 +92,8 @@ class RepositoryYum(RepositoryBase):
             self.root_dir + '/etc/yum/repos.d'
         self.shared_yum_dir['cache-dir'] = \
             self.root_dir + '/var/cache/yum'
-        self.__create_runtime_config_parser()
-        self.__write_runtime_config()
+        self._create_runtime_config_parser()
+        self._write_runtime_config()
 
     def runtime_config(self):
         """
@@ -168,14 +168,14 @@ class RepositoryYum(RepositoryBase):
             if repo_file not in self.repo_names:
                 Path.wipe(repos_dir + '/' + repo_file)
 
-    def __create_yum_runtime_environment(self):
+    def _create_yum_runtime_environment(self):
         for yum_dir in list(self.shared_yum_dir.values()):
             Path.create(yum_dir)
         return dict(
             os.environ, LANG='C'
         )
 
-    def __create_runtime_config_parser(self):
+    def _create_runtime_config_parser(self):
         self.runtime_yum_config = ConfigParser()
         self.runtime_yum_config.add_section('main')
 
@@ -213,6 +213,6 @@ class RepositoryYum(RepositoryBase):
             'main', 'group_command', 'compat'
         )
 
-    def __write_runtime_config(self):
+    def _write_runtime_config(self):
         with open(self.runtime_yum_config_file.name, 'w') as config:
             self.runtime_yum_config.write(config)

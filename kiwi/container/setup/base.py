@@ -90,7 +90,7 @@ class ContainerSetupBase(object):
         """
         bootloader_setup = self.root_dir + '/etc/sysconfig/bootloader'
         if os.path.exists(bootloader_setup):
-            self.__update_config(
+            self._update_config(
                 bootloader_setup,
                 {
                     'LOADER_LOCATION': 'LOADER_LOCATION="none"',
@@ -109,7 +109,7 @@ class ContainerSetupBase(object):
         """
         boot_setup = self.root_dir + '/etc/sysconfig/boot'
         if os.path.exists(boot_setup):
-            self.__update_config(
+            self._update_config(
                 boot_setup,
                 {
                     'ROOTFS_BLKDEV': 'ROOTFS_BLKDEV="/dev/null"'
@@ -148,7 +148,7 @@ class ContainerSetupBase(object):
         if not os.path.exists(securetty):
             with open(securetty, 'w'):
                 pass
-        self.__update_config(
+        self._update_config(
             securetty,
             {
                 'console': 'console'
@@ -186,7 +186,7 @@ class ContainerSetupBase(object):
         """
         return self.custom_args['container_name']
 
-    def __update_config(self, filename, update_record):
+    def _update_config(self, filename, update_record):
         data = []
         with open(filename, 'r') as config:
             data = config.read().rsplit('\n')

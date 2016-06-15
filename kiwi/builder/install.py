@@ -170,7 +170,7 @@ class InstallImageBuilder(object):
         checksum.md5(self.squashed_contents + '/' + self.md5name)
 
         # the kiwi initrd code triggers the install by trigger files
-        self.__create_iso_install_trigger_files()
+        self._create_iso_install_trigger_files()
 
         # the system image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
@@ -222,7 +222,7 @@ class InstallImageBuilder(object):
 
         # create initrd for install image
         log.info('Creating install image boot image')
-        self.__create_iso_install_kernel_and_initrd()
+        self._create_iso_install_kernel_and_initrd()
 
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
@@ -300,7 +300,7 @@ class InstallImageBuilder(object):
 
         # create initrd for pxe install
         log.info('Creating pxe install boot image')
-        self.__create_pxe_install_kernel_and_initrd()
+        self._create_pxe_install_kernel_and_initrd()
 
         # create pxe install tarball
         log.info('Creating pxe install archive')
@@ -311,7 +311,7 @@ class InstallImageBuilder(object):
             self.pxe_dir
         )
 
-    def __create_pxe_install_kernel_and_initrd(self):
+    def _create_pxe_install_kernel_and_initrd(self):
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():
             kernel.copy_kernel(self.pxe_dir, '/pxeboot.kernel')
@@ -336,7 +336,7 @@ class InstallImageBuilder(object):
             ]
         )
 
-    def __create_iso_install_kernel_and_initrd(self):
+    def _create_iso_install_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/' + self.arch + '/loader'
         Path.create(boot_path)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
@@ -363,7 +363,7 @@ class InstallImageBuilder(object):
             ]
         )
 
-    def __create_iso_install_trigger_files(self):
+    def _create_iso_install_trigger_files(self):
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         iso_trigger = self.media_dir + '/config.isoclient'

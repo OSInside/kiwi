@@ -174,11 +174,11 @@ class RootBind(object):
         """
         Cleanup mounted locations, directories and intermediate config files
         """
-        self.__cleanup_mount_stack()
-        self.__cleanup_dir_stack()
-        self.__cleanup_intermediate_config()
+        self._cleanup_mount_stack()
+        self._cleanup_dir_stack()
+        self._cleanup_intermediate_config()
 
-    def __cleanup_intermediate_config(self):
+    def _cleanup_intermediate_config(self):
         # delete kiwi copied config files
         config_files_to_delete = []
 
@@ -201,7 +201,7 @@ class RootBind(object):
                 'Failed to remove intermediate config files: %s', format(e)
             )
 
-    def __cleanup_mount_stack(self):
+    def _cleanup_mount_stack(self):
         for mount in reversed(self.mount_stack):
             if mount.is_mounted():
                 try:
@@ -216,7 +216,7 @@ class RootBind(object):
 
         del self.mount_stack[:]
 
-    def __cleanup_dir_stack(self):
+    def _cleanup_dir_stack(self):
         for location in reversed(self.dir_stack):
             try:
                 Path.remove_hierarchy(self.root_dir + location)

@@ -86,23 +86,23 @@ class Uri(object):
             )
 
         if uri.scheme == 'obs' and self.repo_type == 'yast2':
-            return self.__obs_distribution(
+            return self._obs_distribution(
                 uri.netloc + uri.path
             )
         elif uri.scheme == 'obs':
-            return self.__obs_project(
+            return self._obs_project(
                 uri.netloc + uri.path
             )
         elif uri.scheme == 'ibs':
-            return self.__ibs_project(
+            return self._ibs_project(
                 uri.netloc + uri.path
             )
         elif uri.scheme == 'dir':
-            return self.__local_directory(uri.path)
+            return self._local_directory(uri.path)
         elif uri.scheme == 'iso':
-            return self.__iso_mount_path(uri.path)
+            return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
-            return self.__suse_buildservice_path(
+            return self._suse_buildservice_path(
                 uri.netloc + uri.path
             )
         elif uri.scheme == 'http':
@@ -147,7 +147,7 @@ class Uri(object):
                     'URI type %s unknown' % uri.scheme
                 )
 
-    def __iso_mount_path(self, path):
+    def _iso_mount_path(self, path):
         # The prefix name 'kiwi_iso_mount' has a meaning here because the
         # zypper repository manager looks up iso mount paths by its repo
         # source name
@@ -159,28 +159,28 @@ class Uri(object):
         iso_mount.mount()
         return iso_mount.mountpoint
 
-    def __local_directory(self, path):
+    def _local_directory(self, path):
         return os.path.normpath(path)
 
-    def __obs_project(self, name):
+    def _obs_project(self, name):
         obs_project = 'http://download.opensuse.org/repositories/'
         return obs_project + name
 
-    def __ibs_project(self, name):
+    def _ibs_project(self, name):
         ibs_project = 'http://download.suse.de/ibs/'
         return ibs_project + name.replace(':', ':/')
 
-    def __obs_distribution(self, name):
+    def _obs_distribution(self, name):
         obs_distribution = 'http://download.opensuse.org/distribution/'
         return obs_distribution + name
 
-    def __suse_buildservice_path(self, name):
+    def _suse_buildservice_path(self, name):
         """
         Special to openSUSE buildservice. If the buildservice builds
         the image it arranges the repos for each build in a special
         environment, the so called build worker.
         """
-        return self.__local_directory(
+        return self._local_directory(
             '/usr/src/packages/SOURCES/repos/' + name
         )
 

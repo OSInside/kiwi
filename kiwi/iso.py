@@ -114,43 +114,43 @@ class Iso(object):
 
         :param string isofile: path to the ISO file
         """
-        iso_metadata = Iso.__read_iso_metadata(isofile)
-        Iso.__validate_iso_metadata(iso_metadata)
+        iso_metadata = Iso._read_iso_metadata(isofile)
+        Iso._validate_iso_metadata(iso_metadata)
         with open(isofile, 'rb+') as iso:
             new_boot_catalog_sector = iso_metadata.path_table_sector - 1
-            new_volume_descriptor = Iso.__read_iso_sector(
+            new_volume_descriptor = Iso._read_iso_sector(
                 new_boot_catalog_sector - 1, iso
             )
-            new_volume_id = Iso.__sub_string(
+            new_volume_id = Iso._sub_string(
                 data=new_volume_descriptor, length=7
             )
             if bytes(b'CD001') not in new_volume_id:
                 new_boot_catalog_sector = None
                 ref_sector = iso_metadata.boot_catalog_sector
                 for sector in range(0x12, 0x40):
-                    new_volume_descriptor = Iso.__read_iso_sector(sector, iso)
-                    new_volume_id = Iso.__sub_string(
+                    new_volume_descriptor = Iso._read_iso_sector(sector, iso)
+                    new_volume_id = Iso._sub_string(
                         data=new_volume_descriptor, length=7
                     )
                     if bytes(b'TEA01') in new_volume_id or sector + 1 == ref_sector:
                         new_boot_catalog_sector = sector + 1
                         break
             if iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
-                new_boot_catalog = Iso.__read_iso_sector(
+                new_boot_catalog = Iso._read_iso_sector(
                     new_boot_catalog_sector, iso
                 )
                 empty_catalog = bytes(b'\x00') * 0x800
                 if new_boot_catalog == empty_catalog:
-                    eltorito_descriptor = Iso.__embed_string_in_segment(
+                    eltorito_descriptor = Iso._embed_string_in_segment(
                         data=iso_metadata.eltorito_descriptor,
                         string=struct.pack('<I', new_boot_catalog_sector),
                         length=4,
                         start=0x47
                     )
-                    Iso.__write_iso_sector(
+                    Iso._write_iso_sector(
                         new_boot_catalog_sector, iso_metadata.boot_catalog, iso
                     )
-                    Iso.__write_iso_sector(
+                    Iso._write_iso_sector(
                         0x11, eltorito_descriptor, iso
                     )
                     log.debug(
@@ -169,28 +169,28 @@ class Iso(object):
 
         :param string isofile: path to the ISO file
         """
-        iso_metadata = Iso.__read_iso_metadata(isofile)
-        Iso.__validate_iso_metadata(iso_metadata)
+        iso_metadata = Iso._read_iso_metadata(isofile)
+        Iso._validate_iso_metadata(iso_metadata)
         boot_catalog = iso_metadata.boot_catalog
-        first_catalog_entry = Iso.__sub_string(
+        first_catalog_entry = Iso._sub_string(
             data=boot_catalog, length=32, start=32
         )
-        first_catalog_entry = Iso.__embed_string_in_segment(
+        first_catalog_entry = Iso._embed_string_in_segment(
             data=first_catalog_entry,
             string=struct.pack('B19s', 1, bytes(b'Legacy (isolinux)')),
             length=20,
             start=12
         )
-        boot_catalog = Iso.__embed_string_in_segment(
+        boot_catalog = Iso._embed_string_in_segment(
             data=boot_catalog,
             string=first_catalog_entry,
             length=32,
             start=32
         )
-        second_catalog_entry = Iso.__sub_string(
+        second_catalog_entry = Iso._sub_string(
             data=boot_catalog, length=32, start=64
         )
-        second_catalog_entry = Iso.__embed_string_in_segment(
+        second_catalog_entry = Iso._embed_string_in_segment(
             data=second_catalog_entry,
             string=struct.pack('B19s', 1, bytes(b'UEFI (grub)')),
             length=20,
@@ -198,7 +198,7 @@ class Iso(object):
         )
         second_catalog_entry_sector = second_catalog_entry[0]
         if second_catalog_entry_sector == 0x88:
-            boot_catalog = Iso.__embed_string_in_segment(
+            boot_catalog = Iso._embed_string_in_segment(
                 data=boot_catalog,
                 string=second_catalog_entry,
                 length=32,
@@ -207,14 +207,14 @@ class Iso(object):
             second_catalog_entry = struct.pack(
                 'BBH28s', 0x91, 0xef, 1, bytes(b'')
             )
-            boot_catalog = Iso.__embed_string_in_segment(
+            boot_catalog = Iso._embed_string_in_segment(
                 data=boot_catalog,
                 string=second_catalog_entry,
                 length=32,
                 start=64
             )
             with open(isofile, 'rb+') as iso:
-                Iso.__write_iso_sector(
+                Iso._write_iso_sector(
                     iso_metadata.boot_catalog_sector, boot_catalog, iso
                 )
             log.debug('Fixed iso catalog contents')
@@ -253,8 +253,8 @@ class Iso(object):
         self.iso_loaders += [
             '-b', loader_file, '-c', catalog_file
         ]
-        self.__setup_isolinux_boot_path()
-        self.__create_sortfile()
+        self._setup_isolinux_boot_path()
+        self._create_sortfile()
 
     def add_efi_loader_parameters(self):
         """
@@ -264,7 +264,7 @@ class Iso(object):
         alternative loader to the ISO creation parameter list. The
         EFI binary must be included into a fat filesystem in order
         to become recognized by the firmware. For details about this
-        file refer to __create_embedded_fat_efi_image() from
+        file refer to _create_embedded_fat_efi_image() from
         bootloader/config/grub2.py
         """
         loader_file = self.boot_path + '/efi'
@@ -341,7 +341,7 @@ class Iso(object):
             'listing_type', ['name', 'filetype', 'start']
         )
         listing = Command.run(
-            [self.__find_isoinfo_tool(), '-R', '-l', '-i', isofile]
+            [self._find_isoinfo_tool(), '-R', '-l', '-i', isofile]
         )
         listing_result = {}
         for line in listing.output.split('\n'):
@@ -362,7 +362,7 @@ class Iso(object):
             sorted(listing_result.items())
         )
 
-    def __setup_isolinux_boot_path(self):
+    def _setup_isolinux_boot_path(self):
         """
         Write the isolinux base boot path into the loader
         """
@@ -394,7 +394,7 @@ class Iso(object):
                 ['bash', '-c', bash_command]
             )
 
-    def __find_isoinfo_tool(self):
+    def _find_isoinfo_tool(self):
         """
         There are tools by J.Schilling and tools from the community
         Depending on what is installed a decision needs to be done
@@ -410,7 +410,7 @@ class Iso(object):
             isoinfo_tools
         )
 
-    def __create_sortfile(self):
+    def _create_sortfile(self):
         catalog_file = \
             self.source_dir + '/' + self.boot_path + '/boot.catalog'
         loader_file = \
@@ -431,7 +431,7 @@ class Iso(object):
                     sortfile.write('%s/%s 1\n' % (basedir, dirname))
 
     @staticmethod
-    def __read_iso_metadata(isofile):
+    def _read_iso_metadata(isofile):
         iso_header_type = namedtuple(
             'iso_header_type', [
                 'isofile',
@@ -445,17 +445,17 @@ class Iso(object):
             ]
         )
         with open(isofile, 'rb') as iso:
-            volume_descriptor = Iso.__read_iso_sector(0x10, iso)
-            volume_id = Iso.__sub_string(
+            volume_descriptor = Iso._read_iso_sector(0x10, iso)
+            volume_id = Iso._sub_string(
                 data=volume_descriptor, length=7
             )
-            eltorito_descriptor = Iso.__read_iso_sector(0x11, iso)
-            eltorito_id = Iso.__sub_string(
+            eltorito_descriptor = Iso._read_iso_sector(0x11, iso)
+            eltorito_id = Iso._sub_string(
                 data=eltorito_descriptor, length=0x1e
             )
             try:
                 path_table_sector = struct.unpack(
-                    '<I', Iso.__sub_string(
+                    '<I', Iso._sub_string(
                         data=volume_descriptor, length=4, start=0x08c
                     )
                 )[0]
@@ -464,7 +464,7 @@ class Iso(object):
                 path_table_sector = 0
             try:
                 boot_catalog_sector = struct.unpack(
-                    '<I', Iso.__sub_string(
+                    '<I', Iso._sub_string(
                         data=eltorito_descriptor, length=4, start=0x47
                     )
                 )[0]
@@ -472,7 +472,7 @@ class Iso(object):
                 # validation happens in __validate_iso_metadata
                 boot_catalog_sector = 0
             try:
-                boot_catalog = Iso.__read_iso_sector(
+                boot_catalog = Iso._read_iso_sector(
                     boot_catalog_sector, iso
                 )
             except Exception:
@@ -491,7 +491,7 @@ class Iso(object):
             )
 
     @staticmethod
-    def __validate_iso_metadata(iso_header):
+    def _validate_iso_metadata(iso_header):
         if 'CD001' not in iso_header.volume_id.decode():
             raise KiwiIsoMetaDataError(
                 '%s: this is not an iso9660 filesystem' %
@@ -519,21 +519,21 @@ class Iso(object):
             )
 
     @staticmethod
-    def __read_iso_sector(sector, handle):
+    def _read_iso_sector(sector, handle):
         handle.seek(sector * 0x800, 0)
         return handle.read(0x800)
 
     @staticmethod
-    def __write_iso_sector(sector, data, handle):
+    def _write_iso_sector(sector, data, handle):
         handle.seek(sector * 0x800, 0)
         handle.write(data)
 
     @staticmethod
-    def __sub_string(data, length, start=0):
+    def _sub_string(data, length, start=0):
         return data[start:start + length]
 
     @staticmethod
-    def __embed_string_in_segment(data, string, length, start):
+    def _embed_string_in_segment(data, string, length, start):
         start_segment = data[0:start]
         end_segment = data[start + length:]
         return start_segment + string + end_segment
