@@ -9261,49 +9261,9 @@ function setupConsoleFont {
 #--------------------------------------
 function setupConsole {
     # /.../
-    # setup the xvc and/or hvc console if the device is present
-    # also remove the ttyS0 console if no ttyS0 device exists
+    # placeholder method for custom console setup
     # ----
-    local IFS=$IFS_ORIG
-    local itab=/etc/inittab
-    local stty=/etc/securetty
-    local init=/bin/systemd
-    local xvc="X0:12345:respawn:/sbin/mingetty --noclear xvc0 linux"
-    local hvc="H0:12345:respawn:/sbin/mingetty --noclear hvc0 linux"
-    #======================================
-    # return early in case of systemd
-    #--------------------------------------
-    if [ -e $init ];then
-        return
-    fi
-    #======================================
-    # create tty nodes if not done
-    #--------------------------------------
-    setupTTY
-    #======================================
-    # setup xvc console (xen)
-    #--------------------------------------
-    if [ -e /sys/class/tty/xvc0 ];then
-        if ! cat $itab | grep -v '^#' | grep -q xvc0;then
-            echo "$xvc" >> $itab
-            echo "xvc0" >> $stty
-        fi
-    fi
-    #======================================
-    # setup hvc console (kvm)
-    #--------------------------------------
-    if [ -e /sys/class/tty/hvc0 ];then
-        if ! cat $itab | grep -v '^#' | grep -q hvc0;then
-            echo "$hvc" >> $itab
-            echo "hvc0" >> $stty
-        fi
-    fi
-    #======================================
-    # remove ttyS0 if not present
-    #--------------------------------------
-    if [ ! -e /sys/class/tty/ttyS0 ];then
-        cat $itab | grep -vi 'ttyS0' > $itab.new && mv $itab.new $itab
-    fi
+    :
 }
 #======================================
 # cleanPartitionTable
