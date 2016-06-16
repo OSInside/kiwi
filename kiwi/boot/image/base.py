@@ -26,7 +26,7 @@ from ...xml_state import XMLState
 from ...logger import log
 from ...path import Path
 
-from ...exceptions import(
+from ...exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiConfigFileNotFound
 )

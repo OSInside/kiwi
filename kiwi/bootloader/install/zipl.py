@@ -21,7 +21,7 @@ from ...command import Command
 from ...logger import log
 from ...mount_manager import MountManager
 
-from ...exceptions import(
+from ...exceptions import (
     KiwiBootLoaderZiplInstallError
 )
 

@@ -28,7 +28,7 @@ from ..archive.tar import ArchiveTar
 
 from ..logger import log
 
-from ..exceptions import(
+from ..exceptions import (
     KiwiBootStrapPhaseFailed,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
