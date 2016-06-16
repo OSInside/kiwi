@@ -296,7 +296,9 @@ class Logger(logging.Logger):
         :param string filename: logfile file path
         """
         try:
-            logfile = logging.FileHandler(filename)
+            logfile = logging.FileHandler(
+                filename=filename, mode='w', encoding='utf-8'
+            )
             logfile.setFormatter(
                 logging.Formatter('%(levelname)s: %(message)s')
             )
