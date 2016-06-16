@@ -75,6 +75,7 @@
         <file name="awk"/>
         <file name="basename"/>
         <file name="bash"/>
+        <file name="dash"/>
         <file name="bc"/>
         <file name="blkid"/>
         <file name="blockdev"/>
