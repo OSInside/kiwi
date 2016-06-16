@@ -6429,9 +6429,6 @@ function activateImage {
     # run preinit stage
     #--------------------------------------
     Echo "Preparing preinit phase..."
-    if ! cp /usr/bin/utimer $prefix;then
-        systemException "Failed to copy: utimer" "reboot"
-    fi
     if ! cp /iprocs $prefix;then
         systemException "Failed to copy: iprocs" "reboot"
     fi
@@ -6440,6 +6437,10 @@ function activateImage {
     fi
     if ! cp /include $prefix;then
         systemException "Failed to copy: include" "reboot"
+    fi
+    local utimer=$(lookup utimer)
+    if [ -e "$utimer" ];then
+        cp $utimer $prefix
     fi
     local killall5=$(lookup killall5)
     if [ ! -e $prefix/$killall5 ]; then
@@ -6476,7 +6477,7 @@ function cleanImage {
     # kill second utimer and tail
     #--------------------------------------
     . /iprocs
-    kill $UTIMER_PID &>/dev/null
+    test -n "$UTIMER_PID" && kill $UTIMER_PID &>/dev/null
     #======================================
     # remove preinit code from system image
     #--------------------------------------
@@ -6627,7 +6628,7 @@ function bootImage {
     # kill initial tail and utimer
     #--------------------------------------
     . /iprocs
-    kill $UTIMER_PID &>/dev/null
+    test -n "$UTIMER_PID" && kill $UTIMER_PID &>/dev/null
     #======================================
     # copy boot log file into system image
     #--------------------------------------
@@ -8960,10 +8961,7 @@ function pxeBootDevice {
 #--------------------------------------
 function startUtimer {
     local IFS=$IFS_ORIG
-    local utimer=/usr/bin/utimer
-    if [ ! -x $utimer ];then
-        utimer=/utimer
-    fi
+    local utimer=$(lookup utimer)
     if [ -x $utimer ];then
         if [ ! -e /tmp/utimer ];then
             ln -s $UTIMER_INFO /tmp/utimer
