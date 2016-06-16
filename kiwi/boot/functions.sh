@@ -367,7 +367,7 @@ function systemException {
             Echo "ssh root@${IPADDR}"
         fi
         echo reset > /root/.bashrc
-        setctsid $ttydev sulogin -e $ttydev
+        sulogin -e -p $ttydev
     ;;
     "user_reboot")
         Echo "reboot triggered by user"
@@ -5602,7 +5602,8 @@ function startShell {
             return
         fi
         Echo "Starting boot shell on $ELOG_BOOTSHELL"
-        setctsid -f $ELOG_BOOTSHELL /bin/bash -i
+        sulogin -e -p $ELOG_BOOTSHELL &
+        sleep 2
         ELOGSHELL_PID=$(fuser $ELOG_BOOTSHELL | tr -d " ")
         echo ELOGSHELL_PID=$ELOGSHELL_PID >> /iprocs
     fi
@@ -7236,9 +7237,9 @@ function runInteractive {
     echo "dialog $@ 2> /tmp/out" > $r
     echo "echo -n \$? > /tmp/out.exit" >> $r
     if FBOK;then
-        setctsid $ELOG_EXCEPTION fbiterm -m $UFONT -- bash -i $r
+        setsid -c -w fbiterm -m $UFONT -- bash -i $r
     else
-        setctsid $ELOG_EXCEPTION bash -i $r
+        setsid -c -w bash -i $r
     fi
     code=$(cat /tmp/out.exit)
     if [ ! $code = 0 ];then

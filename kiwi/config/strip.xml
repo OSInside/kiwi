@@ -50,6 +50,7 @@
     locations except for the ones listed here
     -->
     <strip type="tools">
+        <file name="stty"/>
         <file name="sulogin"/>
         <file name="reset"/>
         <file name="tset"/>
@@ -250,6 +251,7 @@
         <file name="switch_root"/>
         <file name="sed"/>
         <file name="seq"/>
+        <file name="setsid"/>
         <file name="setctsid"/>
         <file name="setterm"/>
         <file name="sfdisk"/>
