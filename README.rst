@@ -14,9 +14,9 @@ KIWI—Next Generation
     KIWI, the OS image and appliance builder.
 
 
-* `Installation <https://suse.github.io/kiwi/quickstart.html#installation>`__
+* `Installation <https://suse.github.io/kiwi/quickstart.html>`__
 
-* `Contributing <https://suse.github.io/kiwi/quickstart.html#contributing>`__
+* `Contributing <https://suse.github.io/kiwi/contributing.html>`__
 
 * |Doc|
 
