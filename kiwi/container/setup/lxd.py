@@ -15,28 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+
 # project
-from .docker import ContainerImageDocker
-from .lxd import ContainerImageLxd
-
-from ..exceptions import (
-    KiwiContainerImageSetupError
-)
+from .base import ContainerSetupBase
 
 
-class ContainerImage(object):
+class ContainerSetupLxd(ContainerSetupBase):
     """
-    Container Image factory
-
-    :param string name: container system name
-    :param string root_dir: root directory path name
+    Lxd container setup
     """
-    def __new__(self, name, root_dir):
-        if name == 'docker':
-            return ContainerImageDocker(root_dir)
-        elif name == 'lxd':
-            return ContainerImageLxd(root_dir)
-        else:
-            raise KiwiContainerImageSetupError(
-                'Support for %s container not implemented' % name
-            )
+
+    def setup(self):
+        # nothing at present
+        pass

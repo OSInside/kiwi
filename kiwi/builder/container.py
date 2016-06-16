@@ -79,6 +79,7 @@ class ContainerBuilder(object):
         Image types which triggers this builder are:
 
         * image="docker"
+        * image="lxd"
         """
         setup_options = {}
         if self.requested_container_name:

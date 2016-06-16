@@ -18,3 +18,8 @@ class TestContainerImage(object):
     def test_container_image_docker(self, mock_docker):
         ContainerImage('docker', 'root_dir')
         mock_docker.assert_called_once_with('root_dir')
+
+    @patch('kiwi.container.ContainerImageLxd')
+    def test_container_image_lxd(self, mock_lxd):
+        ContainerImage('lxd', 'root_dir')
+        mock_lxd.assert_called_once_with('root_dir')

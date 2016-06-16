@@ -1763,7 +1763,7 @@ div {
         ## Specifies the image type
         attribute image {
             "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
-            "ext4" | "iso" | "oem" | "pxe" | "squashfs" | "tbz" |
+            "ext4" | "iso" | "lxd" | "oem" | "pxe" | "squashfs" | "tbz" |
             "vmx" | "xfs"
         }
     k.type.installboot.attribute =

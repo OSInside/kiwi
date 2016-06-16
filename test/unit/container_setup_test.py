@@ -18,3 +18,8 @@ class TestContainerSetup(object):
     def test_container_docker(self, mock_docker):
         ContainerSetup('docker', 'root_dir')
         mock_docker.assert_called_once_with('root_dir', None)
+
+    @patch('kiwi.container.setup.ContainerSetupLxd')
+    def test_container_lxd(self, mock_lxd):
+        ContainerSetup('lxd', 'root_dir')
+        mock_lxd.assert_called_once_with('root_dir', None)
