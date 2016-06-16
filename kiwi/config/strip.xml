@@ -112,7 +112,6 @@
         <file name="dmevent_tool"/>
         <file name="dmraid"/>
         <file name="dmsetup"/>
-        <file name="driveready"/>
         <file name="dropbear"/>
         <file name="dropbearkey"/>
         <file name="du"/>
@@ -252,7 +251,6 @@
         <file name="sed"/>
         <file name="seq"/>
         <file name="setsid"/>
-        <file name="setctsid"/>
         <file name="setterm"/>
         <file name="sfdisk"/>
         <file name="sg_inq"/>
