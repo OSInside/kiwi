@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.3" name="initrd-netboot-suse-13.2">
+<image schemaversion="6.3" name="initrd-netboot-suse-leap-42.2">
     <description type="boot">
         <author>Marcus Schaefer</author>
-        <contact>ms@novell.com</contact>
+        <contact>ms@suse.com</contact>
         <specification>boot/initrd image used for PXE</specification>
     </description>
     <preferences>
         <type image="cpio" bootprofile="default" bootkernel="std"/>
-        <version>2.1.1</version>
+        <version>2.42.2</version>
         <packagemanager>zypper</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
@@ -24,6 +24,11 @@
     </profiles>
     <drivers profiles="xen">
         <file name="drivers/xen/*"/>
+        <file name="drivers/block/xen-blkfront.ko"/>
+        <file name="drivers/net/xen-netfront.ko"/>
+        <file name="drivers/scsi/xen-scsifront.ko"/>
+        <file name="drivers/input/misc/xen-kbdfront.ko"/>
+        <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
     <drivers profiles="default,xen">
         <file name="crypto/*"/>
@@ -114,7 +119,7 @@
         <file name="net/sunrpc/*"/>
     </drivers>
     <repository type="yast2" status="replaceable">
-        <source path="obs://13.2/repo/oss"/>
+        <source path="obs://leap/42.2/repo/oss"/>
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
