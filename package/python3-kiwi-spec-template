@@ -95,6 +95,10 @@ Requires:       s390-tools
 %if 0%{?suse_version} == 1315 && 0%{?is_opensuse}
 %define distro suse-leap42.1
 %endif
+# Leap 42.2:
+%if 0%{?suse_version} == 1316 && 0%{?is_opensuse}
+%define distro suse-leap42.2
+%endif
 # Tumbleweed:
 # Current Tumbleweed version, moving target
 %if 0%{?suse_version} == 1330
