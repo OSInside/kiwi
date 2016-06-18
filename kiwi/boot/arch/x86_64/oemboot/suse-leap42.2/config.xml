@@ -185,7 +185,6 @@
         <package name="xz"/>
     </packages>
     <packages type="delete">
-        <package name="dracut"/>
         <package name="cracklib-dict-full"/>
         <package name="fillup"/>
         <package name="gdbm"/>
