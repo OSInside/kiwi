@@ -166,6 +166,7 @@ class RepositoryZypper(RepositoryBase):
         if os.path.exists(repo_file):
             Path.wipe(repo_file)
 
+        self._backup_package_cache()
         Command.run(
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
@@ -187,6 +188,7 @@ class RepositoryZypper(RepositoryBase):
                 ],
                 self.command_env
             )
+        self._restore_package_cache()
 
     def delete_repo(self, name):
         """
@@ -261,3 +263,33 @@ class RepositoryZypper(RepositoryBase):
             raise KiwiRepoTypeUnknown(
                 'Unsupported zypper repo type: %s' % repo_type
             )
+
+    def _backup_package_cache(self):
+        """
+        preserve package cache which otherwise will be removed by
+        zypper if no repo file is found. But this situation is
+        normal for an image build process which setup and remove
+        repos for building at runtime
+        """
+        self._move_package_cache(backup=True)
+
+    def _restore_package_cache(self):
+        """
+        restore preserved package cache at the location passed to zypper
+        """
+        self._move_package_cache(restore=True)
+
+    def _move_package_cache(self, backup=False, restore=False):
+        package_cache = self.shared_location + '/packages'
+        package_cache_moved = package_cache + '.moved'
+        if backup and os.path.exists(package_cache):
+            Command.run(
+                ['mv', '-f', package_cache, package_cache_moved]
+            )
+        elif restore and os.path.exists(package_cache_moved):
+            Command.run(
+                ['mv', '-f', package_cache_moved, package_cache]
+            )
+
+    def __del__(self):
+        self._restore_package_cache()
