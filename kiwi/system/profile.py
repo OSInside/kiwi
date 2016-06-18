@@ -261,6 +261,7 @@ class Profile(object):
         # kiwi_hybrid
         # kiwi_hybridpersistent
         # kiwi_hybridpersistent_filesystem
+        # kiwi_initrd_system
         # kiwi_ramonly
         # kiwi_target_blocksize
         # kiwi_cmdline
@@ -288,6 +289,8 @@ class Profile(object):
             type_section.get_hybridpersistent()
         self.dot_profile['kiwi_hybridpersistent_filesystem'] = \
             type_section.get_hybridpersistent_filesystem()
+        self.dot_profile['kiwi_initrd_system'] = \
+            type_section.get_initrd_system()
         self.dot_profile['kiwi_ramonly'] = \
             type_section.get_ramonly()
         self.dot_profile['kiwi_target_blocksize'] = \

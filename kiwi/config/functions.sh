@@ -930,9 +930,16 @@ function baseUpdateSysConfig {
 }
 
 #======================================
-# suseStripInitrd
+# baseStripInitrd
 #--------------------------------------
-function suseStripInitrd {
+function baseStripInitrd {
+    #==========================================
+    # Check for initrd system
+    #------------------------------------------
+    if [ "$kiwi_initrd_system" = "dracut" ]; then
+        echo "dracut initrd system requested, initrd strip skipped"
+        return
+    fi
     #==========================================
     # Remove unneeded files
     #------------------------------------------
@@ -976,10 +983,17 @@ function suseStripInitrd {
 }
 
 #======================================
+# suseStripInitrd
+#--------------------------------------
+function suseStripInitrd {
+    baseStripInitrd $@
+}
+
+#======================================
 # rhelStripInitrd
 #--------------------------------------
 function rhelStripInitrd {
-    suseStripInitrd $@
+    baseStripInitrd $@
 }
 
 #======================================
@@ -1515,9 +1529,9 @@ function baseFixupKernelModuleDependencies {
 }
 
 #======================================
-# suseStripKernel
+# baseStripKernel
 #--------------------------------------
-function suseStripKernel {
+function baseStripKernel {
     # /.../
     # this function will strip the kernel according to the drivers
     # information in the xml description. It also creates the
@@ -1528,12 +1542,17 @@ function suseStripKernel {
     local kernel_names
     local kernel_name
     local kernel_version
-
+    #==========================================
+    # Check for initrd system
+    #------------------------------------------
+    if [ "$kiwi_initrd_system" = "dracut" ]; then
+        echo "dracut initrd system requested, initrd strip skipped"
+        return
+    fi
     baseCreateKernelTree
     baseStripKernelModules
     baseFixupKernelModuleDependencies
     baseSyncKernelTree
-
     for kernel_dir in /lib/modules/*;do
         if [ ! -d "$kernel_dir" ];then
             continue
@@ -1614,23 +1633,29 @@ function suseStripKernel {
             popd
         done
     done
-
     baseStripModules
     baseStripFirmware
+}
+
+#======================================
+# suseStripKernel
+#--------------------------------------
+function suseStripKernel {
+    baseStripKernel
 }
 
 #======================================
 # rhelStripKernel
 #--------------------------------------
 function rhelStripKernel {
-    suseStripKernel
+    baseStripKernel
 }
 
 #======================================
 # debianStripKernel
 #--------------------------------------
 function debianStripKernel {
-    suseStripKernel
+    baseStripKernel
 }
 
 #======================================

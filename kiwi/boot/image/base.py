@@ -206,6 +206,7 @@ class BootImageBase(object):
             'hybrid',
             'hybridpersistent',
             'hybridpersistent_filesystem',
+            'initrd_system',
             'installboot',
             'installprovidefailsafe',
             'kernelcmdline',
