@@ -24,7 +24,7 @@ from ...logger import log
 from ...defaults import Defaults
 from ...mount_manager import MountManager
 
-from ...exceptions import(
+from ...exceptions import (
     KiwiBootLoaderGrubInstallError,
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubDataError
