@@ -15,6 +15,11 @@ baseSetupBuildDay
 debianStripKernel
 
 #==========================================
+# remove unneeded files
+#------------------------------------------
+debianStripInitrd
+
+#==========================================
 # umount
 #------------------------------------------
 baseCleanMount
