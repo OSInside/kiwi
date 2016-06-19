@@ -1000,6 +1000,13 @@ function rhelStripInitrd {
 }
 
 #======================================
+# debianStripInitrd
+#--------------------------------------
+function debianStripInitrd {
+    baseStripInitrd $@
+}
+
+#======================================
 # rhelGFXBoot
 #--------------------------------------
 function rhelGFXBoot {
@@ -1633,30 +1640,17 @@ function baseFixupKernelModuleDependencies {
 }
 
 #======================================
-# baseStripKernel
+# baseCreateCommonKernelFile
 #--------------------------------------
-function baseStripKernel {
+function baseCreateCommonKernelFile {
     # /.../
-    # this function will strip the kernel according to the drivers
-    # information in the xml description. It also creates the
-    # vmlinux.gz and vmlinuz files which are required for the
-    # kernel extraction in case of kiwi boot images
+    # Search for the kernel file name and move them into
+    # a common file name used by kiwi
     # ----
     local kernel_dir
     local kernel_names
     local kernel_name
     local kernel_version
-    #==========================================
-    # Check for initrd system
-    #------------------------------------------
-    if [ "$kiwi_initrd_system" = "dracut" ]; then
-        echo "dracut initrd system requested, initrd strip skipped"
-        return
-    fi
-    baseCreateKernelTree
-    baseStripKernelModules
-    baseFixupKernelModuleDependencies
-    baseSyncKernelTree
     for kernel_dir in /lib/modules/*;do
         if [ ! -d "$kernel_dir" ];then
             continue
@@ -1737,8 +1731,29 @@ function baseStripKernel {
             popd
         done
     done
-    baseStripModules
-    baseStripFirmware
+}
+
+#======================================
+# baseStripKernel
+#--------------------------------------
+function baseStripKernel {
+    # /.../
+    # this function will strip the kernel according to the drivers
+    # information in the xml description. It also creates the
+    # vmlinux.gz and vmlinuz files which are required for the
+    # kernel extraction in case of kiwi boot images
+    # ----
+    baseCreateCommonKernelFile
+    if [ "$kiwi_initrd_system" = "dracut" ]; then
+        echo "dracut initrd system requested, initrd strip skipped"
+    else
+        baseCreateKernelTree
+        baseStripKernelModules
+        baseFixupKernelModuleDependencies
+        baseSyncKernelTree
+        baseStripModules
+        baseStripFirmware
+    fi
 }
 
 #======================================
