@@ -41,10 +41,10 @@ rm -rf /var/lib/dpkg
 rm -rf /usr/share/icons
 
 mv /usr/share/locale /tmp
-mv /usr/share/grub /tmp
+mv /usr/share/grub* /tmp
 rm -rf /usr/share/*
 mv /tmp/locale /usr/share/
-mv /tmp/grub /usr/share/
+mv /tmp/grub* /usr/share/
 
 mv /lib/systemd/systemd-udevd /tmp
 rm -rf /lib/systemd/*
