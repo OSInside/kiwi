@@ -114,7 +114,7 @@ class TestLogger(object):
     def test_set_logfile(self, mock_file_handler):
         log.set_logfile('logfile')
         mock_file_handler.assert_called_once_with(
-            filename='logfile', mode='w', encoding='utf-8'
+            filename='logfile', encoding='utf-8'
         )
 
     @patch('kiwi.logger.ColorFormatter')

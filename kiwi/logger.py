@@ -297,7 +297,7 @@ class Logger(logging.Logger):
         """
         try:
             logfile = logging.FileHandler(
-                filename=filename, mode='w', encoding='utf-8'
+                filename=filename, encoding='utf-8'
             )
             logfile.setFormatter(
                 logging.Formatter('%(levelname)s: %(message)s')
