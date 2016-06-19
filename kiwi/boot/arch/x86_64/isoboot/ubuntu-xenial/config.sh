@@ -27,7 +27,6 @@ baseStripTranslations kiwi.mo
 #------------------------------------------
 rm -rf /usr/lib/python*
 rm -rf /usr/src
-rm -rf /usr/lib/x86_64-linux-gnu
 rm -rf /usr/share/X11
 rm -rf /usr/share/man
 rm -rf /usr/share/zoneinfo

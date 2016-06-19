@@ -165,6 +165,7 @@
         <file name="kpartx"/>
         <file name="kpartx_id"/>
         <file name="ldconfig"/>
+        <file name="ldconfig.real"/>
         <file name="ldd"/>
         <file name="ln"/>
         <file name="losetup"/>

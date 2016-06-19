@@ -864,7 +864,8 @@ function baseStripUnusedLibs {
     for i in $(cat /tmp/needlibs | sort | uniq);do
         for d in \
             /lib /lib64 /usr/lib /usr/lib64 \
-            /usr/X11R6/lib /usr/X11R6/lib64 /lib/x86_64-linux-gnu
+            /usr/X11R6/lib /usr/X11R6/lib64 \
+            /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
         do
             if [ -e "$d/$i" ];then
                 needlibs[$count]=$d/$i
@@ -877,7 +878,8 @@ function baseStripUnusedLibs {
     # ----
     while [ ! -z $1 ];do
         for i in \
-            /lib*/$1* /usr/lib*/$1* /lib/x86_64-linux-gnu/$1* \
+            /lib*/$1* /usr/lib*/$1* \
+            /lib/x86_64-linux-gnu/$1* /usr/lib/x86_64-linux-gnu/$1* \
             /usr/X11R6/lib*/$1*
         do
             if [ -e $i ];then
@@ -894,7 +896,8 @@ function baseStripUnusedLibs {
     rm -f /tmp/needlibs
     for i in \
         /lib/lib* /lib64/lib* /usr/lib/lib* \
-        /usr/lib64/lib* /usr/X11R6/lib*/lib* /lib/x86_64-linux-gnu/lib*
+        /usr/lib64/lib* /usr/X11R6/lib*/lib* \
+        /lib/x86_64-linux-gnu/lib* /usr/lib/x86_64-linux-gnu/lib*
     do
         found=0
         if [ ! -e $i ];then
