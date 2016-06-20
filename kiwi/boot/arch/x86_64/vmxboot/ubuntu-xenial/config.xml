@@ -80,6 +80,7 @@
         <package name="genisoimage"/>
         <package name="gawk"/>
         <package name="parted"/>
+        <package name="dracut"/>
     </packages>
     <packages type="bootstrap">
         <package name="initramfs-tools"/>
