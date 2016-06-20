@@ -1,9 +1,0 @@
-#/.../
-# kiwi netboot descriptions
-# The boot images here are used for deploying a system image over
-# the network using the PXE protocol. Access to the image is gained
-# by various methods like:
-# * installation on system disk
-# * installation to system main memory
-# * nbd root mount of the system (network block device)
-# * nfs root mount of the system

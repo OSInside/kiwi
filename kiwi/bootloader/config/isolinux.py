@@ -107,7 +107,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         Write isolinux.cfg and isolinux.msg file
         """
         log.info('Writing isolinux.cfg file')
-        config_dir = self.__get_iso_boot_path()
+        config_dir = self._get_iso_boot_path()
         config_file = config_dir + '/isolinux.cfg'
         if self.config:
             Path.create(config_dir)
@@ -149,12 +149,12 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             log.info('--> Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.isolinux.get_multiboot_install_template(
-                self.failsafe_boot, self.__have_theme()
+                self.failsafe_boot, self._have_theme()
             )
         else:
             log.info('--> Using install template')
             template = self.isolinux.get_install_template(
-                self.failsafe_boot, self.__have_theme()
+                self.failsafe_boot, self._have_theme()
             )
         try:
             self.config = template.substitute(parameters)
@@ -195,12 +195,12 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             log.info('--> Using multiboot standard ISO template')
             parameters['hypervisor'] = hypervisor
             template = self.isolinux.get_multiboot_template(
-                self.failsafe_boot, self.__have_theme()
+                self.failsafe_boot, self._have_theme()
             )
         else:
             log.info('--> Using standard ISO template')
             template = self.isolinux.get_template(
-                self.failsafe_boot, self.__have_theme()
+                self.failsafe_boot, self._have_theme()
             )
         try:
             self.config = template.substitute(parameters)
@@ -221,7 +221,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         :param string mbrid: unused
         :param string lookup_path: custom module lookup path
         """
-        self.__copy_loader_data_to_boot_directory(lookup_path)
+        self._copy_loader_data_to_boot_directory(lookup_path)
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
@@ -231,22 +231,22 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         """
         self.setup_install_boot_images(mbrid, lookup_path)
 
-    def __copy_loader_data_to_boot_directory(self, lookup_path):
+    def _copy_loader_data_to_boot_directory(self, lookup_path):
         if not lookup_path:
             lookup_path = self.root_dir
         loader_data = lookup_path + '/image/loader/'
-        Path.create(self.__get_iso_boot_path())
+        Path.create(self._get_iso_boot_path())
         data = DataSync(
-            loader_data, self.__get_iso_boot_path()
+            loader_data, self._get_iso_boot_path()
         )
         data.sync_data(
             options=['-z', '-a']
         )
 
-    def __get_iso_boot_path(self):
+    def _get_iso_boot_path(self):
         return self.root_dir + '/boot/' + self.arch + '/loader'
 
-    def __have_theme(self):
-        if os.path.exists(self.__get_iso_boot_path() + '/bootlogo'):
+    def _have_theme(self):
+        if os.path.exists(self._get_iso_boot_path() + '/bootlogo'):
             return True
         return False

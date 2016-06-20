@@ -842,7 +842,7 @@ function baseStripUnusedLibs {
     # ---
     ldconfig
     rm -f /tmp/needlibs
-    for i in /usr/bin/* /bin/* /sbin/* /usr/sbin/*;do
+    for i in /usr/bin/* /bin/* /sbin/* /usr/sbin/* /lib/systemd/systemd-*;do
         for n in $(ldd $i 2>/dev/null | cut -f2- -d\/ | cut -f1 -d " ");do
             if [ ! -e /$n ];then
                 continue
@@ -861,10 +861,11 @@ function baseStripUnusedLibs {
         done
     done
     count=0
-    for i in `cat /tmp/needlibs | sort | uniq`;do
+    for i in $(cat /tmp/needlibs | sort | uniq);do
         for d in \
             /lib /lib64 /usr/lib /usr/lib64 \
-            /usr/X11R6/lib /usr/X11R6/lib64
+            /usr/X11R6/lib /usr/X11R6/lib64 \
+            /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
         do
             if [ -e "$d/$i" ];then
                 needlibs[$count]=$d/$i
@@ -876,7 +877,11 @@ function baseStripUnusedLibs {
     # add exceptions
     # ----
     while [ ! -z $1 ];do
-        for i in /lib*/$1* /usr/lib*/$1* /usr/X11R6/lib*/$1*;do
+        for i in \
+            /lib*/$1* /usr/lib*/$1* \
+            /lib/x86_64-linux-gnu/$1* /usr/lib/x86_64-linux-gnu/$1* \
+            /usr/X11R6/lib*/$1*
+        do
             if [ -e $i ];then
                 needlibs[$count]=$i
                 count=`expr $count + 1`
@@ -891,7 +896,8 @@ function baseStripUnusedLibs {
     rm -f /tmp/needlibs
     for i in \
         /lib/lib* /lib64/lib* /usr/lib/lib* \
-        /usr/lib64/lib* /usr/X11R6/lib*/lib*
+        /usr/lib64/lib* /usr/X11R6/lib*/lib* \
+        /lib/x86_64-linux-gnu/lib* /usr/lib/x86_64-linux-gnu/lib*
     do
         found=0
         if [ ! -e $i ];then
@@ -930,9 +936,16 @@ function baseUpdateSysConfig {
 }
 
 #======================================
-# suseStripInitrd
+# baseStripInitrd
 #--------------------------------------
-function suseStripInitrd {
+function baseStripInitrd {
+    #==========================================
+    # Check for initrd system
+    #------------------------------------------
+    if [ "$kiwi_initrd_system" = "dracut" ]; then
+        echo "dracut initrd system requested, initrd strip skipped"
+        return
+    fi
     #==========================================
     # Remove unneeded files
     #------------------------------------------
@@ -976,10 +989,24 @@ function suseStripInitrd {
 }
 
 #======================================
+# suseStripInitrd
+#--------------------------------------
+function suseStripInitrd {
+    baseStripInitrd $@
+}
+
+#======================================
 # rhelStripInitrd
 #--------------------------------------
 function rhelStripInitrd {
-    suseStripInitrd $@
+    baseStripInitrd $@
+}
+
+#======================================
+# debianStripInitrd
+#--------------------------------------
+function debianStripInitrd {
+    baseStripInitrd $@
 }
 
 #======================================
@@ -987,6 +1014,114 @@ function rhelStripInitrd {
 #--------------------------------------
 function rhelGFXBoot {
     suseGFXBoot $@
+}
+
+#======================================
+# debianGFXBoot
+#--------------------------------------
+function debianGFXBoot {
+    local theme=$1
+    local loader=$2
+    local loader_theme=$theme
+    local splash_theme=$theme
+    export PATH=$PATH:/usr/sbin
+    if [ ! -z "$kiwi_splash_theme" ];then
+        splash_theme=$kiwi_splash_theme
+    fi
+    if [ ! -z "$kiwi_loader_theme"  ];then
+        loader_theme=$kiwi_loader_theme
+    fi
+    if [ ! -z "$kiwi_bootloader" ];then
+        loader=$kiwi_bootloader
+    fi
+    test -d /image/loader || mkdir /image/loader
+    #======================================
+    # setup grub2 bootloader data
+    #--------------------------------------
+    if [ -d /boot/grub/themes/$loader_theme ];then
+        #======================================
+        # use boot theme from grub2
+        #--------------------------------------
+        echo "using grub2 branding data"
+        mkdir -p /usr/share/grub2/themes/$loader_theme
+        mv /boot/grub/themes/$loader_theme/* \
+            /usr/share/grub2/themes/$loader_theme
+        mv /boot/grub/unicode.pf2 /usr/share/grub2
+    else
+        #======================================
+        # no grub2 based graphics boot data
+        #--------------------------------------
+        echo "grub2 branding not installed"
+        echo "grub2 graphics boot skipped !"
+    fi
+    #======================================
+    # copy isolinux loader data
+    #--------------------------------------
+    if [ -f /usr/lib/ISOLINUX/isolinux.bin ];then
+        mv /usr/lib/ISOLINUX/isolinux.bin /image/loader
+        mv /usr/lib/syslinux/modules/bios/* /image/loader
+    fi
+    if [ -f /boot/memtest* ];then
+        mv /boot/memtest* /image/loader/memtest
+    fi
+    #======================================
+    # setup splash screen
+    #--------------------------------------
+    if [ -d /usr/share/plymouth/themes/$splash_theme ];then
+        echo "plymouth splash system is used"
+        touch "/plymouth.splash.active"
+    fi
+    #======================================
+    # setup isolinux boot screen
+    #--------------------------------------
+    if [ ! -f /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
+        # Fallback to upstream gfxboot theme if the distribution
+        # does not provide a common theme for all loaders
+        loader_theme=upstream
+    fi
+    if [ -f /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
+        #======================================
+        # use boot theme from gfxboot-themes
+        #--------------------------------------
+        echo "using $loader_theme gfxboot theme data"
+        if [ -e "/etc/bootsplash/themes/$loader_theme/cdrom/gfxboot.cfg" ];then
+            # isolinux boot graphics file (bootlogo)...
+            mv /etc/bootsplash/themes/$loader_theme/cdrom/* /image/loader
+            local gfxcfg=/image/loader/gfxboot.cfg
+            # tell the bootloader about live CD setup
+            gfxboot --config-file $gfxcfg \
+                --change-config install::livecd=1
+            # tell the bootloader to hand over keytable to cmdline
+            gfxboot --config-file $gfxcfg \
+                --change-config live::addopt.keytable=1
+            # tell the bootloader to hand over lang to cmdline
+            gfxboot --config-file $gfxcfg \
+                --change-config live::addopt.lang=1
+        fi
+        if [ -e /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
+            # boot loader graphics image file (message)...
+            mv /etc/bootsplash/themes/$loader_theme/bootloader/message \
+                /image/loader
+            local archive=/image/loader/message
+            # tell the bootloader to hand over keytable to cmdline
+            gfxboot --archive $archive \
+                --change-config boot::addopt.keytable=1
+            # tell the bootloader to hand over lang to cmdline
+            gfxboot --archive $archive \
+                --change-config boot::addopt.lang=1
+            # add selected languages to the bootloader menu
+            if [ ! -z "$kiwi_language" ];then
+                gfxboot --archive $archive --add-language \
+                    $(echo $kiwi_language | tr "," " ") --default-language en_US
+            fi
+        fi
+    else
+        #======================================
+        # no gfxboot based graphics boot data
+        #--------------------------------------
+        echo "gfxboot branding not found for $loader_theme theme"
+        echo "gfxboot graphics boot skipped !"
+    fi
 }
 
 #======================================
@@ -1508,25 +1643,17 @@ function baseFixupKernelModuleDependencies {
 }
 
 #======================================
-# suseStripKernel
+# baseCreateCommonKernelFile
 #--------------------------------------
-function suseStripKernel {
+function baseCreateCommonKernelFile {
     # /.../
-    # this function will strip the kernel according to the drivers
-    # information in the xml description. It also creates the
-    # vmlinux.gz and vmlinuz files which are required for the
-    # kernel extraction in case of kiwi boot images
+    # Search for the kernel file name and move them into
+    # a common file name used by kiwi
     # ----
     local kernel_dir
     local kernel_names
     local kernel_name
     local kernel_version
-
-    baseCreateKernelTree
-    baseStripKernelModules
-    baseFixupKernelModuleDependencies
-    baseSyncKernelTree
-
     for kernel_dir in /lib/modules/*;do
         if [ ! -d "$kernel_dir" ];then
             continue
@@ -1607,16 +1734,50 @@ function suseStripKernel {
             popd
         done
     done
+}
 
-    baseStripModules
-    baseStripFirmware
+#======================================
+# baseStripKernel
+#--------------------------------------
+function baseStripKernel {
+    # /.../
+    # this function will strip the kernel according to the drivers
+    # information in the xml description. It also creates the
+    # vmlinux.gz and vmlinuz files which are required for the
+    # kernel extraction in case of kiwi boot images
+    # ----
+    baseCreateCommonKernelFile
+    if [ "$kiwi_initrd_system" = "dracut" ]; then
+        echo "dracut initrd system requested, kernel strip skipped"
+    else
+        baseCreateKernelTree
+        baseStripKernelModules
+        baseFixupKernelModuleDependencies
+        baseSyncKernelTree
+        baseStripModules
+        baseStripFirmware
+    fi
+}
+
+#======================================
+# suseStripKernel
+#--------------------------------------
+function suseStripKernel {
+    baseStripKernel
 }
 
 #======================================
 # rhelStripKernel
 #--------------------------------------
 function rhelStripKernel {
-    suseStripKernel
+    baseStripKernel
+}
+
+#======================================
+# debianStripKernel
+#--------------------------------------
+function debianStripKernel {
+    baseStripKernel
 }
 
 #======================================

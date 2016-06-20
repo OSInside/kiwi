@@ -109,9 +109,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'subvolume', 'snapshot', root_volume, snapshot]
             )
-            self.__set_default_volume('@/.snapshots/1/snapshot')
+            self._set_default_volume('@/.snapshots/1/snapshot')
         else:
-            self.__set_default_volume('@')
+            self._set_default_volume('@')
 
     def create_volumes(self, filesystem_name):
         """
@@ -216,7 +216,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 exclude=exclude
             )
 
-    def __set_default_volume(self, default_volume):
+    def _set_default_volume(self, default_volume):
         subvolume_list_call = Command.run(
             ['btrfs', 'subvolume', 'list', self.mountpoint]
         )

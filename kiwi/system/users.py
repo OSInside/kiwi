@@ -38,7 +38,7 @@ class Users(object):
 
         :rtype: bool
         """
-        return self.__search_for(user_name, '/etc/passwd')
+        return self._search_for(user_name, '/etc/passwd')
 
     def group_exists(self, group_name):
         """
@@ -48,7 +48,7 @@ class Users(object):
 
         :rtype: bool
         """
-        return self.__search_for(group_name, '/etc/group')
+        return self._search_for(group_name, '/etc/group')
 
     def group_add(self, group_name, options):
         """
@@ -96,7 +96,7 @@ class Users(object):
             ['chroot', self.root_dir, 'chown', '-R', user_and_group, home_path]
         )
 
-    def __search_for(self, name, in_file):
+    def _search_for(self, name, in_file):
         search = '^' + name + ':'
         try:
             Command.run(

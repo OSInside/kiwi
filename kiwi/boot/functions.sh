@@ -367,7 +367,7 @@ function systemException {
             Echo "ssh root@${IPADDR}"
         fi
         echo reset > /root/.bashrc
-        setctsid $ttydev sulogin -e $ttydev
+        sulogin -e -p $ttydev
     ;;
     "user_reboot")
         Echo "reboot triggered by user"
@@ -700,6 +700,9 @@ function udevSystemStart {
     fi
     if [ ! -x $udev_bin ];then
         udev_bin=/lib/udev/udevd
+    fi
+    if [ ! -x $udev_bin ];then
+        udev_bin=/lib/systemd/systemd-udevd
     fi
     if [ ! -x $udev_bin ];then
         systemException \
@@ -1489,7 +1492,7 @@ function updateModuleDependencies {
 #--------------------------------------
 function setupInitrd {
     # /.../
-    # call mkinitrd to create the distro initrd
+    # call initrd creation tool to create the distro initrd
     # ----
     local IFS=$IFS_ORIG
     bootLoaderOK=1
@@ -1497,7 +1500,6 @@ function setupInitrd {
     local umountSys=0
     local systemMap=0
     local dracutExec=$(lookup dracut 2>/dev/null)
-    local mkinitrdExec=$(lookup mkinitrd 2>/dev/null)
     local params
     local running
     local rlinux
@@ -1529,22 +1531,10 @@ function setupInitrd {
         # Call initrd creation tool
         #--------------------------------------
         if [ -x "$dracutExec" ]; then
-            # 1. dracut
             params=" --force"
             Echo "Creating dracut based initrd"
             if ! $dracutExec $params;then
                 Echo "Can't create initrd with dracut"
-                systemIntegrity=unknown
-                bootLoaderOK=0
-            fi
-        elif [ -x "$mkinitrdExec" ]; then
-            # 2. mkinitrd
-            Echo "Creating mkinitrd based initrd"
-            if grep -qi param_B $mkinitrdExec;then
-                params="-B"
-            fi
-            if ! $mkinitrdExec $params;then
-                Echo "Can't create initrd with mkinitrd"
                 systemIntegrity=unknown
                 bootLoaderOK=0
             fi
@@ -2434,70 +2424,9 @@ function updateOtherDeviceFstab {
 #--------------------------------------
 function setupKernelModules {
     # /.../
-    # create sysconfig/kernel file which includes the
-    # kernel modules to become integrated into the initrd
-    # if created by the distro mkinitrd tool
-    # ----
-    local IFS=$IFS_ORIG
-    local destprefix=$1
-    local prefix=$2
-    if [ -z "$prefix" ];then
-        prefix=/mnt
-    fi
-    local sysimg_ktempl=$prefix/var/adm/fillup-templates/sysconfig.kernel
-    local sysimg_syskernel=$prefix/etc/sysconfig/kernel
-    local syskernel=$destprefix/etc/sysconfig/kernel
-    local newstyle_mkinitrd=$prefix/lib/mkinitrd/scripts/boot-usb.sh
-    local key
-    local val
-    mkdir -p $destprefix/etc/sysconfig
-    #======================================
-    # include USB host controllers
-    #--------------------------------------
-    local USB_MODULES="ehci-hcd ohci-hcd uhci-hcd xhci-hcd"
-    INITRD_MODULES="$INITRD_MODULES $USB_MODULES"
-    #======================================
-    # check for mkinitrd capabilities
-    #--------------------------------------
-    if [ ! -e $newstyle_mkinitrd ];then
-        # /.../
-        # if boot-usb.sh does not exist we are based on an old
-        # mkinitrd version which requires all modules as part of
-        # sysconfig/kernel. Therefore we include USB core modules
-        # required to support USB storage like USB sticks
-        # ----
-        USB_MODULES="usbcore usb-storage sd"
-        INITRD_MODULES="$INITRD_MODULES $USB_MODULES"
-        # /.../
-        # old mkinitrd cannot figure this out on its own
-        # ---
-        if [ -e /sys/devices/virtio-pci ];then
-            Echo 'Adding virtio kernel modules to initrd.'
-            INITRD_MODULES="$INITRD_MODULES virtio-blk virtio-pci"
-        fi
-    fi
-    #======================================
-    # use system image config or template
-    #--------------------------------------
-    if [ -f $sysimg_syskernel ];then
-        cp $sysimg_syskernel $syskernel
-    elif [ -f $sysimg_ktempl ];then
-        cp $sysimg_ktempl $syskernel
-    fi
-    #======================================
-    # update config file
-    #--------------------------------------
-    for key in INITRD_MODULES;do
-        if [ $key = "INITRD_MODULES" ];then
-            val=$INITRD_MODULES
-        fi
-        if [ -z "$val" ];then
-            continue
-        fi
-        sed -i -e \
-            s"@^$key=\"\(.*\)\"@$key=\"\1 $val\"@" \
-        $syskernel
-    done
+    # placeholder for custom kernel module setup
+    # used by the distribution initrd tool
+    :
 }
 #======================================
 # probeFileSystem
@@ -5676,7 +5605,8 @@ function startShell {
             return
         fi
         Echo "Starting boot shell on $ELOG_BOOTSHELL"
-        setctsid -f $ELOG_BOOTSHELL /bin/bash -i
+        sulogin -e -p $ELOG_BOOTSHELL &
+        sleep 2
         ELOGSHELL_PID=$(fuser $ELOG_BOOTSHELL | tr -d " ")
         echo ELOGSHELL_PID=$ELOGSHELL_PID >> /iprocs
     fi
@@ -6429,9 +6359,6 @@ function activateImage {
     # run preinit stage
     #--------------------------------------
     Echo "Preparing preinit phase..."
-    if ! cp /usr/bin/utimer $prefix;then
-        systemException "Failed to copy: utimer" "reboot"
-    fi
     if ! cp /iprocs $prefix;then
         systemException "Failed to copy: iprocs" "reboot"
     fi
@@ -6440,6 +6367,10 @@ function activateImage {
     fi
     if ! cp /include $prefix;then
         systemException "Failed to copy: include" "reboot"
+    fi
+    local utimer=$(lookup utimer)
+    if [ -e "$utimer" ];then
+        cp $utimer $prefix
     fi
     local killall5=$(lookup killall5)
     if [ ! -e $prefix/$killall5 ]; then
@@ -6476,7 +6407,7 @@ function cleanImage {
     # kill second utimer and tail
     #--------------------------------------
     . /iprocs
-    kill $UTIMER_PID &>/dev/null
+    test -n "$UTIMER_PID" && kill $UTIMER_PID &>/dev/null
     #======================================
     # remove preinit code from system image
     #--------------------------------------
@@ -6602,32 +6533,10 @@ function bootImage {
         resetBootBind $prefix
     fi
     #======================================
-    # setup warpclock for local time setup
-    #--------------------------------------
-    local warpclock=/lib/mkinitrd/bin/warpclock
-    if [ -e $prefix/etc/localtime ] && [ -x $warpclock ];then
-        cp $prefix/etc/localtime /etc
-        if [ -e $prefix/etc/adjtime ];then
-            cp $prefix/etc/adjtime /etc
-            while read line;do
-                if test "$line" = LOCAL
-            then
-                $warpclock > $prefix/dev/shm/warpclock
-            fi
-            done < /etc/adjtime
-        elif [ -e $prefix/etc/sysconfig/clock ];then
-            cp $prefix/etc/sysconfig/clock /etc
-            . /etc/clock
-            case "$HWCLOCK" in
-                *-l*) $warpclock > $prefix/dev/shm/warpclock
-            esac
-        fi
-    fi
-    #======================================
     # kill initial tail and utimer
     #--------------------------------------
     . /iprocs
-    kill $UTIMER_PID &>/dev/null
+    test -n "$UTIMER_PID" && kill $UTIMER_PID &>/dev/null
     #======================================
     # copy boot log file into system image
     #--------------------------------------
@@ -7331,9 +7240,9 @@ function runInteractive {
     echo "dialog $@ 2> /tmp/out" > $r
     echo "echo -n \$? > /tmp/out.exit" >> $r
     if FBOK;then
-        setctsid $ELOG_EXCEPTION fbiterm -m $UFONT -- bash -i $r
+        setsid -c -w fbiterm -m $UFONT -- bash -i $r
     else
-        setctsid $ELOG_EXCEPTION bash -i $r
+        setsid -c -w bash -i $r
     fi
     code=$(cat /tmp/out.exit)
     if [ ! $code = 0 ];then
@@ -8960,10 +8869,7 @@ function pxeBootDevice {
 #--------------------------------------
 function startUtimer {
     local IFS=$IFS_ORIG
-    local utimer=/usr/bin/utimer
-    if [ ! -x $utimer ];then
-        utimer=/utimer
-    fi
+    local utimer=$(lookup utimer)
     if [ -x $utimer ];then
         if [ ! -e /tmp/utimer ];then
             ln -s $UTIMER_INFO /tmp/utimer
@@ -9263,49 +9169,9 @@ function setupConsoleFont {
 #--------------------------------------
 function setupConsole {
     # /.../
-    # setup the xvc and/or hvc console if the device is present
-    # also remove the ttyS0 console if no ttyS0 device exists
+    # placeholder method for custom console setup
     # ----
-    local IFS=$IFS_ORIG
-    local itab=/etc/inittab
-    local stty=/etc/securetty
-    local init=/bin/systemd
-    local xvc="X0:12345:respawn:/sbin/mingetty --noclear xvc0 linux"
-    local hvc="H0:12345:respawn:/sbin/mingetty --noclear hvc0 linux"
-    #======================================
-    # return early in case of systemd
-    #--------------------------------------
-    if [ -e $init ];then
-        return
-    fi
-    #======================================
-    # create tty nodes if not done
-    #--------------------------------------
-    setupTTY
-    #======================================
-    # setup xvc console (xen)
-    #--------------------------------------
-    if [ -e /sys/class/tty/xvc0 ];then
-        if ! cat $itab | grep -v '^#' | grep -q xvc0;then
-            echo "$xvc" >> $itab
-            echo "xvc0" >> $stty
-        fi
-    fi
-    #======================================
-    # setup hvc console (kvm)
-    #--------------------------------------
-    if [ -e /sys/class/tty/hvc0 ];then
-        if ! cat $itab | grep -v '^#' | grep -q hvc0;then
-            echo "$hvc" >> $itab
-            echo "hvc0" >> $stty
-        fi
-    fi
-    #======================================
-    # remove ttyS0 if not present
-    #--------------------------------------
-    if [ ! -e /sys/class/tty/ttyS0 ];then
-        cat $itab | grep -vi 'ttyS0' > $itab.new && mv $itab.new $itab
-    fi
+    :
 }
 #======================================
 # cleanPartitionTable

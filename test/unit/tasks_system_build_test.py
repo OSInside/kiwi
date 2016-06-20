@@ -61,7 +61,7 @@ class TestSystemBuildTask(object):
 
         self.task = SystemBuildTask()
 
-    def __init_command_args(self):
+    def _init_command_args(self):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['build'] = False
@@ -75,7 +75,7 @@ class TestSystemBuildTask(object):
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build(self, mock_log):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['build'] = True
         self.task.process()
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
@@ -112,7 +112,7 @@ class TestSystemBuildTask(object):
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build_add_package(self, mock_log):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with()
@@ -122,7 +122,7 @@ class TestSystemBuildTask(object):
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_update_delete_package(self, mock_log):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with()
@@ -135,7 +135,7 @@ class TestSystemBuildTask(object):
     def test_process_system_build_prepare_stage_set_repo(
         self, mock_log, mock_set_repo
     ):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_set_repo.assert_called_once_with(
@@ -147,7 +147,7 @@ class TestSystemBuildTask(object):
     def test_process_system_build_prepare_stage_add_repo(
         self, mock_log, mock_add_repo
     ):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--add-repo'] = [
             'http://example.com,yast2,alias'
         ]
@@ -161,7 +161,7 @@ class TestSystemBuildTask(object):
     def test_process_system_prepare_use_ibs_repos(
         self, mock_ibs_repo, mock_log
     ):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--obs-repo-internal'] = True
         self.task.process()
         mock_ibs_repo.assert_called_once_with()
@@ -172,13 +172,13 @@ class TestSystemBuildTask(object):
     def test_process_system_prepare_use_suse_repos(
         self, mock_exists, mock_suse_repos, mock_log
     ):
-        self.__init_command_args()
+        self._init_command_args()
         mock_exists.return_value = True
         self.task.process()
         mock_suse_repos.assert_called_once_with()
 
     def test_process_system_build_help(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['help'] = True
         self.task.command_args['build'] = True
         self.task.process()

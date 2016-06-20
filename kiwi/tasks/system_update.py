@@ -63,7 +63,7 @@ class SystemUpdateTask(CliTask):
         to add or delete packages can be used multiple times
         """
         self.manual = Help()
-        if self.__help():
+        if self._help():
             return
 
         Privileges.check_for_root_permissions()
@@ -98,7 +98,7 @@ class SystemUpdateTask(CliTask):
                     manager, self.command_args['--delete-package']
                 )
 
-    def __help(self):
+    def _help(self):
         if self.command_args['help']:
             self.manual.show('kiwi::system::update')
         else:

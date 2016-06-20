@@ -63,8 +63,8 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.get_target_name_for_format(self.image_format)
             ]
         )
-        self.__update_vmdk_descriptor()
-        self.__create_vmware_settings_file()
+        self._update_vmdk_descriptor()
+        self._create_vmware_settings_file()
 
     def store_to_result(self, result):
         """
@@ -93,7 +93,7 @@ class DiskFormatVmdk(DiskFormatBase):
             shasum=False
         )
 
-    def __create_vmware_settings_file(self):
+    def _create_vmware_settings_file(self):
         """
         In order to run a vmdk image in VMware products a settings file is
         needed or the possibility to convert machine settings into an ovf
@@ -184,7 +184,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def __update_vmdk_descriptor(self):
+    def _update_vmdk_descriptor(self):
         """
         Update the VMDK descriptor with the VMware tools version
         and type information. This is done to let VMware's virtualization
@@ -205,7 +205,7 @@ class DiskFormatVmdk(DiskFormatBase):
             return
         log.info('Updating VMDK metadata')
         vmdk_tools_install_type = 4
-        vmdk_tools_version = self.__get_vmdk_tools_version()
+        vmdk_tools_version = self._get_vmdk_tools_version()
         vmdk_image_name = self.get_target_name_for_format('vmdk')
         log.info(
             '--> Setting tools version: %d', vmdk_tools_version
@@ -229,7 +229,7 @@ class DiskFormatVmdk(DiskFormatBase):
             vmdk.write('\n'.join(vmdk_descriptor_lines))
             vmdk.seek(0, 2)
 
-    def __get_vmdk_tools_version(self):
+    def _get_vmdk_tools_version(self):
         vmdk_tools_version_call = Command.run(
             ['chroot', self.root_dir, 'vmtoolsd', '--version']
         )

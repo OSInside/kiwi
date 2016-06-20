@@ -69,8 +69,8 @@ class ArchiveBuilder(object):
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
-        self.filename = self.__target_file_for('tar.xz')
-        self.checksum = self.__target_file_for('md5')
+        self.filename = self._target_file_for('tar.xz')
+        self.checksum = self._target_file_for('md5')
 
     def create(self):
         """
@@ -91,7 +91,7 @@ class ArchiveBuilder(object):
         if self.requested_archive_type == 'tbz':
             log.info('Creating XZ compressed tar archive')
             archive = ArchiveTar(
-                self.__target_file_for('tar')
+                self._target_file_for('tar')
             )
             archive.create_xz_compressed(self.root_dir)
             checksum = Checksum(self.filename)
@@ -129,7 +129,7 @@ class ArchiveBuilder(object):
             )
         return self.result
 
-    def __target_file_for(self, suffix):
+    def _target_file_for(self, suffix):
         return ''.join(
             [
                 self.target_dir, '/',

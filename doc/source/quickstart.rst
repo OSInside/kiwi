@@ -118,10 +118,10 @@ the next generation KIWI over the legacy version. Thus adding the
 Builder repository inherits this project setup and activates building
 with the next generation KIWI.
 
-Using KIWI NG in a python3 project
+Using KIWI NG in a Python Project
 ----------------------------------
 
-KIWI NG can also function as a module for other python3 projects.
+KIWI NG can also function as a module for other Python projects.
 The following example demonstrates how to read an existing image
 description, add a new repository definition and export the
 modified description on stdout.

@@ -102,7 +102,7 @@ class Translate(object):
         self.translated.append(description)
         self.translated.append('--target-dir')
         self.translated.append(self.arguments['--dest-dir'])
-        self.__set_add_repo_arguments()
+        self._set_add_repo_arguments()
 
     def create(self, root):
         self.translated.append('system')
@@ -121,7 +121,7 @@ class Translate(object):
         self.translated.append(self.arguments['--root'])
         if self.arguments['--recycle-root']:
             self.translated.append('--allow-existing-root')
-        self.__set_add_repo_arguments()
+        self._set_add_repo_arguments()
 
     def upgrade(self, root):
         self.translated.append('system')
@@ -137,7 +137,7 @@ class Translate(object):
                 self.translated.append(del_package)
         self.translated.append(root)
 
-    def __set_add_repo_arguments(self):
+    def _set_add_repo_arguments(self):
         if self.arguments['--add-repo']:
             for index in range(0, len(self.arguments['--add-repo'])):
                 repo_type = None
@@ -157,21 +157,21 @@ class Translate(object):
                     pass
 
                 self.translated.append('--add-repo')
-                self.translated.append(self.__repo_argument(
+                self.translated.append(self._repo_argument(
                     self.arguments['--add-repo'][index],
                     repo_type, repo_alias, repo_prio
                 ))
 
         if self.arguments['--set-repo']:
             self.translated.append('--set-repo')
-            self.translated.append(self.__repo_argument(
+            self.translated.append(self._repo_argument(
                 self.arguments['--set-repo'],
                 self.arguments['--set-repotype'],
                 self.arguments['--set-repoalias'],
                 self.arguments['--set-repopriority']
             ))
 
-    def __repo_argument(self, source, repo_type, alias, priority):
+    def _repo_argument(self, source, repo_type, alias, priority):
         if not repo_type:
             repo_type = ''
         if not alias:

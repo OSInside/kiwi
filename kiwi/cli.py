@@ -159,7 +159,7 @@ class Cli(object):
         :return: command arguments
         :rtype: dict
         """
-        return self.__load_command_args()
+        return self._load_command_args()
 
     def get_global_args(self):
         """
@@ -193,7 +193,7 @@ class Cli(object):
         )
         if not os.path.exists(command_source_file):
             prefix = 'usage:'
-            for service_command in self.__get_command_implementations(service):
+            for service_command in self._get_command_implementations(service):
                 print('%s kiwi %s' % (prefix, service_command))
                 prefix = '      '
             raise SystemExit(1)
@@ -202,7 +202,7 @@ class Cli(object):
         )
         return self.command_loaded
 
-    def __get_command_implementations(self, service):
+    def _get_command_implementations(self, service):
         command_implementations = []
         glob_match = Defaults.project_file('/') + 'tasks/*.py'
         for source_file in glob.iglob(glob_match):
@@ -219,7 +219,7 @@ class Cli(object):
                         break
         return command_implementations
 
-    def __load_command_args(self):
+    def _load_command_args(self):
         try:
             argv = [
                 self.get_servicename(), self.get_command()

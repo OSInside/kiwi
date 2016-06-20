@@ -75,7 +75,7 @@ class ResultBundleTask(CliTask):
         and a sha sum will be created from every result image
         """
         self.manual = Help()
-        if self.__help():
+        if self._help():
             return
 
         # load serialized result object from target directory
@@ -131,7 +131,7 @@ class ResultBundleTask(CliTask):
                     with open(checksum_file, 'w') as shasum:
                         shasum.write(checksum.sha256())
 
-    def __help(self):
+    def _help(self):
         if self.command_args['help']:
             self.manual.show('kiwi::result::bundle')
         else:

@@ -83,7 +83,7 @@ class SystemPrepareTask(CliTask):
         Prepare and install a new system for chroot access
         """
         self.manual = Help()
-        if self.__help():
+        if self._help():
             return
 
         Privileges.check_for_root_permissions()
@@ -172,13 +172,14 @@ class SystemPrepareTask(CliTask):
             manager=manager, force=True
         )
 
-        # make sure system instance is cleaned up now
+        # make sure system and manager instances are cleaned up now
         del system
+        del manager
 
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
 
-    def __help(self):
+    def _help(self):
         if self.command_args['help']:
             self.manual.show('kiwi::system::prepare')
         else:

@@ -226,25 +226,25 @@ class Logger(logging.Logger):
         logging.Logger.__init__(self, name)
         self.console_handlers = {}
         # log INFO to stdout
-        self.__add_stream_handler(
+        self._add_stream_handler(
             'info',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [InfoFilter(), LoggerSchedulerFilter()]
         )
         # log WARNING messages to stdout
-        self.__add_stream_handler(
+        self._add_stream_handler(
             'warning',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [WarningFilter()]
         )
         # log DEBUG messages to stdout
-        self.__add_stream_handler(
+        self._add_stream_handler(
             'debug',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [DebugFilter()]
         )
         # log ERROR messages to stderr
-        self.__add_stream_handler(
+        self._add_stream_handler(
             'error',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [ErrorFilter()],
@@ -296,7 +296,9 @@ class Logger(logging.Logger):
         :param string filename: logfile file path
         """
         try:
-            logfile = logging.FileHandler(filename)
+            logfile = logging.FileHandler(
+                filename=filename, encoding='utf-8'
+            )
             logfile.setFormatter(
                 logging.Formatter('%(levelname)s: %(message)s')
             )
@@ -335,7 +337,7 @@ class Logger(logging.Logger):
             sys.stdout.write('\n')
         sys.stdout.flush()
 
-    def __add_stream_handler(
+    def _add_stream_handler(
         self, handler_type, message_format, message_filter,
         channel=sys.__stdout__
     ):

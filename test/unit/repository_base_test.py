@@ -31,7 +31,9 @@ class TestRepositoryBase(object):
 
     @raises(NotImplementedError)
     def test_add_repo(self):
-        self.repo.add_repo('name', 'uri', 'type', 'prio')
+        self.repo.add_repo(
+            'name', 'uri', 'type', 'prio', 'dist', ['components']
+        )
 
     @raises(NotImplementedError)
     def test_delete_repo(self):

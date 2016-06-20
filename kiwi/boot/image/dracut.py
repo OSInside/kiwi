@@ -18,8 +18,11 @@
 import os
 
 # project
+from ...defaults import Defaults
 from ...system.prepare import SystemPrepare
+from ...system.profile import Profile
 from ...utils.compress import Compress
+from ...system.setup import SystemSetup
 from ...logger import log
 from ...command import Command
 from ...system.kernel import Kernel
@@ -39,6 +42,8 @@ class BootImageDracut(BootImageBase):
         operation to create the initrd
         """
         self.load_boot_xml_description()
+        boot_image_name = self.boot_xml_state.xml_data.get_name()
+
         self.import_system_description_elements()
 
         log.info('Preparing boot image')
@@ -54,6 +59,19 @@ class BootImageDracut(BootImageBase):
         system.install_system(
             manager
         )
+
+        profile = Profile(self.boot_xml_state)
+        profile.add('kiwi_initrdname', boot_image_name)
+
+        defaults = Defaults()
+        defaults.to_profile(profile)
+
+        setup = SystemSetup(
+            self.boot_xml_state, self.boot_root_directory
+        )
+        setup.import_shell_environment(profile)
+        setup.import_description()
+        setup.call_image_script()
 
     def create_initrd(self, mbrid=None):
         """

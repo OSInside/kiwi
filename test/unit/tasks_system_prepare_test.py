@@ -49,7 +49,7 @@ class TestSystemPrepareTask(object):
         )
         self.task = SystemPrepareTask()
 
-    def __init_command_args(self):
+    def _init_command_args(self):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['prepare'] = False
@@ -63,7 +63,7 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--delete-package'] = []
 
     def test_process_system_prepare(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['prepare'] = True
         self.task.process()
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
@@ -94,7 +94,7 @@ class TestSystemPrepareTask(object):
         )
 
     def test_process_system_prepare_add_package(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with()
@@ -103,7 +103,7 @@ class TestSystemPrepareTask(object):
         )
 
     def test_process_system_prepare_delete_package(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with()
@@ -113,7 +113,7 @@ class TestSystemPrepareTask(object):
 
     @patch('kiwi.xml_state.XMLState.set_repository')
     def test_process_system_prepare_set_repo(self, mock_state):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_state.assert_called_once_with(
@@ -122,7 +122,7 @@ class TestSystemPrepareTask(object):
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     def test_process_system_prepare_add_repo(self, mock_state):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--add-repo'] = [
             'http://example.com,yast2,alias'
         ]
@@ -133,7 +133,7 @@ class TestSystemPrepareTask(object):
 
     @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
     def test_process_system_prepare_use_ibs_repos(self, mock_state):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--obs-repo-internal'] = True
         self.task.process()
         mock_state.assert_called_once_with()
@@ -143,13 +143,13 @@ class TestSystemPrepareTask(object):
     def test_process_system_prepare_use_suse_repos(
         self, mock_exists, mock_suse_repos
     ):
-        self.__init_command_args()
+        self._init_command_args()
         mock_exists.return_value = True
         self.task.process()
         mock_suse_repos.assert_called_once_with()
 
     def test_process_system_prepare_help(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['help'] = True
         self.task.command_args['prepare'] = True
         self.task.process()

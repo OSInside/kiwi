@@ -123,7 +123,7 @@ class DiskSetup(object):
                 # only for vmx types we need to add the configured volume
                 # sizes. oem disks are self expandable and will resize to
                 # the configured sizes on first boot of the disk image
-                volume_mbytes = self.__accumulate_volume_size(
+                volume_mbytes = self._accumulate_volume_size(
                     root_filesystem_mbytes
                 )
                 if volume_mbytes:
@@ -169,7 +169,7 @@ class DiskSetup(object):
                 '--> PReP partition adding %s MB', prep_mbytes
             )
 
-        recovery_mbytes = self.__inplace_recovery_partition_size()
+        recovery_mbytes = self._inplace_recovery_partition_size()
         if recovery_mbytes:
             calculated_disk_mbytes += recovery_mbytes
             log.info(
@@ -282,7 +282,7 @@ class DiskSetup(object):
             else:
                 return Defaults.get_default_boot_mbytes()
 
-    def __inplace_recovery_partition_size(self):
+    def _inplace_recovery_partition_size(self):
         """
         In inplace recovery mode the recovery archive is created at
         install time. This requires free space on the disk. The
@@ -297,15 +297,15 @@ class DiskSetup(object):
             if recovery_mbytes:
                 return int(recovery_mbytes[0] * 1.7)
 
-    def __accumulate_volume_size(self, root_mbytes):
+    def _accumulate_volume_size(self, root_mbytes):
         """
         Calculate number of mbytes to add to the disk to allow
         the creaton of the volumes with their configured size
         """
         disk_volume_mbytes = 0
 
-        data_volume_mbytes = self.__calculate_volume_mbytes()
-        root_volume = self.__get_root_volume_configuration()
+        data_volume_mbytes = self._calculate_volume_mbytes()
+        root_volume = self._get_root_volume_configuration()
 
         for volume in self.volumes:
             if volume.realpath and not volume.realpath == '/' and volume.size:
@@ -343,7 +343,7 @@ class DiskSetup(object):
 
         return disk_volume_mbytes
 
-    def __get_root_volume_configuration(self):
+    def _get_root_volume_configuration(self):
         """
         Provide LVRoot volume configuration if present and in
         use according to the selected volume management. So far
@@ -361,7 +361,7 @@ class DiskSetup(object):
                         req_size=int(req_size)
                     )
 
-    def __calculate_volume_mbytes(self):
+    def _calculate_volume_mbytes(self):
         """
         Calculate the number of mbytes each volume path currently
         consumes and also provide a total number of these values

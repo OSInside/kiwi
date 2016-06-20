@@ -51,7 +51,7 @@ class ResultListTask(CliTask):
         List result information from a previous system command
         """
         self.manual = Help()
-        if self.__help():
+        if self._help():
             return
 
         result_directory = os.path.normpath(
@@ -65,7 +65,7 @@ class ResultListTask(CliTask):
         )
         result.print_results()
 
-    def __help(self):
+    def _help(self):
         if self.command_args['help']:
             self.manual.show('kiwi::result::list')
         else:

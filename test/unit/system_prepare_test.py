@@ -152,8 +152,8 @@ class TestSystemPrepare(object):
             call(), call()
         ]
         assert repo.add_repo.call_args_list == [
-            call('uri-alias', 'uri', 'yast2', 42),
-            call('uri-alias', 'uri', 'rpm-md', None)
+            call('uri-alias', 'uri', 'yast2', 42, None, None),
+            call('uri-alias', 'uri', 'rpm-md', None, None, None)
         ]
 
     @patch('kiwi.system.prepare.Repository')

@@ -50,6 +50,7 @@
     locations except for the ones listed here
     -->
     <strip type="tools">
+        <file name="stty"/>
         <file name="sulogin"/>
         <file name="reset"/>
         <file name="tset"/>
@@ -74,6 +75,7 @@
         <file name="awk"/>
         <file name="basename"/>
         <file name="bash"/>
+        <file name="dash"/>
         <file name="bc"/>
         <file name="blkid"/>
         <file name="blockdev"/>
@@ -111,7 +113,6 @@
         <file name="dmevent_tool"/>
         <file name="dmraid"/>
         <file name="dmsetup"/>
-        <file name="driveready"/>
         <file name="dropbear"/>
         <file name="dropbearkey"/>
         <file name="du"/>
@@ -164,6 +165,7 @@
         <file name="kpartx"/>
         <file name="kpartx_id"/>
         <file name="ldconfig"/>
+        <file name="ldconfig.real"/>
         <file name="ldd"/>
         <file name="ln"/>
         <file name="losetup"/>
@@ -250,7 +252,7 @@
         <file name="switch_root"/>
         <file name="sed"/>
         <file name="seq"/>
-        <file name="setctsid"/>
+        <file name="setsid"/>
         <file name="setterm"/>
         <file name="sfdisk"/>
         <file name="sg_inq"/>

@@ -63,7 +63,7 @@ class SystemCreateTask(CliTask):
         command
         """
         self.manual = Help()
-        if self.__help():
+        if self._help():
             return
 
         Privileges.check_for_root_permissions()
@@ -96,7 +96,7 @@ class SystemCreateTask(CliTask):
             self.command_args['--target-dir'] + '/kiwi.result'
         )
 
-    def __help(self):
+    def _help(self):
         if self.command_args['help']:
             self.manual.show('kiwi::system::create')
         else:

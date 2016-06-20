@@ -106,12 +106,12 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.lxroot', mbsize, 't.linux')
-        self.__add_to_map('root')
-        self.__add_to_public_id_map('kiwi_RootPart')
+        self._add_to_map('root')
+        self._add_to_public_id_map('kiwi_RootPart')
         if 'kiwi_ROPart' in self.public_partition_id_map:
-            self.__add_to_public_id_map('kiwi_RWPart')
+            self._add_to_public_id_map('kiwi_RWPart')
         if 'kiwi_BootPart' not in self.public_partition_id_map:
-            self.__add_to_public_id_map('kiwi_BootPart')
+            self._add_to_public_id_map('kiwi_BootPart')
 
     def create_root_lvm_partition(self, mbsize):
         """
@@ -122,9 +122,9 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
-        self.__add_to_map('root')
-        self.__add_to_public_id_map('kiwi_RootPart')
-        self.__add_to_public_id_map('kiwi_RootPartVol', 'LVRoot')
+        self._add_to_map('root')
+        self._add_to_public_id_map('kiwi_RootPart')
+        self._add_to_public_id_map('kiwi_RootPartVol', 'LVRoot')
 
     def create_root_raid_partition(self, mbsize):
         """
@@ -137,10 +137,10 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.lxraid', mbsize, 't.raid')
-        self.__add_to_map('root')
-        self.__add_to_public_id_map('kiwi_RootPart')
-        self.__add_to_public_id_map('kiwi_RaidPart')
-        self.__add_to_public_id_map('kiwi_RaidDev', '/dev/md0')
+        self._add_to_map('root')
+        self._add_to_public_id_map('kiwi_RootPart')
+        self._add_to_public_id_map('kiwi_RaidPart')
+        self._add_to_public_id_map('kiwi_RaidDev', '/dev/md0')
 
     def create_root_readonly_partition(self, mbsize):
         """
@@ -154,8 +154,8 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.lxreadonly', mbsize, 't.linux')
-        self.__add_to_map('readonly')
-        self.__add_to_public_id_map('kiwi_ROPart')
+        self._add_to_map('readonly')
+        self._add_to_public_id_map('kiwi_ROPart')
 
     def create_boot_partition(self, mbsize):
         """
@@ -166,8 +166,8 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.lxboot', mbsize, 't.linux')
-        self.__add_to_map('boot')
-        self.__add_to_public_id_map('kiwi_BootPart')
+        self._add_to_map('boot')
+        self._add_to_public_id_map('kiwi_BootPart')
 
     def create_prep_partition(self, mbsize):
         """
@@ -178,8 +178,8 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.prep', mbsize, 't.prep')
-        self.__add_to_map('prep')
-        self.__add_to_public_id_map('kiwi_PrepPart')
+        self._add_to_map('prep')
+        self._add_to_public_id_map('kiwi_PrepPart')
 
     def create_efi_csm_partition(self, mbsize):
         """
@@ -190,8 +190,8 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.legacy', mbsize, 't.csm')
-        self.__add_to_map('efi_csm')
-        self.__add_to_public_id_map('kiwi_BiosGrub')
+        self._add_to_map('efi_csm')
+        self._add_to_public_id_map('kiwi_BiosGrub')
 
     def create_efi_partition(self, mbsize):
         """
@@ -202,8 +202,8 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
-        self.__add_to_map('efi')
-        self.__add_to_public_id_map('kiwi_EfiPart')
+        self._add_to_map('efi')
+        self._add_to_public_id_map('kiwi_EfiPart')
 
     def create_vboot_partition(self, mbsize):
         """
@@ -214,8 +214,8 @@ class Disk(DeviceProvider):
         :param int mbsize: partition size
         """
         self.partitioner.create('p.vboot', mbsize, 't.linux')
-        self.__add_to_map('vboot')
-        self.__add_to_public_id_map('kiwi_VbootPart')
+        self._add_to_map('vboot')
+        self._add_to_public_id_map('kiwi_VbootPart')
 
     def activate_boot_partition(self):
         """
@@ -302,12 +302,12 @@ class Disk(DeviceProvider):
             sorted(self.public_partition_id_map.items())
         )
 
-    def __add_to_public_id_map(self, name, value=None):
+    def _add_to_public_id_map(self, name, value=None):
         if not value:
             value = self.partitioner.get_id()
         self.public_partition_id_map[name] = value
 
-    def __add_to_map(self, name):
+    def _add_to_map(self, name):
         device_node = None
         partition_number = format(self.partitioner.get_id())
         if self.storage_provider.is_loop():

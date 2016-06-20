@@ -101,7 +101,7 @@ class RepositoryZypper(RepositoryBase):
             '--config', self.runtime_zypper_config_file.name
         ] + self.custom_args
 
-        self.command_env = self.__create_zypper_runtime_environment()
+        self.command_env = self._create_zypper_runtime_environment()
 
         # config file parameters for zypper tool
         self.runtime_zypper_config = ConfigParser()
@@ -123,7 +123,7 @@ class RepositoryZypper(RepositoryBase):
             'main', 'packagesdir', self.shared_zypper_dir['pkg-cache-dir']
         )
 
-        self.__write_runtime_config()
+        self._write_runtime_config()
 
     def use_default_location(self):
         """
@@ -146,7 +146,10 @@ class RepositoryZypper(RepositoryBase):
             'command_env': self.command_env
         }
 
-    def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
+    def add_repo(
+        self, name, uri, repo_type='rpm-md',
+        prio=None, dist=None, components=None
+    ):
         """
         Add zypper repository
 
@@ -154,6 +157,8 @@ class RepositoryZypper(RepositoryBase):
         :param string uri: repository URI
         :param repo_type: repostory type name
         :param int prio: yum repostory priority
+        :param dist: unused
+        :param components: unused
         """
         repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -161,12 +166,13 @@ class RepositoryZypper(RepositoryBase):
         if os.path.exists(repo_file):
             Path.wipe(repo_file)
 
+        self._backup_package_cache()
         Command.run(
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
                 'addrepo',
                 '--refresh',
-                '--type', self.__translate_repo_type(repo_type),
+                '--type', self._translate_repo_type(repo_type),
                 '--keep-packages',
                 '-C',
                 uri,
@@ -182,6 +188,7 @@ class RepositoryZypper(RepositoryBase):
                 ],
                 self.command_env
             )
+        self._restore_package_cache()
 
     def delete_repo(self, name):
         """
@@ -220,13 +227,12 @@ class RepositoryZypper(RepositoryBase):
         Path.wipe(solv_dir + '/@System')
 
         repos_dir = self.shared_zypper_dir['reposd-dir']
-        for elements in os.walk(repos_dir):
-            for repo_file in list(elements[2]):
-                if repo_file not in self.repo_names:
-                    Path.wipe(repos_dir + '/' + repo_file)
-            break
+        repo_files = list(os.walk(repos_dir))[0][2]
+        for repo_file in repo_files:
+            if repo_file not in self.repo_names:
+                Path.wipe(repos_dir + '/' + repo_file)
 
-    def __create_zypper_runtime_environment(self):
+    def _create_zypper_runtime_environment(self):
         for zypper_dir in list(self.shared_zypper_dir.values()):
             Path.create(zypper_dir)
         return dict(
@@ -235,13 +241,13 @@ class RepositoryZypper(RepositoryBase):
             ZYPP_CONF=self.runtime_zypp_config_file.name
         )
 
-    def __write_runtime_config(self):
+    def _write_runtime_config(self):
         with open(self.runtime_zypper_config_file.name, 'w') as config:
             self.runtime_zypper_config.write(config)
         with open(self.runtime_zypp_config_file.name, 'w') as config:
             self.runtime_zypp_config.write(config)
 
-    def __translate_repo_type(self, repo_type):
+    def _translate_repo_type(self, repo_type):
         """
             Translate kiwi supported common repo type names from the schema
             into the name the zyper package manager understands
@@ -257,3 +263,33 @@ class RepositoryZypper(RepositoryBase):
             raise KiwiRepoTypeUnknown(
                 'Unsupported zypper repo type: %s' % repo_type
             )
+
+    def _backup_package_cache(self):
+        """
+        preserve package cache which otherwise will be removed by
+        zypper if no repo file is found. But this situation is
+        normal for an image build process which setup and remove
+        repos for building at runtime
+        """
+        self._move_package_cache(backup=True)
+
+    def _restore_package_cache(self):
+        """
+        restore preserved package cache at the location passed to zypper
+        """
+        self._move_package_cache(restore=True)
+
+    def _move_package_cache(self, backup=False, restore=False):
+        package_cache = self.shared_location + '/packages'
+        package_cache_moved = package_cache + '.moved'
+        if backup and os.path.exists(package_cache):
+            Command.run(
+                ['mv', '-f', package_cache, package_cache_moved]
+            )
+        elif restore and os.path.exists(package_cache_moved):
+            Command.run(
+                ['mv', '-f', package_cache_moved, package_cache]
+            )
+
+    def __del__(self):
+        self._restore_package_cache()

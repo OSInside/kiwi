@@ -215,7 +215,7 @@ class DiskBuilder(object):
                 '.raw'
             ]
         )
-        self.install_media = self.__install_image_requested()
+        self.install_media = self._install_image_requested()
         self.install_image = InstallImageBuilder(
             xml_state, target_dir, self.boot_image
         )
@@ -286,7 +286,7 @@ class DiskBuilder(object):
         )
 
         # create disk partitions and instance device map
-        device_map = self.__build_and_map_disk_partitions()
+        device_map = self._build_and_map_disk_partitions()
 
         # create raid on current root device if requested
         if self.mdraid:
@@ -303,7 +303,7 @@ class DiskBuilder(object):
             device_map['root'] = self.luks_root.get_device()
 
         # create filesystems on boot partition(s) if any
-        self.__build_boot_filesystems(device_map)
+        self._build_boot_filesystems(device_map)
 
         # create volumes and filesystems for root system
         if self.volume_manager_name:
@@ -354,35 +354,35 @@ class DiskBuilder(object):
         self.mbrid.calculate_id()
 
         # create first stage metadata to boot image
-        self.__write_partition_id_config_to_boot_image()
+        self._write_partition_id_config_to_boot_image()
 
-        self.__write_recovery_metadata_to_boot_image()
+        self._write_recovery_metadata_to_boot_image()
 
-        self.__write_raid_config_to_boot_image()
+        self._write_raid_config_to_boot_image()
 
         self.system_setup.export_modprobe_setup(
             self.boot_image.boot_root_directory
         )
 
         # create first stage metadata to system image
-        self.__write_image_identifier_to_system_image()
+        self._write_image_identifier_to_system_image()
 
-        self.__write_crypttab_to_system_image()
+        self._write_crypttab_to_system_image()
 
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
 
         # create second stage metadata to boot
-        self.__copy_first_boot_files_to_system_image()
+        self._copy_first_boot_files_to_system_image()
 
-        self.__write_bootloader_config_to_system_image(device_map)
+        self._write_bootloader_config_to_system_image(device_map)
 
         self.mbrid.write_to_disk(
             self.disk.storage_provider
         )
 
         # set SELinux file security contexts if context exists
-        self.__setup_selinux_file_contexts()
+        self._setup_selinux_file_contexts()
 
         # syncing system data to disk image
         log.info('Syncing system to image')
@@ -393,7 +393,7 @@ class DiskBuilder(object):
         if self.system_boot:
             log.info('--> Syncing boot data at extra partition')
             self.system_boot.sync_data(
-                self.__get_exclude_list_for_boot_data_sync()
+                self._get_exclude_list_for_boot_data_sync()
             )
 
         log.info('--> Syncing root filesystem data')
@@ -404,7 +404,7 @@ class DiskBuilder(object):
             )
             squashed_root.create_on_file(
                 filename=squashed_root_file.name,
-                exclude=self.__get_exclude_list_for_root_data_sync(device_map)
+                exclude=self._get_exclude_list_for_root_data_sync(device_map)
             )
             Command.run(
                 [
@@ -415,11 +415,11 @@ class DiskBuilder(object):
             )
         else:
             self.system.sync_data(
-                self.__get_exclude_list_for_root_data_sync(device_map)
+                self._get_exclude_list_for_root_data_sync(device_map)
             )
 
         # install boot loader
-        self.__install_bootloader(device_map)
+        self._install_bootloader(device_map)
 
         self.result.add(
             key='disk_image',
@@ -487,18 +487,18 @@ class DiskBuilder(object):
 
         return self.result
 
-    def __setup_selinux_file_contexts(self):
+    def _setup_selinux_file_contexts(self):
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
         if os.path.exists(self.root_dir + security_context):
             self.system_setup.set_selinux_file_contexts(
                 security_context
             )
 
-    def __install_image_requested(self):
+    def _install_image_requested(self):
         if self.install_iso or self.install_stick or self.install_pxe:
             return True
 
-    def __get_exclude_list_for_root_data_sync(self, device_map):
+    def _get_exclude_list_for_root_data_sync(self, device_map):
         exclude_list = [
             'image', '.profile', '.kconfig',
             Defaults.get_shared_cache_location()
@@ -514,10 +514,10 @@ class DiskBuilder(object):
             exclude_list.append('boot/efi/.*')
         return exclude_list
 
-    def __get_exclude_list_for_boot_data_sync(self):
+    def _get_exclude_list_for_boot_data_sync(self):
         return ['efi/*']
 
-    def __build_boot_filesystems(self, device_map):
+    def _build_boot_filesystems(self, device_map):
         if 'efi' in device_map:
             log.info(
                 'Creating EFI(fat16) filesystem on %s',
@@ -551,7 +551,7 @@ class DiskBuilder(object):
             )
             self.system_boot = filesystem
 
-    def __build_and_map_disk_partitions(self):
+    def _build_and_map_disk_partitions(self):
         self.disk.wipe()
         if self.firmware.vboot_mode():
             log.info('--> creating Virtual boot partition')
@@ -627,7 +627,7 @@ class DiskBuilder(object):
         self.disk.map_partitions()
         return self.disk.get_device()
 
-    def __write_partition_id_config_to_boot_image(self):
+    def _write_partition_id_config_to_boot_image(self):
         log.info('Creating config.partids in boot system')
         filename = self.boot_image.boot_root_directory + '/config.partids'
         partition_id_map = self.disk.get_public_partition_id_map()
@@ -635,27 +635,27 @@ class DiskBuilder(object):
             for id_name, id_value in list(partition_id_map.items()):
                 partids.write('%s="%s"\n' % (id_name, id_value))
 
-    def __write_raid_config_to_boot_image(self):
+    def _write_raid_config_to_boot_image(self):
         if self.mdraid:
             log.info('Creating etc/mdadm.conf in boot system')
             self.raid_root.create_raid_config(
                 self.boot_image.boot_root_directory + '/etc/mdadm.conf'
             )
 
-    def __write_crypttab_to_system_image(self):
+    def _write_crypttab_to_system_image(self):
         if self.luks:
             log.info('Creating etc/crypttab')
             self.luks_root.create_crypttab(
                 self.root_dir + '/etc/crypttab'
             )
 
-    def __write_image_identifier_to_system_image(self):
+    def _write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())
         self.mbrid.write(
             self.root_dir + '/boot/mbrid'
         )
 
-    def __write_recovery_metadata_to_boot_image(self):
+    def _write_recovery_metadata_to_boot_image(self):
         if os.path.exists(self.root_dir + '/recovery.partition.size'):
             log.info('Copying recovery metadata to boot image')
             Command.run(
@@ -665,9 +665,9 @@ class DiskBuilder(object):
                 ]
             )
 
-    def __write_bootloader_config_to_system_image(self, device_map):
+    def _write_bootloader_config_to_system_image(self, device_map):
         log.info('Creating %s bootloader configuration', self.bootloader)
-        boot_names = self.__get_boot_names()
+        boot_names = self._get_boot_names()
         boot_device = device_map['root']
         if 'boot' in device_map:
             boot_device = device_map['boot']
@@ -692,7 +692,7 @@ class DiskBuilder(object):
             self.requested_filesystem, boot_partition_id
         )
 
-    def __install_bootloader(self, device_map):
+    def _install_bootloader(self, device_map):
         root_device = device_map['root']
         boot_device = root_device
         if 'boot' in device_map:
@@ -734,10 +734,10 @@ class DiskBuilder(object):
             self.diskname, boot_device.get_device()
         )
 
-    def __copy_first_boot_files_to_system_image(self):
+    def _copy_first_boot_files_to_system_image(self):
         log.info('Copy boot files to system image')
         kernel = Kernel(self.boot_image.boot_root_directory)
-        boot_names = self.__get_boot_names()
+        boot_names = self._get_boot_names()
 
         log.info('--> boot image kernel as %s', boot_names.kernel_name)
         kernel.copy_kernel(
@@ -764,7 +764,7 @@ class DiskBuilder(object):
             ]
         )
 
-    def __get_boot_names(self):
+    def _get_boot_names(self):
         boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
         )

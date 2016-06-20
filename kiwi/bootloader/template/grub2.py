@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from string import Template
 from textwrap import dedent
 
@@ -24,14 +25,12 @@ class BootLoaderTemplateGrub2(object):
     grub2 configuraton file templates
     """
     def __init__(self):
-        self.cr = '\n'
-
         self.header = dedent('''
             # kiwi generated one time grub2 config file
             search ${search_params}
             set default=${default_boot}
             set timeout=${boot_timeout}
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.header_hybrid = dedent('''
             set linux=linux
@@ -42,7 +41,7 @@ class BootLoaderTemplateGrub2(object):
                     set initrd=initrdefi
                 fi
             fi
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.header_gfxterm = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
@@ -52,35 +51,35 @@ class BootLoaderTemplateGrub2(object):
             insmod all_video
             insmod gfxterm
             terminal_output gfxterm
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.header_serial = dedent('''
             serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1
             terminal_input serial
             terminal_output serial
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.header_theme = dedent('''
             set font=($$root)${bootpath}/unicode.pf2
-            if loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2;then
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans10.pf2
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans12.pf2
-                loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2
-                set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
-            fi
-        ''').strip() + self.cr
+            # Try loading some extra fonts
+            loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2;then
+            loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
+            loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans10.pf2
+            loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans12.pf2
+            loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2
+            set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+        ''').strip() + os.linesep
 
         self.header_theme_iso = dedent('''
             set font=($$root)/boot/unicode.pf2
-            if loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2;then
-                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans10.pf2
-                loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans12.pf2
-                loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2
-                set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
-            fi
-        ''').strip() + self.cr
+            # Try loading some extra fonts
+            loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2;then
+            loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
+            loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans10.pf2
+            loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans12.pf2
+            loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2
+            set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
+        ''').strip() + os.linesep
 
         self.menu_entry_console_switch = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
@@ -89,7 +88,7 @@ class BootLoaderTemplateGrub2(object):
                     terminal_output console
                 }
             fi
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_entry_hybrid = dedent('''
             menuentry "${title}" --class os --unrestricted {
@@ -99,7 +98,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_entry_multiboot = dedent('''
             menuentry "${title}" --class os --unrestricted {
@@ -111,7 +110,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_entry = dedent('''
             menuentry "${title}" --class os --unrestricted {
@@ -121,7 +120,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
@@ -131,7 +130,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_entry_failsafe_multiboot = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
@@ -143,7 +142,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_entry_failsafe = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
@@ -153,7 +152,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_install_entry_hybrid = dedent('''
             menuentry "Install ${title}" --class os --unrestricted {
@@ -163,7 +162,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_install_entry_multiboot = dedent('''
             menuentry "Install -- ${title}" --class os --unrestricted {
@@ -175,7 +174,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_install_entry = dedent('''
             menuentry "Install ${title}" --class os --unrestricted {
@@ -185,7 +184,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_install_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
@@ -195,7 +194,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_install_entry_failsafe_multiboot = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
@@ -207,7 +206,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_install_entry_failsafe = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
@@ -217,14 +216,14 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
         self.menu_iso_harddisk_entry = dedent('''
             menuentry "Boot from Hard Disk" --class os --unrestricted {
                 search --set=root --label EFI
                 chainloader ($${root})/EFI/BOOT/bootx64.efi
             }
-        ''').strip() + self.cr
+        ''').strip() + os.linesep
 
     def get_disk_template(
         self, failsafe=True, hybrid=True, terminal='gfxterm'

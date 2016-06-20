@@ -63,6 +63,10 @@ class TestRepositoryZypper(object):
             '../data/shared-dir/zypper/repos/foo.repo'
         )
         assert mock_command.call_args_list == [
+            call([
+                'mv', '-f',
+                '/shared-dir/packages', '/shared-dir/packages.moved'
+            ]),
             call(
                 ['zypper'] + self.repo.zypper_args + [
                     '--root', '../data',
@@ -79,7 +83,11 @@ class TestRepositoryZypper(object):
                     '--root', '../data',
                     'modifyrepo', '--priority', '42', 'foo'
                 ], self.repo.command_env
-            )
+            ),
+            call([
+                'mv', '-f',
+                '/shared-dir/packages.moved', '/shared-dir/packages'
+            ])
         ]
 
     @patch('kiwi.command.Command.run')
@@ -117,3 +125,12 @@ class TestRepositoryZypper(object):
             call([
                 'mkdir', '-p', '../data/shared-dir/zypper/repos'
             ])
+
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    def test_destructor(self, mock_exists, mock_command):
+        mock_exists.return_value = True
+        self.repo.__del__()
+        mock_command.assert_called_once_with(
+            ['mv', '-f', '/shared-dir/packages.moved', '/shared-dir/packages']
+        )

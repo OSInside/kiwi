@@ -43,7 +43,7 @@ class TestResultBundleTask(object):
         )
         self.task = ResultBundleTask()
 
-    def __init_command_args(self):
+    def _init_command_args(self):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['bundle'] = False
@@ -53,7 +53,7 @@ class TestResultBundleTask(object):
 
     @raises(KiwiBundleError)
     def test_process_invalid_bundle_directory(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['--bundle-dir'] = \
             self.task.command_args['--target-dir']
         self.task.command_args['bundle'] = True
@@ -78,7 +78,7 @@ class TestResultBundleTask(object):
         mock_exists.return_value = False
         mock_open.return_value = self.context_manager_mock
         mock_load.return_value = self.result
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['bundle'] = True
 
         self.task.process()
@@ -100,7 +100,7 @@ class TestResultBundleTask(object):
         checksum.sha256.assert_called_once_with()
 
     def test_process_result_bundle_help(self):
-        self.__init_command_args()
+        self._init_command_args()
         self.task.command_args['help'] = True
         self.task.command_args['bundle'] = True
         self.task.process()

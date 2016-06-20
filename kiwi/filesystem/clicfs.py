@@ -65,7 +65,7 @@ class FileSystemClicFs(FileSystemBase):
         clicfs_container_filesystem = self.container_dir + '/fsdata.ext4'
         loop_provider = LoopDevice(
             clicfs_container_filesystem,
-            self.__get_container_filesystem_size_mbytes()
+            self._get_container_filesystem_size_mbytes()
         )
         loop_provider.create()
         filesystem = FileSystemExt4(
@@ -85,7 +85,7 @@ class FileSystemClicFs(FileSystemBase):
             ['mkclicfs', clicfs_container_filesystem, filename]
         )
 
-    def __get_container_filesystem_size_mbytes(self):
+    def _get_container_filesystem_size_mbytes(self):
         size = SystemSize(self.root_dir)
         root_dir_mbytes = size.accumulate_mbyte_file_sizes()
         return size.customize(root_dir_mbytes, 'ext4')

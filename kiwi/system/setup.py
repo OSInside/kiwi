@@ -89,8 +89,8 @@ class SystemSetup(object):
         self.derived_description_dir = \
             xml_state.xml_data.derived_description_dir
         self.root_dir = root_dir
-        self.__preferences_lookup()
-        self.__oemconfig_lookup()
+        self._preferences_lookup()
+        self._oemconfig_lookup()
 
     def import_description(self):
         """
@@ -105,9 +105,9 @@ class SystemSetup(object):
             config.write('<?xml version="1.0" encoding="utf-8"?>')
             self.xml_state.xml_data.export(outfile=config, level=0)
 
-        self.__import_custom_scripts()
-        self.__import_custom_directories()
-        self.__import_custom_archives()
+        self._import_custom_scripts()
+        self._import_custom_directories()
+        self._import_custom_archives()
 
     def cleanup(self):
         """
@@ -139,6 +139,8 @@ class SystemSetup(object):
                 repo_source = xml_repo.get_source().get_path()
                 repo_alias = xml_repo.get_alias()
                 repo_priority = xml_repo.get_priority()
+                repo_dist = xml_repo.get_distribution()
+                repo_components = xml_repo.get_components()
                 uri = Uri(repo_source, repo_type)
                 repo_source_translated = uri.translate()
                 if not repo_alias:
@@ -148,7 +150,8 @@ class SystemSetup(object):
                 log.info('--> Translated: %s', repo_source_translated)
                 log.info('--> Alias: %s', repo_alias)
                 repo.add_repo(
-                    repo_alias, repo_source_translated, repo_type, repo_priority
+                    repo_alias, repo_source_translated,
+                    repo_type, repo_priority, repo_dist, repo_components
                 )
 
     def import_shell_environment(self, profile):
@@ -310,7 +313,7 @@ class SystemSetup(object):
 
                 options = []
                 if password_format == 'plain':
-                    password = self.__create_passwd_hash(password)
+                    password = self._create_passwd_hash(password)
                 if password:
                     options.append('-p')
                     options.append(password)
@@ -460,13 +463,13 @@ class SystemSetup(object):
         """
         Call config.sh script chrooted
         """
-        self.__call_script('config.sh')
+        self._call_script('config.sh')
 
     def call_image_script(self):
         """
         Call images.sh script chrooted
         """
-        self.__call_script('images.sh')
+        self._call_script('images.sh')
 
     def call_edit_boot_config_script(self, filesystem, boot_part_id):
         """
@@ -478,7 +481,7 @@ class SystemSetup(object):
         :param string filesystem: boot filesystem name
         :param int boot_part_id: boot partition number
         """
-        self.__call_script_no_chroot(
+        self._call_script_no_chroot(
             'edit_boot_config.sh', [filesystem, format(boot_part_id)]
         )
 
@@ -492,7 +495,7 @@ class SystemSetup(object):
         :param string diskname: file path name
         :param string boot_device_node: boot device node name
         """
-        self.__call_script_no_chroot(
+        self._call_script_no_chroot(
             'edit_boot_install.sh', [diskname, boot_device_node]
         )
 
@@ -608,7 +611,7 @@ class SystemSetup(object):
             )
             Path.wipe(metadata['archive_name'] + '.gz')
 
-    def __import_custom_archives(self):
+    def _import_custom_archives(self):
         """
         Import custom tar archive files
         """
@@ -649,11 +652,11 @@ class SystemSetup(object):
                     'Specified archive %s does not exist' % archive_file
                 )
 
-    # NB: we could potentially replace both __import_custom_scripts()
-    # and __import_custom_directories() with a shared
-    # __import_custom_paths() method.  ``cp -r <src> <dst>'' works for
+    # NB: we could potentially replace both _import_custom_scripts()
+    # and _import_custom_directories() with a shared
+    # _import_custom_paths() method.  ``cp -r <src> <dst>'' works for
     # both files and directories.
-    def __import_custom_directories(self):
+    def _import_custom_directories(self):
         """
         Import custom directories adding support for extensions
         """
@@ -676,14 +679,6 @@ class SystemSetup(object):
                     raise KiwiImportDescriptionError(
                         'Specified directory %s does not exist' % path)
 
-    # The reason we use _<methodname> here instead of __<methodname>
-    # against internal convention is that we mock out the method in
-    # some of our testing (and dunder method names aren't easily
-    # changable, see name mangling in the python docs).  I think it's
-    # actually worth converting to PEP3-compliant "weak private" names
-    # that are all single underscore prefixed.  Don't think we
-    # want/need to make these class-specific via name mangling.  But
-    # want to get consensus first.
     def _get_custom_directories(self):
         """
         Return dictionary of custom directory types
@@ -695,7 +690,7 @@ class SystemSetup(object):
         }
         return OrderedDict(sorted(custom_directories.items()))
 
-    def __import_custom_scripts(self):
+    def _import_custom_scripts(self):
         """
         Import custom scripts
         """
@@ -761,7 +756,7 @@ class SystemSetup(object):
                 ]
             )
 
-    def __call_script(self, name):
+    def _call_script(self, name):
         if os.path.exists(self.root_dir + '/image/' + name):
             config_script = Command.call(
                 ['chroot', self.root_dir, 'bash', '/image/' + name]
@@ -775,7 +770,7 @@ class SystemSetup(object):
                     '%s failed: %s' % (name, format(result.stderr))
                 )
 
-    def __call_script_no_chroot(self, name, option_list):
+    def _call_script_no_chroot(self, name, option_list):
         if os.path.exists(self.root_dir + '/image/' + name):
             bash_command = [
                 'cd', self.root_dir, '&&',
@@ -793,13 +788,13 @@ class SystemSetup(object):
                     '%s failed: %s' % (name, format(result.stderr))
                 )
 
-    def __create_passwd_hash(self, password):
+    def _create_passwd_hash(self, password):
         openssl = Command.run(
             ['openssl', 'passwd', '-1', '-salt', 'xyz', password]
         )
         return openssl.output[:-1]
 
-    def __preferences_lookup(self):
+    def _preferences_lookup(self):
         self.preferences = {}
         for preferences in self.xml_state.get_preferences_sections():
             timezone_section = preferences.get_timezone()
@@ -815,7 +810,7 @@ class SystemSetup(object):
             if keytable_section:
                 self.preferences['keytable'] = keytable_section[0]
 
-    def __oemconfig_lookup(self):
+    def _oemconfig_lookup(self):
         self.oemconfig = {
             'recovery_inplace': False,
             'recovery': False
@@ -823,11 +818,11 @@ class SystemSetup(object):
         oemconfig = self.xml_state.get_build_type_oemconfig_section()
         if oemconfig:
             self.oemconfig['recovery'] = \
-                self.__text(oemconfig.get_oem_recovery())
+                self._text(oemconfig.get_oem_recovery())
             self.oemconfig['recovery_inplace'] = \
-                self.__text(oemconfig.get_oem_inplace_recovery())
+                self._text(oemconfig.get_oem_inplace_recovery())
 
-    def __text(self, section_content):
+    def _text(self, section_content):
         """
         Helper method to return the text for XML elements of the
         following structure: <section>text</section>.

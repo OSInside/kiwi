@@ -6,10 +6,6 @@ import mock
 
 from .test_helper import *
 
-from kiwi.exceptions import (
-    KiwiRepoTypeUnknown
-)
-
 from kiwi.repository.yum import RepositoryYum
 from kiwi.system.root_bind import RootBind
 
