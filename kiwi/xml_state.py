@@ -1080,23 +1080,30 @@ class XMLState(object):
         target_delete_packages_sections = target_state.get_packages_sections(
             ['delete']
         )
-        if target_delete_packages_sections:
-            target_delete_packages_section = \
+        if not target_delete_packages_sections:
+            target_delete_packages_sections = [
+                xml_parse.packages(type_='delete')
+            ]
+            target_state.xml_data.add_packages(
                 target_delete_packages_sections[0]
-            packages_sections = self.get_packages_sections(
-                ['image', 'bootstrap', self.get_build_type_name()]
             )
-            package_list = self.get_package_sections(
-                packages_sections
-            )
-            if package_list:
-                for package in package_list:
-                    if package.package_section.get_bootdelete():
-                        target_delete_packages_section.add_package(
-                            xml_parse.package(
-                                name=package.package_section.get_name()
-                            )
+
+        target_delete_packages_section = \
+            target_delete_packages_sections[0]
+        packages_sections = self.get_packages_sections(
+            ['image', 'bootstrap', self.get_build_type_name()]
+        )
+        package_list = self.get_package_sections(
+            packages_sections
+        )
+        if package_list:
+            for package in package_list:
+                if package.package_section.get_bootdelete():
+                    target_delete_packages_section.add_package(
+                        xml_parse.package(
+                            name=package.package_section.get_name()
                         )
+                    )
 
     def get_distribution_name_from_boot_attribute(self):
         """

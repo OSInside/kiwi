@@ -702,6 +702,9 @@ function udevSystemStart {
         udev_bin=/lib/udev/udevd
     fi
     if [ ! -x $udev_bin ];then
+        udev_bin=/lib/systemd/systemd-udevd
+    fi
+    if [ ! -x $udev_bin ];then
         systemException \
             "Can't find udev daemon" \
         "reboot"

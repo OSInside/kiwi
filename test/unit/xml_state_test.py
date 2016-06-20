@@ -393,6 +393,17 @@ class TestXMLState(object):
         to_delete_packages = self.boot_state.get_to_become_deleted_packages()
         assert 'vim' in to_delete_packages
 
+    def test_copy_bootdelete_packages_no_delete_section_in_boot_descr(self):
+        boot_description = XMLDescription(
+            '../data/isoboot/example-distribution-no-delete-section/config.xml'
+        )
+        boot_state = XMLState(
+            boot_description.load()
+        )
+        self.state.copy_bootdelete_packages(boot_state)
+        to_delete_packages = boot_state.get_to_become_deleted_packages()
+        assert 'vim' in to_delete_packages
+
     def test_build_type_size(self):
         result = self.state.get_build_type_size()
         assert result.mbytes == 1024

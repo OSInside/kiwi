@@ -75,6 +75,7 @@
         <file name="awk"/>
         <file name="basename"/>
         <file name="bash"/>
+        <file name="dash"/>
         <file name="bc"/>
         <file name="blkid"/>
         <file name="blockdev"/>
@@ -164,6 +165,7 @@
         <file name="kpartx"/>
         <file name="kpartx_id"/>
         <file name="ldconfig"/>
+        <file name="ldconfig.real"/>
         <file name="ldd"/>
         <file name="ln"/>
         <file name="losetup"/>
