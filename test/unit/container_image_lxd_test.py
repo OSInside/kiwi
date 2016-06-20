@@ -21,22 +21,31 @@ class TestContainerImageLxd(object):
     def setup(self):
         self.lxd = ContainerImageLxd('root_dir')
 
+    @patch('kiwi.container.lxd.lzma', new=True)
     @patch('kiwi.container.lxd.sys')
     def test_get_creation_method_py33plus_yes_lzma_yes_yields_newtype(
         self, mock_sys
     ):
         mock_sys.version_info = (3, 4, 1)
-        self.lxd._has_lzma = mock.Mock(return_value=True)
-        assert self.lxd._get_creation_method() == 'new'
+        self.lxd._create_new = mock.Mock()
+        self.lxd._create_legacy = mock.Mock()
+        self.lxd.create('filename')
+        self.lxd._create_new.assert_called_once_with('filename')
+        self.lxd._create_legacy.assert_not_called()
 
+    @patch('kiwi.container.lxd.lzma', new=None)
     @patch('kiwi.container.lxd.sys')
     def test_get_creation_method_py33plus_yes_lzma_no_yields_legacytype(
         self, mock_sys
     ):
         mock_sys.version_info = (3, 4, 1)
-        self.lxd._has_lzma = mock.Mock(return_value=False)
-        assert self.lxd._get_creation_method() == 'legacy'
+        self.lxd._create_new = mock.Mock()
+        self.lxd._create_legacy = mock.Mock()
+        self.lxd.create('filename')
+        self.lxd._create_new.assert_not_called()
+        self.lxd._create_legacy.assert_called_once_with('filename')
 
+    @patch('kiwi.container.lxd.lzma', new=True)
     @patch('kiwi.container.lxd.sys')
     def test_get_creation_method_py33plus_no_lzma_yes_yields_legacytype(
         self, mock_sys
@@ -44,36 +53,23 @@ class TestContainerImageLxd(object):
         # I actually don't think this combination is seen in the wild,
         # but might as finish this for completeness sake.
         mock_sys.version_info = (3, 0)
-        self.lxd._has_lzma = mock.Mock(return_value=True)
-        assert self.lxd._get_creation_method() == 'legacy'
+        self.lxd._create_new = mock.Mock()
+        self.lxd._create_legacy = mock.Mock()
+        self.lxd.create('filename')
+        self.lxd._create_new.assert_not_called()
+        self.lxd._create_legacy.assert_called_once_with('filename')
 
+    @patch('kiwi.container.lxd.lzma', new=None)
     @patch('kiwi.container.lxd.sys')
     def test_get_creation_method_py33plus_no_lzma_no_yields_legacytype(
         self, mock_sys
     ):
         mock_sys.version_info = (3, 0)
-        self.lxd._has_lzma = mock.Mock(return_value=False)
-        assert self.lxd._get_creation_method()  == 'legacy'
-
-    def test_create_on_newstyle(self):
-        self.lxd._get_creation_method = mock.Mock(return_value='new')
-        mock_new = mock.Mock()
-        mock_legacy = mock.Mock()
-        self.lxd._create_new = mock_new
-        self.lxd._create_legacy = mock_legacy
+        self.lxd._create_new = mock.Mock()
+        self.lxd._create_legacy = mock.Mock()
         self.lxd.create('filename')
-        mock_new.assert_called_with('filename')
-        assert not mock_legacy.mock_calls
-
-    def test_create_on_legacystyle(self):
-        self.lxd._get_creation_method = mock.Mock(return_value='legacy')
-        mock_new = mock.Mock()
-        mock_legacy = mock.Mock()
-        self.lxd._create_new = mock_new
-        self.lxd._create_legacy = mock_legacy
-        self.lxd.create('filename')
-        assert not mock_new.mock_calls
-        mock_legacy.assert_called_with('filename')
+        self.lxd._create_new.assert_not_called()
+        self.lxd._create_legacy.assert_called_once_with('filename')
 
     @patch('kiwi.container.lxd.time.time')
     @patch('kiwi.container.lxd.platform.machine')

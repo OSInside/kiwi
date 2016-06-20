@@ -25,6 +25,12 @@ import tempfile
 import shutil
 import tarfile
 
+# lzma not available on python v2.x
+try:
+    import lzma
+except ImportError as err:  # pragma: no cover
+    lzma = None
+
 # project
 from ..archive.tar import ArchiveTar
 from ..defaults import Defaults
@@ -90,34 +96,10 @@ class ContainerImageLxd(object):
         #     requires an extra copy of the root_dir (yuck!)
         # (2) the new mode works with py v3.3+ (built with lzma
         #     support)
-        #
-        # Note also that this "different branches for different
-        # versions of Python" can give us coverage trouble given the
-        # current setup of tox/pytest arguments.  Except that our
-        # testing will be more unit-style and less end-to-end.
-        # Another solution to this (and is probably a Good Idea
-        # regardless) would be to rearchitect our tox/pytest setup to
-        # combine coverage for every environment and use that number
-        # in measuring our threshold compliance.
-        creation_method = self._get_creation_method()
-        if creation_method == 'new':
+        if sys.version_info >= (3, 3) and lzma is not None:
             self._create_new(filename)
         else:
             self._create_legacy(filename)
-
-    def _get_creation_method(self):
-        if sys.version_info >= (3, 3) and self._has_lzma():
-            return 'new'
-        else:
-            return 'legacy'
-
-    def _has_lzma(self):  # pragma: no cover
-        try:              # ... bit tricky to cover missing imports
-            import lzma
-            lzma.is_check_supported(lzma.CHECK_NONE)  # to remedy "unused import" chirp
-            return True
-        except:
-            return False
 
     def _get_metadata_yaml(self):
         user_metadata_yaml_path = os.path.join(
