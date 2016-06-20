@@ -1748,7 +1748,7 @@ function baseStripKernel {
     # ----
     baseCreateCommonKernelFile
     if [ "$kiwi_initrd_system" = "dracut" ]; then
-        echo "dracut initrd system requested, initrd strip skipped"
+        echo "dracut initrd system requested, kernel strip skipped"
     else
         baseCreateKernelTree
         baseStripKernelModules
