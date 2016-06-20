@@ -114,7 +114,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'host architecture %s not supported for grub2 setup' % arch
             )
 
-        self.terminal = 'gfxterm'
+        self.terminal = self.xml_state.build_type.get_bootloader_console() \
+            or 'gfxterm'
         self.gfxmode = self.get_gfxmode('grub2')
         self.bootpath = self.get_boot_path()
         self.theme = self.get_boot_theme()
@@ -507,6 +508,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             else:
                 log.warning('Theme %s not found', theme_dir)
+                log.warning('Set bootloader terminal to console mode')
+                self.terminal = 'console'
 
     def _copy_efi_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(

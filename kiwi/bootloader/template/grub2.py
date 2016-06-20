@@ -59,6 +59,11 @@ class BootLoaderTemplateGrub2(object):
             terminal_output serial
         ''').strip() + os.linesep
 
+        self.header_textconsole = dedent('''
+            terminal_input console
+            terminal_output console
+        ''').strip() + os.linesep
+
         self.header_theme = dedent('''
             set font=($$root)${bootpath}/unicode.pf2
             # Try loading some extra fonts
@@ -93,7 +98,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_entry_hybrid = dedent('''
             menuentry "${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 $$linux ($$root)${bootpath}/${kernel_file} ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
@@ -105,7 +109,6 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 module ${bootpath}/${kernel_file} dummy ${boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
@@ -115,7 +118,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_entry = dedent('''
             menuentry "${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 linux ($$root)${bootpath}/${kernel_file} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
@@ -125,7 +127,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 $$linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
@@ -137,7 +138,6 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 module ${bootpath}/${kernel_file} dummy ${failsafe_boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
@@ -147,7 +147,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_entry_failsafe = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
@@ -157,7 +156,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_install_entry_hybrid = dedent('''
             menuentry "Install ${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
@@ -169,7 +167,6 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 module ${bootpath}/${kernel_file} dummy cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
@@ -179,7 +176,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_install_entry = dedent('''
             menuentry "Install ${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
@@ -189,7 +185,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_install_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
@@ -201,7 +196,6 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 module ${bootpath}/${kernel_file} dummy cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
@@ -211,7 +205,6 @@ class BootLoaderTemplateGrub2(object):
         self.menu_install_entry_failsafe = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
                 echo Loading kernel...
-                set gfxpayload=${gfxmode}
                 linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
@@ -242,9 +235,11 @@ class BootLoaderTemplateGrub2(object):
             template_data += '\n' + self.header_hybrid
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
-        else:
+            template_data += self.header_theme
+        elif terminal == 'serial':
             template_data += self.header_serial
-        template_data += self.header_theme
+        else:
+            template_data += self.header_textconsole
         if hybrid:
             template_data += self.menu_entry_hybrid
             if failsafe:
@@ -272,9 +267,11 @@ class BootLoaderTemplateGrub2(object):
         template_data = self.header
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
-        else:
+            template_data += self.header_theme
+        elif terminal == 'serial':
             template_data += self.header_serial
-        template_data += self.header_theme
+        else:
+            template_data += self.header_textconsole
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
@@ -299,9 +296,11 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.header_hybrid
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
-        else:
+            template_data += self.header_theme_iso
+        elif terminal == 'serial':
             template_data += self.header_serial
-        template_data += self.header_theme_iso
+        else:
+            template_data += self.header_textconsole
         if hybrid:
             template_data += self.menu_entry_hybrid
             if failsafe:
@@ -330,9 +329,11 @@ class BootLoaderTemplateGrub2(object):
         template_data = self.header
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
-        else:
+            template_data += self.header_theme_iso
+        elif terminal == 'serial':
             template_data += self.header_serial
-        template_data += self.header_theme_iso
+        else:
+            template_data += self.header_textconsole
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
@@ -358,9 +359,11 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.header_hybrid
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
-        else:
+            template_data += self.header_theme_iso
+        elif terminal == 'serial':
             template_data += self.header_serial
-        template_data += self.header_theme_iso
+        else:
+            template_data += self.header_textconsole
         template_data += self.menu_iso_harddisk_entry
         if hybrid:
             template_data += self.menu_install_entry_hybrid
@@ -389,9 +392,11 @@ class BootLoaderTemplateGrub2(object):
         template_data = self.header
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
-        else:
+            template_data += self.header_theme_iso
+        elif terminal == 'serial':
             template_data += self.header_serial
-        template_data += self.header_theme_iso
+        else:
+            template_data += self.header_textconsole
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:

@@ -628,6 +628,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_warn.called
+        assert self.bootloader.terminal == 'console'
 
     @patch('kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_install_boot_images')
     def test_setup_live_boot_images(self, mock_setup_install_boot_images):
