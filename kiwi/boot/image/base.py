@@ -195,6 +195,7 @@ class BootImageBase(object):
         type_attributes = [
             'bootkernel',
             'bootloader',
+            'bootloader_console',
             'bootprofile',
             'boottimeout',
             'btrfs_root_is_snapshot',

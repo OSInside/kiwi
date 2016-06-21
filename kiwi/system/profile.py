@@ -267,6 +267,7 @@ class Profile(object):
         # kiwi_cmdline
         # kiwi_firmware
         # kiwi_bootloader
+        # kiwi_bootloader_console
         # kiwi_devicepersistency
         # kiwi_installboot
         # kiwi_bootkernel
@@ -301,6 +302,8 @@ class Profile(object):
             type_section.get_firmware()
         self.dot_profile['kiwi_bootloader'] = \
             type_section.get_bootloader()
+        self.dot_profile['kiwi_bootloader_console'] = \
+            type_section.get_bootloader_console()
         self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
             type_section.get_btrfs_root_is_snapshot()
         self.dot_profile['kiwi_gpt_hybrid_mbr'] = \
