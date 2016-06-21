@@ -1978,10 +1978,14 @@ EOF
     #======================================
     # set terminal mode
     #--------------------------------------
-    if [ -e $unifont ];then
-        echo "GRUB_TERMINAL=gfxterm"  >> $inst_default_grub
-    else
-        echo "GRUB_TERMINAL=console"  >> $inst_default_grub
+    if [ -z "$kiwi_bootloader_console" ];then
+        kiwi_bootloader_console=gfxterm
+    fi
+    echo "GRUB_TERMINAL=$kiwi_bootloader_console"  >> $inst_default_grub
+    if [ "$kiwi_bootloader_console" = "serial" ];then
+        local serial
+        serial="serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"
+        echo "GRUB_SERIAL_COMMAND=\"$serial\"" >> $inst_default_grub
     fi
     #======================================
     # write etc/default/grub_installdevice
