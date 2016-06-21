@@ -493,8 +493,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     'Unicode font %s not found' % unicode_font
                 )
 
-        boot_theme_dir = self.root_dir + '/boot/' + \
-            self.boot_directory_name + '/themes'
+        boot_theme_dir = os.sep.join(
+            [self.root_dir, 'boot', self.boot_directory_name, 'themes']
+        )
         if self.theme and not os.path.exists(boot_theme_dir):
             Path.create(boot_theme_dir)
             theme_dir = self._find_grub_data(lookup_path + '/usr/share') + \
@@ -506,7 +507,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 data.sync_data(
                     options=['-z', '-a']
                 )
-            else:
+
+        self._check_boot_theme_exists(lookup_path)
+
+    def _check_boot_theme_exists(self, lookup_path):
+        if self.theme:
+            theme_dir = os.sep.join(
+                [
+                    self.root_dir, 'boot', self.boot_directory_name,
+                    'themes', self.theme
+                ]
+            )
+            if not os.path.exists(theme_dir):
                 log.warning('Theme %s not found', theme_dir)
                 log.warning('Set bootloader terminal to console mode')
                 self.terminal = 'console'

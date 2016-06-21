@@ -565,6 +565,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/boot/grub2/themes'] = False
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = True
+        self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -621,6 +622,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
