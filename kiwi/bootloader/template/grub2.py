@@ -115,6 +115,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_entry_hybrid = dedent('''
             menuentry "${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 $$linux ($$root)${bootpath}/${kernel_file} ${boot_options}
                 echo Loading initrd...
@@ -124,6 +125,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_entry_multiboot = dedent('''
             menuentry "${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
@@ -135,6 +137,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_entry = dedent('''
             menuentry "${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 linux ($$root)${bootpath}/${kernel_file} ${boot_options}
                 echo Loading initrd...
@@ -144,6 +147,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 $$linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
                 echo Loading initrd...
@@ -153,6 +157,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_entry_failsafe_multiboot = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
@@ -164,6 +169,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_entry_failsafe = dedent('''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
                 echo Loading initrd...
@@ -173,6 +179,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_install_entry_hybrid = dedent('''
             menuentry "Install ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
                 echo Loading initrd...
@@ -182,6 +189,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_install_entry_multiboot = dedent('''
             menuentry "Install -- ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
@@ -193,6 +201,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_install_entry = dedent('''
             menuentry "Install ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
                 echo Loading initrd...
@@ -202,6 +211,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_install_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
@@ -211,6 +221,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_install_entry_failsafe_multiboot = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
@@ -222,6 +233,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_install_entry_failsafe = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
+                set gfxpayload=keep
                 echo Loading kernel...
                 linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
                 echo Loading initrd...
