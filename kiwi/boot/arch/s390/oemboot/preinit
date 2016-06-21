@@ -112,7 +112,6 @@ if [ "$LOCAL_BOOT" = "no" ] && [ ! -z "$kiwi_oemrecovery" ];then
         /etc/sysconfig/kernel \
         /etc/sysconfig/bootloader \
         /etc/grub.conf \
-        /etc/lilo.conf \
         /etc/default/grub \
         /etc/grub.d/40_custom
     do
