@@ -64,25 +64,43 @@ class BootLoaderTemplateGrub2(object):
             terminal_output console
         ''').strip() + os.linesep
 
-        self.header_theme = dedent('''
+        self.fonts = dedent('''
             set font=($$root)${bootpath}/unicode.pf2
-            # Try loading some extra fonts
-            loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2;then
-            loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-            loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans10.pf2
-            loadfont ($$root)${bootpath}/grub2/themes/${theme}/DejaVuSans12.pf2
-            loadfont ($$root)${bootpath}/grub2/themes/${theme}/ascii.pf2
+            set ascii_font=grub2/themes/${theme}/ascii.pf2
+            set sans_bold_14_font=grub2/themes/${theme}/DejaVuSans-Bold14.pf2
+            set sans_10_font=grub2/themes/${theme}/DejaVuSans10.pf2
+            set sans_12_font=grub2/themes/${theme}/DejaVuSans12.pf2
+        ''').strip() + os.linesep
+
+        self.header_theme = self.fonts + dedent('''
+            if [ -f ($$root)${bootpath}/$${ascii_font} ];then
+                loadfont ($$root)${bootpath}/$${ascii_font}
+            fi
+            if [ -f ($$root)${bootpath}/$${sans_bold_14_font} ];then
+                loadfont ($$root)${bootpath}/$${sans_bold_14_font}
+            fi
+            if [ -f ($$root)${bootpath}/$${sans_10_font} ];then
+                loadfont ($$root)${bootpath}/$${sans_10_font}
+            fi
+            if [ -f ($$root)${bootpath}/$${sans_12_font} ];then
+                loadfont ($$root)${bootpath}/$${sans_12_font}
+            fi
             set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
         ''').strip() + os.linesep
 
-        self.header_theme_iso = dedent('''
-            set font=($$root)/boot/unicode.pf2
-            # Try loading some extra fonts
-            loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2;then
-            loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-            loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans10.pf2
-            loadfont ($$root)/boot/grub2/themes/${theme}/DejaVuSans12.pf2
-            loadfont ($$root)/boot/grub2/themes/${theme}/ascii.pf2
+        self.header_theme_iso = self.fonts + dedent('''
+            if [ -f ($$root)/boot/$${ascii_font} ];then
+                loadfont ($$root)/boot/$${ascii_font}
+            fi
+            if [ -f ($$root)/boot/$${sans_bold_14_font} ];then
+                loadfont ($$root)/boot/$${sans_bold_14_font}
+            fi
+            if [ -f ($$root)/boot/$${sans_10_font} ];then
+                loadfont ($$root)/boot/$${sans_10_font}
+            fi
+            if [ -f ($$root)/boot/$${sans_12_font} ];then
+                loadfont ($$root)/boot/$${sans_12_font}
+            fi
             set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
         ''').strip() + os.linesep
 
