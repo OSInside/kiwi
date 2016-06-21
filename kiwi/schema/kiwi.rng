@@ -2085,6 +2085,18 @@ At the moment grub, zipl and sys|extlinux are supported</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.type.bootloader_console.attribute">
+      <attribute name="bootloader_console">
+        <a:documentation>Specifies the bootloader console.
+The value only has an effect for the grub bootloader.
+By default a graphics console setup is used</a:documentation>
+        <choice>
+          <value>console</value>
+          <value>gfxterm</value>
+          <value>serial</value>
+        </choice>
+      </attribute>
+    </define>
     <define name="k.type.btrfs_root_is_snapshot">
       <attribute name="btrfs_root_is_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
@@ -2526,6 +2538,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bootloader.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.bootloader_console.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.zipl_targettype.attribute"/>

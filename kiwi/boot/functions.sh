@@ -1201,7 +1201,6 @@ function installBootLoaderGrub2 {
     local confFile_grub=$confFile_grub_bios
     local bios_grub=/boot/grub2/i386-pc
     local product=/etc/products.d/baseproduct
-    local elilo_efi=/usr/lib64/efi/elilo.efi
     local grub_efi=/boot/efi/EFI/BOOT/grub.efi
     local isEFI=0
     #======================================
@@ -1217,110 +1216,6 @@ function installBootLoaderGrub2 {
                 return 1
             fi
             isEFI=1
-        fi
-    fi
-    #======================================
-    # check for elilo compat mode
-    #--------------------------------------
-    export elilo_compat=0
-    if [ $isEFI -eq 1 ] && [ -e $product ] && [ -e $elilo_efi ];then
-        local product=$(readlink $product)
-        local vendor=SuSE
-        local efipath=/boot/efi/EFI
-        if [[ "$product" =~ "SUSE_SLE" ]];then
-            #======================================
-            # check for recovery uuid
-            #--------------------------------------
-            if [ -z "$reco_uuid" ]; then
-                reco_uuid=$(blkid -o value -s UUID -t LABEL=recovery)
-            fi
-            #======================================
-            # check for bootloader displayname
-            #--------------------------------------
-            if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
-                kiwi_oemtitle=$kiwi_displayname
-            fi
-            #======================================
-            # write elilo.conf
-            #--------------------------------------
-            . /etc/default/grub
-            local timeout=10
-            if [ ! -z "$kiwi_boot_timeout" ];then
-                timeout=$kiwi_boot_timeout
-            fi
-cat > /etc/elilo.conf << EOF
-# Modified by YaST2.
-timeout = $timeout
-##YaST - boot_efilabel = "$kiwi_oemtitle"
-vendor-directory = $vendor
-secure-boot = on
-prompt
-image  = /boot/vmlinuz
-###Don't change this comment - YaST2 identifier: Original name: linux###
-initrd = /boot/initrd
-label  = linux
-append = "$GRUB_CMDLINE_LINUX_DEFAULT"
-description = "$kiwi_oemtitle"
-root = $(getDiskID $imageRootDevice)
-EOF
-            #====================================================
-            # setup kernel symlinks
-            #----------------------------------------------------
-            local kversion=$(uname -r)
-            ln -sf /boot/vmlinuz-$kversion /boot/vmlinuz
-            ln -sf /boot/initrd-$kversion /boot/initrd
-            #====================================================
-            # create vendor directory
-            #----------------------------------------------------
-            mkdir -p $efipath/$vendor
-            #======================================
-            # update sysconfig/bootloader
-            #--------------------------------------
-            sed -i -e s'@LOADER_TYPE.*@LOADER_TYPE="elilo"@' \
-                /etc/sysconfig/bootloader
-            #======================================
-            # set up boot files and configurations
-            #--------------------------------------
-            # create elilo.conf and grub.cfg and
-            # copy boot files to /boot/efi
-            # ----
-            elilo -vv
-            #====================================================
-            # Append recovery entry to elilo written grub.cfg
-            #----------------------------------------------------
-            if [ "$kiwi_oemrecovery" = "true" ];then
-cat >> $efipath/$vendor/grub.cfg << EOF
-menuentry 'Recovery' --class os {
-    search --no-floppy --fs-uuid --set=root $reco_uuid
-    configfile /boot/grub2/grub.cfg
-}
-EOF
-            fi
-            #======================================
-            # write efi variable to NvRam
-            #--------------------------------------
-            # this is for the efi boot manager to show a better
-            # title for this system
-            # ----
-            elilo --refresh-EBM -vv
-            #====================================================
-            # create versionized kernel/initrd
-            #----------------------------------------------------
-            cp -a $efipath/$vendor/vmlinuz $efipath/$vendor/vmlinuz-$kversion
-            cp -a $efipath/$vendor/initrd $efipath/$vendor/initrd-$kversion
-            #====================================================
-            # sync vendor directory with standard boot path
-            #----------------------------------------------------
-            cp -a $efipath/$vendor/* $efipath/BOOT
-            #======================================
-            # set flag to indicate elilo is used
-            #--------------------------------------
-            elilo_compat=1
-            #======================================
-            # return early for elilo case
-            #--------------------------------------
-            mountpoint -q /boot/efi && umount /boot/efi
-            return 0
         fi
     fi
     if ! lookup $confTool &>/dev/null;then
@@ -1411,16 +1306,6 @@ function installBootLoaderGrub2Recovery {
             fi
             isEFI=1
         fi
-    fi
-    #======================================
-    # check for elilo compat mode
-    #--------------------------------------
-    if [ "$elilo_compat" -eq 1 ];then
-        # the recovery menu entry has been appended already
-        # as part of the regular installBootLoaderGrub2. This is
-        # done to ensure the entry is recreated after a recovery
-        # run because elilo doesn't support that
-        return 0
     fi
     #======================================
     # check tool status
@@ -2093,10 +1978,14 @@ EOF
     #======================================
     # set terminal mode
     #--------------------------------------
-    if [ -e $unifont ];then
-        echo "GRUB_TERMINAL=gfxterm"  >> $inst_default_grub
-    else
-        echo "GRUB_TERMINAL=console"  >> $inst_default_grub
+    if [ -z "$kiwi_bootloader_console" ];then
+        kiwi_bootloader_console=gfxterm
+    fi
+    echo "GRUB_TERMINAL=$kiwi_bootloader_console"  >> $inst_default_grub
+    if [ "$kiwi_bootloader_console" = "serial" ];then
+        local serial
+        serial="serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"
+        echo "GRUB_SERIAL_COMMAND=\"$serial\"" >> $inst_default_grub
     fi
     #======================================
     # write etc/default/grub_installdevice

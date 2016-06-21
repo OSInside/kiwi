@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Fri Jun  3 11:59:04 2016 by generateDS.py version 2.19b.
+# Generated Mon Jun 20 17:54:01 2016 by generateDS.py version 2.19b.
 #
 # Command line options:
 #   ('-f', '')
@@ -2546,13 +2546,14 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
         self.firmware = _cast(None, firmware)
         self.bootkernel = _cast(None, bootkernel)
         self.bootloader = _cast(None, bootloader)
+        self.bootloader_console = _cast(None, bootloader_console)
         self.zipl_targettype = _cast(None, zipl_targettype)
         self.bootpartition = _cast(bool, bootpartition)
         self.bootpartsize = _cast(int, bootpartsize)
@@ -2672,6 +2673,8 @@ class type_(GeneratedsSuper):
     def set_bootkernel(self, bootkernel): self.bootkernel = bootkernel
     def get_bootloader(self): return self.bootloader
     def set_bootloader(self, bootloader): self.bootloader = bootloader
+    def get_bootloader_console(self): return self.bootloader_console
+    def set_bootloader_console(self, bootloader_console): self.bootloader_console = bootloader_console
     def get_zipl_targettype(self): return self.zipl_targettype
     def set_zipl_targettype(self, zipl_targettype): self.zipl_targettype = zipl_targettype
     def get_bootpartition(self): return self.bootpartition
@@ -2806,6 +2809,9 @@ class type_(GeneratedsSuper):
         if self.bootloader is not None and 'bootloader' not in already_processed:
             already_processed.add('bootloader')
             outfile.write(' bootloader=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootloader), input_name='bootloader')), ))
+        if self.bootloader_console is not None and 'bootloader_console' not in already_processed:
+            already_processed.add('bootloader_console')
+            outfile.write(' bootloader_console=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootloader_console), input_name='bootloader_console')), ))
         if self.zipl_targettype is not None and 'zipl_targettype' not in already_processed:
             already_processed.add('zipl_targettype')
             outfile.write(' zipl_targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.zipl_targettype), input_name='zipl_targettype')), ))
@@ -2986,6 +2992,11 @@ class type_(GeneratedsSuper):
             already_processed.add('bootloader')
             self.bootloader = value
             self.bootloader = ' '.join(self.bootloader.split())
+        value = find_attr_value_('bootloader_console', node)
+        if value is not None and 'bootloader_console' not in already_processed:
+            already_processed.add('bootloader_console')
+            self.bootloader_console = value
+            self.bootloader_console = ' '.join(self.bootloader_console.split())
         value = find_attr_value_('zipl_targettype', node)
         if value is not None and 'zipl_targettype' not in already_processed:
             already_processed.add('zipl_targettype')

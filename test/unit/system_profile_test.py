@@ -42,6 +42,7 @@ class TestProfile(object):
             'kiwi_compressed': None,
             'kiwi_delete': '',
             'kiwi_devicepersistency': None,
+            'kiwi_bootloader_console': None,
             'kiwi_displayname': 'LimeJeOS-openSUSE-13.2',
             'kiwi_drivers': '',
             'kiwi_firmware': 'efi',

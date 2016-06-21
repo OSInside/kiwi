@@ -114,7 +114,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'host architecture %s not supported for grub2 setup' % arch
             )
 
-        self.terminal = 'gfxterm'
+        self.terminal = self.xml_state.build_type.get_bootloader_console() \
+            or 'gfxterm'
         self.gfxmode = self.get_gfxmode('grub2')
         self.bootpath = self.get_boot_path()
         self.theme = self.get_boot_theme()
@@ -492,8 +493,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     'Unicode font %s not found' % unicode_font
                 )
 
-        boot_theme_dir = self.root_dir + '/boot/' + \
-            self.boot_directory_name + '/themes'
+        boot_theme_dir = os.sep.join(
+            [self.root_dir, 'boot', self.boot_directory_name, 'themes']
+        )
         if self.theme and not os.path.exists(boot_theme_dir):
             Path.create(boot_theme_dir)
             theme_dir = self._find_grub_data(lookup_path + '/usr/share') + \
@@ -505,8 +507,21 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 data.sync_data(
                     options=['-z', '-a']
                 )
-            else:
+
+        self._check_boot_theme_exists(lookup_path)
+
+    def _check_boot_theme_exists(self, lookup_path):
+        if self.theme:
+            theme_dir = os.sep.join(
+                [
+                    self.root_dir, 'boot', self.boot_directory_name,
+                    'themes', self.theme
+                ]
+            )
+            if not os.path.exists(theme_dir):
                 log.warning('Theme %s not found', theme_dir)
+                log.warning('Set bootloader terminal to console mode')
+                self.terminal = 'console'
 
     def _copy_efi_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(

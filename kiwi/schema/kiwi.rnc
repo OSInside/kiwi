@@ -1595,6 +1595,13 @@ div {
         attribute bootloader {
             "grub2" | "zipl" | "grub2_s390x_emu"
         }
+    k.type.bootloader_console.attribute =
+        ## Specifies the bootloader console.
+        ## The value only has an effect for the grub bootloader.
+        ## By default a graphics console setup is used
+        attribute bootloader_console {
+            "console" | "gfxterm" | "serial"
+        }
     k.type.btrfs_root_is_snapshot =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
@@ -1848,6 +1855,7 @@ div {
         k.type.firmware.attribute? &
         k.type.bootkernel.attribute? &
         k.type.bootloader.attribute? &
+        k.type.bootloader_console.attribute? &
         k.type.zipl_targettype.attribute? &
         k.type.bootpartition.attribute? &
         k.type.bootpartsize.attribute? &
