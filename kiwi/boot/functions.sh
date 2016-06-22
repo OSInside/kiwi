@@ -333,7 +333,7 @@ function systemException {
         fi
     done
     hideSplash
-    if [ $enablePlymouth -eq 1 ]; then
+    if lookup plymouthd &>/dev/null && [ $enablePlymouth -eq 1 ]; then
         plymouth quit
     fi
     if [ $what = "reboot" ];then
