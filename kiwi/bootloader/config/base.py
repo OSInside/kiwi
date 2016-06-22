@@ -381,6 +381,5 @@ class BootLoaderConfigBase(object):
                 return 'root=UUID=%s rw' % format(uuid)
             else:
                 log.warning(
-                    '%s firmware needs a root device but no uuid was given',
-                    firmware
+                    'root=UUID=<uuid> setup requested, but uuid is not provided'
                 )
