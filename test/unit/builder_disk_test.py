@@ -1,5 +1,5 @@
-from mock import call
 import mock
+from mock import call
 
 import kiwi
 
@@ -61,8 +61,12 @@ class TestDiskBuilder(object):
         self.disk.get_device = mock.Mock(
             return_value=self.device_map
         )
+        kernel_info = mock.Mock()
+        kernel_info.version = '1.2.3'
         self.kernel = mock.Mock()
-        self.kernel.get_kernel = mock.Mock()
+        self.kernel.get_kernel = mock.Mock(
+            return_value=kernel_info
+        )
         self.kernel.get_xen_hypervisor = mock.Mock()
         self.kernel.copy_kernel = mock.Mock()
         self.kernel.copy_xen_hypervisor = mock.Mock()
@@ -121,6 +125,11 @@ class TestDiskBuilder(object):
         self.setup = mock.Mock()
         kiwi.builder.disk.SystemSetup = mock.Mock(
             return_value=self.setup
+        )
+        self.boot_image_kiwi = mock.Mock()
+        self.boot_image_kiwi.boot_root_directory = 'boot_dir_kiwi'
+        kiwi.builder.disk.BootImageKiwi = mock.Mock(
+            return_value=self.boot_image_kiwi
         )
         self.install_image = mock.Mock()
         kiwi.builder.disk.InstallImageBuilder = mock.Mock(
@@ -192,13 +201,18 @@ class TestDiskBuilder(object):
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_iso = True
         self.disk_builder.install_pxe = True
+        self.disk_builder.initrd_system = 'dracut'
 
         self.disk_builder.create()
 
         self.setup.create_recovery_archive.assert_called_once_with()
-        self.setup.export_modprobe_setup.assert_called_once_with(
-            'boot_dir'
-        )
+        call = self.setup.export_modprobe_setup.call_args_list[0]
+        assert self.setup.export_modprobe_setup.call_args_list[0] == \
+            call('boot_dir')
+        call = self.setup.export_modprobe_setup.call_args_list[1]
+        assert self.setup.export_modprobe_setup.call_args_list[1] == \
+            call('boot_dir_kiwi')
+
         self.setup.set_selinux_file_contexts.assert_called_once_with(
             '/etc/selinux/targeted/contexts/files/file_contexts'
         )
@@ -225,7 +239,7 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            uuid='0815', kernel='linux.vmx', initrd='initrd.vmx'
+            initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3', uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -235,6 +249,9 @@ class TestDiskBuilder(object):
             'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
             '/dev/boot-device'
         )
+
+        self.boot_image_kiwi.prepare.assert_called_once_with()
+
         self.install_image.create_install_iso.assert_called_once_with()
         self.install_image.create_install_pxe_archive.assert_called_once_with()
 
@@ -263,20 +280,24 @@ class TestDiskBuilder(object):
         assert mock_open.call_args_list == [
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
-            call('/dev/some-loop', 'wb')
+            call('/dev/some-loop', 'wb'),
+            call('boot_dir_kiwi/config.partids', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
-            call(bytes(b'\x0f\x0f\x0f\x0f'))
+            call(bytes(b'\x0f\x0f\x0f\x0f')),
+            call('kiwi_BootPart="1"\n'),
+            call('kiwi_RootPart="1"\n')
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'initrd', 'root_dir/boot/initrd.vmx']),
+            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3']),
+            call(['cp', 'root_dir/recovery.partition.size', 'boot_dir_kiwi'])
         ]
         self.kernel.copy_kernel.assert_called_once_with(
-            'root_dir', '/boot/linux.vmx'
+            'root_dir', '/boot/vmlinuz-1.2.3'
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
             'root_dir', '/boot/xen.gz'

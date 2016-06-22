@@ -26,6 +26,7 @@ from ..bootloader.config import BootLoaderConfig
 from ..bootloader.install import BootLoaderInstall
 from ..system.identifier import SystemIdentifier
 from ..boot.image import BootImage
+from ..boot.image import BootImageKiwi
 from ..storage.setup import DiskSetup
 from ..storage.loop_device import LoopDevice
 from ..firmware import FirmWare
@@ -146,9 +147,6 @@ class DiskBuilder(object):
     * :attr:`install_media`
         Build of install media requested true|false
 
-    * :attr:`install_image`
-        Instance of InstallImageBuilder
-
     * :attr:`system`
         Instance of a class with the sync_data capability
         representing the entire image system except for the boot/ area
@@ -216,9 +214,6 @@ class DiskBuilder(object):
             ]
         )
         self.install_media = self._install_image_requested()
-        self.install_image = InstallImageBuilder(
-            xml_state, target_dir, self.boot_image
-        )
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
         # which could live on another part of the disk
@@ -372,7 +367,7 @@ class DiskBuilder(object):
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
 
-        # create second stage metadata to boot
+        # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
 
         self._write_bootloader_config_to_system_image(device_map)
@@ -431,14 +426,41 @@ class DiskBuilder(object):
 
         # create install media if requested
         if self.install_media:
+            if self.initrd_system and self.initrd_system == 'dracut':
+                # for the installation process we need a kiwi initrd
+                # Therefore an extra install boot root system needs to
+                # be prepared if dracut was set as the initrd system
+                # to boot the system image
+                log.info('Preparing extra install boot system')
+
+                self.xml_state.build_type.set_initrd_system('kiwi')
+
+                self.boot_image = BootImageKiwi(
+                    self.xml_state, self.target_dir
+                )
+
+                self.boot_image.prepare()
+
+                # apply disk builder metadata also needed in the install initrd
+                self._write_partition_id_config_to_boot_image()
+                self._write_recovery_metadata_to_boot_image()
+                self._write_raid_config_to_boot_image()
+                self.system_setup.export_modprobe_setup(
+                    self.boot_image.boot_root_directory
+                )
+
+            install_image = InstallImageBuilder(
+                self.xml_state, self.target_dir, self.boot_image
+            )
+
             if self.image_format:
                 log.warning('Install image requested, ignoring disk format')
             if self.install_iso or self.install_stick:
                 log.info('Creating hybrid ISO installation image')
-                self.install_image.create_install_iso()
+                install_image.create_install_iso()
                 self.result.add(
                     key='installation_image',
-                    filename=self.install_image.isoname,
+                    filename=install_image.isoname,
                     use_for_bundle=True,
                     compress=False,
                     shasum=True
@@ -446,10 +468,10 @@ class DiskBuilder(object):
 
             if self.install_pxe:
                 log.info('Creating PXE installation archive')
-                self.install_image.create_install_pxe_archive()
+                install_image.create_install_pxe_archive()
                 self.result.add(
                     key='installation_pxe_archive',
-                    filename=self.install_image.pxename,
+                    filename=install_image.pxename,
                     use_for_bundle=True,
                     compress=False,
                     shasum=True
