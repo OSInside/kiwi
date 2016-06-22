@@ -95,7 +95,6 @@
         <package name="hwinfo"/>
         <package name="initscripts"/>
         <package name="iproute"/>
-        <package name="kiwi-tools"/>
         <package name="lvm2"/>
         <package name="make"/>
         <package name="memtest86+"/>

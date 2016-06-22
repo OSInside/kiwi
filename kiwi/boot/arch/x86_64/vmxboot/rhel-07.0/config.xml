@@ -94,7 +94,6 @@
         <package name="tar"/>
         <package name="rpm"/>
         <package name="dialog"/>
-        <package name="kiwi-tools"/>
         <package name="coreutils"/>
         <package name="hwinfo"/>
         <package name="pam"/>
