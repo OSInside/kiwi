@@ -144,3 +144,8 @@ class TestProfile(object):
     def test_add(self):
         self.profile.add('foo', 'bar')
         assert self.profile.dot_profile['foo'] == 'bar'
+
+    def test_delete(self):
+        self.profile.add('foo', 'bar')
+        self.profile.delete('foo')
+        assert 'foo' not in self.profile.dot_profile

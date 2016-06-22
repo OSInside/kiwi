@@ -61,6 +61,10 @@ class Profile(object):
         """
         self.dot_profile[key] = value
 
+    def delete(self, key):
+        if key in self.dot_profile:
+            del self.dot_profile[key]
+
     def create(self):
         """
         Create bash quoted profile
