@@ -40,7 +40,7 @@ Installing and Setting up Dice
 The Dice packages and sources are available at the following locations:
 
 * Build service project: https://build.opensuse.org/project/show/Virtualization:Appliances:ContainerBuilder
-* Sources: https://github.com/schaefi/dice
+* Sources: https://github.com/SUSE/dice
 
 .. code:: bash
 
