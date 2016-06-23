@@ -1,55 +1,62 @@
-Building in a self-contained Environment
+Building in a Self-Contained Environment
 ========================================
 
 .. topic:: Abstract
 
-   This document describes how to build with KIWI using
-   dice as a container buildsystem in order to eliminate
-   any build host system requirements except the ones
-   dice pulls in
+   Users building images with KIWI face problems if they want
+   to build as non root user or can't install KIWI on their
+   system due to inappropriate build host requirements or
+   project policies.
+
+   This document describes how to perform the build process in
+   a Docker container using the Dice containment build system
+   written for KIWI.
+
+   The changes to the machine to become a build host will
+   be reduced to the requirements of Dice and Docker.
 
 Requirements
 ------------
 
-The following components are needed in order to build in a
-self-contained environment:
+The following components needs to be installed on the build system:
 
-* :command:`dice` - a containment build system for KIWI.
+* Dice - a containment build system for KIWI.
 
-* :command:`docker` - a container framework based on the Linux
+* Docker - a container framework based on the Linux
   container support in the kernel.
 
-* docker build container for KIWI.
+* Docker Build Container for KIWI.
 
-* optionally :command:`vagrant` - a framework to run provision
-  and control virtual machines and container instances. vagrant
-  has a very nice way to provision a machine prior to running the
-  actual build. vagrant also supports docker as a provider which
-  makes it a perfect fit for complex provisioning tasks in
-  combination with the docker container system.
+* optionally Vagrant - a framework to run, provision and control
+  virtual machines and container instances. Vagrant has a very nice
+  interface to provision a machine prior to running the actual build.
+  It also supports docker as a provider which makes it a perfect fit
+  for complex provisioning tasks in combination with the Docker
+  container system.
 
-Installing and Setting up dice
+Installing and Setting up Dice
 ------------------------------
 
-dice packages are available at the respective buildservice project
-at http://download.opensuse.org/repositories/Virtualization:/Appliances. 
-Sources are available at https://github.com/schaefi/dice.
+The Dice packages and sources are available at the following locations:
+
+* Build service project: http://download.opensuse.org/repositories/Virtualization:/Appliances
+* Sources: https://github.com/schaefi/dice
 
 .. code:: bash
 
     $ sudo zypper in ruby2.1-rubygem-dice
 
-Installing and Setting up docker
+Installing and Setting up Docker
 --------------------------------
 
-docker packages are usually available with the used distribution
+Docker packages are usually available with the used distribution.
 
 .. code:: bash
 
     $ sudo zypper in docker
 
-Make sure that the user who is intended to build images is a member
-of the `docker` group by running the following command:
+Make sure that the user, who is intended to build images, is a member
+of the `docker` group. Run the following command:
 
 .. code:: bash
 
@@ -62,12 +69,12 @@ Once this is done you need to setup the Docker storage backend.
 By default Docker uses the device mapper to manage the storage for
 the containers it starts. Unfortunately, this does not work if the
 container is supposed to build images because it runs into conflicts
-with tools like kpartx which itself maps devices using the device
-mapper.
+with tools like :command:`kpartx` which itself maps devices using
+the device mapper.
 
 Fortunately, there is a solution for Docker which allows us to use
-btrfs as the storage backend. The following is only required if your
-host system root filesystem is not btrfs.
+Btrfs as the storage backend. The following is only required if your
+host system root filesystem is not btrfs:
 
 .. code:: bash
 
@@ -84,36 +91,36 @@ host system root filesystem is not btrfs.
 
       DOCKER_OPTS="-s btrfs"
 
-Finally start the docker daemon:
+Finally start the docker service:
 
 .. code:: bash
 
     $ sudo systemctl restart docker
 
-Installing and Setting up the build container
+Installing and Setting up the Build Container
 ----------------------------------------------
 
-In order to build in a contained environment docker has to start a
+In order to build in a contained environment Docker has to start a
 privileged system container. Such a container must be imported before
-docker can use it. The build container is provided to you as a
+Docker can use it. The Build Container is provided to you as a
 service and build with KIWI in the project
 at https://build.opensuse.org/project/show/Virtualization:Appliances:Images
 On a regular basis the result image is pushed
-to https://hub.docker.com/r/schaefi/kiwi-build-box
+to https://hub.docker.com/r/schaefi/kiwi-build-box.
 
-There are two ways to import the build container to your local docker system
+There are two ways to import the Build Container to your local Docker system
 
 1. Download from the openSUSE Buildservice and manually import
-2. Use docker to pull the box from dockerhub
+2. Use :command:`docker` to pull the box from Dockerhub
 
-Pull from dockerhub
+Pull from Dockerhub
 -------------------
 
 .. code:: bash
 
     $ docker pull schaefi/kiwi-build-box:latest
 
-Download from the open BuildService
+Download from the Open BuildService
 -----------------------------------
 
 Download the .tar.bz2 file which starts with :file:`Docker-Tumbleweed`
@@ -129,7 +136,7 @@ Import the downloaded tarball to docker as follows:
     $ cat Docker-Tumbleweed.XXXXXXX.docker.tar.xz | docker import - schaefi/kiwi-build-box:latest
 
 
-Installing and Setting up vagrant
+Installing and Setting up Vagrant
 ---------------------------------
 
 .. note:: Optional step
@@ -137,19 +144,19 @@ Installing and Setting up vagrant
     This step can be skipped if there are no complex provision tasks
     of the building environment required.
 
-Installing vagrant is well documented at
+Installing Vagrant is well documented at
 https://docs.vagrantup.com/v2/installation/index.html
 
-Access to a machine started by vagrant is done through ssh exclusively.
+Access to a machine started by Vagrant is done through ssh exclusively.
 Because of that an initial key setup is required in the box vagrant should
-start. The kiwi provided build boxes includes the public key of the vagrant
+start. The KIWI build boxes includes the public key of the Vagrant
 key pair and thus allows access. It is important to understand that the
-private vagrant key is not a secure key because the private key is not
-protected. However this is not a problem because vagrant creates a new
-key pair for each machine it starts. In order to allow vagrant the initial
+private Vagrant key is not a secure key because the private key is not
+protected. However, this is not a problem because Vagrant creates a new
+key pair for each machine it starts. In order to allow Vagrant the initial
 access and the creation of a new key pair, it's required to provide access
-to the insecure vagrant private key. The following commands should not be
-executed as root, but rather as the user intending to build images.
+to the insecure Vagrant private key. The following commands should not be
+executed as root, but as the intended user to build images.
 
 .. code:: bash
 
@@ -157,8 +164,8 @@ executed as root, but rather as the user intending to build images.
     $ cp -a /usr/share/doc/packages/ruby2.1-rubygem-dice/key ~/.dice/key
 
 
-Building with dice
-------------------
+Configuring Dice
+----------------
 
 If you build in a contained environment, there is no need to have KIWI
 installed on the host system. KIWI is part of the container and is only
@@ -193,54 +200,52 @@ following:
       config.buildhost = :DOCKER
     end
 
-Building with dice
+Building with Dice
 ------------------
 
-If you have choosen to just use the default dice configuration as
+If you have choosen to just use the default Dice configuration as
 provided with the example appliance descriptions, the following example
-command will build the image.
+command will build the image:
 
 .. code:: bash
 
     $ cd <git-clone-result-kiwi-descriptions>
 
     $ dice build suse/x86_64/suse-leap-42.1-JeOS
-    $ dice status suse/x86_64/suse-leap-42.1-JeOS/
+    $ dice status suse/x86_64/suse-leap-42.1-JeOS
 
 
-Buildsystem backends
+Buildsystem Backends
 --------------------
 
-dice currently supports three build system backends:
+Dice currently supports three build system backends:
 
-1. `host buildsystem` - dice builds on the host like if you would call
-   kiwi on the host directly
+1. Host buildsystem - Dice builds on the host like if you would call
+   KIWI on the host directly.
 
-2. `vagrant buildsystem` - dice uses vagrant to run a virtual system which
-   could also be a container and build the image on this machine
+2. Vagrant Buildsystem - Dice uses Vagrant to run a virtual system which
+   could also be a container and build the image on this machine.
 
-3. `docker buildsystem` - dice uses docker directly to run the build in
+3. Docker buildsystem - Dice uses Docker directly to run the build in
    a container
 
-So far we have described how to use dice with the plain docker
+So far, we have described how to use Dice with the plain Docker
 buildsystem. If the build task requires additional content or logic
-before the build can start the vagrant buildsystem configured to use
-docker provides a nice interface to this provisioning tasks.
+before the build can start the Vagrant Buildsystem configured to use
+Docker provides a nice interface to this provisioning tasks.
 
-Building with the vagrant buildsystem
+Building with the Vagrant Buildsystem
 -------------------------------------
 
-The following sections describes how to setup dice to use docker in
-combination with vagrant as provisioning system
+The following sections describes how to configure Dice to use Docker in
+combination with Vagrant as provisioning system.
 
 The Dicefile
 ------------
 
-The Dicefile in the context of vagrant needs to know the username to
-access the container. This is because in vagrant access to the system
-is handled over ssh. vagrant is also the default buildsystem in dice
-which means in contrast to the docker buildsystem we do not have to
-actively select it.
+The Dicefile in the context of Vagrant needs to know the user name to
+access the container. The reason for this is, in Vagrant access to the
+system is handled over SSH.
 
 .. code:: ruby
 
@@ -251,9 +256,10 @@ actively select it.
 The Vagrantfile
 ---------------
 
-Once you call dice to build the image it will call vagrant to bring up the
-container. In order to allow vagrant to do this we have to tell vagrant that
-it should use Docker for this task and provide parameters on how to run the
+The existence of a Vagrantfile tells Dice to use Vagrant as Buildsystem.
+Once you call dice to build the image it will call :command:`vagrant` to
+bring up the container. In order to allow this, we have to tell Vagrant
+to use Docker for this task and provide parameters on how to run the
 container. At the same place the Dicefile exists we create the Vagrantfile
 with the following content:
 
@@ -272,5 +278,5 @@ with the following content:
     end
 
 After these changes a :command:`dice build` command will make use
-of the vagrant build system and offers you a nice way to provision
-the docker container instances prior to the actual KIWI build process.
+of the Vagrant build system and offers a nice way to provision
+the Docker container instances prior to the actual KIWI build process.
