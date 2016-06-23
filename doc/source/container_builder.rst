@@ -106,7 +106,7 @@ Docker can use it. The Build Container is provided to you as a
 service and build with KIWI in the project
 at https://build.opensuse.org/project/show/Virtualization:Appliances:Images
 On a regular basis the result image is pushed
-to https://hub.docker.com/r/schaefi/kiwi-build-box.
+to https://hub.docker.com/r/opensuse/dice.
 
 There are two ways to import the Build Container to your local Docker system
 
@@ -118,7 +118,7 @@ Pull from Dockerhub
 
 .. code:: bash
 
-    $ docker pull schaefi/kiwi-build-box:latest
+    $ docker pull opensuse/dice:latest
 
 Download from the Open BuildService
 -----------------------------------
@@ -133,7 +133,7 @@ Import the downloaded tarball to docker as follows:
 
 .. code:: bash
 
-    $ cat Docker-Tumbleweed.XXXXXXX.docker.tar.xz | docker import - schaefi/kiwi-build-box:latest
+    $ cat Docker-Tumbleweed.XXXXXXX.docker.tar.xz | docker import - opensuse/dice:latest
 
 
 Installing and Setting up Vagrant
@@ -269,7 +269,7 @@ with the following content:
 
     Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config.vm.provider "docker" do |d|
-        d.image = "schaefi/kiwi-build-box:latest"
+        d.image = "opensuse/dice:latest"
         d.create_args = ["-privileged=true", "-i", "-t"]
         # start the sshd in foreground to keep the container in running state
         d.cmd = ["/usr/sbin/sshd", "-D"]
