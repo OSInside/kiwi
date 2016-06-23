@@ -85,6 +85,8 @@ class BootImageKiwi(BootImageBase):
     def create_initrd(self, mbrid=None):
         """
         Create initrd from prepared boot system tree and compress the result
+
+        :param object mbrid: instance of ImageIdentifier
         """
         if self.is_prepared():
             log.info('Creating initrd cpio archive')

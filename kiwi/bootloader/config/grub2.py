@@ -508,9 +508,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     options=['-z', '-a']
                 )
 
-        self._check_boot_theme_exists(lookup_path)
+        self._check_boot_theme_exists()
 
-    def _check_boot_theme_exists(self, lookup_path):
+    def _check_boot_theme_exists(self):
         if self.theme:
             theme_dir = os.sep.join(
                 [

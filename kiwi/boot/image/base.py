@@ -92,9 +92,11 @@ class BootImageBase(object):
         """
         raise NotImplementedError
 
-    def create_initrd(self):
+    def create_initrd(self, mbrid=None):
         """
         Implements creation of the initrd
+
+        :param object mbrid: instance of ImageIdentifier
         """
         raise NotImplementedError
 

@@ -76,6 +76,8 @@ class BootImageDracut(BootImageBase):
     def create_initrd(self, mbrid=None):
         """
         Call dracut to create the initrd and XZ compress the result
+
+        :param object mbrid: unused
         """
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')

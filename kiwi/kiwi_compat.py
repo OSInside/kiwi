@@ -198,6 +198,6 @@ def main():
         # logging.info('Calling: kiwi %s', ' '.join(arguments.translated))
         Command.execute(arguments.translated)
     except NotImplementedError as e:
-        logging.error('KiwiCompatError: %s' % format(e))
+        logging.error('KiwiCompatError: %s', format(e))
     except OSError as e:
-        logging.error('KiwiCompatError: %s' % format(e))
+        logging.error('KiwiCompatError: %s', format(e))

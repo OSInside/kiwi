@@ -25,7 +25,7 @@ class FileSystemIsoFs(FileSystemBase):
     """
     Implements creation of iso filesystem
     """
-    def create_on_file(self, filename, label=None):
+    def create_on_file(self, filename, label=None, exclude=None):
         """
         Create iso filesystem from data tree
 
@@ -34,6 +34,7 @@ class FileSystemIsoFs(FileSystemBase):
 
         :param string filename: result file path name
         :param string label: unused
+        :param string exclude: unused
         """
         iso = Iso(self.root_dir)
         iso.init_iso_creation_parameters(
