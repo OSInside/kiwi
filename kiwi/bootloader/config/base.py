@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from collections import namedtuple
+
 # project
 from ...logger import log
 from ...storage.setup import DiskSetup
@@ -201,28 +203,58 @@ class BootLoaderConfigBase(object):
             cmdline += ' ' + custom_root
         return cmdline.strip()
 
-    def get_install_image_boot_id(self):
+    def get_install_image_boot_default(self, loader=None):
         """
-        Provide a boot menu entry number for install ISO images
+        Provide the default boot menu entry identifier for install images
 
-        The install ISO image can be configured to provide more than
-        one boot menu entry. Possible menu entries and their matching
-        entry number are:
+        The install image can be configured to provide more than
+        one boot menu entry. Menu entries configured are:
 
         * [0] Boot From Hard Disk
         * [1] Install
         * [2] Failsafe Install
 
-        :return: menu entry number
-        :rtype: int
+        The installboot attribute controlls which of these are used
+        by default. If not specified the boot from hard disk entry
+        will be the default. Depending on the specified loader type
+        either an entry number or name will be returned.
+
+        :return: menu name or id
+        :rtype: string
         """
+        menu_entry_title = self.get_menu_entry_title(plain=True)
+        menu_type = namedtuple(
+            'menu_type', ['name', 'menu_id']
+        )
+        menu_list = [
+            menu_type(
+                name='Boot_from_Hard_Disk', menu_id='0'
+            ),
+            menu_type(
+                name='Install_' + menu_entry_title, menu_id='1'
+            ),
+            menu_type(
+                name='Failsafe_--_Install_' + menu_entry_title, menu_id='2'
+            )
+        ]
         boot_id = 0
         install_boot_name = self.xml_state.build_type.get_installboot()
         if install_boot_name == 'failsafe-install':
             boot_id = 2
         elif install_boot_name == 'install':
             boot_id = 1
-        return boot_id
+
+        if not self.failsafe_boot_entry_requested() and boot_id == 2:
+            log.warning(
+                'Failsafe install requested but failsafe menu entry is disabled'
+            )
+            log.warning('Switching to standard install')
+            boot_id = 1
+
+        if loader and loader == 'isolinux':
+            return menu_list[boot_id].name
+        else:
+            return menu_list[boot_id].menu_id
 
     def get_boot_path(self, target='disk'):
         """

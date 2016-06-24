@@ -136,7 +136,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         # of the configuration file
         log.info('Creating isolinux install config file from template')
         parameters = {
-            'default_boot': 'Boot_from_Hard_Disk',
+            'default_boot': self.get_install_image_boot_default('isolinux'),
             'kernel_file': kernel,
             'initrd_file': initrd,
             'boot_options': self.cmdline,

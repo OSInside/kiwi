@@ -222,7 +222,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
-            'default_boot': '0',
+            'default_boot': self.get_install_image_boot_default(),
             'kernel_file': kernel,
             'initrd_file': initrd,
             'boot_options': cmdline,

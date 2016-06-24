@@ -1,6 +1,5 @@
-
 from mock import patch
-
+from mock import call
 import mock
 
 from .test_helper import *
@@ -115,13 +114,35 @@ class TestBootLoaderConfigBase(object):
         assert mock_log_warn.called
 
     @patch('kiwi.xml_parse.type_.get_installboot')
-    def test_get_install_image_boot_id(self, mock_installboot):
+    def test_get_install_image_boot_default(self, mock_installboot):
         mock_installboot.return_value = None
-        assert self.bootloader.get_install_image_boot_id() == 0
+        assert self.bootloader.get_install_image_boot_default() == '0'
+        assert self.bootloader.get_install_image_boot_default('isolinux') == \
+            'Boot_from_Hard_Disk'
         mock_installboot.return_value = 'failsafe-install'
-        assert self.bootloader.get_install_image_boot_id() == 2
+        assert self.bootloader.get_install_image_boot_default() == '2'
+        assert self.bootloader.get_install_image_boot_default('isolinux') == \
+            'Failsafe_--_Install_Bob'
         mock_installboot.return_value = 'install'
-        assert self.bootloader.get_install_image_boot_id() == 1
+        assert self.bootloader.get_install_image_boot_default() == '1'
+        assert self.bootloader.get_install_image_boot_default('isolinux') == \
+            'Install_Bob'
+
+    @patch('kiwi.xml_parse.type_.get_installboot')
+    @patch('kiwi.xml_parse.type_.get_installprovidefailsafe')
+    @patch('kiwi.logger.log.warning')
+    def test_get_install_image_boot_default_failsafe_but_no_failsafe_entry(
+        self, mock_warn, mock_installprovidefailsafe, mock_installboot
+    ):
+        mock_installprovidefailsafe.return_value = False
+        mock_installboot.return_value = 'failsafe-install'
+        assert self.bootloader.get_install_image_boot_default() == '1'
+        assert mock_warn.call_args_list == [
+            call(
+                'Failsafe install requested but failsafe menu entry is disabled'
+            ),
+            call('Switching to standard install')
+        ]
 
     @raises(KiwiBootLoaderTargetError)
     def test_get_boot_path_raises(self):
