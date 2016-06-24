@@ -207,11 +207,17 @@ class TestBootLoaderConfigBase(object):
     @patch('kiwi.xml_parse.type_.get_vga')
     def test_get_gfxmode_default(self, mock_get_vga):
         mock_get_vga.return_value = None
-        assert self.bootloader.get_gfxmode('isolinux') == '0x303'
+        assert self.bootloader.get_gfxmode('isolinux') == '800 600'
         assert self.bootloader.get_gfxmode('grub2') == '800x600'
 
     @patch('kiwi.xml_parse.type_.get_vga')
     def test_get_gfxmode(self, mock_get_vga):
         mock_get_vga.return_value = '0x318'
-        assert self.bootloader.get_gfxmode('isolinux') == '0x318'
+        assert self.bootloader.get_gfxmode('isolinux') == '1024 768'
         assert self.bootloader.get_gfxmode('grub2') == '1024x768'
+
+    @patch('kiwi.xml_parse.type_.get_vga')
+    def test_get_gfxmode_other_loader(self, mock_get_vga):
+        mock_get_vga.return_value = '0x318'
+        assert self.bootloader.get_gfxmode('some-loader') == \
+            mock_get_vga.return_value

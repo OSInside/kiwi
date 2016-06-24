@@ -47,6 +47,10 @@ class BootLoaderTemplateIsoLinux(object):
             Have a lot of fun...
         ''').strip() + self.cr
 
+        self.serial = dedent('''
+            serial 0 9600
+        ''')
+
         self.header = dedent('''
             # kiwi generated isolinux config file
             implicit 1
@@ -58,6 +62,7 @@ class BootLoaderTemplateIsoLinux(object):
 
         self.ui_theme = dedent('''
             ui gfxboot bootlogo isolinux.msg
+            MENU RESOLUTION ${gfxmode}
         ''').strip() + self.cr
 
         self.ui_plain = dedent('''
@@ -72,49 +77,49 @@ class BootLoaderTemplateIsoLinux(object):
         self.menu_install_entry_multiboot = dedent('''
             label Install_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_install_entry_failsafe_multiboot = dedent('''
             label Failsafe_--_Install_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_entry_multiboot = dedent('''
             label ${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_entry_failsafe_multiboot = dedent('''
             label Failsafe_--_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} vga=${gfxmode} ${failsafe_boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${failsafe_boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_install_entry = dedent('''
             label Install_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} vga=${gfxmode} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts
         ''').strip() + self.cr
 
         self.menu_install_entry_failsafe = dedent('''
             label Failsafe_--_Install_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} vga=${gfxmode} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts
         ''').strip() + self.cr
 
         self.menu_entry = dedent('''
             label ${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} vga=${gfxmode} ${boot_options} kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${boot_options} kiwi_hybrid=1 showopts
         ''').strip() + self.cr
 
         self.menu_entry_failsafe = dedent('''
             label Failsafe_--_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} vga=${gfxmode} ${failsafe_boot_options} kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${failsafe_boot_options} kiwi_hybrid=1 showopts
         ''').strip() + self.cr
 
     def get_install_message_template(self):
@@ -136,7 +141,7 @@ class BootLoaderTemplateIsoLinux(object):
         """
         return Template(self.message)
 
-    def get_template(self, failsafe=True, with_theme=True):
+    def get_template(self, failsafe=True, with_theme=True, terminal=None):
         """
         Bootloader configuration template for live media
 
@@ -146,6 +151,9 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        if terminal == 'serial':
+            template_data += self.serial
+            with_theme = False
         if with_theme:
             template_data += self.ui_theme
         else:
@@ -156,7 +164,9 @@ class BootLoaderTemplateIsoLinux(object):
         template_data += self.menu_harddisk_entry
         return Template(template_data)
 
-    def get_multiboot_template(self, failsafe=True, with_theme=True):
+    def get_multiboot_template(
+        self, failsafe=True, with_theme=True, terminal=None
+    ):
         """
         Bootloader configuration template for live media with
         hypervisor, e.g Xen dom0
@@ -167,6 +177,9 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        if terminal == 'serial':
+            template_data += self.serial
+            with_theme = False
         if with_theme:
             template_data += self.ui_theme
         else:
@@ -177,7 +190,9 @@ class BootLoaderTemplateIsoLinux(object):
         template_data += self.menu_harddisk_entry
         return Template(template_data)
 
-    def get_install_template(self, failsafe=True, with_theme=True):
+    def get_install_template(
+        self, failsafe=True, with_theme=True, terminal=None
+    ):
         """
         Bootloader configuration template for install media
 
@@ -187,6 +202,9 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        if terminal == 'serial':
+            template_data += self.serial
+            with_theme = False
         if with_theme:
             template_data += self.ui_theme
         else:
@@ -197,7 +215,9 @@ class BootLoaderTemplateIsoLinux(object):
             template_data += self.menu_install_entry_failsafe
         return Template(template_data)
 
-    def get_multiboot_install_template(self, failsafe=True, with_theme=True):
+    def get_multiboot_install_template(
+        self, failsafe=True, with_theme=True, terminal=None
+    ):
         """
         Bootloader configuration template for install media with
         hypervisor, e.g Xen dom0
@@ -208,6 +228,9 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        if terminal == 'serial':
+            template_data += self.serial
+            with_theme = False
         if with_theme:
             template_data += self.ui_theme
         else:

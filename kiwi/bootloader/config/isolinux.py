@@ -38,6 +38,9 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
 
     Attributes
 
+    * :attr:`terminal`
+        terminal mode set to graphics by default
+
     * :attr:`gfxmode`
         configured or default graphics mode
 
@@ -82,6 +85,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
                 'host architecture %s not supported for isolinux setup' % arch
             )
 
+        self.terminal = self.xml_state.build_type.get_bootloader_console()
         self.gfxmode = self.get_gfxmode('isolinux')
         self.timeout = self.get_boot_timeout_seconds()
         self.cmdline = self.get_boot_cmdline()
@@ -149,12 +153,12 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             log.info('--> Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.isolinux.get_multiboot_install_template(
-                self.failsafe_boot, self._have_theme()
+                self.failsafe_boot, self._have_theme(), self.terminal
             )
         else:
             log.info('--> Using install template')
             template = self.isolinux.get_install_template(
-                self.failsafe_boot, self._have_theme()
+                self.failsafe_boot, self._have_theme(), self.terminal
             )
         try:
             self.config = template.substitute(parameters)
@@ -195,12 +199,12 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             log.info('--> Using multiboot standard ISO template')
             parameters['hypervisor'] = hypervisor
             template = self.isolinux.get_multiboot_template(
-                self.failsafe_boot, self._have_theme()
+                self.failsafe_boot, self._have_theme(), self.terminal
             )
         else:
             log.info('--> Using standard ISO template')
             template = self.isolinux.get_template(
-                self.failsafe_boot, self._have_theme()
+                self.failsafe_boot, self._have_theme(), self.terminal
             )
         try:
             self.config = template.substitute(parameters)

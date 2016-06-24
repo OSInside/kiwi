@@ -103,25 +103,25 @@ class Defaults(object):
         :rtype: dict
         """
         video_type = namedtuple(
-            'video_type', ['grub2']
+            'video_type', ['grub2', 'isolinux']
         )
         return {
-            '0x301': video_type(grub2='640x480'),
-            '0x310': video_type(grub2='640x480'),
-            '0x311': video_type(grub2='640x480'),
-            '0x312': video_type(grub2='640x480'),
-            '0x303': video_type(grub2='800x600'),
-            '0x313': video_type(grub2='800x600'),
-            '0x314': video_type(grub2='800x600'),
-            '0x315': video_type(grub2='800x600'),
-            '0x305': video_type(grub2='1024x768'),
-            '0x316': video_type(grub2='1024x768'),
-            '0x317': video_type(grub2='1024x768'),
-            '0x318': video_type(grub2='1024x768'),
-            '0x307': video_type(grub2='1280x1024'),
-            '0x319': video_type(grub2='1280x1024'),
-            '0x31a': video_type(grub2='1280x1024'),
-            '0x31b': video_type(grub2='1280x1024'),
+            '0x301': video_type(grub2='640x480', isolinux='640 480'),
+            '0x310': video_type(grub2='640x480', isolinux='640 480'),
+            '0x311': video_type(grub2='640x480', isolinux='640 480'),
+            '0x312': video_type(grub2='640x480', isolinux='640 480'),
+            '0x303': video_type(grub2='800x600', isolinux='800 600'),
+            '0x313': video_type(grub2='800x600', isolinux='800 600'),
+            '0x314': video_type(grub2='800x600', isolinux='800 600'),
+            '0x315': video_type(grub2='800x600', isolinux='800 600'),
+            '0x305': video_type(grub2='1024x768', isolinux='1024 768'),
+            '0x316': video_type(grub2='1024x768', isolinux='1024 768'),
+            '0x317': video_type(grub2='1024x768', isolinux='1024 768'),
+            '0x318': video_type(grub2='1024x768', isolinux='1024 768'),
+            '0x307': video_type(grub2='1280x1024', isolinux='1280 1024'),
+            '0x319': video_type(grub2='1280x1024', isolinux='1280 1024'),
+            '0x31a': video_type(grub2='1280x1024', isolinux='1280 1024'),
+            '0x31b': video_type(grub2='1280x1024', isolinux='1280 1024'),
         }
 
     @classmethod

@@ -371,19 +371,22 @@ class BootLoaderConfigBase(object):
         :return: boot graphics mode
         :rtype: string
         """
-        gfxmode = Defaults.get_video_mode_map()
+        gfxmode_map = Defaults.get_video_mode_map()
+
         default_mode = Defaults.get_default_video_mode()
         requested_gfxmode = self.xml_state.build_type.get_vga()
-        if requested_gfxmode in gfxmode:
-            if target == 'grub2':
-                return gfxmode[requested_gfxmode].grub2
-            else:
-                return requested_gfxmode
+
+        if requested_gfxmode in gfxmode_map:
+            gfxmode = requested_gfxmode
         else:
-            if target == 'grub2':
-                return gfxmode[default_mode].grub2
-            else:
-                return default_mode
+            gfxmode = default_mode
+
+        if target == 'grub2':
+            return gfxmode_map[gfxmode].grub2
+        elif target == 'isolinux':
+            return gfxmode_map[gfxmode].isolinux
+        else:
+            return gfxmode
 
     def _get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()

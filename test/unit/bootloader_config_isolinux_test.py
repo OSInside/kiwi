@@ -96,7 +96,9 @@ class TestBootLoaderConfigIsoLinux(object):
         self.isolinux.get_install_message_template.return_value = template_msg
 
         self.bootloader.setup_install_image_config(mbrid=None)
-        self.isolinux.get_install_template.assert_called_once_with(True, False)
+        self.isolinux.get_install_template.assert_called_once_with(
+            True, False, None
+        )
         self.isolinux.get_install_message_template.assert_called_once_with()
         assert template_cfg.substitute.called
         assert template_msg.substitute.called
@@ -106,7 +108,7 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_install_image_config(mbrid=None)
         self.isolinux.get_multiboot_install_template.assert_called_once_with(
-            True, False
+            True, False, None
         )
 
     @patch('os.path.exists')
@@ -114,7 +116,9 @@ class TestBootLoaderConfigIsoLinux(object):
         mock_exists.return_value = True
 
         self.bootloader.setup_install_image_config(mbrid=None)
-        self.isolinux.get_install_template.assert_called_once_with(True, True)
+        self.isolinux.get_install_template.assert_called_once_with(
+            True, True, None
+        )
 
     @raises(KiwiTemplateError)
     def test_setup_install_image_config_invalid_template(self):
@@ -163,7 +167,9 @@ class TestBootLoaderConfigIsoLinux(object):
         self.isolinux.get_message_template.return_value = template_msg
 
         self.bootloader.setup_live_image_config(mbrid=None)
-        self.isolinux.get_template.assert_called_once_with(True, False)
+        self.isolinux.get_template.assert_called_once_with(
+            True, False, None
+        )
         self.isolinux.get_message_template.assert_called_once_with()
         assert template_cfg.substitute.called
         assert template_msg.substitute.called
@@ -173,5 +179,5 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_live_image_config(mbrid=None)
         self.isolinux.get_multiboot_template.assert_called_once_with(
-            True, False
+            True, False, None
         )
