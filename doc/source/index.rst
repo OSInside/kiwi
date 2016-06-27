@@ -3,8 +3,7 @@
 KIWI Appliance Builder |version|
 ================================
 
-After some coffee, lots of hacking hours and peanuts later, I'm happy to
-introduce this Next Generation KIWI project.
+The Next Generation of the KIWI project.
 
 .. sidebar:: Links
 
@@ -81,9 +80,8 @@ which are equal or newer compared to the following list:
 
 *  SUSE Linux Enterprise 12
 *  Red Hat Enterprise 7
-*  openSUSE 13.2
-*  openSUSE Leap 42
-*  openSUSE Tumbleweed
+*  openSUSE Leap, Tumbleweed
+*  Ubuntu Xenial
 
 For anything older please consider to use the legacy KIWI version v7.x.x.
 

@@ -1,5 +1,5 @@
-KIWI Quick Start
-================
+Quick Start
+===========
 
 .. topic:: Abstract
 

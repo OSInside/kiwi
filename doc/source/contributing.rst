@@ -1,5 +1,5 @@
-KIWI Development and Contributing
-=================================
+Development and Contributing
+============================
 
 .. topic:: Abstract
 

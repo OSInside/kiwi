@@ -1,5 +1,5 @@
-KIWI API Documentation |version|
-================================
+API Documentation |version|
+===========================
 
 .. default-domain:: py
 

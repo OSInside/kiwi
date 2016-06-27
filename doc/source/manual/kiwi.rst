@@ -1,5 +1,5 @@
-KIWI Manual Pages
-=================
+Manual Pages
+============
 
 SYNOPSIS
 --------
