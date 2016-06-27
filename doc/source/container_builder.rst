@@ -102,7 +102,7 @@ Installing and Setting up the Build Container
 
 In order to build in a contained environment Docker has to start a
 privileged system container. Such a container must be imported before
-Docker can use it. The Build Container is provided to you as a
+Docker can use it. The build container is provided to you as a
 service and build with KIWI in the project
 at https://build.opensuse.org/project/show/Virtualization:Appliances:Images.
 The result image is pushed to https://hub.docker.com/r/opensuse/dice.
