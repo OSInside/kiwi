@@ -526,35 +526,6 @@ function baseStripTools {
     done
 }
 #======================================
-# suseStripPackager 
-#--------------------------------------
-function suseStripPackager {
-    # /.../ 
-    # remove smart o zypper packages and db 
-    # files. Also remove rpm package and db 
-    # if "-a" given
-    #
-    # params [-a]
-    # ----
-    local removerpm=falseq
-    if [ ! -z ${1} ] && [ $1 = "-a" ]; then
-        removerpm=true
-    fi
-    
-    #zypper#
-    Rpm -e --nodeps zypper libzypp satsolver-tools
-    Rm -rf /var/lib/zypp
-    
-    #smart
-    Rpm -e --nodeps smart smart-gui
-    Rm -rf /var/lib/smart
-    
-    if [ $removerpm = true ]; then
-        Rpm -e --nodeps rpm 
-        Rm -rf /var/lib/rpm
-    fi
-}
-#======================================
 # baseStripRPM
 #--------------------------------------
 function baseStripRPM {
@@ -968,7 +939,7 @@ function baseStripInitrd {
     #==========================================
     # remove package manager meta data
     #------------------------------------------
-    for p in dpkg rpm smart yum;do
+    for p in dpkg rpm yum;do
         rm -rf /var/lib/$p
     done
 }
