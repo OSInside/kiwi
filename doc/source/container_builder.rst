@@ -12,7 +12,7 @@ Building in a Self-Contained Environment
    a Docker container using the Dice containment build system
    written for KIWI.
 
-   The changes to the machine to become a build host will
+   The changes on the machine to become a build host will
    be reduced to the requirements of Dice and Docker.
 
 Requirements
@@ -25,7 +25,7 @@ The following components needs to be installed on the build system:
 * Docker - a container framework based on the Linux
   container support in the kernel.
 
-* Docker Build Container for KIWI.
+* Docker Image - a docker build container for KIWI.
 
 * optionally Vagrant - a framework to run, provision and control
   virtual machines and container instances. Vagrant has a very nice
@@ -104,14 +104,13 @@ In order to build in a contained environment Docker has to start a
 privileged system container. Such a container must be imported before
 Docker can use it. The Build Container is provided to you as a
 service and build with KIWI in the project
-at https://build.opensuse.org/project/show/Virtualization:Appliances:Images
-On a regular basis the result image is pushed
-to https://hub.docker.com/r/opensuse/dice.
+at https://build.opensuse.org/project/show/Virtualization:Appliances:Images.
+The result image is pushed to https://hub.docker.com/r/opensuse/dice.
 
-There are two ways to import the Build Container to your local Docker system
+There are two ways to import the build container to your local Docker system
 
 1. Download from the openSUSE Buildservice and manually import
-2. Use :command:`docker` to pull the box from Dockerhub
+2. Use :command:`docker` to pull the Docker image from Dockerhub
 
 Pull from Dockerhub
 -------------------
@@ -129,7 +128,7 @@ Download the .tar.bz2 file which starts with :file:`Docker-Tumbleweed`
 
     $ wget http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images/images/Docker-Tumbleweed.XXXXXXX.docker.tar.xz
 
-Import the downloaded tarball to docker as follows:
+Import the downloaded tarball with the command :command:`docker` as follows:
 
 .. code:: bash
 
@@ -141,18 +140,22 @@ Installing and Setting up Vagrant
 
 .. note:: Optional step
 
-    This step can be skipped if there are no complex provision tasks
-    of the building environment required.
+    By default Dice shares the KIWI image description directory with
+    the Docker instance. If more data from the host should be shared
+    with the Docker instance we recommend to use Vagrant for this
+    provision tasks.
 
 Installing Vagrant is well documented at
 https://docs.vagrantup.com/v2/installation/index.html
 
-Access to a machine started by Vagrant is done through ssh exclusively.
-Because of that an initial key setup is required in the box vagrant should
-start. The KIWI build boxes includes the public key of the Vagrant
+Access to a machine started by Vagrant is done through SSH exclusively.
+Because of that an initial key setup is required in the Docker image vagrant
+should start. The KIWI Docker image includes the public key of the Vagrant
 key pair and thus allows access. It is important to understand that the
 private Vagrant key is not a secure key because the private key is not
-protected. However, this is not a problem because Vagrant creates a new
+protected.
+
+However, this is not a problem because Vagrant creates a new
 key pair for each machine it starts. In order to allow Vagrant the initial
 access and the creation of a new key pair, it's required to provide access
 to the insecure Vagrant private key. The following commands should not be
@@ -190,7 +193,7 @@ The Dicefile
 
 The Dicefile is the configuration file for the dice buildsystem backend.
 All it needs to know for a plain docker based build process is the
-selection of the buildhost to be a docker container. The Dicefile's
+selection of the buildhost to be a Docker container. The Dicefile's
 found in the above mentioned appliance descriptions look all like the
 following:
 
@@ -257,11 +260,11 @@ The Vagrantfile
 ---------------
 
 The existence of a Vagrantfile tells Dice to use Vagrant as Buildsystem.
-Once you call dice to build the image it will call :command:`vagrant` to
-bring up the container. In order to allow this, we have to tell Vagrant
-to use Docker for this task and provide parameters on how to run the
-container. At the same place the Dicefile exists we create the Vagrantfile
-with the following content:
+Once you call :command:`dice` to build the image it will
+call :command:`vagrant` to bring up the container. In order to allow this,
+we have to tell Vagrant to use Docker for this task and provide parameters
+on how to run the container. At the same place the Dicefile exists we create
+the Vagrantfile with the following content:
 
 .. code:: ruby
 
