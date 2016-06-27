@@ -49,7 +49,8 @@ Installing and Setting up Dice
 
 The Dice packages and sources are available at the following locations:
 
-* Build service project: https://build.opensuse.org/project/show/Virtualization:/Appliances:/ContainerBuilder
+* Build service project:
+  http://download.opensuse.org/repositories/Virtualization:/Appliances:/ContainerBuilder
 * Sources: https://github.com/SUSE/dice
 
 .. code:: bash
@@ -114,7 +115,7 @@ In order to build in a contained environment Docker has to start a
 privileged system container. Such a container must be imported before
 Docker can use it. The build container is provided to you as a
 service and build with KIWI in the project
-at https://build.opensuse.org/project/show/Virtualization:/Appliances:/Images.
+at http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images.
 The result image is pushed to https://hub.docker.com/r/opensuse/dice.
 
 There are two ways to import the build container to your local Docker system
@@ -156,7 +157,7 @@ Installing and Setting up Vagrant
     provision tasks.
 
 Installing Vagrant is well documented at
-https://docs.vagrantup.com/v2/installation/index.html
+https://www.vagrantup.com/docs/installation/index.html
 
 Access to a machine started by Vagrant is done through SSH exclusively.
 Because of that an initial key setup is required in the Docker image vagrant
