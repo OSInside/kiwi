@@ -127,6 +127,11 @@ class BootImageKiwi(BootImageBase):
             exclude_from_archive = [
                 '/var/cache', '/image', '/usr/lib/grub*'
             ]
+            # the following is a list of directories to exclude which
+            # are not needed inside of the initrd
+            exclude_from_archive += [
+                '/usr/share/doc', '/usr/share/man', '/home', '/media', '/srv'
+            ]
             cpio.create(
                 source_dir=temp_boot_root_directory,
                 exclude=exclude_from_archive

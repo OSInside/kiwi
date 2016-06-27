@@ -966,21 +966,6 @@ function baseStripInitrd {
     #------------------------------------------
     baseStripUnusedLibs $kiwi_strip_libs
     #==========================================
-    # remove images.sh
-    #------------------------------------------
-    rm -f /image/images.sh
-    #==========================================
-    # remove unused root directories
-    #------------------------------------------
-    rm -rf /home
-    rm -rf /media
-    rm -rf /srv
-    #==========================================
-    # remove unused doc directories
-    #------------------------------------------
-    rm -rf /usr/share/doc
-    rm -rf /usr/share/man
-    #==========================================
     # remove package manager meta data
     #------------------------------------------
     for p in dpkg rpm smart yum;do
