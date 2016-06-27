@@ -49,7 +49,7 @@ Installing and Setting up Dice
 
 The Dice packages and sources are available at the following locations:
 
-* Build service project: https://build.opensuse.org/project/show/Virtualization:Appliances:ContainerBuilder
+* Build service project: https://build.opensuse.org/project/show/Virtualization:/Appliances:/ContainerBuilder
 * Sources: https://github.com/SUSE/dice
 
 .. code:: bash
@@ -114,7 +114,7 @@ In order to build in a contained environment Docker has to start a
 privileged system container. Such a container must be imported before
 Docker can use it. The build container is provided to you as a
 service and build with KIWI in the project
-at https://build.opensuse.org/project/show/Virtualization:Appliances:Images.
+at https://build.opensuse.org/project/show/Virtualization:/Appliances:/Images.
 The result image is pushed to https://hub.docker.com/r/opensuse/dice.
 
 There are two ways to import the build container to your local Docker system
