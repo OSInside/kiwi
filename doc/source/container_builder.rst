@@ -4,13 +4,23 @@ Building in a Self-Contained Environment
 .. topic:: Abstract
 
    Users building images with KIWI face problems if they want
-   to build as non root user or can't install KIWI on their
-   system due to inappropriate build host requirements or
-   project policies.
+   to build an image matching one of the following criteria:
+
+   * build should happen as non root user.
+
+   * build should happen on a host system distribution for which
+     no KIWI packages exists.
+
+   * build happens on an incompatible host system distribution
+     compared to the target image distribution. For example
+     the host system rpm database is incompatible with the image
+     rpm database and a dump/reload cycle is not possible
+     between the two versions. Ideally the host system distribution
+     is the same as the target image distribution.
 
    This document describes how to perform the build process in
    a Docker container using the Dice containment build system
-   written for KIWI.
+   written for KIWI in order to address the issues listed above.
 
    The changes on the machine to become a build host will
    be reduced to the requirements of Dice and Docker.
