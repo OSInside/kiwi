@@ -149,12 +149,12 @@ dialog \
     --no-label "$TEXT_NO" \
     --exit-label "$TEXT_EXIT" \
     $@
-echo \$? > /tmp/fbcode
+echo -n \$? > /tmp/fbcode
 EOF
     if FBOK;then
-        fbiterm -m $UFONT -- bash -e /tmp/fbcode
+        setsid -c -w fbiterm -m $UFONT -- bash -i /tmp/fbcode
     else
-        bash -e /tmp/fbcode
+        setsid -c -w bash -i /tmp/fbcode
     fi
     code=$(cat /tmp/fbcode)
     return $code
@@ -861,6 +861,9 @@ function activeConsoles {
 function consoleInit {
     local IFS=$IFS_ORIG
     local udev_console=/lib/udev/console_init
+    if [ ! -x $udev_console ];then
+        udev_console=/lib/udev/console-setup-tty
+    fi
     local systemd_console=/usr/lib/systemd/systemd-vconsole-setup
     if [ -x $udev_console ];then
         $udev_console /dev/console
