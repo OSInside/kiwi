@@ -132,33 +132,6 @@ function hideSplash {
     fi
     runHook handleSplash "$@"
 }
-
-#======================================
-# Dialog
-#--------------------------------------
-function Dialog {
-    local IFS=$IFS_ORIG
-    local code=1
-    export DIALOG_CANCEL=1
-    hideSplash
-cat > /tmp/fbcode << EOF
-dialog \
-    --ok-label "$TEXT_OK" \
-    --cancel-label "$TEXT_CANCEL" \
-    --yes-label "$TEXT_YES" \
-    --no-label "$TEXT_NO" \
-    --exit-label "$TEXT_EXIT" \
-    $@
-echo -n \$? > /tmp/fbcode
-EOF
-    if FBOK;then
-        setsid -c -w fbiterm -m $UFONT -- bash -i /tmp/fbcode
-    else
-        setsid -c -w bash -i /tmp/fbcode
-    fi
-    code=$(cat /tmp/fbcode)
-    return $code
-}
 #======================================
 # Debug
 #--------------------------------------
@@ -6761,9 +6734,9 @@ function luksOpen {
         if [ -z "$luks_pass" ];then
             Echo "Try: $retry"
             errorLogStop
-            luks_pass=$(runInteractive \
-                "--insecure --passwordbox "\"$TEXT_LUKS\"" 10 60"
-            )
+            Dialog \
+                --insecure --passwordbox "\"$TEXT_LUKS\"" 10 60
+            luks_pass=$(DialogResult)
             errorLogContinue
         fi
         if echo "$luks_pass" | cryptsetup luksOpen $ldev $name;then
@@ -6940,11 +6913,11 @@ function selectLanguage {
         if [ "$list" = "$list_orig" ];then
             DIALOG_LANG=en_US
         else
-            DIALOG_LANG=$(runInteractive \
-                "--timeout 10 --no-cancel \
-                 --backtitle \"$TEXT_TIMEOUT\" \
-                 --radiolist $title 20 40 10 $list"
-            )
+            Dialog \
+                --timeout 10 --no-cancel \
+                --backtitle \"$TEXT_TIMEOUT\" \
+                --radiolist \"$title\" 20 40 10 $list
+            DIALOG_LANG=$(DialogResult)
         fi
     fi
     export LANG=$DIALOG_LANG.utf8
@@ -7116,32 +7089,51 @@ function nd {
     echo $part_new
 }
 #======================================
-# runInteractive
+# Dialog
 #--------------------------------------
-function runInteractive {
+function Dialog {
     # /.../
     # run dialog in a bash inside an fbiterm or directly
     # on the running terminal. Make the terminal the controlling
-    # tty first. The output of the dialog call is stored in
-    # a file and printed as result to this function
+    # tty first. The output of the dialog call and its exit code
+    # is stored in files
     # ----
     local IFS=$IFS_ORIG
+    local dialog_call=/tmp/dialog_call
+    local dialog_result=/tmp/dialog_result
+    local dialog_code=/tmp/dialog_code
     hideSplash
-    local r=/tmp/rid
-    local code
-    echo "dialog $@ 2> /tmp/out" > $r
-    echo "echo -n \$? > /tmp/out.exit" >> $r
+    cat > $dialog_call <<- EOF
+		dialog \
+			--ok-label "$TEXT_OK" \
+			--cancel-label "$TEXT_CANCEL" \
+			--yes-label "$TEXT_YES" \
+			--no-label "$TEXT_NO" \
+			--exit-label "$TEXT_EXIT" \
+		$@ 2>$dialog_result
+		echo -n \$? >$dialog_code
+	EOF
     if FBOK;then
-        setsid -c -w fbiterm -m $UFONT -- bash -i $r
+        setsid -c -w fbiterm -m $UFONT -- bash -i $dialog_call
     else
-        setsid -c -w bash -i $r
+        setsid -c -w bash -i $dialog_call
     fi
-    code=$(cat /tmp/out.exit)
-    if [ ! $code = 0 ];then
-        return $code
-    fi
-    cat /tmp/out && rm -f /tmp/out* $r
-    return 0
+    local code=$(cat $dialog_code)
+    return $code
+}
+#======================================
+# DialogResult
+#--------------------------------------
+function DialogResult {
+    local dialog_result=/tmp/dialog_result
+    test -e "$dialog_result" && cat $dialog_result && rm $dialog_result
+}
+#======================================
+# DialogExitCode
+#--------------------------------------
+function DialogExitCode {
+    local dialog_code=/tmp/dialog_code
+    test -e "$dialog_code" && cat $dialog_code
 }
 #======================================
 # createCustomHybridPersistent
