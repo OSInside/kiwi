@@ -17,7 +17,6 @@
 #
 
 # project
-from ...path import Path
 from .base import ContainerSetupBase
 
 
@@ -40,7 +39,6 @@ class ContainerSetupDocker(ContainerSetupBase):
         """
         Setup system for use with docker
         """
-        Path.create(self.root_dir + '/etc/lxc')
 
         services_to_deactivate = [
             'device-mapper.service',
@@ -55,75 +53,6 @@ class ContainerSetupDocker(ContainerSetupBase):
         self.deactivate_root_filesystem_check()
         self.setup_static_device_nodes()
         self.setup_root_console()
-        self.create_lxc_fstab()
-        self.create_lxc_config()
 
         for service in services_to_deactivate:
             self.deactivate_systemd_service(service)
-
-    def create_lxc_fstab(self):
-        """
-        Docker container lxc fstab setup
-        """
-        with open(self.root_dir + '/etc/lxc/fstab', 'w') as lxtab:
-            lxtab.write(
-                'proc /var/lib/lxc/%s/rootfs/proc proc defaults 0 0\n' %
-                self.custom_args['container_name']
-            )
-            lxtab.write(
-                'sysfs /var/lib/lxc/%s/rootfs/sys sysfs defaults 0 0\n' %
-                self.custom_args['container_name']
-            )
-
-    def create_lxc_config(self):
-        """
-        Docker container lxc config file setup
-        """
-        lxc_name = self.custom_args['container_name']
-        host_bind_mounts = [
-            # use name resolution setup from host in container
-            ' '.join(
-                [
-                    '/etc/resolv.conf',
-                    '/var/lib/lxc/' + lxc_name + '/rootfs/etc/resolv.conf',
-                    'none',
-                    'bind,ro',
-                    '0',
-                    '0'
-                ]
-            )
-        ]
-        with open(self.root_dir + '/etc/lxc/config', 'w') as lxconf:
-            # host bind mount setup
-            for bind in host_bind_mounts:
-                lxconf.write('lxc.mount.entry = %s\n' % bind)
-            # default network setup
-            lxconf.write('lxc.network.type = veth\n')
-            lxconf.write('lxc.network.flags = up\n')
-            lxconf.write('lxc.network.link = br0\n')
-            lxconf.write('lxc.network.name = eth0\n')
-            # default terminal setup
-            lxconf.write('lxc.autodev = 1\n')
-            lxconf.write('lxc.tty = 4\n')
-            lxconf.write('lxc.kmsg = 0\n')
-            lxconf.write('lxc.pts = 1024\n')
-            # specify container system root location
-            lxconf.write('lxc.rootfs = /var/lib/lxc/%s/rootfs\n' % lxc_name)
-            # reference container fstab file
-            lxconf.write('lxc.mount = /etc/lxc/%s/fstab\n' % lxc_name)
-            lxconf.write('lxc.cgroup.devices.deny = a\n')
-            # /dev/null and /dev/zero in cgroup
-            lxconf.write('lxc.cgroup.devices.allow = c 1:3 rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 1:5 rwm\n')
-            # consoles in cgroup
-            lxconf.write('lxc.cgroup.devices.allow = c 5:1 rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 5:0 rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 4:0 rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 4:1 rwm\n')
-            # /dev/{,u}random in cgroup
-            lxconf.write('lxc.cgroup.devices.allow = c 1:9 rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 1:8 rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 136:* rwm\n')
-            lxconf.write('lxc.cgroup.devices.allow = c 5:2 rwm\n')
-            # real time clock in cgroup
-            lxconf.write('lxc.cgroup.devices.allow = c 254:0 rwm\n')
