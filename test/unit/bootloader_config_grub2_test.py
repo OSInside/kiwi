@@ -578,6 +578,7 @@ class TestBootLoaderConfigGrub2(object):
         )
         assert data.sync_data.call_args_list[0] == call(options=['-z', '-a'])
 
+    @patch('kiwi.bootloader.config.grub2.Path.wipe')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch_open
@@ -588,7 +589,7 @@ class TestBootLoaderConfigGrub2(object):
     @patch('shutil.copy')
     def test_setup_install_boot_images_with_legacy_grub_theme(
         self, mock_copy, mock_copytree, mock_machine, mock_warn,
-        mock_exists, mock_open, mock_sync, mock_command
+        mock_exists, mock_open, mock_sync, mock_command, mock_wipe
     ):
         data = mock.Mock()
         mock_sync.return_value = data
@@ -602,6 +603,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
 
+        mock_wipe.assert_called_once_with('root_dir/boot/grub2/themes')
         mock_copytree.assert_called_once_with(
             'root_dir/boot/grub/themes', 'root_dir/boot/grub2/themes'
         )
