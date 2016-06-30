@@ -512,6 +512,7 @@ function mountSystemFilesystems {
     if [ -e /run/initramfs/shutdown ];then
         chmod u+x /run/initramfs/shutdown
     fi
+    updateMTAB
 }
 #======================================
 # umountSystemFilesystems
