@@ -302,9 +302,9 @@ function OEMInstall {
                 fi
             fi
         done
-        instDisk=$(runInteractive \
-            "--radiolist $hd 20 75 15 $dpara"
-        )
+        Dialog \
+            --radiolist $hd 20 75 15 $dpara
+        instDisk=$(DialogResult)
         if [ ! $? = 0 ];then
             systemException \
                 "System installation canceled" \
@@ -501,9 +501,9 @@ function OEMInstall {
                 if [ $count -eq 1 ];then
                     selectedPart=$pname
                 else
-                    selectedPart=$(runInteractive \
-                        "--radiolist \"$TEXT_SELECT\" 20 75 15 $dpara"
-                    )
+                    Dialog \
+                        --radiolist \"$TEXT_SELECT\" 20 75 15 $dpara
+                    selectedPart=$(DialogResult)
                     if [ ! $? = 0 ];then
                         systemException \
                             "System installation canceled" \
