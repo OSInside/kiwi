@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import shutil
 
 # project
 from ..command import Command
@@ -200,6 +201,19 @@ class RootBind(object):
             log.warning(
                 'Failed to remove intermediate config files: %s', format(e)
             )
+
+        self._restore_intermediate_config_rpmnew_variants()
+
+    def _restore_intermediate_config_rpmnew_variants(self):
+        """
+        check for rpmnew variants of the config files. if the package
+        installed an rpmnew variant of the config file it needs to be
+        moved to the original file name
+        """
+        for config in self.config_files:
+            config_rpm_new = self.root_dir + config + '.rpmnew'
+            if os.path.exists(config_rpm_new):
+                shutil.move(config_rpm_new, self.root_dir + config)
 
     def _cleanup_mount_stack(self):
         for mount in reversed(self.mount_stack):
