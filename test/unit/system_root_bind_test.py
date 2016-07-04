@@ -116,17 +116,23 @@ class TestRootBind(object):
     @patch('kiwi.system.root_bind.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('os.path.islink')
+    @patch('os.path.exists')
+    @patch('shutil.move')
     def test_cleanup(
-        self, mock_islink, mock_remove_hierarchy,
+        self, mock_move, mock_exists, mock_islink, mock_remove_hierarchy,
         mock_command, mock_is_mounted
     ):
         mock_is_mounted.return_value = False
+        mock_exists.return_value = True
         mock_islink.return_value = True
         self.bind_root.cleanup()
         self.mount_manager.umount_lazy.assert_called_once_with()
         mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
         mock_command.assert_called_once_with(
            ['rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo']
+        )
+        mock_move.assert_called_once_with(
+            'root-dir/foo.rpmnew', 'root-dir/foo'
         )
 
     @patch('os.path.islink')
