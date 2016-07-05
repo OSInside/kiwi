@@ -195,9 +195,9 @@ class TestXMLState(object):
         )
         assert state.get_volumes() == [
             volume_type(
-                name='LVusr_lib', size='size:1024',
+                name='usr_lib', size='size:1024',
                 realpath='usr/lib',
-                mountpoint=None, fullsize=False
+                mountpoint='usr/lib', fullsize=False
             ),
             volume_type(
                 name='LVRoot', size='freespace:500',
@@ -207,12 +207,12 @@ class TestXMLState(object):
             volume_type(
                 name='etc_volume', size='freespace:30',
                 realpath='etc',
-                mountpoint='LVetc', fullsize=False
+                mountpoint='etc', fullsize=False
             ),
             volume_type(
                 name='bin_volume', size=None,
                 realpath='/usr/bin',
-                mountpoint='LVusr_bin', fullsize=True
+                mountpoint='/usr/bin', fullsize=True
             )
         ]
 
@@ -253,35 +253,14 @@ class TestXMLState(object):
         )
         assert state.get_volumes() == [
             volume_type(
-                name='LVusr', size=None, realpath='usr',
-                mountpoint=None, fullsize=True
+                name='usr', size=None, realpath='usr',
+                mountpoint='usr', fullsize=True
             ),
             volume_type(
                 name='LVRoot', size='freespace:30', realpath='/',
                 mountpoint=None, fullsize=False
             )
         ]
-
-    @raises(KiwiInvalidVolumeName)
-    def test_get_volumes_invalid_name(self):
-        description = XMLDescription('../data/example_lvm_invalid_config.xml')
-        xml_data = description.load()
-        state = XMLState(xml_data, ['invalid_volume_a'])
-        state.get_volumes()
-
-    @raises(KiwiInvalidVolumeName)
-    def test_get_volumes_invalid_mountpoint(self):
-        description = XMLDescription('../data/example_lvm_invalid_config.xml')
-        xml_data = description.load()
-        state = XMLState(xml_data, ['invalid_volume_b'])
-        state.get_volumes()
-
-    @raises(KiwiInvalidVolumeName)
-    def test_get_volumes_invalid_name_for_shell(self):
-        description = XMLDescription('../data/example_lvm_invalid_config.xml')
-        xml_data = description.load()
-        state = XMLState(xml_data, ['invalid_volume_c'])
-        state.get_volumes()
 
     @patch('kiwi.xml_state.XMLState.get_build_type_system_disk_section')
     def test_get_empty_volumes(self, mock_system_disk):

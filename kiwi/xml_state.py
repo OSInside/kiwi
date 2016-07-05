@@ -27,7 +27,6 @@ from .defaults import Defaults
 from .exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
-    KiwiInvalidVolumeName,
     KiwiDistributionNameError
 )
 
@@ -584,57 +583,29 @@ class XMLState(object):
             have_full_size_volume = False
             if volumes:
                 for volume in volumes:
+                    # volume setup for a full qualified volume with name and
+                    # mountpoint information. See below for exceptions
                     name = volume.get_name()
                     mountpoint = volume.get_mountpoint()
+                    realpath = mountpoint
                     size = volume.get_size()
                     freespace = volume.get_freespace()
                     fullsize = False
-                    realpath = None
-                    if mountpoint:
-                        realpath = mountpoint
-                    elif '@root' not in name:
-                        realpath = name
 
                     if '@root' in name:
-                        have_root_volume_setup = True
-                        name = 'Root'
+                        # setup root volume, it takes a fixed volume name and
+                        # has no specific mountpoint
+                        mountpoint = None
                         realpath = '/'
-
-                    if not mountpoint:
-                        # if no mountpoint is specified the name attribute is
-                        # both, the path information as well as the name of
-                        # the volume. However turning a path value into a
-                        # variable requires to introduce a directory separator
-                        # different from '/'. In kiwi the '_' is used and that
-                        # forbids to use this letter as part of name if no
-                        # mountpoint is specified:
-                        if '_' in name:
-                            raise KiwiInvalidVolumeName(
-                                'mountpoint attribute required for volume %s' %
-                                name
-                            )
-                        name = 'LV' + self._to_volume_name(name)
-                    else:
-                        # if a mountpoint path is specified the value is turned
-                        # into a path variable and name stays untouched. However
-                        # the mountpoint path currently is not allowed to
-                        # contain the directory separator '_'. In order to fix
-                        # this limitation the way the kiwi initrd code handles
-                        # the volume information needs to change first
-                        if '_' in mountpoint:
-                            raise KiwiInvalidVolumeName(
-                                'mountpoint %s must not contain "_"' %
-                                mountpoint
-                            )
-                        mountpoint = 'LV' + self._to_volume_name(mountpoint)
-
-                    # the given name is used as shell variable in the kiwi boot
-                    # code. Thus the name must follow the bash variable name
-                    # conventions
-                    if not re.match('^[a-zA-Z_]+[a-zA-Z0-9_]*$', name):
-                        raise KiwiInvalidVolumeName(
-                            'name %s invalid for use as shell variable' % name
-                        )
+                        name = 'LVRoot'
+                        have_root_volume_setup = True
+                    elif not mountpoint:
+                        # setup volume without mountpoint. In this case the name
+                        # attribute is used as mountpoint path and a name for the
+                        # volume is created from that path information
+                        mountpoint = name
+                        realpath = mountpoint
+                        name = self._to_volume_name(name)
 
                     if size:
                         size = 'size:' + format(
