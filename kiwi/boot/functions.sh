@@ -949,10 +949,6 @@ function readVolumeSetup {
         mpoint=$(echo $volpath | sed -e s@^LV@@)
         if [ $volume = "LVRoot" ]; then
             mpoint='noop'
-        elif [ $volume = "LVComp" ];then
-            mpoint='noop'
-        elif [ $volume = "LVSwap" ];then
-            mpoint='noop'
         fi
         if [ -z "$result" ];then
             result="$volume,$mode,$size,$mpoint"
@@ -2178,11 +2174,7 @@ function updateRootDeviceFstab {
         local mount_point
         for i in $(readVolumeSetup "/.profile");do
             volume_name=$(getVolumeName $i)
-            if \
-                [ $volume_name = "LVRoot" ] || \
-                [ $volume_name = "LVComp" ] || \
-                [ $volume_name = "LVSwap" ]
-            then
+            if [ $volume_name = "LVRoot" ]; then
                 continue
             fi
             mount_point=$(getVolumeMountPoint $i)
@@ -3168,7 +3160,7 @@ function searchVolumeGroup {
     # /.../
     # search for a volume group named $kiwi_lvmgroup and if it can be
     # found activate it while creating appropriate device nodes:
-    # /dev/$kiwi_lvmgroup/LVRoot and/or /dev/$kiwi_lvmgroup/LVComp
+    # /dev/$kiwi_lvmgroup/LVRoot
     # return zero on success
     # ----
     local IFS=$IFS_ORIG
@@ -5162,11 +5154,7 @@ function mountSystemStandard {
         local mount_point
         for i in $(readVolumeSetup "/.profile");do
             volume_name=$(getVolumeName $i)
-            if \
-                [ $volume_name = "LVRoot" ] || \
-                [ $volume_name = "LVComp" ] || \
-                [ $volume_name = "LVSwap" ]
-            then
+            if [ $volume_name = "LVRoot" ]; then
                 continue
             fi
             mount_point=$(getVolumeMountPoint $i)
@@ -6348,11 +6336,7 @@ function cleanImage {
     local mount_point
     for i in $(readVolumeSetup "/.profile");do
         volume_name=$(getVolumeName $i)
-        if \
-            [ $volume_name = "LVRoot" ] || \
-            [ $volume_name = "LVComp" ] || \
-            [ $volume_name = "LVSwap" ]
-        then
+        if [ $volume_name = "LVRoot" ]; then
             continue
         fi
         mount_point=$(getVolumeMountPoint $i)
