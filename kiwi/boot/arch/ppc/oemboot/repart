@@ -528,7 +528,7 @@ function OEMRepartLVM {
         #======================================
         # Extend allFreeVolume if not done
         #--------------------------------------
-        local all_free_mpoint=$(readVolumeSetupAllFree | cut -f2 -d,)
+        local all_free_mpoint=$(readVolumeSetupAllFree "/.profile"|cut -f2 -d,)
         if [ ! -z "$all_free_mpoint" ];then
             lvextend -l +100%FREE /dev/$kiwi_lvmgroup/$all_free_mpoint
         fi

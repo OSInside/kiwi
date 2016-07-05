@@ -927,33 +927,27 @@ function readVolumeSetup {
     local profile=$1
     local skip_all_free_volume=$2
     local volume
-    local content
+    local name
     local mode
     local size
-    local volpath
     local mpoint
     local result
-    local profile_search="kiwi_LVM_|kiwi_allFreeVolume"
-    if [ ! -z "$skip_all_free_volume" ];then
-        profile_search="kiwi_LVM_"
-    fi
-    for i in $(cat $profile | grep -E "$profile_search");do
-        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
-        mode=$(echo $content | cut -f1 -d:)
-        size=$(echo $content | cut -f2 -d:)
-        volpath=$(echo $content | cut -f3 -d:)
-        if [ -z "$volpath" ];then
-            volpath=$(echo $volume | tr _ /)
+    for i in $(cat $profile | grep -E "kiwi_Volume_");do
+        volume=$(echo $i | cut -f2 -d= | tr -d \' | tr -d \")
+        size=$(echo $volume | cut -f2 -d\| | cut -f2 -d:)
+        if [ $size = "all" ] && [ ! -z "$skip_all_free_volume" ];then
+            continue
         fi
-        mpoint=$(echo $volpath | sed -e s@^LV@@)
-        if [ $volume = "LVRoot" ]; then
+        mode=$(echo $volume | cut -f2 -d\| | cut -f1 -d:)
+        name=$(echo $volume | cut -f1 -d\|)
+        mpoint=$(echo $volume | cut -f3 -d\|)
+        if [ -z "$mpoint" ];then
             mpoint='noop'
         fi
         if [ -z "$result" ];then
-            result="$volume,$mode,$size,$mpoint"
+            result="$name,$mode,$size,$mpoint"
         else
-            result="$result $volume,$mode,$size,$mpoint"
+            result="$result $name,$mode,$size,$mpoint"
         fi
     done
     echo $result
@@ -961,7 +955,7 @@ function readVolumeSetup {
 #======================================
 # readVolumeSetupAllFree
 #--------------------------------------
-readVolumeSetupAllFree {
+function readVolumeSetupAllFree {
     # /.../
     # read the volume setup for kiwi_allFreeVolume from the profile
     # file and return a list with the following values:
@@ -972,23 +966,21 @@ readVolumeSetupAllFree {
     # volume_name which takes the rest space is returned
     # ----
     local profile=$1
+    local size
     local volume
-    local content
-    local volpath
+    local name
     local mpoint
-    local all_free=$(cat $profile | grep -E "kiwi_allFreeVolume")
-    if [ ! -z "$all_free" ];then
-        content=$(echo $all_free | cut -f2 -d= | tr -d \' | tr -d \")
-        volume=$(echo $all_free | cut -f3- -d_ | cut -f1 -d=)
-        volpath=$(echo $content | cut -f3 -d:)
-        if [ -z "$volpath" ];then
-            volpath=$(echo $volume | tr _ /)
+    for i in $(cat $profile | grep -E "kiwi_Volume_");do
+        volume=$(echo $i | cut -f2 -d= | tr -d \' | tr -d \")
+        size=$(echo $volume | cut -f2 -d\| | cut -f2 -d:)
+        if [ $size = "all" ];then
+            name=$(echo $volume | cut -f1 -d\|)
+            mpoint=$(echo $volume | cut -f3 -d\|)
+            echo "$name,$mpoint"
+            return
         fi
-        mpoint=$(echo $volpath | sed -e s@^LV@@)
-        echo "$volume,$mpoint"
-    else
-        echo LVRoot,
-    fi
+    done
+    echo LVRoot,
 }
 #======================================
 # getVolumeName
