@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
+from distutils.spawn import find_executable
 
 # project
 from .base import FileSystemBase
@@ -71,12 +71,12 @@ class FileSystemIsoFs(FileSystemBase):
         There are tools by J.Schilling and tools from the community
         Depending on what is installed a decision needs to be made
         """
-        iso_creation_tools = [
-            '/usr/bin/mkisofs', '/usr/bin/genisoimage'
-        ]
+        iso_creation_tools = ['mkisofs', 'genisoimage']
         for tool in iso_creation_tools:
-            if os.path.exists(tool):
-                return tool
+            tool_found = find_executable(tool)
+            if tool_found:
+                return tool_found
+
         raise KiwiIsoToolError(
             'No iso creation tool found, searched for: %s' %
             iso_creation_tools
