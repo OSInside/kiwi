@@ -65,13 +65,17 @@ Requires:       tar >= 1.2.7
 Requires:       gptfdisk
 Requires:       qemu-tools
 Requires:       dosfstools
-Requires:       genisoimage
 Requires:       e2fsprogs
 Requires:       lvm2
 Requires:       parted
 Requires:       multipath-tools
 Requires:       grub2
 Requires:       mtools
+%if 0%{?suse_version} == 1315 && !0%{?is_opensuse}
+Requires:       genisoimage
+%else
+Requires:       mkisofs
+%endif
 %ifarch %arm aarch64
 Requires:       u-boot-tools
 %endif
