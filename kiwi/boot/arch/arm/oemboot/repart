@@ -528,8 +528,9 @@ function OEMRepartLVM {
         #======================================
         # Extend allFreeVolume if not done
         #--------------------------------------
-        if [ -z "$(eval echo \$kiwi_LVM_${allFreeVolume})" ] ; then
-            lvextend -l +100%FREE /dev/$kiwi_lvmgroup/$allFreeVolume
+        local all_free_mpoint=$(readVolumeSetupAllFree "/.profile"|cut -f2 -d,)
+        if [ ! -z "$all_free_mpoint" ];then
+            lvextend -l +100%FREE /dev/$kiwi_lvmgroup/$all_free_mpoint
         fi
         #======================================
         # setup new device names
@@ -951,12 +952,5 @@ function getFreeDiskBytes {
 # getAllFreeVolume
 #--------------------------------------
 function getAllFreeVolume {
-    local volume
-    local allFree=$(grep kiwi_allFreeVolume /.profile)
-    if [ ! -z "$allFree" ];then
-        volume=$(echo $allFree| cut -f3- -d_ | cut -f1 -d=)
-        echo $volume
-        return
-    fi
-    echo LVRoot
+    readVolumeSetupAllFree "/.profile" | cut -f1 -d,
 }

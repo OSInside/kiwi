@@ -926,43 +926,61 @@ function readVolumeSetup {
     # ----
     local profile=$1
     local skip_all_free_volume=$2
-    local variable
     local volume
-    local content
+    local name
     local mode
     local size
-    local volpath
     local mpoint
     local result
-    local profile_search="kiwi_LVM_|kiwi_allFreeVolume"
-    if [ ! -z "$skip_all_free_volume" ];then
-        profile_search="kiwi_LVM_"
-    fi
-    for i in $(cat $1 | grep -E "$profile_search");do
-        variable=$(echo $i|cut -f1 -d=)
-        volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
-        mode=$(echo $content | cut -f1 -d:)
-        size=$(echo $content | cut -f2 -d:)
-        volpath=$(echo $content | cut -f3 -d:)
-        if [ -z "$volpath" ];then
-            volpath=$(echo $volume | tr _ /)
+    for i in $(cat $profile | grep -E "kiwi_Volume_");do
+        volume=$(echo $i | cut -f2 -d= | tr -d \' | tr -d \")
+        size=$(echo $volume | cut -f2 -d\| | cut -f2 -d:)
+        if [ $size = "all" ] && [ ! -z "$skip_all_free_volume" ];then
+            continue
         fi
-        mpoint=$(echo $volpath | sed -e s@^LV@@)
-        if [ $volume = "LVRoot" ]; then
-            mpoint='noop'
-        elif [ $volume = "LVComp" ];then
-            mpoint='noop'
-        elif [ $volume = "LVSwap" ];then
+        mode=$(echo $volume | cut -f2 -d\| | cut -f1 -d:)
+        name=$(echo $volume | cut -f1 -d\|)
+        mpoint=$(echo $volume | cut -f3 -d\|)
+        if [ -z "$mpoint" ];then
             mpoint='noop'
         fi
         if [ -z "$result" ];then
-            result="$volume,$mode,$size,$mpoint"
+            result="$name,$mode,$size,$mpoint"
         else
-            result="$result $volume,$mode,$size,$mpoint"
+            result="$result $name,$mode,$size,$mpoint"
         fi
     done
     echo $result
+}
+#======================================
+# readVolumeSetupAllFree
+#--------------------------------------
+function readVolumeSetupAllFree {
+    # /.../
+    # read the volume setup for kiwi_allFreeVolume from the profile
+    # file and return a list with the following values:
+    #
+    # volume_name,mount_point
+    #
+    # If no kiwi_allFreeVolume was configured only the default
+    # volume_name which takes the rest space is returned
+    # ----
+    local profile=$1
+    local size
+    local volume
+    local name
+    local mpoint
+    for i in $(cat $profile | grep -E "kiwi_Volume_");do
+        volume=$(echo $i | cut -f2 -d= | tr -d \' | tr -d \")
+        size=$(echo $volume | cut -f2 -d\| | cut -f2 -d:)
+        if [ $size = "all" ];then
+            name=$(echo $volume | cut -f1 -d\|)
+            mpoint=$(echo $volume | cut -f3 -d\|)
+            echo "$name,$mpoint"
+            return
+        fi
+    done
+    echo LVRoot,
 }
 #======================================
 # getVolumeName
@@ -2148,11 +2166,7 @@ function updateRootDeviceFstab {
         local mount_point
         for i in $(readVolumeSetup "/.profile");do
             volume_name=$(getVolumeName $i)
-            if \
-                [ $volume_name = "LVRoot" ] || \
-                [ $volume_name = "LVComp" ] || \
-                [ $volume_name = "LVSwap" ]
-            then
+            if [ $volume_name = "LVRoot" ]; then
                 continue
             fi
             mount_point=$(getVolumeMountPoint $i)
@@ -3138,7 +3152,7 @@ function searchVolumeGroup {
     # /.../
     # search for a volume group named $kiwi_lvmgroup and if it can be
     # found activate it while creating appropriate device nodes:
-    # /dev/$kiwi_lvmgroup/LVRoot and/or /dev/$kiwi_lvmgroup/LVComp
+    # /dev/$kiwi_lvmgroup/LVRoot
     # return zero on success
     # ----
     local IFS=$IFS_ORIG
@@ -5132,11 +5146,7 @@ function mountSystemStandard {
         local mount_point
         for i in $(readVolumeSetup "/.profile");do
             volume_name=$(getVolumeName $i)
-            if \
-                [ $volume_name = "LVRoot" ] || \
-                [ $volume_name = "LVComp" ] || \
-                [ $volume_name = "LVSwap" ]
-            then
+            if [ $volume_name = "LVRoot" ]; then
                 continue
             fi
             mount_point=$(getVolumeMountPoint $i)
@@ -6318,11 +6328,7 @@ function cleanImage {
     local mount_point
     for i in $(readVolumeSetup "/.profile");do
         volume_name=$(getVolumeName $i)
-        if \
-            [ $volume_name = "LVRoot" ] || \
-            [ $volume_name = "LVComp" ] || \
-            [ $volume_name = "LVSwap" ]
-        then
+        if [ $volume_name = "LVRoot" ]; then
             continue
         fi
         mount_point=$(getVolumeMountPoint $i)

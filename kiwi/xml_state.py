@@ -27,7 +27,6 @@ from .defaults import Defaults
 from .exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
-    KiwiInvalidVolumeName,
     KiwiDistributionNameError
 )
 
@@ -569,120 +568,97 @@ class XMLState(object):
         """
         volume_type_list = []
         systemdisk_section = self.get_build_type_system_disk_section()
-        if systemdisk_section:
-            volume_type = namedtuple(
-                'volume_type', [
-                    'name',
-                    'size',
-                    'realpath',
-                    'mountpoint',
-                    'fullsize'
-                ]
-            )
-            volumes = systemdisk_section.get_volume()
-            have_root_volume_setup = False
-            have_full_size_volume = False
-            if volumes:
-                for volume in volumes:
-                    name = volume.get_name()
-                    mountpoint = volume.get_mountpoint()
-                    size = volume.get_size()
-                    freespace = volume.get_freespace()
-                    fullsize = False
-                    realpath = None
-                    if mountpoint:
-                        realpath = mountpoint
-                    elif '@root' not in name:
-                        realpath = name
+        if not systemdisk_section:
+            return volume_type_list
 
-                    if '@root' in name:
-                        have_root_volume_setup = True
-                        name = 'Root'
-                        realpath = '/'
+        volume_type = namedtuple(
+            'volume_type', [
+                'name',
+                'size',
+                'realpath',
+                'mountpoint',
+                'fullsize'
+            ]
+        )
 
-                    if not mountpoint:
-                        # if no mountpoint is specified the name attribute is
-                        # both, the path information as well as the name of
-                        # the volume. However turning a path value into a
-                        # variable requires to introduce a directory separator
-                        # different from '/'. In kiwi the '_' is used and that
-                        # forbids to use this letter as part of name if no
-                        # mountpoint is specified:
-                        if '_' in name:
-                            raise KiwiInvalidVolumeName(
-                                'mountpoint attribute required for volume %s' %
-                                name
-                            )
-                        name = 'LV' + self._to_volume_name(name)
-                    else:
-                        # if a mountpoint path is specified the value is turned
-                        # into a path variable and name stays untouched. However
-                        # the mountpoint path currently is not allowed to
-                        # contain the directory separator '_'. In order to fix
-                        # this limitation the way the kiwi initrd code handles
-                        # the volume information needs to change first
-                        if '_' in mountpoint:
-                            raise KiwiInvalidVolumeName(
-                                'mountpoint %s must not contain "_"' %
-                                mountpoint
-                            )
-                        mountpoint = 'LV' + self._to_volume_name(mountpoint)
+        volumes = systemdisk_section.get_volume()
+        have_root_volume_setup = False
+        have_full_size_volume = False
+        if volumes:
+            for volume in volumes:
+                # volume setup for a full qualified volume with name and
+                # mountpoint information. See below for exceptions
+                name = volume.get_name()
+                mountpoint = volume.get_mountpoint()
+                realpath = mountpoint
+                size = volume.get_size()
+                freespace = volume.get_freespace()
+                fullsize = False
 
-                    # the given name is used as shell variable in the kiwi boot
-                    # code. Thus the name must follow the bash variable name
-                    # conventions
-                    if not re.match('^[a-zA-Z_]+[a-zA-Z0-9_]*$', name):
-                        raise KiwiInvalidVolumeName(
-                            'name %s invalid for use as shell variable' % name
-                        )
+                if '@root' in name:
+                    # setup root volume, it takes a fixed volume name and
+                    # has no specific mountpoint
+                    mountpoint = None
+                    realpath = '/'
+                    name = 'LVRoot'
+                    have_root_volume_setup = True
+                elif not mountpoint:
+                    # setup volume without mountpoint. In this case the name
+                    # attribute is used as mountpoint path and a name for the
+                    # volume is created from that path information
+                    mountpoint = name
+                    realpath = mountpoint
+                    name = self._to_volume_name(name)
 
-                    if size:
-                        size = 'size:' + format(
-                            self._to_mega_byte(size)
-                        )
-                    elif freespace:
-                        size = 'freespace:' + format(
-                            self._to_mega_byte(freespace)
-                        )
-                    else:
-                        size = 'freespace:' + format(
-                            Defaults.get_min_volume_mbytes()
-                        )
-
-                    if ':all' in size:
-                        size = None
-                        fullsize = True
-                        have_full_size_volume = True
-
-                    volume_type_list.append(
-                        volume_type(
-                            name=name,
-                            size=size,
-                            fullsize=fullsize,
-                            mountpoint=mountpoint,
-                            realpath=realpath
-                        )
+                if size:
+                    size = 'size:' + format(
+                        self._to_mega_byte(size)
                     )
-            if not have_root_volume_setup:
-                # There must always be a root volume setup. It will be the
-                # full size volume if no other volume has this setup
-                if have_full_size_volume:
+                elif freespace:
+                    size = 'freespace:' + format(
+                        self._to_mega_byte(freespace)
+                    )
+                else:
                     size = 'freespace:' + format(
                         Defaults.get_min_volume_mbytes()
                     )
-                    fullsize = False
-                else:
+
+                if ':all' in size:
                     size = None
                     fullsize = True
+                    have_full_size_volume = True
+
                 volume_type_list.append(
                     volume_type(
-                        name='LVRoot',
+                        name=name,
                         size=size,
                         fullsize=fullsize,
-                        mountpoint=None,
-                        realpath='/'
+                        mountpoint=mountpoint,
+                        realpath=realpath
                     )
                 )
+
+        if not have_root_volume_setup:
+            # There must always be a root volume setup. It will be the
+            # full size volume if no other volume has this setup
+            if have_full_size_volume:
+                size = 'freespace:' + format(
+                    Defaults.get_min_volume_mbytes()
+                )
+                fullsize = False
+            else:
+                size = None
+                fullsize = True
+            volume_type_list.append(
+                volume_type(
+                    name='LVRoot',
+                    size=size,
+                    fullsize=fullsize,
+                    mountpoint=None,
+                    realpath='/'
+                )
+            )
+
         return volume_type_list
 
     def get_volume_management(self):

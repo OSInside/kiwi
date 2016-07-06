@@ -313,14 +313,6 @@ class KiwiInstallPhaseFailed(KiwiError):
     """
 
 
-class KiwiInvalidVolumeName(KiwiError):
-    """
-    Exception raised if the name of a volume contains invalid
-    characters according to the volume system and kiwi internal
-    rules.
-    """
-
-
 class KiwiIsoLoaderError(KiwiError):
     """
     Exception raised if no isolinux loader file could be found.

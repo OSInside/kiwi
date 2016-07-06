@@ -192,9 +192,7 @@ class Profile(object):
     def _systemdisk_to_profile(self):
         # kiwi_lvmgroup
         # kiwi_lvm
-        # kiwi_LVM_LVRoot
-        # kiwi_allFreeVolume_X
-        # kiwi_LVM_X
+        # kiwi_Volume_X
         systemdisk = self.xml_state.get_build_type_system_disk_section()
         if systemdisk:
             self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
@@ -203,24 +201,17 @@ class Profile(object):
                     Defaults.get_default_volume_group_name()
             if self.xml_state.get_volume_management():
                 self.dot_profile['kiwi_lvm'] = 'true'
+
+            volume_count = 1
             for volume in self.xml_state.get_volumes():
-                if volume.name == 'LVRoot':
-                    if not volume.fullsize:
-                        self.dot_profile['kiwi_LVM_LVRoot'] = volume.size
-                elif volume.fullsize:
-                    if volume.mountpoint:
-                        self.dot_profile['kiwi_allFreeVolume_' + volume.name] =\
-                            'size:all:' + volume.mountpoint
-                    else:
-                        self.dot_profile['kiwi_allFreeVolume_' + volume.name] =\
-                            'size:all'
-                else:
-                    if volume.mountpoint:
-                        self.dot_profile['kiwi_LVM_' + volume.name] = \
-                            volume.size + ':' + volume.mountpoint
-                    else:
-                        self.dot_profile['kiwi_LVM_' + volume.name] = \
-                            volume.size
+                self.dot_profile['kiwi_Volume_' + format(volume_count)] = '|'.join(
+                    [
+                        volume.name,
+                        'size:all' if volume.fullsize else volume.size,
+                        volume.mountpoint or ''
+                    ]
+                )
+                volume_count += 1
 
     def _preferences_to_profile(self):
         # kiwi_iversion

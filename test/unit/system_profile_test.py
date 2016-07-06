@@ -30,10 +30,12 @@ class TestProfile(object):
         mock_temp.return_value = self.tmpfile
         result = self.profile.create()
         os.remove(self.tmpfile.name)
-        print(self.profile.dot_profile)
         assert self.profile.dot_profile == {
-            'kiwi_allFreeVolume_bin_volume': 'size:all:LVusr_bin',
-            'kiwi_allFreeVolume_LVusr_bin': 'size:all',
+            'kiwi_Volume_1': 'usr_lib|size:1024|usr/lib',
+            'kiwi_Volume_2': 'LVRoot|freespace:500|',
+            'kiwi_Volume_3': 'etc_volume|freespace:30|etc',
+            'kiwi_Volume_4': 'bin_volume|size:all|/usr/bin',
+            'kiwi_Volume_5': 'usr_bin|size:all|usr/bin',
             'kiwi_bootkernel': None,
             'kiwi_bootloader': 'grub2',
             'kiwi_bootprofile': None,
@@ -57,9 +59,6 @@ class TestProfile(object):
             'kiwi_keytable': 'us.map.gz',
             'kiwi_language': 'en_US',
             'kiwi_loader_theme': 'openSUSE',
-            'kiwi_LVM_etc_volume': 'freespace:30:LVetc',
-            'kiwi_LVM_LVRoot': 'freespace:500',
-            'kiwi_LVM_LVusr_lib': 'size:1024',
             'kiwi_lvm': 'true',
             'kiwi_lvmgroup': 'systemVG',
             'kiwi_oemataraid_scan': None,
@@ -105,11 +104,11 @@ class TestProfile(object):
             'kiwi_xendomain': None
         }
         assert result == [
-            "kiwi_LVM_LVRoot='freespace:500'",
-            "kiwi_LVM_LVusr_lib='size:1024'",
-            "kiwi_LVM_etc_volume='freespace:30:LVetc'",
-            "kiwi_allFreeVolume_LVusr_bin='size:all'",
-            "kiwi_allFreeVolume_bin_volume='size:all:LVusr_bin'",
+            "kiwi_Volume_1='usr_lib|size:1024|usr/lib'",
+            "kiwi_Volume_2='LVRoot|freespace:500|'",
+            "kiwi_Volume_3='etc_volume|freespace:30|etc'",
+            "kiwi_Volume_4='bin_volume|size:all|/usr/bin'",
+            "kiwi_Volume_5='usr_bin|size:all|usr/bin'",
             "kiwi_bootloader='grub2'",
             "kiwi_cmdline='splash'",
             "kiwi_displayname='LimeJeOS-openSUSE-13.2'",
