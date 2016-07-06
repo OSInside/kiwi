@@ -568,92 +568,97 @@ class XMLState(object):
         """
         volume_type_list = []
         systemdisk_section = self.get_build_type_system_disk_section()
-        if systemdisk_section:
-            volume_type = namedtuple(
-                'volume_type', [
-                    'name',
-                    'size',
-                    'realpath',
-                    'mountpoint',
-                    'fullsize'
-                ]
-            )
-            volumes = systemdisk_section.get_volume()
-            have_root_volume_setup = False
-            have_full_size_volume = False
-            if volumes:
-                for volume in volumes:
-                    # volume setup for a full qualified volume with name and
-                    # mountpoint information. See below for exceptions
-                    name = volume.get_name()
-                    mountpoint = volume.get_mountpoint()
+        if not systemdisk_section:
+            return volume_type_list
+
+        volume_type = namedtuple(
+            'volume_type', [
+                'name',
+                'size',
+                'realpath',
+                'mountpoint',
+                'fullsize'
+            ]
+        )
+
+        volumes = systemdisk_section.get_volume()
+        have_root_volume_setup = False
+        have_full_size_volume = False
+        if volumes:
+            for volume in volumes:
+                # volume setup for a full qualified volume with name and
+                # mountpoint information. See below for exceptions
+                name = volume.get_name()
+                mountpoint = volume.get_mountpoint()
+                realpath = mountpoint
+                size = volume.get_size()
+                freespace = volume.get_freespace()
+                fullsize = False
+
+                if '@root' in name:
+                    # setup root volume, it takes a fixed volume name and
+                    # has no specific mountpoint
+                    mountpoint = None
+                    realpath = '/'
+                    name = 'LVRoot'
+                    have_root_volume_setup = True
+                elif not mountpoint:
+                    # setup volume without mountpoint. In this case the name
+                    # attribute is used as mountpoint path and a name for the
+                    # volume is created from that path information
+                    mountpoint = name
                     realpath = mountpoint
-                    size = volume.get_size()
-                    freespace = volume.get_freespace()
-                    fullsize = False
+                    name = self._to_volume_name(name)
 
-                    if '@root' in name:
-                        # setup root volume, it takes a fixed volume name and
-                        # has no specific mountpoint
-                        mountpoint = None
-                        realpath = '/'
-                        name = 'LVRoot'
-                        have_root_volume_setup = True
-                    elif not mountpoint:
-                        # setup volume without mountpoint. In this case the name
-                        # attribute is used as mountpoint path and a name for the
-                        # volume is created from that path information
-                        mountpoint = name
-                        realpath = mountpoint
-                        name = self._to_volume_name(name)
-
-                    if size:
-                        size = 'size:' + format(
-                            self._to_mega_byte(size)
-                        )
-                    elif freespace:
-                        size = 'freespace:' + format(
-                            self._to_mega_byte(freespace)
-                        )
-                    else:
-                        size = 'freespace:' + format(
-                            Defaults.get_min_volume_mbytes()
-                        )
-
-                    if ':all' in size:
-                        size = None
-                        fullsize = True
-                        have_full_size_volume = True
-
-                    volume_type_list.append(
-                        volume_type(
-                            name=name,
-                            size=size,
-                            fullsize=fullsize,
-                            mountpoint=mountpoint,
-                            realpath=realpath
-                        )
+                if size:
+                    size = 'size:' + format(
+                        self._to_mega_byte(size)
                     )
-            if not have_root_volume_setup:
-                # There must always be a root volume setup. It will be the
-                # full size volume if no other volume has this setup
-                if have_full_size_volume:
+                elif freespace:
+                    size = 'freespace:' + format(
+                        self._to_mega_byte(freespace)
+                    )
+                else:
                     size = 'freespace:' + format(
                         Defaults.get_min_volume_mbytes()
                     )
-                    fullsize = False
-                else:
+
+                if ':all' in size:
                     size = None
                     fullsize = True
+                    have_full_size_volume = True
+
                 volume_type_list.append(
                     volume_type(
-                        name='LVRoot',
+                        name=name,
                         size=size,
                         fullsize=fullsize,
-                        mountpoint=None,
-                        realpath='/'
+                        mountpoint=mountpoint,
+                        realpath=realpath
                     )
                 )
+
+        if not have_root_volume_setup:
+            # There must always be a root volume setup. It will be the
+            # full size volume if no other volume has this setup
+            if have_full_size_volume:
+                size = 'freespace:' + format(
+                    Defaults.get_min_volume_mbytes()
+                )
+                fullsize = False
+            else:
+                size = None
+                fullsize = True
+            volume_type_list.append(
+                volume_type(
+                    name='LVRoot',
+                    size=size,
+                    fullsize=fullsize,
+                    mountpoint=None,
+                    realpath='/'
+                )
+            )
+
         return volume_type_list
 
     def get_volume_management(self):
