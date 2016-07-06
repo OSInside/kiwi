@@ -22,9 +22,7 @@ from .base import FileSystemBase
 from ..command import Command
 from ..iso import Iso
 
-from ..exceptions import (
-    KiwiIsoToolError
-)
+from ..exceptions import KiwiIsoToolError
 
 
 class FileSystemIsoFs(FileSystemBase):
