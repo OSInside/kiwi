@@ -24,18 +24,18 @@ class TestFileSystemIsoFs(object):
     @raises(KiwiIsoToolError)
     @patch('kiwi.filesystem.isofs.Command.run')
     @patch('kiwi.filesystem.isofs.Iso')
-    @patch('kiwi.filesystem.isofs.find_executable')
+    @patch('kiwi.filesystem.isofs.Path.which')
     def test_create_on_file_no_tool_found(
-        self, mock_find_executable, mock_iso, mock_command
+        self, mock_which, mock_iso, mock_command
     ):
-        mock_find_executable.return_value = None
+        mock_which.return_value = None
         self.isofs.create_on_file('myimage', None)
 
     @patch('kiwi.filesystem.isofs.Command.run')
     @patch('kiwi.filesystem.isofs.Iso')
-    @patch('kiwi.filesystem.isofs.find_executable')
+    @patch('kiwi.filesystem.isofs.Path.which')
     def test_create_on_file_mkisofs(
-        self, mock_find_executable, mock_iso, mock_command
+        self, mock_which, mock_iso, mock_command
     ):
         iso = mock.Mock()
         iso.header_end_name = 'header_end'
@@ -50,7 +50,7 @@ class TestFileSystemIsoFs(object):
         def side_effect(arg):
             return path_return_values.pop()
 
-        mock_find_executable.side_effect = side_effect
+        mock_which.side_effect = side_effect
         self.isofs.create_on_file('myimage', None)
         iso.init_iso_creation_parameters.assert_called_once_with([])
         iso.add_efi_loader_parameters.assert_called_once_with()
@@ -76,9 +76,9 @@ class TestFileSystemIsoFs(object):
 
     @patch('kiwi.filesystem.isofs.Command.run')
     @patch('kiwi.filesystem.isofs.Iso')
-    @patch('kiwi.filesystem.isofs.find_executable')
+    @patch('kiwi.filesystem.isofs.Path.which')
     def test_create_on_file_genisoimage(
-        self, mock_find_executable, mock_iso, mock_command
+        self, mock_which, mock_iso, mock_command
     ):
         iso = mock.Mock()
         iso.header_end_name = 'header_end'
@@ -93,7 +93,7 @@ class TestFileSystemIsoFs(object):
         def side_effect(arg):
             return path_return_values.pop()
 
-        mock_find_executable.side_effect = side_effect
+        mock_which.side_effect = side_effect
         self.isofs.create_on_file('myimage', None)
         iso.init_iso_creation_parameters.assert_called_once_with([])
         iso.add_efi_loader_parameters.assert_called_once_with()

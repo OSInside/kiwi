@@ -15,12 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from distutils.spawn import find_executable
-
 # project
 from .base import FileSystemBase
 from ..command import Command
 from ..iso import Iso
+from ..path import Path
 
 from ..exceptions import KiwiIsoToolError
 
@@ -73,7 +72,7 @@ class FileSystemIsoFs(FileSystemBase):
         """
         iso_creation_tools = ['mkisofs', 'genisoimage']
         for tool in iso_creation_tools:
-            tool_found = find_executable(tool)
+            tool_found = Path.which(tool)
             if tool_found:
                 return tool_found
 

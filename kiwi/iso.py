@@ -399,15 +399,13 @@ class Iso(object):
         There are tools by J.Schilling and tools from the community
         Depending on what is installed a decision needs to be done
         """
-        isoinfo_tools = [
-            '/usr/bin/isoinfo', '/usr/lib/genisoimage/isoinfo'
-        ]
-        for tool in isoinfo_tools:
-            if os.path.exists(tool):
-                return tool
+        alternative_lookup_paths = ['/usr/lib/genisoimage']
+        isoinfo = Path.which('isoinfo', alternative_lookup_paths)
+        if isoinfo:
+            return isoinfo
         raise KiwiIsoToolError(
-            'No isoinfo tool found, searched for: %s' %
-            isoinfo_tools
+            'No isoinfo tool found, searched in PATH: %s and %s' %
+            (os.environ.get('PATH'), alternative_lookup_paths)
         )
 
     def _create_sortfile(self):
