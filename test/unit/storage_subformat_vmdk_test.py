@@ -263,3 +263,50 @@ class TestDiskFormatVmdk(object):
         assert file_mock.seek.call_args_list == [
             call(512, 0), call(0, 2)
         ]
+
+    @patch('kiwi.storage.subformat.vmdk.Command.run')
+    @patch('os.path.exists')
+    @patch_open
+    def test_create_image_format_encoding_exists(
+        self, mock_open, mock_exists, mock_command
+    ):
+        qemu_img_result = mock.Mock()
+        vmtoolsd_result = mock.Mock()
+        vmtoolsd_result.output = \
+            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
+        dd_result = mock.Mock()
+        dd_result.output = 'encoding="UTF-8"\ndd-out\0\0\0\0\0'
+
+        command_results = [
+            dd_result, vmtoolsd_result, qemu_img_result
+        ]
+
+        def side_effect(arg):
+            return command_results.pop()
+
+        mock_command.side_effect = side_effect
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_exists.return_value = True
+
+        self.disk_format.create_image_format()
+
+        assert mock_open.call_args_list == [
+            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'wb'),
+            call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
+        ]
+        assert file_mock.write.call_args_list[0] == call(
+            self.vmdk_header_update
+        )
+        assert file_mock.write.call_args_list[1] == call(
+            self.vmdk_settings
+        )
+        assert file_mock.seek.call_args_list == [
+            call(512, 0), call(0, 2)
+        ]

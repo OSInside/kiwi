@@ -218,7 +218,8 @@ class DiskFormatVmdk(DiskFormatBase):
         )
         vmdk_descriptor_lines = \
             vmdk_descriptor_call.output.strip('\0').split('\n')
-        vmdk_descriptor_lines.insert(0, 'encoding="UTF-8"')
+        if (vmdk_descriptor_lines[0] != 'encoding="UTF-8"'):
+            vmdk_descriptor_lines.insert(0, 'encoding="UTF-8"')
         vmdk_descriptor_lines.append(
             'ddb.toolsInstallType = "%s"' % vmdk_tools_install_type
         )
