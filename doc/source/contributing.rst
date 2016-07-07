@@ -6,8 +6,11 @@ Development and Contributing
    This document describes the development process of KIWI.
    This description applies for version |version|.
 
-Requirements
-------------
+The core appliance builder is developed in Python and follows the test
+driven development rules.
+
+Runtime Requirements
+---------------------
 
 KIWI requires the following Python modules to run:
 
@@ -15,37 +18,8 @@ KIWI requires the following Python modules to run:
 * :mod:`docopt`
 * :mod:`xattr`
 
-.. note:: Further requirements
-
-    for setting up a Python virtual development environment the
-    following additional include, header files and compilers are
-    required in order to allow for compiling the C parts of the
-    Python modules listed above:
-
-    * XML processing with libxml2 and libxslt (for :mod:`lxml`)
-    * Foreign function interface library (libffi48)
-    * Python header files (for :mod:`xattr`)
-    * GCC compiler and glibc-devel header files
-
-    On SUSE systems these requirements are provided by the
-    following rpm package installation command:
-
-    .. code:: bash
-
-    $ zypper in \\
-        python3-devel libxml2-devel libxslt-devel libffi48-devel glibc-devel gcc
-
-    For development, KIWI also takes the following additional
-    Python modules from :ghkiwi:`.virtualenv.dev-requirements.txt`
-    into account.
-
-Contributing
-------------
-
-The core appliance builder is developed in Python and follows the test
-driven development rules. The XML, schema, and stylesheets are taken
-from the old version of KIWI. Also the entire boot code (written in
-bash) is taken from the old KIWI codebase.
+Development Requirements
+-------------------------
 
 The Python project uses :command:`pyvenv` to setup a development environment
 for the desired Python version. The script :command:`pyvenv` is already
@@ -53,7 +27,37 @@ installed when using Python 3.3 and higher (see
 https://docs.python.org/3.3/whatsnew/3.3.html#pep-405-virtual-environments
 for details). For Python 2.7 use :command:`virtualenv`.
 
-The following procedure describes how to create such an environment:
+However, for setting up a Python virtual development environment the
+following additional include, header files and compilers are required
+in order to allow for compiling the C parts of the runtime required
+Python modules listed above:
+
+* XML processing with libxml2 and libxslt (for :mod:`lxml`)
+* Foreign function interface library (libffi48)
+* Python header files (for :mod:`xattr`)
+* GCC compiler and glibc-devel header files
+
+The required components can be installed with the following command:
+
+.. code:: bash
+
+    $ zypper in python3-devel libxml2-devel libxslt-devel libffi48-devel glibc-devel gcc
+
+.. note::
+
+    The command above is only valid for SUSE systems.
+    Package names and install command might be different
+    on other systems.
+
+For development, KIWI also takes the following additional
+Python modules from :ghkiwi:`.virtualenv.dev-requirements.txt`
+into account.
+
+Contributing
+------------
+
+The following procedure describes how to create a Python3 virtual
+development environment:
 
 1. Create the virtual environment:
 
@@ -79,8 +83,6 @@ The following procedure describes how to create such an environment:
 
      $ ./setup.py develop
 
-You're done!
-
 Once the development environment is activated and initialized with the
 project required Python modules, you are ready to work.
 
@@ -98,9 +100,19 @@ In order to leave the development mode just call:
 
     $ deactivate
 
-To resume your work, change into your local Git repository and run
-:command:`source .env3/bin/activate` again. Skip step 3 and 4 as the
-requirements are already installed.
+To resume your work, change into your local Git repository and recall:
+
+.. code:: bash
+
+    $ source .env3/bin/activate
+
+If the version has changed by :command:`bumpversion`, this
+causes the current entry point to become invalid. Reconstruct the
+entry point after a version change by recalling:
+
+.. code:: bash
+
+    $ ./setup.py develop
 
 Running Test Cases
 ~~~~~~~~~~~~~~~~~~
@@ -129,6 +141,13 @@ example runs the test cases for the 3.4 interpreter only:
 .. code:: bash
 
     $ tox -e 3.4
+
+Working with Branches
+~~~~~~~~~~~~~~~~~~~~~
+
+Code changes should be done in an extra git branch of the origin or
+a forked git repository. This allows for creating github pull requests
+in a clean way. Also See `Github Issues and Pull Requests <https://help.github.com/categories/collaborating-on-projects-using-issues-and-pull-requests>`__
 
 Signing Git Patches
 ~~~~~~~~~~~~~~~~~~~
