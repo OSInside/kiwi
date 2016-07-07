@@ -1,4 +1,3 @@
-
 from mock import patch
 
 import mock
@@ -43,3 +42,16 @@ class TestPath(object):
         mock_command.assert_called_once_with(
             ['rmdir', '-p', '--ignore-fail-on-non-empty', 'foo']
         )
+
+    @patch('os.environ.get')
+    @patch('os.path.exists')
+    def test_which(self, mock_exists, mock_env):
+        mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
+        mock_exists.return_value = True
+        assert Path.which('some-file') == '/usr/local/bin/some-file'
+        mock_exists.return_value = False
+        assert Path.which('some-file') is None
+        mock_env.return_value = None
+        mock_exists.return_value = True
+        assert Path.which('some-file', ['alternative']) == \
+            'alternative/some-file'

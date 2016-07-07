@@ -14,11 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-
+#
 # project
 from .base import FileSystemBase
 from ..command import Command
 from ..iso import Iso
+from ..path import Path
+
+from ..exceptions import KiwiIsoToolError
 
 
 class FileSystemIsoFs(FileSystemBase):
@@ -43,7 +46,7 @@ class FileSystemIsoFs(FileSystemBase):
         iso.add_efi_loader_parameters()
         Command.run(
             [
-                'genisoimage'
+                self._find_iso_creation_tool()
             ] + iso.get_iso_creation_parameters() + [
                 '-o', filename, self.root_dir
             ]
@@ -51,7 +54,7 @@ class FileSystemIsoFs(FileSystemBase):
         hybrid_offset = iso.create_header_end_block(filename)
         Command.run(
             [
-                'genisoimage',
+                self._find_iso_creation_tool(),
                 '-hide', iso.header_end_name,
                 '-hide-joliet', iso.header_end_name
             ] + iso.get_iso_creation_parameters() + [
@@ -61,3 +64,19 @@ class FileSystemIsoFs(FileSystemBase):
         iso.relocate_boot_catalog(filename)
         iso.fix_boot_catalog(filename)
         return hybrid_offset
+
+    def _find_iso_creation_tool(self):
+        """
+        There are tools by J.Schilling and tools from the community
+        Depending on what is installed a decision needs to be made
+        """
+        iso_creation_tools = ['mkisofs', 'genisoimage']
+        for tool in iso_creation_tools:
+            tool_found = Path.which(tool)
+            if tool_found:
+                return tool_found
+
+        raise KiwiIsoToolError(
+            'No iso creation tool found, searched for: %s' %
+            iso_creation_tools
+        )

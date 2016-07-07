@@ -142,10 +142,12 @@ class TestIso(object):
 
     @patch('os.path.exists')
     @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso.Path.which')
     @patch_open
     def test_isols_usr_bin_isoinfo_used(
-        self, mock_open, mock_command, mock_exists
+        self, mock_open, mock_which, mock_command, mock_exists
     ):
+        mock_which.return_value = '/usr/bin/isoinfo'
         exists_results = [False, True]
 
         def side_effect(self):
@@ -159,10 +161,12 @@ class TestIso(object):
 
     @patch('os.path.exists')
     @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso.Path.which')
     @patch_open
     def test_isols_usr_lib_genisoimage_isoinfo_used(
-        self, mock_open, mock_command, mock_exists
+        self, mock_open, mock_which, mock_command, mock_exists
     ):
+        mock_which.return_value = '/usr/lib/genisoimage/isoinfo'
         exists_results = [True, False]
 
         def side_effect(self):
@@ -185,6 +189,7 @@ class TestIso(object):
         mock_command.return_value = output_type(output=output_data)
         result = self.iso.isols('some-iso')
         assert result[2158].name == 'header_end'
+
 
     def test_create_header_end_block(self):
         temp_file = NamedTemporaryFile()

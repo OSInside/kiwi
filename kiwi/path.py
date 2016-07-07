@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import collections
 
 # project
@@ -95,3 +96,22 @@ class Path(object):
         Command.run(
             ['rmdir', '-p', '--ignore-fail-on-non-empty', path]
         )
+
+    @classmethod
+    def which(self, filename, alternative_lookup_paths=None):
+        """
+        Lookup file name in PATH
+
+        :param string filename: file base name
+        :param list alternative_lookup_paths: list of additional lookup paths
+        """
+        lookup_paths = []
+        system_path = os.environ.get('PATH')
+        if system_path:
+            lookup_paths = system_path.split(os.pathsep)
+        if alternative_lookup_paths:
+            lookup_paths += alternative_lookup_paths
+        for path in lookup_paths:
+            location = os.path.join(path, filename)
+            if os.path.exists(location):
+                return location
