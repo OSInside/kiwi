@@ -202,7 +202,7 @@ class TestDiskFormatVmdk(object):
         vmtoolsd_result.output = \
             'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
         dd_result = mock.Mock()
-        dd_result.output = 'dd-out'
+        dd_result.output = 'dd-out\0\0\0\0\0'
 
         command_results = [
             dd_result, vmtoolsd_result, qemu_img_result
@@ -228,7 +228,7 @@ class TestDiskFormatVmdk(object):
         vmtoolsd_result.output = \
             'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
         dd_result = mock.Mock()
-        dd_result.output = 'dd-out'
+        dd_result.output = 'dd-out\0\0\0\0\0'
 
         command_results = [
             dd_result, vmtoolsd_result, qemu_img_result

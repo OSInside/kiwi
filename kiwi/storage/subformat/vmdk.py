@@ -216,7 +216,8 @@ class DiskFormatVmdk(DiskFormatBase):
         vmdk_descriptor_call = Command.run(
             ['dd', 'if=' + vmdk_image_name, 'bs=1', 'count=1024', 'skip=512']
         )
-        vmdk_descriptor_lines = vmdk_descriptor_call.output.split('\n')
+        vmdk_descriptor_lines = \
+            vmdk_descriptor_call.output.strip('\0').split('\n')
         vmdk_descriptor_lines.insert(0, 'encoding="UTF-8"')
         vmdk_descriptor_lines.append(
             'ddb.toolsInstallType = "%s"' % vmdk_tools_install_type
