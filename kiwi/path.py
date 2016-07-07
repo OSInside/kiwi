@@ -101,6 +101,9 @@ class Path(object):
     def which(self, filename, alternative_lookup_paths=None):
         """
         Lookup file name in PATH
+
+        :param string filename: file base name
+        :param list alternative_lookup_paths: list of additional lookup paths
         """
         lookup_paths = []
         system_path = os.environ.get('PATH')
