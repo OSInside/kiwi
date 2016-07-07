@@ -9,21 +9,35 @@ Development and Contributing
 Requirements
 ------------
 
-KIWI requires the following Python packages to run:
+KIWI requires the following Python modules to run:
 
 * :mod:`lxml`
 * :mod:`docopt`
 * :mod:`xattr`
 
-Further requirements include header files and compilers:
+.. note:: Further requirements
 
-* XML processing with libxml2 and libxslt (for :mod:`lxml`)
-* Foreign function interface library (libffi48)
-* GCC
+    for setting up a Python virtual development environment the
+    following additional include, header files and compilers are
+    required in order to allow for compiling the C parts of the
+    Python modules listed above:
 
-For development, KIWI uses the additional packages from
-:ghkiwi:`.virtualenv.dev-requirements.txt`.
+    * XML processing with libxml2 and libxslt (for :mod:`lxml`)
+    * Foreign function interface library (libffi48)
+    * Python header files (for :mod:`xattr`)
+    * GCC compiler and glibc-devel header files
 
+    On SUSE systems these requirements are provided by the
+    following rpm package installation command:
+
+    .. code:: bash
+
+    $ zypper in \\
+        python3-devel libxml2-devel libxslt-devel libffi48-devel glibc-devel gcc
+
+    For development, KIWI also takes the following additional
+    Python modules from :ghkiwi:`.virtualenv.dev-requirements.txt`
+    into account.
 
 Contributing
 ------------
