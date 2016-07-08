@@ -14,6 +14,13 @@ from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 class TestDiskFormatVmdk(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         mock_machine.return_value = 'x86_64'
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
@@ -238,14 +245,7 @@ class TestDiskFormatVmdk(object):
             return command_results.pop()
 
         mock_command.side_effect = side_effect
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
 
         self.disk_format.create_image_format()
@@ -254,13 +254,13 @@ class TestDiskFormatVmdk(object):
             call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'wb'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
         ]
-        assert file_mock.write.call_args_list[0] == call(
+        assert self.file_mock.write.call_args_list[0] == call(
             self.vmdk_header_update
         )
-        assert file_mock.write.call_args_list[1] == call(
+        assert self.file_mock.write.call_args_list[1] == call(
             self.vmdk_settings
         )
-        assert file_mock.seek.call_args_list == [
+        assert self.file_mock.seek.call_args_list == [
             call(512, 0), call(0, 2)
         ]
 
@@ -285,14 +285,7 @@ class TestDiskFormatVmdk(object):
             return command_results.pop()
 
         mock_command.side_effect = side_effect
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
 
         self.disk_format.create_image_format()
@@ -301,12 +294,12 @@ class TestDiskFormatVmdk(object):
             call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'wb'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
         ]
-        assert file_mock.write.call_args_list[0] == call(
+        assert self.file_mock.write.call_args_list[0] == call(
             self.vmdk_header_update
         )
-        assert file_mock.write.call_args_list[1] == call(
+        assert self.file_mock.write.call_args_list[1] == call(
             self.vmdk_settings
         )
-        assert file_mock.seek.call_args_list == [
+        assert self.file_mock.seek.call_args_list == [
             call(512, 0), call(0, 2)
         ]
