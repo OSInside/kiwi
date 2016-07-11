@@ -4945,17 +4945,22 @@ function mountSystemUnionFS {
         #======================================
         # setup overlayfs mount
         #--------------------------------------
-        local opts="rw,lowerdir=$roDir,upperdir=$rwDir"
-        if ! mount -t overlayfs -o $opts overlayfs $prefix;then
-            # overlayfs in version >= v22 behaves differently
-            # + renamed from overlayfs to overlay
-            # + requires a workdir to become mounted
-            # + requires workdir and upperdir to reside under the same mount
-            # + requires workdir and upperdir to be in separate subdirs
-            mkdir -p $rwDir/work
-            mkdir -p $rwDir/rw
-            opts="rw,lowerdir=$roDir,upperdir=$rwDir/rw,workdir=$rwDir/work"
-            if ! mount -t overlay -o $opts overlay $prefix;then
+        # overlayfs in version >= v22 behaves differently
+        # + renamed from overlayfs to overlay
+        # + requires a workdir to become mounted
+        # + requires workdir and upperdir to reside under the same mount
+        # + requires workdir and upperdir to be in separate subdirs
+        # try new mode first, if that fails then fallback to old style
+        mkdir -p $rwDir/work
+        mkdir -p $rwDir/rw
+        local opts="rw,lowerdir=$roDir,upperdir=$rwDir/rw,workdir=$rwDir/work"
+        if ! mount -t overlay -o $opts overlay $prefix;then
+            # overlayfs in version < v22 fallback/compat mode
+            # + does not require a workdir
+            rm -rf $rwDir/work
+            rm -rf $rwDir/rw
+            opts="rw,lowerdir=$roDir,upperdir=$rwDir"
+            if ! mount -t overlayfs -o $opts overlayfs $prefix;then
                 Echo "Failed to mount root via overlayfs"
                 return 1
             fi
