@@ -10,6 +10,7 @@ The Next Generation of the KIWI project.
    * `GitHub Project <https://github.com/SUSE/kiwi>`__
    * `Sources <https://github.com/SUSE/kiwi/releases>`__
    * `RPM Packages <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
+   * `Build Tests <https://ci.opensuse.org/view/kiwi/>`__
 
 .. toctree::
    :maxdepth: 1
