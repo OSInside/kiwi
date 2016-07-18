@@ -17,8 +17,9 @@ while (my $line = <>) {
     if ($line =~ /^Merge|Conflicts/) {
         $ignore = 2;
     }
-    if (($ignore < 2) && ($line =~ /^Author: .*<(.*)@.*>/)) {
+    if (($ignore < 2) && ($line =~ /^Author: .*<(.*)@(.*)>/)) {
         $name = $1;
+        $add = $2;
         $ignore = 1;
     }
     next if ($ignore);
@@ -33,7 +34,7 @@ while (my $line = <>) {
         }
         my $date = qx /date --date="$1"/; chomp $date;
         push @out, "------------------------------------------------------------------\n";
-        push @out, "$date - $name\@suse.de\n";
+        push @out, "$date - $name\@$add\n";
         undef $date;
         $ignore = 0;
         $count = 0;
