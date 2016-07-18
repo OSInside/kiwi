@@ -332,11 +332,13 @@ if [ ! -z "$KIWI_RECOVERY" ];then
     if [ ! -z "$RESTORE" ];then
         text=$TEXT_RESTORE
     fi
-    Dialog --defaultno --yesno "\"$text\"" 5 50
-    if [ ! $? = 0 ];then
-        systemException "System-Recovery not started" "reboot"
+    if [ "$kiwi_oemunattended" != "true" ]; then
+        Dialog --defaultno --yesno "\"$text\"" 5 50
+        if [ ! $? = 0 ];then
+            systemException "System-Recovery not started" "reboot"
+        fi
+        clear
     fi
-    clear
     Echo "Starting System-Recovery/Restore..."
     #======================================
     # 15.1) mount recovery partition
