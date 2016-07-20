@@ -21,6 +21,7 @@ from .vhd import DiskFormatVhd
 from .vhdfixed import DiskFormatVhdFixed
 from .vmdk import DiskFormatVmdk
 from .gce import DiskFormatGce
+from .vdi import DiskFormatVdi
 
 from ...exceptions import (
     KiwiDiskFormatSetupError
@@ -48,6 +49,10 @@ class DiskFormat(object):
     def __new__(self, name, xml_state, root_dir, target_dir):
         if name == 'qcow2':
             return DiskFormatQcow2(
+                xml_state, root_dir, target_dir
+            )
+        elif name == 'vdi':
+            return DiskFormatVdi(
                 xml_state, root_dir, target_dir
             )
         elif name == 'vhd':

@@ -22,6 +22,14 @@ class TestDiskFormat(object):
             xml_state, 'root_dir', 'target_dir'
         )
 
+    @patch('kiwi.storage.subformat.DiskFormatVdi')
+    def test_disk_format_vdi(self, mock_vdi):
+        xml_state = mock.Mock()
+        DiskFormat('vdi', xml_state, 'root_dir', 'target_dir')
+        mock_vdi.assert_called_once_with(
+            xml_state, 'root_dir', 'target_dir'
+        )
+
     @patch('kiwi.storage.subformat.DiskFormatVhd')
     def test_disk_format_vhd(self, mock_vhd):
         xml_state = mock.Mock()
