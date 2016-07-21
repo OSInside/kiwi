@@ -54,7 +54,10 @@ class TestDiskFormatGce(object):
         self.disk_format.create_image_format()
 
         mock_command.assert_called_once_with(
-            ['cp', 'target_dir/some-disk-image.raw', 'tmpdir/disk.raw']
+            [
+                'cp', 'target_dir/some-disk-image.x86_64-0.8.15.raw',
+                'tmpdir/disk.raw'
+            ]
         )
         assert mock_open.call_args_list == [
             call('tmpdir/manifest.json', 'w')
@@ -64,7 +67,7 @@ class TestDiskFormatGce(object):
         ]
         mock_archive.assert_called_once_with(
             filename='target_dir/distribution-guest-gce-0.8.15.tar',
-            file_list=['manifest.json', 'disk.raw']
+            file_list=['disk.raw', 'manifest.json']
         )
         archive.create_gnu_gzip_compressed.assert_called_once_with(
             'tmpdir'
