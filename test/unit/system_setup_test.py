@@ -5,13 +5,16 @@ from mock import call
 import mock
 
 from .test_helper import *
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
-from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import *
 from kiwi.defaults import Defaults
+from kiwi.system.setup import (
+    SystemSetup,
+    directory_type,
+)
 
 
 class TestSystemSetup(object):
@@ -79,6 +82,10 @@ class TestSystemSetup(object):
                 'cp', Defaults.project_file('config/functions.sh'),
                 'root_dir/.kconfig'
             ]),
+            call([
+                'cp', '-r',
+                '../data/lxd_metadata', 'root_dir/image/lxd_metadata'
+            ]),
             call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
             call(['cp', '../data/bootstrap.tgz', 'root_dir/image/'])]
 
@@ -89,7 +96,7 @@ class TestSystemSetup(object):
         self, mock_path, mock_open, mock_command
     ):
         path_return_values = [
-            True, False, True, True, True, True, True
+            True, False, True, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -113,6 +120,10 @@ class TestSystemSetup(object):
             call([
                 'cp', Defaults.project_file('config/functions.sh'),
                 'root_dir/.kconfig'
+            ]),
+            call([
+                'cp', '-r',
+                '../data/lxd_metadata', 'root_dir/image/lxd_metadata'
             ]),
             call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
             call([
@@ -149,6 +160,61 @@ class TestSystemSetup(object):
 
         mock_path.side_effect = side_effect
         self.setup_with_real_xml.import_description()
+
+    @patch('kiwi.command.Command.run')
+    @patch_open
+    @patch('os.path.exists')
+    @raises(KiwiImportDescriptionError)
+    def test_import_description_required_custom_directory_not_found(
+        self, mock_path, mock_open, mock_command
+    ):
+        self.setup_with_real_xml._get_custom_directories = mock.Mock(
+            return_value=OrderedDict(dict(missing_but_required_dir=directory_type(
+                path='missing_but_required_dir',
+                raise_if_not_exists=True))))
+        path_return_values = [False, True, True, True, True]
+        def side_effect(arg):
+            return path_return_values.pop()
+        mock_path.side_effect = side_effect
+
+        self.setup_with_real_xml.import_description()
+
+    @patch('kiwi.command.Command.run')
+    @patch_open
+    @patch('os.path.exists')
+    def test_import_description_custom_directory_absolute_path(
+        self, mock_path, mock_open, mock_command
+    ):
+        self.setup_with_real_xml._get_custom_directories = mock.Mock(
+            return_value=OrderedDict(dict(abspath=directory_type(
+                path='/abs/path',
+                raise_if_not_exists=False))))
+        mock_path.return_value = True
+        self.setup_with_real_xml.import_description()
+
+        assert mock_command.call_args_list == [
+            call(['mkdir', '-p', 'root_dir/image']),
+            call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
+            call([
+                'cp', '../data/my_edit_boot_script',
+                'root_dir/image/edit_boot_config.sh'
+            ]),
+            call([
+                'cp', '/absolute/path/to/my_edit_boot_install',
+                'root_dir/image/edit_boot_install.sh'
+            ]),
+            call(['cp', '../data/images.sh', 'root_dir/image/images.sh']),
+            call([
+                'cp', Defaults.project_file('config/functions.sh'),
+                'root_dir/.kconfig'
+            ]),
+            # the command we're testing surgically below...
+            call([
+                'cp', '-r',
+                '/abs/path', 'root_dir/image/abspath'
+            ]),
+            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
+            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/'])]
 
     @patch('kiwi.command.Command.run')
     def test_cleanup(self, mock_command):

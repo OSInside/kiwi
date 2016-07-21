@@ -43,6 +43,12 @@ from ..exceptions import (
 )
 
 
+script_type = namedtuple(
+    'script_type', ['filepath', 'raise_if_not_exists'])
+directory_type = namedtuple(
+    'directory_type', ['path', 'raise_if_not_exists'])
+
+
 class SystemSetup(object):
     """
     Implementation of system setup steps supported by kiwi.
@@ -100,6 +106,7 @@ class SystemSetup(object):
             self.xml_state.xml_data.export(outfile=config, level=0)
 
         self._import_custom_scripts()
+        self._import_custom_directories()
         self._import_custom_archives()
 
     def cleanup(self):
@@ -645,6 +652,44 @@ class SystemSetup(object):
                     'Specified archive %s does not exist' % archive_file
                 )
 
+    # NB: we could potentially replace both _import_custom_scripts()
+    # and _import_custom_directories() with a shared
+    # _import_custom_paths() method.  ``cp -r <src> <dst>'' works for
+    # both files and directories.
+    def _import_custom_directories(self):
+        """
+        Import custom directories adding support for extensions
+        """
+        description_target = os.path.join(self.root_dir, 'image')
+        for name, custom_directory in list(self._get_custom_directories().items()):
+            if custom_directory.path:
+                if custom_directory.path.startswith('/'):
+                    path = custom_directory.path
+                else:
+                    path = os.path.join(self.description_dir, custom_directory.path)
+                if os.path.exists(path):
+                    log.info(
+                        '--> Importing %s path as %s',
+                        custom_directory.path, 'image/' + name
+                    )
+                    Command.run(
+                        ['cp', '-r', path, os.path.join(description_target, name)]
+                    )
+                elif custom_directory.raise_if_not_exists:
+                    raise KiwiImportDescriptionError(
+                        'Specified directory %s does not exist' % path)
+
+    def _get_custom_directories(self):
+        """
+        Return dictionary of custom directory types
+        """
+        custom_directories = {
+            'lxd_metadata': directory_type(
+                path='lxd_metadata',
+                raise_if_not_exists=False),
+        }
+        return OrderedDict(sorted(custom_directories.items()))
+
     def _import_custom_scripts(self):
         """
         Import custom scripts
@@ -656,9 +701,6 @@ class SystemSetup(object):
         # the script hook is not used. The raise_if_not_exists flag
         # causes kiwi to raise an exception if a specified script
         # filepath does not exist
-        script_type = namedtuple(
-            'script_type', ['filepath', 'raise_if_not_exists']
-        )
         custom_scripts = {
             'config.sh': script_type(
                 filepath='config.sh',

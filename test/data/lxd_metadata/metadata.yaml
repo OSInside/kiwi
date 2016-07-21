@@ -1,0 +1,4 @@
+architecture: "x86_64"
+creation_date: 1466014102
+properties:
+ description: test LXD metadata

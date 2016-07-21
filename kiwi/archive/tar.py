@@ -41,6 +41,20 @@ class ArchiveTar(object):
         self.create_from_file_list = create_from_file_list
         self.file_list = file_list
 
+    def _does_tar_command_support_xattrs(self):
+        command = Command.run(['tar', '--version'])
+        if command.returncode != 0:
+            raise EnvironmentError(
+                "Unable run tar command and determine version")
+        try:
+            version_line = command.output.splitlines()[0]
+            version_string = version_line.split()[-1]
+            version_info = tuple(int(elt) for elt in version_string.split('.'))
+        except:
+            raise EnvironmentError(
+                "Unable to parse tar version string")
+        return version_info >= (1, 27)
+
     def create(self, source_dir, exclude=None, options=None):
         """
         Create uncompressed tar archive
@@ -51,13 +65,21 @@ class ArchiveTar(object):
         """
         if not options:
             options = []
+        if self._does_tar_command_support_xattrs():
+            xattr_options = ['--xattrs', '--xattrs-include=*']
+        else:
+            xattr_options = []
         Command.run(
             [
                 'tar', '-C', source_dir
-            ] + options + [
-                '--xattrs', '--xattrs-include=*', '-c', '-f',
+            ] +
+            options +
+            xattr_options +
+            [
+                '-c', '-f',
                 self.filename
-            ] + self._get_archive_items(source_dir, exclude)
+            ] +
+            self._get_archive_items(source_dir, exclude)
         )
 
     def create_xz_compressed(self, source_dir, exclude=None, options=None):
@@ -70,13 +92,21 @@ class ArchiveTar(object):
         """
         if not options:
             options = []
+        if self._does_tar_command_support_xattrs():
+            xattr_options = ['--xattrs', '--xattrs-include=*']
+        else:
+            xattr_options = []
         Command.run(
             [
                 'tar', '-C', source_dir
-            ] + options + [
-                '--xattrs', '--xattrs-include=*', '-c', '-J', '-f',
+            ] +
+            options +
+            xattr_options +
+            [
+                '-c', '-J', '-f',
                 self.filename + '.xz'
-            ] + self._get_archive_items(source_dir, exclude)
+            ] +
+            self._get_archive_items(source_dir, exclude)
         )
 
     def create_gnu_gzip_compressed(self, source_dir, exclude=None):

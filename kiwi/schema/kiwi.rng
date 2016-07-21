@@ -2390,6 +2390,7 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>ext3</value>
           <value>ext4</value>
           <value>iso</value>
+          <value>lxd</value>
           <value>oem</value>
           <value>pxe</value>
           <value>squashfs</value>

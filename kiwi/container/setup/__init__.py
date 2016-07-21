@@ -17,6 +17,7 @@
 #
 # project
 from .docker import ContainerSetupDocker
+from .lxd import ContainerSetupLxd
 
 from ...exceptions import (
     KiwiContainerSetupError
@@ -30,6 +31,8 @@ class ContainerSetup(object):
     def __new__(self, name, root_dir, custom_args=None):
         if name == 'docker':
             return ContainerSetupDocker(root_dir, custom_args)
+        elif name == 'lxd':
+            return ContainerSetupLxd(root_dir, custom_args)
         else:
             raise KiwiContainerSetupError(
                 'Support for %s container not implemented' % name
