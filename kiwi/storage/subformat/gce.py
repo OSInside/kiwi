@@ -54,21 +54,27 @@ class DiskFormatGce(DiskFormatBase):
         """
         Create GCE disk format and manifest
         """
+        gce_tar_ball_file_list = []
         self.temp_image_dir = mkdtemp(
             prefix='kiwi_gce_subformat.', dir=self.target_dir
         )
         diskname = ''.join(
             [
                 self.target_dir, '/',
-                self.xml_state.xml_data.get_name(), '.raw'
+                self.xml_state.xml_data.get_name(),
+                '.' + self.arch,
+                '-' + self.xml_state.get_image_version(),
+                '.raw'
             ]
         )
         Command.run(
             ['cp', diskname, self.temp_image_dir + '/disk.raw']
         )
+        gce_tar_ball_file_list.append('disk.raw')
         if self.tag:
             with open(self.temp_image_dir + '/manifest.json', 'w') as manifest:
                 manifest.write('{"licenses": ["%s"]}' % self.tag)
+            gce_tar_ball_file_list.append('manifest.json')
 
         archive_name = self.get_target_name_for_format(self.image_format)
 
@@ -78,7 +84,7 @@ class DiskFormatGce(DiskFormatBase):
 
         archive = ArchiveTar(
             filename=self.target_dir + '/' + archive_name,
-            file_list=['manifest.json', 'disk.raw']
+            file_list=gce_tar_ball_file_list
         )
         archive.create_gnu_gzip_compressed(
             self.temp_image_dir
