@@ -26,6 +26,12 @@ class ArchiveTar(object):
     """
     Extraction/Creation of tar archives
 
+    The tarfile python module is not used by that class,
+    since it does not provide support for some relevant features
+    in comparison to the GNU tar command (e.g. numeric-owner).
+    Moreover tarfile lacks support for xz compression under
+    Python v2.7.
+
     Attributes
 
     * :attr:`filename`
