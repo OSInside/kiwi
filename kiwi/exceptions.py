@@ -41,6 +41,13 @@ class KiwiArchiveSetupError(KiwiError):
     """
 
 
+class KiwiArchiveTarError(KiwiError):
+    """
+    Exception raised if impossible to determine which tar command
+    version is installed on the underlying system
+    """
+
+
 class KiwiBootImageSetupError(KiwiError):
     """
     Exception raised if an unsupported initrd system type is used.
