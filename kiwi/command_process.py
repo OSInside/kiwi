@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
+import six
+from builtins import bytes
 
-from builtins import object
+# project
 from .logger import log
 from collections import namedtuple
-from builtins import bytes
 
 from .exceptions import (
     KiwiCommandError
@@ -139,7 +139,7 @@ class CommandProcess(object):
             self.command.kill()
 
 
-class CommandIterator(object):
+class CommandIterator(six.Iterator):
     """
     Implements Iterator for Instances of Command
     """
