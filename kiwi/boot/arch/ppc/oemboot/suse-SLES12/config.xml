@@ -141,6 +141,7 @@
         <package name="sysvinit-tools"/>
         <package name="multipath-tools"/>
         <package name="xz"/>
+        <package name="gawk"/>
     </packages>
     <packages type="delete">
         <package name="cracklib-dict-full"/>
