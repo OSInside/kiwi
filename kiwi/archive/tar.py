@@ -19,11 +19,18 @@ import os
 
 # project
 from ..command import Command
+from ..exceptions import KiwiArchiveTarError
 
 
 class ArchiveTar(object):
     """
     Extraction/Creation of tar archives
+
+    The tarfile python module is not used by that class,
+    since it does not provide support for some relevant features
+    in comparison to the GNU tar command (e.g. numeric-owner).
+    Moreover tarfile lacks support for xz compression under
+    Python v2.7.
 
     Attributes
 
@@ -41,6 +48,13 @@ class ArchiveTar(object):
         self.create_from_file_list = create_from_file_list
         self.file_list = file_list
 
+        if self._does_tar_command_support_xattrs():
+            self.xattrs_options = [
+                '--xattrs', '--xattrs-include=*'
+            ]
+        else:
+            self.xattrs_options = []
+
     def create(self, source_dir, exclude=None, options=None):
         """
         Create uncompressed tar archive
@@ -54,10 +68,28 @@ class ArchiveTar(object):
         Command.run(
             [
                 'tar', '-C', source_dir
-            ] + options + [
-                '--xattrs', '--xattrs-include=*', '-c', '-f',
-                self.filename
+            ] + options +
+            self.xattrs_options + [
+                '-c', '-f', self.filename
             ] + self._get_archive_items(source_dir, exclude)
+        )
+
+    def append_files(self, source_dir, files_to_append, options=None):
+        """
+        Append files to an already existing uncompressed tar archive
+
+        :param string source_dir: data source directory
+        :param list files_to_append: list of items to append
+        :param list options: custom options
+        """
+        if not options:
+            options = []
+        Command.run(
+            [
+                'tar', '-C', source_dir, '-r',
+                '--file=' + self.filename
+            ] + options +
+            self.xattrs_options + files_to_append
         )
 
     def create_xz_compressed(self, source_dir, exclude=None, options=None):
@@ -73,9 +105,9 @@ class ArchiveTar(object):
         Command.run(
             [
                 'tar', '-C', source_dir
-            ] + options + [
-                '--xattrs', '--xattrs-include=*', '-c', '-J', '-f',
-                self.filename + '.xz'
+            ] + options +
+            self.xattrs_options + [
+                '-c', '-J', '-f', self.filename + '.xz'
             ] + self._get_archive_items(source_dir, exclude)
         )
 
@@ -133,3 +165,15 @@ class ArchiveTar(object):
             archive_items.append('--exclude')
             archive_items.append('./' + exclude)
         return archive_items
+
+    def _does_tar_command_support_xattrs(self):
+        command = Command.run(['tar', '--version'])
+
+        try:
+            version_line = command.output.splitlines()[0]
+            version_string = version_line.split()[-1]
+            version_info = tuple(int(elt) for elt in version_string.split('.'))
+        except:
+            raise KiwiArchiveTarError(
+                "Unable to parse tar version string")
+        return version_info >= (1, 27)
