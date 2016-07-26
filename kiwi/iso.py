@@ -22,6 +22,10 @@ import collections
 import platform
 from tempfile import NamedTemporaryFile
 from collections import namedtuple
+
+# In python2 bytes is string which is different from
+# the bytes type in python3. The bytes type from the
+# builtins generalizes this type to be bytes always
 from builtins import bytes
 
 # project

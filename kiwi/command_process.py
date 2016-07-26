@@ -15,12 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
+import six
 
-from builtins import object
+# In python2 bytes is string which is different from
+# the bytes type in python3. The bytes type from the
+# builtins generalizes this type to be bytes always
+from builtins import bytes
+
+# project
 from .logger import log
 from collections import namedtuple
-from builtins import bytes
 
 from .exceptions import (
     KiwiCommandError
@@ -139,7 +143,7 @@ class CommandProcess(object):
             self.command.kill()
 
 
-class CommandIterator(object):
+class CommandIterator(six.Iterator):
     """
     Implements Iterator for Instances of Command
     """
