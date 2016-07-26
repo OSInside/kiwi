@@ -352,8 +352,8 @@ class Profile(object):
         """
         if section_content:
             content = section_content[0]
-            if content == 'false':
-                return False
+            if content is True:
+                return 'true'
             else:
                 return content
 

@@ -297,8 +297,8 @@ class TestXMLState(object):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data, None, 'oem')
-        assert state.get_build_type_oemconfig_section().get_oem_swap()[0] ==\
-            'true'
+        assert state.get_build_type_oemconfig_section().get_oem_swap()[0] is \
+            True
 
     def test_get_users_sections(self):
         assert self.state.get_users_sections()[0].get_user()[0].get_name() == \
