@@ -17,7 +17,7 @@
 # Comunitatea romana openSUSE - www.suseromania.ro
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenSUSE\n"
+"Project-Id-Version: openSUSE\n"
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: 2012-11-19 14:59+0200\n"
 "Last-Translator: Lucian Oprea <oprea.luci@gmail.com>\n"

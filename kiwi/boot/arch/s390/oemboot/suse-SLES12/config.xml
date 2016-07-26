@@ -142,6 +142,7 @@
         <package name="xz"/>
         <package name="grub2-s390x-emu"/>
         <package name="grub2"/>
+        <package name="gawk"/>
     </packages>
     <packages type="delete">
         <package name="cracklib-dict-full"/>
