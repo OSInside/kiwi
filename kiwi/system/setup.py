@@ -279,9 +279,9 @@ class SystemSetup(object):
                 if user.get_group() and not system_users.group_exists(user.get_group()):
                     log.info('Adding group %s', user.get_group())
                     system_users.group_add(user.get_group(), [])
-                if not user.get_sec_groups():
+                if not user.get_secgroups():
                     continue
-                for group in user.get_sec_groups():
+                for group in user.get_secgroups().split(','):
                     if not system_users.group_exists(group):
                         log.info('Adding group %s', group)
                         system_users.group_add(group, [])
@@ -302,7 +302,7 @@ class SystemSetup(object):
                 user_id = user.get_id()
                 user_realname = user.get_realname()
                 user_shell = user.get_shell()
-                user_sec_groups = user.get_sec_groups()
+                user_secgroups = user.get_secgroups()
                 user_group = user.get_group()
 
                 user_exists = system_users.user_exists(user_name)
@@ -319,9 +319,9 @@ class SystemSetup(object):
                 if user_group:
                     options.append('-g')
                     options.append(user_group)
-                if user_sec_groups and len(user_sec_groups) > 0:
+                if user_secgroups:
                     options.append('-G')
-                    options.append(','.join(user_sec_groups))
+                    options.append(user_secgroups)
                 if user_id:
                     options.append('-u')
                     options.append(user_id)
