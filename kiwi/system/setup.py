@@ -786,8 +786,4 @@ class SystemSetup(object):
         following structure: <section>text</section>.
         """
         if section_content:
-            content = section_content[0]
-            if content == 'false':
-                return False
-            else:
-                return content
+            return section_content[0]
