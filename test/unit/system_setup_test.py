@@ -301,8 +301,19 @@ class TestSystemSetup(object):
 
         self.setup_with_real_xml.setup_groups()
 
-        users.group_exists.assert_called_once_with('root')
-        users.group_add.assert_called_once_with('root', ['-g', 42])
+        calls = [
+            call('root'),
+            call('users'),
+            call('admin') 
+        ] 
+        users.group_exists.assert_has_calls(calls)
+
+        calls = [
+            call('root', []),
+            call('users', []),
+            call('admin', []) 
+        ] 
+        users.group_add.assert_has_calls(calls)
 
     @patch('kiwi.system.setup.Users')
     @patch('kiwi.system.setup.Command.run')
@@ -316,15 +327,32 @@ class TestSystemSetup(object):
 
         self.setup_with_real_xml.setup_users()
 
-        users.user_exists.assert_called_once_with('root')
-        users.user_add.assert_called_once_with(
-            'root', [
-                '-p', 'password-hash',
-                '-s', '/bin/bash', '-g', 42, '-u', 815, '-c', 'Bob',
-                '-m', '-d', '/root'
-            ]
-        )
-        mock_command.assert_called_once_with(
+        calls = [
+            call('root'),
+            call('tux'),
+        ] 
+        users.user_exists.assert_has_calls(calls)
+
+        calls = [
+            call(
+                'root', [
+                    '-p', 'password-hash',
+                    '-s', '/bin/bash', '-g', 'root',
+                    '-u', 815, '-c', 'Bob',
+                    '-m', '-d', '/root'
+                ]
+            ),
+            call(
+                'tux', [
+                    '-p', 'password-hash',
+                    '-g', 'users', '-G', 'admin',
+                    '-m', '-d', '/home/tux'
+                ]
+            )
+        ]
+        users.user_add.assert_has_calls(calls)
+
+        mock_command.assert_called_with(
             ['openssl', 'passwd', '-1', '-salt', 'xyz', 'mypwd']
         )
 
@@ -339,35 +367,28 @@ class TestSystemSetup(object):
         mock_command.return_value = self.run_result
 
         self.setup_with_real_xml.setup_users()
+        
+        calls = [
+            call('root'),
+            call('tux'),
+        ] 
+        users.user_exists.assert_has_calls(calls)
 
-        users.user_exists.assert_called_once_with('root')
-        users.user_modify.assert_called_once_with(
-            'root', [
-                '-p', 'password-hash',
-                '-s', '/bin/bash', '-g', 42, '-u', 815, '-c', 'Bob'
-            ]
-        )
-
-    @patch('kiwi.system.setup.Users')
-    @patch('kiwi.system.setup.Command.run')
-    def test_setup_users_modify_group_name(self, mock_command, mock_users):
-        # unset group id and expect use of group name now
-        self.setup_with_real_xml.xml_state.xml_data.get_users()[0].set_id(None)
-        users = mock.Mock()
-        users.user_exists = mock.Mock(
-            return_value=True
-        )
-        mock_users.return_value = users
-        mock_command.return_value = self.run_result
-
-        self.setup_with_real_xml.setup_users()
-
-        users.user_modify.assert_called_once_with(
-            'root', [
-                '-p', 'password-hash',
-                '-s', '/bin/bash', '-g', 'root', '-u', 815, '-c', 'Bob'
-            ]
-        )
+        calls = [
+            call(
+                'root', [
+                    '-p', 'password-hash',
+                    '-s', '/bin/bash', '-g', 'root', '-u', 815, '-c', 'Bob'
+                ]
+            ),
+            call(
+                'tux', [
+                    '-p', 'password-hash',
+                    '-g', 'users', '-G', 'admin',
+                ]
+            ) 
+        ]
+        users.user_modify.assert_has_calls(calls)
 
     @patch_open
     @patch('os.path.exists')

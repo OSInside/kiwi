@@ -274,16 +274,17 @@ class SystemSetup(object):
         """
         system_users = Users(self.root_dir)
 
-        for users in self.xml_state.get_users():
-            if not system_users.group_exists(users.group_name):
-                options = []
-                if users.group_id:
-                    options.append('-g')
-                    options.append(users.group_id)
-                log.info('Adding group %s', users.group_name)
-                system_users.group_add(
-                    users.group_name, options
-                )
+        for users_set in self.xml_state.get_users():
+            for user in users_set:
+                if user.get_group() and not system_users.group_exists(user.get_group()):
+                    log.info('Adding group %s', user.get_group())
+                    system_users.group_add(user.get_group(), [])
+                if not user.get_sec_groups():
+                    continue
+                for group in user.get_sec_groups():
+                    if not system_users.group_exists(group):
+                        log.info('Adding group %s', group)
+                        system_users.group_add(group, [])
 
     def setup_users(self):
         """
@@ -291,8 +292,8 @@ class SystemSetup(object):
         """
         system_users = Users(self.root_dir)
 
-        for users in self.xml_state.get_users():
-            for user in users.user_sections:
+        for users_set in self.xml_state.get_users():
+            for user in users_set:
                 log.info('Setting up user %s', user.get_name())
                 password = user.get_password()
                 password_format = user.get_pwdformat()
@@ -301,6 +302,8 @@ class SystemSetup(object):
                 user_id = user.get_id()
                 user_realname = user.get_realname()
                 user_shell = user.get_shell()
+                user_sec_groups = user.get_sec_groups()
+                user_group = user.get_group()
 
                 user_exists = system_users.user_exists(user_name)
 
@@ -313,12 +316,12 @@ class SystemSetup(object):
                 if user_shell:
                     options.append('-s')
                     options.append(user_shell)
-                if users.group_id or users.group_name:
+                if user_group:
                     options.append('-g')
-                if users.group_id:
-                    options.append(users.group_id)
-                else:
-                    options.append(users.group_name)
+                    options.append(user_group)
+                if user_sec_groups and len(user_sec_groups) > 0:
+                    options.append('-G')
+                    options.append(','.join(user_sec_groups))
                 if user_id:
                     options.append('-u')
                     options.append(user_id)
@@ -333,13 +336,15 @@ class SystemSetup(object):
                 if user_exists:
                     log.info(
                         '--> Modifying user: %s [%s]',
-                        user_name, users.group_name
+                        user_name,
+                        user_group
                     )
                     system_users.user_modify(user_name, options)
                 else:
                     log.info(
                         '--> Adding user: %s [%s]',
-                        user_name, users.group_name
+                        user_name,
+                        user_group
                     )
                     system_users.user_add(user_name, options)
                     if home_path:
@@ -347,7 +352,9 @@ class SystemSetup(object):
                             '--> Setting permissions for %s', home_path
                         )
                         system_users.setup_home_for_user(
-                            user_name, users.group_name, home_path
+                            user_name,
+                            user_group,
+                            home_path
                         )
 
     def import_image_identifier(self):

@@ -522,33 +522,22 @@ class XMLState(object):
         """
         List of configured users.
 
-        Each entry in the list is a tuple with the following information
-
-        * group_name, name of the group
-        * group_id, id of the group
-        * user_sections, list of xml_parse::users instances which belong
-          to the group name and id of this tuple
+        Each entry in the list is another nested list where each item in
+        the child list is a single xml_parse::user instance, and each
+        item in the parent list represents all the users under a single
+        <users> section in the description XML file.
 
         :return: user data
         :rtype: list
         """
-        users_by_group_type = namedtuple(
-            'users_by_group_type', ['group_name', 'group_id', 'user_sections']
-        )
-        users_by_group = []
+        users_list = []
         users_sections = self.get_users_sections()
         if users_sections:
             for users in users_sections:
                 user_sections = users.get_user()
                 if user_sections:
-                    users_by_group.append(
-                        users_by_group_type(
-                            group_name=users.get_group(),
-                            group_id=users.get_id(),
-                            user_sections=user_sections
-                        )
-                    )
-        return users_by_group
+                    users_list.append(user_sections)
+        return users_list
 
     def get_volumes(self):
         """

@@ -39,8 +39,8 @@
             </machine>
         </type>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    <users>
+        <user group="root" password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
     </users>
     <repository type="yast2">
         <source path="obs://13.2/repo/oss"/>
