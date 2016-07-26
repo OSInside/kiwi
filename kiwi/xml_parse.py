@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Jun 20 17:54:01 2016 by generateDS.py version 2.19b.
+# Generated Tue Jul 26 17:38:33 2016 by generateDS.py version 2.22a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /usr/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -757,6 +757,13 @@ class image(GeneratedsSuper):
     def set_noNamespaceSchemaLocation(self, noNamespaceSchemaLocation): self.noNamespaceSchemaLocation = noNamespaceSchemaLocation
     def get_schemaLocation(self): return self.schemaLocation
     def set_schemaLocation(self, schemaLocation): self.schemaLocation = schemaLocation
+    def validate_image_name(self, value):
+        # Validate type image-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_image_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_image_name_patterns_, ))
+    validate_image_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
     def hasContent_(self):
         if (
             self.description or
@@ -847,6 +854,8 @@ class image(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+            self.name = ' '.join(self.name.split())
+            self.validate_image_name(self.name)    # validate type image-name
         value = find_attr_value_('displayname', node)
         if value is not None and 'displayname' not in already_processed:
             already_processed.add('displayname')
@@ -1803,6 +1812,13 @@ class partition(GeneratedsSuper):
     def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
     def get_target(self): return self.target
     def set_target(self, target): self.target = target
+    def validate_size_type(self, value):
+        # Validate type size-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_size_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_size_type_patterns_, ))
+    validate_size_type_patterns_ = [['^\\d*|image$']]
     def hasContent_(self):
         if (
 
@@ -1865,6 +1881,8 @@ class partition(GeneratedsSuper):
         if value is not None and 'size' not in already_processed:
             already_processed.add('size')
             self.size = value
+            self.size = ' '.join(self.size.split())
+            self.validate_size_type(self.size)    # validate type size-type
         value = find_attr_value_('mountpoint', node)
         if value is not None and 'mountpoint' not in already_processed:
             already_processed.add('mountpoint')
@@ -2763,6 +2781,13 @@ class type_(GeneratedsSuper):
     def set_volid(self, volid): self.volid = volid
     def get_wwid_wait_timeout(self): return self.wwid_wait_timeout
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
+    def validate_vhd_tag_type(self, value):
+        # Validate type vhd-tag-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_vhd_tag_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_vhd_tag_type_patterns_, ))
+    validate_vhd_tag_type_patterns_ = [['^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$']]
     def hasContent_(self):
         if (
             self.machine or
@@ -3271,6 +3296,8 @@ class type_(GeneratedsSuper):
         if value is not None and 'vhdfixedtag' not in already_processed:
             already_processed.add('vhdfixedtag')
             self.vhdfixedtag = value
+            self.vhdfixedtag = ' '.join(self.vhdfixedtag.split())
+            self.validate_vhd_tag_type(self.vhdfixedtag)    # validate type vhd-tag-type
         value = find_attr_value_('volid', node)
         if value is not None and 'volid' not in already_processed:
             already_processed.add('volid')
@@ -3410,8 +3437,10 @@ class user(GeneratedsSuper):
     """A User with Name, Password, Path to Its Home And Shell"""
     subclass = None
     superclass = None
-    def __init__(self, home=None, id=None, name=None, password=None, pwdformat=None, realname=None, shell=None):
+    def __init__(self, group=None, secgroups=None, home=None, id=None, name=None, password=None, pwdformat=None, realname=None, shell=None):
         self.original_tagname_ = None
+        self.group = _cast(None, group)
+        self.secgroups = _cast(None, secgroups)
         self.home = _cast(None, home)
         self.id = _cast(int, id)
         self.name = _cast(None, name)
@@ -3430,6 +3459,10 @@ class user(GeneratedsSuper):
         else:
             return user(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_group(self): return self.group
+    def set_group(self, group): self.group = group
+    def get_secgroups(self): return self.secgroups
+    def set_secgroups(self, secgroups): self.secgroups = secgroups
     def get_home(self): return self.home
     def set_home(self, home): self.home = home
     def get_id(self): return self.id
@@ -3444,6 +3477,20 @@ class user(GeneratedsSuper):
     def set_realname(self, realname): self.realname = realname
     def get_shell(self): return self.shell
     def set_shell(self, shell): self.shell = shell
+    def validate_group_name(self, value):
+        # Validate type group-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_group_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_group_name_patterns_, ))
+    validate_group_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
+    def validate_secgroups_list(self, value):
+        # Validate type secgroups-list, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_secgroups_list_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_secgroups_list_patterns_, ))
+    validate_secgroups_list_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+(,?[a-zA-Z0-9_\\-\\.]+)*$']]
     def hasContent_(self):
         if (
 
@@ -3469,6 +3516,12 @@ class user(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='user'):
+        if self.group is not None and 'group' not in already_processed:
+            already_processed.add('group')
+            outfile.write(' group=%s' % (quote_attrib(self.group), ))
+        if self.secgroups is not None and 'secgroups' not in already_processed:
+            already_processed.add('secgroups')
+            outfile.write(' secgroups=%s' % (quote_attrib(self.secgroups), ))
         if self.home is not None and 'home' not in already_processed:
             already_processed.add('home')
             outfile.write(' home=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.home), input_name='home')), ))
@@ -3500,6 +3553,18 @@ class user(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('group', node)
+        if value is not None and 'group' not in already_processed:
+            already_processed.add('group')
+            self.group = value
+            self.group = ' '.join(self.group.split())
+            self.validate_group_name(self.group)    # validate type group-name
+        value = find_attr_value_('secgroups', node)
+        if value is not None and 'secgroups' not in already_processed:
+            already_processed.add('secgroups')
+            self.secgroups = value
+            self.secgroups = ' '.join(self.secgroups.split())
+            self.validate_secgroups_list(self.secgroups)    # validate type secgroups-list
         value = find_attr_value_('home', node)
         if value is not None and 'home' not in already_processed:
             already_processed.add('home')
@@ -3766,6 +3831,13 @@ class vmnic(GeneratedsSuper):
     def set_mode(self, mode): self.mode = mode
     def get_mac(self): return self.mac
     def set_mac(self, mac): self.mac = mac
+    def validate_mac_address_type(self, value):
+        # Validate type mac-address-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_mac_address_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_mac_address_type_patterns_, ))
+    validate_mac_address_type_patterns_ = [['^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$']]
     def hasContent_(self):
         if (
 
@@ -3829,6 +3901,8 @@ class vmnic(GeneratedsSuper):
         if value is not None and 'mac' not in already_processed:
             already_processed.add('mac')
             self.mac = value
+            self.mac = ' '.join(self.mac.split())
+            self.validate_mac_address_type(self.mac)    # validate type mac-address-type
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class vmnic
@@ -3863,6 +3937,13 @@ class volume(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_size(self): return self.size
     def set_size(self, size): self.size = size
+    def validate_volume_size_type(self, value):
+        # Validate type volume-size-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_volume_size_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_volume_size_type_patterns_, ))
+    validate_volume_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G|all$']]
     def hasContent_(self):
         if (
 
@@ -3914,6 +3995,8 @@ class volume(GeneratedsSuper):
         if value is not None and 'freespace' not in already_processed:
             already_processed.add('freespace')
             self.freespace = value
+            self.freespace = ' '.join(self.freespace.split())
+            self.validate_volume_size_type(self.freespace)    # validate type volume-size-type
         value = find_attr_value_('mountpoint', node)
         if value is not None and 'mountpoint' not in already_processed:
             already_processed.add('mountpoint')
@@ -3926,6 +4009,8 @@ class volume(GeneratedsSuper):
         if value is not None and 'size' not in already_processed:
             already_processed.add('size')
             self.size = value
+            self.size = ' '.join(self.size.split())
+            self.validate_volume_size_type(self.size)    # validate type volume-size-type
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class volume
@@ -6111,40 +6196,40 @@ class oemconfig(GeneratedsSuper):
             eol_ = ''
         for oem_ataraid_scan_ in self.oem_ataraid_scan:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-ataraid-scan>%s</%soem-ataraid-scan>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_ataraid_scan_), input_name='oem-ataraid-scan')), namespace_, eol_))
+            outfile.write('<%soem-ataraid-scan>%s</%soem-ataraid-scan>%s' % (namespace_, self.gds_format_boolean(oem_ataraid_scan_, input_name='oem-ataraid-scan'), namespace_, eol_))
         for oem_boot_title_ in self.oem_boot_title:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-boot-title>%s</%soem-boot-title>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_boot_title_), input_name='oem-boot-title')), namespace_, eol_))
         for oem_bootwait_ in self.oem_bootwait:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-bootwait>%s</%soem-bootwait>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_bootwait_), input_name='oem-bootwait')), namespace_, eol_))
+            outfile.write('<%soem-bootwait>%s</%soem-bootwait>%s' % (namespace_, self.gds_format_boolean(oem_bootwait_, input_name='oem-bootwait'), namespace_, eol_))
         for oem_device_filter_ in self.oem_device_filter:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-device-filter>%s</%soem-device-filter>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), namespace_, eol_))
         for oem_inplace_recovery_ in self.oem_inplace_recovery:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-inplace-recovery>%s</%soem-inplace-recovery>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_inplace_recovery_), input_name='oem-inplace-recovery')), namespace_, eol_))
+            outfile.write('<%soem-inplace-recovery>%s</%soem-inplace-recovery>%s' % (namespace_, self.gds_format_boolean(oem_inplace_recovery_, input_name='oem-inplace-recovery'), namespace_, eol_))
         for oem_kiwi_initrd_ in self.oem_kiwi_initrd:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-kiwi-initrd>%s</%soem-kiwi-initrd>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_kiwi_initrd_), input_name='oem-kiwi-initrd')), namespace_, eol_))
+            outfile.write('<%soem-kiwi-initrd>%s</%soem-kiwi-initrd>%s' % (namespace_, self.gds_format_boolean(oem_kiwi_initrd_, input_name='oem-kiwi-initrd'), namespace_, eol_))
         for oem_multipath_scan_ in self.oem_multipath_scan:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-multipath-scan>%s</%soem-multipath-scan>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_multipath_scan_), input_name='oem-multipath-scan')), namespace_, eol_))
+            outfile.write('<%soem-multipath-scan>%s</%soem-multipath-scan>%s' % (namespace_, self.gds_format_boolean(oem_multipath_scan_, input_name='oem-multipath-scan'), namespace_, eol_))
         for oem_vmcp_parmfile_ in self.oem_vmcp_parmfile:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-vmcp-parmfile>%s</%soem-vmcp-parmfile>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_vmcp_parmfile_), input_name='oem-vmcp-parmfile')), namespace_, eol_))
         for oem_partition_install_ in self.oem_partition_install:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-partition-install>%s</%soem-partition-install>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_partition_install_), input_name='oem-partition-install')), namespace_, eol_))
+            outfile.write('<%soem-partition-install>%s</%soem-partition-install>%s' % (namespace_, self.gds_format_boolean(oem_partition_install_, input_name='oem-partition-install'), namespace_, eol_))
         for oem_reboot_ in self.oem_reboot:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-reboot>%s</%soem-reboot>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_reboot_), input_name='oem-reboot')), namespace_, eol_))
+            outfile.write('<%soem-reboot>%s</%soem-reboot>%s' % (namespace_, self.gds_format_boolean(oem_reboot_, input_name='oem-reboot'), namespace_, eol_))
         for oem_reboot_interactive_ in self.oem_reboot_interactive:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-reboot-interactive>%s</%soem-reboot-interactive>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_reboot_interactive_), input_name='oem-reboot-interactive')), namespace_, eol_))
+            outfile.write('<%soem-reboot-interactive>%s</%soem-reboot-interactive>%s' % (namespace_, self.gds_format_boolean(oem_reboot_interactive_, input_name='oem-reboot-interactive'), namespace_, eol_))
         for oem_recovery_ in self.oem_recovery:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-recovery>%s</%soem-recovery>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_recovery_), input_name='oem-recovery')), namespace_, eol_))
+            outfile.write('<%soem-recovery>%s</%soem-recovery>%s' % (namespace_, self.gds_format_boolean(oem_recovery_, input_name='oem-recovery'), namespace_, eol_))
         for oem_recoveryID_ in self.oem_recoveryID:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-recoveryID>%s</%soem-recoveryID>%s' % (namespace_, self.gds_format_integer(oem_recoveryID_, input_name='oem-recoveryID'), namespace_, eol_))
@@ -6153,25 +6238,25 @@ class oemconfig(GeneratedsSuper):
             outfile.write('<%soem-recovery-part-size>%s</%soem-recovery-part-size>%s' % (namespace_, self.gds_format_integer(oem_recovery_part_size_, input_name='oem-recovery-part-size'), namespace_, eol_))
         for oem_shutdown_ in self.oem_shutdown:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-shutdown>%s</%soem-shutdown>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_shutdown_), input_name='oem-shutdown')), namespace_, eol_))
+            outfile.write('<%soem-shutdown>%s</%soem-shutdown>%s' % (namespace_, self.gds_format_boolean(oem_shutdown_, input_name='oem-shutdown'), namespace_, eol_))
         for oem_shutdown_interactive_ in self.oem_shutdown_interactive:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-shutdown-interactive>%s</%soem-shutdown-interactive>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_shutdown_interactive_), input_name='oem-shutdown-interactive')), namespace_, eol_))
+            outfile.write('<%soem-shutdown-interactive>%s</%soem-shutdown-interactive>%s' % (namespace_, self.gds_format_boolean(oem_shutdown_interactive_, input_name='oem-shutdown-interactive'), namespace_, eol_))
         for oem_silent_boot_ in self.oem_silent_boot:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-silent-boot>%s</%soem-silent-boot>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_silent_boot_), input_name='oem-silent-boot')), namespace_, eol_))
+            outfile.write('<%soem-silent-boot>%s</%soem-silent-boot>%s' % (namespace_, self.gds_format_boolean(oem_silent_boot_, input_name='oem-silent-boot'), namespace_, eol_))
         for oem_silent_install_ in self.oem_silent_install:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-silent-install>%s</%soem-silent-install>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_silent_install_), input_name='oem-silent-install')), namespace_, eol_))
+            outfile.write('<%soem-silent-install>%s</%soem-silent-install>%s' % (namespace_, self.gds_format_boolean(oem_silent_install_, input_name='oem-silent-install'), namespace_, eol_))
         for oem_silent_verify_ in self.oem_silent_verify:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-silent-verify>%s</%soem-silent-verify>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_silent_verify_), input_name='oem-silent-verify')), namespace_, eol_))
+            outfile.write('<%soem-silent-verify>%s</%soem-silent-verify>%s' % (namespace_, self.gds_format_boolean(oem_silent_verify_, input_name='oem-silent-verify'), namespace_, eol_))
         for oem_skip_verify_ in self.oem_skip_verify:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-skip-verify>%s</%soem-skip-verify>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_skip_verify_), input_name='oem-skip-verify')), namespace_, eol_))
+            outfile.write('<%soem-skip-verify>%s</%soem-skip-verify>%s' % (namespace_, self.gds_format_boolean(oem_skip_verify_, input_name='oem-skip-verify'), namespace_, eol_))
         for oem_swap_ in self.oem_swap:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-swap>%s</%soem-swap>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_swap_), input_name='oem-swap')), namespace_, eol_))
+            outfile.write('<%soem-swap>%s</%soem-swap>%s' % (namespace_, self.gds_format_boolean(oem_swap_, input_name='oem-swap'), namespace_, eol_))
         for oem_swapsize_ in self.oem_swapsize:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-swapsize>%s</%soem-swapsize>%s' % (namespace_, self.gds_format_integer(oem_swapsize_, input_name='oem-swapsize'), namespace_, eol_))
@@ -6180,7 +6265,7 @@ class oemconfig(GeneratedsSuper):
             outfile.write('<%soem-systemsize>%s</%soem-systemsize>%s' % (namespace_, self.gds_format_integer(oem_systemsize_, input_name='oem-systemsize'), namespace_, eol_))
         for oem_unattended_ in self.oem_unattended:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-unattended>%s</%soem-unattended>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_unattended_), input_name='oem-unattended')), namespace_, eol_))
+            outfile.write('<%soem-unattended>%s</%soem-unattended>%s' % (namespace_, self.gds_format_boolean(oem_unattended_, input_name='oem-unattended'), namespace_, eol_))
         for oem_unattended_id_ in self.oem_unattended_id:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-unattended-id>%s</%soem-unattended-id>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_unattended_id_), input_name='oem-unattended-id')), namespace_, eol_))
@@ -6195,53 +6280,107 @@ class oemconfig(GeneratedsSuper):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'oem-ataraid-scan':
-            oem_ataraid_scan_ = child_.text
-            oem_ataraid_scan_ = self.gds_validate_string(oem_ataraid_scan_, node, 'oem_ataraid_scan')
-            self.oem_ataraid_scan.append(oem_ataraid_scan_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_ataraid_scan')
+            self.oem_ataraid_scan.append(ival_)
         elif nodeName_ == 'oem-boot-title':
             oem_boot_title_ = child_.text
             oem_boot_title_ = self.gds_validate_string(oem_boot_title_, node, 'oem_boot_title')
             self.oem_boot_title.append(oem_boot_title_)
         elif nodeName_ == 'oem-bootwait':
-            oem_bootwait_ = child_.text
-            oem_bootwait_ = self.gds_validate_string(oem_bootwait_, node, 'oem_bootwait')
-            self.oem_bootwait.append(oem_bootwait_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_bootwait')
+            self.oem_bootwait.append(ival_)
         elif nodeName_ == 'oem-device-filter':
             oem_device_filter_ = child_.text
             oem_device_filter_ = self.gds_validate_string(oem_device_filter_, node, 'oem_device_filter')
             self.oem_device_filter.append(oem_device_filter_)
         elif nodeName_ == 'oem-inplace-recovery':
-            oem_inplace_recovery_ = child_.text
-            oem_inplace_recovery_ = self.gds_validate_string(oem_inplace_recovery_, node, 'oem_inplace_recovery')
-            self.oem_inplace_recovery.append(oem_inplace_recovery_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_inplace_recovery')
+            self.oem_inplace_recovery.append(ival_)
         elif nodeName_ == 'oem-kiwi-initrd':
-            oem_kiwi_initrd_ = child_.text
-            oem_kiwi_initrd_ = self.gds_validate_string(oem_kiwi_initrd_, node, 'oem_kiwi_initrd')
-            self.oem_kiwi_initrd.append(oem_kiwi_initrd_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_kiwi_initrd')
+            self.oem_kiwi_initrd.append(ival_)
         elif nodeName_ == 'oem-multipath-scan':
-            oem_multipath_scan_ = child_.text
-            oem_multipath_scan_ = self.gds_validate_string(oem_multipath_scan_, node, 'oem_multipath_scan')
-            self.oem_multipath_scan.append(oem_multipath_scan_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_multipath_scan')
+            self.oem_multipath_scan.append(ival_)
         elif nodeName_ == 'oem-vmcp-parmfile':
             oem_vmcp_parmfile_ = child_.text
             oem_vmcp_parmfile_ = self.gds_validate_string(oem_vmcp_parmfile_, node, 'oem_vmcp_parmfile')
             self.oem_vmcp_parmfile.append(oem_vmcp_parmfile_)
         elif nodeName_ == 'oem-partition-install':
-            oem_partition_install_ = child_.text
-            oem_partition_install_ = self.gds_validate_string(oem_partition_install_, node, 'oem_partition_install')
-            self.oem_partition_install.append(oem_partition_install_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_partition_install')
+            self.oem_partition_install.append(ival_)
         elif nodeName_ == 'oem-reboot':
-            oem_reboot_ = child_.text
-            oem_reboot_ = self.gds_validate_string(oem_reboot_, node, 'oem_reboot')
-            self.oem_reboot.append(oem_reboot_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_reboot')
+            self.oem_reboot.append(ival_)
         elif nodeName_ == 'oem-reboot-interactive':
-            oem_reboot_interactive_ = child_.text
-            oem_reboot_interactive_ = self.gds_validate_string(oem_reboot_interactive_, node, 'oem_reboot_interactive')
-            self.oem_reboot_interactive.append(oem_reboot_interactive_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_reboot_interactive')
+            self.oem_reboot_interactive.append(ival_)
         elif nodeName_ == 'oem-recovery':
-            oem_recovery_ = child_.text
-            oem_recovery_ = self.gds_validate_string(oem_recovery_, node, 'oem_recovery')
-            self.oem_recovery.append(oem_recovery_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_recovery')
+            self.oem_recovery.append(ival_)
         elif nodeName_ == 'oem-recoveryID':
             sval_ = child_.text
             try:
@@ -6263,33 +6402,75 @@ class oemconfig(GeneratedsSuper):
             ival_ = self.gds_validate_integer(ival_, node, 'oem_recovery_part_size')
             self.oem_recovery_part_size.append(ival_)
         elif nodeName_ == 'oem-shutdown':
-            oem_shutdown_ = child_.text
-            oem_shutdown_ = self.gds_validate_string(oem_shutdown_, node, 'oem_shutdown')
-            self.oem_shutdown.append(oem_shutdown_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_shutdown')
+            self.oem_shutdown.append(ival_)
         elif nodeName_ == 'oem-shutdown-interactive':
-            oem_shutdown_interactive_ = child_.text
-            oem_shutdown_interactive_ = self.gds_validate_string(oem_shutdown_interactive_, node, 'oem_shutdown_interactive')
-            self.oem_shutdown_interactive.append(oem_shutdown_interactive_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_shutdown_interactive')
+            self.oem_shutdown_interactive.append(ival_)
         elif nodeName_ == 'oem-silent-boot':
-            oem_silent_boot_ = child_.text
-            oem_silent_boot_ = self.gds_validate_string(oem_silent_boot_, node, 'oem_silent_boot')
-            self.oem_silent_boot.append(oem_silent_boot_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_silent_boot')
+            self.oem_silent_boot.append(ival_)
         elif nodeName_ == 'oem-silent-install':
-            oem_silent_install_ = child_.text
-            oem_silent_install_ = self.gds_validate_string(oem_silent_install_, node, 'oem_silent_install')
-            self.oem_silent_install.append(oem_silent_install_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_silent_install')
+            self.oem_silent_install.append(ival_)
         elif nodeName_ == 'oem-silent-verify':
-            oem_silent_verify_ = child_.text
-            oem_silent_verify_ = self.gds_validate_string(oem_silent_verify_, node, 'oem_silent_verify')
-            self.oem_silent_verify.append(oem_silent_verify_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_silent_verify')
+            self.oem_silent_verify.append(ival_)
         elif nodeName_ == 'oem-skip-verify':
-            oem_skip_verify_ = child_.text
-            oem_skip_verify_ = self.gds_validate_string(oem_skip_verify_, node, 'oem_skip_verify')
-            self.oem_skip_verify.append(oem_skip_verify_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_skip_verify')
+            self.oem_skip_verify.append(ival_)
         elif nodeName_ == 'oem-swap':
-            oem_swap_ = child_.text
-            oem_swap_ = self.gds_validate_string(oem_swap_, node, 'oem_swap')
-            self.oem_swap.append(oem_swap_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_swap')
+            self.oem_swap.append(ival_)
         elif nodeName_ == 'oem-swapsize':
             sval_ = child_.text
             try:
@@ -6311,9 +6492,15 @@ class oemconfig(GeneratedsSuper):
             ival_ = self.gds_validate_integer(ival_, node, 'oem_systemsize')
             self.oem_systemsize.append(ival_)
         elif nodeName_ == 'oem-unattended':
-            oem_unattended_ = child_.text
-            oem_unattended_ = self.gds_validate_string(oem_unattended_, node, 'oem_unattended')
-            self.oem_unattended.append(oem_unattended_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_unattended')
+            self.oem_unattended.append(ival_)
         elif nodeName_ == 'oem-unattended-id':
             oem_unattended_id_ = child_.text
             oem_unattended_id_ = self.gds_validate_string(oem_unattended_id_, node, 'oem_unattended_id')
@@ -7118,13 +7305,13 @@ class preferences(GeneratedsSuper):
             outfile.write('<%spartitioner>%s</%spartitioner>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(partitioner_), input_name='partitioner')), namespace_, eol_))
         for rpm_check_signatures_ in self.rpm_check_signatures:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%srpm-check-signatures>%s</%srpm-check-signatures>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(rpm_check_signatures_), input_name='rpm-check-signatures')), namespace_, eol_))
+            outfile.write('<%srpm-check-signatures>%s</%srpm-check-signatures>%s' % (namespace_, self.gds_format_boolean(rpm_check_signatures_, input_name='rpm-check-signatures'), namespace_, eol_))
         for rpm_excludedocs_ in self.rpm_excludedocs:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%srpm-excludedocs>%s</%srpm-excludedocs>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(rpm_excludedocs_), input_name='rpm-excludedocs')), namespace_, eol_))
+            outfile.write('<%srpm-excludedocs>%s</%srpm-excludedocs>%s' % (namespace_, self.gds_format_boolean(rpm_excludedocs_, input_name='rpm-excludedocs'), namespace_, eol_))
         for rpm_force_ in self.rpm_force:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%srpm-force>%s</%srpm-force>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(rpm_force_), input_name='rpm-force')), namespace_, eol_))
+            outfile.write('<%srpm-force>%s</%srpm-force>%s' % (namespace_, self.gds_format_boolean(rpm_force_, input_name='rpm-force'), namespace_, eol_))
         for showlicense_ in self.showlicense:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sshowlicense>%s</%sshowlicense>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(showlicense_), input_name='showlicense')), namespace_, eol_))
@@ -7171,6 +7358,7 @@ class preferences(GeneratedsSuper):
             self.defaultroot.append(defaultroot_)
         elif nodeName_ == 'hwclock':
             hwclock_ = child_.text
+            hwclock_ = re_.sub(String_cleanup_pat_, " ", hwclock_).strip()
             hwclock_ = self.gds_validate_string(hwclock_, node, 'hwclock')
             self.hwclock.append(hwclock_)
         elif nodeName_ == 'keytable':
@@ -7179,28 +7367,49 @@ class preferences(GeneratedsSuper):
             self.keytable.append(keytable_)
         elif nodeName_ == 'locale':
             locale_ = child_.text
+            locale_ = re_.sub(String_cleanup_pat_, " ", locale_).strip()
             locale_ = self.gds_validate_string(locale_, node, 'locale')
             self.locale.append(locale_)
         elif nodeName_ == 'packagemanager':
             packagemanager_ = child_.text
+            packagemanager_ = re_.sub(String_cleanup_pat_, " ", packagemanager_).strip()
             packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
             self.packagemanager.append(packagemanager_)
         elif nodeName_ == 'partitioner':
             partitioner_ = child_.text
+            partitioner_ = re_.sub(String_cleanup_pat_, " ", partitioner_).strip()
             partitioner_ = self.gds_validate_string(partitioner_, node, 'partitioner')
             self.partitioner.append(partitioner_)
         elif nodeName_ == 'rpm-check-signatures':
-            rpm_check_signatures_ = child_.text
-            rpm_check_signatures_ = self.gds_validate_string(rpm_check_signatures_, node, 'rpm_check_signatures')
-            self.rpm_check_signatures.append(rpm_check_signatures_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_check_signatures')
+            self.rpm_check_signatures.append(ival_)
         elif nodeName_ == 'rpm-excludedocs':
-            rpm_excludedocs_ = child_.text
-            rpm_excludedocs_ = self.gds_validate_string(rpm_excludedocs_, node, 'rpm_excludedocs')
-            self.rpm_excludedocs.append(rpm_excludedocs_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_excludedocs')
+            self.rpm_excludedocs.append(ival_)
         elif nodeName_ == 'rpm-force':
-            rpm_force_ = child_.text
-            rpm_force_ = self.gds_validate_string(rpm_force_, node, 'rpm_force')
-            self.rpm_force.append(rpm_force_)
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_force')
+            self.rpm_force.append(ival_)
         elif nodeName_ == 'showlicense':
             showlicense_ = child_.text
             showlicense_ = self.gds_validate_string(showlicense_, node, 'showlicense')
@@ -7303,10 +7512,8 @@ class users(GeneratedsSuper):
     """A List of Users"""
     subclass = None
     superclass = None
-    def __init__(self, group=None, id=None, profiles=None, user=None):
+    def __init__(self, profiles=None, user=None):
         self.original_tagname_ = None
-        self.group = _cast(None, group)
-        self.id = _cast(int, id)
         self.profiles = _cast(None, profiles)
         if user is None:
             self.user = []
@@ -7328,10 +7535,6 @@ class users(GeneratedsSuper):
     def add_user(self, value): self.user.append(value)
     def insert_user_at(self, index, value): self.user.insert(index, value)
     def replace_user_at(self, index, value): self.user[index] = value
-    def get_group(self): return self.group
-    def set_group(self, group): self.group = group
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
     def get_profiles(self): return self.profiles
     def set_profiles(self, profiles): self.profiles = profiles
     def hasContent_(self):
@@ -7360,12 +7563,6 @@ class users(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='users'):
-        if self.group is not None and 'group' not in already_processed:
-            already_processed.add('group')
-            outfile.write(' group=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.group), input_name='group')), ))
-        if self.id is not None and 'id' not in already_processed:
-            already_processed.add('id')
-            outfile.write(' id="%s"' % self.gds_format_integer(self.id, input_name='id'))
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
@@ -7384,19 +7581,6 @@ class users(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('group', node)
-        if value is not None and 'group' not in already_processed:
-            already_processed.add('group')
-            self.group = value
-        value = find_attr_value_('id', node)
-        if value is not None and 'id' not in already_processed:
-            already_processed.add('id')
-            try:
-                self.id = int(value)
-            except ValueError as exp:
-                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-            if self.id < 0:
-                raise_parse_error(node, 'Invalid NonNegativeInteger')
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')

@@ -57,6 +57,16 @@
       <param name="pattern">[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}</param>
     </data>
   </define>
+  <define name="group-name">
+    <data type="token">
+      <param name="pattern">[a-zA-Z0-9_\-\.]+</param>
+    </data>
+  </define>
+  <define name="secgroups-list">
+    <data type="token">
+      <param name="pattern">[a-zA-Z0-9_\-\.]+(,?[a-zA-Z0-9_\-\.]+)*</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -2757,6 +2767,18 @@ compressed filesystem.</db:para>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
+    <define name="k.user.group.attribute">
+      <attribute name="group">
+        <a:documentation>The primary group for this user</a:documentation>
+        <ref name="group-name"/>
+      </attribute>
+    </define>
+    <define name="k.user.secgroups.attribute">
+      <attribute name="secgroups">
+        <a:documentation>The secondary groups for this user</a:documentation>
+        <ref name="secgroups-list"/>
+      </attribute>
+    </define>
     <define name="k.user.realname.attribute">
       <attribute name="realname">
         <a:documentation>The name of an user</a:documentation>
@@ -2786,6 +2808,10 @@ compressed filesystem.</db:para>
     </define>
     <define name="k.user.attlist">
       <interleave>
+        <ref name="k.user.group.attribute"/>
+        <optional>
+          <ref name="k.user.secgroups.attribute"/>
+        </optional>
         <ref name="k.user.home.attribute"/>
         <optional>
           <ref name="k.user.id.attribute"/>
@@ -4117,30 +4143,13 @@ drivers can bind itself to one of the listed namespaces.</db:para>
     
   -->
   <div>
-    <define name="k.users.group.attribute">
-      <attribute name="group">
-        <a:documentation>Contains the group to which the user belongs</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.users.id.attribute">
-      <attribute name="id">
-        <a:documentation>Contains the group ID to which the user belongs</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-    </define>
     <define name="k.users.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
     <define name="k.users.attlist">
-      <interleave>
-        <ref name="k.users.group.attribute"/>
-        <optional>
-          <ref name="k.users.id.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.users.profiles.attribute"/>
-        </optional>
-      </interleave>
+      <optional>
+        <ref name="k.users.profiles.attribute"/>
+      </optional>
     </define>
     <define name="k.users">
       <element name="users">
