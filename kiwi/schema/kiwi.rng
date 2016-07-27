@@ -57,14 +57,9 @@
       <param name="pattern">[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}</param>
     </data>
   </define>
-  <define name="group-name">
+  <define name="groups-list">
     <data type="token">
-      <param name="pattern">[a-zA-Z0-9_\-\.]+</param>
-    </data>
-  </define>
-  <define name="secgroups-list">
-    <data type="token">
-      <param name="pattern">[a-zA-Z0-9_\-\.]+(,?[a-zA-Z0-9_\-\.]+)*</param>
+      <param name="pattern">[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*</param>
     </data>
   </define>
   <!--
@@ -2767,16 +2762,13 @@ compressed filesystem.</db:para>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
-    <define name="k.user.group.attribute">
-      <attribute name="group">
-        <a:documentation>The primary group for this user</a:documentation>
-        <ref name="group-name"/>
-      </attribute>
-    </define>
-    <define name="k.user.secgroups.attribute">
-      <attribute name="secgroups">
-        <a:documentation>The secondary groups for this user</a:documentation>
-        <ref name="secgroups-list"/>
+    <define name="k.user.groups.attribute">
+      <attribute name="groups">
+        <a:documentation>The list of groups that he user belongs to. The
+frist item in the list is used as the login group.
+If 'groups' is not present a default group is assigned
+to the user according to he specifing toolchain behaviour.</a:documentation>
+        <ref name="groups-list"/>
       </attribute>
     </define>
     <define name="k.user.realname.attribute">
@@ -2808,9 +2800,8 @@ compressed filesystem.</db:para>
     </define>
     <define name="k.user.attlist">
       <interleave>
-        <ref name="k.user.group.attribute"/>
         <optional>
-          <ref name="k.user.secgroups.attribute"/>
+          <ref name="k.user.groups.attribute"/>
         </optional>
         <ref name="k.user.home.attribute"/>
         <optional>

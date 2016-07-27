@@ -302,15 +302,15 @@ class TestSystemSetup(object):
         self.setup_with_real_xml.setup_groups()
 
         calls = [
-            call('root'),
             call('users'),
+            call('kiwi'),
             call('admin') 
         ] 
         users.group_exists.assert_has_calls(calls)
 
         calls = [
-            call('root', []),
             call('users', []),
+            call('kiwi', []),
             call('admin', []) 
         ] 
         users.group_add.assert_has_calls(calls)
@@ -330,6 +330,7 @@ class TestSystemSetup(object):
         calls = [
             call('root'),
             call('tux'),
+            call('kiwi')
         ] 
         users.user_exists.assert_has_calls(calls)
 
@@ -337,7 +338,7 @@ class TestSystemSetup(object):
             call(
                 'root', [
                     '-p', 'password-hash',
-                    '-s', '/bin/bash', '-g', 'root',
+                    '-s', '/bin/bash',
                     '-u', 815, '-c', 'Bob',
                     '-m', '-d', '/root'
                 ]
@@ -345,8 +346,15 @@ class TestSystemSetup(object):
             call(
                 'tux', [
                     '-p', 'password-hash',
-                    '-g', 'users', '-G', 'admin',
+                    '-g', 'users', 
                     '-m', '-d', '/home/tux'
+                ]
+            ),
+            call(
+                'kiwi', [
+                    '-p', 'password-hash',
+                    '-g', 'kiwi', '-G', 'admin,users',
+                    '-m', '-d', '/home/kiwi'
                 ]
             )
         ]
@@ -371,6 +379,7 @@ class TestSystemSetup(object):
         calls = [
             call('root'),
             call('tux'),
+            call('kiwi')
         ] 
         users.user_exists.assert_has_calls(calls)
 
@@ -378,15 +387,21 @@ class TestSystemSetup(object):
             call(
                 'root', [
                     '-p', 'password-hash',
-                    '-s', '/bin/bash', '-g', 'root', '-u', 815, '-c', 'Bob'
+                    '-s', '/bin/bash', '-u', 815, '-c', 'Bob'
                 ]
             ),
             call(
                 'tux', [
                     '-p', 'password-hash',
-                    '-g', 'users', '-G', 'admin',
+                    '-g', 'users'
                 ]
-            ) 
+            ),
+            call(
+                'kiwi', [
+                    '-p', 'password-hash',
+                    '-g', 'kiwi', '-G', 'admin,users'
+                ]
+            )
         ]
         users.user_modify.assert_has_calls(calls)
 

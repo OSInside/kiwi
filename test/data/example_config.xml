@@ -98,9 +98,9 @@
         </type>
     </preferences>
     <users>
-        <user group="root" pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
-        <user group="users" secgroups="admin" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
-        <user group="kiwi" secgroups="users,admin" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
+        <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
+        <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
+        <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
     </users>
     <repository type="yast2" priority="42">
         <source path="iso:///image/CDs/dvd.iso"/>

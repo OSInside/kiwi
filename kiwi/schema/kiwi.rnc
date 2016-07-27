@@ -37,8 +37,7 @@ mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
 volume-size-type = xsd:token {pattern = "\d+|\d+M|\d+G|all"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
-group-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
-secgroups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,?[a-zA-Z0-9_\-\.]+)*"}
+groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
 
 #==========================================
 # start with image description
@@ -1956,12 +1955,12 @@ div {
     k.user.id.attribute = 
         ## The user ID for this user
         attribute id { xsd:nonNegativeInteger }
-    k.user.group.attribute =
-        ## The primary group for this user
-        attribute group { group-name }
-    k.user.secgroups.attribute =
-        ## The secondary groups for this user
-        attribute secgroups { secgroups-list }
+    k.user.groups.attribute =
+        ## The list of groups that he user belongs to. The
+        ## frist item in the list is used as the login group.
+        ## If 'groups' is not present a default group is assigned
+        ## to the user according to he specifing toolchain behaviour.
+        attribute groups { groups-list }
     k.user.realname.attribute =
         ## The name of an user
         attribute realname { text }
@@ -1976,8 +1975,7 @@ div {
         ## The shell for this user
         attribute shell { text }
     k.user.attlist =
-        k.user.group.attribute &
-        k.user.secgroups.attribute? &
+        k.user.groups.attribute? &
         k.user.home.attribute &
         k.user.id.attribute? &
         k.user.name.attribute &

@@ -276,15 +276,12 @@ class SystemSetup(object):
 
         for users_set in self.xml_state.get_users():
             for user in users_set:
-                if user.get_group() and not system_users.group_exists(user.get_group()):
-                    log.info('Adding group %s', user.get_group())
-                    system_users.group_add(user.get_group(), [])
-                if not user.get_secgroups():
-                    continue
-                for group in user.get_secgroups().split(','):
-                    if not system_users.group_exists(group):
-                        log.info('Adding group %s', group)
-                        system_users.group_add(group, [])
+                if user.get_groups():
+                    user_groups = user.get_groups().split(',')
+                    for group in user_groups:
+                        if not system_users.group_exists(group):
+                            log.info('Adding group %s', group)
+                            system_users.group_add(group, [])
 
     def setup_users(self):
         """
@@ -302,8 +299,10 @@ class SystemSetup(object):
                 user_id = user.get_id()
                 user_realname = user.get_realname()
                 user_shell = user.get_shell()
-                user_secgroups = user.get_secgroups()
-                user_group = user.get_group()
+                if user.get_groups():
+                    user_groups = user.get_groups().split(',')
+                else:
+                    user_groups = None
 
                 user_exists = system_users.user_exists(user_name)
 
@@ -316,12 +315,12 @@ class SystemSetup(object):
                 if user_shell:
                     options.append('-s')
                     options.append(user_shell)
-                if user_group:
+                if user_groups:
                     options.append('-g')
-                    options.append(user_group)
-                if user_secgroups:
-                    options.append('-G')
-                    options.append(user_secgroups)
+                    options.append(user_groups[0])
+                    if len(user_groups) > 1:
+                        options.append('-G')
+                        options.append(','.join(user_groups[1:]))
                 if user_id:
                     options.append('-u')
                     options.append(user_id)
@@ -337,23 +336,24 @@ class SystemSetup(object):
                     log.info(
                         '--> Modifying user: %s [%s]',
                         user_name,
-                        user_group
+                        user_groups[0] if user_groups else ''
                     )
                     system_users.user_modify(user_name, options)
                 else:
                     log.info(
                         '--> Adding user: %s [%s]',
                         user_name,
-                        user_group
+                        user_groups[0] if user_groups else ''
                     )
                     system_users.user_add(user_name, options)
                     if home_path:
                         log.info(
                             '--> Setting permissions for %s', home_path
                         )
+                        # Emtpy group string assumes the login or default group
                         system_users.setup_home_for_user(
                             user_name,
-                            user_group,
+                            user_groups[0] if user_groups else '',
                             home_path
                         )
 

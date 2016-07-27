@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Jul 26 17:38:33 2016 by generateDS.py version 2.22a.
+# Generated Wed Jul 27 10:58:30 2016 by generateDS.py version 2.22a.
 #
 # Command line options:
 #   ('-f', '')
@@ -3437,10 +3437,9 @@ class user(GeneratedsSuper):
     """A User with Name, Password, Path to Its Home And Shell"""
     subclass = None
     superclass = None
-    def __init__(self, group=None, secgroups=None, home=None, id=None, name=None, password=None, pwdformat=None, realname=None, shell=None):
+    def __init__(self, groups=None, home=None, id=None, name=None, password=None, pwdformat=None, realname=None, shell=None):
         self.original_tagname_ = None
-        self.group = _cast(None, group)
-        self.secgroups = _cast(None, secgroups)
+        self.groups = _cast(None, groups)
         self.home = _cast(None, home)
         self.id = _cast(int, id)
         self.name = _cast(None, name)
@@ -3459,10 +3458,8 @@ class user(GeneratedsSuper):
         else:
             return user(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_group(self): return self.group
-    def set_group(self, group): self.group = group
-    def get_secgroups(self): return self.secgroups
-    def set_secgroups(self, secgroups): self.secgroups = secgroups
+    def get_groups(self): return self.groups
+    def set_groups(self, groups): self.groups = groups
     def get_home(self): return self.home
     def set_home(self, home): self.home = home
     def get_id(self): return self.id
@@ -3477,20 +3474,13 @@ class user(GeneratedsSuper):
     def set_realname(self, realname): self.realname = realname
     def get_shell(self): return self.shell
     def set_shell(self, shell): self.shell = shell
-    def validate_group_name(self, value):
-        # Validate type group-name, a restriction on xs:token.
+    def validate_groups_list(self, value):
+        # Validate type groups-list, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_group_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_group_name_patterns_, ))
-    validate_group_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
-    def validate_secgroups_list(self, value):
-        # Validate type secgroups-list, a restriction on xs:token.
-        if value is not None and Validate_simpletypes_:
-            if not self.gds_validate_simple_patterns(
-                    self.validate_secgroups_list_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_secgroups_list_patterns_, ))
-    validate_secgroups_list_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+(,?[a-zA-Z0-9_\\-\\.]+)*$']]
+                    self.validate_groups_list_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_groups_list_patterns_, ))
+    validate_groups_list_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+(,[a-zA-Z0-9_\\-\\.]+)*$']]
     def hasContent_(self):
         if (
 
@@ -3516,12 +3506,9 @@ class user(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='user'):
-        if self.group is not None and 'group' not in already_processed:
-            already_processed.add('group')
-            outfile.write(' group=%s' % (quote_attrib(self.group), ))
-        if self.secgroups is not None and 'secgroups' not in already_processed:
-            already_processed.add('secgroups')
-            outfile.write(' secgroups=%s' % (quote_attrib(self.secgroups), ))
+        if self.groups is not None and 'groups' not in already_processed:
+            already_processed.add('groups')
+            outfile.write(' groups=%s' % (quote_attrib(self.groups), ))
         if self.home is not None and 'home' not in already_processed:
             already_processed.add('home')
             outfile.write(' home=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.home), input_name='home')), ))
@@ -3553,18 +3540,12 @@ class user(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('group', node)
-        if value is not None and 'group' not in already_processed:
-            already_processed.add('group')
-            self.group = value
-            self.group = ' '.join(self.group.split())
-            self.validate_group_name(self.group)    # validate type group-name
-        value = find_attr_value_('secgroups', node)
-        if value is not None and 'secgroups' not in already_processed:
-            already_processed.add('secgroups')
-            self.secgroups = value
-            self.secgroups = ' '.join(self.secgroups.split())
-            self.validate_secgroups_list(self.secgroups)    # validate type secgroups-list
+        value = find_attr_value_('groups', node)
+        if value is not None and 'groups' not in already_processed:
+            already_processed.add('groups')
+            self.groups = value
+            self.groups = ' '.join(self.groups.split())
+            self.validate_groups_list(self.groups)    # validate type groups-list
         value = find_attr_value_('home', node)
         if value is not None and 'home' not in already_processed:
             already_processed.add('home')
