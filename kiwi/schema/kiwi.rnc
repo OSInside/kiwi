@@ -26,7 +26,7 @@ db:info [
     db:releaseinfo [
         "$Id: $"
     ]
-    db:releaseinfo [ "RNC Schema Version 6.3" ]
+    db:releaseinfo [ "RNC Schema Version 6.4" ]
     db:pubdate [ "START" ]
     db:pubdate [ "2016-03-18" ]
 ]
@@ -62,7 +62,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.3" }
+        attribute schemaversion { "6.4" }
     k.image.kiwirevision.attribute =
         ## A kiwi git revision number which is known to build
         ## a working image from this description. If the kiwi git
