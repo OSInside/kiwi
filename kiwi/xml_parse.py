@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Wed Jul 27 10:58:30 2016 by generateDS.py version 2.22a.
+# Generated Mon Aug  1 11:15:39 2016 by generateDS.py version 2.22a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi

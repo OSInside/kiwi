@@ -23,7 +23,7 @@
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
-    <db:releaseinfo>RNC Schema Version 6.3</db:releaseinfo>
+    <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2016-03-18</db:pubdate>
   </db:info>
@@ -101,7 +101,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.3</value>
+        <value>6.4</value>
       </attribute>
     </define>
     <define name="k.image.kiwirevision.attribute">
