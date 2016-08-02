@@ -522,22 +522,39 @@ class XMLState(object):
         """
         List of configured users.
 
-        Each entry in the list is another nested list where each item in
-        the child list is a single xml_parse::user instance, and each
-        item in the parent list represents all the users under a single
-        <users> section in the description XML file.
+        Each entry in the list is a single xml_parse::user instance.
 
         :return: user data
         :rtype: list
         """
         users_list = []
         users_sections = self.get_users_sections()
-        if users_sections:
-            for users in users_sections:
-                user_sections = users.get_user()
-                if user_sections:
-                    users_list.append(user_sections)
+        if len(users_sections):
+            for users_section in users_sections:
+                for user in users_section.get_user():
+                    if not any(u.get_name() == user.get_name() for u in users_list):
+                        users_list.append(user)
+
         return users_list
+
+    def get_user_groups(self, user_name):
+        """
+        List of configured users.
+
+        Each entry in the list is the name of a group that the specified
+        user belongs to. The first item in the list is the login or primary
+        group. The list will be empty if no groups are specified in the
+        description file.
+
+        :return: groups data for the given user
+        :rtype: list
+        """
+        groups_list = []
+        for user in self.get_users():
+            if user.get_name() == user_name and user.get_groups():
+                groups_list.extend(user.get_groups().split(','))
+
+        return groups_list
 
     def get_volumes(self):
         """

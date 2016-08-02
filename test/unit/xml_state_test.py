@@ -305,7 +305,7 @@ class TestXMLState(object):
             'root'
 
     def test_get_users(self):
-        assert self.state.get_users()[0][0].get_name() == \
+        assert self.state.get_users()[0].get_name() == \
             'root'
 
     def test_copy_displayname(self):
