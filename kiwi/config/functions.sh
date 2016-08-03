@@ -256,33 +256,22 @@ function baseSetupBoot {
 #--------------------------------------
 function suseConfig {
     # /.../
-    # Remove this function from the code base once SLE 11
-    # is EOL in June 2019. This setup is done via localectl
-    # and datetimectl from KIWIConfigure.pm in the future
-    # ----
-    # Unfortunately localectl and datetimectl apply changes
-    # to the host system. Thus we can't make use of them at
-    # the moment
-    # ----
-    # if [ -x /usr/bin/localectl ];then
-    # echo "Deprecated function suseConfig for this distribution version"
-    # return 0
-    # fi
+    # Setup very basic SUSE system configuration
     # ----
     #======================================
     # keytable
     #--------------------------------------
     if [ ! -z "$kiwi_keytable" ];then
-        baseUpdateSysConfig \
-            /etc/sysconfig/keyboard KEYTABLE $kiwi_keytable
+        keytable_config=/etc/sysconfig/keyboard
+        baseUpdateSysConfig $keytable_config KEYTABLE $kiwi_keytable
     fi
     #======================================
     # locale
     #--------------------------------------
     if [ ! -z "$kiwi_language" ];then
         language=$(echo $kiwi_language | cut -f1 -d,).UTF-8
-        baseUpdateSysConfig \
-            /etc/sysconfig/language RC_LANG $language
+        lang_config=/etc/sysconfig/language
+        baseUpdateSysConfig $lang_config RC_LANG $language
     fi
     #======================================
     # timezone
@@ -290,8 +279,8 @@ function suseConfig {
     if [ ! -z "$kiwi_timezone" ];then
         if [ -f /usr/share/zoneinfo/$kiwi_timezone ];then
             ln -sf /usr/share/zoneinfo/$kiwi_timezone /etc/localtime
-            baseUpdateSysConfig \
-                /etc/sysconfig/clock TIMEZONE $kiwi_timezone
+            time_config=/etc/sysconfig/clock
+            baseUpdateSysConfig $time_config TIMEZONE $kiwi_timezone
         else
             echo "timezone: $kiwi_timezone not found"
         fi
@@ -300,15 +289,8 @@ function suseConfig {
     # hwclock
     #--------------------------------------
     if [ ! -z "$kiwi_hwclock" ];then
-        baseUpdateSysConfig \
-            /etc/sysconfig/clock HWCLOCK "--$kiwi_hwclock"
-    fi
-    #======================================
-    # SuSEconfig
-    #--------------------------------------
-    if [ -x /sbin/SuSEconfig ];then
-        SuSEconfig
-        SuSEconfig --module permissions
+        time_config=/etc/sysconfig/clock
+        baseUpdateSysConfig $time_config HWCLOCK "--$kiwi_hwclock"
     fi
 }
 
@@ -856,6 +838,9 @@ function baseUpdateSysConfig {
     # Update sysconfig variable contents
     # ----
     local FILE=$1
+    if [ ! -f "$FILE" ];then
+        echo "warning: config file $FILE not found"
+    fi
     local VAR=$2
     local VAL=$3
     local args=$(echo "s'@^\($VAR=\).*\$@\1\\\"$VAL\\\"@'")
