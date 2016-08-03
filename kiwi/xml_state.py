@@ -532,7 +532,15 @@ class XMLState(object):
         if len(users_sections):
             for users_section in users_sections:
                 for user in users_section.get_user():
-                    if not any(u.get_name() == user.get_name() for u in users_list):
+                    match = [i for i, u in enumerate(users_list) if u.get_name() == user.get_name()]
+                    for idx in match:
+                        if users_list[idx].get_groups() and user.get_groups():
+                            users_list[idx].set_groups(
+                                ','.join([users_list[idx].get_groups(), user.get_groups()])
+                            )
+                        elif not users_list[idx].get_groups() and user.get_groups():
+                            users_list[idx].set_groups(user.get_groups())
+                    if not len(match):
                         users_list.append(user)
 
         return users_list
@@ -552,7 +560,12 @@ class XMLState(object):
         groups_list = []
         for user in self.get_users():
             if user.get_name() == user_name and user.get_groups():
-                groups_list.extend(user.get_groups().split(','))
+                seen = set()
+                groups_list = [
+                    grp for grp in user.get_groups().split(',')
+                    if not (grp in seen or seen.add(grp))
+                ]
+                break
 
         return groups_list
 

@@ -305,8 +305,27 @@ class TestXMLState(object):
             'root'
 
     def test_get_users(self):
-        assert self.state.get_users()[0].get_name() == \
-            'root'
+        description = XMLDescription('../data/example_multiple_users_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        users = state.get_users()
+        assert len(users) == 3
+        assert any(u.get_name() == 'root' for u in users)
+        assert any(u.get_name() == 'tux' for u in users)
+        assert any(u.get_name() == 'kiwi' for u in users) 
+
+    def test_get_user_groups(self):
+        description = XMLDescription('../data/example_multiple_users_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        
+        assert len(state.get_user_groups('root')) == 0
+        assert len(state.get_user_groups('tux')) == 1
+        assert any(grp == 'users' for grp in state.get_user_groups('tux'))
+        assert len(state.get_user_groups('kiwi')) == 3
+        assert any(grp == 'users' for grp in state.get_user_groups('kiwi'))
+        assert any(grp == 'kiwi' for grp in state.get_user_groups('kiwi'))
+        assert any(grp == 'admin' for grp in state.get_user_groups('kiwi'))
 
     def test_copy_displayname(self):
         self.state.copy_displayname(self.boot_state)
