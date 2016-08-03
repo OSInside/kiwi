@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.4" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
-    <drivers>
-        <file name="crypto/*"/>
-        <file name="drivers/acpi/*"/>
-        <file name="bar"/>
-    </drivers>
-    <strip type="delete">
-        <file name="del-a"/>
-        <file name="del-b"/>
-    </strip>
-    <strip type="tools">
-        <file name="tool-a"/>
-        <file name="tool-b"/>
-    </strip>
-    <strip type="libs">
-        <file name="lib-a"/>
-        <file name="lib-b"/>
-    </strip>
+<image schemaversion="6.4" name="LimeJeOS-openSUSE-13.2">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -31,23 +14,6 @@
         <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
     </profiles>
     <preferences>
-        <locale>de_DE</locale>
-    </preferences>
-    <preferences>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async">
-            <size unit="G" additive="true">1</size>
-            <systemdisk name="mydisk"/>
-            <machine memory="512" domain="domU">
-                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
-                <vmnic interface=""/>
-                <vmdvd id="0" controller="scsi"/>
-            </machine>
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-                <oem-recovery>false</oem-recovery>
-            </oemconfig>
-        </type>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
@@ -55,46 +21,10 @@
         <timezone>Europe/Berlin</timezone>
         <hwclock>utc</hwclock>
         <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-    </preferences>
-    <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
-    </preferences>
-    <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
-            <machine memory="512" domain="domU">
-                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
-                <vmnic interface=""/>
-            </machine>
-        </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash">
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-            </oemconfig>
-            <machine domain="dom0">
-                <vmdisk id="0" controller="ide"/>
-            </machine>
-        </type>
-    </preferences>
-    <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
-            <systemdisk name="systemVG"/>
-            <machine memory="512" guestOS="suse" HWversion="4">
-                <vmdisk id="0" controller="ide"/>
-                <vmnic driver="e1000" interface="0" mode="bridged"/>
-            </machine>
-        </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" bootloader="grub2" kernelcmdline="splash">
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-            </oemconfig>
-            <machine memory="512" guestOS="suse" HWversion="4">
-                <vmdisk id="0" controller="ide"/>
-                <vmnic driver="e1000" interface="0" mode="bridged"/>
-            </machine>
+        <type image="vmx" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
         </type>
     </preferences>
     <users>
@@ -106,55 +36,15 @@
         <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
         <user groups="kiwi,admin" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
     </users>
-    <repository type="yast2" priority="42">
-        <source path="iso:///image/CDs/dvd.iso"/>
+    <repository type="yast2">
+        <source path="obs://13.2/repo/oss"/>
     </repository>
-    <repository type="rpm-md" imageinclude="true">
-        <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
-    </repository>
-    <packages type="image" patternType="plusRecommended">
-        <namedCollection name="base"/>
-        <product name="openSUSE"/>
-        <package name="plymouth-branding-openSUSE" bootinclude="true"/>
-        <package name="grub2-branding-openSUSE" bootinclude="true"/>
-        <package name="ifplugd"/>
-        <package name="iputils"/>
-        <package name="vim" bootdelete="true"/>
-        <package name="openssh"/>
-        <archive name="/absolute/path/to/image.tgz" bootinclude="true"/>
-        <package name="foo" arch="some-arch"/>
-    </packages>
-    <packages type="iso">
-        <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
-    </packages>
-    <packages type="oem">
-        <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
-    </packages>
-    <packages type="image" profiles="ec2Flavour">
-        <package name="kernel-ec2" replaces="kernel-default"/>
-        <package name="kernel-ec2" replaces="kernel-xen"/>
-        <package name="xen-tools" arch="x86_64" replaces=""/>
-        <package name="xen" arch="x86_64" replaces=""/>
-    </packages>
-    <packages type="image" profiles="xenFlavour">
-        <package name="kernel-xen" replaces="kernel-default"/>
-        <package name="kernel-xen" replaces="kernel-ec2"/>
-        <package name="xen-tools" arch="x86_64" replaces=""/>
-        <package name="xen" arch="x86_64" replaces=""/>
-    </packages>
-    <packages type="image" profiles="vmxFlavour">
-        <package name="kernel-default" replaces="kernel-xen"/>
-        <package name="kernel-default" replaces="kernel-ec2"/>
-        <package name="kernel-default" replaces="xen-tools"/>
-        <package name="kernel-default" replaces="xen"/>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
     </packages>
     <packages type="bootstrap">
+        <package name="udev"/>
         <package name="filesystem"/>
-        <namedCollection name="bootstrap-collection"/>
-        <product name="kiwi"/>
-        <archive name="bootstrap.tgz"/>
-    </packages>
-    <packages type="delete">
-        <package name="kernel-debug"/>
+        <package name="glibc-locale"/>
     </packages>
 </image>
