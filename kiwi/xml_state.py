@@ -528,26 +528,18 @@ class XMLState(object):
         :rtype: list
         """
         users_list = []
-        users_sections = self.get_users_sections()
-        if len(users_sections):
-            for users_section in users_sections:
-                for user in users_section.get_user():
-                    match = [i for i, u in enumerate(users_list) if u.get_name() == user.get_name()]
-                    for idx in match:
-                        if users_list[idx].get_groups() and user.get_groups():
-                            users_list[idx].set_groups(
-                                ','.join([users_list[idx].get_groups(), user.get_groups()])
-                            )
-                        elif not users_list[idx].get_groups() and user.get_groups():
-                            users_list[idx].set_groups(user.get_groups())
-                    if not len(match):
-                        users_list.append(user)
+        users_names_added = []
+        for users_section in self.get_users_sections():
+            for user in users_section.get_user():
+                if user.get_name() not in users_names_added:
+                    users_list.append(user)
+                    users_names_added.append(user.get_name())
 
         return users_list
 
     def get_user_groups(self, user_name):
         """
-        List of configured users.
+        List of group names matching specified user
 
         Each entry in the list is the name of a group that the specified
         user belongs to. The first item in the list is the login or primary
@@ -558,16 +550,21 @@ class XMLState(object):
         :rtype: list
         """
         groups_list = []
-        for user in self.get_users():
-            if user.get_name() == user_name and user.get_groups():
-                seen = set()
-                groups_list = [
-                    grp for grp in user.get_groups().split(',')
-                    if not (grp in seen or seen.add(grp))
-                ]
-                break
+        for users_section in self.get_users_sections():
+            for user in users_section.get_user():
+                if user.get_name() == user_name:
+                    user_groups = user.get_groups()
+                    if user_groups:
+                        groups_list += user.get_groups().split(',')
 
-        return groups_list
+        # order of list items matter, thus we don't use set() here
+        # better faster, nicer solutions welcome :)
+        result_group_list = []
+        for item in groups_list:
+            if item not in result_group_list:
+                result_group_list.append(item)
+
+        return result_group_list
 
     def get_volumes(self):
         """
