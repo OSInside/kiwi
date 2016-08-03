@@ -1754,10 +1754,10 @@ function suseSetupProduct {
     fi
     if [ -d /etc/products.d ];then
         pushd /etc/products.d
-        if [ -f $prod.prod ];then
-            ln -sf $prod.prod baseproduct
-        elif [ -f SUSE_$prod.prod ];then
-            ln -sf SUSE_$prod.prod baseproduct
+        if [ -f "${prod}.prod" ];then
+            ln -sf "${prod}.prod" baseproduct
+        elif [ -f "SUSE_${prod}.prod" ];then
+            ln -sf "SUSE_${prod}.prod" baseproduct
         else
             prod=$(ls -1t *.prod 2>/dev/null | tail -n 1)
             if [ -f $prod ];then
