@@ -522,33 +522,49 @@ class XMLState(object):
         """
         List of configured users.
 
-        Each entry in the list is a tuple with the following information
-
-        * group_name, name of the group
-        * group_id, id of the group
-        * user_sections, list of xml_parse::users instances which belong
-          to the group name and id of this tuple
+        Each entry in the list is a single xml_parse::user instance.
 
         :return: user data
         :rtype: list
         """
-        users_by_group_type = namedtuple(
-            'users_by_group_type', ['group_name', 'group_id', 'user_sections']
-        )
-        users_by_group = []
-        users_sections = self.get_users_sections()
-        if users_sections:
-            for users in users_sections:
-                user_sections = users.get_user()
-                if user_sections:
-                    users_by_group.append(
-                        users_by_group_type(
-                            group_name=users.get_group(),
-                            group_id=users.get_id(),
-                            user_sections=user_sections
-                        )
-                    )
-        return users_by_group
+        users_list = []
+        users_names_added = []
+        for users_section in self.get_users_sections():
+            for user in users_section.get_user():
+                if user.get_name() not in users_names_added:
+                    users_list.append(user)
+                    users_names_added.append(user.get_name())
+
+        return users_list
+
+    def get_user_groups(self, user_name):
+        """
+        List of group names matching specified user
+
+        Each entry in the list is the name of a group that the specified
+        user belongs to. The first item in the list is the login or primary
+        group. The list will be empty if no groups are specified in the
+        description file.
+
+        :return: groups data for the given user
+        :rtype: list
+        """
+        groups_list = []
+        for users_section in self.get_users_sections():
+            for user in users_section.get_user():
+                if user.get_name() == user_name:
+                    user_groups = user.get_groups()
+                    if user_groups:
+                        groups_list += user.get_groups().split(',')
+
+        # order of list items matter, thus we don't use set() here
+        # better faster, nicer solutions welcome :)
+        result_group_list = []
+        for item in groups_list:
+            if item not in result_group_list:
+                result_group_list.append(item)
+
+        return result_group_list
 
     def get_volumes(self):
         """

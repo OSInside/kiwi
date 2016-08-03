@@ -26,7 +26,7 @@ db:info [
     db:releaseinfo [
         "$Id: $"
     ]
-    db:releaseinfo [ "RNC Schema Version 6.3" ]
+    db:releaseinfo [ "RNC Schema Version 6.4" ]
     db:pubdate [ "START" ]
     db:pubdate [ "2016-03-18" ]
 ]
@@ -37,6 +37,7 @@ mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
 volume-size-type = xsd:token {pattern = "\d+|\d+M|\d+G|all"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
+groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
 
 #==========================================
 # start with image description
@@ -61,7 +62,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.3" }
+        attribute schemaversion { "6.4" }
     k.image.kiwirevision.attribute =
         ## A kiwi git revision number which is known to build
         ## a working image from this description. If the kiwi git
@@ -1954,6 +1955,12 @@ div {
     k.user.id.attribute = 
         ## The user ID for this user
         attribute id { xsd:nonNegativeInteger }
+    k.user.groups.attribute =
+        ## The list of groups that he user belongs to. The
+        ## frist item in the list is used as the login group.
+        ## If 'groups' is not present a default group is assigned
+        ## to the user according to he specifing toolchain behaviour.
+        attribute groups { groups-list }
     k.user.realname.attribute =
         ## The name of an user
         attribute realname { text }
@@ -1968,6 +1975,7 @@ div {
         ## The shell for this user
         attribute shell { text }
     k.user.attlist =
+        k.user.groups.attribute? &
         k.user.home.attribute &
         k.user.id.attribute? &
         k.user.name.attribute &
@@ -2834,16 +2842,8 @@ div {
 # main block: <users>
 #
 div {
-    k.users.group.attribute =
-        ## Contains the group to which the user belongs
-        attribute group { text }
-    k.users.id.attribute =
-        ## Contains the group ID to which the user belongs
-        attribute id { xsd:nonNegativeInteger }
     k.users.profiles.attribute = k.profiles.attribute
     k.users.attlist =
-        k.users.group.attribute &
-        k.users.id.attribute? &
         k.users.profiles.attribute?
     k.users = 
         ## A List of Users

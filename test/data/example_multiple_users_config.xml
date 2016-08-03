@@ -8,6 +8,11 @@
             openSUSE 13.2 JeOS, is a small text based image
         </specification>
     </description>
+    <profiles>
+        <profile name="xenFlavour" description="VMX with Xen kernel"/>
+        <profile name="ec2Flavour" description="VMX with EC2/Xen kernel"/>
+        <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
+    </profiles>
     <preferences>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
@@ -19,22 +24,17 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext3" boot="oemboot/suse-13.2" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
-            <systemdisk>
-                <volume name="usr" size="all"/>
-            </systemdisk>
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-            </oemconfig>
-            <machine memory="512" guestOS="suse" HWversion="4">
-                <vmdisk id="0" controller="ide"/>
-                <vmnic driver="e1000" interface="0" mode="bridged"/>
-            </machine>
+        <type image="vmx" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
         </type>
     </preferences>
     <users>
-        <user groups="root" password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+        <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
+        <user pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
+        <user groups="kiwi,users" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
+    </users>
+    <users>
+        <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
+        <user groups="kiwi,admin" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
     </users>
     <repository type="yast2">
         <source path="obs://13.2/repo/oss"/>

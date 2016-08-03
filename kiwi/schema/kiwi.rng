@@ -23,7 +23,7 @@
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
-    <db:releaseinfo>RNC Schema Version 6.3</db:releaseinfo>
+    <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
     <db:pubdate>START</db:pubdate>
     <db:pubdate>2016-03-18</db:pubdate>
   </db:info>
@@ -55,6 +55,11 @@
   <define name="vhd-tag-type">
     <data type="token">
       <param name="pattern">[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}</param>
+    </data>
+  </define>
+  <define name="groups-list">
+    <data type="token">
+      <param name="pattern">[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*</param>
     </data>
   </define>
   <!--
@@ -96,7 +101,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.3</value>
+        <value>6.4</value>
       </attribute>
     </define>
     <define name="k.image.kiwirevision.attribute">
@@ -2757,6 +2762,15 @@ compressed filesystem.</db:para>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
+    <define name="k.user.groups.attribute">
+      <attribute name="groups">
+        <a:documentation>The list of groups that he user belongs to. The
+frist item in the list is used as the login group.
+If 'groups' is not present a default group is assigned
+to the user according to he specifing toolchain behaviour.</a:documentation>
+        <ref name="groups-list"/>
+      </attribute>
+    </define>
     <define name="k.user.realname.attribute">
       <attribute name="realname">
         <a:documentation>The name of an user</a:documentation>
@@ -2786,6 +2800,9 @@ compressed filesystem.</db:para>
     </define>
     <define name="k.user.attlist">
       <interleave>
+        <optional>
+          <ref name="k.user.groups.attribute"/>
+        </optional>
         <ref name="k.user.home.attribute"/>
         <optional>
           <ref name="k.user.id.attribute"/>
@@ -4117,30 +4134,13 @@ drivers can bind itself to one of the listed namespaces.</db:para>
     
   -->
   <div>
-    <define name="k.users.group.attribute">
-      <attribute name="group">
-        <a:documentation>Contains the group to which the user belongs</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.users.id.attribute">
-      <attribute name="id">
-        <a:documentation>Contains the group ID to which the user belongs</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-    </define>
     <define name="k.users.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
     <define name="k.users.attlist">
-      <interleave>
-        <ref name="k.users.group.attribute"/>
-        <optional>
-          <ref name="k.users.id.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.users.profiles.attribute"/>
-        </optional>
-      </interleave>
+      <optional>
+        <ref name="k.users.profiles.attribute"/>
+      </optional>
     </define>
     <define name="k.users">
       <element name="users">

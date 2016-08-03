@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.3" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="6.4" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -97,8 +97,10 @@
             </machine>
         </type>
     </preferences>
-    <users group="root" id="42">
+    <users>
         <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
+        <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
+        <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
     </users>
     <repository type="yast2" priority="42">
         <source path="iso:///image/CDs/dvd.iso"/>

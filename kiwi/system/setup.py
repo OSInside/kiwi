@@ -274,16 +274,11 @@ class SystemSetup(object):
         """
         system_users = Users(self.root_dir)
 
-        for users in self.xml_state.get_users():
-            if not system_users.group_exists(users.group_name):
-                options = []
-                if users.group_id:
-                    options.append('-g')
-                    options.append(users.group_id)
-                log.info('Adding group %s', users.group_name)
-                system_users.group_add(
-                    users.group_name, options
-                )
+        for user in self.xml_state.get_users():
+            for group in self.xml_state.get_user_groups(user.get_name()):
+                if not system_users.group_exists(group):
+                    log.info('Adding group %s', group)
+                    system_users.group_add(group, [])
 
     def setup_users(self):
         """
@@ -291,64 +286,69 @@ class SystemSetup(object):
         """
         system_users = Users(self.root_dir)
 
-        for users in self.xml_state.get_users():
-            for user in users.user_sections:
-                log.info('Setting up user %s', user.get_name())
-                password = user.get_password()
-                password_format = user.get_pwdformat()
-                home_path = user.get_home()
-                user_name = user.get_name()
-                user_id = user.get_id()
-                user_realname = user.get_realname()
-                user_shell = user.get_shell()
+        for user in self.xml_state.get_users():
+            log.info('Setting up user %s', user.get_name())
+            password = user.get_password()
+            password_format = user.get_pwdformat()
+            home_path = user.get_home()
+            user_name = user.get_name()
+            user_id = user.get_id()
+            user_realname = user.get_realname()
+            user_shell = user.get_shell()
+            user_groups = self.xml_state.get_user_groups(user.get_name())
 
-                user_exists = system_users.user_exists(user_name)
+            user_exists = system_users.user_exists(user_name)
 
-                options = []
-                if password_format == 'plain':
-                    password = self._create_passwd_hash(password)
-                if password:
-                    options.append('-p')
-                    options.append(password)
-                if user_shell:
-                    options.append('-s')
-                    options.append(user_shell)
-                if users.group_id or users.group_name:
-                    options.append('-g')
-                if users.group_id:
-                    options.append(users.group_id)
-                else:
-                    options.append(users.group_name)
-                if user_id:
-                    options.append('-u')
-                    options.append(user_id)
-                if user_realname:
-                    options.append('-c')
-                    options.append(user_realname)
-                if not user_exists and home_path:
-                    options.append('-m')
-                    options.append('-d')
-                    options.append(home_path)
+            options = []
+            if password_format == 'plain':
+                password = self._create_passwd_hash(password)
+            if password:
+                options.append('-p')
+                options.append(password)
+            if user_shell:
+                options.append('-s')
+                options.append(user_shell)
+            if len(user_groups):
+                options.append('-g')
+                options.append(user_groups[0])
+                if len(user_groups) > 1:
+                    options.append('-G')
+                    options.append(','.join(user_groups[1:]))
+            if user_id:
+                options.append('-u')
+                options.append(user_id)
+            if user_realname:
+                options.append('-c')
+                options.append(user_realname)
+            if not user_exists and home_path:
+                options.append('-m')
+                options.append('-d')
+                options.append(home_path)
 
-                if user_exists:
+            if user_exists:
+                log.info(
+                    '--> Modifying user: %s [%s]',
+                    user_name,
+                    user_groups[0] if len(user_groups) else ''
+                )
+                system_users.user_modify(user_name, options)
+            else:
+                log.info(
+                    '--> Adding user: %s [%s]',
+                    user_name,
+                    user_groups[0] if len(user_groups) else ''
+                )
+                system_users.user_add(user_name, options)
+                if home_path:
                     log.info(
-                        '--> Modifying user: %s [%s]',
-                        user_name, users.group_name
+                        '--> Setting permissions for %s', home_path
                     )
-                    system_users.user_modify(user_name, options)
-                else:
-                    log.info(
-                        '--> Adding user: %s [%s]',
-                        user_name, users.group_name
+                    # Emtpy group string assumes the login or default group
+                    system_users.setup_home_for_user(
+                        user_name,
+                        user_groups[0] if len(user_groups) else '',
+                        home_path
                     )
-                    system_users.user_add(user_name, options)
-                    if home_path:
-                        log.info(
-                            '--> Setting permissions for %s', home_path
-                        )
-                        system_users.setup_home_for_user(
-                            user_name, users.group_name, home_path
-                        )
 
     def import_image_identifier(self):
         """

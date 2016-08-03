@@ -35,31 +35,11 @@
 </xsl:template>
 
 <para xmlns="http://docbook.org/ns/docbook">
-    Remove obsolete fsreadonly attribute from types
+    Remove obsolete fsreadonly, fsreadwrite and zfsoptions attributes from types
 </para>
 <xsl:template match="type" mode="conv62to63">
     <type>
-        <xsl:copy-of select="@*[not(local-name(.) = 'fsreadonly')]"/>
-        <xsl:apply-templates mode="conv62to63"/>
-    </type>
-</xsl:template>
-
-<para xmlns="http://docbook.org/ns/docbook">
-    Remove obsolete fsreadwrite attribute from types
-</para>
-<xsl:template match="type" mode="conv62to63">
-    <type>
-        <xsl:copy-of select="@*[not(local-name(.) = 'fsreadwrite')]"/>
-        <xsl:apply-templates mode="conv62to63"/>
-    </type>
-</xsl:template>
-
-<para xmlns="http://docbook.org/ns/docbook">
-    Remove obsolete zfsoptions attribute from types
-</para>
-<xsl:template match="type" mode="conv62to63">
-    <type>
-        <xsl:copy-of select="@*[not(local-name(.) = 'zfsoptions')]"/>
+        <xsl:copy-of select="@*[not(local-name(.) = 'fsreadonly') and not(local-name(.) = 'fsreadwrite') and not(local-name(.) = 'zfsoptions')]"/>
         <xsl:apply-templates mode="conv62to63"/>
     </type>
 </xsl:template>
