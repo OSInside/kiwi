@@ -838,13 +838,14 @@ function baseUpdateSysConfig {
     # Update sysconfig variable contents
     # ----
     local FILE=$1
-    if [ ! -f "$FILE" ];then
+    if [ -f "$FILE" ];then
+        local VAR=$2
+        local VAL=$3
+        local args=$(echo "s'@^\($VAR=\).*\$@\1\\\"$VAL\\\"@'")
+        eval sed -i $args $FILE
+    else
         echo "warning: config file $FILE not found"
     fi
-    local VAR=$2
-    local VAL=$3
-    local args=$(echo "s'@^\($VAR=\).*\$@\1\\\"$VAL\\\"@'")
-    eval sed -i $args $FILE
 }
 
 #======================================
