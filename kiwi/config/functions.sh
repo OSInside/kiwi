@@ -54,9 +54,6 @@ function baseSystemdServiceInstalled {
             return
         fi
     done
-    if [ -x "/etc/init.d/${service}" ];then
-        echo "${service}"
-    fi
 }
 
 #======================================
@@ -75,27 +72,15 @@ function baseSystemdCall {
 #--------------------------------------
 function baseInsertService {
     # /.../
-    # Enable a service using either chkconfig or systemctl
+    # Enable a system service using systemctl
     # Examples:
     #
     # baseInsertService sshd
     #   --> enable sshd service
     #
-    # baseInsertService sshd 35
-    #   --> enable sshd service, if sysVInit in level 3+5
     # ----
     local service=$1
-    local targets=$2
-    local systemd_system=/usr/lib/systemd/system
-    if [ -z "$targets" ];then
-        targets=on
-    fi
-    if [ -d $systemd_system ];then
-        baseSystemdCall "$service" "enable"
-    else
-        chkconfig $service off
-        chkconfig $service $targets
-    fi
+    baseSystemdCall "$service" "enable"
 }
 
 #======================================
@@ -103,19 +88,14 @@ function baseInsertService {
 #--------------------------------------
 function baseRemoveService {
     # /.../
-    # Disable a service using either chkconfig or systemctl
+    # Disable a system service using systemctl
     # Example:
     #
     # baseRemoveService sshd
     #   --> disable sshd service
     # ----
     local service=$1
-    local systemd_system=/usr/lib/systemd/system
-    if [ -d $systemd_system ];then
-        baseSystemdCall "$service" "disable"
-    else
-        chkconfig $service off
-    fi
+    baseSystemdCall "$service" "disable"
 }
 
 #======================================
@@ -123,8 +103,7 @@ function baseRemoveService {
 #--------------------------------------
 function baseService {
     # /.../
-    # Enable or Disable a service transparently
-    # for sysVInit and systemd
+    # Enable or Disable a service
     # Examples:
     #
     # baseService sshd on
@@ -133,8 +112,6 @@ function baseService {
     # baseService sshd off
     #   --> disable sshd service
     #
-    # baseService sshd 35
-    #   --> enable sshd service, if sysVInit in level 3+5
     # ----
     local service=$1
     local target=$2
@@ -149,7 +126,7 @@ function baseService {
     if [ $target = off ];then
         baseRemoveService $service
     else
-        baseInsertService $service $target
+        baseInsertService $service
     fi
 }
 
@@ -190,31 +167,10 @@ function suseActivateDefaultServices {
     # /.../
     # Some basic services that needs to be on.
     # ----
-    local services
-    local systemd_system=/usr/lib/systemd/system
-    if [ -d $systemd_system ];then
-        services=(
-            network
-            cron
-        )
-    else
-        services=(
-            boot.rootfsck
-            boot.cleanup
-            boot.localfs
-            boot.localnet
-            boot.clock
-            policykitd
-            dbus
-            consolekit
-            haldaemon
-            network
-            atd
-            syslog
-            cron
-            kbd
-        )
-    fi
+    local services=(
+        network
+        cron
+    )
     for i in "${services[@]}";do
         echo "Activating service: $i"
         baseInsertService $i
@@ -1773,12 +1729,10 @@ function suseSetupProduct {
 #--------------------------------------
 function baseSetRunlevel {
     # /.../
-    # Set the init runlevel in /etc/inittab or the systemd
-    # default target link according to the specified value
-    # Examples:
+    # Set the systemd default target link according to the
+    # specified value Examples:
     #
     # baseSetRunlevel 5
-    #   --> set initdefault to 5
     #   --> set graphical.target as systemd default
     #
     # baseSetRunlevel shutdown.target
@@ -1786,7 +1740,6 @@ function baseSetRunlevel {
     #
     # ----
     local target=$1
-    local inittab=/etc/inittab
     local systemd_system=/usr/lib/systemd/system
     local systemd_default=/etc/systemd/system/default.target
     local systemd_consoles=$systemd_system/multi-user.target
@@ -1794,26 +1747,13 @@ function baseSetRunlevel {
     case "$target" in
         1|2|3|5)
             # /.../
-            # Given target is a number; use this to update the inittab
-            # In addition check for systemd and clone the number to an
-            # appropriate systemd target
+            # Given target is a number, map the number to a service
+            # We only allow console or graphics mode
             # ----
-            #======================================
-            # set runlevel in inittab
-            #--------------------------------------
-            if [ -e $inittab ];then
-                sed -i "s/id:[0123456]:initdefault:/id:$target:initdefault:/" \
-                    $inittab
-            fi
-            #======================================
-            # clone runlevel number to systemd
-            #--------------------------------------
-            if [ -d $systemd_system ]; then
-                if [ $target -lt 5 ];then
-                    ln -sf $systemd_consoles $systemd_default
-                else
-                    ln -sf $systemd_graphics $systemd_default
-                fi
+            if [ $target -lt 5 ];then
+                ln -sf $systemd_consoles $systemd_default
+            else
+                ln -sf $systemd_graphics $systemd_default
             fi
         ;;
         *)
