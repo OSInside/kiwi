@@ -1702,8 +1702,8 @@ function suseSetupProduct {
             ln -sf "SUSE_${prod}.prod" baseproduct
         else
             prod=$(ls -1t *.prod 2>/dev/null | tail -n 1)
-            if [ -f $prod ];then
-                ln -sf $prod baseproduct
+            if [ -f "$prod" ];then
+                ln -sf "$prod" baseproduct
             fi
         fi
         popd
