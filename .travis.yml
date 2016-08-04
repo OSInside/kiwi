@@ -34,4 +34,4 @@ deploy:
     secure: "D5pCJcdIxC9c6zdh0qog1Ks57Znuk4XjyF/1p90FC5Lv+FD1QPwPAxl/TDwCTI4YEMXrv7tXAVsyiOBz3qXj8Odj0hcAMGcQMD6ymsnIRWFrZ928o2faVTWHGoW0yk4d2/n7Q0d505zr+r9xJ0FBsmrF0/Clf0AJLOJ31rexQUGHZ9jmSIkrrkpFsHiP8RjtsfaB019NYZUwyBOiffdH1E4x9Ucb6N3pWL+IzK82jJzEtAxJdh1zgWDcmAX56deRXGRbNt8qJqJY1PRM7EfEfMyzcSAFe4WlgxltfFqhVk1eBxC5+Soq+uHOw/eP1ov+crjiOruokb2vIeAMyjW2DcSXOVNUYO3obvbAI4fydx5giC1MYiRwNlu4NZWQQ63ZtZhH9gCKWpxDG26W7rMpcILAMzMevpqN+3MoRpwmazmKFnbmOydq1WVwOEwGMl7PNNL2Pm4zUayCeNbhmKI+01bmVAmAnyS4XU/byOYtYntFohuPRF/QD3nuUkaoXQEswP5C/JlhLFKYxNm5BrIHOwQzodnIuSVJfdnHExdAWJFY+Us2pAVuQkBKZtvYG7GMSP8Xxv9wYq2VryGPGsThaAyHSV36ARpHt5zRetcsb7Lw0zuj8cpwi4L+yhUc0mHtbga6ABGsm+1YF5VhqZqDRmpZK7wjoq3fEiyr4iJQ+jY="
     on:
       tags: true
-      branch: master
+      all_branches: true
