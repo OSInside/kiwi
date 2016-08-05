@@ -3,13 +3,15 @@ from builtins import bytes
 from lxml import etree
 
 from .test_helper import *
+from collections import namedtuple
 
 from kiwi.exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
-    KiwiDescriptionConflict
+    KiwiDescriptionConflict,
+    KiwiCommandError
 )
 from kiwi.xml_description import XMLDescription
 
@@ -80,29 +82,63 @@ class TestSchema(object):
     @raises(KiwiDescriptionInvalid)
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
+    @patch('kiwi.system.setup.Command.run')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_file_invalid(
-        self, mock_xslt, mock_parse, mock_relax
+        self, mock_xslt, mock_command, mock_parse, mock_relax
     ):
         mock_validate = mock.Mock()
         mock_validate.validate = mock.Mock(
             return_value=False
         )
         mock_relax.return_value = mock_validate
+        command_run = namedtuple(
+            'command', ['output', 'error', 'returncode']
+        )
+        mock_command.return_value = command_run(
+            output='jing output\n',
+            error='',
+            returncode=1
+        ) 
         self.description_from_file.load()
 
     @raises(KiwiDescriptionInvalid)
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
+    @patch('kiwi.system.setup.Command.run')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_data_invalid(
-        self, mock_xslt, mock_parse, mock_relax
+        self, mock_xslt, mock_command, mock_parse, mock_relax
     ):
         mock_validate = mock.Mock()
         mock_validate.validate = mock.Mock(
             return_value=False
         )
         mock_relax.return_value = mock_validate
+        command_run = namedtuple(
+            'command', ['output', 'error', 'returncode']
+        )
+        mock_command.return_value = command_run(
+            output='jing output\n',
+            error='',
+            returncode=1
+        )
+        self.description_from_data.load()
+
+    @raises(KiwiDescriptionInvalid)
+    @patch('lxml.etree.RelaxNG')
+    @patch('lxml.etree.parse')
+    @patch('kiwi.system.setup.Command.run')
+    @patch.object(XMLDescription, '_xsltproc')
+    def test_load_schema_description_from_data_invalid_no_jing(
+        self, mock_xslt, mock_command, mock_parse, mock_relax
+    ):
+        mock_validate = mock.Mock()
+        mock_validate.validate = mock.Mock(
+            return_value=False
+        )
+        mock_relax.return_value = mock_validate
+        mock_command.side_effect = KiwiCommandError('No jing command')
         self.description_from_data.load()
 
     @raises(KiwiDataStructureError)

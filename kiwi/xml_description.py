@@ -28,13 +28,16 @@ from builtins import bytes
 # project
 from .defaults import Defaults
 from . import xml_parse
+from .command import Command
+from .logger import log
 
 from .exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
-    KiwiDescriptionConflict
+    KiwiDescriptionConflict,
+    KiwiCommandError
 )
 
 
@@ -99,6 +102,7 @@ class XMLDescription(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
         if not validation_ok:
+            self._get_validation_details()
             if self.description:
                 message = 'Schema validation for {description} failed'.format(
                     description=self.description
@@ -107,6 +111,25 @@ class XMLDescription(object):
                 message = 'Schema validation for XML content failed'
             raise KiwiDescriptionInvalid(message)
         return self._parse()
+
+    def _get_validation_details(self):
+        """
+        Run jing process to validate description against the schema
+
+        Jing command provides detailed feedback in case of schema
+        validation failure
+        """
+        try:
+            cmd = Command.run(
+                ['jing', Defaults.get_schema_file(), self.description_xslt_processed.name],
+                raise_on_error=False
+            )
+        except KiwiCommandError:
+            log.info('Failed running jing command')
+            log.info('A detailed schema validation failure report requires jing to be installed')
+            return
+        log.info('Schema validation failed. Jing report below:')
+        log.info('--> ' + cmd.output)
 
     def _parse(self):
         try:
