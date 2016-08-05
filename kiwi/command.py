@@ -26,7 +26,7 @@ from collections import namedtuple
 from builtins import bytes
 
 # project
-from .exceptions import KiwiCommandError
+from .exceptions import KiwiCommandError, KiwiCommandNotFound
 
 
 class Command(object):
@@ -60,6 +60,10 @@ class Command(object):
         environment = os.environ
         if custom_env:
             environment = custom_env
+        if not self._command_exists(command[0], environment):
+            raise KiwiCommandNotFound(
+                'Command {} not found in the environment'.format(command[0])
+            )
         try:
             process = subprocess.Popen(
                 command,
@@ -117,6 +121,10 @@ class Command(object):
         environment = os.environ
         if custom_env:
             environment = custom_env
+        if not self._command_exists(command[0], environment):
+            raise KiwiCommandNotFound(
+                'Command {} not found in the environment'.format(command[0])
+            )
         try:
             process = subprocess.Popen(
                 command,
@@ -164,4 +172,25 @@ class Command(object):
             error=process.stderr,
             error_available=error_available(),
             process=process
+        )
+
+    @classmethod
+    def _command_exists(self, command, env):
+        """
+        Tests if the given command is executable for the specified
+        environment. If the specified environment does not include
+        'PATH' variable, the method raises a KiwiCommandError
+        exception
+
+        :param string command: command to validate
+        :param list env: custom os.environ
+
+        :return: True if the command is found, False otherwise
+        :rtype: bool
+        """
+        if 'PATH' not in env:
+            raise KiwiCommandError('No PATH variable in environment')
+        return any(
+            os.access(os.path.join(path, command), os.X_OK)
+            for path in env['PATH'].split(os.pathsep)
         )

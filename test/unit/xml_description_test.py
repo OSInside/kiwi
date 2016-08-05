@@ -11,7 +11,7 @@ from kiwi.exceptions import (
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
     KiwiDescriptionConflict,
-    KiwiCommandError
+    KiwiCommandNotFound
 )
 from kiwi.xml_description import XMLDescription
 
@@ -138,7 +138,7 @@ class TestSchema(object):
             return_value=False
         )
         mock_relax.return_value = mock_validate
-        mock_command.side_effect = KiwiCommandError('No jing command')
+        mock_command.side_effect = KiwiCommandNotFound('No jing command')
         self.description_from_data.load()
 
     @raises(KiwiDataStructureError)

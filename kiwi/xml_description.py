@@ -37,7 +37,7 @@ from .exceptions import (
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
     KiwiDescriptionConflict,
-    KiwiCommandError
+    KiwiCommandNotFound
 )
 
 
@@ -124,11 +124,13 @@ class XMLDescription(object):
                 ['jing', Defaults.get_schema_file(), self.description_xslt_processed.name],
                 raise_on_error=False
             )
-        except KiwiCommandError:
-            log.info('Failed running jing command')
+        except KiwiCommandNotFound as e:
             log.info('A detailed schema validation failure report requires jing to be installed')
+            log.info(
+                '%s: %s: %s' % ('jing', type(e).__name__, format(e))
+            )
             return
-        log.info('Schema validation failed. Jing report below:')
+        log.info('Schema validation failed. See jing report:')
         log.info('--> ' + cmd.output)
 
     def _parse(self):
