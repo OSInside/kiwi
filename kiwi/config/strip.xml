@@ -50,6 +50,7 @@
     locations except for the ones listed here
     -->
     <strip type="tools">
+        <file name="systemd-detect-virt"/>
         <file name="kbd_mode"/>
         <file name="stty"/>
         <file name="sulogin"/>
