@@ -26,7 +26,9 @@ class TestProfile(object):
         )
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
-    def test_create(self, mock_temp):
+    @patch('kiwi.path.Path.which')
+    def test_create(self, mock_which, mock_temp):
+        mock_which.return_value = 'cp'
         mock_temp.return_value = self.tmpfile
         result = self.profile.create()
         os.remove(self.tmpfile.name)
@@ -130,7 +132,9 @@ class TestProfile(object):
         ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
-    def test_create_cpio(self, mock_temp):
+    @patch('kiwi.path.Path.which')
+    def test_create_cpio(self, mock_which, mock_temp):
+        mock_which.return_value = 'cp'
         mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_dot_profile_config.xml')
         profile = Profile(

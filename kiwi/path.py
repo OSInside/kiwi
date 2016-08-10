@@ -98,7 +98,10 @@ class Path(object):
         )
 
     @classmethod
-    def which(self, filename, alternative_lookup_paths=None, custom_env=None, access_mode=None):
+    def which(
+        self, filename, alternative_lookup_paths=None,
+        custom_env=None, access_mode=None
+    ):
         """
         Lookup file name in PATH
 
@@ -106,7 +109,8 @@ class Path(object):
         :param list alternative_lookup_paths: list of additional lookup paths
         :param list custom_env: a custom os.environ
         :param int mode: one of the os access modes or a combination of
-        them (os.R_OK, os.W_OK and os.X_OK)
+         them (os.R_OK, os.W_OK and os.X_OK). If the provided access mode
+         does not match the file is considered not existing
         """
         lookup_paths = []
         system_path = os.environ.get('PATH')
@@ -118,7 +122,7 @@ class Path(object):
             lookup_paths += alternative_lookup_paths
         for path in lookup_paths:
             location = os.path.join(path, filename)
-            if access_mode and os.access(location, access_mode):
-                return location
-            elif not access_mode and os.path.exists(location):
-                return location
+            if access_mode:
+                return location if os.path.exists(location) and os.access(location, access_mode) else None
+            else:
+                return location if os.path.exists(location) else None

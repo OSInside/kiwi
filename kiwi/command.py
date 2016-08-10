@@ -60,6 +60,9 @@ class Command(object):
         """
         from .logger import log
         from .path import Path
+        command_type = namedtuple(
+            'command', ['output', 'error', 'returncode']
+        )
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
         if custom_env:
@@ -69,9 +72,16 @@ class Command(object):
             custom_env=environment,
             access_mode=os.X_OK
         ):
-            raise KiwiCommandNotFound(
-                'Command %s not found in the environment' % command[0]
-            )
+            message = 'Command %s not found in the environment' % command[0]
+            if not raise_on_error:
+                log.debug('EXEC: %s', message)
+                return command_type(
+                    output=None,
+                    error=None,
+                    returncode=-1
+                )
+            else:
+                raise KiwiCommandNotFound(message)
         try:
             process = subprocess.Popen(
                 command,
@@ -98,10 +108,7 @@ class Command(object):
                     command[0], error.decode(), output.decode()
                 )
             )
-        command = namedtuple(
-            'command', ['output', 'error', 'returncode']
-        )
-        return command(
+        return command_type(
             output=output.decode(),
             error=error.decode(),
             returncode=process.returncode

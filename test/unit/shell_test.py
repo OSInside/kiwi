@@ -14,7 +14,9 @@ class TestShell(object):
     def test_quote(self):
         assert Shell.quote('aa\!') == 'aa\\\\\\!'
 
-    def test_quote_key_value_file(self):
+    @patch('kiwi.path.Path.which')
+    def test_quote_key_value_file(self, mock_which):
+        mock_which.return_value = 'cp'
         assert Shell.quote_key_value_file('../data/key_value') == [
             "foo='bar'",
             "bar='xxx'",

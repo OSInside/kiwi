@@ -34,11 +34,15 @@ class TestChecksum(object):
     def test_checksum_file_not_found(self):
         Checksum('some-file')
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
     @patch_open
-    def test_md5_xz(self, mock_open, mock_size, mock_md5, mock_compress):
+    def test_md5_xz(
+        self, mock_open, mock_size, mock_md5, mock_compress, mock_which
+    ):
+        mock_which.return_value = 'factor'
         compress = mock.Mock()
         digest = mock.Mock()
         digest.block_size = 1024
@@ -63,11 +67,15 @@ class TestChecksum(object):
             'sum 163968 8192 163968 8192\n'
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.md5')
     @patch('os.path.getsize')
     @patch_open
-    def test_md5(self, mock_open, mock_size, mock_md5, mock_compress):
+    def test_md5(
+        self, mock_open, mock_size, mock_md5, mock_compress, mock_which
+    ):
+        mock_which.return_value = 'factor'
         compress = mock.Mock()
         digest = mock.Mock()
         digest.block_size = 1024
@@ -92,11 +100,15 @@ class TestChecksum(object):
             'sum 163968 8192\n'
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.sha256')
     @patch('os.path.getsize')
     @patch_open
-    def test_sha256(self, mock_open, mock_size, mock_sha256, mock_compress):
+    def test_sha256(
+        self, mock_open, mock_size, mock_sha256, mock_compress, mock_which
+    ):
+        mock_which.return_value = 'factor'
         compress = mock.Mock()
         digest = mock.Mock()
         digest.block_size = 1024

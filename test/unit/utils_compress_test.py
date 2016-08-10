@@ -69,7 +69,9 @@ class TestCompress(object):
         mock_format.return_value = None
         self.compress.uncompress()
 
-    def test_get_format(self):
+    @patch('kiwi.path.Path.which')
+    def test_get_format(self, mock_which):
+        mock_which.return_value = 'ziptool'
         xz = Compress('../data/xz_data.xz')
         assert xz.get_format() == 'xz'
         gzip = Compress('../data/gz_data.gz')
