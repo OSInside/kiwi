@@ -65,9 +65,9 @@ class Command(object):
         if custom_env:
             environment = custom_env
         if not Path.which(
-                command[0],
-                custom_env=environment,
-                access_mode=os.X_OK
+            command[0],
+            custom_env=environment,
+            access_mode=os.X_OK
         ):
             raise KiwiCommandNotFound(
                 'Command %s not found in the environment' % command[0]
@@ -131,9 +131,9 @@ class Command(object):
         if custom_env:
             environment = custom_env
         if not Path.which(
-                command[0],
-                custom_env=environment,
-                access_mode=os.X_OK
+            command[0],
+            custom_env=environment,
+            access_mode=os.X_OK
         ):
             raise KiwiCommandNotFound(
                 'Command %s not found in the environment' % command[0]
