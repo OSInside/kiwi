@@ -127,7 +127,7 @@ class XMLDescription(object):
         except KiwiCommandNotFound as e:
             log.info('A detailed schema validation failure report requires jing to be installed')
             log.info(
-                '%s: %s: %s' % ('jing', type(e).__name__, format(e))
+                '%s: %s: %s', 'jing', type(e).__name__, format(e)
             )
             return
         log.info('Schema validation failed. See jing report:')
