@@ -218,7 +218,10 @@ class KiwiDebootstrapError(KiwiError):
 
 
 class KiwiDescriptionConflict(KiwiError):
-    pass
+    """
+    Exception raised if both, a description file and xml_content
+    is provided
+    """
 
 
 class KiwiDescriptionInvalid(KiwiError):
