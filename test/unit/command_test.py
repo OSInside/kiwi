@@ -36,7 +36,7 @@ class TestCommand(object):
 
     @raises(KiwiCommandError)
     def test_run_invalid_environment(self):
-        Command.run(['command', 'args'], 'invalidEnvironment')
+        Command.run(['command', 'args'], {'HOME': '/root'})
 
     @patch('os.access')
     @patch('subprocess.Popen')
