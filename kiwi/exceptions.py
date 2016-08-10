@@ -155,6 +155,13 @@ class KiwiCommandError(KiwiError):
     """
 
 
+class KiwiCommandNotFound(KiwiCommandError):
+    """
+    Exception raised if any executable command cannot be found in
+    the evironment PATH variable.
+    """
+
+
 class KiwiCommandNotLoaded(KiwiError):
     """
     Exception raised if a kiwi command task module could not be

@@ -1,6 +1,7 @@
 from mock import patch
 
 import mock
+import os
 
 from .test_helper import *
 
@@ -43,9 +44,10 @@ class TestPath(object):
             ['rmdir', '-p', '--ignore-fail-on-non-empty', 'foo']
         )
 
+    @patch('os.access')
     @patch('os.environ.get')
     @patch('os.path.exists')
-    def test_which(self, mock_exists, mock_env):
+    def test_which(self, mock_exists, mock_env, mock_access):
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
         mock_exists.return_value = True
         assert Path.which('some-file') == '/usr/local/bin/some-file'
@@ -55,3 +57,11 @@ class TestPath(object):
         mock_exists.return_value = True
         assert Path.which('some-file', ['alternative']) == \
             'alternative/some-file'
+        mock_access.return_value = False
+        mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
+        assert Path.which('some-file', access_mode=os.X_OK) == None
+        mock_access.return_value = True
+        assert Path.which('some-file', access_mode=os.X_OK) == \
+            '/usr/local/bin/some-file'
+        assert Path.which('some-file', custom_env={'PATH': 'custom_path'}) == \
+            'custom_path/some-file'

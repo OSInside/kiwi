@@ -98,20 +98,27 @@ class Path(object):
         )
 
     @classmethod
-    def which(self, filename, alternative_lookup_paths=None):
+    def which(self, filename, alternative_lookup_paths=None, custom_env=None, access_mode=None):
         """
         Lookup file name in PATH
 
         :param string filename: file base name
         :param list alternative_lookup_paths: list of additional lookup paths
+        :param list custom_env: a custom os.environ
+        :param int mode: one of the os access modes or a combination of
+        them (os.R_OK, os.W_OK and os.X_OK)
         """
         lookup_paths = []
         system_path = os.environ.get('PATH')
+        if custom_env:
+            system_path = custom_env.get('PATH')
         if system_path:
             lookup_paths = system_path.split(os.pathsep)
         if alternative_lookup_paths:
             lookup_paths += alternative_lookup_paths
         for path in lookup_paths:
             location = os.path.join(path, filename)
-            if os.path.exists(location):
+            if access_mode and os.access(location, access_mode):
+                return location
+            elif not access_mode and os.path.exists(location):
                 return location

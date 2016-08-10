@@ -26,7 +26,10 @@ from collections import namedtuple
 from builtins import bytes
 
 # project
-from .exceptions import KiwiCommandError
+from .exceptions import (
+    KiwiCommandError,
+    KiwiCommandNotFound
+)
 
 
 class Command(object):
@@ -56,10 +59,19 @@ class Command(object):
         :rtype: tuple
         """
         from .logger import log
+        from .path import Path
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
         if custom_env:
             environment = custom_env
+        if not Path.which(
+            command[0],
+            custom_env=environment,
+            access_mode=os.X_OK
+        ):
+            raise KiwiCommandNotFound(
+                'Command %s not found in the environment' % command[0]
+            )
         try:
             process = subprocess.Popen(
                 command,
@@ -113,10 +125,19 @@ class Command(object):
         :rtype: tuple
         """
         from .logger import log
+        from .path import Path
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
         if custom_env:
             environment = custom_env
+        if not Path.which(
+            command[0],
+            custom_env=environment,
+            access_mode=os.X_OK
+        ):
+            raise KiwiCommandNotFound(
+                'Command %s not found in the environment' % command[0]
+            )
         try:
             process = subprocess.Popen(
                 command,
