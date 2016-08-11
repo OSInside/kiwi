@@ -3524,7 +3524,7 @@ function dhclientImportInfo {
     )
     export DNS=$DNSSERVERS
     export DHCPCHADDR=$(
-        ip link show $1| grep link | awk '{print $2}'
+        ip link show $1 | grep link | awk '{print $2}' | tr a-z A-Z
     )
 }
 #======================================
@@ -3912,7 +3912,7 @@ function setupNetwork {
         echo "nameserver $i" >> /etc/resolv.conf
     done
     export DHCPCHADDR=$(
-        ip link show dev $PXE_IFACE | grep link | awk '{print $2}'
+        ip link show dev $PXE_IFACE | grep link | awk '{print $2}' | tr a-z A-Z
     )
 }
 #======================================
