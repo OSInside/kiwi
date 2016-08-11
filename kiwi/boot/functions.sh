@@ -3550,6 +3550,9 @@ function setupNetworkWicked {
                 --test --test-output $dhcp_info $try_iface
             if [ $? == 0 ] && [ -s $dhcp_info ];then
                 importFile < $dhcp_info
+                # IP address information consists out of two parts but we
+                # are only interested in the plain IPv4 address information
+                IPADDR=$(echo $IPADDR | cut -f1 -d/)
                 if setupNic $try_iface $IPADDR $NETMASK;then
                     DHCPCD_STARTED="$DHCPCD_STARTED $try_iface"
                 fi
