@@ -474,26 +474,6 @@ the directory is not specified on the command line</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <except>
-    
-  -->
-  <div>
-    <define name="k.except.name.attribute">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.except.attlist">
-      <ref name="k.except.name.attribute"/>
-    </define>
-    <define name="k.except">
-      <element name="except">
-        <a:documentation>A Pointer to a File which should be excluded</a:documentation>
-        <ref name="k.except.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <file>
     
   -->
