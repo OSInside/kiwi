@@ -68,11 +68,9 @@ class Command(object):
         if custom_env:
             environment = custom_env
         if not Path.which(
-            command[0],
-            custom_env=environment,
-            access_mode=os.X_OK
+            command[0], custom_env=environment, access_mode=os.X_OK
         ):
-            message = 'Command %s not found in the environment' % command[0]
+            message = 'Command "%s" not found in the environment' % command[0]
             if not raise_on_error:
                 log.debug('EXEC: %s', message)
                 return command_type(
@@ -138,12 +136,10 @@ class Command(object):
         if custom_env:
             environment = custom_env
         if not Path.which(
-            command[0],
-            custom_env=environment,
-            access_mode=os.X_OK
+            command[0], custom_env=environment, access_mode=os.X_OK
         ):
             raise KiwiCommandNotFound(
-                'Command %s not found in the environment' % command[0]
+                'Command "%s" not found in the environment' % command[0]
             )
         try:
             process = subprocess.Popen(

@@ -20,6 +20,7 @@ import collections
 
 # project
 from .command import Command
+from .logger import log
 
 
 class Path(object):
@@ -113,6 +114,9 @@ class Path(object):
          does not match the file is considered not existing
         """
         lookup_paths = []
+        multipart_message = [
+            '"%s": ' % filename, 'exists: unknown', 'mode match: not checked'
+        ]
         system_path = os.environ.get('PATH')
         if custom_env:
             system_path = custom_env.get('PATH')
@@ -120,9 +124,17 @@ class Path(object):
             lookup_paths = system_path.split(os.pathsep)
         if alternative_lookup_paths:
             lookup_paths += alternative_lookup_paths
+        multipart_message[0] += 'in paths "%s"' % ':'.join(lookup_paths)
         for path in lookup_paths:
             location = os.path.join(path, filename)
-            if access_mode:
-                return location if os.path.exists(location) and os.access(location, access_mode) else None
-            else:
-                return location if os.path.exists(location) else None
+            file_exists = os.path.exists(location)
+            multipart_message[1] = 'exists: "%s"' % file_exists
+            if access_mode and file_exists:
+                mode_match = os.access(location, access_mode)
+                multipart_message[2] = 'mode match: "%s"' % mode_match
+                if mode_match:
+                    return location
+            elif file_exists:
+                return location
+
+        log.debug(' '.join(multipart_message))
