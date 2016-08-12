@@ -44,8 +44,7 @@ OPTIONS
   The repository source type **obs://** by default points to the
   `Open Build Service <http://download.opensuse.org>`_. With the
   *--obs-repo-internal* option the source type is changed to the
-  **ibs://** type, pointing to the
-  `Internal Build Service <http://download.suse.de>`_.
+  **ibs://** type, pointing to the **Internal Build Service**.
   This allows to build images with repositories pointing to the SUSE
   internal build service. Please note this requires access permissions
   to the SUSE internal build service on the machine building the image.
@@ -98,7 +97,7 @@ URI_TYPES
 - **ibs://**
 
   Internal Open Buildservice repository. The source data is translated into
-  an http url pointing to http://download.suse.de.
+  an http url pointing to download.suse.de.
 
 - **iso://**
 
