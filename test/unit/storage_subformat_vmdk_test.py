@@ -10,6 +10,8 @@ from textwrap import dedent
 from kiwi.exceptions import *
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 
+from builtins import bytes
+
 
 class TestDiskFormatVmdk(object):
     @patch('platform.machine')
@@ -100,6 +102,7 @@ class TestDiskFormatVmdk(object):
             ddb.toolsInstallType = "4"
             ddb.toolsVersion = "9350"
         ''').strip()
+        self.vmdk_header_update = bytes(self.vmdk_header_update, 'utf-8')
 
         self.vmdk_settings_formatted = dedent('''
             #!/usr/bin/env vmware
