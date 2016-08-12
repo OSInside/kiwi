@@ -156,10 +156,7 @@ With ssh keys being widely available and the increasing compute power
 available to many people refactoring of SSH keys is in the range of
 possibilities. Therefore SSH keys as used by GitHub as a
 "login/authentication" mechanism no longer provide the security they
-once did. See `Github SSH keys
-<https://cryptosense.com/batch-gcding-github-ssh-keys>`__ and
-`Github Users keys <https://blog.benjojo.co.uk/post/auditing-github-users-keys>`__ as
-reference. In an effort to ensure the integrity of the repository and
+once did. In an effort to ensure the integrity of the repository and
 the code base patches sent for inclusion must be GPG signed.
 
 To prepare Git to sign commits, follow these one-time instructions:
