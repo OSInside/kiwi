@@ -231,7 +231,7 @@ class DiskFormatVmdk(DiskFormatBase):
         vmdk_descriptor_lines.append(
             'ddb.toolsVersion = "%s"' % vmdk_tools_version
         )
-        with open(vmdk_image_name, 'wb') as vmdk:
+        with open(vmdk_image_name, 'ab') as vmdk:
             vmdk.seek(512, 0)
             vmdk.write(bytes('\n'.join(vmdk_descriptor_lines), 'utf-8'))
             vmdk.seek(0, 2)
