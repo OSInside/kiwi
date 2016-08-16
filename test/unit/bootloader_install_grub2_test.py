@@ -211,9 +211,11 @@ class TestBootLoaderInstallGrub2(object):
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('os.path.exists')
     def test_install_secure_boot(
-        self, mock_grub_path, mock_mount_manager, mock_command
+        self, mock_exists, mock_grub_path, mock_mount_manager, mock_command
     ):
+        mock_exists.return_value = True
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
         self.firmware.efi_mode.return_value = 'uefi'
@@ -238,7 +240,7 @@ class TestBootLoaderInstallGrub2(object):
                 '/dev/some-device'
             ]),
             call([
-                'cp', 'tmp_root/usr/sbin/grub2-install',
+                'cp', '-p', 'tmp_root/usr/sbin/grub2-install',
                 'tmp_root/usr/sbin/grub2-install.orig'
             ]),
             call([
@@ -249,7 +251,7 @@ class TestBootLoaderInstallGrub2(object):
                 '/dev/some-device'
             ]),
             call([
-                'cp', 'tmp_root/usr/sbin/grub2-install.orig',
+                'cp', '-p', 'tmp_root/usr/sbin/grub2-install.orig',
                 'tmp_root/usr/sbin/grub2-install'
             ])
         ]

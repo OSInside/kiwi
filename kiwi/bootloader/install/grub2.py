@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import platform
 
 # project
@@ -209,20 +210,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             # for EFI secure boot which does not require any bootloader code
             # in the master boot record. In addition kiwi has called
             # grub2-install right before
-            Command.run(
-                [
-                    'cp',
-                    self.root_mount.mountpoint + '/usr/sbin/grub2-install',
-                    self.root_mount.mountpoint + '/usr/sbin/grub2-install.orig'
-                ]
-            )
-            Command.run(
-                [
-                    'cp',
-                    self.root_mount.mountpoint + '/bin/true',
-                    self.root_mount.mountpoint + '/usr/sbin/grub2-install'
-                ]
-            )
+            self._disable_grub2_install(self.root_mount.mountpoint)
             Command.run(
                 [
                     'chroot', self.root_mount.mountpoint,
@@ -231,12 +219,35 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 ]
             )
             # restore the grub2-install noop
+            self._enable_grub2_install(self.root_mount.mountpoint)
+
+    def _disable_grub2_install(self, root_path):
+        grub2_install = ''.join(
+            [root_path, '/usr/sbin/grub2-install']
+        )
+        grub2_install_backup = ''.join(
+            [root_path, '/usr/sbin/grub2-install.orig']
+        )
+        grub2_install_noop = ''.join(
+            [root_path, '/bin/true']
+        )
+        Command.run(
+            ['cp', '-p', grub2_install, grub2_install_backup]
+        )
+        Command.run(
+            ['cp', grub2_install_noop, grub2_install]
+        )
+
+    def _enable_grub2_install(self, root_path):
+        grub2_install = ''.join(
+            [root_path, '/usr/sbin/grub2-install']
+        )
+        grub2_install_backup = ''.join(
+            [root_path, '/usr/sbin/grub2-install.orig']
+        )
+        if os.path.exists(grub2_install_backup):
             Command.run(
-                [
-                    'cp',
-                    self.root_mount.mountpoint + '/usr/sbin/grub2-install.orig',
-                    self.root_mount.mountpoint + '/usr/sbin/grub2-install'
-                ]
+                ['cp', '-p', grub2_install_backup, grub2_install]
             )
 
     def __del__(self):
@@ -252,4 +263,5 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if self.boot_mount:
             self.boot_mount.umount()
         if self.root_mount:
+            self._enable_grub2_install(self.root_mount.mountpoint)
             self.root_mount.umount()
