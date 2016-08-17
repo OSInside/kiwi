@@ -15,6 +15,9 @@ usage: kiwicompat -h | --help
            [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--debug]
        kiwicompat --create=<image-root> --dest-dir=<destination>
+           [--ignore-repos]
+           [(--set-repo=<uri> [--set-repoalias=<alias>] [--set-repopriority=<priority>] [--set-repotype=<type>])]
+           [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--type=<image-type>]
            [--logfile=<filename>]
            [--debug]
@@ -109,6 +112,13 @@ class Translate(object):
         self._set_add_repo_arguments()
 
     def create(self, root):
+        # Note:
+        # --ignore-repos, --set-repo and --add-repo
+        # options are allowed to be specified for compatibility reasons
+        # but are not used in the next generation kiwi because the repo
+        # information is persistently stored after the prepare step
+        # has finished, which is not the case for the legacy kiwi
+        # version
         self.translated.append('system')
         self.translated.append('create')
         self.translated.append('--root')
