@@ -1,6 +1,7 @@
 """
 usage: kiwicompat -h | --help
        kiwicompat --build=<description> --dest-dir=<destination>
+           [--ignore-repos]
            [(--set-repo=<uri> [--set-repoalias=<alias>] [--set-repopriority=<priority>] [--set-repotype=<type>])]
            [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--type=<image-type>]
@@ -9,6 +10,7 @@ usage: kiwicompat -h | --help
        kiwicompat --prepare=<description> --root=<image-root>
            [--recycle-root]
            [--logfile=<filename>]
+           [--ignore-repos]
            [(--set-repo=<uri> [--set-repoalias=<alias>] [--set-repopriority=<priority>] [--set-repotype=<type>])]
            [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--debug]
@@ -102,6 +104,8 @@ class Translate(object):
         self.translated.append(description)
         self.translated.append('--target-dir')
         self.translated.append(self.arguments['--dest-dir'])
+        if self.arguments['--ignore-repos']:
+            self.translated.append('--ignore-repos')
         self._set_add_repo_arguments()
 
     def create(self, root):
@@ -119,6 +123,8 @@ class Translate(object):
         self.translated.append(description)
         self.translated.append('--root')
         self.translated.append(self.arguments['--root'])
+        if self.arguments['--ignore-repos']:
+            self.translated.append('--ignore-repos')
         if self.arguments['--recycle-root']:
             self.translated.append('--allow-existing-root')
         self._set_add_repo_arguments()
