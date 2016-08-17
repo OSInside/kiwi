@@ -61,6 +61,7 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--obs-repo-internal'] = False
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
+        self.task.command_args['--ignore-repos'] = False
 
     def test_process_system_prepare(self):
         self._init_command_args()
@@ -156,3 +157,10 @@ class TestSystemPrepareTask(object):
         self.task.manual.show.assert_called_once_with(
             'kiwi::system::prepare'
         )
+
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections')
+    def test_process_system_prepare_delete_repos(self, mock_delete_repos):
+        self._init_command_args()
+        self.task.command_args['--ignore-repos'] = True
+        self.task.process()
+        mock_delete_repos.assert_called_once_with()

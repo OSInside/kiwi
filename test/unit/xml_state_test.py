@@ -433,3 +433,7 @@ class TestXMLState(object):
     ):
         mock_boot.return_value = 'invalid'
         self.state.get_distribution_name_from_boot_attribute()
+
+    def test_delete_repository_sections(self):
+        self.state.delete_repository_sections()
+        assert self.state.get_repository_sections() == []

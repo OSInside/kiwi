@@ -19,6 +19,7 @@
 usage: kiwi system prepare -h | --help
        kiwi system prepare --description=<directory> --root=<directory>
            [--allow-existing-root]
+           [--ignore-repos]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
            [--obs-repo-internal]
@@ -46,6 +47,8 @@ options:
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
+    --ignore-repos
+        ignore all repos from the XML configuration
     --obs-repo-internal
         when using obs:// repos resolve them using the SUSE internal
         buildservice. This only works if access to SUSE's internal
@@ -95,6 +98,9 @@ class SystemPrepareTask(CliTask):
         self.runtime_checker.check_target_directory_not_in_shared_cache(
             self.command_args['--root']
         )
+
+        if self.command_args['--ignore-repos']:
+            self.xml_state.delete_repository_sections()
 
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \

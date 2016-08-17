@@ -30,6 +30,7 @@ class TestCli(object):
             '--allow-existing-root': False,
             '--description': 'description',
             '--help': False,
+            '--ignore-repos': False,
             '--obs-repo-internal': False,
             '--root': 'directory',
             '--set-repo': None,

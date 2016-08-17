@@ -72,6 +72,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
+        self.task.command_args['--ignore-repos'] = False
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build(self, mock_log):
@@ -185,3 +186,13 @@ class TestSystemBuildTask(object):
         self.task.manual.show.assert_called_once_with(
             'kiwi::system::build'
         )
+
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_prepare_ignore_repos(
+        self, mock_log, mock_delete_repos
+    ):
+        self._init_command_args()
+        self.task.command_args['--ignore-repos'] = True
+        self.task.process()
+        mock_delete_repos.assert_called_once_with()

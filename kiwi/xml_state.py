@@ -781,6 +781,12 @@ class XMLState(object):
             self.xml_data.get_repository()
         )
 
+    def delete_repository_sections(self):
+        """
+        Delete all repository sections matching configured profiles
+        """
+        self.xml_data.set_repository([])
+
     def translate_obs_to_ibs_repositories(self):
         """
         Change obs:// repotype to ibs:// type
