@@ -5546,7 +5546,7 @@ function waitForStorageDevice {
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
-    local transport=`getDeviceTransportType $device`
+    local transport="`getDeviceTransportType $device`"
     if [[ $transport == *"usb"* ]];then
         limit=2
     else
