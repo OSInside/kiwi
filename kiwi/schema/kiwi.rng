@@ -172,9 +172,9 @@ image.</db:para>
           <zeroOrMore>
             <ref name="k.strip"/>
           </zeroOrMore>
-          <oneOrMore>
+          <zeroOrMore>
             <ref name="k.repository"/>
-          </oneOrMore>
+          </zeroOrMore>
           <zeroOrMore>
             <ref name="k.packages"/>
           </zeroOrMore>

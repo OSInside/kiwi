@@ -824,15 +824,17 @@ class XMLState(object):
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
         """
-        repository = self.get_repository_sections()[0]
-        if repo_alias:
-            repository.set_alias(repo_alias)
-        if repo_type:
-            repository.set_type(repo_type)
-        if repo_source:
-            repository.get_source().set_path(repo_source)
-        if repo_prio:
-            repository.set_priority(int(repo_prio))
+        repository_sections = self.get_repository_sections()
+        if repository_sections:
+            repository = repository_sections[0]
+            if repo_alias:
+                repository.set_alias(repo_alias)
+            if repo_type:
+                repository.set_type(repo_type)
+            if repo_source:
+                repository.get_source().set_path(repo_source)
+            if repo_prio:
+                repository.set_priority(int(repo_prio))
 
     def add_repository(self, repo_source, repo_type, repo_alias, repo_prio):
         """
@@ -847,7 +849,7 @@ class XMLState(object):
             xml_parse.repository(
                 type_=repo_type,
                 alias=repo_alias,
-                priority=int(repo_prio),
+                priority=repo_prio,
                 source=xml_parse.source(path=repo_source)
             )
         )

@@ -98,7 +98,7 @@ div {
             k.users* &
             k.drivers* &
             k.strip* &
-            k.repository+ &
+            k.repository* &
             k.packages*
         }
 }

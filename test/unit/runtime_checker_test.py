@@ -50,3 +50,8 @@ class TestRuntimeChecker(object):
         self.runtime_checker.check_target_directory_not_in_shared_cache(
             '//var/cache//kiwi/foo'
         )
+
+    @raises(KiwiRuntimeError)
+    def test_check_repositories_configured(self):
+        self.xml_state.delete_repository_sections()
+        self.runtime_checker.check_repositories_configured()

@@ -69,6 +69,7 @@ class TestSystemPrepareTask(object):
         self.task.process()
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with('../data/root-dir')
+        self.runtime_checker.check_repositories_configured.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with()
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager

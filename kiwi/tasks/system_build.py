@@ -126,6 +126,8 @@ class SystemBuildTask(CliTask):
 
                 Path.create(self.command_args['--target-dir'])
 
+        self.runtime_checker.check_repositories_configured()
+
         if os.path.exists('/.buildenv'):
             # This build runs inside of a buildservice worker. Therefore
             # the repo defintions is adapted accordingly

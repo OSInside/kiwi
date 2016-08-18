@@ -41,6 +41,15 @@ class RuntimeChecker(object):
     def __init__(self, xml_state):
         self.xml_state = xml_state
 
+    def check_repositories_configured(self):
+        """
+        Verify that that there are repositories configured
+        """
+        if not self.xml_state.get_repository_sections():
+            raise KiwiRuntimeError(
+                'No repositories configured'
+            )
+
     def check_image_include_repos_http_resolvable(self):
         """
         Verify that all repos marked with the imageinclude attribute

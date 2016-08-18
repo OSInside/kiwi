@@ -117,6 +117,8 @@ class SystemPrepareTask(CliTask):
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
+        self.runtime_checker.check_repositories_configured()
+
         if os.path.exists('/.buildenv'):
             # This build runs inside of a buildservice worker. Therefore
             # the repo defintions is adapted accordingly
