@@ -5517,22 +5517,19 @@ function killShell {
     fi
 }
 #======================================
-# isUSBDevice
+# getDeviceTransportType
 #--------------------------------------
-function isUSBDevice {
+function getDeviceTransportType {
     # /.../
-    # function to check if a device is a USB connected
-    # device or not. It uses lsblk command.
+    # function to get the transport type of the
+    # given device. It uses lsblk command.
     # ----
     local device=$1
     if [ -z "$device" ] || [ ! -e "$device" ];then
-        echo 1 ; return 1; 
+        echo 1 ; return 1;
     fi
     local disk=${device%%[0-9]*}
-    ret=`lsblk -dno tran $disk`
-    if [ "$ret" != "usb" ];then
-        echo 1; return 1;
-    fi
+    echo "`lsblk -dno tran $disk`"
 }
 #======================================
 # waitForStorageDevice
@@ -5549,10 +5546,10 @@ function waitForStorageDevice {
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
-    local usbdevice=`isUSBDevice $device`
-    if isUSBDevice $device;then
+    local transport=`getDeviceTransportType $device`
+    if [[ $transport == *"usb"* ]];then
         limit=2
-    else 
+    else
         limit=30
     fi
     udevPending
