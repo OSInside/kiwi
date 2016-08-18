@@ -5517,6 +5517,24 @@ function killShell {
     fi
 }
 #======================================
+# isUSBDevice
+#--------------------------------------
+function isUSBDevice {
+    # /.../
+    # function to check if a device is a USB connected
+    # device or not. It uses lsblk command.
+    # ----
+    local device=$1
+    if [ -z "$device" ] || [ ! -e "$device" ];then
+        echo 1 ; return 1; 
+    fi
+    local disk=${device%%[0-9]*}
+    ret=`lsblk -dno tran $disk`
+    if [ "$ret" != "usb" ];then
+        echo 1; return 1;
+    fi
+}
+#======================================
 # waitForStorageDevice
 #--------------------------------------
 function waitForStorageDevice {
@@ -5525,18 +5543,25 @@ function waitForStorageDevice {
     # which could be a whole disk or a partition.
     # the function will wait until the size of the
     # storage device could be obtained or the check
-    # counter equals 4
+    # counter equals 30. For USB devices it waits
+    # only until check counter equals 2.
     # ----
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
+    local usbdevice=`isUSBDevice $device`
+    if isUSBDevice $device;then
+        limit=2
+    else 
+        limit=30
+    fi
     udevPending
     while true;do
         partitionSize $device &>/dev/null
         if [ $? = 0 ];then
             sleep 1; return 0
         fi
-        if [ $check -eq 30 ];then
+        if [ $check -eq $limit ];then
             return 1
         fi
         Echo "Waiting for storage device $device to settle..."
