@@ -5525,8 +5525,8 @@ function getDeviceTransportType {
     # given device. It uses lsblk command.
     # ----
     local device=$1
-    if [ -z "$device" ] || [ ! -e "$device" ];then
-        echo 1 ; return 1;
+    if [ -z "$device" ] || [ ! -e "$device" ]; then
+        echo 1; return 1;
     fi
     local disk=${device%%[0-9]*}
     echo $(lsblk -dno tran $disk)
@@ -5547,18 +5547,21 @@ function waitForStorageDevice {
     local device=$1
     local check=0
     local transport=$(getDeviceTransportType $device)
-    if [[ $transport == "usb" ]];then
-        limit=2
-    else
-        limit=30
-    fi
+    case "$transport" in
+	"usb")
+	    limit=2
+	;;
+	*)
+	    limit=30
+	;;
+    esac
     udevPending
     while true;do
         partitionSize $device &>/dev/null
         if [ $? = 0 ];then
             sleep 1; return 0
         fi
-        if [ $check -eq $limit ];then
+        if [ $check -eq $limit ]; then
             return 1
         fi
         Echo "Waiting for storage device $device to settle..."
