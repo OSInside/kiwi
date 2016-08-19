@@ -316,7 +316,7 @@ class SystemSetup(object):
                     options.append(','.join(user_groups[1:]))
             if user_id:
                 options.append('-u')
-                options.append(user_id)
+                options.append(str(user_id))
             if user_realname:
                 options.append('-c')
                 options.append(user_realname)
