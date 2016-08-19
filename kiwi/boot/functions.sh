@@ -5529,7 +5529,7 @@ function getDeviceTransportType {
         echo 1 ; return 1;
     fi
     local disk=${device%%[0-9]*}
-    echo "`lsblk -dno tran $disk`"
+    echo $(lsblk -dno tran $disk)
 }
 #======================================
 # waitForStorageDevice
@@ -5546,8 +5546,8 @@ function waitForStorageDevice {
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
-    local transport="`getDeviceTransportType $device`"
-    if [[ $transport == *"usb"* ]];then
+    local transport=$(getDeviceTransportType $device)
+    if [[ $transport == "usb" ]];then
         limit=2
     else
         limit=30
