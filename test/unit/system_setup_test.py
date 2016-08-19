@@ -339,7 +339,7 @@ class TestSystemSetup(object):
                 'root', [
                     '-p', 'password-hash',
                     '-s', '/bin/bash',
-                    '-u', 815, '-c', 'Bob',
+                    '-u', '815', '-c', 'Bob',
                     '-m', '-d', '/root'
                 ]
             ),
@@ -375,19 +375,18 @@ class TestSystemSetup(object):
         mock_command.return_value = self.run_result
 
         self.setup_with_real_xml.setup_users()
-        
         calls = [
             call('root'),
             call('tux'),
             call('kiwi')
-        ] 
+        ]
         users.user_exists.assert_has_calls(calls)
 
         calls = [
             call(
                 'root', [
                     '-p', 'password-hash',
-                    '-s', '/bin/bash', '-u', 815, '-c', 'Bob'
+                    '-s', '/bin/bash', '-u', '815', '-c', 'Bob'
                 ]
             ),
             call(
