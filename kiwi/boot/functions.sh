@@ -5517,6 +5517,21 @@ function killShell {
     fi
 }
 #======================================
+# getDeviceTransportType
+#--------------------------------------
+function getDeviceTransportType {
+    # /.../
+    # function to get the transport type of the
+    # given device. It uses lsblk command.
+    # ----
+    local device=$1
+    if [ -z "$device" ] || [ ! -e "$device" ]; then
+        echo 1; return 1;
+    fi
+    local disk=${device%%[0-9]*}
+    echo $(lsblk -dno tran $disk)
+}
+#======================================
 # waitForStorageDevice
 #--------------------------------------
 function waitForStorageDevice {
@@ -5524,19 +5539,30 @@ function waitForStorageDevice {
     # function to check access on a storage device
     # which could be a whole disk or a partition.
     # the function will wait until the size of the
-    # storage device could be obtained or the check
-    # counter equals 4
+    # storage device could be obtained or the timeout
+    # is reached.
     # ----
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
+    local transport=$(getDeviceTransportType $device)
+    case "$transport" in
+	"usb")
+	    # Counter limit=2 means 4 seconds timeout
+	    limit=2
+	;;
+	*)
+	    # Counter limit=30 means 60 seconds timeout
+	    limit=30
+	;;
+    esac
     udevPending
     while true;do
         partitionSize $device &>/dev/null
         if [ $? = 0 ];then
             sleep 1; return 0
         fi
-        if [ $check -eq 30 ];then
+        if [ $check -eq $limit ]; then
             return 1
         fi
         Echo "Waiting for storage device $device to settle..."
