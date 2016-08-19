@@ -5539,9 +5539,8 @@ function waitForStorageDevice {
     # function to check access on a storage device
     # which could be a whole disk or a partition.
     # the function will wait until the size of the
-    # storage device could be obtained or the check
-    # counter equals 30. For USB devices it waits
-    # only until check counter equals 2.
+    # storage device could be obtained or the timeout
+    # is reached.
     # ----
     local IFS=$IFS_ORIG
     local device=$1
@@ -5549,9 +5548,11 @@ function waitForStorageDevice {
     local transport=$(getDeviceTransportType $device)
     case "$transport" in
 	"usb")
+	    # Counter limit=2 means 4 seconds timeout
 	    limit=2
 	;;
 	*)
+	    # Counter limit=30 means 60 seconds timeout
 	    limit=30
 	;;
     esac
