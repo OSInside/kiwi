@@ -84,6 +84,8 @@
             <machine memory="512" guestOS="suse" HWversion="4">
                 <vmdisk id="0" controller="ide"/>
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
+                <vmconfig-entry>numvcpus = "4"</vmconfig-entry>
+                <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
             </machine>
         </type>
         <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" bootloader="grub2" kernelcmdline="splash">

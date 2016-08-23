@@ -37,6 +37,10 @@ class TestDiskFormatVmdk(object):
             return_value='1.2.3'
         )
 
+        self.xml_state.get_build_type_vmconfig_entries = mock.Mock(
+            return_value=['custom entry 1', 'custom entry 2']
+        )
+
         self.machine_setup = mock.Mock()
         self.xml_state.get_build_type_machine_section = mock.Mock(
             return_value=self.machine_setup
@@ -302,6 +306,12 @@ class TestDiskFormatVmdk(object):
         )
         assert self.file_mock.write.call_args_list[1] == call(
             self.vmdk_settings
+        )
+        assert self.file_mock.write.call_args_list[2] == call(
+            'custom entry 1'
+        )
+        assert self.file_mock.write.call_args_list[3] == call(
+            'custom entry 2'
         )
         assert self.file_mock.seek.call_args_list == [
             call(512, 0), call(0, 2)

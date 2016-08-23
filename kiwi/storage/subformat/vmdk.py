@@ -168,6 +168,9 @@ class DiskFormatVmdk(DiskFormatBase):
             if disk_id:
                 template_record['disk_id'] = disk_id
 
+        # Addition custom entries
+        custom_entries = self.xml_state.get_build_type_vmconfig_entries()
+
         # Build settings template and write settings file
         settings_template = VmwareSettingsTemplate().get_template(
             memory_setup,
@@ -184,6 +187,8 @@ class DiskFormatVmdk(DiskFormatBase):
             settings_file = self.get_target_name_for_format('vmx')
             with open(settings_file, 'w') as config:
                 config.write(settings_template.substitute(template_record))
+                for custom_entry in custom_entries:
+                    config.write(custom_entry)
         except Exception as e:
             raise KiwiTemplateError(
                 '%s: %s' % (type(e).__name__, format(e))

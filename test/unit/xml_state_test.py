@@ -437,3 +437,14 @@ class TestXMLState(object):
     def test_delete_repository_sections(self):
         self.state.delete_repository_sections()
         assert self.state.get_repository_sections() == []
+
+    def test_get_build_type_vmconfig_entries(self):
+        assert self.state.get_build_type_vmconfig_entries() == []
+
+    def test_get_build_type_vmconfig_entries_for_vmx_type(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
+        assert state.get_build_type_vmconfig_entries() == [
+            'numvcpus = "4"', 'cpuid.coresPerSocket = "2"'
+        ]

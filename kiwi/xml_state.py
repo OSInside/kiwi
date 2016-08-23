@@ -470,6 +470,18 @@ class XMLState(object):
             if vmdvd_sections:
                 return vmdvd_sections[0]
 
+    def get_build_type_vmconfig_entries(self):
+        """
+        List of vmconfig-entry section values from the first
+        machine section in the build type section
+
+        :return: vmconfig_entry values
+        :rtype: list
+        """
+        machine_section = self.get_build_type_machine_section()
+        if machine_section:
+            return machine_section.get_vmconfig_entry()
+
     def get_build_type_oemconfig_section(self):
         """
         First oemconfig section from the build type section
