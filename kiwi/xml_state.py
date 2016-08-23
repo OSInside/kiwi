@@ -480,7 +480,11 @@ class XMLState(object):
         """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
-            return machine_section.get_vmconfig_entry()
+            vmconfig_entries = machine_section.get_vmconfig_entry()
+            if vmconfig_entries:
+                return vmconfig_entries
+
+        return []
 
     def get_build_type_oemconfig_section(self):
         """

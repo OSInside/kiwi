@@ -448,3 +448,9 @@ class TestXMLState(object):
         assert state.get_build_type_vmconfig_entries() == [
             'numvcpus = "4"', 'cpuid.coresPerSocket = "2"'
         ]
+
+    def test_get_build_type_vmconfig_entries_no_machine_section(self):
+        description = XMLDescription('../data/example_disk_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_build_type_vmconfig_entries() == []
