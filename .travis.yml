@@ -1,37 +1,30 @@
 language: python
-
 branches:
-    except:
-        - gh-pages
-
+  except:
+  - gh-pages
 matrix:
-    include:
-        - python: 3.4
-          env: TOXENV=3.4,check,doc_travis
-        - python: 2.7
-          env: TOXENV=2.7,check,doc_travis
-
-
+  include:
+  - python: 3.4
+    env: TOXENV=3.4,check,doc_travis
+  - python: 2.7
+    env: TOXENV=2.7,check,doc_travis
 before_install:
-    - sudo apt-get update -qq
-    - sudo apt-get install -y xsltproc
-    - sudo apt-get install -y genisoimage
-    - sudo apt-get install -y enchant
-
+- sudo apt-get update -qq
+- sudo apt-get install -y xsltproc
+- sudo apt-get install -y genisoimage
+- sudo apt-get install -y enchant
 install:
-    - pip install -r .travis.requirements.txt
-
+- pip install -r .travis.requirements.txt
 script:
-    - tox
-
+- tox
 after_success:
-    - tox -e doc_travis_deploy
-
+- tox -e doc_travis_deploy
 deploy:
   provider: pypi
   user: suse
   password:
-    secure: "D5pCJcdIxC9c6zdh0qog1Ks57Znuk4XjyF/1p90FC5Lv+FD1QPwPAxl/TDwCTI4YEMXrv7tXAVsyiOBz3qXj8Odj0hcAMGcQMD6ymsnIRWFrZ928o2faVTWHGoW0yk4d2/n7Q0d505zr+r9xJ0FBsmrF0/Clf0AJLOJ31rexQUGHZ9jmSIkrrkpFsHiP8RjtsfaB019NYZUwyBOiffdH1E4x9Ucb6N3pWL+IzK82jJzEtAxJdh1zgWDcmAX56deRXGRbNt8qJqJY1PRM7EfEfMyzcSAFe4WlgxltfFqhVk1eBxC5+Soq+uHOw/eP1ov+crjiOruokb2vIeAMyjW2DcSXOVNUYO3obvbAI4fydx5giC1MYiRwNlu4NZWQQ63ZtZhH9gCKWpxDG26W7rMpcILAMzMevpqN+3MoRpwmazmKFnbmOydq1WVwOEwGMl7PNNL2Pm4zUayCeNbhmKI+01bmVAmAnyS4XU/byOYtYntFohuPRF/QD3nuUkaoXQEswP5C/JlhLFKYxNm5BrIHOwQzodnIuSVJfdnHExdAWJFY+Us2pAVuQkBKZtvYG7GMSP8Xxv9wYq2VryGPGsThaAyHSV36ARpHt5zRetcsb7Lw0zuj8cpwi4L+yhUc0mHtbga6ABGsm+1YF5VhqZqDRmpZK7wjoq3fEiyr4iJQ+jY="
-    on:
-      tags: true
-      all_branches: true
+    secure: WcoHVyT0Q1DqQjS8PL/irbLNsTg2dtDEQ8qKnpiUZPN6S3E0b0LQNDwe1frfXk4sBqKVGQdeJFjMyw5WLkJl0G1rtxegSr2B+C6naAuozxghEmmgtsZiZE/HZ9JFbMWqxtn4g3S9hbEwNcu9jJxQdbB5Pw10WY7wLB4DPSrCCbf9nFdfodB4xsdRdBa7oJZwvxnTYcpKBlTUNKvy66dWRlwFr4rBIeaGAiydAtWzN6j1IZYEWq6YeJVWbrrbOtk9ADWdHKWzIwdeHXd277hhcfNctkEf756XC5QmqqDCdpRYX9KJNZgIsSmw4JS333aMNWPKiZ1o/3Cq3E6ZN+ZZZfvHj+OaTmf9tmyrjjfrPKsYgyxPS4wQ52Ivj/q1Bs9zIoUglHiqfol63gb2qn57Hz0X442c0pjhrajGRGqTlD/jr2FNiS8nTJv5j2bCaRz5gn/gf1KkCcHmFvXarLGgCUVAqLJzWFz4RBOSKOWuNK9n3cYArjmR+6hiWq8x7S8R5MJR/9X1kM20d9I+Sl87pzIXxr/wLwTk5p56gN4xZXF7/gMonjqjx8meBj0n18NDV12t1HeXKYBLjL7pDcq/io+8PR9g1DF97u5I/+2ZeigoFMAaHkNtXN865ZXiF2ttQbskpTRd+rjFIUGuMfR4KqgQW3W7bFaM0uZCq/njQ94=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: SUSE/kiwi
