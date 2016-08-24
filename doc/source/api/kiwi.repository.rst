@@ -1,6 +1,13 @@
 kiwi.repository Package
 =======================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    kiwi.repository.template
+
 Submodules
 ----------
 

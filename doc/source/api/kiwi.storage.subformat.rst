@@ -1,6 +1,13 @@
 kiwi.storage.subformat Package
 ==============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    kiwi.storage.subformat.template
+
 Submodules
 ----------
 

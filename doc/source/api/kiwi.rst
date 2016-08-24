@@ -9,6 +9,7 @@ Subpackages
 .. toctree::
 
     kiwi.archive
+    kiwi.boot
     kiwi.bootloader
     kiwi.builder
     kiwi.container
