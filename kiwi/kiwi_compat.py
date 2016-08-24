@@ -26,6 +26,7 @@ usage: kiwicompat -h | --help
            [--del-package=<name>...]
            [--logfile=<filename>]
            [--debug]
+
        kiwicompat -v | --version
 
 options:
