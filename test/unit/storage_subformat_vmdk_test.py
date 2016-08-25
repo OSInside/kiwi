@@ -2,6 +2,7 @@
 from mock import patch
 from mock import call
 import mock
+import os
 
 from .test_helper import *
 
@@ -308,10 +309,10 @@ class TestDiskFormatVmdk(object):
             self.vmdk_settings
         )
         assert self.file_mock.write.call_args_list[2] == call(
-            'custom entry 1\n'
+            'custom entry 1' + os.linesep
         )
         assert self.file_mock.write.call_args_list[3] == call(
-            'custom entry 2\n'
+            'custom entry 2' + os.linesep
         )
         assert self.file_mock.seek.call_args_list == [
             call(512, 0), call(0, 2)
