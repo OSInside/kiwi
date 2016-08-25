@@ -103,7 +103,7 @@ build: clean po tox
 	# cleanup setup.py variant used for rpm build
 	rm -f setup.build.py
 	# provide rpm source tarball
-	mv dist/kiwi-${version}.tar.bz2 dist/python3-kiwi.tar.bz2
+	mv dist/kiwi-${version}.tar.gz dist/python3-kiwi.tar.gz
 	# provide rpm changelog from git changelog
 	git log | helper/changelog_generator |\
 		helper/changelog_descending > dist/python3-kiwi.changes

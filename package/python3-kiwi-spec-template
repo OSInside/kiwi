@@ -24,7 +24,7 @@ Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0+
 Group:          Development/Languages/Python
-Source:         %{name}.tar.bz2
+Source:         %{name}.tar.gz
 Source1:        %{name}-boot-packages
 Source2:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
