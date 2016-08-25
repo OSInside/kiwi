@@ -9322,7 +9322,7 @@ function activateBootPartition {
     fi
     local bootID=$(nd $device)
     local diskID=$(dn $device)
-    sfdisk $diskID --force -A $bootID
+    parted $diskID set $bootID boot on
 }
 #======================================
 # relocateGPTAtEndOfDisk
