@@ -188,7 +188,7 @@ class DiskFormatVmdk(DiskFormatBase):
             with open(settings_file, 'w') as config:
                 config.write(settings_template.substitute(template_record))
                 for custom_entry in custom_entries:
-                    config.write(custom_entry + '\n')
+                    config.write(custom_entry + os.linesep)
         except Exception as e:
             raise KiwiTemplateError(
                 '%s: %s' % (type(e).__name__, format(e))
