@@ -470,10 +470,11 @@ function baseStripRPM {
     # /.../
     # remove rpms defined in config.xml 
     # under image=delete section
+    #
+    # Method is a noop and only exists for compatibility
+    # kiwi handles this now in the core python code
     # ----
-    for i in `baseGetPackagesForDeletion`;do
-        Rpm -e --nodeps --noscripts $i
-    done
+    return
 }
 #======================================
 # baseSetupInPlaceSVNRepository
