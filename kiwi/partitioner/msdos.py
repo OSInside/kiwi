@@ -107,8 +107,8 @@ class PartitionerMsDos(PartitionerBase):
             if flag_name == 'f.active':
                 Command.run(
                     [
-                        'sfdisk', '--activate=' + format(partition_id),
-                        self.disk_device
+                        'parted', self.disk_device,
+                        'set', format(partition_id), 'boot', 'on'
                     ]
                 )
             else:

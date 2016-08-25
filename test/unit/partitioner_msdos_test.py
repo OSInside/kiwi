@@ -98,7 +98,7 @@ class TestPartitionerMsDos(object):
     def test_set_active(self, mock_command):
         self.partitioner.set_flag(1, 'f.active')
         mock_command.assert_called_once_with(
-            ['sfdisk', '--activate=1', '/dev/loop0']
+            ['parted', '/dev/loop0', 'set', '1', 'boot', 'on']
         )
 
     @patch('kiwi.logger.log.warning')
