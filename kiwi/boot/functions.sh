@@ -1259,7 +1259,7 @@ function installBootLoaderGrub2 {
             return 1
         fi
     else
-        Echo "No bootloader installaton required"
+        Echo "No bootloader installation required"
     fi
     return 0
 }
