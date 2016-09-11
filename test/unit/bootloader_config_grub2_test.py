@@ -426,11 +426,12 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/x86_64-xen'
         )
 
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot(
-        self, mock_log, mock_machine, mock_exists
+        self, mock_log, mock_machine, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -442,6 +443,12 @@ class TestBootLoaderConfigGrub2(object):
 
         mock_exists.side_effect = side_effect
         self.bootloader.setup_disk_boot_images('uuid')
+        assert mock_command.call_args_list == [
+            call([
+                'rsync', '-z', '-a', 'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/boot/grub2/x86_64-efi'
+            ])
+        ]
         assert mock_log.called
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -536,6 +543,10 @@ class TestBootLoaderConfigGrub2(object):
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_command.call_args_list == [
+            call([
+                'rsync', '-z', '-a', 'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/boot/grub2/x86_64-efi'
+            ]),
             call([
                 'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'
             ]),
