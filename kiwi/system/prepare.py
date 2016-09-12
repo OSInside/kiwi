@@ -91,10 +91,13 @@ class SystemPrepare(object):
         :return: Instance of PackageManager
         :rtype: PackageManager
         """
+        repository_options = []
         repository_sections = self.xml_state.get_repository_sections()
         package_manager = self.xml_state.get_package_manager()
+        if self.xml_state.get_rpm_excludedocs():
+            repository_options.append('exclude_docs')
         repo = Repository(
-            self.root_bind, package_manager
+            self.root_bind, package_manager, repository_options
         )
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()

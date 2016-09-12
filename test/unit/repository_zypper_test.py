@@ -29,7 +29,14 @@ class TestRepositoryZypper(object):
         )
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
-        self.repo = RepositoryZypper(root_bind)
+        self.repo = RepositoryZypper(root_bind, ['exclude_docs'])
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch_open
+    def test_custom_args_init(self, mock_open, mock_temp, mock_command):
+        self.repo = RepositoryZypper(mock.MagicMock())
+        assert self.repo.custom_args == []
 
     @raises(KiwiRepoTypeUnknown)
     @patch('kiwi.command.Command.run')

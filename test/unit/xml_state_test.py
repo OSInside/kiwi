@@ -37,6 +37,14 @@ class TestXMLState(object):
         )
         assert self.state.get_build_type_name() == 'oem'
 
+    @patch('kiwi.xml_state.XMLState.get_preferences_sections')
+    def test_get_rpm_excludedocs_without_entry(self, mock_preferences):
+        mock_preferences.return_value = []
+        assert self.state.get_rpm_excludedocs() == False
+
+    def test_get_rpm_excludedocs(self):
+        assert self.state.get_rpm_excludedocs() == True
+
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
 
