@@ -180,6 +180,7 @@ class BootImageBase(object):
             'locale',
             'packagemanager',
             'rpm_check_signatures',
+            'rpm_excludedocs',
             'showlicense'
         ]
         self.xml_state.copy_preferences_subsections(

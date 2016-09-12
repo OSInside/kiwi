@@ -63,8 +63,14 @@ class RepositoryZypper(RepositoryBase):
         :param list custom_args: zypper arguments
         """
         self.custom_args = custom_args
+        self.exclude_docs = False
         if not custom_args:
             self.custom_args = []
+
+        # extract custom arguments used for zypp config only
+        if 'exclude_docs' in self.custom_args:
+            self.custom_args.remove('exclude_docs')
+            self.exclude_docs = True
 
         self.repo_names = []
 
@@ -110,18 +116,10 @@ class RepositoryZypper(RepositoryBase):
         # config file parameters for libzypp library
         self.runtime_zypp_config = ConfigParser()
         self.runtime_zypp_config.add_section('main')
-        self.runtime_zypp_config.set(
-            'main', 'cachedir', self.shared_zypper_dir['cache-dir']
-        )
-        self.runtime_zypp_config.set(
-            'main', 'metadatadir', self.shared_zypper_dir['raw-cache-dir']
-        )
-        self.runtime_zypp_config.set(
-            'main', 'solvfilesdir', self.shared_zypper_dir['solv-cache-dir']
-        )
-        self.runtime_zypp_config.set(
-            'main', 'packagesdir', self.shared_zypper_dir['pkg-cache-dir']
-        )
+        if self.exclude_docs:
+            self.runtime_zypp_config.set(
+                'main', 'rpm.install.excludedocs', 'yes'
+            )
 
         self._write_runtime_config()
 

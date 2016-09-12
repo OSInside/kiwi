@@ -106,6 +106,20 @@ class XMLState(object):
             if version:
                 return version[0]
 
+    def get_rpm_excludedocs(self):
+        """
+        Gets the rpm-excludedocs configuration flag. Returns
+        False if not present.
+
+        :return: excludedocs flag
+        :rtype: bool
+        """
+        for preferences in self.get_preferences_sections():
+            exclude_docs = preferences.get_rpm_excludedocs()
+            if exclude_docs:
+                return exclude_docs[0]
+        return False
+
     def get_package_manager(self):
         """
         Configured package manager
