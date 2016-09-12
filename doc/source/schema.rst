@@ -1,0 +1,1557 @@
+Schema Documentation 6.4
+=========================
+
+.. topic:: Element quantifiers
+
+    * **Optional** elements are qualified with _`[?]`
+    * Elements that occur **one or more** times are qualified with _`[+]`
+    * Elements that occur **zero or more** times are qualified with _`[*]`
+    * Required elements are not qualified
+
+.. _k.image:
+
+image
+-----
+
+The root element of the configuration file   
+
+Children:
+   The following elements occur in ``image``: :ref:`description <k.image.description>` , :ref:`preferences <k.image.preferences>` `[+]`_, :ref:`profiles <k.image.profiles>` `[?]`_, :ref:`instsource <k.image.instsource>` `[?]`_, :ref:`users <k.image.users>` `[*]`_, :ref:`drivers <k.image.drivers>` `[*]`_, :ref:`strip <k.image.strip>` `[*]`_, :ref:`repository <k.image.repository>` `[*]`_, :ref:`packages <k.image.packages>` `[*]`_
+
+List of attributes for ``image``:
+
+* ``name`` : An image name without / and spaces
+* ``displayname`` `[?]`_: A friendly display name. Used in the boot menu for isolinux and grub
+* ``kiwirevision`` `[?]`_: A kiwi git revision number which is known to build a working image from this description. If the kiwi git revision doesn't match the installed kiwi revision the process will exit.
+* ``id`` `[?]`_: An identification number which is represented in a file named /etc/ImageID
+* ``schemaversion`` : The allowed Schema version (fixed value)
+* ``xsi:noNamespaceSchemaLocation`` `[?]`_: The location of the XSD Schema (not relevant for RELAX NG or DTD)
+* ``xsi:schemaLocation`` `[?]`_: A pair of URI references: First is a namespace name, second the location of the XSD Schema (not relevant for RELAX NG or DTD)
+
+.. _k.image.description:
+
+description
+___________
+
+A Short Description
+
+Parents:
+   These elements contain ``description``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``description``: :ref:`author <k.image.description.author>` , :ref:`contact <k.image.description.contact>` `[+]`_, :ref:`specification <k.image.description.specification>` 
+
+List of attributes for ``description``:
+
+* ``type`` : Kiwi distinguishes between two basic image description types which uses the same format but one is created and provided by the kiwi developers and the other is created by the users of kiwi. The type=boot specifies a boot image (initrd) which should be provided by the kiwi developers wheras type=system specifies a standard image description created by a kiwi user.
+
+.. _k.image.description.author:
+
+author
+......
+
+Author of the image
+
+Parents:
+   These elements contain ``author``: :ref:`k.image.description`
+
+
+.. _k.image.description.contact:
+
+contact
+.......
+
+Contact Information from the Author, like Email etc.
+
+Parents:
+   These elements contain ``contact``: :ref:`k.image.description`
+
+
+.. _k.image.description.specification:
+
+specification
+.............
+
+A Detailed Description
+
+Parents:
+   These elements contain ``specification``: :ref:`k.image.description`
+
+
+.. _k.image.preferences:
+
+preferences
+___________
+
+Configuration Information Needed for Logical Extend
+
+Parents:
+   These elements contain ``preferences``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``preferences``: :ref:`bootsplash-theme <k.image.preferences.bootsplash-theme>` `[?]`_, :ref:`bootloader-theme <k.image.preferences.bootloader-theme>` `[?]`_, :ref:`defaultdestination <k.image.preferences.defaultdestination>` `[?]`_, :ref:`defaultprebuilt <k.image.preferences.defaultprebuilt>` `[?]`_, :ref:`defaultroot <k.image.preferences.defaultroot>` `[?]`_, :ref:`hwclock <k.image.preferences.hwclock>` `[?]`_, :ref:`keytable <k.image.preferences.keytable>` `[?]`_, :ref:`locale <k.image.preferences.locale>` `[?]`_, :ref:`packagemanager <k.image.preferences.packagemanager>` `[?]`_, :ref:`partitioner <k.image.preferences.partitioner>` `[?]`_, :ref:`rpm-check-signatures <k.image.preferences.rpm-check-signatures>` `[?]`_, :ref:`rpm-excludedocs <k.image.preferences.rpm-excludedocs>` `[?]`_, :ref:`rpm-force <k.image.preferences.rpm-force>` `[?]`_, :ref:`showlicense <k.image.preferences.showlicense>` `[*]`_, :ref:`timezone <k.image.preferences.timezone>` `[?]`_, :ref:`type <k.image.preferences.type>` `[*]`_, :ref:`version <k.image.preferences.version>` `[?]`_
+
+List of attributes for ``preferences``:
+
+* ``profiles`` `[?]`_: A profile name which binds the section to this name
+
+.. _k.image.preferences.bootsplash-theme:
+
+bootsplash-theme
+................
+
+Image bootsplash theme setup.
+
+Parents:
+   These elements contain ``bootsplash-theme``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.bootloader-theme:
+
+bootloader-theme
+................
+
+Image bootloader theme setup.
+
+Parents:
+   These elements contain ``bootloader-theme``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.defaultdestination:
+
+defaultdestination
+..................
+
+Default Path if destdir Otion is Not Specified
+
+Parents:
+   These elements contain ``defaultdestination``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.defaultprebuilt:
+
+defaultprebuilt
+...............
+
+Default directory name for pre-built boot images, used if the directory is not specified on the command line
+
+Parents:
+   These elements contain ``defaultprebuilt``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.defaultroot:
+
+defaultroot
+...........
+
+Default Root Directory Name if root Option is Not Specified
+
+Parents:
+   These elements contain ``defaultroot``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.hwclock:
+
+hwclock
+.......
+
+Setup Image harware clock setup, either utc or localtime
+
+Parents:
+   These elements contain ``hwclock``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.keytable:
+
+keytable
+........
+
+Image keytable setup.
+
+Parents:
+   These elements contain ``keytable``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.locale:
+
+locale
+......
+
+Image locale setup.
+
+Parents:
+   These elements contain ``locale``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.packagemanager:
+
+packagemanager
+..............
+
+Name of the Package Manager
+
+Parents:
+   These elements contain ``packagemanager``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.partitioner:
+
+partitioner
+...........
+
+Name of the Partitioner used for any disk partition tasks
+
+Parents:
+   These elements contain ``partitioner``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.rpm-check-signatures:
+
+rpm-check-signatures
+....................
+
+Setup a Package Signature
+
+Parents:
+   These elements contain ``rpm-check-signatures``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.rpm-excludedocs:
+
+rpm-excludedocs
+...............
+
+Do not install files marked as documentation in the package
+
+Parents:
+   These elements contain ``rpm-excludedocs``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.rpm-force:
+
+rpm-force
+.........
+
+Force the Installation of a Package
+
+Parents:
+   These elements contain ``rpm-force``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.showlicense:
+
+showlicense
+...........
+
+Setup showlicense
+
+Parents:
+   These elements contain ``showlicense``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.timezone:
+
+timezone
+........
+
+Setup Image Timezone setup
+
+Parents:
+   These elements contain ``timezone``: :ref:`k.image.preferences`
+
+
+.. _k.image.preferences.type:
+
+type
+....
+
+The Image Type of the Logical Extend
+
+Parents:
+   These elements contain ``type``: :ref:`k.image.preferences`
+
+Children:
+   The following elements occur in ``type``: :ref:`machine <k.image.preferences.type.machine>` `[?]`_, :ref:`oemconfig <k.image.preferences.type.oemconfig>` `[?]`_, :ref:`pxedeploy <k.image.preferences.type.pxedeploy>` `[?]`_, :ref:`size <k.image.preferences.type.size>` `[?]`_, :ref:`systemdisk <k.image.preferences.type.systemdisk>` `[?]`_, :ref:`vagrantconfig <k.image.preferences.type.vagrantconfig>` `[*]`_
+
+List of attributes for ``type``:
+
+* ``boot`` `[?]`_: Specifies the path of the boot image (initrd), relative to /usr/share/kiwi/image
+* ``bootfilesystem`` `[?]`_: if an extra boot partition is required this attribute specify which filesystem should be used for it. The type of the bootloader might overwrite this setting e.g for the syslinux loader fat is required
+* ``firmware`` `[?]`_: Specifies the boot firmware of the system. Most systems uses a standard BIOS but there are also other firmware systems like efi, coreboot, etc.. This attribute is used to differentiate the image according to the firmware which boots up the system. It mostly has an impact on the disk layout and the partition table type. By default the standard x86 bios firmware setup is used
+* ``bootkernel`` `[?]`_: Specifies the kernel boot profile defined in the boot image description. When kiwi builds the boot image the information is passed as add-profile option
+* ``bootloader`` `[?]`_: Specifies the bootloader used for booting the image. At the moment grub, zipl and sys|extlinux are supported
+* ``bootloader_console`` `[?]`_: Specifies the bootloader console. The value only has an effect for the grub bootloader. By default a graphics console setup is used
+* ``zipl_targettype`` `[?]`_: The device type of the disk zipl should boot. On zFCP devices use SCSI, on DASD devices use CDL or LDL on emulated DASD devices use FBA
+* ``bootpartition`` `[?]`_: specify if an extra boot partition should be used or not. This will overwrite kiwi's default layout
+* ``bootpartsize`` `[?]`_: For images with a separate boot partition this attribute specifies the size in MB. If not set the min bootpart size is set to 200 MB
+* ``bootprofile`` `[?]`_: Specifies the boot profile defined in the boot image description. When kiwi builds the boot image the information is passed as add-profile option
+* ``boottimeout`` `[?]`_: Specifies the boot timeout in seconds prior to launching the default boot option. the unit for the timeout value is seconds if GRUB is used as the boot loader and 1/10 seconds if syslinux is used
+* ``btrfs_root_is_snapshot`` `[?]`_: Tell kiwi to install the system into a btrfs snapshot The snapshot layout is compatible with the snapper management toolkit. By default no snapshots are used
+* ``checkprebuilt`` `[?]`_: Activates whether KIWI should search for a prebuild boot image or not
+* ``compressed`` `[?]`_: Specifies whether the image output file should be compressed or not. This makes only sense for filesystem only images respectively for the pxe or cpio type
+* ``container`` `[?]`_: Specifies a name for the container
+* ``devicepersistency`` `[?]`_: Specifies which method to use in order to get persistent storage device names. By default by-id is used.
+* ``editbootconfig`` `[?]`_: Specifies the path to a script which is called right before the bootloader is installed. The script runs relative to the directory which contains the image structure
+* ``editbootinstall`` `[?]`_: Specifies the path to a script which is called right after the bootloader is installed. The script runs relative to the directory which contains the image structure
+* ``filesystem`` `[?]`_: Specifies the root filesystem type
+* ``flags`` `[?]`_: Specifies flags for the image type. This could be compressed or clic and applies to the iso type only
+* ``format`` `[?]`_: Specifies the format of the virtual disk. The ec2 value is deprecated and no longer supported It remains in the schema to allow us to print a better Error message than we receive from the parser. To be remove from here by the end of 2014
+* ``formatoptions`` `[?]`_: Specifies additional format options passed on to qemu-img formatoptions is a comma separated list of format specific options in a name=value format like qemu-img expects it. kiwi will take the information and pass it as parameter to the -o option in the qemu-img call
+* ``fsnocheck`` `[?]`_: Turn off periodic filesystem checks on ext2/3/4.
+* ``fsmountoptions`` `[?]`_: Specifies the filesystem mount options which also ends up in fstab The string given here is passed as value to the -o option of mount
+* ``gcelicense`` `[?]`_: Specifies the license tag in a GCE format
+* ``hybrid`` `[?]`_: for the iso type only: Specifies that the iso file should be turned into a hybrid iso file. It's required to use the vmxboot boot image to boot that iso though
+* ``hybridpersistent`` `[?]`_: for the iso type only: will trigger the creation of a partition for a COW file to keep data persistent over a reboot
+* ``hybridpersistent_filesystem`` `[?]`_: for the iso type only: Set the filesystem to use for persistent writing if a hybrid ISO is used as disk on e.g a USB Stick. By default the btrfs filesystem is used
+* ``gpt_hybrid_mbr`` `[?]`_: for gpt disk types only: create a hybrid GPT/MBR partition table
+* ``initrd_system`` `[?]`_: specify which initrd builder to use, default is kiwi's builtin architecture. Be aware that the dracut initrd system does not support all features of the kiwi initrd
+* ``image`` : Specifies the image type
+* ``installboot`` `[?]`_: Specifies the bootloader default boot entry for the" initial boot of a kiwi install image. This value is" only evaluated for grub and ext|syslinux"
+* ``installprovidefailsafe`` `[?]`_: Specifies if the bootloader menu should provide an" failsafe entry with special kernel parameters or not"
+* ``installiso`` `[?]`_: Specifies if a install iso should be created (oem only)
+* ``installstick`` `[?]`_: Specifies if a install stick should be created (oem only)
+* ``installpxe`` `[?]`_: Specifies if all data for a pxe network installation should be created (oem only)
+* ``kernelcmdline`` `[?]`_: 
+* ``luks`` `[?]`_: Setup cryptographic volume along with the given filesystem using the LUKS extension. The value of this attribute represents the password string used to be able to mount that filesystem while booting
+* ``luksOS`` `[?]`_: With the luksOS value a predefined set of ciper, keysize and hash format options is passed to the cryptsetup call in order to create a format compatible to the specified distribution
+* ``mdraid`` `[?]`_: Setup software raid in degraded mode with one disk Thus only mirroring and striping is possible
+* ``overlayroot`` `[?]`_: Specifies to use an overlay root system consisting out of a squashfs compressed read-only root system overlayed using the overlayfs filesystem into an extra read-write partition. Available for the disk image types, vmx and oem
+* ``primary`` `[?]`_: Specifies the primary type (choose KIWI option type)
+* ``ramonly`` `[?]`_: for use with overlay filesystems only: will force any COW action to happen in RAM
+* ``rootfs_label`` `[?]`_: label to set for the root filesystem. By default ROOT is used
+* ``target_blocksize`` `[?]`_: Specifies the image blocksize in bytes which has to match the logical (SSZ) blocksize of the target storage device. By default 512 byte is used which works on many disks However 4096 byte disks are coming. You can check the desired target by calling: blockdev --report device
+* ``vbootsize`` `[?]`_: For images with a an extra virtual boot space specifies the size in MB. If not set the min vboot size is set to 10 MB
+* ``vga`` `[?]`_: Specifies the kernel framebuffer mode. More information about the possible values can be found by calling hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt
+* ``vhdfixedtag`` `[?]`_: Specifies the GUID in a fixed format VHD
+* ``volid`` `[?]`_: for the iso type only: Specifies the volume ID (volume name or label) to be written into the master block. There is space for 32 characters.
+* ``wwid_wait_timeout`` `[?]`_: Specifies the wait period in seconds after launching the multipath daemon to wait until all presented devices are available on the host. Default timeout is 3 seconds
+
+.. _k.image.preferences.type.machine:
+
+machine
+,,,,,,,
+
+specifies the VM configuration sections
+
+Parents:
+   These elements contain ``machine``: :ref:`k.image.preferences.type`
+
+Children:
+   The following elements occur in ``machine``: :ref:`vmconfig-entry <k.image.preferences.type.machine.vmconfig-entry>` `[*]`_, :ref:`vmdisk <k.image.preferences.type.machine.vmdisk>` , :ref:`vmdvd <k.image.preferences.type.machine.vmdvd>` `[?]`_, :ref:`vmnic <k.image.preferences.type.machine.vmnic>` `[*]`_
+
+List of attributes for ``machine``:
+
+* ``min_memory`` `[?]`_: The virtual machine min memory in MB (ovf only)
+* ``max_memory`` `[?]`_: The virtual machine max memory in MB (ovf only)
+* ``min_cpu`` `[?]`_: The virtual machine min CPU count (ovf only)
+* ``max_cpu`` `[?]`_: The virtual machine max CPU count (ovf only)
+* ``ovftype`` `[?]`_: The OVF configuration type
+* ``HWversion`` `[?]`_: The virtual HW version number for the VM configuration (vmdk and ovf)
+* ``arch`` `[?]`_: the VM architecture type (vmdk only)
+* ``domain`` `[?]`_: The domain setup for the VM (xen only)
+* ``guestOS`` `[?]`_: The virtual guestOS identification string for the VM (vmdk and ovf, note the name designation is different for the two formats)
+* ``memory`` `[?]`_: The memory, in MB, setup for the guest VM (all formats)
+* ``ncpus`` `[?]`_: The number of virtual cpus for the guest VM (all formats)
+
+.. _k.image.preferences.type.machine.vmconfig-entry:
+
+vmconfig-entry
+::::::::::::::
+
+An entry for the VM configuration file
+
+Parents:
+   These elements contain ``vmconfig-entry``: :ref:`k.image.preferences.type.machine`
+
+
+.. _k.image.preferences.type.machine.vmdisk:
+
+vmdisk
+::::::
+
+The VM disk definition.
+
+Parents:
+   These elements contain ``vmdisk``: :ref:`k.image.preferences.type.machine`
+
+List of attributes for ``vmdisk``:
+
+* ``disktype`` `[?]`_: The type of the disk as it is internally handled by the VM (ovf only)
+* ``controller`` `[?]`_: The disk controller used for the VM guest (vmdk only)
+* ``id`` `[?]`_: The disk ID / device for the VM disk (vmdk only)
+* ``device`` `[?]`_: The disk device to appear in the guest (xen only)
+* ``diskmode`` `[?]`_: The disk mode (vmdk only)
+
+.. _k.image.preferences.type.machine.vmdvd:
+
+vmdvd
+:::::
+
+The VM CD/DVD drive definition. You can setup either a scsi CD or an ide CD drive
+
+Parents:
+   These elements contain ``vmdvd``: :ref:`k.image.preferences.type.machine`
+
+List of attributes for ``vmdvd``:
+
+* ``controller`` : The CD/DVD controller used for the VM guest
+* ``id`` : The CD/DVD ID for the VM CD rom drive
+
+.. _k.image.preferences.type.machine.vmnic:
+
+vmnic
+:::::
+
+The VM network interface definition
+
+Parents:
+   These elements contain ``vmnic``: :ref:`k.image.preferences.type.machine`
+
+List of attributes for ``vmnic``:
+
+* ``driver`` `[?]`_: The driver used for the VM network interface
+* ``interface`` : The interface ID for the VM network interface
+* ``mode`` `[?]`_: The VM network mode
+* ``mac`` `[?]`_: The VM mac address
+
+.. _k.image.preferences.type.oemconfig:
+
+oemconfig
+,,,,,,,,,
+
+Specifies the OEM configuration section
+
+Parents:
+   These elements contain ``oemconfig``: :ref:`k.image.preferences.type`
+
+Children:
+   The following elements occur in ``oemconfig``: :ref:`oem-ataraid-scan <k.image.preferences.type.oemconfig.oem-ataraid-scan>` `[?]`_, :ref:`oem-boot-title <k.image.preferences.type.oemconfig.oem-boot-title>` `[?]`_, :ref:`oem-bootwait <k.image.preferences.type.oemconfig.oem-bootwait>` `[?]`_, :ref:`oem-device-filter <k.image.preferences.type.oemconfig.oem-device-filter>` `[?]`_, :ref:`oem-inplace-recovery <k.image.preferences.type.oemconfig.oem-inplace-recovery>` `[?]`_, :ref:`oem-kiwi-initrd <k.image.preferences.type.oemconfig.oem-kiwi-initrd>` `[?]`_, :ref:`oem-multipath-scan <k.image.preferences.type.oemconfig.oem-multipath-scan>` `[?]`_, :ref:`oem-vmcp-parmfile <k.image.preferences.type.oemconfig.oem-vmcp-parmfile>` `[?]`_, :ref:`oem-partition-install <k.image.preferences.type.oemconfig.oem-partition-install>` `[?]`_, :ref:`oem-reboot <k.image.preferences.type.oemconfig.oem-reboot>` `[?]`_, :ref:`oem-reboot-interactive <k.image.preferences.type.oemconfig.oem-reboot-interactive>` `[?]`_, :ref:`oem-recovery <k.image.preferences.type.oemconfig.oem-recovery>` `[?]`_, :ref:`oem-recoveryID <k.image.preferences.type.oemconfig.oem-recoveryID>` `[?]`_, :ref:`oem-recovery-part-size <k.image.preferences.type.oemconfig.oem-recovery-part-size>` `[?]`_, :ref:`oem-shutdown <k.image.preferences.type.oemconfig.oem-shutdown>` `[?]`_, :ref:`oem-shutdown-interactive <k.image.preferences.type.oemconfig.oem-shutdown-interactive>` `[?]`_, :ref:`oem-silent-boot <k.image.preferences.type.oemconfig.oem-silent-boot>` `[?]`_, :ref:`oem-silent-install <k.image.preferences.type.oemconfig.oem-silent-install>` `[?]`_, :ref:`oem-silent-verify <k.image.preferences.type.oemconfig.oem-silent-verify>` `[?]`_, :ref:`oem-skip-verify <k.image.preferences.type.oemconfig.oem-skip-verify>` `[?]`_, :ref:`oem-swap <k.image.preferences.type.oemconfig.oem-swap>` `[?]`_, :ref:`oem-swapsize <k.image.preferences.type.oemconfig.oem-swapsize>` `[?]`_, :ref:`oem-systemsize <k.image.preferences.type.oemconfig.oem-systemsize>` `[?]`_, :ref:`oem-unattended <k.image.preferences.type.oemconfig.oem-unattended>` `[?]`_, :ref:`oem-unattended-id <k.image.preferences.type.oemconfig.oem-unattended-id>` `[?]`_
+
+
+.. _k.image.preferences.type.oemconfig.oem-ataraid-scan:
+
+oem-ataraid-scan
+::::::::::::::::
+
+For oemboot driven images: turn on or off the search for ata raid devices (aka fake raid controllers) true/false (default is true)
+
+Parents:
+   These elements contain ``oem-ataraid-scan``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-boot-title:
+
+oem-boot-title
+::::::::::::::
+
+For oemboot driven images: setup of the boot menu text displayed within the square brackets after first reboot of the OEM image
+
+Parents:
+   These elements contain ``oem-boot-title``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-bootwait:
+
+oem-bootwait
+::::::::::::
+
+For oemboot driven images: halt system after image dump true/false
+
+Parents:
+   These elements contain ``oem-bootwait``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-device-filter:
+
+oem-device-filter
+:::::::::::::::::
+
+For oemboot driven images: filter install devices by given regular expression. The expression is handled by the bash regexp operator
+
+Parents:
+   These elements contain ``oem-device-filter``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-inplace-recovery:
+
+oem-inplace-recovery
+::::::::::::::::::::
+
+For oemboot driven images: Specify whether the recovery archive should be stored as part of the image or not. If it's not stored it's created during install of the oem image
+
+Parents:
+   These elements contain ``oem-inplace-recovery``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-kiwi-initrd:
+
+oem-kiwi-initrd
+:::::::::::::::
+
+For oemboot driven images: use kiwi initrd in any case and don't replace it with mkinitrd created initrd
+
+Parents:
+   These elements contain ``oem-kiwi-initrd``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-multipath-scan:
+
+oem-multipath-scan
+::::::::::::::::::
+
+For oemboot driven images: turn on or off the search for multipath devices: true/false (default is true)
+
+Parents:
+   These elements contain ``oem-multipath-scan``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-vmcp-parmfile:
+
+oem-vmcp-parmfile
+:::::::::::::::::
+
+For oemboot driven images: provide the name of a parmfile which is loaded via cmsfscat on s390 systems. Default value is set to: PARM-S11
+
+Parents:
+   These elements contain ``oem-vmcp-parmfile``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-partition-install:
+
+oem-partition-install
+:::::::::::::::::::::
+
+For oemboot driven images: install the system not as disk but into a free partition. If this option is set all other oem-* options concerning the partition table will not have any effect
+
+Parents:
+   These elements contain ``oem-partition-install``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-reboot:
+
+oem-reboot
+::::::::::
+
+For oemboot driven images: reboot after first deployment true/false
+
+Parents:
+   These elements contain ``oem-reboot``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-reboot-interactive:
+
+oem-reboot-interactive
+::::::::::::::::::::::
+
+For oemboot driven images: reboot after first deployment true/false
+
+Parents:
+   These elements contain ``oem-reboot-interactive``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-recovery:
+
+oem-recovery
+::::::::::::
+
+For oemboot driven images: create a recovery archive yes/no
+
+Parents:
+   These elements contain ``oem-recovery``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-recoveryID:
+
+oem-recoveryID
+::::::::::::::
+
+For oemboot driven images: Set the partition ID of recovery partition. Default value is 83 (Linux)
+
+Parents:
+   These elements contain ``oem-recoveryID``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-recovery-part-size:
+
+oem-recovery-part-size
+::::::::::::::::::::::
+
+For oemboot driven images: Set the size of the recovery partition. Value is interpreted as MB
+
+Parents:
+   These elements contain ``oem-recovery-part-size``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-shutdown:
+
+oem-shutdown
+::::::::::::
+
+For oemboot driven images: shutdown after first deployment  true/false
+
+Parents:
+   These elements contain ``oem-shutdown``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-shutdown-interactive:
+
+oem-shutdown-interactive
+::::::::::::::::::::::::
+
+For oemboot driven images: shutdown after first deployment  true/false
+
+Parents:
+   These elements contain ``oem-shutdown-interactive``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-silent-boot:
+
+oem-silent-boot
+:::::::::::::::
+
+For oemboot driven images: boot silently during the initial boot true/false
+
+Parents:
+   These elements contain ``oem-silent-boot``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-silent-install:
+
+oem-silent-install
+::::::::::::::::::
+
+For oemboot driven images: do not show progress of the image dump process, true/false
+
+Parents:
+   These elements contain ``oem-silent-install``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-silent-verify:
+
+oem-silent-verify
+:::::::::::::::::
+
+For oemboot driven images: do not show progress of the image verification process, true/false
+
+Parents:
+   These elements contain ``oem-silent-verify``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-skip-verify:
+
+oem-skip-verify
+:::::::::::::::
+
+For oemboot driven images: do not perform the md5 verification process, true/false
+
+Parents:
+   These elements contain ``oem-skip-verify``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-swap:
+
+oem-swap
+::::::::
+
+For oemboot driven images: use a swap partition yes/no
+
+Parents:
+   These elements contain ``oem-swap``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-swapsize:
+
+oem-swapsize
+::::::::::::
+
+For oemboot driven images: Set the size of the swap partition in MB
+
+Parents:
+   These elements contain ``oem-swapsize``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-systemsize:
+
+oem-systemsize
+::::::::::::::
+
+For oemboot driven images: Set the size of the system (root) partition in MB
+
+Parents:
+   These elements contain ``oem-systemsize``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-unattended:
+
+oem-unattended
+::::::::::::::
+
+For oemboot driven images: don't ask questions if possible true/false
+
+Parents:
+   These elements contain ``oem-unattended``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.oemconfig.oem-unattended-id:
+
+oem-unattended-id
+:::::::::::::::::
+
+For oemboot driven images: use the specified disk id the device is looked up in /dev/disk/by-* and /dev/mapper/*
+
+Parents:
+   These elements contain ``oem-unattended-id``: :ref:`k.image.preferences.type.oemconfig`
+
+
+.. _k.image.preferences.type.pxedeploy:
+
+pxedeploy
+,,,,,,,,,
+
+Controls the Image Deploy Process
+
+Parents:
+   These elements contain ``pxedeploy``: :ref:`k.image.preferences.type`
+
+Children:
+   The following elements occur in ``pxedeploy``: :ref:`timeout <k.image.preferences.type.pxedeploy.timeout>` `[?]`_, :ref:`kernel <k.image.preferences.type.pxedeploy.kernel>` `[?]`_, :ref:`initrd <k.image.preferences.type.pxedeploy.initrd>` `[?]`_, :ref:`partitions <k.image.preferences.type.pxedeploy.partitions>` `[?]`_, :ref:`union <k.image.preferences.type.pxedeploy.union>` `[?]`_, :ref:`configuration <k.image.preferences.type.pxedeploy.configuration>` `[*]`_
+
+List of attributes for ``pxedeploy``:
+
+* ``server`` `[?]`_: Name or IP Address of server for downloading the data
+* ``blocksize`` `[?]`_: Blocksize value used for atftp downloads
+
+.. _k.image.preferences.type.pxedeploy.timeout:
+
+timeout
+:::::::
+
+Specifies an ATFTP Download Timeout
+
+Parents:
+   These elements contain ``timeout``: :ref:`k.image.preferences.type.pxedeploy`
+
+
+.. _k.image.preferences.type.pxedeploy.kernel:
+
+kernel
+::::::
+
+Specifies Where to Find the Boot Kernel
+
+Parents:
+   These elements contain ``kernel``: :ref:`k.image.preferences.type.pxedeploy`
+
+
+.. _k.image.preferences.type.pxedeploy.initrd:
+
+initrd
+::::::
+
+Specifies where the Boot Image can be Found
+
+Parents:
+   These elements contain ``initrd``: :ref:`k.image.preferences.type.pxedeploy`
+
+
+.. _k.image.preferences.type.pxedeploy.partitions:
+
+partitions
+::::::::::
+
+A List of Partitions
+
+Parents:
+   These elements contain ``partitions``: :ref:`k.image.preferences.type.pxedeploy`
+
+Children:
+   The following elements occur in ``partitions``: :ref:`partition <k.image.preferences.type.pxedeploy.partitions.partition>` `[+]`_
+
+List of attributes for ``partitions``:
+
+* ``device`` `[?]`_: As part of the network deploy configuration this section specifies the disk device name
+
+.. _k.image.preferences.type.pxedeploy.partitions.partition:
+
+partition
+;;;;;;;;;
+
+A Partition
+
+Parents:
+   These elements contain ``partition``: :ref:`k.image.preferences.type.pxedeploy.partitions`
+
+List of attributes for ``partition``:
+
+* ``type`` : Partition Type identifier, see parted for details
+* ``number`` : Partition ID
+* ``size`` `[?]`_: A partition size or optional image size
+* ``mountpoint`` `[?]`_: Mount path for this partition
+* ``target`` `[?]`_: Is a real target or not which means is part of the /etc/fstab file or not
+
+.. _k.image.preferences.type.pxedeploy.union:
+
+union
+:::::
+
+Specifies the Overlay Filesystem
+
+Parents:
+   These elements contain ``union``: :ref:`k.image.preferences.type.pxedeploy`
+
+List of attributes for ``union``:
+
+* ``ro`` : Device only for read-only 
+* ``rw`` : Device for Read-Write
+* ``type`` : 
+
+.. _k.image.preferences.type.pxedeploy.configuration:
+
+configuration
+:::::::::::::
+
+Specifies Configuration files
+
+Parents:
+   These elements contain ``configuration``: :ref:`k.image.preferences.type.pxedeploy`
+
+List of attributes for ``configuration``:
+
+* ``source`` : A location where packages can be found to build an installation source from
+* ``dest`` : Destination of a resource
+* ``arch`` `[?]`_: An architecture
+
+.. _k.image.preferences.type.size:
+
+size
+,,,,
+
+Specifies the Size of an Image in (M)egabyte or (G)igabyte If the attribute additive is set the value will be added to the required size of the image
+
+Parents:
+   These elements contain ``size``: :ref:`k.image.preferences.type`
+
+List of attributes for ``size``:
+
+* ``unit`` `[?]`_: The unit of the image
+* ``additive`` `[?]`_: 
+
+.. _k.image.preferences.type.systemdisk:
+
+systemdisk
+,,,,,,,,,,
+
+Specify volumes and size attributes
+
+Parents:
+   These elements contain ``systemdisk``: :ref:`k.image.preferences.type`
+
+Children:
+   The following elements occur in ``systemdisk``: :ref:`volume <k.image.preferences.type.systemdisk.volume>` `[*]`_
+
+List of attributes for ``systemdisk``:
+
+* ``name`` `[?]`_: Specify Volume group name, default is kiwiVG. This information is only used if the LVM volume management is used
+* ``preferlvm`` `[?]`_: Prefer LVM even if the used filesystem has its own volume management system
+
+.. _k.image.preferences.type.systemdisk.volume:
+
+volume
+::::::
+
+Specify which parts of the filesystem should be on an extra volume.
+
+Parents:
+   These elements contain ``volume``: :ref:`k.image.preferences.type.systemdisk`
+
+List of attributes for ``volume``:
+
+* ``freespace`` `[?]`_: free space to be added to this volume. The value is used as MB by default but you can add "M" and/or "G" as postfix
+* ``mountpoint`` `[?]`_: volume path. The mountpoint specifies a path which has to exist inside the root directory.
+* ``name`` : volume name. The name of the volume. if mountpoint is not specified the name specifies a path which has to exist inside the root directory.
+* ``size`` `[?]`_: absolute size of the volume. If the size value is too small to store all data kiwi will exit. The value is used as MB by default but you can add "M" and/or "G" as postfix
+
+.. _k.image.preferences.type.vagrantconfig:
+
+vagrantconfig
+,,,,,,,,,,,,,
+
+Specifies the Vagrant configuration section
+
+Parents:
+   These elements contain ``vagrantconfig``: :ref:`k.image.preferences.type`
+
+List of attributes for ``vagrantconfig``:
+
+* ``provider`` : The vagrant provider for this box
+* ``virtualsize`` : The vagrant virtual image size in GB
+* ``boxname`` `[?]`_: The boxname as it's written into the json file If not specified the image name is used
+
+.. _k.image.preferences.version:
+
+version
+.......
+
+A Version Number for the Image, Consists of Major.Minor.Release 
+
+Parents:
+   These elements contain ``version``: :ref:`k.image.preferences`
+
+
+.. _k.image.profiles:
+
+profiles
+________
+
+Creates Namespace Section for Drivers
+
+Parents:
+   These elements contain ``profiles``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``profiles``: :ref:`profile <k.image.profiles.profile>` `[+]`_
+
+
+.. _k.image.profiles.profile:
+
+profile
+.......
+
+Creates Profiles
+
+Parents:
+   These elements contain ``profile``: :ref:`k.image.profiles`
+
+List of attributes for ``profile``:
+
+* ``name`` : A name
+* ``description`` : Description of how this profiles influences the image
+* ``import`` `[?]`_: Import profile by default if no profile was set on the command line
+
+.. _k.image.instsource:
+
+instsource
+__________
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``instsource``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``instsource``: :ref:`architectures <k.image.instsource.architectures>` , :ref:`productoptions <k.image.instsource.productoptions>` , :ref:`instrepo <k.image.instsource.instrepo>` `[+]`_, :ref:`metadata <k.image.instsource.metadata>` , :ref:`repopackages <k.image.instsource.repopackages>` `[*]`_, :ref:`driverupdate <k.image.instsource.driverupdate>` `[?]`_
+
+
+.. _k.image.instsource.architectures:
+
+architectures
+.............
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``architectures``: :ref:`k.image.instsource`
+
+Children:
+   The following elements occur in ``architectures``: :ref:`arch <k.image.instsource.architectures.arch>` `[+]`_, :ref:`requiredarch <k.image.instsource.architectures.requiredarch>` `[+]`_
+
+
+.. _k.image.instsource.architectures.arch:
+
+arch
+,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``arch``: :ref:`k.image.instsource.architectures`
+
+List of attributes for ``arch``:
+
+* ``id`` : An ID
+* ``name`` : A name
+* ``fallback`` `[?]`_: 
+
+.. _k.image.instsource.architectures.requiredarch:
+
+requiredarch
+,,,,,,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``requiredarch``: :ref:`k.image.instsource.architectures`
+
+List of attributes for ``requiredarch``:
+
+* ``ref`` : 
+
+.. _k.image.instsource.productoptions:
+
+productoptions
+..............
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``productoptions``: :ref:`k.image.instsource`
+
+Children:
+   The following elements occur in ``productoptions``: :ref:`productoption <k.image.instsource.productoptions.productoption>` `[*]`_, :ref:`productinfo <k.image.instsource.productoptions.productinfo>` `[*]`_, :ref:`productvar <k.image.instsource.productoptions.productvar>` `[*]`_
+
+
+.. _k.image.instsource.productoptions.productoption:
+
+productoption
+,,,,,,,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``productoption``: :ref:`k.image.instsource.productoptions`
+
+List of attributes for ``productoption``:
+
+* ``name`` : A name
+
+.. _k.image.instsource.productoptions.productinfo:
+
+productinfo
+,,,,,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``productinfo``: :ref:`k.image.instsource.productoptions`
+
+List of attributes for ``productinfo``:
+
+* ``name`` : A name
+
+.. _k.image.instsource.productoptions.productvar:
+
+productvar
+,,,,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``productvar``: :ref:`k.image.instsource.productoptions`
+
+List of attributes for ``productvar``:
+
+* ``name`` : A name
+
+.. _k.image.instsource.instrepo:
+
+instrepo
+........
+
+Name of a Installation Repository
+
+Parents:
+   These elements contain ``instrepo``: :ref:`k.image.instsource`
+
+Children:
+   The following elements occur in ``instrepo``: :ref:`source <k.image.instsource.instrepo.source>` 
+
+List of attributes for ``instrepo``:
+
+* ``local`` `[?]`_: 
+* ``name`` : 
+* ``password`` `[?]`_: The password
+* ``priority`` : Search priority for packages in this repo
+* ``username`` `[?]`_: A name of a user
+
+.. _k.image.instsource.instrepo.source:
+
+source
+,,,,,,
+
+A Pointer to a Repository/Package Source
+
+Parents:
+   These elements contain ``source``: :ref:`k.image.instsource.instrepo`, :ref:`k.image.repository`
+
+List of attributes for ``source``:
+
+* ``path`` : A path
+
+.. _k.image.instsource.metadata:
+
+metadata
+........
+
+Contains Metadata
+
+Parents:
+   These elements contain ``metadata``: :ref:`k.image.instsource`
+
+Children:
+   The following elements occur in ``metadata``: :ref:`repopackage <k.image.instsource.metadata.repopackage>` `[*]`_, :ref:`metafile <k.image.instsource.metadata.metafile>` `[*]`_, :ref:`chroot <k.image.instsource.metadata.chroot>` `[*]`_
+
+
+.. _k.image.instsource.metadata.repopackage:
+
+repopackage
+,,,,,,,,,,,
+
+Name of an instsource Package
+
+Parents:
+   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
+
+List of attributes for ``repopackage``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+* ``forcerepo`` `[?]`_: Specifies the search priority
+* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
+* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
+* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
+* ``source`` `[?]`_: A location where packages can be found to build an installation source from
+* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
+* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
+
+.. _k.image.instsource.metadata.metafile:
+
+metafile
+,,,,,,,,
+
+A file Pointer Optionally Bundled With a Script
+
+Parents:
+   These elements contain ``metafile``: :ref:`k.image.instsource.metadata`
+
+List of attributes for ``metafile``:
+
+* ``url`` : URL where to find the metafile
+* ``script`` : A script hook for meta files to be called after the file was fetched
+* ``target`` : Destination path where to download the file
+
+.. _k.image.instsource.metadata.chroot:
+
+chroot
+,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``chroot``: :ref:`k.image.instsource.metadata`
+
+List of attributes for ``chroot``:
+
+* ``requires`` : 
+
+.. _k.image.instsource.repopackages:
+
+repopackages
+............
+
+Specifies Packages for Installation Source
+
+Parents:
+   These elements contain ``repopackages``: :ref:`k.image.instsource`
+
+Children:
+   The following elements occur in ``repopackages``: :ref:`repopackage <k.image.instsource.repopackages.repopackage>` `[*]`_
+
+
+.. _k.image.instsource.repopackages.repopackage:
+
+repopackage
+,,,,,,,,,,,
+
+Name of an instsource Package
+
+Parents:
+   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
+
+List of attributes for ``repopackage``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+* ``forcerepo`` `[?]`_: Specifies the search priority
+* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
+* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
+* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
+* ``source`` `[?]`_: A location where packages can be found to build an installation source from
+* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
+* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
+
+.. _k.image.instsource.driverupdate:
+
+driverupdate
+............
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``driverupdate``: :ref:`k.image.instsource`
+
+Children:
+   The following elements occur in ``driverupdate``: :ref:`target <k.image.instsource.driverupdate.target>` `[+]`_, :ref:`install <k.image.instsource.driverupdate.install>` `[?]`_, :ref:`modules <k.image.instsource.driverupdate.modules>` `[?]`_, :ref:`instsys <k.image.instsource.driverupdate.instsys>` `[?]`_
+
+
+.. _k.image.instsource.driverupdate.target:
+
+target
+,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``target``: :ref:`k.image.instsource.driverupdate`
+
+List of attributes for ``target``:
+
+* ``arch`` : An architecture
+
+.. _k.image.instsource.driverupdate.install:
+
+install
+,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``install``: :ref:`k.image.instsource.driverupdate`
+
+Children:
+   The following elements occur in ``install``: :ref:`repopackage <k.image.instsource.driverupdate.install.repopackage>` `[*]`_
+
+
+.. _k.image.instsource.driverupdate.install.repopackage:
+
+repopackage
+:::::::::::
+
+Name of an instsource Package
+
+Parents:
+   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
+
+List of attributes for ``repopackage``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+* ``forcerepo`` `[?]`_: Specifies the search priority
+* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
+* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
+* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
+* ``source`` `[?]`_: A location where packages can be found to build an installation source from
+* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
+* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
+
+.. _k.image.instsource.driverupdate.modules:
+
+modules
+,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``modules``: :ref:`k.image.instsource.driverupdate`
+
+Children:
+   The following elements occur in ``modules``: :ref:`repopackage <k.image.instsource.driverupdate.modules.repopackage>` `[*]`_
+
+
+.. _k.image.instsource.driverupdate.modules.repopackage:
+
+repopackage
+:::::::::::
+
+Name of an instsource Package
+
+Parents:
+   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
+
+List of attributes for ``repopackage``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+* ``forcerepo`` `[?]`_: Specifies the search priority
+* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
+* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
+* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
+* ``source`` `[?]`_: A location where packages can be found to build an installation source from
+* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
+* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
+
+.. _k.image.instsource.driverupdate.instsys:
+
+instsys
+,,,,,,,
+
+Describe Packages and Metadata
+
+Parents:
+   These elements contain ``instsys``: :ref:`k.image.instsource.driverupdate`
+
+Children:
+   The following elements occur in ``instsys``: :ref:`repopackage <k.image.instsource.driverupdate.instsys.repopackage>` `[*]`_
+
+
+.. _k.image.instsource.driverupdate.instsys.repopackage:
+
+repopackage
+:::::::::::
+
+Name of an instsource Package
+
+Parents:
+   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
+
+List of attributes for ``repopackage``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+* ``forcerepo`` `[?]`_: Specifies the search priority
+* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
+* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
+* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
+* ``source`` `[?]`_: A location where packages can be found to build an installation source from
+* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
+* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
+
+.. _k.image.users:
+
+users
+_____
+
+A List of Users
+
+Parents:
+   These elements contain ``users``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``users``: :ref:`user <k.image.users.user>` `[+]`_
+
+List of attributes for ``users``:
+
+* ``profiles`` `[?]`_: A profile name which binds the section to this name
+
+.. _k.image.users.user:
+
+user
+....
+
+A User with Name, Password, Path to Its Home And Shell
+
+Parents:
+   These elements contain ``user``: :ref:`k.image.users`
+
+List of attributes for ``user``:
+
+* ``groups`` `[?]`_: The list of groups that he user belongs to. The frist item in the list is used as the login group. If 'groups' is not present a default group is assigned to the user according to he specifing toolchain behaviour.
+* ``home`` : The home directory for this user
+* ``id`` `[?]`_: The user ID for this user
+* ``name`` : A name
+* ``password`` `[?]`_: The password
+* ``pwdformat`` `[?]`_: Format of the given password, encrypted is the default
+* ``realname`` `[?]`_: The name of an user
+* ``shell`` `[?]`_: The shell for this user
+
+.. _k.image.drivers:
+
+drivers
+_______
+
+A Collection of Driver Files 
+
+Parents:
+   These elements contain ``drivers``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``drivers``: :ref:`file <k.image.drivers.file>` `[+]`_
+
+List of attributes for ``drivers``:
+
+* ``profiles`` `[?]`_: A profile name which binds the section to this name
+
+.. _k.image.drivers.file:
+
+file
+....
+
+A Pointer to a File
+
+Parents:
+   These elements contain ``file``: :ref:`k.image.drivers`, :ref:`k.image.strip`
+
+List of attributes for ``file``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+
+.. _k.image.strip:
+
+strip
+_____
+
+A Collection of files to strip
+
+Parents:
+   These elements contain ``strip``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``strip``: :ref:`file <k.image.strip.file>` `[+]`_
+
+List of attributes for ``strip``:
+
+* ``type`` : 
+* ``profiles`` `[?]`_: A profile name which binds the section to this name
+
+.. _k.image.strip.file:
+
+file
+....
+
+A Pointer to a File
+
+Parents:
+   These elements contain ``file``: :ref:`k.image.drivers`, :ref:`k.image.strip`
+
+List of attributes for ``file``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+
+.. _k.image.repository:
+
+repository
+__________
+
+The Name of the Repository
+
+Parents:
+   These elements contain ``repository``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``repository``: :ref:`source <k.image.repository.source>` 
+
+List of attributes for ``repository``:
+
+* ``type`` `[?]`_: Type of repository
+* ``profiles`` `[?]`_: A profile name which binds the section to this name
+* ``status`` `[?]`_: Specifies the status of the repository. This can be replaceable or if not specified it's a must have repository
+* ``alias`` `[?]`_: Alias name to be used for this repository. This is an optional free form text. If not set the source attribute value is used and builds the alias name by replacing each '/' with a '_'. An alias name should be set if the source argument doesn't really explain what this repository contains
+* ``components`` `[?]`_: Distribution components, used for deb repositories. If not set it defaults to main
+* ``distribution`` `[?]`_: Distribution name information, used for deb repositories
+* ``imageinclude`` `[?]`_: Specify whether or not this repository should be configured in the resulting image. Boolean value true or false, the default is false.
+* ``prefer-license`` `[?]`_: Use the license found in this repository, if any, as the license installed in the image
+* ``priority`` `[?]`_: Channel priority assigned to all packages available in this channel (0 if not set). If the exact same package is available in more than one channel, the highest priority is used
+* ``password`` `[?]`_: The password
+* ``username`` `[?]`_: A name of a user
+
+.. _k.image.repository.source:
+
+source
+......
+
+A Pointer to a Repository/Package Source
+
+Parents:
+   These elements contain ``source``: :ref:`k.image.instsource.instrepo`, :ref:`k.image.repository`
+
+List of attributes for ``source``:
+
+* ``path`` : A path
+
+.. _k.image.packages:
+
+packages
+________
+
+Specifies Packages/Patterns Used in Different Stages
+
+Parents:
+   These elements contain ``packages``: :ref:`k.image`
+
+Children:
+   The following elements occur in ``packages``: :ref:`archive <k.image.packages.archive>` `[*]`_, :ref:`ignore <k.image.packages.ignore>` `[*]`_, :ref:`namedCollection <k.image.packages.namedCollection>` `[*]`_, :ref:`product <k.image.packages.product>` `[*]`_, :ref:`package <k.image.packages.package>` `[*]`_
+
+List of attributes for ``packages``:
+
+* ``type`` : 
+* ``profiles`` `[?]`_: A profile name which binds the section to this name
+* ``patternType`` `[?]`_: Selection type for patterns. Could be onlyRequired or plusRecommended
+
+.. _k.image.packages.archive:
+
+archive
+.......
+
+Name of an image archive file (tarball)
+
+Parents:
+   These elements contain ``archive``: :ref:`k.image.packages`
+
+List of attributes for ``archive``:
+
+* ``name`` : A name
+* ``bootinclude`` `[?]`_: Indicates that this package should be part of the boot image (initrd) too. This attribute can be used to include for example branding packages specified in the system image description to become part of the boot image also
+
+.. _k.image.packages.ignore:
+
+ignore
+......
+
+Ignores a Package
+
+Parents:
+   These elements contain ``ignore``: :ref:`k.image.packages`
+
+List of attributes for ``ignore``:
+
+* ``name`` : A name
+
+.. _k.image.packages.namedCollection:
+
+namedCollection
+...............
+
+Name of a Pattern for SUSE or a Group for RH
+
+Parents:
+   These elements contain ``namedCollection``: :ref:`k.image.packages`
+
+List of attributes for ``namedCollection``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+
+.. _k.image.packages.product:
+
+product
+.......
+
+Name of a Product From openSUSE
+
+Parents:
+   These elements contain ``product``: :ref:`k.image.packages`
+
+List of attributes for ``product``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+
+.. _k.image.packages.package:
+
+package
+.......
+
+Name of an image Package
+
+Parents:
+   These elements contain ``package``: :ref:`k.image.packages`
+
+List of attributes for ``package``:
+
+* ``name`` : A name
+* ``arch`` `[?]`_: An architecture
+* ``replaces`` `[?]`_: Replace package with some other package
+* ``bootdelete`` `[?]`_: Indicates that this package should be removed from the boot image (initrd). the attribute is only evaluated if the bootinclude attribute is specified along with it too
+* ``bootinclude`` `[?]`_: Indicates that this package should be part of the boot image (initrd) too. This attribute can be used to include for example branding packages specified in the system image description to become part of the boot image also
+
