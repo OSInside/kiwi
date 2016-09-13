@@ -280,7 +280,7 @@ class InstallImageBuilder(object):
                 self.xml_state.xml_data.get_name(), '.md5'
             ]
         )
-        checksum = Checksum(pxe_image_filename)
+        checksum = Checksum(self.diskname)
         checksum.md5(pxe_md5_filename)
 
         # the kiwi initrd code triggers the install by trigger files

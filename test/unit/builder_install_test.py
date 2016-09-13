@@ -255,7 +255,7 @@ class TestInstallImageBuilder(object):
             ['mv', compress.compressed_filename, 'tmpdir/result-image.xz']
         )
         mock_md5.assert_called_once_with(
-            'tmpdir/result-image.xz'
+            'target_dir/result-image.x86_64-1.2.3.raw'
         )
         checksum.md5.assert_called_once_with(
             'tmpdir/result-image.md5'
