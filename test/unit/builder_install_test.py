@@ -260,13 +260,14 @@ class TestInstallImageBuilder(object):
         checksum.md5.assert_called_once_with(
             'tmpdir/result-image.md5'
         )
-        mock_open.assert_called_once_with(
-            'tmpdir/result-image.append', 'w'
-        )
-        file_mock.write.assert_called_once_with(
-            'pxe=1 custom_kernel_options\n'
-        )
-
+        assert mock_open.call_args_list == [
+            call('initrd_dir/config.vmxsystem', 'w'),
+            call('tmpdir/result-image.append', 'w')
+        ]
+        assert file_mock.write.call_args_list == [
+            call('IMAGE="result-image.raw"\n'),
+            call('pxe=1 custom_kernel_options\n')
+        ]
         self.kernel.copy_kernel.assert_called_once_with(
             'tmpdir', '/pxeboot.kernel'
         )

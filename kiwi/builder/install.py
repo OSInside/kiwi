@@ -283,6 +283,9 @@ class InstallImageBuilder(object):
         checksum = Checksum(pxe_image_filename)
         checksum.md5(pxe_md5_filename)
 
+        # the kiwi initrd code triggers the install by trigger files
+        self._create_pxe_install_trigger_files()
+
         # create pxe config append information
         # this information helps to configure the boot server correctly
         append_filename = ''.join(
@@ -371,6 +374,12 @@ class InstallImageBuilder(object):
             vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
         with open(iso_trigger, 'w') as iso_system:
             iso_system.write('IMAGE="%s"\n' % self.squashed_diskname)
+
+    def _create_pxe_install_trigger_files(self):
+        initrd_trigger = \
+            self.boot_image_task.boot_root_directory + '/config.vmxsystem'
+        with open(initrd_trigger, 'w') as vmx_system:
+            vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
