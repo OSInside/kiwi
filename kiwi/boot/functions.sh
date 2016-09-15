@@ -3607,6 +3607,7 @@ function setupNetworkWicked {
     dhcp_info=/var/run/wicked/wicked-${PXE_IFACE}.info
     if [ -s $dhcp_info ]; then
         importFile < /var/run/wicked/wicked-${PXE_IFACE}.info
+        IPADDR=$(echo $IPADDR | cut -f1 -d/)
     fi
 }
 #======================================
