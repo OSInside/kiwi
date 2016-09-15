@@ -68,7 +68,7 @@ class PackageManagerYum(PackageManagerBase):
 
         :param string name: yum group name
         """
-        self.collection_requests.append(name)
+        self.collection_requests.append('"' + name + '"')
 
     def request_product(self, name):
         """

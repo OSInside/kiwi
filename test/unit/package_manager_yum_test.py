@@ -35,7 +35,7 @@ class TestPackageManagerYum(object):
 
     def test_request_collection(self):
         self.manager.request_collection('name')
-        assert self.manager.collection_requests == ['name']
+        assert self.manager.collection_requests == ['"name"']
 
     def test_request_product(self):
         self.manager.request_product('name')
@@ -55,7 +55,7 @@ class TestPackageManagerYum(object):
                 'bash', '-c',
                 'yum -c yum.conf -y --installroot root-dir install vim && ' +
                 'yum -c yum.conf -y --installroot root-dir groupinstall ' +
-                'collection'
+                '"collection"'
             ], ['env']
         )
 
@@ -76,7 +76,7 @@ class TestPackageManagerYum(object):
                 'bash', '-c',
                 'chroot root-dir yum root-moved-arguments install vim && ' +
                 'chroot root-dir yum root-moved-arguments groupinstall ' +
-                'collection'
+                '"collection"'
             ], ['env']
         )
 
