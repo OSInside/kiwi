@@ -85,7 +85,9 @@ class BootLoaderTemplateGrub2(object):
             if [ -f ($$root)${bootpath}/$${sans_12_font} ];then
                 loadfont ($$root)${bootpath}/$${sans_12_font}
             fi
-            set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+            if [ -f ($$root)${bootpath}/grub2/themes/${theme}/theme.txt ];then
+                set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+            fi
         ''').strip() + os.linesep
 
         self.header_theme_iso = self.fonts + dedent('''
@@ -101,7 +103,9 @@ class BootLoaderTemplateGrub2(object):
             if [ -f ($$root)/boot/$${sans_12_font} ];then
                 loadfont ($$root)/boot/$${sans_12_font}
             fi
-            set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
+            if [ -f ($$root)/boot/grub2/themes/${theme}/theme.txt ];then
+                set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
+            fi
         ''').strip() + os.linesep
 
         self.menu_entry_console_switch = dedent('''
