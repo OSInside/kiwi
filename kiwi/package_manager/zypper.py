@@ -52,8 +52,18 @@ class PackageManagerZypper(PackageManagerBase):
             self.custom_args = []
 
         runtime_config = self.repository.runtime_config()
+
         self.zypper_args = runtime_config['zypper_args']
+        self.chroot_zypper_args = self.root_bind.move_to_root(
+            self.zypper_args
+        )
+
         self.command_env = runtime_config['command_env']
+        self.chroot_command_env = dict(self.command_env)
+        if 'ZYPP_CONF' in self.command_env:
+            self.chroot_command_env['ZYPP_CONF'] = self.root_bind.move_to_root(
+                [self.command_env['ZYPP_CONF']]
+            )[0]
 
     def request_package(self, name):
         """
@@ -95,14 +105,11 @@ class PackageManagerZypper(PackageManagerBase):
         """
         Process package install requests for image phase (chroot)
         """
-        chroot_zypper_args = self.root_bind.move_to_root(
-            self.zypper_args
-        )
         return Command.call(
-            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+            ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
             ] + self.custom_args + self._install_items(),
-            self.command_env
+            self.chroot_command_env
         )
 
     def process_delete_requests(self, force=False):
@@ -129,31 +136,27 @@ class PackageManagerZypper(PackageManagerBase):
                 [
                     'chroot', self.root_dir, 'rpm', '-e'
                 ] + force_options + delete_items,
-                self.command_env
+                self.chroot_command_env
             )
         else:
-            chroot_zypper_args = self.root_bind.move_to_root(
-                self.zypper_args
-            )
             return Command.call(
-                ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                [
+                    'chroot', self.root_dir, 'zypper'
+                ] + self.chroot_zypper_args + [
                     'remove', '-u', '--force-resolution'
                 ] + delete_items,
-                self.command_env
+                self.chroot_command_env
             )
 
     def update(self):
         """
         Process package update requests (chroot)
         """
-        chroot_zypper_args = self.root_bind.move_to_root(
-            self.zypper_args
-        )
         return Command.call(
-            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+            ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
                 'update', '--auto-agree-with-licenses'
             ] + self.custom_args,
-            self.command_env
+            self.chroot_command_env
         )
 
     def process_only_required(self):

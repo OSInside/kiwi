@@ -21,13 +21,25 @@ class TestPackageManagerZypper(object):
         )
         repository.root_bind = root_bind
 
-        repository.runtime_config = mock.Mock(
+        self.command_env = {
+            'HOME': '/home/ms', 'ZYPP_CONF': 'root-dir/my/zypp.conf'
+        }
+        repository.runtime_config = mock.MagicMock(
             return_value={
                 'zypper_args': ['--reposd-dir', 'root-dir/my/repos'],
-                'command_env': ['env']
+                'command_env': self.command_env
             }
         )
         self.manager = PackageManagerZypper(repository)
+
+        self.chroot_zypper_args = self.manager.root_bind.move_to_root(
+            self.manager.zypper_args
+        )
+        self.chroot_command_env = self.manager.command_env
+        self.chroot_command_env['ZYPP_CONF'] = \
+            self.manager.root_bind.move_to_root(
+                [self.manager.command_env['ZYPP_CONF']]
+            )[0]
 
     def test_request_package(self):
         self.manager.request_package('name')
@@ -50,26 +62,17 @@ class TestPackageManagerZypper(object):
                 'zypper', '--reposd-dir', 'root-dir/my/repos',
                 '--root', 'root-dir',
                 'install', '--auto-agree-with-licenses'
-            ] + self.manager.custom_args + ['vim'],
-            [
-                'env'
-            ]
+            ] + self.manager.custom_args + ['vim'], self.command_env
         )
 
     @patch('kiwi.command.Command.call')
     def test_process_install_requests(self, mock_call):
         self.manager.request_package('vim')
         self.manager.process_install_requests()
-        chroot_zypper_args = self.manager.root_bind.move_to_root(
-            self.manager.zypper_args
-        )
         mock_call.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
+            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
-            ] + self.manager.custom_args + ['vim'],
-            [
-                'env'
-            ]
+            ] + self.manager.custom_args + ['vim'], self.chroot_command_env
         )
 
     @patch('kiwi.command.Command.call')
@@ -77,16 +80,10 @@ class TestPackageManagerZypper(object):
     def test_process_delete_requests_all_installed(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
-        chroot_zypper_args = self.manager.root_bind.move_to_root(
-            self.manager.zypper_args
-        )
         mock_call.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
+            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
                 'remove', '-u', '--force-resolution'
-            ] + self.manager.custom_args + ['vim'],
-            [
-                'env'
-            ]
+            ] + self.manager.custom_args + ['vim'], self.chroot_command_env
         )
 
     @patch('kiwi.command.Command.call')
@@ -98,10 +95,7 @@ class TestPackageManagerZypper(object):
             [
                 'chroot', 'root-dir', 'rpm', '-e',
                 '--nodeps', '--allmatches', '--noscripts', 'vim'
-            ],
-            [
-                'env'
-            ]
+            ], self.command_env
         )
 
     @patch('kiwi.command.Command.run')
@@ -118,16 +112,10 @@ class TestPackageManagerZypper(object):
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        chroot_zypper_args = self.manager.root_bind.move_to_root(
-            self.manager.zypper_args
-        )
         mock_call.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
+            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
                 'update', '--auto-agree-with-licenses'
-            ] + self.manager.custom_args,
-            [
-                'env'
-            ]
+            ] + self.manager.custom_args, self.chroot_command_env
         )
 
     def test_process_only_required(self):
