@@ -199,6 +199,7 @@
         <package name="psmisc"/>
         <package name="sysvinit-tools"/>
         <package name="e2fsprogs"/>
+        <package name="ifplugd"/>
     </packages>
     <packages type="delete" profiles="default,diskless,xen">
         <package name="dracut"/>
