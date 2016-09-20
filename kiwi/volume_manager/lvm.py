@@ -155,6 +155,34 @@ class VolumeManagerLVM(VolumeManagerBase):
                 full_size_volume.name, full_size_volume.realpath
             )
 
+    def get_fstab(self, filesystem_name, persistency_type=None):
+        """
+        Implements creation of the fstab entries. The method
+        returns a list of fstab compatible entries
+
+        :param string persistency_type: unused
+        :param string filesystem_name: volumes filesystem name
+
+        :rtype: list
+        """
+        fstab_entries = []
+        for volume_mount in self.mount_list:
+            if 'LVRoot' not in volume_mount.device:
+                fstab_entry = ' '.join(
+                    [
+                        volume_mount.device,
+                        '/' + '/'.join(volume_mount.mountpoint.split('/')[3:]),
+                        filesystem_name,
+                        ''.join(
+                            self.custom_filesystem_args['mount_options']
+                        ) or 'defaults',
+                        '1 2'
+                    ]
+                )
+                fstab_entries.append(fstab_entry)
+
+        return fstab_entries
+
     def mount_volumes(self):
         """
         Mount lvm volumes
