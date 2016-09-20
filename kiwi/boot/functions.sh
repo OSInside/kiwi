@@ -5560,10 +5560,10 @@ function waitForLinkUp {
         if lookup ifplugstatus &>/dev/null;then
             linkstatus=ifplugstatus
 ￼           linkgrep="link beat detected"
-￼       else
-￼           linkstatus="ip link ls"
-￼           linkgrep="state UP"
-￼       fi
+        else
+            linkstatus="ip link ls"
+            linkgrep="state UP"
+        fi
         $linkstatus $dev | grep -qi "$linkgrep"
         if [ $? = 0 ];then
             sleep 1; return 0
