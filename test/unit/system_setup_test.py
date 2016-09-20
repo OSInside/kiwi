@@ -540,6 +540,22 @@ class TestSystemSetup(object):
             ['bash', '-c', 'rm -f root_dir/recovery.*']
         )
 
+    @patch_open
+    def test_create_fstab(self, mock_open):
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        self.setup.create_fstab(['fstab_entry'])
+        mock_open.assert_called_once_with(
+            'root_dir/etc/fstab', 'w'
+        )
+        file_mock.write.assert_called_once_with('fstab_entry\n')
+
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.NamedTemporaryFile')
     @patch('kiwi.system.setup.ArchiveTar')
