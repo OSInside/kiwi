@@ -304,12 +304,12 @@ function OEMInstall {
         done
         Dialog \
             --radiolist $hd 20 75 15 $dpara
-        instDisk=$(DialogResult)
         if [ ! $? = 0 ];then
             systemException \
                 "System installation canceled" \
             "reboot"
         fi
+        instDisk=$(DialogResult)
     fi
     imageDevice=$instDisk
     #======================================
@@ -503,12 +503,12 @@ function OEMInstall {
                 else
                     Dialog \
                         --radiolist \"$TEXT_SELECT\" 20 75 15 $dpara
-                    selectedPart=$(DialogResult)
                     if [ ! $? = 0 ];then
                         systemException \
                             "System installation canceled" \
                         "reboot"
                     fi
+                    selectedPart=$(DialogResult)
                 fi
                 count=0
                 for i in $(echo $partitions | tr , ' ');do
@@ -911,8 +911,10 @@ function OEMInstall {
         Dialog \
             --backtitle \"$TEXT_INSTALLTITLE\" \
             --msgbox "\"$TEXT_DUMP\"" 5 70
-                systemException "Reboot requested after image installation" \
-                        "user_reboot"
+
+        systemException \
+            "Reboot requested after image installation" \
+        "user_reboot"
     fi
 }
 
