@@ -324,6 +324,7 @@ class DiskBuilder(object):
             volume_manager.create_volumes(
                 self.requested_filesystem
             )
+            volume_manager.mount_volumes()
             self.system = volume_manager
             device_map['root'] = volume_manager.get_device()['root']
         else:
