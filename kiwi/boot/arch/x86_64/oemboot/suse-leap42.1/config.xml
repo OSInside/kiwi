@@ -184,6 +184,7 @@
         <package name="sysvinit-tools"/>
         <package name="xz"/>
         <package name="gawk"/>
+        <package name="ifplugd"/>
     </packages>
     <packages type="delete">
         <package name="cracklib-dict-full"/>
