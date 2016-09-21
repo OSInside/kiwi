@@ -18,5 +18,5 @@
 """
 Global version information used in kiwi and the package
 """
-__version__ = '8.20.16'
+__version__ = '8.20.17'
 __githash__ = '$Format:%H$'
