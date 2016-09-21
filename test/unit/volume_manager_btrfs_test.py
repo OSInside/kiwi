@@ -191,14 +191,16 @@ class TestVolumeManagerBtrfs(object):
     def test_mount_volumes(self, mock_path, mock_os_exists):
         mock_os_exists.return_value = False
         volume_mount = mock.Mock()
-        volume_mount.mountpoint = 'tmpdir/@/.snapshots/1/snapshot/subvol'
+        volume_mount.mountpoint = \
+            '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
+        self.volume_manager.custom_args['root_is_snapshot'] = True
         self.volume_manager.subvol_mount_list = [volume_mount]
 
         self.volume_manager.mount_volumes()
 
         mock_path.assert_called_once_with(volume_mount.mountpoint)
         volume_mount.mount.assert_called_once_with(
-            options=['subvol=@/subvol']
+            options=['subvol=@/var/tmp']
         )
 
     def test_umount_volumes(self):

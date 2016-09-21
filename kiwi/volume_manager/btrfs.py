@@ -172,10 +172,12 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         for volume_mount in self.subvol_mount_list:
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
-            subvol_name = os.path.basename(volume_mount.mountpoint)
+            subvol_name = '/'.join(volume_mount.mountpoint.split('/')[3:])
+            if self.custom_args['root_is_snapshot']:
+                subvol_name = subvol_name.replace('.snapshots/1/snapshot/', '')
             subvol_options = ','.join(
                 [
-                    'subvol=' + os.path.normpath('@/' + subvol_name)
+                    'subvol=' + os.path.normpath(subvol_name)
                 ] + self.custom_filesystem_args['mount_options']
             )
             volume_mount.mount(
