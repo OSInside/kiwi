@@ -492,6 +492,15 @@ class SystemSetup(object):
             'edit_boot_install.sh', [diskname, boot_device_node]
         )
 
+    def create_fstab(self, entries):
+        """
+        Create etc/fstab from given list of entries
+        """
+        fstab_file = self.root_dir + '/etc/fstab'
+        with open(fstab_file, 'w') as fstab:
+            for entry in entries:
+                fstab.write(entry + os.linesep)
+
     def create_init_link_from_linuxrc(self):
         """
         kiwi boot images provides the linuxrc script, however the kernel

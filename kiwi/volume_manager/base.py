@@ -142,6 +142,18 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
+    def get_fstab(self, persistency_type, filesystem_name):
+        """
+        Implements setup of the fstab entries. The method should
+        return a list of fstab compatible entries
+
+        :param string persistency_type: unused
+        :param string filesystem_name: unused
+
+        :rtype: list
+        """
+        raise NotImplementedError
+
     def mount_volumes(self):
         """
         Implements mounting of all volumes below one master directory

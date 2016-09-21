@@ -73,6 +73,10 @@ class TestVolumeManagerBase(object):
     def test_create_volumes(self):
         self.volume_manager.create_volumes('ext3')
 
+    @raises(NotImplementedError)
+    def test_get_fstab(self):
+        self.volume_manager.get_fstab('by-label', 'ext3')
+
     @patch('kiwi.volume_manager.base.Path.create')
     @patch('os.path.exists')
     def test_create_volume_paths_in_root_dir(self, mock_os_path, mock_path):

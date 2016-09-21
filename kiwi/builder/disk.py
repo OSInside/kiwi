@@ -161,6 +161,9 @@ class DiskBuilder(object):
         Instance of a class with the sync_data capability
         representing the boot/efi area of the disk
 
+    * :attr:`generic_fstab_entries`
+        List of generic/persistent fstab entries
+
     * :attr:`result`
         Instance of Result
     """
@@ -171,6 +174,7 @@ class DiskBuilder(object):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
+        self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.build_type_name = xml_state.get_build_type_name()
@@ -214,6 +218,8 @@ class DiskBuilder(object):
             ]
         )
         self.install_media = self._install_image_requested()
+        self.generic_fstab_entries = None
+
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
         # which could live on another part of the disk
@@ -325,6 +331,9 @@ class DiskBuilder(object):
                 self.requested_filesystem
             )
             volume_manager.mount_volumes()
+            self.generic_fstab_entries = volume_manager.get_fstab(
+                self.persistency_type, self.requested_filesystem
+            )
             self.system = volume_manager
             device_map['root'] = volume_manager.get_device()['root']
         else:
@@ -364,6 +373,8 @@ class DiskBuilder(object):
         self._write_image_identifier_to_system_image()
 
         self._write_crypttab_to_system_image()
+
+        self._write_generic_fstab_to_system_image()
 
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
@@ -671,6 +682,11 @@ class DiskBuilder(object):
             self.luks_root.create_crypttab(
                 self.root_dir + '/etc/crypttab'
             )
+
+    def _write_generic_fstab_to_system_image(self):
+        if self.generic_fstab_entries:
+            log.info('Creating generic entries in etc/fstab')
+            self.system_setup.create_fstab(self.generic_fstab_entries)
 
     def _write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())

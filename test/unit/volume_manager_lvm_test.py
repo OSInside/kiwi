@@ -194,6 +194,15 @@ class TestVolumeManagerLVM(object):
         assert self.volume_manager.umount_volumes() is True
         volume_mount.umount.assert_called_once_with()
 
+    def test_get_fstab(self):
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = '/tmp/kiwi_volumes.f2qx_d3y/var/tmp'
+        volume_mount.device = 'device'
+        self.volume_manager.mount_list = [volume_mount]
+        assert self.volume_manager.get_fstab('ext3') == [
+            'device /var/tmp ext3 defaults 1 2'
+        ]
+
     @patch('kiwi.volume_manager.lvm.Path.wipe')
     @patch('kiwi.volume_manager.lvm.Command.run')
     def test_destructor_busy_volumes(self, mock_command, mock_wipe):

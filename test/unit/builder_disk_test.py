@@ -480,6 +480,9 @@ class TestDiskBuilder(object):
                 'root': MappedDevice('/dev/systemVG/LVRoot', mock.Mock())
             }
         )
+        volume_manager.get_fstab = mock.Mock(
+            return_value=['fstab_entry']
+        )
         mock_volume_manager.return_value = volume_manager
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -491,10 +494,14 @@ class TestDiskBuilder(object):
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
         volume_manager.mount_volumes.assert_called_once_with()
+        volume_manager.get_fstab.assert_called_once_with(None, 'btrfs')
         volume_manager.sync_data.assert_called_once_with([
             'image', '.profile', '.kconfig', 'var/cache/kiwi',
             'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
         ])
+        self.setup.create_fstab.assert_called_once_with(
+            ['fstab_entry']
+        )
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

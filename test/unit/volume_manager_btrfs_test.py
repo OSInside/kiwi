@@ -186,19 +186,37 @@ class TestVolumeManagerBtrfs(object):
             )
         ]
 
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    def test_get_fstab(self, mock_command):
+        blkid_result = mock.Mock()
+        blkid_result.output = 'id'
+        mock_command.return_value = blkid_result
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = \
+            '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
+        volume_mount.device = 'device'
+        self.volume_manager.subvol_mount_list = [volume_mount]
+        self.volume_manager.custom_args['root_is_snapshot'] = True
+        assert self.volume_manager.get_fstab() == [
+            'LABEL=id /.snapshots btrfs subvol=@/.snapshots defaults 0 0',
+            'LABEL=id /var/tmp btrfs subvol=@/var/tmp defaults 0 0'
+        ]
+
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Path.create')
     def test_mount_volumes(self, mock_path, mock_os_exists):
         mock_os_exists.return_value = False
         volume_mount = mock.Mock()
-        volume_mount.mountpoint = 'tmpdir/@/.snapshots/1/snapshot/subvol'
+        volume_mount.mountpoint = \
+            '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
+        self.volume_manager.custom_args['root_is_snapshot'] = True
         self.volume_manager.subvol_mount_list = [volume_mount]
 
         self.volume_manager.mount_volumes()
 
         mock_path.assert_called_once_with(volume_mount.mountpoint)
         volume_mount.mount.assert_called_once_with(
-            options=['subvol=@/subvol']
+            options=['subvol=@/var/tmp']
         )
 
     def test_umount_volumes(self):

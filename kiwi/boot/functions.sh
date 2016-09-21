@@ -2156,35 +2156,6 @@ function updateRootDeviceFstab {
     else
         echo "/dev/root / auto defaults 1 1" >> $nfstab
     fi
-    #======================================
-    # check for LVM volume setup
-    #--------------------------------------
-    if [ "$haveLVM" = "yes" ];then
-        local volume_name
-        local mount_device
-        local mount_point
-        for i in $(readVolumeSetup "/.profile");do
-            volume_name=$(getVolumeName $i)
-            if [ $volume_name = "LVRoot" ]; then
-                continue
-            fi
-            mount_point=$(getVolumeMountPoint $i)
-            mount_device="/dev/$kiwi_lvmgroup/$volume_name"
-            echo "$mount_device /$mount_point $fstype $opts 1 2" >> $nfstab
-        done
-    elif [ "$fstype" = "btrfs" ];then
-        if [ "$kiwi_btrfs_root_is_snapshot" = "true" ];then
-            if [ $devicepersistency = "by-label" ];then
-                local device="LABEL=$(blkid $rdev -s LABEL -o value)"
-            else
-                local device="UUID=$(blkid $rdev -s UUID -o value)"
-            fi
-            for subvol in $(getBtrfsSubVolumes "$prefix"); do
-                syspath=$(echo $subvol | tr -d @)
-                echo "$device $syspath btrfs subvol=$subvol 0 0" >> $nfstab
-            done
-        fi
-    fi
 }
 #======================================
 # updateSwapDeviceFstab
