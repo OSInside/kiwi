@@ -170,13 +170,13 @@ class VolumeManagerLVM(VolumeManagerBase):
             self.custom_filesystem_args['mount_options'] or 'defaults'
         for volume_mount in self.mount_list:
             if 'LVRoot' not in volume_mount.device:
+                mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
+                if not mount_path.startswith('/'):
+                    mount_path = '/' + mount_path
                 fstab_entry = ' '.join(
                     [
-                        volume_mount.device,
-                        '/' + '/'.join(volume_mount.mountpoint.split('/')[3:]),
-                        filesystem_name,
-                        ''.join(mount_options),
-                        '1 2'
+                        volume_mount.device, mount_path, filesystem_name,
+                        ''.join(mount_options), '1 2'
                     ]
                 )
                 fstab_entries.append(fstab_entry)
