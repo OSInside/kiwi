@@ -165,6 +165,53 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                         volume_mount
                     )
 
+    def get_fstab(self, persistency_type='by-label', filesystem_name=None):
+        """
+        Implements creation of the fstab entries. The method
+        returns a list of fstab compatible entries
+
+        :param string persistency_type: by-label | by-uuid
+        :param string filesystem_name: unused
+
+        :rtype: list
+        """
+        fstab_entries = []
+        blkid_type = 'LABEL' if persistency_type == 'by-label' else 'UUID'
+        blkid_result = Command.run(
+            ['blkid', self.device, '-s', blkid_type, '-o', 'value']
+        )
+        device_id = blkid_result.output.strip(os.linesep)
+        if self.custom_args['root_is_snapshot']:
+            fstab_entry = ' '.join(
+                [
+                    blkid_type + '=' + device_id,
+                    '/.snapshots',
+                    'btrfs',
+                    'subvol=@/.snapshots',
+                    ''.join(
+                        self.custom_filesystem_args['mount_options']
+                    ) or 'defaults',
+                    '0 0'
+                ]
+            )
+            fstab_entries.append(fstab_entry)
+        for volume_mount in self.subvol_mount_list:
+            subvol_name = self._get_subvol_name_from_mountpoint(volume_mount)
+            fstab_entry = ' '.join(
+                [
+                    blkid_type + '=' + device_id,
+                    subvol_name.replace('@', ''),
+                    'btrfs',
+                    'subvol=' + subvol_name,
+                    ''.join(
+                        self.custom_filesystem_args['mount_options']
+                    ) or 'defaults',
+                    '0 0'
+                ]
+            )
+            fstab_entries.append(fstab_entry)
+        return fstab_entries
+
     def mount_volumes(self):
         """
         Mount btrfs subvolumes
@@ -172,12 +219,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         for volume_mount in self.subvol_mount_list:
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
-            subvol_name = '/'.join(volume_mount.mountpoint.split('/')[3:])
-            if self.custom_args['root_is_snapshot']:
-                subvol_name = subvol_name.replace('.snapshots/1/snapshot/', '')
+            subvol_name = self._get_subvol_name_from_mountpoint(volume_mount)
             subvol_options = ','.join(
                 [
-                    'subvol=' + os.path.normpath(subvol_name)
+                    'subvol=' + subvol_name
                 ] + self.custom_filesystem_args['mount_options']
             )
             volume_mount.mount(
@@ -239,6 +284,12 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         raise KiwiVolumeRootIDError(
             'Failed to find btrfs volume: %s' % default_volume
         )
+
+    def _get_subvol_name_from_mountpoint(self, volume_mount):
+        subvol_name = '/'.join(volume_mount.mountpoint.split('/')[3:])
+        if self.custom_args['root_is_snapshot']:
+            subvol_name = subvol_name.replace('.snapshots/1/snapshot/', '')
+        return os.path.normpath(subvol_name)
 
     def __del__(self):
         if self.toplevel_mount:
