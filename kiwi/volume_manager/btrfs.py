@@ -176,6 +176,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         :rtype: list
         """
         fstab_entries = []
+        mount_options = \
+            self.custom_filesystem_args['mount_options'] or 'defaults'
         blkid_type = 'LABEL' if persistency_type == 'by-label' else 'UUID'
         blkid_result = Command.run(
             ['blkid', self.device, '-s', blkid_type, '-o', 'value']
@@ -188,9 +190,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     '/.snapshots',
                     'btrfs',
                     'subvol=@/.snapshots',
-                    ''.join(
-                        self.custom_filesystem_args['mount_options']
-                    ) or 'defaults',
+                    ''.join(mount_options),
                     '0 0'
                 ]
             )
@@ -203,9 +203,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     subvol_name.replace('@', ''),
                     'btrfs',
                     'subvol=' + subvol_name,
-                    ''.join(
-                        self.custom_filesystem_args['mount_options']
-                    ) or 'defaults',
+                    ''.join(mount_options),
                     '0 0'
                 ]
             )

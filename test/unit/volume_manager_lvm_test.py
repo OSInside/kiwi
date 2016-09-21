@@ -199,7 +199,7 @@ class TestVolumeManagerLVM(object):
         volume_mount.mountpoint = '/tmp/kiwi_volumes.f2qx_d3y/var/tmp'
         volume_mount.device = 'device'
         self.volume_manager.mount_list = [volume_mount]
-        assert self.volume_manager.get_fstab('ext3') == [
+        assert self.volume_manager.get_fstab(None, 'ext3') == [
             'device /var/tmp ext3 defaults 1 2'
         ]
 
