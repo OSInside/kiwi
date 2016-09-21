@@ -18,6 +18,13 @@ class TestSystemSetup(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.xml_state = mock.MagicMock()
         self.xml_state.build_type.get_filesystem = mock.Mock(
             return_value='ext3'
@@ -163,20 +170,11 @@ class TestSystemSetup(object):
         mock_profile.create = mock.Mock(
             return_value=['a']
         )
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-
+        mock_open.return_value = self.context_manager_mock
         self.setup.import_shell_environment(mock_profile)
-
         mock_profile.create.assert_called_once_with()
         mock_open.assert_called_once_with('root_dir/.profile', 'w')
-        file_mock.write.assert_called_once_with('a\n')
+        self.file_mock.write.assert_called_once_with('a\n')
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
@@ -411,19 +409,10 @@ class TestSystemSetup(object):
             return_value='42'
         )
         mock_os_path.return_value = True
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-
+        mock_open.return_value = self.context_manager_mock
         self.setup.import_image_identifier()
-
         mock_open.assert_called_once_with('root_dir/etc/ImageID', 'w')
-        file_mock.write.assert_called_once_with('42\n')
+        self.file_mock.write.assert_called_once_with('42\n')
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
@@ -542,19 +531,12 @@ class TestSystemSetup(object):
 
     @patch_open
     def test_create_fstab(self, mock_open):
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         self.setup.create_fstab(['fstab_entry'])
         mock_open.assert_called_once_with(
             'root_dir/etc/fstab', 'w'
         )
-        file_mock.write.assert_called_once_with('fstab_entry\n')
+        self.file_mock.write.assert_called_once_with('fstab_entry\n')
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.NamedTemporaryFile')
@@ -567,14 +549,7 @@ class TestSystemSetup(object):
         self, mock_wipe, mock_getsize, mock_compress,
         mock_open, mock_archive, mock_temp, mock_command
     ):
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         mock_getsize.return_value = 42
         compress = mock.Mock()
         mock_compress.return_value = compress
@@ -609,7 +584,7 @@ class TestSystemSetup(object):
         assert mock_open.call_args_list[0] == call(
             'root_dir/recovery.tar.filesystem', 'w'
         )
-        assert file_mock.write.call_args_list[0] == call('ext3')
+        assert self.file_mock.write.call_args_list[0] == call('ext3')
         assert mock_command.call_args_list[2] == call(
             ['bash', '-c', 'tar -tf root_dir/recovery.tar | wc -l']
         )
@@ -619,11 +594,11 @@ class TestSystemSetup(object):
         assert mock_getsize.call_args_list[0] == call(
             'root_dir/recovery.tar'
         )
-        assert file_mock.write.call_args_list[1] == call('1\n')
+        assert self.file_mock.write.call_args_list[1] == call('1\n')
         assert mock_open.call_args_list[2] == call(
             'root_dir/recovery.tar.size', 'w'
         )
-        assert file_mock.write.call_args_list[2] == call('42')
+        assert self.file_mock.write.call_args_list[2] == call('42')
         mock_compress.assert_called_once_with(
             'root_dir/recovery.tar'
         )
@@ -634,7 +609,7 @@ class TestSystemSetup(object):
         assert mock_open.call_args_list[3] == call(
             'root_dir/recovery.partition.size', 'w'
         )
-        assert file_mock.write.call_args_list[3] == call('300')
+        assert self.file_mock.write.call_args_list[3] == call('300')
         mock_wipe.assert_called_once_with(
             'root_dir/recovery.tar.gz'
         )
