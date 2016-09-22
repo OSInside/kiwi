@@ -2120,25 +2120,15 @@ function setupDefaultFstab {
 function updateRootDeviceFstab {
     # /.../
     # add one line to the fstab file for the root device
+    # if the root filesystem is a remote filesystem. the
+    # rootfs entry is normally done by the image build
+    # process
     # ----
     local IFS=$IFS_ORIG
     local prefix=/mnt
     local config_tmp=$1
     local rdev=$2
     local nfstab=$config_tmp/etc/fstab
-    local diskByID=$(getDiskID $rdev)
-    local fstype=$(probeFileSystem $rdev)
-    local opts=defaults
-    local devicepersistency="by-uuid"
-    if [ ! -z "$kiwi_devicepersistency" ];then
-        devicepersistency=$kiwi_devicepersistency
-    fi
-    #======================================
-    # check for custom options
-    #--------------------------------------
-    if [ ! -z "$kiwi_fsmountoptions" ];then
-        opts=$kiwi_fsmountoptions
-    fi
     #======================================
     # check for NFSROOT
     #--------------------------------------
@@ -2151,9 +2141,7 @@ function updateRootDeviceFstab {
     #======================================
     # check for device by ID
     #--------------------------------------
-    if [ -z "$UNIONFS_CONFIG" ]; then
-        echo "$diskByID / $fstype $opts 1 1" >> $nfstab
-    else
+    if [ ! -z "$UNIONFS_CONFIG" ]; then
         echo "/dev/root / auto defaults 1 1" >> $nfstab
     fi
 }
@@ -2163,11 +2151,12 @@ function updateRootDeviceFstab {
 function updateSwapDeviceFstab {
     # /.../
     # add one line to the fstab file for the swap device
+    # which is created at boot time
     # ----
     local IFS=$IFS_ORIG
     local prefix=$1
     local sdev=$2
-    local diskByID=`getDiskID $sdev`
+    local diskByID=$(getDiskID $sdev)
     local nfstab=$prefix/etc/fstab
     echo "$diskByID swap swap defaults 0 0" >> $nfstab
 }
@@ -2177,6 +2166,9 @@ function updateSwapDeviceFstab {
 function updateBootDeviceFstab {
     # /.../
     # add temporary bind mounted boot entry to fstab
+    # This entry is deleted later on in resetBootBind
+    # The standard boot entry is created by the build
+    # process
     # ----
     local IFS=$IFS_ORIG
     local config_tmp=$1
@@ -2186,7 +2178,7 @@ function updateBootDeviceFstab {
     local prefix=/mnt
     local fstype
     #======================================
-    # Store boot entry
+    # Store boot_bind entry
     #--------------------------------------
     if [ -e $prefix/$mount ];then
         local diskByID=$(getDiskID $sdev)
@@ -2194,24 +2186,13 @@ function updateBootDeviceFstab {
         if [ "$fstype" = "unknown" ];then
             fstype=auto
         fi
+        # delete existing /boot entry if present
+        grep -v '/boot ' $nfstab > ${nfstab}.new
+        mv ${nfstab}.new $nfstab
+        # add boot entry mounted to boot_bind
         echo "$diskByID /$mount $fstype defaults 1 2" >> $nfstab
+        # add bind mount entry from boot_bind to boot
         echo "/$mount/boot /boot none bind 0 0" >> $nfstab
-    fi
-    #======================================
-    # Store boot/efi entry
-    #--------------------------------------
-    if [ ! -z "$kiwi_EfiPart" ];then
-        local jdev=$(ddn $imageDiskDevice $kiwi_EfiPart)
-        local fstype=$(blkid $jdev -s TYPE -o value)
-        local label=$(blkid $jdev -s LABEL -o value)
-        if [ ! -z "$fstype" ] && [ "$label" = "EFI" ];then
-            jdev=$(getDiskID $jdev)
-            echo "$jdev /boot/efi $fstype defaults 0 0" >> $nfstab
-        fi
-        if [ ! -z "$fstype" ] && [ "$label" = "ZIPL" ];then
-            jdev=$(getDiskID $jdev)
-            echo "$jdev /boot/zipl $fstype defaults 0 0" >> $nfstab
-        fi
     fi
 }
 #======================================
@@ -2221,7 +2202,9 @@ function updateOtherDeviceFstab {
     # /.../
     # check the contents of the $PART variable and
     # add one line to the fstab file for each partition
-    # which has a mount point defined.
+    # which has a mount point defined. This is only
+    # relevant for netboot images configured by a
+    # config.MAC setup
     # ----
     local IFS=$IFS_ORIG
     local prefix=$1
