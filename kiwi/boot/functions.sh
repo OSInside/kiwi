@@ -5495,19 +5495,26 @@ function waitForStorageDevice {
     # function to check access on a storage device
     # which could be a whole disk or a partition.
     # the function will wait until the size of the
-    # storage device could be obtained or the check
-    # counter equals 4
+    # storage device could be obtained or the timeout
+    # is reached. Default timeout is 60 seconds, however
+    # it can be set to different value by setting the
+    # DEVICE_TIMEOUT variable in the kernel command
+    # line.
     # ----
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
+    local limit=30
+    if [[ $DEVICE_TIMEOUT =~ ^[0-9]+$ ]]; then
+	limit=$(((DEVICE_TIMEOUT + 1)/ 2))
+    fi
     udevPending
     while true;do
         partitionSize $device &>/dev/null
-        if [ $? = 0 ];then
+        if [ $? = 0 ]; then
             sleep 1; return 0
         fi
-        if [ $check -eq 30 ];then
+        if [ $check -eq $limit ]; then
             return 1
         fi
         Echo "Waiting for storage device $device to settle..."
