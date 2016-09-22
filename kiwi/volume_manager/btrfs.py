@@ -25,6 +25,7 @@ from ..mount_manager import MountManager
 from ..storage.mapped_device import MappedDevice
 from ..filesystem import FileSystem
 from ..utils.sync import DataSync
+from ..utils.block import BlockID
 from ..path import Path
 from ..logger import log
 
@@ -178,11 +179,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         fstab_entries = []
         mount_options = \
             self.custom_filesystem_args['mount_options'] or ['defaults']
+        block_operation = BlockID(self.device)
         blkid_type = 'LABEL' if persistency_type == 'by-label' else 'UUID'
-        blkid_result = Command.run(
-            ['blkid', self.device, '-s', blkid_type, '-o', 'value']
-        )
-        device_id = blkid_result.output.strip(os.linesep)
+        device_id = block_operation.get_blkid(blkid_type)
         if self.custom_args['root_is_snapshot']:
             mount_entry_options = mount_options + ['subvol=@/.snapshots']
             fstab_entry = ' '.join(
