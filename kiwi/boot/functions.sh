@@ -5534,8 +5534,8 @@ function waitForStorageDevice {
     local device=$1
     local check=0
     local limit=30
-    if [ -n ${DEVICE_TIMEOUT##*[!0-9]*} ]; then
-	limit=$((DEVICE_TIMEOUT / 2))
+    if [[ $DEVICE_TIMEOUT =~ ^[0-9]+$ ]]; then
+	limit=$(((DEVICE_TIMEOUT + 1)/ 2))
     fi
     udevPending
     while true;do
