@@ -6,7 +6,13 @@ Submodules
 
 `kiwi.utils.checksum` Module
 ----------------------------
+.. automodule:: kiwi.utils.block
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
+`kiwi.utils.block` Module
+-------------------------
 .. automodule:: kiwi.utils.checksum
     :members:
     :undoc-members:
