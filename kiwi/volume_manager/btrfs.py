@@ -177,34 +177,28 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         fstab_entries = []
         mount_options = \
-            self.custom_filesystem_args['mount_options'] or 'defaults'
+            self.custom_filesystem_args['mount_options'] or ['defaults']
         blkid_type = 'LABEL' if persistency_type == 'by-label' else 'UUID'
         blkid_result = Command.run(
             ['blkid', self.device, '-s', blkid_type, '-o', 'value']
         )
         device_id = blkid_result.output.strip(os.linesep)
         if self.custom_args['root_is_snapshot']:
+            mount_entry_options = mount_options + ['subvol=@/.snapshots']
             fstab_entry = ' '.join(
                 [
-                    blkid_type + '=' + device_id,
-                    '/.snapshots',
-                    'btrfs',
-                    'subvol=@/.snapshots',
-                    ''.join(mount_options),
-                    '0 0'
+                    blkid_type + '=' + device_id, '/.snapshots',
+                    'btrfs', ','.join(mount_entry_options), '0 0'
                 ]
             )
             fstab_entries.append(fstab_entry)
         for volume_mount in self.subvol_mount_list:
             subvol_name = self._get_subvol_name_from_mountpoint(volume_mount)
+            mount_entry_options = mount_options + ['subvol=' + subvol_name]
             fstab_entry = ' '.join(
                 [
-                    blkid_type + '=' + device_id,
-                    subvol_name.replace('@', ''),
-                    'btrfs',
-                    'subvol=' + subvol_name,
-                    ''.join(mount_options),
-                    '0 0'
+                    blkid_type + '=' + device_id, subvol_name.replace('@', ''),
+                    'btrfs', ','.join(mount_entry_options), '0 0'
                 ]
             )
             fstab_entries.append(fstab_entry)

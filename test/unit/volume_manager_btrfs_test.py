@@ -198,8 +198,8 @@ class TestVolumeManagerBtrfs(object):
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.custom_args['root_is_snapshot'] = True
         assert self.volume_manager.get_fstab() == [
-            'LABEL=id /.snapshots btrfs subvol=@/.snapshots defaults 0 0',
-            'LABEL=id /var/tmp btrfs subvol=@/var/tmp defaults 0 0'
+            'LABEL=id /.snapshots btrfs defaults,subvol=@/.snapshots 0 0',
+            'LABEL=id /var/tmp btrfs defaults,subvol=@/var/tmp 0 0'
         ]
 
     @patch('os.path.exists')
