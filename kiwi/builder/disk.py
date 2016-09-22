@@ -43,6 +43,7 @@ from .install import InstallImageBuilder
 from ..system.kernel import Kernel
 from ..storage.subformat import DiskFormat
 from ..system.result import Result
+from ..utils.block import BlockID
 
 from ..exceptions import (
     KiwiDiskBootImageError,
@@ -218,7 +219,7 @@ class DiskBuilder(object):
             ]
         )
         self.install_media = self._install_image_requested()
-        self.generic_fstab_entries = None
+        self.generic_fstab_entries = []
 
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
@@ -331,7 +332,7 @@ class DiskBuilder(object):
                 self.requested_filesystem
             )
             volume_manager.mount_volumes()
-            self.generic_fstab_entries = volume_manager.get_fstab(
+            self.generic_fstab_entries += volume_manager.get_fstab(
                 self.persistency_type, self.requested_filesystem
             )
             self.system = volume_manager
@@ -374,7 +375,7 @@ class DiskBuilder(object):
 
         self._write_crypttab_to_system_image()
 
-        self._write_generic_fstab_to_system_image()
+        self._write_generic_fstab_to_system_image(device_map)
 
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
@@ -659,6 +660,7 @@ class DiskBuilder(object):
             self.disk.create_hybrid_mbr()
 
         self.disk.map_partitions()
+
         return self.disk.get_device()
 
     def _write_partition_id_config_to_boot_image(self):
@@ -683,10 +685,45 @@ class DiskBuilder(object):
                 self.root_dir + '/etc/crypttab'
             )
 
-    def _write_generic_fstab_to_system_image(self):
-        if self.generic_fstab_entries:
-            log.info('Creating generic entries in etc/fstab')
-            self.system_setup.create_fstab(self.generic_fstab_entries)
+    def _write_generic_fstab_to_system_image(self, device_map):
+        self._add_generic_fstab_entry(
+            device_map['root'].get_device(), '/',
+            self.custom_root_mount_args, '1 1'
+        )
+        if 'boot' in device_map:
+            if self.bootloader == 'grub2_s390x_emu':
+                boot_mount_point = '/boot/zipl'
+            else:
+                boot_mount_point = '/boot'
+            self._add_generic_fstab_entry(
+                device_map['boot'].get_device(), boot_mount_point
+            )
+        if 'efi' in device_map:
+            self._add_generic_fstab_entry(
+                device_map['efi'].get_device(), '/boot/efi'
+            )
+        log.info('Creating generic entries in etc/fstab')
+        self.system_setup.create_fstab(
+            self.generic_fstab_entries
+        )
+
+    def _add_generic_fstab_entry(
+        self, device, mount_point, options=None, check='0 0'
+    ):
+        if not options:
+            options = ['defaults']
+        block_operation = BlockID(device)
+        blkid_type = 'LABEL' if self.persistency_type == 'by-label' else 'UUID'
+        device_id = block_operation.get_blkid(blkid_type)
+        fstab_entry = ' '.join(
+            [
+                blkid_type + '=' + device_id, mount_point,
+                block_operation.get_filesystem(), ','.join(options), check
+            ]
+        )
+        self.generic_fstab_entries.append(
+            fstab_entry
+        )
 
     def _write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())

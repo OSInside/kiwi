@@ -37,6 +37,16 @@ class TestDiskBuilder(object):
         self.id_map_sorted = OrderedDict(
             sorted(self.id_map.items())
         )
+        self.block_operation = mock.Mock()
+        self.block_operation.get_blkid = mock.Mock(
+            return_value='blkid_result'
+        )
+        self.block_operation.get_filesystem = mock.Mock(
+            return_value='filesystem'
+        )
+        kiwi.builder.disk.BlockID = mock.Mock(
+            return_value=self.block_operation
+        )
         self.loop_provider = mock.Mock()
         kiwi.builder.disk.LoopDevice = mock.Mock(
             return_value=self.loop_provider
@@ -481,7 +491,7 @@ class TestDiskBuilder(object):
             }
         )
         volume_manager.get_fstab = mock.Mock(
-            return_value=['fstab_entry']
+            return_value=['fstab_volume_entries']
         )
         mock_volume_manager.return_value = volume_manager
         filesystem = mock.Mock()
@@ -500,7 +510,12 @@ class TestDiskBuilder(object):
             'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
         ])
         self.setup.create_fstab.assert_called_once_with(
-            ['fstab_entry']
+            [
+                'fstab_volume_entries',
+                'UUID=blkid_result / filesystem defaults 1 1',
+                'UUID=blkid_result /boot filesystem defaults 0 0',
+                'UUID=blkid_result /boot/efi filesystem defaults 0 0'
+            ]
         )
 
     @patch('kiwi.builder.disk.FileSystem')
