@@ -17,6 +17,7 @@
 #
 import os
 import platform
+import pickle
 from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
@@ -44,6 +45,7 @@ from ..system.kernel import Kernel
 from ..storage.subformat import DiskFormat
 from ..system.result import Result
 from ..utils.block import BlockID
+from ..path import Path
 
 from ..exceptions import (
     KiwiDiskBootImageError,
@@ -249,6 +251,30 @@ class DiskBuilder(object):
         * image="oem"
         * image="vmx"
         """
+        disk = DiskBuilder(
+            self.xml_state, self.target_dir, self.root_dir
+        )
+        result = disk.create_disk()
+
+        # cleanup disk resources taken prior to next steps
+        del disk
+
+        disk_installer = DiskBuilder(
+            self.xml_state, self.target_dir, self.root_dir
+        )
+        result = disk_installer.create_install_media(result)
+
+        disk_format = DiskBuilder(
+            self.xml_state, self.target_dir, self.root_dir
+        )
+        result = disk_format.create_disk_format(result)
+
+        return result
+
+    def create_disk(self):
+        """
+        Build a bootable raw disk image
+        """
         if self.install_media and self.build_type_name != 'oem':
             raise KiwiInstallMediaError(
                 'Install media requires oem type setup, got %s' %
@@ -429,15 +455,7 @@ class DiskBuilder(object):
         # install boot loader
         self._install_bootloader(device_map)
 
-        self.result.add(
-            key='disk_image',
-            filename=self.diskname,
-            use_for_bundle=True,
-            compress=True,
-            shasum=True
-        )
-
-        # create install media if requested
+        # prepare for install media if requested
         if self.install_media:
             if self.initrd_system and self.initrd_system == 'dracut':
                 # for the installation process we need a kiwi initrd
@@ -462,43 +480,19 @@ class DiskBuilder(object):
                     self.boot_image.boot_root_directory
                 )
 
-            install_image = InstallImageBuilder(
-                self.xml_state, self.target_dir, self.boot_image
+            log.info('Saving boot image instance to file')
+            self.boot_image.dump(
+                self.target_dir + '/boot_image.pickledump'
             )
 
-            if self.image_format:
-                log.warning('Install image requested, ignoring disk format')
-            if self.install_iso or self.install_stick:
-                log.info('Creating hybrid ISO installation image')
-                install_image.create_install_iso()
-                self.result.add(
-                    key='installation_image',
-                    filename=install_image.isoname,
-                    use_for_bundle=True,
-                    compress=False,
-                    shasum=True
-                )
-
-            if self.install_pxe:
-                log.info('Creating PXE installation archive')
-                install_image.create_install_pxe_archive()
-                self.result.add(
-                    key='installation_pxe_archive',
-                    filename=install_image.pxename,
-                    use_for_bundle=True,
-                    compress=False,
-                    shasum=True
-                )
-
-        # create disk image format if requested
-        elif self.image_format:
-            log.info('Creating %s Disk Format', self.image_format)
-            disk_format = DiskFormat(
-                self.image_format, self.xml_state,
-                self.root_dir, self.target_dir
-            )
-            disk_format.create_image_format()
-            disk_format.store_to_result(self.result)
+        # store image file name in result
+        self.result.add(
+            key='disk_image',
+            filename=self.diskname,
+            use_for_bundle=True,
+            compress=True,
+            shasum=True
+        )
 
         # create image root metadata
         self.result.add(
@@ -521,6 +515,75 @@ class DiskBuilder(object):
         )
 
         return self.result
+
+    def create_disk_format(self, result_instance):
+        """
+        Create a bootable disk format from a previously
+        created raw disk image
+        """
+        if self.image_format:
+            log.info('Creating %s Disk Format', self.image_format)
+            disk_format = DiskFormat(
+                self.image_format, self.xml_state,
+                self.root_dir, self.target_dir
+            )
+            disk_format.create_image_format()
+            disk_format.store_to_result(result_instance)
+
+        return result_instance
+
+    def create_install_media(self, result_instance):
+        """
+        Build an installation image. The installation image is a
+        bootable hybrid ISO image which embeds the raw disk image
+        and an image installer
+        """
+        if self.install_media:
+            install_image = InstallImageBuilder(
+                self.xml_state, self.target_dir,
+                self._load_boot_image_instance()
+            )
+
+            if self.install_iso or self.install_stick:
+                log.info('Creating hybrid ISO installation image')
+                install_image.create_install_iso()
+                result_instance.add(
+                    key='installation_image',
+                    filename=install_image.isoname,
+                    use_for_bundle=True,
+                    compress=False,
+                    shasum=True
+                )
+
+            if self.install_pxe:
+                log.info('Creating PXE installation archive')
+                install_image.create_install_pxe_archive()
+                result_instance.add(
+                    key='installation_pxe_archive',
+                    filename=install_image.pxename,
+                    use_for_bundle=True,
+                    compress=False,
+                    shasum=True
+                )
+
+        return result_instance
+
+    def _load_boot_image_instance(self):
+        boot_image_dump_file = self.target_dir + '/boot_image.pickledump'
+        if not os.path.exists(boot_image_dump_file):
+            raise KiwiInstallMediaError(
+                'No boot image instance dump %s found' % boot_image_dump_file
+            )
+        try:
+            with open(boot_image_dump_file, 'rb') as boot_image_dump:
+                boot_image = pickle.load(boot_image_dump)
+            boot_image.enable_cleanup()
+            Path.wipe(boot_image_dump_file)
+        except Exception as e:
+            raise KiwiInstallMediaError(
+                'Failed to load boot image dump: %s' % type(e).__name__
+            )
+        return boot_image
 
     def _setup_selinux_file_contexts(self):
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
