@@ -17,6 +17,7 @@
 #
 import os
 import platform
+import pickle
 from tempfile import mkdtemp
 
 # project
@@ -28,7 +29,8 @@ from ...path import Path
 
 from ...exceptions import (
     KiwiTargetDirectoryNotFound,
-    KiwiConfigFileNotFound
+    KiwiConfigFileNotFound,
+    KiwiBootImageDumpError
 )
 
 
@@ -60,6 +62,7 @@ class BootImageBase(object):
         self.initrd_filename = None
         self.boot_xml_state = None
         self.temp_directories = []
+        self.call_destructor = True
 
         self.boot_root_directory = root_dir
         if not self.boot_root_directory:
@@ -84,6 +87,29 @@ class BootImageBase(object):
                 '.initrd'
             ]
         )
+
+    def dump(self, filename):
+        """
+        Pickle dump this instance to a file. If the object dump
+        is requested the destructor code will also be disabled
+        in order to preserve the generated data
+
+        :param string filename: file path name
+        """
+        try:
+            with open(filename, 'wb') as boot_image:
+                pickle.dump(self, boot_image)
+            self.disable_cleanup()
+        except Exception as e:
+            raise KiwiBootImageDumpError(
+                'Failed to pickle dump boot image: %s' % format(e)
+            )
+
+    def disable_cleanup(self):
+        self.call_destructor = False
+
+    def enable_cleanup(self):
+        self.call_destructor = True
 
     def prepare(self):
         """
@@ -247,7 +273,8 @@ class BootImageBase(object):
             return boot_description
 
     def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
-        for directory in self.temp_directories:
-            if directory and os.path.exists(directory):
-                Path.wipe(directory)
+        if self.call_destructor:
+            log.info('Cleaning up %s instance', type(self).__name__)
+            for directory in self.temp_directories:
+                if directory and os.path.exists(directory):
+                    Path.wipe(directory)
