@@ -191,7 +191,10 @@ class TestDiskBuilder(object):
     @patch_open
     @patch('os.path.exists')
     @patch('pickle.load')
-    def test_create_install_media(self, mock_load, mock_path, mock_open):
+    @patch('kiwi.builder.disk.Path.wipe')
+    def test_create_install_media(
+        self, mock_wipe, mock_load, mock_path, mock_open
+    ):
         result_instance = mock.Mock()
         mock_path.return_value = True
         self.disk_builder.install_iso = True
@@ -199,6 +202,7 @@ class TestDiskBuilder(object):
         self.disk_builder.create_install_media(result_instance)
         self.install_image.create_install_iso.assert_called_once_with()
         self.install_image.create_install_pxe_archive.assert_called_once_with()
+        mock_wipe.assert_called_once_with('target_dir/boot_image.pickledump')
 
     @patch('os.path.exists')
     @raises(KiwiInstallMediaError)

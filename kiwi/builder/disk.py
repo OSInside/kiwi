@@ -45,6 +45,7 @@ from ..system.kernel import Kernel
 from ..storage.subformat import DiskFormat
 from ..system.result import Result
 from ..utils.block import BlockID
+from ..path import Path
 
 from ..exceptions import (
     KiwiDiskBootImageError,
@@ -568,15 +569,16 @@ class DiskBuilder(object):
         return result_instance
 
     def _load_boot_image_instance(self):
-        boot_image_dump = self.target_dir + '/boot_image.pickledump'
-        if not os.path.exists(boot_image_dump):
+        boot_image_dump_file = self.target_dir + '/boot_image.pickledump'
+        if not os.path.exists(boot_image_dump_file):
             raise KiwiInstallMediaError(
-                'No boot image instance dump %s found' % boot_image_dump
+                'No boot image instance dump %s found' % boot_image_dump_file
             )
         try:
-            with open(boot_image_dump, 'rb') as boot_image_dump:
+            with open(boot_image_dump_file, 'rb') as boot_image_dump:
                 boot_image = pickle.load(boot_image_dump)
             boot_image.enable_cleanup()
+            Path.wipe(boot_image_dump_file)
         except Exception as e:
             raise KiwiInstallMediaError(
                 'Failed to load boot image dump: %s' % type(e).__name__
