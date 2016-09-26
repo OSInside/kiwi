@@ -290,7 +290,7 @@ List of attributes for ``type``:
 * ``checkprebuilt`` `[?]`_: Activates whether KIWI should search for a prebuild boot image or not
 * ``compressed`` `[?]`_: Specifies whether the image output file should be compressed or not. This makes only sense for filesystem only images respectively for the pxe or cpio type
 * ``container`` `[?]`_: Specifies a name for the container
-* ``devicepersistency`` `[?]`_: Specifies which method to use in order to get persistent storage device names. By default by-id is used.
+* ``devicepersistency`` `[?]`_: Specifies which method to use in order to get persistent storage device names. By default by-uuid is used.
 * ``editbootconfig`` `[?]`_: Specifies the path to a script which is called right before the bootloader is installed. The script runs relative to the directory which contains the image structure
 * ``editbootinstall`` `[?]`_: Specifies the path to a script which is called right after the bootloader is installed. The script runs relative to the directory which contains the image structure
 * ``filesystem`` `[?]`_: Specifies the root filesystem type
