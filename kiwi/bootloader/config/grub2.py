@@ -544,7 +544,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 module_path + '/', boot_module_path
             )
             data.sync_data(
-                options=['-z', '-a']
+                options=['-z', '-a'], exclude=['*.module']
             )
         except Exception as e:
             raise KiwiBootLoaderGrubModulesError(
