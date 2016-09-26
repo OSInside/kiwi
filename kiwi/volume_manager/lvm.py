@@ -50,6 +50,11 @@ class VolumeManagerLVM(VolumeManagerBase):
         if 'image_type' not in self.custom_args:
             self.custom_args['image_type'] = None
 
+        if self.custom_filesystem_args['mount_options']:
+            self.mount_options = self.custom_filesystem_args['mount_options'][0]
+        else:
+            self.mount_options = 'defaults'
+
     def get_device(self):
         """
         Dictionary of MappedDevice instances per volume
@@ -166,8 +171,6 @@ class VolumeManagerLVM(VolumeManagerBase):
         :rtype: list
         """
         fstab_entries = []
-        mount_options = \
-            self.custom_filesystem_args['mount_options'] or 'defaults'
         for volume_mount in self.mount_list:
             if 'LVRoot' not in volume_mount.device:
                 mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
@@ -176,12 +179,25 @@ class VolumeManagerLVM(VolumeManagerBase):
                 fstab_entry = ' '.join(
                     [
                         volume_mount.device, mount_path, filesystem_name,
-                        ''.join(mount_options), '1 2'
+                        self.mount_options, '1 2'
                     ]
                 )
                 fstab_entries.append(fstab_entry)
 
         return fstab_entries
+
+    def get_boot_volumes(self):
+        """
+        Return dict of volumes relevant for booting
+
+        :rtype: dict
+        """
+        boot_volumes = {}
+        for volume_mount in self.mount_list:
+            mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
+            if 'boot/' in mount_path:
+                boot_volumes[mount_path] = self.mount_options
+        return boot_volumes
 
     def mount_volumes(self):
         """
@@ -190,7 +206,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         for volume_mount in self.mount_list:
             Path.create(volume_mount.mountpoint)
             volume_mount.mount(
-                self.custom_filesystem_args['mount_options']
+                options=[self.mount_options]
             )
 
     def umount_volumes(self):

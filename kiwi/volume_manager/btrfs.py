@@ -203,6 +203,24 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             fstab_entries.append(fstab_entry)
         return fstab_entries
 
+    def get_boot_volumes(self):
+        """
+        Return dict of volumes relevant for booting
+
+        :rtype: dict
+        """
+        boot_volumes = {}
+        for volume_mount in self.subvol_mount_list:
+            subvol_name = self._get_subvol_name_from_mountpoint(volume_mount)
+            if 'boot/' in subvol_name:
+                subvol_options = ','.join(
+                    [
+                        'subvol=' + subvol_name
+                    ] + self.custom_filesystem_args['mount_options']
+                )
+                boot_volumes[subvol_name.replace('@', '')] = subvol_options
+        return boot_volumes
+
     def mount_volumes(self):
         """
         Mount btrfs subvolumes

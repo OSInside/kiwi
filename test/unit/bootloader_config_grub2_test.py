@@ -391,7 +391,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/x86_64-efi'
         )
         data.sync_data.assert_called_once_with(
-            options=['-z', '-a']
+            exclude=['*.module'], options=['-z', '-a']
         )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -445,7 +445,8 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('uuid')
         assert mock_command.call_args_list == [
             call([
-                'rsync', '-z', '-a', 'root_dir/usr/lib/grub2/x86_64-efi/',
+                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'root_dir/usr/lib/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             ])
         ]
@@ -522,7 +523,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/x86_64-efi'
         )
         data.sync_data.assert_called_once_with(
-            options=['-z', '-a']
+            exclude=['*.module'], options=['-z', '-a']
         )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -544,7 +545,8 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_install_boot_images(self.mbrid)
         assert mock_command.call_args_list == [
             call([
-                'rsync', '-z', '-a', 'root_dir/usr/lib/grub2/x86_64-efi/',
+                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'root_dir/usr/lib/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             ]),
             call([
@@ -587,7 +589,9 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/usr/share/grub2/themes/some-theme',
             'root_dir/boot/grub2/themes'
         )
-        assert data.sync_data.call_args_list[0] == call(options=['-z', '-a'])
+        assert data.sync_data.call_args_list[0] == call(
+            options=['-z', '-a']
+        )
 
     @patch('kiwi.bootloader.config.grub2.Path.wipe')
     @patch('kiwi.bootloader.config.grub2.Command.run')

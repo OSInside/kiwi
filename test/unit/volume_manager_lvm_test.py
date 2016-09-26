@@ -50,12 +50,25 @@ class TestVolumeManagerLVM(object):
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerLVM(
-            self.device_provider, 'root_dir', self.volumes
+            self.device_provider, 'root_dir', self.volumes,
+            {'some-arg': 'some-val', 'fs_mount_options': ['a,b,c']}
         )
+        assert self.volume_manager.mount_options == 'a,b,c'
 
-    def test_post_init(self):
+    def test_post_init_custom_args(self):
         self.volume_manager.post_init({'some-arg': 'some-val'})
         assert self.volume_manager.custom_args['some-arg'] == 'some-val'
+
+    def test_post_init_no_additional_custom_args(self):
+        self.volume_manager.post_init(None)
+        assert self.volume_manager.custom_args == {
+            'root_label': 'ROOT', 'image_type': None
+        }
+
+    def test_post_init_no_mount_options(self):
+        self.volume_manager.custom_filesystem_args['mount_options'] = None
+        self.volume_manager.post_init(None)
+        assert self.volume_manager.mount_options == 'defaults'
 
     @patch('os.path.exists')
     def test_get_device(self, mock_path):
@@ -156,22 +169,22 @@ class TestVolumeManagerLVM(object):
         ]
         assert mock_fs.call_args_list == [
             call(
-                custom_args={'create_options': [], 'mount_options': []},
+                custom_args={'create_options': [], 'mount_options': ['a,b,c']},
                 device_provider='mapped_device',
                 name='ext3'
             ),
             call(
-                custom_args={'create_options': [], 'mount_options': []},
+                custom_args={'create_options': [], 'mount_options': ['a,b,c']},
                 device_provider='mapped_device',
                 name='ext3'
             ),
             call(
-                custom_args={'create_options': [], 'mount_options': []},
+                custom_args={'create_options': [], 'mount_options': ['a,b,c']},
                 device_provider='mapped_device',
                 name='ext3'
             ),
             call(
-                custom_args={'create_options': [], 'mount_options': []},
+                custom_args={'create_options': [], 'mount_options': ['a,b,c']},
                 device_provider='mapped_device',
                 name='ext3'
             )
@@ -185,7 +198,7 @@ class TestVolumeManagerLVM(object):
         self.volume_manager.mount_list = [volume_mount]
         self.volume_manager.mount_volumes()
         mock_path.create.assert_called_once_with(volume_mount.mountpoint)
-        volume_mount.mount.assert_called_once_with([])
+        volume_mount.mount.assert_called_once_with(options=['a,b,c'])
 
     def test_umount_volumes(self):
         volume_mount = mock.Mock()
@@ -194,13 +207,22 @@ class TestVolumeManagerLVM(object):
         assert self.volume_manager.umount_volumes() is True
         volume_mount.umount.assert_called_once_with()
 
+    def test_get_boot_volumes(self):
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = \
+            '/tmp/kiwi_volumes.f2qx_d3y/boot/grub2/x86_64-efi'
+        self.volume_manager.mount_list = [volume_mount]
+        assert self.volume_manager.get_boot_volumes() == {
+            'boot/grub2/x86_64-efi': 'a,b,c'
+        }
+
     def test_get_fstab(self):
         volume_mount = mock.Mock()
         volume_mount.mountpoint = '/tmp/kiwi_volumes.f2qx_d3y/var/tmp'
         volume_mount.device = 'device'
         self.volume_manager.mount_list = [volume_mount]
         assert self.volume_manager.get_fstab(None, 'ext3') == [
-            'device /var/tmp ext3 defaults 1 2'
+            'device /var/tmp ext3 a,b,c 1 2'
         ]
 
     @patch('kiwi.volume_manager.lvm.Path.wipe')

@@ -38,7 +38,7 @@ class TestVolumeManagerBtrfs(object):
             self.volume_type(
                 name='LVhome', size=None, realpath='/home',
                 mountpoint='/home', fullsize=True
-            ),
+            )
         ]
         mock_path.return_value = True
         self.device_provider = mock.Mock()
@@ -185,6 +185,17 @@ class TestVolumeManagerBtrfs(object):
                 mountpoint='tmpdir/@/.snapshots/1/snapshot/home'
             )
         ]
+
+    def test_get_boot_volumes(self):
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = \
+            '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/boot/grub2'
+        volume_mount.device = 'device'
+        self.volume_manager.subvol_mount_list = [volume_mount]
+        self.volume_manager.custom_args['root_is_snapshot'] = True
+        assert self.volume_manager.get_boot_volumes() == {
+            '/boot/grub2': 'subvol=@/boot/grub2'
+        }
 
     @patch('kiwi.volume_manager.btrfs.Command.run')
     def test_get_fstab(self, mock_command):

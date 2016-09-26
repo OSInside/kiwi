@@ -26,12 +26,17 @@ class TestBootLoaderInstallGrub2(object):
             'root_device': '/dev/mapper/loop0p1',
             'efi_device': '/dev/mapper/loop0p3',
             'prep_device': '/dev/mapper/loop0p2',
+            'boot_volumes': {'boot/grub2': 'subvol=@/boot/grub2'},
             'firmware': self.firmware
         }
 
         self.root_mount = mock.Mock()
         self.root_mount.device = self.custom_args['root_device']
         self.root_mount.mountpoint = 'tmp_root'
+
+        self.volume_mount = mock.Mock()
+        self.volume_mount.device = self.custom_args['root_device']
+        self.volume_mount.mountpoint = 'tmp_volume'
 
         self.boot_mount = mock.Mock()
         self.boot_mount.device = self.custom_args['boot_device']
@@ -55,7 +60,7 @@ class TestBootLoaderInstallGrub2(object):
 
         self.mount_managers = [
             self.sysfs_mount, self.proc_mount, self.device_mount,
-            self.efi_mount, self.boot_mount, self.root_mount
+            self.efi_mount, self.volume_mount, self.boot_mount, self.root_mount
         ]
 
         device_provider = mock.Mock()
@@ -195,7 +200,10 @@ class TestBootLoaderInstallGrub2(object):
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with()
+        self.root_mount.mount.assert_called_once_with()
+        self.volume_mount.mount.assert_called_once_with(
+            options=['subvol=@/boot/grub2']
+        )
         mock_command.assert_called_once_with(
             [
                 'grub2-install', '--skip-fs-probe',

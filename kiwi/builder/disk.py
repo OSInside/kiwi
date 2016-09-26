@@ -858,6 +858,11 @@ class DiskBuilder(object):
                 {'prep_device': prep_device.get_device()}
             )
 
+        if self.volume_manager_name:
+            custom_install_arguments.update(
+                {'boot_volumes': self.system.get_boot_volumes()}
+            )
+
         log.debug(
             "custom arguments for bootloader installation %s",
             custom_install_arguments
