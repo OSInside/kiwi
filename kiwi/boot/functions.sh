@@ -2156,9 +2156,17 @@ function updateSwapDeviceFstab {
     local IFS=$IFS_ORIG
     local prefix=$1
     local sdev=$2
-    local diskByID=$(getDiskID $sdev)
     local nfstab=$prefix/etc/fstab
-    echo "$diskByID swap swap defaults 0 0" >> $nfstab
+    local devicepersistency="by-uuid"
+    if [ ! -z "$kiwi_devicepersistency" ];then
+        devicepersistency=$kiwi_devicepersistency
+    fi
+    if [ $devicepersistency = "by-label" ];then
+        local device="LABEL=$(blkid $sdev -s LABEL -o value)"
+    else
+        local device="UUID=$(blkid $sdev -s UUID -o value)"
+    fi
+    echo "$device swap swap defaults 0 0" >> $nfstab
 }
 #======================================
 # updateBootDeviceFstab
@@ -2226,9 +2234,13 @@ function updateOtherDeviceFstab {
     local index=0
     local field=0
     local count=0
-    local device
+    local sdev
     local diskByID
     local fstype
+    local devicepersistency="by-uuid"
+    if [ ! -z "$kiwi_devicepersistency" ];then
+        devicepersistency=$kiwi_devicepersistency
+    fi
     local IFS=","
     if [ -z "$prefix" ];then
         prefix=/mnt
@@ -2250,17 +2262,21 @@ function updateOtherDeviceFstab {
             [ ! "$partMount" = "/" ]
         then
             if [ ! -z "$RAID" ];then
-                device=/dev/md$((count - 1))
+                sdev=/dev/md$((count - 1))
             else
-                device=$(ddn $DISK $count)
+                sdev=$(ddn $DISK $count)
             fi
-            fstype=$(probeFileSystem $device)
+            fstype=$(probeFileSystem $sdev)
             if [ ! "$fstype" = "luks" ] && [ ! "$fstype" = "unknown" ];then
                 if [ ! -d $prefix/$partMount ];then
                     mkdir -p $prefix/$partMount
                 fi
-                diskByID=$(getDiskID $device)
-                echo "$diskByID $partMount $fstype defaults 0 0" >> $nfstab
+                if [ $devicepersistency = "by-label" ];then
+                    local device="LABEL=$(blkid $sdev -s LABEL -o value)"
+                else
+                    local device="UUID=$(blkid $sdev -s UUID -o value)"
+                fi
+                echo "$device $partMount $fstype defaults 0 0" >> $nfstab
             fi
         fi
     done
