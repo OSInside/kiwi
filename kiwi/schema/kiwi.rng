@@ -2168,7 +2168,7 @@ only images respectively for the pxe or cpio type</a:documentation>
     <define name="k.type.devicepersistency.attribute">
       <attribute name="devicepersistency">
         <a:documentation>Specifies which method to use in order to get persistent
-storage device names. By default by-id is used.</a:documentation>
+storage device names. By default by-uuid is used.</a:documentation>
         <choice>
           <value>by-uuid</value>
           <value>by-label</value>

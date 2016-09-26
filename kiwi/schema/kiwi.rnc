@@ -1642,7 +1642,7 @@ div {
         attribute container { text }
     k.type.devicepersistency.attribute =
         ## Specifies which method to use in order to get persistent
-        ## storage device names. By default by-id is used.
+        ## storage device names. By default by-uuid is used.
         attribute devicepersistency { "by-uuid" | "by-label" | "by-path" }
     k.type.editbootconfig.attribute =
         ## Specifies the path to a script which is called right

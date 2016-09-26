@@ -2176,12 +2176,16 @@ function updateBootDeviceFstab {
     local nfstab=$config_tmp/etc/fstab
     local mount=boot_bind
     local prefix=/mnt
+    local devicepersistency="by-uuid"
+    if [ ! -z "$kiwi_devicepersistency" ];then
+        devicepersistency=$kiwi_devicepersistency
+    fi
+    local tmp_fstab=$config_tmp/etc/fstab.tmp
     local fstype
     #======================================
     # Store boot_bind entry
     #--------------------------------------
     if [ -e $prefix/$mount ];then
-        local diskByID=$(getDiskID $sdev)
         fstype=$(probeFileSystem $sdev)
         if [ "$fstype" = "unknown" ];then
             fstype=auto
@@ -2190,9 +2194,18 @@ function updateBootDeviceFstab {
         grep -v '/boot ' $nfstab > ${nfstab}.new
         mv ${nfstab}.new $nfstab
         # add boot entry mounted to boot_bind
-        echo "$diskByID /$mount $fstype defaults 1 2" >> $nfstab
+        if [ $devicepersistency = "by-label" ];then
+            local device="LABEL=$(blkid $sdev -s LABEL -o value)"
+        else
+            local device="UUID=$(blkid $sdev -s UUID -o value)"
+        fi
+        echo "$device /$mount $fstype defaults 1 2" >> $tmp_fstab
         # add bind mount entry from boot_bind to boot
-        echo "/$mount/boot /boot none bind 0 0" >> $nfstab
+        echo "/$mount/boot /boot none bind 0 0" >> $tmp_fstab
+        # add existing fstab entries
+        cat $nfstab >> $tmp_fstab
+        # move result as new fstab
+        mv $tmp_fstab $nfstab
     fi
 }
 #======================================
