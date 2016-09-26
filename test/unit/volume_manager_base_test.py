@@ -135,6 +135,10 @@ class TestVolumeManagerBase(object):
     def test_umount_volumes(self):
         self.volume_manager.umount_volumes()
 
+    @raises(NotImplementedError)
+    def test_get_boot_volumes(self):
+        self.volume_manager.get_boot_volumes()
+
     @patch('kiwi.volume_manager.base.DataSync')
     @patch('kiwi.volume_manager.base.MountManager.is_mounted')
     @patch('kiwi.volume_manager.base.VolumeManagerBase.mount_volumes')

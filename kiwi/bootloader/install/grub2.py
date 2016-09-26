@@ -77,6 +77,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.device_mount = None
         self.proc_mount = None
         self.sysfs_mount = None
+        self.boot_volumes = None
+        self.boot_volumes_mount = []
+        if custom_args and 'boot_volumes' in custom_args:
+            self.boot_volumes = custom_args['boot_volumes']
         if custom_args and 'firmware' in custom_args:
             self.firmware = custom_args['firmware']
 
@@ -154,14 +158,26 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             device=self.custom_args['boot_device'],
             mountpoint=self.root_mount.mountpoint + '/boot'
         )
+
+        self.root_mount.mount()
+
         if not self.root_mount.device == self.boot_mount.device:
-            self.root_mount.mount()
             self.boot_mount.mount()
             boot_directory = self.boot_mount.mountpoint
         else:
-            self.root_mount.mount()
             boot_directory = self.root_mount.mountpoint \
                 + '/boot'
+
+        if self.boot_volumes:
+            for volume_path, volume_options in list(self.boot_volumes.items()):
+                volume_mount = MountManager(
+                    device=self.custom_args['root_device'],
+                    mountpoint=self.root_mount.mountpoint + '/' + volume_path
+                )
+                self.boot_volumes_mount.append(volume_mount)
+                volume_mount.mount(
+                    options=[volume_options]
+                )
 
         grub_directory = Defaults.get_grub_path(
             self.root_mount.mountpoint + '/usr/lib'
@@ -262,6 +278,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.efi_mount.umount()
         if self.boot_mount:
             self.boot_mount.umount()
+        for volume_mount in self.boot_volumes_mount:
+            volume_mount.umount()
         if self.root_mount:
             self._enable_grub2_install(self.root_mount.mountpoint)
             self.root_mount.umount()

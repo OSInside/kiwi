@@ -154,6 +154,14 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
+    def get_boot_volumes(self):
+        """
+        Implements return of dict of volumes relevant for booting
+
+        :rtype: dict
+        """
+        raise NotImplementedError
+
     def mount_volumes(self):
         """
         Implements mounting of all volumes below one master directory
