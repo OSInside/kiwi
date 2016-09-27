@@ -66,12 +66,12 @@ class BootImageDracut(BootImageBase):
         defaults = Defaults()
         defaults.to_profile(profile)
 
-        setup = SystemSetup(
+        self.setup = SystemSetup(
             self.boot_xml_state, self.boot_root_directory
         )
-        setup.import_shell_environment(profile)
-        setup.import_description()
-        setup.call_image_script()
+        self.setup.import_shell_environment(profile)
+        self.setup.import_description()
+        self.setup.call_image_script()
 
     def create_initrd(self, mbrid=None):
         """

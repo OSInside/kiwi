@@ -392,6 +392,8 @@ class DiskBuilder(object):
 
         self._write_raid_config_to_boot_image()
 
+        self._write_generic_fstab_to_boot_image(device_map)
+
         self.system_setup.export_modprobe_setup(
             self.boot_image.boot_root_directory
         )
@@ -749,6 +751,14 @@ class DiskBuilder(object):
             )
 
     def _write_generic_fstab_to_system_image(self, device_map):
+        log.info('Creating generic system etc/fstab')
+        self._write_generic_fstab(device_map, self.system_setup)
+
+    def _write_generic_fstab_to_boot_image(self, device_map):
+        log.info('Creating generic boot image etc/fstab')
+        self._write_generic_fstab(device_map, self.boot_image.setup)
+
+    def _write_generic_fstab(self, device_map, setup):
         self._add_generic_fstab_entry(
             device_map['root'].get_device(), '/',
             self.custom_root_mount_args, '1 1'
@@ -765,8 +775,7 @@ class DiskBuilder(object):
             self._add_generic_fstab_entry(
                 device_map['efi'].get_device(), '/boot/efi'
             )
-        log.info('Creating generic entries in etc/fstab')
-        self.system_setup.create_fstab(
+        setup.create_fstab(
             self.generic_fstab_entries
         )
 
@@ -784,9 +793,10 @@ class DiskBuilder(object):
                 block_operation.get_filesystem(), ','.join(options), check
             ]
         )
-        self.generic_fstab_entries.append(
-            fstab_entry
-        )
+        if fstab_entry not in self.generic_fstab_entries:
+            self.generic_fstab_entries.append(
+                fstab_entry
+            )
 
     def _write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())

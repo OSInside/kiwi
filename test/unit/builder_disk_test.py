@@ -547,6 +547,14 @@ class TestDiskBuilder(object):
                 'UUID=blkid_result /boot/efi filesystem defaults 0 0'
             ]
         )
+        self.boot_image_task.setup.create_fstab.assert_called_once_with(
+            [
+                'fstab_volume_entries',
+                'UUID=blkid_result / filesystem defaults 1 1',
+                'UUID=blkid_result /boot filesystem defaults 0 0',
+                'UUID=blkid_result /boot/efi filesystem defaults 0 0'
+            ]
+        )
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

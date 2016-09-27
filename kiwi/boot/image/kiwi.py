@@ -65,22 +65,22 @@ class BootImageKiwi(BootImageBase):
         defaults = Defaults()
         defaults.to_profile(profile)
 
-        setup = SystemSetup(
+        self.setup = SystemSetup(
             self.boot_xml_state, self.boot_root_directory
         )
-        setup.import_shell_environment(profile)
-        setup.import_description()
-        setup.import_overlay_files(
+        self.setup.import_shell_environment(profile)
+        self.setup.import_description()
+        self.setup.import_overlay_files(
             follow_links=True
         )
-        setup.call_config_script()
+        self.setup.call_config_script()
 
         system.pinch_system(
             manager=manager, force=True
         )
 
-        setup.call_image_script()
-        setup.create_init_link_from_linuxrc()
+        self.setup.call_image_script()
+        self.setup.create_init_link_from_linuxrc()
 
     def create_initrd(self, mbrid=None):
         """

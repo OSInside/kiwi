@@ -61,6 +61,7 @@ class BootImageBase(object):
         self.target_dir = target_dir
         self.initrd_filename = None
         self.boot_xml_state = None
+        self.setup = None
         self.temp_directories = []
         self.call_destructor = True
 
