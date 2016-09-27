@@ -168,7 +168,8 @@ class Defaults(object):
             'video_fb',
             'xfs',
             'btrfs',
-            'lvm'
+            'lvm',
+            'test'
         ]
         if multiboot:
             modules.append('multiboot')
