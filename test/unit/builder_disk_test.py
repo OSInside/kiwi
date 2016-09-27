@@ -538,6 +538,7 @@ class TestDiskBuilder(object):
             'image', '.profile', '.kconfig', 'var/cache/kiwi',
             'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
         ])
+        volume_manager.umount_volumes.assert_called_once_with()
         self.setup.create_fstab.assert_called_once_with(
             [
                 'fstab_volume_entries',
