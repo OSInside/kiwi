@@ -871,7 +871,7 @@ class DiskBuilder(object):
         if self.volume_manager_name:
             self.system.umount_volumes()
             custom_install_arguments.update(
-                {'boot_volumes': self.system.get_boot_volumes()}
+                {'system_volumes': self.system.get_volumes()}
             )
 
         log.debug(

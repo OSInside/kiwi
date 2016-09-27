@@ -207,12 +207,12 @@ class TestVolumeManagerLVM(object):
         assert self.volume_manager.umount_volumes() is True
         volume_mount.umount.assert_called_once_with()
 
-    def test_get_boot_volumes(self):
+    def test_get_volumes(self):
         volume_mount = mock.Mock()
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.f2qx_d3y/boot/grub2/x86_64-efi'
         self.volume_manager.mount_list = [volume_mount]
-        assert self.volume_manager.get_boot_volumes() == {
+        assert self.volume_manager.get_volumes() == {
             'boot/grub2/x86_64-efi': 'a,b,c'
         }
 

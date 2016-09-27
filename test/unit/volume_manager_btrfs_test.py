@@ -186,14 +186,14 @@ class TestVolumeManagerBtrfs(object):
             )
         ]
 
-    def test_get_boot_volumes(self):
+    def test_get_volumes(self):
         volume_mount = mock.Mock()
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/boot/grub2'
         volume_mount.device = 'device'
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.custom_args['root_is_snapshot'] = True
-        assert self.volume_manager.get_boot_volumes() == {
+        assert self.volume_manager.get_volumes() == {
             '/boot/grub2': 'subvol=@/boot/grub2'
         }
 

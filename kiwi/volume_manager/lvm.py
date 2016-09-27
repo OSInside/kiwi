@@ -186,18 +186,17 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         return fstab_entries
 
-    def get_boot_volumes(self):
+    def get_volumes(self):
         """
-        Return dict of volumes relevant for booting
+        Return dict of volumes
 
         :rtype: dict
         """
-        boot_volumes = {}
+        volumes = {}
         for volume_mount in self.mount_list:
             mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
-            if 'boot/' in mount_path:
-                boot_volumes[mount_path] = self.mount_options
-        return boot_volumes
+            volumes[mount_path] = self.mount_options
+        return volumes
 
     def mount_volumes(self):
         """

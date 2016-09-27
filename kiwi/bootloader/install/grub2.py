@@ -77,10 +77,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.device_mount = None
         self.proc_mount = None
         self.sysfs_mount = None
-        self.boot_volumes = None
-        self.boot_volumes_mount = []
-        if custom_args and 'boot_volumes' in custom_args:
-            self.boot_volumes = custom_args['boot_volumes']
+        self.volumes = None
+        self.volumes_mount = []
+        if custom_args and 'system_volumes' in custom_args:
+            self.volumes = custom_args['system_volumes']
         if custom_args and 'firmware' in custom_args:
             self.firmware = custom_args['firmware']
 
@@ -163,22 +163,35 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
         if not self.root_mount.device == self.boot_mount.device:
             self.boot_mount.mount()
-            boot_directory = self.boot_mount.mountpoint
-        else:
-            boot_directory = self.root_mount.mountpoint \
-                + '/boot'
 
-        if self.boot_volumes:
-            for volume_path, volume_options in list(self.boot_volumes.items()):
+        if self.volumes:
+            for volume_path, volume_options in list(self.volumes.items()):
                 volume_mount = MountManager(
                     device=self.custom_args['root_device'],
                     mountpoint=self.root_mount.mountpoint + '/' + volume_path
                 )
-                self.boot_volumes_mount.append(volume_mount)
+                self.volumes_mount.append(volume_mount)
                 volume_mount.mount(
                     options=[volume_options]
                 )
 
+        self.device_mount = MountManager(
+            device='/dev',
+            mountpoint=self.root_mount.mountpoint + '/dev'
+        )
+        self.proc_mount = MountManager(
+            device='/proc',
+            mountpoint=self.root_mount.mountpoint + '/proc'
+        )
+        self.sysfs_mount = MountManager(
+            device='/sys',
+            mountpoint=self.root_mount.mountpoint + '/sys'
+        )
+        self.device_mount.bind_mount()
+        self.proc_mount.bind_mount()
+        self.sysfs_mount.bind_mount()
+
+        # check if a grub installation could be found in the image system
         grub_directory = Defaults.get_grub_path(
             self.root_mount.mountpoint + '/usr/lib'
         )
@@ -186,10 +199,17 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             raise KiwiBootLoaderGrubDataError(
                 'No grub2 installation found in %s' % self.root_mount.mountpoint
             )
+        grub_directory = grub_directory.replace(
+            self.root_mount.mountpoint, ''
+        )
         module_directory = grub_directory + '/' + self.target
+        boot_directory = '/boot'
 
+        # install grub2 boot code
         Command.run(
-            ['grub2-install'] + self.install_arguments + [
+            [
+                'chroot', self.root_mount.mountpoint, 'grub2-install'
+            ] + self.install_arguments + [
                 '--directory', module_directory,
                 '--boot-directory', boot_directory,
                 '--target', self.target,
@@ -203,21 +223,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 device=self.custom_args['efi_device'],
                 mountpoint=self.root_mount.mountpoint + '/boot/efi'
             )
-            self.device_mount = MountManager(
-                device='/dev',
-                mountpoint=self.root_mount.mountpoint + '/dev'
-            )
-            self.proc_mount = MountManager(
-                device='/proc',
-                mountpoint=self.root_mount.mountpoint + '/proc'
-            )
-            self.sysfs_mount = MountManager(
-                device='/sys',
-                mountpoint=self.root_mount.mountpoint + '/sys'
-            )
-            self.device_mount.bind_mount()
-            self.proc_mount.bind_mount()
-            self.sysfs_mount.bind_mount()
             self.efi_mount.mount()
 
             # Before we call shim-install, the grub2-install binary is
@@ -278,7 +283,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.efi_mount.umount()
         if self.boot_mount:
             self.boot_mount.umount()
-        for volume_mount in self.boot_volumes_mount:
+        for volume_mount in self.volumes_mount:
             volume_mount.umount()
         if self.root_mount:
             self._enable_grub2_install(self.root_mount.mountpoint)

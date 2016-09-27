@@ -26,7 +26,7 @@ class TestBootLoaderInstallGrub2(object):
             'root_device': '/dev/mapper/loop0p1',
             'efi_device': '/dev/mapper/loop0p3',
             'prep_device': '/dev/mapper/loop0p2',
-            'boot_volumes': {'boot/grub2': 'subvol=@/boot/grub2'},
+            'system_volumes': {'boot/grub2': 'subvol=@/boot/grub2'},
             'firmware': self.firmware
         }
 
@@ -58,9 +58,15 @@ class TestBootLoaderInstallGrub2(object):
         self.sysfs_mount.device = 'sysfs'
         self.sysfs_mount.mountpoint = 'sys'
 
+        # the order of mount manager is reverse the order in the code
         self.mount_managers = [
-            self.sysfs_mount, self.proc_mount, self.device_mount,
-            self.efi_mount, self.volume_mount, self.boot_mount, self.root_mount
+            self.efi_mount,
+            self.sysfs_mount,
+            self.proc_mount,
+            self.device_mount,
+            self.volume_mount,
+            self.boot_mount,
+            self.root_mount
         ]
 
         device_provider = mock.Mock()
@@ -144,9 +150,9 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.boot_mount.mount.assert_called_once_with()
         mock_command.assert_called_once_with(
             [
-                'grub2-install', '--skip-fs-probe',
-                '--directory', 'tmp_root/usr/lib/grub2/i386-pc',
-                '--boot-directory', 'tmp_boot',
+                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                '--directory', '/usr/lib/grub2/i386-pc',
+                '--boot-directory', '/boot',
                 '--target', 'i386-pc',
                 '--modules', ' '.join(
                     Defaults.get_grub_bios_modules(multiboot=True)
@@ -175,9 +181,9 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.boot_mount.mount.assert_called_once_with()
         mock_command.assert_called_once_with(
             [
-                'grub2-install', '--skip-fs-probe', '--no-nvram',
-                '--directory', 'tmp_root/usr/lib/grub2/powerpc-ieee1275',
-                '--boot-directory', 'tmp_boot',
+                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                '--no-nvram', '--directory', '/usr/lib/grub2/powerpc-ieee1275',
+                '--boot-directory', '/boot',
                 '--target', 'powerpc-ieee1275',
                 '--modules', ' '.join(
                     Defaults.get_grub_ofw_modules()
@@ -206,9 +212,9 @@ class TestBootLoaderInstallGrub2(object):
         )
         mock_command.assert_called_once_with(
             [
-                'grub2-install', '--skip-fs-probe',
-                '--directory', 'tmp_root/usr/lib/grub2/i386-pc',
-                '--boot-directory', 'tmp_root/boot',
+                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                '--directory', '/usr/lib/grub2/i386-pc',
+                '--boot-directory', '/boot',
                 '--target', 'i386-pc',
                 '--modules', ' '.join(
                     Defaults.get_grub_bios_modules(multiboot=True)
@@ -238,9 +244,9 @@ class TestBootLoaderInstallGrub2(object):
 
         assert mock_command.call_args_list == [
             call([
-                'grub2-install', '--skip-fs-probe',
-                '--directory', 'tmp_root/usr/lib/grub2/i386-pc',
-                '--boot-directory', 'tmp_root/boot',
+                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                '--directory', '/usr/lib/grub2/i386-pc',
+                '--boot-directory', '/boot',
                 '--target', 'i386-pc',
                 '--modules', ' '.join(
                     Defaults.get_grub_bios_modules(multiboot=True)
