@@ -318,6 +318,7 @@ if [ $LOCAL_BOOT = "no" ] && [ $haveDisk = "1" ];then
                 2) imageVersion=$n; field=3
             esac
         done
+        export kiwi_RootPart=$(nd $imageDevice)
         updateNeeded initialize
         if [ "$partOK" = "1" ] ;then
             fstype=$(probeFileSystem $imageDevice)
