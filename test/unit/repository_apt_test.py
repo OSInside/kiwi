@@ -40,19 +40,30 @@ class TestRepositoryApt(object):
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
 
-        self.repo = RepositoryApt(root_bind)
+        self.repo = RepositoryApt(root_bind, ['exclude_docs'])
 
-        self.apt_conf.get_host_template.assert_called_once_with()
+        self.exclude_docs = True
+        self.apt_conf.get_host_template.assert_called_once_with(
+            self.exclude_docs
+        )
         template.substitute.assert_called_once_with(
             {'apt_shared_base': '/shared-dir/apt-get'}
         )
-        
+
+    @patch('kiwi.repository.apt.NamedTemporaryFile')
+    @patch('kiwi.repository.apt.Path.create')
+    def test_post_init_no_custom_args(self, mock_path, mock_temp):
+        self.repo.post_init()
+        assert self.repo.custom_args == []
+
     @patch_open
     def test_use_default_location(self, mock_open):
         template = mock.Mock()
         self.apt_conf.get_image_template.return_value = template
         self.repo.use_default_location()
-        self.apt_conf.get_image_template.assert_called_once_with()
+        self.apt_conf.get_image_template.assert_called_once_with(
+            self.exclude_docs
+        )
         template.substitute.assert_called_once_with()
 
     def test_runtime_config(self):
