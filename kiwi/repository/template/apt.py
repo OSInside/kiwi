@@ -52,30 +52,46 @@ class PackageManagerTemplateAptGet(object):
         ''').strip() + os.linesep
 
         self.dpkg = dedent('''
-            DPkg
-            {
-                Options {"--force-all";}
+            DPkg::Options {
+                "--force-all";
             };
         ''').strip() + os.linesep
 
-    def get_host_template(self):
+        self.dpkg_exclude_docs = dedent('''
+            DPkg::Options {
+                "--path-exclude=/usr/share/man/*";
+                "--path-exclude=/usr/share/doc/*";
+                "--path-include=/usr/share/doc/*/copyright";
+                "--force-all";
+            };
+        ''').strip() + os.linesep
+
+    def get_host_template(self, exclude_docs=False):
         """
         apt-get package manager template for apt-get called
         outside of the image, not chrooted
 
         :rtype: Template
         """
-        return Template(
-            ''.join([self.host_header, self.apt, self.dpkg])
-        )
+        template_data = self.host_header + self.apt
+        if exclude_docs:
+            template_data += self.dpkg_exclude_docs
+        else:
+            template_data += self.dpkg
 
-    def get_image_template(self):
+        return Template(template_data)
+
+    def get_image_template(self, exclude_docs=False):
         """
         apt-get package manager template for apt-get called
         inside of the image, chrooted
 
         :rtype: Template
         """
-        return Template(
-            ''.join([self.image_header, self.apt, self.dpkg])
-        )
+        template_data = self.image_header + self.apt
+        if exclude_docs:
+            template_data += self.dpkg_exclude_docs
+        else:
+            template_data += self.dpkg
+
+        return Template(template_data)
