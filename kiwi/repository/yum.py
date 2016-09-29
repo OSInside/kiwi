@@ -20,6 +20,7 @@ from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
+from ..logger import log
 from .base import RepositoryBase
 from ..path import Path
 
@@ -54,6 +55,11 @@ class RepositoryYum(RepositoryBase):
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
+
+        # extract custom arguments not used in yum call
+        if 'exclude_docs' in self.custom_args:
+            self.custom_args.remove('exclude_docs')
+            log.warning('rpm-excludedocs not supported for yum: ignoring')
 
         self.repo_names = []
 
