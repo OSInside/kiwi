@@ -55,8 +55,14 @@ class RepositoryApt(RepositoryBase):
         :param list custom_args: apt-get arguments
         """
         self.custom_args = custom_args
+        self.exclude_docs = False
         if not custom_args:
             self.custom_args = []
+
+        # extract custom arguments used for apt config only
+        if 'exclude_docs' in self.custom_args:
+            self.custom_args.remove('exclude_docs')
+            self.exclude_docs = True
 
         self.distribution = None
         self.distribution_path = None
@@ -189,10 +195,10 @@ class RepositoryApt(RepositoryBase):
             parameters = {
                 'apt_shared_base': self.manager_base
             }
-            template = self.apt_conf.get_host_template()
+            template = self.apt_conf.get_host_template(self.exclude_docs)
             apt_conf_data = template.substitute(parameters)
         else:
-            template = self.apt_conf.get_image_template()
+            template = self.apt_conf.get_image_template(self.exclude_docs)
             apt_conf_data = template.substitute()
 
         with open(self.runtime_apt_get_config_file.name, 'w') as config:

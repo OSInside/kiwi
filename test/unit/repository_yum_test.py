@@ -15,7 +15,8 @@ class TestRepositoryYum(object):
     @patch_open
     @patch('kiwi.repository.yum.ConfigParser')
     @patch('kiwi.repository.yum.Path.create')
-    def setup(self, mock_path, mock_config, mock_open, mock_temp):
+    @patch('kiwi.logger.log.warning')
+    def setup(self, mock_warn, mock_path, mock_config, mock_open, mock_temp):
         runtime_yum_config = mock.Mock()
         mock_config.return_value = runtime_yum_config
         tmpfile = mock.Mock()
@@ -27,7 +28,7 @@ class TestRepositoryYum(object):
         )
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
-        self.repo = RepositoryYum(root_bind)
+        self.repo = RepositoryYum(root_bind, ['exclude_docs'])
 
         assert runtime_yum_config.set.call_args_list == [
             call('main', 'cachedir', '/shared-dir/yum/cache'),
@@ -42,6 +43,9 @@ class TestRepositoryYum(object):
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat')
         ]
+        mock_warn.assert_called_once_with(
+            'rpm-excludedocs not supported for yum: ignoring'
+        )
 
     @patch_open
     @patch('kiwi.repository.yum.ConfigParser')
