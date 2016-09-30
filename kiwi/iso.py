@@ -421,16 +421,20 @@ class Iso(object):
             sortfile.write('%s 3\n' % catalog_file)
             sortfile.write('%s 2\n' % loader_file)
 
-            for basedir, dirnames, filenames in os.walk(self.source_dir):
+            boot_files = list(os.walk(self.source_dir + '/' + self.boot_path))
+            boot_files += list(os.walk(self.source_dir + '/EFI'))
+            for basedir, dirnames, filenames in boot_files:
                 for filename in filenames:
                     if filename == 'efi':
                         sortfile.write('%s/%s 1000001\n' % (basedir, filename))
-                    elif filename == self.header_end_name:
-                        sortfile.write('%s/%s 1000000\n' % (basedir, filename))
                     else:
                         sortfile.write('%s/%s 1\n' % (basedir, filename))
                 for dirname in dirnames:
                     sortfile.write('%s/%s 1\n' % (basedir, dirname))
+
+            sortfile.write(
+                '%s/%s 1000000\n' % (self.source_dir, self.header_end_name)
+            )
 
     @staticmethod
     def _read_iso_metadata(isofile):
