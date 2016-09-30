@@ -208,7 +208,7 @@ class TestLiveImageBuilder(object):
                     '-p', '"KIWI - http://suse.github.com/kiwi"',
                     '-publisher', '"SUSE LINUX GmbH"',
                     '-V', '"volid"',
-                    '-iso-level', '3'
+                    '-iso-level', '3', '-udf'
                 ]
             }, device_provider=None, root_dir='temp_media_dir'
         )
