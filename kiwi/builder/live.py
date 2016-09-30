@@ -243,6 +243,7 @@ class LiveImageBuilder(object):
             log.info('ISO exceeds 4G size, using UDF filesystem')
             custom_iso_args['create_options'].append('-iso-level')
             custom_iso_args['create_options'].append('3')
+            custom_iso_args['create_options'].append('-udf')
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
