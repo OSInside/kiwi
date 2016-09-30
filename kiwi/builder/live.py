@@ -241,8 +241,8 @@ class LiveImageBuilder(object):
         # calculate size and decide if we need UDF
         if rootsize.accumulate_mbyte_file_sizes() > 4096:
             log.info('ISO exceeds 4G size, using UDF filesystem')
-            custom_iso_args['create_options'].append('-allow-limited-size')
-            custom_iso_args['create_options'].append('-udf')
+            custom_iso_args['create_options'].append('-iso-level')
+            custom_iso_args['create_options'].append('3')
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
