@@ -56,23 +56,32 @@ class TestIso(object):
     def test_init_iso_creation_parameters(
         self, mock_walk, mock_exists, mock_command, mock_open
     ):
-        mock_walk.return_value = [
-            ('source-dir', ('bar', 'baz'), ('efi', 'eggs', 'header_end'))
+        mock_walk_results = [
+            [('source-dir', ('EFI',), ())],
+            [('source-dir', ('bar', 'baz'), ('efi', 'eggs'))]
         ]
+
+        def side_effect(arg):
+            return mock_walk_results.pop()
+
+        mock_walk.side_effect = side_effect
+
         mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
 
         self.iso.init_iso_creation_parameters(['custom_arg'])
 
+        print(self.file_mock.write.call_args_list)
         assert self.file_mock.write.call_args_list == [
             call('7984fc91-a43f-4e45-bf27-6d3aa08b24cf\n'),
             call('source-dir/boot/x86_64/boot.catalog 3\n'),
             call('source-dir/boot/x86_64/loader/isolinux.bin 2\n'),
             call('source-dir/efi 1000001\n'),
             call('source-dir/eggs 1\n'),
-            call('source-dir/header_end 1000000\n'),
             call('source-dir/bar 1\n'),
-            call('source-dir/baz 1\n')
+            call('source-dir/baz 1\n'),
+            call('source-dir/EFI 1\n'),
+            call('source-dir/header_end 1000000\n')
         ]
         assert self.iso.iso_parameters == [
             'custom_arg', '-R', '-J', '-f', '-pad', '-joliet-long',
