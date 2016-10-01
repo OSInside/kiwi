@@ -350,18 +350,17 @@ class Iso(object):
         listing_result = {}
         for line in listing.output.split('\n'):
             iso_entry = re.search(
-                '^(.).*\s\[\s*(\d+)(\s+\d+)?\]\s+(.*?)\s*$', line
+                '.*(-[-rwx]{9}).*\s\[\s*(\d+)(\s+\d+)?\]\s+(.*?)\s*$', line
             )
             if iso_entry:
                 entry_type = iso_entry.group(1)
                 entry_name = iso_entry.group(4)
                 entry_addr = int(iso_entry.group(2))
-                if entry_type == '-':
-                    listing_result[entry_addr] = listing_type(
-                        name=entry_name,
-                        filetype=entry_type,
-                        start=entry_addr
-                    )
+                listing_result[entry_addr] = listing_type(
+                    name=entry_name,
+                    filetype=entry_type,
+                    start=entry_addr
+                )
         return collections.OrderedDict(
             sorted(listing_result.items())
         )
