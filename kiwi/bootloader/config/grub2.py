@@ -33,6 +33,7 @@ from ...exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubModulesError,
+    KiwiBootLoaderGrubSecureBootError,
     KiwiBootLoaderGrubFontError,
     KiwiBootLoaderGrubDataError
 )
@@ -332,10 +333,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
+            log.info('--> Setting up shim secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
-            log.info(
-                '--> Using signed secure boot efi image, done by shim-install'
-            )
+            self._setup_secure_boot_efi_image(lookup_path)
 
         self._create_embedded_fat_efi_image()
 
@@ -377,6 +377,38 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
+
+    def _setup_secure_boot_efi_image(self, lookup_path):
+        """
+        Provide the shim loader and the shim signed grub loader
+        in the required boot path. Normally this task is done by
+        the shim-install tool. However, shim-install does not exist
+        on all distributions and the script does not operate well
+        in e.g CD environments from which we generate live and/or
+        install media. Thus shim-install is used if possible at
+        install time of the bootloader because it requires access
+        to the target block device. In any other case this setup
+        code should act as the fallback solution
+        """
+        secure_efi_lookup_path = self.root_dir + '/usr/lib64/efi/'
+        if lookup_path:
+            secure_efi_lookup_path = lookup_path + '/usr/lib64/efi/'
+        shim_image = secure_efi_lookup_path + Defaults.get_shim_name()
+        if not os.path.exists(shim_image):
+            raise KiwiBootLoaderGrubSecureBootError(
+                'Microsoft signed shim loader %s not found' % shim_image
+            )
+        grub_image = secure_efi_lookup_path + Defaults.get_signed_grub_name()
+        if not os.path.exists(grub_image):
+            raise KiwiBootLoaderGrubSecureBootError(
+                'Signed grub2 efi loader %s not found' % grub_image
+            )
+        Command.run(
+            ['cp', shim_image, self._get_efi_image_name()]
+        )
+        Command.run(
+            ['cp', grub_image, self.efi_boot_path]
+        )
 
     def _create_embedded_fat_efi_image(self):
         Path.create(self.root_dir + '/boot/' + self.arch)

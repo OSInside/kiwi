@@ -16,7 +16,7 @@ class TestLiveImageBuilder(object):
         mock_machine.return_value = 'x86_64'
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
-            return_value=True
+            return_value='uefi'
         )
         kiwi.builder.live.FirmWare = mock.Mock(
             return_value=self.firmware
@@ -92,6 +92,7 @@ class TestLiveImageBuilder(object):
         )
         assert live_image.arch == 'ix86'
 
+    @patch('shutil.copy')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.Iso.create_hybrid')
@@ -102,7 +103,7 @@ class TestLiveImageBuilder(object):
     @patch_open
     def test_create_overlay_structure(
         self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
-        mock_hybrid, mock_command, mock_dtemp
+        mock_hybrid, mock_command, mock_dtemp, mock_copy
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 
@@ -172,6 +173,9 @@ class TestLiveImageBuilder(object):
             mbrid=None
         )
         assert bootloader.write.call_args_list[0] == call()
+        mock_copy.assert_called_once_with(
+            'temp_media_dir/boot/grub2/grub.cfg', 'temp_media_dir/EFI/BOOT'
+        )
 
         assert mock_bootloader.call_args_list[1] == call(
             'grub2', self.xml_state, 'temp_media_dir'
@@ -255,24 +259,26 @@ class TestLiveImageBuilder(object):
         self.live_image.live_type = 'bogus'
         self.live_image.create()
 
+    @patch('shutil.copy')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch_open
     @raises(KiwiLiveBootImageError)
     def test_create_no_kernel_found(
-        self, mock_open, mock_boot, mock_command, mock_dtemp
+        self, mock_open, mock_boot, mock_command, mock_dtemp, mock_copy
     ):
         self.kernel.get_kernel.return_value = False
         self.live_image.create()
 
+    @patch('shutil.copy')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch_open
     @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
-        self, mock_open, mock_boot, mock_command, mock_dtemp
+        self, mock_open, mock_boot, mock_command, mock_dtemp, mock_copy
     ):
         self.kernel.get_xen_hypervisor.return_value = False
         self.live_image.create()

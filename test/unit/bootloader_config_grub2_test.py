@@ -33,7 +33,8 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/i386-pc': False,
             'root_dir/boot/grub2/x86_64-xen': False,
             'root_dir/usr/lib64/efi/shim.efi': True,
-            'root_dir/usr/lib64/efi/grub.efi': True
+            'root_dir/usr/lib64/efi/grub.efi': True,
+            'root_dir/usr/lib64/efi/does-not-exist': False
         }
         mock_machine.return_value = 'x86_64'
         mock_theme.return_value = None
@@ -72,6 +73,64 @@ class TestBootLoaderConfigGrub2(object):
     def test_post_init_invalid_platform(self, mock_machine):
         mock_machine.return_value = 'unsupported-arch'
         BootLoaderConfigGrub2(mock.Mock(), 'root_dir')
+
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.defaults.Defaults.get_shim_name')
+    @patch('kiwi.defaults.Defaults.get_signed_grub_name')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch('builtins.open')
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    @raises(KiwiBootLoaderGrubSecureBootError)
+    def test_setup_install_boot_images_raises_no_shim(
+        self, mock_machine, mock_exists, mock_open, mock_sync, mock_command,
+        mock_grub, mock_shim, mock_warn
+    ):
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+        mock_shim.return_value = 'does-not-exist'
+        mock_grub.return_value = 'grub.efi'
+        mock_machine.return_value = 'x86_64'
+        self.bootloader.theme = 'some-theme'
+        self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_install_boot_images(self.mbrid)
+
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.defaults.Defaults.get_shim_name')
+    @patch('kiwi.defaults.Defaults.get_signed_grub_name')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch('builtins.open')
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    @raises(KiwiBootLoaderGrubSecureBootError)
+    def test_setup_install_boot_images_raises_no_efigrub(
+        self, mock_machine, mock_exists, mock_open, mock_sync, mock_command,
+        mock_grub, mock_shim, mock_warn
+    ):
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+        mock_shim.return_value = 'shim.efi'
+        mock_grub.return_value = 'does-not-exist'
+        mock_machine.return_value = 'x86_64'
+        self.bootloader.theme = 'some-theme'
+        self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_install_boot_images(self.mbrid)
 
     @patch('platform.machine')
     def test_post_init_ix86_platform(self, mock_machine):
@@ -542,12 +601,19 @@ class TestBootLoaderConfigGrub2(object):
             return self.os_exists[arg]
 
         mock_exists.side_effect = side_effect
-        self.bootloader.setup_install_boot_images(self.mbrid)
+        self.bootloader.setup_install_boot_images(self.mbrid, 'root_dir')
         assert mock_command.call_args_list == [
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
                 'root_dir/usr/lib/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
+            ]),
+            call([
+                'cp', 'root_dir/usr/lib64/efi/shim.efi',
+                'root_dir//EFI/BOOT/bootx64.efi'
+            ]),
+            call([
+                'cp', 'root_dir/usr/lib64/efi/grub.efi', 'root_dir//EFI/BOOT'
             ]),
             call([
                 'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'

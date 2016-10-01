@@ -100,6 +100,13 @@ class KiwiBootLoaderGrubPlatformError(KiwiError):
     """
 
 
+class KiwiBootLoaderGrubSecureBootError(KiwiError):
+    """
+    Exception raised if the Microsoft signed shim loader or
+    grub2 loader could not be found in the image root system
+    """
+
+
 class KiwiBootLoaderInstallSetupError(KiwiError):
     """
     Exception raised if an installation for an unsupported
