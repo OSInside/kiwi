@@ -314,6 +314,14 @@ class VolumeManagerBase(DeviceProvider):
             )
             self.umount_volumes()
 
+    def set_property_readonly_root(self):
+        """
+        Implements setup of read-only root property
+        """
+        raise KiwiVolumeManagerSetupError(
+            'read only property not supported'
+        )
+
     def setup_mountpoint(self):
         """
         Implements creation of a master directory holding

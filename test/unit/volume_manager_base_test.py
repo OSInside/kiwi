@@ -167,6 +167,10 @@ class TestVolumeManagerBase(object):
         self.volume_manager.setup_mountpoint()
         assert self.volume_manager.mountpoint == 'tmpdir'
 
+    @raises(KiwiVolumeManagerSetupError)
+    def test_set_property_readonly_root(self):
+        self.volume_manager.set_property_readonly_root()
+
     def test_destructor(self):
         # does nothing by default, just pass
         self.volume_manager.__del__()
