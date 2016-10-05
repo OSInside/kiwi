@@ -6,10 +6,12 @@ usage: kiwicompat -h | --help
            [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--type=<image-type>]
            [--logfile=<filename>]
+           [--add-profile=<profile-name>]
            [--debug]
        kiwicompat --prepare=<description> --root=<image-root>
            [--recycle-root]
            [--logfile=<filename>]
+           [--add-profile=<profile-name>]
            [--ignore-repos]
            [(--set-repo=<uri> [--set-repoalias=<alias>] [--set-repopriority=<priority>] [--set-repotype=<type>])]
            [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
@@ -20,11 +22,13 @@ usage: kiwicompat -h | --help
            [(--add-repo=<uri> [--add-repoalias=<alias>] [--add-repopriority=<priority>] [--add-repotype=<type>])]...
            [--type=<image-type>]
            [--logfile=<filename>]
+           [--add-profile=<profile-name>]
            [--debug]
        kiwicompat --upgrade=<image-root>
            [--add-package=<name>...]
            [--del-package=<name>...]
            [--logfile=<filename>]
+           [--add-profile=<profile-name>]
            [--debug]
        kiwicompat -v | --version
 
@@ -90,6 +94,9 @@ class Translate(object):
         if self.arguments['--type']:
             self.translated.append('--type')
             self.translated.append(self.arguments['--type'])
+        if self.arguments['--add-profile']:
+            self.translated.append('--profile')
+            self.translated.append(self.arguments['--add-profile'])
 
         if self.arguments['--create']:
             self.create(self.arguments['--create'])
