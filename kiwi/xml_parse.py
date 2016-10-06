@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Sep 26 18:28:11 2016 by generateDS.py version 2.23a.
+# Generated Wed Oct  5 13:14:58 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/ms/Project/kiwi/.env2/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2504,7 +2504,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2518,6 +2518,7 @@ class type_(GeneratedsSuper):
         self.bootprofile = _cast(None, bootprofile)
         self.boottimeout = _cast(int, boottimeout)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
+        self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
         self.checkprebuilt = _cast(bool, checkprebuilt)
         self.compressed = _cast(bool, compressed)
         self.container = _cast(None, container)
@@ -2645,6 +2646,8 @@ class type_(GeneratedsSuper):
     def set_boottimeout(self, boottimeout): self.boottimeout = boottimeout
     def get_btrfs_root_is_snapshot(self): return self.btrfs_root_is_snapshot
     def set_btrfs_root_is_snapshot(self, btrfs_root_is_snapshot): self.btrfs_root_is_snapshot = btrfs_root_is_snapshot
+    def get_btrfs_root_is_readonly_snapshot(self): return self.btrfs_root_is_readonly_snapshot
+    def set_btrfs_root_is_readonly_snapshot(self, btrfs_root_is_readonly_snapshot): self.btrfs_root_is_readonly_snapshot = btrfs_root_is_readonly_snapshot
     def get_checkprebuilt(self): return self.checkprebuilt
     def set_checkprebuilt(self, checkprebuilt): self.checkprebuilt = checkprebuilt
     def get_compressed(self): return self.compressed
@@ -2795,6 +2798,9 @@ class type_(GeneratedsSuper):
         if self.btrfs_root_is_snapshot is not None and 'btrfs_root_is_snapshot' not in already_processed:
             already_processed.add('btrfs_root_is_snapshot')
             outfile.write(' btrfs_root_is_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapshot, input_name='btrfs_root_is_snapshot'))
+        if self.btrfs_root_is_readonly_snapshot is not None and 'btrfs_root_is_readonly_snapshot' not in already_processed:
+            already_processed.add('btrfs_root_is_readonly_snapshot')
+            outfile.write(' btrfs_root_is_readonly_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_readonly_snapshot, input_name='btrfs_root_is_readonly_snapshot'))
         if self.checkprebuilt is not None and 'checkprebuilt' not in already_processed:
             already_processed.add('checkprebuilt')
             outfile.write(' checkprebuilt="%s"' % self.gds_format_boolean(self.checkprebuilt, input_name='checkprebuilt'))
@@ -3005,6 +3011,15 @@ class type_(GeneratedsSuper):
                 self.btrfs_root_is_snapshot = True
             elif value in ('false', '0'):
                 self.btrfs_root_is_snapshot = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('btrfs_root_is_readonly_snapshot', node)
+        if value is not None and 'btrfs_root_is_readonly_snapshot' not in already_processed:
+            already_processed.add('btrfs_root_is_readonly_snapshot')
+            if value in ('true', '1'):
+                self.btrfs_root_is_readonly_snapshot = True
+            elif value in ('false', '0'):
+                self.btrfs_root_is_readonly_snapshot = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('checkprebuilt', node)

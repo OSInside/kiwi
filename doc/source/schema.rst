@@ -287,6 +287,7 @@ List of attributes for ``type``:
 * ``bootprofile`` `[?]`_: Specifies the boot profile defined in the boot image description. When kiwi builds the boot image the information is passed as add-profile option
 * ``boottimeout`` `[?]`_: Specifies the boot timeout in seconds prior to launching the default boot option. the unit for the timeout value is seconds if GRUB is used as the boot loader and 1/10 seconds if syslinux is used
 * ``btrfs_root_is_snapshot`` `[?]`_: Tell kiwi to install the system into a btrfs snapshot The snapshot layout is compatible with the snapper management toolkit. By default no snapshots are used
+* ``btrfs_root_is_readonly_snapshot`` `[?]`_: Tell kiwi to set the btrfs root filesystem snapshot read-only Once all data has been placed to the root filesystem snapshot it will be turned into read-only mode if this option is set to true. The option is only effective if btrfs_root_is_snapshot is also set to true. By default the root filesystem snapshot is writable
 * ``checkprebuilt`` `[?]`_: Activates whether KIWI should search for a prebuild boot image or not
 * ``compressed`` `[?]`_: Specifies whether the image output file should be compressed or not. This makes only sense for filesystem only images respectively for the pxe or cpio type
 * ``container`` `[?]`_: Specifies a name for the container
