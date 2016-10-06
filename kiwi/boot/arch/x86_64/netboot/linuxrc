@@ -693,7 +693,7 @@ else
             systemException "No NBD export name specified" "reboot"
         fi
         if [ -z "$nbdwriteDevice" ];then
-            nbdwriteDevice="/dev/ram1"
+            nbdwriteDevice="tmpfs"
         fi
         waitForBlockDevice $nbdDevice
         if [ ! -b $nbdDevice ];then
@@ -774,7 +774,7 @@ else
         aoeRWDevice=$(echo $AOEROOT | cut -d , -f 2)
         unionFST=$(echo $UNIONFS_CONFIG | cut -d , -f 3)
         if [ -z "$aoeRWDevice" ] || [ "$aoeRODevice" = "$aoeRWDevice" ];then
-            aoeRWDevice=/dev/ram1
+            aoeRWDevice=tmpfs
         fi
         if ! modprobe aoe;then
             systemException "Failed to load AoE module" "reboot"
