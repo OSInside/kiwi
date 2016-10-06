@@ -25,7 +25,7 @@ class SchemaNode(object):
 
     @classmethod
     def is_type(self, node):
-        return True
+        pass
 
     def __init__(self, node, namespaces):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -70,18 +70,19 @@ class SchemaNode(object):
     def get_children_by_type(self, ret_type, stop_types=None):
         if stop_types is None:
             stop_types = []
-        # Gets direct attributes or elements
-        children = self._children_by_type(ret_type, stop_types)
 
-        # Follow references for referenced attributes or elements
+        # Gets direct children of this node in its tree
+        children = self.children_in_tree(ret_type, stop_types)
+
+        # Follow references that are defined somewhere else in tree
         s_types = [ret_type] + stop_types
-        for reference in self._children_by_type(Reference, s_types):
+        for reference in self.children_in_tree(Reference, s_types):
             children += reference.node.resolve_reference(
                 ret_type, stop_types, reference.properties
             )
         return children
 
-    def _children_by_type(self, ret_type, stop_types, properties=None):
+    def children_in_tree(self, ret_type, stop_types, properties=None):
         if properties is None:
             properties = []
         children = []
@@ -94,7 +95,7 @@ class SchemaNode(object):
                     properties=self._get_properties(child, properties)
                 ))
             else:
-                children += SchemaNode(child, self.namespaces)._children_by_type(
+                children += SchemaNode(child, self.namespaces).children_in_tree(
                     ret_type, stop_types, self._get_properties(child, properties)
                 )
         return children
@@ -133,12 +134,12 @@ class Reference(SchemaNode):
         if define is None:
             return []
 
-        # Gets direct attributes or elements
-        nodes = define._children_by_type(ret_type, stop_types, properties)
+        # Gets direct children of this node in its tree
+        nodes = define.children_in_tree(ret_type, stop_types, properties)
 
-        # Follow references for referenced attributes or elements
+        # Follow references that are defined somewhere else in tree
         s_types = stop_types + [ret_type]
-        for reference in define._children_by_type(
+        for reference in define.children_in_tree(
             Reference, s_types, properties
         ):
             nodes += reference.node.resolve_reference(
