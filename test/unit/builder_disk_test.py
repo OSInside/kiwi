@@ -532,17 +532,17 @@ class TestDiskBuilder(object):
         )
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
-        volume_manager.mount_volumes.assert_called_once_with()
+        volume_manager.mount_volumes.call_args_list[0].assert_called_once_with()
         volume_manager.get_fstab.assert_called_once_with(None, 'btrfs')
         volume_manager.sync_data.assert_called_once_with([
             'image', '.profile', '.kconfig', 'var/cache/kiwi',
             'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
         ])
-        volume_manager.umount_volumes.assert_called_once_with()
+        volume_manager.umount_volumes.call_args_list[0].assert_called_once_with()
         self.setup.create_fstab.assert_called_once_with(
             [
                 'fstab_volume_entries',
-                'UUID=blkid_result / filesystem defaults 1 1',
+                'UUID=blkid_result / filesystem ro 0 0',
                 'UUID=blkid_result /boot filesystem defaults 0 0',
                 'UUID=blkid_result /boot/efi filesystem defaults 0 0'
             ]
@@ -550,7 +550,7 @@ class TestDiskBuilder(object):
         self.boot_image_task.setup.create_fstab.assert_called_once_with(
             [
                 'fstab_volume_entries',
-                'UUID=blkid_result / filesystem defaults 1 1',
+                'UUID=blkid_result / filesystem ro 0 0',
                 'UUID=blkid_result /boot filesystem defaults 0 0',
                 'UUID=blkid_result /boot/efi filesystem defaults 0 0'
             ]

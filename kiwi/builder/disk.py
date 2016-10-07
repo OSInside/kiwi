@@ -457,6 +457,9 @@ class DiskBuilder(object):
         # install boot loader
         self._install_bootloader(device_map)
 
+        # set root filesystem properties
+        self._setup_property_root_is_readonly_snapshot()
+
         # prepare for install media if requested
         if self.install_media:
             if self.initrd_system and self.initrd_system == 'dracut':
@@ -759,9 +762,20 @@ class DiskBuilder(object):
         self._write_generic_fstab(device_map, self.boot_image.setup)
 
     def _write_generic_fstab(self, device_map, setup):
+        root_is_snapshot = \
+            self.xml_state.build_type.get_btrfs_root_is_snapshot()
+        root_is_readonly_snapshot = \
+            self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot()
+
+        fs_check_interval = '1 1'
+        custom_root_mount_args = list(self.custom_root_mount_args)
+        if root_is_snapshot and root_is_readonly_snapshot:
+            custom_root_mount_args += ['ro']
+            fs_check_interval = '0 0'
+
         self._add_generic_fstab_entry(
             device_map['root'].get_device(), '/',
-            self.custom_root_mount_args, '1 1'
+            custom_root_mount_args, fs_check_interval
         )
         if 'boot' in device_map:
             if self.bootloader == 'grub2_s390x_emu':
@@ -888,6 +902,20 @@ class DiskBuilder(object):
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()
         )
+
+    def _setup_property_root_is_readonly_snapshot(self):
+        if self.volume_manager_name:
+            root_is_snapshot = \
+                self.xml_state.build_type.get_btrfs_root_is_snapshot()
+            root_is_readonly_snapshot = \
+                self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot()
+            if root_is_snapshot and root_is_readonly_snapshot:
+                log.info(
+                    'Setting root filesystem into read-only mode'
+                )
+                self.system.mount_volumes()
+                self.system.set_property_readonly_root()
+                self.system.umount_volumes()
 
     def _copy_first_boot_files_to_system_image(self):
         log.info('Copy boot files to system image')

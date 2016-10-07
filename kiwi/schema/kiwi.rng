@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
@@ -2090,6 +2090,17 @@ toolkit. By default no snapshots are used</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.type.btrfs_root_is_readonly_snapshot">
+      <attribute name="btrfs_root_is_readonly_snapshot">
+        <a:documentation>Tell kiwi to set the btrfs root filesystem snapshot read-only
+Once all data has been placed to the root filesystem snapshot
+it will be turned into read-only mode if this option is set to
+true. The option is only effective if btrfs_root_is_snapshot
+is also set to true. By default the root filesystem snapshot
+is writable</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.type.target_blocksize">
       <attribute name="target_blocksize">
         <a:documentation>Specifies the image blocksize in bytes which has to match
@@ -2544,6 +2555,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.btrfs_root_is_snapshot"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_root_is_readonly_snapshot"/>
         </optional>
         <optional>
           <ref name="k.type.checkprebuilt.attribute"/>

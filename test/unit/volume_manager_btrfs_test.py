@@ -290,6 +290,19 @@ class TestVolumeManagerBtrfs(object):
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
 
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    def test_set_property_readonly_root(self, mock_command):
+        self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_readonly_snapshot'] = True
+        self.volume_manager.set_property_readonly_root()
+        mock_command.assert_called_once_with(
+            [
+                'btrfs', 'property', 'set',
+                'tmpdir/@/.snapshots/1/snapshot', 'ro', 'true'
+            ]
+        )
+
     @patch('kiwi.volume_manager.btrfs.VolumeManagerBtrfs.umount_volumes')
     @patch('kiwi.volume_manager.btrfs.Path.wipe')
     def test_destructor(self, mock_wipe, mock_umount_volumes):

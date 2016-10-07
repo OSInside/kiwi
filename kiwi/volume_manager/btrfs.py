@@ -62,6 +62,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_label'] = 'ROOT'
         if 'root_is_snapshot' not in self.custom_args:
             self.custom_args['root_is_snapshot'] = False
+        if 'root_is_readonly_snapshot' not in self.custom_args:
+            self.custom_args['root_is_readonly_snapshot'] = False
 
         self.subvol_mount_list = []
         self.toplevel_mount = None
@@ -269,6 +271,17 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             data.sync_data(
                 options=['-a', '-H', '-X', '-A', '--one-file-system'],
                 exclude=exclude
+            )
+
+    def set_property_readonly_root(self):
+        root_is_snapshot = \
+            self.custom_args['root_is_snapshot']
+        root_is_readonly_snapshot = \
+            self.custom_args['root_is_readonly_snapshot']
+        if root_is_snapshot and root_is_readonly_snapshot:
+            sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
+            Command.run(
+                ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
             )
 
     def _set_default_volume(self, default_volume):
