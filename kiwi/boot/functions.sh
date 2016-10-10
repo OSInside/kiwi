@@ -3894,7 +3894,7 @@ function setupNetwork {
     if [ -z "$DNS" ] && [ -n "$DNSSERVERS" ];then
         export DNS=$DNSSERVERS
     fi
-    IFS="," ; for i in $DNS;do
+    IFS=", " ; for i in $DNS;do
         echo "nameserver $i" >> /etc/resolv.conf
     done
     export DHCPCHADDR=$(
@@ -4138,7 +4138,7 @@ function setupDNS {
     fi
     if [ -n "$nameserver" ];then
         export DNS=$nameserver
-        IFS="," ; for i in $nameserver;do
+        IFS=", " ; for i in $nameserver;do
             local line="nameserver $i"
             if ! grep -q $line $file;then
                 echo "$line" >> "$file"
