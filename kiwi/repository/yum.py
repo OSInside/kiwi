@@ -72,7 +72,8 @@ class RepositoryYum(RepositoryBase):
 
         self.shared_yum_dir = {
             'reposd-dir': manager_base + '/repos',
-            'cache-dir': manager_base + '/cache'
+            'cache-dir': manager_base + '/cache',
+            'pluginconf-dir': manager_base + '/pluginconf'
         }
 
         self.runtime_yum_config_file = NamedTemporaryFile(
@@ -87,6 +88,7 @@ class RepositoryYum(RepositoryBase):
 
         # config file parameters for yum tool
         self._create_runtime_config_parser()
+        self._create_runtime_plugin_config_parser()
         self._write_runtime_config()
 
     def use_default_location(self):
@@ -98,7 +100,10 @@ class RepositoryYum(RepositoryBase):
             self.root_dir + '/etc/yum/repos.d'
         self.shared_yum_dir['cache-dir'] = \
             self.root_dir + '/var/cache/yum'
+        self.shared_yum_dir['pluginconf-dir'] = \
+            self.root_dir + '/etc/yum/pluginconf.d'
         self._create_runtime_config_parser()
+        self._create_runtime_plugin_config_parser()
         self._write_runtime_config()
 
     def runtime_config(self):
@@ -192,6 +197,9 @@ class RepositoryYum(RepositoryBase):
             'main', 'reposdir', self.shared_yum_dir['reposd-dir']
         )
         self.runtime_yum_config.set(
+            'main', 'pluginconfpath', self.shared_yum_dir['pluginconf-dir']
+        )
+        self.runtime_yum_config.set(
             'main', 'keepcache', '1'
         )
         self.runtime_yum_config.set(
@@ -219,6 +227,18 @@ class RepositoryYum(RepositoryBase):
             'main', 'group_command', 'compat'
         )
 
+    def _create_runtime_plugin_config_parser(self):
+        self.runtime_yum_plugin_config = ConfigParser()
+        self.runtime_yum_plugin_config.add_section('main')
+
+        self.runtime_yum_plugin_config.set(
+            'main', 'enabled', '1'
+        )
+
     def _write_runtime_config(self):
         with open(self.runtime_yum_config_file.name, 'w') as config:
             self.runtime_yum_config.write(config)
+        yum_plugin_config_file = \
+            self.shared_yum_dir['pluginconf-dir'] + '/priorities.conf'
+        with open(yum_plugin_config_file, 'w') as pluginconfig:
+            self.runtime_yum_plugin_config.write(pluginconfig)
