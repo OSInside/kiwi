@@ -494,7 +494,7 @@ class DiskBuilder(object):
         self.result.add(
             key='disk_image',
             filename=self.diskname,
-            use_for_bundle=True,
+            use_for_bundle=True if not self.image_format else False,
             compress=True,
             shasum=True
         )
