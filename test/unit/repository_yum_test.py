@@ -33,6 +33,7 @@ class TestRepositoryYum(object):
         assert runtime_yum_config.set.call_args_list == [
             call('main', 'cachedir', '/shared-dir/yum/cache'),
             call('main', 'reposdir', '/shared-dir/yum/repos'),
+            call('main', 'pluginconfpath', '/shared-dir/yum/pluginconf'),
             call('main', 'keepcache', '1'),
             call('main', 'debuglevel', '2'),
             call('main', 'pkgpolicy', 'newest'),
@@ -41,7 +42,8 @@ class TestRepositoryYum(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'metadata_expire', '1800'),
-            call('main', 'group_command', 'compat')
+            call('main', 'group_command', 'compat'),
+            call('main', 'enabled', '1')
         ]
         mock_warn.assert_called_once_with(
             'rpm-excludedocs not supported for yum: ignoring'
@@ -65,6 +67,7 @@ class TestRepositoryYum(object):
         assert runtime_yum_config.set.call_args_list == [
             call('main', 'cachedir', '../data/var/cache/yum'),
             call('main', 'reposdir', '../data/etc/yum/repos.d'),
+            call('main', 'pluginconfpath', '../data/etc/yum/pluginconf.d'),
             call('main', 'keepcache', '1'),
             call('main', 'debuglevel', '2'),
             call('main', 'pkgpolicy', 'newest'),
@@ -73,7 +76,8 @@ class TestRepositoryYum(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'metadata_expire', '1800'),
-            call('main', 'group_command', 'compat')
+            call('main', 'group_command', 'compat'),
+            call('main', 'enabled', '1')
         ]
 
     def test_runtime_config(self):
