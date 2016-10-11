@@ -5754,6 +5754,7 @@ function fetchFile {
         [ -z "$disableProgressInfo" ]
     then
         showProgress=1
+	hideSplash
         read sum1 blocks blocksize zblocks zblocksize < /etc/image.md5
         needBytes=$((blocks * blocksize))
         needMByte=$((needBytes / 1048576))
