@@ -148,7 +148,7 @@ class DiskFormatBase(object):
                 self.image_format
             ),
             use_for_bundle=True,
-            compress=True,
+            compress=False,
             shasum=True
         )
 
