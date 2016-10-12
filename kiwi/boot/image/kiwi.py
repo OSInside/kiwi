@@ -125,7 +125,8 @@ class BootImageKiwi(BootImageBase):
             # during the process of creating an image but not when the
             # image is actually booting with this initrd
             exclude_from_archive = [
-                '/var/cache', '/image', '/usr/lib/grub*'
+                '/' + Defaults.get_shared_cache_location(),
+                '/image', '/usr/lib/grub*'
             ]
             # the following is a list of directories to exclude which
             # are not needed inside of the initrd

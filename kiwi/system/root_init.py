@@ -25,6 +25,7 @@ import os
 from ..utils.sync import DataSync
 from ..command import Command
 from ..path import Path
+from ..defaults import Defaults
 
 from ..exceptions import (
     KiwiRootDirExists,
@@ -128,10 +129,10 @@ class RootInit(object):
         root system required for kiwi to operate
         """
         base_system_paths = (
+            Defaults.get_shared_cache_location(),
             'dev/pts',
             'proc',
             'etc/sysconfig',
-            'var/cache',
             'run',
             'sys'
         )

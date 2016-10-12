@@ -61,18 +61,18 @@ class TestRootInit(object):
         root = RootInit('root_dir', True)
         root.create()
         assert mock_makedirs.call_args_list == [
+            call('tmpdir/var/cache/kiwi'),
             call('tmpdir/dev/pts'),
             call('tmpdir/proc'),
             call('tmpdir/etc/sysconfig'),
-            call('tmpdir/var/cache'),
             call('tmpdir/run'),
             call('tmpdir/sys')
         ]
         assert mock_chwon.call_args_list == [
+            call('tmpdir/var/cache/kiwi', 0, 0),
             call('tmpdir/dev/pts', 0, 0),
             call('tmpdir/proc', 0, 0),
             call('tmpdir/etc/sysconfig', 0, 0),
-            call('tmpdir/var/cache', 0, 0),
             call('tmpdir/run', 0, 0),
             call('tmpdir/sys', 0, 0)
         ]
