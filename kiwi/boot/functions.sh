@@ -114,21 +114,17 @@ failsafe="$failsafe nomodeset x11failsafe"
 #--------------------------------------
 function hideSplash {
     # /.../
-    # Only in case of one active console kiwi hides
-    # the splash screen for it to allow interactive dialog
-    # sessions on this console. In any other case the user
-    # can control a custom behavior using the handleSplash
+    # Hides the splash screen for to allow interactive
+    # dialog sessions on this console. Also, the user can
+    # control a custom behavior using the handleSplash
     # hook called at the end of this function
     # ----
     local IFS=$IFS_ORIG
-    local console_count=$(activeConsoles)
-    if [ $console_count -eq 1 ];then
-        test -e /proc/splash && echo verbose > /proc/splash
-        if lookup plymouthd &>/dev/null;then
-            plymouth hide-splash
-            # reset tty after plymouth messed with it
-            consoleInit
-        fi
+    test -e /proc/splash && echo verbose > /proc/splash
+    if lookup plymouthd &>/dev/null;then
+        plymouth hide-splash
+        # reset tty after plymouth messed with it
+        consoleInit
     fi
     runHook handleSplash "$@"
 }
@@ -5754,6 +5750,7 @@ function fetchFile {
         [ -z "$disableProgressInfo" ]
     then
         showProgress=1
+        hideSplash
         read sum1 blocks blocksize zblocks zblocksize < /etc/image.md5
         needBytes=$((blocks * blocksize))
         needMByte=$((needBytes / 1048576))
