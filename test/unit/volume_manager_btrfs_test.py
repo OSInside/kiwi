@@ -6,7 +6,8 @@ import os
 import datetime
 
 from .test_helper import raises, patch_open
-
+from lxml import etree
+from xml.dom import minidom
 from collections import namedtuple
 
 from kiwi.exceptions import *
@@ -286,6 +287,9 @@ class TestVolumeManagerBtrfs(object):
     @patch('kiwi.volume_manager.btrfs.DataSync')
     @patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime))
     def test_sync_data(self, mock_sync, mock_open):
+        xml_info = etree.tostring(etree.parse(
+            '../data/info.xml', etree.XMLParser(remove_blank_text=True)
+        ))
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
         mock_open.return_value = self.context_manager_mock
         self.volume_manager.toplevel_mount = mock.Mock()
@@ -306,10 +310,9 @@ class TestVolumeManagerBtrfs(object):
         mock_open.assert_called_once_with(
             'tmpdir/@/.snapshots/1/info.xml', 'w'
         )
-        with open('../data/info.xml') as xml_info:
-            self.file_mock.write.assert_called_once_with(
-                xml_info.read()
-            )
+        self.file_mock.write.assert_called_once_with(
+            minidom.parseString(xml_info).toprettyxml(indent="    ")
+        )
 
     @patch('kiwi.volume_manager.btrfs.Command.run')
     def test_set_property_readonly_root(self, mock_command):
