@@ -5,9 +5,7 @@ import os
 
 import datetime
 
-from .test_helper import (
-    raises, patch_open
-)
+from .test_helper import raises, patch_open
 
 from collections import namedtuple
 
