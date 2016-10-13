@@ -1104,6 +1104,10 @@ function installBootLoaderS390Grub {
     local confFile_grub=/boot/grub2/grub.cfg
     local active_devs=/boot/zipl/active_devices.txt
     local deviceID=$(cat /sys/firmware/ipl/device)
+    local instTooOptions
+    if [ "$kiwi_target_removable" = "true" ];then
+        instTooOptions="--removable"
+    fi
     #======================================
     # mount zipl EFI partition
     #--------------------------------------
@@ -1143,7 +1147,7 @@ function installBootLoaderS390Grub {
         Echo "Can't install bootloader"
         return 1
     fi
-    if ! $instTool;then
+    if ! $instTool $instTooOptions;then
         Echo "Failed to install bootloader"
         return 1
     fi
@@ -1194,6 +1198,10 @@ function installBootLoaderGrub2 {
     local product=/etc/products.d/baseproduct
     local grub_efi=/boot/efi/EFI/BOOT/grub.efi
     local isEFI=0
+    local instTooOptions
+    if [ "$kiwi_target_removable" = "true" ];then
+        instTooOptions="--removable"
+    fi
     #======================================
     # check for EFI and mount EFI partition
     #--------------------------------------
@@ -1235,21 +1243,21 @@ function installBootLoaderGrub2 {
     if [ ! -z "$kiwi_PrepPart" ];then
         local prepdev=$(ddn $imageDiskDevice $kiwi_PrepPart)
         # install powerpc grub2
-        $instTool $prepdev 1>&2
+        $instTool $instTooOptions $prepdev 1>&2
         if [ ! $? = 0 ];then
             Echo "Failed to install boot loader"
             return 1
         fi
     elif [ $isEFI -eq 0 ];then
         # use plain grub2-install in standard bios mode
-        $instTool $imageDiskDevice 1>&2
+        $instTool $instTooOptions $imageDiskDevice 1>&2
         if [ ! $? = 0 ];then
             Echo "Failed to install boot loader"
             return 1
         fi
     elif [ ! -z "$kiwi_BiosGrub" ] && [ -d $bios_grub ];then
         # force install of bios grub2 in efi legacy mode
-        $instTool --force --target i386-pc $imageDiskDevice 1>&2
+        $instTool $instTooOptions --force --target i386-pc $imageDiskDevice 1>&2
         if [ ! $? = 0 ];then
             Echo "Failed to install legacy boot loader"
             return 1
