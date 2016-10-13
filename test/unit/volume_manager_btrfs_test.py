@@ -3,7 +3,6 @@ from mock import call
 import mock
 import os
 
-from textwrap import dedent
 import datetime
 
 from .test_helper import (
