@@ -1,7 +1,10 @@
-
 from mock import patch
 from mock import call
 import mock
+import os
+
+from textwrap import dedent
+import datetime
 
 from .test_helper import *
 from collections import namedtuple
@@ -13,6 +16,22 @@ from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 class TestVolumeManagerBtrfs(object):
     @patch('os.path.exists')
     def setup(self, mock_path):
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
+        self.xml_info = dedent('''
+        <?xml version="1.0" ?>
+        <snapshot>
+            <type>single</type>
+            <num>1</num>
+            <description>first root filesystem</description>
+            <date>2016-01-01 00:00:00</date>
+        </snapshot>
+        ''').strip() + os.linesep
         self.volume_type = namedtuple(
             'volume_type', [
                 'name',
@@ -272,8 +291,12 @@ class TestVolumeManagerBtrfs(object):
         )
         assert self.volume_manager.umount_volumes() is False
 
+    @patch_open
     @patch('kiwi.volume_manager.btrfs.DataSync')
-    def test_sync_data(self, mock_sync):
+    @patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime))
+    def test_sync_data(self, mock_sync, mock_open):
+        datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
+        mock_open.return_value = self.context_manager_mock
         self.volume_manager.toplevel_mount = mock.Mock()
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.custom_args['root_is_snapshot'] = True
@@ -289,6 +312,10 @@ class TestVolumeManagerBtrfs(object):
             exclude=['exclude_me'],
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
+        mock_open.assert_called_once_with(
+            'tmpdir/@/.snapshots/1/info.xml', 'w'
+        )
+        self.file_mock.write.assert_called_once_with(self.xml_info)
 
     @patch('kiwi.volume_manager.btrfs.Command.run')
     def test_set_property_readonly_root(self, mock_command):
