@@ -271,7 +271,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             if self.custom_args['root_is_snapshot']:
                 sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
                 self._create_snapshot_info(
-                    self.mountpoint + '/@/.snapshots/1/info.xml'
+                    ''.join([self.mountpoint, '/@/.snapshots/1/info.xml'])
                 )
             data = DataSync(self.root_dir, sync_target)
             data.sync_data(

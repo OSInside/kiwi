@@ -6,7 +6,10 @@ import os
 from textwrap import dedent
 import datetime
 
-from .test_helper import *
+from .test_helper import (
+    raises, patch_open
+)
+
 from collections import namedtuple
 
 from kiwi.exceptions import *
