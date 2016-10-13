@@ -242,6 +242,7 @@ class BootImageBase(object):
             'installprovidefailsafe',
             'kernelcmdline',
             'ramonly',
+            'target_removable',
             'vga',
             'wwid_wait_timeout'
         ]

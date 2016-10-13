@@ -259,6 +259,7 @@ class Profile(object):
         # kiwi_initrd_system
         # kiwi_ramonly
         # kiwi_target_blocksize
+        # kiwi_target_removable
         # kiwi_cmdline
         # kiwi_firmware
         # kiwi_bootloader
@@ -291,6 +292,8 @@ class Profile(object):
             type_section.get_ramonly()
         self.dot_profile['kiwi_target_blocksize'] = \
             type_section.get_target_blocksize()
+        self.dot_profile['kiwi_target_removable'] = \
+            type_section.get_target_removable()
         self.dot_profile['kiwi_cmdline'] = \
             type_section.get_kernelcmdline()
         self.dot_profile['kiwi_firmware'] = \

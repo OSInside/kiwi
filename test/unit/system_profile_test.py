@@ -41,6 +41,7 @@ class TestProfile(object):
             'kiwi_bootkernel': None,
             'kiwi_bootloader': 'grub2',
             'kiwi_bootprofile': None,
+            'kiwi_target_removable': None,
             'kiwi_boot_timeout': None,
             'kiwi_cmdline': 'splash',
             'kiwi_compressed': None,
