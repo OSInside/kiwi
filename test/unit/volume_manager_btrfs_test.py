@@ -26,15 +26,6 @@ class TestVolumeManagerBtrfs(object):
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-        self.xml_info = dedent('''
-        <?xml version="1.0" ?>
-        <snapshot>
-            <type>single</type>
-            <num>1</num>
-            <description>first root filesystem</description>
-            <date>2016-01-01 00:00:00</date>
-        </snapshot>
-        ''').strip() + os.linesep
         self.volume_type = namedtuple(
             'volume_type', [
                 'name',
@@ -318,7 +309,10 @@ class TestVolumeManagerBtrfs(object):
         mock_open.assert_called_once_with(
             'tmpdir/@/.snapshots/1/info.xml', 'w'
         )
-        self.file_mock.write.assert_called_once_with(self.xml_info)
+        with open('../data/info.xml') as xml_info:
+            self.file_mock.write.assert_called_once_with(
+                xml_info.read()
+            )
 
     @patch('kiwi.volume_manager.btrfs.Command.run')
     def test_set_property_readonly_root(self, mock_command):
