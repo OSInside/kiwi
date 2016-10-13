@@ -1608,6 +1608,14 @@ div {
         ## However 4096 byte disks are coming. You can check the
         ## desired target by calling: blockdev --report device
         attribute target_blocksize { xsd:nonNegativeInteger }
+    k.type.target_removable =
+        ## Indicate if the target disk for oem images is deployed
+        ## to a removable device e.g a USB stick or not. This only
+        ## affects the EFI setup if requested and in the end avoids
+        ## the creation of a custom boot menu entry in the firmware
+        ## of the target machine. By default the target disk is
+        ## expected to be solid
+        attribute target_removable { xsd:boolean }
     k.type.zipl_targettype.attribute =
        ## The device type of the disk zipl should boot. On zFCP
        ## devices use SCSI, on DASD devices use CDL or LDL on
@@ -1890,6 +1898,7 @@ div {
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
         k.type.target_blocksize? &
+        k.type.target_removable? &
         k.type.vbootsize.attribute? &
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &

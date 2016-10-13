@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
@@ -2111,6 +2111,17 @@ desired target by calling: blockdev --report device</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
+    <define name="k.type.target_removable">
+      <attribute name="target_removable">
+        <a:documentation>Indicate if the target disk for oem images is deployed
+to a removable device e.g a USB stick or not. This only
+affects the EFI setup if requested and in the end avoids
+the creation of a custom boot menu entry in the firmware
+of the target machine. By default the target disk is
+expected to be solid</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.type.zipl_targettype.attribute">
       <attribute name="zipl_targettype">
         <a:documentation>The device type of the disk zipl should boot. On zFCP
@@ -2655,6 +2666,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.target_blocksize"/>
+        </optional>
+        <optional>
+          <ref name="k.type.target_removable"/>
         </optional>
         <optional>
           <ref name="k.type.vbootsize.attribute"/>
