@@ -17,6 +17,9 @@
 #
 import re
 import os
+import datetime
+from xml.etree import ElementTree
+from xml.dom import minidom
 
 # project
 from ..command import Command
@@ -267,6 +270,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             sync_target = self.mountpoint + '/@'
             if self.custom_args['root_is_snapshot']:
                 sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
+                self._create_snapshot_info(
+                    ''.join([self.mountpoint, '/@/.snapshots/1/info.xml'])
+                )
             data = DataSync(self.root_dir, sync_target)
             data.sync_data(
                 options=['-a', '-H', '-X', '-A', '--one-file-system'],
@@ -305,6 +311,32 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         raise KiwiVolumeRootIDError(
             'Failed to find btrfs volume: %s' % default_volume
         )
+
+    def _xml_pretty(self, toplevel_element):
+        xml_data_unformatted = ElementTree.tostring(
+            toplevel_element, 'utf-8'
+        )
+        xml_data_domtree = minidom.parseString(xml_data_unformatted)
+        return xml_data_domtree.toprettyxml(indent="    ")
+
+    def _create_snapshot_info(self, filename):
+        date_info = datetime.datetime.now()
+        snapshot = ElementTree.Element('snapshot')
+
+        snapshot_type = ElementTree.SubElement(snapshot, 'type')
+        snapshot_type.text = 'single'
+
+        snapshot_number = ElementTree.SubElement(snapshot, 'num')
+        snapshot_number.text = '1'
+
+        snapshot_description = ElementTree.SubElement(snapshot, 'description')
+        snapshot_description.text = 'first root filesystem'
+
+        snapshot_date = ElementTree.SubElement(snapshot, 'date')
+        snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
+
+        with open(filename, 'w') as snapshot_info_file:
+            snapshot_info_file.write(self._xml_pretty(snapshot))
 
     def _get_subvol_name_from_mountpoint(self, volume_mount):
         subvol_name = '/'.join(volume_mount.mountpoint.split('/')[3:])
