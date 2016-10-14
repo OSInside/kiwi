@@ -508,6 +508,21 @@ class KiwiRequestError(KiwiError):
     """
 
 
+class KiwiResizeRawDiskError(KiwiError):
+    """
+    Exception raised if an attempt was made to resize the image disk
+    to a smaller size than the current one. Simply shrinking a disk image
+    file is not possible without data corruption because the partitions
+    were setup to use the entire disk geometry as it fits into the file.
+    A successful shrinking operation would require the filesystems and
+    the partition table to be reduced which is not done by the provided
+    simple storage resize method. In addition without the user overwriting
+    the disk size in the XML setup, kiwi will calculate the minimum
+    required size in order to store the data. Thus in almost all cases
+    it will not be possible to store the data in a smaller disk.
+    """
+
+
 class KiwiResultError(KiwiError):
     """
     Exception raised if the image build result pickle information

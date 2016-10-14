@@ -20,9 +20,11 @@ import platform
 from collections import OrderedDict
 
 from ...exceptions import (
-    KiwiFormatSetupError
+    KiwiFormatSetupError,
+    KiwiResizeRawDiskError
 )
 
+from ...command import Command
 from ...defaults import Defaults
 from ...path import Path
 from ...logger import log
@@ -79,6 +81,24 @@ class DiskFormatBase(object):
         :param list custom_args: unused
         """
         pass
+
+    def has_raw_disk(self):
+        return os.path.exists(self.diskname)
+
+    def resize_raw_disk(self, size_bytes):
+        """
+        Resize raw disk image to specified size
+        """
+        current_byte_size = os.path.getsize(self.diskname)
+        size_bytes = int(size_bytes)
+        if size_bytes <= current_byte_size:
+            raise KiwiResizeRawDiskError(
+                'Can not shrink %s disk to %d bytes without data corruption' %
+                (self.diskname, size_bytes)
+            )
+        Command.run(
+            ['qemu-img', 'resize', self.diskname, format(size_bytes)]
+        )
 
     def create_image_format(self):
         """
