@@ -316,6 +316,14 @@ class KiwiHelpNoCommandGiven(KiwiError):
     """
 
 
+class KiwiImageResizeError(KiwiError):
+    """
+    Exception raised if the request to resize a disk image failed.
+    Reasons could be a missing raw disk reference or a wrong size
+    specification.
+    """
+
+
 class KiwiImportDescriptionError(KiwiError):
     """
     Exception raised if the XML description data and scripts could

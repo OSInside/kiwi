@@ -14,6 +14,7 @@ class TestCli(object):
             'help': False,
             '--compat': False,
             '--type': None,
+            'image': False,
             'system': True,
             '-h': False,
             '--logfile': None,
@@ -77,6 +78,16 @@ class TestCli(object):
         ]
         cli = Cli()
         assert cli.get_servicename() == 'compat'
+
+    def test_get_servicename_image(self):
+        sys.argv = [
+            sys.argv[0],
+            'image', 'resize',
+            '--target-dir', 'directory',
+            '--size', '20g'
+        ]
+        cli = Cli()
+        assert cli.get_servicename() == 'image'
 
     def test_get_servicename_result(self):
         sys.argv = [
