@@ -107,6 +107,8 @@ class Uri(object):
             )
         elif uri.scheme == 'http':
             return self.uri
+        elif uri.scheme == 'ftp':
+            return self.uri
         else:
             raise KiwiUriStyleUnknown(
                 'URI schema %s not supported' % self.uri

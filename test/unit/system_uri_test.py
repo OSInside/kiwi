@@ -71,6 +71,10 @@ class TestUri(object):
         uri = Uri('http://example.com/foo', 'rpm-md')
         assert uri.translate() == 'http://example.com/foo'
 
+    def test_translate_ftp_path(self):
+        uri = Uri('ftp://example.com/foo', 'rpm-md')
+        assert uri.translate() == 'ftp://example.com/foo'
+
     @patch('kiwi.system.uri.MountManager')
     @patch('kiwi.system.uri.mkdtemp')
     def test_translate_iso_path(self, mock_mkdtemp, mock_manager):
