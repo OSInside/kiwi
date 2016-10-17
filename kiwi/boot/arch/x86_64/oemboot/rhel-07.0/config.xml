@@ -103,6 +103,7 @@
         <package name="hdparm"/>
         <package name="grub2"/>
         <package name="grub2-efi"/>
+        <package name="grub2-efi-modules" arch="x86_64"/>
         <package name="tar"/>
         <package name="rpm"/>
         <package name="dialog"/>
