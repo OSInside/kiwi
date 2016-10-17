@@ -78,3 +78,11 @@ class TestDiskFormat(object):
             xml_state, 'root_dir', 'target_dir',
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )
+
+    @patch('kiwi.storage.subformat.DiskFormatBase')
+    def test_disk_format_base(self, mock_base):
+        xml_state = mock.Mock()
+        DiskFormat('raw', xml_state, 'root_dir', 'target_dir')
+        mock_base.assert_called_once_with(
+            xml_state, 'root_dir', 'target_dir',
+        )
