@@ -70,6 +70,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         """
         self.arch = platform.machine()
         self.custom_args = custom_args
+        self.install_arguments = []
         self.firmware = None
         self.efi_mount = None
         self.root_mount = None
@@ -79,6 +80,9 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.sysfs_mount = None
         self.volumes = None
         self.volumes_mount = []
+        self.target_removable = None
+        if custom_args and 'target_removable' in custom_args:
+            self.target_removable = custom_args['target_removable']
         if custom_args and 'system_volumes' in custom_args:
             self.volumes = custom_args['system_volumes']
         if custom_args and 'firmware' in custom_args:
@@ -129,13 +133,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         """
         log.info('Installing grub2 on disk %s', self.device)
 
+        if self.target_removable:
+            self.install_arguments.append('--removable')
+
         if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
             self.target = 'i386-pc'
             self.install_device = self.device
             self.modules = ' '.join(
                 Defaults.get_grub_bios_modules(multiboot=True)
             )
-            self.install_arguments = ['--skip-fs-probe']
+            self.install_arguments.append('--skip-fs-probe')
         elif self.arch.startswith('ppc64'):
             if not self.custom_args or 'prep_device' not in self.custom_args:
                 raise KiwiBootLoaderGrubInstallError(
@@ -144,7 +151,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.target = 'powerpc-ieee1275'
             self.install_device = self.custom_args['prep_device']
             self.modules = ' '.join(Defaults.get_grub_ofw_modules())
-            self.install_arguments = ['--skip-fs-probe', '--no-nvram']
+            self.install_arguments.append('--skip-fs-probe')
+            self.install_arguments.append('--no-nvram')
         else:
             raise KiwiBootLoaderGrubPlatformError(
                 'host architecture %s not supported for grub2 install' %

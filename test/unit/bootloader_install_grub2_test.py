@@ -27,7 +27,8 @@ class TestBootLoaderInstallGrub2(object):
             'efi_device': '/dev/mapper/loop0p3',
             'prep_device': '/dev/mapper/loop0p2',
             'system_volumes': {'boot/grub2': 'subvol=@/boot/grub2'},
-            'firmware': self.firmware
+            'firmware': self.firmware,
+            'target_removable': None
         }
 
         self.root_mount = mock.Mock()
@@ -204,6 +205,7 @@ class TestBootLoaderInstallGrub2(object):
             return self.mount_managers.pop()
 
         mock_mount_manager.side_effect = side_effect
+        self.bootloader.target_removable = True
 
         self.bootloader.install()
         self.root_mount.mount.assert_called_once_with()
@@ -212,7 +214,8 @@ class TestBootLoaderInstallGrub2(object):
         )
         mock_command.assert_called_once_with(
             [
-                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                'chroot', 'tmp_root', 'grub2-install',
+                '--removable', '--skip-fs-probe',
                 '--directory', '/usr/lib/grub2/i386-pc',
                 '--boot-directory', '/boot',
                 '--target', 'i386-pc',

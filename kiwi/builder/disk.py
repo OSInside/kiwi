@@ -199,6 +199,7 @@ class DiskBuilder(object):
             xml_state.build_type.get_bootfilesystem()
         self.bootloader = xml_state.build_type.get_bootloader()
         self.initrd_system = xml_state.build_type.get_initrd_system()
+        self.target_removable = xml_state.build_type.get_target_removable()
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
@@ -867,7 +868,8 @@ class DiskBuilder(object):
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),
             'root_device': root_device.get_device(),
-            'firmware': self.firmware
+            'firmware': self.firmware,
+            'target_removable': self.target_removable
         }
 
         if 'efi' in device_map:
