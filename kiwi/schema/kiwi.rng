@@ -2118,7 +2118,7 @@ to a removable device e.g a USB stick or not. This only
 affects the EFI setup if requested and in the end avoids
 the creation of a custom boot menu entry in the firmware
 of the target machine. By default the target disk is
-expected to be solid</a:documentation>
+expected to be non-removable</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>

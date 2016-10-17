@@ -1614,7 +1614,7 @@ div {
         ## affects the EFI setup if requested and in the end avoids
         ## the creation of a custom boot menu entry in the firmware
         ## of the target machine. By default the target disk is
-        ## expected to be solid
+        ## expected to be non-removable
         attribute target_removable { xsd:boolean }
     k.type.zipl_targettype.attribute =
        ## The device type of the disk zipl should boot. On zFCP
