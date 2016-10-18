@@ -15,6 +15,7 @@ docopt
 lxml
 
 # Python wrapper for extended filesystem attributes
+pycparser==2.14
 xattr
 
 # Python 2 compatibility
