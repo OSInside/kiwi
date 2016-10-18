@@ -72,8 +72,9 @@ class ImageResizeTask(CliTask):
         geometry using the qemu tool chain
         """
         self.manual = Help()
-        if self._help():
-            return
+
+        if self.command_args.get('help') is True:
+            return self.manual.show('kiwi::image::resize')
 
         if self.command_args['--root']:
             image_root = self.command_args['--root']
@@ -121,10 +122,3 @@ class ImageResizeTask(CliTask):
         size_base = int(size.group(1))
         size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())
         return size_unit and size_base * math.pow(0x400, size_unit) or size_base
-
-    def _help(self):
-        if self.command_args['help']:
-            self.manual.show('kiwi::image::resize')
-        else:
-            return False
-        return self.manual
