@@ -13,6 +13,8 @@ before_install:
 - sudo apt-get install -y xsltproc
 - sudo apt-get install -y genisoimage
 - sudo apt-get install -y enchant
+install:
+- pip install -r .travis.requirements.txt
 script:
 - tox
 after_success:
