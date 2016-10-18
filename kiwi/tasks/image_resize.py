@@ -119,13 +119,8 @@ class ImageResizeTask(CliTask):
                 (size_value, size_format)
             )
         size_base = int(size.group(1))
-        size_unit = size.group(2).lower()
-        if size_unit == 'g':
-            return size_base * math.pow(1024, 3)
-        elif size_unit == 'm':
-            return size_base * math.pow(1024, 2)
-        else:
-            return size_base
+        size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())
+        return size_unit and size_base * math.pow(0x400, size_unit) or size_base
 
     def _help(self):
         if self.command_args['help']:
