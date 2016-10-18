@@ -98,8 +98,14 @@ build: clean po tox
 	# the dependencies to the python module rpm packages is
 	# managed in the spec file
 	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
+	# build the architecture specific boot image structure
+	tar -czf boot_arch.tgz kiwi/boot/arch
+	mv kiwi/boot/arch boot_arch && mkdir kiwi/boot/arch
 	# build the sdist source tarball
 	python3 setup.build.py sdist
+	# cleanup boot_arch tarball
+	rm -f boot_arch.tgz
+	rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 	# cleanup setup.py variant used for rpm build
 	rm -f setup.build.py
 	# provide rpm source tarball
