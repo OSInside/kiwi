@@ -92,7 +92,17 @@ clean_git_attributes:
 	# for details on when this target is called see setup.py
 	git checkout kiwi/version.py
 
-build: clean po tox
+sdist_prepare:
+	# build the architecture specific boot image structure
+	tar -czf boot_arch.tgz kiwi/boot/arch && \
+		mv kiwi/boot/arch boot_arch && mkdir kiwi/boot/arch
+
+sdist_cleanup:
+	# cleanup sdist_prepare actions
+	rm -f boot_arch.tgz && \
+		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
+
+build: clean po tox sdist_prepare
 	# create setup.py variant for rpm build.
 	# delete module versions from setup.py for building an rpm
 	# the dependencies to the python module rpm packages is
@@ -100,6 +110,9 @@ build: clean po tox
 	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
 	# build the sdist source tarball
 	python3 setup.build.py sdist
+	# cleanup sdist_prepare actions
+	rm -f boot_arch.tgz \
+		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 	# cleanup setup.py variant used for rpm build
 	rm -f setup.build.py
 	# provide rpm source tarball
@@ -117,8 +130,10 @@ build: clean po tox
 	# buildservice this data is needed
 	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
 
-pypi: clean po tox
+pypi: clean po tox sdist_prepare
 	python3 setup.py sdist upload
+	rm -f boot_arch.tgz && \
+		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 
 clean: clean_git_attributes
 	rm -f setup.build.py
