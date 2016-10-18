@@ -132,7 +132,6 @@ config = {
     'install_requires': [
         'docopt>=0.6.2',
         'lxml',
-        'pycparser==2.14',
         'xattr',
         'future',
         'six'
