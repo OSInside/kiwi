@@ -106,9 +106,10 @@ class install(distutils_install.install):
         command = ['make']
         if self.root:
             command.append('buildroot=%s/' % self.root)
+        command.append('tools')
         command.append('install')
         self.announce(
-            'Running make install target: %s' % str(command),
+            'Running make tools, install targets: %s' % str(command),
             level=distutils.log.INFO
         )
         self.announce(
