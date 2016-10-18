@@ -1,9 +1,10 @@
 import sys
 import mock
+from mock import call
 
 import kiwi
 
-from .test_helper import raises
+from .test_helper import raises, patch
 
 from kiwi.exceptions import KiwiImageResizeError, KiwiConfigFileNotFound
 
@@ -61,6 +62,7 @@ class TestImageResizeTask(object):
     def test_process_image_resize_gb(self):
         self._init_command_args()
         self.task.command_args['resize'] = True
+        self.image_format.resize_raw_disk.return_value = True
         self.task.process()
         self.image_format.resize_raw_disk.assert_called_once_with(
             42 * 1024 * 1024 * 1024
@@ -71,6 +73,7 @@ class TestImageResizeTask(object):
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42m'
+        self.image_format.resize_raw_disk.return_value = True
         self.task.process()
         self.image_format.resize_raw_disk.assert_called_once_with(
             42 * 1024 * 1024
@@ -81,11 +84,31 @@ class TestImageResizeTask(object):
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42'
+        self.image_format.resize_raw_disk.return_value = True
         self.task.process()
         self.image_format.resize_raw_disk.assert_called_once_with(
             42
         )
         self.image_format.create_image_format.assert_called_once_with()
+
+    @patch('kiwi.logger.log.info')
+    def test_process_image_resize_not_needed(self, mock_log_info):
+        self._init_command_args()
+        self.task.command_args['resize'] = True
+        self.task.command_args['--size'] = '42'
+        self.image_format.resize_raw_disk.return_value = False
+        self.task.process()
+        self.image_format.resize_raw_disk.assert_called_once_with(
+            42
+        )
+        assert mock_log_info.call_args_list == [
+            call('Loading XML description'),
+            call('--> loaded %s', '../data/root-dir/image/config.xml'),
+            call('--> Selected build type: %s', 'vmx'),
+            call('--> Selected profiles: %s', 'vmxFlavour'),
+            call('Resizing raw disk to %d bytes', 42),
+            call('Raw disk is already at %d bytes', 42)
+        ]
 
     def test_process_image_resize_help(self):
         self._init_command_args()

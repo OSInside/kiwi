@@ -72,7 +72,6 @@ class ImageResizeTask(CliTask):
         geometry using the qemu tool chain
         """
         self.manual = Help()
-
         if self.command_args.get('help') is True:
             return self.manual.show('kiwi::image::resize')
 
@@ -104,12 +103,16 @@ class ImageResizeTask(CliTask):
         log.info(
             'Resizing raw disk to %d bytes', new_disk_size
         )
-        image_format.resize_raw_disk(new_disk_size)
-        if disk_format:
+        resize_result = image_format.resize_raw_disk(new_disk_size)
+        if disk_format and resize_result is True:
             log.info(
                 'Creating %s disk format from resized raw disk', disk_format
             )
             image_format.create_image_format()
+        elif resize_result is False:
+            log.info(
+                'Raw disk is already at %d bytes', new_disk_size
+            )
 
     def _to_bytes(self, size_value):
         size_format = '^(\d+)([gGmM]{0,1})$'
