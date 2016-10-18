@@ -125,13 +125,13 @@ class Cli(object):
         :return: service name
         :rtype: string
         """
-        if self.all_args['image']:
+        if self.all_args.get('image') is True:
             return 'image'
-        elif self.all_args['system']:
+        elif self.all_args.get('system') is True:
             return 'system'
-        elif self.all_args['result']:
+        elif self.all_args.get('result') is True:
             return 'result'
-        elif self.all_args['--compat']:
+        elif self.all_args.get('--compat') is True:
             return 'compat'
         else:
             raise KiwiUnknownServiceName(
