@@ -105,8 +105,9 @@ class DiskFormatBase(object):
         size_bytes = int(size_bytes)
         if size_bytes < current_byte_size:
             raise KiwiResizeRawDiskError(
-                'Can not shrink %s disk to %d bytes without data corruption' %
-                (self.diskname, size_bytes)
+                'shrinking {0} disk to {1} bytes corrupts the image'.format(
+                    self.diskname, size_bytes
+                )
             )
         elif size_bytes == current_byte_size:
             return False
