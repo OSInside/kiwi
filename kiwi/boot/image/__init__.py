@@ -33,7 +33,7 @@ class BootImage(object):
         if not initrd_system:
             initrd_system = 'kiwi'
         if initrd_system == 'kiwi':
-            return BootImageKiwi(xml_state, target_dir, root_dir)
+            return BootImageKiwi(xml_state, target_dir)
         elif initrd_system == 'dracut':
             return BootImageDracut(xml_state, target_dir, root_dir)
         else:

@@ -204,7 +204,7 @@ class DiskBuilder(object):
             xml_state, root_dir
         )
         self.boot_image = BootImage(
-            xml_state, target_dir
+            xml_state, target_dir, root_dir
         )
         self.firmware = FirmWare(
             xml_state
@@ -920,34 +920,35 @@ class DiskBuilder(object):
                 self.system.umount_volumes()
 
     def _copy_first_boot_files_to_system_image(self):
-        log.info('Copy boot files to system image')
-        kernel = Kernel(self.boot_image.boot_root_directory)
-        boot_names = self._get_boot_names()
+        if not self.initrd_system or self.initrd_system == 'kiwi':
+            log.info('Copy boot files to system image')
+            kernel = Kernel(self.boot_image.boot_root_directory)
+            boot_names = self._get_boot_names()
 
-        log.info('--> boot image kernel as %s', boot_names.kernel_name)
-        kernel.copy_kernel(
-            self.root_dir, '/boot/' + boot_names.kernel_name
-        )
+            log.info('--> boot image kernel as %s', boot_names.kernel_name)
+            kernel.copy_kernel(
+                self.root_dir, ''.join(['/boot/', boot_names.kernel_name])
+            )
 
-        if self.machine and self.machine.get_domain() == 'dom0':
-            if kernel.get_xen_hypervisor():
-                log.info('--> boot image Xen hypervisor as xen.gz')
-                kernel.copy_xen_hypervisor(
-                    self.root_dir, '/boot/xen.gz'
-                )
-            else:
-                raise KiwiDiskBootImageError(
-                    'No hypervisor in boot image tree %s found' %
-                    self.boot_image.boot_root_directory
-                )
+            if self.machine and self.machine.get_domain() == 'dom0':
+                if kernel.get_xen_hypervisor():
+                    log.info('--> boot image Xen hypervisor as xen.gz')
+                    kernel.copy_xen_hypervisor(
+                        self.root_dir, '/boot/xen.gz'
+                    )
+                else:
+                    raise KiwiDiskBootImageError(
+                        'No hypervisor in boot image tree %s found' %
+                        self.boot_image.boot_root_directory
+                    )
 
-        log.info('--> initrd archive as %s', boot_names.initrd_name)
-        Command.run(
-            [
-                'mv', self.boot_image.initrd_filename,
-                self.root_dir + '/boot/' + boot_names.initrd_name
-            ]
-        )
+            log.info('--> initrd archive as %s', boot_names.initrd_name)
+            Command.run(
+                [
+                    'mv', self.boot_image.initrd_filename,
+                    self.root_dir + ''.join(['/boot/', boot_names.initrd_name])
+                ]
+            )
 
     def _get_boot_names(self):
         boot_names_type = namedtuple(

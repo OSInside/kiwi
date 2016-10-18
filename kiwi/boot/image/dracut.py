@@ -18,11 +18,7 @@
 import os
 
 # project
-from ...defaults import Defaults
-from ...system.prepare import SystemPrepare
-from ...system.profile import Profile
 from ...utils.compress import Compress
-from ...system.setup import SystemSetup
 from ...logger import log
 from ...command import Command
 from ...system.kernel import Kernel
@@ -31,47 +27,15 @@ from .base import BootImageBase
 
 class BootImageDracut(BootImageBase):
     """
-    Implements preparation and creation of kiwi boot(initrd) images
-    The kiwi initrd is a customized first boot initrd which allows
-    to control the first boot an appliance. The kiwi initrd replaces
-    itself after first boot by the result of dracut.
+    Implements creation of dracut boot(initrd) images.
     """
     def prepare(self):
         """
-        Prepare new root system suitable to run dracut as chrooted
-        operation to create the initrd
+        For dracut no further preparation steps are required.
+        dracut is called as chroot operation in the system tree.
+        No extra caller environment will be created in this case
         """
-        self.load_boot_xml_description()
-        boot_image_name = self.boot_xml_state.xml_data.get_name()
-
-        self.import_system_description_elements()
-
-        log.info('Preparing boot image')
-        system = SystemPrepare(
-            xml_state=self.boot_xml_state,
-            root_dir=self.boot_root_directory,
-            allow_existing=True
-        )
-        manager = system.setup_repositories()
-        system.install_bootstrap(
-            manager
-        )
-        system.install_system(
-            manager
-        )
-
-        profile = Profile(self.boot_xml_state)
-        profile.add('kiwi_initrdname', boot_image_name)
-
-        defaults = Defaults()
-        defaults.to_profile(profile)
-
-        self.setup = SystemSetup(
-            self.boot_xml_state, self.boot_root_directory
-        )
-        self.setup.import_shell_environment(profile)
-        self.setup.import_description()
-        self.setup.call_image_script()
+        pass
 
     def create_initrd(self, mbrid=None):
         """

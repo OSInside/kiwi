@@ -332,15 +332,8 @@ class TestDiskBuilder(object):
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3']),
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir_kiwi'])
         ]
-        self.kernel.copy_kernel.assert_called_once_with(
-            'root_dir', '/boot/vmlinuz-1.2.3'
-        )
-        self.kernel.copy_xen_hypervisor.assert_called_once_with(
-            'root_dir', '/boot/xen.gz'
-        )
         self.setup.export_rpm_package_list.assert_called_once_with(
             'target_dir'
         )
