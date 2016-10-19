@@ -89,6 +89,11 @@ class install(distutils_install.install):
     Custom install command
     Host requirements: make
     """
+    distutils_install.install.user_options += [
+        ('single-version-externally-managed', None,
+         "used by system package builders to create 'flat' eggs")
+    ]
+
     sub_commands = [
         ('install_lib', lambda self:True),
         ('install_headers', lambda self:False),
@@ -96,6 +101,14 @@ class install(distutils_install.install):
         ('install_data', lambda self:False),
         ('install_egg_info', lambda self:True),
     ]
+
+    def initialize_options(self):
+        """
+        Set default values for options
+        Each user option must be listed here with their default value.
+        """
+        distutils_install.install.initialize_options(self)
+        self.single_version_externally_managed = None
 
     def run(self):
         """
