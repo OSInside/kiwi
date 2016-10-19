@@ -759,8 +759,9 @@ class DiskBuilder(object):
         self._write_generic_fstab(device_map, self.system_setup)
 
     def _write_generic_fstab_to_boot_image(self, device_map):
-        log.info('Creating generic boot image etc/fstab')
-        self._write_generic_fstab(device_map, self.boot_image.setup)
+        if not self.initrd_system or self.initrd_system == 'kiwi':
+            log.info('Creating generic boot image etc/fstab')
+            self._write_generic_fstab(device_map, self.boot_image.setup)
 
     def _write_generic_fstab(self, device_map, setup):
         root_is_snapshot = \
