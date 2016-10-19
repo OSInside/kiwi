@@ -22,6 +22,7 @@ from .vhdfixed import DiskFormatVhdFixed
 from .vmdk import DiskFormatVmdk
 from .gce import DiskFormatGce
 from .vdi import DiskFormatVdi
+from .base import DiskFormatBase
 
 from ...exceptions import (
     KiwiDiskFormatSetupError
@@ -92,6 +93,10 @@ class DiskFormat(object):
                     custom_args['adapter_type=%s' % disk_controller] = None
             return DiskFormatVmdk(
                 xml_state, root_dir, target_dir, custom_args
+            )
+        elif name == 'raw':
+            return DiskFormatBase(
+                xml_state, root_dir, target_dir
             )
         else:
             raise KiwiDiskFormatSetupError(

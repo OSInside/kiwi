@@ -17,6 +17,12 @@
 #
 """
 usage: kiwi -h | --help
+       kiwi [--profile=<name>...]
+            [--type=<build_type>]
+            [--logfile=<filename>]
+            [--debug]
+            [--color-output]
+           image <command> [<args>...]
        kiwi [--debug]
             [--color-output]
            result <command> [<args>...]
@@ -43,7 +49,7 @@ global options:
     help
         show manual page
 
-global options for service: system
+global options for services: image, system
     --logfile=<filename>
         create a log file containing all log information including
         debug information even if this is was not requested by the
@@ -119,11 +125,13 @@ class Cli(object):
         :return: service name
         :rtype: string
         """
-        if self.all_args['system']:
+        if self.all_args.get('image') is True:
+            return 'image'
+        elif self.all_args.get('system') is True:
             return 'system'
-        elif self.all_args['result']:
+        elif self.all_args.get('result') is True:
             return 'result'
-        elif self.all_args['--compat']:
+        elif self.all_args.get('--compat') is True:
             return 'compat'
         else:
             raise KiwiUnknownServiceName(
