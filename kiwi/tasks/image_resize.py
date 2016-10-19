@@ -94,24 +94,27 @@ class ImageResizeTask(CliTask):
         )
         if not image_format.has_raw_disk():
             raise KiwiImageResizeError(
-                'no raw disk image %s found in build results' %
-                image_format.diskname
+                'no raw disk image {0} found in build results'.format(
+                    image_format.diskname
+                )
             )
 
         new_disk_size = self._to_bytes(self.command_args['--size'])
 
         log.info(
-            'Resizing raw disk to %d bytes', new_disk_size
+            'Resizing raw disk to {0} bytes'.format(new_disk_size)
         )
         resize_result = image_format.resize_raw_disk(new_disk_size)
         if disk_format and resize_result is True:
             log.info(
-                'Creating %s disk format from resized raw disk', disk_format
+                'Creating {0} disk format from resized raw disk'.format(
+                    disk_format
+                )
             )
             image_format.create_image_format()
         elif resize_result is False:
             log.info(
-                'Raw disk is already at %d bytes', new_disk_size
+                'Raw disk is already at {0} bytes'.format(new_disk_size)
             )
 
     def _to_bytes(self, size_value):
@@ -119,8 +122,9 @@ class ImageResizeTask(CliTask):
         size = re.search(size_format, size_value)
         if not size:
             raise KiwiImageResizeError(
-                'unsupported size format %s, must match %s' %
-                (size_value, size_format)
+                'unsupported size format {0}, must match {1}'.format(
+                    size_value, size_format
+                )
             )
         size_base = int(size.group(1))
         size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())

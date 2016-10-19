@@ -106,8 +106,8 @@ class TestImageResizeTask(object):
             call('--> loaded %s', '../data/root-dir/image/config.xml'),
             call('--> Selected build type: %s', 'vmx'),
             call('--> Selected profiles: %s', 'vmxFlavour'),
-            call('Resizing raw disk to %d bytes', 42),
-            call('Raw disk is already at %d bytes', 42)
+            call('Resizing raw disk to 42 bytes'),
+            call('Raw disk is already at 42 bytes')
         ]
 
     def test_process_image_resize_help(self):
