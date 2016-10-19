@@ -94,7 +94,7 @@ clean_git_attributes:
 
 sdist_prepare:
 	# build the architecture specific boot image structure
-	tar -czf boot_arch.tgz kiwi/boot/arch && \
+	tar --dereference -czf boot_arch.tgz kiwi/boot/arch && \
 		mv kiwi/boot/arch boot_arch && mkdir kiwi/boot/arch
 
 build: clean po tox sdist_prepare
