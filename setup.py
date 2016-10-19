@@ -89,6 +89,11 @@ class install(distutils_install.install):
     Custom install command
     Host requirements: make
     """
+    distutils_install.install.user_options += [
+        ('single-version-externally-managed', None,
+         "used by system package builders to create 'flat' eggs")
+    ]
+
     sub_commands = [
         ('install_lib', lambda self:True),
         ('install_headers', lambda self:False),
@@ -97,11 +102,30 @@ class install(distutils_install.install):
         ('install_egg_info', lambda self:True),
     ]
 
+    def initialize_options(self):
+        """
+        Set default values for options
+        Each user option must be listed here with their default value.
+        """
+        distutils_install.install.initialize_options(self)
+        self.single_version_externally_managed = None
+
     def run(self):
         """
         Run first the related KIWI installation tasks and after
         that the usual Python installation
         """
+        # kiwi boot_arch structure
+        command = ['tar', '-xvf', 'boot_arch.tgz']
+        self.announce(
+            'Running unpacking of boot_arch.tgz',
+            level=distutils.log.INFO
+        )
+        self.announce(
+            subprocess.check_output(command).decode(),
+            level=distutils.log.INFO
+        )
+
         # kiwi tools, completion and manual pages
         command = ['make']
         if self.root:

@@ -20,12 +20,3 @@ script:
 - tox
 after_success:
 - tox -e doc_travis_deploy
-deploy:
-  provider: pypi
-  user: suse
-  password:
-    secure: hBrKwe0J7K/AoujTRvShGCQLh7e1p/JlIYJqvczlxVDPyc97Cxx1Ly7n7eS/rG3o5n0YiLj12rg8kT4/EYPQJ+mBUSYE5N07OEugnDNAxhRsTQD2iB121PiGlQEhTbyQ0aKLFUPZioqgHQHU6SJ4xEd6MfbaGWIeplmY1os0cDaHpcD3+S2hZfD8LmZCDj03O9+9QlmdXeUoGDr88M7zg30ZQZYWiHm6QpQdYB+yvaCTcBUGf2Qe1VTN2WlCtPXQaRnApXt4uubjd6sir36+3WtOWt4Tiv3lCJ3Sz3c4qMF8d/kVZqpUl7nY/2YuBJziJ1STq/VxDyK1zVmQrQ/D2CTINC/+9JkfLnV+0x5luxrYpL6Te2tkjkMgLnBjxf22v7BOd4skz2MSkyQeKY9bxP4pstU4JEWVc32iCWlpMGTfLr8TqwrpNjNoBvOQ3W/pp7shSv8TKEIUxPz5ZOSZK1ax44f3Ivrfb60tIgTLBMWA/gjI7lUVqDD4bdjBQ+a8YTyIdfBWEPVrb8uwFzesqR27AkhftjGht8Srl9J5UTqQmizECz/7l8RM8iiaW0dSDZgm66WZBtPfMWDr+i+YJhdGChIyf0GsI5cUfV5OlbGO4fFSnYUBd0Afo/VKSxjNSPOTAr+uVUt9vzISSQ62X4q/HXPoiqFk/1RuLhqB2YY=
-  on:
-    tags: true
-    distributions: sdist bdist_wheel
-    repo: SUSE/kiwi
