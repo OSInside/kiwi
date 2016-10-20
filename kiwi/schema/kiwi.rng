@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
@@ -2069,6 +2069,11 @@ At the moment grub, zipl and sys|extlinux are supported</a:documentation>
           <value>grub2_s390x_emu</value>
         </choice>
       </attribute>
+      <sch:pattern id="bootloader">
+        <sch:rule context="type[@bootloader]">
+          <sch:assert test="@image='vmx' or @image='oem'">bootloader attribute is only available for vmx and oem image types.</sch:assert>
+        </sch:rule>
+      </sch:pattern>
     </define>
     <define name="k.type.bootloader_console.attribute">
       <attribute name="bootloader_console">
@@ -2081,6 +2086,11 @@ By default a graphics console setup is used</a:documentation>
           <value>serial</value>
         </choice>
       </attribute>
+      <sch:pattern id="bootloader_console">
+        <sch:rule context="type[@bootloader_console]">
+          <sch:assert test="@image='vmx' or @image='oem'">bootloader_console attribute is only available for vmx and oem image types.</sch:assert>
+        </sch:rule>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_snapshot">
       <attribute name="btrfs_root_is_snapshot">
@@ -2089,6 +2099,12 @@ The snapshot layout is compatible with the snapper management
 toolkit. By default no snapshots are used</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="btrfs_root_is_snapshot">
+        <sch:rule context="type[@btrfs_root_is_snapshot]">
+          <sch:assert test="@image='vmx' or @image='oem' or @image='pxe'">btrfs_root_is_snapshot attribute is only available for vmx, oem and pxe image types.</sch:assert>
+          <sch:assert test="@filesystem='btrfs'">btrfs_root_is_snapshot attribute is only available if filesystem is set to btrfs.</sch:assert>
+        </sch:rule>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_readonly_snapshot">
       <attribute name="btrfs_root_is_readonly_snapshot">

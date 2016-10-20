@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Oct 17 09:10:25 2016 by generateDS.py version 2.23a.
+# Generated Wed Oct 19 18:29:26 2016 by generateDS.py version 2.22a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -24,10 +24,7 @@ import re as re_
 import base64
 import datetime as datetime_
 import warnings as warnings_
-try:
-    from lxml import etree as etree_
-except ImportError:
-    from xml.etree import ElementTree as etree_
+from lxml import etree as etree_
 
 
 Validate_simpletypes_ = True
@@ -41,11 +38,7 @@ def parsexml_(infile, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
-        try:
-            parser = etree_.ETCompatXMLParser()
-        except AttributeError:
-            # fallback to xml.etree
-            parser = etree_.XMLParser()
+        parser = etree_.ETCompatXMLParser()
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 

@@ -21,6 +21,7 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
+namespace sch = "http://purl.oclc.org/dsdl/schematron"
 
 db:info [
     db:releaseinfo [
@@ -1581,6 +1582,16 @@ div {
         attribute bootloader {
             "grub2" | "zipl" | "grub2_s390x_emu"
         }
+	>> sch:pattern [
+	    id = "bootloader"
+	    sch:rule [
+	        context = "type[@bootloader]"
+		sch:assert [
+		    test = "@image=('vmx','oem')"
+		    "bootloader attribute is only available for vmx and oem image types."
+		]
+	    ]
+	]
     k.type.bootloader_console.attribute =
         ## Specifies the bootloader console.
         ## The value only has an effect for the grub bootloader.
@@ -1588,11 +1599,35 @@ div {
         attribute bootloader_console {
             "console" | "gfxterm" | "serial"
         }
+	>> sch:pattern [
+	    id = "bootloader_console"
+	    sch:rule [
+	        context = "type[@bootloader_console]"
+		sch:assert [
+		    test = "@image=('vmx','oem')"
+		    "bootloader_console attribute is only available for vmx and oem image types."
+		]
+	    ]
+	]
     k.type.btrfs_root_is_snapshot =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
         ## toolkit. By default no snapshots are used
         attribute btrfs_root_is_snapshot { xsd:boolean }
+	>> sch:pattern [
+	    id = "btrfs_root_is_snapshot"
+	    sch:rule [
+	        context = "type[@btrfs_root_is_snapshot]"
+		sch:assert [
+		    test = "@image=('vmx','oem','pxe')"
+		    "btrfs_root_is_snapshot attribute is only available for vmx, oem and pxe image types."
+		]
+		sch:assert [
+		    test = "@filesystem='btrfs'"
+		    "btrfs_root_is_snapshot attribute is only available if filesystem is set to btrfs."
+		]
+	    ]
+	]
     k.type.btrfs_root_is_readonly_snapshot =
         ## Tell kiwi to set the btrfs root filesystem snapshot read-only
         ## Once all data has been placed to the root filesystem snapshot

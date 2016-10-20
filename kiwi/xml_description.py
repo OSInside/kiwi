@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from lxml import etree
+from lxml import (
+    etree,
+    isoschematron
+)
 from tempfile import NamedTemporaryFile
 import os
 from six import BytesIO
@@ -85,8 +88,10 @@ class XMLDescription(object):
         """
         self._xsltproc()
         try:
-            relaxng = etree.RelaxNG(
-                etree.parse(Defaults.get_schema_file())
+            schema_doc = etree.parse(Defaults.get_schema_file())
+            relaxng = etree.RelaxNG(schema_doc)
+            schematron = isoschematron.Schematron(
+                schema_doc, store_report=True
             )
         except Exception as e:
             raise KiwiSchemaImportError(
@@ -94,15 +99,19 @@ class XMLDescription(object):
             )
         try:
             description = etree.parse(self.description_xslt_processed.name)
-            validation_ok = relaxng.validate(
-                description
-            )
+            validation_rng = relaxng.validate(description)
+            validation_sch = schematron.validate(description)
         except Exception as e:
             raise KiwiValidationError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
-        if not validation_ok:
-            self._get_validation_details()
+        if not validation_rng:
+            self._get_relaxng_validation_details()
+        if not validation_sch:
+            self._get_schematron_validation_details(
+                schematron.validation_report
+            )
+        if not validation_rng or not validation_sch:
             if self.description:
                 message = 'Schema validation for {description} failed'.format(
                     description=self.description
@@ -112,7 +121,7 @@ class XMLDescription(object):
             raise KiwiDescriptionInvalid(message)
         return self._parse()
 
-    def _get_validation_details(self):
+    def _get_relaxng_validation_details(self):
         """
         Run jing process to validate description against the schema
 
@@ -130,8 +139,21 @@ class XMLDescription(object):
                 '%s: %s: %s', 'jing', type(e).__name__, format(e)
             )
             return
-        log.info('Schema validation failed. See jing report:')
-        log.info('--> ' + cmd.output)
+        log.info('RelaxNG validation failed. See jing report:')
+        log.info('--> %s', cmd.output)
+
+    def _get_schematron_validation_details(self, validation_report):
+        """
+        Extract error message form the schematron validation report
+
+        :param etree validation_report: the schematron validation report
+        """
+        nspaces = validation_report.getroot().nsmap
+        log.info('Schematron validation failed:')
+        for msg in validation_report.xpath(
+            '//svrl:failed-assert/svrl:text', namespaces=nspaces
+        ):
+            log.info('--> %s', msg.text)
 
     def _parse(self):
         try:
