@@ -921,10 +921,10 @@ class DiskBuilder(object):
                 self.system.umount_volumes()
 
     def _copy_first_boot_files_to_system_image(self):
+        boot_names = self._get_boot_names()
         if not self.initrd_system or self.initrd_system == 'kiwi':
             log.info('Copy boot files to system image')
             kernel = Kernel(self.boot_image.boot_root_directory)
-            boot_names = self._get_boot_names()
 
             log.info('--> boot image kernel as %s', boot_names.kernel_name)
             kernel.copy_kernel(
@@ -943,13 +943,13 @@ class DiskBuilder(object):
                         self.boot_image.boot_root_directory
                     )
 
-            log.info('--> initrd archive as %s', boot_names.initrd_name)
-            Command.run(
-                [
-                    'mv', self.boot_image.initrd_filename,
-                    self.root_dir + ''.join(['/boot/', boot_names.initrd_name])
-                ]
-            )
+        log.info('--> initrd archive as %s', boot_names.initrd_name)
+        Command.run(
+            [
+                'mv', self.boot_image.initrd_filename,
+                self.root_dir + ''.join(['/boot/', boot_names.initrd_name])
+            ]
+        )
 
     def _get_boot_names(self):
         boot_names_type = namedtuple(
