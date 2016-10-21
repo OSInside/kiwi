@@ -288,7 +288,7 @@ List of attributes for ``type``:
 * ``boottimeout`` `[?]`_: Specifies the boot timeout in seconds prior to launching the default boot option. the unit for the timeout value is seconds if GRUB is used as the boot loader and 1/10 seconds if syslinux is used
 * ``btrfs_root_is_snapshot`` `[?]`_: Tell kiwi to install the system into a btrfs snapshot The snapshot layout is compatible with the snapper management toolkit. By default no snapshots are used
 * ``btrfs_root_is_readonly_snapshot`` `[?]`_: Tell kiwi to set the btrfs root filesystem snapshot read-only Once all data has been placed to the root filesystem snapshot it will be turned into read-only mode if this option is set to true. The option is only effective if btrfs_root_is_snapshot is also set to true. By default the root filesystem snapshot is writable
-* ``checkprebuilt`` `[?]`_: Activates whether KIWI should search for a prebuild boot image or not
+* ``checkprebuilt`` `[?]`_: Activates whether KIWI should search for a prebuild boot image or not. Obsolete attribute since KIWI v8
 * ``compressed`` `[?]`_: Specifies whether the image output file should be compressed or not. This makes only sense for filesystem only images respectively for the pxe or cpio type
 * ``container`` `[?]`_: Specifies a name for the container
 * ``devicepersistency`` `[?]`_: Specifies which method to use in order to get persistent storage device names. By default by-uuid is used.
@@ -298,12 +298,12 @@ List of attributes for ``type``:
 * ``flags`` `[?]`_: Specifies flags for the image type. This could be compressed or clic and applies to the iso type only
 * ``format`` `[?]`_: Specifies the format of the virtual disk. The ec2 value is deprecated and no longer supported It remains in the schema to allow us to print a better Error message than we receive from the parser. To be remove from here by the end of 2014
 * ``formatoptions`` `[?]`_: Specifies additional format options passed on to qemu-img formatoptions is a comma separated list of format specific options in a name=value format like qemu-img expects it. kiwi will take the information and pass it as parameter to the -o option in the qemu-img call
-* ``fsnocheck`` `[?]`_: Turn off periodic filesystem checks on ext2/3/4.
+* ``fsnocheck`` `[?]`_: Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute since KIWI v8
 * ``fsmountoptions`` `[?]`_: Specifies the filesystem mount options which also ends up in fstab The string given here is passed as value to the -o option of mount
 * ``gcelicense`` `[?]`_: Specifies the license tag in a GCE format
-* ``hybrid`` `[?]`_: for the iso type only: Specifies that the iso file should be turned into a hybrid iso file. It's required to use the vmxboot boot image to boot that iso though
-* ``hybridpersistent`` `[?]`_: for the iso type only: will trigger the creation of a partition for a COW file to keep data persistent over a reboot
-* ``hybridpersistent_filesystem`` `[?]`_: for the iso type only: Set the filesystem to use for persistent writing if a hybrid ISO is used as disk on e.g a USB Stick. By default the btrfs filesystem is used
+* ``hybrid`` `[?]`_: Specifies that the image file should be turned into a hybrid image file. It's required to use the vmxboot boot image to boot that image though
+* ``hybridpersistent`` `[?]`_: Will trigger the creation of a partition for a COW file to keep data persistent over a reboot
+* ``hybridpersistent_filesystem`` `[?]`_: Set the filesystem to use for persistent writing if a hybrid image is used as disk on e.g a USB Stick. By default the btrfs filesystem is used
 * ``gpt_hybrid_mbr`` `[?]`_: for gpt disk types only: create a hybrid GPT/MBR partition table
 * ``initrd_system`` `[?]`_: specify which initrd builder to use, default is kiwi's builtin architecture. Be aware that the dracut initrd system does not support all features of the kiwi initrd
 * ``image`` : Specifies the image type
