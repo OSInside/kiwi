@@ -227,7 +227,121 @@ class TestDiskBuilder(object):
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
     @patch('os.path.exists')
-    def test_create_disk_standard_root(
+    def test_create_disk_standard_root_with_kiwi_initrd(
+        self, mock_path, mock_command, mock_rand, mock_open, mock_fs
+    ):
+        mock_path.return_value = True
+        mock_rand.return_value = 15
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'kiwi'
+
+        self.disk_builder.create_disk()
+
+        self.setup.create_recovery_archive.assert_called_once_with()
+
+        call = self.setup.export_modprobe_setup.call_args_list[0]
+        assert self.setup.export_modprobe_setup.call_args_list[0] == \
+            call('boot_dir')
+
+        self.setup.set_selinux_file_contexts.assert_called_once_with(
+            '/etc/selinux/targeted/contexts/files/file_contexts'
+        )
+        self.disk_setup.get_disksize_mbytes.assert_called_once_with()
+        self.loop_provider.create.assert_called_once_with()
+        self.disk.wipe.assert_called_once_with()
+        self.disk.create_efi_csm_partition.assert_called_once_with(
+            self.firmware.get_legacy_bios_partition_size()
+        )
+        self.disk.create_efi_partition.assert_called_once_with(
+            self.firmware.get_efi_partition_size()
+        )
+        self.disk.create_boot_partition.assert_called_once_with(
+            self.disk_setup.boot_partition_size()
+        )
+        self.disk.create_prep_partition.assert_called_once_with(
+            self.firmware.get_prep_partition_size()
+        )
+        self.disk.create_root_partition.assert_called_once_with(
+            'all_free'
+        )
+        self.disk.map_partitions.assert_called_once_with()
+        self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
+            '0815'
+        )
+        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+            initrd='initrd.vmx', kernel='linux.vmx', uuid='0815'
+        )
+        self.setup.call_edit_boot_config_script.assert_called_once_with(
+            'btrfs', 1
+        )
+        self.bootloader_install.install.assert_called_once_with()
+        self.setup.call_edit_boot_install_script.assert_called_once_with(
+            'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
+            '/dev/boot-device'
+        )
+
+        self.boot_image_task.prepare.assert_called_once_with()
+
+        call = filesystem.create_on_device.call_args_list[0]
+        assert filesystem.create_on_device.call_args_list[0] == \
+            call(label='EFI')
+        call = filesystem.create_on_device.call_args_list[1]
+        assert filesystem.create_on_device.call_args_list[1] == \
+            call(label='BOOT')
+        call = filesystem.create_on_device.call_args_list[2]
+        assert filesystem.create_on_device.call_args_list[2] == \
+            call(label='ROOT')
+
+        call = filesystem.sync_data.call_args_list[0]
+        assert filesystem.sync_data.call_args_list[0] == \
+            call()
+        call = filesystem.sync_data.call_args_list[1]
+        assert filesystem.sync_data.call_args_list[1] == \
+            call(['efi/*'])
+        call = filesystem.sync_data.call_args_list[2]
+        assert filesystem.sync_data.call_args_list[2] == \
+            call([
+                'image', '.profile', '.kconfig', 'var/cache/kiwi',
+                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
+            ])
+        assert mock_open.call_args_list == [
+            call('boot_dir/config.partids', 'w'),
+            call('root_dir/boot/mbrid', 'w'),
+            call('/dev/some-loop', 'wb')
+        ]
+        assert file_mock.write.call_args_list == [
+            call('kiwi_BootPart="1"\n'),
+            call('kiwi_RootPart="1"\n'),
+            call('0x0f0f0f0f\n'),
+            call(bytes(b'\x0f\x0f\x0f\x0f')),
+        ]
+        assert mock_command.call_args_list == [
+            call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
+            call(['mv', 'initrd', 'root_dir/boot/initrd.vmx']),
+        ]
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('random.randrange')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('os.path.exists')
+    def test_create_disk_standard_root_with_dracut_initrd(
         self, mock_path, mock_command, mock_rand, mock_open, mock_fs
     ):
         mock_path.return_value = True
@@ -293,6 +407,7 @@ class TestDiskBuilder(object):
         )
 
         self.boot_image_kiwi.prepare.assert_called_once_with()
+        self.boot_image_task.prepare.assert_called_once_with()
 
         call = filesystem.create_on_device.call_args_list[0]
         assert filesystem.create_on_device.call_args_list[0] == \
@@ -317,14 +432,11 @@ class TestDiskBuilder(object):
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
         assert mock_open.call_args_list == [
-            call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
             call('/dev/some-loop', 'wb'),
             call('boot_dir_kiwi/config.partids', 'w')
         ]
         assert file_mock.write.call_args_list == [
-            call('kiwi_BootPart="1"\n'),
-            call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f')),
             call('kiwi_BootPart="1"\n'),

@@ -471,6 +471,8 @@ class DiskBuilder(object):
                 log.info('Preparing extra install boot system')
 
                 self.xml_state.build_type.set_initrd_system('kiwi')
+                self.initrd_system = \
+                    self.xml_state.build_type.get_initrd_system()
 
                 self.boot_image = BootImageKiwi(
                     self.xml_state, self.target_dir
@@ -733,12 +735,17 @@ class DiskBuilder(object):
         return self.disk.get_device()
 
     def _write_partition_id_config_to_boot_image(self):
-        log.info('Creating config.partids in boot system')
-        filename = self.boot_image.boot_root_directory + '/config.partids'
-        partition_id_map = self.disk.get_public_partition_id_map()
-        with open(filename, 'w') as partids:
-            for id_name, id_value in list(partition_id_map.items()):
-                partids.write('%s="%s"\n' % (id_name, id_value))
+        if not self.initrd_system or self.initrd_system == 'kiwi':
+            log.info('Creating config.partids in boot system')
+            filename = ''.join(
+                [self.boot_image.boot_root_directory, '/config.partids']
+            )
+            partition_id_map = self.disk.get_public_partition_id_map()
+            with open(filename, 'w') as partids:
+                for id_name, id_value in list(partition_id_map.items()):
+                    partids.write('{0}="{1}"{2}'.format(
+                        id_name, id_value, os.linesep)
+                    )
 
     def _write_raid_config_to_boot_image(self):
         if self.mdraid:
