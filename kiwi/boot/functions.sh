@@ -7620,7 +7620,9 @@ function partedMBToCylinder {
     # ----
     local IFS=$IFS_ORIG
     local sizeBytes=$(($1 * 1048576))
-    local cylreq=$(echo "scale=0; $sizeBytes / ($partedCylKSize * 1000)" | bc)
+    # bc truncates to zero decimal places, which results in a partition that
+    # is slightly smaller than the requested size. Add one cylinder to compensate.
+    local cylreq=$(echo "scale=0; $sizeBytes / ($partedCylKSize * 1000) + 1" | bc)
     echo $cylreq
 }
 #======================================
