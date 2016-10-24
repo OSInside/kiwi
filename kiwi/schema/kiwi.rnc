@@ -1693,7 +1693,7 @@ div {
         attribute bootprofile { text }
         >> sch:pattern [ id = "bootprofile" is-a = "image_type"
             sch:param [ name = "attr" value = "bootprofile" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe cpio" ]
         ]
     k.type.boottimeout.attribute =
         ## Specifies the boot timeout in seconds prior to launching

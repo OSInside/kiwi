@@ -178,7 +178,12 @@ class TestDiskBuilder(object):
         assert disk_builder.arch == 'ix86'
 
     @raises(KiwiInstallMediaError)
-    def test_create_invalid_type_for_install_media(self):
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_invalid_type_for_install_media(
+        self, mock_cmd, mock_open, mock_fs
+    ):
         self.disk_builder.build_type_name = 'vmx'
         self.disk_builder.create()
 

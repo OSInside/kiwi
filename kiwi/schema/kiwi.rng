@@ -2204,7 +2204,7 @@ information is passed as add-profile option</a:documentation>
       </attribute>
       <sch:pattern id="bootprofile" is-a="image_type">
         <sch:param name="attr" value="bootprofile"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe cpio"/>
       </sch:pattern>
     </define>
     <define name="k.type.boottimeout.attribute">

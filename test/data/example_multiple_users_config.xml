@@ -24,7 +24,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="vmx" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
+        <type image="vmx" filesystem="btrfs" boot="oemboot/suse-13.2" bootloader="grub2" kernelcmdline="splash" firmware="efi">
         </type>
     </preferences>
     <users>
