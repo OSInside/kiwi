@@ -90,7 +90,7 @@ class TestProfile(object):
             'kiwi_oemunattended': None,
             'kiwi_oemvmcp_parmfile': None,
             'kiwi_profiles': '',
-            'kiwi_ramonly': None,
+            'kiwi_ramonly': True,
             'kiwi_initrd_system': None,
             'kiwi_btrfs_root_is_snapshot': None,
             'kiwi_gpt_hybrid_mbr': None,
@@ -126,6 +126,7 @@ class TestProfile(object):
             "kiwi_lvmgroup='systemVG'",
             "kiwi_oemrootMB='2048'",
             "kiwi_oemswap='true'",
+            "kiwi_ramonly='true'",
             "kiwi_splash_theme='openSUSE'",
             "kiwi_timezone='Europe/Berlin'",
             "kiwi_type='oem'"

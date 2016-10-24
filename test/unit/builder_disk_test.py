@@ -185,7 +185,7 @@ class TestDiskBuilder(object):
         self, mock_cmd, mock_open, mock_fs
     ):
         self.disk_builder.build_type_name = 'vmx'
-        self.disk_builder.create()
+        self.disk_builder.create_disk()
 
     @raises(KiwiVolumeManagerSetupError)
     def test_create_disk_overlay_with_volume_setup_not_supported(self):
