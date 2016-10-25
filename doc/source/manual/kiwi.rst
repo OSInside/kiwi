@@ -46,29 +46,45 @@ architectures are supported.
 GLOBAL OPTIONS
 --------------
 
---profile=<name>
+--color-output
 
-  Select profile to use. The specified profile must be part of the
-  XML description. The option can be specified multiple times to
-  allow using a combination of profiles
+  Use Escape Sequences to print different types of information
+  in colored output. The underlaying terminal has to understand
+  those escape characters. Error messages appear red, warning
+  messages yellow and debugging information will be printed light
+  grey.
 
---type=<build_type>
+--compat
 
-  Select image build type. The specified build type must be configured
-  as part of the XML description.
+  Support legacy kiwi commandline, see COMPATIBILITY section for details.
+
+--debug
+
+  Print debug information on the commandline.
 
 --logfile=<filename>
 
   Specify log file. the logfile contains detailed information about
   the process.
 
---compat
+--profile=<name>
 
-  Support legacy kiwi commandline, see COMPATIBILITY section for details
+  Select profile to use. The specified profile must be part of the
+  XML description. The option can be specified multiple times to
+  allow using a combination of profiles
 
---debug
+--shared-cache-dir=<directory>
 
-  Print debug information on the commandline
+  Specify an alternative shared cache directory. The directory
+  is shared via bind mount between the build host and image
+  root system and contains information about package repositories
+  and their cache and meta data. The default location is set
+  to /var/cache/kiwi
+
+--type=<build_type>
+
+  Select image build type. The specified build type must be configured
+  as part of the XML description.
 
 --version
 
