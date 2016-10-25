@@ -6163,6 +6163,18 @@ function setupConfigFiles {
     rm -rf /config
 }
 #======================================
+# setupMachineID
+#--------------------------------------
+function setupMachineID {
+    # /.../
+    # systemd-machine-id-setup. Initialize the machine ID
+    # in /etc/machine-id. The machine ID is defined to be a
+    # unique information. Thus it is required to initialize
+    # it on first boot of the image
+    # ----
+    systemd-machine-id-setup
+}
+#======================================
 # activateImage
 #--------------------------------------
 function activateImage {

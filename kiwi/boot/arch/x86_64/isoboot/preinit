@@ -36,11 +36,16 @@ updateMTAB
 setupConsole
 
 #======================================
-# 4) create framebuffer devices
+# 4) setup machine id
+#--------------------------------------
+setupMachineID
+
+#======================================
+# 5) create framebuffer devices
 #--------------------------------------
 createFramebufferDevices
 
 #======================================
-# 5) clean mount
+# 6) clean mount
 #--------------------------------------
 umountSystemFilesystems

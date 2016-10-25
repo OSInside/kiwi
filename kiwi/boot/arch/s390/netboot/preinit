@@ -123,6 +123,7 @@ fi
 #--------------------------------------
 if [ "$systemIntegrity" = "clean" ];then
     setupConsole
+    setupMachineID
 fi
 
 #======================================

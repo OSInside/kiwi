@@ -152,11 +152,16 @@ fi
 setupConsole
 
 #======================================
-# 11) load network module
+# 11) setup machine id
+#--------------------------------------
+setupMachineID
+
+#======================================
+# 12) load network module
 #--------------------------------------
 if loadNetworkCardS390 "0.0.0191";then
     #======================================
-    # 11.2) Setup network interface and DNS
+    # 12.2) Setup network interface and DNS
     #--------------------------------------
     setupNetworkInterfaceS390
     udevPending
@@ -165,12 +170,12 @@ if loadNetworkCardS390 "0.0.0191";then
 fi
 
 #======================================
-# 12) Run user script
+# 13) Run user script
 #--------------------------------------
 runHook preCallInit
 
 #======================================
-# 13) kill udev
+# 14) kill udev
 #--------------------------------------
 udevSystemStop
 umountSystemFilesystems
