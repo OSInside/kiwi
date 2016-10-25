@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Oct 24 14:10:02 2016 by generateDS.py version 2.22a.
+# Generated Tue Oct 25 15:21:18 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('-f', '')
@@ -24,7 +24,10 @@ import re as re_
 import base64
 import datetime as datetime_
 import warnings as warnings_
-from lxml import etree as etree_
+try:
+    from lxml import etree as etree_
+except ImportError:
+    from xml.etree import ElementTree as etree_
 
 
 Validate_simpletypes_ = True
@@ -38,7 +41,11 @@ def parsexml_(infile, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
-        parser = etree_.ETCompatXMLParser()
+        try:
+            parser = etree_.ETCompatXMLParser()
+        except AttributeError:
+            # fallback to xml.etree
+            parser = etree_.XMLParser()
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
