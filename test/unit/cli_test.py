@@ -24,7 +24,7 @@ class TestCli(object):
             '--debug': False,
             'result': False,
             '--profile': [],
-            '--shared-cache-dir': None,
+            '--shared-cache-dir': '/var/cache/kiwi',
             '--help': False
         }
         self.command_args = {

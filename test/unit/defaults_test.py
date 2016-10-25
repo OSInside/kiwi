@@ -46,8 +46,8 @@ class TestDefaults(object):
     def test_get_custom_shared_cache_location(self):
         sys.argv = [
             sys.argv[0],
-            '--shared-cache-dir', 'cachedir',
+            '--shared-cache-dir', '/my/cachedir',
             'system', 'prepare',
             '--description', 'description', '--root', 'directory'
         ]
-        assert Defaults.get_shared_cache_location() == 'cachedir'
+        assert Defaults.get_shared_cache_location() == 'my/cachedir'
