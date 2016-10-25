@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import patch, argv_kiwi_tests
 from kiwi.exceptions import *
 from kiwi.tasks.result_list import ResultListTask
 
@@ -20,6 +20,9 @@ class TestResultListTask(object):
             return_value=mock.Mock()
         )
         self.task = ResultListTask()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     def _init_command_args(self):
         self.task.command_args = {}
