@@ -24,6 +24,7 @@ class TestCli(object):
             '--debug': False,
             'result': False,
             '--profile': [],
+            '--shared-cache-dir': None,
             '--help': False
         }
         self.command_args = {
@@ -42,14 +43,11 @@ class TestCli(object):
             'prepare': True,
             'system': True
         }
-        sys.argv = [
-            sys.argv[0],
-            'system', 'prepare',
-            '--description', 'description',
-            '--root', 'directory'
-        ]
         self.cli = Cli()
         self.loaded_command = self.cli.load_command()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     @raises(SystemExit)
     @patch('kiwi.cli.Help.show')
@@ -59,12 +57,6 @@ class TestCli(object):
         help_show.assert_called_once_with('kiwi')
 
     def test_get_servicename_system(self):
-        sys.argv = [
-            sys.argv[0],
-            'system', 'prepare',
-            '--description', 'description',
-            '--root', 'directory'
-        ]
         cli = Cli()
         assert cli.get_servicename() == 'system'
 

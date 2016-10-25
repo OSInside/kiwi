@@ -66,7 +66,12 @@ class Defaults(object):
         The shared location is a directory which shares data from
         the image buildsystem host with the image root system.
         """
-        return 'var/cache/kiwi'
+        from .cli import Cli
+        global_args = Cli().get_global_args()
+        if global_args['--shared-cache-dir']:
+            return global_args['--shared-cache-dir']
+        else:
+            return 'var/cache/kiwi'
 
     @classmethod
     def get_failsafe_kernel_options(self):
