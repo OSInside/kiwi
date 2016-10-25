@@ -1813,7 +1813,7 @@ div {
         }
         >> sch:pattern [ id = "flags" is-a = "image_type"
             sch:param [ name = "attr" value = "flags" ]
-            sch:param [ name = "types" value = "pxe" ]
+            sch:param [ name = "types" value = "iso" ]
         ]
     k.type.format.attribute =
         ## Specifies the format of the virtual disk.
@@ -2040,7 +2040,7 @@ div {
         attribute wwid_wait_timeout { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "wwid_wait_timeout" is-a = "image_type"
             sch:param [ name = "attr" value = "wwid_wait_timeout" ]
-            sch:param [ name = "types" value = "iso" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.attlist =
         k.type.boot.attribute? &

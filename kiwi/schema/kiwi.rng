@@ -2383,7 +2383,7 @@ or clic and applies to the iso type only</a:documentation>
       </attribute>
       <sch:pattern id="flags" is-a="image_type">
         <sch:param name="attr" value="flags"/>
-        <sch:param name="types" value="pxe"/>
+        <sch:param name="types" value="iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.format.attribute">
@@ -2709,7 +2709,7 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
       </attribute>
       <sch:pattern id="wwid_wait_timeout" is-a="image_type">
         <sch:param name="attr" value="wwid_wait_timeout"/>
-        <sch:param name="types" value="iso"/>
+        <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
     <define name="k.type.attlist">
