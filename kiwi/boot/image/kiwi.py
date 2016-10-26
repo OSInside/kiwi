@@ -78,6 +78,8 @@ class BootImageKiwi(BootImageBase):
         system.pinch_system(
             manager=manager, force=True
         )
+        # make sure system instance is cleaned up before setting up
+        del system
 
         self.setup.call_image_script()
         self.setup.create_init_link_from_linuxrc()
