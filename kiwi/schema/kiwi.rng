@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
@@ -2046,11 +2046,20 @@ the correct timezone and copy it to /etc/localtime.</db:para>
     
   -->
   <div>
+    <sch:pattern abstract="true" id="image_type">
+      <sch:rule context="type[@$attr]">
+        <sch:assert test="contains('$types', @image)">$attr attribute is only available for the following image types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.type.boot.attribute">
       <attribute name="boot">
         <a:documentation>Specifies the path of the boot image (initrd), relative
 to /usr/share/kiwi/image</a:documentation>
       </attribute>
+      <sch:pattern id="boot" is-a="image_type">
+        <sch:param name="attr" value="boot"/>
+        <sch:param name="types" value="oem iso pxe vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.bootkernel.attribute">
       <attribute name="bootkernel">
@@ -2069,6 +2078,10 @@ At the moment grub, zipl and sys|extlinux are supported</a:documentation>
           <value>grub2_s390x_emu</value>
         </choice>
       </attribute>
+      <sch:pattern id="bootloader" is-a="image_type">
+        <sch:param name="attr" value="bootloader"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.bootloader_console.attribute">
       <attribute name="bootloader_console">
@@ -2081,6 +2094,10 @@ By default a graphics console setup is used</a:documentation>
           <value>serial</value>
         </choice>
       </attribute>
+      <sch:pattern id="bootloader_console" is-a="image_type">
+        <sch:param name="attr" value="bootloader_console"/>
+        <sch:param name="types" value="oem vmx iso"/>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_snapshot">
       <attribute name="btrfs_root_is_snapshot">
@@ -2089,6 +2106,10 @@ The snapshot layout is compatible with the snapper management
 toolkit. By default no snapshots are used</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="btrfs_root_is_snapshot" is-a="image_type">
+        <sch:param name="attr" value="btrfs_root_is_snapshot"/>
+        <sch:param name="types" value="oem vmx docker"/>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_readonly_snapshot">
       <attribute name="btrfs_root_is_readonly_snapshot">
@@ -2100,6 +2121,10 @@ is also set to true. By default the root filesystem snapshot
 is writable</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="btrfs_root_is_readonly_snapshot" is-a="image_type">
+        <sch:param name="attr" value="btrfs_root_is_readonly_snapshot"/>
+        <sch:param name="types" value="oem vmx docker"/>
+      </sch:pattern>
     </define>
     <define name="k.type.target_blocksize">
       <attribute name="target_blocksize">
@@ -2110,6 +2135,10 @@ However 4096 byte disks are coming. You can check the
 desired target by calling: blockdev --report device</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
+      <sch:pattern id="target_blocksize" is-a="image_type">
+        <sch:param name="attr" value="target_blocksize"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.target_removable">
       <attribute name="target_removable">
@@ -2121,6 +2150,10 @@ of the target machine. By default the target disk is
 expected to be non-removable</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="target_removable" is-a="image_type">
+        <sch:param name="attr" value="target_removable"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.zipl_targettype.attribute">
       <attribute name="zipl_targettype">
@@ -2134,6 +2167,10 @@ emulated DASD devices use FBA</a:documentation>
           <value>SCSI</value>
         </choice>
       </attribute>
+      <sch:pattern id="zipl_targettype" is-a="image_type">
+        <sch:param name="attr" value="zipl_targettype"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.bootpartsize.attribute">
       <attribute name="bootpartsize">
@@ -2142,6 +2179,10 @@ specifies the size in MB. If not set the min bootpart
 size is set to 200 MB</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
+      <sch:pattern id="bootpartsize" is-a="image_type">
+        <sch:param name="attr" value="bootpartsize"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.vbootsize.attribute">
       <attribute name="vbootsize">
@@ -2150,6 +2191,10 @@ specifies the size in MB. If not set the min vboot
 size is set to 10 MB</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
+      <sch:pattern id="vbootsize" is-a="image_type">
+        <sch:param name="attr" value="vbootsize"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
@@ -2157,6 +2202,10 @@ size is set to 10 MB</a:documentation>
 description. When kiwi builds the boot image the
 information is passed as add-profile option</a:documentation>
       </attribute>
+      <sch:pattern id="bootprofile" is-a="image_type">
+        <sch:param name="attr" value="bootprofile"/>
+        <sch:param name="types" value="oem vmx iso pxe cpio"/>
+      </sch:pattern>
     </define>
     <define name="k.type.boottimeout.attribute">
       <attribute name="boottimeout">
@@ -2166,11 +2215,15 @@ is seconds if GRUB is used as the boot loader and 1/10
 seconds if syslinux is used</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
+      <sch:pattern id="boottimeout" is-a="image_type">
+        <sch:param name="attr" value="boottimeout"/>
+        <sch:param name="types" value="oem vmx iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.checkprebuilt.attribute">
       <attribute name="checkprebuilt">
         <a:documentation>Activates whether KIWI should search for a prebuild boot
-image or not</a:documentation>
+image or not. Obsolete attribute since KIWI v8</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
@@ -2181,11 +2234,19 @@ compressed or not. This makes only sense for filesystem
 only images respectively for the pxe or cpio type</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="compressed" is-a="image_type">
+        <sch:param name="attr" value="compressed"/>
+        <sch:param name="types" value="pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.container.attribute">
       <attribute name="container">
         <a:documentation>Specifies a name for the container</a:documentation>
       </attribute>
+      <sch:pattern id="container" is-a="image_type">
+        <sch:param name="attr" value="container"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
     </define>
     <define name="k.type.devicepersistency.attribute">
       <attribute name="devicepersistency">
@@ -2205,6 +2266,10 @@ before the bootloader is installed. The script runs
 relative to the directory which contains the image
 structure</a:documentation>
       </attribute>
+      <sch:pattern id="editbootconfig" is-a="image_type">
+        <sch:param name="attr" value="editbootconfig"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.editbootinstall.attribute">
       <attribute name="editbootinstall">
@@ -2213,6 +2278,10 @@ after the bootloader is installed. The script runs
 relative to the directory which contains the image
 structure</a:documentation>
       </attribute>
+      <sch:pattern id="editbootinstall" is-a="image_type">
+        <sch:param name="attr" value="editbootinstall"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.filesystem.attribute">
       <attribute name="filesystem">
@@ -2226,6 +2295,10 @@ structure</a:documentation>
           <value>xfs</value>
         </choice>
       </attribute>
+      <sch:pattern id="filesystem" is-a="image_type">
+        <sch:param name="attr" value="filesystem"/>
+        <sch:param name="types" value="vmx oem pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.overlayroot.attribute">
       <attribute name="overlayroot">
@@ -2236,6 +2309,10 @@ extra read-write partition. Available for the disk
 image types, vmx and oem</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="overlayroot" is-a="image_type">
+        <sch:param name="attr" value="overlayroot"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.firmware.attribute">
       <attribute name="firmware">
@@ -2257,6 +2334,10 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>opal</value>
         </choice>
       </attribute>
+      <sch:pattern id="firmware" is-a="image_type">
+        <sch:param name="attr" value="firmware"/>
+        <sch:param name="types" value="vmx oem pxe iso"/>
+      </sch:pattern>
     </define>
     <define name="k.type.bootpartition.attribute">
       <attribute name="bootpartition">
@@ -2264,6 +2345,10 @@ the standard x86 bios firmware setup is used</a:documentation>
 This will overwrite kiwi's default layout</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="bootpartition" is-a="image_type">
+        <sch:param name="attr" value="bootpartition"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.bootfilesystem.attribute">
       <attribute name="bootfilesystem">
@@ -2279,6 +2364,10 @@ e.g for the syslinux loader fat is required</a:documentation>
           <value>fat16</value>
         </choice>
       </attribute>
+      <sch:pattern id="bootfilesystem" is-a="image_type">
+        <sch:param name="attr" value="bootfilesystem"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.flags.attribute">
       <attribute name="flags">
@@ -2292,6 +2381,10 @@ or clic and applies to the iso type only</a:documentation>
           <value>seed</value>
         </choice>
       </attribute>
+      <sch:pattern id="flags" is-a="image_type">
+        <sch:param name="attr" value="flags"/>
+        <sch:param name="types" value="iso"/>
+      </sch:pattern>
     </define>
     <define name="k.type.format.attribute">
       <attribute name="format">
@@ -2313,6 +2406,10 @@ To be remove from here by the end of 2014</a:documentation>
           <value>vhd-fixed</value>
         </choice>
       </attribute>
+      <sch:pattern id="format" is-a="image_type">
+        <sch:param name="attr" value="format"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.formatoptions.attribute">
       <attribute name="formatoptions">
@@ -2322,10 +2419,15 @@ options in a name=value format like qemu-img expects it.
 kiwi will take the information and pass it as parameter to
 the -o option in the qemu-img call</a:documentation>
       </attribute>
+      <sch:pattern id="formatoptions" is-a="image_type">
+        <sch:param name="attr" value="formatoptions"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.fsnocheck.attribute">
       <attribute name="fsnocheck">
-        <a:documentation>Turn off periodic filesystem checks on ext2/3/4.</a:documentation>
+        <a:documentation>Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
+since KIWI v8</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
@@ -2337,26 +2439,31 @@ The string given here is passed as value to the -o option of mount</a:documentat
     </define>
     <define name="k.type.hybrid.attribute">
       <attribute name="hybrid">
-        <a:documentation>for the iso type only:
-Specifies that the iso file should be turned into
-a hybrid iso file. It's required to use the vmxboot
-boot image to boot that iso though</a:documentation>
+        <a:documentation>Specifies that the image file should be turned into
+a hybrid image file. It's required to use the vmxboot
+boot image to boot that image though</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="hybrid" is-a="image_type">
+        <sch:param name="attr" value="hybrid"/>
+        <sch:param name="types" value="iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.hybridpersistent.attribute">
       <attribute name="hybridpersistent">
-        <a:documentation>for the iso type only:
-will trigger the creation of a partition for a COW file
+        <a:documentation>Will trigger the creation of a partition for a COW file
 to keep data persistent over a reboot</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="hybridpersistent" is-a="image_type">
+        <sch:param name="attr" value="hybridpersistent"/>
+        <sch:param name="types" value="iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.hybridpersistent_filesystem.attribute">
       <attribute name="hybridpersistent_filesystem">
-        <a:documentation>for the iso type only:
-Set the filesystem to use for persistent writing if a
-hybrid ISO is used as disk on e.g a USB Stick. By default
+        <a:documentation>Set the filesystem to use for persistent writing if a
+hybrid image is used as disk on e.g a USB Stick. By default
 the btrfs filesystem is used</a:documentation>
         <choice>
           <value>btrfs</value>
@@ -2366,6 +2473,10 @@ the btrfs filesystem is used</a:documentation>
           <value>xfs</value>
         </choice>
       </attribute>
+      <sch:pattern id="hybridpersistent_filesystem" is-a="image_type">
+        <sch:param name="attr" value="hybridpersistent_filesystem"/>
+        <sch:param name="types" value="iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.gpt_hybrid_mbr">
       <attribute name="gpt_hybrid_mbr">
@@ -2373,6 +2484,10 @@ the btrfs filesystem is used</a:documentation>
 create a hybrid GPT/MBR partition table</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="gpt_hybrid_mbr" is-a="image_type">
+        <sch:param name="attr" value="gpt_hybrid_mbr"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.initrd_system.attribute">
       <attribute name="initrd_system">
@@ -2384,6 +2499,10 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>dracut</value>
         </choice>
       </attribute>
+      <sch:pattern id="initrd_system" is-a="image_type">
+        <sch:param name="attr" value="initrd_system"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.image.attribute">
       <attribute name="image">
@@ -2417,6 +2536,10 @@ only evaluated for grub and ext|syslinux"</a:documentation>
           <value>install</value>
         </choice>
       </attribute>
+      <sch:pattern id="installboot" is-a="image_type">
+        <sch:param name="attr" value="installboot"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.installprovidefailsafe.attribute">
       <attribute name="installprovidefailsafe">
@@ -2424,18 +2547,30 @@ only evaluated for grub and ext|syslinux"</a:documentation>
 failsafe entry with special kernel parameters or not"</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="installprovidefailsafe" is-a="image_type">
+        <sch:param name="attr" value="installprovidefailsafe"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.installiso.attribute">
       <attribute name="installiso">
         <a:documentation>Specifies if a install iso should be created (oem only)</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="installiso" is-a="image_type">
+        <sch:param name="attr" value="installiso"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.installstick.attribute">
       <attribute name="installstick">
         <a:documentation>Specifies if a install stick should be created (oem only)</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="installstick" is-a="image_type">
+        <sch:param name="attr" value="installstick"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.installpxe.attribute">
       <attribute name="installpxe">
@@ -2443,6 +2578,10 @@ failsafe entry with special kernel parameters or not"</a:documentation>
 be created (oem only)</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="installpxe" is-a="image_type">
+        <sch:param name="attr" value="installpxe"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.kernelcmdline.attribute">
       <!--
@@ -2450,6 +2589,10 @@ be created (oem only)</a:documentation>
         kernel command line options
       -->
       <attribute name="kernelcmdline"/>
+      <sch:pattern id="kernelcmdline" is-a="image_type">
+        <sch:param name="attr" value="kernelcmdline"/>
+        <sch:param name="types" value="oem vmx iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.luks.attribute">
       <attribute name="luks">
@@ -2458,6 +2601,10 @@ using the LUKS extension. The value of this attribute
 represents the password string used to be able to
 mount that filesystem while booting</a:documentation>
       </attribute>
+      <sch:pattern id="luks" is-a="image_type">
+        <sch:param name="attr" value="luks"/>
+        <sch:param name="types" value="oem vmx iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.luksOS.attribute">
       <attribute name="luksOS">
@@ -2467,6 +2614,10 @@ in order to create a format compatible to the specified
 distribution</a:documentation>
         <value>sle11</value>
       </attribute>
+      <sch:pattern id="luksOS" is-a="image_type">
+        <sch:param name="attr" value="luksOS"/>
+        <sch:param name="types" value="oem vmx iso pxe"/>
+      </sch:pattern>
     </define>
     <define name="k.type.mdraid.attribute">
       <attribute name="mdraid">
@@ -2477,6 +2628,10 @@ Thus only mirroring and striping is possible</a:documentation>
           <value>striping</value>
         </choice>
       </attribute>
+      <sch:pattern id="mdraid" is-a="image_type">
+        <sch:param name="attr" value="mdraid"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.primary.attribute">
       <attribute name="primary">
@@ -2490,11 +2645,19 @@ Thus only mirroring and striping is possible</a:documentation>
 will force any COW action to happen in RAM</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="ramonly" is-a="image_type">
+        <sch:param name="attr" value="ramonly"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.rootfs_label.attribute">
       <attribute name="rootfs_label">
         <a:documentation>label to set for the root filesystem. By default ROOT is used</a:documentation>
       </attribute>
+      <sch:pattern id="rootfs_label" is-a="image_type">
+        <sch:param name="attr" value="rootfs_label"/>
+        <sch:param name="types" value="oem vmx pxe docker"/>
+      </sch:pattern>
     </define>
     <define name="k.type.vga.attribute">
       <attribute name="vga">
@@ -2502,17 +2665,29 @@ will force any COW action to happen in RAM</a:documentation>
 about the possible values can be found by calling
 hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documentation>
       </attribute>
+      <sch:pattern id="vga" is-a="image_type">
+        <sch:param name="attr" value="vga"/>
+        <sch:param name="types" value="oem vmx pxe iso"/>
+      </sch:pattern>
     </define>
     <define name="k.type.gcelicense.attribute">
       <attribute name="gcelicense">
         <a:documentation>Specifies the license tag in a GCE format</a:documentation>
       </attribute>
+      <sch:pattern id="gcelicense" is-a="image_type">
+        <sch:param name="attr" value="gcelicense"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.vhdfixedtag.attribute">
       <attribute name="vhdfixedtag">
         <a:documentation>Specifies the GUID in a fixed format VHD</a:documentation>
         <ref name="vhd-tag-type"/>
       </attribute>
+      <sch:pattern id="vhdfixedtag" is-a="image_type">
+        <sch:param name="attr" value="vhdfixedtag"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.volid.attribute">
       <attribute name="volid">
@@ -2520,6 +2695,10 @@ hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documen
 Specifies the volume ID (volume name or label) to be written
 into the master block. There is space for 32 characters.</a:documentation>
       </attribute>
+      <sch:pattern id="volid" is-a="image_type">
+        <sch:param name="attr" value="volid"/>
+        <sch:param name="types" value="iso"/>
+      </sch:pattern>
     </define>
     <define name="k.type.wwid_wait_timeout.attribute">
       <attribute name="wwid_wait_timeout">
@@ -2528,6 +2707,10 @@ the multipath daemon to wait until all presented devices
 are available on the host. Default timeout is 3 seconds</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
+      <sch:pattern id="wwid_wait_timeout" is-a="image_type">
+        <sch:param name="attr" value="wwid_wait_timeout"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
     </define>
     <define name="k.type.attlist">
       <interleave>

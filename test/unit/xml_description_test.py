@@ -66,32 +66,60 @@ class TestSchema(object):
         self.description_from_file.load()
 
     @raises(KiwiValidationError)
+    @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_validation_error_from_file(
-        self, mock_xslt, mock_parse, mock_relax
+        self, mock_xslt, mock_parse, mock_relax, mock_schematron
     ):
         mock_validate = mock.Mock()
         mock_validate.validate.side_effect = KiwiValidationError(
             'ValidationError'
         )
         mock_relax.return_value = mock_validate
+        mock_schematron.return_value = mock_validate
         self.description_from_file.load()
 
     @raises(KiwiDescriptionInvalid)
+    @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.system.setup.Command.run')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_file_invalid(
-        self, mock_xslt, mock_command, mock_parse, mock_relax
+        self, mock_xslt, mock_command, mock_parse, mock_relax, mock_schematron
     ):
-        mock_validate = mock.Mock()
-        mock_validate.validate = mock.Mock(
+        mock_rng_validate = mock.Mock()
+        mock_rng_validate.validate = mock.Mock(
             return_value=False
         )
-        mock_relax.return_value = mock_validate
+
+        mock_sch_validate = mock.Mock()
+        mock_sch_validate.validate = mock.Mock(
+            return_value=False
+        )
+
+        validation_report = namedtuple(
+            'report', ['text']
+        )
+        name_spaces = namedtuple(
+            'nspaces', ['nsmap']
+        )
+        mock_validation_report = mock.Mock()
+        mock_validation_report.getroot = mock.Mock(
+            return_value = name_spaces(nsmap="")
+        )
+        mock_validation_report.xpath = mock.Mock(
+            return_value = [
+                validation_report(text='wrong attribute 1'),
+                validation_report(text='wrong attribute 2')
+            ]
+        )
+        mock_sch_validate.validation_report = mock_validation_report
+
+        mock_relax.return_value = mock_rng_validate
+        mock_schematron.return_value = mock_sch_validate
         command_run = namedtuple(
             'command', ['output', 'error', 'returncode']
         )
@@ -99,22 +127,48 @@ class TestSchema(object):
             output='jing output\n',
             error='',
             returncode=1
-        ) 
+        )
         self.description_from_file.load()
 
     @raises(KiwiDescriptionInvalid)
+    @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.system.setup.Command.run')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_data_invalid(
-        self, mock_xslt, mock_command, mock_parse, mock_relax
+        self, mock_xslt, mock_command, mock_parse, mock_relax, mock_schematron
     ):
-        mock_validate = mock.Mock()
-        mock_validate.validate = mock.Mock(
+        mock_rng_validate = mock.Mock()
+        mock_rng_validate.validate = mock.Mock(
             return_value=False
         )
-        mock_relax.return_value = mock_validate
+
+        mock_sch_validate = mock.Mock()
+        mock_sch_validate.validate = mock.Mock(
+            return_value=False
+        )
+
+        validation_report = namedtuple(
+            'report', ['text']
+        )
+        name_spaces = namedtuple(
+            'nspaces', ['nsmap']
+        )
+        mock_validation_report = mock.Mock()
+        mock_validation_report.getroot = mock.Mock(
+            return_value = name_spaces(nsmap="")
+        )
+        mock_validation_report.xpath = mock.Mock(
+            return_value = [
+                validation_report(text='wrong attribute 1'),
+                validation_report(text='wrong attribute 2')
+            ]
+        )
+        mock_sch_validate.validation_report = mock_validation_report
+
+        mock_relax.return_value = mock_rng_validate
+        mock_schematron.return_value = mock_sch_validate
         command_run = namedtuple(
             'command', ['output', 'error', 'returncode']
         )
@@ -126,34 +180,49 @@ class TestSchema(object):
         self.description_from_data.load()
 
     @raises(KiwiDescriptionInvalid)
+    @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.system.setup.Command.run')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_data_invalid_no_jing(
-        self, mock_xslt, mock_command, mock_parse, mock_relax
+        self, mock_xslt, mock_command, mock_parse, mock_relax, mock_schematron
     ):
-        mock_validate = mock.Mock()
-        mock_validate.validate = mock.Mock(
+        mock_rng_validate = mock.Mock()
+        mock_rng_validate.validate = mock.Mock(
             return_value=False
         )
-        mock_relax.return_value = mock_validate
+
+        mock_sch_validate = mock.Mock()
+        mock_sch_validate.validate = mock.Mock(
+            return_value=True
+        )
+
+        mock_relax.return_value = mock_rng_validate
+        mock_schematron.return_value = mock_sch_validate
         mock_command.side_effect = KiwiCommandNotFound('No jing command')
         self.description_from_data.load()
 
     @raises(KiwiDataStructureError)
+    @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.xml_parse.parse')
     @patch.object(XMLDescription, '_xsltproc')
     def test_load_data_structure_error(
-        self, mock_xsltproc, mock_xml_parse, mock_etree_parse, mock_relax
+        self, mock_xsltproc, mock_xml_parse,
+        mock_etree_parse, mock_relax, mock_schematron
     ):
-        mock_validate = mock.Mock()
-        mock_validate.validate = mock.Mock(
+        mock_rng_validate = mock.Mock()
+        mock_rng_validate.validate = mock.Mock(
             return_value=True
         )
-        mock_relax.return_value = mock_validate
+        mock_sch_validate = mock.Mock()
+        mock_sch_validate.validate = mock.Mock(
+            return_value=True
+        )
+        mock_relax.return_value = mock_rng_validate
+        mock_schematron.return_value = mock_sch_validate
         mock_xml_parse.side_effect = KiwiDataStructureError(
             'DataStructureError'
         )
