@@ -76,12 +76,17 @@ fi
 setupConsole
 
 #======================================
-# 9) Run user script
+# 9) setup machine id
+#--------------------------------------
+setupMachineID
+
+#======================================
+# 10) Run user script
 #--------------------------------------
 runHook preCallInit
 
 #======================================
-# 10) kill udev
+# 11) kill udev
 #--------------------------------------
 udevSystemStop
 umountSystemFilesystems
