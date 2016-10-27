@@ -134,7 +134,8 @@ class RootInit(object):
             'proc',
             'etc/sysconfig',
             'run',
-            'sys'
+            'sys',
+            'var'
         )
         root_uid = getpwnam('root').pw_uid
         root_gid = getpwnam('root').pw_gid
