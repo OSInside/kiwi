@@ -61,6 +61,12 @@ class Defaults(object):
         ]
 
     @classmethod
+    def is_obs_worker(self):
+        # the presence of /.buildenv on the build host indicates
+        # we are building inside of the open buildservice
+        return os.path.exists('/.buildenv')
+
+    @classmethod
     def get_shared_cache_location(self):
         """
         The shared location is a directory which shares data from
