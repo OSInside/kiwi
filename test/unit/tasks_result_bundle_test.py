@@ -5,7 +5,7 @@ from mock import patch
 from mock import call
 import kiwi
 
-from .test_helper import *
+from .test_helper import patch, raises, argv_kiwi_tests, patch_open
 from kiwi.exceptions import *
 from kiwi.tasks.result_bundle import ResultBundleTask
 from kiwi.system.result import Result
@@ -42,6 +42,9 @@ class TestResultBundleTask(object):
             return_value=mock.Mock()
         )
         self.task = ResultBundleTask()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     def _init_command_args(self):
         self.task.command_args = {}

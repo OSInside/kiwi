@@ -71,8 +71,15 @@ class Defaults(object):
         """
         The shared location is a directory which shares data from
         the image buildsystem host with the image root system.
+        The location is returned as an absolute path stripped off
+        by the leading '/'. This is because the path is transparently
+        used on the host /<cache-dir> and inside of the image
+        imageroot/<cache-dir>
         """
-        return 'var/cache/kiwi'
+        from .cli import Cli
+        return os.path.abspath(os.path.normpath(
+            Cli().get_global_args().get('--shared-cache-dir')
+        )).lstrip(os.sep)
 
     @classmethod
     def get_failsafe_kernel_options(self):

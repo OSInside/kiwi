@@ -66,7 +66,8 @@ class TestRootInit(object):
             call('tmpdir/proc'),
             call('tmpdir/etc/sysconfig'),
             call('tmpdir/run'),
-            call('tmpdir/sys')
+            call('tmpdir/sys'),
+            call('tmpdir/var')
         ]
         assert mock_chwon.call_args_list == [
             call('tmpdir/var/cache/kiwi', 0, 0),
@@ -74,7 +75,8 @@ class TestRootInit(object):
             call('tmpdir/proc', 0, 0),
             call('tmpdir/etc/sysconfig', 0, 0),
             call('tmpdir/run', 0, 0),
-            call('tmpdir/sys', 0, 0)
+            call('tmpdir/sys', 0, 0),
+            call('tmpdir/var', 0, 0)
         ]
         assert mock_mknod.call_args_list == [
             call('tmpdir/dev/null', 8630, 'makedev'),

@@ -6,7 +6,20 @@ import logging
 from io import BytesIO
 from mock import MagicMock, patch
 
+# default log level, overwrite when needed
 kiwi.logger.log.setLevel(logging.WARN)
+
+# default commandline used for any test, overwrite when needed
+sys.argv = [
+    sys.argv[0], 'system', 'prepare',
+    '--description', 'description', '--root', 'directory'
+]
+argv_kiwi_tests = sys.argv
+
+# mock open calls
+patch_open = patch("{0}.open".format(
+    sys.version_info.major < 3 and "__builtin__" or "builtins")
+)
 
 
 class raises(object):
@@ -32,10 +45,6 @@ class raises(object):
                 raise AssertionError(message)
         newfunc = wraps(func)(newfunc)
         return newfunc
-
-
-patch_open = patch("{0}.open".format(sys.version_info.major < 3 and
-                                     "__builtin__" or "builtins"))
 
 def mock_open(data=None):
     '''

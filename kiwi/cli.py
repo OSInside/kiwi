@@ -27,6 +27,7 @@ usage: kiwi -h | --help
             [--color-output]
            result <command> [<args>...]
        kiwi [--profile=<name>...]
+            [--shared-cache-dir=<directory>]
             [--type=<build_type>]
             [--logfile=<filename>]
             [--debug]
@@ -57,6 +58,11 @@ global options for services: image, system
     --profile=<name>
         profile name, multiple profiles can be selected by passing
         this option multiple times
+    --shared-cache-dir=<directory>
+        specify an alternative shared cache directory. The directory
+        is shared via bind mount between the build host and image
+        root system and contains information about package repositories
+        and their cache and meta data. [default: /var/cache/kiwi]
     --type=<build_type>
         image build type. If not set the default XML specified
         build type will be used

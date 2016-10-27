@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import patch, argv_kiwi_tests
 
 from kiwi.tasks.system_update import SystemUpdateTask
 
@@ -29,6 +29,9 @@ class TestSystemUpdateTask(object):
             return_value=mock.Mock()
         )
         self.task = SystemUpdateTask()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     def _init_command_args(self):
         self.task.command_args = {}

@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import patch, argv_kiwi_tests
 
 from kiwi.tasks.system_build import SystemBuildTask
 from kiwi.exceptions import *
@@ -60,6 +60,9 @@ class TestSystemBuildTask(object):
         )
 
         self.task = SystemBuildTask()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     def _init_command_args(self):
         self.task.command_args = {}

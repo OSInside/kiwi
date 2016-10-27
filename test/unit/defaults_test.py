@@ -1,9 +1,9 @@
-
+import sys
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import argv_kiwi_tests
 
 from kiwi.defaults import Defaults
 
@@ -11,6 +11,9 @@ from kiwi.defaults import Defaults
 class TestDefaults(object):
     def setup(self):
         self.defaults = Defaults()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     def test_get(self):
         assert self.defaults.get('kiwi_align') == 1048576
@@ -36,3 +39,15 @@ class TestDefaults(object):
 
     def test_get_publisher(self):
         assert Defaults.get_publisher() == 'SUSE LINUX GmbH'
+
+    def test_get_default_shared_cache_location(self):
+        assert Defaults.get_shared_cache_location() == 'var/cache/kiwi'
+
+    def test_get_custom_shared_cache_location(self):
+        sys.argv = [
+            sys.argv[0],
+            '--shared-cache-dir', '/my/cachedir',
+            'system', 'prepare',
+            '--description', 'description', '--root', 'directory'
+        ]
+        assert Defaults.get_shared_cache_location() == 'my/cachedir'

@@ -319,7 +319,7 @@ class TestDiskBuilder(object):
                 'image', '.profile', '.kconfig', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
-        assert mock_open.call_args_list == [
+        assert mock_open.call_args_list[0:3] == [
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
             call('/dev/some-loop', 'wb')

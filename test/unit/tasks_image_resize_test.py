@@ -4,7 +4,7 @@ from mock import call
 
 import kiwi
 
-from .test_helper import raises, patch
+from .test_helper import raises, patch, argv_kiwi_tests
 
 from kiwi.exceptions import KiwiImageResizeError, KiwiConfigFileNotFound
 
@@ -30,6 +30,9 @@ class TestImageResizeTask(object):
         )
 
         self.task = ImageResizeTask()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     def _init_command_args(self):
         self.task.command_args = {}
