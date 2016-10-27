@@ -71,7 +71,7 @@ class RuntimeChecker(object):
                 repo_source = xml_repo.get_source().get_path()
                 repo_type = xml_repo.get_type()
                 uri = Uri(repo_source, repo_type)
-                if not uri.is_remote():
+                if not uri.is_remote() or Defaults.is_obs_worker():
                     raise KiwiRuntimeError(message % repo_source)
 
     def check_target_directory_not_in_shared_cache(self, target_dir):

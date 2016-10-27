@@ -55,8 +55,6 @@ options:
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
-import os
-
 # project
 from .base import CliTask
 from ..help import Help
@@ -128,7 +126,7 @@ class SystemBuildTask(CliTask):
 
         self.runtime_checker.check_repositories_configured()
 
-        if os.path.exists('/.buildenv'):
+        if Defaults.is_obs_worker():
             # This build runs inside of a buildservice worker. Therefore
             # the repo defintions is adapted accordingly
             self.xml_state.translate_obs_to_suse_repositories()

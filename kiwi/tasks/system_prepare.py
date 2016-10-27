@@ -59,8 +59,6 @@ options:
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
 """
-import os
-
 # project
 from .base import CliTask
 from ..help import Help
@@ -119,7 +117,7 @@ class SystemPrepareTask(CliTask):
 
         self.runtime_checker.check_repositories_configured()
 
-        if os.path.exists('/.buildenv'):
+        if Defaults.is_obs_worker():
             # This build runs inside of a buildservice worker. Therefore
             # the repo defintions is adapted accordingly
             self.xml_state.translate_obs_to_suse_repositories()
