@@ -4427,7 +4427,7 @@ function partitionSize {
     local psizeBytes
     local psizeKBytes
     if [ -z "$diskDevice" ] || [ ! -e "$diskDevice" ];then
-        echo 1 ; return 1
+        echo 0 ; return 1
     fi
     psizeBytes=$(blockdev --getsize64 $diskDevice)
     psizeKBytes=$((psizeBytes / 1024))
@@ -5508,26 +5508,26 @@ function killShell {
 #--------------------------------------
 function waitForStorageDevice {
     # /.../
-    # function to check access on a storage device
-    # which could be a whole disk or a partition.
-    # the function will wait until the size of the
-    # storage device could be obtained or the timeout
-    # is reached. Default timeout is 60 seconds, however
-    # it can be set to different value by setting the
-    # DEVICE_TIMEOUT variable in the kernel command
-    # line.
+    # function to check access on a storage device which could be
+    # a whole disk or a partition. The function will wait until
+    # the size of the storage device could be obtained and is
+    # greater than zero or the timeout is reached. Default timeout
+    # is set to 60 seconds, however it can be set to different
+    # value by setting the DEVICE_TIMEOUT variable on the kernel
+    # command line.
     # ----
     local IFS=$IFS_ORIG
     local device=$1
     local check=0
     local limit=30
+    local storage_size=0
     if [[ $DEVICE_TIMEOUT =~ ^[0-9]+$ ]]; then
-	limit=$(((DEVICE_TIMEOUT + 1)/ 2))
+        limit=$(((DEVICE_TIMEOUT + 1)/ 2))
     fi
     udevPending
     while true;do
-        partitionSize $device &>/dev/null
-        if [ $? = 0 ]; then
+        storage_size=$(partitionSize $device &>/dev/null)
+        if [ $storage_size -gt 0 ]; then
             sleep 1; return 0
         fi
         if [ $check -eq $limit ]; then
