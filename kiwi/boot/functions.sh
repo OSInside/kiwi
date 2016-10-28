@@ -8489,6 +8489,15 @@ function pxeRaidAssemble {
         fi
         IFS=$IFS_ORIG
         mdadm --assemble --run /dev/md$mdcount $devices
+        if ! waitForStorageDevice /dev/md$mdcount; then
+            # start any array that has been partially assembled
+            mdadm -IRs
+            if ! waitForStorageDevice /dev/md$mdcount; then
+                systemException \
+                    "Failed to assemble raid array, too many devices missing" \
+                "reboot"
+            fi
+        fi
         mdadm -Db /dev/md$mdcount >> $conf
         mdcount=$((mdcount + 1))
     done
