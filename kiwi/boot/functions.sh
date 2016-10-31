@@ -3576,7 +3576,7 @@ function setupNetworkWicked {
         dhcp_info=/var/run/wicked/wicked-${try_iface}.info
         if [ -s $dhcp_info ] && grep -q "^IPADDR=" $dhcp_info; then
             echo '<request type="lease"/>' |\
-                wicked test dhcp4 $try_iface > $dhcp_info
+                wicked test dhcp4 --request - -- $try_iface > $dhcp_info
             if [ $? = 0 ];then
                 export PXE_IFACE=$try_iface
                 break
