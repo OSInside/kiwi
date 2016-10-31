@@ -141,8 +141,9 @@ class RootInit(object):
         root_gid = getpwnam('root').pw_gid
         for path in base_system_paths:
             root_path = os.sep.join([root, path])
-            os.makedirs(root_path)
-            os.chown(root_path, root_uid, root_gid)
+            if not os.path.exists(root_path):
+                os.makedirs(root_path)
+                os.chown(root_path, root_uid, root_gid)
 
     def _create_base_links(self, root):
         """

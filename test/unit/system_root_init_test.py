@@ -56,7 +56,16 @@ class TestRootInit(object):
         data_sync = mock.Mock()
         mock_data_sync.return_value = data_sync
         mock_makedev.return_value = 'makedev'
-        mock_path.return_value = True
+        mock_path_return = [
+            True, True, True, False, False, False, False, False, False, False
+        ]
+
+        def path_exists(self):
+            return mock_path_return.pop()
+
+        mock_path.side_effect = path_exists
+
+        mock_path.return_value = False
         mock_temp.return_value = 'tmpdir'
         root = RootInit('root_dir', True)
         root.create()
