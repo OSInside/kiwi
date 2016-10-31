@@ -3524,24 +3524,14 @@ function setupNetworkWicked {
     local nic_config
     local dhcp_info
     local wicked_dhcp4=/usr/lib/wicked/bin/wickedd-dhcp4
-    for try_iface in ${prefer_iface[*]}; do
-        # try DHCP_DISCOVER on all prefered interfaces
-        if ip link set dev $try_iface up;then
-            if [ $try_iface = "lo" ];then
-                continue
-            fi
-            waitForLinkUp $try_iface
+    for try_iface in ${dev_list[*]}; do
+        # try DHCP_DISCOVER on all interfaces
+        if setIPLinkUp $try_iface; then
             dhcp_info=/var/run/wicked/wicked-${try_iface}.info
             $wicked_dhcp4 --debug all \
                 --test --test-output $dhcp_info $try_iface
-            if [ $? == 0 ] && [ -s $dhcp_info ];then
-                importFile < $dhcp_info
-                # IP address information consists out of two parts but we
-                # are only interested in the plain IPv4 address information
-                IPADDR=$(echo $IPADDR | cut -f1 -d/)
-                if setupNic $try_iface $IPADDR $NETMASK;then
-                    DHCPCD_STARTED="$DHCPCD_STARTED $try_iface"
-                fi
+            if [ $? = 0 ] && [ -s $dhcp_info ];then
+                DHCPCD_STARTED="$DHCPCD_STARTED $try_iface"
             fi
         fi
     done
@@ -3558,19 +3548,39 @@ function setupNetworkWicked {
         fi
     fi
     #======================================
-    # setup routing for first discovered
+    # wait for any preferred interface(s)
     #--------------------------------------
-    for try_iface in $DHCPCD_STARTED; do
-        dhcp_info=/var/run/wicked/wicked-${try_iface}.info
-        if [ -s $dhcp_info ]; then
-            export PXE_IFACE=$try_iface
-            ip route add default dev $PXE_IFACE
-            if [ ! -z "$GATEWAYS" ];then
-                # Use first entry as primary gateway
-                local gw=$(echo $GATEWAYS | cut -f1 -d " ")
-                ip route change default via $gw dev $PXE_IFACE
+    for repeat_dhcp_on_discovered in 1 2 ;do
+        for try_iface in ${prefer_iface[*]} ; do
+            dhcp_info=/var/run/wicked/wicked-${try_iface}.info
+            if waitForDHCPInterfaceNegotiation $dhcp_info; then
+                break 2
             fi
-            break
+        done
+        sleep 2
+        # /.../
+        # we are behind the wicked dhcp timeout 20s so the only thing
+        # we can do now is to try again on discovered interfaces
+        # ----
+        for try_iface in $DHCPCD_STARTED; do
+            dhcp_info=/var/run/wicked/wicked-${try_iface}.info
+            $wicked_dhcp4 --debug all \
+                --test --test-output $dhcp_info $try_iface
+        done
+        sleep 2
+    done
+    #============================================
+    # select interface from discovered devices
+    #--------------------------------------------
+    for try_iface in ${prefer_iface[*]} $DHCPCD_STARTED; do
+        dhcp_info=/var/run/wicked/wicked-${try_iface}.info
+        if [ -s $dhcp_info ] && grep -q "^IPADDR=" $dhcp_info; then
+            echo '<request type="lease"/>' |\
+                wicked test dhcp4 $try_iface > $dhcp_info
+            if [ $? = 0 ];then
+                export PXE_IFACE=$try_iface
+                break
+            fi
         fi
     done
     #======================================
@@ -3593,8 +3603,30 @@ function setupNetworkWicked {
     #--------------------------------------
     dhcp_info=/var/run/wicked/wicked-${PXE_IFACE}.info
     if [ -s $dhcp_info ]; then
-        importFile < /var/run/wicked/wicked-${PXE_IFACE}.info
+        waitForDHCPInterfaceNegotiation $dhcp_info
+        importFile < $dhcp_info
         IPADDR=$(echo $IPADDR | cut -f1 -d/)
+        if setupNic $PXE_IFACE $IPADDR $NETMASK; then
+            if ip route add default dev $PXE_IFACE; then
+                if [ ! -z "$GATEWAYS" ];then
+                    # Use first entry as primary gateway
+                    local gw=$(echo $GATEWAYS | cut -f1 -d " ")
+                    if ! ip route change default via $gw dev $PXE_IFACE; then
+                        systemException \
+                            "Failed to change default GW on $PXE_IFACE !" \
+                        "reboot"
+                    fi
+                fi
+            else
+                systemException \
+                    "Failed to setup default route on $PXE_IFACE !" \
+                "reboot"
+            fi
+        else
+            systemException \
+                "Failed to setup IP address on $PXE_IFACE !" \
+            "reboot"
+        fi
     fi
 }
 #======================================
@@ -5569,6 +5601,40 @@ function waitForLinkUp {
         check=$((check + 1))
         sleep 2
     done
+}
+#======================================
+# setIPLinkUp
+#--------------------------------------
+function setIPLinkUp {
+    local IFS=$IFS_ORIG
+    local try_iface=$1
+    if ip link set dev $try_iface up;then
+        if [ ! $try_iface = "lo" ];then
+            waitForLinkUp $try_iface
+        fi
+        # success
+        return 0
+    fi
+    # error on ip call, failed state
+    return 1
+}
+#======================================
+# waitForDHCPInterfaceNegotiation
+#--------------------------------------
+function waitForDHCPInterfaceNegotiation {
+    local IFS=$IFS_ORIG
+    local dhcp_info=$1
+    for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
+        if [ -s $dhcp_info ] &&
+            grep -q "^IPADDR=" $dhcp_info
+        then
+            # success
+            return 0
+        fi
+        sleep 2
+    done
+    # timeout reached, failed state
+    return 1
 }
 #======================================
 # waitForBlockDevice
