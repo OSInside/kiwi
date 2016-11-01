@@ -10,6 +10,7 @@ matrix:
     env: TOXENV=2.7,check,doc_travis
 before_install:
 - sudo apt-get update -qq
+- sudo apt-get install -y git
 - sudo apt-get install -y xsltproc
 - sudo apt-get install -y genisoimage
 - sudo apt-get install -y enchant
