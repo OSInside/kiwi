@@ -39,10 +39,9 @@ generateDS
 # for building documentation
 sphinx
 sphinx_rtd_theme
-sphinxcontrib-programoutput
 sphinxcontrib-spelling
 pyenchant
-
+git+https://github.com/lunaryorn/sphinxcontrib-programoutput.git
 
 # for test coverage
 coverage
