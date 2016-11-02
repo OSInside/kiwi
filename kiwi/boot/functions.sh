@@ -5768,11 +5768,11 @@ function fetchFile {
     #======================================
     # source host is required
     #--------------------------------------
+    if [ ! -z $kiwiserver ];then
+        host=$kiwiserver
+    fi
     if [ -z "$host" ]; then
-        if test -z "$SERVER"; then
-            systemException "No source server specified" "reboot"
-        fi
-        host=$SERVER
+        systemException "No source server specified" "reboot"
     fi
     #======================================
     # set default chunk size
@@ -5783,12 +5783,11 @@ function fetchFile {
     #======================================
     # set default service type
     #--------------------------------------
+    if [ ! -z $kiwiservertype ]; then
+        type=$kiwiservertype
+    fi
     if [ -z "$type" ]; then
-        if [ -z "$SERVERTYPE" ]; then
-            type="tftp"
-        else
-            type="$SERVERTYPE"
-        fi
+        type="tftp"
     fi
     #======================================
     # set source path + tool if compressed
@@ -6034,18 +6033,17 @@ function putFile {
     if test -z "$path"; then
         systemException "No path specified" "reboot"
     fi
+    if [ ! -z $kiwiserver ];then
+        host=$kiwiserver
+    fi
     if test -z "$host"; then
-        if test -z "$SERVER"; then
-            systemException "No server specified" "reboot"
-        fi
-        host=$SERVER
+        systemException "No server specified" "reboot"
+    fi
+    if [ ! -z $kiwiservertype ]; then
+        type=$kiwiservertype
     fi
     if test -z "$type"; then
-        if test -z "$SERVERTYPE"; then
-            type="tftp"
-        else
-            type="$SERVERTYPE"
-        fi
+        type="tftp"
     fi
     encoded_dest=$(encodeURL "$dest")
     case "$type" in
