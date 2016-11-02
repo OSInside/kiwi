@@ -73,6 +73,9 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + os.linesep
 
         self.header_theme = self.fonts + dedent('''
+            if [ -f $${font} ];then
+                loadfont $${font}
+            fi
             if [ -f ($$root)${bootpath}/$${ascii_font} ];then
                 loadfont ($$root)${bootpath}/$${ascii_font}
             fi
@@ -91,6 +94,9 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + os.linesep
 
         self.header_theme_iso = self.fonts + dedent('''
+            if [ -f $${font} ];then
+                loadfont $${font}
+            fi
             if [ -f ($$root)/boot/$${ascii_font} ];then
                 loadfont ($$root)/boot/$${ascii_font}
             fi
