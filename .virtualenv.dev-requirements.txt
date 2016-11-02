@@ -43,5 +43,9 @@ sphinxcontrib-spelling
 pyenchant
 git+https://github.com/lunaryorn/sphinxcontrib-programoutput.git
 
+# for travis deployment tasks
+travis-sphinx
+ghp-import
+
 # for test coverage
 coverage
