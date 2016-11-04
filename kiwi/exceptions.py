@@ -585,6 +585,13 @@ class KiwiSetupIntermediateConfigError(KiwiError):
     """
 
 
+class KiwiSolverRepositorySetupError(KiwiError):
+    """
+    Exception raised if the repository type is not supported for
+    the creation of a SAT solvable
+    """
+
+
 class KiwiSystemDeletePackagesFailed(KiwiError):
     """
     Exception raised if the deletion of a package has failed in
