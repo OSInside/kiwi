@@ -35,8 +35,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinxcontrib.spelling',
-    'sphinx.ext.autodoc',
-    'sphinxcontrib.programoutput',
+    'sphinx.ext.autodoc'
 ]
 
 docopt_ignore = [
