@@ -4,7 +4,19 @@ kiwi system build
 SYNOPSIS
 --------
 
-.. program-output:: bash -c "kiwi-ng system build | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
+.. code-block:: bash
+
+   kiwi [global options] service <command> [<args>]
+
+   kiwi system build -h | --help
+   kiwi system build --description=<directory> --target-dir=<directory>
+       [--ignore-repos]
+       [--set-repo=<source,type,alias,priority>]
+       [--add-repo=<source,type,alias,priority>...]
+       [--obs-repo-internal]
+       [--add-package=<name>...]
+       [--delete-package=<name>...]
+   kiwi system build help
 
 DESCRIPTION
 -----------
@@ -12,8 +24,8 @@ DESCRIPTION
 build an image in one step. The build command combines kiwi's prepare and
 create steps in order to build an image with just one command call. The
 build command creates the root directory of the image below
-*<target-dir>/build/image-root* and if not specified differently writes
-a log file *<target-dir>/build/image-root.log*. The result image files
+`<target-dir>/build/image-root` and if not specified differently writes
+a log file `<target-dir>/build/image-root.log`. The result image files
 are created in the specified target-dir.
 
 OPTIONS
@@ -62,7 +74,7 @@ OPTIONS
 
   - **type**
 
-    repository type, could be one of *rpm-md*, *rpm-dir* or *yast2*.
+    repository type, could be one of `rpm-md`, `rpm-dir` or `yast2`.
 
   - **alias**
 

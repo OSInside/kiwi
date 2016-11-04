@@ -4,7 +4,30 @@ Manual Pages
 SYNOPSIS
 --------
 
-.. program-output:: bash -c "kiwi-ng | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
+.. code-block:: bash
+
+   kiwi [global options] service <command> [<args>]
+
+   kiwi -h | --help
+   kiwi [--profile=<name>...]
+        [--type=<build_type>]
+        [--logfile=<filename>]
+        [--debug]
+        [--color-output]
+       image <command> [<args>...]
+   kiwi [--debug]
+        [--color-output]
+       result <command> [<args>...]
+   kiwi [--profile=<name>...]
+        [--shared-cache-dir=<directory>]
+        [--type=<build_type>]
+        [--logfile=<filename>]
+        [--debug]
+        [--color-output]
+       system <command> [<args>...]
+   kiwi --compat <legacy_args>...
+   kiwi -v | --version
+   kiwi help
 
 DESCRIPTION
 -----------

@@ -4,7 +4,13 @@ kiwi result list
 SYNOPSIS
 --------
 
-.. program-output:: bash -c "kiwi-ng result list | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
+.. code-block:: bash
+
+   kiwi [global options] service <command> [<args>]
+
+   kiwi result list -h | --help
+   kiwi result list --target-dir=<directory>
+   kiwi result list help
 
 DESCRIPTION
 -----------

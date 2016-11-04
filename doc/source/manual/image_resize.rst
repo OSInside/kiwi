@@ -4,7 +4,14 @@ kiwi image resize
 SYNOPSIS
 --------
 
-.. program-output:: bash -c "kiwi-ng image resize | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
+.. code-block:: bash
+
+   kiwi [global options] service <command> [<args>]
+
+   kiwi image resize -h | --help
+   kiwi image resize --target-dir=<directory> --size=<size>
+       [--root=<directory>]
+   kiwi image resize help
 
 DESCRIPTION
 -----------

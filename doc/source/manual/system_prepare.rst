@@ -4,7 +4,20 @@ kiwi system prepare
 SYNOPSIS
 --------
 
-.. program-output:: bash -c "kiwi-ng system prepare | awk 'BEGIN{ found=1} /global options:/{found=0} {if (found) print }'"
+.. code-block:: bash
+
+   kiwi [global options] service <command> [<args>]
+
+   kiwi system prepare -h | --help
+   kiwi system prepare --description=<directory> --root=<directory>
+       [--allow-existing-root]
+       [--ignore-repos]
+       [--set-repo=<source,type,alias,priority>]
+       [--add-repo=<source,type,alias,priority>...]
+       [--obs-repo-internal]
+       [--add-package=<name>...]
+       [--delete-package=<name>...]
+   kiwi system prepare help
 
 DESCRIPTION
 -----------
