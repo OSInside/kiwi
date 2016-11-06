@@ -15,7 +15,257 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from six.moves.urllib.request import urlopen
+from tempfile import NamedTemporaryFile
+from tempfile import mkdtemp
+from lxml import etree
+import random
+import glob
+import os
+
+# project
+from ...exceptions import KiwiUriOpenError
+from ...path import Path
+from ...command import Command
+from ...defaults import Defaults
 
 
 class SolverRepositoryBase(object):
-    pass
+    """
+    Base class interface for SAT solvable creation.
+
+    Attributes
+
+    * :attr:`uri`
+        Instance of Uri class
+    """
+    def __init__(self, uri):
+        self.uri = uri
+        self._init_temporary_dir_names()
+
+    def create_repository_solvable(
+        self, target_dir=Defaults.get_solvable_location()
+    ):
+        """
+        Create SAT solvable for this repository from previously
+        created intermediate solvables by merge and store the
+        result solvable in the specified target_dir
+
+        :param string target_dir: path name
+
+        :return: file path to solvable
+        :rtype: string
+        """
+        Path.create(target_dir)
+        if not self.is_uptodate(target_dir):
+            self._setup_repository_metadata()
+            solvable = self._merge_solvables(target_dir)
+            self._cleanup()
+            return solvable
+
+    def timestamp(self):
+        """
+        Return repository timestamp
+
+        The retrieval of the repository timestamp depends on the
+        type of the repository and is therefore supposed to be implemented
+        in the specialized Solver Repository classes. If no such
+        implementation exists the method returns the value 'static'
+        to indicate there is no timestamp information available.
+
+        :rtype: string
+        """
+        return 'static'
+
+    def is_uptodate(self, target_dir=Defaults.get_solvable_location()):
+        """
+        Check if repository metadata is up to date
+
+        :rtype: bool
+        """
+        solvable_time_file = ''.join(
+            [target_dir, os.sep, self.uri.alias(), '.timestamp']
+        )
+        if os.path.exists(solvable_time_file):
+            with open(solvable_time_file) as solvable_time:
+                saved_time = solvable_time.read()
+            if saved_time == self.timestamp() and not saved_time == 'static':
+                return True
+
+        return False
+
+    def download_from_repository(self, repo_source, target):
+        """
+        Download given source file from the repository and store
+        it as target file
+
+        The source location is used relative to the repository
+        location and will be created as mime type location like
+        http://location or file://location
+
+        :param string source: source file in the repo
+        :param string target: file path
+        """
+        try:
+            location = urlopen(
+                os.sep.join([self._get_mime_typed_uri(), repo_source])
+            )
+        except Exception as e:
+            raise KiwiUriOpenError(
+                '{0}: {1}'.format(type(e).__name__, format(e))
+            )
+        with open(target, 'wb') as target_file:
+            target_file.write(location.read())
+
+    def _get_repomd_xml(self, lookup_path='repodata'):
+        """
+        Parse repomd.xml file from lookup_path and return an etree
+        This method only applies to rpm-md type repositories
+
+        :rtype: XML etree
+        """
+        xml_download = NamedTemporaryFile()
+        xml_setup_file = os.sep.join([lookup_path, 'repomd.xml'])
+        self.download_from_repository(xml_setup_file, xml_download.name)
+        return etree.parse(xml_download.name)
+
+    def _get_repomd_xpath(self, xml_data, expression):
+        """
+        Call the provided xpath expression on the root element
+        of the xml_data which must be an XML etree parsed document
+        and return the result. This method only applies to
+        repomd.xml files of the correct namespaces:
+
+        * http://linux.duke.edu/metadata/repo
+        * http://linux.duke.edu/metadata/rpm
+
+        :rtype: list
+        """
+        namespace_map = dict(
+            repo='http://linux.duke.edu/metadata/repo',
+            rpm='http://linux.duke.edu/metadata/rpm'
+        )
+        return xml_data.getroot().xpath(
+            expression, namespaces=namespace_map
+        )
+
+    def _setup_repository_metadata(self):
+        """
+        Download all relevant repository metadata and create
+        intermediate solvables from the result. The metadata structure
+        depends on the type of the repository and must be implemented
+        in the specialized Solver Repository classes.
+        """
+        raise NotImplementedError
+
+    def _create_solvables(self, metadata_dir, tool):
+        """
+        Create intermediate (before merge) SAT solvables from the
+        data given in the metadata_dir and store the result in the
+        temporary repository_solvable_dir. The given tool must
+        match the solvable data structure. There are the following
+        tools to create a solvable from repository metadata:
+
+        * rpmmd2solv
+          solvable from repodata files
+
+        * susetags2solv
+          solvable from SUSE (yast2) repository files
+
+        * comps2solv
+          solvable from RHEL component files
+
+        * rpms2solv
+          solvable from rpm header files
+
+        :param string metadata_dir: path name
+        :param string tool: one of the above tools
+        """
+        if not self.repository_solvable_dir:
+            self.repository_solvable_dir = mkdtemp(prefix='solvable_dir.')
+
+        if tool is 'rpms2solv':
+            # solvable is created from a bunch of rpm files
+            bash_command = [
+                tool, os.sep.join([metadata_dir, '*.rpm']),
+                '>', self._get_random_solvable_name()
+            ]
+            Command.run(['bash', '-c', ' '.join(bash_command)])
+        else:
+            # each file in the metadata_dir is considered a valid
+            # solvable for the selected solv tool
+            for source in glob.iglob('/'.join([metadata_dir, '*'])):
+                bash_command = [
+                    'gzip', '-cd', '--force', source, '|', tool,
+                    '>', self._get_random_solvable_name()
+                ]
+                Command.run(['bash', '-c', ' '.join(bash_command)])
+
+    def _merge_solvables(self, target_dir):
+        """
+        Merge all intermediate SAT solvables into one and store
+        the result in the given target_dir. In addition an
+        info file containing the repo url and a timestamp file
+        is created
+
+        :param string target_dir: path name
+        """
+        if self.repository_solvable_dir:
+            solvable = os.sep.join([target_dir, self.uri.alias()])
+            bash_command = [
+                'mergesolv', '/'.join([self.repository_solvable_dir, '*']),
+                '>', solvable
+            ]
+            Command.run(['bash', '-c', ' '.join(bash_command)])
+            with open('.'.join([solvable, 'info']), 'w') as solvable_info:
+                solvable_info.write(''.join([self.uri.uri, os.linesep]))
+            with open('.'.join([solvable, 'timestamp']), 'w') as solvable_time:
+                solvable_time.write(self.timestamp())
+            return solvable
+
+    def _cleanup(self):
+        """
+        Delete all temporary directories
+        """
+        for metadata_dir in self.repository_metadata_dirs:
+            Path.wipe(metadata_dir)
+
+        if self.repository_solvable_dir:
+            Path.wipe(self.repository_solvable_dir)
+
+        self._init_temporary_dir_names()
+
+    def _get_mime_typed_uri(self):
+        return self.uri.translate() if self.uri.is_remote() else ''.join(
+            ['file://', self.uri.translate()]
+        )
+
+    def _init_temporary_dir_names(self):
+        """
+        Initialize data structures to store temporary directory names
+        required to hold the repository metadata and solvable files
+        until the final repository solvable got created
+        """
+        self.repository_metadata_dirs = []
+        self.repository_solvable_dir = None
+
+    def _create_temporary_metadata_dir(self):
+        """
+        Create and manage a temporary metadata directory
+        """
+        metadata_dir = mkdtemp(prefix='metadata_dir.')
+        self.repository_metadata_dirs.append(metadata_dir)
+        return metadata_dir
+
+    def _get_random_solvable_name(self):
+        if self.repository_solvable_dir:
+            return '{0}/solvable-{1}{2}{3}{4}'.format(
+                self.repository_solvable_dir,
+                self._rand(), self._rand(), self._rand(), self._rand()
+            )
+
+    def _rand(self):
+        return '%02x' % random.randrange(1, 0xfe)
+
+    def __del__(self):
+        self._cleanup()

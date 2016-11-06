@@ -640,6 +640,12 @@ class KiwiUnknownServiceName(KiwiError):
     """
 
 
+class KiwiUriOpenError(KiwiError):
+    """
+    Exception raised if the urllib urlopen request has failed
+    """
+
+
 class KiwiUriStyleUnknown(KiwiError):
     """
     Exception raised if an unsupported URI style was used in the

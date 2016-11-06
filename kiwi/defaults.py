@@ -67,6 +67,15 @@ class Defaults(object):
         return os.path.exists('/.buildenv')
 
     @classmethod
+    def get_solvable_location(self):
+        """
+        The directory to store SAT solvables for repositories.
+        The solvable files are used to perform package
+        dependency and metadata resolution
+        """
+        return '/var/tmp/kiwi/satsolver'
+
+    @classmethod
     def get_shared_cache_location(self):
         """
         The shared location is a directory which shares data from
