@@ -300,9 +300,7 @@ class BootLoaderConfigBase(object):
                     # setup and no extra boot partition we have to care for
                     # the layout of the system which places all volumes below
                     # a topleve volume or snapshot
-                    if not boot_is_on_volume and root_is_snapshot:
-                        bootpath = '/@/.snapshots/1/snapshot' + bootpath
-                    else:
+                    if not boot_is_on_volume and not root_is_snapshot:
                         bootpath = '/@' + bootpath
 
         return bootpath
