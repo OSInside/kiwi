@@ -15,9 +15,58 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+from collections import namedtuple
+
 # project
 from .base import SolverRepositoryBase
 
 
 class SolverRepositorySUSE(SolverRepositoryBase):
-    pass
+    def _setup_repository_metadata(self):
+        """
+        Download repo metadata for SUSE specific repositories and
+        create SAT solvables from all solver relevant files
+        """
+        metadata_dir = self._create_temporary_metadata_dir()
+        repo_data = self._find_primary_repository_files()
+        for primary_file in repo_data.primary_files:
+            self.download_from_repository(
+                primary_file,
+                os.sep.join([metadata_dir, os.path.basename(primary_file)])
+            )
+        self._create_solvables(
+            metadata_dir, repo_data.solv_tool
+        )
+
+    def _find_primary_repository_files(self):
+        """
+        Lookup repodata/repomd.xml or alternative the packages.gz
+        from the suse/setup/descr metadata. For online suse repos
+        the repodata metadata exists and is preferred. On media
+        like DVD there might be only the suse metadata. Depending
+        on the result this also impacts which tool is required to
+        create the solv data from the information
+        """
+        result_type = namedtuple(
+            'result_type', ['solv_tool', 'primary_files']
+        )
+        try:
+            primary_files = []
+            primary_locations = self._get_repomd_xpath(
+                self._get_repomd_xml('suse/repodata'),
+                'repo:data[@type="primary"]/repo:location'
+            )
+            for location in primary_locations:
+                primary_files.append(
+                    os.sep.join(['suse', location.get('href')])
+                )
+            return result_type(
+                solv_tool='rpmmd2solv',
+                primary_files=primary_files
+            )
+        except Exception:
+            return result_type(
+                solv_tool='susetags2solv',
+                primary_files=['suse/setup/descr/packages.gz']
+            )
