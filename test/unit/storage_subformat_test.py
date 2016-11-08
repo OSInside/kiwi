@@ -44,7 +44,7 @@ class TestDiskFormat(object):
         xml_state.build_type.get_vhdfixedtag = mock.Mock(
             return_value='disk-tag'
         )
-        DiskFormat('vhdfixed', xml_state, 'root_dir', 'target_dir')
+        DiskFormat('vhd-fixed', xml_state, 'root_dir', 'target_dir')
         mock_vhdfixed.assert_called_once_with(
             xml_state, 'root_dir', 'target_dir', {'--tag': 'disk-tag'}
         )
