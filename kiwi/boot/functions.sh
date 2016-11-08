@@ -6289,6 +6289,7 @@ function activateImage {
     local cdDir=/livecd
     if [ -d $cdDir ];then
         mkdir -p $prefix/$cdDir && mount --move /$cdDir $prefix/$cdDir
+        rm -r $cdDir && ln -s $prefix/$cdDir $cdDir
         if [ -d /cow ];then
             mkdir -p $prefix/cow && mount --move /cow $prefix/cow
         fi
@@ -6339,15 +6340,19 @@ function activateImage {
     if [ ! -e $prefix/$killall5 ]; then
         touch $prefix/killall5.from-initrd
     fi
-    if ! cp -f -a $killall5 $prefix/$killall5;then
-        systemException "Failed to copy: killall5" "reboot"
+    if touch $(dirname $prefix/$killall5); then
+        if ! cp -f -a $killall5 $prefix/$killall5; then
+            systemException "Failed to copy: killall5" "reboot"
+        fi
     fi
     local pidof=$(lookup pidof)
     if [ ! -e $prefix/$pidof ];then
         touch $prefix/pidof.from-initrd
     fi
-    if ! cp -f -a $pidof $prefix/$pidof;then
-        systemException "Failed to copy: pidof" "reboot"
+    if touch $(dirname $prefix/$pidof); then
+        if ! cp -f -a $pidof $prefix/$pidof;then
+            systemException "Failed to copy: pidof" "reboot"
+        fi
     fi
 }
 #======================================
