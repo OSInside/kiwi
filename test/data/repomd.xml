@@ -28,4 +28,12 @@ xmlns:rpm="http://linux.duke.edu/metadata/rpm">
     <open-size>71277866</open-size>
     <open-checksum type="sha256">b64f1faece62f5d6d07f52b15b4c419c6644957142f526a76eff6b8289764f88</open-checksum>
   </data>
+  <data type="group_gz">
+    <location href="repodata/0815-other.xml.gz"/>
+    <checksum type="sha256">d62ed932df26f29968f17d3ed780a617ce116e651d4b0042495bbec4182671ac</checksum>
+    <timestamp>1478352191</timestamp>
+    <size>88624493</size>
+    <open-size>434990650</open-size>
+    <open-checksum type="sha256">80a8f395483b70b68b5a9fd95b8752c46fb557eae77b0ade087aabdd39d988c0</open-checksum>
+  </data>
 </repomd>
