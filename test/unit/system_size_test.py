@@ -23,7 +23,7 @@ class TestSystemSize(object):
         assert self.size.customize(42, 'btrfs') == 63
 
     def test_customize_xfs(self):
-        assert self.size.customize(42, 'xfs') == 50
+        assert self.size.customize(42, 'xfs') == 63
 
     @patch('kiwi.system.size.Command.run')
     def test_accumulate_mbyte_file_sizes(self, mock_command):
