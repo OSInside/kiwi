@@ -558,6 +558,12 @@ class KiwiRpmDatabaseReloadError(KiwiError):
     """
 
 
+class KiwiRpmDirNotRemoteError(KiwiError):
+    """
+    Exception raised if the provided rpm-dir repository is not local
+    """
+
+
 class KiwiRuntimeError(KiwiError):
     """
     Exception raised if a runtime check has failed.
