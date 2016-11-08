@@ -58,7 +58,7 @@ class SystemSize(object):
         elif requested_filesystem == 'btrfs':
             size *= 1.5
         elif requested_filesystem == 'xfs':
-            size *= 1.2
+            size *= 1.5
 
         return int(size)
 
