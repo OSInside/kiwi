@@ -60,7 +60,7 @@ class DiskFormat(object):
             return DiskFormatVhd(
                 xml_state, root_dir, target_dir
             )
-        elif name == 'vhdfixed':
+        elif name == 'vhd-fixed':
             custom_args = None
             disk_tag = xml_state.build_type.get_vhdfixedtag()
             if disk_tag:

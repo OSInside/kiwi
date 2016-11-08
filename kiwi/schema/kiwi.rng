@@ -2403,7 +2403,7 @@ To be remove from here by the end of 2014</a:documentation>
           <value>vmdk</value>
           <value>vdi</value>
           <value>vhd</value>
-          <value>vhdfixed</value>
+          <value>vhd-fixed</value>
         </choice>
       </attribute>
       <sch:pattern id="format" is-a="image_type">
