@@ -692,6 +692,10 @@ class TestSystemSetup(object):
             None,
             None
         )
-
-    def test_import_repositories_marked_as_imageinclude_without_repos(self):
+ 
+    @patch('kiwi.system.setup.Repository')
+    def test_import_repositories_marked_as_imageinclude_without_repos(self, mock_repo):
+        repo = mock.Mock()
+        mock_repo.return_value = repo
         self.setup.import_repositories_marked_as_imageinclude()
+        repo.delete_all_repos.assert_not_called()
