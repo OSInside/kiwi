@@ -558,6 +558,12 @@ class KiwiRpmDatabaseReloadError(KiwiError):
     """
 
 
+class KiwiRpmDirNotRemoteError(KiwiError):
+    """
+    Exception raised if the provided rpm-dir repository is not local
+    """
+
+
 class KiwiRuntimeError(KiwiError):
     """
     Exception raised if a runtime check has failed.
@@ -582,6 +588,13 @@ class KiwiSetupIntermediateConfigError(KiwiError):
     Exception raised if the setup of the temporary image system
     configuration for the duration of the build process has
     failed.
+    """
+
+
+class KiwiSolverRepositorySetupError(KiwiError):
+    """
+    Exception raised if the repository type is not supported for
+    the creation of a SAT solvable
     """
 
 
@@ -630,6 +643,12 @@ class KiwiUnknownServiceName(KiwiError):
     """
     Exception raised if an unknown service name was provided
     on the commandline.
+    """
+
+
+class KiwiUriOpenError(KiwiError):
+    """
+    Exception raised if the urllib urlopen request has failed
     """
 
 

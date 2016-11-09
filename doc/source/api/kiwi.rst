@@ -19,6 +19,7 @@ Subpackages
     kiwi.repository
     kiwi.storage
     kiwi.system
+    kiwi.solver
     kiwi.tasks
     kiwi.utils
     kiwi.volume_manager

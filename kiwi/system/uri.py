@@ -43,6 +43,9 @@ class Uri(object):
     * :attr:`uri`
         URI, repository location, file
 
+    * :attr:`repo_type`
+        repository type name, rpm-dir, rpm-md, yast2
+
     * :attr:`mount_stack`
         list of mounted locations
 
@@ -55,6 +58,7 @@ class Uri(object):
     def __init__(self, uri, repo_type):
         self.repo_type = repo_type
         self.uri = uri
+        self.repo_type = repo_type
         self.mount_stack = []
 
         self.remote_uri_types = {
