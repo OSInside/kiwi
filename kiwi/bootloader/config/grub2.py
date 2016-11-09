@@ -147,15 +147,35 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def write(self):
         """
-        Write grub.cfg file
+        Write grub.cfg and etc/default/grub file
         """
-        log.info('Writing grub.cfg file')
         config_dir = self._get_grub_boot_path()
         config_file = config_dir + '/grub.cfg'
         if self.config:
+            log.info('Writing grub.cfg file')
             Path.create(config_dir)
             with open(config_file, 'w') as config:
                 config.write(self.config)
+            self.setup_default_grub()
+
+    def setup_default_grub(self):
+        """
+        Create or update etc/default/grub by parameters required
+        according to the root filesystem setup
+        """
+        grub_default_entries = []
+        if self.xml_state.build_type.get_btrfs_root_is_snapshot():
+            grub_default_entries.append('SUSE_BTRFS_SNAPSHOT_BOOTING=true')
+
+        if grub_default_entries:
+            log.info('Writing grub defaults file')
+            grub_default_file = ''.join([self.root_dir, '/etc/default/grub'])
+            with open(grub_default_file, 'a+') as grub_default:
+                current_grub_default_config = grub_default.read()
+                for config_entry in grub_default_entries:
+                    if config_entry not in current_grub_default_config:
+                        log.info('--> {0}'.format(config_entry))
+                        grub_default.write(config_entry + os.linesep)
 
     def setup_disk_image_config(
         self, uuid, hypervisor='xen.gz', kernel='linux.vmx', initrd='initrd.vmx'
