@@ -14,9 +14,6 @@ class TestPackageManagerBase(object):
         repository.root_dir = 'root-dir'
         self.manager = PackageManagerBase(repository)
 
-    def teardown(self):
-        del self.manager
-
     @raises(NotImplementedError)
     def test_request_package(self):
         self.manager.request_package('name')

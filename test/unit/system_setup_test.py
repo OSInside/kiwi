@@ -683,6 +683,7 @@ class TestSystemSetup(object):
         repo = mock.Mock()
         mock_repo.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
+        repo.delete_all_repos.assert_called_once_with()
         repo.add_repo.assert_called_once_with(
             '95811799a6d1889c5b2363d3886986de',
             'http://download.opensuse.org/repositories/Devel:PubCloud:AmazonEC2/SLE_12_GA',
@@ -691,3 +692,6 @@ class TestSystemSetup(object):
             None,
             None
         )
+
+    def test_import_repositories_marked_as_imageinclude_without_repos(self):
+        self.setup.import_repositories_marked_as_imageinclude()

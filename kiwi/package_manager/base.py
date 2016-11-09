@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from ..logger import log
 
 
 class PackageManagerBase(object):
@@ -183,8 +182,3 @@ class PackageManagerBase(object):
         del self.package_requests[:]
         del self.collection_requests[:]
         del self.product_requests[:]
-
-    def __del__(self):
-        log.info('Cleaning up all repos from %s instance', type(self).__name__)
-        if self.repository is not None:
-            self.repository.delete_all_repos()
