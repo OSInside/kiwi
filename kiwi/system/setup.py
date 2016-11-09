@@ -123,7 +123,6 @@ class SystemSetup(object):
             RootBind(root), self.xml_state.get_package_manager()
         )
         repo.use_default_location()
-        repo.delete_all_repos()
         for xml_repo in repository_sections:
             repo_marked_for_image_include = xml_repo.get_imageinclude()
 
