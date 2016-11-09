@@ -200,9 +200,7 @@ class TestIso(object):
         assert result[2158].name == 'header_end'
 
 
-    @patch('kiwi.path.Path.which')
-    def test_create_header_end_block(self, mock_which):
-        mock_which.return_value = 'isoinfo'
+    def test_create_header_end_block(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
         assert self.iso.create_header_end_block(
@@ -210,9 +208,7 @@ class TestIso(object):
         ) == 96
 
     @raises(KiwiIsoLoaderError)
-    @patch('kiwi.path.Path.which')
-    def test_create_header_end_block_raises(self, mock_which):
-        mock_which.return_value = 'isoinfo'
+    def test_create_header_end_block_raises(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
         self.iso.create_header_end_block(
