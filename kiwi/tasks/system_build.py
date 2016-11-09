@@ -190,7 +190,7 @@ class SystemBuildTask(CliTask):
 
         # setup permanent image repositories after cleanup
         repositories = self.xml_state.get_repository_sections()
-        if bool(next(xr for xr in repositories if xr.get_imageinclude())):
+        if bool(list(xr for xr in repositories if xr.get_imageinclude())):
             setup.import_repositories_marked_as_imageinclude()
 
         setup.call_image_script()
