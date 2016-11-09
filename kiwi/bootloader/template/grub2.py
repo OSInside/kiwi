@@ -30,6 +30,9 @@ class BootLoaderTemplateGrub2(object):
             search ${search_params}
             set default=${default_boot}
             set timeout=${boot_timeout}
+            if [ -f "/.snapshots/grub-snapshot.cfg" ]; then
+                source "/.snapshots/grub-snapshot.cfg"
+            fi
         ''').strip() + os.linesep
 
         self.header_hybrid = dedent('''
