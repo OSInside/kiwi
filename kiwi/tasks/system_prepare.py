@@ -183,7 +183,9 @@ class SystemPrepareTask(CliTask):
         del manager
 
         # setup permanent image repositories after cleanup
-        setup.import_repositories_marked_as_imageinclude()
+        repositories = self.xml_state.get_repository_sections()
+        if bool(next(xr for xr in repositories if xr.get_imageinclude())):
+            setup.import_repositories_marked_as_imageinclude()
 
     def _help(self):
         if self.command_args['help']:
