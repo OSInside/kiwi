@@ -811,6 +811,16 @@ class XMLState(object):
             self.xml_data.get_repository()
         )
 
+    def has_repositories_marked_as_imageinclude(self):
+        """
+        Return true if has one or more repository section
+        marked as imageinclude.
+
+        :rtype: bool
+        """
+        repos = self.get_repository_sections()
+        return bool(list(repo for repo in repos if repo.get_imageinclude()))
+
     def delete_repository_sections(self):
         """
         Delete all repository sections matching configured profiles
