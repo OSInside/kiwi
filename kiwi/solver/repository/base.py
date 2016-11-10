@@ -99,9 +99,9 @@ class SolverRepositoryBase(object):
         Download given source file from the repository and store
         it as target file
 
-        The source location is used relative to the repository
-        location and will be created as mime type location like
-        http://location or file://location
+        The repo_source location is used relative to the repository
+        location and will be part of a mime type source like:
+        file://repo_path/repo_source
 
         :param string source: source file in the repo
         :param string target: file path
