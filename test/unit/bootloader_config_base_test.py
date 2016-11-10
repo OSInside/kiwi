@@ -148,10 +148,13 @@ class TestBootLoaderConfigBase(object):
     def test_get_boot_path_raises(self):
         self.bootloader.get_boot_path('foo')
 
+    @raises(KiwiBootLoaderTargetError)
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
     @patch('kiwi.xml_state.XMLState.get_volumes')
-    def test_get_boot_path_btrfs(self, mock_volumes, mock_fs, mock_disk_setup):
+    def test_get_boot_path_btrfs_boot_is_a_volume_error(
+        self, mock_volumes, mock_fs, mock_disk_setup
+    ):
         volume = mock.Mock()
         volume.name = 'boot'
         mock_volumes.return_value = [volume]
@@ -161,7 +164,27 @@ class TestBootLoaderConfigBase(object):
             return_value=False
         )
         mock_disk_setup.return_value = disk_setup
-        assert self.bootloader.get_boot_path() == '/@/boot'
+        self.bootloader.get_boot_path()
+
+    @patch('kiwi.bootloader.config.base.DiskSetup')
+    @patch('kiwi.xml_parse.type_.get_filesystem')
+    @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapshot')
+    @patch('kiwi.xml_state.XMLState.get_volumes')
+    def test_get_boot_path_btrfs_no_snapshot(
+        self, mock_volumes, mock_snapshot, mock_fs, mock_disk_setup
+    ):
+        volume = mock.Mock()
+        volume.name = 'some-volume'
+        mock_volumes.return_value = [volume]
+        mock_fs.return_value = 'btrfs'
+        mock_snapshot.return_value = False
+        disk_setup = mock.Mock()
+        disk_setup.need_boot_partition = mock.Mock(
+            return_value=False
+        )
+        mock_disk_setup.return_value = disk_setup
+        assert self.bootloader.get_boot_path() == \
+            '/@/boot'
 
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
@@ -181,7 +204,7 @@ class TestBootLoaderConfigBase(object):
         )
         mock_disk_setup.return_value = disk_setup
         assert self.bootloader.get_boot_path() == \
-            '/@/.snapshots/1/snapshot/boot'
+            '/boot'
 
     def test_quote_title(self):
         assert self.bootloader.quote_title('aaa bbb [foo]') == 'aaa_bbb_(foo)'

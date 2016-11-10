@@ -289,20 +289,24 @@ class BootLoaderConfigBase(object):
                 filesystem = self.xml_state.build_type.get_filesystem()
                 volumes = self.xml_state.get_volumes()
                 if filesystem == 'btrfs' and volumes:
-                    root_is_snapshot = \
-                        self.xml_state.build_type.get_btrfs_root_is_snapshot()
-                    boot_is_on_volume = False
+                    # boot or boot/grub2 on a subvolume prevents grub from
+                    # finding its config file
                     for volume in volumes:
                         if volume.name == 'boot' or volume.name == 'boot/grub2':
-                            boot_is_on_volume = True
-                            break
+                            raise KiwiBootLoaderTargetError(
+                                'boot or boot/grub2 must not be a subvolume'
+                            )
+
                     # if we directly boot a btrfs filesystem with a subvolume
                     # setup and no extra boot partition we have to care for
                     # the layout of the system which places all volumes below
-                    # a topleve volume or snapshot
-                    if not boot_is_on_volume and root_is_snapshot:
-                        bootpath = '/@/.snapshots/1/snapshot' + bootpath
-                    else:
+                    # a toplevel volume. However if the root is placed into
+                    # a snapshot we use the SUSE_BTRFS_SNAPSHOT_BOOTING
+                    # extension which is configured in etc/default/grub and
+                    # maps the correct snapshot to the bootpath
+                    root_is_snapshot = \
+                        self.xml_state.build_type.get_btrfs_root_is_snapshot()
+                    if not root_is_snapshot:
                         bootpath = '/@' + bootpath
 
         return bootpath

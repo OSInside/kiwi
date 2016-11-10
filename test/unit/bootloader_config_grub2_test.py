@@ -20,6 +20,13 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_domain, mock_theme, mock_firmware):
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.os_exists = {
             'root_dir/boot/unicode.pf2': True,
             'root_dir/usr/share/grub2': True,
@@ -197,24 +204,29 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch_open
     @patch('os.path.exists')
-    def test_write(self, mock_exists, mock_open):
+    @patch('kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_default_grub')
+    def test_write(self, mock_setup_default_grub, mock_exists, mock_open):
         mock_exists.return_value = True
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         self.bootloader.config = 'some-data'
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
         self.bootloader.write()
         mock_open.assert_called_once_with(
             'root_dir/boot/grub2/grub.cfg', 'w'
         )
-        file_mock.write.assert_called_once_with(
+        self.file_mock.write.assert_called_once_with(
             'some-data'
+        )
+        mock_setup_default_grub.assert_called_once_with()
+
+    @patch_open
+    def test_setup_default_grub(self, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        self.file_mock.read.return_value = ''
+        self.bootloader.setup_default_grub()
+        mock_open.assert_called_once_with('root_dir/etc/default/grub', 'a+')
+        self.file_mock.write.assert_called_once_with(
+            'SUSE_BTRFS_SNAPSHOT_BOOTING=true\n'
         )
 
     def test_setup_live_image_config_multiboot(self):
