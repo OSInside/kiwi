@@ -446,6 +446,15 @@ class TestXMLState(object):
         self.state.delete_repository_sections()
         assert self.state.get_repository_sections() == []
 
+    def test_has_repositories_marked_as_imageinclude(self):
+        assert self.state.has_repositories_marked_as_imageinclude()
+
+    def test_has_repositories_marked_as_imageinclude_without_any_imageinclude(self):
+        description = XMLDescription('../data/example_no_imageinclude_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data) 
+        assert not state.has_repositories_marked_as_imageinclude()
+
     def test_get_build_type_vmconfig_entries(self):
         assert self.state.get_build_type_vmconfig_entries() == []
 
