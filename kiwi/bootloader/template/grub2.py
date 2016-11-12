@@ -30,9 +30,6 @@ class BootLoaderTemplateGrub2(object):
             search ${search_params}
             set default=${default_boot}
             set timeout=${boot_timeout}
-            if [ -f "/.snapshots/grub-snapshot.cfg" ]; then
-                source "/.snapshots/grub-snapshot.cfg"
-            fi
         ''').strip() + os.linesep
 
         self.header_hybrid = dedent('''
@@ -116,6 +113,13 @@ class BootLoaderTemplateGrub2(object):
                 set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
             fi
         ''').strip() + os.linesep
+
+        self.menu_entry_boot_snapshots = dedent('''
+            if [ -f "/.snapshots/grub-snapshot.cfg" ]; then
+                source "/.snapshots/grub-snapshot.cfg"
+            fi
+        ''').strip() + os.linesep
+
 
         self.menu_entry_console_switch = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
@@ -291,6 +295,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_entry
             if failsafe:
                 template_data += self.menu_entry_failsafe
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -318,6 +323,7 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -353,6 +359,7 @@ class BootLoaderTemplateGrub2(object):
             if failsafe:
                 template_data += self.menu_entry_failsafe
         template_data += self.menu_iso_harddisk_entry
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -381,6 +388,7 @@ class BootLoaderTemplateGrub2(object):
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
         template_data += self.menu_iso_harddisk_entry
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -416,6 +424,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_install_entry
             if failsafe:
                 template_data += self.menu_install_entry_failsafe
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -444,6 +453,7 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_install_entry_multiboot
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
