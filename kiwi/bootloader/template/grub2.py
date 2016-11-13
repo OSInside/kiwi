@@ -27,9 +27,16 @@ class BootLoaderTemplateGrub2(object):
     def __init__(self):
         self.header = dedent('''
             # kiwi generated one time grub2 config file
+            set btrfs_relative_path="y"
+            export btrfs_relative_path
             search ${search_params}
             set default=${default_boot}
             set timeout=${boot_timeout}
+	    if [ -n "$$extra_cmdline" ]; then
+              submenu "Bootable snapshot $$snapshot_num" {
+                menuentry "If OK, run 'snapper rollback' and reboot." { true; }
+              }
+            fi
         ''').strip() + os.linesep
 
         self.header_hybrid = dedent('''
@@ -90,6 +97,7 @@ class BootLoaderTemplateGrub2(object):
             fi
             if [ -f ($$root)${bootpath}/grub2/themes/${theme}/theme.txt ];then
                 set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+                export theme
             fi
         ''').strip() + os.linesep
 
@@ -134,7 +142,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} ${boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -156,7 +164,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -166,7 +174,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${failsafe_boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -188,7 +196,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
+                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
