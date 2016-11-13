@@ -128,7 +128,6 @@ class BootLoaderTemplateGrub2(object):
             fi
         ''').strip() + os.linesep
 
-
         self.menu_entry_console_switch = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
                 hiddenentry "Text mode" --hotkey "t" {
