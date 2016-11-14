@@ -220,7 +220,9 @@ class TestBootLoaderConfigGrub2(object):
         mock_setup_default_grub.assert_called_once_with()
 
     @patch_open
-    def test_setup_default_grub(self, mock_open):
+    @patch('os.path.exists')
+    def test_setup_default_grub(self, mock_exists, mock_open):
+        mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = ''
         self.bootloader.setup_default_grub()

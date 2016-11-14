@@ -169,13 +169,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if grub_default_entries:
             log.info('Writing grub defaults file')
-            grub_default_file = ''.join([self.root_dir, '/etc/default/grub'])
-            with open(grub_default_file, 'a+') as grub_default:
-                current_grub_default_config = grub_default.read()
-                for config_entry in grub_default_entries:
-                    if config_entry not in current_grub_default_config:
-                        log.info('--> {0}'.format(config_entry))
-                        grub_default.write(config_entry + os.linesep)
+            grub_default_location = ''.join([self.root_dir, '/etc/default/'])
+            if os.path.exists(grub_default_location):
+                grub_default_file = ''.join([grub_default_location, 'grub'])
+                with open(grub_default_file, 'a+') as grub_default:
+                    current_grub_default_config = grub_default.read()
+                    for config_entry in grub_default_entries:
+                        if config_entry not in current_grub_default_config:
+                            log.info('--> {0}'.format(config_entry))
+                            grub_default.write(config_entry + os.linesep)
 
     def setup_disk_image_config(
         self, uuid, hypervisor='xen.gz', kernel='linux.vmx', initrd='initrd.vmx'
