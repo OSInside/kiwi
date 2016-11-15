@@ -274,22 +274,23 @@ selectLanguage
 # 12) Check for diskful station
 #--------------------------------------
 if [ $LOCAL_BOOT = "no" ];then
-    checkDevice=$DISK
-    if [ -z "$checkDevice" ];then
-        checkDevice=$(echo $IMAGE | cut -f1 -d\;)
+    biosBootDevice=$DISK
+    if [ -z "$biosBootDevice" ];then
+        biosBootDevice=$(echo $IMAGE | cut -f1 -d\;)
     fi
-    if [ ! -z "$checkDevice" ];then
-        if ! waitForStorageDevice $checkDevice;then
+    if [ ! -z "$biosBootDevice" ];then
+        setupBootDeviceIfMultipath
+        if ! waitForStorageDevice $biosBootDevice;then
             systemException \
-                "Block device $checkDevice doesn't appear... fatal !" \
+                "Block device $biosBootDevice doesn't appear... fatal !" \
             "reboot"
         fi
-        if echo $checkDevice | grep -q dev\/ram;then
+        if echo $biosBootDevice | grep -q dev\/ram;then
             export haveRamDisk=1
             systemIntegrity="clean"
         else
             export haveDisk=1
-            export imageDiskDevice=$checkDevice
+            export imageDiskDevice=$biosBootDevice
         fi
     fi
 fi
