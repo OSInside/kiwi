@@ -281,6 +281,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
+        for volume_mount in self.volumes_mount:
+            volume_mount.umount()
         if self.device_mount:
             self.device_mount.umount()
         if self.proc_mount:
@@ -291,8 +293,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.efi_mount.umount()
         if self.boot_mount:
             self.boot_mount.umount()
-        for volume_mount in self.volumes_mount:
-            volume_mount.umount()
         if self.root_mount:
             self._enable_grub2_install(self.root_mount.mountpoint)
             self.root_mount.umount()
