@@ -227,6 +227,10 @@ class TestVolumeManagerBtrfs(object):
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Path.create')
     def test_mount_volumes(self, mock_path, mock_os_exists):
+        self.volume_manager.toplevel_mount = mock.Mock()
+        self.volume_manager.toplevel_mount.is_mounted = mock.Mock(
+            return_value=False
+        )
         mock_os_exists.return_value = False
         volume_mount = mock.Mock()
         volume_mount.mountpoint = \
@@ -236,6 +240,7 @@ class TestVolumeManagerBtrfs(object):
 
         self.volume_manager.mount_volumes()
 
+        self.volume_manager.toplevel_mount.mount.assert_called_once_with([])
         mock_path.assert_called_once_with(volume_mount.mountpoint)
         volume_mount.mount.assert_called_once_with(
             options=['subvol=@/var/tmp']

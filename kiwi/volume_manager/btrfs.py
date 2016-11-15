@@ -229,6 +229,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         Mount btrfs subvolumes
         """
+        if not self.toplevel_mount.is_mounted():
+            self.toplevel_mount.mount(
+                self.custom_filesystem_args['mount_options']
+            )
         for volume_mount in self.subvol_mount_list:
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
