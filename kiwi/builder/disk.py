@@ -343,6 +343,8 @@ class DiskBuilder(object):
                     self.disk_setup.get_root_label(),
                 'root_is_snapshot':
                     self.xml_state.build_type.get_btrfs_root_is_snapshot(),
+                'root_is_readonly_snapshot':
+                    self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot(),
                 'image_type':
                     self.xml_state.get_build_type_name()
             }
