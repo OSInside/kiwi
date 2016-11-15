@@ -32,7 +32,7 @@ class BootLoaderTemplateGrub2(object):
             search ${search_params}
             set default=${default_boot}
             set timeout=${boot_timeout}
-	    if [ -n "$$extra_cmdline" ]; then
+            if [ -n "$$extra_cmdline" ]; then
               submenu "Bootable snapshot $$snapshot_num" {
                 menuentry "If OK, run 'snapper rollback' and reboot." { true; }
               }
