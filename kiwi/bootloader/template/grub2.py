@@ -27,11 +27,15 @@ class BootLoaderTemplateGrub2(object):
     def __init__(self):
         self.header = dedent('''
             # kiwi generated one time grub2 config file
+            set btrfs_relative_path="y"
+            export btrfs_relative_path
             search ${search_params}
             set default=${default_boot}
             set timeout=${boot_timeout}
-            if [ -f "/.snapshots/grub-snapshot.cfg" ]; then
-                source "/.snapshots/grub-snapshot.cfg"
+            if [ -n "$$extra_cmdline" ]; then
+              submenu "Bootable snapshot $$snapshot_num" {
+                menuentry "If OK, run 'snapper rollback' and reboot." { true; }
+              }
             fi
         ''').strip() + os.linesep
 
@@ -93,6 +97,7 @@ class BootLoaderTemplateGrub2(object):
             fi
             if [ -f ($$root)${bootpath}/grub2/themes/${theme}/theme.txt ];then
                 set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+                export theme
             fi
         ''').strip() + os.linesep
 
@@ -117,6 +122,12 @@ class BootLoaderTemplateGrub2(object):
             fi
         ''').strip() + os.linesep
 
+        self.menu_entry_boot_snapshots = dedent('''
+            if [ -f "/.snapshots/grub-snapshot.cfg" ]; then
+                source "/.snapshots/grub-snapshot.cfg"
+            fi
+        ''').strip() + os.linesep
+
         self.menu_entry_console_switch = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
                 hiddenentry "Text mode" --hotkey "t" {
@@ -130,7 +141,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} ${boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -152,7 +163,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -162,7 +173,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${failsafe_boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -184,7 +195,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} ${failsafe_boot_options}
+                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -291,6 +302,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_entry
             if failsafe:
                 template_data += self.menu_entry_failsafe
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -318,6 +330,7 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -353,6 +366,7 @@ class BootLoaderTemplateGrub2(object):
             if failsafe:
                 template_data += self.menu_entry_failsafe
         template_data += self.menu_iso_harddisk_entry
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -381,6 +395,7 @@ class BootLoaderTemplateGrub2(object):
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
         template_data += self.menu_iso_harddisk_entry
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -416,6 +431,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_install_entry
             if failsafe:
                 template_data += self.menu_install_entry_failsafe
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
@@ -444,6 +460,7 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_install_entry_multiboot
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
+        template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
             template_data += self.menu_entry_console_switch
         return Template(template_data)
