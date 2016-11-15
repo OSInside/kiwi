@@ -289,7 +289,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         root_is_readonly_snapshot = \
             self.custom_args['root_is_readonly_snapshot']
         if root_is_snapshot and root_is_readonly_snapshot:
-            sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
+            sync_target = self.mountpoint
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
             )

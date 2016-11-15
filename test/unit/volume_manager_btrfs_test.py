@@ -327,8 +327,7 @@ class TestVolumeManagerBtrfs(object):
         self.volume_manager.set_property_readonly_root()
         mock_command.assert_called_once_with(
             [
-                'btrfs', 'property', 'set',
-                'tmpdir/@/.snapshots/1/snapshot', 'ro', 'true'
+                'btrfs', 'property', 'set', 'tmpdir', 'ro', 'true'
             ]
         )
 
