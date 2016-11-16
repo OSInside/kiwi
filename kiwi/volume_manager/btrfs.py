@@ -229,6 +229,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         Mount btrfs subvolumes
         """
+        if not self.toplevel_mount.is_mounted():
+            self.toplevel_mount.mount(
+                self.custom_filesystem_args['mount_options']
+            )
         for volume_mount in self.subvol_mount_list:
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
@@ -285,7 +289,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         root_is_readonly_snapshot = \
             self.custom_args['root_is_readonly_snapshot']
         if root_is_snapshot and root_is_readonly_snapshot:
-            sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
+            sync_target = self.mountpoint
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
             )
