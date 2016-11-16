@@ -81,6 +81,24 @@ class DiskFormatVhdFixed(DiskFormatBase):
         if self.tag:
             self._write_vhd_tag(self.tag)
 
+    def store_to_result(self, result):
+        """
+        Store result file of the vhdfixed format conversion into the
+        provided result instance. In this case compressing the result
+        is preferred as vhdfixed is not a compressed or dynamic format.
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=self.get_target_name_for_format(
+                self.image_format
+            ),
+            use_for_bundle=True,
+            compress=True,
+            shasum=True
+        )
+
     def _pack_net_guid_tag(self, tag):
         """
         Pack tag format into 16 byte binary representation. String format
