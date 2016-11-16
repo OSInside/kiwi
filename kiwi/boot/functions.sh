@@ -3342,7 +3342,12 @@ function setupNic {
     local address=$2
     local netmask=$3
     ip addr flush dev $iface
-    ip addr add $address/$netmask dev $iface
+    # ignore netmask if address is already cidr
+    if [[ $address =~ / ]] ; then
+        ip addr add $address dev $iface
+    else
+        ip addr add $address/$netmask dev $iface
+    fi
     ip link set dev $iface up
 }
 #======================================
