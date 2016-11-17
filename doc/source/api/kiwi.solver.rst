@@ -8,6 +8,17 @@ Subpackages
 
     kiwi.solver.repository
 
+Submodules
+----------
+
+`kiwi.solver.solver` Module
+-----------------------------
+
+.. automodule:: kiwi.solver.sat
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module Contents
 ---------------
 
