@@ -3527,6 +3527,7 @@ function setupNetworkWicked {
     local IFS=$IFS_ORIG
     local nic_config
     local dhcp_info
+    local wicked_request
     local wicked_dhcp4=/usr/lib/wicked/bin/wickedd-dhcp4
     for try_iface in ${dev_list[*]}; do
         # try DHCP_DISCOVER on all interfaces
@@ -3579,7 +3580,10 @@ function setupNetworkWicked {
     for try_iface in ${prefer_iface[*]} $DHCPCD_STARTED; do
         dhcp_info=/var/run/wicked/wicked-${try_iface}.info
         if [ -s $dhcp_info ] && grep -q "^IPADDR=" $dhcp_info; then
-            echo '<request type="lease"/>' |\
+            wicked_request='<request type="lease">'
+            wicked_request="$wicked_request<lease-time>3600</lease-time>"
+            wicked_request="$wicked_request</request>"
+            echo $wicked_request |\
                 wicked test dhcp4 --request - -- $try_iface > $dhcp_info
             if [ $? = 0 ];then
                 export PXE_IFACE=$try_iface
