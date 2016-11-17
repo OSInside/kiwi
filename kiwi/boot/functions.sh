@@ -3946,8 +3946,11 @@ function setupNetwork {
 #--------------------------------------
 function releaseNetwork {
     # /.../
-    # release network setup by dhcpcd and free the lease
-    # Do that only for _non_ network root devices
+    # clean network setup and free the lease. If no tool could
+    # be found to communicate with the dhcp server in order to
+    # free the lease, the default behavior will just clean the
+    # network. The method will only be effective if the root
+    # device of the system is a _non_ network root device
     # ----
     local IFS=$IFS_ORIG
     if [ -z "$NFSROOT" ] && [ -z "$NBDROOT" ] && [ -z "$AOEROOT" ];then
@@ -3978,6 +3981,8 @@ function releaseNetwork {
             kill -9 $(cat /var/run/dhclient-$PXE_IFACE.pid )
             dhclient -r \
                 -lf /var/lib/dhclient/$PXE_IFACE.lease $PXE_IFACE
+        else
+            ip a del
         fi
         #======================================
         # remove sysconfig state information
