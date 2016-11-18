@@ -3,17 +3,24 @@ from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from collections import namedtuple
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiKernelLookupError
 from kiwi.system.kernel import Kernel
 
 
 class TestKernel(object):
-    def setup(self):
+    @patch('os.listdir')
+    def setup(self, mock_listdir):
+        mock_listdir.return_value = ['1.2.3-default']
         self.kernel = Kernel('root-dir')
+
+    @raises(KiwiKernelLookupError)
+    def test_get_kernel_raises_if_no_kernel_found(self):
+        self.kernel.kernel_names = []
+        self.kernel.get_kernel(raise_on_not_found=True)
 
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')

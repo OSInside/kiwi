@@ -33,15 +33,17 @@ class TestBootImageKiwi(object):
         self.boot_image.prepare()
 
     @patch('kiwi.boot.image.dracut.Compress')
-    @patch('kiwi.boot.image.dracut.Kernel.get_kernel')
+    @patch('kiwi.boot.image.dracut.Kernel')
     @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     def test_create_initrd(
-        self, mock_prepared, mock_command, mock_get_kernel, mock_compress
+        self, mock_prepared, mock_command, mock_kernel, mock_compress
     ):
         kernel = mock.Mock()
-        kernel.version = '1.2.3'
-        mock_get_kernel.return_value = kernel
+        kernel_details = mock.Mock()
+        kernel_details.version = '1.2.3'
+        kernel.get_kernel = mock.Mock(return_value=kernel_details)
+        mock_kernel.return_value = kernel
         compress = mock.Mock()
         mock_compress.return_value = compress
         self.boot_image.create_initrd()

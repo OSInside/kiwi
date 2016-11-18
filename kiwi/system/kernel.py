@@ -21,6 +21,8 @@ from collections import namedtuple
 # project
 from ..command import Command
 
+from ..exceptions import KiwiKernelLookupError
+
 
 class Kernel(object):
     """
@@ -39,17 +41,9 @@ class Kernel(object):
     """
     def __init__(self, root_dir):
         self.root_dir = root_dir
-        # Calling functions.sh::suseStripKernel() will rename the
-        # kernel file to a common name. The following list specifies
-        # these names for the lookup of that kernel. Therefore it's
-        # required that suseStripKernel() was called as part of the
-        # images.sh script which is done by the kiwi provided boot
-        # image descriptions
-        self.kernel_names = [
-            'vmlinux', 'vmlinuz'
-        ]
+        self.kernel_names = self._setup_kernel_names_for_lookup()
 
-    def get_kernel(self):
+    def get_kernel(self, raise_on_not_found=False):
         """
         Lookup kernel files and provide filename and version
 
@@ -72,6 +66,14 @@ class Kernel(object):
                     filename=kernel_file,
                     version=version
                 )
+
+        if raise_on_not_found:
+            raise KiwiKernelLookupError(
+                'No kernel found in {0}, searched for {1}'.format(
+                    os.sep.join([self.root_dir, 'boot']),
+                    ','.join(self.kernel_names)
+                )
+            )
 
     def get_xen_hypervisor(self):
         """
@@ -127,3 +129,30 @@ class Kernel(object):
                 [target_dir, '/', file_name]
             )
             Command.run(['cp', xen.filename, target_file])
+
+    def _setup_kernel_names_for_lookup(self):
+        """
+        The kernel image name is different per arch and distribution
+        This method returns a list of possible kernel image names in
+        order to search and find one of them
+
+        :rtype: list
+        :return: list of kernel image names
+        """
+        for kernel_dir in os.listdir(''.join([self.root_dir, '/lib/modules'])):
+            return [
+                # lookup the link names first, or the result from
+                # functions.sh::suseStripKernel() if a kiwi initrd
+                # is used
+                'vmlinux', 'vmlinuz', 'zImage',
+
+                # not found, then lookup the real kernel image names
+                # depending on the arch and os they are different
+                ''.join(['uImage-', kernel_dir]),
+                ''.join(['Image-', kernel_dir]),
+                ''.join(['zImage-', kernel_dir]),
+                ''.join(['vmlinuz-', kernel_dir, '.gz']),
+                ''.join(['vmlinux-', kernel_dir]),
+                ''.join(['image-', kernel_dir]),
+                ''.join(['vmlinuz-', kernel_dir])
+            ]

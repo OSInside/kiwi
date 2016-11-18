@@ -46,7 +46,9 @@ class BootImageDracut(BootImageBase):
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')
             kernel_info = Kernel(self.boot_root_directory)
-            kernel_version = kernel_info.get_kernel().version
+            kernel_details = kernel_info.get_kernel(
+                raise_on_not_found=True
+            )
             Command.run(
                 [
                     'chroot', self.boot_root_directory,
@@ -55,7 +57,7 @@ class BootImageDracut(BootImageBase):
                     '--no-hostonly-cmdline',
                     '--no-compress',
                     os.path.basename(self.initrd_file_name),
-                    kernel_version
+                    kernel_details.version
                 ]
             )
             Command.run(
