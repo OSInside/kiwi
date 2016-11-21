@@ -139,20 +139,24 @@ class Kernel(object):
         :rtype: list
         :return: list of kernel image names
         """
-        for kernel_dir in os.listdir(''.join([self.root_dir, '/lib/modules'])):
-            return [
-                # lookup the link names first, or the result from
-                # functions.sh::suseStripKernel() if a kiwi initrd
-                # is used
-                'vmlinux', 'vmlinuz', 'zImage',
-
-                # not found, then lookup the real kernel image names
-                # depending on the arch and os they are different
-                ''.join(['uImage-', kernel_dir]),
-                ''.join(['Image-', kernel_dir]),
-                ''.join(['zImage-', kernel_dir]),
-                ''.join(['vmlinuz-', kernel_dir, '.gz']),
-                ''.join(['vmlinux-', kernel_dir]),
-                ''.join(['image-', kernel_dir]),
-                ''.join(['vmlinuz-', kernel_dir])
+        kernel_names = [
+            # lookup for the symlink or functions.sh::suseStripKernel()
+            # generated names first
+            'vmlinux', 'vmlinuz', 'zImage'
+        ]
+        kernel_dir = os.listdir(''.join([self.root_dir, '/lib/modules']))
+        if kernel_dir:
+            # append lookup for the real kernel image names
+            # depending on the arch and os they are different
+            # in their prefix
+            kernel_prefixes = [
+                'uImage', 'Image', 'zImage', 'vmlinuz', 'vmlinux', 'image'
             ]
+            kernel_name_pattern = '{prefix}-{name}'
+            for kernel_prefix in kernel_prefixes:
+                kernel_names.append(
+                    kernel_name_pattern.format(
+                        prefix=kernel_prefix, name=kernel_dir[0]
+                    )
+                )
+        return kernel_names

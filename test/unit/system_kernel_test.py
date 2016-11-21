@@ -16,6 +16,17 @@ class TestKernel(object):
     def setup(self, mock_listdir):
         mock_listdir.return_value = ['1.2.3-default']
         self.kernel = Kernel('root-dir')
+        assert self.kernel.kernel_names == [
+            'vmlinux',
+            'vmlinuz',
+            'zImage',
+            'uImage-1.2.3-default',
+            'Image-1.2.3-default',
+            'zImage-1.2.3-default',
+            'vmlinuz-1.2.3-default',
+            'vmlinux-1.2.3-default',
+            'image-1.2.3-default'
+        ]
 
     @raises(KiwiKernelLookupError)
     def test_get_kernel_raises_if_no_kernel_found(self):
