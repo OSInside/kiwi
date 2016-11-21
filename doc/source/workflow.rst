@@ -24,7 +24,7 @@ optionally, contains the "final" configuration.
 The behavior of the image upon deployment varies depending on the image type
 and the image configuration since KIWI allows you to completely customize
 the initial start-up behavior of the image. Among others, this includes
-"mages that:
+images that:
 
 * can be deployed inside an existing virtual environment without requiring
   configuration at start-up.
@@ -36,7 +36,7 @@ user interaction. The information required for the image creation process is
 provided by the primary configuration file named :file:`config.xml`. In
 addition, the image can optionally be customized using the :file:`config.sh`
 and :file:`images.sh` scripts and by using an *overlay tree (directory)*
-called "root".
+called :file:`root`.
 
 .. topic:: Note: Previous Knowledge
     
@@ -73,9 +73,9 @@ provided in the :file:`config.xml` configuration file.
 .. topic:: Note: KIWI configuration file name convention
 
    KIWI at first place looks for a configuration file named
-   :file:`config.xml`, in the case there is no such file it looks for files 
-   with a :regexp:`*.kiwi` extension. In that case the first match is the
-   loaded file.
+   :file:`config.xml`. If there is no such file, KIWI looks for files with a 
+   :regexp:`*.kiwi` extension. In that case, the first match is the loaded file.
+
 
 The Prepare Step
 ................
@@ -100,15 +100,15 @@ The prepare step consists of the following substeps:
 #. **Create Target Root Directory.**
 
    KIWI will exit with an error if the target root tree already exists to
-   prevent accidental deletion of an existing unpacked image. 
+   avoid accidental deletion of an existing unpacked image. 
 
 #. **Install Packages.**
 
-   Initially KIWI configures the package manager to use the repositories
+   Initially, KIWI configures the package manager to use the repositories
    specified in the configuration file and/or the command line. Following the
-   repository setup the packages specified in the ``bootstrap`` section of the
+   repository setup, the packages specified in the ``bootstrap`` section of the
    configuration file are installed in a temporary workspace external to
-   the target root tree. This establishes the initial environment, to support
+   the target root tree. This establishes the initial environment to support
    the completion of the process in chroot setting. The essential packages to
    specify as part of the bootstrap environment are the ``filesystem`` and
    ``glibc-locale`` packages. The dependency chain of these two packages is
@@ -140,17 +140,17 @@ The prepare step consists of the following substeps:
    relative to the top level of the new root tree. As with the overlay tree,
    it is possible to overwrite files already existing in the target root tree.
 
-#. **Execute the User-defined Scripti** :file:`config.sh`.
+#. **Execute the User-defined Scripts** :file:`config.sh`.
 
    At the end of the preparation stage the script named :file:`config.sh` is
    executed if present. It is executed on the top level of the target root tree.
    The script's primary function is to complete the system configuration, for
-   example by activating services. 
+   example, by activating services. 
 
 #. **Manage The New Root Tree.**
 
    The unpacked image directory is a directory, as far as the build system is
-   concerned and you can manipulate the content of this directory according to
+   concerned you can manipulate the content of this directory according to
    your needs. Since it represents a system installation you can "chroot" into
    this directory for testing purposes. The file system contains an additional
    directory named :file:`/image` that is not present in a regular system. It
@@ -158,8 +158,8 @@ The prepare step consists of the following substeps:
    of the :file:`config.xml` file.
 
    Do not make any changes to the system, since they will get lost when
-   re-running the ``prepare`` step again. Whats more, you may introduce errors
-   that will occur during the ``create`` step, that are difficult to track. The
+   re-running the ``prepare`` step again. Additionally, you may introduce errors
+   that will occur during the ``create`` step which are difficult to track. The
    recommended way to apply changes to the unpacked image directory is to change
    the configuration and re-run the ``prepare`` step.
 
@@ -176,7 +176,7 @@ a single unpacked root tree. The only prerequisite is that both image types are
 specified in the :file:`config.xml` before the prepare step is executed.
 
 During the ``create`` step the following major operations are performed by
-kiwi:
+KIWI:
 
 #. **Execute the User-defined Script** ``images.sh``.
 
@@ -190,12 +190,12 @@ kiwi:
 #. **Create Requested Image Type.** 
 
    The image types that can be created from a prepared image tree depend on the
-   types specified in the image description file:`config.xml` file. The
+   types specified in the image description :file:`config.xml` file. The
    configuration file must contain at least one ``type`` element. 
   
    The currently supported image types are:
    
-   #. **Live Image**: For CDs,DVDs or flash disks.
+   #. **Live Image**: For CDs, DVDs or flash disks.
 
    #. **Disk image**: Virtual system disk that can be used in virtual
       environments such as VMware, Xen, Amazon Cloud, KVM, and others. Depending
@@ -212,15 +212,34 @@ Customizing the Boot Process
 
 Most Linux systems use a special boot image to control the system boot process
 after the system firmware, BIOS or UEFI, hands control of the hardware to the
-operating system. This boot image is called the initrd. The Linux kernel loads
-the *initrd*, a compressed cpio initial RAM disk, into the RAM and executes
-*init* or, if present, *linuxrc*.
+operating system. This boot image is called the :file:`initrd`. The Linux kernel
+loads the :file:`initrd`, a compressed cpio initial RAM disk, into the RAM and
+executes :command:`init` or, if present, :command:`linuxrc`.
 
 Depending on the image type, KIWI creates the boot image automatically during
 the ``create`` step. Each image type has its own description for the boot image.
 Common functionality is shared between the boot images through a set of
 functions. The boot image descriptions follow the same principles as the system
 image descriptions, KIWI ships with pre-defined boot image descriptions.
+
+This is the default behavior of KIWI and provides support for multiple boot
+modes like *oem install*, *pxe install*, *live images*, *network clients*, etc.
+However this KIWI version also provides support for :command:`dracut`
+generated images which is used when fast boot or small *initrd* images are
+important requirements. This is possible by setting the ``initrd_system``
+attribute withint the ``type`` section of the configuration file. For example:
+
+.. code-block:: xml
+
+   <type image="vmx" initrd_system="dracut"/>
+
+.. topic:: Important: dracut images limited features
+
+   The counter part of using :command:`dracut` images is that only
+   limited features are supported in this case. In fact, all the following
+   documentation about customizing the boot process does not apply using
+   :command:`dracut` images. ``initrd_system`` is only available for *oem* and
+   *vmx* image types.
 
 .. topic:: Note: Boot Image Descriptions provided by KIWI
 
@@ -241,21 +260,24 @@ image descriptions, KIWI ships with pre-defined boot image descriptions.
 
 #. **System Image**
 
-   The system image description is created by the KIWI user, or a KIWI
+   The system image description is created by the KIWI user or a KIWI
    provided template may be used.
 
 The boot image descriptions are stored in the
-:file:`<installation-dir>/kiwi/boot/*` directories. KIWI selects the boot image
+:file:`<INSTALL-DIR>/kiwi/boot/*` directories. KIWI selects the boot image
 based on the value of the ``boot`` attribute of the ``type`` element. The
-attribute value is expected in the general form of boottype/distribution . For
-example to select the OEM boot image for SLES version 12 the element would look
-like the following:
+attribute value is expected in the general form of *BOOTTYPE*/*DISTRIBUTION*.
+For example to select the OEM boot image for SLES version 12 the element would
+look like the following:
 
 .. code-block:: xml
 
    <type boot="oemboot/suse-SLES12">
 
-.. important:: The *boot image description* only represents the initrd used to boot the
+.. topic:: Important: Difference Between Boot Image and System Image
+   Descriptions
+
+   The *boot image description* only represents the initrd used to boot the
    system and as such serves a limited purpose. The boot image descriptions is
    used to build the boot image independently from the system image. Usually a
    pre-defined boot image descriptions shipped with KIWI is used.
@@ -272,7 +294,7 @@ like the following:
 Boot Image Hook-Scripts
 .......................
 
-All KIWI created boot images contain kiwi boot code that gets executed when the
+All KIWI created boot images contain KIWI boot code that gets executed when the
 image is booted for the first time. This boot code differs from image type to
 image type. It provides hooks to execute user defined shell scripts.
 
@@ -286,13 +308,13 @@ Script Types
 ''''''''''''
 
 Hook scripts are executed using a predetermined name that is hard coded into the
-kiwi boot code. This name is extended using the :file:`.sh` extension and
+KIWI boot code. This name is extended using the :file:`.sh` extension and
 differs by boot image type. Therefore, the boot script naming in the archive
 must be exact. Boot scripts are sourced in the kiwi boot code. This provides the
 hook script access to all variables set in the boot environment. This also
 implies that no separate shell process is started and the boot scripts do not
 need to have the executable bit set. Encoding the interpreter location with the
-``#!`` comment is superfluous.
+``#!`` shebang is superfluous.
 
 The following list provides information about the hook names, timing of the
 execution, and the applicable boot image.
@@ -392,17 +414,17 @@ the custom boot scripts.
 .. code-block:: bash
 
    mkdir kiwi-hooks
-   place all scripts inside kiwi-hooks
+   # place all scripts inside kiwi-hooks
    tar -cf kiwi-hooks.tgz kiwi-hooks/
 
 The TAR archive must be located at the top level of the image description
 directory, this is the same level that contains the :file:`config.xml` file.
 
-Hook scripts are only executed from within kiwi's boot code and must therefore
-be part of the KIWI created boot image. Including the content of a TAR archive
-in the initrd is accomplished by setting the value of the ``bootinclude``
-attribute of the ``archive`` element to true in the :file:`config.xml` file as 
-shown below:
+Hook scripts are only executed within KIWI's boot code and must therefore be
+part of the KIWI created boot image. Including the content of a TAR archive in
+the initrd is accomplished by setting the value of the ``bootinclude`` attribute
+of the ``archive`` element to true in the :file:`config.xml` file as shown
+below:
 
 .. code-block:: xml
 
@@ -459,22 +481,22 @@ Boot Parameters
 A KIWI created initrd based on one of the KIWI provided boot image descriptions
 recognizes kernel parameters that can be useful for debugging purposes or to set
 some specific boot variables. These parameters may not work if the image
-contains a custom boot image where the kiwi boot code has been replaced, and the
+contains a custom boot image where the KIWI boot code has been replaced, and the
 parameters are not recognized after the initial KIWI created initrd has been
 replaced by the "regular" distribution created initrd after the initial boot of
 the image.
 
-The following list are some of the variables that might included as kernel
+The following list are some of the variables that might be included as kernel
 parameters:
 
 ``BOOTIF``
-  This variable sets the interface to boot in *PXE* images. Its is the MAC
+  This variable sets the interface to boot in *PXE* images. It's the MAC
   address of the desired interface. If ``BOOTIF`` is not set the boot code
   selects the first interface responding to the DHCP server.
 
 ``DEVICE_TIMEOUT``
   This variable sets the time (in seconds) that the system waits until a
-  storage device is considered to be unaccessible. By default this value is set
+  storage device is considered to be unaccessible. By default, this value is set
   to 60 seconds. It can be handy in order to limit the wait time, specially
   if there are operations pending on removable devices which may not be always
   present.
@@ -528,22 +550,6 @@ parameters:
   This variable sets to mount the clicfs or unionfs read/write device on a
   ram disk or not. Any empty value activates the ramonly mode.
 
-``LOCAL_BOOT``
-  This variable sets to boot from the local disk in case of netboot. In
-  case of *OEM* or *VMX* boot it skips the creation and setup of new initrd
-  without kiwi's boot code. Boolean represented by ``yes`` or ``no``. By default
-  is set to ``no``.
-
-``PARTED_HAVE_ALIGN``
-  This variable sets the alignment flag of the parted tool. If set to ``1`` the
-  parted tool is set to align partitions to cylinders. By default is set to
-  ``0``, so no cylinder alignment is applied.
-
-``PARTITIONER``
-  This variable sets the tool that will be used to create needed partitions.
-  KIWI boot code only supports 'parted' and 'fdasd' tools. By default set to
-  ``parted``.
-
 
 Boot Debugging
 ''''''''''''''
@@ -591,15 +597,15 @@ configured to download the image. By default this is done via TFTP. In that case
 Adjust the path accordingly if having used HTTP or FTP.
 
 Adding more than one public key to file is possible, the file uses the same
-format as the common SSH file "authorized_keys". If a public key was found you
-can login as follows:
+format as the common SSH file "authorized_keys". If a public key was found login
+as follows:
 
 .. code-block:: bash
 
    ssh root@IP-ADDRESS
 
-In case :command:`rsync` is available, you can copy the KIWI boot log to your
-local machine as follows:
+In case :command:`rsync` is available, copy the KIWI boot log to your local
+machine as follows:
 
 .. code-block:: bash
 
@@ -615,7 +621,7 @@ majority of image builds and the environments in which these images are
 deployed. In case a customized boot image is needed, KIWI provides appropriate
 configuration options in :file:`config.xml`.
 
-Using these options allows users to base the boot image on the KIWI provided
+Using these options allow users to base the boot image on the KIWI provided
 descriptions rather than having to define a configuration from scratch (however,
 this is possible if wanted). The following question and answer section provides
 solutions to the most common scenarios that require a customized boot image. 
@@ -696,10 +702,10 @@ solutions to the most common scenarios that require a customized boot image.
   descriptions as a template. 
 
 **My customized boot image refuses to boot. How to debug?**
-  An initrd created by KIWI that is based on one of the KIWI- provided boot
+  An initrd created by KIWI that is based on one of the KIWI-provided boot
   image descriptions recognizes kernel parameters that are useful for debugging
   purposes, in case the image does not boot. These parameters may not work if
-  the image contains a custom boot image where the kiwi boot code has been
+  the image contains a custom boot image where the KIWI boot code has been
   completely replaced. Some hints are described in `Boot Debugging`_ section.
 
 
@@ -708,19 +714,8 @@ Distribution Specific Code
 
 KIWI is designed to be distribution-independent. However, Linux distributions
 differ from each other, primarily in the package management area and in the area
-of creation and composition of the boot image. Within the KIWI code base major
-areas of Linux distribution differences are isolated into specific regions of
-the code. The remainder of the code is common and distribution- independent. 
+of creation and composition of the boot image. The boot image code has been
+written as generic as possible, so all supported distributions use the same boot
+code. Within the KIWI code base, major areas of Linux distribution differences
+are isolated into specific and delimited regions of the code. 
 
-KIWI-provided functions that are distribution-specific contain the distribution
-name as a prefix, such as ``suseStripKernel``. Scripts that are part of the boot
-code and are distribution-specific are identified by a prefix of the
-distribution name followed by a "-", for example ``suse-linuxrc``. When KIWI
-creates a boot image for a SUSE distribution the :command:`suse-linuxrc` file 
-from the boot description is used as the :command:`linuxrc` file that the
-Linux kernel calls.
-
-With this design it is possible to maintain distribution-specific code in the
-project while also providing explicit hints to the user when distribution
-specific code is being used. The implementation of SUSE-specific code can be
-used as a guideline to support other distributions.
