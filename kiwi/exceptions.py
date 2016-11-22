@@ -576,6 +576,29 @@ class KiwiRuntimeError(KiwiError):
     """
 
 
+class KiwiSatSolverJobError(KiwiError):
+    """
+    Exception raised if a sat solver job can not be done, e.g because
+    the requested package or collection does not exist in the registered
+    repository metadata
+    """
+
+
+class KiwiSatSolverJobProblems(KiwiError):
+    """
+    Exception raised if the sat solver operations returned with solver
+    problems e.g package conflicts
+    """
+
+
+class KiwiSatSolverPluginError(KiwiError):
+    """
+    Exception raised if the python solv module failed to load.
+    The solv module is provided by SUSE's rpm package python-solv
+    and provides a python binding to the libsolv C library
+    """
+
+
 class KiwiSchemaImportError(KiwiError):
     """
     Exception raised if the schema file could not be read
