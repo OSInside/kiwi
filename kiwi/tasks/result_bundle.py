@@ -116,7 +116,7 @@ class ResultBundleTask(CliTask):
                 )
                 Command.run(
                     [
-                        'cp', '-l', result_file.filename, bundle_file
+                        'cp', result_file.filename, bundle_file
                     ]
                 )
                 if result_file.compress:

@@ -90,7 +90,7 @@ class TestResultBundleTask(object):
         mock_path.assert_called_once_with('bundle_dir')
         mock_command.assert_called_once_with(
             [
-                'cp', '-l', 'filename-1.2.3',
+                'cp', 'filename-1.2.3',
                 'bundle_dir/filename-1.2.3-Build_42'
             ]
         )
