@@ -21,6 +21,8 @@ from collections import namedtuple
 # project
 from ..command import Command
 
+from ..exceptions import KiwiKernelLookupError
+
 
 class Kernel(object):
     """
@@ -39,17 +41,9 @@ class Kernel(object):
     """
     def __init__(self, root_dir):
         self.root_dir = root_dir
-        # Calling functions.sh::suseStripKernel() will rename the
-        # kernel file to a common name. The following list specifies
-        # these names for the lookup of that kernel. Therefore it's
-        # required that suseStripKernel() was called as part of the
-        # images.sh script which is done by the kiwi provided boot
-        # image descriptions
-        self.kernel_names = [
-            'vmlinux', 'vmlinuz'
-        ]
+        self.kernel_names = self._setup_kernel_names_for_lookup()
 
-    def get_kernel(self):
+    def get_kernel(self, raise_on_not_found=False):
         """
         Lookup kernel files and provide filename and version
 
@@ -72,6 +66,14 @@ class Kernel(object):
                     filename=kernel_file,
                     version=version
                 )
+
+        if raise_on_not_found:
+            raise KiwiKernelLookupError(
+                'No kernel found in {0}, searched for {1}'.format(
+                    os.sep.join([self.root_dir, 'boot']),
+                    ','.join(self.kernel_names)
+                )
+            )
 
     def get_xen_hypervisor(self):
         """
@@ -127,3 +129,34 @@ class Kernel(object):
                 [target_dir, '/', file_name]
             )
             Command.run(['cp', xen.filename, target_file])
+
+    def _setup_kernel_names_for_lookup(self):
+        """
+        The kernel image name is different per arch and distribution
+        This method returns a list of possible kernel image names in
+        order to search and find one of them
+
+        :rtype: list
+        :return: list of kernel image names
+        """
+        kernel_names = [
+            # lookup for the symlink or functions.sh::suseStripKernel()
+            # generated names first
+            'vmlinux', 'vmlinuz', 'zImage'
+        ]
+        kernel_dir = os.listdir(''.join([self.root_dir, '/lib/modules']))
+        if kernel_dir:
+            # append lookup for the real kernel image names
+            # depending on the arch and os they are different
+            # in their prefix
+            kernel_prefixes = [
+                'uImage', 'Image', 'zImage', 'vmlinuz', 'vmlinux', 'image'
+            ]
+            kernel_name_pattern = '{prefix}-{name}'
+            for kernel_prefix in kernel_prefixes:
+                kernel_names.append(
+                    kernel_name_pattern.format(
+                        prefix=kernel_prefix, name=kernel_dir[0]
+                    )
+                )
+        return kernel_names

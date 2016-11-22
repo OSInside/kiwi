@@ -373,6 +373,12 @@ class KiwiIsoToolError(KiwiError):
     """
 
 
+class KiwiKernelLookupError(KiwiError):
+    """
+    Exception raised if the search for the kernel image file failed
+    """
+
+
 class KiwiLiveBootImageError(KiwiError):
     """
     Exception raised if an attempt was made to use an
