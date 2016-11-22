@@ -22,6 +22,7 @@ The Next Generation of the KIWI project.
    manual/kiwi
    api/kiwi
    schema
+   workflow
 
 What is KIWI?
 -------------
