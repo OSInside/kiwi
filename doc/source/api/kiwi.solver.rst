@@ -11,7 +11,7 @@ Subpackages
 Submodules
 ----------
 
-`kiwi.solver.solver` Module
+`kiwi.solver.sat` Module
 -----------------------------
 
 .. automodule:: kiwi.solver.sat
