@@ -151,6 +151,23 @@ class XMLState(object):
                 result.append(packages)
         return result
 
+    def package_matches_host_architecture(self, package):
+        """
+        Tests if the given package is applicable for the current host
+        architecture. If no architecture is specified within the package
+        it is considered as a match.
+
+        :param package: <package>
+        :return: True if there is a match or if the package has no architecture.
+        :rtype: bool
+        """
+
+        architectures = package.get_arch()
+        if architectures:
+            if self.host_architecture not in architectures.split(','):
+                return False
+        return True
+
     def get_package_sections(self, packages_sections):
         """
         List of package sections from the given packages sections.
@@ -174,16 +191,7 @@ class XMLState(object):
                 package_list = packages_section.get_package()
                 if package_list:
                     for package in package_list:
-                        package_architecture = package.get_arch()
-                        if package_architecture:
-                            if package_architecture == self.host_architecture:
-                                result.append(
-                                    package_type(
-                                        packages_section=packages_section,
-                                        package_section=package
-                                    )
-                                )
-                        else:
+                        if self.package_matches_host_architecture(package):
                             result.append(
                                 package_type(
                                     packages_section=packages_section,

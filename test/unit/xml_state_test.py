@@ -68,6 +68,27 @@ class TestXMLState(object):
             'vim'
         ]
 
+    @patch('platform.machine')
+    def test_get_system_packages_some_arch(self, mock_machine):
+        mock_machine.return_value = 'some-arch'
+        description = XMLDescription(
+            '../data/example_config.xml'
+        )
+        state = XMLState(
+            description.load()
+        )
+        assert state.get_system_packages() == [
+            'foo',
+            'gfxboot-branding-openSUSE',
+            'grub2-branding-openSUSE',
+            'ifplugd',
+            'iputils',
+            'kernel-default',
+            'openssh',
+            'plymouth-branding-openSUSE',
+            'vim'
+        ]
+
     def test_get_system_collections(self):
         assert self.state.get_system_collections() == [
             'base'
