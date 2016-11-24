@@ -199,7 +199,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             [cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
-            'search_params': '--fs-uuid --set=root ' + boot_uuid,
+            'search_params': ' '.join(['--fs-uuid', '--set=root', boot_uuid]),
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
