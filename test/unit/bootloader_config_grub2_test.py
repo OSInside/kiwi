@@ -247,7 +247,7 @@ class TestBootLoaderConfigGrub2(object):
 
     def test_setup_disk_image_config_multiboot(self):
         self.bootloader.multiboot = True
-        self.bootloader.setup_disk_image_config('uuid')
+        self.bootloader.setup_disk_image_config('boot_uuid', 'root_uuid')
         self.grub2.get_multiboot_disk_template.assert_called_once_with(
             True, 'gfxterm'
         )
@@ -261,7 +261,7 @@ class TestBootLoaderConfigGrub2(object):
 
     def test_setup_disk_image_config_standard(self):
         self.bootloader.multiboot = False
-        self.bootloader.setup_disk_image_config('uuid')
+        self.bootloader.setup_disk_image_config('boot_uuid', 'root_uuid')
         self.grub2.get_disk_template.assert_called_once_with(
             True, True, 'gfxterm'
         )
@@ -293,7 +293,7 @@ class TestBootLoaderConfigGrub2(object):
         self.grub2.get_multiboot_disk_template = mock.Mock(
             return_value=template
         )
-        self.bootloader.setup_disk_image_config('uuid')
+        self.bootloader.setup_disk_image_config('boot_uuid', 'root_uuid')
 
     @raises(KiwiTemplateError)
     def test_setup_install_image_config_substitute_error(self):

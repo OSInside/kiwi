@@ -68,7 +68,7 @@ class BootLoaderConfigBase(object):
         raise NotImplementedError
 
     def setup_disk_image_config(
-        self, uuid, hypervisor, kernel, initrd
+        self, boot_uuid, root_uuid, hypervisor, kernel, initrd
     ):
         """
         Create boot config file to boot from disk.
