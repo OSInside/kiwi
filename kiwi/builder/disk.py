@@ -851,12 +851,16 @@ class DiskBuilder(object):
         if 'kiwi_BootPart' in partition_id_map:
             boot_partition_id = partition_id_map['kiwi_BootPart']
 
+        root_uuid = self.disk.get_uuid(
+            device_map['root'].get_device()
+        )
         boot_uuid = self.disk.get_uuid(
             boot_device.get_device()
         )
         self.bootloader_config.setup_disk_boot_images(boot_uuid)
         self.bootloader_config.setup_disk_image_config(
-            uuid=boot_uuid,
+            boot_uuid=boot_uuid,
+            root_uuid=root_uuid,
             kernel=boot_names.kernel_name,
             initrd=boot_names.initrd_name
         )

@@ -180,24 +180,26 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                             grub_default.write(config_entry + os.linesep)
 
     def setup_disk_image_config(
-        self, uuid, hypervisor='xen.gz', kernel='linux.vmx', initrd='initrd.vmx'
+        self, boot_uuid, root_uuid, hypervisor='xen.gz', kernel='linux.vmx',
+        initrd='initrd.vmx'
     ):
         """
         Create the grub.cfg in memory from a template suitable to boot
         from a disk image
 
-        :param string uuid: boot device UUID
+        :param string boot_uuid: boot device UUID
+        :param string root_uuid: root device UUID
         :param string hypervisor: hypervisor name
         :param string kernel: kernel name
         :param string initrd: initrd name
         """
         log.info('Creating grub config file from template')
-        cmdline = self.get_boot_cmdline(uuid)
+        cmdline = self.get_boot_cmdline(root_uuid)
         cmdline_failsafe = ' '.join(
             [cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
-            'search_params': '--fs-uuid --set=root ' + uuid,
+            'search_params': '--fs-uuid --set=root ' + boot_uuid,
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,

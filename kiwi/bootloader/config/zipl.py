@@ -140,14 +140,15 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             )
 
     def setup_disk_image_config(
-        self, uuid=None, hypervisor=None,
+        self, boot_uuid=None, root_uuid=None, hypervisor=None,
         kernel='linux.vmx', initrd='initrd.vmx'
     ):
         """
         Create the zipl config in memory from a template suitable to
         boot from a disk image.
 
-        :param string uuid: unused
+        :param string boot_uuid: unused
+        :param string root_uuid: unused
         :param string hypervisor: unused
         :param string kernel: kernel name
         :param string initrd: initrd name

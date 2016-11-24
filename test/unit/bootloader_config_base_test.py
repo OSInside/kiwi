@@ -29,7 +29,7 @@ class TestBootLoaderConfigBase(object):
     @raises(NotImplementedError)
     def test_setup_disk_image_config(self):
         self.bootloader.setup_disk_image_config(
-            'uuid', 'hypervisor', 'kernel', 'initrd'
+            'boot_uuid', 'root_uuid', 'hypervisor', 'kernel', 'initrd'
         )
 
     @raises(NotImplementedError)

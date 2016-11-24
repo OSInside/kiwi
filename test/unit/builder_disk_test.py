@@ -285,7 +285,8 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd.vmx', kernel='linux.vmx', uuid='0815'
+            initrd='initrd.vmx', kernel='linux.vmx',
+            boot_uuid='0815', root_uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -401,7 +402,8 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3-default', uuid='0815'
+            initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3-default',
+            boot_uuid='0815', root_uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -473,7 +475,8 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            uuid='0815', initrd='initrd-1.2.3', kernel=kernel.name
+            initrd='initrd-1.2.3', kernel=kernel.name,
+            boot_uuid='0815', root_uuid='0815'
         )
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -526,7 +529,8 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            uuid='0815', initrd='initrd-1.2.3', kernel=kernel.name
+            initrd='initrd-1.2.3', kernel=kernel.name,
+            boot_uuid='0815', root_uuid='0815'
         )
 
     @patch('kiwi.builder.disk.FileSystem')
