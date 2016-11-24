@@ -73,6 +73,7 @@ class TestDiskBuilder(object):
         )
         kernel_info = mock.Mock()
         kernel_info.version = '1.2.3'
+        kernel_info.name = 'vmlinuz-1.2.3-default'
         self.kernel = mock.Mock()
         self.kernel.get_kernel = mock.Mock(
             return_value=kernel_info
@@ -400,7 +401,7 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3', uuid='0815'
+            initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3-default', uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -468,10 +469,11 @@ class TestDiskBuilder(object):
         self.disk_builder.initrd_system = 'dracut'
         kernel = mock.Mock()
         kernel.version = '1.2.3'
+        kernel.name = 'vmlinuz-1.2.3'
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            uuid='0815', initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3'
+            uuid='0815', initrd='initrd-1.2.3', kernel=kernel.name
         )
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -520,10 +522,11 @@ class TestDiskBuilder(object):
         self.disk_builder.arch = 'aarch64'
         kernel = mock.Mock()
         kernel.version = '1.2.3'
+        kernel.name = 'Image-1.2.3-default'
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            uuid='0815', initrd='initrd-1.2.3', kernel='zImage-1.2.3'
+            uuid='0815', initrd='initrd-1.2.3', kernel=kernel.name
         )
 
     @patch('kiwi.builder.disk.FileSystem')

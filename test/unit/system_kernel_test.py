@@ -34,14 +34,16 @@ class TestKernel(object):
         self.kernel.get_kernel(raise_on_not_found=True)
 
     @patch('os.path.exists')
+    @patch('os.path.realpath')
     @patch('kiwi.command.Command.run')
-    def test_get_kernel(self, mock_run, mock_os):
+    def test_get_kernel(self, mock_run, mock_realpath, mock_os):
         run = namedtuple(
             'run', ['output']
         )
         result = run(output='42')
         mock_os.return_value = True
         mock_run.return_value = result
+        mock_realpath.return_value = 'vmlinux-realpath'
         data = self.kernel.get_kernel()
         mock_run.assert_called_once_with(
             command=['kversion', 'root-dir/boot/vmlinux'],
@@ -49,6 +51,7 @@ class TestKernel(object):
         )
         assert data.filename == 'root-dir/boot/vmlinux'
         assert data.version == '42'
+        assert data.name == 'vmlinux-realpath'
 
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')

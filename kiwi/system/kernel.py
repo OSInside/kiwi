@@ -47,7 +47,7 @@ class Kernel(object):
         """
         Lookup kernel files and provide filename and version
 
-        :return: tuple with filename and version
+        :return: tuple with filename, kernelname and version
         :rtype: namedtuple
         """
         for kernel_name in self.kernel_names:
@@ -60,9 +60,10 @@ class Kernel(object):
                     version = 'no-version-found'
                 version = version.rstrip('\n')
                 kernel = namedtuple(
-                    'kernel', ['filename', 'version']
+                    'kernel', ['name', 'filename', 'version']
                 )
                 return kernel(
+                    name=os.path.basename(os.path.realpath(kernel_file)),
                     filename=kernel_file,
                     version=version
                 )

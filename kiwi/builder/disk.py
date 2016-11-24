@@ -974,11 +974,8 @@ class DiskBuilder(object):
                 self.boot_image.boot_root_directory
             )
         if self.initrd_system and self.initrd_system == 'dracut':
-            kernel_name_prefix = 'vmlinuz-'
-            if self.arch == 'aarch64' or self.arch.startswith('arm'):
-                kernel_name_prefix = 'zImage-'
             return boot_names_type(
-                kernel_name=kernel_name_prefix + kernel_info.version,
+                kernel_name=kernel_info.name,
                 initrd_name='initrd-' + kernel_info.version
             )
         else:
