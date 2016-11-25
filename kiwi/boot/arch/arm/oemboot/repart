@@ -933,7 +933,16 @@ function getFreeDiskBytes {
     if [ ! -b "$disk" ];then
         echo 0 ; return
     fi
+    local pt_table_type=$(blkid -s PTTYPE -o value $disk)
     local disk_Bytes=$(blockdev --getsize64 $disk)
+    # max msdos table geometry is at 2TB - 512
+    # max sector count taken from parted
+    local max_dos_disk=$((4294967295 * 512))
+    if [ "$pt_table_type" = "dos" ] && [ "$disk_Bytes" -gt $max_dos_disk ];then
+        Echo "Warning: msdos table allows a max disk size of 2TB"
+        Echo "Warning: disk expansion will be truncated to 2TB"
+        disk_Bytes=$max_dos_disk
+    fi
     local rest_Bytes=$disk_Bytes
     local part_Bytes=0
     for i in 1 2 3 4;do
