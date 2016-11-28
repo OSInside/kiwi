@@ -20,7 +20,7 @@
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
@@ -178,6 +178,9 @@ image.</db:para>
           <zeroOrMore>
             <ref name="k.packages"/>
           </zeroOrMore>
+          <optional>
+            <ref name="k.extension"/>
+          </optional>
         </interleave>
       </element>
     </define>
@@ -287,6 +290,49 @@ installation source from</a:documentation>
       <ref name="image-name"/>
     </attribute>
   </define>
+  <div>
+    <define name="k._any.attribute">
+      <attribute>
+        <a:documentation>Any attribute including in any attribute in any namespace.</a:documentation>
+        <anyName/>
+      </attribute>
+    </define>
+    <define name="k._any">
+      <element>
+        <a:documentation>Any element from almost any namespace except empty ones</a:documentation>
+        <anyName>
+          <except>
+            <nsName ns=""/>
+          </except>
+        </anyName>
+        <zeroOrMore>
+          <choice>
+            <ref name="k._any.attribute"/>
+            <text/>
+            <ref name="k._any"/>
+          </choice>
+        </zeroOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <extension>
+    
+  -->
+  <div>
+    <define name="k.extension.attlist">
+      <empty/>
+    </define>
+    <define name="k.extension">
+      <element name="extension">
+        <ref name="k.extension.attlist"/>
+        <oneOrMore>
+          <ref name="k._any"/>
+        </oneOrMore>
+      </element>
+    </define>
+  </div>
   <!--
     ==========================================
     common element <archive>
