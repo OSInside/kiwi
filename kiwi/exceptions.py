@@ -283,6 +283,15 @@ class KiwiDistributionNameError(KiwiError):
     """
 
 
+class KiwiExtensionError(KiwiError):
+    """
+    Exception raised if an extension section of the same namespace
+    is used multiple times as toplevel section within the extension
+    section. Each extension must have a single toplevel entry point
+    qualified by its namespace
+    """
+
+
 class KiwiFileNotFound(KiwiError):
     """
     Exception raised if the requested file could not be found.

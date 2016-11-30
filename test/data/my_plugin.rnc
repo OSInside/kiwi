@@ -1,0 +1,26 @@
+namespace rng = "http://relaxng.org/ns/structure/1.0"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace my_plugin = "http://www.my_plugin.com"
+
+start =
+    k.my_feature
+
+div {
+    k.my_feature.attlist = empty
+    k.my_feature =
+        element my_plugin:my_feature {
+            k.my_feature.attlist &
+            k.title
+        }
+}
+
+div {
+    k.title.name.attribute =
+        attribute name { text }
+    k.title.attlist = k.title.name.attribute
+    k.title =
+        element my_plugin:title {
+            k.title.attlist
+        }
+}

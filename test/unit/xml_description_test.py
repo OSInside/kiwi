@@ -11,7 +11,8 @@ from kiwi.exceptions import (
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
     KiwiDescriptionConflict,
-    KiwiCommandNotFound
+    KiwiCommandNotFound,
+    KiwiExtensionError
 )
 from kiwi.xml_description import XMLDescription
 
@@ -38,8 +39,91 @@ class TestSchema(object):
                 </repository>
             </image>"""
         )
+        test_xml_extension = bytes(
+            b"""<?xml version="1.0" encoding="utf-8"?>
+            <image schemaversion="1.4" name="bob">
+                <description type="system">
+                    <author>John Doe</author>
+                    <contact>john@example.com</contact>
+                    <specification>
+                        say hello
+                    </specification>
+                </description>
+                <preferences>
+                    <packagemanager>zypper</packagemanager>
+                    <version>1.1.1</version>
+                    <type image="ext3"/>
+                </preferences>
+                <repository type="rpm-md">
+                    <source path="repo"/>
+                </repository>
+                <extension xmlns:my_plugin="http://www.my_plugin.com">
+                    <my_plugin:my_feature>
+                        <my_plugin:title name="cool stuff"/>
+                    </my_plugin:my_feature>
+                </extension>
+            </image>"""
+        )
+        test_xml_extension_not_unique = bytes(
+            b"""<?xml version="1.0" encoding="utf-8"?>
+            <image schemaversion="1.4" name="bob">
+                <description type="system">
+                    <author>John Doe</author>
+                    <contact>john@example.com</contact>
+                    <specification>
+                        say hello
+                    </specification>
+                </description>
+                <preferences>
+                    <packagemanager>zypper</packagemanager>
+                    <version>1.1.1</version>
+                    <type image="ext3"/>
+                </preferences>
+                <repository type="rpm-md">
+                    <source path="repo"/>
+                </repository>
+                <extension xmlns:my_plugin="http://www.my_plugin.com">
+                    <my_plugin:toplevel_a/>
+                    <my_plugin:toplevel_b/>
+                </extension>
+            </image>"""
+        )
+        test_xml_extension_invalid = bytes(
+            b"""<?xml version="1.0" encoding="utf-8"?>
+            <image schemaversion="1.4" name="bob">
+                <description type="system">
+                    <author>John Doe</author>
+                    <contact>john@example.com</contact>
+                    <specification>
+                        say hello
+                    </specification>
+                </description>
+                <preferences>
+                    <packagemanager>zypper</packagemanager>
+                    <version>1.1.1</version>
+                    <type image="ext3"/>
+                </preferences>
+                <repository type="rpm-md">
+                    <source path="repo"/>
+                </repository>
+                <extension xmlns:my_plugin="http://www.my_plugin.com">
+                    <my_plugin:my_feature>
+                        <my_plugin:title name="cool stuff" unknown_attr="foo"/>
+                    </my_plugin:my_feature>
+                </extension>
+            </image>"""
+        )
         self.description_from_file = XMLDescription(description='description')
         self.description_from_data = XMLDescription(xml_content=test_xml)
+        self.extension_description_from_data = XMLDescription(
+            xml_content=test_xml_extension
+        )
+        self.extension_multiple_toplevel_description_from_data = XMLDescription(
+            xml_content=test_xml_extension_not_unique
+        )
+        self.extension_invalid_description_from_data = XMLDescription(
+            xml_content=test_xml_extension_invalid
+        )
 
     @raises(KiwiDescriptionConflict)
     def test_constructor_conflict(self):
@@ -227,3 +311,35 @@ class TestSchema(object):
             'DataStructureError'
         )
         self.description_from_file.load()
+
+    @patch('kiwi.xml_description.Command.run')
+    def test_load_extension(self, mock_command):
+        command_output = mock.Mock()
+        command_output.output = 'file://../data/my_plugin.rng'
+        mock_command.return_value = command_output
+        self.extension_description_from_data.load()
+        mock_command.assert_called_once_with(
+            ['xmlcatalog', '/etc/xml/catalog', 'http://www.my_plugin.com']
+        )
+        xml_data = self.extension_description_from_data.get_extension_xml_data(
+            'my_plugin'
+        )
+        assert xml_data.getroot()[0].get('name') == 'cool stuff'
+
+    @raises(KiwiExtensionError)
+    def test_load_extension_multiple_toplevel_error(self):
+        self.extension_multiple_toplevel_description_from_data.load()
+
+    @raises(KiwiExtensionError)
+    @patch('kiwi.xml_description.Command.run')
+    def test_load_extension_schema_error(self, mock_command):
+        mock_command.side_effect = Exception
+        self.extension_description_from_data.load()
+
+    @patch('kiwi.xml_description.Command.run')
+    @raises(KiwiExtensionError)
+    def test_load_extension_validation_error(self, mock_command):
+        command_output = mock.Mock()
+        command_output.output = 'file://../data/my_plugin.rng'
+        mock_command.return_value = command_output
+        self.extension_invalid_description_from_data.load()
