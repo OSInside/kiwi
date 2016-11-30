@@ -211,9 +211,13 @@ class TestVolumeManagerLVM(object):
         volume_mount = mock.Mock()
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.f2qx_d3y/boot/grub2/x86_64-efi'
+        volume_mount.device = '/dev/mapper/vg1-LVRoot'
         self.volume_manager.mount_list = [volume_mount]
         assert self.volume_manager.get_volumes() == {
-            'boot/grub2/x86_64-efi': 'a,b,c'
+            'boot/grub2/x86_64-efi': {
+                'volume_options': 'a,b,c',
+                'volume_device': '/dev/mapper/vg1-LVRoot'
+            }
         }
 
     def test_get_fstab(self):

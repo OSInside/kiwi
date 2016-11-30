@@ -196,7 +196,10 @@ class VolumeManagerLVM(VolumeManagerBase):
         for volume_mount in self.mount_list:
             mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
             if mount_path:
-                volumes[mount_path] = self.mount_options
+                volumes[mount_path] = {
+                    'volume_options': self.mount_options,
+                    'volume_device': volume_mount.device
+                }
         return volumes
 
     def mount_volumes(self):

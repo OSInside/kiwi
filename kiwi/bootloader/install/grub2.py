@@ -24,6 +24,7 @@ from ...command import Command
 from ...logger import log
 from ...defaults import Defaults
 from ...mount_manager import MountManager
+from ...path import Path
 
 from ...exceptions import (
     KiwiBootLoaderGrubInstallError,
@@ -173,14 +174,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.boot_mount.mount()
 
         if self.volumes:
-            for volume_path, volume_options in list(self.volumes.items()):
+            for volume_path in Path.sort_by_hierarchy(
+                sorted(self.volumes.keys())
+            ):
                 volume_mount = MountManager(
-                    device=self.custom_args['root_device'],
+                    device=self.volumes[volume_path]['volume_device'],
                     mountpoint=self.root_mount.mountpoint + '/' + volume_path
                 )
                 self.volumes_mount.append(volume_mount)
                 volume_mount.mount(
-                    options=[volume_options]
+                    options=[self.volumes[volume_path]['volume_options']]
                 )
 
         self.device_mount = MountManager(
@@ -281,7 +284,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
-        for volume_mount in self.volumes_mount:
+        for volume_mount in reversed(self.volumes_mount):
             volume_mount.umount()
         if self.device_mount:
             self.device_mount.umount()
