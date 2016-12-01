@@ -86,8 +86,8 @@ class XMLDescription(object):
         :return: instance of XML toplevel domain (image)
         :rtype: object
         """
-        self._xsltproc()
         try:
+            self._xsltproc()
             schema_doc = etree.parse(Defaults.get_schema_file())
             relaxng = etree.RelaxNG(schema_doc)
             schematron = isoschematron.Schematron(
