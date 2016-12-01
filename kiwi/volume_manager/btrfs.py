@@ -222,7 +222,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     'subvol=' + subvol_name
                 ] + self.custom_filesystem_args['mount_options']
             )
-            volumes[subvol_name.replace('@', '')] = subvol_options
+            volumes[subvol_name.replace('@', '')] = {
+                'volume_options': subvol_options,
+                'volume_device': volume_mount.device
+            }
         return volumes
 
     def mount_volumes(self):

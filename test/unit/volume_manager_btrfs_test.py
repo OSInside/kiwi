@@ -205,7 +205,10 @@ class TestVolumeManagerBtrfs(object):
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.custom_args['root_is_snapshot'] = True
         assert self.volume_manager.get_volumes() == {
-            '/boot/grub2': 'subvol=@/boot/grub2'
+            '/boot/grub2': {
+                'volume_options': 'subvol=@/boot/grub2',
+                'volume_device': 'device'
+            }
         }
 
     @patch('kiwi.volume_manager.btrfs.Command.run')

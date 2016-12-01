@@ -26,7 +26,10 @@ class TestBootLoaderInstallGrub2(object):
             'root_device': '/dev/mapper/loop0p1',
             'efi_device': '/dev/mapper/loop0p3',
             'prep_device': '/dev/mapper/loop0p2',
-            'system_volumes': {'boot/grub2': 'subvol=@/boot/grub2'},
+            'system_volumes': {'boot/grub2': {
+                'volume_options': 'subvol=@/boot/grub2',
+                'volume_device': 'device'
+            }},
             'firmware': self.firmware,
             'target_removable': None
         }
