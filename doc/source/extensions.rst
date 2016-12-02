@@ -1,4 +1,4 @@
-Extending KIWI with custom operations
+Extending KIWI with Custom Operations
 =====================================
 
 .. topic:: Abstract
@@ -10,11 +10,11 @@ Extending KIWI with custom operations
    provided by KIWI today.
 
    This document describes how to create an extension plugin
-   for the KIWI schema in order to allow to add and validate
-   additional information in the KIWI image description.
+   for the KIWI schema to add and validate additional information
+   in the KIWI image description.
 
    Such a schema extension can be used in an additional KIWI
-   task plugin in order to provide a new subcommand for KIWI.
+   task plugin to provide a new subcommand for KIWI.
    As of today there is no other plugin interface except for
    providing additional KIWI commands implemented.
 
@@ -24,7 +24,7 @@ Extending KIWI with custom operations
 
    This description applies for version |version|.
 
-The <extension> section
+The <extension> Section
 -----------------------
 
 The main KIWI schema supports an extension section which allows
@@ -47,20 +47,20 @@ structure can be implemented like the following example shows:
 * Multiple different toplevel namespaces are allowed,
   e.g my_plugin_a, my_plugin_b
 
-RelaxNG Schema for the Extension
---------------------------------
+RELAX NG Schema for the Extension
+---------------------------------
 
 If an extension section is found, KIWI looks up its namespace and asks
 the main XML catalog for the schema file to validate the extension data.
-The schema file must be a RelaxNG schema in the .rng format. We recommend
+The schema file must be a RELAX NG schema in the .rng format. We recommend
 to place the schema as :file:`/usr/share/xml/kiwi/my_plugin.rng`
 
-For the above example the RelaxNG Schema in the compressed format
+For the above example the RELAX NG Schema in the compressed format
 :file:`my_plugin.rnc` would look like this:
 
-.. code:: bash
+.. there is no rnc syntax highlighting, try cpp
+.. code:: cpp
 
-    namespace rng = "http://relaxng.org/ns/structure/1.0"
     namespace my_plugin = "http://www.my_plugin.com"
 
     start =
@@ -95,7 +95,7 @@ Extension Schema in XML catalog
 -------------------------------
 
 As mentioned above the mapping from the extension namespace to the
-correct RelaxNG schema file is handled by a XML catalog file. The
+correct RELAX NG schema file is handled by a XML catalog file. The
 XML catalog for the example use here looks like this:
 
 .. code:: bash
@@ -114,10 +114,10 @@ and the main XML catalog from the system which is :file:`/etc/xml/catalog`.
 
     It depends on the distribution and its version how the main catalog
     gets informed about the existence of the KIWI extension catalog file.
-    Please consult the distribution manual about adding XML catalogs
+    Please consult the distribution manual about adding XML catalogs.
 
 If the following command provides the information to the correct
-RelaxNG schema file you are ready for a first test:
+RELAX NG schema file you are ready for a first test:
 
 .. code:: bash
 
