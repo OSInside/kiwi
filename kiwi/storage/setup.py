@@ -312,13 +312,13 @@ class DiskSetup(object):
                 [size_type, req_size] = volume.size.split(':')
                 disk_add_mbytes = 0
                 if size_type == 'freespace':
-                    disk_add_mbytes += int(req_size) + \
-                        Defaults.get_min_volume_mbytes()
+                    disk_add_mbytes += int(req_size)
                 else:
                     disk_add_mbytes += int(req_size) - \
                         data_volume_mbytes.volume[volume.realpath]
                 if disk_add_mbytes > 0:
-                    disk_volume_mbytes += disk_add_mbytes
+                    disk_volume_mbytes += disk_add_mbytes + \
+                        Defaults.get_min_volume_mbytes()
                 else:
                     log.warning(
                         'volume size of %s MB for %s is too small, skipped',
@@ -327,14 +327,14 @@ class DiskSetup(object):
 
         if root_volume:
             if root_volume.size_type == 'freespace':
-                disk_add_mbytes = root_volume.req_size + \
-                    Defaults.get_min_volume_mbytes()
+                disk_add_mbytes = root_volume.req_size
             else:
                 disk_add_mbytes = root_volume.req_size - \
                     root_mbytes + data_volume_mbytes.total
 
             if disk_add_mbytes > 0:
-                disk_volume_mbytes += disk_add_mbytes
+                disk_volume_mbytes += disk_add_mbytes + \
+                    Defaults.get_min_volume_mbytes()
             else:
                 log.warning(
                     'root volume size of %s MB is too small, skipped',

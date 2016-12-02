@@ -184,7 +184,8 @@ class TestDiskSetup(object):
             root_size + \
             1024 - root_size + \
             500 + Defaults.get_min_volume_mbytes() + \
-            30 + Defaults.get_min_volume_mbytes()
+            30 + Defaults.get_min_volume_mbytes() + \
+            Defaults.get_min_volume_mbytes()
         assert mock_log_warn.called
 
     @patch('os.path.exists')
