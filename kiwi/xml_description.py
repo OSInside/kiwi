@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from xml.dom import minidom
 from lxml import (
     etree,
     isoschematron
@@ -40,6 +41,7 @@ from .exceptions import (
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
     KiwiDescriptionConflict,
+    KiwiExtensionError,
     KiwiCommandNotFound
 )
 
@@ -76,6 +78,7 @@ class XMLDescription(object):
 
         self.description = description
         self.xml_content = xml_content
+        self.extension_data = {}
 
     def load(self):
         """
@@ -106,7 +109,10 @@ class XMLDescription(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
         if not validation_rng:
-            self._get_relaxng_validation_details()
+            self._get_relaxng_validation_details(
+                Defaults.get_schema_file(),
+                self.description_xslt_processed.name
+            )
         if not validation_sch:
             self._get_schematron_validation_details(
                 schematron.validation_report
@@ -119,9 +125,87 @@ class XMLDescription(object):
             else:
                 message = 'Schema validation for XML content failed'
             raise KiwiDescriptionInvalid(message)
-        return self._parse()
 
-    def _get_relaxng_validation_details(self):
+        parse_result = self._parse()
+
+        if parse_result.get_extension():
+            extension_namespace_map = \
+                description.getroot().xpath('extension')[0].nsmap
+
+            for namespace_name in extension_namespace_map:
+                extensions_for_namespace = description.getroot().xpath(
+                    'extension/{namespace}:*'.format(namespace=namespace_name),
+                    namespaces=extension_namespace_map
+                )
+                if extensions_for_namespace:
+                    # one toplevel entry point per extension via xmlns
+                    if len(extensions_for_namespace) > 1:
+                        raise KiwiExtensionError(
+                            'Multiple toplevel sections for "{0}" found'.format(
+                                namespace_name
+                            )
+                        )
+
+                    # store extension xml data parse tree for this namespace
+                    self.extension_data[namespace_name] = \
+                        etree.ElementTree(extensions_for_namespace[0])
+
+                    # validate extension xml data
+                    try:
+                        xml_catalog = Command.run(
+                            [
+                                'xmlcatalog', '/etc/xml/catalog',
+                                extension_namespace_map[namespace_name]
+                            ]
+                        )
+                        extension_schema = xml_catalog.output.rstrip().replace(
+                            'file://', ''
+                        )
+                        extension_relaxng = etree.RelaxNG(
+                            etree.parse(extension_schema)
+                        )
+                    except Exception as e:
+                        raise KiwiExtensionError(
+                            'Extension schema error: {0}: {1}'.format(
+                                type(e).__name__, e
+                            )
+                        )
+                    validation_result = extension_relaxng.validate(
+                        self.extension_data[namespace_name]
+                    )
+                    if not validation_result:
+                        xml_data_unformatted = etree.tostring(
+                            self.extension_data[namespace_name],
+                            encoding='utf-8'
+                        )
+                        xml_data_domtree = minidom.parseString(
+                            xml_data_unformatted
+                        )
+                        extension_file = NamedTemporaryFile()
+                        with open(extension_file.name, 'w') as xml_data:
+                            xml_data.write(xml_data_domtree.toprettyxml())
+                        self._get_relaxng_validation_details(
+                            extension_schema, extension_file.name
+                        )
+                        raise KiwiExtensionError(
+                            'Schema validation for extension XML data failed'
+                        )
+
+        return parse_result
+
+    def get_extension_xml_data(self, namespace_name):
+        """
+        Return the xml etree parse result for the specified extension namespace
+
+        :param string namespace_name: name of the extension namespace
+
+        :return: result of etree.parse
+        :rtype: object
+        """
+        if namespace_name in self.extension_data:
+            return self.extension_data[namespace_name]
+
+    def _get_relaxng_validation_details(self, schema_file, description_file):
         """
         Run jing process to validate description against the schema
 
@@ -130,11 +214,13 @@ class XMLDescription(object):
         """
         try:
             cmd = Command.run(
-                ['jing', Defaults.get_schema_file(), self.description_xslt_processed.name],
+                ['jing', schema_file, description_file],
                 raise_on_error=False
             )
         except KiwiCommandNotFound as e:
-            log.info('A detailed schema validation failure report requires jing to be installed')
+            log.info(
+                'For detailed schema validation report, please install: jing'
+            )
             log.info(
                 '%s: %s: %s', 'jing', type(e).__name__, format(e)
             )

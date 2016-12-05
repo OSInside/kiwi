@@ -22,6 +22,7 @@ namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace db  = "http://docbook.org/ns/docbook"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
+namespace nul = ""
 
 db:info [
     db:releaseinfo [
@@ -100,7 +101,8 @@ div {
             k.drivers* &
             k.strip* &
             k.repository* &
-            k.packages*
+            k.packages* &
+            k.extension?
         }
 }
 
@@ -168,6 +170,29 @@ k.username.attribute    =
 k.imagename.attribute   =
     ## An image name without / and spaces
     attribute name { image-name }
+
+div {
+    k._any.attribute =
+        ## Any attribute including in any attribute in any namespace.
+        attribute * { text }
+
+    k._any =
+        ## Any element from almost any namespace except empty ones
+        element * - (nul:*) {
+            (k._any.attribute | text | k._any)*
+        }
+}
+
+#==========================================
+# common element <extension>
+#
+div {
+    k.extension.attlist = empty
+    k.extension = element extension {
+        k.extension.attlist,
+        k._any+
+    }
+}
 
 #==========================================
 # common element <archive>

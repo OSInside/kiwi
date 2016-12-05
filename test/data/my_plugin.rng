@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:my_plugin="http://www.my_plugin.com" xmlns="http://relaxng.org/ns/structure/1.0">
+  <start>
+    <ref name="k.my_feature"/>
+  </start>
+  <div>
+    <define name="k.my_feature.attlist">
+      <empty/>
+    </define>
+    <define name="k.my_feature">
+      <element name="my_plugin:my_feature">
+        <interleave>
+          <ref name="k.my_feature.attlist"/>
+          <ref name="k.title"/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <div>
+    <define name="k.title.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.title.attlist">
+      <ref name="k.title.name.attribute"/>
+    </define>
+    <define name="k.title">
+      <element name="my_plugin:title">
+        <ref name="k.title.attlist"/>
+      </element>
+    </define>
+  </div>
+</grammar>

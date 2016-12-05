@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Oct 25 15:51:13 2016 by generateDS.py version 2.23a.
+# Generated Mon Nov 28 18:20:25 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/ms/Project/kiwi/.env2/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -649,7 +649,7 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, kiwirevision=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, description=None, preferences=None, profiles=None, instsource=None, users=None, drivers=None, strip=None, repository=None, packages=None):
+    def __init__(self, name=None, displayname=None, kiwirevision=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, description=None, preferences=None, profiles=None, instsource=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -694,6 +694,10 @@ class image(GeneratedsSuper):
             self.packages = []
         else:
             self.packages = packages
+        if extension is None:
+            self.extension = []
+        else:
+            self.extension = extension
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -750,6 +754,11 @@ class image(GeneratedsSuper):
     def add_packages(self, value): self.packages.append(value)
     def insert_packages_at(self, index, value): self.packages.insert(index, value)
     def replace_packages_at(self, index, value): self.packages[index] = value
+    def get_extension(self): return self.extension
+    def set_extension(self, extension): self.extension = extension
+    def add_extension(self, value): self.extension.append(value)
+    def insert_extension_at(self, index, value): self.extension.insert(index, value)
+    def replace_extension_at(self, index, value): self.extension[index] = value
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_displayname(self): return self.displayname
@@ -781,7 +790,8 @@ class image(GeneratedsSuper):
             self.drivers or
             self.strip or
             self.repository or
-            self.packages
+            self.packages or
+            self.extension
         ):
             return True
         else:
@@ -849,6 +859,8 @@ class image(GeneratedsSuper):
             repository_.export(outfile, level, namespace_, name_='repository', pretty_print=pretty_print)
         for packages_ in self.packages:
             packages_.export(outfile, level, namespace_, name_='packages', pretty_print=pretty_print)
+        for extension_ in self.extension:
+            extension_.export(outfile, level, namespace_, name_='extension', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -934,7 +946,86 @@ class image(GeneratedsSuper):
             obj_.build(child_)
             self.packages.append(obj_)
             obj_.original_tagname_ = 'packages'
+        elif nodeName_ == 'extension':
+            obj_ = extension.factory()
+            obj_.build(child_)
+            self.extension.append(obj_)
+            obj_.original_tagname_ = 'extension'
 # end class image
+
+
+class extension(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, anytypeobjs_=None):
+        self.original_tagname_ = None
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, extension)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if extension.subclass:
+            return extension.subclass(*args_, **kwargs_)
+        else:
+            return extension(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def hasContent_(self):
+        if (
+            self.anytypeobjs_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='extension', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='extension')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='extension', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='extension'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='extension', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for obj_ in self.anytypeobjs_:
+            obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        obj_ = self.gds_build_any(child_, 'extension')
+        if obj_ is not None:
+            self.add_anytypeobjs_(obj_)
+# end class extension
 
 
 class archive(GeneratedsSuper):
@@ -7980,6 +8071,7 @@ __all__ = [
     "description",
     "drivers",
     "driverupdate",
+    "extension",
     "file",
     "ignore",
     "image",
