@@ -86,7 +86,7 @@ second step, the ``create`` step can be executed.
 
 During the prepare step, KIWI creates an *unpacked image*, also called "root
 tree". The new root tree is created in a directory specified on the command
-line with the :option:`--root` argument or the value of the ``defaultroot``
+line with the option `--root` argument or the value of the ``defaultroot``
 element in the :file:`config.xml` file. This directory will be the installation
 target for software packages to be installed during the image creation process.
 
