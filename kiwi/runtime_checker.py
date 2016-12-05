@@ -98,3 +98,26 @@ class RuntimeChecker(object):
             raise KiwiRuntimeError(
                 message % (target_dir, shared_cache_location)
             )
+
+    def check_volume_setup_has_no_root_definition(self):
+        """
+        The root volume in a systemdisk setup is handled in a special
+        way. It is not allowed to setup a custom name or mountpoint for
+        the root volume. Therefore the size of the root volume can be
+        setup via the @root volume name. This check looks up the volume
+        setup and searches if there is a configuration for the '/'
+        mountpoint which would cause the image build to fail
+        """
+        message = dedent('''\n
+            Volume setup for "/" found. The size of the root volume
+            must be specified via the @root volume name like the
+            following example shows:
+
+            <volume name="@root" size="42G"/>
+
+            A custom name or mountpoint for the root volume is not
+            allowed.
+        ''')
+        for volume in self.xml_state.get_volumes():
+            if volume.mountpoint == '/':
+                raise KiwiRuntimeError(message)

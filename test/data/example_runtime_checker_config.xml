@@ -36,7 +36,9 @@
     <preferences>
         <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install">
             <size unit="G" additive="true">1</size>
-            <systemdisk name="mydisk"/>
+            <systemdisk name="mydisk">
+                <volume name="root" size="6G" mountpoint="/"/>
+            </systemdisk>
             <machine memory="512" domain="domU">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
