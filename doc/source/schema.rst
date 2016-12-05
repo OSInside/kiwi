@@ -16,7 +16,7 @@ image
 The root element of the configuration file   
 
 Children:
-   The following elements occur in ``image``: :ref:`description <k.image.description>` , :ref:`preferences <k.image.preferences>` `[+]`_, :ref:`profiles <k.image.profiles>` `[?]`_, :ref:`instsource <k.image.instsource>` `[?]`_, :ref:`users <k.image.users>` `[*]`_, :ref:`drivers <k.image.drivers>` `[*]`_, :ref:`strip <k.image.strip>` `[*]`_, :ref:`repository <k.image.repository>` `[*]`_, :ref:`packages <k.image.packages>` `[*]`_
+   The following elements occur in ``image``: :ref:`description <k.image.description>` , :ref:`preferences <k.image.preferences>` `[+]`_, :ref:`profiles <k.image.profiles>` `[?]`_, :ref:`instsource <k.image.instsource>` `[?]`_, :ref:`users <k.image.users>` `[*]`_, :ref:`drivers <k.image.drivers>` `[*]`_, :ref:`strip <k.image.strip>` `[*]`_, :ref:`repository <k.image.repository>` `[*]`_, :ref:`packages <k.image.packages>` `[*]`_, :ref:`extension <k.image.extension>` `[?]`_
 
 List of attributes for ``image``:
 
@@ -1556,4 +1556,15 @@ List of attributes for ``package``:
 * ``replaces`` `[?]`_: Replace package with some other package
 * ``bootdelete`` `[?]`_: Indicates that this package should be removed from the boot image (initrd). the attribute is only evaluated if the bootinclude attribute is specified along with it too
 * ``bootinclude`` `[?]`_: Indicates that this package should be part of the boot image (initrd) too. This attribute can be used to include for example branding packages specified in the system image description to become part of the boot image also
+
+.. _k.image.extension:
+
+extension
+_________
+
+Define custom XML extensions
+
+Parents:
+   These elements contain ``extension``: :ref:`k.image`
+
 
