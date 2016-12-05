@@ -188,10 +188,12 @@ div {
 #
 div {
     k.extension.attlist = empty
-    k.extension = element extension {
-        k.extension.attlist,
-        k._any+
-    }
+    k.extension =
+        ## Define custom XML extensions
+        element extension {
+            k.extension.attlist,
+            k._any+
+        }
 }
 
 #==========================================

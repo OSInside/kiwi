@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Nov 28 18:20:25 2016 by generateDS.py version 2.23a.
+# Generated Mon Dec  5 11:42:20 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.env2/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -955,6 +955,7 @@ class image(GeneratedsSuper):
 
 
 class extension(GeneratedsSuper):
+    """Define custom XML extensions"""
     subclass = None
     superclass = None
     def __init__(self, anytypeobjs_=None):
