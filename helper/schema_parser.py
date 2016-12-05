@@ -77,9 +77,10 @@ class SchemaNode(object):
         # Follow references that are defined somewhere else in tree
         s_types = [ret_type] + stop_types
         for reference in self.children_in_tree(Reference, s_types):
-            children += reference.node.resolve_reference(
-                ret_type, stop_types, reference.properties
-            )
+            if not reference.node.name.endswith('any'):
+                children += reference.node.resolve_reference(
+                    ret_type, stop_types, reference.properties
+                )
         return children
 
     def children_in_tree(self, ret_type, stop_types, properties=None):
