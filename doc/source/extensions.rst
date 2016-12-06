@@ -1,7 +1,7 @@
 Extending KIWI with Custom Operations
 =====================================
 
-.. topic:: Abstract
+.. hint:: **Abstract**
 
    Users building images with KIWI need to implement their
    own infrastructure if the image description does not

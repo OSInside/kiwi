@@ -1,7 +1,7 @@
 Development and Contributing
 ============================
 
-.. topic:: Abstract
+.. hint:: **Abstract**
 
    This document describes the development process of KIWI.
    This description applies for version |version|.
