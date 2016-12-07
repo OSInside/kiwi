@@ -1,7 +1,7 @@
 Building in a Self-Contained Environment
 ========================================
 
-.. topic:: Abstract
+.. hint:: **Abstract**
 
    Users building images with KIWI face problems if they want
    to build an image matching one of the following criteria:

@@ -1,7 +1,7 @@
 Basic Workflow
 ==============
 
-.. topic:: Abstract
+.. hint:: **Abstract**
 
     Installation of a Linux system generally occurs by booting the target
     system from an installation source such as an installation CD/DVD, a live
@@ -38,7 +38,7 @@ addition, the image can optionally be customized using the :file:`config.sh`
 and :file:`images.sh` scripts and by using an *overlay tree (directory)*
 called :file:`root`.
 
-.. topic:: Note: Previous Knowledge
+.. note:: Previous Knowledge
     
     This documentation assumes that you are familiar with the general
     concepts of Linux, including the boot process, and distribution concepts
@@ -70,7 +70,7 @@ provided in the :file:`config.xml` configuration file.
     Encapsulated system reachable via kernel file system/extension drivers such
     as loopback mounts, etc.
 
-.. topic:: Note: KIWI configuration file name convention
+.. note:: KIWI configuration file name convention
 
    KIWI at first place looks for a configuration file named
    :file:`config.xml`. If there is no such file, KIWI looks for files with a 
@@ -233,7 +233,7 @@ attribute withint the ``type`` section of the configuration file. For example:
 
    <type image="vmx" initrd_system="dracut"/>
 
-.. topic:: Important: dracut images limited features
+.. important:: dracut images limited features
 
    The counter part of using :command:`dracut` images is that only
    limited features are supported in this case. In fact, all the following
@@ -241,7 +241,7 @@ attribute withint the ``type`` section of the configuration file. For example:
    :command:`dracut` images. ``initrd_system`` is only available for *oem* and
    *vmx* image types.
 
-.. topic:: Note: Boot Image Descriptions provided by KIWI
+.. note:: Boot Image Descriptions provided by KIWI
 
    The boot image descriptions provided by KIWI cover almost all use
    cases. Creating custom boot descriptions should not be necessary, unless you
@@ -274,7 +274,7 @@ look like the following:
 
    <type boot="oemboot/suse-SLES12">
 
-.. topic:: Important: Difference Between Boot Image and System Image
+.. important:: Difference Between Boot Image and System Image
    Descriptions
 
    The *boot image description* only represents the initrd used to boot the

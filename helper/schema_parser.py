@@ -303,7 +303,7 @@ class RNGSchemaParser(object):
             )
 
     def legend(self):
-        doc = '.. topic:: Element quantifiers\n\n'\
+        doc = '.. hint:: **Element quantifiers**\n\n'\
             '    * **Optional** elements are qualified with _`[?]`\n'\
             '    * Elements that occur **one or more** times are qualified with _`[+]`\n'\
             '    * Elements that occur **zero or more** times are qualified with _`[*]`\n'\

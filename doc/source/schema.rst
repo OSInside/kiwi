@@ -1,7 +1,7 @@
 Schema Documentation 6.4
 =========================
 
-.. topic:: Element quantifiers
+.. hint:: **Element quantifiers**
 
     * **Optional** elements are qualified with _`[?]`
     * Elements that occur **one or more** times are qualified with _`[+]`
