@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Dec  5 11:42:20 2016 by generateDS.py version 2.23a.
+# Generated Thu Dec  8 15:13:19 2016 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -541,7 +541,8 @@ class MixedContainer:
         elif self.category == MixedContainer.CategorySimple:
             self.exportSimple(outfile, level, name)
         else:    # category == MixedContainer.CategoryComplex
-            self.value.export(outfile, level, namespace, name, pretty_print)
+            self.value.export(
+                outfile, level, namespace, name, pretty_print=pretty_print)
     def exportSimple(self, outfile, level, name):
         if self.content_type == MixedContainer.TypeString:
             outfile.write('<%s>%s</%s>' % (
@@ -643,6 +644,77 @@ def _cast(typ, value):
 #
 # Data representation classes.
 #
+
+
+class k_source(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, source=None):
+        self.original_tagname_ = None
+        self.source = source
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, k_source)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if k_source.subclass:
+            return k_source.subclass(*args_, **kwargs_)
+        else:
+            return k_source(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_source(self): return self.source
+    def set_source(self, source): self.source = source
+    def hasContent_(self):
+        if (
+            self.source is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='k.source', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='k.source')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='k.source', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='k.source'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='k.source', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.source is not None:
+            self.source.export(outfile, level, namespace_, name_='source', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'source':
+            obj_ = source.factory()
+            obj_.build(child_)
+            self.source = obj_
+            obj_.original_tagname_ = 'source'
+# end class k_source
 
 
 class image(GeneratedsSuper):
@@ -1340,6 +1412,123 @@ class ignore(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class ignore
+
+
+class instrepo(k_source):
+    """Name of a Installation Repository"""
+    subclass = None
+    superclass = k_source
+    def __init__(self, source=None, local=None, name=None, password=None, priority=None, username=None):
+        self.original_tagname_ = None
+        super(instrepo, self).__init__(source, )
+        self.local = _cast(bool, local)
+        self.name = _cast(None, name)
+        self.password = _cast(None, password)
+        self.priority = _cast(None, priority)
+        self.username = _cast(None, username)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, instrepo)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if instrepo.subclass:
+            return instrepo.subclass(*args_, **kwargs_)
+        else:
+            return instrepo(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_local(self): return self.local
+    def set_local(self, local): self.local = local
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_password(self): return self.password
+    def set_password(self, password): self.password = password
+    def get_priority(self): return self.priority
+    def set_priority(self, priority): self.priority = priority
+    def get_username(self): return self.username
+    def set_username(self, username): self.username = username
+    def hasContent_(self):
+        if (
+            super(instrepo, self).hasContent_()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='instrepo', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='instrepo')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='instrepo', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='instrepo'):
+        super(instrepo, self).exportAttributes(outfile, level, already_processed, namespace_, name_='instrepo')
+        if self.local is not None and 'local' not in already_processed:
+            already_processed.add('local')
+            outfile.write(' local="%s"' % self.gds_format_boolean(self.local, input_name='local'))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.password is not None and 'password' not in already_processed:
+            already_processed.add('password')
+            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
+        if self.priority is not None and 'priority' not in already_processed:
+            already_processed.add('priority')
+            outfile.write(' priority=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.priority), input_name='priority')), ))
+        if self.username is not None and 'username' not in already_processed:
+            already_processed.add('username')
+            outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='instrepo', fromsubclass_=False, pretty_print=True):
+        super(instrepo, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('local', node)
+        if value is not None and 'local' not in already_processed:
+            already_processed.add('local')
+            if value in ('true', '1'):
+                self.local = True
+            elif value in ('false', '0'):
+                self.local = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('password', node)
+        if value is not None and 'password' not in already_processed:
+            already_processed.add('password')
+            self.password = value
+        value = find_attr_value_('priority', node)
+        if value is not None and 'priority' not in already_processed:
+            already_processed.add('priority')
+            self.priority = value
+        value = find_attr_value_('username', node)
+        if value is not None and 'username' not in already_processed:
+            already_processed.add('username')
+            self.username = value
+        super(instrepo, self).buildAttributes(node, attrs, already_processed)
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        super(instrepo, self).buildChildren(child_, node, nodeName_, True)
+        pass
+# end class instrepo
 
 
 class metadata(GeneratedsSuper):
@@ -2263,6 +2452,193 @@ class repopackage(GeneratedsSuper):
 # end class repopackage
 
 
+class repository(k_source):
+    """The Name of the Repository"""
+    subclass = None
+    superclass = k_source
+    def __init__(self, source=None, type_=None, profiles=None, status=None, alias=None, components=None, distribution=None, imageinclude=None, prefer_license=None, priority=None, password=None, username=None):
+        self.original_tagname_ = None
+        super(repository, self).__init__(source, )
+        self.type_ = _cast(None, type_)
+        self.profiles = _cast(None, profiles)
+        self.status = _cast(None, status)
+        self.alias = _cast(None, alias)
+        self.components = _cast(None, components)
+        self.distribution = _cast(None, distribution)
+        self.imageinclude = _cast(bool, imageinclude)
+        self.prefer_license = _cast(bool, prefer_license)
+        self.priority = _cast(int, priority)
+        self.password = _cast(None, password)
+        self.username = _cast(None, username)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, repository)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if repository.subclass:
+            return repository.subclass(*args_, **kwargs_)
+        else:
+            return repository(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_type(self): return self.type_
+    def set_type(self, type_): self.type_ = type_
+    def get_profiles(self): return self.profiles
+    def set_profiles(self, profiles): self.profiles = profiles
+    def get_status(self): return self.status
+    def set_status(self, status): self.status = status
+    def get_alias(self): return self.alias
+    def set_alias(self, alias): self.alias = alias
+    def get_components(self): return self.components
+    def set_components(self, components): self.components = components
+    def get_distribution(self): return self.distribution
+    def set_distribution(self, distribution): self.distribution = distribution
+    def get_imageinclude(self): return self.imageinclude
+    def set_imageinclude(self, imageinclude): self.imageinclude = imageinclude
+    def get_prefer_license(self): return self.prefer_license
+    def set_prefer_license(self, prefer_license): self.prefer_license = prefer_license
+    def get_priority(self): return self.priority
+    def set_priority(self, priority): self.priority = priority
+    def get_password(self): return self.password
+    def set_password(self, password): self.password = password
+    def get_username(self): return self.username
+    def set_username(self, username): self.username = username
+    def hasContent_(self):
+        if (
+            super(repository, self).hasContent_()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='repository', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='repository')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='repository', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='repository'):
+        super(repository, self).exportAttributes(outfile, level, already_processed, namespace_, name_='repository')
+        if self.type_ is not None and 'type_' not in already_processed:
+            already_processed.add('type_')
+            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
+        if self.profiles is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.status is not None and 'status' not in already_processed:
+            already_processed.add('status')
+            outfile.write(' status=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.status), input_name='status')), ))
+        if self.alias is not None and 'alias' not in already_processed:
+            already_processed.add('alias')
+            outfile.write(' alias=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.alias), input_name='alias')), ))
+        if self.components is not None and 'components' not in already_processed:
+            already_processed.add('components')
+            outfile.write(' components=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.components), input_name='components')), ))
+        if self.distribution is not None and 'distribution' not in already_processed:
+            already_processed.add('distribution')
+            outfile.write(' distribution=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.distribution), input_name='distribution')), ))
+        if self.imageinclude is not None and 'imageinclude' not in already_processed:
+            already_processed.add('imageinclude')
+            outfile.write(' imageinclude="%s"' % self.gds_format_boolean(self.imageinclude, input_name='imageinclude'))
+        if self.prefer_license is not None and 'prefer_license' not in already_processed:
+            already_processed.add('prefer_license')
+            outfile.write(' prefer-license="%s"' % self.gds_format_boolean(self.prefer_license, input_name='prefer-license'))
+        if self.priority is not None and 'priority' not in already_processed:
+            already_processed.add('priority')
+            outfile.write(' priority="%s"' % self.gds_format_integer(self.priority, input_name='priority'))
+        if self.password is not None and 'password' not in already_processed:
+            already_processed.add('password')
+            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
+        if self.username is not None and 'username' not in already_processed:
+            already_processed.add('username')
+            outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='repository', fromsubclass_=False, pretty_print=True):
+        super(repository, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('type', node)
+        if value is not None and 'type' not in already_processed:
+            already_processed.add('type')
+            self.type_ = value
+            self.type_ = ' '.join(self.type_.split())
+        value = find_attr_value_('profiles', node)
+        if value is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            self.profiles = value
+        value = find_attr_value_('status', node)
+        if value is not None and 'status' not in already_processed:
+            already_processed.add('status')
+            self.status = value
+            self.status = ' '.join(self.status.split())
+        value = find_attr_value_('alias', node)
+        if value is not None and 'alias' not in already_processed:
+            already_processed.add('alias')
+            self.alias = value
+        value = find_attr_value_('components', node)
+        if value is not None and 'components' not in already_processed:
+            already_processed.add('components')
+            self.components = value
+        value = find_attr_value_('distribution', node)
+        if value is not None and 'distribution' not in already_processed:
+            already_processed.add('distribution')
+            self.distribution = value
+        value = find_attr_value_('imageinclude', node)
+        if value is not None and 'imageinclude' not in already_processed:
+            already_processed.add('imageinclude')
+            if value in ('true', '1'):
+                self.imageinclude = True
+            elif value in ('false', '0'):
+                self.imageinclude = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('prefer-license', node)
+        if value is not None and 'prefer-license' not in already_processed:
+            already_processed.add('prefer-license')
+            if value in ('true', '1'):
+                self.prefer_license = True
+            elif value in ('false', '0'):
+                self.prefer_license = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('priority', node)
+        if value is not None and 'priority' not in already_processed:
+            already_processed.add('priority')
+            try:
+                self.priority = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+        value = find_attr_value_('password', node)
+        if value is not None and 'password' not in already_processed:
+            already_processed.add('password')
+            self.password = value
+        value = find_attr_value_('username', node)
+        if value is not None and 'username' not in already_processed:
+            already_processed.add('username')
+            self.username = value
+        super(repository, self).buildAttributes(node, attrs, already_processed)
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        super(repository, self).buildChildren(child_, node, nodeName_, True)
+        pass
+# end class repository
+
+
 class size(GeneratedsSuper):
     """Specifies the Size of an Image in (M)egabyte or (G)igabyte If the
     attribute additive is set the value will be added to the
@@ -2351,77 +2727,6 @@ class size(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class size
-
-
-class k_source(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, source=None):
-        self.original_tagname_ = None
-        self.source = source
-    def factory(*args_, **kwargs_):
-        if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, k_source)
-            if subclass is not None:
-                return subclass(*args_, **kwargs_)
-        if k_source.subclass:
-            return k_source.subclass(*args_, **kwargs_)
-        else:
-            return k_source(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_source(self): return self.source
-    def set_source(self, source): self.source = source
-    def hasContent_(self):
-        if (
-            self.source is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='k.source', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='k.source')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='k.source', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='k.source'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='k.source', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.source is not None:
-            self.source.export(outfile, level, namespace_, name_='source', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'source':
-            obj_ = source.factory()
-            obj_.build(child_)
-            self.source = obj_
-            obj_.original_tagname_ = 'source'
-# end class k_source
 
 
 class source(GeneratedsSuper):
@@ -7401,7 +7706,10 @@ class preferences(GeneratedsSuper):
             self.defaultroot.append(defaultroot_)
         elif nodeName_ == 'hwclock':
             hwclock_ = child_.text
-            hwclock_ = re_.sub(String_cleanup_pat_, " ", hwclock_).strip()
+            if hwclock_:
+                hwclock_ = re_.sub(String_cleanup_pat_, " ", hwclock_).strip()
+            else:
+                hwclock_ = ""
             hwclock_ = self.gds_validate_string(hwclock_, node, 'hwclock')
             self.hwclock.append(hwclock_)
         elif nodeName_ == 'keytable':
@@ -7410,17 +7718,26 @@ class preferences(GeneratedsSuper):
             self.keytable.append(keytable_)
         elif nodeName_ == 'locale':
             locale_ = child_.text
-            locale_ = re_.sub(String_cleanup_pat_, " ", locale_).strip()
+            if locale_:
+                locale_ = re_.sub(String_cleanup_pat_, " ", locale_).strip()
+            else:
+                locale_ = ""
             locale_ = self.gds_validate_string(locale_, node, 'locale')
             self.locale.append(locale_)
         elif nodeName_ == 'packagemanager':
             packagemanager_ = child_.text
-            packagemanager_ = re_.sub(String_cleanup_pat_, " ", packagemanager_).strip()
+            if packagemanager_:
+                packagemanager_ = re_.sub(String_cleanup_pat_, " ", packagemanager_).strip()
+            else:
+                packagemanager_ = ""
             packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
             self.packagemanager.append(packagemanager_)
         elif nodeName_ == 'partitioner':
             partitioner_ = child_.text
-            partitioner_ = re_.sub(String_cleanup_pat_, " ", partitioner_).strip()
+            if partitioner_:
+                partitioner_ = re_.sub(String_cleanup_pat_, " ", partitioner_).strip()
+            else:
+                partitioner_ = ""
             partitioner_ = self.gds_validate_string(partitioner_, node, 'partitioner')
             self.partitioner.append(partitioner_)
         elif nodeName_ == 'rpm-check-signatures':
@@ -7637,310 +7954,6 @@ class users(GeneratedsSuper):
 # end class users
 
 
-class instrepo(k_source):
-    """Name of a Installation Repository"""
-    subclass = None
-    superclass = k_source
-    def __init__(self, source=None, local=None, name=None, password=None, priority=None, username=None):
-        self.original_tagname_ = None
-        super(instrepo, self).__init__(source, )
-        self.local = _cast(bool, local)
-        self.name = _cast(None, name)
-        self.password = _cast(None, password)
-        self.priority = _cast(None, priority)
-        self.username = _cast(None, username)
-    def factory(*args_, **kwargs_):
-        if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, instrepo)
-            if subclass is not None:
-                return subclass(*args_, **kwargs_)
-        if instrepo.subclass:
-            return instrepo.subclass(*args_, **kwargs_)
-        else:
-            return instrepo(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_local(self): return self.local
-    def set_local(self, local): self.local = local
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_password(self): return self.password
-    def set_password(self, password): self.password = password
-    def get_priority(self): return self.priority
-    def set_priority(self, priority): self.priority = priority
-    def get_username(self): return self.username
-    def set_username(self, username): self.username = username
-    def hasContent_(self):
-        if (
-            super(instrepo, self).hasContent_()
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='instrepo', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='instrepo')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='instrepo', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='instrepo'):
-        super(instrepo, self).exportAttributes(outfile, level, already_processed, namespace_, name_='instrepo')
-        if self.local is not None and 'local' not in already_processed:
-            already_processed.add('local')
-            outfile.write(' local="%s"' % self.gds_format_boolean(self.local, input_name='local'))
-        if self.name is not None and 'name' not in already_processed:
-            already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-        if self.password is not None and 'password' not in already_processed:
-            already_processed.add('password')
-            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
-        if self.priority is not None and 'priority' not in already_processed:
-            already_processed.add('priority')
-            outfile.write(' priority=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.priority), input_name='priority')), ))
-        if self.username is not None and 'username' not in already_processed:
-            already_processed.add('username')
-            outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='instrepo', fromsubclass_=False, pretty_print=True):
-        super(instrepo, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('local', node)
-        if value is not None and 'local' not in already_processed:
-            already_processed.add('local')
-            if value in ('true', '1'):
-                self.local = True
-            elif value in ('false', '0'):
-                self.local = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('name', node)
-        if value is not None and 'name' not in already_processed:
-            already_processed.add('name')
-            self.name = value
-        value = find_attr_value_('password', node)
-        if value is not None and 'password' not in already_processed:
-            already_processed.add('password')
-            self.password = value
-        value = find_attr_value_('priority', node)
-        if value is not None and 'priority' not in already_processed:
-            already_processed.add('priority')
-            self.priority = value
-        value = find_attr_value_('username', node)
-        if value is not None and 'username' not in already_processed:
-            already_processed.add('username')
-            self.username = value
-        super(instrepo, self).buildAttributes(node, attrs, already_processed)
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        super(instrepo, self).buildChildren(child_, node, nodeName_, True)
-        pass
-# end class instrepo
-
-
-class repository(k_source):
-    """The Name of the Repository"""
-    subclass = None
-    superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, status=None, alias=None, components=None, distribution=None, imageinclude=None, prefer_license=None, priority=None, password=None, username=None):
-        self.original_tagname_ = None
-        super(repository, self).__init__(source, )
-        self.type_ = _cast(None, type_)
-        self.profiles = _cast(None, profiles)
-        self.status = _cast(None, status)
-        self.alias = _cast(None, alias)
-        self.components = _cast(None, components)
-        self.distribution = _cast(None, distribution)
-        self.imageinclude = _cast(bool, imageinclude)
-        self.prefer_license = _cast(bool, prefer_license)
-        self.priority = _cast(int, priority)
-        self.password = _cast(None, password)
-        self.username = _cast(None, username)
-    def factory(*args_, **kwargs_):
-        if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, repository)
-            if subclass is not None:
-                return subclass(*args_, **kwargs_)
-        if repository.subclass:
-            return repository.subclass(*args_, **kwargs_)
-        else:
-            return repository(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_type(self): return self.type_
-    def set_type(self, type_): self.type_ = type_
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def get_status(self): return self.status
-    def set_status(self, status): self.status = status
-    def get_alias(self): return self.alias
-    def set_alias(self, alias): self.alias = alias
-    def get_components(self): return self.components
-    def set_components(self, components): self.components = components
-    def get_distribution(self): return self.distribution
-    def set_distribution(self, distribution): self.distribution = distribution
-    def get_imageinclude(self): return self.imageinclude
-    def set_imageinclude(self, imageinclude): self.imageinclude = imageinclude
-    def get_prefer_license(self): return self.prefer_license
-    def set_prefer_license(self, prefer_license): self.prefer_license = prefer_license
-    def get_priority(self): return self.priority
-    def set_priority(self, priority): self.priority = priority
-    def get_password(self): return self.password
-    def set_password(self, password): self.password = password
-    def get_username(self): return self.username
-    def set_username(self, username): self.username = username
-    def hasContent_(self):
-        if (
-            super(repository, self).hasContent_()
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='repository', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='repository')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='repository', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='repository'):
-        super(repository, self).exportAttributes(outfile, level, already_processed, namespace_, name_='repository')
-        if self.type_ is not None and 'type_' not in already_processed:
-            already_processed.add('type_')
-            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
-        if self.profiles is not None and 'profiles' not in already_processed:
-            already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-        if self.status is not None and 'status' not in already_processed:
-            already_processed.add('status')
-            outfile.write(' status=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.status), input_name='status')), ))
-        if self.alias is not None and 'alias' not in already_processed:
-            already_processed.add('alias')
-            outfile.write(' alias=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.alias), input_name='alias')), ))
-        if self.components is not None and 'components' not in already_processed:
-            already_processed.add('components')
-            outfile.write(' components=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.components), input_name='components')), ))
-        if self.distribution is not None and 'distribution' not in already_processed:
-            already_processed.add('distribution')
-            outfile.write(' distribution=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.distribution), input_name='distribution')), ))
-        if self.imageinclude is not None and 'imageinclude' not in already_processed:
-            already_processed.add('imageinclude')
-            outfile.write(' imageinclude="%s"' % self.gds_format_boolean(self.imageinclude, input_name='imageinclude'))
-        if self.prefer_license is not None and 'prefer_license' not in already_processed:
-            already_processed.add('prefer_license')
-            outfile.write(' prefer-license="%s"' % self.gds_format_boolean(self.prefer_license, input_name='prefer-license'))
-        if self.priority is not None and 'priority' not in already_processed:
-            already_processed.add('priority')
-            outfile.write(' priority="%s"' % self.gds_format_integer(self.priority, input_name='priority'))
-        if self.password is not None and 'password' not in already_processed:
-            already_processed.add('password')
-            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
-        if self.username is not None and 'username' not in already_processed:
-            already_processed.add('username')
-            outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='repository', fromsubclass_=False, pretty_print=True):
-        super(repository, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('type', node)
-        if value is not None and 'type' not in already_processed:
-            already_processed.add('type')
-            self.type_ = value
-            self.type_ = ' '.join(self.type_.split())
-        value = find_attr_value_('profiles', node)
-        if value is not None and 'profiles' not in already_processed:
-            already_processed.add('profiles')
-            self.profiles = value
-        value = find_attr_value_('status', node)
-        if value is not None and 'status' not in already_processed:
-            already_processed.add('status')
-            self.status = value
-            self.status = ' '.join(self.status.split())
-        value = find_attr_value_('alias', node)
-        if value is not None and 'alias' not in already_processed:
-            already_processed.add('alias')
-            self.alias = value
-        value = find_attr_value_('components', node)
-        if value is not None and 'components' not in already_processed:
-            already_processed.add('components')
-            self.components = value
-        value = find_attr_value_('distribution', node)
-        if value is not None and 'distribution' not in already_processed:
-            already_processed.add('distribution')
-            self.distribution = value
-        value = find_attr_value_('imageinclude', node)
-        if value is not None and 'imageinclude' not in already_processed:
-            already_processed.add('imageinclude')
-            if value in ('true', '1'):
-                self.imageinclude = True
-            elif value in ('false', '0'):
-                self.imageinclude = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('prefer-license', node)
-        if value is not None and 'prefer-license' not in already_processed:
-            already_processed.add('prefer-license')
-            if value in ('true', '1'):
-                self.prefer_license = True
-            elif value in ('false', '0'):
-                self.prefer_license = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('priority', node)
-        if value is not None and 'priority' not in already_processed:
-            already_processed.add('priority')
-            try:
-                self.priority = int(value)
-            except ValueError as exp:
-                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-        value = find_attr_value_('password', node)
-        if value is not None and 'password' not in already_processed:
-            already_processed.add('password')
-            self.password = value
-        value = find_attr_value_('username', node)
-        if value is not None and 'username' not in already_processed:
-            already_processed.add('username')
-            self.username = value
-        super(repository, self).buildAttributes(node, attrs, already_processed)
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        super(repository, self).buildChildren(child_, node, nodeName_, True)
-        pass
-# end class repository
-
-
 GDSClassesMapping = {
 }
 
@@ -7969,8 +7982,8 @@ def parse(inFileName, silence=False):
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
-        rootTag = 'image'
-        rootClass = image
+        rootTag = 'k_source'
+        rootClass = k_source
     rootObj = rootClass.factory()
     rootObj.build(rootNode)
     # Enable Python to collect the space used by the DOM.
@@ -7990,8 +8003,8 @@ def parseEtree(inFileName, silence=False):
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
-        rootTag = 'image'
-        rootClass = image
+        rootTag = 'k_source'
+        rootClass = k_source
     rootObj = rootClass.factory()
     rootObj.build(rootNode)
     # Enable Python to collect the space used by the DOM.
@@ -8015,8 +8028,8 @@ def parseString(inString, silence=False):
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
-        rootTag = 'image'
-        rootClass = image
+        rootTag = 'k_source'
+        rootClass = k_source
     rootObj = rootClass.factory()
     rootObj.build(rootNode)
     # Enable Python to collect the space used by the DOM.
@@ -8035,8 +8048,8 @@ def parseLiteral(inFileName, silence=False):
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
-        rootTag = 'image'
-        rootClass = image
+        rootTag = 'k_source'
+        rootClass = k_source
     rootObj = rootClass.factory()
     rootObj.build(rootNode)
     # Enable Python to collect the space used by the DOM.

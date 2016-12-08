@@ -2854,7 +2854,7 @@ div {
 div {
     k.vagrantconfig.provider.attribute =
         ## The vagrant provider for this box
-        attribute provider { "libvirt" | "virtualbox" }
+        attribute provider { "libvirt" }
     k.vagrantconfig.virtualsize.attribute =
         ## The vagrant virtual image size in GB
         [
