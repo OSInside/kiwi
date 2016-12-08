@@ -14,6 +14,16 @@ class TestDiskFormat(object):
     def test_format_not_implemented(self):
         DiskFormat('foo', mock.Mock(), 'root_dir', 'target_dir')
 
+    @raises(KiwiDiskFormatSetupError)
+    def test_disk_format_vagrant_not_implemented(self):
+        xml_state = mock.Mock()
+        xml_state.get_build_type_vagrant_config_section = mock.Mock(
+            return_value=None
+        )
+        DiskFormat(
+            'vagrant', xml_state, 'root_dir', 'target_dir'
+        )
+
     @patch('kiwi.storage.subformat.DiskFormatQcow2')
     def test_disk_format_qcow2(self, mock_qcow2):
         xml_state = mock.Mock()
@@ -77,6 +87,24 @@ class TestDiskFormat(object):
         mock_vmdk.assert_called_once_with(
             xml_state, 'root_dir', 'target_dir',
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
+        )
+
+    @patch('kiwi.storage.subformat.DiskFormatVagrantLibVirt')
+    def test_disk_format_vagrant_libvirt(self, mock_vagrant):
+        xml_state = mock.Mock()
+        vagrant_config = mock.Mock()
+        vagrant_config.get_provider = mock.Mock(
+            return_value='libvirt'
+        )
+        xml_state.get_build_type_vagrant_config_section = mock.Mock(
+            return_value=vagrant_config
+        )
+        DiskFormat(
+            'vagrant', xml_state, 'root_dir', 'target_dir'
+        )
+        mock_vagrant.assert_called_once_with(
+            xml_state, 'root_dir', 'target_dir',
+            {'vagrantconfig': vagrant_config}
         )
 
     @patch('kiwi.storage.subformat.DiskFormatBase')

@@ -154,6 +154,10 @@ class TestXMLState(object):
             'kernel-debug'
         ]
 
+    def test_get_build_type_vagrant_config_section(self):
+        vagrant_config = self.state.get_build_type_vagrant_config_section()
+        assert vagrant_config.get_provider() == 'libvirt'
+
     def test_get_build_type_system_disk_section(self):
         assert self.state.get_build_type_system_disk_section().get_name() == \
             'mydisk'

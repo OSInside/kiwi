@@ -47,6 +47,7 @@
                 <oem-swap>true</oem-swap>
                 <oem-recovery>false</oem-recovery>
             </oemconfig>
+            <vagrantconfig provider="libvirt" virtualsize="42"/>
         </type>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>

@@ -450,6 +450,17 @@ class XMLState(object):
         if machine_sections:
             return machine_sections[0]
 
+    def get_build_type_vagrant_config_section(self):
+        """
+        First vagrantconfig section from the build type section
+
+        :return: <vagrantconfig>
+        :rtype: xml_parse::vagrantconfig instance
+        """
+        vagrant_config_sections = self.build_type.get_vagrantconfig()
+        if vagrant_config_sections:
+            return vagrant_config_sections[0]
+
     def get_build_type_vmdisk_section(self):
         """
         First vmdisk section from the first machine section in the
