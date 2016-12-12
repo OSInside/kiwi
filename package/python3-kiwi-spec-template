@@ -208,11 +208,11 @@ done
 #============================================================
 # create user and group tftp if they does not exist
 if ! /usr/bin/getent group tftp >/dev/null; then
-    %{_sbindir}/groupadd -r tftp 2>/dev/null || :
+    %{_sbindir}/groupadd -r tftp
 fi
 if ! /usr/bin/getent passwd tftp >/dev/null; then
     %{_sbindir}/useradd -c "TFTP account" -d /srv/tftpboot -G tftp -g tftp \
-        -r -s /bin/false tftp 2>/dev/null || :
+        -r -s /bin/false tftp
 fi
 %endif
 
