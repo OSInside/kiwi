@@ -32,6 +32,7 @@ BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
 BuildRequires:  fdupes
 BuildRequires:  update-alternatives
+BuildRequires:  shadow
 Provides:       kiwi-image:tbz
 Provides:       kiwi-image:docker
 Provides:       kiwi-image:iso
