@@ -23,6 +23,7 @@ from .vmdk import DiskFormatVmdk
 from .gce import DiskFormatGce
 from .vdi import DiskFormatVdi
 from .base import DiskFormatBase
+from .vagrant_libvirt import DiskFormatVagrantLibVirt
 
 from ...exceptions import (
     KiwiDiskFormatSetupError
@@ -94,11 +95,28 @@ class DiskFormat(object):
             return DiskFormatVmdk(
                 xml_state, root_dir, target_dir, custom_args
             )
+        elif name == 'vagrant':
+            vagrant_config = xml_state.get_build_type_vagrant_config_section()
+            if vagrant_config:
+                provider = vagrant_config.get_provider()
+            else:
+                provider = 'undefined'
+            if provider == 'libvirt':
+                return DiskFormatVagrantLibVirt(
+                    xml_state, root_dir, target_dir,
+                    {'vagrantconfig': vagrant_config}
+                )
+            else:
+                raise KiwiDiskFormatSetupError(
+                    'No support for {0} format with {1} provider'.format(
+                        name, provider
+                    )
+                )
         elif name == 'raw':
             return DiskFormatBase(
                 xml_state, root_dir, target_dir
             )
         else:
             raise KiwiDiskFormatSetupError(
-                'Support for %s disk format not implemented' % name
+                'No support for {0} disk format'.format(name)
             )

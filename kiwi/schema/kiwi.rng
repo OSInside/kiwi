@@ -4011,10 +4011,7 @@ and setup the system disk</db:para>
     <define name="k.vagrantconfig.provider.attribute">
       <attribute name="provider">
         <a:documentation>The vagrant provider for this box</a:documentation>
-        <choice>
-          <value>libvirt</value>
-          <value>virtualbox</value>
-        </choice>
+        <value>libvirt</value>
       </attribute>
     </define>
     <define name="k.vagrantconfig.virtualsize.attribute">
