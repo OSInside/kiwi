@@ -44,6 +44,15 @@ The following components needs to be installed on the build system:
   for complex provisioning tasks in combination with the Docker
   container system.
 
+* optionally libvirt - Toolkit to interact with the virtualization
+  capabilities of Linux. In combination with vagrant, libvirt can
+  be used as provider for provision and control full virtual
+  instances running via qemu. As docker shares the host system
+  kernel and thus any device, because KIWI needs to use privileged
+  docker containers for building images, the more secure but less
+  performant solution is to use virtual machines to run the KIWI
+  build.
+
 Installing and Setting up Dice
 ------------------------------
 
@@ -175,7 +184,7 @@ executed as root, but as the intended user to build images.
 .. code:: bash
 
     $ mkdir -p ~/.dice/key
-    $ cp -a /usr/share/doc/packages/ruby2.1-rubygem-dice/key ~/.dice/key
+    $ cp -a /usr/share/doc/packages/ruby*-rubygem-dice/key ~/.dice/key
 
 
 Configuring Dice
@@ -243,22 +252,64 @@ Dice currently supports three build system backends:
 3. Docker buildsystem - Dice uses Docker directly to run the build in
    a container
 
-So far, we have described how to use Dice with the plain Docker
-buildsystem. If the build task requires additional content or logic
-before the build can start the Vagrant Buildsystem configured to use
-Docker provides a nice interface to this provisioning tasks.
+The use of the Docker buildsystem has been already explained in the
+above chapters. The following sections explains the pros and cons of
+the other two available Buildsystem Backends.
+
+Building with the Host Buildsystem
+----------------------------------
+
+Using the Host Buildsystem basically tells Dice to ssh into the
+specified machine with the specified user and run KIWI. This is
+also the information which needs to be provided in a Dicefile.
+Using the Host Buildsystem is recommended if there are dedicated
+build machines available to take over KIWI build jobs.
+
+The Dicefile
+------------
+
+.. code:: ruby
+
+    Dice.configure do |config|
+      config.buildhost = "full-qualified-dns-name-or-ip-address"
+      config.ssh_user = "vagrant"
+    end
+
+After these changes a :command:`dice build` command will make use
+of the Host Buildsystem and starts the KIWI build process there.
+
+.. note:: Provisioning of the Host Buildsystem
+
+    There is no infrastructure in place which manages the machine
+    specified as config.buildhost. This means it is currently in the
+    responsibility of the user to make sure the specified machine
+    exists and is accessible via the configured user. For the future
+    we plan to implement a Public Cloud Buildsystem which then will
+    allow provisioning and management of a public cloud instance
+    e.g on Amazon EC2 in order to run the build. However we are
+    not there yet.
 
 Building with the Vagrant Buildsystem
 -------------------------------------
 
-The following sections describes how to configure Dice to use Docker in
-combination with Vagrant as provisioning system.
+Using the Vagrant Buildsystem should be considered if one or both of the
+following use cases applies:
+
+1. The build task requires additional content or logic before the build
+   can start. Vagrant serves as provisioning system to share data
+   from the host with the guest containers.
+
+2. The build task should run in a completely isolated virtual machine
+   environment. Vagrant in combination with the libvirt provider serves
+   as both; The tool to interact with the virtualization capabilities
+   to run and manage virtual machine instances and as provisioning system
+   to share data from the host with the virtual machines.
 
 The Dicefile
 ------------
 
 The Dicefile in the context of Vagrant needs to know the user name to
-access the container. The reason for this is, in Vagrant access to the
+access the instance. The reason for this is, in Vagrant access to the
 system is handled over SSH.
 
 .. code:: ruby
@@ -266,6 +317,13 @@ system is handled over SSH.
     Dice.configure do |config|
       config.ssh_user = "vagrant"
     end
+
+The Vagrant setup for the Docker Provider
+------------------------------------------
+
+The following is an example for the first use case and describes how
+to configure Dice to use Docker in combination with Vagrant as
+provisioning system.
 
 The Vagrantfile
 ---------------
@@ -294,3 +352,53 @@ the Vagrantfile with the following content:
 After these changes a :command:`dice build` command will make use
 of the Vagrant build system and offers a nice way to provision
 the Docker container instances prior to the actual KIWI build process.
+Vagrant will take over the task to run and manage the docker container
+via the `docker` tool chain.
+
+The Vagrant setup for the libvirt Provider
+------------------------------------------
+
+The following sections are an example for the second use case and describes
+how to configure Dice to use libvirt in combination with Vagrant as
+provisioning and virtualization system.
+
+The Vagrant Build Box
+---------------------
+
+Apart from the Docker build container the Dice infrastructure also
+provides a virtual machine image also known as vagrant box which
+contains a system ready to build images with KIWI.
+
+Download the Vagrant build box which starts with
+:file:`Vagrant-Libvirt-Tumbleweed` from the Open BuildService and add
+the box to vagrant as follows:
+
+.. code:: bash
+
+    $ wget http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images/images/Vagrant-Libvirt-Tumbleweed.XXXXXXX.vagrant.libvirt.box
+
+    $ vagrant box add --provider libvirt --name kiwi-build-box Vagrant-Libvirt-Tumbleweed.XXXXXXX.vagrant.libvirt.box
+
+The command :command:`vagrant box list` must list the box with
+name `kiwi-build-box` as referenced in the following Vagrantfile setup.
+
+The Vagrantfile
+---------------
+
+.. code:: ruby
+
+    VAGRANTFILE_API_VERSION = "2"
+
+    Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+      config.vm.box = "kiwi-build-box"
+
+      config.vm.provider "libvirt" do |lv|
+        lv.memory = "1024"
+      end
+    end
+
+After these changes a :command:`dice build` command will make use
+of the Vagrant build system and offers a nice way to provision
+fully isolated qemu instances via libvirt prior to the actual KIWI
+build process. Vagrant will take over the task to run and manage the
+virtual machines via the `libvirt` tool chain.
