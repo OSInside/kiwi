@@ -379,6 +379,8 @@ the box to vagrant as follows:
 
     $ vagrant box add --provider libvirt --name kiwi-build-box Vagrant-Libvirt-Tumbleweed.XXXXXXX.vagrant.libvirt.box
 
+    $ export VAGRANT_DEFAULT_PROVIDER=libvirt
+
 The command :command:`vagrant box list` must list the box with
 name `kiwi-build-box` as referenced in the following Vagrantfile setup.
 
