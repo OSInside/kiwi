@@ -158,4 +158,12 @@ class CliTask(object):
         :rtype: string
         """
         tokens = option.split(',', 3)
-        return [tokens.pop(0) if len(tokens) else None for _ in range(0, 4)]
+        return [
+            self._pop_token(tokens) if len(tokens) else None for _ in range(
+                0, 4
+            )
+        ]
+
+    def _pop_token(self, tokens):
+        token = tokens.pop(0)
+        return token if len(token) > 0 else None
