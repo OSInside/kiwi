@@ -530,6 +530,17 @@ class XMLState(object):
         if oemconfig_sections:
             return oemconfig_sections[0]
 
+    def get_build_type_containerconfig_section(self):
+        """
+        First containerconfig section from the build type section
+
+        :return: <containerconfig>
+        :rtype: xml_parse::containerconfig instance
+        """
+        container_config_sections = self.build_type.get_containerconfig()
+        if container_config_sections:
+            return container_config_sections[0]
+
     def get_build_type_size(self):
         """
         Size information from the build type section.

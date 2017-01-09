@@ -99,6 +99,9 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
+        <type image="docker">
+            <containerconfig name="container_name"/>
+        </type>
     </preferences>
     <users>
         <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
