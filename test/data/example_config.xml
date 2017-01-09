@@ -100,7 +100,30 @@
             </machine>
         </type>
         <type image="docker">
-            <containerconfig name="container_name"/>
+            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
+                <entrypoint execute="/bin/bash">
+                    <argument name="-x"/>
+                </entrypoint>
+                <subcommand execute="ls">
+                    <argument name="-l"/>
+                </subcommand>
+                <expose>
+                    <port number="80"/>
+                    <port number="8080"/>
+                </expose>
+                <volumes> 
+                    <volume name="/tmp"/>
+                    <volume name="/var/log"/>
+                </volumes>
+                <environment> 
+                    <env name="PATH" value="/bin:/usr/bin:/home/user/bin"/>
+                    <env name="SOMEVAR" value="somevalue"/>
+                </environment>
+                <labels> 
+                    <label name="somelabel" value="labelvalue"/>
+                    <label name="someotherlabel" value="anotherlabelvalue"/>
+                </labels>
+            </containerconfig>
         </type>
     </preferences>
     <users>

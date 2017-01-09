@@ -497,8 +497,12 @@ class TestXMLState(object):
     def test_has_repositories_marked_as_imageinclude(self):
         assert self.state.has_repositories_marked_as_imageinclude()
 
-    def test_has_repositories_marked_as_imageinclude_without_any_imageinclude(self):
-        description = XMLDescription('../data/example_no_imageinclude_config.xml')
+    def test_has_repositories_marked_as_imageinclude_without_any_imageinclude(
+        self
+    ):
+        description = XMLDescription(
+            '../data/example_no_imageinclude_config.xml'
+        )
         xml_data = description.load()
         state = XMLState(xml_data) 
         assert not state.has_repositories_marked_as_imageinclude()
@@ -520,12 +524,54 @@ class TestXMLState(object):
         state = XMLState(xml_data)
         assert state.get_build_type_vmconfig_entries() == []
 
-    def test_get_build_type_docker_container_name(self):
+    def test_get_build_type_docker_containerconfig_section(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'docker')
-        assert state.get_build_type_containerconfig_section().get_name() == \
+        containerconfig = state.get_build_type_containerconfig_section()
+        assert containerconfig.get_name() == \
             'container_name'
+        assert containerconfig.get_maintainer() == \
+            'tux'
+        assert containerconfig.get_workingdir() == \
+            '/root'
+
+    def test_get_container_config(self):
+        expected_config = {
+            'labels': [
+                '--config.label=somelabel=labelvalue',
+                '--config.label=someotherlabel=anotherlabelvalue'
+            ],
+            'maintainer': ['--author=tux'],
+            'entry_subcommand': [
+                '--config.cmd=ls',
+                '--config.cmd=-l'
+            ],
+            'container_name': 'container_name',
+            'container_tag': 'container_tag',
+            'workingdir': ['--config.workingdir=/root'],
+            'environment': [
+                '--config.env=PATH=/bin:/usr/bin:/home/user/bin',
+                '--config.env=SOMEVAR=somevalue'
+            ],
+            'user': ['--config.user=root'],
+            'volumes': [
+                '--config.volume=/tmp',
+                '--config.volume=/var/log'
+            ],
+            'entry_command': [
+                '--config.entrypoint=/bin/bash',
+                '--config.entrypoint=-x'
+            ],
+            'expose_ports': [
+                '--config.exposedports=80',
+                '--config.exposedports=8080'
+            ]
+        }
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        assert state.get_container_config() == expected_config
 
     def test_get_spare_part(self):
         assert self.state.get_build_type_spare_part_size() == 200

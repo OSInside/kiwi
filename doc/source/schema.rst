@@ -341,10 +341,196 @@ Provides metadata information for containers
 Parents:
    These elements contain ``containerconfig``: :ref:`k.image.preferences.type`
 
+Children:
+   The following elements occur in ``containerconfig``: :ref:`entrypoint <k.image.preferences.type.containerconfig.entrypoint>` `[?]`_, :ref:`subcommand <k.image.preferences.type.containerconfig.subcommand>` `[?]`_, :ref:`expose <k.image.preferences.type.containerconfig.expose>` `[?]`_, :ref:`volumes <k.image.preferences.type.containerconfig.volumes>` `[?]`_, :ref:`environment <k.image.preferences.type.containerconfig.environment>` `[?]`_, :ref:`labels <k.image.preferences.type.containerconfig.labels>` `[?]`_
+
 List of attributes for ``containerconfig``:
 
-* ``name`` : Specifies a name for the container. This is usually the the tag name of the container as read if the container image is imported via the docker load command
-* ``entry_command`` `[?]`_: Specifies the default command to run if the container is called via the docker run command.
+* ``name`` : Specifies a name for the container. This is usually the the repository name of the container as read if the container image is imported via the docker load command
+* ``tag`` `[?]`_: Specifies a tag for the container. This is usually the the tag name of the container as read if the container image is imported via the docker load command
+* ``maintainer`` `[?]`_: Specifies a maintainer for the container.
+* ``user`` `[?]`_: Specifies a user for the container.
+* ``workingdir`` `[?]`_: Specifies the default working directory of the container
+
+.. _k.image.preferences.type.containerconfig.entrypoint:
+
+entrypoint
+::::::::::
+
+Provides details for the entry point command. This includes the execution name and its parameters. Arguments can be optionally specified
+
+Parents:
+   These elements contain ``entrypoint``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``entrypoint``: :ref:`argument <k.image.preferences.type.containerconfig.entrypoint.argument>` `[*]`_
+
+List of attributes for ``entrypoint``:
+
+* ``execute`` : Specifies the entry point program name to execute
+
+.. _k.image.preferences.type.containerconfig.entrypoint.argument:
+
+argument
+;;;;;;;;
+
+Provides details about a command argument
+
+Parents:
+   These elements contain ``argument``: :ref:`k.image.preferences.type.containerconfig.entrypoint`, :ref:`k.image.preferences.type.containerconfig.subcommand`
+
+List of attributes for ``argument``:
+
+* ``name`` : Specifies a command argument name
+
+.. _k.image.preferences.type.containerconfig.subcommand:
+
+subcommand
+::::::::::
+
+Provides details for the subcommand command. This includes the execution name and its parameters. Arguments can be optionally specified. The subcommand is appended the command information from the entrypoint. It is in the responsibility of the author to make sure the combination of entrypoint and subcommand forms a valid execution command
+
+Parents:
+   These elements contain ``subcommand``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``subcommand``: :ref:`argument <k.image.preferences.type.containerconfig.subcommand.argument>` `[*]`_
+
+List of attributes for ``subcommand``:
+
+* ``execute`` : Specifies the subcommand program name to execute
+
+.. _k.image.preferences.type.containerconfig.subcommand.argument:
+
+argument
+;;;;;;;;
+
+Provides details about a command argument
+
+Parents:
+   These elements contain ``argument``: :ref:`k.image.preferences.type.containerconfig.entrypoint`, :ref:`k.image.preferences.type.containerconfig.subcommand`
+
+List of attributes for ``argument``:
+
+* ``name`` : Specifies a command argument name
+
+.. _k.image.preferences.type.containerconfig.expose:
+
+expose
+::::::
+
+Provides details about network ports which should be exposed from the container. At least one port must be configured
+
+Parents:
+   These elements contain ``expose``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``expose``: :ref:`port <k.image.preferences.type.containerconfig.expose.port>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.expose.port:
+
+port
+;;;;
+
+Provides details about an exposed port.
+
+Parents:
+   These elements contain ``port``: :ref:`k.image.preferences.type.containerconfig.expose`
+
+List of attributes for ``port``:
+
+* ``number`` : Specifies the port number to expose
+
+.. _k.image.preferences.type.containerconfig.volumes:
+
+volumes
+:::::::
+
+Provides details about storage volumes in the container At least one volume must be configured
+
+Parents:
+   These elements contain ``volumes``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``volumes``: :ref:`volume <k.image.preferences.type.containerconfig.volumes.volume>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.volumes.volume:
+
+volume
+;;;;;;
+
+Specify which parts of the filesystem should be on an extra volume.
+
+Parents:
+   These elements contain ``volume``: :ref:`k.image.preferences.type.containerconfig.volumes`, :ref:`k.image.preferences.type.systemdisk`
+
+List of attributes for ``volume``:
+
+* ``copy_on_write`` `[?]`_: Apply the filesystem copy-on-write attribute for this volume
+* ``freespace`` `[?]`_: free space to be added to this volume. The value is used as MB by default but you can add "M" and/or "G" as postfix
+* ``mountpoint`` `[?]`_: volume path. The mountpoint specifies a path which has to exist inside the root directory.
+* ``name`` : volume name. The name of the volume. if mountpoint is not specified the name specifies a path which has to exist inside the root directory.
+* ``size`` `[?]`_: absolute size of the volume. If the size value is too small to store all data kiwi will exit. The value is used as MB by default but you can add "M" and/or "G" as postfix
+
+.. _k.image.preferences.type.containerconfig.environment:
+
+environment
+:::::::::::
+
+Provides details about the container environment variables At least one environment variable must be configured
+
+Parents:
+   These elements contain ``environment``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``environment``: :ref:`env <k.image.preferences.type.containerconfig.environment.env>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.environment.env:
+
+env
+;;;
+
+Provides details about an environment variable
+
+Parents:
+   These elements contain ``env``: :ref:`k.image.preferences.type.containerconfig.environment`
+
+List of attributes for ``env``:
+
+* ``name`` : Specifies the environment variable name
+* ``value`` : Specifies the environment variable value
+
+.. _k.image.preferences.type.containerconfig.labels:
+
+labels
+::::::
+
+Provides details about container labels At least one label must be configured
+
+Parents:
+   These elements contain ``labels``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``labels``: :ref:`label <k.image.preferences.type.containerconfig.labels.label>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.labels.label:
+
+label
+;;;;;
+
+Provides details about a container label
+
+Parents:
+   These elements contain ``label``: :ref:`k.image.preferences.type.containerconfig.labels`
+
+List of attributes for ``label``:
+
+* ``name`` : Specifies the label name
+* ``value`` : Specifies the label value
 
 .. _k.image.preferences.type.machine:
 
@@ -882,7 +1068,7 @@ volume
 Specify which parts of the filesystem should be on an extra volume.
 
 Parents:
-   These elements contain ``volume``: :ref:`k.image.preferences.type.systemdisk`
+   These elements contain ``volume``: :ref:`k.image.preferences.type.containerconfig.volumes`, :ref:`k.image.preferences.type.systemdisk`
 
 List of attributes for ``volume``:
 

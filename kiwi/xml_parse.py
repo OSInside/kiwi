@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Feb 23 15:36:50 2017 by generateDS.py version 2.24a.
+# Generated Mon Feb 27 15:23:58 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -4494,10 +4494,37 @@ class containerconfig(GeneratedsSuper):
     """Provides metadata information for containers"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, entry_command=None):
+    def __init__(self, name=None, tag=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
-        self.entry_command = _cast(None, entry_command)
+        self.tag = _cast(None, tag)
+        self.maintainer = _cast(None, maintainer)
+        self.user = _cast(None, user)
+        self.workingdir = _cast(None, workingdir)
+        if entrypoint is None:
+            self.entrypoint = []
+        else:
+            self.entrypoint = entrypoint
+        if subcommand is None:
+            self.subcommand = []
+        else:
+            self.subcommand = subcommand
+        if expose is None:
+            self.expose = []
+        else:
+            self.expose = expose
+        if volumes is None:
+            self.volumes = []
+        else:
+            self.volumes = volumes
+        if environment is None:
+            self.environment = []
+        else:
+            self.environment = environment
+        if labels is None:
+            self.labels = []
+        else:
+            self.labels = labels
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4509,13 +4536,54 @@ class containerconfig(GeneratedsSuper):
         else:
             return containerconfig(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_entrypoint(self): return self.entrypoint
+    def set_entrypoint(self, entrypoint): self.entrypoint = entrypoint
+    def add_entrypoint(self, value): self.entrypoint.append(value)
+    def insert_entrypoint_at(self, index, value): self.entrypoint.insert(index, value)
+    def replace_entrypoint_at(self, index, value): self.entrypoint[index] = value
+    def get_subcommand(self): return self.subcommand
+    def set_subcommand(self, subcommand): self.subcommand = subcommand
+    def add_subcommand(self, value): self.subcommand.append(value)
+    def insert_subcommand_at(self, index, value): self.subcommand.insert(index, value)
+    def replace_subcommand_at(self, index, value): self.subcommand[index] = value
+    def get_expose(self): return self.expose
+    def set_expose(self, expose): self.expose = expose
+    def add_expose(self, value): self.expose.append(value)
+    def insert_expose_at(self, index, value): self.expose.insert(index, value)
+    def replace_expose_at(self, index, value): self.expose[index] = value
+    def get_volumes(self): return self.volumes
+    def set_volumes(self, volumes): self.volumes = volumes
+    def add_volumes(self, value): self.volumes.append(value)
+    def insert_volumes_at(self, index, value): self.volumes.insert(index, value)
+    def replace_volumes_at(self, index, value): self.volumes[index] = value
+    def get_environment(self): return self.environment
+    def set_environment(self, environment): self.environment = environment
+    def add_environment(self, value): self.environment.append(value)
+    def insert_environment_at(self, index, value): self.environment.insert(index, value)
+    def replace_environment_at(self, index, value): self.environment[index] = value
+    def get_labels(self): return self.labels
+    def set_labels(self, labels): self.labels = labels
+    def add_labels(self, value): self.labels.append(value)
+    def insert_labels_at(self, index, value): self.labels.insert(index, value)
+    def replace_labels_at(self, index, value): self.labels[index] = value
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
-    def get_entry_command(self): return self.entry_command
-    def set_entry_command(self, entry_command): self.entry_command = entry_command
+    def get_tag(self): return self.tag
+    def set_tag(self, tag): self.tag = tag
+    def get_maintainer(self): return self.maintainer
+    def set_maintainer(self, maintainer): self.maintainer = maintainer
+    def get_user(self): return self.user
+    def set_user(self, user): self.user = user
+    def get_workingdir(self): return self.workingdir
+    def set_workingdir(self, workingdir): self.workingdir = workingdir
     def hasContent_(self):
         if (
-
+            self.entrypoint or
+            self.subcommand or
+            self.expose or
+            self.volumes or
+            self.environment or
+            self.labels
         ):
             return True
         else:
@@ -4534,6 +4602,7 @@ class containerconfig(GeneratedsSuper):
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
             self.exportChildren(outfile, level + 1, namespace_='', name_='containerconfig', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
@@ -4541,10 +4610,325 @@ class containerconfig(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-        if self.entry_command is not None and 'entry_command' not in already_processed:
-            already_processed.add('entry_command')
-            outfile.write(' entry_command=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.entry_command), input_name='entry_command')), ))
+        if self.tag is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
+        if self.maintainer is not None and 'maintainer' not in already_processed:
+            already_processed.add('maintainer')
+            outfile.write(' maintainer=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.maintainer), input_name='maintainer')), ))
+        if self.user is not None and 'user' not in already_processed:
+            already_processed.add('user')
+            outfile.write(' user=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.user), input_name='user')), ))
+        if self.workingdir is not None and 'workingdir' not in already_processed:
+            already_processed.add('workingdir')
+            outfile.write(' workingdir=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.workingdir), input_name='workingdir')), ))
     def exportChildren(self, outfile, level, namespace_='', name_='containerconfig', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for entrypoint_ in self.entrypoint:
+            entrypoint_.export(outfile, level, namespace_, name_='entrypoint', pretty_print=pretty_print)
+        for subcommand_ in self.subcommand:
+            subcommand_.export(outfile, level, namespace_, name_='subcommand', pretty_print=pretty_print)
+        for expose_ in self.expose:
+            expose_.export(outfile, level, namespace_, name_='expose', pretty_print=pretty_print)
+        for volumes_ in self.volumes:
+            volumes_.export(outfile, level, namespace_, name_='volumes', pretty_print=pretty_print)
+        for environment_ in self.environment:
+            environment_.export(outfile, level, namespace_, name_='environment', pretty_print=pretty_print)
+        for labels_ in self.labels:
+            labels_.export(outfile, level, namespace_, name_='labels', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('tag', node)
+        if value is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            self.tag = value
+        value = find_attr_value_('maintainer', node)
+        if value is not None and 'maintainer' not in already_processed:
+            already_processed.add('maintainer')
+            self.maintainer = value
+        value = find_attr_value_('user', node)
+        if value is not None and 'user' not in already_processed:
+            already_processed.add('user')
+            self.user = value
+        value = find_attr_value_('workingdir', node)
+        if value is not None and 'workingdir' not in already_processed:
+            already_processed.add('workingdir')
+            self.workingdir = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'entrypoint':
+            obj_ = entrypoint.factory()
+            obj_.build(child_)
+            self.entrypoint.append(obj_)
+            obj_.original_tagname_ = 'entrypoint'
+        elif nodeName_ == 'subcommand':
+            obj_ = subcommand.factory()
+            obj_.build(child_)
+            self.subcommand.append(obj_)
+            obj_.original_tagname_ = 'subcommand'
+        elif nodeName_ == 'expose':
+            obj_ = expose.factory()
+            obj_.build(child_)
+            self.expose.append(obj_)
+            obj_.original_tagname_ = 'expose'
+        elif nodeName_ == 'volumes':
+            obj_ = volumes.factory()
+            obj_.build(child_)
+            self.volumes.append(obj_)
+            obj_.original_tagname_ = 'volumes'
+        elif nodeName_ == 'environment':
+            obj_ = environment.factory()
+            obj_.build(child_)
+            self.environment.append(obj_)
+            obj_.original_tagname_ = 'environment'
+        elif nodeName_ == 'labels':
+            obj_ = labels.factory()
+            obj_.build(child_)
+            self.labels.append(obj_)
+            obj_.original_tagname_ = 'labels'
+# end class containerconfig
+
+
+class entrypoint(GeneratedsSuper):
+    """Provides details for the entry point command. This includes the
+    execution name and its parameters. Arguments can be optionally
+    specified"""
+    subclass = None
+    superclass = None
+    def __init__(self, execute=None, argument=None):
+        self.original_tagname_ = None
+        self.execute = _cast(None, execute)
+        if argument is None:
+            self.argument = []
+        else:
+            self.argument = argument
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, entrypoint)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if entrypoint.subclass:
+            return entrypoint.subclass(*args_, **kwargs_)
+        else:
+            return entrypoint(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_argument(self): return self.argument
+    def set_argument(self, argument): self.argument = argument
+    def add_argument(self, value): self.argument.append(value)
+    def insert_argument_at(self, index, value): self.argument.insert(index, value)
+    def replace_argument_at(self, index, value): self.argument[index] = value
+    def get_execute(self): return self.execute
+    def set_execute(self, execute): self.execute = execute
+    def hasContent_(self):
+        if (
+            self.argument
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='entrypoint', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='entrypoint')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='entrypoint', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='entrypoint'):
+        if self.execute is not None and 'execute' not in already_processed:
+            already_processed.add('execute')
+            outfile.write(' execute=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.execute), input_name='execute')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='entrypoint', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for argument_ in self.argument:
+            argument_.export(outfile, level, namespace_, name_='argument', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('execute', node)
+        if value is not None and 'execute' not in already_processed:
+            already_processed.add('execute')
+            self.execute = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'argument':
+            obj_ = argument.factory()
+            obj_.build(child_)
+            self.argument.append(obj_)
+            obj_.original_tagname_ = 'argument'
+# end class entrypoint
+
+
+class subcommand(GeneratedsSuper):
+    """Provides details for the subcommand command. This includes the
+    execution name and its parameters. Arguments can be optionally
+    specified. The subcommand is appended the command information
+    from the entrypoint. It is in the responsibility of the author
+    to make sure the combination of entrypoint and subcommand forms
+    a valid execution command"""
+    subclass = None
+    superclass = None
+    def __init__(self, execute=None, argument=None):
+        self.original_tagname_ = None
+        self.execute = _cast(None, execute)
+        if argument is None:
+            self.argument = []
+        else:
+            self.argument = argument
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, subcommand)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if subcommand.subclass:
+            return subcommand.subclass(*args_, **kwargs_)
+        else:
+            return subcommand(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_argument(self): return self.argument
+    def set_argument(self, argument): self.argument = argument
+    def add_argument(self, value): self.argument.append(value)
+    def insert_argument_at(self, index, value): self.argument.insert(index, value)
+    def replace_argument_at(self, index, value): self.argument[index] = value
+    def get_execute(self): return self.execute
+    def set_execute(self, execute): self.execute = execute
+    def hasContent_(self):
+        if (
+            self.argument
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='subcommand', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='subcommand')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='subcommand', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='subcommand'):
+        if self.execute is not None and 'execute' not in already_processed:
+            already_processed.add('execute')
+            outfile.write(' execute=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.execute), input_name='execute')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='subcommand', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for argument_ in self.argument:
+            argument_.export(outfile, level, namespace_, name_='argument', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('execute', node)
+        if value is not None and 'execute' not in already_processed:
+            already_processed.add('execute')
+            self.execute = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'argument':
+            obj_ = argument.factory()
+            obj_.build(child_)
+            self.argument.append(obj_)
+            obj_.original_tagname_ = 'argument'
+# end class subcommand
+
+
+class argument(GeneratedsSuper):
+    """Provides details about a command argument"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, argument)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if argument.subclass:
+            return argument.subclass(*args_, **kwargs_)
+        else:
+            return argument(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='argument', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='argument')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='argument', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='argument'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='argument', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
         already_processed = set()
@@ -4558,13 +4942,551 @@ class containerconfig(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
-        value = find_attr_value_('entry_command', node)
-        if value is not None and 'entry_command' not in already_processed:
-            already_processed.add('entry_command')
-            self.entry_command = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
-# end class containerconfig
+# end class argument
+
+
+class expose(GeneratedsSuper):
+    """Provides details about network ports which should be exposed from
+    the container. At least one port must be configured"""
+    subclass = None
+    superclass = None
+    def __init__(self, port=None):
+        self.original_tagname_ = None
+        if port is None:
+            self.port = []
+        else:
+            self.port = port
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, expose)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if expose.subclass:
+            return expose.subclass(*args_, **kwargs_)
+        else:
+            return expose(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_port(self): return self.port
+    def set_port(self, port): self.port = port
+    def add_port(self, value): self.port.append(value)
+    def insert_port_at(self, index, value): self.port.insert(index, value)
+    def replace_port_at(self, index, value): self.port[index] = value
+    def hasContent_(self):
+        if (
+            self.port
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='expose', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='expose')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='expose', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='expose'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='expose', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for port_ in self.port:
+            port_.export(outfile, level, namespace_, name_='port', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'port':
+            obj_ = port.factory()
+            obj_.build(child_)
+            self.port.append(obj_)
+            obj_.original_tagname_ = 'port'
+# end class expose
+
+
+class port(GeneratedsSuper):
+    """Provides details about an exposed port."""
+    subclass = None
+    superclass = None
+    def __init__(self, number=None):
+        self.original_tagname_ = None
+        self.number = _cast(int, number)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, port)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if port.subclass:
+            return port.subclass(*args_, **kwargs_)
+        else:
+            return port(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_number(self): return self.number
+    def set_number(self, number): self.number = number
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='port', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='port')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='port', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='port'):
+        if self.number is not None and 'number' not in already_processed:
+            already_processed.add('number')
+            outfile.write(' number="%s"' % self.gds_format_integer(self.number, input_name='number'))
+    def exportChildren(self, outfile, level, namespace_='', name_='port', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('number', node)
+        if value is not None and 'number' not in already_processed:
+            already_processed.add('number')
+            try:
+                self.number = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+            if self.number < 0:
+                raise_parse_error(node, 'Invalid NonNegativeInteger')
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class port
+
+
+class volumes(GeneratedsSuper):
+    """Provides details about storage volumes in the container At least one
+    volume must be configured"""
+    subclass = None
+    superclass = None
+    def __init__(self, volume=None):
+        self.original_tagname_ = None
+        if volume is None:
+            self.volume = []
+        else:
+            self.volume = volume
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, volumes)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if volumes.subclass:
+            return volumes.subclass(*args_, **kwargs_)
+        else:
+            return volumes(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_volume(self): return self.volume
+    def set_volume(self, volume): self.volume = volume
+    def add_volume(self, value): self.volume.append(value)
+    def insert_volume_at(self, index, value): self.volume.insert(index, value)
+    def replace_volume_at(self, index, value): self.volume[index] = value
+    def hasContent_(self):
+        if (
+            self.volume
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='volumes', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='volumes')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='volumes', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='volumes'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='volumes', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for volume_ in self.volume:
+            volume_.export(outfile, level, namespace_, name_='volume', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'volume':
+            obj_ = volume.factory()
+            obj_.build(child_)
+            self.volume.append(obj_)
+            obj_.original_tagname_ = 'volume'
+# end class volumes
+
+
+class environment(GeneratedsSuper):
+    """Provides details about the container environment variables At least
+    one environment variable must be configured"""
+    subclass = None
+    superclass = None
+    def __init__(self, env=None):
+        self.original_tagname_ = None
+        if env is None:
+            self.env = []
+        else:
+            self.env = env
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, environment)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if environment.subclass:
+            return environment.subclass(*args_, **kwargs_)
+        else:
+            return environment(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_env(self): return self.env
+    def set_env(self, env): self.env = env
+    def add_env(self, value): self.env.append(value)
+    def insert_env_at(self, index, value): self.env.insert(index, value)
+    def replace_env_at(self, index, value): self.env[index] = value
+    def hasContent_(self):
+        if (
+            self.env
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='environment', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='environment')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='environment', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='environment'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='environment', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for env_ in self.env:
+            env_.export(outfile, level, namespace_, name_='env', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'env':
+            obj_ = env.factory()
+            obj_.build(child_)
+            self.env.append(obj_)
+            obj_.original_tagname_ = 'env'
+# end class environment
+
+
+class env(GeneratedsSuper):
+    """Provides details about an environment variable"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.value = _cast(None, value)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, env)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if env.subclass:
+            return env.subclass(*args_, **kwargs_)
+        else:
+            return env(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='env', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='env')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='env', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='env'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='env', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('value', node)
+        if value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            self.value = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class env
+
+
+class labels(GeneratedsSuper):
+    """Provides details about container labels At least one label must be
+    configured"""
+    subclass = None
+    superclass = None
+    def __init__(self, label=None):
+        self.original_tagname_ = None
+        if label is None:
+            self.label = []
+        else:
+            self.label = label
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, labels)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if labels.subclass:
+            return labels.subclass(*args_, **kwargs_)
+        else:
+            return labels(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_label(self): return self.label
+    def set_label(self, label): self.label = label
+    def add_label(self, value): self.label.append(value)
+    def insert_label_at(self, index, value): self.label.insert(index, value)
+    def replace_label_at(self, index, value): self.label[index] = value
+    def hasContent_(self):
+        if (
+            self.label
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='labels', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='labels')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='labels', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='labels'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='labels', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for label_ in self.label:
+            label_.export(outfile, level, namespace_, name_='label', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'label':
+            obj_ = label.factory()
+            obj_.build(child_)
+            self.label.append(obj_)
+            obj_.original_tagname_ = 'label'
+# end class labels
+
+
+class label(GeneratedsSuper):
+    """Provides details about a container label"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.value = _cast(None, value)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, label)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if label.subclass:
+            return label.subclass(*args_, **kwargs_)
+        else:
+            return label(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='label', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='label')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='label', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='label'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='label', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('value', node)
+        if value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            self.value = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class label
 
 
 class oemconfig(GeneratedsSuper):
@@ -6403,15 +7325,22 @@ if __name__ == '__main__':
 
 __all__ = [
     "archive",
+    "argument",
     "configuration",
     "containerconfig",
     "description",
     "drivers",
+    "entrypoint",
+    "env",
+    "environment",
+    "expose",
     "extension",
     "file",
     "ignore",
     "image",
     "k_source",
+    "label",
+    "labels",
     "machine",
     "namedCollection",
     "oemconfig",
@@ -6419,6 +7348,7 @@ __all__ = [
     "packages",
     "partition",
     "partitions",
+    "port",
     "preferences",
     "product",
     "profile",
@@ -6428,6 +7358,7 @@ __all__ = [
     "size",
     "source",
     "strip",
+    "subcommand",
     "systemdisk",
     "type_",
     "union",
@@ -6437,5 +7368,6 @@ __all__ = [
     "vmdisk",
     "vmdvd",
     "vmnic",
-    "volume"
+    "volume",
+    "volumes"
 ]

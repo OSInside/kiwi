@@ -14,12 +14,12 @@ class TestContainerBuilder(object):
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
         xml_state = mock.Mock()
-        container_config = mock.Mock()
-        container_config.get_name = mock.Mock(
-            return_value='my-container'
-        )
-        xml_state.get_build_type_containerconfig_section = mock.Mock(
-            return_value=container_config
+        self.container_config = {
+            'container_name': 'my-container',
+            'entry_command': ["--config.cmd='/bin/bash'"]
+        }
+        xml_state.get_container_config = mock.Mock(
+            return_value=self.container_config
         )
         xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
@@ -50,11 +50,11 @@ class TestContainerBuilder(object):
         self.setup.export_rpm_package_list.return_value = '.packages'
         self.container.create()
         mock_setup.assert_called_once_with(
-            'docker', 'root_dir', {'container_name': 'my-container'}
+            'docker', 'root_dir', self.container_config
         )
         container_setup.setup.assert_called_once_with()
         mock_image.assert_called_once_with(
-            'docker', 'root_dir'
+            'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
             'target_dir/image_name.x86_64-1.2.3.docker.tar.xz'

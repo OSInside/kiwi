@@ -3356,7 +3356,7 @@ a standard image description created by a kiwi user.</a:documentation>
     <define name="k.containerconfig.name.attribute">
       <attribute name="name">
         <a:documentation>Specifies a name for the container. This is usually the
-the tag name of the container as read if the container
+the repository name of the container as read if the container
 image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="name" is-a="container_type">
@@ -3364,13 +3364,41 @@ image is imported via the docker load command</a:documentation>
         <sch:param name="types" value="docker"/>
       </sch:pattern>
     </define>
-    <define name="k.containerconfig.entry_command.attribute">
-      <attribute name="entry_command">
-        <a:documentation>Specifies the default command to run if the container is
-called via the docker run command.</a:documentation>
+    <define name="k.containerconfig.tag.attribute">
+      <attribute name="tag">
+        <a:documentation>Specifies a tag for the container. This is usually the
+the tag name of the container as read if the container
+image is imported via the docker load command</a:documentation>
       </attribute>
-      <sch:pattern id="entry_command" is-a="container_type">
-        <sch:param name="attr" value="entry_command"/>
+      <sch:pattern id="tag" is-a="container_type">
+        <sch:param name="attr" value="tag"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.maintainer.attribute">
+      <attribute name="maintainer">
+        <a:documentation>Specifies a maintainer for the container.</a:documentation>
+      </attribute>
+      <sch:pattern id="maintainer" is-a="container_type">
+        <sch:param name="attr" value="maintainer"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.user.attribute">
+      <attribute name="user">
+        <a:documentation>Specifies a user for the container.</a:documentation>
+      </attribute>
+      <sch:pattern id="user" is-a="container_type">
+        <sch:param name="attr" value="user"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.workingdir.attribute">
+      <attribute name="workingdir">
+        <a:documentation>Specifies the default working directory of the container</a:documentation>
+      </attribute>
+      <sch:pattern id="workingdir" is-a="container_type">
+        <sch:param name="attr" value="workingdir"/>
         <sch:param name="types" value="docker"/>
       </sch:pattern>
     </define>
@@ -3378,7 +3406,16 @@ called via the docker run command.</a:documentation>
       <interleave>
         <ref name="k.containerconfig.name.attribute"/>
         <optional>
-          <ref name="k.containerconfig.entry_command.attribute"/>
+          <ref name="k.containerconfig.tag.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.maintainer.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.user.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.workingdir.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -3386,7 +3423,289 @@ called via the docker run command.</a:documentation>
       <element name="containerconfig">
         <a:documentation>Provides metadata information for containers</a:documentation>
         <db:para>The containerconfig element provides metadata informationto setup a container in order to be prepared for use withthe container engine tool chain. container specific datashould be provided in an additional subsection whereas thissection provides globally useful container information</db:para>
-        <ref name="k.containerconfig.attlist"/>
+        <interleave>
+          <ref name="k.containerconfig.attlist"/>
+          <optional>
+            <ref name="k.entrypoint"/>
+          </optional>
+          <optional>
+            <ref name="k.subcommand"/>
+          </optional>
+          <optional>
+            <ref name="k.expose"/>
+          </optional>
+          <optional>
+            <ref name="k.volumes"/>
+          </optional>
+          <optional>
+            <ref name="k.environment"/>
+          </optional>
+          <optional>
+            <ref name="k.labels"/>
+          </optional>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <entrypoint>
+    
+  -->
+  <div>
+    <define name="k.entrypoint.execute.attribute">
+      <attribute name="execute">
+        <a:documentation>Specifies the entry point program name to execute</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.entrypoint.attlist">
+      <ref name="k.entrypoint.execute.attribute"/>
+    </define>
+    <define name="k.entrypoint">
+      <element name="entrypoint">
+        <a:documentation>Provides details for the entry point command. This
+includes the execution name and its parameters. Arguments
+can be optionally specified</a:documentation>
+        <interleave>
+          <ref name="k.entrypoint.attlist"/>
+          <zeroOrMore>
+            <ref name="k.argument"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <subcommand>
+    
+  -->
+  <div>
+    <define name="k.subcommand.execute.attribute">
+      <attribute name="execute">
+        <a:documentation>Specifies the subcommand program name to execute</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.subcommand.attlist">
+      <ref name="k.subcommand.execute.attribute"/>
+    </define>
+    <define name="k.subcommand">
+      <element name="subcommand">
+        <a:documentation>Provides details for the subcommand command. This
+includes the execution name and its parameters. Arguments
+can be optionally specified. The subcommand is appended
+the command information from the entrypoint. It is in
+the responsibility of the author to make sure the
+combination of entrypoint and subcommand forms a valid
+execution command</a:documentation>
+        <interleave>
+          <ref name="k.subcommand.attlist"/>
+          <zeroOrMore>
+            <ref name="k.argument"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <argument>
+    
+  -->
+  <div>
+    <define name="k.argument.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies a command argument name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.argument.attlist">
+      <ref name="k.argument.name.attribute"/>
+    </define>
+    <define name="k.argument">
+      <element name="argument">
+        <a:documentation>Provides details about a command argument</a:documentation>
+        <interleave>
+          <ref name="k.argument.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <expose>
+    
+  -->
+  <div>
+    <define name="k.expose.attlist">
+      <empty/>
+    </define>
+    <define name="k.expose">
+      <element name="expose">
+        <a:documentation>Provides details about network ports which should be
+exposed from the container. At least one port must
+be configured</a:documentation>
+        <interleave>
+          <ref name="k.expose.attlist"/>
+          <oneOrMore>
+            <ref name="k.port"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <port>
+    
+  -->
+  <div>
+    <define name="k.port.number.attribute">
+      <attribute name="number">
+        <a:documentation>Specifies the port number to expose</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
+    <define name="k.port.attlist">
+      <ref name="k.port.number.attribute"/>
+    </define>
+    <define name="k.port">
+      <element name="port">
+        <a:documentation>Provides details about an exposed port.</a:documentation>
+        <interleave>
+          <ref name="k.port.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <volumes>
+    
+  -->
+  <div>
+    <define name="k.volumes.attlist">
+      <empty/>
+    </define>
+    <define name="k.volumes">
+      <element name="volumes">
+        <a:documentation>Provides details about storage volumes in the container
+At least one volume must be configured</a:documentation>
+        <interleave>
+          <ref name="k.volumes.attlist"/>
+          <oneOrMore>
+            <ref name="k.volume"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <environment>
+    
+  -->
+  <div>
+    <define name="k.environment.attlist">
+      <empty/>
+    </define>
+    <define name="k.environment">
+      <element name="environment">
+        <a:documentation>Provides details about the container environment variables
+At least one environment variable must be configured</a:documentation>
+        <interleave>
+          <ref name="k.environment.attlist"/>
+          <oneOrMore>
+            <ref name="k.env"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <env>
+    
+  -->
+  <div>
+    <define name="k.env.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies the environment variable name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.env.value.attribute">
+      <attribute name="value">
+        <a:documentation>Specifies the environment variable value</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.env.attlist">
+      <interleave>
+        <ref name="k.env.name.attribute"/>
+        <ref name="k.env.value.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.env">
+      <element name="env">
+        <a:documentation>Provides details about an environment variable</a:documentation>
+        <interleave>
+          <ref name="k.env.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <labels>
+    
+  -->
+  <div>
+    <define name="k.labels.attlist">
+      <empty/>
+    </define>
+    <define name="k.labels">
+      <element name="labels">
+        <a:documentation>Provides details about container labels
+At least one label must be configured</a:documentation>
+        <interleave>
+          <ref name="k.labels.attlist"/>
+          <oneOrMore>
+            <ref name="k.label"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <label>
+    
+  -->
+  <div>
+    <define name="k.label.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies the label name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.label.value.attribute">
+      <attribute name="value">
+        <a:documentation>Specifies the label value</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.label.attlist">
+      <interleave>
+        <ref name="k.label.name.attribute"/>
+        <ref name="k.label.value.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.label">
+      <element name="label">
+        <a:documentation>Provides details about a container label</a:documentation>
+        <interleave>
+          <ref name="k.label.attlist"/>
+          <empty/>
+        </interleave>
       </element>
     </define>
   </div>
