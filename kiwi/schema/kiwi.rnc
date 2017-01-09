@@ -64,7 +64,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.4" }
+        attribute schemaversion { "6.5" }
     k.image.kiwirevision.attribute =
         ## A kiwi git revision number which is known to build
         ## a working image from this description. If the kiwi git
@@ -1745,13 +1745,6 @@ div {
             sch:param [ name = "attr" value = "compressed" ]
             sch:param [ name = "types" value = "pxe" ]
         ]
-    k.type.container.attribute =
-        ## Specifies a name for the container
-        attribute container { text }
-        >> sch:pattern [ id = "container" is-a = "image_type"
-            sch:param [ name = "attr" value = "container" ]
-            sch:param [ name = "types" value = "docker" ]
-        ]
     k.type.devicepersistency.attribute =
         ## Specifies which method to use in order to get persistent
         ## storage device names. By default by-uuid is used.
@@ -2085,7 +2078,6 @@ div {
         k.type.btrfs_root_is_readonly_snapshot? &
         k.type.checkprebuilt.attribute? &
         k.type.compressed.attribute? &
-        k.type.container.attribute? &
         k.type.devicepersistency.attribute? &
         k.type.editbootconfig.attribute? &
         k.type.editbootinstall.attribute? &
@@ -2126,6 +2118,7 @@ div {
         ## The Image Type of the Logical Extend
         element type { 
             k.type.attlist &
+            k.containerconfig? &
             k.machine? &
             k.oemconfig? &
             k.pxedeploy? &
@@ -2801,6 +2794,59 @@ div {
         element instsys {
             k.instsys.attlist &
             k.repopackage*
+        }
+}
+
+#==========================================
+# main block: <containerconfig>
+#
+div {
+    sch:pattern [
+        abstract = "true"
+        id = "container_type"
+        sch:rule [
+            context = "containerconfig"
+            sch:assert [
+                test = "contains('$types', ../@image)"
+                "containerconfig($attr) is only available for the following "~
+                "image types: $types"
+            ]
+        ]
+    ]
+    k.containerconfig.name.attribute =
+        ## Specifies a name for the container. This is usually the
+        ## the tag name of the container as read if the container
+        ## image is imported via the docker load command
+        attribute name { text }
+        >> sch:pattern [ id = "name" is-a = "container_type"
+            sch:param [ name = "attr" value = "name" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.entry_command.attribute =
+        ## Specifies the default command to run if the container is
+        ## called via the docker run command.
+        attribute entry_command { text }
+        >> sch:pattern [ id = "entry_command" is-a = "container_type"
+            sch:param [ name = "attr" value = "entry_command" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.attlist =
+        k.containerconfig.name.attribute &
+        k.containerconfig.entry_command.attribute?
+
+    k.containerconfig =
+        ## Provides metadata information for containers
+        [
+        db:para [
+            "The containerconfig element provides metadata information"
+            "to setup a container in order to be prepared for use with"
+            "the container engine tool chain. container specific data"
+            "should be provided in an additional subsection whereas this"
+            "section provides globally useful container information"
+        ]
+        ]
+        element containerconfig {
+            k.containerconfig.attlist
         }
 }
 

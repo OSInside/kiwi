@@ -271,7 +271,7 @@ Parents:
    These elements contain ``type``: :ref:`k.image.preferences`
 
 Children:
-   The following elements occur in ``type``: :ref:`machine <k.image.preferences.type.machine>` `[?]`_, :ref:`oemconfig <k.image.preferences.type.oemconfig>` `[?]`_, :ref:`pxedeploy <k.image.preferences.type.pxedeploy>` `[?]`_, :ref:`size <k.image.preferences.type.size>` `[?]`_, :ref:`systemdisk <k.image.preferences.type.systemdisk>` `[?]`_, :ref:`vagrantconfig <k.image.preferences.type.vagrantconfig>` `[*]`_
+   The following elements occur in ``type``: :ref:`containerconfig <k.image.preferences.type.containerconfig>` `[?]`_, :ref:`machine <k.image.preferences.type.machine>` `[?]`_, :ref:`oemconfig <k.image.preferences.type.oemconfig>` `[?]`_, :ref:`pxedeploy <k.image.preferences.type.pxedeploy>` `[?]`_, :ref:`size <k.image.preferences.type.size>` `[?]`_, :ref:`systemdisk <k.image.preferences.type.systemdisk>` `[?]`_, :ref:`vagrantconfig <k.image.preferences.type.vagrantconfig>` `[*]`_
 
 List of attributes for ``type``:
 
@@ -290,7 +290,6 @@ List of attributes for ``type``:
 * ``btrfs_root_is_readonly_snapshot`` `[?]`_: Tell kiwi to set the btrfs root filesystem snapshot read-only Once all data has been placed to the root filesystem snapshot it will be turned into read-only mode if this option is set to true. The option is only effective if btrfs_root_is_snapshot is also set to true. By default the root filesystem snapshot is writable
 * ``checkprebuilt`` `[?]`_: Activates whether KIWI should search for a prebuild boot image or not. Obsolete attribute since KIWI v8
 * ``compressed`` `[?]`_: Specifies whether the image output file should be compressed or not. This makes only sense for filesystem only images respectively for the pxe or cpio type
-* ``container`` `[?]`_: Specifies a name for the container
 * ``devicepersistency`` `[?]`_: Specifies which method to use in order to get persistent storage device names. By default by-uuid is used.
 * ``editbootconfig`` `[?]`_: Specifies the path to a script which is called right before the bootloader is installed. The script runs relative to the directory which contains the image structure
 * ``editbootinstall`` `[?]`_: Specifies the path to a script which is called right after the bootloader is installed. The script runs relative to the directory which contains the image structure
@@ -327,6 +326,21 @@ List of attributes for ``type``:
 * ``vhdfixedtag`` `[?]`_: Specifies the GUID in a fixed format VHD
 * ``volid`` `[?]`_: for the iso type only: Specifies the volume ID (volume name or label) to be written into the master block. There is space for 32 characters.
 * ``wwid_wait_timeout`` `[?]`_: Specifies the wait period in seconds after launching the multipath daemon to wait until all presented devices are available on the host. Default timeout is 3 seconds
+
+.. _k.image.preferences.type.containerconfig:
+
+containerconfig
+,,,,,,,,,,,,,,,
+
+Provides metadata information for containers
+
+Parents:
+   These elements contain ``containerconfig``: :ref:`k.image.preferences.type`
+
+List of attributes for ``containerconfig``:
+
+* ``name`` : Specifies a name for the container. This is usually the the tag name of the container as read if the container image is imported via the docker load command
+* ``entry_command`` `[?]`_: Specifies the default command to run if the container is called via the docker run command.
 
 .. _k.image.preferences.type.machine:
 
