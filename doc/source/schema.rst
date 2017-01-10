@@ -1,4 +1,4 @@
-Schema Documentation 6.4
+Schema Documentation 6.5
 =========================
 
 .. hint:: **Element quantifiers**
