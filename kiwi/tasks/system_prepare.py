@@ -167,7 +167,6 @@ class SystemPrepareTask(CliTask):
 
         setup.import_description()
         setup.import_overlay_files()
-        setup.call_config_script()
         setup.import_image_identifier()
         setup.setup_groups()
         setup.setup_users()
@@ -179,13 +178,16 @@ class SystemPrepareTask(CliTask):
             manager=manager, force=True
         )
 
-        # make sure system and manager instances are cleaned up now
-        del system
+        # make sure manager instance is cleaned up now
         del manager
 
         # setup permanent image repositories after cleanup
         if self.xml_state.has_repositories_marked_as_imageinclude():
             setup.import_repositories_marked_as_imageinclude()
+        setup.call_config_script()
+
+        # make sure system instance is cleaned up now
+        del system
 
     def _help(self):
         if self.command_args['help']:
