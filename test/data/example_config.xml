@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.4" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="6.5" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -98,6 +98,9 @@
                 <vmdisk id="0" controller="ide"/>
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
+        </type>
+        <type image="docker">
+            <containerconfig name="container_name"/>
         </type>
     </preferences>
     <users>

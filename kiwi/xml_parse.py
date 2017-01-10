@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Dec  8 15:13:19 2016 by generateDS.py version 2.24a.
+# Generated Mon Jan  9 10:51:35 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -2901,7 +2901,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, container=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, target_removable=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, target_removable=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2918,7 +2918,6 @@ class type_(GeneratedsSuper):
         self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
         self.checkprebuilt = _cast(bool, checkprebuilt)
         self.compressed = _cast(bool, compressed)
-        self.container = _cast(None, container)
         self.devicepersistency = _cast(None, devicepersistency)
         self.editbootconfig = _cast(None, editbootconfig)
         self.editbootinstall = _cast(None, editbootinstall)
@@ -2955,6 +2954,10 @@ class type_(GeneratedsSuper):
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.volid = _cast(None, volid)
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
+        if containerconfig is None:
+            self.containerconfig = []
+        else:
+            self.containerconfig = containerconfig
         if machine is None:
             self.machine = []
         else:
@@ -2990,6 +2993,11 @@ class type_(GeneratedsSuper):
         else:
             return type_(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_containerconfig(self): return self.containerconfig
+    def set_containerconfig(self, containerconfig): self.containerconfig = containerconfig
+    def add_containerconfig(self, value): self.containerconfig.append(value)
+    def insert_containerconfig_at(self, index, value): self.containerconfig.insert(index, value)
+    def replace_containerconfig_at(self, index, value): self.containerconfig[index] = value
     def get_machine(self): return self.machine
     def set_machine(self, machine): self.machine = machine
     def add_machine(self, value): self.machine.append(value)
@@ -3050,8 +3058,6 @@ class type_(GeneratedsSuper):
     def set_checkprebuilt(self, checkprebuilt): self.checkprebuilt = checkprebuilt
     def get_compressed(self): return self.compressed
     def set_compressed(self, compressed): self.compressed = compressed
-    def get_container(self): return self.container
-    def set_container(self, container): self.container = container
     def get_devicepersistency(self): return self.devicepersistency
     def set_devicepersistency(self, devicepersistency): self.devicepersistency = devicepersistency
     def get_editbootconfig(self): return self.editbootconfig
@@ -3133,6 +3139,7 @@ class type_(GeneratedsSuper):
     validate_vhd_tag_type_patterns_ = [['^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$']]
     def hasContent_(self):
         if (
+            self.containerconfig or
             self.machine or
             self.oemconfig or
             self.pxedeploy or
@@ -3207,9 +3214,6 @@ class type_(GeneratedsSuper):
         if self.compressed is not None and 'compressed' not in already_processed:
             already_processed.add('compressed')
             outfile.write(' compressed="%s"' % self.gds_format_boolean(self.compressed, input_name='compressed'))
-        if self.container is not None and 'container' not in already_processed:
-            already_processed.add('container')
-            outfile.write(' container=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.container), input_name='container')), ))
         if self.devicepersistency is not None and 'devicepersistency' not in already_processed:
             already_processed.add('devicepersistency')
             outfile.write(' devicepersistency=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.devicepersistency), input_name='devicepersistency')), ))
@@ -3323,6 +3327,8 @@ class type_(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
+        for containerconfig_ in self.containerconfig:
+            containerconfig_.export(outfile, level, namespace_, name_='containerconfig', pretty_print=pretty_print)
         for machine_ in self.machine:
             machine_.export(outfile, level, namespace_, name_='machine', pretty_print=pretty_print)
         for oemconfig_ in self.oemconfig:
@@ -3443,10 +3449,6 @@ class type_(GeneratedsSuper):
                 self.compressed = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('container', node)
-        if value is not None and 'container' not in already_processed:
-            already_processed.add('container')
-            self.container = value
         value = find_attr_value_('devicepersistency', node)
         if value is not None and 'devicepersistency' not in already_processed:
             already_processed.add('devicepersistency')
@@ -3679,7 +3681,12 @@ class type_(GeneratedsSuper):
             if self.wwid_wait_timeout < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'machine':
+        if nodeName_ == 'containerconfig':
+            obj_ = containerconfig.factory()
+            obj_.build(child_)
+            self.containerconfig.append(obj_)
+            obj_.original_tagname_ = 'containerconfig'
+        elif nodeName_ == 'machine':
             obj_ = machine.factory()
             obj_.build(child_)
             self.machine.append(obj_)
@@ -6244,6 +6251,83 @@ class instsys(GeneratedsSuper):
 # end class instsys
 
 
+class containerconfig(GeneratedsSuper):
+    """Provides metadata information for containers"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, entry_command=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.entry_command = _cast(None, entry_command)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, containerconfig)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if containerconfig.subclass:
+            return containerconfig.subclass(*args_, **kwargs_)
+        else:
+            return containerconfig(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_entry_command(self): return self.entry_command
+    def set_entry_command(self, entry_command): self.entry_command = entry_command
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='containerconfig', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='containerconfig')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='containerconfig', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='containerconfig'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.entry_command is not None and 'entry_command' not in already_processed:
+            already_processed.add('entry_command')
+            outfile.write(' entry_command=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.entry_command), input_name='entry_command')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='containerconfig', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('entry_command', node)
+        if value is not None and 'entry_command' not in already_processed:
+            already_processed.add('entry_command')
+            self.entry_command = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class containerconfig
+
+
 class oemconfig(GeneratedsSuper):
     """Specifies the OEM configuration section"""
     subclass = None
@@ -8082,6 +8166,7 @@ __all__ = [
     "archive",
     "chroot",
     "configuration",
+    "containerconfig",
     "description",
     "drivers",
     "driverupdate",

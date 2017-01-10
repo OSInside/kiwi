@@ -496,3 +496,10 @@ class TestXMLState(object):
         xml_data = description.load()
         state = XMLState(xml_data)
         assert state.get_build_type_vmconfig_entries() == []
+
+    def test_get_build_type_docker_container_name(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        assert state.get_build_type_containerconfig_section().get_name() == \
+            'container_name'

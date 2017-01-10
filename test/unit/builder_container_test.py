@@ -14,8 +14,12 @@ class TestContainerBuilder(object):
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
         xml_state = mock.Mock()
-        xml_state.build_type.get_container = mock.Mock(
+        container_config = mock.Mock()
+        container_config.get_name = mock.Mock(
             return_value='my-container'
+        )
+        xml_state.get_build_type_containerconfig_section = mock.Mock(
+            return_value=container_config
         )
         xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'

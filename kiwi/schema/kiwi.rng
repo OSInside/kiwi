@@ -101,7 +101,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.4</value>
+        <value>6.5</value>
       </attribute>
     </define>
     <define name="k.image.kiwirevision.attribute">
@@ -2286,15 +2286,6 @@ only images respectively for the pxe or cpio type</a:documentation>
         <sch:param name="types" value="pxe"/>
       </sch:pattern>
     </define>
-    <define name="k.type.container.attribute">
-      <attribute name="container">
-        <a:documentation>Specifies a name for the container</a:documentation>
-      </attribute>
-      <sch:pattern id="container" is-a="image_type">
-        <sch:param name="attr" value="container"/>
-        <sch:param name="types" value="docker"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.devicepersistency.attribute">
       <attribute name="devicepersistency">
         <a:documentation>Specifies which method to use in order to get persistent
@@ -2807,9 +2798,6 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           <ref name="k.type.compressed.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.container.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.type.devicepersistency.attribute"/>
         </optional>
         <optional>
@@ -2922,6 +2910,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         <a:documentation>The Image Type of the Logical Extend</a:documentation>
         <interleave>
           <ref name="k.type.attlist"/>
+          <optional>
+            <ref name="k.containerconfig"/>
+          </optional>
           <optional>
             <ref name="k.machine"/>
           </optional>
@@ -3903,6 +3894,54 @@ drivers on system installation with YaST.</db:para>
             <ref name="k.repopackage"/>
           </zeroOrMore>
         </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <containerconfig>
+    
+  -->
+  <div>
+    <sch:pattern abstract="true" id="container_type">
+      <sch:rule context="containerconfig">
+        <sch:assert test="contains('$types', ../@image)">containerconfig($attr) is only available for the following image types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.containerconfig.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies a name for the container. This is usually the
+the tag name of the container as read if the container
+image is imported via the docker load command</a:documentation>
+      </attribute>
+      <sch:pattern id="name" is-a="container_type">
+        <sch:param name="attr" value="name"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.entry_command.attribute">
+      <attribute name="entry_command">
+        <a:documentation>Specifies the default command to run if the container is
+called via the docker run command.</a:documentation>
+      </attribute>
+      <sch:pattern id="entry_command" is-a="container_type">
+        <sch:param name="attr" value="entry_command"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.attlist">
+      <interleave>
+        <ref name="k.containerconfig.name.attribute"/>
+        <optional>
+          <ref name="k.containerconfig.entry_command.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.containerconfig">
+      <element name="containerconfig">
+        <a:documentation>Provides metadata information for containers</a:documentation>
+        <db:para>The containerconfig element provides metadata informationto setup a container in order to be prepared for use withthe container engine tool chain. container specific datashould be provided in an additional subsection whereas thissection provides globally useful container information</db:para>
+        <ref name="k.containerconfig.attlist"/>
       </element>
     </define>
   </div>

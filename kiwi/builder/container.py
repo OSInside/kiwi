@@ -37,8 +37,8 @@ class ContainerBuilder(object):
     * :attr:`target_dir`
         target directory path name
 
-    * :attr:`requested_container_name`
-        Configured container name or default
+    * :attr:`container_config`
+        Instance of xml_parse::containerconfig
 
     * :attr:`requested_container_type`
         Configured container type
@@ -55,7 +55,8 @@ class ContainerBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir
         self.target_dir = target_dir
-        self.requested_container_name = xml_state.build_type.get_container()
+        self.container_config = \
+            xml_state.get_build_type_containerconfig_section()
         self.requested_container_type = xml_state.get_build_type_name()
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
@@ -81,8 +82,8 @@ class ContainerBuilder(object):
         * image="docker"
         """
         setup_options = {}
-        if self.requested_container_name:
-            setup_options['container_name'] = self.requested_container_name
+        if self.container_config and self.container_config.get_name():
+            setup_options['container_name'] = self.container_config.get_name()
 
         container_setup = ContainerSetup(
             self.requested_container_type, self.root_dir, setup_options
