@@ -211,6 +211,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             volume_mount.mount(
                 options=[self.mount_options]
             )
+        self.volumes_mounted_initially = True
 
     def umount_volumes(self):
         """

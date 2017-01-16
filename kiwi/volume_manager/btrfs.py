@@ -70,6 +70,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         self.subvol_mount_list = []
         self.toplevel_mount = None
+        self.toplevel_volume = None
 
     def setup(self, name=None):
         """
@@ -232,11 +233,16 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         Mount btrfs subvolumes
         """
-        if not self.toplevel_mount.is_mounted():
-            self.toplevel_mount.mount(
-                self.custom_filesystem_args['mount_options']
-            )
+
+        self.toplevel_mount.mount(
+            self.custom_filesystem_args['mount_options']
+        )
+
         for volume_mount in self.subvol_mount_list:
+            if self.volumes_mounted_initially:
+                volume_mount.mountpoint = os.path.normpath(
+                    volume_mount.mountpoint.replace(self.toplevel_volume, '', 1)
+                )
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
             subvol_name = self._get_subvol_name_from_mountpoint(volume_mount)
@@ -248,6 +254,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             volume_mount.mount(
                 options=[subvol_options]
             )
+
+        self.volumes_mounted_initially = True
 
     def umount_volumes(self):
         """
@@ -313,6 +321,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                             volume_id, self.mountpoint
                         ]
                     )
+                    self.toplevel_volume = default_volume
                     return
 
         raise KiwiVolumeRootIDError(
@@ -347,9 +356,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
     def _get_subvol_name_from_mountpoint(self, volume_mount):
         subvol_name = '/'.join(volume_mount.mountpoint.split('/')[3:])
-        if self.custom_args['root_is_snapshot']:
-            subvol_name = subvol_name.replace('.snapshots/1/snapshot/', '')
-        return os.path.normpath(subvol_name)
+        if self.toplevel_volume and self.toplevel_volume in subvol_name:
+            subvol_name = subvol_name.replace(self.toplevel_volume, '')
+        return os.path.normpath(os.sep.join(['@', subvol_name]))
 
     def __del__(self):
         if self.toplevel_mount:

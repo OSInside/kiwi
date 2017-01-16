@@ -202,6 +202,7 @@ class TestVolumeManagerBtrfs(object):
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/boot/grub2'
         volume_mount.device = 'device'
+        self.volume_manager.toplevel_volume = '@/.snapshots/1/snapshot'
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.custom_args['root_is_snapshot'] = True
         assert self.volume_manager.get_volumes() == {
@@ -220,6 +221,7 @@ class TestVolumeManagerBtrfs(object):
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
         volume_mount.device = 'device'
+        self.volume_manager.toplevel_volume = '@/.snapshots/1/snapshot'
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.custom_args['root_is_snapshot'] = True
         assert self.volume_manager.get_fstab() == [
@@ -238,6 +240,7 @@ class TestVolumeManagerBtrfs(object):
         volume_mount = mock.Mock()
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
+        self.volume_manager.toplevel_volume = '@/.snapshots/1/snapshot'
         self.volume_manager.custom_args['root_is_snapshot'] = True
         self.volume_manager.subvol_mount_list = [volume_mount]
 
@@ -248,6 +251,44 @@ class TestVolumeManagerBtrfs(object):
         volume_mount.mount.assert_called_once_with(
             options=['subvol=@/var/tmp']
         )
+
+    @patch('os.path.exists')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.MappedDevice')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.base.mkdtemp')
+    def test_remount_volumes(
+        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
+        mock_command, mock_os_exists
+    ):
+        mock_mkdtemp.return_value = '/tmp/kiwi_volumes.xx'
+        toplevel_mount = mock.Mock()
+        toplevel_mount.is_mounted = mock.Mock(
+            return_value=False
+        )
+        mock_mount.return_value = toplevel_mount
+        command_call = mock.Mock()
+        command_call.output = \
+            'ID 258 gen 26 top level 257 path @/.snapshots/1/snapshot'
+        mock_mapped_device.return_value = 'mapped_device'
+        mock_os_exists.return_value = False
+        mock_command.return_value = command_call
+        self.volume_manager.custom_args['root_is_snapshot'] = True
+
+        self.volume_manager.setup()
+
+        mock_os_exists.return_value = True
+        volume_mount = mock.Mock()
+        volume_mount.mountpoint = \
+            '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
+        self.volume_manager.subvol_mount_list = [volume_mount]
+
+        self.volume_manager.mount_volumes()
+        self.volume_manager.umount_volumes()
+        self.volume_manager.mount_volumes()
+
+        assert volume_mount.mountpoint == '/tmp/kiwi_volumes.xx/var/tmp'
 
     def test_umount_volumes(self):
         self.volume_manager.toplevel_mount = mock.Mock()
