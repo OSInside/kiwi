@@ -1,3 +1,6 @@
-[report]
-# skip auto generated code from report
-omit = *xml_parse*
+[run]
+omit =
+    */app.py
+    */kiwi.py
+    */kiwi_compat.py
+    */xml_parse.py
