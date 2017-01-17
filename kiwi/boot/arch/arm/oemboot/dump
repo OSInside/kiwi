@@ -948,6 +948,13 @@ function identifyDevice {
         fi
     fi
     if [ $found -eq 0 ];then
+        ux_device=/dev/$kiwi_oemunattended_id
+        if [ -e $ux_device ];then
+            found=1
+            break
+        fi
+    fi
+    if [ $found -eq 0 ];then
         systemException \
             "Storage ID: $kiwi_oemunattended_id not found" \
         "reboot"
