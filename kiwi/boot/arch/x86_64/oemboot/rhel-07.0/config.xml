@@ -129,12 +129,10 @@
         <package name="diffutils"/>
         <package name="expat"/>
         <package name="freetype"/>
-        <package name="gawk"/>
         <package name="gdbm"/>
         <package name="glib2"/>
         <package name="hdparm"/>
         <package name="info"/>
-        <package name="iproute"/>
         <package name="irqbalance"/>
         <package name="logrotate"/>
         <package name="make"/>
@@ -142,7 +140,6 @@
         <package name="mingetty"/>
         <package name="mktemp"/>
         <package name="mtools"/>
-        <package name="net-tools"/>
         <package name="openldap-clients"/>
         <package name="perl"/>
         <package name="perl-HTML-Parser"/>
