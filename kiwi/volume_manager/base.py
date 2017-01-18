@@ -83,6 +83,10 @@ class VolumeManagerBase(DeviceProvider):
         # the device should be released.
         self.device_provider = device_provider
 
+        # An indicator for the mount of the filesystem and its volumes
+        # when mounted for the first time
+        self.volumes_mounted_initially = False
+
         self.root_dir = root_dir
         self.volumes = volumes
         self.volume_group = None

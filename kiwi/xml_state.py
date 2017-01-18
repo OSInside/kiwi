@@ -748,16 +748,13 @@ class XMLState(object):
         selected_filesystem = self.build_type.get_filesystem()
         selected_system_disk = self.get_build_type_system_disk_section()
         volume_management = None
-        if not selected_system_disk:
-            # no systemdisk section exists, no volume management requested
-            pass
-        elif selected_system_disk.get_preferlvm():
+        if selected_system_disk and selected_system_disk.get_preferlvm():
             # LVM volume management is preferred, use it
             volume_management = 'lvm'
         elif selected_filesystem in volume_filesystems:
             # specified filesystem has its own volume management system
             volume_management = selected_filesystem
-        else:
+        elif selected_system_disk:
             # systemdisk section is specified with non volume capable
             # filesystem and no volume management preference. So let's
             # use LVM by default

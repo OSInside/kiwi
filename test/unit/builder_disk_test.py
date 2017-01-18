@@ -469,6 +469,7 @@ class TestDiskBuilder(object):
         self, mock_command, mock_open, mock_fs
     ):
         self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.volume_manager_name = None
         kernel = mock.Mock()
         kernel.version = '1.2.3'
         kernel.name = 'vmlinuz-1.2.3'
@@ -491,6 +492,7 @@ class TestDiskBuilder(object):
         mock_open, mock_squashfs, mock_fs
     ):
         self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.volume_manager_name = None
         squashfs = mock.Mock()
         mock_squashfs.return_value = squashfs
         mock_getsize.return_value = 1048576
@@ -523,6 +525,7 @@ class TestDiskBuilder(object):
     ):
         self.disk_builder.initrd_system = 'dracut'
         self.disk_builder.arch = 'aarch64'
+        self.disk_builder.volume_manager_name = None
         kernel = mock.Mock()
         kernel.version = '1.2.3'
         kernel.name = 'Image-1.2.3-default'
@@ -541,6 +544,7 @@ class TestDiskBuilder(object):
         self, mock_command, mock_open, mock_fs
     ):
         self.kernel.get_kernel.return_value = False
+        self.disk_builder.volume_manager_name = None
         self.disk_builder.create_disk()
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -551,6 +555,7 @@ class TestDiskBuilder(object):
         self, mock_command, mock_open, mock_fs
     ):
         self.kernel.get_xen_hypervisor.return_value = False
+        self.disk_builder.volume_manager_name = None
         self.disk_builder.create_disk()
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -682,6 +687,7 @@ class TestDiskBuilder(object):
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.hybrid_mbr = True
         self.disk_builder.create_disk()
@@ -711,6 +717,7 @@ class TestDiskBuilder(object):
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.firmware.vboot_mode.return_value = True
         self.disk_builder.firmware.get_vboot_partition_size.return_value = 42
