@@ -882,6 +882,7 @@ Parents:
 
 List of attributes for ``volume``:
 
+* ``copy_on_write`` `[?]`_: Apply the filesystem copy-on-write attribute for this volume
 * ``freespace`` `[?]`_: free space to be added to this volume. The value is used as MB by default but you can add "M" and/or "G" as postfix
 * ``mountpoint`` `[?]`_: volume path. The mountpoint specifies a path which has to exist inside the root directory.
 * ``name`` : volume name. The name of the volume. if mountpoint is not specified the name specifies a path which has to exist inside the root directory.
