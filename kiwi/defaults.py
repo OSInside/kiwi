@@ -67,6 +67,20 @@ class Defaults(object):
         return os.path.exists('/.buildenv')
 
     @classmethod
+    def get_s390_disk_block_size(self):
+        """
+        The default block size for s390 storage disks
+        """
+        return '4096'
+
+    @classmethod
+    def get_s390_disk_type(self):
+        """
+        The default disk type for s390 storage disks
+        """
+        return 'CDL'
+
+    @classmethod
     def get_solvable_location(self):
         """
         The directory to store SAT solvables for repositories.

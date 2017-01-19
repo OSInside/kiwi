@@ -108,7 +108,13 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.target_blocksize = self.xml_state.build_type.get_target_blocksize()
+        if not self.target_blocksize:
+            self.target_blocksize = Defaults.get_s390_disk_block_size()
+
         self.target_type = self.xml_state.build_type.get_zipl_targettype()
+        if not self.target_type:
+            self.target_type = Defaults.get_s390_disk_type()
+
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.target_device = custom_args['targetbase']
         self.firmware = FirmWare(self.xml_state)

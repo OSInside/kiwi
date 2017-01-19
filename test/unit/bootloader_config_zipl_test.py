@@ -50,10 +50,10 @@ class TestBootLoaderConfigZipl(object):
             return_value='200'
         )
         self.xml_state.build_type.get_target_blocksize = mock.Mock(
-            return_value='4096'
+            return_value=None
         )
         self.xml_state.build_type.get_zipl_targettype = mock.Mock(
-            return_value='CDL'
+            return_value=None
         )
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='cmdline'
