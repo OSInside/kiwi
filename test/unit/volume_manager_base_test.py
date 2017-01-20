@@ -19,7 +19,8 @@ class TestVolumeManagerBase(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
         mock_path.return_value = True
@@ -84,7 +85,7 @@ class TestVolumeManagerBase(object):
         self.volume_manager.volumes = [
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False
+                mountpoint='/etc', fullsize=False, attributes=[]
             )
         ]
         self.volume_manager.create_volume_paths_in_root_dir()
@@ -94,11 +95,11 @@ class TestVolumeManagerBase(object):
         self.volume_manager.volumes = [
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False
+                mountpoint='/etc', fullsize=False, attributes=[]
             ),
             self.volume_type(
                 name='LVRoot', size='size:500', realpath='/',
-                mountpoint='/', fullsize=True
+                mountpoint='/', fullsize=True, attributes=[]
             )
         ]
         volume_list = self.volume_manager.get_canonical_volume_list()
@@ -170,6 +171,19 @@ class TestVolumeManagerBase(object):
     @raises(KiwiVolumeManagerSetupError)
     def test_set_property_readonly_root(self):
         self.volume_manager.set_property_readonly_root()
+
+    @patch('kiwi.volume_manager.base.Command.run')
+    def test_apply_attributes_on_volume(self, mock_command):
+        self.volume_manager.apply_attributes_on_volume(
+            'toplevel', self.volume_type(
+                name='LVetc', size='freespace:200', realpath='/etc',
+                mountpoint='/etc', fullsize=False,
+                attributes=['no-copy-on-write']
+            )
+        )
+        mock_command.assert_called_once_with(
+            ['chattr', '+C', 'toplevel/etc']
+        )
 
     def test_destructor(self):
         # does nothing by default, just pass

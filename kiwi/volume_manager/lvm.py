@@ -135,6 +135,9 @@ class VolumeManagerLVM(VolumeManagerBase):
                     volume.name, self.volume_group
                 ]
             )
+            self.apply_attributes_on_volume(
+                self.root_dir, volume
+            )
             self._add_to_volume_map(volume.name)
             self._create_filesystem(
                 volume.name, filesystem_name

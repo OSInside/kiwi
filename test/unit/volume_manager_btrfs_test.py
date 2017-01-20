@@ -30,25 +30,30 @@ class TestVolumeManagerBtrfs(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
         self.volumes = [
             self.volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False
+                mountpoint=None, fullsize=False,
+                attributes=[]
             ),
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False
+                mountpoint='/etc', fullsize=False,
+                attributes=[]
             ),
             self.volume_type(
                 name='myvol', size='size:500', realpath='/data',
-                mountpoint='LVdata', fullsize=False
+                mountpoint='LVdata', fullsize=False,
+                attributes=[]
             ),
             self.volume_type(
                 name='LVhome', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True
+                mountpoint='/home', fullsize=True,
+                attributes=[]
             )
         ]
         mock_path.return_value = True
@@ -158,8 +163,9 @@ class TestVolumeManagerBtrfs(object):
     @patch('kiwi.volume_manager.btrfs.Command.run')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.btrfs.Path.create')
+    @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
     def test_create_volumes(
-        self, mock_path, mock_mount, mock_command, mock_os_exists
+        self, mock_attrs, mock_path, mock_mount, mock_command, mock_os_exists
     ):
         volume_mount = mock.Mock()
         mock_mount.return_value = volume_mount
@@ -169,6 +175,21 @@ class TestVolumeManagerBtrfs(object):
 
         self.volume_manager.create_volumes('btrfs')
 
+        assert mock_attrs.call_args_list == [
+            call(
+                'tmpdir/@/', self.volume_type(
+                    name='myvol', size='size:500', realpath='/data',
+                    mountpoint='LVdata', fullsize=False, attributes=[])
+                ),
+            call('tmpdir/@/', self.volume_type(
+                name='LVetc', size='freespace:200', realpath='/etc',
+                mountpoint='/etc', fullsize=False, attributes=[])
+            ),
+            call('tmpdir/@/', self.volume_type(
+                name='LVhome', size=None, realpath='/home',
+                mountpoint='/home', fullsize=True, attributes=[])
+            )
+        ]
         assert mock_path.call_args_list == [
             call('root_dir/etc'),
             call('root_dir/data'),

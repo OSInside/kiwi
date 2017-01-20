@@ -162,6 +162,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                         os.path.normpath(toplevel + volume.realpath)
                     ]
                 )
+                self.apply_attributes_on_volume(
+                    toplevel, volume
+                )
                 if self.custom_args['root_is_snapshot']:
                     snapshot = self.mountpoint + '/@/.snapshots/1/snapshot/'
                     volume_mount = MountManager(
