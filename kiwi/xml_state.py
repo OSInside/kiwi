@@ -638,6 +638,7 @@ class XMLState(object):
           is set the volume name is used as data path.
         * mountpoint: volume mount point and volume data path
         * fullsize: takes all space true|false
+        * attributes: volume attributes handled via chattr
 
         :return: volume data
         :rtype: list
@@ -653,7 +654,8 @@ class XMLState(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
 
@@ -670,6 +672,13 @@ class XMLState(object):
                 size = volume.get_size()
                 freespace = volume.get_freespace()
                 fullsize = False
+                attributes = []
+
+                if volume.get_copy_on_write() is False:
+                    # by default copy-on-write is switched on for any
+                    # filesystem. Thus only if no copy on write is requested
+                    # the attribute is handled
+                    attributes.append('no-copy-on-write')
 
                 if '@root' in name:
                     # setup root volume, it takes a fixed volume name and
@@ -710,7 +719,8 @@ class XMLState(object):
                         size=size,
                         fullsize=fullsize,
                         mountpoint=mountpoint,
-                        realpath=realpath
+                        realpath=realpath,
+                        attributes=attributes
                     )
                 )
 
@@ -731,7 +741,8 @@ class XMLState(object):
                     size=size,
                     fullsize=fullsize,
                     mountpoint=None,
-                    realpath='/'
+                    realpath='/',
+                    attributes=[]
                 )
             )
 
