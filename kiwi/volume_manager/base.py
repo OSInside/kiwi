@@ -20,6 +20,8 @@ from tempfile import mkdtemp
 import os
 
 # project
+from ..logger import log
+from ..command import Command
 from ..storage.device_provider import DeviceProvider
 from ..mount_manager import MountManager
 from ..storage.mapped_device import MappedDevice
@@ -145,6 +147,19 @@ class VolumeManagerBase(DeviceProvider):
         :param string filesystem_name: unused
         """
         raise NotImplementedError
+
+    def apply_attributes_on_volume(self, toplevel, volume):
+        for attribute in volume.attributes:
+            if attribute == 'no-copy-on-write':
+                log.info(
+                    '--> setting {0} for {1}'.format(attribute, volume.realpath)
+                )
+                Command.run(
+                    [
+                        'chattr', '+C',
+                        os.path.normpath(toplevel + volume.realpath)
+                    ]
+                )
 
     def get_fstab(self, persistency_type, filesystem_name):
         """

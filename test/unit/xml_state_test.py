@@ -223,29 +223,34 @@ class TestXMLState(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
         assert state.get_volumes() == [
             volume_type(
                 name='usr_lib', size='size:1024',
                 realpath='usr/lib',
-                mountpoint='usr/lib', fullsize=False
+                mountpoint='usr/lib', fullsize=False,
+                attributes=[]
             ),
             volume_type(
                 name='LVRoot', size='freespace:500',
                 realpath='/',
-                mountpoint=None, fullsize=False
+                mountpoint=None, fullsize=False,
+                attributes=[]
             ),
             volume_type(
                 name='etc_volume', size='freespace:30',
                 realpath='etc',
-                mountpoint='etc', fullsize=False
+                mountpoint='etc', fullsize=False,
+                attributes=['no-copy-on-write']
             ),
             volume_type(
                 name='bin_volume', size=None,
                 realpath='/usr/bin',
-                mountpoint='/usr/bin', fullsize=True
+                mountpoint='/usr/bin', fullsize=True,
+                attributes=[]
             )
         ]
 
@@ -259,13 +264,15 @@ class TestXMLState(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
         assert state.get_volumes() == [
             volume_type(
                 name='LVRoot', size=None, realpath='/',
-                mountpoint=None, fullsize=True
+                mountpoint=None, fullsize=True,
+                attributes=[]
             )
         ]
 
@@ -281,17 +288,20 @@ class TestXMLState(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
         assert state.get_volumes() == [
             volume_type(
                 name='usr', size=None, realpath='usr',
-                mountpoint='usr', fullsize=True
+                mountpoint='usr', fullsize=True,
+                attributes=[]
             ),
             volume_type(
                 name='LVRoot', size='freespace:30', realpath='/',
-                mountpoint=None, fullsize=False
+                mountpoint=None, fullsize=False,
+                attributes=[]
             )
         ]
 

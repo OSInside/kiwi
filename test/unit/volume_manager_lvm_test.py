@@ -20,25 +20,26 @@ class TestVolumeManagerLVM(object):
                 'size',
                 'realpath',
                 'mountpoint',
-                'fullsize'
+                'fullsize',
+                'attributes'
             ]
         )
         self.volumes = [
             self.volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False
+                mountpoint=None, fullsize=False, attributes=[]
             ),
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False
+                mountpoint='/etc', fullsize=False, attributes=[]
             ),
             self.volume_type(
                 name='myvol', size='size:500', realpath='/data',
-                mountpoint='LVdata', fullsize=False
+                mountpoint='LVdata', fullsize=False, attributes=[]
             ),
             self.volume_type(
                 name='LVhome', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True
+                mountpoint='/home', fullsize=True, attributes=[]
             ),
         ]
         mock_path.return_value = True
@@ -123,8 +124,9 @@ class TestVolumeManagerLVM(object):
     @patch('kiwi.volume_manager.lvm.FileSystem')
     @patch('kiwi.volume_manager.lvm.MappedDevice')
     @patch('kiwi.volume_manager.lvm.MountManager')
+    @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
     def test_create_volumes(
-        self, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_attrs, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_size, mock_os_exists
     ):
         self.volume_manager.mountpoint = 'tmpdir'
@@ -141,6 +143,25 @@ class TestVolumeManagerLVM(object):
         etc_size = 200 + 42 + Defaults.get_min_volume_mbytes()
         root_size = 100 + 42 + Defaults.get_min_volume_mbytes()
 
+        assert mock_attrs.call_args_list == [
+            call(
+                'root_dir', self.volume_type(
+                    name='LVRoot', size='freespace:100', realpath='/',
+                    mountpoint=None, fullsize=False, attributes=[])
+                ),
+            call(
+                'root_dir', self.volume_type(
+                    name='myvol', size='size:500', realpath='/data',
+                    mountpoint='LVdata', fullsize=False, attributes=[]
+                )
+            ),
+            call(
+                'root_dir', self.volume_type(
+                    name='LVetc', size='freespace:200', realpath='/etc',
+                    mountpoint='/etc', fullsize=False, attributes=[]
+                )
+            )
+        ]
         assert mock_mount.call_args_list == [
             call(device='/dev/volume_group/LVRoot', mountpoint='tmpdir'),
             call(device='/dev/volume_group/myvol', mountpoint='tmpdir//data'),

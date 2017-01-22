@@ -2353,7 +2353,11 @@ div {
         ## The value is used as MB by default but you can
         ## add "M" and/or "G" as postfix
         attribute size { volume-size-type }
+    k.volume.copy_on_write.attribute =
+        ## Apply the filesystem copy-on-write attribute for this volume
+        attribute copy_on_write { xsd:boolean }
     k.volume.attlist =
+        k.volume.copy_on_write.attribute? &
         k.volume.freespace.attribute? &
         k.volume.mountpoint.attribute? &
         k.volume.name.attribute &
