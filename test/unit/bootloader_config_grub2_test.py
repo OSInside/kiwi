@@ -204,8 +204,12 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch_open
     @patch('os.path.exists')
-    @patch('kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_default_grub')
-    def test_write(self, mock_setup_default_grub, mock_exists, mock_open):
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    @patch.object(BootLoaderConfigGrub2, 'setup_sysconfig_bootloader')
+    def test_write(
+        self, mock_setup_sysconfig_bootloader, mock_setup_default_grub,
+        mock_exists, mock_open
+    ):
         mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.bootloader.config = 'some-data'
@@ -218,18 +222,53 @@ class TestBootLoaderConfigGrub2(object):
             'some-data'
         )
         mock_setup_default_grub.assert_called_once_with()
+        mock_setup_sysconfig_bootloader.assert_called_once_with()
 
-    @patch_open
     @patch('os.path.exists')
-    def test_setup_default_grub(self, mock_exists, mock_open):
+    @patch('kiwi.bootloader.config.grub2.SysConfig')
+    def test__setup_default_grub(self, mock_sysconfig, mock_exists):
+        grub_default = mock.MagicMock()
+        mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = ''
-        self.bootloader.setup_default_grub()
-        mock_open.assert_called_once_with('root_dir/etc/default/grub', 'a+')
-        self.file_mock.write.assert_called_once_with(
-            'SUSE_BTRFS_SNAPSHOT_BOOTING=true\n'
+        self.bootloader.cmdline = 'some-cmdline'
+        self.bootloader.terminal = 'serial'
+        self.bootloader.theme = 'openSUSE'
+        self.firmware.efi_mode.return_value = 'efi'
+        self.bootloader._setup_default_grub()
+
+        mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
+        grub_default.write.assert_called_once_with()
+        assert grub_default.__setitem__.call_args_list == [
+            call('GRUB_BACKGROUND', '/boot/grub2/themes/openSUSE/background.png'),
+            call('GRUB_CMDLINE_LINUX', '"some-cmdline"'),
+            call('GRUB_DISTRIBUTOR', '"Bob"'),
+            call('GRUB_SERIAL_COMMAND', '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'),
+            call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
+            call('GRUB_TIMEOUT', 10),
+            call('GRUB_USE_INITRDEFI', 'true'),
+            call('GRUB_USE_LINUXEFI', 'true'),
+            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
+        ]
+
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.SysConfig')
+    def test_setup_sysconfig_bootloader(self, mock_sysconfig, mock_exists):
+        sysconfig_bootloader = mock.MagicMock()
+        mock_sysconfig.return_value = sysconfig_bootloader
+        mock_exists.return_value = True
+        self.bootloader.cmdline = 'some-cmdline'
+        self.bootloader.cmdline_failsafe = 'some-failsafe-cmdline'
+        self.bootloader.setup_sysconfig_bootloader()
+        mock_sysconfig.assert_called_once_with(
+            'root_dir/etc/sysconfig/bootloader'
         )
+        sysconfig_bootloader.write.assert_called_once_with()
+        assert sysconfig_bootloader.__setitem__.call_args_list == [
+            call('DEFAULT_APPEND', '"some-cmdline"'),
+            call('FAILSAFE_APPEND', '"some-failsafe-cmdline"'),
+            call('LOADER_LOCATION', 'mbr'),
+            call('LOADER_TYPE', 'grub2')
+        ]
 
     def test_setup_live_image_config_multiboot(self):
         self.bootloader.multiboot = True
