@@ -35,6 +35,15 @@ Submodules
     :show-inheritance:
 
 
+`kiwi.utils.sysconfig` Module
+------------------------
+
+.. automodule:: kiwi.utils.sysconfig
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module Contents
 ---------------
 
