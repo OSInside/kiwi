@@ -6259,15 +6259,19 @@ function setupConfigFiles {
 #--------------------------------------
 function setupMachineID {
     # /.../
-    # systemd-machine-id-setup. Initialize the machine ID
+    # systemd-machine-id-setup initializes the machine ID
     # in /etc/machine-id. The machine ID is defined to be a
     # unique information. Thus it is required to initialize
     # it on first boot of the image. In addition the same
-    # machine-id is configured to be used by dbus
+    # machine-id is configured to be used by dbus. In order
+    # to achieve this kiwi cleans up all existing machine
+    # id files which triggers the creation of a new set of
+    # machine ids by systemd on startup
     # ----
-    systemd-machine-id-setup
-    rm -f /var/lib/dbus/machine-id && \
-        ln -s /etc/machine-id /var/lib/dbus/machine-id
+    rm -f /etc/machine-id
+    if [ ! -L /var/lib/dbus/machine-id ];then
+        rm -f /var/lib/dbus/machine-id
+    fi
 }
 #======================================
 # activateImage
@@ -6328,12 +6332,6 @@ function activateImage {
         if [ -d /isofrom ];then
             mkdir -p $prefix/isofrom && mount --move /isofrom $prefix/isofrom
         fi
-    fi
-    #======================================
-    # create dbus machine id
-    #--------------------------------------
-    if lookup dbus-uuidgen &>/dev/null;then
-        dbus-uuidgen > $prefix/var/lib/dbus/machine-id
     fi
     #======================================
     # move device nodes
