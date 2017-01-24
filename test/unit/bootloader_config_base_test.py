@@ -56,6 +56,10 @@ class TestBootLoaderConfigBase(object):
     def test_setup_live_boot_images(self):
         self.bootloader.setup_live_boot_images('mbrid')
 
+    @raises(NotImplementedError)
+    def test_setup_sysconfig_bootloader(self):
+        self.bootloader.setup_sysconfig_bootloader()
+
     @patch('kiwi.path.Path.create')
     def test_create_efi_path(self, mock_path):
         self.bootloader.create_efi_path()

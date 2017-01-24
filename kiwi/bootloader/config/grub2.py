@@ -18,6 +18,7 @@
 import os
 import platform
 import shutil
+from collections import OrderedDict
 
 # project
 from .base import BootLoaderConfigBase
@@ -28,6 +29,7 @@ from ...firmware import FirmWare
 from ...logger import log
 from ...path import Path
 from ...utils.sync import DataSync
+from ...utils.sysconfig import SysConfig
 
 from ...exceptions import (
     KiwiTemplateError,
@@ -144,6 +146,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.config = None
         self.efi_boot_path = None
         self.boot_directory_name = 'grub2'
+        self.cmdline_failsafe = None
+        self.cmdline = None
 
     def write(self):
         """
@@ -156,28 +160,50 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Path.create(config_dir)
             with open(config_file, 'w') as config:
                 config.write(self.config)
-            self.setup_default_grub()
+            self._setup_default_grub()
+            self.setup_sysconfig_bootloader()
 
-    def setup_default_grub(self):
+    def setup_sysconfig_bootloader(self):
         """
-        Create or update etc/default/grub by parameters required
-        according to the root filesystem setup
-        """
-        grub_default_entries = []
-        if self.xml_state.build_type.get_btrfs_root_is_snapshot():
-            grub_default_entries.append('SUSE_BTRFS_SNAPSHOT_BOOTING=true')
+        Create or update etc/sysconfig/bootloader by the following
+        parameters required according to the grub bootloader setup
 
-        if grub_default_entries:
-            log.info('Writing grub defaults file')
-            grub_default_location = ''.join([self.root_dir, '/etc/default/'])
-            if os.path.exists(grub_default_location):
-                grub_default_file = ''.join([grub_default_location, 'grub'])
-                with open(grub_default_file, 'a+') as grub_default:
-                    current_grub_default_config = grub_default.read()
-                    for config_entry in grub_default_entries:
-                        if config_entry not in current_grub_default_config:
-                            log.info('--> {0}'.format(config_entry))
-                            grub_default.write(config_entry + os.linesep)
+        * LOADER_TYPE
+        * LOADER_LOCATION
+        * DEFAULT_APPEND
+        * FAILSAFE_APPEND
+        """
+        sysconfig_bootloader_entries = {
+            'LOADER_TYPE': 'grub2',
+            'LOADER_LOCATION': 'mbr'
+        }
+        if self.cmdline:
+            sysconfig_bootloader_entries['DEFAULT_APPEND'] = '"{0}"'.format(
+                self.cmdline
+            )
+        if self.cmdline_failsafe:
+            sysconfig_bootloader_entries['FAILSAFE_APPEND'] = '"{0}"'.format(
+                self.cmdline_failsafe
+            )
+
+        log.info('Writing sysconfig bootloader file')
+        sysconfig_bootloader_location = ''.join(
+            [self.root_dir, '/etc/sysconfig/']
+        )
+        if os.path.exists(sysconfig_bootloader_location):
+            sysconfig_bootloader_file = ''.join(
+                [sysconfig_bootloader_location, 'bootloader']
+            )
+            sysconfig_bootloader = SysConfig(
+                sysconfig_bootloader_file
+            )
+            sysconfig_bootloader_entries_sorted = OrderedDict(
+                sorted(sysconfig_bootloader_entries.items())
+            )
+            for key, value in list(sysconfig_bootloader_entries_sorted.items()):
+                log.info('--> {0}:{1}'.format(key, value))
+                sysconfig_bootloader[key] = value
+            sysconfig_bootloader.write()
 
     def setup_disk_image_config(
         self, boot_uuid, root_uuid, hypervisor='xen.gz', kernel='linux.vmx',
@@ -194,17 +220,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub config file from template')
-        cmdline = self.get_boot_cmdline(root_uuid)
-        cmdline_failsafe = ' '.join(
-            [cmdline, Defaults.get_failsafe_kernel_options()]
+        self.cmdline = self.get_boot_cmdline(root_uuid)
+        self.cmdline_failsafe = ' '.join(
+            [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
             'search_params': ' '.join(['--fs-uuid', '--set=root', boot_uuid]),
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': cmdline,
-            'failsafe_boot_options': cmdline_failsafe,
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe,
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
@@ -241,17 +267,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub install config file from template')
-        cmdline = self.get_boot_cmdline()
-        cmdline_failsafe = ' '.join(
-            [cmdline, Defaults.get_failsafe_kernel_options()]
+        self.cmdline = self.get_boot_cmdline()
+        self.cmdline_failsafe = ' '.join(
+            [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': self.get_install_image_boot_default(),
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': cmdline,
-            'failsafe_boot_options': cmdline_failsafe,
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe,
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
@@ -289,17 +315,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub live ISO config file from template')
-        cmdline = self.get_boot_cmdline()
-        cmdline_failsafe = ' '.join(
-            [cmdline, Defaults.get_failsafe_kernel_options()]
+        self.cmdline = self.get_boot_cmdline()
+        self.cmdline_failsafe = ' '.join(
+            [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': cmdline,
-            'failsafe_boot_options': cmdline_failsafe,
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe,
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
@@ -401,6 +427,69 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
+
+    def _setup_default_grub(self):
+        """
+        Create or update etc/default/grub by parameters required
+        according to the root filesystem setup
+
+        * GRUB_TIMEOUT
+        * SUSE_BTRFS_SNAPSHOT_BOOTING
+        * GRUB_BACKGROUND
+        * GRUB_THEME
+        * GRUB_USE_LINUXEFI
+        * GRUB_USE_INITRDEFI
+        * GRUB_SERIAL_COMMAND
+        * GRUB_DISTRIBUTOR
+        * GRUB_CMDLINE_LINUX
+        """
+        grub_default_entries = {
+            'GRUB_DISTRIBUTOR': '"{0}"'.format(
+                self.get_menu_entry_title(plain=True)
+            ),
+            'GRUB_TIMEOUT': self.timeout
+        }
+        if self.cmdline:
+            grub_default_entries['GRUB_CMDLINE_LINUX'] = '"{0}"'.format(
+                self.cmdline
+            )
+        if self.terminal and self.terminal == 'serial':
+            serial_format = '"serial {0} {1} {2} {3} {4}"'
+            grub_default_entries['GRUB_SERIAL_COMMAND'] = serial_format.format(
+                '--speed=38400',
+                '--unit=0',
+                '--word=8',
+                '--parity=no',
+                '--stop=1'
+            )
+        if self.theme:
+            theme_setup = '{0}/{1}/theme.txt'
+            grub_default_entries['GRUB_THEME'] = theme_setup.format(
+                '/boot/grub2/themes', self.theme
+            )
+            theme_background = '{0}/{1}/background.png'
+            grub_default_entries['GRUB_BACKGROUND'] = theme_background.format(
+                '/boot/grub2/themes', self.theme
+            )
+        if self.firmware.efi_mode():
+            grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
+            grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
+        if self.xml_state.build_type.get_btrfs_root_is_snapshot():
+            grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
+
+        if grub_default_entries:
+            log.info('Writing grub defaults file')
+            grub_default_location = ''.join([self.root_dir, '/etc/default/'])
+            if os.path.exists(grub_default_location):
+                grub_default_file = ''.join([grub_default_location, 'grub'])
+                grub_default = SysConfig(grub_default_file)
+                grub_default_entries_sorted = OrderedDict(
+                    sorted(grub_default_entries.items())
+                )
+                for key, value in list(grub_default_entries_sorted.items()):
+                    log.info('--> {0}:{1}'.format(key, value))
+                    grub_default[key] = value
+                grub_default.write()
 
     def _setup_secure_boot_efi_image(self, lookup_path):
         """

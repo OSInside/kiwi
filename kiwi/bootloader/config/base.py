@@ -125,6 +125,15 @@ class BootLoaderConfigBase(object):
         """
         raise NotImplementedError
 
+    def setup_sysconfig_bootloader(self):
+        """
+        Create or update etc/sysconfig/bootloader by parameters
+        required according to the bootloader setup
+
+        Implementation in specialized bootloader class required
+        """
+        raise NotImplementedError
+
     def create_efi_path(self, in_sub_dir='boot/efi'):
         """
         Create standard EFI boot directory structure
