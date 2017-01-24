@@ -36,7 +36,7 @@ Submodules
 
 
 `kiwi.utils.sysconfig` Module
-------------------------
+-----------------------------
 
 .. automodule:: kiwi.utils.sysconfig
     :members:
