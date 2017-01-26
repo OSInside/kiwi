@@ -319,6 +319,16 @@ need to have the executable bit set. Encoding the interpreter location with the
 The following list provides information about the hook names, timing of the
 execution, and the applicable boot image.
 
+``handleMachineID``
+  This hook is called as part of the pre-init phase when the system root
+  mountpoint has already been moved and is ready to hand over the control
+  to the init system. It's purpose is to setup the machine id as used by
+  systemd and dbus. Under normal conditions it is preferred to write a
+  systemd firstboot service script to setup the machine id. However
+  depending on the distribution such a service might not exist and in
+  this case the machine id setup can be done from within that kiwi
+  hook script.
+
 ``handleSplash``
   This hook is called prior to any dialog/exception message or progress dialog.
   The hook can be used to customize the behavior of the splash screen. KIWI
