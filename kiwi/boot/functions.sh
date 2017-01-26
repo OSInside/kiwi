@@ -6259,19 +6259,11 @@ function setupConfigFiles {
 #--------------------------------------
 function setupMachineID {
     # /.../
-    # systemd-machine-id-setup initializes the machine ID
-    # in /etc/machine-id. The machine ID is defined to be a
-    # unique information. Thus it is required to initialize
-    # it on first boot of the image. In addition the same
-    # machine-id is configured to be used by dbus. In order
-    # to achieve this kiwi cleans up all existing machine
-    # id files which triggers the creation of a new set of
-    # machine ids by systemd on startup
+    # This method can be used to handle the machine ID
+    # in /etc/machine-id and/or /var/lib/dbus/machine-id
+    # It is actually implemented as a custom hook script
     # ----
-    rm -f /etc/machine-id
-    if [ ! -L /var/lib/dbus/machine-id ];then
-        rm -f /var/lib/dbus/machine-id
-    fi
+    runHook handleMachineID "$@"
 }
 #======================================
 # activateImage
