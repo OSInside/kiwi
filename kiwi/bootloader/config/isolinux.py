@@ -87,7 +87,8 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
 
         self.terminal = self.xml_state.build_type.get_bootloader_console()
         self.gfxmode = self.get_gfxmode('isolinux')
-        self.timeout = self.get_boot_timeout_seconds()
+        # isolinux counts the timeout in units of 1/10 sec
+        self.timeout = self.get_boot_timeout_seconds() * 10
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
