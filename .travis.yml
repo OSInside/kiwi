@@ -19,5 +19,9 @@ install:
 - pip install -r .travis.requirements.txt
 script:
 - tox
-after_success:
-- tox -e doc_travis_deploy
+# target disabled because documentation is in line with
+# with master branch and not with the version maintained
+# in sles. A deplyoment of the documentation from here
+# will toggle the state from master which is unwanted
+# after_success:
+# - tox -e doc_travis_deploy
