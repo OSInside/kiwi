@@ -1,3 +1,5 @@
+.. _schema-docs:
+
 Schema Documentation 6.5
 =========================
 
