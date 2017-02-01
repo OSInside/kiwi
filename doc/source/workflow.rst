@@ -73,6 +73,8 @@ provided in the :file:`config.xml` configuration file.
     Encapsulated system reachable via kernel file system/extension drivers such
     as loopback mounts, etc.
 
+.. _name-convention:
+
 .. note:: KIWI configuration file name convention
 
    KIWI at first place looks for a configuration file named
@@ -218,8 +220,9 @@ Components of an Image Description
 ----------------------------------
 
 A KIWI image description can composed by several parts. The main part is
-the KIWI description file itself, the :file:`config.xml` file. The
-configuration XML is the only required component, others are optional.
+the KIWI description file itself (named :file:`config.xml` or an arbitrary
+name plus the :file:`*.kiwi` extension). The configuration XML is the
+only required component, others are optional.
 
 These are the optional components of an image description:
 
@@ -237,13 +240,14 @@ These are the optional components of an image description:
 
 #. Overlay tree directory
 
-   The *overlay tree* is a folder, called :file:`root`, that contains
+   The *overlay tree* is a folder (called :file:`root`) 
+   or a tarball file (called :file:`root.tar.gz`) that contains
    files and directories that will be copied to the target image build tree
    during the :ref:`prepare step <prepare-step>`. It is executed
    after all the packages included in the :file:`config.xml` file
    have been installed. Any already present file is overwritten.
 
-#. Archives included in the ``config.xml`` file.
+#. Archives included in the :file:`config.xml` file.
 
    The archives that are included in the `<packages>` using the `<archive>`
    subsection:
