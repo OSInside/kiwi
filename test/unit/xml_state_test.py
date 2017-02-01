@@ -70,7 +70,7 @@ class TestXMLState(object):
 
     @patch('platform.machine')
     def test_get_system_packages_some_arch(self, mock_machine):
-        mock_machine.return_value = 'some-arch'
+        mock_machine.return_value = 's390'
         description = XMLDescription(
             '../data/example_config.xml'
         )
@@ -102,6 +102,19 @@ class TestXMLState(object):
     def test_get_system_archives(self):
         assert self.state.get_system_archives() == [
             '/absolute/path/to/image.tgz'
+        ]
+
+    def test_get_system_ignore_packages(self):
+        assert self.state.get_system_ignore_packages() == [
+            'bar', 'baz', 'foo'
+        ]
+        self.state.host_architecture = 'aarch64'
+        assert self.state.get_system_ignore_packages() == [
+            'baz', 'foo'
+        ]
+        self.state.host_architecture = 's390'
+        assert self.state.get_system_ignore_packages() == [
+            'baz'
         ]
 
     def test_get_system_collection_type(self):

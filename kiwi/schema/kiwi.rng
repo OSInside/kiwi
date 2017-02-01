@@ -62,6 +62,11 @@
       <param name="pattern">[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*</param>
     </data>
   </define>
+  <define name="arch-name">
+    <data type="token">
+      <param name="pattern">(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -233,7 +238,10 @@ for isolinux and grub</a:documentation>
   </define>
   <define name="k.arch.attribute">
     <attribute name="arch">
-      <a:documentation>An architecture</a:documentation>
+      <a:documentation>A system architecture name, matching the 'uname -m' information
+Multiple architectures can be combined as comma separated list
+e.g arch="x86_64,ix86"</a:documentation>
+      <ref name="arch-name"/>
     </attribute>
   </define>
   <define name="k.description.attribute">
@@ -581,8 +589,16 @@ set to utc or localtime.</db:para>
     <define name="k.ignore.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
+    <define name="k.ignore.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.ignore.attlist">
-      <ref name="k.ignore.name.attribute"/>
+      <interleave>
+        <ref name="k.ignore.name.attribute"/>
+        <optional>
+          <ref name="k.ignore.arch.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.ignore">
       <element name="ignore">
