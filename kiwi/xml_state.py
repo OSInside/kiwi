@@ -313,7 +313,8 @@ class XMLState(object):
         )
         for packages in image_packages_sections:
             for package in packages.get_ignore():
-                result.append(package.get_name())
+                if self.package_matches_host_architecture(package):
+                    result.append(package.get_name())
         return sorted(result)
 
     def get_collection_type(self, section_type='image'):

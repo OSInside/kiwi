@@ -124,7 +124,7 @@
         <package name="vim" bootdelete="true"/>
         <package name="openssh"/>
         <archive name="/absolute/path/to/image.tgz" bootinclude="true"/>
-        <package name="foo" arch="some-arch,some-other-arch"/>
+        <package name="foo" arch="s390,aarch64"/>
     </packages>
     <packages type="iso">
         <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
@@ -149,7 +149,9 @@
         <package name="kernel-default" replaces="kernel-ec2"/>
         <package name="kernel-default" replaces="xen-tools"/>
         <package name="kernel-default" replaces="xen"/>
-        <ignore name="foo"/>
+        <ignore name="foo" arch="x86_64,aarch64"/>
+        <ignore name="bar" arch="x86_64"/>
+        <ignore name="baz"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

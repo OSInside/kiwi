@@ -835,7 +835,7 @@ List of attributes for ``configuration``:
 
 * ``source`` : A location where packages can be found to build an installation source from
 * ``dest`` : Destination of a resource
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.preferences.type.size:
 
@@ -1121,7 +1121,7 @@ Parents:
 List of attributes for ``repopackage``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``forcerepo`` `[?]`_: Specifies the search priority
 * ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
 * ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
@@ -1187,7 +1187,7 @@ Parents:
 List of attributes for ``repopackage``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``forcerepo`` `[?]`_: Specifies the search priority
 * ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
 * ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
@@ -1222,7 +1222,7 @@ Parents:
 
 List of attributes for ``target``:
 
-* ``arch`` : An architecture
+* ``arch`` : A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.instsource.driverupdate.install:
 
@@ -1251,7 +1251,7 @@ Parents:
 List of attributes for ``repopackage``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``forcerepo`` `[?]`_: Specifies the search priority
 * ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
 * ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
@@ -1287,7 +1287,7 @@ Parents:
 List of attributes for ``repopackage``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``forcerepo`` `[?]`_: Specifies the search priority
 * ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
 * ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
@@ -1323,7 +1323,7 @@ Parents:
 List of attributes for ``repopackage``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``forcerepo`` `[?]`_: Specifies the search priority
 * ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
 * ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
@@ -1400,7 +1400,7 @@ Parents:
 List of attributes for ``file``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.strip:
 
@@ -1433,7 +1433,7 @@ Parents:
 List of attributes for ``file``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.repository:
 
@@ -1523,6 +1523,7 @@ Parents:
 List of attributes for ``ignore``:
 
 * ``name`` : A name
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.packages.namedCollection:
 
@@ -1537,7 +1538,7 @@ Parents:
 List of attributes for ``namedCollection``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.packages.product:
 
@@ -1552,7 +1553,7 @@ Parents:
 List of attributes for ``product``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.packages.package:
 
@@ -1567,7 +1568,7 @@ Parents:
 List of attributes for ``package``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``replaces`` `[?]`_: Replace package with some other package
 * ``bootdelete`` `[?]`_: Indicates that this package should be removed from the boot image (initrd). the attribute is only evaluated if the bootinclude attribute is specified along with it too
 * ``bootinclude`` `[?]`_: Indicates that this package should be part of the boot image (initrd) too. This attribute can be used to include for example branding packages specified in the system image description to become part of the boot image also

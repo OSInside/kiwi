@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Fri Jan 20 09:57:08 2017 by generateDS.py version 2.24a.
+# Generated Wed Feb  1 15:07:34 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -1209,6 +1209,13 @@ class configuration(GeneratedsSuper):
     def set_dest(self, dest): self.dest = dest
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1242,7 +1249,7 @@ class configuration(GeneratedsSuper):
             outfile.write(' dest=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.dest), input_name='dest')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='configuration', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -1265,6 +1272,8 @@ class configuration(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class configuration
@@ -1293,6 +1302,13 @@ class file(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1323,7 +1339,7 @@ class file(GeneratedsSuper):
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='file', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -1342,6 +1358,8 @@ class file(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class file
@@ -1351,9 +1369,10 @@ class ignore(GeneratedsSuper):
     """Ignores a Package"""
     subclass = None
     superclass = None
-    def __init__(self, name=None):
+    def __init__(self, name=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+        self.arch = _cast(None, arch)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1367,6 +1386,15 @@ class ignore(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1395,6 +1423,9 @@ class ignore(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='ignore', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -1409,6 +1440,12 @@ class ignore(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class ignore
@@ -1753,6 +1790,13 @@ class namedCollection(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1783,7 +1827,7 @@ class namedCollection(GeneratedsSuper):
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='namedCollection', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -1802,6 +1846,8 @@ class namedCollection(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class namedCollection
@@ -1830,6 +1876,13 @@ class product(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1860,7 +1913,7 @@ class product(GeneratedsSuper):
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='product', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -1879,6 +1932,8 @@ class product(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class product
@@ -1916,6 +1971,13 @@ class package(GeneratedsSuper):
     def set_bootdelete(self, bootdelete): self.bootdelete = bootdelete
     def get_bootinclude(self): return self.bootinclude
     def set_bootinclude(self, bootinclude): self.bootinclude = bootinclude
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1946,7 +2008,7 @@ class package(GeneratedsSuper):
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
         if self.replaces is not None and 'replaces' not in already_processed:
             already_processed.add('replaces')
             outfile.write(' replaces=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.replaces), input_name='replaces')), ))
@@ -1974,6 +2036,8 @@ class package(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
         value = find_attr_value_('replaces', node)
         if value is not None and 'replaces' not in already_processed:
             already_processed.add('replaces')
@@ -2344,6 +2408,13 @@ class repopackage(GeneratedsSuper):
     def set_script(self, script): self.script = script
     def get_medium(self): return self.medium
     def set_medium(self, medium): self.medium = medium
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -2374,7 +2445,7 @@ class repopackage(GeneratedsSuper):
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
         if self.forcerepo is not None and 'forcerepo' not in already_processed:
             already_processed.add('forcerepo')
             outfile.write(' forcerepo=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.forcerepo), input_name='forcerepo')), ))
@@ -2414,6 +2485,8 @@ class repopackage(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
         value = find_attr_value_('forcerepo', node)
         if value is not None and 'forcerepo' not in already_processed:
             already_processed.add('forcerepo')
@@ -5979,6 +6052,13 @@ class target(GeneratedsSuper):
     def set_arch(self, arch): self.arch = arch
     def get_valueOf_(self): return self.valueOf_
     def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
     def hasContent_(self):
         if (
             1 if type(self.valueOf_) in [int,float] else self.valueOf_
@@ -6003,7 +6083,7 @@ class target(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='target'):
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='target', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -6023,6 +6103,8 @@ class target(GeneratedsSuper):
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if not fromsubclass_ and child_.tail is not None:
             obj_ = self.mixedclass_(MixedContainer.CategoryText,
