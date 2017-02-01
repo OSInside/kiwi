@@ -366,19 +366,19 @@ class SystemPrepare(object):
     ):
         if packages:
             for package in sorted(packages):
-                log.info('--> package: %s', package)
+                log.info('--> package: {0}'.format(package))
                 manager.request_package(package)
         if collections:
             for collection in sorted(collections):
-                log.info('--> collection: %s', collection)
+                log.info('--> collection: {0}'.format(collection))
                 manager.request_collection(collection)
         if products:
             for product in sorted(products):
-                log.info('--> product: %s', product)
+                log.info('--> product: {0}'.format(product))
                 manager.request_product(product)
         if ignored:
             for package in sorted(ignored):
-                log.info('--> package locked(ignored): %s', package)
+                log.info('--> package locked(ignored): {0}'.format(package))
                 manager.request_package_lock(package)
         return \
             manager.package_requests + \
