@@ -149,6 +149,7 @@
         <package name="kernel-default" replaces="kernel-ec2"/>
         <package name="kernel-default" replaces="xen-tools"/>
         <package name="kernel-default" replaces="xen"/>
+        <ignore name="foo"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

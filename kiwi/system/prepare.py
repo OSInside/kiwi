@@ -208,6 +208,7 @@ class SystemPrepare(object):
         system_collections = self.xml_state.get_system_collections()
         system_products = self.xml_state.get_system_products()
         system_archives = self.xml_state.get_system_archives()
+        system_packages_ignored = self.xml_state.get_system_ignore_packages()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -215,7 +216,8 @@ class SystemPrepare(object):
             manager,
             system_packages,
             system_collections,
-            system_products
+            system_products,
+            system_packages_ignored
         )
         if all_install_items:
             process = CommandProcess(
@@ -360,7 +362,7 @@ class SystemPrepare(object):
             tar.extract(self.root_bind.root_dir)
 
     def _setup_requests(
-        self, manager, packages, collections=None, products=None
+        self, manager, packages, collections=None, products=None, ignored=None
     ):
         if packages:
             for package in sorted(packages):
@@ -374,10 +376,15 @@ class SystemPrepare(object):
             for product in sorted(products):
                 log.info('--> product: %s', product)
                 manager.request_product(product)
+        if ignored:
+            for package in sorted(ignored):
+                log.info('--> package locked(ignored): %s', package)
+                manager.request_package_lock(package)
         return \
             manager.package_requests + \
             manager.collection_requests + \
-            manager.product_requests
+            manager.product_requests + \
+            manager.lock_requests
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

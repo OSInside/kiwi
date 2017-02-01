@@ -299,6 +299,23 @@ class XMLState(object):
                 result.append(archive.get_name())
         return sorted(result)
 
+    def get_system_ignore_packages(self):
+        """
+        List of ignore packages from the packages sections matching
+        type="image" and type=build_type
+
+        :return: package names
+        :rtype: list
+        """
+        result = []
+        image_packages_sections = self.get_packages_sections(
+            ['image', self.get_build_type_name()]
+        )
+        for packages in image_packages_sections:
+            for package in packages.get_ignore():
+                result.append(package.get_name())
+        return sorted(result)
+
     def get_collection_type(self, section_type='image'):
         """
         Collection type from packages sections matching given section

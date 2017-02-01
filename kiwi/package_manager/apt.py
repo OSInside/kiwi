@@ -93,6 +93,18 @@ class PackageManagerApt(PackageManagerBase):
             'Product(%s) handling not supported for apt-get', name
         )
 
+    def request_package_lock(self, name):
+        """
+        Queue a package lock(ignore) request
+
+        There is no locking mechanism for the apt package manager
+
+        :param string name: unused
+        """
+        log.warning(
+            'Package locking for (%s) not supported for apt-get', name
+        )
+
     def process_install_requests_bootstrap(self):
         """
         Process package install requests for bootstrap phase (no chroot)

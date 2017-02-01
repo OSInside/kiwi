@@ -104,6 +104,11 @@ class TestXMLState(object):
             '/absolute/path/to/image.tgz'
         ]
 
+    def test_get_system_ignore_packages(self):
+        assert self.state.get_system_ignore_packages() == [
+            'foo'
+        ]
+
     def test_get_system_collection_type(self):
         assert self.state.get_system_collection_type() == 'plusRecommended'
 

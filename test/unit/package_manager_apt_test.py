@@ -47,6 +47,12 @@ class TestPackageManagerApt(object):
         assert self.manager.product_requests == []
         assert mock_log_warn.called
 
+    @patch('kiwi.logger.log.warning')
+    def test_request_package_lock(self, mock_log_warn):
+        self.manager.request_package_lock('name')
+        assert self.manager.lock_requests == []
+        assert mock_log_warn.called
+
     @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_no_dist(self):
         self.manager.distribution = None

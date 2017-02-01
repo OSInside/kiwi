@@ -18,6 +18,7 @@
 import re
 
 # project
+from ..logger import log
 from ..command import Command
 from .base import PackageManagerBase
 from ..exceptions import (
@@ -79,6 +80,18 @@ class PackageManagerYum(PackageManagerBase):
         :param string name: unused
         """
         pass
+
+    def request_package_lock(self, name):
+        """
+        Queue a package lock(ignore) request
+
+        There is no locking mechanism for the yum package manager
+
+        :param string name: unused
+        """
+        log.warning(
+            'Package locking for (%s) not supported for yum', name
+        )
 
     def process_install_requests_bootstrap(self):
         """
