@@ -97,7 +97,6 @@ div {
             k.description &
             k.preferences+ &
             k.profiles? &
-            k.instsource? &
             k.users* &
             k.drivers* &
             k.strip* &
@@ -158,8 +157,7 @@ k.script.attribute      =
     ## file was fetched
     attribute script { text }
 k.source.attribute      =
-    ## A location where packages can be found to build an
-    ## installation source from
+    ## A source location where a package or configuration file can be found
     attribute source { text }
 k.size.attribute        =
     ## A partition size or optional image size
@@ -416,45 +414,6 @@ div {
 }
 
 #==========================================
-# common element <instrepo>
-#
-div {
-    k.instrepo.local.attribute =
-        attribute local { xsd:boolean }
-    k.instrepo.name.attribute = 
-        attribute name { xsd:ID }
-    k.instrepo.password.attribute = k.password.attribute
-    k.instrepo.priority.attribute =
-        ## Search priority for packages in this repo
-        attribute priority { text }
-    k.instrepo.username.attribute = k.username.attribute
-    k.instrepo.attlist =
-        k.instrepo.local.attribute? &
-        k.instrepo.name.attribute &
-        k.instrepo.password.attribute? &
-        k.instrepo.priority.attribute &
-        k.instrepo.username.attribute?
-    k.instrepo =
-        ## Name of a Installation Repository
-        [
-        db:para [
-            "Name of a repository which is used to create an\x{a}" ~
-            "installation source\x{a}"~
-            "The Priority specifies the order the repositories are\x{a}"~
-            "layered when looking for a package.\x{a}"~
-            "Username and password are the credentials for ftp access.\x{a}"~
-            "The local attribute tells kiwi to use hardlinks instead of\x{a}"~
-            "downloads in case the source and destination trees are on\x{a}"~
-            "the same machine."
-        ]
-        ]
-        element instrepo {
-            k.instrepo.attlist,
-            k.source
-        }
-}
-
-#==========================================
 # common element <kernel>
 #
 div {
@@ -506,53 +465,6 @@ div { # locale
         element locale {
             k.locale.attlist,
             locale-name
-        }
-}
-
-#==========================================
-# common element <metadata>
-#
-div {
-    k.metadata.attlist = empty
-    k.metadata =
-        ## Contains Metadata
-        [
-        db:para [
-            "When building an installation source not only packages are\x{a}" ~
-            "relevant but also metadata. metadata are files or packages\x{a}"~
-            "combined with script calls. If a package is specified as\x{a}"~
-            "metadata it will not be installed by rpm but its cpio\x{a}"~
-            "archive is extracted in a specific way."       
-        ]
-        ]
-        element metadata {
-            k.metadata.attlist &
-            k.repopackage* &
-            k.metafile* &
-            k.chroot*
-        }
-}
-
-#==========================================
-# common element <metafile>
-#
-div {
-    k.metafile.url.attribute =
-        ## URL where to find the metafile
-        attribute url { text }
-    k.metafile.script.attribute = k.script.attribute
-    k.metafile.target.attribute =
-        ## Destination path where to download the file
-        attribute target { text }
-    k.metafile.attlist =
-        k.metafile.url.attribute &
-        k.metafile.script.attribute &
-        k.metafile.target.attribute
-    k.metafile =
-        ## A file Pointer Optionally Bundled With a Script
-        element metafile {
-            k.metafile.attlist,
-            empty
         }
 }
 
@@ -1275,51 +1187,6 @@ div {
 }
 
 #==========================================
-# common element <repopackage>
-#
-div {
-    k.repopackage.name.attribute = k.name.attribute
-    k.repopackage.arch.attribute = k.arch.attribute
-    k.repopackage.forcerepo.attribute =
-        ## Specifies the search priority
-        attribute forcerepo { xsd:IDREF }
-    k.repopackage.addarch.attribute =
-        ## Specifies that this package should
-        ## additionally add the same package from the given arch
-        attribute addarch { text }
-    k.repopackage.removearch.attribute =
-        ## Specifies that the package with the
-        ## given arch should be removed
-        attribute removearch { text }
-    k.repopackage.onlyarch.attribute =
-        ## Specifies that the package with
-        ## the given arch should be used in any case
-        attribute onlyarch { text }
-    k.repopackage.medium.attribute =
-        ## Specifies that the package will be put
-        ## to the specific medium number (CD1, DVD7, ...)
-        attribute medium { xsd:nonNegativeInteger }
-    k.repopackage.source.attribute = k.source.attribute
-    k.repopackage.script.attribute = k.script.attribute
-    k.repopackage.attlist =
-        k.repopackage.name.attribute & 
-        k.repopackage.arch.attribute? &
-        k.repopackage.forcerepo.attribute? &
-        k.repopackage.addarch.attribute? &
-        k.repopackage.removearch.attribute? &
-        k.repopackage.onlyarch.attribute? &
-        k.repopackage.source.attribute? &
-        k.repopackage.script.attribute? &
-        k.repopackage.medium.attribute?
-    k.repopackage =
-        ## Name of an instsource Package
-        element repopackage {
-            k.repopackage.attlist,
-            empty
-        }
-}
-
-#==========================================
 # common element <repository>
 #
 div {
@@ -1389,6 +1256,21 @@ div {
         element repository {
             k.repository.attlist,
             k.source
+        }
+}
+
+#==========================================
+# common element <source>
+#
+div {
+    k.source.path.attribute = k.path.attribute
+    k.source.attlist = k.source.path.attribute
+    k.source =
+        ## A Pointer to a data source. This can be a remote location
+        ## as well as a path specification
+        element source {
+            k.source.attlist,
+            empty
         }
 }
 
@@ -1493,20 +1375,6 @@ div {
         element size {
             k.size.attlist,
             xsd:nonNegativeInteger
-        }
-}
-
-#==========================================
-# common element <source>
-#
-div {
-    k.source.path.attribute = k.path.attribute
-    k.source.attlist = k.source.path.attribute
-    k.source =
-        ## A Pointer to a Repository/Package Source
-        element source {
-            k.source.attlist,
-            empty
         }
 }
 
@@ -2475,339 +2343,6 @@ div {
 }
 
 #==========================================
-# main block: <instsource>
-#
-div {
-    k.instsource.attlist = empty
-    k.instsource =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The instsource element is used to describe the packages\x{a}"~
-            "and the metadata which is required to build an installation\x{a}"~
-            "source suitable for SUSE Linux installation media.\x{a}"~
-            "From such a source it should be possible to create the\x{a}"~
-            "standard SUSE CDs and DVDs as well as use this source as\x{a}"~
-            "repository for image building."
-        ]
-        ]
-        element instsource {
-            k.instsource.attlist &
-            k.architectures &
-            k.productoptions &
-            k.instrepo+ &
-            k.metadata &
-            k.repopackages* &
-            k.driverupdate?
-        }
-}
-
-#==========================================
-# main block: <architectures>
-#
-div {
-    k.architectures.attlist = empty
-    k.architectures =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The architectures element contains a list of architectures\x{a}"~
-            "for which the installation source is designed. At least one\x{a}"~
-            "architecture must be defined. Fallback mecahnisms apply.\x{a}"~
-            "Each arch element has an optional attribute <fallback>\x{a}"~
-            "which is the next in the chain. An omitted value results in\x{a}"~
-            "undefined value thus terminating the chain."
-        ]
-        ]
-        element architectures {
-            k.architectures.attlist &
-            k.arch+ &
-            k.requiredarch+
-        }
-}
-
-#==========================================
-# main block: <productoptions>
-#
-div {
-    k.productoptions.attlist = empty
-    k.productoptions =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productoptions element contains a list of options\x{a}"~
-            "that influence the instsource creation process in a\x{a}"~
-            "general manner. For instance an option could specify\x{a}"~
-            "a default medium number for source packages and the like."
-        ]
-        ]
-        element productoptions {
-            k.productoptions.attlist &
-            k.productoption* &
-            k.productinfo* &
-            k.productvar*
-        }
-}
-
-#==========================================
-# main block: <productoption>
-#
-div {
-    k.productoption.attlist = k.name.attribute
-
-    k.productoption =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productoption element carries the information for a\x{a}"~
-            "product option its name and its fallback (productoptional)."
-        ]
-        ]
-        element productoption {
-            k.productoption.attlist &
-            text
-            #k.productinfo.text.content 
-            #xsd:normalizedString { maxLength = "2048" }
-        }
-}
-
-#==========================================
-# main block: <arch>
-#
-div {
-    k.arch.name.attribute = k.name.attribute
-        k.arch.id.attribute = k.id.attribute
-        k.arch.fallback.attribute = attribute fallback { xsd:IDREF }
-
-    k.arch.attlist = k.arch.id.attribute &
-             k.arch.name.attribute &
-             k.arch.fallback.attribute?
-
-    k.arch =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The arch element providdes the information for an arch,\x{a}"~
-            "its name and its fallback (optional)."
-        ]
-        ]
-        element arch {
-            k.arch.attlist &
-            empty
-        }
-}
-
-#==========================================
-# main block: <requiredarch>
-#
-div {
-        k.requiredarch.ref.attribute = attribute ref { xsd:IDREF }
-
-    k.requiredarch.attlist = k.requiredarch.ref.attribute
-
-    k.requiredarch =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The requiredarch element defines which  architectures\x{a}"~
-            "are the basic required ones for the media."
-        ]
-        ]
-        element requiredarch {
-            k.requiredarch.attlist &
-            empty
-        }
-}
-
-#==========================================
-# main block: <productinfo>
-#
-div {
-    k.productinfo.attlist = k.name.attribute 
-    k.productinfo =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productinfo element contains one particular environment\x{a}"~
-            "variable and its value. Shell rules for the names apply.\x{a}"~
-            "The value must not exceed a certain length for sanity.\x{a}"~
-            "reasons Any funny characters like tabs, line break,\x{a}"~
-            "carriage return or combinations are converted to spaces\x{a}"~
-            "(one each) which may lead to unexpected contents."
-        ]
-        ]
-        element productinfo {
-            k.productinfo.attlist &
-            # text: workaround for the above mentioned problem
-            text
-            #k.productinfo.text.content 
-            #xsd:normalizedString { maxLength = "2048" }
-        }
-}
-
-#==========================================
-# main block: <productvar>
-#
-div {
-    k.productvar.attlist =
-        k.name.attribute 
-    k.productvar =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productinfo element contains one particular environment\x{a}"~
-            "variable and its value. Shell rules for the names apply.\x{a}"~
-            "The value is used to create the content file."
-        ]
-        ]
-        element productvar {
-            k.productvar.attlist &
-            # text: workaround for the above mentioned problem
-            text
-            #k.productvar 
-            #xsd:normalizedString { maxLength = "2048" }
-        }
-}
-
-#==========================================
-# main block: <chroot>
-#
-div {
-    k.chroot.attlist = attribute requires { text } 
-
-    k.chroot =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The chroot element contains one particular environment\x{a}"~
-            "variable and its value. Shell rules for the names apply.\x{a}"~
-            "The value must not exceed a certain length for sanity.\x{a}"~
-            "reasons Any funny characters like tabs, line break,\x{a}"~
-            "carriage return or combinations are converted to spaces\x{a}"~
-            "(one each) which may lead to unexpected contents."
-        ]
-        ]
-        element chroot {
-            k.chroot.attlist &
-            text
-        }
-}
-
-#==========================================
-# main block: <repopackages>
-#
-div {
-    k.repopackages.attlist = empty
-    k.repopackages =  
-        ## Specifies Packages for Installation Source
-        [
-        db:para [
-            "The repopackages elements specifies a set of packages which\x{a}"~
-            "are used for creating a SUSE installation source."
-        ]
-        ]
-        element repopackages {
-            k.repopackages.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
-# main block: <driverupdate>
-#
-div {
-    k.driverupdate.attlist = empty
-    k.driverupdate =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "Creating a driverupdate disk for using updated hardware\x{a}"~
-            "drivers on system installation with YaST."
-        ]
-        ]
-        element driverupdate {
-            k.driverupdate.attlist &
-            k.target+ &
-            k.install? &
-            k.modules? &
-            k.instsys?
-        }
-}
-
-#==========================================
-# main block: <target>
-#
-div {
-    k.target.arch.attribute = k.arch.attribute
-    k.target.attlist = k.target.arch.attribute
-    k.target =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of update targets: <dist>-<arch>\x{a}"
-        ]
-        ]
-        element target {
-            k.target.attlist &
-            text
-        }
-}
-
-#==========================================
-# main block: <install>
-#
-div {
-    k.install.attlist = empty
-    k.install =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of packages to be copied into the 'install' directory"
-        ]
-        ]
-        element install {
-            k.install.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
-# main block: <modules>
-#
-div {
-    k.modules.attlist = empty
-    k.modules =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of packages to be copied into the 'modules' directory"
-        ]
-        ]
-        element modules {
-            k.modules.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
-# main block: <instsys>
-#
-div {
-    k.instsys.attlist = empty
-    k.instsys =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of packages to be copied into the 'instsys' directory"
-        ]
-        ]
-        element instsys {
-            k.instsys.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
 # main block: <containerconfig>
 #
 div {
@@ -3071,9 +2606,9 @@ div {
         k.preferences.profiles.attribute?
     k.preferences =  
         ## Configuration Information Needed for Logical Extend
-                # All elements are optional since the combination of appropriate
-                # preference sections based on profiles combine to create on vaild
-                # definition
+        ## All elements are optional since the combination of appropriate
+        ## preference sections based on profiles combine to create on vaild
+        ## definition
         element preferences {
             k.preferences.attlist &
             k.bootsplash-theme? &
@@ -3129,6 +2664,5 @@ div {
             k.user+
         }
 }
-
 
 # vim: set noexpandtab:
