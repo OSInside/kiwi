@@ -58,6 +58,11 @@ class TestUri(object):
         assert uri.translate() == \
             'http://download.opensuse.org/distribution/13.2/repo/oss'
 
+    def test_translate_obs_factory_distro(self):
+        uri = Uri('obs://openSUSE:Factory/standard', 'yast2')
+        assert uri.translate() == \
+            'http://download.opensuse.org/tumbleweed/repo/oss'
+
     def test_translate_obs_project(self):
         uri = Uri('obs://Virt:Appliances/SLE_12', 'rpm-md')
         assert uri.translate() == \

@@ -169,16 +169,22 @@ class Uri(object):
         return os.path.normpath(path)
 
     def _obs_project(self, name):
-        obs_project = 'http://download.opensuse.org/repositories/'
-        return obs_project + name
+        return ''.join(['http://download.opensuse.org/repositories/', name])
 
     def _ibs_project(self, name):
         ibs_project = 'http://download.suse.de/ibs/'
         return ibs_project + name.replace(':', ':/')
 
     def _obs_distribution(self, name):
-        obs_distribution = 'http://download.opensuse.org/distribution/'
-        return obs_distribution + name
+        if name == 'openSUSE:Factory/standard':
+            # special handling for SUSE factory repo
+            obs_distribution = \
+                'http://download.opensuse.org/tumbleweed/repo/oss'
+        else:
+            obs_distribution = ''.join(
+                ['http://download.opensuse.org/distribution/', name]
+            )
+        return obs_distribution
 
     def _suse_buildservice_path(self, name):
         """
