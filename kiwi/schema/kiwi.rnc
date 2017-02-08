@@ -1578,15 +1578,6 @@ div {
             sch:param [ name = "attr" value = "bootpartsize" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
-    k.type.vbootsize.attribute =
-        ## For images with a an extra virtual boot space
-        ## specifies the size in MB. If not set the min vboot
-        ## size is set to 10 MB
-        attribute vbootsize { xsd:nonNegativeInteger }
-        >> sch:pattern [ id = "vbootsize" is-a = "image_type"
-            sch:param [ name = "attr" value = "vbootsize" ]
-            sch:param [ name = "types" value = "oem vmx" ]
-        ]
     k.type.bootprofile.attribute =
         ## Specifies the boot profile defined in the boot image
         ## description. When kiwi builds the boot image the
@@ -1673,7 +1664,7 @@ div {
         ## the standard x86 bios firmware setup is used
         attribute firmware {
             "bios" | "ec2" | "ec2hvm" | "efi" |
-            "uefi" | "vboot" | "ofw" | "opal"
+            "uefi" | "ofw" | "opal"
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]
@@ -1983,7 +1974,6 @@ div {
         k.type.rootfs_label.attribute? &
         k.type.target_blocksize? &
         k.type.target_removable? &
-        k.type.vbootsize.attribute? &
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &

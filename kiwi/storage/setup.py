@@ -132,14 +132,6 @@ class DiskSetup(object):
                         '--> volume(s) size setup adding %s MB', volume_mbytes
                     )
 
-        vboot_mbytes = self.firmware.get_vboot_partition_size()
-        if vboot_mbytes:
-            calculated_disk_mbytes += vboot_mbytes
-            log.info(
-                '--> virtual boot partition adding %s MB',
-                vboot_mbytes
-            )
-
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
             calculated_disk_mbytes += legacy_bios_mbytes

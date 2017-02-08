@@ -44,9 +44,6 @@ class TestFirmWare(object):
         self.firmware_opal = FirmWare(xml_state)
 
         mock_platform.return_value = 'arm64'
-        xml_state.build_type.get_firmware.return_value = 'vboot'
-        xml_state.build_type.get_vbootsize.return_value = None
-        self.firmware_vboot = FirmWare(xml_state)
 
     @raises(KiwiNotImplementedError)
     def test_firmware_unsupported(self):
@@ -69,9 +66,6 @@ class TestFirmWare(object):
     def test_get_partition_table_type_ppc_opal_mode(self):
         assert self.firmware_opal.get_partition_table_type() == 'gpt'
 
-    def test_get_partition_table_type_arm_vboot_move(self):
-        assert self.firmware_vboot.get_partition_table_type() == 'gpt'
-
     def test_legacy_bios_mode(self):
         assert self.firmware_bios.legacy_bios_mode() is False
         assert self.firmware_efi.legacy_bios_mode() is True
@@ -79,10 +73,6 @@ class TestFirmWare(object):
     def test_legacy_bios_mode_non_x86_platform(self):
         self.firmware_efi.arch = 'arm64'
         assert self.firmware_efi.legacy_bios_mode() is False
-
-    def test_vboot_mode(self):
-        assert self.firmware_vboot.vboot_mode() is True
-        assert self.firmware_bios.vboot_mode() is False
 
     def test_ec2_mode(self):
         assert self.firmware_ec2.ec2_mode() == 'ec2'
@@ -112,9 +102,3 @@ class TestFirmWare(object):
 
     def test_get_prep_partition_size(self):
         assert self.firmware_ofw.get_prep_partition_size() == 8
-
-    def test_get_vboot_partition_size(self):
-        assert self.firmware_vboot.get_vboot_partition_size() == 10
-        self.firmware_vboot.vboot_mbsize = 42
-        assert self.firmware_vboot.get_vboot_partition_size() == 42
-        assert self.firmware_bios.get_vboot_partition_size() == 0

@@ -2034,18 +2034,6 @@ size is set to 200 MB</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.vbootsize.attribute">
-      <attribute name="vbootsize">
-        <a:documentation>For images with a an extra virtual boot space
-specifies the size in MB. If not set the min vboot
-size is set to 10 MB</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-      <sch:pattern id="vbootsize" is-a="image_type">
-        <sch:param name="attr" value="vbootsize"/>
-        <sch:param name="types" value="oem vmx"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
         <a:documentation>Specifies the boot profile defined in the boot image
@@ -2170,7 +2158,6 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>ec2hvm</value>
           <value>efi</value>
           <value>uefi</value>
-          <value>vboot</value>
           <value>ofw</value>
           <value>opal</value>
         </choice>
@@ -2690,9 +2677,6 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.target_removable"/>
-        </optional>
-        <optional>
-          <ref name="k.type.vbootsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>

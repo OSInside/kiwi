@@ -346,16 +346,6 @@ class Defaults(object):
         return 300
 
     @classmethod
-    def get_default_vboot_mbytes(self):
-        """
-        Implements default virtual partition size in mbytes
-
-        :return: mbsize
-        :rtype: int
-        """
-        return 10
-
-    @classmethod
     def get_default_efi_boot_mbytes(self):
         """
         Implements default EFI partition size in mbytes
@@ -420,14 +410,14 @@ class Defaults(object):
             'x86_64': ['efi', 'uefi', 'bios', 'ec2hvm', 'ec2'],
             'i586': ['bios'],
             'i686': ['bios'],
-            'aarch64': ['efi', 'uefi', 'vboot'],
-            'arm64': ['efi', 'uefi', 'vboot'],
-            'armv5el': ['efi', 'uefi', 'vboot'],
-            'armv5tel': ['efi', 'uefi', 'vboot'],
-            'armv6hl': ['efi', 'uefi', 'vboot'],
-            'armv6l': ['efi', 'uefi', 'vboot'],
-            'armv7hl': ['efi', 'uefi', 'vboot'],
-            'armv7l': ['efi', 'uefi', 'vboot'],
+            'aarch64': ['efi', 'uefi'],
+            'arm64': ['efi', 'uefi'],
+            'armv5el': ['efi', 'uefi'],
+            'armv5tel': ['efi', 'uefi'],
+            'armv6hl': ['efi', 'uefi'],
+            'armv6l': ['efi', 'uefi'],
+            'armv7hl': ['efi', 'uefi'],
+            'armv7l': ['efi', 'uefi'],
             'ppc': ['ofw'],
             'ppc64': ['ofw', 'opal'],
             'ppc64le': ['ofw', 'opal'],
@@ -473,7 +463,7 @@ class Defaults(object):
         :return: firmware names
         :rtype: list
         """
-        return ['efi', 'uefi', 'vboot']
+        return ['efi', 'uefi']
 
     @classmethod
     def get_ec2_capable_firmware_names(self):

@@ -712,21 +712,6 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
-    def test_create_disk_vboot_firmware_requested(
-        self, mock_command, mock_open, mock_fs
-    ):
-        filesystem = mock.Mock()
-        mock_fs.return_value = filesystem
-        self.disk_builder.volume_manager_name = None
-        self.disk_builder.install_media = False
-        self.disk_builder.firmware.vboot_mode.return_value = True
-        self.disk_builder.firmware.get_vboot_partition_size.return_value = 42
-        self.disk_builder.create_disk()
-        self.disk.create_vboot_partition.assert_called_once_with(42)
-
-    @patch('kiwi.builder.disk.FileSystem')
-    @patch_open
-    @patch('kiwi.builder.disk.Command.run')
     def test_create_disk_format(self, mock_command, mock_open, mock_fs):
         result_instance = mock.Mock()
         filesystem = mock.Mock()

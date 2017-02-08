@@ -205,18 +205,6 @@ class Disk(DeviceProvider):
         self._add_to_map('efi')
         self._add_to_public_id_map('kiwi_EfiPart')
 
-    def create_vboot_partition(self, mbsize):
-        """
-        Create virtual boot partition
-
-        Populates kiwi_VbootPart(id)
-
-        :param int mbsize: partition size
-        """
-        self.partitioner.create('p.vboot', mbsize, 't.linux')
-        self._add_to_map('vboot')
-        self._add_to_public_id_map('kiwi_VbootPart')
-
     def activate_boot_partition(self):
         """
         Activate boot partition
