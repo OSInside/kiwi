@@ -177,6 +177,7 @@ class DiskBuilder(object):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
+        self.spare_part_mbsize = xml_state.get_build_type_spare_part_size()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
@@ -661,12 +662,6 @@ class DiskBuilder(object):
 
     def _build_and_map_disk_partitions(self):
         self.disk.wipe()
-        if self.firmware.vboot_mode():
-            log.info('--> creating Virtual boot partition')
-            self.disk.create_vboot_partition(
-                self.firmware.get_vboot_partition_size()
-            )
-
         if self.firmware.legacy_bios_mode():
             log.info('--> creating EFI CSM(legacy bios) partition')
             self.disk.create_efi_csm_partition(
@@ -689,6 +684,12 @@ class DiskBuilder(object):
             log.info('--> creating boot partition')
             self.disk.create_boot_partition(
                 self.disk_setup.boot_partition_size()
+            )
+
+        if self.spare_part_mbsize:
+            log.info('--> creating spare partition')
+            self.disk.create_spare_partition(
+                self.spare_part_mbsize
             )
 
         if self.root_filesystem_is_overlay:

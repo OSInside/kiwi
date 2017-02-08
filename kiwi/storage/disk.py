@@ -181,6 +181,18 @@ class Disk(DeviceProvider):
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
 
+    def create_spare_partition(self, mbsize):
+        """
+        Create spare partition for custom use
+
+        Populates kiwi_SparePart(id)
+
+        :param int mbsize: partition size
+        """
+        self.partitioner.create('p.spare', mbsize, 't.linux')
+        self._add_to_map('spare')
+        self._add_to_public_id_map('kiwi_SparePart')
+
     def create_efi_csm_partition(self, mbsize):
         """
         Create EFI bios grub partition
@@ -204,18 +216,6 @@ class Disk(DeviceProvider):
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
         self._add_to_map('efi')
         self._add_to_public_id_map('kiwi_EfiPart')
-
-    def create_vboot_partition(self, mbsize):
-        """
-        Create virtual boot partition
-
-        Populates kiwi_VbootPart(id)
-
-        :param int mbsize: partition size
-        """
-        self.partitioner.create('p.vboot', mbsize, 't.linux')
-        self._add_to_map('vboot')
-        self._add_to_public_id_map('kiwi_VbootPart')
 
     def activate_boot_partition(self):
         """

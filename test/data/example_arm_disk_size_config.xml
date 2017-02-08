@@ -19,7 +19,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" boot="oemboot/suse-13.2" bootloader="grub2" firmware="vboot" vbootsize="42"/>
+        <type image="oem" filesystem="btrfs" boot="oemboot/suse-13.2" bootloader="grub2" spare_part="42M"/>
     </preferences>
     <repository type="yast2">
         <source path="obs://13.2/repo/oss"/>

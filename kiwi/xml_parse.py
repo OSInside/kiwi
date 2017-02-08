@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Feb  2 15:44:52 2017 by generateDS.py version 2.24a.
+# Generated Wed Feb  8 16:21:03 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -2481,7 +2481,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, target_blocksize=None, target_removable=None, vbootsize=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2527,9 +2527,9 @@ class type_(GeneratedsSuper):
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
+        self.spare_part = _cast(None, spare_part)
         self.target_blocksize = _cast(int, target_blocksize)
         self.target_removable = _cast(bool, target_removable)
-        self.vbootsize = _cast(int, vbootsize)
         self.vga = _cast(None, vga)
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.volid = _cast(None, volid)
@@ -2696,12 +2696,12 @@ class type_(GeneratedsSuper):
     def set_ramonly(self, ramonly): self.ramonly = ramonly
     def get_rootfs_label(self): return self.rootfs_label
     def set_rootfs_label(self, rootfs_label): self.rootfs_label = rootfs_label
+    def get_spare_part(self): return self.spare_part
+    def set_spare_part(self, spare_part): self.spare_part = spare_part
     def get_target_blocksize(self): return self.target_blocksize
     def set_target_blocksize(self, target_blocksize): self.target_blocksize = target_blocksize
     def get_target_removable(self): return self.target_removable
     def set_target_removable(self, target_removable): self.target_removable = target_removable
-    def get_vbootsize(self): return self.vbootsize
-    def set_vbootsize(self, vbootsize): self.vbootsize = vbootsize
     def get_vga(self): return self.vga
     def set_vga(self, vga): self.vga = vga
     def get_vhdfixedtag(self): return self.vhdfixedtag
@@ -2710,6 +2710,13 @@ class type_(GeneratedsSuper):
     def set_volid(self, volid): self.volid = volid
     def get_wwid_wait_timeout(self): return self.wwid_wait_timeout
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
+    def validate_partition_size_type(self, value):
+        # Validate type partition-size-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_partition_size_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
+    validate_partition_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G$']]
     def validate_vhd_tag_type(self, value):
         # Validate type vhd-tag-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -2881,15 +2888,15 @@ class type_(GeneratedsSuper):
         if self.rootfs_label is not None and 'rootfs_label' not in already_processed:
             already_processed.add('rootfs_label')
             outfile.write(' rootfs_label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.rootfs_label), input_name='rootfs_label')), ))
+        if self.spare_part is not None and 'spare_part' not in already_processed:
+            already_processed.add('spare_part')
+            outfile.write(' spare_part=%s' % (quote_attrib(self.spare_part), ))
         if self.target_blocksize is not None and 'target_blocksize' not in already_processed:
             already_processed.add('target_blocksize')
             outfile.write(' target_blocksize="%s"' % self.gds_format_integer(self.target_blocksize, input_name='target_blocksize'))
         if self.target_removable is not None and 'target_removable' not in already_processed:
             already_processed.add('target_removable')
             outfile.write(' target_removable="%s"' % self.gds_format_boolean(self.target_removable, input_name='target_removable'))
-        if self.vbootsize is not None and 'vbootsize' not in already_processed:
-            already_processed.add('vbootsize')
-            outfile.write(' vbootsize="%s"' % self.gds_format_integer(self.vbootsize, input_name='vbootsize'))
         if self.vga is not None and 'vga' not in already_processed:
             already_processed.add('vga')
             outfile.write(' vga=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.vga), input_name='vga')), ))
@@ -3210,6 +3217,12 @@ class type_(GeneratedsSuper):
         if value is not None and 'rootfs_label' not in already_processed:
             already_processed.add('rootfs_label')
             self.rootfs_label = value
+        value = find_attr_value_('spare_part', node)
+        if value is not None and 'spare_part' not in already_processed:
+            already_processed.add('spare_part')
+            self.spare_part = value
+            self.spare_part = ' '.join(self.spare_part.split())
+            self.validate_partition_size_type(self.spare_part)    # validate type partition-size-type
         value = find_attr_value_('target_blocksize', node)
         if value is not None and 'target_blocksize' not in already_processed:
             already_processed.add('target_blocksize')
@@ -3228,15 +3241,6 @@ class type_(GeneratedsSuper):
                 self.target_removable = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('vbootsize', node)
-        if value is not None and 'vbootsize' not in already_processed:
-            already_processed.add('vbootsize')
-            try:
-                self.vbootsize = int(value)
-            except ValueError as exp:
-                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-            if self.vbootsize < 0:
-                raise_parse_error(node, 'Invalid NonNegativeInteger')
         value = find_attr_value_('vga', node)
         if value is not None and 'vga' not in already_processed:
             already_processed.add('vga')

@@ -52,6 +52,11 @@
       <param name="pattern">\d+|\d+M|\d+G|all</param>
     </data>
   </define>
+  <define name="partition-size-type">
+    <data type="token">
+      <param name="pattern">\d+|\d+M|\d+G</param>
+    </data>
+  </define>
   <define name="vhd-tag-type">
     <data type="token">
       <param name="pattern">[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}</param>
@@ -2005,6 +2010,20 @@ expected to be non-removable</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
+    <define name="k.type.spare_part">
+      <attribute name="spare_part">
+        <a:documentation>Request a spare partition right before the root partition
+of the requested size. The attribute takes a size value
+and allows a unit in MB or GB, e.g 200M. If no unit is given
+the value is considered to be mbytes. A spare partition
+can only be configured for the disk image types oem and vmx</a:documentation>
+        <ref name="partition-size-type"/>
+      </attribute>
+      <sch:pattern id="spare_part" is-a="image_type">
+        <sch:param name="attr" value="spare_part"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.zipl_targettype.attribute">
       <attribute name="zipl_targettype">
         <a:documentation>The device type of the disk zipl should boot. On zFCP
@@ -2031,18 +2050,6 @@ size is set to 200 MB</a:documentation>
       </attribute>
       <sch:pattern id="bootpartsize" is-a="image_type">
         <sch:param name="attr" value="bootpartsize"/>
-        <sch:param name="types" value="oem vmx"/>
-      </sch:pattern>
-    </define>
-    <define name="k.type.vbootsize.attribute">
-      <attribute name="vbootsize">
-        <a:documentation>For images with a an extra virtual boot space
-specifies the size in MB. If not set the min vboot
-size is set to 10 MB</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-      <sch:pattern id="vbootsize" is-a="image_type">
-        <sch:param name="attr" value="vbootsize"/>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
@@ -2170,7 +2177,6 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>ec2hvm</value>
           <value>efi</value>
           <value>uefi</value>
-          <value>vboot</value>
           <value>ofw</value>
           <value>opal</value>
         </choice>
@@ -2686,13 +2692,13 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           <ref name="k.type.rootfs_label.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.spare_part"/>
+        </optional>
+        <optional>
           <ref name="k.type.target_blocksize"/>
         </optional>
         <optional>
           <ref name="k.type.target_removable"/>
-        </optional>
-        <optional>
-          <ref name="k.type.vbootsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>

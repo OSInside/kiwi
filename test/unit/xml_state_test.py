@@ -526,3 +526,6 @@ class TestXMLState(object):
         state = XMLState(xml_data, ['vmxFlavour'], 'docker')
         assert state.get_build_type_containerconfig_section().get_name() == \
             'container_name'
+
+    def test_get_spare_part(self):
+        assert self.state.get_build_type_spare_part_size() == 200
