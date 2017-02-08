@@ -3516,8 +3516,8 @@ function dhclientImportInfo {
         awk '{print $3}' |tr -d ';'
     )
     export DOMAIN=$(
-        cat $lease | grep 'domain-name' | grep -v 'domain-name-server' |\
-        awk '{print $3}'| tr -d ';'
+        cat $lease | grep -w 'domain-name '|\
+        awk -F \" '{print $2}'
     )
     export DNSSERVERS=$(
         cat $lease | grep 'domain-name-servers'|\
