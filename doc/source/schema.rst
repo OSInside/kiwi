@@ -321,9 +321,9 @@ List of attributes for ``type``:
 * ``primary`` `[?]`_: Specifies the primary type (choose KIWI option type)
 * ``ramonly`` `[?]`_: for use with overlay filesystems only: will force any COW action to happen in RAM
 * ``rootfs_label`` `[?]`_: label to set for the root filesystem. By default ROOT is used
+* ``spare_part`` `[?]`_: Request a spare partition right before the root partition of the requested size. The attribute takes a size value and allows a unit in MB or GB, e.g 200M. If no unit is given the value is considered to be mbytes. A spare partition can only be configured for the disk image types oem and vmx
 * ``target_blocksize`` `[?]`_: Specifies the image blocksize in bytes which has to match the logical (SSZ) blocksize of the target storage device. By default 512 byte is used which works on many disks However 4096 byte disks are coming. You can check the desired target by calling: blockdev --report device
 * ``target_removable`` `[?]`_: Indicate if the target disk for oem images is deployed to a removable device e.g a USB stick or not. This only affects the EFI setup if requested and in the end avoids the creation of a custom boot menu entry in the firmware of the target machine. By default the target disk is expected to be non-removable
-* ``vbootsize`` `[?]`_: For images with a an extra virtual boot space specifies the size in MB. If not set the min vboot size is set to 10 MB
 * ``vga`` `[?]`_: Specifies the kernel framebuffer mode. More information about the possible values can be found by calling hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt
 * ``vhdfixedtag`` `[?]`_: Specifies the GUID in a fixed format VHD
 * ``volid`` `[?]`_: for the iso type only: Specifies the volume ID (volume name or label) to be written into the master block. There is space for 32 characters.

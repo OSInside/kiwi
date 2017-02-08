@@ -581,6 +581,18 @@ class XMLState(object):
                 mbytes=value, additive=additive
             )
 
+    def get_build_type_spare_part_size(self):
+        """
+        Size information for the spare_part size from the build
+        type. If no unit is set the value is treated as mbytes
+
+        :return: mbytes
+        :rtype: int
+        """
+        spare_part_size = self.build_type.get_spare_part()
+        if spare_part_size:
+            return self._to_mega_byte(spare_part_size)
+
     def get_volume_group_name(self):
         """
         Volume group name from systemdisk section
