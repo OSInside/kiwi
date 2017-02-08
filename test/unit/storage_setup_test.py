@@ -134,6 +134,14 @@ class TestDiskSetup(object):
             Defaults.get_default_prep_mbytes() + \
             self.size.accumulate_mbyte_file_sizes.return_value
 
+    def test_get_disksize_mbytes_with_spare_partition(self):
+        configured_spare_part_size = 42
+        assert self.setup_arm.get_disksize_mbytes() == \
+            configured_spare_part_size + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            self.size.accumulate_mbyte_file_sizes.return_value
+
     def test_get_disksize_mbytes_configured_additive(self):
         self.setup.configured_size = mock.Mock()
         self.setup.build_type_name = 'vmx'

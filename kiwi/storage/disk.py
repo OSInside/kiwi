@@ -181,6 +181,18 @@ class Disk(DeviceProvider):
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
 
+    def create_spare_partition(self, mbsize):
+        """
+        Create spare partition for custom use
+
+        Populates kiwi_SparePart(id)
+
+        :param int mbsize: partition size
+        """
+        self.partitioner.create('p.spare', mbsize, 't.linux')
+        self._add_to_map('spare')
+        self._add_to_public_id_map('kiwi_SparePart')
+
     def create_efi_csm_partition(self, mbsize):
         """
         Create EFI bios grub partition
