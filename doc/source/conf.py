@@ -46,7 +46,9 @@ docopt_ignore = [
     'kiwi.tasks.system_update',
     'kiwi.tasks.system_create',
     'kiwi.tasks.result_list',
-    'kiwi.tasks.result_bundle'
+    'kiwi.tasks.result_bundle',
+    'kiwi.tasks.image_resize',
+    'kiwi.tasks.image_info'
 ]
 
 def remove_module_docstring(app, what, name, obj, options, lines):
@@ -170,6 +172,8 @@ system_prepare_doc = 'manual/system_prepare'
 system_update_doc = 'manual/system_update'
 system_build_doc = 'manual/system_build'
 system_create_doc = 'manual/system_create'
+image_resize_doc = 'manual/image_resize'
+image_info_doc = 'manual/image_info'
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
@@ -219,6 +223,20 @@ man_pages = [
         system_build_doc,
         'kiwi::system::build',
         u'Build image in combined prepare and create step',
+        [author],
+        2
+    ),
+    (
+        image_resize_doc,
+        'kiwi::image::resize',
+        u'Resize disk images to new geometry',
+        [author],
+        2
+    ),
+    (
+        image_info_doc,
+        'kiwi::image::info',
+        u'Provide detailed information about an image description',
         [author],
         2
     )

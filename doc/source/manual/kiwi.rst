@@ -130,6 +130,7 @@ SERVICES and COMMANDS
 .. toctree::
 
    image_resize
+   image_info
    result_list
    result_bundle
    system_prepare
