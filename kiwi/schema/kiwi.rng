@@ -1926,11 +1926,16 @@ information is passed as add-profile option</a:documentation>
     <define name="k.type.bootloader.attribute">
       <attribute name="bootloader">
         <a:documentation>Specifies the bootloader used for booting the image.
-At the moment grub, zipl and sys|extlinux are supported</a:documentation>
+At the moment grub2, zipl and the combination of zipl plus
+userspace grub2 are supported. The special custom entry
+allows to skip the bootloader configuration and installation
+and leaves this up to the user which can be done by using
+the editbootinstall and editbootconfig custom scripts</a:documentation>
         <choice>
           <value>grub2</value>
           <value>zipl</value>
           <value>grub2_s390x_emu</value>
+          <value>custom</value>
         </choice>
       </attribute>
       <sch:pattern id="bootloader" is-a="image_type">

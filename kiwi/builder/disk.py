@@ -841,31 +841,32 @@ class DiskBuilder(object):
             )
 
     def _write_bootloader_config_to_system_image(self, device_map):
-        log.info('Creating %s bootloader configuration', self.bootloader)
-        boot_names = self._get_boot_names()
-        boot_device = device_map['root']
-        if 'boot' in device_map:
-            boot_device = device_map['boot']
+        if self.bootloader is not 'custom':
+            log.info('Creating %s bootloader configuration', self.bootloader)
+            boot_names = self._get_boot_names()
+            boot_device = device_map['root']
+            if 'boot' in device_map:
+                boot_device = device_map['boot']
+
+            root_uuid = self.disk.get_uuid(
+                device_map['root'].get_device()
+            )
+            boot_uuid = self.disk.get_uuid(
+                boot_device.get_device()
+            )
+            self.bootloader_config.setup_disk_boot_images(boot_uuid)
+            self.bootloader_config.setup_disk_image_config(
+                boot_uuid=boot_uuid,
+                root_uuid=root_uuid,
+                kernel=boot_names.kernel_name,
+                initrd=boot_names.initrd_name
+            )
+            self.bootloader_config.write()
 
         partition_id_map = self.disk.get_public_partition_id_map()
         boot_partition_id = partition_id_map['kiwi_RootPart']
         if 'kiwi_BootPart' in partition_id_map:
             boot_partition_id = partition_id_map['kiwi_BootPart']
-
-        root_uuid = self.disk.get_uuid(
-            device_map['root'].get_device()
-        )
-        boot_uuid = self.disk.get_uuid(
-            boot_device.get_device()
-        )
-        self.bootloader_config.setup_disk_boot_images(boot_uuid)
-        self.bootloader_config.setup_disk_image_config(
-            boot_uuid=boot_uuid,
-            root_uuid=root_uuid,
-            kernel=boot_names.kernel_name,
-            initrd=boot_names.initrd_name
-        )
-        self.bootloader_config.write()
 
         self.system_setup.call_edit_boot_config_script(
             self.requested_filesystem, boot_partition_id
@@ -905,16 +906,17 @@ class DiskBuilder(object):
                 {'system_volumes': self.system.get_volumes()}
             )
 
-        log.debug(
-            "custom arguments for bootloader installation %s",
-            custom_install_arguments
-        )
-        bootloader = BootLoaderInstall(
-            self.bootloader, self.root_dir, self.disk.storage_provider,
-            custom_install_arguments
-        )
-        if bootloader.install_required():
-            bootloader.install()
+        if self.bootloader is not 'custom':
+            log.debug(
+                "custom arguments for bootloader installation %s",
+                custom_install_arguments
+            )
+            bootloader = BootLoaderInstall(
+                self.bootloader, self.root_dir, self.disk.storage_provider,
+                custom_install_arguments
+            )
+            if bootloader.install_required():
+                bootloader.install()
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()
