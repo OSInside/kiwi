@@ -1496,9 +1496,13 @@ div {
         attribute bootkernel { text }
     k.type.bootloader.attribute =
         ## Specifies the bootloader used for booting the image.
-        ## At the moment grub, zipl and sys|extlinux are supported
+        ## At the moment grub2, zipl and the combination of zipl plus
+        ## userspace grub2 are supported. The special custom entry
+        ## allows to skip the bootloader configuration and installation
+        ## and leaves this up to the user which can be done by using
+        ## the editbootinstall and editbootconfig custom scripts
         attribute bootloader {
-            "grub2" | "zipl" | "grub2_s390x_emu"
+            "grub2" | "zipl" | "grub2_s390x_emu" | "custom"
         }
         >> sch:pattern [ id = "bootloader" is-a = "image_type"
             sch:param [ name = "attr" value = "bootloader" ]
