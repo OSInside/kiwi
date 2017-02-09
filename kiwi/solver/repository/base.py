@@ -57,11 +57,15 @@ class SolverRepositoryBase(object):
         :rtype: string
         """
         Path.create(target_dir)
+        solvable = os.sep.join(
+            [target_dir, self.uri.alias()]
+        )
         if not self.is_uptodate(target_dir):
             self._setup_repository_metadata()
             solvable = self._merge_solvables(target_dir)
             self._cleanup()
-            return solvable
+
+        return solvable
 
     def timestamp(self):
         """
