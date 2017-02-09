@@ -353,7 +353,7 @@ class Defaults(object):
         :return: mbsize
         :rtype: int
         """
-        return 200
+        return 20
 
     @classmethod
     def get_recovery_spare_mbytes(self):

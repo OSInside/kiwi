@@ -98,7 +98,7 @@ class TestFirmWare(object):
 
     def test_get_efi_partition_size(self):
         assert self.firmware_bios.get_efi_partition_size() == 0
-        assert self.firmware_efi.get_efi_partition_size() == 200
+        assert self.firmware_efi.get_efi_partition_size() == 20
 
     def test_get_prep_partition_size(self):
         assert self.firmware_ofw.get_prep_partition_size() == 8
