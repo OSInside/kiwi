@@ -286,6 +286,7 @@ List of attributes for ``type``:
 * ``zipl_targettype`` `[?]`_: The device type of the disk zipl should boot. On zFCP devices use SCSI, on DASD devices use CDL or LDL on emulated DASD devices use FBA
 * ``bootpartition`` `[?]`_: specify if an extra boot partition should be used or not. This will overwrite kiwi's default layout
 * ``bootpartsize`` `[?]`_: For images with a separate boot partition this attribute specifies the size in MB. If not set the min bootpart size is set to 200 MB
+* ``efipartsize`` `[?]`_: For images with an EFI fat partition this attribute specifies the size in MB. If not set the min efipart size is set to 20 MB
 * ``bootprofile`` `[?]`_: Specifies the boot profile defined in the boot image description. When kiwi builds the boot image the information is passed as add-profile option
 * ``boottimeout`` `[?]`_: Specifies the boot timeout in seconds prior to launching the default boot option. the unit for the timeout value is seconds if GRUB is used as the boot loader and 1/10 seconds if syslinux is used
 * ``btrfs_root_is_snapshot`` `[?]`_: Tell kiwi to install the system into a btrfs snapshot The snapshot layout is compatible with the snapper management toolkit. By default no snapshots are used

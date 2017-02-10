@@ -18,8 +18,12 @@ class TestFirmWare(object):
         xml_state.build_type.get_firmware.return_value = 'bios'
         self.firmware_bios = FirmWare(xml_state)
 
+        xml_state.build_type.get_efipartsize.return_value = None
         xml_state.build_type.get_firmware.return_value = 'efi'
         self.firmware_efi = FirmWare(xml_state)
+
+        xml_state.build_type.get_efipartsize.return_value = 42
+        self.firmware_efi_custom_efi_part = FirmWare(xml_state)
 
         xml_state.build_type.get_firmware.return_value = 'ec2'
         self.firmware_ec2 = FirmWare(xml_state)
@@ -98,7 +102,8 @@ class TestFirmWare(object):
 
     def test_get_efi_partition_size(self):
         assert self.firmware_bios.get_efi_partition_size() == 0
-        assert self.firmware_efi.get_efi_partition_size() == 200
+        assert self.firmware_efi.get_efi_partition_size() == 20
+        assert self.firmware_efi_custom_efi_part.get_efi_partition_size() == 42
 
     def test_get_prep_partition_size(self):
         assert self.firmware_ofw.get_prep_partition_size() == 8

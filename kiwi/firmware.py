@@ -49,6 +49,7 @@ class FirmWare(object):
         self.arch = platform.machine()
         self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
         self.firmware = xml_state.build_type.get_firmware()
+        self.efipart_mbytes = xml_state.build_type.get_efipartsize()
 
         if not self.firmware:
             self.firmware = Defaults.get_default_firmware(self.arch)
@@ -172,7 +173,10 @@ class FirmWare(object):
         :rtype: int
         """
         if self.efi_mode():
-            return Defaults.get_default_efi_boot_mbytes()
+            if self.efipart_mbytes:
+                return self.efipart_mbytes
+            else:
+                return Defaults.get_default_efi_boot_mbytes()
         else:
             return 0
 

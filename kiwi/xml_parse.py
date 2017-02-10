@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Feb  9 15:32:29 2017 by generateDS.py version 2.24a.
+# Generated Thu Feb  9 16:42:09 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -2481,7 +2481,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2492,6 +2492,7 @@ class type_(GeneratedsSuper):
         self.zipl_targettype = _cast(None, zipl_targettype)
         self.bootpartition = _cast(bool, bootpartition)
         self.bootpartsize = _cast(int, bootpartsize)
+        self.efipartsize = _cast(int, efipartsize)
         self.bootprofile = _cast(None, bootprofile)
         self.boottimeout = _cast(int, boottimeout)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
@@ -2626,6 +2627,8 @@ class type_(GeneratedsSuper):
     def set_bootpartition(self, bootpartition): self.bootpartition = bootpartition
     def get_bootpartsize(self): return self.bootpartsize
     def set_bootpartsize(self, bootpartsize): self.bootpartsize = bootpartsize
+    def get_efipartsize(self): return self.efipartsize
+    def set_efipartsize(self, efipartsize): self.efipartsize = efipartsize
     def get_bootprofile(self): return self.bootprofile
     def set_bootprofile(self, bootprofile): self.bootprofile = bootprofile
     def get_boottimeout(self): return self.boottimeout
@@ -2783,6 +2786,9 @@ class type_(GeneratedsSuper):
         if self.bootpartsize is not None and 'bootpartsize' not in already_processed:
             already_processed.add('bootpartsize')
             outfile.write(' bootpartsize="%s"' % self.gds_format_integer(self.bootpartsize, input_name='bootpartsize'))
+        if self.efipartsize is not None and 'efipartsize' not in already_processed:
+            already_processed.add('efipartsize')
+            outfile.write(' efipartsize="%s"' % self.gds_format_integer(self.efipartsize, input_name='efipartsize'))
         if self.bootprofile is not None and 'bootprofile' not in already_processed:
             already_processed.add('bootprofile')
             outfile.write(' bootprofile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootprofile), input_name='bootprofile')), ))
@@ -2986,6 +2992,15 @@ class type_(GeneratedsSuper):
             except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.bootpartsize < 0:
+                raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('efipartsize', node)
+        if value is not None and 'efipartsize' not in already_processed:
+            already_processed.add('efipartsize')
+            try:
+                self.efipartsize = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+            if self.efipartsize < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
         value = find_attr_value_('bootprofile', node)
         if value is not None and 'bootprofile' not in already_processed:

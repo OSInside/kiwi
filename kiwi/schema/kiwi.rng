@@ -2058,6 +2058,18 @@ size is set to 200 MB</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
+    <define name="k.type.efipartsize.attribute">
+      <attribute name="efipartsize">
+        <a:documentation>For images with an EFI fat partition this attribute
+specifies the size in MB. If not set the min efipart
+size is set to 20 MB</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+      <sch:pattern id="efipartsize" is-a="image_type">
+        <sch:param name="attr" value="efipartsize"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
         <a:documentation>Specifies the boot profile defined in the boot image
@@ -2592,6 +2604,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bootpartsize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.efipartsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.bootprofile.attribute"/>
