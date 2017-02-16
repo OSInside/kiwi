@@ -5610,19 +5610,28 @@ function waitForLinkUp {
     local check=0
     local linkstatus
     local linkgrep
+    local link_unplugged
     while true;do
         if lookup ifplugstatus &>/dev/null;then
             linkstatus=ifplugstatus
 ￼           linkgrep="link beat detected"
+            link_unplugged="unplugged"
         else
             linkstatus="ip link ls"
             linkgrep="state UP"
         fi
-        $linkstatus $dev | grep -qi "$linkgrep"
-        if [ $? = 0 ];then
+        if [ ! -z "$link_unplugged" ];then
+            if $linkstatus $dev | grep -qi "$link_unplugged"; then
+                # interface link is not connected, error
+                return 1
+            fi
+        fi
+        if $linkstatus $dev | grep -qi "$linkgrep"; then
+            # interface link is up, success
             sleep 1; return 0
         fi
         if [ $check -eq 30 ];then
+            # interface link did not came up, error
             return 1
         fi
         Echo "Waiting for link up on ${dev}..."
@@ -5638,7 +5647,10 @@ function setIPLinkUp {
     local try_iface=$1
     if ip link set dev $try_iface up;then
         if [ ! $try_iface = "lo" ];then
-            waitForLinkUp $try_iface
+            if ! waitForLinkUp $try_iface;then
+                # link did not came up, not connected ?
+                return 1
+            fi
         fi
         # success
         return 0
