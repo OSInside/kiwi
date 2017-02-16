@@ -5611,15 +5611,17 @@ function waitForLinkUp {
     local linkstatus
     local linkgrep
     local link_unplugged
+    local sleep_timeout=2
+    local retry_count=30
+    if lookup ifplugstatus &>/dev/null;then
+        linkstatus=ifplugstatus
+        linkgrep="link beat detected"
+        link_unplugged="unplugged"
+    else
+        linkstatus="ip link ls"
+        linkgrep="state UP"
+    fi
     while true;do
-        if lookup ifplugstatus &>/dev/null;then
-            linkstatus=ifplugstatus
-￼           linkgrep="link beat detected"
-            link_unplugged="unplugged"
-        else
-            linkstatus="ip link ls"
-            linkgrep="state UP"
-        fi
         if [ ! -z "$link_unplugged" ];then
             if $linkstatus $dev | grep -qi "$link_unplugged"; then
                 # interface link is not connected, error
@@ -5627,16 +5629,16 @@ function waitForLinkUp {
             fi
         fi
         if $linkstatus $dev | grep -qi "$linkgrep"; then
-            # interface link is up, success
+            # interface link is up, success after a paranoid wait :)
             sleep 1; return 0
         fi
-        if [ $check -eq 30 ];then
+        if [ $check -eq $retry_count ];then
             # interface link did not came up, error
             return 1
         fi
         Echo "Waiting for link up on ${dev}..."
         check=$((check + 1))
-        sleep 2
+        sleep $sleep_timeout
     done
 }
 #======================================
