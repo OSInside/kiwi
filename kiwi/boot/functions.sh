@@ -3876,6 +3876,10 @@ function setupNetwork {
     local try_iface
     export DHCPCD_STARTED=""
     #======================================
+    # Wait for network drivers to pass init
+    #--------------------------------------
+    sleep 3
+    #======================================
     # detect iface and HWaddr
     #--------------------------------------
     for DEV in $(getNicNames);do
