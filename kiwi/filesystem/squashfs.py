@@ -14,7 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-#
+
+import platform
+
 # project
 from .base import FileSystemBase
 from ..command import Command
@@ -41,6 +43,15 @@ class FileSystemSquashFs(FileSystemBase):
             self.custom_args['create_options'].append('-comp')
             self.custom_args['create_options'].append('xz')
 
+        if '-Xbcj' not in self.custom_args['create_options']:
+            host_architecture = platform.machine()
+            if '86' in host_architecture:
+                self.custom_args['create_options'].append('-Xbcj')
+                self.custom_args['create_options'].append('x86')
+            if 'ppc' in host_architecture:
+                self.custom_args['create_options'].append('-Xbcj')
+                self.custom_args['create_options'].append('powerpc')
+
         if exclude:
             exclude_options.append('-e')
             for item in exclude:
@@ -48,6 +59,6 @@ class FileSystemSquashFs(FileSystemBase):
 
         Command.run(
             [
-                'mksquashfs', self.root_dir, filename, '-noappend'
+                'mksquashfs', self.root_dir, filename, '-noappend', '-b', '1M'
             ] + self.custom_args['create_options'] + exclude_options
         )
