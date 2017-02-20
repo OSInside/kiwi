@@ -2288,6 +2288,22 @@ the -o option in the qemu-img call</a:documentation>
         <sch:param name="types" value="vmx oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.force_mbr.attribute">
+      <attribute name="force_mbr">
+        <a:documentation>Force use of MBR (msdos table) partition table even if the
+use of the GPT would be the natural choice. On e.g some
+arm systems an EFI partition layout is required but must
+not be stored in a GPT. For those rare cases this attribute
+allows to force the use of the msdos table including all
+its restrictions in max partition size and amount of
+partitions</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="force_mbr" is-a="image_type">
+        <sch:param name="attr" value="force_mbr"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.fsnocheck.attribute">
       <attribute name="fsnocheck">
         <a:documentation>Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
@@ -2342,7 +2358,7 @@ the btrfs filesystem is used</a:documentation>
         <sch:param name="types" value="iso pxe"/>
       </sch:pattern>
     </define>
-    <define name="k.type.gpt_hybrid_mbr">
+    <define name="k.type.gpt_hybrid_mbr.attribute">
       <attribute name="gpt_hybrid_mbr">
         <a:documentation>for gpt disk types only:
 create a hybrid GPT/MBR partition table</a:documentation>
@@ -2666,7 +2682,10 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           <ref name="k.type.hybridpersistent_filesystem.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.gpt_hybrid_mbr"/>
+          <ref name="k.type.gpt_hybrid_mbr.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.force_mbr.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.initrd_system.attribute"/>

@@ -192,6 +192,7 @@ class DiskBuilder(object):
         self.volume_group_name = xml_state.get_volume_group_name()
         self.mdraid = xml_state.build_type.get_mdraid()
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
+        self.force_mbr = xml_state.build_type.get_force_mbr()
         self.luks = xml_state.build_type.get_luks()
         self.luks_os = xml_state.build_type.get_luksOS()
         self.machine = xml_state.get_build_type_machine_section()
@@ -729,9 +730,13 @@ class DiskBuilder(object):
             log.info('--> setting active flag to primary PReP partition')
             self.disk.activate_boot_partition()
 
-        if self.hybrid_mbr:
-            log.info('--> converting partition table to hybrid GPT/MBR')
-            self.disk.create_hybrid_mbr()
+        if self.firmware.efi_mode():
+            if self.force_mbr:
+                log.info('--> converting partition table to MBR')
+                self.disk.create_mbr()
+            elif self.hybrid_mbr:
+                log.info('--> converting partition table to hybrid GPT/MBR')
+                self.disk.create_hybrid_mbr()
 
         self.disk.map_partitions()
 

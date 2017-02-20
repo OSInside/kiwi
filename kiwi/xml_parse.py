@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Feb  9 16:42:09 2017 by generateDS.py version 2.24a.
+# Generated Mon Feb 20 16:25:49 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -2481,7 +2481,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2513,6 +2513,7 @@ class type_(GeneratedsSuper):
         self.hybridpersistent = _cast(bool, hybridpersistent)
         self.hybridpersistent_filesystem = _cast(None, hybridpersistent_filesystem)
         self.gpt_hybrid_mbr = _cast(bool, gpt_hybrid_mbr)
+        self.force_mbr = _cast(bool, force_mbr)
         self.initrd_system = _cast(None, initrd_system)
         self.image = _cast(None, image)
         self.installboot = _cast(None, installboot)
@@ -2669,6 +2670,8 @@ class type_(GeneratedsSuper):
     def set_hybridpersistent_filesystem(self, hybridpersistent_filesystem): self.hybridpersistent_filesystem = hybridpersistent_filesystem
     def get_gpt_hybrid_mbr(self): return self.gpt_hybrid_mbr
     def set_gpt_hybrid_mbr(self, gpt_hybrid_mbr): self.gpt_hybrid_mbr = gpt_hybrid_mbr
+    def get_force_mbr(self): return self.force_mbr
+    def set_force_mbr(self, force_mbr): self.force_mbr = force_mbr
     def get_initrd_system(self): return self.initrd_system
     def set_initrd_system(self, initrd_system): self.initrd_system = initrd_system
     def get_image(self): return self.image
@@ -2849,6 +2852,9 @@ class type_(GeneratedsSuper):
         if self.gpt_hybrid_mbr is not None and 'gpt_hybrid_mbr' not in already_processed:
             already_processed.add('gpt_hybrid_mbr')
             outfile.write(' gpt_hybrid_mbr="%s"' % self.gds_format_boolean(self.gpt_hybrid_mbr, input_name='gpt_hybrid_mbr'))
+        if self.force_mbr is not None and 'force_mbr' not in already_processed:
+            already_processed.add('force_mbr')
+            outfile.write(' force_mbr="%s"' % self.gds_format_boolean(self.force_mbr, input_name='force_mbr'))
         if self.initrd_system is not None and 'initrd_system' not in already_processed:
             already_processed.add('initrd_system')
             outfile.write(' initrd_system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.initrd_system), input_name='initrd_system')), ))
@@ -3130,6 +3136,15 @@ class type_(GeneratedsSuper):
                 self.gpt_hybrid_mbr = True
             elif value in ('false', '0'):
                 self.gpt_hybrid_mbr = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('force_mbr', node)
+        if value is not None and 'force_mbr' not in already_processed:
+            already_processed.add('force_mbr')
+            if value in ('true', '1'):
+                self.force_mbr = True
+            elif value in ('false', '0'):
+                self.force_mbr = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('initrd_system', node)

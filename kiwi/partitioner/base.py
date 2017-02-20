@@ -90,3 +90,11 @@ class PartitionerBase(object):
         Implementation in specialized partitioner class
         """
         raise NotImplementedError
+
+    def set_mbr(self):
+        """
+        Turn partition table into MBR (msdos table)
+
+        Implementation in specialized partitioner class
+        """
+        raise NotImplementedError

@@ -242,6 +242,14 @@ class Disk(DeviceProvider):
         """
         self.partitioner.set_hybrid_mbr()
 
+    def create_mbr(self):
+        """
+        Turn partition table into MBR (msdos table)
+
+        Note: only GPT tables supports this
+        """
+        self.partitioner.set_mbr()
+
     def wipe(self):
         """
         Zap (destroy) any GPT and MBR data structures if present

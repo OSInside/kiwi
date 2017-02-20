@@ -693,6 +693,20 @@ class TestDiskBuilder(object):
         self.disk_builder.create_disk()
         self.disk.create_hybrid_mbr.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_disk_force_mbr_requested(
+        self, mock_command, mock_open, mock_fs
+    ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.install_media = False
+        self.disk_builder.force_mbr = True
+        self.disk_builder.create_disk()
+        self.disk.create_mbr.assert_called_once_with()
+
     @patch('kiwi.builder.disk.DiskBuilder')
     def test_create(
         self, mock_builder
