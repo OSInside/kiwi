@@ -3876,10 +3876,6 @@ function setupNetwork {
     local try_iface
     export DHCPCD_STARTED=""
     #======================================
-    # Wait for network drivers to pass init
-    #--------------------------------------
-    sleep 3
-    #======================================
     # detect iface and HWaddr
     #--------------------------------------
     for DEV in $(getNicNames);do
@@ -5617,6 +5613,18 @@ function waitForLinkUp {
     local link_unplugged
     local sleep_timeout=2
     local retry_count=30
+    #======================================
+    # Wait for network drivers to pass init
+    #--------------------------------------
+    # each network interface will be switched off for a short
+    # moment when the kernel network driver is loaded. During
+    # that time the link status information would be misleading.
+    # Thus we wait a short time before the link status check
+    # is started
+    sleep 1
+    #======================================
+    # Lookup link status...
+    #--------------------------------------
     if lookup ifplugstatus &>/dev/null;then
         linkstatus=ifplugstatus
         linkgrep="link beat detected"
