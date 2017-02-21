@@ -245,3 +245,7 @@ class TestDisk(object):
     def test_create_hybrid_mbr(self):
         self.disk.create_hybrid_mbr()
         self.partitioner.set_hybrid_mbr.assert_called_once_with()
+
+    def test_create_mbr(self):
+        self.disk.create_mbr()
+        self.partitioner.set_mbr.assert_called_once_with()

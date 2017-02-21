@@ -307,6 +307,7 @@ List of attributes for ``type``:
 * ``hybridpersistent`` `[?]`_: Will trigger the creation of a partition for a COW file to keep data persistent over a reboot
 * ``hybridpersistent_filesystem`` `[?]`_: Set the filesystem to use for persistent writing if a hybrid image is used as disk on e.g a USB Stick. By default the btrfs filesystem is used
 * ``gpt_hybrid_mbr`` `[?]`_: for gpt disk types only: create a hybrid GPT/MBR partition table
+* ``force_mbr`` `[?]`_: Force use of MBR (msdos table) partition table even if the use of the GPT would be the natural choice. On e.g some arm systems an EFI partition layout is required but must not be stored in a GPT. For those rare cases this attribute allows to force the use of the msdos table including all its restrictions in max partition size and amount of partitions
 * ``initrd_system`` `[?]`_: specify which initrd builder to use, default is kiwi's builtin architecture. Be aware that the dracut initrd system does not support all features of the kiwi initrd
 * ``image`` : Specifies the image type
 * ``installboot`` `[?]`_: Specifies the bootloader default boot entry for the" initial boot of a kiwi install image. This value is" only evaluated for grub and ext|syslinux"

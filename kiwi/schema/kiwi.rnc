@@ -1750,6 +1750,19 @@ div {
             sch:param [ name = "attr" value = "formatoptions" ]
             sch:param [ name = "types" value = "vmx oem" ]
         ]
+    k.type.force_mbr.attribute =
+        ## Force use of MBR (msdos table) partition table even if the
+        ## use of the GPT would be the natural choice. On e.g some
+        ## arm systems an EFI partition layout is required but must
+        ## not be stored in a GPT. For those rare cases this attribute
+        ## allows to force the use of the msdos table including all
+        ## its restrictions in max partition size and amount of
+        ## partitions
+        attribute force_mbr { xsd:boolean }
+        >> sch:pattern [ id = "force_mbr" is-a = "image_type"
+            sch:param [ name = "attr" value = "force_mbr" ]
+            sch:param [ name = "types" value = "vmx oem" ]
+        ]
     k.type.fsnocheck.attribute =
         ## Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
         ## since KIWI v8
@@ -1786,7 +1799,7 @@ div {
             sch:param [ name = "attr" value = "hybridpersistent_filesystem" ]
             sch:param [ name = "types" value = "iso pxe" ]
         ]
-    k.type.gpt_hybrid_mbr =
+    k.type.gpt_hybrid_mbr.attribute =
         ## for gpt disk types only:
         ## create a hybrid GPT/MBR partition table
         attribute gpt_hybrid_mbr { xsd:boolean }
@@ -1982,7 +1995,8 @@ div {
         k.type.hybrid.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &
-        k.type.gpt_hybrid_mbr? &
+        k.type.gpt_hybrid_mbr.attribute? &
+        k.type.force_mbr.attribute? &
         k.type.initrd_system.attribute? &
         k.type.image.attribute &
         k.type.installboot.attribute? &
