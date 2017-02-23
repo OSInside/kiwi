@@ -19,6 +19,7 @@
 from .zypper import PackageManagerZypper
 from .yum import PackageManagerYum
 from .apt import PackageManagerApt
+from .dnf import PackageManagerDnf
 
 from ..exceptions import (
     KiwiPackageManagerSetupError
@@ -47,6 +48,8 @@ class PackageManager(object):
             manager = PackageManagerZypper(repository, custom_args)
         elif package_manager == 'yum':
             manager = PackageManagerYum(repository, custom_args)
+        elif package_manager == 'dnf':
+            manager = PackageManagerDnf(repository, custom_args)
         elif package_manager == 'apt-get':
             manager = PackageManagerApt(repository, custom_args)
         else:
