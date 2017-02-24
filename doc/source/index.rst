@@ -89,6 +89,7 @@ which are equal or newer compared to the following list:
 
 *  SUSE Linux Enterprise 12
 *  Red Hat Enterprise 7
+*  Fedora 25+
 *  CentOS 7
 *  openSUSE Leap, Tumbleweed
 *  Ubuntu Xenial

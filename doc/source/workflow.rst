@@ -98,8 +98,8 @@ target for software packages to be installed during the image creation process.
 
 For package installation, KIWI relies on the package manager specified with the
 ``packagemanager`` element in the :file:`config.xml` file. KIWI supports the
-following package managers: ``smart``, ``zypper`` (default), ``yum`` and
-``apt``.
+following package managers: ``dnf``, ``zypper`` (default), ``yum`` and
+``apt/dpkg``.
 
 The prepare step consists of the following substeps:
 
