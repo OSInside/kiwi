@@ -99,9 +99,9 @@ class RepositoryDnf(RepositoryBase):
         self.shared_dnf_dir['reposd-dir'] = \
             self.root_dir + '/etc/yum/repos.d'
         self.shared_dnf_dir['cache-dir'] = \
-            self.root_dir + '/var/cache/yum'
+            self.root_dir + '/var/cache/dnf'
         self.shared_dnf_dir['pluginconf-dir'] = \
-            self.root_dir + '/etc/yum/pluginconf.d'
+            self.root_dir + '/etc/dnf/plugins'
         self._create_runtime_config_parser()
         self._create_runtime_plugin_config_parser()
         self._write_runtime_config()

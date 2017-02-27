@@ -63,9 +63,9 @@ class TestRepositoryDnf(object):
         self.repo.use_default_location()
 
         assert runtime_dnf_config.set.call_args_list == [
-            call('main', 'cachedir', '../data/var/cache/yum'),
+            call('main', 'cachedir', '../data/var/cache/dnf'),
             call('main', 'reposdir', '../data/etc/yum/repos.d'),
-            call('main', 'pluginconfpath', '../data/etc/yum/pluginconf.d'),
+            call('main', 'pluginconfpath', '../data/etc/dnf/plugins'),
             call('main', 'keepcache', '1'),
             call('main', 'debuglevel', '2'),
             call('main', 'pkgpolicy', 'newest'),
