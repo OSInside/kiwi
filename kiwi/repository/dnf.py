@@ -20,7 +20,6 @@ from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
-from ..logger import log
 from .base import RepositoryBase
 from ..path import Path
 
@@ -53,13 +52,14 @@ class RepositoryDnf(RepositoryBase):
         :param list custom_args: dnf arguments
         """
         self.custom_args = custom_args
+        self.exclude_docs = False
         if not custom_args:
             self.custom_args = []
 
         # extract custom arguments not used in dnf call
         if 'exclude_docs' in self.custom_args:
             self.custom_args.remove('exclude_docs')
-            log.warning('rpm-excludedocs not supported for dnf: ignoring')
+            self.exclude_docs = True
 
         self.repo_names = []
 
@@ -220,6 +220,10 @@ class RepositoryDnf(RepositoryBase):
         self.runtime_dnf_config.set(
             'main', 'plugins', '1'
         )
+        if self.exclude_docs:
+            self.runtime_dnf_config.set(
+                'main', 'tsflags', 'nodocs'
+            )
 
     def _create_runtime_plugin_config_parser(self):
         self.runtime_dnf_plugin_config = ConfigParser()

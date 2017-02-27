@@ -41,11 +41,9 @@ class TestRepositoryDnf(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]
-        mock_warn.assert_called_once_with(
-            'rpm-excludedocs not supported for dnf: ignoring'
-        )
 
     @patch_open
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
@@ -73,6 +71,7 @@ class TestRepositoryDnf(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]
 
