@@ -135,11 +135,12 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.arch = 'arm64'
         assert self.bootloader.install_required() is False
 
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     def test_install_with_extra_boot_partition(
-        self, mock_grub_path, mock_mount_manager, mock_command
+        self, mock_grub_path, mock_mount_manager, mock_command, mock_wipe
     ):
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
@@ -152,6 +153,9 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.install()
         self.bootloader.root_mount.mount.assert_called_once_with()
         self.bootloader.boot_mount.mount.assert_called_once_with()
+        mock_wipe.assert_called_once_with(
+            'tmp_root/boot/grub2/grubenv'
+        )
         mock_command.assert_called_once_with(
             [
                 'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
@@ -165,11 +169,12 @@ class TestBootLoaderInstallGrub2(object):
             ]
         )
 
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     def test_install_ppc_ieee1275(
-        self, mock_grub_path, mock_mount_manager, mock_command
+        self, mock_grub_path, mock_mount_manager, mock_command, mock_wipe
     ):
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
@@ -183,6 +188,9 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.install()
         self.bootloader.root_mount.mount.assert_called_once_with()
         self.bootloader.boot_mount.mount.assert_called_once_with()
+        mock_wipe.assert_called_once_with(
+            'tmp_root/boot/grub2/grubenv'
+        )
         mock_command.assert_called_once_with(
             [
                 'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
@@ -196,10 +204,13 @@ class TestBootLoaderInstallGrub2(object):
             ]
         )
 
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
-    def test_install(self, mock_grub_path, mock_mount_manager, mock_command):
+    def test_install(
+        self, mock_grub_path, mock_mount_manager, mock_command, mock_wipe
+    ):
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
         self.boot_mount.device = self.root_mount.device
@@ -215,6 +226,9 @@ class TestBootLoaderInstallGrub2(object):
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
+        mock_wipe.assert_called_once_with(
+            'tmp_root/boot/grub2/grubenv'
+        )
         mock_command.assert_called_once_with(
             [
                 'chroot', 'tmp_root', 'grub2-install',
@@ -228,12 +242,14 @@ class TestBootLoaderInstallGrub2(object):
                 '/dev/some-device'
             ])
 
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('os.path.exists')
     def test_install_secure_boot(
-        self, mock_exists, mock_grub_path, mock_mount_manager, mock_command
+        self, mock_exists, mock_grub_path, mock_mount_manager,
+        mock_command, mock_wipe
     ):
         mock_exists.return_value = True
         mock_grub_path.return_value = \
@@ -248,6 +264,9 @@ class TestBootLoaderInstallGrub2(object):
 
         self.bootloader.install()
 
+        mock_wipe.assert_called_once_with(
+            'tmp_root/boot/grub2/grubenv'
+        )
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',

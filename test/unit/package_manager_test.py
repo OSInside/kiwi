@@ -26,6 +26,12 @@ class TestPackageManager(object):
         PackageManager(repository, 'yum')
         mock_manager.assert_called_once_with(repository, None)
 
+    @patch('kiwi.package_manager.PackageManagerDnf')
+    def test_manager_dnf(self, mock_manager):
+        repository = mock.Mock()
+        PackageManager(repository, 'dnf')
+        mock_manager.assert_called_once_with(repository, None)
+
     @patch('kiwi.package_manager.PackageManagerApt')
     def test_manager_apt(self, mock_manager):
         repository = mock.Mock()

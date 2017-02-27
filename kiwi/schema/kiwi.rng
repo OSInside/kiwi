@@ -1345,6 +1345,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <value>apt-get</value>
         <value>zypper</value>
         <value>yum</value>
+        <value>dnf</value>
       </choice>
     </define>
     <define name="k.packagemanager.attlist">

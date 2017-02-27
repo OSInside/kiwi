@@ -216,6 +216,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         module_directory = grub_directory + '/' + self.target
         boot_directory = '/boot'
 
+        # wipe existing grubenv to allow grub2-install to create a new one
+        Path.wipe(
+            os.sep.join(
+                [self.root_mount.mountpoint, 'boot', 'grub2', 'grubenv']
+            )
+        )
         # install grub2 boot code
         Command.run(
             [

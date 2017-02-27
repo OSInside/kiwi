@@ -1070,7 +1070,7 @@ div {
 #
 div {
     k.packagemanager.content = 
-        "apt-get" | "zypper" | "yum"
+        "apt-get" | "zypper" | "yum" | "dnf"
     k.packagemanager.attlist = empty
     k.packagemanager =
         ## Name of the Package Manager
