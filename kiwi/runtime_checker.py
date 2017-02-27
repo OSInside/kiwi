@@ -21,6 +21,7 @@ from textwrap import dedent
 # project
 from .system.uri import Uri
 from .defaults import Defaults
+from .path import Path
 from .exceptions import (
     KiwiRuntimeError
 )
@@ -121,3 +122,24 @@ class RuntimeChecker(object):
         for volume in self.xml_state.get_volumes():
             if volume.mountpoint == '/':
                 raise KiwiRuntimeError(message)
+
+    def check_docker_tool_chain_installed(self):
+        """
+        When creating docker images the tools umoci and skopeo are used
+        in order to create docker compatible images. This check searches
+        for those tools to be installed in the build system and fails if
+        it can't find them
+        """
+        message = dedent('''\n
+            Required tool {0} not found in caller environment
+
+            Creation of docker images requires the tools umoci and skopeo
+            to be installed on the build system. For SUSE based systems
+            you can find the tools at:
+
+            http://download.opensuse.org/repositories/Virtualization:/containers
+        ''')
+        if self.xml_state.get_build_type_name() == 'docker':
+            for tool in ['umoci', 'skopeo']:
+                if not Path.which(filename=tool, access_mode=os.X_OK):
+                    raise KiwiRuntimeError(message.format(tool))

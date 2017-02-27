@@ -13,11 +13,11 @@ from kiwi.exceptions import *
 
 class TestRuntimeChecker(object):
     def setup(self):
-        description = XMLDescription(
+        self.description = XMLDescription(
             '../data/example_runtime_checker_config.xml'
         )
         self.xml_state = XMLState(
-            description.load()
+            self.description.load()
         )
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
@@ -59,3 +59,13 @@ class TestRuntimeChecker(object):
     @raises(KiwiRuntimeError)
     def test_check_volume_setup_has_no_root_definition(self):
         self.runtime_checker.check_volume_setup_has_no_root_definition()
+
+    @patch('kiwi.runtime_checker.Path.which')
+    @raises(KiwiRuntimeError)
+    def test_check_docker_tool_chain_installed(self, mock_which):
+        mock_which.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_docker_tool_chain_installed()

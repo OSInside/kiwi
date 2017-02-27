@@ -92,6 +92,7 @@ class SystemPrepareTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
+        self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
         self.runtime_checker.check_image_include_repos_http_resolvable()
         self.runtime_checker.check_target_directory_not_in_shared_cache(

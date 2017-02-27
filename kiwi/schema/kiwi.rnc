@@ -2391,24 +2391,49 @@ div {
     ]
     k.containerconfig.name.attribute =
         ## Specifies a name for the container. This is usually the
-        ## the tag name of the container as read if the container
+        ## the repository name of the container as read if the container
         ## image is imported via the docker load command
         attribute name { text }
         >> sch:pattern [ id = "name" is-a = "container_type"
             sch:param [ name = "attr" value = "name" ]
             sch:param [ name = "types" value = "docker" ]
         ]
-    k.containerconfig.entry_command.attribute =
-        ## Specifies the default command to run if the container is
-        ## called via the docker run command.
-        attribute entry_command { text }
-        >> sch:pattern [ id = "entry_command" is-a = "container_type"
-            sch:param [ name = "attr" value = "entry_command" ]
+    k.containerconfig.tag.attribute =
+        ## Specifies a tag for the container. This is usually the
+        ## the tag name of the container as read if the container
+        ## image is imported via the docker load command
+        attribute tag { text }
+        >> sch:pattern [ id = "tag" is-a = "container_type"
+            sch:param [ name = "attr" value = "tag" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.maintainer.attribute =
+        ## Specifies a maintainer for the container.
+        attribute maintainer { text }
+        >> sch:pattern [ id = "maintainer" is-a = "container_type"
+            sch:param [ name = "attr" value = "maintainer" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.user.attribute =
+        ## Specifies a user for the container.
+        attribute user { text }
+        >> sch:pattern [ id = "user" is-a = "container_type"
+            sch:param [ name = "attr" value = "user" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.workingdir.attribute =
+        ## Specifies the default working directory of the container
+        attribute workingdir { text }
+        >> sch:pattern [ id = "workingdir" is-a = "container_type"
+            sch:param [ name = "attr" value = "workingdir" ]
             sch:param [ name = "types" value = "docker" ]
         ]
     k.containerconfig.attlist =
         k.containerconfig.name.attribute &
-        k.containerconfig.entry_command.attribute?
+        k.containerconfig.tag.attribute? &
+        k.containerconfig.maintainer.attribute? &
+        k.containerconfig.user.attribute? &
+        k.containerconfig.workingdir.attribute?
 
     k.containerconfig =
         ## Provides metadata information for containers
@@ -2422,7 +2447,202 @@ div {
         ]
         ]
         element containerconfig {
-            k.containerconfig.attlist
+            k.containerconfig.attlist &
+            k.entrypoint? &
+            k.subcommand? &
+            k.expose? &
+            k.volumes? &
+            k.environment? &
+            k.labels?
+        }
+}
+
+#==========================================
+# main block: <entrypoint>
+#
+div {
+    k.entrypoint.execute.attribute =
+        ## Specifies the entry point program name to execute
+        attribute execute { text }
+
+    k.entrypoint.attlist =
+        k.entrypoint.execute.attribute
+
+    k.entrypoint =
+        ## Provides details for the entry point command. This
+        ## includes the execution name and its parameters. Arguments
+        ## can be optionally specified
+        element entrypoint {
+            k.entrypoint.attlist &
+            k.argument*
+        }
+}
+
+#==========================================
+# main block: <subcommand>
+#
+div {
+    k.subcommand.execute.attribute =
+        ## Specifies the subcommand program name to execute
+        attribute execute { text }
+
+    k.subcommand.attlist =
+        k.subcommand.execute.attribute
+
+    k.subcommand =
+        ## Provides details for the subcommand command. This
+        ## includes the execution name and its parameters. Arguments
+        ## can be optionally specified. The subcommand is appended
+        ## the command information from the entrypoint. It is in
+        ## the responsibility of the author to make sure the
+        ## combination of entrypoint and subcommand forms a valid
+        ## execution command
+        element subcommand {
+            k.subcommand.attlist &
+            k.argument*
+        }
+}
+
+#==========================================
+# main block: <argument>
+#
+div {
+    k.argument.name.attribute =
+        ## Specifies a command argument name
+        attribute name { text }
+
+    k.argument.attlist =
+        k.argument.name.attribute
+
+    k.argument =
+        ## Provides details about a command argument
+        element argument {
+            k.argument.attlist &
+            empty
+        }
+}
+
+#==========================================
+# main block: <expose>
+#
+div {
+    k.expose.attlist = empty
+    k.expose =
+        ## Provides details about network ports which should be
+        ## exposed from the container. At least one port must
+        ## be configured
+        element expose {
+            k.expose.attlist &
+            k.port+
+        }
+}
+
+#==========================================
+# main block: <port>
+#
+div {
+    k.port.number.attribute =
+        ## Specifies the port number to expose
+        attribute number { xsd:nonNegativeInteger }
+
+    k.port.attlist =
+        k.port.number.attribute
+
+    k.port =
+        ## Provides details about an exposed port.
+        element port {
+            k.port.attlist &
+            empty
+        }
+}
+
+#==========================================
+# main block: <volumes>
+#
+div {
+    k.volumes.attlist = empty
+    k.volumes =
+        ## Provides details about storage volumes in the container
+        ## At least one volume must be configured
+        element volumes {
+            k.volumes.attlist &
+            k.volume+
+        }
+}
+
+#==========================================
+# main block: <environment>
+#
+div {
+    k.environment.attlist = empty
+    k.environment =
+        ## Provides details about the container environment variables
+        ## At least one environment variable must be configured
+        element environment {
+            k.environment.attlist &
+            k.env+
+        }
+}
+
+#==========================================
+# main block: <env>
+#
+div {
+    k.env.name.attribute =
+        ## Specifies the environment variable name
+        attribute name { text }
+
+    k.env.value.attribute =
+        ## Specifies the environment variable value
+        attribute value { text }
+
+    k.env.attlist =
+        k.env.name.attribute &
+        k.env.value.attribute
+
+    k.env =
+        ## Provides details about an environment variable
+        element env {
+            k.env.attlist &
+            empty
+        }
+}
+
+#==========================================
+# main block: <labels>
+#
+div {
+    k.labels.attlist = empty
+    k.labels =
+        ## Provides details about container labels
+        ## At least one label must be configured
+        element labels {
+            k.labels.attlist &
+            k.label+
+        }
+}
+
+#==========================================
+# main block: <label>
+#
+div {
+    k.label.name.attribute =
+        ## Specifies the label name
+        attribute name { text }
+
+    k.label.value.attribute =
+        ## Specifies the label value
+        attribute value { text }
+
+    k.label.attlist =
+        k.label.name.attribute &
+        k.label.value.attribute
+
+    k.label =
+        ## Provides details about a container label
+        element label {
+            k.label.attlist &
+            empty
         }
 }
 

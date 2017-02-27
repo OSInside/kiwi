@@ -55,8 +55,7 @@ class ContainerBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir
         self.target_dir = target_dir
-        self.container_config = \
-            xml_state.get_build_type_containerconfig_section()
+        self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
@@ -81,24 +80,19 @@ class ContainerBuilder(object):
 
         * image="docker"
         """
-        setup_options = {}
-        if self.container_config and self.container_config.get_name():
-            setup_options['container_name'] = self.container_config.get_name()
-
-        container_setup = ContainerSetup(
-            self.requested_container_type, self.root_dir, setup_options
-        )
-        log.info('Setting up %s container', self.requested_container_type)
         log.info(
-            '--> Container name: %s', container_setup.get_container_name()
+            'Setting up %s container', self.requested_container_type
+        )
+        container_setup = ContainerSetup(
+            self.requested_container_type, self.root_dir, self.container_config
         )
         container_setup.setup()
 
         log.info(
-            '--> Creating container archive'
+            '--> Creating container image'
         )
         container_image = ContainerImage(
-            self.requested_container_type, self.root_dir
+            self.requested_container_type, self.root_dir, self.container_config
         )
         container_image.create(
             self.filename
