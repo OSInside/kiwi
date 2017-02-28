@@ -152,7 +152,7 @@ Import the downloaded tarball with the command :command:`docker` as follows:
 
 .. code:: bash
 
-    $ cat Docker-Tumbleweed.XXXXXXX.docker.tar.xz | docker import - opensuse/dice:latest
+    $ docker load -i Docker-Tumbleweed.XXXXXXX.docker.tar.xz
 
 
 Installing and Setting up Vagrant
