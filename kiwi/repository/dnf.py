@@ -116,7 +116,9 @@ class RepositoryDnf(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='rpm-md', prio=None, dist=None, components=None
+        self, name, uri, repo_type='rpm-md',
+        prio=None, dist=None, components=None,
+        user=None, secret=None, credentials_file=None
     ):
         """
         Add dnf repository
@@ -127,6 +129,9 @@ class RepositoryDnf(RepositoryBase):
         :param int prio: dnf repostory priority
         :param dist: unused
         :param components: unused
+        :param user: unused
+        :param secret: unused
+        :param credentials_file: unused
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')

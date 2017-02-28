@@ -690,5 +690,8 @@ class TestSystemSetup(object):
             'rpm-md',
             None,
             None,
-            None
+            None,
+            None,
+            None,
+            'kiwiRepoCredentials'
         )

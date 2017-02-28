@@ -32,13 +32,13 @@ class SolverRepository(object):
     * :attr:`uri`
         Instance of Uri
     """
-    def __new__(self, uri):
+    def __new__(self, uri, user=None, secret=None):
         if uri.repo_type == 'yast2':
-            return SolverRepositorySUSE(uri)
+            return SolverRepositorySUSE(uri, user, secret)
         elif uri.repo_type == 'rpm-md':
-            return SolverRepositoryRpmMd(uri)
+            return SolverRepositoryRpmMd(uri, user, secret)
         elif uri.repo_type == 'rpm-dir':
-            return SolverRepositoryRpmDir(uri)
+            return SolverRepositoryRpmDir(uri, user, secret)
         else:
             raise KiwiSolverRepositorySetupError(
                 'Support for %s solver repository type not implemented' %

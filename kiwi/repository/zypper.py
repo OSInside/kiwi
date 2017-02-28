@@ -83,11 +83,24 @@ class RepositoryZypper(RepositoryBase):
         manager_base = self.root_dir + self.shared_location
 
         self.shared_zypper_dir = {
-            'pkg-cache-dir': manager_base + '/packages',
-            'reposd-dir': manager_base + '/zypper/repos',
-            'solv-cache-dir': manager_base + '/zypper/solv',
-            'raw-cache-dir': manager_base + '/zypper/raw',
-            'cache-dir': manager_base + '/zypper'
+            'pkg-cache-dir': os.sep.join(
+                [manager_base, 'packages']
+            ),
+            'reposd-dir': os.sep.join(
+                [manager_base, 'zypper/repos']
+            ),
+            'credentials-dir': os.sep.join(
+                [manager_base, 'zypper/credentials']
+            ),
+            'solv-cache-dir': os.sep.join(
+                [manager_base, 'zypper/solv']
+            ),
+            'raw-cache-dir': os.sep.join(
+                [manager_base, 'zypper/raw']
+            ),
+            'cache-dir': os.sep.join(
+                [manager_base, 'zypper']
+            )
         }
 
         self.runtime_zypper_config_file = NamedTemporaryFile(
@@ -116,6 +129,10 @@ class RepositoryZypper(RepositoryBase):
         # config file parameters for libzypp library
         self.runtime_zypp_config = ConfigParser()
         self.runtime_zypp_config.add_section('main')
+        self.runtime_zypp_config.set(
+            'main', 'credentials.global.dir',
+            self.shared_zypper_dir['credentials-dir']
+        )
         if self.exclude_docs:
             self.runtime_zypp_config.set(
                 'main', 'rpm.install.excludedocs', 'yes'
@@ -130,6 +147,8 @@ class RepositoryZypper(RepositoryBase):
         """
         self.shared_zypper_dir['reposd-dir'] = \
             self.root_dir + '/etc/zypp/repos.d'
+        self.shared_zypper_dir['credentials-dir'] = \
+            self.root_dir + '/etc/zypp/credentials.d'
         self.zypper_args = [
             '--non-interactive', '--no-gpg-checks'
         ] + self.custom_args
@@ -146,7 +165,8 @@ class RepositoryZypper(RepositoryBase):
 
     def add_repo(
         self, name, uri, repo_type='rpm-md',
-        prio=None, dist=None, components=None
+        prio=None, dist=None, components=None,
+        user=None, secret=None, credentials_file=None
     ):
         """
         Add zypper repository
@@ -154,12 +174,30 @@ class RepositoryZypper(RepositoryBase):
         :param string name: repository name
         :param string uri: repository URI
         :param repo_type: repostory type name
-        :param int prio: yum repostory priority
+        :param int prio: zypper repostory priority
         :param dist: unused
         :param components: unused
+        :param user: credentials username
+        :param secret: credentials password
+        :param credentials_file: zypper credentials file
         """
-        repo_file = self.shared_zypper_dir['reposd-dir'] + '/' + name + '.repo'
-        self.repo_names.append(name + '.repo')
+        if credentials_file:
+            repo_secret = os.sep.join(
+                [self.shared_zypper_dir['credentials-dir'], credentials_file]
+            )
+            if os.path.exists(repo_secret):
+                Path.wipe(repo_secret)
+
+            if user and secret:
+                uri = ''.join([uri, '?credentials=', credentials_file])
+                with open(repo_secret, 'w') as credentials:
+                    credentials.write('username={0}'.format(user))
+                    credentials.write('password={0}'.format(secret))
+
+        repo_file = ''.join(
+            [self.shared_zypper_dir['reposd-dir'], '/', name, '.repo']
+        )
+        self.repo_names.append(''.join([name, '.repo']))
 
         if os.path.exists(repo_file):
             Path.wipe(repo_file)

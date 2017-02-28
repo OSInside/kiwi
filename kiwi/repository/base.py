@@ -65,7 +65,10 @@ class RepositoryBase(object):
         """
         raise NotImplementedError
 
-    def add_repo(self, name, uri, repo_type, prio, dist, components):
+    def add_repo(
+        self, name, uri, repo_type, prio, dist, components,
+        user, secret, credentials_file
+    ):
         """
         Add repository
 
@@ -77,6 +80,9 @@ class RepositoryBase(object):
         :param int prio: unused
         :param dist: unused
         :param components: unused
+        :param user: unused
+        :param secret: unused
+        :param credentials_file: unused
         """
         raise NotImplementedError
 
