@@ -97,7 +97,7 @@ class RepositoryDnf(RepositoryBase):
         in the default places
         """
         self.shared_dnf_dir['reposd-dir'] = \
-            self.root_dir + '/etc/yum/repos.d'
+            self.root_dir + '/etc/yum.repos.d'
         self.shared_dnf_dir['cache-dir'] = \
             self.root_dir + '/var/cache/dnf'
         self.shared_dnf_dir['pluginconf-dir'] = \
