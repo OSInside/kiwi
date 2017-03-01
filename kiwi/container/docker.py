@@ -43,9 +43,9 @@ class ContainerImageDocker(object):
         self.docker_dir = None
         self.docker_root_dir = None
 
-        self.container_name = []
+        self.container_name = ''
         self.container_tag = 'latest'
-        self.entry_command = ['--config.cmd=/bin/bash']
+        self.entry_command = []
         self.entry_subcommand = []
         self.maintainer = []
         self.user = []
@@ -88,6 +88,9 @@ class ContainerImageDocker(object):
 
             if 'labels' in custom_args:
                 self.labels = custom_args['labels']
+
+        if not self.entry_command and not self.entry_subcommand:
+            self.entry_subcommand = ['--config.cmd=/bin/bash']
 
     def create(self, filename):
         """
