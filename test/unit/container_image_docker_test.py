@@ -88,29 +88,29 @@ class TestContainerImageDocker(object):
         assert mock_command.call_args_list == [
             call([
                 'umoci', 'init', '--layout',
-                'kiwi_docker_dir/umoci_layout'
+                'kiwi_docker_dir/foo'
             ]),
             call([
                 'umoci', 'new', '--image',
-                'kiwi_docker_dir/umoci_layout:foo'
+                'kiwi_docker_dir/foo:latest'
             ]),
             call([
                 'umoci', 'unpack', '--image',
-                'kiwi_docker_dir/umoci_layout:foo', 'kiwi_docker_root_dir'
+                'kiwi_docker_dir/foo:latest', 'kiwi_docker_root_dir'
             ]),
             call([
                 'umoci', 'repack', '--image',
-                'kiwi_docker_dir/umoci_layout:foo', 'kiwi_docker_root_dir'
+                'kiwi_docker_dir/foo:latest', 'kiwi_docker_root_dir'
             ]),
             call([
                 'umoci', 'config', '--config.cmd=/bin/bash', '--image',
-                'kiwi_docker_dir/umoci_layout:foo', '--tag', 'latest'
+                'kiwi_docker_dir/foo:latest', '--tag', 'latest'
             ]),
             call([
-                'umoci', 'gc', '--layout', 'kiwi_docker_dir/umoci_layout'
+                'umoci', 'gc', '--layout', 'kiwi_docker_dir/foo'
             ]),
             call([
-                 'skopeo', 'copy', 'oci:kiwi_docker_dir/umoci_layout:foo',
+                 'skopeo', 'copy', 'oci:kiwi_docker_dir/foo:latest',
                  'docker-archive:result.tar:foo:latest'
             ])
         ]
