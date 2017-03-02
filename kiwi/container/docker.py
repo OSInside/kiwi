@@ -113,6 +113,13 @@ class ContainerImageDocker(object):
             [container_dir, self.container_tag]
         )
 
+        # Create container subdirectories if needed
+        # umoci is not capable to create subdirectories e.g. opensuse/leap
+        if os.sep in self.container_name:
+            Path.create(os.sep.join(
+                [self.docker_dir, os.path.dirname(self.container_name)]
+            ))
+
         Command.run(
             ['umoci', 'init', '--layout', container_dir]
         )

@@ -13,7 +13,7 @@ class TestContainerImageDocker(object):
     def setup(self):
         self.docker = ContainerImageDocker(
             'root_dir', {
-                'container_name': 'foo'
+                'container_name': 'foo/bar'
             }
         )
 
@@ -21,7 +21,7 @@ class TestContainerImageDocker(object):
         docker = ContainerImageDocker(
             'root_dir', {
                 'container_name': 'foo',
-                'container_tag': 'bar',
+                'container_tag': '1.0',
                 'entry_command': [
                     "--config.entrypoint=/bin/bash",
                     "--config.entrypoint=-x"
@@ -87,31 +87,34 @@ class TestContainerImageDocker(object):
 
         assert mock_command.call_args_list == [
             call([
+                'mkdir', '-p', 'kiwi_docker_dir/foo'
+            ]),
+            call([
                 'umoci', 'init', '--layout',
-                'kiwi_docker_dir/foo'
+                'kiwi_docker_dir/foo/bar'
             ]),
             call([
                 'umoci', 'new', '--image',
-                'kiwi_docker_dir/foo:latest'
+                'kiwi_docker_dir/foo/bar:latest'
             ]),
             call([
                 'umoci', 'unpack', '--image',
-                'kiwi_docker_dir/foo:latest', 'kiwi_docker_root_dir'
+                'kiwi_docker_dir/foo/bar:latest', 'kiwi_docker_root_dir'
             ]),
             call([
                 'umoci', 'repack', '--image',
-                'kiwi_docker_dir/foo:latest', 'kiwi_docker_root_dir'
+                'kiwi_docker_dir/foo/bar:latest', 'kiwi_docker_root_dir'
             ]),
             call([
                 'umoci', 'config', '--config.cmd=/bin/bash', '--image',
-                'kiwi_docker_dir/foo:latest', '--tag', 'latest'
+                'kiwi_docker_dir/foo/bar:latest', '--tag', 'latest'
             ]),
             call([
-                'umoci', 'gc', '--layout', 'kiwi_docker_dir/foo'
+                'umoci', 'gc', '--layout', 'kiwi_docker_dir/foo/bar'
             ]),
             call([
-                 'skopeo', 'copy', 'oci:kiwi_docker_dir/foo:latest',
-                 'docker-archive:result.tar:foo:latest'
+                 'skopeo', 'copy', 'oci:kiwi_docker_dir/foo/bar:latest',
+                 'docker-archive:result.tar:foo/bar:latest'
             ])
         ]
         mock_sync.assert_called_once_with(
