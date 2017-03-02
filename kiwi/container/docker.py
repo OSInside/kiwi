@@ -107,7 +107,7 @@ class ContainerImageDocker(object):
         self.docker_root_dir = mkdtemp(prefix='kiwi_docker_root_dir.')
 
         container_dir = os.sep.join(
-            [self.docker_dir, self.container_name]
+            [self.docker_dir, 'umoci_layout']
         )
         container_name = ':'.join(
             [container_dir, self.container_tag]
