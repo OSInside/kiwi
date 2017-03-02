@@ -40,7 +40,6 @@ class RootImport(object):
 
     * :attr:`image_type`
         type of the image to import, currently only docker is supported
-    
     """
     def __init__(self, xml_state, root_dir, image_uri, image_type='docker'):
         base_image = None
