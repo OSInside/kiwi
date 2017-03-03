@@ -86,20 +86,20 @@ class Uri(object):
         uri = urlparse(self.uri)
         if not uri.scheme:
             raise KiwiUriStyleUnknown(
-                'URI scheme not detected %s' % self.uri
+                'URI scheme not detected {uri}'.format(uri=self.uri)
             )
 
         if uri.scheme == 'obs' and self.repo_type == 'yast2':
             return self._obs_distribution(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'obs':
             return self._obs_project(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'ibs':
             return self._ibs_project(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'dir':
             return self._local_directory(uri.path)
@@ -107,16 +107,29 @@ class Uri(object):
             return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
             return self._suse_buildservice_path(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
-        elif uri.scheme == 'http':
-            return self.uri
-        elif uri.scheme == 'ftp':
-            return self.uri
+        elif uri.scheme == 'http' or uri.scheme == 'ftp':
+            return ''.join([uri.scheme, '://', uri.netloc, uri.path])
         else:
             raise KiwiUriStyleUnknown(
                 'URI schema %s not supported' % self.uri
             )
+
+    def credentials_file_name(self):
+        """
+        Filename to store repository credentials
+        """
+        uri = urlparse(self.uri)
+        # initialize query with default credentials file name.
+        # The information will be overwritten if the uri contains
+        # a parameter query with a credentials parameter
+        query = {'credentials': 'kiwiRepoCredentials'}
+
+        if uri.query:
+            query = dict(params.split('=') for params in uri.query.split('&'))
+
+        return query['credentials']
 
     def alias(self):
         """
