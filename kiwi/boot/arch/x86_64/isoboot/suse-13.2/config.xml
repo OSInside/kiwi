@@ -81,11 +81,11 @@
         <source path="obs://13.2/repo/oss"/>
     </repository>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel-base"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
+        <package name="kernel-base" arch="i586"/>
     </packages>
     <packages type="image" profiles="xenk">
 <!-- xen kernel only supported on x86_64 -->
@@ -96,7 +96,7 @@
     <packages type="image" profiles="desktop">
         <package name="kernel-desktop" arch="x86_64"/>
         <package name="kernel-desktop" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
+        <package name="kernel-base" arch="i586"/>
     </packages>
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">

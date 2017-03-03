@@ -93,11 +93,11 @@
         <source path="obs://SUSE:SLE-12:GA/standard"/>
     </repository>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel-base"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
+        <package name="kernel-base" arch="i586"/>
     </packages>
     <packages type="image" profiles="xenk">
 <!-- xen kernel only supported on x86_64 -->

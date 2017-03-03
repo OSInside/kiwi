@@ -67,7 +67,7 @@
         <source path="obs://leap/42.2/repo/oss"/>
     </repository>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel-base"/>
     </packages>
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
