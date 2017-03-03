@@ -19,6 +19,7 @@ import os
 
 # project
 from .root_init import RootInit
+from .root_import import RootImport
 from .root_bind import RootBind
 from ..repository import Repository
 from ..package_manager import PackageManager
@@ -66,6 +67,10 @@ class SystemPrepare(object):
             root_dir, allow_existing
         )
         root.create()
+        base_image = xml_state.build_type.get_derived_from()
+        if base_image:
+            root_import = RootImport(xml_state, root_dir, base_image)
+            root_import.sync_data()
         root_bind = RootBind(
             root
         )

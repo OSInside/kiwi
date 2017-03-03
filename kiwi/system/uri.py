@@ -71,6 +71,7 @@ class Uri(object):
         self.local_uri_type = {
             'iso': True,
             'dir': True,
+            'file': True,
             'suse': True
         }
 
@@ -102,7 +103,9 @@ class Uri(object):
                 uri.netloc + uri.path
             )
         elif uri.scheme == 'dir':
-            return self._local_directory(uri.path)
+            return self._local_path(uri.path)
+        elif uri.scheme == 'file':
+            return self._local_path(uri.path)
         elif uri.scheme == 'iso':
             return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
@@ -165,7 +168,7 @@ class Uri(object):
         iso_mount.mount()
         return iso_mount.mountpoint
 
-    def _local_directory(self, path):
+    def _local_path(self, path):
         return os.path.normpath(path)
 
     def _obs_project(self, name):
@@ -192,7 +195,7 @@ class Uri(object):
         the image it arranges the repos for each build in a special
         environment, the so called build worker.
         """
-        return self._local_directory(
+        return self._local_path(
             '/usr/src/packages/SOURCES/repos/' + name
         )
 

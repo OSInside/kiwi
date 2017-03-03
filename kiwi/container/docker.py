@@ -28,7 +28,7 @@ from ..utils.compress import Compress
 
 class ContainerImageDocker(object):
     """
-    Create docker container from a root directory
+    Unpack and create docker containers to and from a root directory
 
     Attributes
 
@@ -42,8 +42,9 @@ class ContainerImageDocker(object):
         self.root_dir = root_dir
         self.docker_dir = None
         self.docker_root_dir = None
+        self.uncompressed_image = None
 
-        self.container_name = ''
+        self.container_name = 'base'
         self.container_tag = 'latest'
         self.entry_command = []
         self.entry_subcommand = []
@@ -92,7 +93,16 @@ class ContainerImageDocker(object):
         if not self.entry_command and not self.entry_subcommand:
             self.entry_subcommand = ['--config.cmd=/bin/bash']
 
-    def create(self, filename):
+        self.docker_dir = mkdtemp(prefix='kiwi_docker_dir.')
+        self.docker_root_dir = mkdtemp(prefix='kiwi_docker_root_dir.')
+        self.container_dir = os.sep.join(
+            [self.docker_dir, 'umoci_layout']
+        )
+        self.container_dir_name = ':'.join(
+            [self.container_dir, self.container_tag]
+        )
+
+    def create(self, filename, base_image):
         """
         Create compressed docker system container tar archive
 
@@ -103,25 +113,11 @@ class ContainerImageDocker(object):
             Defaults.get_shared_cache_location()
         ]
 
-        self.docker_dir = mkdtemp(prefix='kiwi_docker_dir.')
-        self.docker_root_dir = mkdtemp(prefix='kiwi_docker_root_dir.')
+        if base_image:
+            self._unpack_image(base_image)
+        else:
+            self._init_image()
 
-        container_dir = os.sep.join(
-            [self.docker_dir, self.container_name]
-        )
-        container_name = ':'.join(
-            [container_dir, self.container_tag]
-        )
-
-        Command.run(
-            ['umoci', 'init', '--layout', container_dir]
-        )
-        Command.run(
-            ['umoci', 'new', '--image', container_name]
-        )
-        Command.run(
-            ['umoci', 'unpack', '--image', container_name, self.docker_root_dir]
-        )
         docker_root = DataSync(
             ''.join([self.root_dir, os.sep]),
             os.sep.join([self.docker_root_dir, 'rootfs'])
@@ -129,9 +125,10 @@ class ContainerImageDocker(object):
         docker_root.sync_data(
             options=['-a', '-H', '-X', '-A'], exclude=exclude_list
         )
-        Command.run(
-            ['umoci', 'repack', '--image', container_name, self.docker_root_dir]
-        )
+        Command.run([
+            'umoci', 'repack', '--image',
+            self.container_dir_name, self.docker_root_dir
+        ])
         Command.run(
             [
                 'umoci', 'config'
@@ -146,12 +143,12 @@ class ContainerImageDocker(object):
             self.environment +
             self.labels +
             [
-                '--image', container_name,
+                '--image', self.container_dir_name,
                 '--tag', self.container_tag
             ]
         )
         Command.run(
-            ['umoci', 'gc', '--layout', container_dir]
+            ['umoci', 'gc', '--layout', self.container_dir]
         )
 
         docker_tarfile = filename.replace('.xz', '')
@@ -163,7 +160,7 @@ class ContainerImageDocker(object):
         Command.run(
             [
                 'skopeo', 'copy', 'oci:{0}'.format(
-                    container_name
+                    self.container_dir_name
                 ),
                 'docker-archive:{0}:{1}:{2}'.format(
                     docker_tarfile, self.container_name, self.container_tag
@@ -173,8 +170,48 @@ class ContainerImageDocker(object):
         compressor = Compress(docker_tarfile)
         compressor.xz()
 
+    def unpack_to_root_dir(self, base_image):
+        """
+        Unpack the base image to the root directory
+        """
+        self._unpack_image(base_image)
+        synchronizer = DataSync(
+            os.sep.join([self.docker_root_dir, 'rootfs', '']),
+            ''.join([self.root_dir, os.sep])
+        )
+        synchronizer.sync_data(options=['-a', '-H', '-X', '-A'])
+
+    def _unpack_image(self, base_image):
+        if not self.uncompressed_image:
+            compressor = Compress(base_image)
+            compressor.uncompress(True)
+            self.uncompressed_image = compressor.uncompressed_filename
+        Command.run([
+            'skopeo', 'copy',
+            'docker-archive:{0}'.format(self.uncompressed_image),
+            'oci:{0}'.format(self.container_dir_name)
+        ])
+        Command.run([
+            'umoci', 'unpack', '--image',
+            self.container_dir_name, self.docker_root_dir
+        ])
+
+    def _init_image(self):
+        Command.run(
+            ['umoci', 'init', '--layout', self.container_dir]
+        )
+        Command.run(
+            ['umoci', 'new', '--image', self.container_dir_name]
+        )
+        Command.run([
+            'umoci', 'unpack', '--image',
+            self.container_dir_name, self.docker_root_dir
+        ])
+
     def __del__(self):
         if self.docker_dir:
             Path.wipe(self.docker_dir)
         if self.docker_root_dir:
             Path.wipe(self.docker_root_dir)
+        if self.uncompressed_image:
+            Path.wipe(self.uncompressed_image)

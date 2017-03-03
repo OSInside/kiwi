@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import os
 
 # project
 from ..container import ContainerImage
@@ -23,6 +24,7 @@ from ..container.setup import ContainerSetup
 from ..system.setup import SystemSetup
 from ..logger import log
 from ..system.result import Result
+from ..system.uri import Uri
 
 
 class ContainerBuilder(object):
@@ -69,6 +71,14 @@ class ContainerBuilder(object):
                 '.', self.requested_container_type, '.tar.xz'
             ]
         )
+        self.base_image = None
+
+        base_image = xml_state.build_type.get_derived_from()
+        if base_image:
+            uri = Uri(base_image, 'images')
+            self.base_image = os.sep.join(
+                [self.root_dir, 'image', os.path.basename(uri.translate())]
+            )
         self.result = Result(xml_state)
 
     def create(self):
@@ -80,22 +90,25 @@ class ContainerBuilder(object):
 
         * image="docker"
         """
-        log.info(
-            'Setting up %s container', self.requested_container_type
-        )
-        container_setup = ContainerSetup(
-            self.requested_container_type, self.root_dir, self.container_config
-        )
-        container_setup.setup()
+        if not self.base_image:
+            log.info(
+                'Setting up %s container', self.requested_container_type
+            )
+            container_setup = ContainerSetup(
+                self.requested_container_type, self.root_dir,
+                self.container_config
+            )
+            container_setup.setup()
 
         log.info(
             '--> Creating container image'
         )
         container_image = ContainerImage(
-            self.requested_container_type, self.root_dir, self.container_config
+            self.requested_container_type, self.root_dir,
+            self.container_config
         )
         container_image.create(
-            self.filename
+            self.filename, self.base_image
         )
         self.result.add(
             key='container',
