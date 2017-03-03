@@ -143,3 +143,35 @@ class RuntimeChecker(object):
             for tool in ['umoci', 'skopeo']:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
                     raise KiwiRuntimeError(message.format(tool))
+
+    def check_boot_image_reference_correctly_setup(self):
+        """
+        If an initrd_system different from "kiwi" is selected for a
+        vmx (simple disk) image build, it does not make sense to setup
+        a reference to a kiwi boot image description, because no kiwi
+        boot image will be built.
+        """
+        message = dedent('''\n
+            Selected initrd_system is: {0}
+
+            The boot attribute selected: '{1}' which is an initrd image
+            used for the 'kiwi' initrd system. This boot image will not be
+            used according to the selected initrd system. Please cleanup
+            your image description:
+
+            1) If the selected initrd system is correct, delete the
+               obsolete boot attribute from the selected '{2}' build type
+
+            2) If the kiwi initrd image should be used, make sure to
+               set initrd_system="kiwi"
+        ''')
+        build_type_name = self.xml_state.get_build_type_name()
+        boot_image_reference = self.xml_state.build_type.get_boot()
+        if build_type_name == 'vmx' and boot_image_reference:
+            initrd_system = self.xml_state.build_type.get_initrd_system()
+            if initrd_system and initrd_system == 'dracut':
+                raise KiwiRuntimeError(
+                    message.format(
+                        initrd_system, boot_image_reference, build_type_name
+                    )
+                )
