@@ -157,7 +157,6 @@ calling :command:`dice` as follows:
 
     .. code:: bash
 
-        $ docker tag dice opensuse/dice
         $ docker push opensuse/dice:latest
 
 
