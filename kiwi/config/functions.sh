@@ -57,6 +57,16 @@ function baseSystemdServiceInstalled {
 }
 
 #======================================
+# baseSysVServiceInstalled
+#--------------------------------------
+function baseSysVServiceInstalled {
+    local service=$1
+    if [ -x "/etc/init.d/${service}" ];then
+        echo "${service}"
+    fi
+}
+
+#======================================
 # baseSystemctlCall
 #--------------------------------------
 function baseSystemdCall {
@@ -64,6 +74,13 @@ function baseSystemdCall {
     local service=$(baseSystemdServiceInstalled "$service_name")
     if [ ! -z "$service" ];then
         systemctl "$@" "$service"
+    else
+        local legacy_service=$(baseSysVServiceInstalled "$service_name")
+        if [ ! -z "$legacy_service" ];then
+            # systemd is sysV init compatible and still allows
+            # to enable those type of services
+            systemctl "$@" "$legacy_service"
+        fi
     fi
 }
 
