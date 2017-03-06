@@ -21,9 +21,9 @@ from xml.etree import ElementTree
 from xml.dom import minidom
 
 # project
-from ..logger import log
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobError,
     KiwiSatSolverJobProblems

@@ -8,7 +8,7 @@ import kiwi
 
 from .test_helper import *
 
-from kiwi.boot.image.kiwi import BootImageKiwi
+from kiwi.boot.image.builtin_kiwi import BootImageKiwi
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import *
@@ -33,13 +33,13 @@ class TestBootImageKiwi(object):
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        kiwi.boot.image.kiwi.SystemPrepare = mock.Mock(
+        kiwi.boot.image.builtin_kiwi.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
-        kiwi.boot.image.kiwi.SystemSetup = mock.Mock(
+        kiwi.boot.image.builtin_kiwi.SystemSetup = mock.Mock(
             return_value=self.setup
         )
-        kiwi.boot.image.kiwi.Profile = mock.Mock(
+        kiwi.boot.image.builtin_kiwi.Profile = mock.Mock(
             return_value=self.profile
         )
         mock_mkdtemp.return_value = 'boot-directory'
@@ -80,13 +80,13 @@ class TestBootImageKiwi(object):
         mock_os_path.return_value = False
         self.boot_image.prepare()
 
-    @patch('kiwi.boot.image.kiwi.ArchiveCpio')
-    @patch('kiwi.boot.image.kiwi.Compress')
-    @patch('kiwi.boot.image.kiwi.Path.create')
-    @patch('kiwi.boot.image.kiwi.Path.wipe')
-    @patch('kiwi.boot.image.kiwi.DataSync')
+    @patch('kiwi.boot.image.builtin_kiwi.ArchiveCpio')
+    @patch('kiwi.boot.image.builtin_kiwi.Compress')
+    @patch('kiwi.boot.image.builtin_kiwi.Path.create')
+    @patch('kiwi.boot.image.builtin_kiwi.Path.wipe')
+    @patch('kiwi.boot.image.builtin_kiwi.DataSync')
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
-    @patch('kiwi.boot.image.kiwi.mkdtemp')
+    @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
     def test_create_initrd(
         self, mock_mkdtemp, mock_prepared, mock_sync,
         mock_wipe, mock_create, mock_compress, mock_cpio

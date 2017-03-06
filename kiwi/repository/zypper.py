@@ -20,11 +20,11 @@ from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
-from ..command import Command
-from .base import RepositoryBase
-from ..path import Path
+from kiwi.command import Command
+from kiwi.repository.base import RepositoryBase
+from kiwi.path import Path
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiRepoTypeUnknown
 )
 

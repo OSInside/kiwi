@@ -16,16 +16,16 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .qcow2 import DiskFormatQcow2
-from .vhd import DiskFormatVhd
-from .vhdfixed import DiskFormatVhdFixed
-from .vmdk import DiskFormatVmdk
-from .gce import DiskFormatGce
-from .vdi import DiskFormatVdi
-from .base import DiskFormatBase
-from .vagrant_libvirt import DiskFormatVagrantLibVirt
+from kiwi.storage.subformat.qcow2 import DiskFormatQcow2
+from kiwi.storage.subformat.vhd import DiskFormatVhd
+from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
+from kiwi.storage.subformat.vmdk import DiskFormatVmdk
+from kiwi.storage.subformat.gce import DiskFormatGce
+from kiwi.storage.subformat.vdi import DiskFormatVdi
+from kiwi.storage.subformat.base import DiskFormatBase
+from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiDiskFormatSetupError
 )
 

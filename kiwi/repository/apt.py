@@ -19,9 +19,9 @@ import os
 from tempfile import NamedTemporaryFile
 
 # project
-from .template.apt import PackageManagerTemplateAptGet
-from .base import RepositoryBase
-from ..path import Path
+from kiwi.repository.template.apt import PackageManagerTemplateAptGet
+from kiwi.repository.base import RepositoryBase
+from kiwi.path import Path
 
 
 class RepositoryApt(RepositoryBase):

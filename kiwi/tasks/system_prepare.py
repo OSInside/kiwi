@@ -60,14 +60,14 @@ options:
         repository in the XML description
 """
 # project
-from .base import CliTask
-from ..help import Help
-from ..privileges import Privileges
-from ..system.prepare import SystemPrepare
-from ..system.setup import SystemSetup
-from ..defaults import Defaults
-from ..system.profile import Profile
-from ..logger import log
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.privileges import Privileges
+from kiwi.system.prepare import SystemPrepare
+from kiwi.system.setup import SystemSetup
+from kiwi.defaults import Defaults
+from kiwi.system.profile import Profile
+from kiwi.logger import log
 
 
 class SystemPrepareTask(CliTask):

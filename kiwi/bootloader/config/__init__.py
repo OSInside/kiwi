@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .grub2 import BootLoaderConfigGrub2
-from .isolinux import BootLoaderConfigIsoLinux
-from .zipl import BootLoaderConfigZipl
+from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
+from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
+from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiBootLoaderConfigSetupError
 )
 

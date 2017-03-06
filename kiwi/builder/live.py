@@ -20,23 +20,23 @@ import platform
 import shutil
 
 # project
-from ..bootloader.config import BootLoaderConfig
-from ..filesystem import FileSystem
-from ..filesystem.isofs import FileSystemIsoFs
-from ..boot.image import BootImage
-from ..system.size import SystemSize
-from ..system.setup import SystemSetup
-from ..firmware import FirmWare
-from ..defaults import Defaults
-from ..path import Path
-from ..system.result import Result
-from ..iso import Iso
-from ..system.identifier import SystemIdentifier
-from ..system.kernel import Kernel
-from ..command import Command
-from ..logger import log
+from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.filesystem import FileSystem
+from kiwi.filesystem.isofs import FileSystemIsoFs
+from kiwi.boot.image import BootImage
+from kiwi.system.size import SystemSize
+from kiwi.system.setup import SystemSetup
+from kiwi.firmware import FirmWare
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.system.result import Result
+from kiwi.iso import Iso
+from kiwi.system.identifier import SystemIdentifier
+from kiwi.system.kernel import Kernel
+from kiwi.command import Command
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiLiveBootImageError
 )
 

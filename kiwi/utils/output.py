@@ -20,8 +20,8 @@ import os
 from tempfile import NamedTemporaryFile
 
 # project
-from ..path import Path
-from ..logger import log
+from kiwi.path import Path
+from kiwi.logger import log
 
 
 class DataOutput(object):

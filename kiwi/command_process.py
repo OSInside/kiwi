@@ -21,10 +21,10 @@ import six
 # the bytes type in python3. The bytes type from the
 # builtins generalizes this type to be bytes always
 from builtins import bytes
+from collections import namedtuple
 
 # project
 from .logger import log
-from collections import namedtuple
 
 from .exceptions import (
     KiwiCommandError

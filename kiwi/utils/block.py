@@ -18,7 +18,7 @@
 import os
 
 # project
-from ..command import Command
+from kiwi.command import Command
 
 
 class BlockID(object):

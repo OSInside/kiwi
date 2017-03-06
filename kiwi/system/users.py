@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from ..command import Command
+from kiwi.command import Command
 
 
 class Users(object):

@@ -19,13 +19,13 @@ import re
 import os
 
 # project
-from ..command import Command
-from ..mount_manager import MountManager
-from ..logger import log
-from ..utils.sync import DataSync
-from ..path import Path
-from .base import PackageManagerBase
-from ..exceptions import (
+from kiwi.command import Command
+from kiwi.mount_manager import MountManager
+from kiwi.logger import log
+from kiwi.utils.sync import DataSync
+from kiwi.path import Path
+from kiwi.package_manager.base import PackageManagerBase
+from kiwi.exceptions import (
     KiwiDebootstrapError
 )
 

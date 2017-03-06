@@ -18,11 +18,11 @@
 import platform
 
 # project
-from ..container import ContainerImage
-from ..container.setup import ContainerSetup
-from ..system.setup import SystemSetup
-from ..logger import log
-from ..system.result import Result
+from kiwi.container import ContainerImage
+from kiwi.container.setup import ContainerSetup
+from kiwi.system.setup import SystemSetup
+from kiwi.logger import log
+from kiwi.system.result import Result
 
 
 class ContainerBuilder(object):

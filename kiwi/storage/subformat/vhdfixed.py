@@ -21,10 +21,10 @@ from binascii import unhexlify
 import re
 
 # project
-from .base import DiskFormatBase
-from ...command import Command
+from kiwi.storage.subformat.base import DiskFormatBase
+from kiwi.command import Command
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiVhdTagError
 )
 

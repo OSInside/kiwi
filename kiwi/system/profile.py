@@ -19,8 +19,8 @@ import collections
 from tempfile import NamedTemporaryFile
 
 # project
-from .shell import Shell
-from ..defaults import Defaults
+from kiwi.system.shell import Shell
+from kiwi.defaults import Defaults
 
 
 class Profile(object):

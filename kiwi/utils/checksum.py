@@ -20,10 +20,10 @@ from collections import namedtuple
 import hashlib
 
 # project
-from ..command import Command
-from .compress import Compress
+from kiwi.command import Command
+from kiwi.utils.compress import Compress
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiFileNotFound
 )
 

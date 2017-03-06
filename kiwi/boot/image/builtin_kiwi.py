@@ -17,16 +17,16 @@
 #
 from tempfile import mkdtemp
 
-from ...defaults import Defaults
-from ...utils.sync import DataSync
-from ...system.prepare import SystemPrepare
-from ...system.profile import Profile
-from ...system.setup import SystemSetup
-from ...logger import log
-from ...archive.cpio import ArchiveCpio
-from ...utils.compress import Compress
-from ...path import Path
-from .base import BootImageBase
+from kiwi.defaults import Defaults
+from kiwi.utils.sync import DataSync
+from kiwi.system.prepare import SystemPrepare
+from kiwi.system.profile import Profile
+from kiwi.system.setup import SystemSetup
+from kiwi.logger import log
+from kiwi.archive.cpio import ArchiveCpio
+from kiwi.utils.compress import Compress
+from kiwi.path import Path
+from kiwi.boot.image.base import BootImageBase
 
 
 class BootImageKiwi(BootImageBase):

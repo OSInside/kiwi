@@ -19,10 +19,10 @@ import os
 from collections import namedtuple
 
 # project
-from ..firmware import FirmWare
-from ..system.size import SystemSize
-from ..defaults import Defaults
-from ..logger import log
+from kiwi.firmware import FirmWare
+from kiwi.system.size import SystemSize
+from kiwi.defaults import Defaults
+from kiwi.logger import log
 
 
 class DiskSetup(object):

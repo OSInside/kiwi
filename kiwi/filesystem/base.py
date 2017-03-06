@@ -18,11 +18,11 @@
 import os
 
 # project
-from ..logger import log
-from ..utils.sync import DataSync
-from ..mount_manager import MountManager
+from kiwi.logger import log
+from kiwi.utils.sync import DataSync
+from kiwi.mount_manager import MountManager
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiFileSystemSyncError
 )
 

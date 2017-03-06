@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .zypper import RepositoryZypper
-from .yum import RepositoryYum
-from .apt import RepositoryApt
-from .dnf import RepositoryDnf
+from kiwi.repository.zypper import RepositoryZypper
+from kiwi.repository.yum import RepositoryYum
+from kiwi.repository.apt import RepositoryApt
+from kiwi.repository.dnf import RepositoryDnf
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiRepositorySetupError
 )
 

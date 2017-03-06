@@ -18,10 +18,10 @@
 import re
 
 # project
-from ..logger import log
-from ..command import Command
-from .base import PackageManagerBase
-from ..exceptions import (
+from kiwi.logger import log
+from kiwi.command import Command
+from kiwi.package_manager.base import PackageManagerBase
+from kiwi.exceptions import (
     KiwiRequestError
 )
 

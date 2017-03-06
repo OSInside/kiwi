@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .suse import SolverRepositorySUSE
-from .rpm_md import SolverRepositoryRpmMd
-from .rpm_dir import SolverRepositoryRpmDir
+from kiwi.solver.repository.suse import SolverRepositorySUSE
+from kiwi.solver.repository.rpm_md import SolverRepositoryRpmMd
+from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
 
-from ...exceptions import KiwiSolverRepositorySetupError
+from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 
 class SolverRepository(object):

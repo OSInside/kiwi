@@ -18,11 +18,11 @@
 from tempfile import NamedTemporaryFile
 
 # project
-from ..command import Command
-from ..logger import log
-from .base import PartitionerBase
+from kiwi.command import Command
+from kiwi.logger import log
+from kiwi.partitioner.base import PartitionerBase
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiPartitionerMsDosFlagError
 )
 

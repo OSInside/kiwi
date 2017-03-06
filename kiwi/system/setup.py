@@ -22,22 +22,22 @@ from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 # project
-from .uri import Uri
-from ..repository import Repository
-from ..system.root_bind import RootBind
-from ..system.root_init import RootInit
-from ..command import Command
-from ..command_process import CommandProcess
-from ..utils.sync import DataSync
-from ..logger import log
-from ..defaults import Defaults
-from .users import Users
-from .shell import Shell
-from ..path import Path
-from ..archive.tar import ArchiveTar
-from ..utils.compress import Compress
+from kiwi.system.uri import Uri
+from kiwi.repository import Repository
+from kiwi.system.root_bind import RootBind
+from kiwi.system.root_init import RootInit
+from kiwi.command import Command
+from kiwi.command_process import CommandProcess
+from kiwi.utils.sync import DataSync
+from kiwi.logger import log
+from kiwi.defaults import Defaults
+from kiwi.system.users import Users
+from kiwi.system.shell import Shell
+from kiwi.path import Path
+from kiwi.archive.tar import ArchiveTar
+from kiwi.utils.compress import Compress
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiImportDescriptionError,
     KiwiScriptFailed
 )

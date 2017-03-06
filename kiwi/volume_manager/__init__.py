@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .lvm import VolumeManagerLVM
-from .btrfs import VolumeManagerBtrfs
+from kiwi.volume_manager.lvm import VolumeManagerLVM
+from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiVolumeManagerSetupError
 )
 

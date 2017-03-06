@@ -20,11 +20,11 @@ from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
 # project
-from ..command import Command
-from .device_provider import DeviceProvider
-from .mapped_device import MappedDevice
-from ..partitioner import Partitioner
-from ..logger import log
+from kiwi.command import Command
+from kiwi.storage.device_provider import DeviceProvider
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.partitioner import Partitioner
+from kiwi.logger import log
 
 
 class Disk(DeviceProvider):

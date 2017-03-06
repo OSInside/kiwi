@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .kiwi import BootImageKiwi
-from .dracut import BootImageDracut
+from kiwi.boot.image.builtin_kiwi import BootImageKiwi
+from kiwi.boot.image.dracut import BootImageDracut
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiBootImageSetupError
 )
 

@@ -20,8 +20,8 @@ from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
-from .base import RepositoryBase
-from ..path import Path
+from kiwi.repository.base import RepositoryBase
+from kiwi.path import Path
 
 
 class RepositoryDnf(RepositoryBase):

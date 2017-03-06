@@ -21,15 +21,15 @@ import shutil
 from collections import OrderedDict
 
 # project
-from .base import BootLoaderConfigBase
-from ..template.grub2 import BootLoaderTemplateGrub2
-from ...command import Command
-from ...defaults import Defaults
-from ...firmware import FirmWare
-from ...logger import log
-from ...path import Path
-from ...utils.sync import DataSync
-from ...utils.sysconfig import SysConfig
+from kiwi.bootloader.config.base import BootLoaderConfigBase
+from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
+from kiwi.command import Command
+from kiwi.defaults import Defaults
+from kiwi.firmware import FirmWare
+from kiwi.logger import log
+from kiwi.path import Path
+from kiwi.utils.sync import DataSync
+from kiwi.utils.sysconfig import SysConfig
 
 from ...exceptions import (
     KiwiTemplateError,

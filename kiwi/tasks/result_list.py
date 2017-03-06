@@ -31,10 +31,10 @@ options:
 import os
 
 # project
-from .base import CliTask
-from ..help import Help
-from ..system.result import Result
-from ..logger import log
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.system.result import Result
+from kiwi.logger import log
 
 
 class ResultListTask(CliTask):

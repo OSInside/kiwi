@@ -18,8 +18,8 @@
 from tempfile import NamedTemporaryFile
 
 # project
-from ..command import Command
-from ..defaults import Defaults
+from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 
 class Shell(object):
