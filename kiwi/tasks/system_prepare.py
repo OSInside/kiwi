@@ -92,6 +92,7 @@ class SystemPrepareTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
+        self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
         self.runtime_checker.check_boot_image_reference_correctly_setup()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()

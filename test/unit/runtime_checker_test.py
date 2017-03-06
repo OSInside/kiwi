@@ -76,3 +76,17 @@ class TestRuntimeChecker(object):
         self.xml_state.build_type.set_initrd_system('dracut')
         self.xml_state.build_type.set_boot('boot/some-kiwi-boot-description')
         self.runtime_checker.check_boot_image_reference_correctly_setup()
+
+    @raises(KiwiRuntimeError)
+    @patch('platform.machine')
+    @patch('kiwi.runtime_checker.Defaults.get_boot_image_description_path')
+    def test_check_consistent_kernel_in_boot_and_system_image(
+        self, mock_boot_path, mock_machine
+    ):
+        mock_boot_path.return_value = '../data'
+        mock_machine.return_value = 'x86_64'
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'oem'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_consistent_kernel_in_boot_and_system_image()

@@ -19,6 +19,8 @@ import os
 from textwrap import dedent
 
 # project
+from .xml_description import XMLDescription
+from .xml_state import XMLState
 from .system.uri import Uri
 from .defaults import Defaults
 from .path import Path
@@ -143,6 +145,85 @@ class RuntimeChecker(object):
             for tool in ['umoci', 'skopeo']:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
                     raise KiwiRuntimeError(message.format(tool))
+
+    def check_consistent_kernel_in_boot_and_system_image(self):
+        """
+        If a kiwi initrd is used, the kernel used to build the kiwi
+        initrd and the kernel used in the system image must be the
+        same in order to avoid an inconsistent boot setup
+        """
+        message = dedent('''\n
+            Possible kernel mismatch between kiwi initrd and system image
+
+            The selected '{0}' boot image kernel is '{1}'. However this
+            kernel package was not explicitly listed in the package list
+            of the system image. Please fixup your system image
+            description:
+
+            1) Add <package name="{1}"/> to your system XML description
+
+            2) Inherit kernel from system description to initrd via
+               the custom kernel profile:
+
+               <type ... bootkernel="custom" .../>
+
+               <packages type="image"/>
+                   <package name="desired-kernel" bootinclude="true"/>
+               </packages>
+        ''')
+        boot_image_reference = self.xml_state.build_type.get_boot()
+        boot_kernel_package_name = None
+        if boot_image_reference:
+            if not boot_image_reference[0] == '/':
+                boot_image_reference = os.sep.join(
+                    [
+                        Defaults.get_boot_image_description_path(),
+                        boot_image_reference
+                    ]
+                )
+            boot_config_file = os.sep.join(
+                [boot_image_reference, 'config.xml']
+            )
+            if os.path.exists(boot_config_file):
+                boot_description = XMLDescription(
+                    description=boot_config_file,
+                    derived_from=self.xml_state.xml_data.description_dir
+                )
+                boot_kernel_profile = \
+                    self.xml_state.build_type.get_bootkernel()
+                if not boot_kernel_profile:
+                    boot_kernel_profile = 'std'
+                boot_xml_state = XMLState(
+                    boot_description.load(), [boot_kernel_profile]
+                )
+                kernel_package_sections = []
+                for packages_section in boot_xml_state.xml_data.get_packages():
+                    # lookup package sections matching kernel profile in kiwi
+                    # boot description. By definition this must be a packages
+                    # section with a single profile name whereas the default
+                    # profile name is 'std'. The section itself must contain
+                    # one matching kernel package name for the desired
+                    # architecture
+                    if packages_section.get_profiles() == boot_kernel_profile:
+                        for package in packages_section.get_package():
+                            kernel_package_sections.append(package)
+
+                for package in kernel_package_sections:
+                    if boot_xml_state.package_matches_host_architecture(package):
+                        boot_kernel_package_name = package.get_name()
+
+        if boot_kernel_package_name:
+            # A kernel package name was found in the kiwi boot image
+            # description. Let's check if this kernel is also used
+            # in the system image
+            image_package_names = self.xml_state.get_system_packages()
+            if boot_kernel_package_name not in image_package_names:
+                raise KiwiRuntimeError(
+                    message.format(
+                        self.xml_state.build_type.get_boot(),
+                        boot_kernel_package_name
+                    )
+                )
 
     def check_boot_image_reference_correctly_setup(self):
         """
