@@ -19,6 +19,7 @@ import os
 
 # project
 from kiwi.system.root_init import RootInit
+from kiwi.system.root_import import RootImport
 from kiwi.system.root_bind import RootBind
 from kiwi.repository import Repository
 from kiwi.package_manager import PackageManager
@@ -66,6 +67,12 @@ class SystemPrepare(object):
             root_dir, allow_existing
         )
         root.create()
+        image_uri = xml_state.build_type.get_derived_from()
+        if image_uri:
+            root_import = RootImport(
+                root_dir, image_uri, xml_state.build_type.get_image()
+            )
+            root_import.sync_data()
         root_bind = RootBind(
             root
         )

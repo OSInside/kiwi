@@ -330,6 +330,7 @@ List of attributes for ``type``:
 * ``vhdfixedtag`` `[?]`_: Specifies the GUID in a fixed format VHD
 * ``volid`` `[?]`_: for the iso type only: Specifies the volume ID (volume name or label) to be written into the master block. There is space for 32 characters.
 * ``wwid_wait_timeout`` `[?]`_: Specifies the wait period in seconds after launching the multipath daemon to wait until all presented devices are available on the host. Default timeout is 3 seconds
+* ``derived_from`` `[?]`_: Specifies the image URI of the container image. The image created by KIWI will use the specified container as the base root to work on.
 
 .. _k.image.preferences.type.containerconfig:
 
