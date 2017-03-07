@@ -55,8 +55,8 @@ def mock_open(data=None):
     :return:
     '''
     data = BytesIO(data)
-    mock = MagicMock(spec=file)
-    handle = MagicMock(spec=file)
+    mock = MagicMock()
+    handle = MagicMock()
     handle.write.return_value = None
     handle.__enter__.return_value = data or handle
     mock.return_value = handle

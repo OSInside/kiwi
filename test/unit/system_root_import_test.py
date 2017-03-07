@@ -1,11 +1,10 @@
-import mock
 from mock import patch
-from mock import call
 
 from .test_helper import raises
 
 from kiwi.system.root_import import RootImport
 from kiwi.exceptions import KiwiRootImportError
+
 
 class TestRootImport(object):
     @patch('kiwi.system.root_import.RootImportDocker')
@@ -18,4 +17,3 @@ class TestRootImport(object):
     @raises(KiwiRootImportError)
     def test_not_implemented_import(self):
         RootImport('root_dir', 'file:///image.tar.xz', 'foo')
-    

@@ -1,11 +1,10 @@
-import mock
 from mock import patch
-from mock import call
 
 from .test_helper import raises
 
 from kiwi.system.root_import.base import RootImportBase
 from kiwi.exceptions import KiwiRootImportError
+
 
 class TestRootImportBase(object):
     @patch('os.path.exists')
@@ -26,7 +25,7 @@ class TestRootImportBase(object):
         mock_path.assert_called_once_with('/image.tar.xz')
 
     @raises(NotImplementedError)
-    @patch('os.path.exists') 
+    @patch('os.path.exists')
     def test_data_sync(self, mock_path):
         mock_path.return_value = True
         root_import = RootImportBase('root_dir', 'file:///image.tar.xz')

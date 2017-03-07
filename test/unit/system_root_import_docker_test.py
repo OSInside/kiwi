@@ -2,10 +2,8 @@ import mock
 from mock import patch
 from mock import call
 
-from .test_helper import raises
-
 from kiwi.system.root_import.docker import RootImportDocker
-from kiwi.exceptions import KiwiRootImportError
+
 
 class TestRootImportDocker(object):
     @patch('os.path.exists')
@@ -19,10 +17,10 @@ class TestRootImportDocker(object):
     @patch('kiwi.system.root_import.docker.Compress')
     @patch('kiwi.system.root_import.docker.Command.run')
     @patch('kiwi.system.root_import.docker.DataSync')
-    @patch('kiwi.system.root_import.docker.mkdtemp') 
+    @patch('kiwi.system.root_import.docker.mkdtemp')
     def test_sync_data(
-            self, mock_mkdtemp, mock_sync, mock_run, mock_compress
-        ):
+        self, mock_mkdtemp, mock_sync, mock_run, mock_compress
+    ):
         uncompress = mock.Mock()
         uncompress.uncompressed_filename = 'tmp_uncompressed'
         mock_compress.return_value = uncompress
@@ -38,7 +36,7 @@ class TestRootImportDocker(object):
         mock_sync.return_value = sync
 
         self.docker_import.sync_data()
-        
+
         mock_compress.assert_called_once_with('/image.tar.xz')
         uncompress.uncompress.assert_called_once_with(True)
 

@@ -1,4 +1,4 @@
-from mock import patch, call
+from mock import patch
 import mock
 
 from .test_helper import raises
