@@ -4,8 +4,6 @@ import mock
 
 from lxml import etree
 
-from .test_helper import raises
-
 from kiwi.solver.repository.rpm_md import SolverRepositoryRpmMd
 from kiwi.solver.repository.base import SolverRepositoryBase
 

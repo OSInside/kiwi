@@ -19,14 +19,14 @@ import os
 import platform
 
 # project
-from .base import BootLoaderConfigBase
-from ..template.isolinux import BootLoaderTemplateIsoLinux
-from ...utils.sync import DataSync
-from ...logger import log
-from ...path import Path
-from ...defaults import Defaults
+from kiwi.bootloader.config.base import BootLoaderConfigBase
+from kiwi.bootloader.template.isolinux import BootLoaderTemplateIsoLinux
+from kiwi.utils.sync import DataSync
+from kiwi.logger import log
+from kiwi.path import Path
+from kiwi.defaults import Defaults
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderIsoLinuxPlatformError
 )

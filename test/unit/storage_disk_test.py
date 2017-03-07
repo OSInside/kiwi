@@ -1,11 +1,9 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open
 
-from kiwi.exceptions import *
 from kiwi.storage.disk import Disk
 
 
@@ -132,14 +130,14 @@ class TestDisk(object):
         assert self.disk.public_partition_id_map['kiwi_PrepPart'] == 1
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_device_map_loop(self, mock_command):
+    def test_device_map_efi_partition(self, mock_command):
         self.disk.create_efi_partition(100)
         self.disk.map_partitions()
         assert self.disk.partition_map == {'efi': '/dev/mapper/loop0p1'}
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_device_map_loop(self, mock_command):
+    def test_device_map_prep_partition(self, mock_command):
         self.disk.create_prep_partition(8)
         self.disk.map_partitions()
         assert self.disk.partition_map == {'prep': '/dev/mapper/loop0p1'}

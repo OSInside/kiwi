@@ -1,12 +1,7 @@
-
 from mock import patch
 
-import mock
-
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.system.shell import Shell
+
 from kiwi.defaults import Defaults
 
 

@@ -1,9 +1,14 @@
+import sys
+
 from mock import call
+from mock import patch
+
 import mock
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiVhdTagError
+
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
 
 from builtins import bytes

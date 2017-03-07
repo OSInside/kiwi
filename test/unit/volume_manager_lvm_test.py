@@ -1,13 +1,14 @@
-
 from mock import patch
 from mock import call
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 from collections import namedtuple
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiVolumeGroupConflict
+
 from kiwi.volume_manager.lvm import VolumeManagerLVM
+
 from kiwi.defaults import Defaults
 
 
@@ -147,8 +148,9 @@ class TestVolumeManagerLVM(object):
             call(
                 'root_dir', self.volume_type(
                     name='LVRoot', size='freespace:100', realpath='/',
-                    mountpoint=None, fullsize=False, attributes=[])
-                ),
+                    mountpoint=None, fullsize=False, attributes=[]
+                )
+            ),
             call(
                 'root_dir', self.volume_type(
                     name='myvol', size='size:500', realpath='/data',

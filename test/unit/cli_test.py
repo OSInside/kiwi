@@ -2,10 +2,15 @@ import sys
 
 from mock import patch
 
-from .test_helper import *
+from .test_helper import argv_kiwi_tests, raises
 
 from kiwi.cli import Cli
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiCompatError,
+    KiwiLoadCommandUndefined,
+    KiwiCommandNotLoaded,
+    KiwiUnknownServiceName
+)
 
 
 class TestCli(object):

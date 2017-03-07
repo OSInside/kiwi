@@ -18,11 +18,11 @@
 import os
 
 # project
-from ...utils.compress import Compress
-from ...logger import log
-from ...command import Command
-from ...system.kernel import Kernel
-from .base import BootImageBase
+from kiwi.utils.compress import Compress
+from kiwi.logger import log
+from kiwi.command import Command
+from kiwi.system.kernel import Kernel
+from kiwi.boot.image.base import BootImageBase
 
 
 class BootImageDracut(BootImageBase):

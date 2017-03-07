@@ -56,16 +56,16 @@ options:
         the target directory to store the system image file(s)
 """
 # project
-from .base import CliTask
-from ..help import Help
-from ..system.prepare import SystemPrepare
-from ..system.setup import SystemSetup
-from ..builder import ImageBuilder
-from ..system.profile import Profile
-from ..defaults import Defaults
-from ..privileges import Privileges
-from ..path import Path
-from ..logger import log
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.system.prepare import SystemPrepare
+from kiwi.system.setup import SystemSetup
+from kiwi.builder import ImageBuilder
+from kiwi.system.profile import Profile
+from kiwi.defaults import Defaults
+from kiwi.privileges import Privileges
+from kiwi.path import Path
+from kiwi.logger import log
 
 
 class SystemBuildTask(CliTask):

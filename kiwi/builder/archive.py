@@ -18,14 +18,14 @@
 import platform
 
 # project
-from ..defaults import Defaults
-from ..archive.tar import ArchiveTar
-from ..system.setup import SystemSetup
-from ..utils.checksum import Checksum
-from ..logger import log
-from ..system.result import Result
+from kiwi.defaults import Defaults
+from kiwi.archive.tar import ArchiveTar
+from kiwi.system.setup import SystemSetup
+from kiwi.utils.checksum import Checksum
+from kiwi.logger import log
+from kiwi.system.result import Result
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiArchiveSetupError
 )
 

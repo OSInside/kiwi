@@ -1,12 +1,12 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager import PackageManager
-from kiwi.exceptions import *
+
+from kiwi.exceptions import KiwiPackageManagerSetupError
 
 
 class TestPackageManager(object):

@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from ..system.size import SystemSize
-from ..logger import log
-from ..defaults import Defaults
+from kiwi.system.size import SystemSize
+from kiwi.logger import log
+from kiwi.defaults import Defaults
 
 
 class FileSystemSetup(object):

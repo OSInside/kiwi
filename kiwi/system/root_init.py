@@ -22,12 +22,12 @@ from shutil import rmtree
 import os
 
 # project
-from ..utils.sync import DataSync
-from ..command import Command
-from ..path import Path
-from ..defaults import Defaults
+from kiwi.utils.sync import DataSync
+from kiwi.command import Command
+from kiwi.path import Path
+from kiwi.defaults import Defaults
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiRootDirExists,
     KiwiRootInitCreationError
 )

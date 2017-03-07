@@ -19,7 +19,7 @@ import os
 from collections import namedtuple
 
 # project
-from .base import SolverRepositoryBase
+from kiwi.solver.repository.base import SolverRepositoryBase
 
 
 class SolverRepositorySUSE(SolverRepositoryBase):

@@ -1,8 +1,6 @@
-
 from mock import patch
 
 import mock
-import re
 
 from .test_helper import raises
 
@@ -71,7 +69,7 @@ class TestPackageManagerDnf(object):
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.process_install_requests()
-        chroot_dnf_args = self.manager.root_bind.move_to_root(
+        self.manager.root_bind.move_to_root(
             self.manager.dnf_args
         )
         mock_run.assert_called_once_with(
@@ -117,7 +115,7 @@ class TestPackageManagerDnf(object):
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        chroot_dnf_args = self.manager.root_bind.move_to_root(
+        self.manager.root_bind.move_to_root(
             self.manager.dnf_args
         )
         mock_call.assert_called_once_with(

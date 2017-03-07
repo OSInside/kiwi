@@ -38,13 +38,13 @@ options:
 import os
 
 # project
-from .base import CliTask
-from ..help import Help
-from ..builder import ImageBuilder
-from ..system.setup import SystemSetup
-from ..privileges import Privileges
-from ..path import Path
-from ..logger import log
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.builder import ImageBuilder
+from kiwi.system.setup import SystemSetup
+from kiwi.privileges import Privileges
+from kiwi.path import Path
+from kiwi.logger import log
 
 
 class SystemCreateTask(CliTask):

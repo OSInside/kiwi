@@ -1,14 +1,17 @@
-
 from mock import patch
 from mock import call
 import mock
 import os
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
 from textwrap import dedent
 
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiVmdkToolsError,
+    KiwiTemplateError
+)
+
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 
 from builtins import bytes

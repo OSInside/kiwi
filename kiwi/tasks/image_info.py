@@ -46,12 +46,12 @@ options:
         shasum, etc...
 """
 # project
-from .base import CliTask
-from ..help import Help
-from ..utils.output import DataOutput
-from ..solver.sat import Sat
-from ..solver.repository import SolverRepository
-from ..system.uri import Uri
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.utils.output import DataOutput
+from kiwi.solver.sat import Sat
+from kiwi.solver.repository import SolverRepository
+from kiwi.system.uri import Uri
 
 
 class ImageInfoTask(CliTask):

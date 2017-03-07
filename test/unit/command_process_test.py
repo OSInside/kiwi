@@ -1,7 +1,8 @@
 from mock import call
+from mock import patch
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.exceptions import KiwiCommandError
 from kiwi.command_process import CommandProcess

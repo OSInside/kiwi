@@ -2,11 +2,11 @@ import sys
 import mock
 
 from mock import patch
-from mock import call
+
 import kiwi
 
-from .test_helper import patch, raises, argv_kiwi_tests, patch_open
-from kiwi.exceptions import *
+from .test_helper import raises, argv_kiwi_tests, patch_open
+from kiwi.exceptions import KiwiBundleError
 from kiwi.tasks.result_bundle import ResultBundleTask
 from kiwi.system.result import Result
 

@@ -18,8 +18,8 @@
 import os
 
 # project
-from ..command import Command
-from ..exceptions import KiwiArchiveTarError
+from kiwi.command import Command
+from kiwi.exceptions import KiwiArchiveTarError
 
 
 class ArchiveTar(object):

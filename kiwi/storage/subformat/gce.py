@@ -19,9 +19,9 @@ from collections import OrderedDict
 from tempfile import mkdtemp
 
 # project
-from ...command import Command
-from .base import DiskFormatBase
-from ...archive.tar import ArchiveTar
+from kiwi.command import Command
+from kiwi.storage.subformat.base import DiskFormatBase
+from kiwi.archive.tar import ArchiveTar
 
 
 class DiskFormatGce(DiskFormatBase):

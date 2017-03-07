@@ -19,13 +19,13 @@
 from tempfile import mkdtemp
 
 # project
-from .base import FileSystemBase
-from .ext4 import FileSystemExt4
-from ..command import Command
-from ..system.size import SystemSize
-from ..path import Path
-from ..storage.loop_device import LoopDevice
-from ..logger import log
+from kiwi.filesystem.base import FileSystemBase
+from kiwi.filesystem.ext4 import FileSystemExt4
+from kiwi.command import Command
+from kiwi.system.size import SystemSize
+from kiwi.path import Path
+from kiwi.storage.loop_device import LoopDevice
+from kiwi.logger import log
 
 
 class FileSystemClicFs(FileSystemBase):

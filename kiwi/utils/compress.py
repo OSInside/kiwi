@@ -19,9 +19,9 @@ import os
 from tempfile import NamedTemporaryFile
 
 # project
-from ..command import Command
+from kiwi.command import Command
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiFileNotFound,
     KiwiCompressionFormatUnknown
 )

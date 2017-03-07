@@ -17,8 +17,8 @@
 
 
 # project
-from .base import DiskFormatBase
-from ...command import Command
+from kiwi.storage.subformat.base import DiskFormatBase
+from kiwi.command import Command
 
 
 class DiskFormatVdi(DiskFormatBase):

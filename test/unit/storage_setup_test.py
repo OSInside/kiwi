@@ -1,17 +1,14 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
-
 import kiwi
 
-from kiwi.exceptions import *
 from kiwi.storage.setup import DiskSetup
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.defaults import Defaults
+
 
 class TestDiskSetup(object):
     @patch('platform.machine')

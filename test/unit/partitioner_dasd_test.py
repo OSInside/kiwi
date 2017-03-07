@@ -1,13 +1,10 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open
 
-from collections import namedtuple
 from kiwi.partitioner.dasd import PartitionerDasd
-from kiwi.exceptions import *
 
 
 class TestPartitionerDasd(object):

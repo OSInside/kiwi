@@ -39,12 +39,12 @@ options:
         path to the root directory of the image
 """
 # project
-from .base import CliTask
-from ..privileges import Privileges
-from ..help import Help
-from ..system.prepare import SystemPrepare
+from kiwi.tasks.base import CliTask
+from kiwi.privileges import Privileges
+from kiwi.help import Help
+from kiwi.system.prepare import SystemPrepare
 
-from ..logger import log
+from kiwi.logger import log
 
 
 class SystemUpdateTask(CliTask):

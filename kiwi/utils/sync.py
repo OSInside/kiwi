@@ -18,8 +18,8 @@
 import xattr
 
 # project
-from ..logger import log
-from ..command import Command
+from kiwi.logger import log
+from kiwi.command import Command
 
 
 class DataSync(object):

@@ -1,10 +1,7 @@
-
 from mock import patch
 from mock import call
 import mock
 import kiwi
-
-from .test_helper import *
 
 from kiwi.builder.container import ContainerBuilder
 

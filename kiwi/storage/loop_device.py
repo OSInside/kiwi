@@ -18,11 +18,11 @@
 import os
 
 # project
-from ..command import Command
-from .device_provider import DeviceProvider
-from ..logger import log
+from kiwi.command import Command
+from kiwi.storage.device_provider import DeviceProvider
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiLoopSetupError
 )
 

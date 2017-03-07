@@ -1,11 +1,5 @@
-
 from mock import patch
 
-import mock
-
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.utils.sync import DataSync
 
 
@@ -38,7 +32,7 @@ class TestDataSync(object):
         )
 
     @patch('xattr.getxattr')
-    def test_target_supports_extended_attributes(self, mock_getxattr):
+    def test_target_does_not_support_extended_attributes(self, mock_getxattr):
         mock_getxattr.side_effect = OSError(
             """[Errno 95] Operation not supported: b'/boot/efi"""
         )

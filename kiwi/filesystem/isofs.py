@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .base import FileSystemBase
-from ..command import Command
-from ..iso import Iso
-from ..path import Path
+from kiwi.filesystem.base import FileSystemBase
+from kiwi.command import Command
+from kiwi.iso import Iso
+from kiwi.path import Path
 
-from ..exceptions import KiwiIsoToolError
+from kiwi.exceptions import KiwiIsoToolError
 
 
 class FileSystemIsoFs(FileSystemBase):

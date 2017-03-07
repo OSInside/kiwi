@@ -19,10 +19,10 @@ import re
 import os
 
 # project
-from ..command import Command
-from .base import PackageManagerBase
-from ..path import Path
-from ..exceptions import (
+from kiwi.command import Command
+from kiwi.package_manager.base import PackageManagerBase
+from kiwi.path import Path
+from kiwi.exceptions import (
     KiwiRpmDatabaseReloadError,
     KiwiRequestError
 )

@@ -14,12 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-
 import platform
 
 # project
-from .base import FileSystemBase
-from ..command import Command
+from kiwi.filesystem.base import FileSystemBase
+from kiwi.command import Command
 
 
 class FileSystemSquashFs(FileSystemBase):

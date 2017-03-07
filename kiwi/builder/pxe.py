@@ -19,16 +19,16 @@ import os
 import platform
 
 # project
-from ..boot.image import BootImage
-from .filesystem import FileSystemBuilder
-from ..utils.compress import Compress
-from ..utils.checksum import Checksum
-from ..system.setup import SystemSetup
-from ..system.kernel import Kernel
-from ..logger import log
-from ..system.result import Result
+from kiwi.boot.image import BootImage
+from kiwi.builder.filesystem import FileSystemBuilder
+from kiwi.utils.compress import Compress
+from kiwi.utils.checksum import Checksum
+from kiwi.system.setup import SystemSetup
+from kiwi.system.kernel import Kernel
+from kiwi.logger import log
+from kiwi.system.result import Result
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiPxeBootImageError
 )
 

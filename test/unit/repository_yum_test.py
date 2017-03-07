@@ -1,13 +1,11 @@
-
 from mock import patch
 from mock import call
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open
 
 from kiwi.repository.yum import RepositoryYum
-from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryYum(object):

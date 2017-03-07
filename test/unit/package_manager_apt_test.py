@@ -1,10 +1,8 @@
-
 from mock import patch
 from mock import call
 import mock
-import re
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager.apt import PackageManagerApt
 from kiwi.exceptions import KiwiDebootstrapError
@@ -105,7 +103,7 @@ class TestPackageManagerApt(object):
                 ['env']),
             call([
                 'bash', '-c',
-                'rm -r -f root-dir.debootstrap &&' + \
+                'rm -r -f root-dir.debootstrap &&' +
                 ' chroot root-dir apt-get root-moved-arguments update'],
                 ['env'])
         ]
@@ -120,7 +118,7 @@ class TestPackageManagerApt(object):
     def test_process_install_requests(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.process_install_requests()
-        chroot_apt_get_args = self.manager.root_bind.move_to_root(
+        self.manager.root_bind.move_to_root(
             self.manager.apt_get_args
         )
         mock_call.assert_called_once_with([
@@ -143,7 +141,7 @@ class TestPackageManagerApt(object):
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        chroot_apt_get_args = self.manager.root_bind.move_to_root(
+        self.manager.root_bind.move_to_root(
             self.manager.apt_get_args
         )
         mock_call.assert_called_once_with([

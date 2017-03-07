@@ -19,15 +19,16 @@ import os
 import platform
 from collections import OrderedDict
 
-from ...exceptions import (
+# project
+from kiwi.command import Command
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.logger import log
+
+from kiwi.exceptions import (
     KiwiFormatSetupError,
     KiwiResizeRawDiskError
 )
-
-from ...command import Command
-from ...defaults import Defaults
-from ...path import Path
-from ...logger import log
 
 
 class DiskFormatBase(object):

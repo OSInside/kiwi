@@ -22,32 +22,32 @@ from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 # project
-from ..defaults import Defaults
-from ..bootloader.config import BootLoaderConfig
-from ..bootloader.install import BootLoaderInstall
-from ..system.identifier import SystemIdentifier
-from ..boot.image import BootImage
-from ..boot.image import BootImageKiwi
-from ..storage.setup import DiskSetup
-from ..storage.loop_device import LoopDevice
-from ..firmware import FirmWare
-from ..storage.disk import Disk
-from ..storage.raid_device import RaidDevice
-from ..storage.luks_device import LuksDevice
-from ..filesystem import FileSystem
-from ..filesystem.squashfs import FileSystemSquashFs
-from ..volume_manager import VolumeManager
-from ..logger import log
-from ..command import Command
-from ..system.setup import SystemSetup
-from .install import InstallImageBuilder
-from ..system.kernel import Kernel
-from ..storage.subformat import DiskFormat
-from ..system.result import Result
-from ..utils.block import BlockID
-from ..path import Path
+from kiwi.defaults import Defaults
+from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.bootloader.install import BootLoaderInstall
+from kiwi.system.identifier import SystemIdentifier
+from kiwi.boot.image import BootImage
+from kiwi.boot.image import BootImageKiwi
+from kiwi.storage.setup import DiskSetup
+from kiwi.storage.loop_device import LoopDevice
+from kiwi.firmware import FirmWare
+from kiwi.storage.disk import Disk
+from kiwi.storage.raid_device import RaidDevice
+from kiwi.storage.luks_device import LuksDevice
+from kiwi.filesystem import FileSystem
+from kiwi.filesystem.squashfs import FileSystemSquashFs
+from kiwi.volume_manager import VolumeManager
+from kiwi.logger import log
+from kiwi.command import Command
+from kiwi.system.setup import SystemSetup
+from kiwi.builder.install import InstallImageBuilder
+from kiwi.system.kernel import Kernel
+from kiwi.storage.subformat import DiskFormat
+from kiwi.system.result import Result
+from kiwi.utils.block import BlockID
+from kiwi.path import Path
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiDiskBootImageError,
     KiwiInstallMediaError,
     KiwiVolumeManagerSetupError

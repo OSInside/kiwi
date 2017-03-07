@@ -24,10 +24,12 @@ import re
 from builtins import bytes
 
 # project
-from .base import DiskFormatBase
-from ...command import Command
-from ...logger import log
-from .template.vmware_settings import VmwareSettingsTemplate
+from kiwi.storage.subformat.base import DiskFormatBase
+from kiwi.command import Command
+from kiwi.logger import log
+from kiwi.storage.subformat.template.vmware_settings import (
+    VmwareSettingsTemplate
+)
 
 from ...exceptions import (
     KiwiVmdkToolsError,

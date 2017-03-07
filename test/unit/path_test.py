@@ -1,11 +1,7 @@
 from mock import patch
 
-import mock
 import os
 
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.path import Path
 
 
@@ -59,7 +55,7 @@ class TestPath(object):
             'alternative/some-file'
         mock_access.return_value = False
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
-        assert Path.which('some-file', access_mode=os.X_OK) == None
+        assert Path.which('some-file', access_mode=os.X_OK) is None
         mock_access.return_value = True
         assert Path.which('some-file', access_mode=os.X_OK) == \
             '/usr/local/bin/some-file'

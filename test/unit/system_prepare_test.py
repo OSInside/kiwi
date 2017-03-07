@@ -1,9 +1,8 @@
-
 from mock import patch
 from mock import call
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,
@@ -13,12 +12,9 @@ from kiwi.exceptions import (
     KiwiInstallPhaseFailed
 )
 
-import kiwi
-
 from kiwi.system.prepare import SystemPrepare
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-from kiwi.command import Command
 
 
 class TestSystemPrepare(object):

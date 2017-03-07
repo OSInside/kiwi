@@ -1,11 +1,12 @@
-
 from mock import patch, call
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.archive.tar import ArchiveTar
+
+from kiwi.exceptions import KiwiArchiveTarError
 
 
 class TestArchiveTar(object):
@@ -16,7 +17,7 @@ class TestArchiveTar(object):
         mock_command.return_value = command
         self.archive = ArchiveTar('foo.tar')
 
-    @raises(kiwi.exceptions.KiwiArchiveTarError)
+    @raises(KiwiArchiveTarError)
     @patch('kiwi.archive.tar.Command.run')
     def test_invalid_tar_command_version(self, mock_command):
         command = mock.Mock()
@@ -89,7 +90,7 @@ class TestArchiveTar(object):
                     '-c', '-f', 'foo.tar', 'foo', 'bar'
                 ]
             )
-        ] 
+        ]
         mock_command.assert_has_calls(calls)
         assert mock_command.call_count == 2
 
@@ -109,7 +110,7 @@ class TestArchiveTar(object):
                     '--exclude', './foo', '--exclude', './bar'
                 ]
             )
-        ] 
+        ]
         mock_command.assert_has_calls(calls)
         assert mock_command.call_count == 2
 

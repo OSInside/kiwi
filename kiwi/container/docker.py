@@ -16,14 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from tempfile import mkdtemp
 
 # project
-from ..defaults import Defaults
-from ..path import Path
-from ..command import Command
-from tempfile import mkdtemp
-from ..utils.sync import DataSync
-from ..utils.compress import Compress
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.command import Command
+from kiwi.utils.sync import DataSync
+from kiwi.utils.compress import Compress
 
 
 class ContainerImageDocker(object):

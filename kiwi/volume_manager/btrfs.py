@@ -22,17 +22,17 @@ from xml.etree import ElementTree
 from xml.dom import minidom
 
 # project
-from ..command import Command
-from .base import VolumeManagerBase
-from ..mount_manager import MountManager
-from ..storage.mapped_device import MappedDevice
-from ..filesystem import FileSystem
-from ..utils.sync import DataSync
-from ..utils.block import BlockID
-from ..path import Path
-from ..logger import log
+from kiwi.command import Command
+from kiwi.volume_manager.base import VolumeManagerBase
+from kiwi.mount_manager import MountManager
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.filesystem import FileSystem
+from kiwi.utils.sync import DataSync
+from kiwi.utils.block import BlockID
+from kiwi.path import Path
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiVolumeRootIDError
 )
 

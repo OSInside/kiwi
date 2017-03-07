@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .zypper import PackageManagerZypper
-from .yum import PackageManagerYum
-from .apt import PackageManagerApt
-from .dnf import PackageManagerDnf
+from kiwi.package_manager.zypper import PackageManagerZypper
+from kiwi.package_manager.yum import PackageManagerYum
+from kiwi.package_manager.apt import PackageManagerApt
+from kiwi.package_manager.dnf import PackageManagerDnf
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiPackageManagerSetupError
 )
 

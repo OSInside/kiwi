@@ -18,17 +18,17 @@
 import os
 
 # project
-from .root_init import RootInit
-from .root_bind import RootBind
-from ..repository import Repository
-from ..package_manager import PackageManager
-from ..command_process import CommandProcess
-from .uri import Uri
-from ..archive.tar import ArchiveTar
+from kiwi.system.root_init import RootInit
+from kiwi.system.root_bind import RootBind
+from kiwi.repository import Repository
+from kiwi.package_manager import PackageManager
+from kiwi.command_process import CommandProcess
+from kiwi.system.uri import Uri
+from kiwi.archive.tar import ArchiveTar
 
-from ..logger import log
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,

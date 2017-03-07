@@ -1,11 +1,7 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 
 
@@ -30,7 +26,7 @@ class TestFileSystemSquashfs(object):
     @patch('platform.machine')
     @patch('kiwi.filesystem.squashfs.Command.run')
     def test_create_on_file_exclude_data(self, mock_command, mock_machine):
-        mock_machine.return_value = 'ppc64le' 
+        mock_machine.return_value = 'ppc64le'
         self.squashfs.create_on_file('myimage', 'label', ['foo'])
         mock_command.assert_called_once_with(
             [

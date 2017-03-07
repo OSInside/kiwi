@@ -19,20 +19,20 @@ from tempfile import mkdtemp
 import platform
 
 # project
-from ..command import Command
-from ..bootloader.config import BootLoaderConfig
-from ..filesystem.squashfs import FileSystemSquashFs
-from ..filesystem.isofs import FileSystemIsoFs
-from ..system.identifier import SystemIdentifier
-from ..path import Path
-from ..utils.checksum import Checksum
-from ..logger import log
-from ..system.kernel import Kernel
-from ..iso import Iso
-from ..utils.compress import Compress
-from ..archive.tar import ArchiveTar
+from kiwi.command import Command
+from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.filesystem.squashfs import FileSystemSquashFs
+from kiwi.filesystem.isofs import FileSystemIsoFs
+from kiwi.system.identifier import SystemIdentifier
+from kiwi.path import Path
+from kiwi.utils.checksum import Checksum
+from kiwi.logger import log
+from kiwi.system.kernel import Kernel
+from kiwi.iso import Iso
+from kiwi.utils.compress import Compress
+from kiwi.archive.tar import ArchiveTar
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiInstallBootImageError
 )
 

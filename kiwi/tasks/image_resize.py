@@ -47,12 +47,12 @@ import re
 import math
 
 # project
-from .base import CliTask
-from ..help import Help
-from ..logger import log
-from ..storage.subformat import DiskFormat
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.logger import log
+from kiwi.storage.subformat import DiskFormat
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiImageResizeError
 )
 

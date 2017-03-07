@@ -19,9 +19,9 @@ import os
 from collections import namedtuple
 
 # project
-from ..command import Command
+from kiwi.command import Command
 
-from ..exceptions import KiwiKernelLookupError
+from kiwi.exceptions import KiwiKernelLookupError
 
 
 class Kernel(object):

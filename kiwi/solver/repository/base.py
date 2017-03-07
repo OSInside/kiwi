@@ -26,10 +26,10 @@ import glob
 import os
 
 # project
-from ...exceptions import KiwiUriOpenError
-from ...path import Path
-from ...command import Command
-from ...defaults import Defaults
+from kiwi.exceptions import KiwiUriOpenError
+from kiwi.path import Path
+from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 
 class SolverRepositoryBase(object):

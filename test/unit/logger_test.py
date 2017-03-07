@@ -1,15 +1,21 @@
-
 from mock import patch
 from mock import call
 from collections import namedtuple
 
-from .test_helper import *
+from .test_helper import raises
 import logging
 
-from kiwi.logger import *
-from kiwi.exceptions import (
-    KiwiLogFileSetupFailed
+from kiwi.logger import (
+    LoggerSchedulerFilter,
+    ColorFormatter,
+    InfoFilter,
+    DebugFilter,
+    ErrorFilter,
+    WarningFilter,
+    log
 )
+
+from kiwi.exceptions import KiwiLogFileSetupFailed
 
 
 class TestLoggerSchedulerFilter(object):

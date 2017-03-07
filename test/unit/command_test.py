@@ -1,4 +1,3 @@
-
 from mock import patch
 from collections import namedtuple
 
@@ -6,7 +5,7 @@ import mock
 
 import os
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.exceptions import (
     KiwiCommandError,
@@ -59,8 +58,8 @@ class TestCommand(object):
     def test_run_does_not_raise_error_if_command_not_found(self, mock_which):
         mock_which.return_value = None
         result = Command.run(['command', 'args'], os.environ, False)
-        assert result.error == None
-        assert result.output == None
+        assert result.error is None
+        assert result.output is None
         assert result.returncode == -1
 
     @patch('os.access')
@@ -101,13 +100,6 @@ class TestCommand(object):
         mock_select.return_value = [True, False, False]
         mock_process = mock.Mock()
         mock_popen.return_value = mock_process
-        command_call = namedtuple(
-            'command', [
-                'output', 'output_available',
-                'error', 'error_available',
-                'process'
-            ]
-        )
         call = Command.call(['command', 'args'])
         assert call.output_available()
         assert call.error_available()
@@ -118,7 +110,7 @@ class TestCommand(object):
     @raises(KiwiCommandError)
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
-    def test_call_failure(self,mock_popen, mock_which):
+    def test_call_failure(self, mock_popen, mock_which):
         mock_which.return_value = 'command'
         mock_popen.side_effect = KiwiCommandError('Call failure')
-        call = Command.call(['command', 'args'])
+        Command.call(['command', 'args'])

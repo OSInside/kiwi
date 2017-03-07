@@ -1,15 +1,14 @@
-
 from mock import patch
 
 import mock
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import raises
 
 from collections import namedtuple
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiPxeBootImageError
 from kiwi.builder.pxe import PxeBuilder
 
 

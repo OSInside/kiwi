@@ -7,7 +7,6 @@ from .test_helper import patch_open
 import mock
 
 from kiwi.repository.dnf import RepositoryDnf
-from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryDnf(object):
