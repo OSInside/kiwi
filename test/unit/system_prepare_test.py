@@ -79,7 +79,7 @@ class TestSystemPrepare(object):
         state = XMLState(
             xml, profiles=['vmxFlavour'], build_type='docker'
         )
-        system = SystemPrepare(
+        SystemPrepare(
             xml_state=state, root_dir='root_dir',
         )
         mock_root_init.assert_called_once_with(
