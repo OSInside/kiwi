@@ -45,18 +45,12 @@ class Sat(object):
         """
         try:
             self.solv = importlib.import_module('solv')
-            self.Pool = getattr(
-                importlib.import_module('solv', 'Pool'), 'Pool'
-            )
-            self.Selection = getattr(
-                importlib.import_module('solv', 'Selection'), 'Selection'
-            )
         except Exception as e:
             raise KiwiSatSolverPluginError(
                 '{0}: {1}'.format(type(e).__name__, format(e))
             )
 
-        self.pool = self.Pool()
+        self.pool = self.solv.Pool()
         self.pool.setarch()
 
     def add_repository(self, solver_repository):
@@ -195,7 +189,7 @@ class Sat(object):
         for job_name in job_names:
             selection = self.pool.select(
                 job_name,
-                self.Selection.SELECTION_NAME |
+                self.solv.Selection.SELECTION_NAME |
                 self.solv.Selection.SELECTION_PROVIDES
             )
             if selection.flags() & self.solv.Selection.SELECTION_PROVIDES:

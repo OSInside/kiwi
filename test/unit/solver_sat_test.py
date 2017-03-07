@@ -30,9 +30,7 @@ class TestSat(object):
         self.sat.pool.select = mock.Mock(
             return_value=self.selection
         )
-        assert mock_import_module.call_args_list == [
-            call('solv'), call('solv', 'Pool'), call('solv', 'Selection')
-        ]
+        mock_import_module.assert_called_once_with('solv')
 
     @patch('importlib.import_module')
     @raises(KiwiSatSolverPluginError)
