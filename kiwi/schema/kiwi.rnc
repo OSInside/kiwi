@@ -1965,6 +1965,15 @@ div {
             sch:param [ name = "attr" value = "wwid_wait_timeout" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.derived_from.attribute =
+        ## Specifies the image URI of the container image. The image created
+        ## by KIWI will use the specified container as the base root
+        ## to work on.
+        attribute derived_from { text }
+        >> sch:pattern [ id = "derived_from" is-a = "image_type"
+            sch:param [ name = "attr" value = "derived_from" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
     k.type.attlist =
         k.type.boot.attribute? &
         k.type.bootfilesystem.attribute? &
@@ -2018,7 +2027,8 @@ div {
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &
-        k.type.wwid_wait_timeout.attribute?
+        k.type.wwid_wait_timeout.attribute? &
+        k.type.derived_from.attribute?
     k.type =
         ## The Image Type of the Logical Extend
         element type { 

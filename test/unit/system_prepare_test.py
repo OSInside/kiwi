@@ -56,6 +56,47 @@ class TestSystemPrepare(object):
         root_bind.setup_intermediate_config.assert_called_once_with()
         root_bind.mount_kernel_file_systems.assert_called_once_with()
 
+    @patch('kiwi.system.prepare.RootImport')
+    @patch('kiwi.system.prepare.RootInit')
+    @patch('kiwi.system.prepare.RootBind')
+    def test_init_with_derived_from_image(
+        self, mock_root_bind, mock_root_init, mock_root_import
+    ):
+        description = XMLDescription(
+            description='../data/example_config.xml',
+            derived_from='derived/description'
+        )
+        xml = description.load()
+
+        root_init = mock.MagicMock()
+        mock_root_init.return_value = root_init
+        root_import = mock.Mock()
+        root_import.sync_data = mock.Mock()
+        mock_root_import.return_value = root_import
+        root_bind = mock.MagicMock()
+        root_bind.root_dir = 'root_dir'
+        mock_root_bind.return_value = root_bind
+        state = XMLState(
+            xml, profiles=['vmxFlavour'], build_type='docker'
+        )
+        system = SystemPrepare(
+            xml_state=state, root_dir='root_dir',
+        )
+        mock_root_init.assert_called_once_with(
+            'root_dir', False
+        )
+        root_init.create.assert_called_once_with()
+        mock_root_import.assert_called_once_with(
+            'root_dir', 'file:///image.tar.xz',
+            state.build_type.get_image()
+        )
+        root_import.sync_data.assert_called_once_with()
+        mock_root_bind.assert_called_once_with(
+            root_init
+        )
+        root_bind.setup_intermediate_config.assert_called_once_with()
+        root_bind.mount_kernel_file_systems.assert_called_once_with()
+
     @raises(KiwiBootStrapPhaseFailed)
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_bootstrap_packages_raises(self, mock_poll):

@@ -2593,6 +2593,17 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.derived_from.attribute">
+      <attribute name="derived_from">
+        <a:documentation>Specifies the image URI of the container image. The image created
+by KIWI will use the specified container as the base root
+to work on.</a:documentation>
+      </attribute>
+      <sch:pattern id="derived_from" is-a="image_type">
+        <sch:param name="attr" value="derived_from"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -2751,6 +2762,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.wwid_wait_timeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.derived_from.attribute"/>
         </optional>
       </interleave>
     </define>

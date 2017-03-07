@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Mon Feb 27 15:23:58 2017 by generateDS.py version 2.24a.
+# Generated Tue Mar  7 12:28:29 2017 by generateDS.py version 2.24a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2481,7 +2481,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2536,6 +2536,7 @@ class type_(GeneratedsSuper):
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.volid = _cast(None, volid)
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
+        self.derived_from = _cast(None, derived_from)
         if containerconfig is None:
             self.containerconfig = []
         else:
@@ -2716,6 +2717,8 @@ class type_(GeneratedsSuper):
     def set_volid(self, volid): self.volid = volid
     def get_wwid_wait_timeout(self): return self.wwid_wait_timeout
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
+    def get_derived_from(self): return self.derived_from
+    def set_derived_from(self, derived_from): self.derived_from = derived_from
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -2921,6 +2924,9 @@ class type_(GeneratedsSuper):
         if self.wwid_wait_timeout is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
             outfile.write(' wwid_wait_timeout="%s"' % self.gds_format_integer(self.wwid_wait_timeout, input_name='wwid_wait_timeout'))
+        if self.derived_from is not None and 'derived_from' not in already_processed:
+            already_processed.add('derived_from')
+            outfile.write(' derived_from=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.derived_from), input_name='derived_from')), ))
     def exportChildren(self, outfile, level, namespace_='', name_='type', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3294,6 +3300,10 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.wwid_wait_timeout < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('derived_from', node)
+        if value is not None and 'derived_from' not in already_processed:
+            already_processed.add('derived_from')
+            self.derived_from = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'containerconfig':
             obj_ = containerconfig.factory()

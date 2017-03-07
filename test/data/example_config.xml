@@ -99,7 +99,7 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
-        <type image="docker">
+        <type image="docker" derived_from="file:///image.tar.xz">
             <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
                 <entrypoint execute="/bin/bash">
                     <argument name="-x"/>
