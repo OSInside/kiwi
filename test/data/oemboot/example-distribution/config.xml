@@ -89,7 +89,7 @@
         <source path="obs://13.2/repo/oss"/>
     </repository>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel-base"/>
     </packages>
     <packages type="image" profiles="pae">
         <package name="kernel-pae" arch="i686"/>
