@@ -1,7 +1,5 @@
-import sys
 from mock import patch
 from kiwi.utils.output import DataOutput
-from kiwi.logger import log
 import json
 import mock
 

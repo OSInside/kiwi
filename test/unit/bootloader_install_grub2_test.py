@@ -1,13 +1,18 @@
-
 from mock import patch
 from mock import call
 
 import mock
-import kiwi
-from .test_helper import *
 
-from kiwi.exceptions import *
+from .test_helper import raises
+
+from kiwi.exceptions import (
+    KiwiBootLoaderGrubInstallError,
+    KiwiBootLoaderGrubDataError,
+    KiwiBootLoaderGrubPlatformError
+)
+
 from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
+
 from kiwi.defaults import Defaults
 
 

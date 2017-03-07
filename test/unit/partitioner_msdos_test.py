@@ -1,13 +1,14 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open, raises
 
 from collections import namedtuple
+
 from kiwi.partitioner.msdos import PartitionerMsDos
-from kiwi.exceptions import *
+
+from kiwi.exceptions import KiwiPartitionerMsDosFlagError
 
 
 class TestPartitionerMsDos(object):

@@ -1,4 +1,3 @@
-
 from mock import patch, call
 
 import mock
@@ -6,7 +5,7 @@ import mock
 from .test_helper import raises
 
 from kiwi.partitioner.gpt import PartitionerGpt
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiPartitionerGptFlagError
 
 
 class TestPartitionerGpt(object):
@@ -78,4 +77,3 @@ class TestPartitionerGpt(object):
             call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0']),
             call(['sgdisk', '-t', '4:8300', '/dev/loop0'])
         ]
-      

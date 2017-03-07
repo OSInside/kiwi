@@ -1,9 +1,3 @@
-from mock import patch
-
-import mock
-
-from .test_helper import *
-
 from kiwi.storage.subformat.template.vmware_settings import (
     VmwareSettingsTemplate
 )

@@ -1,12 +1,11 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open, raises
 
 from kiwi.system.result import Result
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiResultError
 
 
 class TestResult(object):

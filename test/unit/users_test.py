@@ -1,9 +1,4 @@
-
 from mock import patch
-
-import mock
-
-from .test_helper import *
 
 from kiwi.system.users import Users
 

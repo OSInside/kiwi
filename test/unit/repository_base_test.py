@@ -1,17 +1,8 @@
-
-from mock import patch
-
 import mock
 
-from .test_helper import *
-
-from kiwi.exceptions import (
-    KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
-)
+from .test_helper import raises
 
 from kiwi.repository.base import RepositoryBase
-from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryBase(object):

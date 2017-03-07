@@ -1,4 +1,3 @@
-import sys
 import mock
 
 from mock import patch
@@ -6,12 +5,12 @@ from mock import call
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.boot.image.builtin_kiwi import BootImageKiwi
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiConfigFileNotFound
 
 
 class TestBootImageKiwi(object):

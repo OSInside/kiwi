@@ -1,11 +1,19 @@
 import mock
 from mock import call
+from mock import patch
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import raises, patch_open
+
 from collections import OrderedDict
-from kiwi.exceptions import *
+
+from kiwi.exceptions import (
+    KiwiDiskBootImageError,
+    KiwiInstallMediaError,
+    KiwiVolumeManagerSetupError
+)
+
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder

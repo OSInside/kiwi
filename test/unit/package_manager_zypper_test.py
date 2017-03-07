@@ -1,13 +1,14 @@
-
 from mock import patch
 
 import mock
-import re
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager.zypper import PackageManagerZypper
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiRequestError,
+    KiwiRpmDatabaseReloadError
+)
 
 
 class TestPackageManagerZypper(object):
@@ -36,10 +37,9 @@ class TestPackageManagerZypper(object):
             self.manager.zypper_args
         )
         self.chroot_command_env = self.manager.command_env
+        zypp_conf = self.manager.command_env['ZYPP_CONF']
         self.chroot_command_env['ZYPP_CONF'] = \
-            self.manager.root_bind.move_to_root(
-                [self.manager.command_env['ZYPP_CONF']]
-            )[0]
+            self.manager.root_bind.move_to_root(zypp_conf)[0]
 
     def test_request_package(self):
         self.manager.request_package('name')

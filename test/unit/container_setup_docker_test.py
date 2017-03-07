@@ -1,13 +1,9 @@
-
 from mock import patch
 from mock import call
 import mock
 
-import kiwi
+from .test_helper import patch_open
 
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.container.setup.docker import ContainerSetupDocker
 
 

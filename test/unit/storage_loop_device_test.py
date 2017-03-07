@@ -1,11 +1,9 @@
-
 from mock import patch
 
-import mock
+from .test_helper import raises
 
-from .test_helper import *
+from kiwi.exceptions import KiwiLoopSetupError
 
-from kiwi.exceptions import *
 from kiwi.storage.loop_device import LoopDevice
 
 

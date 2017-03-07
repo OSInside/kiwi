@@ -2,9 +2,13 @@ from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiUriStyleUnknown,
+    KiwiUriTypeUnknown
+)
+
 from kiwi.system.uri import Uri
 
 import hashlib
@@ -135,7 +139,7 @@ class TestUri(object):
         )
         mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
-        result = uri.translate()
+        uri.translate()
         uri.__del__()
         manager.umount.assert_called_once_with()
         mock_wipe.assert_called_once_with(manager.mountpoint)

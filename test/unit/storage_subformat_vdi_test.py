@@ -1,11 +1,7 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.storage.subformat.vdi import DiskFormatVdi
 
 

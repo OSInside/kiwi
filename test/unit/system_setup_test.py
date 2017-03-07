@@ -4,13 +4,16 @@ from mock import call
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 from collections import namedtuple
 
 from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiScriptFailed,
+    KiwiImportDescriptionError
+)
 from kiwi.defaults import Defaults
 
 
@@ -302,15 +305,15 @@ class TestSystemSetup(object):
         calls = [
             call('users'),
             call('kiwi'),
-            call('admin') 
-        ] 
+            call('admin')
+        ]
         users.group_exists.assert_has_calls(calls)
 
         calls = [
             call('users', []),
             call('kiwi', []),
-            call('admin', []) 
-        ] 
+            call('admin', [])
+        ]
         users.group_add.assert_has_calls(calls)
 
     @patch('kiwi.system.setup.Users')
@@ -329,7 +332,7 @@ class TestSystemSetup(object):
             call('root'),
             call('tux'),
             call('kiwi')
-        ] 
+        ]
         users.user_exists.assert_has_calls(calls)
 
         calls = [
@@ -344,7 +347,7 @@ class TestSystemSetup(object):
             call(
                 'tux', [
                     '-p', 'password-hash',
-                    '-g', 'users', 
+                    '-g', 'users',
                     '-m', '-d', '/home/tux'
                 ]
             ),

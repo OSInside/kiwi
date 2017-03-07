@@ -1,8 +1,9 @@
+from mock import patch
 import mock
 from builtins import bytes
 from lxml import etree
 
-from .test_helper import *
+from .test_helper import raises
 from collections import namedtuple
 
 from kiwi.exceptions import (
@@ -192,10 +193,10 @@ class TestSchema(object):
         )
         mock_validation_report = mock.Mock()
         mock_validation_report.getroot = mock.Mock(
-            return_value = name_spaces(nsmap="")
+            return_value=name_spaces(nsmap="")
         )
         mock_validation_report.xpath = mock.Mock(
-            return_value = [
+            return_value=[
                 validation_report(text='wrong attribute 1'),
                 validation_report(text='wrong attribute 2')
             ]
@@ -241,10 +242,10 @@ class TestSchema(object):
         )
         mock_validation_report = mock.Mock()
         mock_validation_report.getroot = mock.Mock(
-            return_value = name_spaces(nsmap="")
+            return_value=name_spaces(nsmap="")
         )
         mock_validation_report.xpath = mock.Mock(
-            return_value = [
+            return_value=[
                 validation_report(text='wrong attribute 1'),
                 validation_report(text='wrong attribute 2')
             ]

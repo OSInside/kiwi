@@ -1,14 +1,11 @@
-import sys
-import os
-
 from mock import patch
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiRuntimeError
 
 
 class TestRuntimeChecker(object):

@@ -1,9 +1,7 @@
-import mock
-
 from mock import patch
 
 import logging
-from .test_helper import raises, argv_kiwi_tests
+from .test_helper import raises
 
 from kiwi.tasks.base import CliTask
 from kiwi.exceptions import KiwiConfigFileNotFound

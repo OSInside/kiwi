@@ -2,7 +2,7 @@ from mock import patch
 from mock import call
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.exceptions import (
     KiwiRootDirExists,
@@ -116,7 +116,7 @@ class TestRootInit(object):
             ]),
             call([
                 'cp',
-                 '/var/adm/fillup-templates/passwd.aaa_base',
+                '/var/adm/fillup-templates/passwd.aaa_base',
                 'tmpdir/etc/passwd'
             ]),
             call([

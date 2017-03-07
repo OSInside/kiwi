@@ -1,17 +1,11 @@
-import sys
 import mock
 
 from mock import patch
 from mock import call
 
-import kiwi
-
-from .test_helper import *
-
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-from kiwi.exceptions import *
 
 
 class TestBootImageKiwi(object):

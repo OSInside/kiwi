@@ -1,11 +1,14 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiFormatSetupError,
+    KiwiResizeRawDiskError
+)
+
 from kiwi.storage.subformat.base import DiskFormatBase
 
 
@@ -73,7 +76,7 @@ class TestDiskFormatBase(object):
     @patch('kiwi.storage.subformat.base.Command.run')
     def test_resize_raw_disk(self, mock_command, mock_getsize):
         mock_getsize.return_value = 42
-        assert self.disk_format.resize_raw_disk(1024) == True
+        assert self.disk_format.resize_raw_disk(1024) is True
         mock_command.assert_called_once_with(
             [
                 'qemu-img', 'resize',
@@ -84,12 +87,12 @@ class TestDiskFormatBase(object):
     @patch('os.path.getsize')
     def test_resize_raw_disk_same_size(self, mock_getsize):
         mock_getsize.return_value = 42
-        assert self.disk_format.resize_raw_disk(42) == False
+        assert self.disk_format.resize_raw_disk(42) is False
 
     @patch('os.path.exists')
     def test_has_raw_disk(self, mock_exists):
         mock_exists.return_value = True
-        assert self.disk_format.has_raw_disk() == True
+        assert self.disk_format.has_raw_disk() is True
         mock_exists.assert_called_once_with(
             'target_dir/some-disk-image.x86_64-1.2.3.raw'
         )

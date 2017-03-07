@@ -1,12 +1,12 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.repository import Repository
-from kiwi.exceptions import *
+
+from kiwi.exceptions import KiwiRepositorySetupError
 
 
 class TestRepository(object):

@@ -1,13 +1,14 @@
-
 from mock import patch
 
-import mock
-
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiTypeNotFound,
+    KiwiDistributionNameError,
+    KiwiProfileNotFound
+)
 from collections import namedtuple
 
 
@@ -40,10 +41,10 @@ class TestXMLState(object):
     @patch('kiwi.xml_state.XMLState.get_preferences_sections')
     def test_get_rpm_excludedocs_without_entry(self, mock_preferences):
         mock_preferences.return_value = []
-        assert self.state.get_rpm_excludedocs() == False
+        assert self.state.get_rpm_excludedocs() is False
 
     def test_get_rpm_excludedocs(self):
-        assert self.state.get_rpm_excludedocs() == True
+        assert self.state.get_rpm_excludedocs() is True
 
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
@@ -368,13 +369,13 @@ class TestXMLState(object):
         assert len(users) == 3
         assert any(u.get_name() == 'root' for u in users)
         assert any(u.get_name() == 'tux' for u in users)
-        assert any(u.get_name() == 'kiwi' for u in users) 
+        assert any(u.get_name() == 'kiwi' for u in users)
 
     def test_get_user_groups(self):
         description = XMLDescription('../data/example_multiple_users_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data)
-        
+
         assert len(state.get_user_groups('root')) == 0
         assert len(state.get_user_groups('tux')) == 1
         assert any(grp == 'users' for grp in state.get_user_groups('tux'))
@@ -504,7 +505,7 @@ class TestXMLState(object):
             '../data/example_no_imageinclude_config.xml'
         )
         xml_data = description.load()
-        state = XMLState(xml_data) 
+        state = XMLState(xml_data)
         assert not state.has_repositories_marked_as_imageinclude()
 
     def test_get_build_type_vmconfig_entries(self):

@@ -1,11 +1,15 @@
-from mock import call
+from mock import call, patch
 import mock
 import struct
-from .test_helper import *
+from .test_helper import raises, patch_open
 import sys
 from builtins import bytes
 
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiIsoLoaderError,
+    KiwiIsoToolError,
+    KiwiIsoMetaDataError
+)
 
 from kiwi.iso import Iso
 from collections import namedtuple
@@ -198,7 +202,6 @@ class TestIso(object):
         mock_command.return_value = output_type(output=output_data)
         result = self.iso.isols('some-iso')
         assert result[2158].name == 'header_end'
-
 
     def test_create_header_end_block(self):
         temp_file = NamedTemporaryFile()

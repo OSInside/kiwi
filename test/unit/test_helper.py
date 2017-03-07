@@ -46,6 +46,7 @@ class raises(object):
         newfunc = wraps(func)(newfunc)
         return newfunc
 
+
 def mock_open(data=None):
     '''
     Mock "open" function.

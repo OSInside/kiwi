@@ -3,9 +3,6 @@ from mock import patch
 
 import mock
 
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.container.docker import ContainerImageDocker
 
 
@@ -18,37 +15,37 @@ class TestContainerImageDocker(object):
         )
 
     def test_init_custom_args(self):
-        docker = ContainerImageDocker(
+        ContainerImageDocker(
             'root_dir', {
                 'container_name': 'foo',
                 'container_tag': '1.0',
                 'entry_command': [
                     "--config.entrypoint=/bin/bash",
                     "--config.entrypoint=-x"
-                 ],
+                ],
                 'entry_subcommand': [
                     "--config.cmd=ls",
                     "--config.cmd=-l"
-                 ],
-                 'maintainer': ['--author=tux'],
-                 'user': ['--config.user=root'],
-                 'workingdir': ['--config.workingdir=/root'],
-                 'expose_ports': [
-                     "--config.exposedports=80",
-                     "--config.exposedports=42"
-                 ],
-                 'volumes': [
-                     "--config.volume=/var/log",
-                     "--config.volume=/tmp"
-                 ],
-                 'environment': [
-                     "--config.env=PATH=/bin'",
-                     "--config.env=FOO=bar"
-                 ],
-                 'labels': [
-                     "--config.label=a=value",
-                     "--config.label=b=value"
-                 ]
+                ],
+                'maintainer': ['--author=tux'],
+                'user': ['--config.user=root'],
+                'workingdir': ['--config.workingdir=/root'],
+                'expose_ports': [
+                    "--config.exposedports=80",
+                    "--config.exposedports=42"
+                ],
+                'volumes': [
+                    "--config.volume=/var/log",
+                    "--config.volume=/tmp"
+                ],
+                'environment': [
+                    "--config.env=PATH=/bin'",
+                    "--config.env=FOO=bar"
+                ],
+                'labels': [
+                    "--config.label=a=value",
+                    "--config.label=b=value"
+                ]
             }
         )
 
@@ -110,8 +107,8 @@ class TestContainerImageDocker(object):
                 'umoci', 'gc', '--layout', 'kiwi_docker_dir/umoci_layout'
             ]),
             call([
-                 'skopeo', 'copy', 'oci:kiwi_docker_dir/umoci_layout:latest',
-                 'docker-archive:result.tar:foo/bar:latest'
+                'skopeo', 'copy', 'oci:kiwi_docker_dir/umoci_layout:latest',
+                'docker-archive:result.tar:foo/bar:latest'
             ])
         ]
         mock_sync.assert_called_once_with(

@@ -1,10 +1,8 @@
-from mock import patch, call
+from mock import patch
 
 import mock
 
 from lxml import etree
-
-from .test_helper import raises
 
 from kiwi.solver.repository.suse import SolverRepositorySUSE
 from kiwi.solver.repository.base import SolverRepositoryBase

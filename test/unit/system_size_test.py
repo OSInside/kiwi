@@ -1,11 +1,7 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
-
-from collections import namedtuple
 from kiwi.system.size import SystemSize
 
 

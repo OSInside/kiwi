@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-from .test_helper import patch, argv_kiwi_tests
+from .test_helper import argv_kiwi_tests
 
 from kiwi.tasks.system_prepare import SystemPrepareTask
 
@@ -33,7 +33,7 @@ class TestSystemPrepareTask(object):
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        
+
         self.setup = mock.Mock()
         kiwi.tasks.system_prepare.SystemSetup = mock.Mock(
             return_value=self.setup

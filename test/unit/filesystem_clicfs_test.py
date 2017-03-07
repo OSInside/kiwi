@@ -1,11 +1,7 @@
-
 from mock import patch
 from mock import call
 import mock
 
-from .test_helper import *
-
-from kiwi.exceptions import *
 from kiwi.filesystem.clicfs import FileSystemClicFs
 
 

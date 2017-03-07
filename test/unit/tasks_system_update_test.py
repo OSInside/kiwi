@@ -1,11 +1,9 @@
 import sys
 import mock
 
-from mock import patch
-
 import kiwi
 
-from .test_helper import patch, argv_kiwi_tests
+from .test_helper import argv_kiwi_tests
 
 from kiwi.tasks.system_update import SystemUpdateTask
 

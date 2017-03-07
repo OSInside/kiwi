@@ -1,11 +1,10 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiRaidSetupError
 from kiwi.storage.raid_device import RaidDevice
 
 

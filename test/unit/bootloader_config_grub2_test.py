@@ -1,4 +1,3 @@
-
 from mock import patch
 from mock import call
 
@@ -6,11 +5,21 @@ import mock
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
 from kiwi.xml_state import XMLState
+
 from kiwi.xml_description import XMLDescription
-from kiwi.exceptions import *
+
+from kiwi.exceptions import (
+    KiwiBootLoaderGrubPlatformError,
+    KiwiBootLoaderGrubSecureBootError,
+    KiwiTemplateError,
+    KiwiBootLoaderGrubDataError,
+    KiwiBootLoaderGrubFontError,
+    KiwiBootLoaderGrubModulesError
+)
+
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 
 

@@ -1,9 +1,10 @@
 from mock import call
+from mock import patch
 import mock
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiFileNotFound
 from kiwi.utils.checksum import Checksum
 
 from builtins import bytes
