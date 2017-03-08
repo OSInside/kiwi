@@ -16,9 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import shutil
 
 # project
 from kiwi.system.uri import Uri
+from kiwi.path import Path
 from kiwi.exceptions import KiwiRootImportError
 
 
@@ -66,3 +68,12 @@ class RootImportBase(object):
         Implementation in specialized root import class
         """
         raise NotImplementedError
+
+    def copy_image_file(self):
+        """
+        Copies the original image file inside the image directory of the
+        root directory.
+        """
+        image_path = os.sep.join([self.root_dir, 'image'])
+        Path.create(image_path)
+        shutil.copy(self.image_file, image_path)

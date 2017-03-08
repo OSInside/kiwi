@@ -3,28 +3,32 @@ from mock import call
 import mock
 import kiwi
 
+from .test_helper import raises
+
 from kiwi.builder.container import ContainerBuilder
+from kiwi.exceptions import KiwiContainerBuilderError
 
 
 class TestContainerBuilder(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        xml_state = mock.Mock()
+        self.xml_state = mock.Mock()
+        self.xml_state.build_type.get_derived_from.return_value = None
         self.container_config = {
             'container_name': 'my-container',
             'entry_command': ["--config.cmd='/bin/bash'"]
         }
-        xml_state.get_container_config = mock.Mock(
+        self.xml_state.get_container_config = mock.Mock(
             return_value=self.container_config
         )
-        xml_state.get_image_version = mock.Mock(
+        self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
-        xml_state.get_build_type_name = mock.Mock(
+        self.xml_state.get_build_type_name = mock.Mock(
             return_value='docker'
         )
-        xml_state.xml_data.get_name = mock.Mock(
+        self.xml_state.xml_data.get_name = mock.Mock(
             return_value='image_name'
         )
         self.setup = mock.Mock()
@@ -32,9 +36,25 @@ class TestContainerBuilder(object):
             return_value=self.setup
         )
         self.container = ContainerBuilder(
-            xml_state, 'target_dir', 'root_dir'
+            self.xml_state, 'target_dir', 'root_dir'
         )
         self.container.result = mock.Mock()
+
+    @raises(KiwiContainerBuilderError)
+    def test_init_remote_base_uri(self):
+        self.xml_state.build_type.get_derived_from.return_value = \
+            'http://example.org/image.tar.xz'
+        ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+
+    def test_init_derived(self):
+        self.xml_state.build_type.get_derived_from.return_value = \
+            'file:///image.tar.xz'
+        builder = ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+        assert builder.base_image == 'root_dir/image/image.tar.xz'
 
     @patch('kiwi.builder.container.ContainerSetup')
     @patch('kiwi.builder.container.ContainerImage')
@@ -54,7 +74,7 @@ class TestContainerBuilder(object):
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
+            'target_dir/image_name.x86_64-1.2.3.docker.tar.xz', None
         )
         assert self.container.result.add.call_args_list == [
             call(
