@@ -78,7 +78,7 @@
         <source path="obs://SUSE:SLE-12:GA/standard"/>
     </repository>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel-base"/>
     </packages>
     <packages type="image" profiles="default">
         <package name="atftp"/>

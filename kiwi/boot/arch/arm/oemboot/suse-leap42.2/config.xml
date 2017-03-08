@@ -80,7 +80,7 @@
         <source path="obs://leap/42.2/repo/oss"/>
     </repository>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel-base"/>
     </packages>
     <packages type="bootstrap">
         <package name="kbd"/>
