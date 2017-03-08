@@ -38,7 +38,9 @@ class Uri(object):
     Attributes
 
     * :attr:`repo_type`
-        Repository type name
+        Repository type name. Only needed if the uri
+        is not enough to determine the repository type
+        e.g for yast2 vs. rpm-md obs repositories
 
     * :attr:`uri`
         URI, repository location, file
@@ -55,10 +57,9 @@ class Uri(object):
     * :attr:`local_uri_type`
         dictionary of local uri type names
     """
-    def __init__(self, uri, repo_type):
+    def __init__(self, uri, repo_type=None):
         self.repo_type = repo_type
         self.uri = uri
-        self.repo_type = repo_type
         self.mount_stack = []
 
         self.remote_uri_types = {
