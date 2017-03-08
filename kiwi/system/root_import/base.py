@@ -36,7 +36,7 @@ class RootImportBase(object):
         temporary directory where image_file is extracted
     """
     def __init__(self, root_dir, image_uri):
-        uri = Uri(image_uri, 'images')
+        uri = Uri(image_uri)
         if uri.is_remote():
             raise KiwiRootImportError(
                 'Only local imports are supported'
