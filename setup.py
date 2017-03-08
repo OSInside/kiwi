@@ -147,10 +147,10 @@ class install(distutils_install.install):
 
 config = {
     'name': 'kiwi',
-    'description': 'KIWI - Appliance Builder',
+    'description': 'KIWI - Appliance Builder (next generation)',
     'author': 'Marcus Schäfer',
-    'url': 'https://github.com/openSUSE/kiwi',
-    'download_url': 'https://github.com/openSUSE/kiwi',
+    'url': 'http://suse.github.io/kiwi',
+    'download_url': 'http://suse.github.io/kiwi',
     'author_email': 'ms@suse.com',
     'version': __version__,
     'install_requires': [
