@@ -24,7 +24,7 @@ from kiwi.container.setup import ContainerSetup
 from kiwi.system.setup import SystemSetup
 from kiwi.logger import log
 from kiwi.system.result import Result
-from kiwi.system.uri import Uri
+from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import KiwiContainerBuilderError
 
 
@@ -60,17 +60,10 @@ class ContainerBuilder(object):
         self.target_dir = target_dir
         self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
-        self.base_image = None
-        image_uri = xml_state.build_type.get_derived_from()
-        if image_uri:
-            uri = Uri(image_uri, 'images')
-            if uri.is_remote():
-                raise KiwiContainerBuilderError(
-                    'Only local base images are supported'
-                )
-            self.base_image = os.sep.join(
-                [root_dir, 'image', os.path.basename(uri.translate())]
-            )
+        if not xml_state.build_type.get_derived_from():
+            self.base_image = None
+        else:
+            self.base_image = os.sep.join([root_dir, 'image', 'image_file'])
 
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
@@ -103,6 +96,21 @@ class ContainerBuilder(object):
                 self.requested_container_type, self.root_dir, self.container_config
             )
             container_setup.setup()
+        else:
+            base_image_md5 = ''.join([self.base_image, '.md5'])
+            data = None
+            try:
+                checksum = Checksum(self.base_image)
+                with open(base_image_md5, 'r') as md5_file:
+                    data = md5_file.read()
+            except Exception as e:
+                raise KiwiContainerBuilderError(
+                    '%s: %s' % (type(e).__name__, format(e))
+                )
+            if data.split(' ')[0] != checksum.md5():
+                raise KiwiContainerBuilderError(
+                    'base image file {0} checksum validation failed'.format(self.base_image)
+                )
 
         log.info(
             '--> Creating container image'

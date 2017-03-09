@@ -133,7 +133,6 @@ class TestContainerImageDocker(object):
         self, mock_wipe, mock_mkdtemp, mock_sync, mock_command, mock_compress
     ):
         compressor = mock.Mock()
-        compressor.uncompressed_filename = 'tmp_uncompressed'
         mock_compress.return_value = compressor
         docker_root = mock.Mock()
         mock_sync.return_value = docker_root
@@ -144,13 +143,13 @@ class TestContainerImageDocker(object):
 
         mock_mkdtemp.side_effect = call_mkdtemp
 
-        self.docker.create('result.tar.xz', 'image.tar.xz')
+        self.docker.create('result.tar.xz', 'root_dir/image/image_file')
 
         mock_wipe.assert_called_once_with('result.tar')
 
         assert mock_command.call_args_list == [
             call([
-                'skopeo', 'copy', 'docker-archive:tmp_uncompressed',
+                'skopeo', 'copy', 'docker-archive:root_dir/image/image_file',
                 'oci:kiwi_docker_dir/umoci_layout:latest'
             ]),
             call([
@@ -183,9 +182,5 @@ class TestContainerImageDocker(object):
             ],
             options=['-a', '-H', '-X', '-A']
         )
-        assert mock_compress.call_args_list == [
-            call('image.tar.xz'), call('result.tar')
-        ]
-
-        compressor.uncompress.assert_called_once_with(True)
+        mock_compress.assert_called_once_with('result.tar')
         compressor.xz.assert_called_once_with()

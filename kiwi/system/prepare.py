@@ -73,7 +73,6 @@ class SystemPrepare(object):
                 root_dir, image_uri, xml_state.build_type.get_image()
             )
             root_import.sync_data()
-            root_import.copy_image_file()
         root_bind = RootBind(
             root
         )

@@ -63,10 +63,19 @@ class RootImportDocker(RootImportBase):
         )
         synchronizer.sync_data(options=['-a', '-H', '-X', '-A'])
 
+        # A copy of the uncompressed image and its checksum are
+        # kept inside the root_dir in order to ensure the later steps
+        # i.e. system create are atomic and don't need any third
+        # party archive.
+        self._copy_image(self.uncompressed_image)
+
     def __del__(self):
-        if self.oci_layout_dir:
-            Path.wipe(self.oci_layout_dir)
-        if self.oci_unpack_dir:
-            Path.wipe(self.oci_unpack_dir)
-        if self.uncompressed_image:
-            Path.wipe(self.uncompressed_image)
+        try:
+            if self.oci_layout_dir:
+                Path.wipe(self.oci_layout_dir)
+            if self.oci_unpack_dir:
+                Path.wipe(self.oci_unpack_dir)
+            if self.uncompressed_image:
+                Path.wipe(self.uncompressed_image)
+        except Exception:
+            pass

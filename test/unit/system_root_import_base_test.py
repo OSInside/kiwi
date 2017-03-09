@@ -30,13 +30,3 @@ class TestRootImportBase(object):
         mock_path.return_value = True
         root_import = RootImportBase('root_dir', 'file:///image.tar.xz')
         root_import.sync_data()
-
-    @patch('os.path.exists')
-    @patch('kiwi.path.Path.create')
-    @patch('shutil.copy')
-    def test_copy_image_file(self, mock_copy, mock_path, mock_exists):
-        mock_path.return_value = True
-        root_import = RootImportBase('root_dir', 'file:///image.tar.xz')
-        root_import.copy_image_file()
-        mock_path.assert_called_once_with('root_dir/image')
-        mock_copy.assert_called_once_with('/image.tar.xz', 'root_dir/image')

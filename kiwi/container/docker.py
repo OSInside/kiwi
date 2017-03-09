@@ -117,13 +117,9 @@ class ContainerImageDocker(object):
         )
 
         if base_image:
-            uncompressor = Compress(base_image)
-            uncompressor.uncompress(True)
-            self.uncompressed_image = uncompressor.uncompressed_filename
-
             Command.run([
                 'skopeo', 'copy',
-                'docker-archive:{0}'.format(self.uncompressed_image),
+                'docker-archive:{0}'.format(base_image),
                 'oci:{0}'.format(container_name)
             ])
         else:

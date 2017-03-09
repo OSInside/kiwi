@@ -21,6 +21,7 @@ import shutil
 # project
 from kiwi.system.uri import Uri
 from kiwi.path import Path
+from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import KiwiRootImportError
 
 
@@ -69,11 +70,12 @@ class RootImportBase(object):
         """
         raise NotImplementedError
 
-    def copy_image_file(self):
-        """
-        Copies the original image file inside the image directory of the
-        root directory.
-        """
+    def _copy_image(self, image):
         image_path = os.sep.join([self.root_dir, 'image'])
         Path.create(image_path)
-        shutil.copy(self.image_file, image_path)
+        image_file = os.sep.join([image_path, 'image_file'])
+        shutil.copy(
+            image, image_file
+        )
+        checksum = Checksum(image_file)
+        checksum.md5(''.join([image_file, '.md5']))

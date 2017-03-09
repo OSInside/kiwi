@@ -3,7 +3,7 @@ from mock import call
 import mock
 import kiwi
 
-from .test_helper import raises
+from .test_helper import raises, patch_open
 
 from kiwi.builder.container import ContainerBuilder
 from kiwi.exceptions import KiwiContainerBuilderError
@@ -40,21 +40,13 @@ class TestContainerBuilder(object):
         )
         self.container.result = mock.Mock()
 
-    @raises(KiwiContainerBuilderError)
-    def test_init_remote_base_uri(self):
-        self.xml_state.build_type.get_derived_from.return_value = \
-            'http://example.org/image.tar.xz'
-        ContainerBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
-
     def test_init_derived(self):
         self.xml_state.build_type.get_derived_from.return_value = \
             'file:///image.tar.xz'
         builder = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
-        assert builder.base_image == 'root_dir/image/image.tar.xz'
+        assert builder.base_image == 'root_dir/image/image_file'
 
     @patch('kiwi.builder.container.ContainerSetup')
     @patch('kiwi.builder.container.ContainerImage')
@@ -105,3 +97,122 @@ class TestContainerBuilder(object):
         self.setup.export_rpm_package_list.assert_called_once_with(
             'target_dir'
         )
+
+    @patch_open
+    @patch('kiwi.builder.container.Checksum')
+    @patch('kiwi.builder.container.ContainerImage')
+    def test_create_derived(self, mock_image, mock_md5, mock_open):
+        self.xml_state.build_type.get_derived_from.return_value = \
+            'file:///image.tar.xz'
+        container = ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+        container.result = mock.Mock()
+
+        md5 = mock.Mock()
+        md5.md5.return_value = 'checksumvalue'
+        mock_md5.return_value = md5
+
+        context_manager_mock = mock.Mock()
+        file_mock = mock.Mock()
+        file_mock.read.return_value = 'checksumvalue and someotherstuff\n'
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = context_manager_mock
+
+        container_image = mock.Mock()
+        mock_image.return_value = container_image
+        self.setup.export_rpm_package_verification.return_value = '.verified'
+        self.setup.export_rpm_package_list.return_value = '.packages'
+
+        container.create()
+
+        mock_open.assert_called_once_with('root_dir/image/image_file.md5', 'r')
+        file_mock.read.assert_called_once_with()
+        mock_md5.assert_called_once_with('root_dir/image/image_file')
+        md5.md5.assert_called_once_with()
+
+        mock_image.assert_called_once_with(
+            'docker', 'root_dir', self.container_config
+        )
+        container_image.create.assert_called_once_with(
+            'target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
+            'root_dir/image/image_file'
+        )
+        assert container.result.add.call_args_list == [
+            call(
+                key='container',
+                filename='target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
+                use_for_bundle=True,
+                compress=False,
+                shasum=True
+            ),
+            call(
+                key='image_packages',
+                filename='.packages',
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            ),
+            call(
+                key='image_verified',
+                filename='.verified',
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            )
+        ]
+        self.setup.export_rpm_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_rpm_package_list.assert_called_once_with(
+            'target_dir'
+        )
+
+    @patch_open
+    @patch('kiwi.builder.container.Checksum')
+    @raises(KiwiContainerBuilderError)
+    def test_create_derived_with_different_md5(self, mock_md5, mock_open):
+        self.xml_state.build_type.get_derived_from.return_value = \
+            'file:///image.tar.xz'
+        container = ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+
+        md5 = mock.Mock()
+        md5.md5.return_value = 'diffchecksumvalue'
+        mock_md5.return_value = md5
+
+        context_manager_mock = mock.Mock()
+        file_mock = mock.Mock()
+        file_mock.read.return_value = 'checksumvalue and someotherstuff\n'
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = context_manager_mock
+
+        container.create()
+
+    @patch_open
+    @patch('kiwi.builder.container.Checksum')
+    @raises(Exception)
+    def test_create_derived_fail_open(self, mock_md5, mock_open):
+        self.xml_state.build_type.get_derived_from.return_value = \
+            'file:///image.tar.xz'
+        container = ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+
+        context_manager_mock = mock.Mock()
+        enter_mock = mock.Mock(side_effect=Exception('open failed!'))
+        exit_mock = mock.Mock()
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = context_manager_mock
+
+        container.create()
