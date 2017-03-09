@@ -2,14 +2,21 @@
 # -*- encoding: utf-8 -*-
 
 from setuptools import setup
+from setuptools.command import sdist as setuptools_sdist
+
 from distutils.command import build as distutils_build
 from distutils.command import install as distutils_install
-from setuptools.command import sdist as setuptools_sdist
+
 import distutils
 import subprocess
 import os
 
+import platform
+
 from kiwi.version import __version__
+
+
+python_version = platform.python_version().split('.')[0]
 
 
 class sdist(setuptools_sdist.sdist):
@@ -70,6 +77,7 @@ class build(distutils_build.build):
         command = ['make']
         if self.cflags:
             command.append('CFLAGS=%s' % self.cflags)
+        command.append('python_version={0}'.format(python_version))
         command.append('tools')
         self.announce(
             'Running make tools target: %s' % str(command),
@@ -129,7 +137,8 @@ class install(distutils_install.install):
         # kiwi tools, completion and manual pages
         command = ['make']
         if self.root:
-            command.append('buildroot=%s/' % self.root)
+            command.append('buildroot={0}/'.format(self.root))
+        command.append('python_version={0}'.format(python_version))
         command.append('tools')
         command.append('install')
         self.announce(
@@ -148,7 +157,7 @@ class install(distutils_install.install):
 config = {
     'name': 'kiwi',
     'description': 'KIWI - Appliance Builder (next generation)',
-    'author': 'Marcus Schäfer',
+    'author': 'Marcus Schaefer',
     'url': 'http://suse.github.io/kiwi',
     'download_url': 'http://suse.github.io/kiwi',
     'author_email': 'ms@suse.com',
@@ -168,8 +177,8 @@ config = {
     },
     'entry_points': {
         'console_scripts': [
-            'kiwi-ng=kiwi.kiwi:main',
-            'kiwicompat=kiwi.kiwi_compat:main'
+            'kiwi-ng-{0}=kiwi.kiwi:main'.format(python_version),
+            'kiwicompat-{0}=kiwi.kiwi_compat:main'.format(python_version)
         ]
     },
     'include_package_data': True,

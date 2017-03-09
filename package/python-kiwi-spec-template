@@ -1,0 +1,400 @@
+#
+# spec file for package kiwi
+#
+# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+#
+# Please submit bugfixes or comments via:
+#
+#       https://github.com/SUSE/kiwi/issues
+#
+%{!?python2_sitelib:%global python2_sitelib %{python_sitelib}}
+
+# translate version id to distribution name as it is used in kiwi
+%if 0%{?suse_version}
+%define distro %(echo `export VER=%{suse_version}; echo "suse-${VER:0:2}.${VER:2:1}"`)
+# redefine for the SLES case if no sles_version exists
+# SLE12:
+%if 0%{?suse_version} == 1315 && !0%{?is_opensuse}
+%define distro suse-SLES12
+%endif
+# Leap 42.1:
+%if 0%{?suse_version} == 1315 && 0%{?is_opensuse}
+%define distro suse-leap42.1
+%endif
+# Leap 42.2:
+%if 0%{?suse_version} == 1316 && 0%{?is_opensuse}
+%define distro suse-leap42.2
+%endif
+# Tumbleweed:
+# Current Tumbleweed version, moving target
+%if 0%{?suse_version} == 1330
+%define distro suse-tumbleweed
+%endif
+%endif
+
+# SLES with sles_version macro
+%if 0%{?sles_version}
+%define distro suse-SLES%{sles_version}
+%endif
+
+# RHEL // CentOS
+# use the rhel templates for CentOS, too
+%if 0%{?rhel_version} == 700 || 0%{?centos_version} == 700
+%define distro rhel-07.0
+%endif
+
+
+Name:           python-kiwi
+Version:        %%VERSION
+Provides:       kiwi-schema = 6.5
+Release:        0
+Url:            https://github.com/SUSE/kiwi
+Summary:        KIWI - Appliance Builder Next Generation
+License:        GPL-3.0+
+Group:          Development/Languages/Python
+Source:         %{name}.tar.gz
+Source1:        %{name}-boot-packages
+Source2:        %{name}-rpmlintrc
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
+BuildRequires:  python-devel
+BuildRequires:  python-setuptools
+BuildRequires:  fdupes
+BuildRequires:  update-alternatives
+BuildRequires:  shadow
+
+%description
+The KIWI Image System provides an operating system image builder
+for Linux supported hardware platforms as well as for virtualization
+and cloud systems like Xen, KVM, VMware, EC2 and more.
+
+# python2-kiwi
+%package -n python2-kiwi
+Summary:        KIWI - Appliance Builder Next Generation
+Group:          Development/Languages/Python
+Provides:       python-kiwi = %{version}-%{release}
+Provides:       kiwi-image:tbz
+Provides:       kiwi-image:docker
+Provides:       kiwi-image:iso
+Provides:       kiwi-image:vmx
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:oem
+Requires:       update-alternatives
+Requires:       python-docopt
+Requires:       python-setuptools
+Requires:       python-lxml
+Requires:       python-xattr
+Requires:       python-six
+Requires:       python-future
+Requires(post): update-alternatives
+Requires(postun): update-alternatives
+# tools used by kiwi
+%if 0%{?suse_version}
+Requires:       zypper
+Requires:       squashfs
+Provides:       kiwi-packagemanager:zypper
+%endif
+%if 0%{?rhel_version} || 0%{?centos_version}
+Requires:       yum
+Requires:       squashfs-tools
+Provides:       kiwi-packagemanager:yum
+%endif
+Requires:       genisoimage
+Requires:       kiwi-tools
+Requires:       kiwi-man-pages
+Requires:       rsync
+Requires:       tar >= 1.2.7
+Requires:       gptfdisk
+Requires:       qemu-tools
+Requires:       dosfstools
+Requires:       e2fsprogs
+Requires:       lvm2
+Requires:       parted
+Requires:       multipath-tools
+Requires:       grub2
+Requires:       mtools
+%ifarch %arm aarch64
+Requires:       u-boot-tools
+%endif
+%ifarch x86_64
+Requires:       grub2-x86_64-efi
+%endif
+%ifarch s390 s390x
+Requires:       s390-tools
+%endif
+
+%description -n python2-kiwi
+Python 2 library of the KIWI Image System. Provides an operating system
+image builder for Linux supported hardware platforms as well as for
+virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
+
+# python3-kiwi
+%package -n python3-kiwi
+Summary:        KIWI - Appliance Builder Next Generation
+Group:          Development/Languages/Python
+Provides:       kiwi-image:tbz
+Provides:       kiwi-image:docker
+Provides:       kiwi-image:iso
+Provides:       kiwi-image:vmx
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:oem
+Requires:       update-alternatives
+Requires:       python3-docopt
+Requires:       python3-setuptools
+Requires:       python3-lxml
+Requires:       python3-xattr
+Requires:       python3-six
+Requires:       python3-future
+Requires(post): update-alternatives
+Requires(postun): update-alternatives
+# tools used by kiwi
+%if 0%{?suse_version}
+Requires:       zypper
+Requires:       squashfs
+Provides:       kiwi-packagemanager:zypper
+%endif
+%if 0%{?rhel_version} || 0%{?centos_version}
+Requires:       yum
+Requires:       squashfs-tools
+Provides:       kiwi-packagemanager:yum
+%endif
+Requires:       genisoimage
+Requires:       kiwi-tools
+Requires:       kiwi-man-pages
+Requires:       rsync
+Requires:       tar >= 1.2.7
+Requires:       gptfdisk
+Requires:       qemu-tools
+Requires:       dosfstools
+Requires:       e2fsprogs
+Requires:       lvm2
+Requires:       parted
+Requires:       multipath-tools
+Requires:       grub2
+Requires:       mtools
+%ifarch %arm aarch64
+Requires:       u-boot-tools
+%endif
+%ifarch x86_64
+Requires:       grub2-x86_64-efi
+%endif
+%ifarch s390 s390x
+Requires:       s390-tools
+%endif
+
+%description -n python3-kiwi
+Python 3 library of the KIWI Image System. Provides an operating system
+image builder for Linux supported hardware platforms as well as for
+virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
+
+%package -n kiwi-tools
+Summary:        KIWI - Collection of Boot Helper Tools
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n kiwi-tools
+This package contains a small set of helper tools used for the
+kiwi created initial ramdisk which is used to control the very
+first boot of an appliance. The tools are not meant to be used
+outside of the scope of kiwi appliance building.
+
+%ifarch %ix86 x86_64
+%package -n kiwi-pxeboot
+Summary:        KIWI - PXE boot structure
+Requires:       syslinux
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n kiwi-pxeboot
+This package contains the basic PXE directory structure which is
+needed to serve kiwi built images via PXE.
+%endif
+
+%package -n kiwi-boot-requires
+Summary:        KIWI - buildservice package requirements for boot images
+Provides:       kiwi-boot:isoboot
+Provides:       kiwi-boot:vmxboot
+Provides:       kiwi-boot:netboot
+Provides:       kiwi-boot:oemboot
+Provides:       kiwi-filesystem:btrfs
+Provides:       kiwi-filesystem:xfs
+Provides:       kiwi-filesystem:ext3
+Provides:       kiwi-filesystem:ext4
+Provides:       kiwi-filesystem:squashfs
+Requires:       btrfsprogs
+Requires:       e2fsprogs
+Requires:       xfsprogs
+Requires:       python3-kiwi = %{version}
+Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n kiwi-boot-requires
+Meta package for the buildservice to pull in all required packages in
+order to have them in the buildservice created repositories to allow
+kiwi to build the boot image. This package must never be published
+nor installed by anybody else except for the buildservice, it is part
+of the kiwi - buildservice integration exclusively
+
+%package -n kiwi-man-pages
+Summary:        KIWI - manual pages
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n kiwi-man-pages
+Provides manual pages to describe the kiwi commands
+
+%prep
+%setup -q -n kiwi-%{version}
+
+%build
+# Build Python 2 version
+python2 setup.py build --cflags="${RPM_OPT_FLAGS}"
+
+# Build Python 3 version
+python3 setup.py build --cflags="${RPM_OPT_FLAGS}"
+
+%install
+# Install Python 2 version
+python2 setup.py install --prefix=%{_prefix} --root=%{buildroot}
+
+# Install Python 3 version
+python3 setup.py install --prefix=%{_prefix} --root=%{buildroot}
+
+# init alternatives setup
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+
+# alternatives setup for kiwi -> kiwi-ng-py_ver binary
+touch %{buildroot}%{_sysconfdir}/alternatives/kiwi
+ln -s %{_sysconfdir}/alternatives/kiwi \
+    %{buildroot}%_bindir/kiwi
+
+# alternatives setup for kiwi-ng -> kiwi-ng-py_ver binary
+touch %{buildroot}%{_sysconfdir}/alternatives/kiwi-ng
+ln -s %{_sysconfdir}/alternatives/kiwi-ng \
+    %{buildroot}%_bindir/kiwi-ng
+
+# alternatives setup for kiwicompat -> kiwicompat-py_ver binary
+touch %{buildroot}%{_sysconfdir}/alternatives/kiwicompat
+ln -s %{_sysconfdir}/alternatives/kiwicompat \
+    %{buildroot}%_bindir/kiwicompat
+
+# kiwi pxeboot directory structure to be packed in kiwi-pxeboot
+%ifarch %ix86 x86_64
+for i in KIWI pxelinux.cfg image upload boot; do \
+    mkdir -p %{buildroot}/srv/tftpboot/$i ;\
+done
+%endif
+
+%fdupes %{buildroot}/srv/tftpboot
+%fdupes %{buildroot}/%{python3_sitelib}/kiwi/boot
+%fdupes %{buildroot}/%{python2_sitelib}/kiwi/boot
+
+%post -n python2-kiwi
+%{_sbindir}/update-alternatives \
+    --install %_bindir/kiwi kiwi %_bindir/kiwi-ng-2 10
+%{_sbindir}/update-alternatives \
+    --install %_bindir/kiwi-ng kiwi-ng %_bindir/kiwi-ng-2 10
+%{_sbindir}/update-alternatives \
+    --install %_bindir/kiwicompat kiwicompat %_bindir/kiwicompat-2 10
+
+%post -n python3-kiwi
+%{_sbindir}/update-alternatives \
+    --install %_bindir/kiwi kiwi %_bindir/kiwi-ng-3 10
+%{_sbindir}/update-alternatives \
+    --install %_bindir/kiwi-ng kiwi-ng %_bindir/kiwi-ng-3 10
+%{_sbindir}/update-alternatives \
+    --install %_bindir/kiwicompat kiwicompat %_bindir/kiwicompat-3 10
+
+%preun -n python2-kiwi
+%{_sbindir}/update-alternatives \
+    --remove kiwi %_bindir/kiwi
+%{_sbindir}/update-alternatives \
+    --remove kiwi %_bindir/kiwi-ng
+%{_sbindir}/update-alternatives \
+    --remove kiwicompat %_bindir/kiwicompat
+
+%preun -n python3-kiwi
+%{_sbindir}/update-alternatives \
+    --remove kiwi %_bindir/kiwi
+%{_sbindir}/update-alternatives \
+    --remove kiwi %_bindir/kiwi-ng
+%{_sbindir}/update-alternatives \
+    --remove kiwicompat %_bindir/kiwicompat
+
+%ifarch %ix86 x86_64
+%pre -n kiwi-pxeboot
+#============================================================
+# create user and group tftp if they does not exist
+if ! /usr/bin/getent group tftp >/dev/null; then
+    %{_sbindir}/groupadd -r tftp
+fi
+if ! /usr/bin/getent passwd tftp >/dev/null; then
+    %{_sbindir}/useradd -c "TFTP account" -d /srv/tftpboot -G tftp -g tftp \
+        -r -s /bin/false tftp
+fi
+%endif
+
+%files -n python2-kiwi
+%defattr(-,root,root,-)
+%{_bindir}/kiwi-ng-2*
+%{_bindir}/kiwicompat-2*
+%ghost %{_bindir}/kiwi
+%ghost %{_bindir}/kiwi-ng
+%ghost %{_bindir}/kiwicompat
+%ghost %_sysconfdir/alternatives/kiwi
+%ghost %_sysconfdir/alternatives/kiwi-ng
+%ghost %_sysconfdir/alternatives/kiwicompat
+%{python2_sitelib}/*
+%config %_sysconfdir/bash_completion.d/kiwi-ng-2*.sh
+
+%files -n python3-kiwi
+%defattr(-,root,root,-)
+%{_bindir}/kiwi-ng-3*
+%{_bindir}/kiwicompat-3*
+%ghost %{_bindir}/kiwi
+%ghost %{_bindir}/kiwi-ng
+%ghost %{_bindir}/kiwicompat
+%ghost %_sysconfdir/alternatives/kiwi
+%ghost %_sysconfdir/alternatives/kiwi-ng
+%ghost %_sysconfdir/alternatives/kiwicompat
+%{python3_sitelib}/*
+%config %_sysconfdir/bash_completion.d/kiwi-ng-3*.sh
+
+%files -n kiwi-man-pages
+%defattr(-, root, root)
+%doc %{_mandir}/man2/*
+
+%files -n kiwi-tools
+%defattr(-, root, root)
+%exclude %{_bindir}/kiwi
+%exclude %{_bindir}/kiwicompat
+%exclude %{_bindir}/kiwi-ng*
+%exclude %{_bindir}/kiwicompat-*
+%{_bindir}/*
+
+%ifarch %ix86 x86_64
+%files -n kiwi-pxeboot
+%defattr(-, root, root)
+%dir %attr(0750,tftp,tftp) /srv/tftpboot
+%dir /srv/tftpboot/KIWI
+%dir /srv/tftpboot/pxelinux.cfg
+%dir /srv/tftpboot/image
+%dir /srv/tftpboot/upload
+%dir /srv/tftpboot/boot
+%endif
+
+%files -n kiwi-boot-requires
+%defattr(-, root, root)
+
+%changelog
