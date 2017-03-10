@@ -17,6 +17,13 @@ the distribution placeholder. The best approach is to click on the
 desired distribution from the build service link above and there follow
 the **Go to download repository** link.
 
+.. note:: Multipython packages
+
+   This version of KIWI is provided for python 2 and python 3 versions.
+   The following information is based on the installation of the
+   python3-kiwi package and applies also to the installation of the
+   python2-kiwi package.
+
 .. code:: bash
 
     $ sudo zypper ar -f \
