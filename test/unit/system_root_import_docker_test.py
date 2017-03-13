@@ -4,6 +4,7 @@ from mock import call
 
 from .test_helper import raises
 
+from kiwi.system.uri import Uri
 from kiwi.system.root_import.docker import RootImportDocker
 from kiwi.exceptions import KiwiRootImportError
 
@@ -13,7 +14,7 @@ class TestRootImportDocker(object):
     def setup(self, mock_path):
         mock_path.return_value = True
         self.docker_import = RootImportDocker(
-            'root_dir', 'file:///image.tar.xz'
+            'root_dir', Uri('file:///image.tar.xz')
         )
         assert self.docker_import.image_file == '/image.tar.xz'
 
@@ -22,7 +23,7 @@ class TestRootImportDocker(object):
     def test_failed_init(self, mock_path):
         mock_path.return_value = False
         RootImportDocker(
-            'root_dir', 'file:///image.tar.xz'
+            'root_dir', Uri('file:///image.tar.xz')
         )
 
     @patch('kiwi.system.root_import.base.shutil.copy')

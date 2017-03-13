@@ -5,6 +5,7 @@ import kiwi
 
 from .test_helper import raises, patch_open
 
+from kiwi.system.uri import Uri
 from kiwi.builder.container import ContainerBuilder
 from kiwi.exceptions import KiwiContainerBuilderError
 
@@ -13,8 +14,9 @@ class TestContainerBuilder(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
+        self.uri = Uri('file:///image_file.tar.xz')
         self.xml_state = mock.Mock()
-        self.xml_state.build_type.get_derived_from.return_value = None
+        self.xml_state.get_derived_from_image_uri.return_value = self.uri
         self.container_config = {
             'container_name': 'my-container',
             'entry_command': ["--config.cmd='/bin/bash'"]
@@ -41,8 +43,6 @@ class TestContainerBuilder(object):
         self.container.result = mock.Mock()
 
     def test_init_derived(self):
-        self.xml_state.build_type.get_derived_from.return_value = \
-            'file:///image.tar.xz'
         builder = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
@@ -57,6 +57,7 @@ class TestContainerBuilder(object):
         mock_image.return_value = container_image
         self.setup.export_rpm_package_verification.return_value = '.verified'
         self.setup.export_rpm_package_list.return_value = '.packages'
+        self.container.base_image = None
         self.container.create()
         mock_setup.assert_called_once_with(
             'docker', 'root_dir', self.container_config
@@ -102,8 +103,6 @@ class TestContainerBuilder(object):
     @patch('kiwi.builder.container.Checksum')
     @patch('kiwi.builder.container.ContainerImage')
     def test_create_derived(self, mock_image, mock_md5, mock_open):
-        self.xml_state.build_type.get_derived_from.return_value = \
-            'file:///image.tar.xz'
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
@@ -130,7 +129,7 @@ class TestContainerBuilder(object):
 
         container.create()
 
-        mock_open.assert_called_once_with('root_dir/image/image_file.md5', 'r')
+        mock_open.assert_called_once_with('root_dir/image/image_file.md5')
         file_mock.read.assert_called_once_with()
         mock_md5.assert_called_once_with('root_dir/image/image_file')
         md5.md5.assert_called_once_with()
@@ -176,8 +175,6 @@ class TestContainerBuilder(object):
     @patch('kiwi.builder.container.Checksum')
     @raises(KiwiContainerBuilderError)
     def test_create_derived_with_different_md5(self, mock_md5, mock_open):
-        self.xml_state.build_type.get_derived_from.return_value = \
-            'file:///image.tar.xz'
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
@@ -202,8 +199,6 @@ class TestContainerBuilder(object):
     @patch('kiwi.builder.container.Checksum')
     @raises(Exception)
     def test_create_derived_fail_open(self, mock_md5, mock_open):
-        self.xml_state.build_type.get_derived_from.return_value = \
-            'file:///image.tar.xz'
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )

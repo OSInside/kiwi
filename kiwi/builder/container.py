@@ -60,10 +60,25 @@ class ContainerBuilder(object):
         self.target_dir = target_dir
         self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
-        if not xml_state.build_type.get_derived_from():
-            self.base_image = None
-        else:
-            self.base_image = os.sep.join([root_dir, 'image', 'image_file'])
+        self.base_image_uri = xml_state.get_derived_from_image_uri()
+        self.base_image = None
+        self.base_image_md5 = None
+
+        if self.base_image_uri:
+            base_image_origin = self.base_image_uri.translate()
+
+            # we expect the base image to be unpacked by the kiwi prepare step
+            # and stored inside of the root_dir/image directory. In addition
+            # a md5 file of the image is expected there too
+            self.base_image = os.path.normpath(
+                os.sep.join(
+                    [
+                        root_dir, 'image',
+                        base_image_origin.replace('.tar.xz', '')
+                    ]
+                )
+            )
+            self.base_image_md5 = ''.join([self.base_image, '.md5'])
 
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
@@ -93,23 +108,24 @@ class ContainerBuilder(object):
                 'Setting up %s container', self.requested_container_type
             )
             container_setup = ContainerSetup(
-                self.requested_container_type, self.root_dir, self.container_config
+                self.requested_container_type, self.root_dir,
+                self.container_config
             )
             container_setup.setup()
         else:
-            base_image_md5 = ''.join([self.base_image, '.md5'])
-            data = None
             try:
                 checksum = Checksum(self.base_image)
-                with open(base_image_md5, 'r') as md5_file:
-                    data = md5_file.read()
+                with open(self.base_image_md5) as md5_file:
+                    base_image_md5 = md5_file.read()
             except Exception as e:
                 raise KiwiContainerBuilderError(
                     '%s: %s' % (type(e).__name__, format(e))
                 )
-            if data.split(' ')[0] != checksum.md5():
+            if base_image_md5.split(' ')[0] != checksum.md5():
                 raise KiwiContainerBuilderError(
-                    'base image file {0} checksum validation failed'.format(self.base_image)
+                    'base image file {0} checksum validation failed'.format(
+                        self.base_image
+                    )
                 )
 
         log.info(
