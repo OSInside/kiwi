@@ -38,6 +38,12 @@ install:
 	install -d -m 755 ${buildroot}etc/bash_completion.d
 	helper/completion_generator \
 		> ${buildroot}etc/bash_completion.d/kiwi-ng-${python_version}.sh
+	# license
+	install -d -m 755 ${buildroot}/usr/share/doc/packages/python-kiwi
+	install -m 644 LICENSE \
+		${buildroot}/usr/share/doc/packages/python-kiwi/LICENSE
+	install -m 644 README.rst \
+		${buildroot}/usr/share/doc/packages/python-kiwi/README
 
 tox:
 	tox

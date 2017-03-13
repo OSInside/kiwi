@@ -25,7 +25,7 @@ graft kiwi/solver
 graft package
 
 include Makefile
-include README*
+include README.rst
 include LICENSE
 include tox.ini
 include .fuzzy

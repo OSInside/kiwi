@@ -373,6 +373,9 @@ fi
 
 %files -n kiwi-man-pages
 %defattr(-, root, root)
+%dir %{_defaultdocdir}/python-kiwi
+%{_defaultdocdir}/python-kiwi/LICENSE
+%{_defaultdocdir}/python-kiwi/README
 %doc %{_mandir}/man2/*
 
 %files -n kiwi-tools
