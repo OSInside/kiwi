@@ -66,10 +66,9 @@ class ContainerBuilder(object):
 
         if self.base_image_uri:
             base_image_origin = self.base_image_uri.translate()
-
-            # we expect the base image to be unpacked by the kiwi prepare step
-            # and stored inside of the root_dir/image directory. In addition
-            # a md5 file of the image is expected there too
+            # The base image is expected to be unpacked by the kiwi
+            # prepare step and stored inside of the root_dir/image directory.
+            # In addition a md5 file of the image is expected too
             self.base_image = os.path.normpath(
                 os.sep.join(
                     [
@@ -78,7 +77,20 @@ class ContainerBuilder(object):
                     ]
                 )
             )
+            if not os.path.exists(self.base_image):
+                raise KiwiContainerBuilderError(
+                    'Unpacked Base image {0} not found'.format(
+                        self.base_image
+                    )
+                )
+
             self.base_image_md5 = ''.join([self.base_image, '.md5'])
+            if not os.path.exists(self.base_image_md5):
+                raise KiwiContainerBuilderError(
+                    'Base image MD5 sum {0} not found at'.format(
+                        self.base_image_md5
+                    )
+                )
 
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
@@ -113,15 +125,8 @@ class ContainerBuilder(object):
             )
             container_setup.setup()
         else:
-            try:
-                checksum = Checksum(self.base_image)
-                with open(self.base_image_md5) as md5_file:
-                    base_image_md5 = md5_file.read()
-            except Exception as e:
-                raise KiwiContainerBuilderError(
-                    '%s: %s' % (type(e).__name__, format(e))
-                )
-            if base_image_md5.split(' ')[0] != checksum.md5():
+            checksum = Checksum(self.base_image)
+            if not checksum.matches(checksum.md5(), self.base_image_md5):
                 raise KiwiContainerBuilderError(
                     'base image file {0} checksum validation failed'.format(
                         self.base_image

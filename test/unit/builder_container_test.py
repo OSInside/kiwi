@@ -12,7 +12,9 @@ from kiwi.exceptions import KiwiContainerBuilderError
 
 class TestContainerBuilder(object):
     @patch('platform.machine')
-    def setup(self, mock_machine):
+    @patch('os.path.exists')
+    def setup(self, mock_exists, mock_machine):
+        mock_exists.return_value = True
         mock_machine.return_value = 'x86_64'
         self.uri = Uri('file:///image_file.tar.xz')
         self.xml_state = mock.Mock()
@@ -42,11 +44,54 @@ class TestContainerBuilder(object):
         )
         self.container.result = mock.Mock()
 
-    def test_init_derived(self):
+    @patch('os.path.exists')
+    def test_init_derived(self, mock_exists):
+        mock_exists.return_value = True
         builder = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
         assert builder.base_image == 'root_dir/image/image_file'
+
+    @patch('os.path.exists')
+    @raises(KiwiContainerBuilderError)
+    def test_init_derived_base_image_not_existing(self, mock_exists):
+        mock_exists.return_value = False
+        ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+
+    @patch('os.path.exists')
+    @raises(KiwiContainerBuilderError)
+    def test_init_derived_base_image_md5_not_existing(self, mock_exists):
+        exists_results = [False, True]
+
+        def side_effect(self):
+            return exists_results.pop()
+
+        mock_exists.side_effect = side_effect
+        ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+
+    @patch('kiwi.builder.container.Checksum')
+    @patch('kiwi.builder.container.ContainerImage')
+    @patch('os.path.exists')
+    @raises(KiwiContainerBuilderError)
+    def test_create_derived_checksum_match_failed(
+        self, mock_exists, mock_image, mock_checksum
+    ):
+        mock_exists.return_value = True
+        container = ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+        container.result = mock.Mock()
+
+        checksum = mock.Mock()
+        checksum.matches = mock.Mock(
+            return_value=False
+        )
+        mock_checksum.return_value = checksum
+        container.create()
 
     @patch('kiwi.builder.container.ContainerSetup')
     @patch('kiwi.builder.container.ContainerImage')
@@ -99,28 +144,21 @@ class TestContainerBuilder(object):
             'target_dir'
         )
 
-    @patch_open
     @patch('kiwi.builder.container.Checksum')
     @patch('kiwi.builder.container.ContainerImage')
-    def test_create_derived(self, mock_image, mock_md5, mock_open):
+    @patch('os.path.exists')
+    def test_create_derived(self, mock_exists, mock_image, mock_checksum):
+        mock_exists.return_value = True
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
         container.result = mock.Mock()
 
-        md5 = mock.Mock()
-        md5.md5.return_value = 'checksumvalue'
-        mock_md5.return_value = md5
-
-        context_manager_mock = mock.Mock()
-        file_mock = mock.Mock()
-        file_mock.read.return_value = 'checksumvalue and someotherstuff\n'
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-        mock_open.return_value = context_manager_mock
+        checksum = mock.Mock()
+        checksum.md5 = mock.Mock(
+            return_value='checksumvalue'
+        )
+        mock_checksum.return_value = checksum
 
         container_image = mock.Mock()
         mock_image.return_value = container_image
@@ -129,10 +167,10 @@ class TestContainerBuilder(object):
 
         container.create()
 
-        mock_open.assert_called_once_with('root_dir/image/image_file.md5')
-        file_mock.read.assert_called_once_with()
-        mock_md5.assert_called_once_with('root_dir/image/image_file')
-        md5.md5.assert_called_once_with()
+        mock_checksum.assert_called_once_with('root_dir/image/image_file')
+        checksum.matches.assert_called_once_with(
+            'checksumvalue', 'root_dir/image/image_file.md5'
+        )
 
         mock_image.assert_called_once_with(
             'docker', 'root_dir', self.container_config
