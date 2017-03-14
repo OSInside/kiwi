@@ -42,7 +42,6 @@ class ContainerImageDocker(object):
         self.root_dir = root_dir
         self.docker_dir = None
         self.docker_root_dir = None
-        self.uncompressed_image = None
 
         self.container_name = ''
         self.container_tag = 'latest'
@@ -189,5 +188,3 @@ class ContainerImageDocker(object):
             Path.wipe(self.docker_dir)
         if self.docker_root_dir:
             Path.wipe(self.docker_root_dir)
-        if self.uncompressed_image:
-            Path.wipe(self.uncompressed_image)

@@ -53,10 +53,9 @@ class TestContainerImageDocker(object):
     def test_del(self, mock_wipe):
         self.docker.docker_dir = 'dir_a'
         self.docker.docker_root_dir = 'dir_b'
-        self.docker.uncompressed_image = 'uncompressed_image'
         self.docker.__del__()
         assert mock_wipe.call_args_list == [
-            call('dir_a'), call('dir_b'), call('uncompressed_image')
+            call('dir_a'), call('dir_b')
         ]
 
     @patch('kiwi.container.docker.Compress')
@@ -64,9 +63,12 @@ class TestContainerImageDocker(object):
     @patch('kiwi.container.docker.DataSync')
     @patch('kiwi.container.docker.mkdtemp')
     @patch('kiwi.container.docker.Path.wipe')
+    @patch('kiwi.container.docker.Defaults.get_shared_cache_location')
     def test_create(
-        self, mock_wipe, mock_mkdtemp, mock_sync, mock_command, mock_compress
+        self, mock_cache, mock_wipe, mock_mkdtemp,
+        mock_sync, mock_command, mock_compress
     ):
+        mock_cache.return_value = 'var/cache/kiwi'
         compressor = mock.Mock()
         mock_compress.return_value = compressor
         docker_root = mock.Mock()
@@ -129,9 +131,12 @@ class TestContainerImageDocker(object):
     @patch('kiwi.container.docker.DataSync')
     @patch('kiwi.container.docker.mkdtemp')
     @patch('kiwi.container.docker.Path.wipe')
+    @patch('kiwi.container.docker.Defaults.get_shared_cache_location')
     def test_create_derived(
-        self, mock_wipe, mock_mkdtemp, mock_sync, mock_command, mock_compress
+        self, mock_cache, mock_wipe, mock_mkdtemp,
+        mock_sync, mock_command, mock_compress
     ):
+        mock_cache.return_value = 'var/cache/kiwi'
         compressor = mock.Mock()
         mock_compress.return_value = compressor
         docker_root = mock.Mock()
