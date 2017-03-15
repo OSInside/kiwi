@@ -113,7 +113,7 @@ class Uri(object):
             return self._suse_buildservice_path(
                 ''.join([uri.netloc, uri.path])
             )
-        elif uri.scheme == 'http' or uri.scheme == 'ftp':
+        elif uri.scheme == 'http' or uri.scheme == 'https' or uri.scheme == 'ftp':
             return ''.join([uri.scheme, '://', uri.netloc, uri.path])
         else:
             raise KiwiUriStyleUnknown(

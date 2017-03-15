@@ -101,6 +101,10 @@ class TestUri(object):
         uri = Uri('http://example.com/foo', 'rpm-md')
         assert uri.translate() == 'http://example.com/foo'
 
+    def test_translate_https_path(self):
+        uri = Uri('https://example.com/foo', 'rpm-md')
+        assert uri.translate() == 'https://example.com/foo'
+
     def test_translate_ftp_path(self):
         uri = Uri('ftp://example.com/foo', 'rpm-md')
         assert uri.translate() == 'ftp://example.com/foo'
