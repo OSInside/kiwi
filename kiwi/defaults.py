@@ -720,6 +720,21 @@ class Defaults(object):
         """
         return resource_filename('kiwi', filename)
 
+    @classmethod
+    def get_imported_root_image(self, root_dir):
+        """
+        Returns the path of the image used to import a root during
+        the prepare task. This is the filename expected to be
+        found during the create step if derived_from attribute is
+        present.
+
+        :param string root_dir: is the root directory of the current build
+
+        :return: file name of the image
+        :rtype: string
+        """
+        return os.sep.join([root_dir, 'image', 'imported_root'])
+
     def get(self, key):
         """
         Implements get method for profile elements

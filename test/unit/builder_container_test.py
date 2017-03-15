@@ -50,7 +50,7 @@ class TestContainerBuilder(object):
         builder = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
-        assert builder.base_image == 'root_dir/image/image_file'
+        assert builder.base_image == 'root_dir/image/imported_root'
 
     @patch('os.path.exists')
     @raises(KiwiContainerBuilderError)
@@ -167,9 +167,9 @@ class TestContainerBuilder(object):
 
         container.create()
 
-        mock_checksum.assert_called_once_with('root_dir/image/image_file')
+        mock_checksum.assert_called_once_with('root_dir/image/imported_root')
         checksum.matches.assert_called_once_with(
-            'checksumvalue', 'root_dir/image/image_file.md5'
+            'checksumvalue', 'root_dir/image/imported_root.md5'
         )
 
         mock_image.assert_called_once_with(
@@ -177,7 +177,7 @@ class TestContainerBuilder(object):
         )
         container_image.create.assert_called_once_with(
             'target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
-            'root_dir/image/image_file'
+            'root_dir/image/imported_root'
         )
         assert container.result.add.call_args_list == [
             call(

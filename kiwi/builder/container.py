@@ -25,6 +25,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.logger import log
 from kiwi.system.result import Result
 from kiwi.utils.checksum import Checksum
+from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiContainerBuilderError
 
 
@@ -60,31 +61,24 @@ class ContainerBuilder(object):
         self.target_dir = target_dir
         self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
-        self.base_image_uri = xml_state.get_derived_from_image_uri()
         self.base_image = None
         self.base_image_md5 = None
 
-        if self.base_image_uri:
-            base_image_origin = self.base_image_uri.translate()
+        if xml_state.get_derived_from_image_uri():
             # The base image is expected to be unpacked by the kiwi
             # prepare step and stored inside of the root_dir/image directory.
             # In addition a md5 file of the image is expected too
-            self.base_image = os.path.normpath(
-                os.sep.join(
-                    [
-                        root_dir, 'image',
-                        base_image_origin.replace('.tar.xz', '')
-                    ]
-                )
+            self.base_image = Defaults.get_imported_root_image(
+                self.root_dir
             )
+            self.base_image_md5 = ''.join([self.base_image, '.md5'])
+
             if not os.path.exists(self.base_image):
                 raise KiwiContainerBuilderError(
                     'Unpacked Base image {0} not found'.format(
                         self.base_image
                     )
                 )
-
-            self.base_image_md5 = ''.join([self.base_image, '.md5'])
             if not os.path.exists(self.base_image_md5):
                 raise KiwiContainerBuilderError(
                     'Base image MD5 sum {0} not found at'.format(

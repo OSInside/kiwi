@@ -70,12 +70,9 @@ class RootImportDocker(RootImportBase):
         self._copy_image(self.uncompressed_image)
 
     def __del__(self):
-        try:
-            if self.oci_layout_dir:
-                Path.wipe(self.oci_layout_dir)
-            if self.oci_unpack_dir:
-                Path.wipe(self.oci_unpack_dir)
-            if self.uncompressed_image:
-                Path.wipe(self.uncompressed_image)
-        except Exception:
-            pass
+        if self.oci_layout_dir:
+            Path.wipe(self.oci_layout_dir)
+        if self.oci_unpack_dir:
+            Path.wipe(self.oci_unpack_dir)
+        if self.uncompressed_image:
+            Path.wipe(self.uncompressed_image)

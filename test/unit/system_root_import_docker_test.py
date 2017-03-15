@@ -76,10 +76,10 @@ class TestRootImportDocker(object):
         sync.sync_data.assert_called_once_with(
             options=['-a', '-H', '-X', '-A']
         )
-        mock_md5.assert_called_once_with('root_dir/image/image_file')
-        md5.md5.called_once_with('root_dir/image/image_file.md5')
+        mock_md5.assert_called_once_with('root_dir/image/imported_root')
+        md5.md5.called_once_with('root_dir/image/imported_root.md5')
         mock_copy.assert_called_once_with(
-            'tmp_uncompressed', 'root_dir/image/image_file'
+            'tmp_uncompressed', 'root_dir/image/imported_root'
         )
         mock_path.assert_called_once_with('root_dir/image')
 
