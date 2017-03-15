@@ -19,26 +19,40 @@
 %{!?python2_sitelib:%global python2_sitelib %{python_sitelib}}
 
 # translate version id to distribution name as it is used in kiwi
+# generic approach
 %if 0%{?suse_version}
 %define distro %(echo `export VER=%{suse_version}; echo "suse-${VER:0:2}.${VER:2:1}"`)
-# redefine for the SLES case if no sles_version exists
+%endif
+
 # SLE12:
 %if 0%{?suse_version} == 1315 && !0%{?is_opensuse}
 %define distro suse-SLES12
 %endif
-# Leap 42.1:
-%if 0%{?suse_version} == 1315 && 0%{?is_opensuse}
+
+# SLE13:
+%if 0%{?sle_version} == 130000 && !0%{?is_opensuse}
+%define distro suse-SLES13
+%endif
+
+# Leap 42.1(openSUSE product based on SLE 12SP1):
+%if 0%{?is_opensuse} && 0%{?sle_version} == 120100
 %define distro suse-leap42.1
 %endif
+
 # Leap 42.2:
-%if 0%{?suse_version} == 1316 && 0%{?is_opensuse}
+%if 0%{?leap_version} == 420200
 %define distro suse-leap42.2
 %endif
+
+# Leap 42.3:
+%if 0%{?leap_version} == 420300
+%define distro suse-leap42.3
+%endif
+
 # Tumbleweed:
 # Current Tumbleweed version, moving target
 %if 0%{?suse_version} == 1330
 %define distro suse-tumbleweed
-%endif
 %endif
 
 # SLES with sles_version macro
