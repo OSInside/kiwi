@@ -22,6 +22,7 @@ from collections import namedtuple
 
 # project
 from . import xml_parse
+from .system.uri import Uri
 from .defaults import Defaults
 
 from .exceptions import (
@@ -1473,6 +1474,21 @@ class XMLState(object):
             option_list = [mount_options]
 
         return option_list
+
+    def get_derived_from_image_uri(self):
+        """
+        Uri object of derived image if configured
+
+        Specific image types can be based on a master image.
+        This method returns the location of this image when
+        configured in the XML description
+
+        :return: Instance of Uri
+        :rtype: object
+        """
+        derived_image = self.build_type.get_derived_from()
+        if derived_image:
+            return Uri(derived_image)
 
     def _used_profiles(self, profiles=None):
         """

@@ -16,9 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import shutil
 
 # project
-from kiwi.system.uri import Uri
+from kiwi.path import Path
+from kiwi.utils.checksum import Checksum
+from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiRootImportError
 
 
@@ -29,27 +32,26 @@ class RootImportBase(object):
     * :attr:`root_dir`
         root directory path name
 
-    * :attr:`image_file`
-        local image file to import
-
-    * :attr:`tmp_root_dir`
-        temporary directory where image_file is extracted
+    * :attr:`image_uri`
+        Uri object to store source location
     """
     def __init__(self, root_dir, image_uri):
-        uri = Uri(image_uri)
-        if uri.is_remote():
-            raise KiwiRootImportError(
-                'Only local imports are supported'
-            )
-        else:
-            self.image_file = uri.translate()
+        try:
+            if image_uri.is_remote():
+                raise KiwiRootImportError(
+                    'Only local imports are supported'
+                )
+
+            self.image_file = image_uri.translate()
+
             if not os.path.exists(self.image_file):
                 raise KiwiRootImportError(
                     'Could not stat base image file: {0}'.format(self.image_file)
                 )
 
-        self.root_dir = root_dir
-        self.post_init()
+            self.root_dir = root_dir
+        finally:
+            self.post_init()
 
     def post_init(self):
         """
@@ -66,3 +68,10 @@ class RootImportBase(object):
         Implementation in specialized root import class
         """
         raise NotImplementedError
+
+    def _copy_image(self, image):
+        image_copy = Defaults.get_imported_root_image(self.root_dir)
+        Path.create(os.path.dirname(image_copy))
+        shutil.copy(image, image_copy)
+        checksum = Checksum(image_copy)
+        checksum.md5(''.join([image_copy, '.md5']))

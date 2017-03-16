@@ -67,7 +67,7 @@ class SystemPrepare(object):
             root_dir, allow_existing
         )
         root.create()
-        image_uri = xml_state.build_type.get_derived_from()
+        image_uri = xml_state.get_derived_from_image_uri()
         if image_uri:
             root_import = RootImport(
                 root_dir, image_uri, xml_state.build_type.get_image()

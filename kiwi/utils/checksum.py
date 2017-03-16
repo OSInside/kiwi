@@ -48,6 +48,27 @@ class Checksum(object):
         self.source_filename = source_filename
         self.checksum_filename = None
 
+    def matches(self, checksum, filename):
+        """
+        Compare given checksum with reference checksum stored
+        in the provided filename. If the checksum matches the
+        method returns True, or False in case it does not match
+
+        :param string checksum: checksum string to compare
+        :param string filename: filename containing checksum
+        """
+        if not os.path.exists(filename):
+            return False
+        with open(filename) as checksum_file:
+            checksum_from_file = checksum_file.read()
+            # checksum is expected to be stored in the first field
+            # separated by space, other information might contain
+            # the filename or blocklist data which is not of interest
+            # for the plain checksum match
+            if checksum_from_file.split(' ')[0] == checksum:
+                return True
+        return False
+
     def md5(self, filename=None):
         """
         Create md5 checksum

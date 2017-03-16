@@ -92,11 +92,13 @@ class ContainerImageDocker(object):
         if not self.entry_command and not self.entry_subcommand:
             self.entry_subcommand = ['--config.cmd=/bin/bash']
 
-    def create(self, filename):
+    def create(self, filename, base_image):
         """
         Create compressed docker system container tar archive
 
         :param string filename: archive file name
+
+        :param string base_image: archive used as a base image
         """
         exclude_list = [
             'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
@@ -113,12 +115,20 @@ class ContainerImageDocker(object):
             [container_dir, self.container_tag]
         )
 
-        Command.run(
-            ['umoci', 'init', '--layout', container_dir]
-        )
-        Command.run(
-            ['umoci', 'new', '--image', container_name]
-        )
+        if base_image:
+            Command.run([
+                'skopeo', 'copy',
+                'docker-archive:{0}'.format(base_image),
+                'oci:{0}'.format(container_name)
+            ])
+        else:
+            Command.run(
+                ['umoci', 'init', '--layout', container_dir]
+            )
+            Command.run(
+                ['umoci', 'new', '--image', container_name]
+            )
+
         Command.run(
             ['umoci', 'unpack', '--image', container_name, self.docker_root_dir]
         )

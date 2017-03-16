@@ -79,6 +79,11 @@ class TestSystemPrepare(object):
         state = XMLState(
             xml, profiles=['vmxFlavour'], build_type='docker'
         )
+        uri = mock.Mock()
+        get_derived_from_image_uri = mock.Mock(
+            return_value=uri
+        )
+        state.get_derived_from_image_uri = get_derived_from_image_uri
         SystemPrepare(
             xml_state=state, root_dir='root_dir',
         )
@@ -87,7 +92,7 @@ class TestSystemPrepare(object):
         )
         root_init.create.assert_called_once_with()
         mock_root_import.assert_called_once_with(
-            'root_dir', 'file:///image.tar.xz',
+            'root_dir', uri,
             state.build_type.get_image()
         )
         root_import.sync_data.assert_called_once_with()

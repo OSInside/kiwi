@@ -752,3 +752,10 @@ class KiwiRootImportError(KiwiError):
     Exception is raised when something fails during the root import
     procedure.
     """
+
+
+class KiwiContainerBuilderError(KiwiError):
+    """
+    Exception is raised when something fails during a container image
+    build procedure.
+    """
