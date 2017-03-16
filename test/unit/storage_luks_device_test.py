@@ -1,11 +1,10 @@
-
 from mock import patch
 from mock import call
 import mock
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiLuksSetupError
 from kiwi.storage.luks_device import LuksDevice
 
 

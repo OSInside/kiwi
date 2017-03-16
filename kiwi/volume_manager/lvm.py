@@ -16,15 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .base import VolumeManagerBase
-from ..command import Command
-from ..mount_manager import MountManager
-from ..storage.mapped_device import MappedDevice
-from ..filesystem import FileSystem
-from ..path import Path
-from ..logger import log
+from kiwi.volume_manager.base import VolumeManagerBase
+from kiwi.command import Command
+from kiwi.mount_manager import MountManager
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.filesystem import FileSystem
+from kiwi.path import Path
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiVolumeGroupConflict
 )
 

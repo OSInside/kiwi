@@ -1,12 +1,11 @@
-
 from mock import patch
 
 import mock
 import kiwi
 
-from .test_helper import *
+from .test_helper import raises
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiArchiveSetupError
 from kiwi.builder.archive import ArchiveBuilder
 
 

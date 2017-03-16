@@ -1,4 +1,5 @@
 buildroot = /
+python_version = 3
 
 LC = LC_MESSAGES
 
@@ -28,13 +29,21 @@ install:
 	# manual pages
 	install -d -m 755 ${buildroot}usr/share/man/man2
 	for man in doc/build/man/*.2; do \
-		gzip -f $$man && \
-		install -m 644 $$man.gz ${buildroot}usr/share/man/man2 ;\
+		test -e $$man && gzip -f $$man || true ;\
+	done
+	for man in doc/build/man/*.2.gz; do \
+		install -m 644 $$man ${buildroot}usr/share/man/man2 ;\
 	done
 	# completion
 	install -d -m 755 ${buildroot}etc/bash_completion.d
 	helper/completion_generator \
-		> ${buildroot}etc/bash_completion.d/kiwi-ng.sh
+		> ${buildroot}etc/bash_completion.d/kiwi-ng-${python_version}.sh
+	# license
+	install -d -m 755 ${buildroot}/usr/share/doc/packages/python-kiwi
+	install -m 644 LICENSE \
+		${buildroot}/usr/share/doc/packages/python-kiwi/LICENSE
+	install -m 644 README.rst \
+		${buildroot}/usr/share/doc/packages/python-kiwi/README
 
 tox:
 	tox
@@ -102,28 +111,28 @@ build: clean po tox sdist_prepare
 	# delete module versions from setup.py for building an rpm
 	# the dependencies to the python module rpm packages is
 	# managed in the spec file
-	cat setup.py | sed -e "s@>=[0-9.]*'@'@g" > setup.build.py
+	sed -ie "s@>=[0-9.]*'@'@g" setup.py
 	# build the sdist source tarball
-	python3 setup.build.py sdist
+	python3 setup.py sdist
 	# cleanup sdist_prepare actions
 	rm -f boot_arch.tgz && \
 		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
-	# cleanup setup.py variant used for rpm build
-	rm -f setup.build.py
+	# restore original setup.py backed up from sed
+	mv setup.pye setup.py
 	# provide rpm source tarball
-	mv dist/kiwi-${version}.tar.gz dist/python3-kiwi.tar.gz
+	mv dist/kiwi-${version}.tar.gz dist/python-kiwi.tar.gz
 	# provide rpm changelog from git changelog
 	git log | helper/changelog_generator |\
-		helper/changelog_descending > dist/python3-kiwi.changes
+		helper/changelog_descending > dist/python-kiwi.changes
 	# update package version in spec file
-	cat package/python3-kiwi-spec-template | sed -e s'@%%VERSION@${version}@' \
-		> dist/python3-kiwi.spec
+	cat package/python-kiwi-spec-template | sed -e s'@%%VERSION@${version}@' \
+		> dist/python-kiwi.spec
 	# provide rpm rpmlintrc
-	cp package/python3-kiwi-rpmlintrc dist
+	cp package/python-kiwi-rpmlintrc dist
 	# provide rpm boot packages source
 	# metadata for the buildservice when kiwi is used in the
 	# buildservice this data is needed
-	helper/kiwi-boot-packages > dist/python3-kiwi-boot-packages
+	helper/kiwi-boot-packages > dist/python-kiwi-boot-packages
 
 pypi: clean po tox sdist_prepare
 	python3 setup.py sdist upload
@@ -131,7 +140,6 @@ pypi: clean po tox sdist_prepare
 		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 
 clean: clean_git_attributes
-	rm -f setup.build.py
 	rm -rf dist
 	rm -rf build
 	${MAKE} -C tools clean

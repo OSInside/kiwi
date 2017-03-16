@@ -2,9 +2,13 @@ from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiUriStyleUnknown,
+    KiwiUriTypeUnknown
+)
+
 from kiwi.system.uri import Uri
 
 import hashlib
@@ -48,6 +52,27 @@ class TestUri(object):
             'https://example.com'.encode()).hexdigest(
         )
 
+    def test_credentials_file_name(self):
+        uri = Uri(
+            'http://example.com/foo?credentials=my_credentials&x=2',
+            'rpm-md'
+        )
+        assert uri.credentials_file_name() == 'my_credentials'
+
+    def test_credentials_default_file_name(self):
+        uri = Uri(
+            'http://example.com/foo',
+            'rpm-md'
+        )
+        assert uri.credentials_file_name() == 'kiwiRepoCredentials'
+
+    def test_translate_http_path_with_credentials(self):
+        uri = Uri(
+            'http://example.com/foo?credentials=kiwiRepoCredentials',
+            'rpm-md'
+        )
+        assert uri.translate() == 'http://example.com/foo'
+
     def test_translate_ibs_project(self):
         uri = Uri('ibs://Devel:PubCloud/SLE_12_GA', 'rpm-md')
         assert uri.translate() == \
@@ -57,6 +82,11 @@ class TestUri(object):
         uri = Uri('obs://13.2/repo/oss', 'yast2')
         assert uri.translate() == \
             'http://download.opensuse.org/distribution/13.2/repo/oss'
+
+    def test_translate_obs_factory_distro(self):
+        uri = Uri('obs://openSUSE:Factory/standard', 'yast2')
+        assert uri.translate() == \
+            'http://download.opensuse.org/tumbleweed/repo/oss'
 
     def test_translate_obs_project(self):
         uri = Uri('obs://Virt:Appliances/SLE_12', 'rpm-md')
@@ -70,6 +100,10 @@ class TestUri(object):
     def test_translate_http_path(self):
         uri = Uri('http://example.com/foo', 'rpm-md')
         assert uri.translate() == 'http://example.com/foo'
+
+    def test_translate_https_path(self):
+        uri = Uri('https://example.com/foo', 'rpm-md')
+        assert uri.translate() == 'https://example.com/foo'
 
     def test_translate_ftp_path(self):
         uri = Uri('ftp://example.com/foo', 'rpm-md')
@@ -109,7 +143,7 @@ class TestUri(object):
         )
         mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
-        result = uri.translate()
+        uri.translate()
         uri.__del__()
         manager.umount.assert_called_once_with()
         mock_wipe.assert_called_once_with(manager.mountpoint)

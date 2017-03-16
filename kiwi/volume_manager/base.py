@@ -20,17 +20,17 @@ from tempfile import mkdtemp
 import os
 
 # project
-from ..logger import log
-from ..command import Command
-from ..storage.device_provider import DeviceProvider
-from ..mount_manager import MountManager
-from ..storage.mapped_device import MappedDevice
-from ..utils.sync import DataSync
-from ..path import Path
-from ..system.size import SystemSize
-from ..defaults import Defaults
+from kiwi.logger import log
+from kiwi.command import Command
+from kiwi.storage.device_provider import DeviceProvider
+from kiwi.mount_manager import MountManager
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.utils.sync import DataSync
+from kiwi.path import Path
+from kiwi.system.size import SystemSize
+from kiwi.defaults import Defaults
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiVolumeManagerSetupError
 )
 

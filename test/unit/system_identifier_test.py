@@ -1,9 +1,8 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open
 
 from kiwi.system.identifier import SystemIdentifier
 

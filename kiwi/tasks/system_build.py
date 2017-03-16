@@ -56,16 +56,16 @@ options:
         the target directory to store the system image file(s)
 """
 # project
-from .base import CliTask
-from ..help import Help
-from ..system.prepare import SystemPrepare
-from ..system.setup import SystemSetup
-from ..builder import ImageBuilder
-from ..system.profile import Profile
-from ..defaults import Defaults
-from ..privileges import Privileges
-from ..path import Path
-from ..logger import log
+from kiwi.tasks.base import CliTask
+from kiwi.help import Help
+from kiwi.system.prepare import SystemPrepare
+from kiwi.system.setup import SystemSetup
+from kiwi.builder import ImageBuilder
+from kiwi.system.profile import Profile
+from kiwi.defaults import Defaults
+from kiwi.privileges import Privileges
+from kiwi.path import Path
+from kiwi.logger import log
 
 
 class SystemBuildTask(CliTask):
@@ -99,6 +99,9 @@ class SystemBuildTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
+        self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
+        self.runtime_checker.check_boot_image_reference_correctly_setup()
+        self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
         self.runtime_checker.check_image_include_repos_http_resolvable()
         self.runtime_checker.check_target_directory_not_in_shared_cache(

@@ -17,7 +17,7 @@
 #
 
 # project
-from .base import ContainerSetupBase
+from kiwi.container.setup.base import ContainerSetupBase
 
 
 class ContainerSetupDocker(ContainerSetupBase):

@@ -1,9 +1,10 @@
 from mock import call
+from mock import patch
 import mock
 
-from .test_helper import *
+from .test_helper import raises, patch_open
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiFileNotFound
 from kiwi.utils.checksum import Checksum
 
 from builtins import bytes
@@ -33,6 +34,22 @@ class TestChecksum(object):
     @raises(KiwiFileNotFound)
     def test_checksum_file_not_found(self):
         Checksum('some-file')
+
+    @patch('os.path.exists')
+    def test_matches_checksum_file_does_not_exist(self, mock_exists):
+        mock_exists.return_value = False
+        assert self.checksum.matches('sum', 'some-file') is False
+
+    @patch('os.path.exists')
+    @patch_open
+    def test_matches(self, mock_open, mock_exists):
+        mock_exists.return_value = True
+        mock_open.return_value = self.context_manager_mock
+        self.file_mock.read.side_effect = None
+        self.file_mock.read.return_value = 'sum'
+        assert self.checksum.matches('sum', 'some-file') is True
+        mock_open.assert_called_once_with('some-file')
+        assert self.checksum.matches('foo', 'some-file') is False
 
     @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')

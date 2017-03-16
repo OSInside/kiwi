@@ -1,7 +1,6 @@
 from mock import patch
 from mock import call
 import mock
-import os
 
 import datetime
 
@@ -10,7 +9,7 @@ from lxml import etree
 from xml.dom import minidom
 from collections import namedtuple
 
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiVolumeRootIDError
 from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 
 
@@ -180,7 +179,7 @@ class TestVolumeManagerBtrfs(object):
                 'tmpdir/@/', self.volume_type(
                     name='myvol', size='size:500', realpath='/data',
                     mountpoint='LVdata', fullsize=False, attributes=[])
-                ),
+            ),
             call('tmpdir/@/', self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False, attributes=[])
@@ -205,8 +204,8 @@ class TestVolumeManagerBtrfs(object):
         ]
         assert mock_mount.call_args_list == [
             call(
-               device='/dev/storage',
-               mountpoint='tmpdir/@/.snapshots/1/snapshot/data'
+                device='/dev/storage',
+                mountpoint='tmpdir/@/.snapshots/1/snapshot/data'
             ),
             call(
                 device='/dev/storage',

@@ -38,8 +38,10 @@ locale-name = xsd:token {pattern = "[a-z]{2}_[A-Z]{2}(,[a-z]{2}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
 volume-size-type = xsd:token {pattern = "\d+|\d+M|\d+G|all"}
+partition-size-type = xsd:token {pattern = "\d+|\d+M|\d+G"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
+arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*"}
 
 #==========================================
 # start with image description
@@ -96,7 +98,6 @@ div {
             k.description &
             k.preferences+ &
             k.profiles? &
-            k.instsource? &
             k.users* &
             k.drivers* &
             k.strip* &
@@ -136,8 +137,10 @@ k.displayname.attribute =
     ## for isolinux and grub
     attribute displayname { text }
 k.arch.attribute        =
-    ## An architecture
-    attribute arch { text }
+    ## A system architecture name, matching the 'uname -m' information
+    ## Multiple architectures can be combined as comma separated list
+    ## e.g arch="x86_64,ix86"
+    attribute arch { arch-name }
 k.description.attribute =
     ## A short description
     attribute description { text }
@@ -155,8 +158,7 @@ k.script.attribute      =
     ## file was fetched
     attribute script { text }
 k.source.attribute      =
-    ## A location where packages can be found to build an
-    ## installation source from
+    ## A source location where a package or configuration file can be found
     attribute source { text }
 k.size.attribute        =
     ## A partition size or optional image size
@@ -381,7 +383,10 @@ div {
 #
 div {
     k.ignore.name.attribute = k.name.attribute
-    k.ignore.attlist = k.ignore.name.attribute
+    k.ignore.arch.attribute = k.arch.attribute
+    k.ignore.attlist =
+        k.ignore.name.attribute &
+        k.ignore.arch.attribute?
     k.ignore = 
         ## Ignores a Package
         element ignore {
@@ -406,45 +411,6 @@ div {
         element initrd {
             k.initrd.attlist,
             text
-        }
-}
-
-#==========================================
-# common element <instrepo>
-#
-div {
-    k.instrepo.local.attribute =
-        attribute local { xsd:boolean }
-    k.instrepo.name.attribute = 
-        attribute name { xsd:ID }
-    k.instrepo.password.attribute = k.password.attribute
-    k.instrepo.priority.attribute =
-        ## Search priority for packages in this repo
-        attribute priority { text }
-    k.instrepo.username.attribute = k.username.attribute
-    k.instrepo.attlist =
-        k.instrepo.local.attribute? &
-        k.instrepo.name.attribute &
-        k.instrepo.password.attribute? &
-        k.instrepo.priority.attribute &
-        k.instrepo.username.attribute?
-    k.instrepo =
-        ## Name of a Installation Repository
-        [
-        db:para [
-            "Name of a repository which is used to create an\x{a}" ~
-            "installation source\x{a}"~
-            "The Priority specifies the order the repositories are\x{a}"~
-            "layered when looking for a package.\x{a}"~
-            "Username and password are the credentials for ftp access.\x{a}"~
-            "The local attribute tells kiwi to use hardlinks instead of\x{a}"~
-            "downloads in case the source and destination trees are on\x{a}"~
-            "the same machine."
-        ]
-        ]
-        element instrepo {
-            k.instrepo.attlist,
-            k.source
         }
 }
 
@@ -500,53 +466,6 @@ div { # locale
         element locale {
             k.locale.attlist,
             locale-name
-        }
-}
-
-#==========================================
-# common element <metadata>
-#
-div {
-    k.metadata.attlist = empty
-    k.metadata =
-        ## Contains Metadata
-        [
-        db:para [
-            "When building an installation source not only packages are\x{a}" ~
-            "relevant but also metadata. metadata are files or packages\x{a}"~
-            "combined with script calls. If a package is specified as\x{a}"~
-            "metadata it will not be installed by rpm but its cpio\x{a}"~
-            "archive is extracted in a specific way."       
-        ]
-        ]
-        element metadata {
-            k.metadata.attlist &
-            k.repopackage* &
-            k.metafile* &
-            k.chroot*
-        }
-}
-
-#==========================================
-# common element <metafile>
-#
-div {
-    k.metafile.url.attribute =
-        ## URL where to find the metafile
-        attribute url { text }
-    k.metafile.script.attribute = k.script.attribute
-    k.metafile.target.attribute =
-        ## Destination path where to download the file
-        attribute target { text }
-    k.metafile.attlist =
-        k.metafile.url.attribute &
-        k.metafile.script.attribute &
-        k.metafile.target.attribute
-    k.metafile =
-        ## A file Pointer Optionally Bundled With a Script
-        element metafile {
-            k.metafile.attlist,
-            empty
         }
 }
 
@@ -1151,7 +1070,7 @@ div {
 #
 div {
     k.packagemanager.content = 
-        "apt-get" | "zypper" | "yum"
+        "apt-get" | "zypper" | "yum" | "dnf"
     k.packagemanager.attlist = empty
     k.packagemanager =
         ## Name of the Package Manager
@@ -1269,51 +1188,6 @@ div {
 }
 
 #==========================================
-# common element <repopackage>
-#
-div {
-    k.repopackage.name.attribute = k.name.attribute
-    k.repopackage.arch.attribute = k.arch.attribute
-    k.repopackage.forcerepo.attribute =
-        ## Specifies the search priority
-        attribute forcerepo { xsd:IDREF }
-    k.repopackage.addarch.attribute =
-        ## Specifies that this package should
-        ## additionally add the same package from the given arch
-        attribute addarch { text }
-    k.repopackage.removearch.attribute =
-        ## Specifies that the package with the
-        ## given arch should be removed
-        attribute removearch { text }
-    k.repopackage.onlyarch.attribute =
-        ## Specifies that the package with
-        ## the given arch should be used in any case
-        attribute onlyarch { text }
-    k.repopackage.medium.attribute =
-        ## Specifies that the package will be put
-        ## to the specific medium number (CD1, DVD7, ...)
-        attribute medium { xsd:nonNegativeInteger }
-    k.repopackage.source.attribute = k.source.attribute
-    k.repopackage.script.attribute = k.script.attribute
-    k.repopackage.attlist =
-        k.repopackage.name.attribute & 
-        k.repopackage.arch.attribute? &
-        k.repopackage.forcerepo.attribute? &
-        k.repopackage.addarch.attribute? &
-        k.repopackage.removearch.attribute? &
-        k.repopackage.onlyarch.attribute? &
-        k.repopackage.source.attribute? &
-        k.repopackage.script.attribute? &
-        k.repopackage.medium.attribute?
-    k.repopackage =
-        ## Name of an instsource Package
-        element repopackage {
-            k.repopackage.attlist,
-            empty
-        }
-}
-
-#==========================================
 # common element <repository>
 #
 div {
@@ -1383,6 +1257,21 @@ div {
         element repository {
             k.repository.attlist,
             k.source
+        }
+}
+
+#==========================================
+# common element <source>
+#
+div {
+    k.source.path.attribute = k.path.attribute
+    k.source.attlist = k.source.path.attribute
+    k.source =
+        ## A Pointer to a data source. This can be a remote location
+        ## as well as a path specification
+        element source {
+            k.source.attlist,
+            empty
         }
 }
 
@@ -1487,20 +1376,6 @@ div {
         element size {
             k.size.attlist,
             xsd:nonNegativeInteger
-        }
-}
-
-#==========================================
-# common element <source>
-#
-div {
-    k.source.path.attribute = k.path.attribute
-    k.source.attlist = k.source.path.attribute
-    k.source =
-        ## A Pointer to a Repository/Package Source
-        element source {
-            k.source.attlist,
-            empty
         }
 }
 
@@ -1621,9 +1496,13 @@ div {
         attribute bootkernel { text }
     k.type.bootloader.attribute =
         ## Specifies the bootloader used for booting the image.
-        ## At the moment grub, zipl and sys|extlinux are supported
+        ## At the moment grub2, zipl and the combination of zipl plus
+        ## userspace grub2 are supported. The special custom entry
+        ## allows to skip the bootloader configuration and installation
+        ## and leaves this up to the user which can be done by using
+        ## the editbootinstall and editbootconfig custom scripts
         attribute bootloader {
-            "grub2" | "zipl" | "grub2_s390x_emu"
+            "grub2" | "zipl" | "grub2_s390x_emu" | "custom"
         }
         >> sch:pattern [ id = "bootloader" is-a = "image_type"
             sch:param [ name = "attr" value = "bootloader" ]
@@ -1684,6 +1563,17 @@ div {
             sch:param [ name = "attr" value = "target_removable" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
+    k.type.spare_part =
+        ## Request a spare partition right before the root partition
+        ## of the requested size. The attribute takes a size value
+        ## and allows a unit in MB or GB, e.g 200M. If no unit is given
+        ## the value is considered to be mbytes. A spare partition
+        ## can only be configured for the disk image types oem and vmx
+        attribute spare_part { partition-size-type }
+        >> sch:pattern [ id = "spare_part" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
     k.type.zipl_targettype.attribute =
         ## The device type of the disk zipl should boot. On zFCP
         ## devices use SCSI, on DASD devices use CDL or LDL on
@@ -1704,13 +1594,13 @@ div {
             sch:param [ name = "attr" value = "bootpartsize" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
-    k.type.vbootsize.attribute =
-        ## For images with a an extra virtual boot space
-        ## specifies the size in MB. If not set the min vboot
-        ## size is set to 10 MB
-        attribute vbootsize { xsd:nonNegativeInteger }
-        >> sch:pattern [ id = "vbootsize" is-a = "image_type"
-            sch:param [ name = "attr" value = "vbootsize" ]
+    k.type.efipartsize.attribute =
+        ## For images with an EFI fat partition this attribute
+        ## specifies the size in MB. If not set the min efipart
+        ## size is set to 20 MB
+        attribute efipartsize { xsd:nonNegativeInteger }
+        >> sch:pattern [ id = "efipartsize" is-a = "image_type"
+            sch:param [ name = "attr" value = "efipartsize" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
     k.type.bootprofile.attribute =
@@ -1799,7 +1689,7 @@ div {
         ## the standard x86 bios firmware setup is used
         attribute firmware {
             "bios" | "ec2" | "ec2hvm" | "efi" |
-            "uefi" | "vboot" | "ofw" | "opal"
+            "uefi" | "ofw" | "opal"
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]
@@ -1860,6 +1750,19 @@ div {
             sch:param [ name = "attr" value = "formatoptions" ]
             sch:param [ name = "types" value = "vmx oem" ]
         ]
+    k.type.force_mbr.attribute =
+        ## Force use of MBR (msdos table) partition table even if the
+        ## use of the GPT would be the natural choice. On e.g some
+        ## arm systems an EFI partition layout is required but must
+        ## not be stored in a GPT. For those rare cases this attribute
+        ## allows to force the use of the msdos table including all
+        ## its restrictions in max partition size and amount of
+        ## partitions
+        attribute force_mbr { xsd:boolean }
+        >> sch:pattern [ id = "force_mbr" is-a = "image_type"
+            sch:param [ name = "attr" value = "force_mbr" ]
+            sch:param [ name = "types" value = "vmx oem" ]
+        ]
     k.type.fsnocheck.attribute =
         ## Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
         ## since KIWI v8
@@ -1896,7 +1799,7 @@ div {
             sch:param [ name = "attr" value = "hybridpersistent_filesystem" ]
             sch:param [ name = "types" value = "iso pxe" ]
         ]
-    k.type.gpt_hybrid_mbr =
+    k.type.gpt_hybrid_mbr.attribute =
         ## for gpt disk types only:
         ## create a hybrid GPT/MBR partition table
         attribute gpt_hybrid_mbr { xsd:boolean }
@@ -2062,6 +1965,15 @@ div {
             sch:param [ name = "attr" value = "wwid_wait_timeout" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.derived_from.attribute =
+        ## Specifies the image URI of the container image. The image created
+        ## by KIWI will use the specified container as the base root
+        ## to work on.
+        attribute derived_from { text }
+        >> sch:pattern [ id = "derived_from" is-a = "image_type"
+            sch:param [ name = "attr" value = "derived_from" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
     k.type.attlist =
         k.type.boot.attribute? &
         k.type.bootfilesystem.attribute? &
@@ -2072,6 +1984,7 @@ div {
         k.type.zipl_targettype.attribute? &
         k.type.bootpartition.attribute? &
         k.type.bootpartsize.attribute? &
+        k.type.efipartsize.attribute? &
         k.type.bootprofile.attribute? &
         k.type.boottimeout.attribute? &
         k.type.btrfs_root_is_snapshot? &
@@ -2091,7 +2004,8 @@ div {
         k.type.hybrid.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &
-        k.type.gpt_hybrid_mbr? &
+        k.type.gpt_hybrid_mbr.attribute? &
+        k.type.force_mbr.attribute? &
         k.type.initrd_system.attribute? &
         k.type.image.attribute &
         k.type.installboot.attribute? &
@@ -2107,13 +2021,14 @@ div {
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
+        k.type.spare_part? &
         k.type.target_blocksize? &
         k.type.target_removable? &
-        k.type.vbootsize.attribute? &
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &
-        k.type.wwid_wait_timeout.attribute?
+        k.type.wwid_wait_timeout.attribute? &
+        k.type.derived_from.attribute?
     k.type =
         ## The Image Type of the Logical Extend
         element type { 
@@ -2469,339 +2384,6 @@ div {
 }
 
 #==========================================
-# main block: <instsource>
-#
-div {
-    k.instsource.attlist = empty
-    k.instsource =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The instsource element is used to describe the packages\x{a}"~
-            "and the metadata which is required to build an installation\x{a}"~
-            "source suitable for SUSE Linux installation media.\x{a}"~
-            "From such a source it should be possible to create the\x{a}"~
-            "standard SUSE CDs and DVDs as well as use this source as\x{a}"~
-            "repository for image building."
-        ]
-        ]
-        element instsource {
-            k.instsource.attlist &
-            k.architectures &
-            k.productoptions &
-            k.instrepo+ &
-            k.metadata &
-            k.repopackages* &
-            k.driverupdate?
-        }
-}
-
-#==========================================
-# main block: <architectures>
-#
-div {
-    k.architectures.attlist = empty
-    k.architectures =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The architectures element contains a list of architectures\x{a}"~
-            "for which the installation source is designed. At least one\x{a}"~
-            "architecture must be defined. Fallback mecahnisms apply.\x{a}"~
-            "Each arch element has an optional attribute <fallback>\x{a}"~
-            "which is the next in the chain. An omitted value results in\x{a}"~
-            "undefined value thus terminating the chain."
-        ]
-        ]
-        element architectures {
-            k.architectures.attlist &
-            k.arch+ &
-            k.requiredarch+
-        }
-}
-
-#==========================================
-# main block: <productoptions>
-#
-div {
-    k.productoptions.attlist = empty
-    k.productoptions =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productoptions element contains a list of options\x{a}"~
-            "that influence the instsource creation process in a\x{a}"~
-            "general manner. For instance an option could specify\x{a}"~
-            "a default medium number for source packages and the like."
-        ]
-        ]
-        element productoptions {
-            k.productoptions.attlist &
-            k.productoption* &
-            k.productinfo* &
-            k.productvar*
-        }
-}
-
-#==========================================
-# main block: <productoption>
-#
-div {
-    k.productoption.attlist = k.name.attribute
-
-    k.productoption =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productoption element carries the information for a\x{a}"~
-            "product option its name and its fallback (productoptional)."
-        ]
-        ]
-        element productoption {
-            k.productoption.attlist &
-            text
-            #k.productinfo.text.content 
-            #xsd:normalizedString { maxLength = "2048" }
-        }
-}
-
-#==========================================
-# main block: <arch>
-#
-div {
-    k.arch.name.attribute = k.name.attribute
-        k.arch.id.attribute = k.id.attribute
-        k.arch.fallback.attribute = attribute fallback { xsd:IDREF }
-
-    k.arch.attlist = k.arch.id.attribute &
-             k.arch.name.attribute &
-             k.arch.fallback.attribute?
-
-    k.arch =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The arch element providdes the information for an arch,\x{a}"~
-            "its name and its fallback (optional)."
-        ]
-        ]
-        element arch {
-            k.arch.attlist &
-            empty
-        }
-}
-
-#==========================================
-# main block: <requiredarch>
-#
-div {
-        k.requiredarch.ref.attribute = attribute ref { xsd:IDREF }
-
-    k.requiredarch.attlist = k.requiredarch.ref.attribute
-
-    k.requiredarch =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The requiredarch element defines which  architectures\x{a}"~
-            "are the basic required ones for the media."
-        ]
-        ]
-        element requiredarch {
-            k.requiredarch.attlist &
-            empty
-        }
-}
-
-#==========================================
-# main block: <productinfo>
-#
-div {
-    k.productinfo.attlist = k.name.attribute 
-    k.productinfo =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productinfo element contains one particular environment\x{a}"~
-            "variable and its value. Shell rules for the names apply.\x{a}"~
-            "The value must not exceed a certain length for sanity.\x{a}"~
-            "reasons Any funny characters like tabs, line break,\x{a}"~
-            "carriage return or combinations are converted to spaces\x{a}"~
-            "(one each) which may lead to unexpected contents."
-        ]
-        ]
-        element productinfo {
-            k.productinfo.attlist &
-            # text: workaround for the above mentioned problem
-            text
-            #k.productinfo.text.content 
-            #xsd:normalizedString { maxLength = "2048" }
-        }
-}
-
-#==========================================
-# main block: <productvar>
-#
-div {
-    k.productvar.attlist =
-        k.name.attribute 
-    k.productvar =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The productinfo element contains one particular environment\x{a}"~
-            "variable and its value. Shell rules for the names apply.\x{a}"~
-            "The value is used to create the content file."
-        ]
-        ]
-        element productvar {
-            k.productvar.attlist &
-            # text: workaround for the above mentioned problem
-            text
-            #k.productvar 
-            #xsd:normalizedString { maxLength = "2048" }
-        }
-}
-
-#==========================================
-# main block: <chroot>
-#
-div {
-    k.chroot.attlist = attribute requires { text } 
-
-    k.chroot =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "The chroot element contains one particular environment\x{a}"~
-            "variable and its value. Shell rules for the names apply.\x{a}"~
-            "The value must not exceed a certain length for sanity.\x{a}"~
-            "reasons Any funny characters like tabs, line break,\x{a}"~
-            "carriage return or combinations are converted to spaces\x{a}"~
-            "(one each) which may lead to unexpected contents."
-        ]
-        ]
-        element chroot {
-            k.chroot.attlist &
-            text
-        }
-}
-
-#==========================================
-# main block: <repopackages>
-#
-div {
-    k.repopackages.attlist = empty
-    k.repopackages =  
-        ## Specifies Packages for Installation Source
-        [
-        db:para [
-            "The repopackages elements specifies a set of packages which\x{a}"~
-            "are used for creating a SUSE installation source."
-        ]
-        ]
-        element repopackages {
-            k.repopackages.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
-# main block: <driverupdate>
-#
-div {
-    k.driverupdate.attlist = empty
-    k.driverupdate =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "Creating a driverupdate disk for using updated hardware\x{a}"~
-            "drivers on system installation with YaST."
-        ]
-        ]
-        element driverupdate {
-            k.driverupdate.attlist &
-            k.target+ &
-            k.install? &
-            k.modules? &
-            k.instsys?
-        }
-}
-
-#==========================================
-# main block: <target>
-#
-div {
-    k.target.arch.attribute = k.arch.attribute
-    k.target.attlist = k.target.arch.attribute
-    k.target =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of update targets: <dist>-<arch>\x{a}"
-        ]
-        ]
-        element target {
-            k.target.attlist &
-            text
-        }
-}
-
-#==========================================
-# main block: <install>
-#
-div {
-    k.install.attlist = empty
-    k.install =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of packages to be copied into the 'install' directory"
-        ]
-        ]
-        element install {
-            k.install.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
-# main block: <modules>
-#
-div {
-    k.modules.attlist = empty
-    k.modules =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of packages to be copied into the 'modules' directory"
-        ]
-        ]
-        element modules {
-            k.modules.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
-# main block: <instsys>
-#
-div {
-    k.instsys.attlist = empty
-    k.instsys =
-        ## Describe Packages and Metadata
-        [
-        db:para [
-            "List of packages to be copied into the 'instsys' directory"
-        ]
-        ]
-        element instsys {
-            k.instsys.attlist &
-            k.repopackage*
-        }
-}
-
-#==========================================
 # main block: <containerconfig>
 #
 div {
@@ -2819,24 +2401,49 @@ div {
     ]
     k.containerconfig.name.attribute =
         ## Specifies a name for the container. This is usually the
-        ## the tag name of the container as read if the container
+        ## the repository name of the container as read if the container
         ## image is imported via the docker load command
         attribute name { text }
         >> sch:pattern [ id = "name" is-a = "container_type"
             sch:param [ name = "attr" value = "name" ]
             sch:param [ name = "types" value = "docker" ]
         ]
-    k.containerconfig.entry_command.attribute =
-        ## Specifies the default command to run if the container is
-        ## called via the docker run command.
-        attribute entry_command { text }
-        >> sch:pattern [ id = "entry_command" is-a = "container_type"
-            sch:param [ name = "attr" value = "entry_command" ]
+    k.containerconfig.tag.attribute =
+        ## Specifies a tag for the container. This is usually the
+        ## the tag name of the container as read if the container
+        ## image is imported via the docker load command
+        attribute tag { text }
+        >> sch:pattern [ id = "tag" is-a = "container_type"
+            sch:param [ name = "attr" value = "tag" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.maintainer.attribute =
+        ## Specifies a maintainer for the container.
+        attribute maintainer { text }
+        >> sch:pattern [ id = "maintainer" is-a = "container_type"
+            sch:param [ name = "attr" value = "maintainer" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.user.attribute =
+        ## Specifies a user for the container.
+        attribute user { text }
+        >> sch:pattern [ id = "user" is-a = "container_type"
+            sch:param [ name = "attr" value = "user" ]
+            sch:param [ name = "types" value = "docker" ]
+        ]
+    k.containerconfig.workingdir.attribute =
+        ## Specifies the default working directory of the container
+        attribute workingdir { text }
+        >> sch:pattern [ id = "workingdir" is-a = "container_type"
+            sch:param [ name = "attr" value = "workingdir" ]
             sch:param [ name = "types" value = "docker" ]
         ]
     k.containerconfig.attlist =
         k.containerconfig.name.attribute &
-        k.containerconfig.entry_command.attribute?
+        k.containerconfig.tag.attribute? &
+        k.containerconfig.maintainer.attribute? &
+        k.containerconfig.user.attribute? &
+        k.containerconfig.workingdir.attribute?
 
     k.containerconfig =
         ## Provides metadata information for containers
@@ -2850,7 +2457,202 @@ div {
         ]
         ]
         element containerconfig {
-            k.containerconfig.attlist
+            k.containerconfig.attlist &
+            k.entrypoint? &
+            k.subcommand? &
+            k.expose? &
+            k.volumes? &
+            k.environment? &
+            k.labels?
+        }
+}
+
+#==========================================
+# main block: <entrypoint>
+#
+div {
+    k.entrypoint.execute.attribute =
+        ## Specifies the entry point program name to execute
+        attribute execute { text }
+
+    k.entrypoint.attlist =
+        k.entrypoint.execute.attribute
+
+    k.entrypoint =
+        ## Provides details for the entry point command. This
+        ## includes the execution name and its parameters. Arguments
+        ## can be optionally specified
+        element entrypoint {
+            k.entrypoint.attlist &
+            k.argument*
+        }
+}
+
+#==========================================
+# main block: <subcommand>
+#
+div {
+    k.subcommand.execute.attribute =
+        ## Specifies the subcommand program name to execute
+        attribute execute { text }
+
+    k.subcommand.attlist =
+        k.subcommand.execute.attribute
+
+    k.subcommand =
+        ## Provides details for the subcommand command. This
+        ## includes the execution name and its parameters. Arguments
+        ## can be optionally specified. The subcommand is appended
+        ## the command information from the entrypoint. It is in
+        ## the responsibility of the author to make sure the
+        ## combination of entrypoint and subcommand forms a valid
+        ## execution command
+        element subcommand {
+            k.subcommand.attlist &
+            k.argument*
+        }
+}
+
+#==========================================
+# main block: <argument>
+#
+div {
+    k.argument.name.attribute =
+        ## Specifies a command argument name
+        attribute name { text }
+
+    k.argument.attlist =
+        k.argument.name.attribute
+
+    k.argument =
+        ## Provides details about a command argument
+        element argument {
+            k.argument.attlist &
+            empty
+        }
+}
+
+#==========================================
+# main block: <expose>
+#
+div {
+    k.expose.attlist = empty
+    k.expose =
+        ## Provides details about network ports which should be
+        ## exposed from the container. At least one port must
+        ## be configured
+        element expose {
+            k.expose.attlist &
+            k.port+
+        }
+}
+
+#==========================================
+# main block: <port>
+#
+div {
+    k.port.number.attribute =
+        ## Specifies the port number to expose
+        attribute number { xsd:nonNegativeInteger }
+
+    k.port.attlist =
+        k.port.number.attribute
+
+    k.port =
+        ## Provides details about an exposed port.
+        element port {
+            k.port.attlist &
+            empty
+        }
+}
+
+#==========================================
+# main block: <volumes>
+#
+div {
+    k.volumes.attlist = empty
+    k.volumes =
+        ## Provides details about storage volumes in the container
+        ## At least one volume must be configured
+        element volumes {
+            k.volumes.attlist &
+            k.volume+
+        }
+}
+
+#==========================================
+# main block: <environment>
+#
+div {
+    k.environment.attlist = empty
+    k.environment =
+        ## Provides details about the container environment variables
+        ## At least one environment variable must be configured
+        element environment {
+            k.environment.attlist &
+            k.env+
+        }
+}
+
+#==========================================
+# main block: <env>
+#
+div {
+    k.env.name.attribute =
+        ## Specifies the environment variable name
+        attribute name { text }
+
+    k.env.value.attribute =
+        ## Specifies the environment variable value
+        attribute value { text }
+
+    k.env.attlist =
+        k.env.name.attribute &
+        k.env.value.attribute
+
+    k.env =
+        ## Provides details about an environment variable
+        element env {
+            k.env.attlist &
+            empty
+        }
+}
+
+#==========================================
+# main block: <labels>
+#
+div {
+    k.labels.attlist = empty
+    k.labels =
+        ## Provides details about container labels
+        ## At least one label must be configured
+        element labels {
+            k.labels.attlist &
+            k.label+
+        }
+}
+
+#==========================================
+# main block: <label>
+#
+div {
+    k.label.name.attribute =
+        ## Specifies the label name
+        attribute name { text }
+
+    k.label.value.attribute =
+        ## Specifies the label value
+        attribute value { text }
+
+    k.label.attlist =
+        k.label.name.attribute &
+        k.label.value.attribute
+
+    k.label =
+        ## Provides details about a container label
+        element label {
+            k.label.attlist &
+            empty
         }
 }
 
@@ -3065,9 +2867,9 @@ div {
         k.preferences.profiles.attribute?
     k.preferences =  
         ## Configuration Information Needed for Logical Extend
-                # All elements are optional since the combination of appropriate
-                # preference sections based on profiles combine to create on vaild
-                # definition
+        ## All elements are optional since the combination of appropriate
+        ## preference sections based on profiles combine to create on vaild
+        ## definition
         element preferences {
             k.preferences.attlist &
             k.bootsplash-theme? &
@@ -3123,6 +2925,5 @@ div {
             k.user+
         }
 }
-
 
 # vim: set noexpandtab:

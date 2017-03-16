@@ -353,8 +353,10 @@ if __name__ == "__main__":
                 version = value[0].text
             else:
                 raise Exception('Schema version not found!')
+            title_label = '.. _schema-docs:\n\n'
             title = 'Schema Documentation %s\n' % version
             title += '=' * len(title) + '\n\n'
+            title = title_label + title
             if ofile:
                 with open(ofile, 'w') as f:
                     f.write(title)

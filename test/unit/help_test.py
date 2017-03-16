@@ -1,11 +1,10 @@
-import sys
-
 from mock import patch
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.help import Help
-from kiwi.exceptions import *
+
+from kiwi.exceptions import KiwiHelpNoCommandGiven
 
 
 class TestHelp(object):

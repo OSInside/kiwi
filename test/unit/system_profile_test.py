@@ -1,15 +1,7 @@
-
 from mock import patch
 
 import mock
 import os
-
-from .test_helper import *
-
-from kiwi.exceptions import (
-    KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
-)
 
 from kiwi.system.profile import Profile
 from kiwi.xml_state import XMLState

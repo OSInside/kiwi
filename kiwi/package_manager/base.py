@@ -49,6 +49,7 @@ class PackageManagerBase(object):
         self.package_requests = []
         self.collection_requests = []
         self.product_requests = []
+        self.lock_requests = []
 
         self.post_init(custom_args)
 
@@ -85,6 +86,16 @@ class PackageManagerBase(object):
     def request_product(self, name):
         """
         Queue a product request
+
+        Implementation in specialized package manager class
+
+        :param string name: unused
+        """
+        raise NotImplementedError
+
+    def request_package_lock(self, name):
+        """
+        Queue a package lock(ignore) request
 
         Implementation in specialized package manager class
 
@@ -182,3 +193,4 @@ class PackageManagerBase(object):
         del self.package_requests[:]
         del self.collection_requests[:]
         del self.product_requests[:]
+        del self.lock_requests[:]

@@ -745,3 +745,17 @@ class KiwiVolumeRootIDError(KiwiError):
     Exception raised if the root volume can not be found. This
     concept currently exists only for the btrfs subvolume system.
     """
+
+
+class KiwiRootImportError(KiwiError):
+    """
+    Exception is raised when something fails during the root import
+    procedure.
+    """
+
+
+class KiwiContainerBuilderError(KiwiError):
+    """
+    Exception is raised when something fails during a container image
+    build procedure.
+    """

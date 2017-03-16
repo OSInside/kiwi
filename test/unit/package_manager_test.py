@@ -1,12 +1,12 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager import PackageManager
-from kiwi.exceptions import *
+
+from kiwi.exceptions import KiwiPackageManagerSetupError
 
 
 class TestPackageManager(object):
@@ -24,6 +24,12 @@ class TestPackageManager(object):
     def test_manager_yum(self, mock_manager):
         repository = mock.Mock()
         PackageManager(repository, 'yum')
+        mock_manager.assert_called_once_with(repository, None)
+
+    @patch('kiwi.package_manager.PackageManagerDnf')
+    def test_manager_dnf(self, mock_manager):
+        repository = mock.Mock()
+        PackageManager(repository, 'dnf')
         mock_manager.assert_called_once_with(repository, None)
 
     @patch('kiwi.package_manager.PackageManagerApt')

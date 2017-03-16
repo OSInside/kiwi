@@ -1,11 +1,19 @@
 import mock
 from mock import call
+from mock import patch
 
 import kiwi
 
-from .test_helper import *
+from .test_helper import raises, patch_open
+
 from collections import OrderedDict
-from kiwi.exceptions import *
+
+from kiwi.exceptions import (
+    KiwiDiskBootImageError,
+    KiwiInstallMediaError,
+    KiwiVolumeManagerSetupError
+)
+
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
@@ -693,6 +701,20 @@ class TestDiskBuilder(object):
         self.disk_builder.create_disk()
         self.disk.create_hybrid_mbr.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_disk_force_mbr_requested(
+        self, mock_command, mock_open, mock_fs
+    ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.install_media = False
+        self.disk_builder.force_mbr = True
+        self.disk_builder.create_disk()
+        self.disk.create_mbr.assert_called_once_with()
+
     @patch('kiwi.builder.disk.DiskBuilder')
     def test_create(
         self, mock_builder
@@ -712,17 +734,16 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
-    def test_create_disk_vboot_firmware_requested(
+    def test_create_disk_spare_part_requested(
         self, mock_command, mock_open, mock_fs
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
-        self.disk_builder.firmware.vboot_mode.return_value = True
-        self.disk_builder.firmware.get_vboot_partition_size.return_value = 42
+        self.disk_builder.spare_part_mbsize = 42
         self.disk_builder.create_disk()
-        self.disk.create_vboot_partition.assert_called_once_with(42)
+        self.disk.create_spare_partition.assert_called_once_with(42)
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

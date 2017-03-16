@@ -16,13 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import os
 
 # project
-from ..container import ContainerImage
-from ..container.setup import ContainerSetup
-from ..system.setup import SystemSetup
-from ..logger import log
-from ..system.result import Result
+from kiwi.container import ContainerImage
+from kiwi.container.setup import ContainerSetup
+from kiwi.system.setup import SystemSetup
+from kiwi.logger import log
+from kiwi.system.result import Result
+from kiwi.utils.checksum import Checksum
+from kiwi.defaults import Defaults
+from kiwi.exceptions import KiwiContainerBuilderError
 
 
 class ContainerBuilder(object):
@@ -55,9 +59,33 @@ class ContainerBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir
         self.target_dir = target_dir
-        self.container_config = \
-            xml_state.get_build_type_containerconfig_section()
+        self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
+        self.base_image = None
+        self.base_image_md5 = None
+
+        if xml_state.get_derived_from_image_uri():
+            # The base image is expected to be unpacked by the kiwi
+            # prepare step and stored inside of the root_dir/image directory.
+            # In addition a md5 file of the image is expected too
+            self.base_image = Defaults.get_imported_root_image(
+                self.root_dir
+            )
+            self.base_image_md5 = ''.join([self.base_image, '.md5'])
+
+            if not os.path.exists(self.base_image):
+                raise KiwiContainerBuilderError(
+                    'Unpacked Base image {0} not found'.format(
+                        self.base_image
+                    )
+                )
+            if not os.path.exists(self.base_image_md5):
+                raise KiwiContainerBuilderError(
+                    'Base image MD5 sum {0} not found at'.format(
+                        self.base_image_md5
+                    )
+                )
+
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
@@ -81,27 +109,32 @@ class ContainerBuilder(object):
 
         * image="docker"
         """
-        setup_options = {}
-        if self.container_config and self.container_config.get_name():
-            setup_options['container_name'] = self.container_config.get_name()
+        if not self.base_image:
+            log.info(
+                'Setting up %s container', self.requested_container_type
+            )
+            container_setup = ContainerSetup(
+                self.requested_container_type, self.root_dir,
+                self.container_config
+            )
+            container_setup.setup()
+        else:
+            checksum = Checksum(self.base_image)
+            if not checksum.matches(checksum.md5(), self.base_image_md5):
+                raise KiwiContainerBuilderError(
+                    'base image file {0} checksum validation failed'.format(
+                        self.base_image
+                    )
+                )
 
-        container_setup = ContainerSetup(
-            self.requested_container_type, self.root_dir, setup_options
-        )
-        log.info('Setting up %s container', self.requested_container_type)
         log.info(
-            '--> Container name: %s', container_setup.get_container_name()
-        )
-        container_setup.setup()
-
-        log.info(
-            '--> Creating container archive'
+            '--> Creating container image'
         )
         container_image = ContainerImage(
-            self.requested_container_type, self.root_dir
+            self.requested_container_type, self.root_dir, self.container_config
         )
         container_image.create(
-            self.filename
+            self.filename, self.base_image
         )
         self.result.add(
             key='container',

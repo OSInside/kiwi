@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .base import BootLoaderInstallBase
-from ...command import Command
-from ...logger import log
-from ...mount_manager import MountManager
+from kiwi.bootloader.install.base import BootLoaderInstallBase
+from kiwi.command import Command
+from kiwi.logger import log
+from kiwi.mount_manager import MountManager
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiBootLoaderZiplInstallError
 )
 

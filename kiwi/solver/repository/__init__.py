@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .suse import SolverRepositorySUSE
-from .rpm_md import SolverRepositoryRpmMd
-from .rpm_dir import SolverRepositoryRpmDir
+from kiwi.solver.repository.suse import SolverRepositorySUSE
+from kiwi.solver.repository.rpm_md import SolverRepositoryRpmMd
+from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
 
-from ...exceptions import KiwiSolverRepositorySetupError
+from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 
 class SolverRepository(object):
@@ -32,13 +32,13 @@ class SolverRepository(object):
     * :attr:`uri`
         Instance of Uri
     """
-    def __new__(self, uri):
+    def __new__(self, uri, user=None, secret=None):
         if uri.repo_type == 'yast2':
-            return SolverRepositorySUSE(uri)
+            return SolverRepositorySUSE(uri, user, secret)
         elif uri.repo_type == 'rpm-md':
-            return SolverRepositoryRpmMd(uri)
+            return SolverRepositoryRpmMd(uri, user, secret)
         elif uri.repo_type == 'rpm-dir':
-            return SolverRepositoryRpmDir(uri)
+            return SolverRepositoryRpmDir(uri, user, secret)
         else:
             raise KiwiSolverRepositorySetupError(
                 'Support for %s solver repository type not implemented' %

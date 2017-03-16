@@ -15,9 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+from tempfile import mkdtemp
+
 # project
-from ..archive.tar import ArchiveTar
-from ..defaults import Defaults
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.command import Command
+from kiwi.utils.sync import DataSync
+from kiwi.utils.compress import Compress
 
 
 class ContainerImageDocker(object):
@@ -28,25 +34,157 @@ class ContainerImageDocker(object):
 
     * :attr:`root_dir`
         root directory path name
-    """
-    def __init__(self, root_dir):
-        self.root_dir = root_dir
 
-    def create(self, filename):
+    * :attr:`custom_args`
+        representation of the containerconfig and its subsections
+    """
+    def __init__(self, root_dir, custom_args=None):
+        self.root_dir = root_dir
+        self.docker_dir = None
+        self.docker_root_dir = None
+
+        self.container_name = ''
+        self.container_tag = 'latest'
+        self.entry_command = []
+        self.entry_subcommand = []
+        self.maintainer = []
+        self.user = []
+        self.workingdir = []
+        self.expose_ports = []
+        self.volumes = []
+        self.environment = []
+        self.labels = []
+
+        if custom_args:
+            if 'container_name' in custom_args:
+                self.container_name = custom_args['container_name']
+
+            if 'container_tag' in custom_args:
+                self.container_tag = custom_args['container_tag']
+
+            if 'entry_command' in custom_args:
+                self.entry_command = custom_args['entry_command']
+
+            if 'entry_subcommand' in custom_args:
+                self.entry_subcommand = custom_args['entry_subcommand']
+
+            if 'maintainer' in custom_args:
+                self.maintainer = custom_args['maintainer']
+
+            if 'user' in custom_args:
+                self.user = custom_args['user']
+
+            if 'workingdir' in custom_args:
+                self.workingdir = custom_args['workingdir']
+
+            if 'expose_ports' in custom_args:
+                self.expose_ports = custom_args['expose_ports']
+
+            if 'volumes' in custom_args:
+                self.volumes = custom_args['volumes']
+
+            if 'environment' in custom_args:
+                self.environment = custom_args['environment']
+
+            if 'labels' in custom_args:
+                self.labels = custom_args['labels']
+
+        if not self.entry_command and not self.entry_subcommand:
+            self.entry_subcommand = ['--config.cmd=/bin/bash']
+
+    def create(self, filename, base_image):
         """
         Create compressed docker system container tar archive
 
         :param string filename: archive file name
+
+        :param string base_image: archive used as a base image
         """
         exclude_list = [
-            'image', '.profile', '.kconfig', 'boot',
+            'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
             Defaults.get_shared_cache_location()
         ]
-        # replace potential suffix from filename because
-        # it is added by the archive creation call
-        archive = ArchiveTar(
-            filename.replace('.xz', '')
+
+        self.docker_dir = mkdtemp(prefix='kiwi_docker_dir.')
+        self.docker_root_dir = mkdtemp(prefix='kiwi_docker_root_dir.')
+
+        container_dir = os.sep.join(
+            [self.docker_dir, 'umoci_layout']
         )
-        archive.create_xz_compressed(
-            source_dir=self.root_dir, exclude=exclude_list
+        container_name = ':'.join(
+            [container_dir, self.container_tag]
         )
+
+        if base_image:
+            Command.run([
+                'skopeo', 'copy',
+                'docker-archive:{0}'.format(base_image),
+                'oci:{0}'.format(container_name)
+            ])
+        else:
+            Command.run(
+                ['umoci', 'init', '--layout', container_dir]
+            )
+            Command.run(
+                ['umoci', 'new', '--image', container_name]
+            )
+
+        Command.run(
+            ['umoci', 'unpack', '--image', container_name, self.docker_root_dir]
+        )
+        docker_root = DataSync(
+            ''.join([self.root_dir, os.sep]),
+            os.sep.join([self.docker_root_dir, 'rootfs'])
+        )
+        docker_root.sync_data(
+            options=['-a', '-H', '-X', '-A'], exclude=exclude_list
+        )
+        Command.run(
+            ['umoci', 'repack', '--image', container_name, self.docker_root_dir]
+        )
+        Command.run(
+            [
+                'umoci', 'config'
+            ] +
+            self.maintainer +
+            self.user +
+            self.workingdir +
+            self.entry_command +
+            self.entry_subcommand +
+            self.expose_ports +
+            self.volumes +
+            self.environment +
+            self.labels +
+            [
+                '--image', container_name,
+                '--tag', self.container_tag
+            ]
+        )
+        Command.run(
+            ['umoci', 'gc', '--layout', container_dir]
+        )
+
+        docker_tarfile = filename.replace('.xz', '')
+
+        # make sure the target tar file does not exist
+        # skopeo doesn't support force overwrite
+        Path.wipe(docker_tarfile)
+
+        Command.run(
+            [
+                'skopeo', 'copy', 'oci:{0}'.format(
+                    container_name
+                ),
+                'docker-archive:{0}:{1}:{2}'.format(
+                    docker_tarfile, self.container_name, self.container_tag
+                )
+            ]
+        )
+        compressor = Compress(docker_tarfile)
+        compressor.xz()
+
+    def __del__(self):
+        if self.docker_dir:
+            Path.wipe(self.docker_dir)
+        if self.docker_root_dir:
+            Path.wipe(self.docker_root_dir)

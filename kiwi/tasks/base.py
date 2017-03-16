@@ -20,12 +20,12 @@ import logging
 import glob
 
 # project
-from ..cli import Cli
-from ..xml_state import XMLState
-from ..xml_description import XMLDescription
-from ..runtime_checker import RuntimeChecker
+from kiwi.cli import Cli
+from kiwi.xml_state import XMLState
+from kiwi.xml_description import XMLDescription
+from kiwi.runtime_checker import RuntimeChecker
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiConfigFileNotFound
 )
 

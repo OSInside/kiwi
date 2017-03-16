@@ -1,9 +1,8 @@
-
 from mock import patch
 from mock import call
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -12,8 +11,6 @@ from kiwi.exceptions import (
 )
 
 from kiwi.system.root_bind import RootBind
-
-from kiwi.exceptions import *
 
 
 class TestRootBind(object):
@@ -129,7 +126,7 @@ class TestRootBind(object):
         self.mount_manager.umount_lazy.assert_called_once_with()
         mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
         mock_command.assert_called_once_with(
-           ['rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo']
+            ['rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo']
         )
         mock_move.assert_called_once_with(
             'root-dir/foo.rpmnew', 'root-dir/foo'

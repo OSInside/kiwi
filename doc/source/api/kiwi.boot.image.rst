@@ -20,10 +20,10 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.boot.image.kiwi` Module
------------------------------
+`kiwi.boot.image.builtin_kiwi` Module
+-------------------------------------
 
-.. automodule:: kiwi.boot.image.kiwi
+.. automodule:: kiwi.boot.image.builtin_kiwi
     :members:
     :undoc-members:
     :show-inheritance:

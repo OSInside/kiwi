@@ -19,14 +19,14 @@ import os
 import platform
 
 # project
-from .base import BootLoaderInstallBase
-from ...command import Command
-from ...logger import log
-from ...defaults import Defaults
-from ...mount_manager import MountManager
-from ...path import Path
+from kiwi.bootloader.install.base import BootLoaderInstallBase
+from kiwi.command import Command
+from kiwi.logger import log
+from kiwi.defaults import Defaults
+from kiwi.mount_manager import MountManager
+from kiwi.path import Path
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiBootLoaderGrubInstallError,
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubDataError
@@ -216,6 +216,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         module_directory = grub_directory + '/' + self.target
         boot_directory = '/boot'
 
+        # wipe existing grubenv to allow grub2-install to create a new one
+        Path.wipe(
+            os.sep.join(
+                [self.root_mount.mountpoint, 'boot', 'grub2', 'grubenv']
+            )
+        )
         # install grub2 boot code
         Command.run(
             [

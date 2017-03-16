@@ -1,12 +1,11 @@
-
-from mock import patch
+from mock import patch, call
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.partitioner.gpt import PartitionerGpt
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiPartitionerGptFlagError
 
 
 class TestPartitionerGpt(object):
@@ -62,3 +61,19 @@ class TestPartitionerGpt(object):
         mock_command.assert_called_once_with(
             ['sgdisk', '-h', '1:2:3', '/dev/loop0']
         )
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    def test_set_mbr(self, mock_command):
+        command_output = mock.Mock()
+        command_output.output = '...(EFI System)'
+        self.partitioner.partition_id = 4
+        mock_command.return_value = command_output
+        self.partitioner.set_mbr()
+        assert mock_command.call_args_list == [
+            call(['sgdisk', '-i=1', '/dev/loop0']),
+            call(['sgdisk', '-i=2', '/dev/loop0']),
+            call(['sgdisk', '-i=3', '/dev/loop0']),
+            call(['sgdisk', '-i=4', '/dev/loop0']),
+            call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0']),
+            call(['sgdisk', '-t', '4:8300', '/dev/loop0'])
+        ]

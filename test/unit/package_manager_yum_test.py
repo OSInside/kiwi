@@ -1,13 +1,12 @@
-
 from mock import patch
 
 import mock
-import re
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager.yum import PackageManagerYum
-from kiwi.exceptions import *
+
+from kiwi.exceptions import KiwiRequestError
 
 
 class TestPackageManagerYum(object):
@@ -41,6 +40,12 @@ class TestPackageManagerYum(object):
         self.manager.request_product('name')
         assert self.manager.product_requests == []
 
+    @patch('kiwi.logger.log.warning')
+    def test_request_package_lock(self, mock_log_warn):
+        self.manager.request_package_lock('name')
+        assert self.manager.lock_requests == []
+        assert mock_log_warn.called
+
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
     def test_process_install_requests_bootstrap(self, mock_run, mock_call):
@@ -65,7 +70,7 @@ class TestPackageManagerYum(object):
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.process_install_requests()
-        chroot_yum_args = self.manager.root_bind.move_to_root(
+        self.manager.root_bind.move_to_root(
             self.manager.yum_args
         )
         mock_run.assert_called_once_with(
@@ -111,7 +116,7 @@ class TestPackageManagerYum(object):
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        chroot_yum_args = self.manager.root_bind.move_to_root(
+        self.manager.root_bind.move_to_root(
             self.manager.yum_args
         )
         mock_call.assert_called_once_with(

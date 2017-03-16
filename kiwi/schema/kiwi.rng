@@ -52,6 +52,11 @@
       <param name="pattern">\d+|\d+M|\d+G|all</param>
     </data>
   </define>
+  <define name="partition-size-type">
+    <data type="token">
+      <param name="pattern">\d+|\d+M|\d+G</param>
+    </data>
+  </define>
   <define name="vhd-tag-type">
     <data type="token">
       <param name="pattern">[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}</param>
@@ -60,6 +65,11 @@
   <define name="groups-list">
     <data type="token">
       <param name="pattern">[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*</param>
+    </data>
+  </define>
+  <define name="arch-name">
+    <data type="token">
+      <param name="pattern">(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*</param>
     </data>
   </define>
   <!--
@@ -160,9 +170,6 @@ image.</db:para>
           <optional>
             <ref name="k.profiles"/>
           </optional>
-          <optional>
-            <ref name="k.instsource"/>
-          </optional>
           <zeroOrMore>
             <ref name="k.users"/>
           </zeroOrMore>
@@ -233,7 +240,10 @@ for isolinux and grub</a:documentation>
   </define>
   <define name="k.arch.attribute">
     <attribute name="arch">
-      <a:documentation>An architecture</a:documentation>
+      <a:documentation>A system architecture name, matching the 'uname -m' information
+Multiple architectures can be combined as comma separated list
+e.g arch="x86_64,ix86"</a:documentation>
+      <ref name="arch-name"/>
     </attribute>
   </define>
   <define name="k.description.attribute">
@@ -264,8 +274,7 @@ file was fetched</a:documentation>
   </define>
   <define name="k.source.attribute">
     <attribute name="source">
-      <a:documentation>A location where packages can be found to build an
-installation source from</a:documentation>
+      <a:documentation>A source location where a package or configuration file can be found</a:documentation>
     </attribute>
   </define>
   <define name="k.size.attribute">
@@ -581,8 +590,16 @@ set to utc or localtime.</db:para>
     <define name="k.ignore.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
+    <define name="k.ignore.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.ignore.attlist">
-      <ref name="k.ignore.name.attribute"/>
+      <interleave>
+        <ref name="k.ignore.name.attribute"/>
+        <optional>
+          <ref name="k.ignore.arch.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.ignore">
       <element name="ignore">
@@ -608,64 +625,6 @@ set to utc or localtime.</db:para>
 specifies where the boot image (initrd) can be found.</db:para>
         <ref name="k.initrd.attlist"/>
         <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <instrepo>
-    
-  -->
-  <div>
-    <define name="k.instrepo.local.attribute">
-      <attribute name="local">
-        <data type="boolean"/>
-      </attribute>
-    </define>
-    <define name="k.instrepo.name.attribute">
-      <attribute name="name">
-        <data type="ID"/>
-      </attribute>
-    </define>
-    <define name="k.instrepo.password.attribute">
-      <ref name="k.password.attribute"/>
-    </define>
-    <define name="k.instrepo.priority.attribute">
-      <attribute name="priority">
-        <a:documentation>Search priority for packages in this repo</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.instrepo.username.attribute">
-      <ref name="k.username.attribute"/>
-    </define>
-    <define name="k.instrepo.attlist">
-      <interleave>
-        <optional>
-          <ref name="k.instrepo.local.attribute"/>
-        </optional>
-        <ref name="k.instrepo.name.attribute"/>
-        <optional>
-          <ref name="k.instrepo.password.attribute"/>
-        </optional>
-        <ref name="k.instrepo.priority.attribute"/>
-        <optional>
-          <ref name="k.instrepo.username.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.instrepo">
-      <element name="instrepo">
-        <a:documentation>Name of a Installation Repository</a:documentation>
-        <db:para>Name of a repository which is used to create an
-installation source
-The Priority specifies the order the repositories are
-layered when looking for a package.
-Username and password are the credentials for ftp access.
-The local attribute tells kiwi to use hardlinks instead of
-downloads in case the source and destination trees are on
-the same machine.</db:para>
-        <ref name="k.instrepo.attlist"/>
-        <ref name="k.source"/>
       </element>
     </define>
   </div>
@@ -722,72 +681,6 @@ specifies the where to find the boot kernel.</db:para>
         <db:para>The value will be part of /etc/sysconfig/keyboard</db:para>
         <ref name="k.locale.attlist"/>
         <ref name="locale-name"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <metadata>
-    
-  -->
-  <div>
-    <define name="k.metadata.attlist">
-      <empty/>
-    </define>
-    <define name="k.metadata">
-      <element name="metadata">
-        <a:documentation>Contains Metadata</a:documentation>
-        <db:para>When building an installation source not only packages are
-relevant but also metadata. metadata are files or packages
-combined with script calls. If a package is specified as
-metadata it will not be installed by rpm but its cpio
-archive is extracted in a specific way.</db:para>
-        <interleave>
-          <ref name="k.metadata.attlist"/>
-          <zeroOrMore>
-            <ref name="k.repopackage"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="k.metafile"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="k.chroot"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <metafile>
-    
-  -->
-  <div>
-    <define name="k.metafile.url.attribute">
-      <attribute name="url">
-        <a:documentation>URL where to find the metafile</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.metafile.script.attribute">
-      <ref name="k.script.attribute"/>
-    </define>
-    <define name="k.metafile.target.attribute">
-      <attribute name="target">
-        <a:documentation>Destination path where to download the file</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.metafile.attlist">
-      <interleave>
-        <ref name="k.metafile.url.attribute"/>
-        <ref name="k.metafile.script.attribute"/>
-        <ref name="k.metafile.target.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.metafile">
-      <element name="metafile">
-        <a:documentation>A file Pointer Optionally Bundled With a Script</a:documentation>
-        <ref name="k.metafile.attlist"/>
-        <empty/>
       </element>
     </define>
   </div>
@@ -1452,6 +1345,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <value>apt-get</value>
         <value>zypper</value>
         <value>yum</value>
+        <value>dnf</value>
       </choice>
     </define>
     <define name="k.packagemanager.attlist">
@@ -1617,92 +1511,6 @@ packages.</db:para>
   </div>
   <!--
     ==========================================
-    common element <repopackage>
-    
-  -->
-  <div>
-    <define name="k.repopackage.name.attribute">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.repopackage.arch.attribute">
-      <ref name="k.arch.attribute"/>
-    </define>
-    <define name="k.repopackage.forcerepo.attribute">
-      <attribute name="forcerepo">
-        <a:documentation>Specifies the search priority</a:documentation>
-        <data type="IDREF"/>
-      </attribute>
-    </define>
-    <define name="k.repopackage.addarch.attribute">
-      <attribute name="addarch">
-        <a:documentation>Specifies that this package should
-additionally add the same package from the given arch</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.repopackage.removearch.attribute">
-      <attribute name="removearch">
-        <a:documentation>Specifies that the package with the
-given arch should be removed</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.repopackage.onlyarch.attribute">
-      <attribute name="onlyarch">
-        <a:documentation>Specifies that the package with
-the given arch should be used in any case</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.repopackage.medium.attribute">
-      <attribute name="medium">
-        <a:documentation>Specifies that the package will be put
-to the specific medium number (CD1, DVD7, ...)</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-    </define>
-    <define name="k.repopackage.source.attribute">
-      <ref name="k.source.attribute"/>
-    </define>
-    <define name="k.repopackage.script.attribute">
-      <ref name="k.script.attribute"/>
-    </define>
-    <define name="k.repopackage.attlist">
-      <interleave>
-        <ref name="k.repopackage.name.attribute"/>
-        <optional>
-          <ref name="k.repopackage.arch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.forcerepo.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.addarch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.removearch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.onlyarch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.source.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.script.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repopackage.medium.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.repopackage">
-      <element name="repopackage">
-        <a:documentation>Name of an instsource Package</a:documentation>
-        <ref name="k.repopackage.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <repository>
     
   -->
@@ -1841,6 +1649,27 @@ whether and how this information is passed</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <source>
+    
+  -->
+  <div>
+    <define name="k.source.path.attribute">
+      <ref name="k.path.attribute"/>
+    </define>
+    <define name="k.source.attlist">
+      <ref name="k.source.path.attribute"/>
+    </define>
+    <define name="k.source">
+      <element name="source">
+        <a:documentation>A Pointer to a data source. This can be a remote location
+as well as a path specification</a:documentation>
+        <ref name="k.source.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <rpm-check-signatures>
     
   -->
@@ -1964,26 +1793,6 @@ If the attribute additive is set the value will be added
 to the required size of the image</a:documentation>
         <ref name="k.size.attlist"/>
         <data type="nonNegativeInteger"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <source>
-    
-  -->
-  <div>
-    <define name="k.source.path.attribute">
-      <ref name="k.path.attribute"/>
-    </define>
-    <define name="k.source.attlist">
-      <ref name="k.source.path.attribute"/>
-    </define>
-    <define name="k.source">
-      <element name="source">
-        <a:documentation>A Pointer to a Repository/Package Source</a:documentation>
-        <ref name="k.source.attlist"/>
-        <empty/>
       </element>
     </define>
   </div>
@@ -2118,11 +1927,16 @@ information is passed as add-profile option</a:documentation>
     <define name="k.type.bootloader.attribute">
       <attribute name="bootloader">
         <a:documentation>Specifies the bootloader used for booting the image.
-At the moment grub, zipl and sys|extlinux are supported</a:documentation>
+At the moment grub2, zipl and the combination of zipl plus
+userspace grub2 are supported. The special custom entry
+allows to skip the bootloader configuration and installation
+and leaves this up to the user which can be done by using
+the editbootinstall and editbootconfig custom scripts</a:documentation>
         <choice>
           <value>grub2</value>
           <value>zipl</value>
           <value>grub2_s390x_emu</value>
+          <value>custom</value>
         </choice>
       </attribute>
       <sch:pattern id="bootloader" is-a="image_type">
@@ -2202,6 +2016,20 @@ expected to be non-removable</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
+    <define name="k.type.spare_part">
+      <attribute name="spare_part">
+        <a:documentation>Request a spare partition right before the root partition
+of the requested size. The attribute takes a size value
+and allows a unit in MB or GB, e.g 200M. If no unit is given
+the value is considered to be mbytes. A spare partition
+can only be configured for the disk image types oem and vmx</a:documentation>
+        <ref name="partition-size-type"/>
+      </attribute>
+      <sch:pattern id="spare_part" is-a="image_type">
+        <sch:param name="attr" value="spare_part"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.zipl_targettype.attribute">
       <attribute name="zipl_targettype">
         <a:documentation>The device type of the disk zipl should boot. On zFCP
@@ -2231,15 +2059,15 @@ size is set to 200 MB</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.vbootsize.attribute">
-      <attribute name="vbootsize">
-        <a:documentation>For images with a an extra virtual boot space
-specifies the size in MB. If not set the min vboot
-size is set to 10 MB</a:documentation>
+    <define name="k.type.efipartsize.attribute">
+      <attribute name="efipartsize">
+        <a:documentation>For images with an EFI fat partition this attribute
+specifies the size in MB. If not set the min efipart
+size is set to 20 MB</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
-      <sch:pattern id="vbootsize" is-a="image_type">
-        <sch:param name="attr" value="vbootsize"/>
+      <sch:pattern id="efipartsize" is-a="image_type">
+        <sch:param name="attr" value="efipartsize"/>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
@@ -2367,7 +2195,6 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>ec2hvm</value>
           <value>efi</value>
           <value>uefi</value>
-          <value>vboot</value>
           <value>ofw</value>
           <value>opal</value>
         </choice>
@@ -2462,6 +2289,22 @@ the -o option in the qemu-img call</a:documentation>
         <sch:param name="types" value="vmx oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.force_mbr.attribute">
+      <attribute name="force_mbr">
+        <a:documentation>Force use of MBR (msdos table) partition table even if the
+use of the GPT would be the natural choice. On e.g some
+arm systems an EFI partition layout is required but must
+not be stored in a GPT. For those rare cases this attribute
+allows to force the use of the msdos table including all
+its restrictions in max partition size and amount of
+partitions</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="force_mbr" is-a="image_type">
+        <sch:param name="attr" value="force_mbr"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.fsnocheck.attribute">
       <attribute name="fsnocheck">
         <a:documentation>Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
@@ -2516,7 +2359,7 @@ the btrfs filesystem is used</a:documentation>
         <sch:param name="types" value="iso pxe"/>
       </sch:pattern>
     </define>
-    <define name="k.type.gpt_hybrid_mbr">
+    <define name="k.type.gpt_hybrid_mbr.attribute">
       <attribute name="gpt_hybrid_mbr">
         <a:documentation>for gpt disk types only:
 create a hybrid GPT/MBR partition table</a:documentation>
@@ -2750,6 +2593,17 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.derived_from.attribute">
+      <attribute name="derived_from">
+        <a:documentation>Specifies the image URI of the container image. The image created
+by KIWI will use the specified container as the base root
+to work on.</a:documentation>
+      </attribute>
+      <sch:pattern id="derived_from" is-a="image_type">
+        <sch:param name="attr" value="derived_from"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -2778,6 +2632,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bootpartsize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.efipartsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.bootprofile.attribute"/>
@@ -2837,7 +2694,10 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           <ref name="k.type.hybridpersistent_filesystem.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.gpt_hybrid_mbr"/>
+          <ref name="k.type.gpt_hybrid_mbr.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.force_mbr.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.initrd_system.attribute"/>
@@ -2883,13 +2743,13 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
           <ref name="k.type.rootfs_label.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.spare_part"/>
+        </optional>
+        <optional>
           <ref name="k.type.target_blocksize"/>
         </optional>
         <optional>
           <ref name="k.type.target_removable"/>
-        </optional>
-        <optional>
-          <ref name="k.type.vbootsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>
@@ -2902,6 +2762,9 @@ are available on the host. Default timeout is 3 seconds</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.wwid_wait_timeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.derived_from.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -3495,419 +3358,6 @@ a standard image description created by a kiwi user.</a:documentation>
   </div>
   <!--
     ==========================================
-    main block: <instsource>
-    
-  -->
-  <div>
-    <define name="k.instsource.attlist">
-      <empty/>
-    </define>
-    <define name="k.instsource">
-      <element name="instsource">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The instsource element is used to describe the packages
-and the metadata which is required to build an installation
-source suitable for SUSE Linux installation media.
-From such a source it should be possible to create the
-standard SUSE CDs and DVDs as well as use this source as
-repository for image building.</db:para>
-        <interleave>
-          <ref name="k.instsource.attlist"/>
-          <ref name="k.architectures"/>
-          <ref name="k.productoptions"/>
-          <oneOrMore>
-            <ref name="k.instrepo"/>
-          </oneOrMore>
-          <ref name="k.metadata"/>
-          <zeroOrMore>
-            <ref name="k.repopackages"/>
-          </zeroOrMore>
-          <optional>
-            <ref name="k.driverupdate"/>
-          </optional>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <architectures>
-    
-  -->
-  <div>
-    <define name="k.architectures.attlist">
-      <empty/>
-    </define>
-    <define name="k.architectures">
-      <element name="architectures">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The architectures element contains a list of architectures
-for which the installation source is designed. At least one
-architecture must be defined. Fallback mecahnisms apply.
-Each arch element has an optional attribute &lt;fallback&gt;
-which is the next in the chain. An omitted value results in
-undefined value thus terminating the chain.</db:para>
-        <interleave>
-          <ref name="k.architectures.attlist"/>
-          <oneOrMore>
-            <ref name="k.arch"/>
-          </oneOrMore>
-          <oneOrMore>
-            <ref name="k.requiredarch"/>
-          </oneOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <productoptions>
-    
-  -->
-  <div>
-    <define name="k.productoptions.attlist">
-      <empty/>
-    </define>
-    <define name="k.productoptions">
-      <element name="productoptions">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The productoptions element contains a list of options
-that influence the instsource creation process in a
-general manner. For instance an option could specify
-a default medium number for source packages and the like.</db:para>
-        <interleave>
-          <ref name="k.productoptions.attlist"/>
-          <zeroOrMore>
-            <ref name="k.productoption"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="k.productinfo"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="k.productvar"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <productoption>
-    
-  -->
-  <div>
-    <define name="k.productoption.attlist">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.productoption">
-      <element name="productoption">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The productoption element carries the information for a
-product option its name and its fallback (productoptional).</db:para>
-        <interleave>
-          <ref name="k.productoption.attlist"/>
-          <text/>
-        </interleave>
-        <!--
-          k.productinfo.text.content 
-          xsd:normalizedString { maxLength = "2048" }
-        -->
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <arch>
-    
-  -->
-  <div>
-    <define name="k.arch.name.attribute">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.arch.id.attribute">
-      <ref name="k.id.attribute"/>
-    </define>
-    <define name="k.arch.fallback.attribute">
-      <attribute name="fallback">
-        <data type="IDREF"/>
-      </attribute>
-    </define>
-    <define name="k.arch.attlist">
-      <interleave>
-        <ref name="k.arch.id.attribute"/>
-        <ref name="k.arch.name.attribute"/>
-        <optional>
-          <ref name="k.arch.fallback.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.arch">
-      <element name="arch">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The arch element providdes the information for an arch,
-its name and its fallback (optional).</db:para>
-        <interleave>
-          <ref name="k.arch.attlist"/>
-          <empty/>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <requiredarch>
-    
-  -->
-  <div>
-    <define name="k.requiredarch.ref.attribute">
-      <attribute name="ref">
-        <data type="IDREF"/>
-      </attribute>
-    </define>
-    <define name="k.requiredarch.attlist">
-      <ref name="k.requiredarch.ref.attribute"/>
-    </define>
-    <define name="k.requiredarch">
-      <element name="requiredarch">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The requiredarch element defines which  architectures
-are the basic required ones for the media.</db:para>
-        <interleave>
-          <ref name="k.requiredarch.attlist"/>
-          <empty/>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <productinfo>
-    
-  -->
-  <div>
-    <define name="k.productinfo.attlist">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.productinfo">
-      <element name="productinfo">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The productinfo element contains one particular environment
-variable and its value. Shell rules for the names apply.
-The value must not exceed a certain length for sanity.
-reasons Any funny characters like tabs, line break,
-carriage return or combinations are converted to spaces
-(one each) which may lead to unexpected contents.</db:para>
-        <interleave>
-          <ref name="k.productinfo.attlist"/>
-          <!-- text: workaround for the above mentioned problem -->
-          <text/>
-        </interleave>
-        <!--
-          k.productinfo.text.content 
-          xsd:normalizedString { maxLength = "2048" }
-        -->
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <productvar>
-    
-  -->
-  <div>
-    <define name="k.productvar.attlist">
-      <ref name="k.name.attribute"/>
-    </define>
-    <define name="k.productvar">
-      <element name="productvar">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The productinfo element contains one particular environment
-variable and its value. Shell rules for the names apply.
-The value is used to create the content file.</db:para>
-        <interleave>
-          <ref name="k.productvar.attlist"/>
-          <!-- text: workaround for the above mentioned problem -->
-          <text/>
-        </interleave>
-        <!--
-          k.productvar 
-          xsd:normalizedString { maxLength = "2048" }
-        -->
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <chroot>
-    
-  -->
-  <div>
-    <define name="k.chroot.attlist">
-      <attribute name="requires"/>
-    </define>
-    <define name="k.chroot">
-      <element name="chroot">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>The chroot element contains one particular environment
-variable and its value. Shell rules for the names apply.
-The value must not exceed a certain length for sanity.
-reasons Any funny characters like tabs, line break,
-carriage return or combinations are converted to spaces
-(one each) which may lead to unexpected contents.</db:para>
-        <interleave>
-          <ref name="k.chroot.attlist"/>
-          <text/>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <repopackages>
-    
-  -->
-  <div>
-    <define name="k.repopackages.attlist">
-      <empty/>
-    </define>
-    <define name="k.repopackages">
-      <element name="repopackages">
-        <a:documentation>Specifies Packages for Installation Source</a:documentation>
-        <db:para>The repopackages elements specifies a set of packages which
-are used for creating a SUSE installation source.</db:para>
-        <interleave>
-          <ref name="k.repopackages.attlist"/>
-          <zeroOrMore>
-            <ref name="k.repopackage"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <driverupdate>
-    
-  -->
-  <div>
-    <define name="k.driverupdate.attlist">
-      <empty/>
-    </define>
-    <define name="k.driverupdate">
-      <element name="driverupdate">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>Creating a driverupdate disk for using updated hardware
-drivers on system installation with YaST.</db:para>
-        <interleave>
-          <ref name="k.driverupdate.attlist"/>
-          <oneOrMore>
-            <ref name="k.target"/>
-          </oneOrMore>
-          <optional>
-            <ref name="k.install"/>
-          </optional>
-          <optional>
-            <ref name="k.modules"/>
-          </optional>
-          <optional>
-            <ref name="k.instsys"/>
-          </optional>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <target>
-    
-  -->
-  <div>
-    <define name="k.target.arch.attribute">
-      <ref name="k.arch.attribute"/>
-    </define>
-    <define name="k.target.attlist">
-      <ref name="k.target.arch.attribute"/>
-    </define>
-    <define name="k.target">
-      <element name="target">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>List of update targets: &lt;dist&gt;-&lt;arch&gt;
-</db:para>
-        <interleave>
-          <ref name="k.target.attlist"/>
-          <text/>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <install>
-    
-  -->
-  <div>
-    <define name="k.install.attlist">
-      <empty/>
-    </define>
-    <define name="k.install">
-      <element name="install">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>List of packages to be copied into the 'install' directory</db:para>
-        <interleave>
-          <ref name="k.install.attlist"/>
-          <zeroOrMore>
-            <ref name="k.repopackage"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <modules>
-    
-  -->
-  <div>
-    <define name="k.modules.attlist">
-      <empty/>
-    </define>
-    <define name="k.modules">
-      <element name="modules">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>List of packages to be copied into the 'modules' directory</db:para>
-        <interleave>
-          <ref name="k.modules.attlist"/>
-          <zeroOrMore>
-            <ref name="k.repopackage"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <instsys>
-    
-  -->
-  <div>
-    <define name="k.instsys.attlist">
-      <empty/>
-    </define>
-    <define name="k.instsys">
-      <element name="instsys">
-        <a:documentation>Describe Packages and Metadata</a:documentation>
-        <db:para>List of packages to be copied into the 'instsys' directory</db:para>
-        <interleave>
-          <ref name="k.instsys.attlist"/>
-          <zeroOrMore>
-            <ref name="k.repopackage"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     main block: <containerconfig>
     
   -->
@@ -3920,7 +3370,7 @@ drivers on system installation with YaST.</db:para>
     <define name="k.containerconfig.name.attribute">
       <attribute name="name">
         <a:documentation>Specifies a name for the container. This is usually the
-the tag name of the container as read if the container
+the repository name of the container as read if the container
 image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="name" is-a="container_type">
@@ -3928,13 +3378,41 @@ image is imported via the docker load command</a:documentation>
         <sch:param name="types" value="docker"/>
       </sch:pattern>
     </define>
-    <define name="k.containerconfig.entry_command.attribute">
-      <attribute name="entry_command">
-        <a:documentation>Specifies the default command to run if the container is
-called via the docker run command.</a:documentation>
+    <define name="k.containerconfig.tag.attribute">
+      <attribute name="tag">
+        <a:documentation>Specifies a tag for the container. This is usually the
+the tag name of the container as read if the container
+image is imported via the docker load command</a:documentation>
       </attribute>
-      <sch:pattern id="entry_command" is-a="container_type">
-        <sch:param name="attr" value="entry_command"/>
+      <sch:pattern id="tag" is-a="container_type">
+        <sch:param name="attr" value="tag"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.maintainer.attribute">
+      <attribute name="maintainer">
+        <a:documentation>Specifies a maintainer for the container.</a:documentation>
+      </attribute>
+      <sch:pattern id="maintainer" is-a="container_type">
+        <sch:param name="attr" value="maintainer"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.user.attribute">
+      <attribute name="user">
+        <a:documentation>Specifies a user for the container.</a:documentation>
+      </attribute>
+      <sch:pattern id="user" is-a="container_type">
+        <sch:param name="attr" value="user"/>
+        <sch:param name="types" value="docker"/>
+      </sch:pattern>
+    </define>
+    <define name="k.containerconfig.workingdir.attribute">
+      <attribute name="workingdir">
+        <a:documentation>Specifies the default working directory of the container</a:documentation>
+      </attribute>
+      <sch:pattern id="workingdir" is-a="container_type">
+        <sch:param name="attr" value="workingdir"/>
         <sch:param name="types" value="docker"/>
       </sch:pattern>
     </define>
@@ -3942,7 +3420,16 @@ called via the docker run command.</a:documentation>
       <interleave>
         <ref name="k.containerconfig.name.attribute"/>
         <optional>
-          <ref name="k.containerconfig.entry_command.attribute"/>
+          <ref name="k.containerconfig.tag.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.maintainer.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.user.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.workingdir.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -3950,7 +3437,289 @@ called via the docker run command.</a:documentation>
       <element name="containerconfig">
         <a:documentation>Provides metadata information for containers</a:documentation>
         <db:para>The containerconfig element provides metadata informationto setup a container in order to be prepared for use withthe container engine tool chain. container specific datashould be provided in an additional subsection whereas thissection provides globally useful container information</db:para>
-        <ref name="k.containerconfig.attlist"/>
+        <interleave>
+          <ref name="k.containerconfig.attlist"/>
+          <optional>
+            <ref name="k.entrypoint"/>
+          </optional>
+          <optional>
+            <ref name="k.subcommand"/>
+          </optional>
+          <optional>
+            <ref name="k.expose"/>
+          </optional>
+          <optional>
+            <ref name="k.volumes"/>
+          </optional>
+          <optional>
+            <ref name="k.environment"/>
+          </optional>
+          <optional>
+            <ref name="k.labels"/>
+          </optional>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <entrypoint>
+    
+  -->
+  <div>
+    <define name="k.entrypoint.execute.attribute">
+      <attribute name="execute">
+        <a:documentation>Specifies the entry point program name to execute</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.entrypoint.attlist">
+      <ref name="k.entrypoint.execute.attribute"/>
+    </define>
+    <define name="k.entrypoint">
+      <element name="entrypoint">
+        <a:documentation>Provides details for the entry point command. This
+includes the execution name and its parameters. Arguments
+can be optionally specified</a:documentation>
+        <interleave>
+          <ref name="k.entrypoint.attlist"/>
+          <zeroOrMore>
+            <ref name="k.argument"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <subcommand>
+    
+  -->
+  <div>
+    <define name="k.subcommand.execute.attribute">
+      <attribute name="execute">
+        <a:documentation>Specifies the subcommand program name to execute</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.subcommand.attlist">
+      <ref name="k.subcommand.execute.attribute"/>
+    </define>
+    <define name="k.subcommand">
+      <element name="subcommand">
+        <a:documentation>Provides details for the subcommand command. This
+includes the execution name and its parameters. Arguments
+can be optionally specified. The subcommand is appended
+the command information from the entrypoint. It is in
+the responsibility of the author to make sure the
+combination of entrypoint and subcommand forms a valid
+execution command</a:documentation>
+        <interleave>
+          <ref name="k.subcommand.attlist"/>
+          <zeroOrMore>
+            <ref name="k.argument"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <argument>
+    
+  -->
+  <div>
+    <define name="k.argument.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies a command argument name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.argument.attlist">
+      <ref name="k.argument.name.attribute"/>
+    </define>
+    <define name="k.argument">
+      <element name="argument">
+        <a:documentation>Provides details about a command argument</a:documentation>
+        <interleave>
+          <ref name="k.argument.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <expose>
+    
+  -->
+  <div>
+    <define name="k.expose.attlist">
+      <empty/>
+    </define>
+    <define name="k.expose">
+      <element name="expose">
+        <a:documentation>Provides details about network ports which should be
+exposed from the container. At least one port must
+be configured</a:documentation>
+        <interleave>
+          <ref name="k.expose.attlist"/>
+          <oneOrMore>
+            <ref name="k.port"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <port>
+    
+  -->
+  <div>
+    <define name="k.port.number.attribute">
+      <attribute name="number">
+        <a:documentation>Specifies the port number to expose</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
+    <define name="k.port.attlist">
+      <ref name="k.port.number.attribute"/>
+    </define>
+    <define name="k.port">
+      <element name="port">
+        <a:documentation>Provides details about an exposed port.</a:documentation>
+        <interleave>
+          <ref name="k.port.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <volumes>
+    
+  -->
+  <div>
+    <define name="k.volumes.attlist">
+      <empty/>
+    </define>
+    <define name="k.volumes">
+      <element name="volumes">
+        <a:documentation>Provides details about storage volumes in the container
+At least one volume must be configured</a:documentation>
+        <interleave>
+          <ref name="k.volumes.attlist"/>
+          <oneOrMore>
+            <ref name="k.volume"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <environment>
+    
+  -->
+  <div>
+    <define name="k.environment.attlist">
+      <empty/>
+    </define>
+    <define name="k.environment">
+      <element name="environment">
+        <a:documentation>Provides details about the container environment variables
+At least one environment variable must be configured</a:documentation>
+        <interleave>
+          <ref name="k.environment.attlist"/>
+          <oneOrMore>
+            <ref name="k.env"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <env>
+    
+  -->
+  <div>
+    <define name="k.env.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies the environment variable name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.env.value.attribute">
+      <attribute name="value">
+        <a:documentation>Specifies the environment variable value</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.env.attlist">
+      <interleave>
+        <ref name="k.env.name.attribute"/>
+        <ref name="k.env.value.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.env">
+      <element name="env">
+        <a:documentation>Provides details about an environment variable</a:documentation>
+        <interleave>
+          <ref name="k.env.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <labels>
+    
+  -->
+  <div>
+    <define name="k.labels.attlist">
+      <empty/>
+    </define>
+    <define name="k.labels">
+      <element name="labels">
+        <a:documentation>Provides details about container labels
+At least one label must be configured</a:documentation>
+        <interleave>
+          <ref name="k.labels.attlist"/>
+          <oneOrMore>
+            <ref name="k.label"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <label>
+    
+  -->
+  <div>
+    <define name="k.label.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies the label name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.label.value.attribute">
+      <attribute name="value">
+        <a:documentation>Specifies the label value</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.label.attlist">
+      <interleave>
+        <ref name="k.label.name.attribute"/>
+        <ref name="k.label.value.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.label">
+      <element name="label">
+        <a:documentation>Provides details about a container label</a:documentation>
+        <interleave>
+          <ref name="k.label.attlist"/>
+          <empty/>
+        </interleave>
       </element>
     </define>
   </div>
@@ -4324,13 +4093,11 @@ and also depends of the selected image output type.</db:para>
       </optional>
     </define>
     <define name="k.preferences">
-      <!--
-        All elements are optional since the combination of appropriate
-        preference sections based on profiles combine to create on vaild
-        definition
-      -->
       <element name="preferences">
-        <a:documentation>Configuration Information Needed for Logical Extend</a:documentation>
+        <a:documentation>Configuration Information Needed for Logical Extend
+All elements are optional since the combination of appropriate
+preference sections based on profiles combine to create on vaild
+definition</a:documentation>
         <interleave>
           <ref name="k.preferences.attlist"/>
           <optional>

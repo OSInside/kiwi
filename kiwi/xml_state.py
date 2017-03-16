@@ -22,6 +22,7 @@ from collections import namedtuple
 
 # project
 from . import xml_parse
+from .system.uri import Uri
 from .defaults import Defaults
 
 from .exceptions import (
@@ -299,6 +300,24 @@ class XMLState(object):
                 result.append(archive.get_name())
         return sorted(result)
 
+    def get_system_ignore_packages(self):
+        """
+        List of ignore packages from the packages sections matching
+        type="image" and type=build_type
+
+        :return: package names
+        :rtype: list
+        """
+        result = []
+        image_packages_sections = self.get_packages_sections(
+            ['image', self.get_build_type_name()]
+        )
+        for packages in image_packages_sections:
+            for package in packages.get_ignore():
+                if self.package_matches_host_architecture(package):
+                    result.append(package.get_name())
+        return sorted(result)
+
     def get_collection_type(self, section_type='image'):
         """
         Collection type from packages sections matching given section
@@ -563,6 +582,18 @@ class XMLState(object):
                 mbytes=value, additive=additive
             )
 
+    def get_build_type_spare_part_size(self):
+        """
+        Size information for the spare_part size from the build
+        type. If no unit is set the value is treated as mbytes
+
+        :return: mbytes
+        :rtype: int
+        """
+        spare_part_size = self.build_type.get_spare_part()
+        if spare_part_size:
+            return self._to_mega_byte(spare_part_size)
+
     def get_volume_group_name(self):
         """
         Volume group name from systemdisk section
@@ -625,6 +656,221 @@ class XMLState(object):
                 result_group_list.append(item)
 
         return result_group_list
+
+    def _match_docker_base_data(self):
+        """
+        Dictionary of docker container basic data
+
+        * container name
+        * container tag
+        * maintainer
+        * user
+        * working directory
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_base = {}
+        if container_config_section:
+            name = container_config_section.get_name()
+            tag = container_config_section.get_tag()
+            maintainer = container_config_section.get_maintainer()
+            user = container_config_section.get_user()
+            workingdir = container_config_section.get_workingdir()
+            if name:
+                container_base['container_name'] = name
+
+            if tag:
+                container_base['container_tag'] = tag
+
+            if maintainer:
+                container_base['maintainer'] = [
+                    ''.join(
+                        ['--author=', maintainer]
+                    )
+                ]
+
+            if user:
+                container_base['user'] = [
+                    ''.join(
+                        ['--config.user=', user]
+                    )
+                ]
+
+            if workingdir:
+                container_base['workingdir'] = [
+                    ''.join(
+                        ['--config.workingdir=', workingdir]
+                    )
+                ]
+        return container_base
+
+    def _match_docker_entrypoint(self):
+        """
+        Dictionary of docker entrypoint command name and arguments
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_entry = {}
+        if container_config_section:
+            entrypoint = container_config_section.get_entrypoint()
+            if entrypoint:
+                container_entry['entry_command'] = [
+                    ''.join(
+                        [
+                            '--config.entrypoint=',
+                            entrypoint[0].get_execute()
+                        ]
+                    )
+                ]
+                argument_list = entrypoint[0].get_argument()
+                if argument_list:
+                    for argument in argument_list:
+                        container_entry['entry_command'].append(
+                            ''.join(
+                                [
+                                    '--config.entrypoint=',
+                                    argument.get_name()
+                                ]
+                            )
+                        )
+        return container_entry
+
+    def _match_docker_subcommand(self):
+        """
+        Dictionary of docker entry subcommand name and arguments
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_subcommand = {}
+        if container_config_section:
+            subcommand = container_config_section.get_subcommand()
+            if subcommand:
+                container_subcommand['entry_subcommand'] = [
+                    ''.join(
+                        [
+                            '--config.cmd=',
+                            subcommand[0].get_execute()
+                        ]
+                    )
+                ]
+                argument_list = subcommand[0].get_argument()
+                if argument_list:
+                    for argument in argument_list:
+                        container_subcommand['entry_subcommand'].append(
+                            ''.join(
+                                [
+                                    '--config.cmd=',
+                                    argument.get_name()
+                                ]
+                            )
+                        )
+        return container_subcommand
+
+    def _match_docker_expose_ports(self):
+        """
+        Dictionary of docker container exposed ports
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_expose = {}
+        if container_config_section:
+            expose = container_config_section.get_expose()
+            if expose and expose[0].get_port():
+                container_expose['expose_ports'] = []
+                for port in expose[0].get_port():
+                    container_expose['expose_ports'].append(
+                        ''.join(
+                            [
+                                '--config.exposedports=',
+                                format(port.get_number())
+                            ]
+                        )
+                    )
+        return container_expose
+
+    def _match_docker_volumes(self):
+        """
+        Dictionary of docker container attached volumes
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_volumes = {}
+        if container_config_section:
+            volumes = container_config_section.get_volumes()
+            if volumes and volumes[0].get_volume():
+                container_volumes['volumes'] = []
+                for volume in volumes[0].get_volume():
+                    container_volumes['volumes'].append(
+                        ''.join(
+                            [
+                                '--config.volume=',
+                                volume.get_name()
+                            ]
+                        )
+                    )
+        return container_volumes
+
+    def _match_docker_environment(self):
+        """
+        Dictionary of docker container shell environment
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_env = {}
+        if container_config_section:
+            environment = container_config_section.get_environment()
+            if environment and environment[0].get_env():
+                container_env['environment'] = []
+                for env in environment[0].get_env():
+                    container_env['environment'].append(
+                        ''.join(
+                            [
+                                '--config.env=',
+                                env.get_name(), '=', env.get_value()
+                            ]
+                        )
+                    )
+        return container_env
+
+    def _match_docker_labels(self):
+        """
+        Dictionary of docker container labels and their values
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_labels = {}
+        if container_config_section:
+            labels = container_config_section.get_labels()
+            if labels and labels[0].get_label():
+                container_labels['labels'] = []
+                for label in labels[0].get_label():
+                    container_labels['labels'].append(
+                        ''.join(
+                            [
+                                '--config.label=',
+                                label.get_name(), '=', label.get_value()
+                            ]
+                        )
+                    )
+        return container_labels
+
+    def get_container_config(self):
+        """
+        Dictionary of containerconfig information
+        """
+        container_config = self._match_docker_base_data()
+        container_config.update(
+            self._match_docker_entrypoint()
+        )
+        container_config.update(
+            self._match_docker_subcommand()
+        )
+        container_config.update(
+            self._match_docker_expose_ports()
+        )
+        container_config.update(
+            self._match_docker_volumes()
+        )
+        container_config.update(
+            self._match_docker_environment()
+        )
+        container_config.update(
+            self._match_docker_labels()
+        )
+        return container_config
 
     def get_volumes(self):
         """
@@ -1228,6 +1474,21 @@ class XMLState(object):
             option_list = [mount_options]
 
         return option_list
+
+    def get_derived_from_image_uri(self):
+        """
+        Uri object of derived image if configured
+
+        Specific image types can be based on a master image.
+        This method returns the location of this image when
+        configured in the XML description
+
+        :return: Instance of Uri
+        :rtype: object
+        """
+        derived_image = self.build_type.get_derived_from()
+        if derived_image:
+            return Uri(derived_image)
 
     def _used_profiles(self, profiles=None):
         """

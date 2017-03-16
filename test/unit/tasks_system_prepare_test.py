@@ -5,7 +5,7 @@ from mock import patch
 
 import kiwi
 
-from .test_helper import patch, argv_kiwi_tests
+from .test_helper import argv_kiwi_tests
 
 from kiwi.tasks.system_prepare import SystemPrepareTask
 
@@ -33,7 +33,7 @@ class TestSystemPrepareTask(object):
         self.system_prepare.setup_repositories = mock.Mock(
             return_value=self.manager
         )
-        
+
         self.setup = mock.Mock()
         kiwi.tasks.system_prepare.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -70,6 +70,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['prepare'] = True
         self.task.process()
+        self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with('../data/root-dir')
         self.runtime_checker.check_repositories_configured.assert_called_once_with()

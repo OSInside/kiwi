@@ -22,11 +22,11 @@ from textwrap import dedent
 from tempfile import mkdtemp
 
 # project
-from .base import DiskFormatBase
-from .qcow2 import DiskFormatQcow2
-from ...command import Command
+from kiwi.storage.subformat.base import DiskFormatBase
+from kiwi.storage.subformat.qcow2 import DiskFormatQcow2
+from kiwi.command import Command
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiFormatSetupError
 )
 

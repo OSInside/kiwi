@@ -1,3 +1,5 @@
+.. _schema-docs:
+
 Schema Documentation 6.5
 =========================
 
@@ -16,7 +18,7 @@ image
 The root element of the configuration file   
 
 Children:
-   The following elements occur in ``image``: :ref:`description <k.image.description>` , :ref:`preferences <k.image.preferences>` `[+]`_, :ref:`profiles <k.image.profiles>` `[?]`_, :ref:`instsource <k.image.instsource>` `[?]`_, :ref:`users <k.image.users>` `[*]`_, :ref:`drivers <k.image.drivers>` `[*]`_, :ref:`strip <k.image.strip>` `[*]`_, :ref:`repository <k.image.repository>` `[*]`_, :ref:`packages <k.image.packages>` `[*]`_, :ref:`extension <k.image.extension>` `[?]`_
+   The following elements occur in ``image``: :ref:`description <k.image.description>` , :ref:`preferences <k.image.preferences>` `[+]`_, :ref:`profiles <k.image.profiles>` `[?]`_, :ref:`users <k.image.users>` `[*]`_, :ref:`drivers <k.image.drivers>` `[*]`_, :ref:`strip <k.image.strip>` `[*]`_, :ref:`repository <k.image.repository>` `[*]`_, :ref:`packages <k.image.packages>` `[*]`_, :ref:`extension <k.image.extension>` `[?]`_
 
 List of attributes for ``image``:
 
@@ -83,7 +85,7 @@ Parents:
 preferences
 ___________
 
-Configuration Information Needed for Logical Extend
+Configuration Information Needed for Logical Extend All elements are optional since the combination of appropriate preference sections based on profiles combine to create on vaild definition
 
 Parents:
    These elements contain ``preferences``: :ref:`k.image`
@@ -279,11 +281,12 @@ List of attributes for ``type``:
 * ``bootfilesystem`` `[?]`_: if an extra boot partition is required this attribute specify which filesystem should be used for it. The type of the bootloader might overwrite this setting e.g for the syslinux loader fat is required
 * ``firmware`` `[?]`_: Specifies the boot firmware of the system. Most systems uses a standard BIOS but there are also other firmware systems like efi, coreboot, etc.. This attribute is used to differentiate the image according to the firmware which boots up the system. It mostly has an impact on the disk layout and the partition table type. By default the standard x86 bios firmware setup is used
 * ``bootkernel`` `[?]`_: Specifies the kernel boot profile defined in the boot image description. When kiwi builds the boot image the information is passed as add-profile option
-* ``bootloader`` `[?]`_: Specifies the bootloader used for booting the image. At the moment grub, zipl and sys|extlinux are supported
+* ``bootloader`` `[?]`_: Specifies the bootloader used for booting the image. At the moment grub2, zipl and the combination of zipl plus userspace grub2 are supported. The special custom entry allows to skip the bootloader configuration and installation and leaves this up to the user which can be done by using the editbootinstall and editbootconfig custom scripts
 * ``bootloader_console`` `[?]`_: Specifies the bootloader console. The value only has an effect for the grub bootloader. By default a graphics console setup is used
 * ``zipl_targettype`` `[?]`_: The device type of the disk zipl should boot. On zFCP devices use SCSI, on DASD devices use CDL or LDL on emulated DASD devices use FBA
 * ``bootpartition`` `[?]`_: specify if an extra boot partition should be used or not. This will overwrite kiwi's default layout
 * ``bootpartsize`` `[?]`_: For images with a separate boot partition this attribute specifies the size in MB. If not set the min bootpart size is set to 200 MB
+* ``efipartsize`` `[?]`_: For images with an EFI fat partition this attribute specifies the size in MB. If not set the min efipart size is set to 20 MB
 * ``bootprofile`` `[?]`_: Specifies the boot profile defined in the boot image description. When kiwi builds the boot image the information is passed as add-profile option
 * ``boottimeout`` `[?]`_: Specifies the boot timeout in seconds prior to launching the default boot option. the unit for the timeout value is seconds if GRUB is used as the boot loader and 1/10 seconds if syslinux is used
 * ``btrfs_root_is_snapshot`` `[?]`_: Tell kiwi to install the system into a btrfs snapshot The snapshot layout is compatible with the snapper management toolkit. By default no snapshots are used
@@ -304,6 +307,7 @@ List of attributes for ``type``:
 * ``hybridpersistent`` `[?]`_: Will trigger the creation of a partition for a COW file to keep data persistent over a reboot
 * ``hybridpersistent_filesystem`` `[?]`_: Set the filesystem to use for persistent writing if a hybrid image is used as disk on e.g a USB Stick. By default the btrfs filesystem is used
 * ``gpt_hybrid_mbr`` `[?]`_: for gpt disk types only: create a hybrid GPT/MBR partition table
+* ``force_mbr`` `[?]`_: Force use of MBR (msdos table) partition table even if the use of the GPT would be the natural choice. On e.g some arm systems an EFI partition layout is required but must not be stored in a GPT. For those rare cases this attribute allows to force the use of the msdos table including all its restrictions in max partition size and amount of partitions
 * ``initrd_system`` `[?]`_: specify which initrd builder to use, default is kiwi's builtin architecture. Be aware that the dracut initrd system does not support all features of the kiwi initrd
 * ``image`` : Specifies the image type
 * ``installboot`` `[?]`_: Specifies the bootloader default boot entry for the" initial boot of a kiwi install image. This value is" only evaluated for grub and ext|syslinux"
@@ -319,13 +323,14 @@ List of attributes for ``type``:
 * ``primary`` `[?]`_: Specifies the primary type (choose KIWI option type)
 * ``ramonly`` `[?]`_: for use with overlay filesystems only: will force any COW action to happen in RAM
 * ``rootfs_label`` `[?]`_: label to set for the root filesystem. By default ROOT is used
+* ``spare_part`` `[?]`_: Request a spare partition right before the root partition of the requested size. The attribute takes a size value and allows a unit in MB or GB, e.g 200M. If no unit is given the value is considered to be mbytes. A spare partition can only be configured for the disk image types oem and vmx
 * ``target_blocksize`` `[?]`_: Specifies the image blocksize in bytes which has to match the logical (SSZ) blocksize of the target storage device. By default 512 byte is used which works on many disks However 4096 byte disks are coming. You can check the desired target by calling: blockdev --report device
 * ``target_removable`` `[?]`_: Indicate if the target disk for oem images is deployed to a removable device e.g a USB stick or not. This only affects the EFI setup if requested and in the end avoids the creation of a custom boot menu entry in the firmware of the target machine. By default the target disk is expected to be non-removable
-* ``vbootsize`` `[?]`_: For images with a an extra virtual boot space specifies the size in MB. If not set the min vboot size is set to 10 MB
 * ``vga`` `[?]`_: Specifies the kernel framebuffer mode. More information about the possible values can be found by calling hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt
 * ``vhdfixedtag`` `[?]`_: Specifies the GUID in a fixed format VHD
 * ``volid`` `[?]`_: for the iso type only: Specifies the volume ID (volume name or label) to be written into the master block. There is space for 32 characters.
 * ``wwid_wait_timeout`` `[?]`_: Specifies the wait period in seconds after launching the multipath daemon to wait until all presented devices are available on the host. Default timeout is 3 seconds
+* ``derived_from`` `[?]`_: Specifies the image URI of the container image. The image created by KIWI will use the specified container as the base root to work on.
 
 .. _k.image.preferences.type.containerconfig:
 
@@ -337,10 +342,196 @@ Provides metadata information for containers
 Parents:
    These elements contain ``containerconfig``: :ref:`k.image.preferences.type`
 
+Children:
+   The following elements occur in ``containerconfig``: :ref:`entrypoint <k.image.preferences.type.containerconfig.entrypoint>` `[?]`_, :ref:`subcommand <k.image.preferences.type.containerconfig.subcommand>` `[?]`_, :ref:`expose <k.image.preferences.type.containerconfig.expose>` `[?]`_, :ref:`volumes <k.image.preferences.type.containerconfig.volumes>` `[?]`_, :ref:`environment <k.image.preferences.type.containerconfig.environment>` `[?]`_, :ref:`labels <k.image.preferences.type.containerconfig.labels>` `[?]`_
+
 List of attributes for ``containerconfig``:
 
-* ``name`` : Specifies a name for the container. This is usually the the tag name of the container as read if the container image is imported via the docker load command
-* ``entry_command`` `[?]`_: Specifies the default command to run if the container is called via the docker run command.
+* ``name`` : Specifies a name for the container. This is usually the the repository name of the container as read if the container image is imported via the docker load command
+* ``tag`` `[?]`_: Specifies a tag for the container. This is usually the the tag name of the container as read if the container image is imported via the docker load command
+* ``maintainer`` `[?]`_: Specifies a maintainer for the container.
+* ``user`` `[?]`_: Specifies a user for the container.
+* ``workingdir`` `[?]`_: Specifies the default working directory of the container
+
+.. _k.image.preferences.type.containerconfig.entrypoint:
+
+entrypoint
+::::::::::
+
+Provides details for the entry point command. This includes the execution name and its parameters. Arguments can be optionally specified
+
+Parents:
+   These elements contain ``entrypoint``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``entrypoint``: :ref:`argument <k.image.preferences.type.containerconfig.entrypoint.argument>` `[*]`_
+
+List of attributes for ``entrypoint``:
+
+* ``execute`` : Specifies the entry point program name to execute
+
+.. _k.image.preferences.type.containerconfig.entrypoint.argument:
+
+argument
+;;;;;;;;
+
+Provides details about a command argument
+
+Parents:
+   These elements contain ``argument``: :ref:`k.image.preferences.type.containerconfig.entrypoint`, :ref:`k.image.preferences.type.containerconfig.subcommand`
+
+List of attributes for ``argument``:
+
+* ``name`` : Specifies a command argument name
+
+.. _k.image.preferences.type.containerconfig.subcommand:
+
+subcommand
+::::::::::
+
+Provides details for the subcommand command. This includes the execution name and its parameters. Arguments can be optionally specified. The subcommand is appended the command information from the entrypoint. It is in the responsibility of the author to make sure the combination of entrypoint and subcommand forms a valid execution command
+
+Parents:
+   These elements contain ``subcommand``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``subcommand``: :ref:`argument <k.image.preferences.type.containerconfig.subcommand.argument>` `[*]`_
+
+List of attributes for ``subcommand``:
+
+* ``execute`` : Specifies the subcommand program name to execute
+
+.. _k.image.preferences.type.containerconfig.subcommand.argument:
+
+argument
+;;;;;;;;
+
+Provides details about a command argument
+
+Parents:
+   These elements contain ``argument``: :ref:`k.image.preferences.type.containerconfig.entrypoint`, :ref:`k.image.preferences.type.containerconfig.subcommand`
+
+List of attributes for ``argument``:
+
+* ``name`` : Specifies a command argument name
+
+.. _k.image.preferences.type.containerconfig.expose:
+
+expose
+::::::
+
+Provides details about network ports which should be exposed from the container. At least one port must be configured
+
+Parents:
+   These elements contain ``expose``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``expose``: :ref:`port <k.image.preferences.type.containerconfig.expose.port>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.expose.port:
+
+port
+;;;;
+
+Provides details about an exposed port.
+
+Parents:
+   These elements contain ``port``: :ref:`k.image.preferences.type.containerconfig.expose`
+
+List of attributes for ``port``:
+
+* ``number`` : Specifies the port number to expose
+
+.. _k.image.preferences.type.containerconfig.volumes:
+
+volumes
+:::::::
+
+Provides details about storage volumes in the container At least one volume must be configured
+
+Parents:
+   These elements contain ``volumes``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``volumes``: :ref:`volume <k.image.preferences.type.containerconfig.volumes.volume>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.volumes.volume:
+
+volume
+;;;;;;
+
+Specify which parts of the filesystem should be on an extra volume.
+
+Parents:
+   These elements contain ``volume``: :ref:`k.image.preferences.type.containerconfig.volumes`, :ref:`k.image.preferences.type.systemdisk`
+
+List of attributes for ``volume``:
+
+* ``copy_on_write`` `[?]`_: Apply the filesystem copy-on-write attribute for this volume
+* ``freespace`` `[?]`_: free space to be added to this volume. The value is used as MB by default but you can add "M" and/or "G" as postfix
+* ``mountpoint`` `[?]`_: volume path. The mountpoint specifies a path which has to exist inside the root directory.
+* ``name`` : volume name. The name of the volume. if mountpoint is not specified the name specifies a path which has to exist inside the root directory.
+* ``size`` `[?]`_: absolute size of the volume. If the size value is too small to store all data kiwi will exit. The value is used as MB by default but you can add "M" and/or "G" as postfix
+
+.. _k.image.preferences.type.containerconfig.environment:
+
+environment
+:::::::::::
+
+Provides details about the container environment variables At least one environment variable must be configured
+
+Parents:
+   These elements contain ``environment``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``environment``: :ref:`env <k.image.preferences.type.containerconfig.environment.env>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.environment.env:
+
+env
+;;;
+
+Provides details about an environment variable
+
+Parents:
+   These elements contain ``env``: :ref:`k.image.preferences.type.containerconfig.environment`
+
+List of attributes for ``env``:
+
+* ``name`` : Specifies the environment variable name
+* ``value`` : Specifies the environment variable value
+
+.. _k.image.preferences.type.containerconfig.labels:
+
+labels
+::::::
+
+Provides details about container labels At least one label must be configured
+
+Parents:
+   These elements contain ``labels``: :ref:`k.image.preferences.type.containerconfig`
+
+Children:
+   The following elements occur in ``labels``: :ref:`label <k.image.preferences.type.containerconfig.labels.label>` `[+]`_
+
+
+.. _k.image.preferences.type.containerconfig.labels.label:
+
+label
+;;;;;
+
+Provides details about a container label
+
+Parents:
+   These elements contain ``label``: :ref:`k.image.preferences.type.containerconfig.labels`
+
+List of attributes for ``label``:
+
+* ``name`` : Specifies the label name
+* ``value`` : Specifies the label value
 
 .. _k.image.preferences.type.machine:
 
@@ -833,9 +1024,9 @@ Parents:
 
 List of attributes for ``configuration``:
 
-* ``source`` : A location where packages can be found to build an installation source from
+* ``source`` : A source location where a package or configuration file can be found
 * ``dest`` : Destination of a resource
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.preferences.type.size:
 
@@ -878,7 +1069,7 @@ volume
 Specify which parts of the filesystem should be on an extra volume.
 
 Parents:
-   These elements contain ``volume``: :ref:`k.image.preferences.type.systemdisk`
+   These elements contain ``volume``: :ref:`k.image.preferences.type.containerconfig.volumes`, :ref:`k.image.preferences.type.systemdisk`
 
 List of attributes for ``volume``:
 
@@ -944,393 +1135,6 @@ List of attributes for ``profile``:
 * ``name`` : A name
 * ``description`` : Description of how this profiles influences the image
 * ``import`` `[?]`_: Import profile by default if no profile was set on the command line
-
-.. _k.image.instsource:
-
-instsource
-__________
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``instsource``: :ref:`k.image`
-
-Children:
-   The following elements occur in ``instsource``: :ref:`architectures <k.image.instsource.architectures>` , :ref:`productoptions <k.image.instsource.productoptions>` , :ref:`instrepo <k.image.instsource.instrepo>` `[+]`_, :ref:`metadata <k.image.instsource.metadata>` , :ref:`repopackages <k.image.instsource.repopackages>` `[*]`_, :ref:`driverupdate <k.image.instsource.driverupdate>` `[?]`_
-
-
-.. _k.image.instsource.architectures:
-
-architectures
-.............
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``architectures``: :ref:`k.image.instsource`
-
-Children:
-   The following elements occur in ``architectures``: :ref:`arch <k.image.instsource.architectures.arch>` `[+]`_, :ref:`requiredarch <k.image.instsource.architectures.requiredarch>` `[+]`_
-
-
-.. _k.image.instsource.architectures.arch:
-
-arch
-,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``arch``: :ref:`k.image.instsource.architectures`
-
-List of attributes for ``arch``:
-
-* ``id`` : An ID
-* ``name`` : A name
-* ``fallback`` `[?]`_: 
-
-.. _k.image.instsource.architectures.requiredarch:
-
-requiredarch
-,,,,,,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``requiredarch``: :ref:`k.image.instsource.architectures`
-
-List of attributes for ``requiredarch``:
-
-* ``ref`` : 
-
-.. _k.image.instsource.productoptions:
-
-productoptions
-..............
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``productoptions``: :ref:`k.image.instsource`
-
-Children:
-   The following elements occur in ``productoptions``: :ref:`productoption <k.image.instsource.productoptions.productoption>` `[*]`_, :ref:`productinfo <k.image.instsource.productoptions.productinfo>` `[*]`_, :ref:`productvar <k.image.instsource.productoptions.productvar>` `[*]`_
-
-
-.. _k.image.instsource.productoptions.productoption:
-
-productoption
-,,,,,,,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``productoption``: :ref:`k.image.instsource.productoptions`
-
-List of attributes for ``productoption``:
-
-* ``name`` : A name
-
-.. _k.image.instsource.productoptions.productinfo:
-
-productinfo
-,,,,,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``productinfo``: :ref:`k.image.instsource.productoptions`
-
-List of attributes for ``productinfo``:
-
-* ``name`` : A name
-
-.. _k.image.instsource.productoptions.productvar:
-
-productvar
-,,,,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``productvar``: :ref:`k.image.instsource.productoptions`
-
-List of attributes for ``productvar``:
-
-* ``name`` : A name
-
-.. _k.image.instsource.instrepo:
-
-instrepo
-........
-
-Name of a Installation Repository
-
-Parents:
-   These elements contain ``instrepo``: :ref:`k.image.instsource`
-
-Children:
-   The following elements occur in ``instrepo``: :ref:`source <k.image.instsource.instrepo.source>` 
-
-List of attributes for ``instrepo``:
-
-* ``local`` `[?]`_: 
-* ``name`` : 
-* ``password`` `[?]`_: The password
-* ``priority`` : Search priority for packages in this repo
-* ``username`` `[?]`_: A name of a user
-
-.. _k.image.instsource.instrepo.source:
-
-source
-,,,,,,
-
-A Pointer to a Repository/Package Source
-
-Parents:
-   These elements contain ``source``: :ref:`k.image.instsource.instrepo`, :ref:`k.image.repository`
-
-List of attributes for ``source``:
-
-* ``path`` : A path
-
-.. _k.image.instsource.metadata:
-
-metadata
-........
-
-Contains Metadata
-
-Parents:
-   These elements contain ``metadata``: :ref:`k.image.instsource`
-
-Children:
-   The following elements occur in ``metadata``: :ref:`repopackage <k.image.instsource.metadata.repopackage>` `[*]`_, :ref:`metafile <k.image.instsource.metadata.metafile>` `[*]`_, :ref:`chroot <k.image.instsource.metadata.chroot>` `[*]`_
-
-
-.. _k.image.instsource.metadata.repopackage:
-
-repopackage
-,,,,,,,,,,,
-
-Name of an instsource Package
-
-Parents:
-   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
-
-List of attributes for ``repopackage``:
-
-* ``name`` : A name
-* ``arch`` `[?]`_: An architecture
-* ``forcerepo`` `[?]`_: Specifies the search priority
-* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
-* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
-* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
-* ``source`` `[?]`_: A location where packages can be found to build an installation source from
-* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
-* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
-
-.. _k.image.instsource.metadata.metafile:
-
-metafile
-,,,,,,,,
-
-A file Pointer Optionally Bundled With a Script
-
-Parents:
-   These elements contain ``metafile``: :ref:`k.image.instsource.metadata`
-
-List of attributes for ``metafile``:
-
-* ``url`` : URL where to find the metafile
-* ``script`` : A script hook for meta files to be called after the file was fetched
-* ``target`` : Destination path where to download the file
-
-.. _k.image.instsource.metadata.chroot:
-
-chroot
-,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``chroot``: :ref:`k.image.instsource.metadata`
-
-List of attributes for ``chroot``:
-
-* ``requires`` : 
-
-.. _k.image.instsource.repopackages:
-
-repopackages
-............
-
-Specifies Packages for Installation Source
-
-Parents:
-   These elements contain ``repopackages``: :ref:`k.image.instsource`
-
-Children:
-   The following elements occur in ``repopackages``: :ref:`repopackage <k.image.instsource.repopackages.repopackage>` `[*]`_
-
-
-.. _k.image.instsource.repopackages.repopackage:
-
-repopackage
-,,,,,,,,,,,
-
-Name of an instsource Package
-
-Parents:
-   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
-
-List of attributes for ``repopackage``:
-
-* ``name`` : A name
-* ``arch`` `[?]`_: An architecture
-* ``forcerepo`` `[?]`_: Specifies the search priority
-* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
-* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
-* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
-* ``source`` `[?]`_: A location where packages can be found to build an installation source from
-* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
-* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
-
-.. _k.image.instsource.driverupdate:
-
-driverupdate
-............
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``driverupdate``: :ref:`k.image.instsource`
-
-Children:
-   The following elements occur in ``driverupdate``: :ref:`target <k.image.instsource.driverupdate.target>` `[+]`_, :ref:`install <k.image.instsource.driverupdate.install>` `[?]`_, :ref:`modules <k.image.instsource.driverupdate.modules>` `[?]`_, :ref:`instsys <k.image.instsource.driverupdate.instsys>` `[?]`_
-
-
-.. _k.image.instsource.driverupdate.target:
-
-target
-,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``target``: :ref:`k.image.instsource.driverupdate`
-
-List of attributes for ``target``:
-
-* ``arch`` : An architecture
-
-.. _k.image.instsource.driverupdate.install:
-
-install
-,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``install``: :ref:`k.image.instsource.driverupdate`
-
-Children:
-   The following elements occur in ``install``: :ref:`repopackage <k.image.instsource.driverupdate.install.repopackage>` `[*]`_
-
-
-.. _k.image.instsource.driverupdate.install.repopackage:
-
-repopackage
-:::::::::::
-
-Name of an instsource Package
-
-Parents:
-   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
-
-List of attributes for ``repopackage``:
-
-* ``name`` : A name
-* ``arch`` `[?]`_: An architecture
-* ``forcerepo`` `[?]`_: Specifies the search priority
-* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
-* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
-* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
-* ``source`` `[?]`_: A location where packages can be found to build an installation source from
-* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
-* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
-
-.. _k.image.instsource.driverupdate.modules:
-
-modules
-,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``modules``: :ref:`k.image.instsource.driverupdate`
-
-Children:
-   The following elements occur in ``modules``: :ref:`repopackage <k.image.instsource.driverupdate.modules.repopackage>` `[*]`_
-
-
-.. _k.image.instsource.driverupdate.modules.repopackage:
-
-repopackage
-:::::::::::
-
-Name of an instsource Package
-
-Parents:
-   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
-
-List of attributes for ``repopackage``:
-
-* ``name`` : A name
-* ``arch`` `[?]`_: An architecture
-* ``forcerepo`` `[?]`_: Specifies the search priority
-* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
-* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
-* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
-* ``source`` `[?]`_: A location where packages can be found to build an installation source from
-* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
-* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
-
-.. _k.image.instsource.driverupdate.instsys:
-
-instsys
-,,,,,,,
-
-Describe Packages and Metadata
-
-Parents:
-   These elements contain ``instsys``: :ref:`k.image.instsource.driverupdate`
-
-Children:
-   The following elements occur in ``instsys``: :ref:`repopackage <k.image.instsource.driverupdate.instsys.repopackage>` `[*]`_
-
-
-.. _k.image.instsource.driverupdate.instsys.repopackage:
-
-repopackage
-:::::::::::
-
-Name of an instsource Package
-
-Parents:
-   These elements contain ``repopackage``: :ref:`k.image.instsource.metadata`, :ref:`k.image.instsource.repopackages`, :ref:`k.image.instsource.driverupdate.install`, :ref:`k.image.instsource.driverupdate.modules`, :ref:`k.image.instsource.driverupdate.instsys`
-
-List of attributes for ``repopackage``:
-
-* ``name`` : A name
-* ``arch`` `[?]`_: An architecture
-* ``forcerepo`` `[?]`_: Specifies the search priority
-* ``addarch`` `[?]`_: Specifies that this package should additionally add the same package from the given arch
-* ``removearch`` `[?]`_: Specifies that the package with the given arch should be removed
-* ``onlyarch`` `[?]`_: Specifies that the package with the given arch should be used in any case
-* ``source`` `[?]`_: A location where packages can be found to build an installation source from
-* ``script`` `[?]`_: A script hook for meta files to be called after the file was fetched
-* ``medium`` `[?]`_: Specifies that the package will be put to the specific medium number (CD1, DVD7, ...)
 
 .. _k.image.users:
 
@@ -1400,7 +1204,7 @@ Parents:
 List of attributes for ``file``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.strip:
 
@@ -1433,7 +1237,7 @@ Parents:
 List of attributes for ``file``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.repository:
 
@@ -1467,10 +1271,10 @@ List of attributes for ``repository``:
 source
 ......
 
-A Pointer to a Repository/Package Source
+A Pointer to a data source. This can be a remote location as well as a path specification
 
 Parents:
-   These elements contain ``source``: :ref:`k.image.instsource.instrepo`, :ref:`k.image.repository`
+   These elements contain ``source``: :ref:`k.image.repository`
 
 List of attributes for ``source``:
 
@@ -1523,6 +1327,7 @@ Parents:
 List of attributes for ``ignore``:
 
 * ``name`` : A name
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.packages.namedCollection:
 
@@ -1537,7 +1342,7 @@ Parents:
 List of attributes for ``namedCollection``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.packages.product:
 
@@ -1552,7 +1357,7 @@ Parents:
 List of attributes for ``product``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 
 .. _k.image.packages.package:
 
@@ -1567,7 +1372,7 @@ Parents:
 List of attributes for ``package``:
 
 * ``name`` : A name
-* ``arch`` `[?]`_: An architecture
+* ``arch`` `[?]`_: A system architecture name, matching the 'uname -m' information Multiple architectures can be combined as comma separated list e.g arch="x86_64,ix86"
 * ``replaces`` `[?]`_: Replace package with some other package
 * ``bootdelete`` `[?]`_: Indicates that this package should be removed from the boot image (initrd). the attribute is only evaluated if the bootinclude attribute is specified along with it too
 * ``bootinclude`` `[?]`_: Indicates that this package should be part of the boot image (initrd) too. This attribute can be used to include for example branding packages specified in the system image description to become part of the boot image also

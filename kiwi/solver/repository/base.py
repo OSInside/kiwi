@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from base64 import b64encode
 from six.moves.urllib.request import urlopen
+from six.moves.urllib.request import Request
 from tempfile import NamedTemporaryFile
 from tempfile import mkdtemp
 from lxml import etree
@@ -24,10 +26,10 @@ import glob
 import os
 
 # project
-from ...exceptions import KiwiUriOpenError
-from ...path import Path
-from ...command import Command
-from ...defaults import Defaults
+from kiwi.exceptions import KiwiUriOpenError
+from kiwi.path import Path
+from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 
 class SolverRepositoryBase(object):
@@ -39,8 +41,10 @@ class SolverRepositoryBase(object):
     * :attr:`uri`
         Instance of Uri class
     """
-    def __init__(self, uri):
+    def __init__(self, uri, user=None, secret=None):
         self.uri = uri
+        self.user = user
+        self.secret = secret
         self._init_temporary_dir_names()
 
     def create_repository_solvable(
@@ -57,11 +61,15 @@ class SolverRepositoryBase(object):
         :rtype: string
         """
         Path.create(target_dir)
+        solvable = os.sep.join(
+            [target_dir, self.uri.alias()]
+        )
         if not self.is_uptodate(target_dir):
             self._setup_repository_metadata()
             solvable = self._merge_solvables(target_dir)
             self._cleanup()
-            return solvable
+
+        return solvable
 
     def timestamp(self):
         """
@@ -107,9 +115,17 @@ class SolverRepositoryBase(object):
         :param string target: file path
         """
         try:
-            location = urlopen(
+            request = Request(
                 os.sep.join([self._get_mime_typed_uri(), repo_source])
             )
+            if self.user and self.secret:
+                credentials = b64encode(
+                    format(':'.join([self.user, self.secret])).encode()
+                )
+                request.add_header(
+                    'Authorization', b'Basic ' + credentials
+                )
+            location = urlopen(request)
         except Exception as e:
             raise KiwiUriOpenError(
                 '{0}: {1}'.format(type(e).__name__, format(e))

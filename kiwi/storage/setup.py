@@ -19,10 +19,10 @@ import os
 from collections import namedtuple
 
 # project
-from ..firmware import FirmWare
-from ..system.size import SystemSize
-from ..defaults import Defaults
-from ..logger import log
+from kiwi.firmware import FirmWare
+from kiwi.system.size import SystemSize
+from kiwi.defaults import Defaults
+from kiwi.logger import log
 
 
 class DiskSetup(object):
@@ -84,6 +84,7 @@ class DiskSetup(object):
         self.filesystem = xml_state.build_type.get_filesystem()
         self.bootpart_requested = xml_state.build_type.get_bootpartition()
         self.bootpart_mbytes = xml_state.build_type.get_bootpartsize()
+        self.spare_part_mbytes = xml_state.get_build_type_spare_part_size()
         self.mdraid = xml_state.build_type.get_mdraid()
         self.luks = xml_state.build_type.get_luks()
         self.volume_manager = xml_state.get_volume_management()
@@ -132,14 +133,6 @@ class DiskSetup(object):
                         '--> volume(s) size setup adding %s MB', volume_mbytes
                     )
 
-        vboot_mbytes = self.firmware.get_vboot_partition_size()
-        if vboot_mbytes:
-            calculated_disk_mbytes += vboot_mbytes
-            log.info(
-                '--> virtual boot partition adding %s MB',
-                vboot_mbytes
-            )
-
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
             calculated_disk_mbytes += legacy_bios_mbytes
@@ -153,6 +146,12 @@ class DiskSetup(object):
             calculated_disk_mbytes += boot_mbytes
             log.info(
                 '--> boot partition adding %s MB', boot_mbytes
+            )
+
+        if self.spare_part_mbytes:
+            calculated_disk_mbytes += self.spare_part_mbytes
+            log.info(
+                '--> spare partition adding %s MB', self.spare_part_mbytes
             )
 
         efi_mbytes = self.firmware.get_efi_partition_size()

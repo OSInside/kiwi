@@ -1,17 +1,8 @@
-
-from mock import patch
-
 import mock
 
-from .test_helper import *
-
-from kiwi.exceptions import (
-    KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
-)
+from .test_helper import raises
 
 from kiwi.repository.base import RepositoryBase
-from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryBase(object):
@@ -32,7 +23,8 @@ class TestRepositoryBase(object):
     @raises(NotImplementedError)
     def test_add_repo(self):
         self.repo.add_repo(
-            'name', 'uri', 'type', 'prio', 'dist', ['components']
+            'name', 'uri', 'type', 'prio', 'dist', ['components'],
+            'user', 'secret', 'credentials-file'
         )
 
     @raises(NotImplementedError)

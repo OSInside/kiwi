@@ -1,12 +1,11 @@
-
 from mock import patch
 
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from collections import namedtuple
-from kiwi.exceptions import *
+from kiwi.exceptions import KiwiVolumeManagerSetupError
 from kiwi.volume_manager.base import VolumeManagerBase
 
 

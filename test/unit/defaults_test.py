@@ -1,5 +1,4 @@
 import sys
-from mock import patch
 
 import mock
 

@@ -55,7 +55,7 @@
         <package name="vim" bootdelete="true"/>
         <package name="openssh"/>
         <archive name="/absolute/path/to/image.tgz" bootinclude="true"/>
-        <package name="foo" arch="some-arch"/>
+        <package name="foo" arch="s390"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

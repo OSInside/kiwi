@@ -1,9 +1,6 @@
-
-from mock import patch
-
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager.base import PackageManagerBase
 
@@ -25,6 +22,10 @@ class TestPackageManagerBase(object):
     @raises(NotImplementedError)
     def test_request_product(self):
         self.manager.request_product('name')
+
+    @raises(NotImplementedError)
+    def test_request_package_lock(self):
+        self.manager.request_package_lock('name')
 
     @raises(NotImplementedError)
     def test_process_install_requests_bootstrap(self):
@@ -67,3 +68,4 @@ class TestPackageManagerBase(object):
         assert self.manager.package_requests == []
         assert self.manager.product_requests == []
         assert self.manager.collection_requests == []
+        assert self.manager.lock_requests == []

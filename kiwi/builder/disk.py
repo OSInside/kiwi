@@ -22,32 +22,32 @@ from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 # project
-from ..defaults import Defaults
-from ..bootloader.config import BootLoaderConfig
-from ..bootloader.install import BootLoaderInstall
-from ..system.identifier import SystemIdentifier
-from ..boot.image import BootImage
-from ..boot.image import BootImageKiwi
-from ..storage.setup import DiskSetup
-from ..storage.loop_device import LoopDevice
-from ..firmware import FirmWare
-from ..storage.disk import Disk
-from ..storage.raid_device import RaidDevice
-from ..storage.luks_device import LuksDevice
-from ..filesystem import FileSystem
-from ..filesystem.squashfs import FileSystemSquashFs
-from ..volume_manager import VolumeManager
-from ..logger import log
-from ..command import Command
-from ..system.setup import SystemSetup
-from .install import InstallImageBuilder
-from ..system.kernel import Kernel
-from ..storage.subformat import DiskFormat
-from ..system.result import Result
-from ..utils.block import BlockID
-from ..path import Path
+from kiwi.defaults import Defaults
+from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.bootloader.install import BootLoaderInstall
+from kiwi.system.identifier import SystemIdentifier
+from kiwi.boot.image import BootImage
+from kiwi.boot.image import BootImageKiwi
+from kiwi.storage.setup import DiskSetup
+from kiwi.storage.loop_device import LoopDevice
+from kiwi.firmware import FirmWare
+from kiwi.storage.disk import Disk
+from kiwi.storage.raid_device import RaidDevice
+from kiwi.storage.luks_device import LuksDevice
+from kiwi.filesystem import FileSystem
+from kiwi.filesystem.squashfs import FileSystemSquashFs
+from kiwi.volume_manager import VolumeManager
+from kiwi.logger import log
+from kiwi.command import Command
+from kiwi.system.setup import SystemSetup
+from kiwi.builder.install import InstallImageBuilder
+from kiwi.system.kernel import Kernel
+from kiwi.storage.subformat import DiskFormat
+from kiwi.system.result import Result
+from kiwi.utils.block import BlockID
+from kiwi.path import Path
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiDiskBootImageError,
     KiwiInstallMediaError,
     KiwiVolumeManagerSetupError
@@ -177,6 +177,7 @@ class DiskBuilder(object):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
+        self.spare_part_mbsize = xml_state.get_build_type_spare_part_size()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
@@ -191,6 +192,7 @@ class DiskBuilder(object):
         self.volume_group_name = xml_state.get_volume_group_name()
         self.mdraid = xml_state.build_type.get_mdraid()
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
+        self.force_mbr = xml_state.build_type.get_force_mbr()
         self.luks = xml_state.build_type.get_luks()
         self.luks_os = xml_state.build_type.get_luksOS()
         self.machine = xml_state.get_build_type_machine_section()
@@ -661,12 +663,6 @@ class DiskBuilder(object):
 
     def _build_and_map_disk_partitions(self):
         self.disk.wipe()
-        if self.firmware.vboot_mode():
-            log.info('--> creating Virtual boot partition')
-            self.disk.create_vboot_partition(
-                self.firmware.get_vboot_partition_size()
-            )
-
         if self.firmware.legacy_bios_mode():
             log.info('--> creating EFI CSM(legacy bios) partition')
             self.disk.create_efi_csm_partition(
@@ -689,6 +685,12 @@ class DiskBuilder(object):
             log.info('--> creating boot partition')
             self.disk.create_boot_partition(
                 self.disk_setup.boot_partition_size()
+            )
+
+        if self.spare_part_mbsize:
+            log.info('--> creating spare partition')
+            self.disk.create_spare_partition(
+                self.spare_part_mbsize
             )
 
         if self.root_filesystem_is_overlay:
@@ -728,9 +730,13 @@ class DiskBuilder(object):
             log.info('--> setting active flag to primary PReP partition')
             self.disk.activate_boot_partition()
 
-        if self.hybrid_mbr:
-            log.info('--> converting partition table to hybrid GPT/MBR')
-            self.disk.create_hybrid_mbr()
+        if self.firmware.efi_mode():
+            if self.force_mbr:
+                log.info('--> converting partition table to MBR')
+                self.disk.create_mbr()
+            elif self.hybrid_mbr:
+                log.info('--> converting partition table to hybrid GPT/MBR')
+                self.disk.create_hybrid_mbr()
 
         self.disk.map_partitions()
 
@@ -840,31 +846,32 @@ class DiskBuilder(object):
             )
 
     def _write_bootloader_config_to_system_image(self, device_map):
-        log.info('Creating %s bootloader configuration', self.bootloader)
-        boot_names = self._get_boot_names()
-        boot_device = device_map['root']
-        if 'boot' in device_map:
-            boot_device = device_map['boot']
+        if self.bootloader is not 'custom':
+            log.info('Creating %s bootloader configuration', self.bootloader)
+            boot_names = self._get_boot_names()
+            boot_device = device_map['root']
+            if 'boot' in device_map:
+                boot_device = device_map['boot']
+
+            root_uuid = self.disk.get_uuid(
+                device_map['root'].get_device()
+            )
+            boot_uuid = self.disk.get_uuid(
+                boot_device.get_device()
+            )
+            self.bootloader_config.setup_disk_boot_images(boot_uuid)
+            self.bootloader_config.setup_disk_image_config(
+                boot_uuid=boot_uuid,
+                root_uuid=root_uuid,
+                kernel=boot_names.kernel_name,
+                initrd=boot_names.initrd_name
+            )
+            self.bootloader_config.write()
 
         partition_id_map = self.disk.get_public_partition_id_map()
         boot_partition_id = partition_id_map['kiwi_RootPart']
         if 'kiwi_BootPart' in partition_id_map:
             boot_partition_id = partition_id_map['kiwi_BootPart']
-
-        root_uuid = self.disk.get_uuid(
-            device_map['root'].get_device()
-        )
-        boot_uuid = self.disk.get_uuid(
-            boot_device.get_device()
-        )
-        self.bootloader_config.setup_disk_boot_images(boot_uuid)
-        self.bootloader_config.setup_disk_image_config(
-            boot_uuid=boot_uuid,
-            root_uuid=root_uuid,
-            kernel=boot_names.kernel_name,
-            initrd=boot_names.initrd_name
-        )
-        self.bootloader_config.write()
 
         self.system_setup.call_edit_boot_config_script(
             self.requested_filesystem, boot_partition_id
@@ -904,16 +911,17 @@ class DiskBuilder(object):
                 {'system_volumes': self.system.get_volumes()}
             )
 
-        log.debug(
-            "custom arguments for bootloader installation %s",
-            custom_install_arguments
-        )
-        bootloader = BootLoaderInstall(
-            self.bootloader, self.root_dir, self.disk.storage_provider,
-            custom_install_arguments
-        )
-        if bootloader.install_required():
-            bootloader.install()
+        if self.bootloader is not 'custom':
+            log.debug(
+                "custom arguments for bootloader installation %s",
+                custom_install_arguments
+            )
+            bootloader = BootLoaderInstall(
+                self.bootloader, self.root_dir, self.disk.storage_provider,
+                custom_install_arguments
+            )
+            if bootloader.install_required():
+                bootloader.install()
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()

@@ -1,13 +1,10 @@
-
 from mock import patch
-from mock import call
 
 import mock
 
-from .test_helper import *
+from .test_helper import patch_open
 
 from kiwi.repository.apt import RepositoryApt
-from kiwi.system.root_bind import RootBind
 
 
 class TestRepositoryApt(object):

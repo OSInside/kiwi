@@ -21,9 +21,9 @@ from xml.etree import ElementTree
 from xml.dom import minidom
 
 # project
-from ..logger import log
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobError,
     KiwiSatSolverJobProblems
@@ -45,18 +45,12 @@ class Sat(object):
         """
         try:
             self.solv = importlib.import_module('solv')
-            self.Pool = getattr(
-                importlib.import_module('solv', 'Pool'), 'Pool'
-            )
-            self.Selection = getattr(
-                importlib.import_module('solv', 'Selection'), 'Selection'
-            )
         except Exception as e:
             raise KiwiSatSolverPluginError(
                 '{0}: {1}'.format(type(e).__name__, format(e))
             )
 
-        self.pool = self.Pool()
+        self.pool = self.solv.Pool()
         self.pool.setarch()
 
     def add_repository(self, solver_repository):
@@ -194,8 +188,12 @@ class Sat(object):
         jobs = []
         for job_name in job_names:
             selection = self.pool.select(
-                job_name, self.Selection.SELECTION_NAME
+                job_name,
+                self.solv.Selection.SELECTION_NAME |
+                self.solv.Selection.SELECTION_PROVIDES
             )
+            if selection.flags() & self.solv.Selection.SELECTION_PROVIDES:
+                log.info('--> Using capability match for {0}'.format(job_name))
             if selection.isempty():
                 if skip_missing:
                     log.info(

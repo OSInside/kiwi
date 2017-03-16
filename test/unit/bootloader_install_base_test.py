@@ -1,11 +1,7 @@
-
-from mock import patch
-
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
-from kiwi.exceptions import *
 from kiwi.bootloader.install.base import BootLoaderInstallBase
 
 

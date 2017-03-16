@@ -19,8 +19,8 @@ import os
 import glob
 
 # project
-from .base import SolverRepositoryBase
-from ...exceptions import KiwiRpmDirNotRemoteError
+from kiwi.solver.repository.base import SolverRepositoryBase
+from kiwi.exceptions import KiwiRpmDirNotRemoteError
 
 
 class SolverRepositoryRpmDir(SolverRepositoryBase):

@@ -1,13 +1,14 @@
-
 from mock import patch
 
 import mock
-import re
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.package_manager.zypper import PackageManagerZypper
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiRequestError,
+    KiwiRpmDatabaseReloadError
+)
 
 
 class TestPackageManagerZypper(object):
@@ -36,10 +37,9 @@ class TestPackageManagerZypper(object):
             self.manager.zypper_args
         )
         self.chroot_command_env = self.manager.command_env
+        zypp_conf = self.manager.command_env['ZYPP_CONF']
         self.chroot_command_env['ZYPP_CONF'] = \
-            self.manager.root_bind.move_to_root(
-                [self.manager.command_env['ZYPP_CONF']]
-            )[0]
+            self.manager.root_bind.move_to_root(zypp_conf)[0]
 
     def test_request_package(self):
         self.manager.request_package('name')
@@ -52,6 +52,10 @@ class TestPackageManagerZypper(object):
     def test_request_product(self):
         self.manager.request_product('name')
         assert self.manager.product_requests == ['product:name']
+
+    def test_request_package_lock(self):
+        self.manager.request_package_lock('name')
+        assert self.manager.lock_requests == ['name']
 
     @patch('kiwi.command.Command.call')
     def test_process_install_requests_bootstrap(self, mock_call):
@@ -66,9 +70,22 @@ class TestPackageManagerZypper(object):
         )
 
     @patch('kiwi.command.Command.call')
-    def test_process_install_requests(self, mock_call):
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    @patch('kiwi.package_manager.zypper.Path.create')
+    def test_process_install_requests(
+        self, mock_path, mock_exists, mock_run, mock_call
+    ):
+        mock_exists.return_value = False
         self.manager.request_package('vim')
+        self.manager.request_package_lock('lockme')
         self.manager.process_install_requests()
+        mock_path.assert_called_once_with('root-dir/etc/zypp')
+        mock_run.assert_called_once_with(
+            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
+                'al'
+            ] + self.manager.custom_args + ['lockme'], self.chroot_command_env
+        )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'

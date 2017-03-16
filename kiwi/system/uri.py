@@ -21,10 +21,10 @@ from six.moves.urllib.parse import urlparse
 import hashlib
 
 # project
-from ..mount_manager import MountManager
-from ..path import Path
+from kiwi.mount_manager import MountManager
+from kiwi.path import Path
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiUriStyleUnknown,
     KiwiUriTypeUnknown
 )
@@ -38,7 +38,9 @@ class Uri(object):
     Attributes
 
     * :attr:`repo_type`
-        Repository type name
+        Repository type name. Only needed if the uri
+        is not enough to determine the repository type
+        e.g for yast2 vs. rpm-md obs repositories
 
     * :attr:`uri`
         URI, repository location, file
@@ -55,10 +57,9 @@ class Uri(object):
     * :attr:`local_uri_type`
         dictionary of local uri type names
     """
-    def __init__(self, uri, repo_type):
+    def __init__(self, uri, repo_type=None):
         self.repo_type = repo_type
         self.uri = uri
-        self.repo_type = repo_type
         self.mount_stack = []
 
         self.remote_uri_types = {
@@ -71,6 +72,7 @@ class Uri(object):
         self.local_uri_type = {
             'iso': True,
             'dir': True,
+            'file': True,
             'suse': True
         }
 
@@ -86,37 +88,52 @@ class Uri(object):
         uri = urlparse(self.uri)
         if not uri.scheme:
             raise KiwiUriStyleUnknown(
-                'URI scheme not detected %s' % self.uri
+                'URI scheme not detected {uri}'.format(uri=self.uri)
             )
 
         if uri.scheme == 'obs' and self.repo_type == 'yast2':
             return self._obs_distribution(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'obs':
             return self._obs_project(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'ibs':
             return self._ibs_project(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'dir':
-            return self._local_directory(uri.path)
+            return self._local_path(uri.path)
+        elif uri.scheme == 'file':
+            return self._local_path(uri.path)
         elif uri.scheme == 'iso':
             return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
             return self._suse_buildservice_path(
-                uri.netloc + uri.path
+                ''.join([uri.netloc, uri.path])
             )
-        elif uri.scheme == 'http':
-            return self.uri
-        elif uri.scheme == 'ftp':
-            return self.uri
+        elif uri.scheme == 'http' or uri.scheme == 'https' or uri.scheme == 'ftp':
+            return ''.join([uri.scheme, '://', uri.netloc, uri.path])
         else:
             raise KiwiUriStyleUnknown(
                 'URI schema %s not supported' % self.uri
             )
+
+    def credentials_file_name(self):
+        """
+        Filename to store repository credentials
+        """
+        uri = urlparse(self.uri)
+        # initialize query with default credentials file name.
+        # The information will be overwritten if the uri contains
+        # a parameter query with a credentials parameter
+        query = {'credentials': 'kiwiRepoCredentials'}
+
+        if uri.query:
+            query = dict(params.split('=') for params in uri.query.split('&'))
+
+        return query['credentials']
 
     def alias(self):
         """
@@ -165,20 +182,26 @@ class Uri(object):
         iso_mount.mount()
         return iso_mount.mountpoint
 
-    def _local_directory(self, path):
+    def _local_path(self, path):
         return os.path.normpath(path)
 
     def _obs_project(self, name):
-        obs_project = 'http://download.opensuse.org/repositories/'
-        return obs_project + name
+        return ''.join(['http://download.opensuse.org/repositories/', name])
 
     def _ibs_project(self, name):
         ibs_project = 'http://download.suse.de/ibs/'
         return ibs_project + name.replace(':', ':/')
 
     def _obs_distribution(self, name):
-        obs_distribution = 'http://download.opensuse.org/distribution/'
-        return obs_distribution + name
+        if name == 'openSUSE:Factory/standard':
+            # special handling for SUSE factory repo
+            obs_distribution = \
+                'http://download.opensuse.org/tumbleweed/repo/oss'
+        else:
+            obs_distribution = ''.join(
+                ['http://download.opensuse.org/distribution/', name]
+            )
+        return obs_distribution
 
     def _suse_buildservice_path(self, name):
         """
@@ -186,7 +209,7 @@ class Uri(object):
         the image it arranges the repos for each build in a special
         environment, the so called build worker.
         """
-        return self._local_directory(
+        return self._local_path(
             '/usr/src/packages/SOURCES/repos/' + name
         )
 

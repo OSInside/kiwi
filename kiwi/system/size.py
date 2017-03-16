@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from ..command import Command
-from ..defaults import Defaults
+from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 
 class SystemSize(object):

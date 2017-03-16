@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .docker import ContainerImageDocker
+from kiwi.container.docker import ContainerImageDocker
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiContainerImageSetupError
 )
 
@@ -30,9 +30,9 @@ class ContainerImage(object):
     :param string name: container system name
     :param string root_dir: root directory path name
     """
-    def __new__(self, name, root_dir):
+    def __new__(self, name, root_dir, custom_args=None):
         if name == 'docker':
-            return ContainerImageDocker(root_dir)
+            return ContainerImageDocker(root_dir, custom_args)
         else:
             raise KiwiContainerImageSetupError(
                 'Support for %s container not implemented' % name

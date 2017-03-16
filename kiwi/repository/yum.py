@@ -20,9 +20,9 @@ from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
-from ..logger import log
-from .base import RepositoryBase
-from ..path import Path
+from kiwi.logger import log
+from kiwi.repository.base import RepositoryBase
+from kiwi.path import Path
 
 
 class RepositoryYum(RepositoryBase):
@@ -116,7 +116,9 @@ class RepositoryYum(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='rpm-md', prio=None, dist=None, components=None
+        self, name, uri, repo_type='rpm-md',
+        prio=None, dist=None, components=None,
+        user=None, secret=None, credentials_file=None
     ):
         """
         Add yum repository
@@ -127,6 +129,9 @@ class RepositoryYum(RepositoryBase):
         :param int prio: yum repostory priority
         :param dist: unused
         :param components: unused
+        :param user: unused
+        :param secret: unused
+        :param credentials_file: unused
         """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')

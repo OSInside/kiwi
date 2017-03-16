@@ -1,10 +1,3 @@
-
-from mock import patch
-
-import mock
-
-from .test_helper import *
-
 from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
 
 

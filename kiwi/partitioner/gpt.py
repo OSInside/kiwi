@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from ..command import Command
-from ..logger import log
-from .base import PartitionerBase
+from kiwi.command import Command
+from kiwi.logger import log
+from kiwi.partitioner.base import PartitionerBase
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiPartitionerGptFlagError
 )
 
@@ -116,3 +116,23 @@ class PartitionerGpt(PartitionerBase):
         Command.run(
             ['sgdisk', '-h', ':'.join(partition_ids), self.disk_device]
         )
+
+    def set_mbr(self):
+        """
+        Turn partition table into MBR (msdos table)
+        """
+        partition_ids = []
+        efi_partition_number = None
+        for number in range(1, self.partition_id + 1):
+            partition_info = Command.run(
+                ['sgdisk', '-i={0}'.format(number), self.disk_device]
+            )
+            if '(EFI System)' in partition_info.output:
+                efi_partition_number = number
+            partition_ids.append(format(number))
+        Command.run(
+            ['sgdisk', '-m', ':'.join(partition_ids), self.disk_device]
+        )
+        if efi_partition_number:
+            # turn former EFI partition into standard linux partition
+            self.set_flag(efi_partition_number, 't.linux')

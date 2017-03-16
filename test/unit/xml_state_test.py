@@ -1,13 +1,14 @@
-
 from mock import patch
 
-import mock
-
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
-from kiwi.exceptions import *
+from kiwi.exceptions import (
+    KiwiTypeNotFound,
+    KiwiDistributionNameError,
+    KiwiProfileNotFound
+)
 from collections import namedtuple
 
 
@@ -40,10 +41,10 @@ class TestXMLState(object):
     @patch('kiwi.xml_state.XMLState.get_preferences_sections')
     def test_get_rpm_excludedocs_without_entry(self, mock_preferences):
         mock_preferences.return_value = []
-        assert self.state.get_rpm_excludedocs() == False
+        assert self.state.get_rpm_excludedocs() is False
 
     def test_get_rpm_excludedocs(self):
-        assert self.state.get_rpm_excludedocs() == True
+        assert self.state.get_rpm_excludedocs() is True
 
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
@@ -70,7 +71,7 @@ class TestXMLState(object):
 
     @patch('platform.machine')
     def test_get_system_packages_some_arch(self, mock_machine):
-        mock_machine.return_value = 'some-arch'
+        mock_machine.return_value = 's390'
         description = XMLDescription(
             '../data/example_config.xml'
         )
@@ -102,6 +103,19 @@ class TestXMLState(object):
     def test_get_system_archives(self):
         assert self.state.get_system_archives() == [
             '/absolute/path/to/image.tgz'
+        ]
+
+    def test_get_system_ignore_packages(self):
+        assert self.state.get_system_ignore_packages() == [
+            'bar', 'baz', 'foo'
+        ]
+        self.state.host_architecture = 'aarch64'
+        assert self.state.get_system_ignore_packages() == [
+            'baz', 'foo'
+        ]
+        self.state.host_architecture = 's390'
+        assert self.state.get_system_ignore_packages() == [
+            'baz'
         ]
 
     def test_get_system_collection_type(self):
@@ -355,13 +369,13 @@ class TestXMLState(object):
         assert len(users) == 3
         assert any(u.get_name() == 'root' for u in users)
         assert any(u.get_name() == 'tux' for u in users)
-        assert any(u.get_name() == 'kiwi' for u in users) 
+        assert any(u.get_name() == 'kiwi' for u in users)
 
     def test_get_user_groups(self):
         description = XMLDescription('../data/example_multiple_users_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data)
-        
+
         assert len(state.get_user_groups('root')) == 0
         assert len(state.get_user_groups('tux')) == 1
         assert any(grp == 'users' for grp in state.get_user_groups('tux'))
@@ -484,10 +498,14 @@ class TestXMLState(object):
     def test_has_repositories_marked_as_imageinclude(self):
         assert self.state.has_repositories_marked_as_imageinclude()
 
-    def test_has_repositories_marked_as_imageinclude_without_any_imageinclude(self):
-        description = XMLDescription('../data/example_no_imageinclude_config.xml')
+    def test_has_repositories_marked_as_imageinclude_without_any_imageinclude(
+        self
+    ):
+        description = XMLDescription(
+            '../data/example_no_imageinclude_config.xml'
+        )
         xml_data = description.load()
-        state = XMLState(xml_data) 
+        state = XMLState(xml_data)
         assert not state.has_repositories_marked_as_imageinclude()
 
     def test_get_build_type_vmconfig_entries(self):
@@ -507,9 +525,60 @@ class TestXMLState(object):
         state = XMLState(xml_data)
         assert state.get_build_type_vmconfig_entries() == []
 
-    def test_get_build_type_docker_container_name(self):
+    def test_get_build_type_docker_containerconfig_section(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'docker')
-        assert state.get_build_type_containerconfig_section().get_name() == \
+        containerconfig = state.get_build_type_containerconfig_section()
+        assert containerconfig.get_name() == \
             'container_name'
+        assert containerconfig.get_maintainer() == \
+            'tux'
+        assert containerconfig.get_workingdir() == \
+            '/root'
+
+    def test_get_container_config(self):
+        expected_config = {
+            'labels': [
+                '--config.label=somelabel=labelvalue',
+                '--config.label=someotherlabel=anotherlabelvalue'
+            ],
+            'maintainer': ['--author=tux'],
+            'entry_subcommand': [
+                '--config.cmd=ls',
+                '--config.cmd=-l'
+            ],
+            'container_name': 'container_name',
+            'container_tag': 'container_tag',
+            'workingdir': ['--config.workingdir=/root'],
+            'environment': [
+                '--config.env=PATH=/bin:/usr/bin:/home/user/bin',
+                '--config.env=SOMEVAR=somevalue'
+            ],
+            'user': ['--config.user=root'],
+            'volumes': [
+                '--config.volume=/tmp',
+                '--config.volume=/var/log'
+            ],
+            'entry_command': [
+                '--config.entrypoint=/bin/bash',
+                '--config.entrypoint=-x'
+            ],
+            'expose_ports': [
+                '--config.exposedports=80',
+                '--config.exposedports=8080'
+            ]
+        }
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        assert state.get_container_config() == expected_config
+
+    def test_get_spare_part(self):
+        assert self.state.get_build_type_spare_part_size() == 200
+
+    def test_get_derived_from_image_uri(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        assert state.get_derived_from_image_uri().translate() == '/image.tar.xz'

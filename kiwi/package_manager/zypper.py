@@ -16,11 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
+import os
 
 # project
-from ..command import Command
-from .base import PackageManagerBase
-from ..exceptions import (
+from kiwi.command import Command
+from kiwi.package_manager.base import PackageManagerBase
+from kiwi.path import Path
+from kiwi.exceptions import (
     KiwiRpmDatabaseReloadError,
     KiwiRequestError
 )
@@ -89,6 +91,14 @@ class PackageManagerZypper(PackageManagerBase):
         """
         self.product_requests.append('product:' + name)
 
+    def request_package_lock(self, name):
+        """
+        Queue a package lock(ignore) request
+
+        :param string name: package name
+        """
+        self.lock_requests.append(name)
+
     def process_install_requests_bootstrap(self):
         """
         Process package install requests for bootstrap phase (no chroot)
@@ -105,6 +115,29 @@ class PackageManagerZypper(PackageManagerBase):
         """
         Process package install requests for image phase (chroot)
         """
+        if self.lock_requests:
+            # Zypper supports the package lock via the zypper al command
+            # This allows to block a package from being taken into
+            # consideration when the dependency solver runs. However
+            # the request might be ignored by the package manager if
+            # the lock request conflicts with a required package
+            # dependency. e.g setting a lock on the glibc package will
+            # for sure not work in order to keep the system in a
+            # consistent state. Thus such lock requests are primarily
+            # for packages pulled in by a recommendation but not by a
+            # hard requirement.
+            lock_metadata_dir = ''.join([self.root_dir, '/etc/zypp'])
+            if not os.path.exists(lock_metadata_dir):
+                Path.create(lock_metadata_dir)
+            for package in self.lock_requests:
+                Command.run(
+                    [
+                        'chroot', self.root_dir, 'zypper'
+                    ] + self.chroot_zypper_args + [
+                        'al'
+                    ] + self.custom_args + [package],
+                    self.chroot_command_env
+                )
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'

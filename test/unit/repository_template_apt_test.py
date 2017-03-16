@@ -1,10 +1,3 @@
-
-from mock import patch
-
-import mock
-
-from .test_helper import *
-
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 
 

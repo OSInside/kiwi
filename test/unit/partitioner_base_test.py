@@ -1,12 +1,8 @@
-
-from mock import patch
-
 import mock
 
-from .test_helper import *
+from .test_helper import raises
 
 from kiwi.partitioner.base import PartitionerBase
-from kiwi.exceptions import *
 
 
 class TestPartitionerBase(object):
@@ -31,3 +27,7 @@ class TestPartitionerBase(object):
     @raises(NotImplementedError)
     def test_set_hybrid_mbr(self):
         self.partitioner.set_hybrid_mbr()
+
+    @raises(NotImplementedError)
+    def test_set_mbr(self):
+        self.partitioner.set_mbr()

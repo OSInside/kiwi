@@ -1,4 +1,4 @@
-from mock import patch, call
+from mock import patch
 import mock
 
 from .test_helper import raises
@@ -30,9 +30,7 @@ class TestSat(object):
         self.sat.pool.select = mock.Mock(
             return_value=self.selection
         )
-        assert mock_import_module.call_args_list == [
-            call('solv'), call('solv', 'Pool'), call('solv', 'Selection')
-        ]
+        mock_import_module.assert_called_once_with('solv')
 
     @patch('importlib.import_module')
     @raises(KiwiSatSolverPluginError)
@@ -93,6 +91,10 @@ class TestSat(object):
         self.solver.solve = mock.Mock(
             return_value=None
         )
+        self.sat.solv.Selection.SELECTION_PROVIDES = 0
+        self.selection.flags = mock.Mock(
+            return_value=0
+        )
         self.selection.isempty = mock.Mock(
             return_value=True
         )
@@ -126,3 +128,24 @@ class TestSat(object):
         self.sat.solve(packages)
         self.solver.solve.assert_called_once_with(['vim'])
         self.solver.transaction.assert_called_once_with()
+
+    @patch('kiwi.logger.log.info')
+    def test_solve_with_capabilities(self, mock_log_info):
+        packages = ['kernel-base']
+        self.solver.solve = mock.Mock(
+            return_value=None
+        )
+        self.sat.solv.Selection.SELECTION_PROVIDES = 1
+        self.selection.flags = mock.Mock(
+            return_value=1
+        )
+        self.selection.isempty = mock.Mock(
+            return_value=False
+        )
+        self.selection.jobs = mock.Mock(
+            return_value=packages
+        )
+        self.sat.solve(packages)
+        mock_log_info.assert_called_once_with(
+            '--> Using capability match for kernel-base'
+        )

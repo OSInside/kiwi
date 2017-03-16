@@ -19,13 +19,13 @@ import os
 import shutil
 
 # project
-from ..command import Command
-from ..defaults import Defaults
-from ..logger import log
-from ..path import Path
-from ..mount_manager import MountManager
+from kiwi.command import Command
+from kiwi.defaults import Defaults
+from kiwi.logger import log
+from kiwi.path import Path
+from kiwi.mount_manager import MountManager
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
     KiwiMountSharedDirectoryError,
     KiwiSetupIntermediateConfigError

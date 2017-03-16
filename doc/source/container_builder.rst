@@ -127,32 +127,37 @@ service and build with KIWI in the project
 at http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images.
 The result image is pushed to https://hub.docker.com/r/opensuse/dice.
 
-There are two ways to import the build container to your local Docker system
-
-1. Download from the openSUSE Buildservice and manually import
-2. Use :command:`docker` to pull the Docker image from Dockerhub
-
-Pull from Dockerhub
--------------------
+When building with Dice, the container will be automatically fetched
+from the docker registry. However this step can also be done prior to
+calling :command:`dice` as follows:
 
 .. code:: bash
 
     $ docker pull opensuse/dice:latest
 
-Download from the Open BuildService
------------------------------------
+.. note:: Optional step
 
-Download the .tar.bz2 file which starts with :file:`Docker-Tumbleweed`
+    If a custom or newer version of the Build Container should be used,
+    it is required to update the registry. This is because Dice always
+    fetches the latest version of the Build Container from the registry.
 
-.. code:: bash
+    1. Download the .tar.bz2 file which starts with :file:`Docker-Tumbleweed`
 
-    $ wget http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images/images/Docker-Tumbleweed.XXXXXXX.docker.tar.xz
+    .. code:: bash
 
-Import the downloaded tarball with the command :command:`docker` as follows:
+        $ wget http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images/images/Docker-Tumbleweed.XXXXXXX.docker.tar.xz
 
-.. code:: bash
+    2. Import the downloaded tarball with the command :command:`docker`:
 
-    $ cat Docker-Tumbleweed.XXXXXXX.docker.tar.xz | docker import - opensuse/dice:latest
+    .. code:: bash
+
+        $ docker load -i Docker-Tumbleweed.XXXXXXX.docker.tar.xz
+
+    3. Tag the container and push back to the registry
+
+    .. code:: bash
+
+        $ docker push opensuse/dice:latest
 
 
 Installing and Setting up Vagrant

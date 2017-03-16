@@ -18,12 +18,12 @@
 from collections import namedtuple
 
 # project
-from ...logger import log
-from ...storage.setup import DiskSetup
-from ...path import Path
-from ...defaults import Defaults
+from kiwi.logger import log
+from kiwi.storage.setup import DiskSetup
+from kiwi.path import Path
+from kiwi.defaults import Defaults
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiBootLoaderTargetError
 )
 

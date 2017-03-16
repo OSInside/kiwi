@@ -1,11 +1,9 @@
-
 from mock import patch
 
-import mock
+from .test_helper import raises
 
-from .test_helper import *
+from kiwi.exceptions import KiwiContainerImageSetupError
 
-from kiwi.exceptions import *
 from kiwi.container import ContainerImage
 
 
@@ -17,4 +15,4 @@ class TestContainerImage(object):
     @patch('kiwi.container.ContainerImageDocker')
     def test_container_image_docker(self, mock_docker):
         ContainerImage('docker', 'root_dir')
-        mock_docker.assert_called_once_with('root_dir')
+        mock_docker.assert_called_once_with('root_dir', None)

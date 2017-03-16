@@ -19,9 +19,9 @@ import os
 from tempfile import NamedTemporaryFile
 
 # project
-from .template.apt import PackageManagerTemplateAptGet
-from .base import RepositoryBase
-from ..path import Path
+from kiwi.repository.template.apt import PackageManagerTemplateAptGet
+from kiwi.repository.base import RepositoryBase
+from kiwi.path import Path
 
 
 class RepositoryApt(RepositoryBase):
@@ -113,7 +113,9 @@ class RepositoryApt(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='deb', prio=None, dist=None, components=None
+        self, name, uri, repo_type='deb',
+        prio=None, dist=None, components=None,
+        user=None, secret=None, credentials_file=None
     ):
         """
         Add apt_get repository
@@ -124,6 +126,9 @@ class RepositoryApt(RepositoryBase):
         :param int prio: unused
         :param dist: distribution name for non flat deb repos
         :param components: distribution categories
+        :param user: unused
+        :param secret: unused
+        :param credentials_file: unused
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']

@@ -18,17 +18,18 @@
 import os
 
 # project
-from .root_init import RootInit
-from .root_bind import RootBind
-from ..repository import Repository
-from ..package_manager import PackageManager
-from ..command_process import CommandProcess
-from .uri import Uri
-from ..archive.tar import ArchiveTar
+from kiwi.system.root_init import RootInit
+from kiwi.system.root_import import RootImport
+from kiwi.system.root_bind import RootBind
+from kiwi.repository import Repository
+from kiwi.package_manager import PackageManager
+from kiwi.command_process import CommandProcess
+from kiwi.system.uri import Uri
+from kiwi.archive.tar import ArchiveTar
 
-from ..logger import log
+from kiwi.logger import log
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
@@ -66,6 +67,12 @@ class SystemPrepare(object):
             root_dir, allow_existing
         )
         root.create()
+        image_uri = xml_state.get_derived_from_image_uri()
+        if image_uri:
+            root_import = RootImport(
+                root_dir, image_uri, xml_state.build_type.get_image()
+            )
+            root_import.sync_data()
         root_bind = RootBind(
             root
         )
@@ -102,6 +109,8 @@ class SystemPrepare(object):
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()
+            repo_user = xml_repo.get_username()
+            repo_secret = xml_repo.get_password()
             repo_alias = xml_repo.get_alias()
             repo_priority = xml_repo.get_priority()
             repo_dist = xml_repo.get_distribution()
@@ -132,7 +141,8 @@ class SystemPrepare(object):
 
             repo.add_repo(
                 repo_alias, repo_source_translated,
-                repo_type, repo_priority, repo_dist, repo_components
+                repo_type, repo_priority, repo_dist, repo_components,
+                repo_user, repo_secret, uri.credentials_file_name()
             )
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()
@@ -208,6 +218,7 @@ class SystemPrepare(object):
         system_collections = self.xml_state.get_system_collections()
         system_products = self.xml_state.get_system_products()
         system_archives = self.xml_state.get_system_archives()
+        system_packages_ignored = self.xml_state.get_system_ignore_packages()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -215,7 +226,8 @@ class SystemPrepare(object):
             manager,
             system_packages,
             system_collections,
-            system_products
+            system_products,
+            system_packages_ignored
         )
         if all_install_items:
             process = CommandProcess(
@@ -360,24 +372,29 @@ class SystemPrepare(object):
             tar.extract(self.root_bind.root_dir)
 
     def _setup_requests(
-        self, manager, packages, collections=None, products=None
+        self, manager, packages, collections=None, products=None, ignored=None
     ):
         if packages:
             for package in sorted(packages):
-                log.info('--> package: %s', package)
+                log.info('--> package: {0}'.format(package))
                 manager.request_package(package)
         if collections:
             for collection in sorted(collections):
-                log.info('--> collection: %s', collection)
+                log.info('--> collection: {0}'.format(collection))
                 manager.request_collection(collection)
         if products:
             for product in sorted(products):
-                log.info('--> product: %s', product)
+                log.info('--> product: {0}'.format(product))
                 manager.request_product(product)
+        if ignored:
+            for package in sorted(ignored):
+                log.info('--> package locked(ignored): {0}'.format(package))
+                manager.request_package_lock(package)
         return \
             manager.package_requests + \
             manager.collection_requests + \
-            manager.product_requests
+            manager.product_requests + \
+            manager.lock_requests
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

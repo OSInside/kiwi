@@ -21,13 +21,13 @@ import pickle
 from tempfile import mkdtemp
 
 # project
-from ...defaults import Defaults
-from ...xml_description import XMLDescription
-from ...xml_state import XMLState
-from ...logger import log
-from ...path import Path
+from kiwi.defaults import Defaults
+from kiwi.xml_description import XMLDescription
+from kiwi.xml_state import XMLState
+from kiwi.logger import log
+from kiwi.path import Path
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiConfigFileNotFound,
     KiwiBootImageDumpError

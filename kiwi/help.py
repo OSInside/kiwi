@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import subprocess
+
 # project
 from .exceptions import KiwiHelpNoCommandGiven
 

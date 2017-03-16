@@ -42,17 +42,14 @@ class FirmWare(object):
     * :attr:`zipl_target_type`
         XML configured zipl target type
 
-    * :attr:`vboot_mbsize`
-        XML configured virtual boot partition size
-
     * :attr:`firmware`
         XML configured firmware name
     """
     def __init__(self, xml_state):
         self.arch = platform.machine()
         self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
-        self.vboot_mbsize = xml_state.build_type.get_vbootsize()
         self.firmware = xml_state.build_type.get_firmware()
+        self.efipart_mbytes = xml_state.build_type.get_efipartsize()
 
         if not self.firmware:
             self.firmware = Defaults.get_default_firmware(self.arch)
@@ -154,17 +151,6 @@ class FirmWare(object):
         else:
             return False
 
-    def vboot_mode(self):
-        """
-        Check if vboot (virtual boot partition) mode is requested
-
-        :rtype: bool
-        """
-        if self.efi_mode() == 'vboot':
-            return True
-        else:
-            return False
-
     def get_legacy_bios_partition_size(self):
         """
         Size of legacy bios_grub partition if legacy BIOS mode is
@@ -187,23 +173,10 @@ class FirmWare(object):
         :rtype: int
         """
         if self.efi_mode():
-            return Defaults.get_default_efi_boot_mbytes()
-        else:
-            return 0
-
-    def get_vboot_partition_size(self):
-        """
-        Size of virtual boot partition.
-        Returns 0 if no such partition is needed
-
-        :return: mbsize
-        :rtype: int
-        """
-        if self.vboot_mode():
-            if self.vboot_mbsize:
-                return self.vboot_mbsize
+            if self.efipart_mbytes:
+                return self.efipart_mbytes
             else:
-                return Defaults.get_default_vboot_mbytes()
+                return Defaults.get_default_efi_boot_mbytes()
         else:
             return 0
 

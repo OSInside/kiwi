@@ -1,9 +1,5 @@
 from mock import patch
 
-import mock
-
-from .test_helper import *
-
 from kiwi.utils.block import BlockID
 
 

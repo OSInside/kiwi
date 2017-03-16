@@ -3516,8 +3516,8 @@ function dhclientImportInfo {
         awk '{print $3}' |tr -d ';'
     )
     export DOMAIN=$(
-        cat $lease | grep 'domain-name' | grep -v 'domain-name-server' |\
-        awk '{print $3}'| tr -d ';'
+        cat $lease | grep -w 'domain-name '|\
+        awk -F \" '{print $2}'
     )
     export DNSSERVERS=$(
         cat $lease | grep 'domain-name-servers'|\
@@ -5610,24 +5610,47 @@ function waitForLinkUp {
     local check=0
     local linkstatus
     local linkgrep
+    local link_unplugged
+    local sleep_timeout=2
+    local retry_count=30
+    #======================================
+    # Wait for network drivers to pass init
+    #--------------------------------------
+    # each network interface will be switched off for a short
+    # moment when the kernel network driver is loaded. During
+    # that time the link status information would be misleading.
+    # Thus we wait a short time before the link status check
+    # is started
+    sleep 1
+    #======================================
+    # Lookup link status...
+    #--------------------------------------
+    if lookup ifplugstatus &>/dev/null;then
+        linkstatus=ifplugstatus
+        linkgrep="link beat detected"
+        link_unplugged="unplugged"
+    else
+        linkstatus="ip link ls"
+        linkgrep="state UP"
+    fi
     while true;do
-        if lookup ifplugstatus &>/dev/null;then
-            linkstatus=ifplugstatus
-￼           linkgrep="link beat detected"
-        else
-            linkstatus="ip link ls"
-            linkgrep="state UP"
+        if [ ! -z "$link_unplugged" ];then
+            if $linkstatus $dev | grep -qi "$link_unplugged"; then
+                # interface link is not connected, error
+                return 1
+            fi
         fi
-        $linkstatus $dev | grep -qi "$linkgrep"
-        if [ $? = 0 ];then
+        if $linkstatus $dev | grep -qi "$linkgrep"; then
+            # interface link is up, success after a paranoid wait :)
             sleep 1; return 0
         fi
-        if [ $check -eq 30 ];then
+        if [ $check -eq $retry_count ];then
+            # interface link did not came up, error
             return 1
         fi
         Echo "Waiting for link up on ${dev}..."
         check=$((check + 1))
-        sleep 2
+        sleep $sleep_timeout
     done
 }
 #======================================
@@ -5638,7 +5661,10 @@ function setIPLinkUp {
     local try_iface=$1
     if ip link set dev $try_iface up;then
         if [ ! $try_iface = "lo" ];then
-            waitForLinkUp $try_iface
+            if ! waitForLinkUp $try_iface;then
+                # link did not came up, not connected ?
+                return 1
+            fi
         fi
         # success
         return 0
