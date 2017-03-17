@@ -204,7 +204,7 @@ class PxeBuilder(object):
             filename=self.filesystem_checksum,
             use_for_bundle=True,
             compress=False,
-            shasum=True
+            shasum=False
         )
 
         # create image root metadata
