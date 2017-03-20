@@ -79,7 +79,7 @@ class PxeBuilder(object):
         self.machine = xml_state.get_build_type_machine_section()
         self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
-            xml_state, target_dir, root_dir
+            xml_state, target_dir, root_dir + '/'
         )
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
@@ -92,7 +92,7 @@ class PxeBuilder(object):
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
                 '.' + platform.machine(),
-                '-' + xml_state.get_image_version(),
+                '-' + xml_state.get_image_version()
             ]
         )
         self.archive_name = ''.join([self.image_name, '.tar.xz'])
@@ -185,11 +185,11 @@ class PxeBuilder(object):
         # put results into a tarball
         Command.run(
             [
-                'tar', '-cJf', self.archive_name,
-                os.sep.join([self.target_dir, self.kernel_filename]),
-                self.boot_image_task.initrd_filename,
-                self.image,
-                self.filesystem_checksum
+                'tar', '-C', self.target_dir, '-cJf', self.archive_name,
+                self.kernel_filename,
+                os.path.basename(self.boot_image_task.initrd_filename),
+                os.path.basename(self.image),
+                os.path.basename(self.filesystem_checksum)
             ]
         )
 
