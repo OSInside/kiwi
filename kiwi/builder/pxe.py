@@ -19,6 +19,7 @@ import os
 import platform
 
 # project
+from kiwi.command import Command
 from kiwi.boot.image import BootImage
 from kiwi.builder.filesystem import FileSystemBuilder
 from kiwi.utils.compress import Compress
@@ -94,6 +95,7 @@ class PxeBuilder(object):
                 '-' + xml_state.get_image_version(),
             ]
         )
+        self.archive_name = ''.join([self.image_name, '.tar.xz'])
         self.kernel_filename = None
         self.hypervisor_filename = None
         self.result = Result(xml_state)
@@ -111,7 +113,10 @@ class PxeBuilder(object):
         """
         log.info('Creating PXE root filesystem image')
         self.filesystem.create()
-        self.image = self.filesystem.filename
+        os.rename(
+            self.filesystem.filename, self.image_name
+        )
+        self.image = self.image_name
         if self.compressed:
             log.info('xz compressing root filesystem image')
             compress = Compress(self.image)
@@ -119,7 +124,7 @@ class PxeBuilder(object):
             self.image = compress.compressed_filename
 
         log.info('Creating PXE root filesystem MD5 checksum')
-        self.filesystem_checksum = self.filesystem.filename + '.md5'
+        self.filesystem_checksum = ''.join([self.image, '.md5'])
         checksum = Checksum(self.image)
         checksum.md5(self.filesystem_checksum)
 
@@ -177,34 +182,24 @@ class PxeBuilder(object):
         # create initrd for pxe boot
         self.boot_image_task.create_initrd()
 
+        # put results into a tarball
+        Command.run(
+            [
+                'tar', '-cJf', self.archive_name,
+                os.sep.join([self.target_dir, self.kernel_filename]),
+                self.boot_image_task.initrd_filename,
+                self.image,
+                self.filesystem_checksum
+            ]
+        )
+
         # store results
         self.result.add(
-            key='kernel',
-            filename=self.target_dir + '/' + self.kernel_filename,
+            key='pxe_archive',
+            filename=self.archive_name,
             use_for_bundle=True,
             compress=False,
             shasum=True
-        )
-        self.result.add(
-            key='initrd',
-            filename=self.boot_image_task.initrd_filename,
-            use_for_bundle=True,
-            compress=False,
-            shasum=True
-        )
-        self.result.add(
-            key='filesystem_image',
-            filename=self.image,
-            use_for_bundle=True,
-            compress=False,
-            shasum=True
-        )
-        self.result.add(
-            key='filesystem_md5',
-            filename=self.filesystem_checksum,
-            use_for_bundle=True,
-            compress=False,
-            shasum=False
         )
 
         # create image root metadata
