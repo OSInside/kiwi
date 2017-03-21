@@ -416,7 +416,7 @@ class SystemSetup(object):
             )
             query_call = Command.run(
                 [
-                    'rpm', '--root', self.root_dir, '-qa', '--qf',
+                    'rpm', '--root', os.path.abspath(self.root_dir), '-qa', '--qf',
                     '|'.join(
                         [
                             '%{NAME}', '%{EPOCH}', '%{VERSION}', '%{RELEASE}',
@@ -448,7 +448,7 @@ class SystemSetup(object):
                 ]
             )
             query_call = Command.run(
-                command=['rpm', '--root', self.root_dir, '-Va'],
+                command=['rpm', '--root', os.path.abspath(self.root_dir), '-Va'],
                 raise_on_error=False
             )
             with open(filename, 'w') as verified:
