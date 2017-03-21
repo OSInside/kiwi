@@ -205,7 +205,7 @@ class RepositoryZypper(RepositoryBase):
         self._backup_package_cache()
         Command.run(
             ['zypper'] + self.zypper_args + [
-                '--root', self.root_dir,
+                '--root', os.path.abspath(self.root_dir),
                 'addrepo',
                 '--refresh',
                 '--type', self._translate_repo_type(repo_type),
@@ -219,7 +219,7 @@ class RepositoryZypper(RepositoryBase):
         if prio:
             Command.run(
                 ['zypper'] + self.zypper_args + [
-                    '--root', self.root_dir,
+                    '--root', os.path.abspath(self.root_dir),
                     'modifyrepo', '--priority', format(prio), name
                 ],
                 self.command_env
@@ -234,7 +234,7 @@ class RepositoryZypper(RepositoryBase):
         """
         Command.run(
             ['zypper'] + self.zypper_args + [
-                '--root', self.root_dir, 'removerepo', name
+                '--root', os.path.abspath(self.root_dir), 'removerepo', name
             ],
             self.command_env
         )

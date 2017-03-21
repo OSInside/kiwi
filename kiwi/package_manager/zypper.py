@@ -104,7 +104,7 @@ class PackageManagerZypper(PackageManagerBase):
         Process package install requests for bootstrap phase (no chroot)
         """
         command = ['zypper'] + self.zypper_args + [
-            '--root', self.root_dir,
+            '--root', os.path.abspath(self.root_dir),
             'install', '--auto-agree-with-licenses'
         ] + self.custom_args + self._install_items()
         return Command.call(
