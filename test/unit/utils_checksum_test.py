@@ -59,10 +59,15 @@ class TestChecksum(object):
     def test_md5_xz(
         self, mock_open, mock_size, mock_md5, mock_compress, mock_which
     ):
+        checksum = mock.Mock
+        checksum.uncompressed_filename = 'some-file-uncompressed'
         mock_which.return_value = 'factor'
         compress = mock.Mock()
         digest = mock.Mock()
         digest.block_size = 1024
+        digest._calculate_hash_hexdigest = mock.Mock(
+            return_value=checksum
+        )
         digest.hexdigest = mock.Mock(
             return_value='sum'
         )
@@ -78,6 +83,7 @@ class TestChecksum(object):
 
         assert mock_open.call_args_list == [
             call('some-file', 'rb'),
+            call('some-file-uncompressed', 'rb'),
             call('outfile', 'w')
         ]
         self.file_mock.write.assert_called_once_with(
