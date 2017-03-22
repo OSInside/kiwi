@@ -103,6 +103,7 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Recommends:     jing
 Requires:       update-alternatives
 Requires:       python-docopt
 Requires:       python-setuptools
@@ -162,6 +163,7 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Recommends:     jing
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools
