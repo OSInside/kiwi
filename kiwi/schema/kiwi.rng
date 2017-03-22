@@ -1764,7 +1764,7 @@ will be displayed in a dialog window on boot.</db:para>
   <div>
     <define name="k.size.unit.attribute">
       <attribute name="unit">
-        <a:documentation>The unit of the image</a:documentation>
+        <a:documentation>The unit of the image size</a:documentation>
         <choice>
           <value>M</value>
           <value>G</value>
@@ -1773,6 +1773,8 @@ will be displayed in a dialog window on boot.</db:para>
     </define>
     <define name="k.size.additive.attribute">
       <attribute name="additive">
+        <a:documentation>Specifies if the size value is absolute or added on top
+of the current data size</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
@@ -2325,9 +2327,10 @@ The string given here is passed as value to the -o option of mount</a:documentat
     </define>
     <define name="k.type.hybrid.attribute">
       <attribute name="hybrid">
-        <a:documentation>Specifies that the image file should be turned into
-a hybrid image file. It's required to use the vmxboot
-boot image to boot that image though</a:documentation>
+        <a:documentation>Specifies that the ISO file will be turned into a hybrid image.
+hybrid means the ISO image can be used as CD/DVD image and as a
+disk image if the iso is e.g dumped on a USB stick. In both cases
+the result is a bootable system.</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="hybrid" is-a="image_type">
@@ -2470,11 +2473,10 @@ be created (oem only)</a:documentation>
       </sch:pattern>
     </define>
     <define name="k.type.kernelcmdline.attribute">
-      <!--
-        The kernelcmdline element specifies additional
-        kernel command line options
-      -->
-      <attribute name="kernelcmdline"/>
+      <attribute name="kernelcmdline">
+        <a:documentation>The kernelcmdline element specifies additional
+kernel command line options</a:documentation>
+      </attribute>
       <sch:pattern id="kernelcmdline" is-a="image_type">
         <sch:param name="attr" value="kernelcmdline"/>
         <sch:param name="types" value="oem vmx iso pxe"/>
@@ -2612,7 +2614,9 @@ to work on.</a:documentation>
     <define name="k.type.attlist">
       <interleave>
         <optional>
-          <ref name="k.type.boot.attribute"/>
+          <ref name="k.type.boot.attribute">
+            <a:documentation>Specifies the image type</a:documentation>
+          </ref>
         </optional>
         <optional>
           <ref name="k.type.bootfilesystem.attribute"/>
@@ -2821,6 +2825,7 @@ to work on.</a:documentation>
     </define>
     <define name="k.union.type.attribute">
       <attribute name="type">
+        <a:documentation>Union type to use to overlay read-write and read-only parts</a:documentation>
         <value>overlayfs</value>
       </attribute>
     </define>
@@ -3331,6 +3336,10 @@ a standard image description created by a kiwi user.</a:documentation>
   <div>
     <define name="k.strip.type.attribute">
       <attribute name="type">
+        <a:documentation>Specifies the strip data type. `delete` references
+a list of custom files and directories to delete, `tools`
+references file names in linux bin/sbin directories, `libs`
+references file names in linux lib directories.</a:documentation>
         <choice>
           <value>delete</value>
           <value>tools</value>
@@ -4019,6 +4028,13 @@ virtual machine when running the image.</db:para>
   <div>
     <define name="k.packages.type.attribute">
       <attribute name="type">
+        <a:documentation>Specifies package collection type. `bootstrap` packages
+gets installed in the very first phase of an image build
+in order to fill the empty root directory with bootstrap
+data. `image` packages are installed after the bootstrap
+phase as chroot operation. `delete` packages are uninstalled
+after the preparation phase is done. `image_type_name`
+packages are only installed if this build type is requested.</a:documentation>
         <choice>
           <value>bootstrap</value>
           <value>delete</value>

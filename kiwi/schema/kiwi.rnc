@@ -1362,9 +1362,11 @@ div {
 #
 div {
     k.size.unit.attribute =
-        ## The unit of the image
+        ## The unit of the image size
         attribute unit { "M" | "G" }
     k.size.additive.attribute =
+        ## Specifies if the size value is absolute or added on top
+        ## of the current data size
         attribute additive { xsd:boolean }
     k.size.attlist =
         k.size.unit.attribute? &
@@ -1779,9 +1781,10 @@ div {
         ## The string given here is passed as value to the -o option of mount
         attribute fsmountoptions { text }
     k.type.hybrid.attribute =
-        ## Specifies that the image file should be turned into
-        ## a hybrid image file. It's required to use the vmxboot
-        ## boot image to boot that image though
+        ## Specifies that the ISO file will be turned into a hybrid image.
+        ## hybrid means the ISO image can be used as CD/DVD image and as a
+        ## disk image if the iso is e.g dumped on a USB stick. In both cases
+        ## the result is a bootable system.
         attribute hybrid { xsd:boolean }
         >> sch:pattern [ id = "hybrid" is-a = "image_type"
             sch:param [ name = "attr" value = "hybrid" ]
@@ -1874,8 +1877,8 @@ div {
             sch:param [ name = "types" value = "oem" ]
         ]
     k.type.kernelcmdline.attribute =
-        # The kernelcmdline element specifies additional
-        # kernel command line options
+        ## The kernelcmdline element specifies additional
+        ## kernel command line options
         attribute kernelcmdline { text }
         >> sch:pattern [ id = "kernelcmdline" is-a = "image_type"
             sch:param [ name = "attr" value = "kernelcmdline" ]
@@ -1982,6 +1985,7 @@ div {
             sch:param [ name = "types" value = "docker" ]
         ]
     k.type.attlist =
+        ## Specifies the image type
         k.type.boot.attribute? &
         k.type.bootfilesystem.attribute? &
         k.type.firmware.attribute? &
@@ -2060,7 +2064,9 @@ div {
     k.union.rw.attribute =
         ## Device for Read-Write
         attribute rw { text }
-    k.union.type.attribute = attribute type { "overlayfs" }
+    k.union.type.attribute =
+        ## Union type to use to overlay read-write and read-only parts
+        attribute type { "overlayfs" }
     k.union.attlist =
         k.union.ro.attribute &
         k.union.rw.attribute &
@@ -2375,9 +2381,12 @@ div {
 # main block: <strip>
 #
 div {
-    k.strip.type.attribute = attribute type {
-        "delete" | "tools" | "libs"
-    }
+    k.strip.type.attribute =
+        ## Specifies the strip data type. `delete` references
+        ## a list of custom files and directories to delete, `tools`
+        ## references file names in linux bin/sbin directories, `libs`
+        ## references file names in linux lib directories.
+        attribute type { "delete" | "tools" | "libs" }
     k.strip.profiles.attribute = k.profiles.attribute
     k.strip.attlist =
         k.strip.type.attribute &
@@ -2830,10 +2839,18 @@ div {
 # main block: <packages>
 #
 div {
-    k.packages.type.attribute = attribute type {
-        "bootstrap" | "delete" | "docker" | "image" |
-        "iso" | "oem" | "pxe" | "vmx"
-    }
+    k.packages.type.attribute =
+        ## Specifies package collection type. `bootstrap` packages
+        ## gets installed in the very first phase of an image build
+        ## in order to fill the empty root directory with bootstrap
+        ## data. `image` packages are installed after the bootstrap
+        ## phase as chroot operation. `delete` packages are uninstalled
+        ## after the preparation phase is done. `image_type_name`
+        ## packages are only installed if this build type is requested.
+        attribute type {
+            "bootstrap" | "delete" | "docker" | "image" |
+            "iso" | "oem" | "pxe" | "vmx"
+        }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =
         ## Selection type for patterns. Could be onlyRequired

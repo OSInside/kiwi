@@ -303,7 +303,7 @@ List of attributes for ``type``:
 * ``fsnocheck`` `[?]`_: Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute since KIWI v8
 * ``fsmountoptions`` `[?]`_: Specifies the filesystem mount options which also ends up in fstab The string given here is passed as value to the -o option of mount
 * ``gcelicense`` `[?]`_: Specifies the license tag in a GCE format
-* ``hybrid`` `[?]`_: Specifies that the image file should be turned into a hybrid image file. It's required to use the vmxboot boot image to boot that image though
+* ``hybrid`` `[?]`_: Specifies that the ISO file will be turned into a hybrid image. hybrid means the ISO image can be used as CD/DVD image and as a disk image if the iso is e.g dumped on a USB stick. In both cases the result is a bootable system.
 * ``hybridpersistent`` `[?]`_: Will trigger the creation of a partition for a COW file to keep data persistent over a reboot
 * ``hybridpersistent_filesystem`` `[?]`_: Set the filesystem to use for persistent writing if a hybrid image is used as disk on e.g a USB Stick. By default the btrfs filesystem is used
 * ``gpt_hybrid_mbr`` `[?]`_: for gpt disk types only: create a hybrid GPT/MBR partition table
@@ -315,7 +315,7 @@ List of attributes for ``type``:
 * ``installiso`` `[?]`_: Specifies if a install iso should be created (oem only)
 * ``installstick`` `[?]`_: Specifies if a install stick should be created (oem only)
 * ``installpxe`` `[?]`_: Specifies if all data for a pxe network installation should be created (oem only)
-* ``kernelcmdline`` `[?]`_: 
+* ``kernelcmdline`` `[?]`_: The kernelcmdline element specifies additional kernel command line options
 * ``luks`` `[?]`_: Setup cryptographic volume along with the given filesystem using the LUKS extension. The value of this attribute represents the password string used to be able to mount that filesystem while booting
 * ``luksOS`` `[?]`_: With the luksOS value a predefined set of ciper, keysize and hash format options is passed to the cryptsetup call in order to create a format compatible to the specified distribution
 * ``mdraid`` `[?]`_: Setup software raid in degraded mode with one disk Thus only mirroring and striping is possible
@@ -1010,7 +1010,7 @@ List of attributes for ``union``:
 
 * ``ro`` : Device only for read-only 
 * ``rw`` : Device for Read-Write
-* ``type`` : 
+* ``type`` : Union type to use to overlay read-write and read-only parts
 
 .. _k.image.preferences.type.pxedeploy.configuration:
 
@@ -1040,8 +1040,8 @@ Parents:
 
 List of attributes for ``size``:
 
-* ``unit`` `[?]`_: The unit of the image
-* ``additive`` `[?]`_: 
+* ``unit`` `[?]`_: The unit of the image size
+* ``additive`` `[?]`_: Specifies if the size value is absolute or added on top of the current data size
 
 .. _k.image.preferences.type.systemdisk:
 
@@ -1221,7 +1221,7 @@ Children:
 
 List of attributes for ``strip``:
 
-* ``type`` : 
+* ``type`` : Specifies the strip data type. `delete` references a list of custom files and directories to delete, `tools` references file names in linux bin/sbin directories, `libs` references file names in linux lib directories.
 * ``profiles`` `[?]`_: A profile name which binds the section to this name
 
 .. _k.image.strip.file:
@@ -1295,7 +1295,7 @@ Children:
 
 List of attributes for ``packages``:
 
-* ``type`` : 
+* ``type`` : Specifies package collection type. `bootstrap` packages gets installed in the very first phase of an image build in order to fill the empty root directory with bootstrap data. `image` packages are installed after the bootstrap phase as chroot operation. `delete` packages are uninstalled after the preparation phase is done. `image_type_name` packages are only installed if this build type is requested.
 * ``profiles`` `[?]`_: A profile name which binds the section to this name
 * ``patternType`` `[?]`_: Selection type for patterns. Could be onlyRequired or plusRecommended
 
