@@ -143,6 +143,10 @@ class BootImageBase(object):
         """
         log.info('Loading Boot XML description')
         boot_description_directory = self.get_boot_description_directory()
+        if not boot_description_directory:
+            raise KiwiConfigFileNotFound(
+                'no boot reference specified in XML description'
+            )
         boot_config_file = boot_description_directory + '/config.xml'
         if not os.path.exists(boot_config_file):
             raise KiwiConfigFileNotFound(
