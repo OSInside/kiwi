@@ -148,6 +148,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.boot_directory_name = 'grub2'
         self.cmdline_failsafe = None
         self.cmdline = None
+        self.iso_efi_boot = False
 
     def write(self):
         """
@@ -160,6 +161,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Path.create(config_dir)
             with open(config_file, 'w') as config:
                 config.write(self.config)
+
+            if self.iso_efi_boot:
+                grub_config_file_for_efi_boot = os.path.normpath(
+                    os.sep.join([self.efi_boot_path, 'grub.cfg'])
+                )
+                log.info('Writing grub.cfg file to be found by EFI firmware')
+                with open(grub_config_file_for_efi_boot, 'w') as config:
+                    config.write(self.config)
+
             self._setup_default_grub()
             self.setup_sysconfig_bootloader()
 
@@ -267,6 +277,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub install config file from template')
+        self.iso_efi_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
@@ -315,6 +326,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub live ISO config file from template')
+        self.iso_efi_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]

@@ -223,13 +223,16 @@ class TestBootLoaderConfigGrub2(object):
         mock_open.return_value = self.context_manager_mock
         self.bootloader.config = 'some-data'
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
+        self.bootloader.iso_efi_boot = True
         self.bootloader.write()
-        mock_open.assert_called_once_with(
-            'root_dir/boot/grub2/grub.cfg', 'w'
-        )
-        self.file_mock.write.assert_called_once_with(
-            'some-data'
-        )
+        assert mock_open.call_args_list == [
+            call('root_dir/boot/grub2/grub.cfg', 'w'),
+            call('root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w')
+        ]
+        assert self.file_mock.write.call_args_list == [
+            call('some-data'),
+            call('some-data')
+        ]
         mock_setup_default_grub.assert_called_once_with()
         mock_setup_sysconfig_bootloader.assert_called_once_with()
 
