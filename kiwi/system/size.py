@@ -49,16 +49,17 @@ class SystemSize(object):
         :return: mbytes
         :rtype: int
         """
-        if requested_filesystem.startswith('ext'):
-            size *= 1.5
-            file_count = self.accumulate_files()
-            inode_mbytes = \
-                file_count * Defaults.get_default_inode_size() / 1048576
-            size += 2 * inode_mbytes
-        elif requested_filesystem == 'btrfs':
-            size *= 1.5
-        elif requested_filesystem == 'xfs':
-            size *= 1.5
+        if requested_filesystem:
+            if requested_filesystem.startswith('ext'):
+                size *= 1.5
+                file_count = self.accumulate_files()
+                inode_mbytes = \
+                    file_count * Defaults.get_default_inode_size() / 1048576
+                size += 2 * inode_mbytes
+            elif requested_filesystem == 'btrfs':
+                size *= 1.5
+            elif requested_filesystem == 'xfs':
+                size *= 1.5
 
         return int(size)
 
