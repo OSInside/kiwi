@@ -1,5 +1,6 @@
 import sys
 import mock
+import os
 
 import kiwi
 
@@ -14,6 +15,11 @@ class TestSystemCreateTask(object):
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'create',
             '--root', '../data/root-dir', '--target-dir', 'some-target'
         ]
+
+        self.abs_root_dir = os.path.abspath('../data/root-dir')
+        self.abs_target_dir = os.path.abspath('some-target')
+
+        kiwi.tasks.system_create.Path = mock.Mock()
         kiwi.tasks.system_create.Privileges = mock.Mock()
         kiwi.tasks.system_create.Path = mock.Mock()
 
@@ -56,12 +62,14 @@ class TestSystemCreateTask(object):
         self._init_command_args()
         self.task.command_args['create'] = True
         self.task.process()
-        self.runtime_checker.check_target_directory_not_in_shared_cache.called_once_with('some-target')
+        self.runtime_checker.check_target_directory_not_in_shared_cache.called_once_with(
+            self.abs_target_dir
+        )
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()
         self.result.dump.assert_called_once_with(
-            'some-target/kiwi.result'
+            os.sep.join([self.abs_target_dir, 'kiwi.result'])
         )
 
     def test_process_system_create_help(self):

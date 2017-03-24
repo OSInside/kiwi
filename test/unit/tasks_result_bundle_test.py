@@ -1,5 +1,6 @@
 import sys
 import mock
+import os
 
 from mock import patch
 
@@ -17,6 +18,8 @@ class TestResultBundleTask(object):
             sys.argv[0], 'result', 'bundle', '--target-dir', 'target_dir',
             '--bundle-dir', 'bundle_dir', '--id', 'Build_42'
         ]
+        self.abs_target_dir = os.path.abspath('target_dir')
+        self.abs_bundle_dir = os.path.abspath('bundle_dir')
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()
         self.enter_mock = mock.Mock()
@@ -86,16 +89,16 @@ class TestResultBundleTask(object):
 
         self.task.process()
 
-        mock_load.assert_called_once_with('target_dir/kiwi.result')
-        mock_path.assert_called_once_with('bundle_dir')
+        mock_load.assert_called_once_with(os.sep.join([self.abs_target_dir, 'kiwi.result']))
+        mock_path.assert_called_once_with(self.abs_bundle_dir)
         mock_command.assert_called_once_with(
             [
                 'cp', 'filename-1.2.3',
-                'bundle_dir/filename-1.2.3-Build_42'
+                os.sep.join([self.abs_bundle_dir, 'filename-1.2.3-Build_42'])
             ]
         )
         mock_compress.assert_called_once_with(
-            'bundle_dir/filename-1.2.3-Build_42'
+            os.sep.join([self.abs_bundle_dir, 'filename-1.2.3-Build_42'])
         )
         mock_checksum.assert_called_once_with(
             compress.compressed_filename
