@@ -2136,7 +2136,7 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="editbootconfig" is-a="image_type">
         <sch:param name="attr" value="editbootconfig"/>
-        <sch:param name="types" value="vmx oem"/>
+        <sch:param name="types" value="vmx oem iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.editbootinstall.attribute">

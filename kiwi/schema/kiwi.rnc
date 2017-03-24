@@ -1649,7 +1649,7 @@ div {
         attribute editbootconfig { text }
         >> sch:pattern [ id = "editbootconfig" is-a = "image_type"
             sch:param [ name = "attr" value = "editbootconfig" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "vmx oem iso" ]
         ]
     k.type.editbootinstall.attribute =
         ## Specifies the path to a script which is called right
