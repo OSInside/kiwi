@@ -55,6 +55,8 @@ options:
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
+import os
+
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
@@ -88,12 +90,15 @@ class SystemBuildTask(CliTask):
 
         Privileges.check_for_root_permissions()
 
-        image_root = self.command_args['--target-dir'] + '/build/image-root'
+        abs_target_dir_path = os.path.abspath(
+            self.command_args['--target-dir']
+        )
+        image_root = os.sep.join([abs_target_dir_path, 'build', 'image-root'])
         Path.create(image_root)
 
         if not self.global_args['--logfile']:
             log.set_logfile(
-                self.command_args['--target-dir'] + '/build/image-root.log'
+                os.sep.join([abs_target_dir_path, 'build', 'image-root.log'])
             )
 
         self.load_xml_description(
@@ -105,7 +110,7 @@ class SystemBuildTask(CliTask):
         self.runtime_checker.check_volume_setup_has_no_root_definition()
         self.runtime_checker.check_image_include_repos_http_resolvable()
         self.runtime_checker.check_target_directory_not_in_shared_cache(
-            self.command_args['--target-dir']
+            abs_target_dir_path
         )
 
         if self.command_args['--ignore-repos']:
@@ -126,7 +131,7 @@ class SystemBuildTask(CliTask):
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
-                Path.create(self.command_args['--target-dir'])
+                Path.create(abs_target_dir_path)
 
         self.runtime_checker.check_repositories_configured()
 
@@ -206,13 +211,13 @@ class SystemBuildTask(CliTask):
         log.info('Creating system image')
         image_builder = ImageBuilder(
             self.xml_state,
-            self.command_args['--target-dir'],
+            abs_target_dir_path,
             image_root
         )
         result = image_builder.create()
         result.print_results()
         result.dump(
-            self.command_args['--target-dir'] + '/kiwi.result'
+            os.sep.join([abs_target_dir_path, 'kiwi.result'])
         )
 
     def _help(self):

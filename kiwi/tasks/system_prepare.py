@@ -59,6 +59,8 @@ options:
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
 """
+import os
+
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
@@ -92,13 +94,16 @@ class SystemPrepareTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
+
+        abs_root_path = os.path.abspath(self.command_args['--root'])
+
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
         self.runtime_checker.check_boot_image_reference_correctly_setup()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
         self.runtime_checker.check_image_include_repos_http_resolvable()
         self.runtime_checker.check_target_directory_not_in_shared_cache(
-            self.command_args['--root']
+            abs_root_path
         )
 
         if self.command_args['--ignore-repos']:
@@ -140,7 +145,7 @@ class SystemPrepareTask(CliTask):
         log.info('Preparing system')
         system = SystemPrepare(
             self.xml_state,
-            self.command_args['--root'],
+            abs_root_path,
             self.command_args['--allow-existing-root']
         )
         manager = system.setup_repositories()
@@ -164,7 +169,7 @@ class SystemPrepareTask(CliTask):
         defaults.to_profile(profile)
 
         setup = SystemSetup(
-            self.xml_state, self.command_args['--root']
+            self.xml_state, abs_root_path
         )
         setup.import_shell_environment(profile)
 

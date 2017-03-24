@@ -1,6 +1,7 @@
 import sys
 import mock
 from mock import call
+import os
 
 import kiwi
 
@@ -18,6 +19,8 @@ class TestImageResizeTask(object):
             '--target-dir', 'target_dir', '--size', '20g',
             '--root', '../data/root-dir'
         ]
+        self.abs_root_dir = os.path.abspath('../data/root-dir')
+
         kiwi.tasks.image_resize.Help = mock.Mock(
             return_value=mock.Mock()
         )
@@ -106,7 +109,10 @@ class TestImageResizeTask(object):
         )
         assert mock_log_info.call_args_list == [
             call('Loading XML description'),
-            call('--> loaded %s', '../data/root-dir/image/config.xml'),
+            call(
+                '--> loaded %s',
+                os.sep.join([self.abs_root_dir, 'image', 'config.xml'])
+            ),
             call('--> Selected build type: %s', 'vmx'),
             call('--> Selected profiles: %s', 'vmxFlavour'),
             call('Resizing raw disk to 42 bytes'),

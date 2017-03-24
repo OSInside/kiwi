@@ -68,32 +68,37 @@ class SystemCreateTask(CliTask):
 
         Privileges.check_for_root_permissions()
 
+        abs_target_dir_path = os.path.abspath(
+            self.command_args['--target-dir']
+        )
+        abs_root_path = os.path.abspath(self.command_args['--root'])
+
         self.load_xml_description(
-            self.command_args['--root']
+            abs_root_path
         )
         self.runtime_checker.check_target_directory_not_in_shared_cache(
-            self.command_args['--target-dir']
+            abs_target_dir_path
         )
 
         log.info('Creating system image')
-        if not os.path.exists(self.command_args['--target-dir']):
-            Path.create(self.command_args['--target-dir'])
+        if not os.path.exists(abs_target_dir_path):
+            Path.create(abs_target_dir_path)
 
         setup = SystemSetup(
             xml_state=self.xml_state,
-            root_dir=self.command_args['--root']
+            root_dir=abs_root_path
         )
         setup.call_image_script()
 
         image_builder = ImageBuilder(
             self.xml_state,
-            self.command_args['--target-dir'],
-            self.command_args['--root']
+            abs_target_dir_path,
+            abs_root_path
         )
         result = image_builder.create()
         result.print_results()
         result.dump(
-            self.command_args['--target-dir'] + '/kiwi.result'
+            os.sep.join([abs_target_dir_path, 'kiwi.result'])
         )
 
     def _help(self):

@@ -45,6 +45,7 @@ options:
 """
 import re
 import math
+import os
 
 # project
 from kiwi.tasks.base import CliTask
@@ -75,11 +76,17 @@ class ImageResizeTask(CliTask):
         if self.command_args.get('help') is True:
             return self.manual.show('kiwi::image::resize')
 
+        abs_target_dir_path = os.path.abspath(
+            self.command_args['--target-dir']
+        )
+
         if self.command_args['--root']:
-            image_root = self.command_args['--root']
+            image_root = os.path.abspath(
+                os.path.normpath(self.command_args['--root'])
+            )
         else:
-            image_root = ''.join(
-                [self.command_args['--target-dir'], '/build/image-root']
+            image_root = os.sep.join(
+                [abs_target_dir_path, 'build', 'image-root']
             )
 
         self.load_xml_description(
@@ -90,7 +97,7 @@ class ImageResizeTask(CliTask):
 
         image_format = DiskFormat(
             disk_format or 'raw', self.xml_state, image_root,
-            self.command_args['--target-dir']
+            abs_target_dir_path
         )
         if not image_format.has_raw_disk():
             raise KiwiImageResizeError(

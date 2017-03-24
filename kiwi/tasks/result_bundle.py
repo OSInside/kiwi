@@ -79,8 +79,8 @@ class ResultBundleTask(CliTask):
             return
 
         # load serialized result object from target directory
-        result_directory = os.path.normpath(self.command_args['--target-dir'])
-        bundle_directory = os.path.normpath(self.command_args['--bundle-dir'])
+        result_directory = os.path.abspath(self.command_args['--target-dir'])
+        bundle_directory = os.path.abspath(self.command_args['--bundle-dir'])
         if result_directory == bundle_directory:
             raise KiwiBundleError(
                 'Bundle directory must be different from target directory'
