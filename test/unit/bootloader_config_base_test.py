@@ -188,7 +188,7 @@ class TestBootLoaderConfigBase(object):
         )
         mock_disk_setup.return_value = disk_setup
         assert self.bootloader.get_boot_path() == \
-            '/@/boot'
+            '/boot'
 
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')

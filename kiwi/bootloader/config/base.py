@@ -306,18 +306,6 @@ class BootLoaderConfigBase(object):
                                 'boot or boot/grub2 must not be a subvolume'
                             )
 
-                    # if we directly boot a btrfs filesystem with a subvolume
-                    # setup and no extra boot partition we have to care for
-                    # the layout of the system which places all volumes below
-                    # a toplevel volume. However if the root is placed into
-                    # a snapshot we use the SUSE_BTRFS_SNAPSHOT_BOOTING
-                    # extension which is configured in etc/default/grub and
-                    # maps the correct snapshot to the bootpath
-                    root_is_snapshot = \
-                        self.xml_state.build_type.get_btrfs_root_is_snapshot()
-                    if not root_is_snapshot:
-                        bootpath = '/@' + bootpath
-
         return bootpath
 
     def quote_title(self, name):
