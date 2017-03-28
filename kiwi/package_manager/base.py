@@ -93,6 +93,15 @@ class PackageManagerBase(object):
         """
         raise NotImplementedError
 
+    def request_package_lock(self, name):
+        """
+        Queue a package exclusion(skip) request
+
+        Obsolete method, only kept for API compatbility
+        Method calls: request_package_exclusion
+        """
+        return self.request_package_exclusion(name)
+
     def request_package_exclusion(self, name):
         """
         Queue a package exclusion(skip) request

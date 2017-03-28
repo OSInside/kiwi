@@ -1,4 +1,5 @@
 import mock
+from mock import patch
 
 from .test_helper import raises
 
@@ -22,6 +23,11 @@ class TestPackageManagerBase(object):
     @raises(NotImplementedError)
     def test_request_product(self):
         self.manager.request_product('name')
+
+    @patch.object(PackageManagerBase, 'request_package_exclusion')
+    def test_request_package_lock(self, mock_exclude):
+        self.manager.request_package_lock('name')
+        mock_exclude.assert_called_once_with('name')
 
     @raises(NotImplementedError)
     def test_request_package_exclusion(self):
