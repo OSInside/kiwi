@@ -656,8 +656,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         boot_theme_dir = os.sep.join(
             [self.root_dir, 'boot', self.boot_directory_name, 'themes']
         )
-        if self.theme and not os.path.exists(boot_theme_dir):
-            Path.create(boot_theme_dir)
+        Path.create(boot_theme_dir)
+        if self.theme and not os.listdir(boot_theme_dir):
             theme_dir = self._find_grub_data(lookup_path + '/usr/share') + \
                 '/themes/' + self.theme
             if os.path.exists(theme_dir):
