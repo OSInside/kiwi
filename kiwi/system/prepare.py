@@ -388,13 +388,13 @@ class SystemPrepare(object):
                 manager.request_product(product)
         if ignored:
             for package in sorted(ignored):
-                log.info('--> package locked(ignored): {0}'.format(package))
-                manager.request_package_lock(package)
+                log.info('--> package excluded: {0}'.format(package))
+                manager.request_package_exclusion(package)
         return \
             manager.package_requests + \
             manager.collection_requests + \
             manager.product_requests + \
-            manager.lock_requests
+            manager.exclude_requests
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

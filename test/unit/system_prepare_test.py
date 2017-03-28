@@ -303,7 +303,7 @@ class TestSystemPrepare(object):
         self.manager.request_product.assert_any_call(
             'openSUSE'
         )
-        self.manager.request_package_lock.assert_any_call(
+        self.manager.request_package_exclusion.assert_any_call(
             'foo'
         )
         self.manager.process_install_requests.assert_called_once_with()
