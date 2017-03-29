@@ -3920,6 +3920,25 @@ function setupNetwork {
         done
     fi
     #==================================================
+    # apply nic filter if specified
+    #--------------------------------------------------
+    if [ ! -z "$kiwi_oemnicfilter" ];then
+        # /.../
+        # evaluate the information from a given nic filter
+        # all devices matching the filter rule will be used
+        # ----
+        index=0
+        for try_iface in ${dev_list[*]}; do
+            if [[ $try_iface =~ $kiwi_oemnicfilter ]];then
+                Echo "$try_iface filtered out by rule: $kiwi_oemnicfilter"
+                continue
+            fi
+            filtered_ifaces[$index]=$try_iface
+            index=$((index + 1))
+        done
+        dev_list=filtered_ifaces
+    fi
+    #==================================================
     # keep only ifaces where link set up was successful
     #--------------------------------------------------
     index=0

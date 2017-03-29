@@ -95,6 +95,7 @@ class Profile(object):
         # kiwi_oemdevicefilter
         # kiwi_oemtitle
         # kiwi_oemkboot
+        # kiwi_oemnicfilter
         # kiwi_oemreboot
         # kiwi_oemrebootinteractive
         # kiwi_oemshutdown
@@ -132,6 +133,8 @@ class Profile(object):
                 self._text(oemconfig.get_oem_boot_title())
             self.dot_profile['kiwi_oemkboot'] = \
                 self._text(oemconfig.get_oem_kiwi_initrd())
+            self.dot_profile['kiwi_oemnicfilter'] = \
+                self._text(oemconfig.get_oem_nic_filter())
             self.dot_profile['kiwi_oemreboot'] = \
                 self._text(oemconfig.get_oem_reboot())
             self.dot_profile['kiwi_oemrebootinteractive'] = \

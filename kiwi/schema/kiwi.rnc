@@ -555,6 +555,35 @@ div {
 }
 
 #==========================================
+# common element <oem-nic-filter>
+#
+div {
+    k.oem-nic-filter.content = text
+    k.oem-nic-filter.attlist = empty
+    k.oem-nic-filter =
+        ## For oemboot driven images: filter network interface names by given
+        ## regular expression. The expression is handled by the bash regexp
+        ## operator. Interface names matching the rule will be skipped. All
+        ## other interface names stay in the list. It is also possible to
+        ## pass the variable kiwi_oemnicfilter as kernel command
+        ## line in a PXE deployment
+        [
+        db:para [
+            "For oemboot driven images: filter network interface names by given"
+            "regular expression. The expression is handled by the bash regexp"
+            "operator. Interface names matching the rule will be skipped. All"
+            "other interface names stay in the list. It is also possible to"
+            "pass the variable kiwi_oemnicfilter as kernel command"
+            "line in a PXE deployment"
+        ]
+        ]
+        element oem-nic-filter {
+            k.oem-nic-filter.attlist,
+            k.oem-nic-filter.content
+        }
+}
+
+#==========================================
 # common element <oem-inplace-recovery>
 #
 div {
@@ -2692,6 +2721,7 @@ div {
             k.oem-boot-title? &
             k.oem-bootwait? &
             k.oem-device-filter? &
+            k.oem-nic-filter? &
             k.oem-inplace-recovery? &
             k.oem-kiwi-initrd? &
             k.oem-multipath-scan? &

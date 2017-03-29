@@ -59,6 +59,7 @@ class TestProfile(object):
             'kiwi_oemataraid_scan': None,
             'kiwi_oembootwait': None,
             'kiwi_oemdevicefilter': None,
+            'kiwi_oemnicfilter': None,
             'kiwi_oemkboot': None,
             'kiwi_oemmultipath_scan': None,
             'kiwi_oempartition_install': None,

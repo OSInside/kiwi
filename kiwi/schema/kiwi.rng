@@ -780,6 +780,32 @@ operator</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <oem-nic-filter>
+    
+  -->
+  <div>
+    <define name="k.oem-nic-filter.content">
+      <text/>
+    </define>
+    <define name="k.oem-nic-filter.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-nic-filter">
+      <element name="oem-nic-filter">
+        <a:documentation>For oemboot driven images: filter network interface names by given
+regular expression. The expression is handled by the bash regexp
+operator. Interface names matching the rule will be skipped. All
+other interface names stay in the list. It is also possible to
+pass the variable kiwi_oemnicfilter as kernel command
+line in a PXE deployment</a:documentation>
+        <db:para>For oemboot driven images: filter network interface names by givenregular expression. The expression is handled by the bash regexpoperator. Interface names matching the rule will be skipped. Allother interface names stay in the list. It is also possible topass the variable kiwi_oemnicfilter as kernel commandline in a PXE deployment</db:para>
+        <ref name="k.oem-nic-filter.attlist"/>
+        <ref name="k.oem-nic-filter.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-inplace-recovery>
     
   -->
@@ -3765,6 +3791,9 @@ and setup the system disk</db:para>
           </optional>
           <optional>
             <ref name="k.oem-device-filter"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-nic-filter"/>
           </optional>
           <optional>
             <ref name="k.oem-inplace-recovery"/>
