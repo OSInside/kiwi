@@ -49,7 +49,7 @@ class PackageManagerBase(object):
         self.package_requests = []
         self.collection_requests = []
         self.product_requests = []
-        self.lock_requests = []
+        self.exclude_requests = []
 
         self.post_init(custom_args)
 
@@ -95,7 +95,16 @@ class PackageManagerBase(object):
 
     def request_package_lock(self, name):
         """
-        Queue a package lock(ignore) request
+        Queue a package exclusion(skip) request
+
+        Obsolete method, only kept for API compatbility
+        Method calls: request_package_exclusion
+        """
+        return self.request_package_exclusion(name)
+
+    def request_package_exclusion(self, name):
+        """
+        Queue a package exclusion(skip) request
 
         Implementation in specialized package manager class
 
@@ -193,4 +202,4 @@ class PackageManagerBase(object):
         del self.package_requests[:]
         del self.collection_requests[:]
         del self.product_requests[:]
-        del self.lock_requests[:]
+        del self.exclude_requests[:]

@@ -40,9 +40,9 @@ class TestPackageManagerDnf(object):
         assert self.manager.product_requests == []
 
     @patch('kiwi.logger.log.warning')
-    def test_request_package_lock(self, mock_log_warn):
-        self.manager.request_package_lock('name')
-        assert self.manager.lock_requests == []
+    def test_request_package_exclusion(self, mock_log_warn):
+        self.manager.request_package_exclusion('name')
+        assert self.manager.exclude_requests == []
         assert mock_log_warn.called
 
     @patch('kiwi.command.Command.call')

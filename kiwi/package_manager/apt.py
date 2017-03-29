@@ -93,16 +93,16 @@ class PackageManagerApt(PackageManagerBase):
             'Product(%s) handling not supported for apt-get', name
         )
 
-    def request_package_lock(self, name):
+    def request_package_exclusion(self, name):
         """
-        Queue a package lock(ignore) request
+        Queue a package exclusion(skip) request
 
-        There is no locking mechanism for the apt package manager
+        Package exclusion for apt package manager not yet implemented
 
         :param string name: unused
         """
         log.warning(
-            'Package locking for (%s) not supported for apt-get', name
+            'Package exclusion for (%s) not supported for apt-get', name
         )
 
     def process_install_requests_bootstrap(self):

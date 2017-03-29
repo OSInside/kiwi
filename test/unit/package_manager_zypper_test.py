@@ -53,9 +53,9 @@ class TestPackageManagerZypper(object):
         self.manager.request_product('name')
         assert self.manager.product_requests == ['product:name']
 
-    def test_request_package_lock(self):
-        self.manager.request_package_lock('name')
-        assert self.manager.lock_requests == ['name']
+    def test_request_package_exclusion(self):
+        self.manager.request_package_exclusion('name')
+        assert self.manager.exclude_requests == ['name']
 
     @patch('kiwi.command.Command.call')
     def test_process_install_requests_bootstrap(self, mock_call):
@@ -78,13 +78,13 @@ class TestPackageManagerZypper(object):
     ):
         mock_exists.return_value = False
         self.manager.request_package('vim')
-        self.manager.request_package_lock('lockme')
+        self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests()
         mock_path.assert_called_once_with('root-dir/etc/zypp')
         mock_run.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
                 'al'
-            ] + self.manager.custom_args + ['lockme'], self.chroot_command_env
+            ] + self.manager.custom_args + ['skipme'], self.chroot_command_env
         )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [

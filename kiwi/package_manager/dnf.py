@@ -81,16 +81,16 @@ class PackageManagerDnf(PackageManagerBase):
         """
         pass
 
-    def request_package_lock(self, name):
+    def request_package_exclusion(self, name):
         """
-        Queue a package lock(ignore) request
+        Queue a package exclusion(skip) request
 
-        There is no locking mechanism for the dnf package manager
+        Package exclusion for dnf package manager not yet implemented
 
         :param string name: unused
         """
         log.warning(
-            'Package locking for (%s) not supported for dnf', name
+            'Package exclusion for (%s) not supported for dnf', name
         )
 
     def process_install_requests_bootstrap(self):

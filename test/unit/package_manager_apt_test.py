@@ -46,9 +46,9 @@ class TestPackageManagerApt(object):
         assert mock_log_warn.called
 
     @patch('kiwi.logger.log.warning')
-    def test_request_package_lock(self, mock_log_warn):
-        self.manager.request_package_lock('name')
-        assert self.manager.lock_requests == []
+    def test_request_package_exclusion(self, mock_log_warn):
+        self.manager.request_package_exclusion('name')
+        assert self.manager.exclude_requests == []
         assert mock_log_warn.called
 
     @raises(KiwiDebootstrapError)
