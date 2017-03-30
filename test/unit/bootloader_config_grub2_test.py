@@ -97,12 +97,14 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
+    @patch('os.listdir')
     @patch('platform.machine')
     @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_install_boot_images_raises_no_shim(
-        self, mock_machine, mock_exists, mock_open, mock_sync, mock_command,
-        mock_grub, mock_shim, mock_warn
+        self, mock_machine, mock_listdir, mock_exists, mock_open,
+        mock_sync, mock_command, mock_grub, mock_shim, mock_warn
     ):
+        mock_listdir.return_value = []
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
@@ -126,12 +128,14 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
+    @patch('os.listdir')
     @patch('platform.machine')
     @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_install_boot_images_raises_no_efigrub(
-        self, mock_machine, mock_exists, mock_open, mock_sync, mock_command,
-        mock_grub, mock_shim, mock_warn
+        self, mock_machine, mock_listdir, mock_exists, mock_open,
+        mock_sync, mock_command, mock_grub, mock_shim, mock_warn
     ):
+        mock_listdir.return_value = []
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
@@ -697,17 +701,18 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch_open
     @patch('os.path.exists')
+    @patch('os.listdir')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
     def test_setup_install_boot_images_with_theme(
-        self, mock_machine, mock_warn, mock_exists, mock_open,
+        self, mock_machine, mock_warn, mock_listdir, mock_exists, mock_open,
         mock_sync, mock_command
     ):
+        mock_listdir.return_value = []
         data = mock.Mock()
         mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
-        self.os_exists['root_dir/boot/grub2/themes'] = False
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = True
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
 
@@ -761,12 +766,14 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
+    @patch('os.listdir')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_machine, mock_warn, mock_exists, mock_open,
+        self, mock_machine, mock_warn, mock_listdir, mock_exists, mock_open,
         mock_sync, mock_command
     ):
+        mock_listdir.return_value = []
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
