@@ -298,7 +298,7 @@ List of attributes for ``type``:
 * ``editbootinstall`` `[?]`_: Specifies the path to a script which is called right after the bootloader is installed. The script runs relative to the directory which contains the image structure
 * ``filesystem`` `[?]`_: Specifies the root filesystem type
 * ``flags`` `[?]`_: Specifies overlay filesystem flags for the iso image type. `clic` uses the fuse based clicfs as root overlay filesystem. When using clicfs make sure it is installed on your build host system and also put as bootincluded package in your XML description: `<package name="clicfs" bootinclude="true"/>`, `clic_udf` same as clicfs but allows creation if live images which exceeds the 4G boundary, `overlay` uses the kernel overlayfs as root overlay filesystem. This is the most stable and preferred method.
-* ``format`` `[?]`_: Specifies the format of the virtual disk. The ec2 value is deprecated and no longer supported It remains in the schema to allow us to print a better Error message than we receive from the parser. To be remove from here by the end of 2014
+* ``format`` `[?]`_: Specifies the format of the virtual disk.
 * ``formatoptions`` `[?]`_: Specifies additional format options passed on to qemu-img formatoptions is a comma separated list of format specific options in a name=value format like qemu-img expects it. kiwi will take the information and pass it as parameter to the -o option in the qemu-img call
 * ``fsnocheck`` `[?]`_: Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute since KIWI v8
 * ``fsmountoptions`` `[?]`_: Specifies the filesystem mount options which also ends up in fstab The string given here is passed as value to the -o option of mount

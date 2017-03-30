@@ -2220,7 +2220,6 @@ the standard x86 bios firmware setup is used</a:documentation>
         <choice>
           <value>bios</value>
           <value>ec2</value>
-          <value>ec2hvm</value>
           <value>efi</value>
           <value>uefi</value>
           <value>ofw</value>
@@ -2286,13 +2285,8 @@ and preferred method.</a:documentation>
     </define>
     <define name="k.type.format.attribute">
       <attribute name="format">
-        <a:documentation>Specifies the format of the virtual disk.
-The ec2 value is deprecated and no longer supported
-It remains in the schema to allow us to print a better
-Error message than we receive from the parser.
-To be remove from here by the end of 2014</a:documentation>
+        <a:documentation>Specifies the format of the virtual disk.</a:documentation>
         <choice>
-          <value>ec2</value>
           <value>gce</value>
           <value>ovf</value>
           <value>ova</value>
