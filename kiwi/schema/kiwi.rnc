@@ -1719,8 +1719,7 @@ div {
         ## the disk layout and the partition table type. By default
         ## the standard x86 bios firmware setup is used
         attribute firmware {
-            "bios" | "ec2" | "ec2hvm" | "efi" |
-            "uefi" | "ofw" | "opal"
+            "bios" | "ec2" | "efi" | "uefi" | "ofw" | "opal"
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]
@@ -1765,12 +1764,8 @@ div {
         ]
     k.type.format.attribute =
         ## Specifies the format of the virtual disk.
-        ## The ec2 value is deprecated and no longer supported
-        ## It remains in the schema to allow us to print a better
-        ## Error message than we receive from the parser.
-        ## To be remove from here by the end of 2014
         attribute format {
-            "ec2" | "gce" | "ovf" | "ova" | "qcow2" | "vagrant" | "vmdk" |
+            "gce" | "ovf" | "ova" | "qcow2" | "vagrant" | "vmdk" |
             "vdi" | "vhd" | "vhd-fixed"
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
