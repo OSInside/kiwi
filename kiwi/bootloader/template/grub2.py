@@ -73,10 +73,10 @@ class BootLoaderTemplateGrub2(object):
 
         self.fonts = dedent('''
             set font=($$root)${bootpath}/unicode.pf2
-            set ascii_font=grub2/themes/${theme}/ascii.pf2
-            set sans_bold_14_font=grub2/themes/${theme}/DejaVuSans-Bold14.pf2
-            set sans_10_font=grub2/themes/${theme}/DejaVuSans10.pf2
-            set sans_12_font=grub2/themes/${theme}/DejaVuSans12.pf2
+            set ascii_font=${boot_directory_name}/themes/${theme}/ascii.pf2
+            set sans_bold_14_font=${boot_directory_name}/themes/${theme}/DejaVuSans-Bold14.pf2
+            set sans_10_font=${boot_directory_name}/themes/${theme}/DejaVuSans10.pf2
+            set sans_12_font=${boot_directory_name}/themes/${theme}/DejaVuSans12.pf2
         ''').strip() + os.linesep
 
         self.header_theme = self.fonts + dedent('''
@@ -95,8 +95,8 @@ class BootLoaderTemplateGrub2(object):
             if [ -f ($$root)${bootpath}/$${sans_12_font} ];then
                 loadfont ($$root)${bootpath}/$${sans_12_font}
             fi
-            if [ -f ($$root)${bootpath}/grub2/themes/${theme}/theme.txt ];then
-                set theme=($$root)${bootpath}/grub2/themes/${theme}/theme.txt
+            if [ -f ($$root)${bootpath}/${boot_directory_name}/themes/${theme}/theme.txt ];then
+                set theme=($$root)${bootpath}/${boot_directory_name}/themes/${theme}/theme.txt
                 export theme
             fi
         ''').strip() + os.linesep
@@ -117,8 +117,8 @@ class BootLoaderTemplateGrub2(object):
             if [ -f ($$root)/boot/$${sans_12_font} ];then
                 loadfont ($$root)/boot/$${sans_12_font}
             fi
-            if [ -f ($$root)/boot/grub2/themes/${theme}/theme.txt ];then
-                set theme=($$root)/boot/grub2/themes/${theme}/theme.txt
+            if [ -f ($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt ];then
+                set theme=($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt
             fi
         ''').strip() + os.linesep
 

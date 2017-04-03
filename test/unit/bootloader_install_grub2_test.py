@@ -141,12 +141,16 @@ class TestBootLoaderInstallGrub2(object):
         assert self.bootloader.install_required() is False
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('kiwi.bootloader.install.grub2.glob.glob')
     def test_install_with_extra_boot_partition(
-        self, mock_grub_path, mock_mount_manager, mock_command, mock_wipe
+        self, mock_glob, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
     ):
+        mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
 
@@ -158,8 +162,14 @@ class TestBootLoaderInstallGrub2(object):
         self.bootloader.install()
         self.bootloader.root_mount.mount.assert_called_once_with()
         self.bootloader.boot_mount.mount.assert_called_once_with()
+        mock_glob.assert_called_once_with(
+            'tmp_root/boot/*/grubenv'
+        )
         mock_wipe.assert_called_once_with(
             'tmp_root/boot/grub2/grubenv'
+        )
+        mock_which.assert_called_once_with(
+            custom_env={'PATH': 'tmp_root/usr/sbin'}, filename='grub2-install'
         )
         mock_command.assert_called_once_with(
             [
@@ -175,12 +185,16 @@ class TestBootLoaderInstallGrub2(object):
         )
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('kiwi.bootloader.install.grub2.glob.glob')
     def test_install_ppc_ieee1275(
-        self, mock_grub_path, mock_mount_manager, mock_command, mock_wipe
+        self, mock_glob, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
     ):
+        mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
         self.bootloader.arch = 'ppc64'
@@ -210,12 +224,16 @@ class TestBootLoaderInstallGrub2(object):
         )
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('kiwi.bootloader.install.grub2.glob.glob')
     def test_install(
-        self, mock_grub_path, mock_mount_manager, mock_command, mock_wipe
+        self, mock_glob, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
     ):
+        mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
         self.boot_mount.device = self.root_mount.device
@@ -248,15 +266,18 @@ class TestBootLoaderInstallGrub2(object):
             ])
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('kiwi.bootloader.install.grub2.glob.glob')
     @patch('os.path.exists')
     def test_install_secure_boot(
-        self, mock_exists, mock_grub_path, mock_mount_manager,
-        mock_command, mock_wipe
+        self, mock_exists, mock_glob, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
     ):
         mock_exists.return_value = True
+        mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2'
         self.firmware.efi_mode.return_value = 'uefi'
