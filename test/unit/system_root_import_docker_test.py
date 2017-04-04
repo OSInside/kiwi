@@ -83,6 +83,60 @@ class TestRootImportDocker(object):
         )
         mock_path.assert_called_once_with('root_dir/image')
 
+    @patch('os.path.exists')
+    @patch('kiwi.system.root_import.docker.ArchiveTar')
+    @patch('kiwi.system.root_import.base.Checksum')
+    @patch('kiwi.system.root_import.docker.Path.create')
+    @patch('kiwi.system.root_import.docker.Command.run')
+    @patch('kiwi.system.root_import.docker.DataSync')
+    @patch('kiwi.system.root_import.docker.mkdtemp')
+    def test_sync_data_unknown_uri(
+        self, mock_mkdtemp, mock_sync, mock_run,
+        mock_create, mock_md5, mock_tar, mock_exists
+    ):
+        mock_exists.return_value = True
+        docker_import = RootImportDocker(
+            'root_dir', Uri('docker://opensuse:leap')
+        )
+        tmpdirs = ['kiwi_unpack_dir', 'kiwi_layout_dir']
+
+        def call_mkdtemp(prefix):
+            return tmpdirs.pop()
+
+        mock_mkdtemp.side_effect = call_mkdtemp
+
+        sync = mock.Mock()
+        mock_sync.return_value = sync
+
+        md5 = mock.Mock()
+        mock_md5.return_value = mock.Mock()
+
+        docker_import.sync_data()
+
+        assert mock_run.call_args_list == [
+            call([
+                'skopeo', 'copy', 'docker://opensuse:leap',
+                'oci:kiwi_layout_dir'
+            ]),
+            call([
+                'umoci', 'unpack', '--image',
+                'kiwi_layout_dir', 'kiwi_unpack_dir'
+            ])
+        ]
+
+        mock_sync.assert_called_once_with(
+            'kiwi_unpack_dir/rootfs/', 'root_dir/'
+        )
+        sync.sync_data.assert_called_once_with(
+            options=['-a', '-H', '-X', '-A']
+        )
+        mock_md5.assert_called_once_with('root_dir/image/imported_root')
+        md5.md5.called_once_with('root_dir/image/imported_root.md5')
+        mock_tar.assert_called_once_with(
+            'root_dir/image/imported_root'
+        )
+        mock_create.assert_called_once_with('root_dir/image')
+
     @patch('kiwi.system.root_import.docker.Path.wipe')
     def test_del(self, mock_path):
         self.docker_import.oci_layout_dir = 'layout_dir'

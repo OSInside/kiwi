@@ -19,7 +19,10 @@ import os
 
 # project
 from kiwi.utils.checksum import Checksum
-from kiwi.exceptions import KiwiRootImportError
+from kiwi.exceptions import (
+    KiwiRootImportError,
+    KiwiUriTypeUnknown
+)
 
 
 class RootImportBase(object):
@@ -33,6 +36,8 @@ class RootImportBase(object):
         Uri object to store source location
     """
     def __init__(self, root_dir, image_uri):
+        self.unknown_uri = None
+        self.root_dir = root_dir
         try:
             if image_uri.is_remote():
                 raise KiwiRootImportError(
@@ -45,8 +50,9 @@ class RootImportBase(object):
                 raise KiwiRootImportError(
                     'Could not stat base image file: {0}'.format(self.image_file)
                 )
-
-            self.root_dir = root_dir
+        except KiwiUriTypeUnknown:
+            # Let specialized class handle unknown uri schemes
+            self.unknown_uri = image_uri.uri
         finally:
             self.post_init()
 

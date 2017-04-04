@@ -18,6 +18,10 @@ class TestRootImportBase(object):
     def test_init_remote_uri(self):
         RootImportBase('root_dir', Uri('http://example.com/image.tar.xz'))
 
+    def test_init_unknown_uri(self):
+        root = RootImportBase('root_dir', Uri('docker://opensuse:leap'))
+        assert root.unknown_uri == 'docker://opensuse:leap'
+
     @patch('os.path.exists')
     @raises(KiwiRootImportError)
     def test_init_non_existing(self, mock_path):

@@ -42,17 +42,23 @@ class RootImportDocker(RootImportBase):
         self.oci_layout_dir = None
 
     def sync_data(self):
-        compressor = Compress(self.image_file)
-        compressor.uncompress(True)
-        self.uncompressed_image = compressor.uncompressed_filename
+        """
+        Synchronize data from the given base image to the target root
+        directory.
+        """
+        if not self.unknown_uri:
+            compressor = Compress(self.image_file)
+            compressor.uncompress(True)
+            self.uncompressed_image = compressor.uncompressed_filename
+            skopeo_uri = 'docker-archive:{0}'.format(self.uncompressed_image)
+        else:
+            skopeo_uri = self.unknown_uri
 
         self.oci_layout_dir = mkdtemp(prefix='kiwi_layout_dir.')
         self.oci_unpack_dir = mkdtemp(prefix='kiwi_unpack_dir.')
 
         Command.run([
-            'skopeo', 'copy',
-            'docker-archive:{0}'.format(self.uncompressed_image),
-            'oci:{0}'.format(self.oci_layout_dir)
+            'skopeo', 'copy', skopeo_uri, 'oci:{0}'.format(self.oci_layout_dir)
         ])
         Command.run([
             'umoci', 'unpack', '--image',
