@@ -3936,7 +3936,7 @@ function setupNetwork {
             filtered_ifaces[$index]=$try_iface
             index=$((index + 1))
         done
-        dev_list=filtered_ifaces
+        dev_list=("${filtered_ifaces[@]}")
     fi
     #==================================================
     # keep only ifaces where link set up was successful
@@ -3951,7 +3951,7 @@ function setupNetwork {
             index=$((index + 1))
         fi
     done
-    dev_list=valid_ifaces
+    dev_list=("${valid_ifaces[@]}")
     #======================================
     # wait for an UP link
     #--------------------------------------
