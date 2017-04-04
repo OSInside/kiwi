@@ -24,6 +24,8 @@ from kiwi.path import Path
 from kiwi.utils.sync import DataSync
 from kiwi.utils.compress import Compress
 from kiwi.command import Command
+from kiwi.archive.tar import ArchiveTar
+from kiwi.defaults import Defaults
 
 
 class RootImportDocker(RootImportBase):
@@ -67,7 +69,11 @@ class RootImportDocker(RootImportBase):
         # kept inside the root_dir in order to ensure the later steps
         # i.e. system create are atomic and don't need any third
         # party archive.
-        self._copy_image(self.uncompressed_image)
+        image_copy = Defaults.get_imported_root_image(self.root_dir)
+        Path.create(os.path.dirname(image_copy))
+        image_tar = ArchiveTar(image_copy)
+        image_tar.create(self.oci_layout_dir)
+        self._make_checksum(image_copy)
 
     def __del__(self):
         if self.oci_layout_dir:

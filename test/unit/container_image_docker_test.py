@@ -103,7 +103,7 @@ class TestContainerImageDocker(object):
             ]),
             call([
                 'umoci', 'config', '--config.cmd=/bin/bash', '--image',
-                'kiwi_docker_dir/umoci_layout:latest', '--tag', 'latest'
+                'kiwi_docker_dir/umoci_layout:latest'
             ]),
             call([
                 'umoci', 'gc', '--layout', 'kiwi_docker_dir/umoci_layout'
@@ -126,15 +126,17 @@ class TestContainerImageDocker(object):
         mock_compress.assert_called_once_with('result.tar')
         compressor.xz.assert_called_once_with()
 
+    @patch('kiwi.container.docker.ArchiveTar')
     @patch('kiwi.container.docker.Compress')
     @patch('kiwi.container.docker.Command.run')
     @patch('kiwi.container.docker.DataSync')
     @patch('kiwi.container.docker.mkdtemp')
     @patch('kiwi.container.docker.Path.wipe')
+    @patch('kiwi.container.docker.Path.create')
     @patch('kiwi.container.docker.Defaults.get_shared_cache_location')
     def test_create_derived(
-        self, mock_cache, mock_wipe, mock_mkdtemp,
-        mock_sync, mock_command, mock_compress
+        self, mock_cache, mock_create, mock_wipe, mock_mkdtemp,
+        mock_sync, mock_command, mock_compress, mock_tar
     ):
         mock_cache.return_value = 'var/cache/kiwi'
         compressor = mock.Mock()
@@ -151,11 +153,13 @@ class TestContainerImageDocker(object):
         self.docker.create('result.tar.xz', 'root_dir/image/image_file')
 
         mock_wipe.assert_called_once_with('result.tar')
+        mock_tar.assert_called_once_with('root_dir/image/image_file')
+        mock_create.assert_called_once_with('kiwi_docker_dir/umoci_layout')
 
         assert mock_command.call_args_list == [
             call([
-                'skopeo', 'copy', 'docker-archive:root_dir/image/image_file',
-                'oci:kiwi_docker_dir/umoci_layout:latest'
+                'umoci', 'config', '--image',
+                'kiwi_docker_dir/umoci_layout', '--tag', 'latest'
             ]),
             call([
                 'umoci', 'unpack', '--image',
@@ -167,7 +171,7 @@ class TestContainerImageDocker(object):
             ]),
             call([
                 'umoci', 'config', '--config.cmd=/bin/bash', '--image',
-                'kiwi_docker_dir/umoci_layout:latest', '--tag', 'latest'
+                'kiwi_docker_dir/umoci_layout:latest'
             ]),
             call([
                 'umoci', 'gc', '--layout', 'kiwi_docker_dir/umoci_layout'

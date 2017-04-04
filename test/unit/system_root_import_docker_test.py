@@ -26,16 +26,16 @@ class TestRootImportDocker(object):
             'root_dir', Uri('file:///image.tar.xz')
         )
 
-    @patch('kiwi.system.root_import.base.shutil.copy')
+    @patch('kiwi.system.root_import.docker.ArchiveTar')
     @patch('kiwi.system.root_import.base.Checksum')
-    @patch('kiwi.system.root_import.base.Path.create')
+    @patch('kiwi.system.root_import.docker.Path.create')
     @patch('kiwi.system.root_import.docker.Compress')
     @patch('kiwi.system.root_import.docker.Command.run')
     @patch('kiwi.system.root_import.docker.DataSync')
     @patch('kiwi.system.root_import.docker.mkdtemp')
     def test_sync_data(
         self, mock_mkdtemp, mock_sync, mock_run,
-        mock_compress, mock_path, mock_md5, mock_copy
+        mock_compress, mock_path, mock_md5, mock_tar
     ):
         uncompress = mock.Mock()
         uncompress.uncompressed_filename = 'tmp_uncompressed'
@@ -78,8 +78,8 @@ class TestRootImportDocker(object):
         )
         mock_md5.assert_called_once_with('root_dir/image/imported_root')
         md5.md5.called_once_with('root_dir/image/imported_root.md5')
-        mock_copy.assert_called_once_with(
-            'tmp_uncompressed', 'root_dir/image/imported_root'
+        mock_tar.assert_called_once_with(
+            'root_dir/image/imported_root'
         )
         mock_path.assert_called_once_with('root_dir/image')
 

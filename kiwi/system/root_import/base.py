@@ -16,12 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import shutil
 
 # project
-from kiwi.path import Path
 from kiwi.utils.checksum import Checksum
-from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiRootImportError
 
 
@@ -69,9 +66,6 @@ class RootImportBase(object):
         """
         raise NotImplementedError
 
-    def _copy_image(self, image):
-        image_copy = Defaults.get_imported_root_image(self.root_dir)
-        Path.create(os.path.dirname(image_copy))
-        shutil.copy(image, image_copy)
-        checksum = Checksum(image_copy)
-        checksum.md5(''.join([image_copy, '.md5']))
+    def _make_checksum(self, image):
+        checksum = Checksum(image)
+        checksum.md5(''.join([image, '.md5']))
