@@ -452,13 +452,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_USE_LINUXEFI
         * GRUB_USE_INITRDEFI
         * GRUB_SERIAL_COMMAND
-        * GRUB_DISTRIBUTOR
         * GRUB_CMDLINE_LINUX
         """
         grub_default_entries = {
-            'GRUB_DISTRIBUTOR': '"{0}"'.format(
-                self.get_menu_entry_title(plain=True)
-            ),
             'GRUB_TIMEOUT': self.timeout
         }
         if self.cmdline:
