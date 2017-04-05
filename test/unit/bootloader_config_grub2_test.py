@@ -580,6 +580,35 @@ class TestBootLoaderConfigGrub2(object):
         )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    def test_setup_disk_boot_images_ppc(
+        self, mock_machine, mock_exists, mock_sync, mock_command
+    ):
+        mock_machine.return_value = 'ppc64le'
+        self.bootloader.arch = 'ppc64le'
+        self.firmware.efi_mode = mock.Mock(
+            return_value=None
+        )
+        self.bootloader.xen_guest = False
+        self.os_exists['root_dir/boot/unicode.pf2'] = False
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+
+        self.bootloader.setup_disk_boot_images('0815')
+
+        mock_command.assert_called_once_with(
+            [
+                'cp', 'root_dir/usr/share/grub2/unicode.pf2',
+                'root_dir/boot/unicode.pf2'
+            ]
+        )
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')

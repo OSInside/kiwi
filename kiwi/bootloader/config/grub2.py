@@ -390,7 +390,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self._copy_theme_data_to_boot_directory(lookup_path)
 
-        self._copy_bios_modules_to_boot_directory(lookup_path)
+        if self._supports_bios_modules():
+            self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
@@ -429,7 +430,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self._copy_theme_data_to_boot_directory(lookup_path)
 
-        if not self.xen_guest:
+        if not self.xen_guest and self._supports_bios_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
@@ -444,6 +445,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
+
+    def _supports_bios_modules(self):
+        if self.arch == 'ix86' or self.arch == 'x86_64':
+            return True
+        return False
 
     def _setup_default_grub(self):
         """
