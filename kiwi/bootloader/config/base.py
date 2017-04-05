@@ -340,6 +340,11 @@ class BootLoaderConfigBase(object):
         title = self.xml_state.xml_data.get_displayname()
         if not title:
             title = self.xml_state.xml_data.get_name()
+        else:
+            # if the is set via the displayname attribute no custom
+            # kiwi prefix or other style changes to that text should
+            # be made
+            plain = True
         type_name = self.xml_state.build_type.get_image()
         if plain:
             return title
