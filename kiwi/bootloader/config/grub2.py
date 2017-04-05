@@ -17,7 +17,6 @@
 #
 import os
 import platform
-import shutil
 from collections import OrderedDict
 
 # project
@@ -31,7 +30,7 @@ from kiwi.path import Path
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
 
-from ...exceptions import (
+from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubModulesError,
@@ -145,7 +144,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.grub2 = BootLoaderTemplateGrub2()
         self.config = None
         self.efi_boot_path = None
-        self.boot_directory_name = 'grub2'
+        self.boot_directory_name = self._get_grub2_boot_directory_name()
         self.cmdline_failsafe = None
         self.cmdline = None
         self.iso_efi_boot = False
@@ -154,7 +153,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         Write grub.cfg and etc/default/grub file
         """
-        config_dir = self._get_grub_boot_path()
+        config_dir = self._get_grub2_boot_path()
         config_file = config_dir + '/grub.cfg'
         if self.config:
             log.info('Writing grub.cfg file')
@@ -184,7 +183,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * FAILSAFE_APPEND
         """
         sysconfig_bootloader_entries = {
-            'LOADER_TYPE': 'grub2',
+            'LOADER_TYPE': self.boot_directory_name,
             'LOADER_LOCATION': 'mbr'
         }
         if self.cmdline:
@@ -246,6 +245,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(),
             'bootpath': self.bootpath,
+            'boot_directory_name': self.boot_directory_name
         }
         if self.multiboot:
             log.info('--> Using multiboot disk template')
@@ -379,7 +379,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
         Path.create(
-            self._get_grub_boot_path()
+            self._get_grub2_boot_path()
         )
         mbrid.write(
             self.root_dir + '/boot/' + mbrid.get_id()
@@ -389,6 +389,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
         self._copy_theme_data_to_boot_directory(lookup_path)
+
+        self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
@@ -426,6 +428,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.efi_boot_path = self.create_efi_path()
 
         self._copy_theme_data_to_boot_directory(lookup_path)
+
+        if not self.xen_guest:
+            self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
@@ -477,11 +482,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.theme:
             theme_setup = '{0}/{1}/theme.txt'
             grub_default_entries['GRUB_THEME'] = theme_setup.format(
-                '/boot/grub2/themes', self.theme
+                ''.join(['/boot/', self.boot_directory_name, '/themes']),
+                self.theme
             )
             theme_background = '{0}/{1}/background.png'
             grub_default_entries['GRUB_BACKGROUND'] = theme_background.format(
-                '/boot/grub2/themes', self.theme
+                ''.join(['/boot/', self.boot_directory_name, '/themes']),
+                self.theme
             )
         if self.firmware.efi_mode():
             grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
@@ -563,9 +570,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_early_boot_script_for_mbrid_search(
                 early_boot_script, mbrid
             )
+        for grub_mkimage_tool in ['grub2-mkimage', 'grub-mkimage']:
+            if Path.which(grub_mkimage_tool):
+                break
         Command.run(
             [
-                'grub2-mkimage',
+                grub_mkimage_tool,
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
                 '-o', self._get_efi_image_name(),
                 '-c', early_boot_script,
@@ -594,7 +604,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'set prefix=($root)/boot/%s\n' % self.boot_directory_name
             )
 
-    def _get_grub_boot_path(self):
+    def _get_grub2_boot_path(self):
         return self.root_dir + '/boot/' + self.boot_directory_name
 
     def _get_efi_image_name(self):
@@ -605,6 +615,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Defaults.get_efi_module_directory_name(self.arch),
             lookup_path
         )
+
+    def _get_bios_modules_path(self, lookup_path=None):
+        return self._get_module_path('i386-pc', lookup_path)
 
     def _get_xen_modules_path(self, lookup_path=None):
         return self._get_module_path(
@@ -622,22 +635,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-    def _fixup_legacy_grub_location(self):
-        legacy_grub_theme_dir = self.root_dir + '/boot/grub/themes'
-        legacy_font = self.root_dir + '/boot/grub/unicode.pf2'
-        grub_dir = '/'.join(
-            [self.root_dir, 'boot', self.boot_directory_name]
-        )
-        if os.path.exists(legacy_grub_theme_dir):
-            # found grub2 theme directory in legacy grub directory
-            Path.wipe(grub_dir + '/themes')
-            shutil.copytree(legacy_grub_theme_dir, grub_dir + '/themes')
-        if os.path.exists(legacy_font):
-            # found grub2 unicode font in legacy grub directory
-            shutil.copy(legacy_font, grub_dir)
-
     def _copy_theme_data_to_boot_directory(self, lookup_path):
-        self._fixup_legacy_grub_location()
         if not lookup_path:
             lookup_path = self.root_dir
         boot_unicode_font = self.root_dir + '/boot/unicode.pf2'
@@ -688,6 +686,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._get_efi_modules_path(lookup_path)
         )
 
+    def _copy_bios_modules_to_boot_directory(self, lookup_path):
+        self._copy_modules_to_boot_directory_from(
+            self._get_bios_modules_path(lookup_path)
+        )
+
     def _copy_xen_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(
             self._get_xen_modules_path(lookup_path)
@@ -695,7 +698,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _copy_modules_to_boot_directory_from(self, module_path):
         boot_module_path = \
-            self._get_grub_boot_path() + '/' + os.path.basename(module_path)
+            self._get_grub2_boot_path() + '/' + os.path.basename(module_path)
         try:
             data = DataSync(
                 module_path + '/', boot_module_path
@@ -716,3 +719,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         raise KiwiBootLoaderGrubDataError(
             'No grub2 installation found in %s' % lookup_path
         )
+
+    def _get_grub2_boot_directory_name(self):
+        """
+        Get grub data directory name in boot/ directory
+
+        Depending on the distribution the grub boot path could be
+        either boot/grub2 or boot/grub. The method will decide for
+        the correct base directory name according to the name pattern
+        of the installed grub tools
+        """
+        chroot_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
+        }
+        if Path.which(filename='grub2-install', custom_env=chroot_env):
+            # the presence of grub2-install is an indicator to put all
+            # grub data below boot/grub2
+            return 'grub2'
+        else:
+            # in any other case the assumption is made that all grub
+            # boot data should live below boot/grub
+            return 'grub'

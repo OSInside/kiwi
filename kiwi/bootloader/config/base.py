@@ -298,12 +298,15 @@ class BootLoaderConfigBase(object):
                 filesystem = self.xml_state.build_type.get_filesystem()
                 volumes = self.xml_state.get_volumes()
                 if filesystem == 'btrfs' and volumes:
-                    # boot or boot/grub2 on a subvolume prevents grub from
-                    # finding its config file
+                    # grub boot data paths must not be in a subvolume
+                    # otherwise grub won't be able to find its config file
+                    grub2_boot_data_paths = ['boot', 'boot/grub', 'boot/grub2']
                     for volume in volumes:
-                        if volume.name == 'boot' or volume.name == 'boot/grub2':
+                        if volume.name in grub2_boot_data_paths:
                             raise KiwiBootLoaderTargetError(
-                                'boot or boot/grub2 must not be a subvolume'
+                                '{0} must not be a subvolume'.format(
+                                    volume.name
+                                )
                             )
 
         return bootpath
