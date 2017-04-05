@@ -3546,7 +3546,7 @@ function setupNetworkWicked {
     local wicked_dhcp4=/usr/lib/wicked/bin/wickedd-dhcp4
     for try_iface in ${dev_list[*]}; do
         # try DHCP_DISCOVER on all interfaces
-        if setIPLinkUp $try_iface; then
+        if checkLinkUp $try_iface; then
             dhcp_info=/var/run/wicked/wicked-${try_iface}.info
             $wicked_dhcp4 --debug all \
                 --test --test-output $dhcp_info $try_iface
@@ -3874,6 +3874,7 @@ function setupNetwork {
     local hwicmd=/usr/sbin/hwinfo
     local opts="--noipv4ll -p"
     local try_iface
+    local valid_ifaces
     export DHCPCD_STARTED=""
     #======================================
     # detect iface and HWaddr
@@ -3918,6 +3919,54 @@ function setupNetwork {
             index=$((index + 1))
         done
     fi
+    #==================================================
+    # apply nic filter if specified
+    #--------------------------------------------------
+    if [ ! -z "$kiwi_oemnicfilter" ];then
+        # /.../
+        # evaluate the information from a given nic filter
+        # all devices matching the filter rule will be used
+        # ----
+        index=0
+        for try_iface in ${dev_list[*]}; do
+            if [[ $try_iface =~ $kiwi_oemnicfilter ]];then
+                Echo "$try_iface filtered out by rule: $kiwi_oemnicfilter"
+                continue
+            fi
+            filtered_ifaces[$index]=$try_iface
+            index=$((index + 1))
+        done
+        dev_list=("${filtered_ifaces[@]}")
+    fi
+    #==================================================
+    # keep only ifaces where link set up was successful
+    #--------------------------------------------------
+    index=0
+    for try_iface in ${dev_list[*]}; do
+        # try to bring up the link on all interfaces
+        if setIPLinkUp $try_iface; then
+            # keep only interfaces in the list if at least the
+            # ip link set up call succeeded
+            valid_ifaces[$index]=$try_iface
+            index=$((index + 1))
+        fi
+    done
+    dev_list=("${valid_ifaces[@]}")
+    #======================================
+    # wait for an UP link
+    #--------------------------------------
+    if ! waitForOneLink;then
+        Echo "Could not get a link up on any interface"
+    fi
+    #======================================
+    # sleep once to wait for link status
+    #--------------------------------------
+    # each network interface will be switched off for a short
+    # moment when the kernel network driver is loaded. During
+    # that time the link status information would be misleading.
+    # Thus we wait a short time before the link status check
+    # is started
+    sleep 2
     #======================================
     # ask for an address
     #--------------------------------------
@@ -5599,56 +5648,63 @@ function waitForStorageDevice {
     done
 }
 #======================================
-# waitForLinkUp
+# checkLinkUp
 #--------------------------------------
-function waitForLinkUp {
+function checkLinkUp {
     # /.../
     # wait for the network link to enter UP state
     # ----
     local IFS=$IFS_ORIG
     local dev=$1
-    local check=0
     local linkstatus
     local linkgrep
-    local link_unplugged
-    local sleep_timeout=2
-    local retry_count=30
-    #======================================
-    # Wait for network drivers to pass init
-    #--------------------------------------
-    # each network interface will be switched off for a short
-    # moment when the kernel network driver is loaded. During
-    # that time the link status information would be misleading.
-    # Thus we wait a short time before the link status check
-    # is started
-    sleep 1
+    if [ "$dev" = "lo" ];then
+        return 0
+    fi
     #======================================
     # Lookup link status...
     #--------------------------------------
     if lookup ifplugstatus &>/dev/null;then
         linkstatus=ifplugstatus
         linkgrep="link beat detected"
-        link_unplugged="unplugged"
     else
         linkstatus="ip link ls"
         linkgrep="state UP"
     fi
-    while true;do
-        if [ ! -z "$link_unplugged" ];then
-            if $linkstatus $dev | grep -qi "$link_unplugged"; then
-                # interface link is not connected, error
-                return 1
+    if $linkstatus $dev | grep -qi "$linkgrep"; then
+        # interface link is up
+        return 0
+    fi
+    return 1
+}
+#======================================
+# waitForOneLink
+#--------------------------------------
+function waitForOneLink {
+    # /.../
+    # wait for one link in the device list to enter UP state
+    # ----
+    local IFS=$IFS_ORIG
+    local check=0
+    local sleep_timeout=2
+    local retry_count=30
+    local try_iface
+    while true; do
+        # run quickly through all interfaces and see if one is up
+        for try_iface in ${dev_list[*]}; do
+            if [ "$try_iface" = "lo" ] ; then
+                continue
             fi
-        fi
-        if $linkstatus $dev | grep -qi "$linkgrep"; then
-            # interface link is up, success after a paranoid wait :)
-            sleep 1; return 0
-        fi
+            if checkLinkUp $try_iface ; then
+                # interface link is up
+                return 0
+            fi
+        done
         if [ $check -eq $retry_count ];then
-            # interface link did not came up, error
+            # none of the interfaces has come up
             return 1
         fi
-        Echo "Waiting for link up on ${dev}..."
+        Echo "Waiting for link up on ${dev_list}..."
         check=$((check + 1))
         sleep $sleep_timeout
     done
@@ -5660,12 +5716,6 @@ function setIPLinkUp {
     local IFS=$IFS_ORIG
     local try_iface=$1
     if ip link set dev $try_iface up;then
-        if [ ! $try_iface = "lo" ];then
-            if ! waitForLinkUp $try_iface;then
-                # link did not came up, not connected ?
-                return 1
-            fi
-        fi
         # success
         return 0
     fi

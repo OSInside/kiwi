@@ -110,6 +110,9 @@ class Checksum(object):
             blocks = self._block_list(
                 os.path.getsize(compress.uncompressed_filename)
             )
+            checksum = self._calculate_hash_hexdigest(
+                hashlib.md5(), compress.uncompressed_filename
+            )
         else:
             blocks = self._block_list(
                 os.path.getsize(self.source_filename)

@@ -54,7 +54,7 @@ class ResultListTask(CliTask):
         if self._help():
             return
 
-        result_directory = os.path.normpath(
+        result_directory = os.path.abspath(
             self.command_args['--target-dir']
         )
         log.info(

@@ -780,6 +780,32 @@ operator</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <oem-nic-filter>
+    
+  -->
+  <div>
+    <define name="k.oem-nic-filter.content">
+      <text/>
+    </define>
+    <define name="k.oem-nic-filter.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-nic-filter">
+      <element name="oem-nic-filter">
+        <a:documentation>For oemboot driven images: filter network interface names by given
+regular expression. The expression is handled by the bash regexp
+operator. Interface names matching the rule will be skipped. All
+other interface names stay in the list. It is also possible to
+pass the variable kiwi_oemnicfilter as kernel command
+line in a PXE deployment</a:documentation>
+        <db:para>For oemboot driven images: filter network interface names by givenregular expression. The expression is handled by the bash regexpoperator. Interface names matching the rule will be skipped. Allother interface names stay in the list. It is also possible topass the variable kiwi_oemnicfilter as kernel commandline in a PXE deployment</db:para>
+        <ref name="k.oem-nic-filter.attlist"/>
+        <ref name="k.oem-nic-filter.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-inplace-recovery>
     
   -->
@@ -1764,7 +1790,7 @@ will be displayed in a dialog window on boot.</db:para>
   <div>
     <define name="k.size.unit.attribute">
       <attribute name="unit">
-        <a:documentation>The unit of the image</a:documentation>
+        <a:documentation>The unit of the image size</a:documentation>
         <choice>
           <value>M</value>
           <value>G</value>
@@ -1773,6 +1799,8 @@ will be displayed in a dialog window on boot.</db:para>
     </define>
     <define name="k.size.additive.attribute">
       <attribute name="additive">
+        <a:documentation>Specifies if the size value is absolute or added on top
+of the current data size</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
@@ -2134,7 +2162,7 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="editbootconfig" is-a="image_type">
         <sch:param name="attr" value="editbootconfig"/>
-        <sch:param name="types" value="vmx oem"/>
+        <sch:param name="types" value="vmx oem iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.editbootinstall.attribute">
@@ -2192,7 +2220,6 @@ the standard x86 bios firmware setup is used</a:documentation>
         <choice>
           <value>bios</value>
           <value>ec2</value>
-          <value>ec2hvm</value>
           <value>efi</value>
           <value>uefi</value>
           <value>ofw</value>
@@ -2236,14 +2263,19 @@ e.g for the syslinux loader fat is required</a:documentation>
     </define>
     <define name="k.type.flags.attribute">
       <attribute name="flags">
-        <a:documentation>Specifies flags for the image type. This could be compressed
-or clic and applies to the iso type only</a:documentation>
+        <a:documentation>Specifies overlay filesystem flags for the iso image type.
+`clic` uses the fuse based clicfs as root overlay filesystem.
+When using clicfs make sure it is installed on your build host
+system and also put as bootincluded package in your XML
+description: `&lt;package name="clicfs" bootinclude="true"/&gt;`,
+`clic_udf` same as clicfs but allows creation if live images
+which exceeds the 4G boundary, `overlay` uses the kernel
+overlayfs as root overlay filesystem. This is the most stable
+and preferred method.</a:documentation>
         <choice>
           <value>clic</value>
-          <value>compressed</value>
           <value>clic_udf</value>
           <value>overlay</value>
-          <value>seed</value>
         </choice>
       </attribute>
       <sch:pattern id="flags" is-a="image_type">
@@ -2253,13 +2285,8 @@ or clic and applies to the iso type only</a:documentation>
     </define>
     <define name="k.type.format.attribute">
       <attribute name="format">
-        <a:documentation>Specifies the format of the virtual disk.
-The ec2 value is deprecated and no longer supported
-It remains in the schema to allow us to print a better
-Error message than we receive from the parser.
-To be remove from here by the end of 2014</a:documentation>
+        <a:documentation>Specifies the format of the virtual disk.</a:documentation>
         <choice>
-          <value>ec2</value>
           <value>gce</value>
           <value>ovf</value>
           <value>ova</value>
@@ -2320,9 +2347,10 @@ The string given here is passed as value to the -o option of mount</a:documentat
     </define>
     <define name="k.type.hybrid.attribute">
       <attribute name="hybrid">
-        <a:documentation>Specifies that the image file should be turned into
-a hybrid image file. It's required to use the vmxboot
-boot image to boot that image though</a:documentation>
+        <a:documentation>Specifies that the ISO file will be turned into a hybrid image.
+hybrid means the ISO image can be used as CD/DVD image and as a
+disk image if the iso is e.g dumped on a USB stick. In both cases
+the result is a bootable system.</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="hybrid" is-a="image_type">
@@ -2465,11 +2493,10 @@ be created (oem only)</a:documentation>
       </sch:pattern>
     </define>
     <define name="k.type.kernelcmdline.attribute">
-      <!--
-        The kernelcmdline element specifies additional
-        kernel command line options
-      -->
-      <attribute name="kernelcmdline"/>
+      <attribute name="kernelcmdline">
+        <a:documentation>The kernelcmdline element specifies additional
+kernel command line options</a:documentation>
+      </attribute>
       <sch:pattern id="kernelcmdline" is-a="image_type">
         <sch:param name="attr" value="kernelcmdline"/>
         <sch:param name="types" value="oem vmx iso pxe"/>
@@ -2607,7 +2634,9 @@ to work on.</a:documentation>
     <define name="k.type.attlist">
       <interleave>
         <optional>
-          <ref name="k.type.boot.attribute"/>
+          <ref name="k.type.boot.attribute">
+            <a:documentation>Specifies the image type</a:documentation>
+          </ref>
         </optional>
         <optional>
           <ref name="k.type.bootfilesystem.attribute"/>
@@ -2816,6 +2845,7 @@ to work on.</a:documentation>
     </define>
     <define name="k.union.type.attribute">
       <attribute name="type">
+        <a:documentation>Union type to use to overlay read-write and read-only parts</a:documentation>
         <value>overlayfs</value>
       </attribute>
     </define>
@@ -3326,6 +3356,10 @@ a standard image description created by a kiwi user.</a:documentation>
   <div>
     <define name="k.strip.type.attribute">
       <attribute name="type">
+        <a:documentation>Specifies the strip data type. `delete` references
+a list of custom files and directories to delete, `tools`
+references file names in linux bin/sbin directories, `libs`
+references file names in linux lib directories.</a:documentation>
         <choice>
           <value>delete</value>
           <value>tools</value>
@@ -3753,6 +3787,9 @@ and setup the system disk</db:para>
             <ref name="k.oem-device-filter"/>
           </optional>
           <optional>
+            <ref name="k.oem-nic-filter"/>
+          </optional>
+          <optional>
             <ref name="k.oem-inplace-recovery"/>
           </optional>
           <optional>
@@ -4014,6 +4051,13 @@ virtual machine when running the image.</db:para>
   <div>
     <define name="k.packages.type.attribute">
       <attribute name="type">
+        <a:documentation>Specifies package collection type. `bootstrap` packages
+gets installed in the very first phase of an image build
+in order to fill the empty root directory with bootstrap
+data. `image` packages are installed after the bootstrap
+phase as chroot operation. `delete` packages are uninstalled
+after the preparation phase is done. `image_type_name`
+packages are only installed if this build type is requested.</a:documentation>
         <choice>
           <value>bootstrap</value>
           <value>delete</value>

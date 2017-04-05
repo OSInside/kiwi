@@ -17,7 +17,8 @@ class TestBootLoaderTemplateGrub2(object):
             theme='SLE',
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
-            bootpath='/boot'
+            bootpath='/boot',
+            boot_directory_name='grub2'
         )
 
     def test_get_disk_template_console(self):
@@ -64,6 +65,7 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
+            boot_directory_name='grub2',
             hypervisor='xen.gz'
         )
 
@@ -112,6 +114,7 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
+            boot_directory_name='grub2',
             hypervisor='xen.gz'
         )
 
@@ -159,7 +162,8 @@ class TestBootLoaderTemplateGrub2(object):
             theme='SLE',
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
-            bootpath='/boot'
+            bootpath='/boot',
+            boot_directory_name='grub2'
         )
 
     def test_get_install_template_console_no_hybrid(self):
@@ -206,7 +210,8 @@ class TestBootLoaderTemplateGrub2(object):
             theme='SLE',
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community',
-            bootpath='/boot'
+            bootpath='/boot',
+            boot_directory_name='grub2'
         )
 
     def test_get_iso_template_console_no_hybrid(self):
@@ -254,6 +259,7 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
+            boot_directory_name='grub2',
             hypervisor='xen.gz'
         )
 

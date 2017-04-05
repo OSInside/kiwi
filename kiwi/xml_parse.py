@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Mar  7 12:28:29 2017 by generateDS.py version 2.24a.
+# Generated Tue Mar 28 11:25:19 2017 by generateDS.py version 2.25a.
 #
 # Command line options:
 #   ('-f', '')
@@ -13,7 +13,7 @@
 #   kiwi/schema/kiwi.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -364,6 +364,15 @@ except ImportError as exp:
                 return instring.encode(ExternalEncoding)
             else:
                 return instring
+        @staticmethod
+        def convert_unicode(instring):
+            if isinstance(instring, str):
+                result = quote_xml(instring)
+            elif sys.version_info.major == 2 and isinstance(instring, unicode):
+                result = quote_xml(instring).encode('utf8')
+            else:
+                result = GeneratedsSuper.gds_encode(str(instring))
+            return result
 
     def getSubclassFromModule_(module, class_):
         '''Get the subclass of a class from a specific module.'''
@@ -616,10 +625,11 @@ class MixedContainer:
 
 
 class MemberSpec_(object):
-    def __init__(self, name='', data_type='', container=0):
+    def __init__(self, name='', data_type='', container=0, optional=0):
         self.name = name
         self.data_type = data_type
         self.container = container
+        self.optional = optional
     def set_name(self, name): self.name = name
     def get_name(self): return self.name
     def set_data_type(self, data_type): self.data_type = data_type
@@ -634,6 +644,8 @@ class MemberSpec_(object):
             return self.data_type
     def set_container(self, container): self.container = container
     def get_container(self): return self.container
+    def set_optional(self, optional): self.optional = optional
+    def get_optional(self): return self.optional
 
 
 def _cast(typ, value):
@@ -1198,7 +1210,7 @@ class configuration(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
+    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1291,7 +1303,7 @@ class file(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
+    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1377,7 +1389,7 @@ class ignore(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
+    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1463,7 +1475,7 @@ class namedCollection(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
+    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1549,7 +1561,7 @@ class product(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
+    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1644,7 +1656,7 @@ class package(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*$']]
+    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
     def hasContent_(self):
         if (
 
@@ -1770,7 +1782,7 @@ class partition(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_size_type_patterns_, ))
-    validate_size_type_patterns_ = [['^\\d*|image$']]
+    validate_size_type_patterns_ = [['^\\d*$|^image$']]
     def hasContent_(self):
         if (
 
@@ -2334,7 +2346,7 @@ class size(GeneratedsSuper):
         self.exportAttributes(outfile, level, already_processed, namespace_, name_='size')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write((quote_xml(self.valueOf_) if type(self.valueOf_) is str else self.gds_encode(str(self.valueOf_))))
+            outfile.write(self.convert_unicode(self.valueOf_))
             self.exportChildren(outfile, level + 1, namespace_='', name_='size', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
@@ -2725,7 +2737,7 @@ class type_(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_partition_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
-    validate_partition_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G$']]
+    validate_partition_size_type_patterns_ = [['^\\d+$|^\\d+M$|^\\d+G$']]
     def validate_vhd_tag_type(self, value):
         # Validate type vhd-tag-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3925,7 +3937,7 @@ class volume(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_volume_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_volume_size_type_patterns_, ))
-    validate_volume_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G|all$']]
+    validate_volume_size_type_patterns_ = [['^\\d+$|^\\d+M$|^\\d+G$|^all$']]
     def hasContent_(self):
         if (
 
@@ -5503,7 +5515,7 @@ class oemconfig(GeneratedsSuper):
     """Specifies the OEM configuration section"""
     subclass = None
     superclass = None
-    def __init__(self, oem_ataraid_scan=None, oem_boot_title=None, oem_bootwait=None, oem_device_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
+    def __init__(self, oem_ataraid_scan=None, oem_boot_title=None, oem_bootwait=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
         self.original_tagname_ = None
         if oem_ataraid_scan is None:
             self.oem_ataraid_scan = []
@@ -5521,6 +5533,10 @@ class oemconfig(GeneratedsSuper):
             self.oem_device_filter = []
         else:
             self.oem_device_filter = oem_device_filter
+        if oem_nic_filter is None:
+            self.oem_nic_filter = []
+        else:
+            self.oem_nic_filter = oem_nic_filter
         if oem_inplace_recovery is None:
             self.oem_inplace_recovery = []
         else:
@@ -5636,6 +5652,11 @@ class oemconfig(GeneratedsSuper):
     def add_oem_device_filter(self, value): self.oem_device_filter.append(value)
     def insert_oem_device_filter_at(self, index, value): self.oem_device_filter.insert(index, value)
     def replace_oem_device_filter_at(self, index, value): self.oem_device_filter[index] = value
+    def get_oem_nic_filter(self): return self.oem_nic_filter
+    def set_oem_nic_filter(self, oem_nic_filter): self.oem_nic_filter = oem_nic_filter
+    def add_oem_nic_filter(self, value): self.oem_nic_filter.append(value)
+    def insert_oem_nic_filter_at(self, index, value): self.oem_nic_filter.insert(index, value)
+    def replace_oem_nic_filter_at(self, index, value): self.oem_nic_filter[index] = value
     def get_oem_inplace_recovery(self): return self.oem_inplace_recovery
     def set_oem_inplace_recovery(self, oem_inplace_recovery): self.oem_inplace_recovery = oem_inplace_recovery
     def add_oem_inplace_recovery(self, value): self.oem_inplace_recovery.append(value)
@@ -5747,6 +5768,7 @@ class oemconfig(GeneratedsSuper):
             self.oem_boot_title or
             self.oem_bootwait or
             self.oem_device_filter or
+            self.oem_nic_filter or
             self.oem_inplace_recovery or
             self.oem_kiwi_initrd or
             self.oem_multipath_scan or
@@ -5809,6 +5831,9 @@ class oemconfig(GeneratedsSuper):
         for oem_device_filter_ in self.oem_device_filter:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-device-filter>%s</%soem-device-filter>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), namespace_, eol_))
+        for oem_nic_filter_ in self.oem_nic_filter:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%soem-nic-filter>%s</%soem-nic-filter>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_nic_filter_), input_name='oem-nic-filter')), namespace_, eol_))
         for oem_inplace_recovery_ in self.oem_inplace_recovery:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%soem-inplace-recovery>%s</%soem-inplace-recovery>%s' % (namespace_, self.gds_format_boolean(oem_inplace_recovery_, input_name='oem-inplace-recovery'), namespace_, eol_))
@@ -5910,6 +5935,10 @@ class oemconfig(GeneratedsSuper):
             oem_device_filter_ = child_.text
             oem_device_filter_ = self.gds_validate_string(oem_device_filter_, node, 'oem_device_filter')
             self.oem_device_filter.append(oem_device_filter_)
+        elif nodeName_ == 'oem-nic-filter':
+            oem_nic_filter_ = child_.text
+            oem_nic_filter_ = self.gds_validate_string(oem_nic_filter_, node, 'oem_nic_filter')
+            self.oem_nic_filter.append(oem_nic_filter_)
         elif nodeName_ == 'oem-inplace-recovery':
             sval_ = child_.text
             if sval_ in ('true', '1'):
@@ -7279,9 +7308,12 @@ def parseEtree(inFileName, silence=False):
 
 
 def parseString(inString, silence=False):
-    from StringIO import StringIO
+    if sys.version_info.major == 2:
+        from StringIO import StringIO as IOBuffer
+    else:
+        from io import BytesIO as IOBuffer
     parser = None
-    doc = parsexml_(StringIO(inString), parser)
+    doc = parsexml_(IOBuffer(inString), parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:

@@ -39,6 +39,11 @@
 %define distro suse-leap42.2
 %endif
 
+# Leap 42.3:
+%if 0%{?leap_version} == 420300
+%define distro suse-leap42.3
+%endif
+
 # Tumbleweed:
 # Current Tumbleweed version, moving target
 %if 0%{?suse_version} == 1330
@@ -93,6 +98,7 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Recommends:     jing
 Requires:       update-alternatives
 Requires:       python-docopt
 Requires:       python-setuptools
@@ -152,6 +158,7 @@ Provides:       kiwi-image:iso
 Provides:       kiwi-image:vmx
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Recommends:     jing
 Requires:       update-alternatives
 Requires:       python3-docopt
 Requires:       python3-setuptools

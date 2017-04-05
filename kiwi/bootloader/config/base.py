@@ -298,25 +298,16 @@ class BootLoaderConfigBase(object):
                 filesystem = self.xml_state.build_type.get_filesystem()
                 volumes = self.xml_state.get_volumes()
                 if filesystem == 'btrfs' and volumes:
-                    # boot or boot/grub2 on a subvolume prevents grub from
-                    # finding its config file
+                    # grub boot data paths must not be in a subvolume
+                    # otherwise grub won't be able to find its config file
+                    grub2_boot_data_paths = ['boot', 'boot/grub', 'boot/grub2']
                     for volume in volumes:
-                        if volume.name == 'boot' or volume.name == 'boot/grub2':
+                        if volume.name in grub2_boot_data_paths:
                             raise KiwiBootLoaderTargetError(
-                                'boot or boot/grub2 must not be a subvolume'
+                                '{0} must not be a subvolume'.format(
+                                    volume.name
+                                )
                             )
-
-                    # if we directly boot a btrfs filesystem with a subvolume
-                    # setup and no extra boot partition we have to care for
-                    # the layout of the system which places all volumes below
-                    # a toplevel volume. However if the root is placed into
-                    # a snapshot we use the SUSE_BTRFS_SNAPSHOT_BOOTING
-                    # extension which is configured in etc/default/grub and
-                    # maps the correct snapshot to the bootpath
-                    root_is_snapshot = \
-                        self.xml_state.build_type.get_btrfs_root_is_snapshot()
-                    if not root_is_snapshot:
-                        bootpath = '/@' + bootpath
 
         return bootpath
 
@@ -349,6 +340,11 @@ class BootLoaderConfigBase(object):
         title = self.xml_state.xml_data.get_displayname()
         if not title:
             title = self.xml_state.xml_data.get_name()
+        else:
+            # if the is set via the displayname attribute no custom
+            # kiwi prefix or other style changes to that text should
+            # be made
+            plain = True
         type_name = self.xml_state.build_type.get_image()
         if plain:
             return title

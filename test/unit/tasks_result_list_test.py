@@ -1,5 +1,6 @@
 import sys
 import mock
+import os
 
 from mock import patch
 
@@ -14,6 +15,7 @@ class TestResultListTask(object):
         sys.argv = [
             sys.argv[0], 'result', 'list', '--target-dir', 'directory'
         ]
+        self.abs_target_dir = os.path.abspath('directory')
         self.result = mock.Mock()
         kiwi.tasks.result_list.Help = mock.Mock(
             return_value=mock.Mock()
@@ -35,7 +37,9 @@ class TestResultListTask(object):
         self._init_command_args()
         self.task.command_args['list'] = True
         self.task.process()
-        mock_load.assert_called_once_with('directory/kiwi.result')
+        mock_load.assert_called_once_with(
+            os.sep.join([self.abs_target_dir, 'kiwi.result'])
+        )
         self.result.print_results.assert_called_once_with()
 
     def test_process_result_list_help(self):

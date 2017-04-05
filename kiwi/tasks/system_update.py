@@ -38,6 +38,8 @@ options:
     --root=<directory>
         path to the root directory of the image
 """
+import os
+
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.privileges import Privileges
@@ -68,8 +70,10 @@ class SystemUpdateTask(CliTask):
 
         Privileges.check_for_root_permissions()
 
+        abs_root_path = os.path.abspath(self.command_args['--root'])
+
         self.load_xml_description(
-            self.command_args['--root']
+            abs_root_path
         )
 
         package_requests = False
@@ -81,7 +85,7 @@ class SystemUpdateTask(CliTask):
         log.info('Updating system')
         self.system = SystemPrepare(
             self.xml_state,
-            self.command_args['--root'],
+            abs_root_path,
             allow_existing=True
         )
         manager = self.system.setup_repositories()

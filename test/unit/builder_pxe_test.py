@@ -24,7 +24,7 @@ class TestPxeBuilder(object):
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         mock_boot.return_value = self.boot_image_task
         self.filesystem = mock.MagicMock()
-        self.filesystem.filename = 'myimage'
+        self.filesystem.filename = 'myimage.fs'
         mock_filesystem.return_value = self.filesystem
         self.xml_state = mock.Mock()
         self.xml_state.get_image_version = mock.Mock(
@@ -62,9 +62,15 @@ class TestPxeBuilder(object):
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')
     @patch('kiwi.logger.log.warning')
-    def test_create(self, mock_log_warn, mock_compress, mock_checksum):
+    @patch('kiwi.builder.pxe.Command.run')
+    @patch('os.rename')
+    def test_create(
+        self, mock_rename, mock_command, mock_log_warn,
+        mock_compress, mock_checksum
+    ):
         compress = mock.Mock()
         mock_compress.return_value = compress
+        compress.compressed_filename = 'compressed-file-name'
         checksum = mock.Mock()
         mock_checksum.return_value = checksum
         self.boot_image_task.required = mock.Mock(
@@ -72,8 +78,11 @@ class TestPxeBuilder(object):
         )
         self.pxe.create()
         self.filesystem.create.assert_called_once_with()
+        mock_rename.assert_called_once_with(
+            'myimage.fs', 'myimage'
+        )
         compress.xz.assert_called_once_with()
-        checksum.md5.assert_called_once_with('myimage.md5')
+        checksum.md5.assert_called_once_with('compressed-file-name.md5')
         self.boot_image_task.prepare.assert_called_once_with()
         self.setup.export_modprobe_setup.assert_called_once_with(
             'initrd_dir'
@@ -90,14 +99,26 @@ class TestPxeBuilder(object):
 
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')
+    @patch('os.rename')
     @raises(KiwiPxeBootImageError)
-    def test_create_no_kernel_found(self, mock_compress, mock_checksum):
+    def test_create_no_kernel_found(
+        self, mock_rename, mock_compress, mock_checksum
+    ):
+        compress = mock.Mock()
+        mock_compress.return_value = compress
+        compress.compressed_filename = 'compressed-file-name'
         self.kernel.get_kernel.return_value = False
         self.pxe.create()
 
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')
+    @patch('os.rename')
     @raises(KiwiPxeBootImageError)
-    def test_create_no_hypervisor_found(self, mock_compress, mock_checksum):
+    def test_create_no_hypervisor_found(
+        self, mock_rename, mock_compress, mock_checksum
+    ):
+        compress = mock.Mock()
+        mock_compress.return_value = compress
+        compress.compressed_filename = 'compressed-file-name'
         self.kernel.get_xen_hypervisor.return_value = False
         self.pxe.create()

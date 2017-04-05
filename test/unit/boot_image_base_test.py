@@ -6,7 +6,8 @@ from .test_helper import raises, patch_open
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
-    KiwiBootImageDumpError
+    KiwiBootImageDumpError,
+    KiwiConfigFileNotFound
 )
 
 from kiwi.boot.image.base import BootImageBase
@@ -111,6 +112,12 @@ class TestBootImageBase(object):
         boot_path.return_value = 'boot_path'
         assert self.boot_image.get_boot_description_directory() == \
             'boot_path/oemboot/suse-13.2'
+
+    @raises(KiwiConfigFileNotFound)
+    @patch('kiwi.boot.image.base.BootImageBase.get_boot_description_directory')
+    def test_load_boot_xml_description(self, mock_boot_dir):
+        mock_boot_dir.return_value = None
+        self.boot_image.load_boot_xml_description()
 
     @patch('kiwi.boot.image.base.Path.wipe')
     @patch('os.path.exists')

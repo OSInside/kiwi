@@ -555,6 +555,35 @@ div {
 }
 
 #==========================================
+# common element <oem-nic-filter>
+#
+div {
+    k.oem-nic-filter.content = text
+    k.oem-nic-filter.attlist = empty
+    k.oem-nic-filter =
+        ## For oemboot driven images: filter network interface names by given
+        ## regular expression. The expression is handled by the bash regexp
+        ## operator. Interface names matching the rule will be skipped. All
+        ## other interface names stay in the list. It is also possible to
+        ## pass the variable kiwi_oemnicfilter as kernel command
+        ## line in a PXE deployment
+        [
+        db:para [
+            "For oemboot driven images: filter network interface names by given"
+            "regular expression. The expression is handled by the bash regexp"
+            "operator. Interface names matching the rule will be skipped. All"
+            "other interface names stay in the list. It is also possible to"
+            "pass the variable kiwi_oemnicfilter as kernel command"
+            "line in a PXE deployment"
+        ]
+        ]
+        element oem-nic-filter {
+            k.oem-nic-filter.attlist,
+            k.oem-nic-filter.content
+        }
+}
+
+#==========================================
 # common element <oem-inplace-recovery>
 #
 div {
@@ -1362,9 +1391,11 @@ div {
 #
 div {
     k.size.unit.attribute =
-        ## The unit of the image
+        ## The unit of the image size
         attribute unit { "M" | "G" }
     k.size.additive.attribute =
+        ## Specifies if the size value is absolute or added on top
+        ## of the current data size
         attribute additive { xsd:boolean }
     k.size.attlist =
         k.size.unit.attribute? &
@@ -1647,7 +1678,7 @@ div {
         attribute editbootconfig { text }
         >> sch:pattern [ id = "editbootconfig" is-a = "image_type"
             sch:param [ name = "attr" value = "editbootconfig" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "vmx oem iso" ]
         ]
     k.type.editbootinstall.attribute =
         ## Specifies the path to a script which is called right
@@ -1688,8 +1719,7 @@ div {
         ## the disk layout and the partition table type. By default
         ## the standard x86 bios firmware setup is used
         attribute firmware {
-            "bios" | "ec2" | "ec2hvm" | "efi" |
-            "uefi" | "ofw" | "opal"
+            "bios" | "ec2" | "efi" | "uefi" | "ofw" | "opal"
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]
@@ -1716,10 +1746,17 @@ div {
             sch:param [ name = "types" value = "vmx oem" ]
         ]
     k.type.flags.attribute =
-        ## Specifies flags for the image type. This could be compressed
-        ## or clic and applies to the iso type only
+        ## Specifies overlay filesystem flags for the iso image type.
+        ## `clic` uses the fuse based clicfs as root overlay filesystem.
+        ## When using clicfs make sure it is installed on your build host
+        ## system and also put as bootincluded package in your XML
+        ## description: `<package name="clicfs" bootinclude="true"/>`,
+        ## `clic_udf` same as clicfs but allows creation if live images
+        ## which exceeds the 4G boundary, `overlay` uses the kernel
+        ## overlayfs as root overlay filesystem. This is the most stable
+        ## and preferred method.
         attribute flags {
-            "clic" | "compressed" | "clic_udf" | "overlay" | "seed"
+            "clic" | "clic_udf" | "overlay"
         }
         >> sch:pattern [ id = "flags" is-a = "image_type"
             sch:param [ name = "attr" value = "flags" ]
@@ -1727,12 +1764,8 @@ div {
         ]
     k.type.format.attribute =
         ## Specifies the format of the virtual disk.
-        ## The ec2 value is deprecated and no longer supported
-        ## It remains in the schema to allow us to print a better
-        ## Error message than we receive from the parser.
-        ## To be remove from here by the end of 2014
         attribute format {
-            "ec2" | "gce" | "ovf" | "ova" | "qcow2" | "vagrant" | "vmdk" |
+            "gce" | "ovf" | "ova" | "qcow2" | "vagrant" | "vmdk" |
             "vdi" | "vhd" | "vhd-fixed"
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
@@ -1772,9 +1805,10 @@ div {
         ## The string given here is passed as value to the -o option of mount
         attribute fsmountoptions { text }
     k.type.hybrid.attribute =
-        ## Specifies that the image file should be turned into
-        ## a hybrid image file. It's required to use the vmxboot
-        ## boot image to boot that image though
+        ## Specifies that the ISO file will be turned into a hybrid image.
+        ## hybrid means the ISO image can be used as CD/DVD image and as a
+        ## disk image if the iso is e.g dumped on a USB stick. In both cases
+        ## the result is a bootable system.
         attribute hybrid { xsd:boolean }
         >> sch:pattern [ id = "hybrid" is-a = "image_type"
             sch:param [ name = "attr" value = "hybrid" ]
@@ -1867,8 +1901,8 @@ div {
             sch:param [ name = "types" value = "oem" ]
         ]
     k.type.kernelcmdline.attribute =
-        # The kernelcmdline element specifies additional
-        # kernel command line options
+        ## The kernelcmdline element specifies additional
+        ## kernel command line options
         attribute kernelcmdline { text }
         >> sch:pattern [ id = "kernelcmdline" is-a = "image_type"
             sch:param [ name = "attr" value = "kernelcmdline" ]
@@ -1975,6 +2009,7 @@ div {
             sch:param [ name = "types" value = "docker" ]
         ]
     k.type.attlist =
+        ## Specifies the image type
         k.type.boot.attribute? &
         k.type.bootfilesystem.attribute? &
         k.type.firmware.attribute? &
@@ -2053,7 +2088,9 @@ div {
     k.union.rw.attribute =
         ## Device for Read-Write
         attribute rw { text }
-    k.union.type.attribute = attribute type { "overlayfs" }
+    k.union.type.attribute =
+        ## Union type to use to overlay read-write and read-only parts
+        attribute type { "overlayfs" }
     k.union.attlist =
         k.union.ro.attribute &
         k.union.rw.attribute &
@@ -2368,9 +2405,12 @@ div {
 # main block: <strip>
 #
 div {
-    k.strip.type.attribute = attribute type {
-        "delete" | "tools" | "libs"
-    }
+    k.strip.type.attribute =
+        ## Specifies the strip data type. `delete` references
+        ## a list of custom files and directories to delete, `tools`
+        ## references file names in linux bin/sbin directories, `libs`
+        ## references file names in linux lib directories.
+        attribute type { "delete" | "tools" | "libs" }
     k.strip.profiles.attribute = k.profiles.attribute
     k.strip.attlist =
         k.strip.type.attribute &
@@ -2676,6 +2716,7 @@ div {
             k.oem-boot-title? &
             k.oem-bootwait? &
             k.oem-device-filter? &
+            k.oem-nic-filter? &
             k.oem-inplace-recovery? &
             k.oem-kiwi-initrd? &
             k.oem-multipath-scan? &
@@ -2823,10 +2864,18 @@ div {
 # main block: <packages>
 #
 div {
-    k.packages.type.attribute = attribute type {
-        "bootstrap" | "delete" | "docker" | "image" |
-        "iso" | "oem" | "pxe" | "vmx"
-    }
+    k.packages.type.attribute =
+        ## Specifies package collection type. `bootstrap` packages
+        ## gets installed in the very first phase of an image build
+        ## in order to fill the empty root directory with bootstrap
+        ## data. `image` packages are installed after the bootstrap
+        ## phase as chroot operation. `delete` packages are uninstalled
+        ## after the preparation phase is done. `image_type_name`
+        ## packages are only installed if this build type is requested.
+        attribute type {
+            "bootstrap" | "delete" | "docker" | "image" |
+            "iso" | "oem" | "pxe" | "vmx"
+        }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =
         ## Selection type for patterns. Could be onlyRequired

@@ -19,6 +19,7 @@ import os
 import platform
 
 # project
+from kiwi.command import Command
 from kiwi.boot.image import BootImage
 from kiwi.builder.filesystem import FileSystemBuilder
 from kiwi.utils.compress import Compress
@@ -78,7 +79,7 @@ class PxeBuilder(object):
         self.machine = xml_state.get_build_type_machine_section()
         self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
-            xml_state, target_dir, root_dir
+            xml_state, target_dir, root_dir + '/'
         )
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
@@ -91,9 +92,10 @@ class PxeBuilder(object):
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
                 '.' + platform.machine(),
-                '-' + xml_state.get_image_version(),
+                '-' + xml_state.get_image_version()
             ]
         )
+        self.archive_name = ''.join([self.image_name, '.tar.xz'])
         self.kernel_filename = None
         self.hypervisor_filename = None
         self.result = Result(xml_state)
@@ -111,7 +113,10 @@ class PxeBuilder(object):
         """
         log.info('Creating PXE root filesystem image')
         self.filesystem.create()
-        self.image = self.filesystem.filename
+        os.rename(
+            self.filesystem.filename, self.image_name
+        )
+        self.image = self.image_name
         if self.compressed:
             log.info('xz compressing root filesystem image')
             compress = Compress(self.image)
@@ -119,7 +124,7 @@ class PxeBuilder(object):
             self.image = compress.compressed_filename
 
         log.info('Creating PXE root filesystem MD5 checksum')
-        self.filesystem_checksum = self.filesystem.filename + '.md5'
+        self.filesystem_checksum = ''.join([self.image, '.md5'])
         checksum = Checksum(self.image)
         checksum.md5(self.filesystem_checksum)
 
@@ -177,31 +182,21 @@ class PxeBuilder(object):
         # create initrd for pxe boot
         self.boot_image_task.create_initrd()
 
+        # put results into a tarball
+        Command.run(
+            [
+                'tar', '-C', self.target_dir, '-cJf', self.archive_name,
+                self.kernel_filename,
+                os.path.basename(self.boot_image_task.initrd_filename),
+                os.path.basename(self.image),
+                os.path.basename(self.filesystem_checksum)
+            ]
+        )
+
         # store results
         self.result.add(
-            key='kernel',
-            filename=self.target_dir + '/' + self.kernel_filename,
-            use_for_bundle=True,
-            compress=False,
-            shasum=True
-        )
-        self.result.add(
-            key='initrd',
-            filename=self.boot_image_task.initrd_filename,
-            use_for_bundle=True,
-            compress=False,
-            shasum=True
-        )
-        self.result.add(
-            key='filesystem_image',
-            filename=self.image,
-            use_for_bundle=True,
-            compress=False,
-            shasum=True
-        )
-        self.result.add(
-            key='filesystem_md5',
-            filename=self.filesystem_checksum,
+            key='pxe_archive',
+            filename=self.archive_name,
             use_for_bundle=True,
             compress=False,
             shasum=True

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import glob
 import os
 import platform
 
@@ -156,7 +157,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.install_arguments.append('--no-nvram')
         else:
             raise KiwiBootLoaderGrubPlatformError(
-                'host architecture %s not supported for grub2 install' %
+                'host architecture %s not supported for grub2 installation' %
                 self.arch
             )
 
@@ -216,16 +217,17 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         module_directory = grub_directory + '/' + self.target
         boot_directory = '/boot'
 
-        # wipe existing grubenv to allow grub2-install to create a new one
-        Path.wipe(
-            os.sep.join(
-                [self.root_mount.mountpoint, 'boot', 'grub2', 'grubenv']
-            )
+        # wipe existing grubenv to allow the grub installer to create a new one
+        grubenv_glob = os.sep.join(
+            [self.root_mount.mountpoint, 'boot', '*', 'grubenv']
         )
+        for grubenv in glob.glob(grubenv_glob):
+            Path.wipe(grubenv)
         # install grub2 boot code
         Command.run(
             [
-                'chroot', self.root_mount.mountpoint, 'grub2-install'
+                'chroot', self.root_mount.mountpoint,
+                self._get_grub2_install_tool_name(self.root_mount.mountpoint)
             ] + self.install_arguments + [
                 '--directory', module_directory,
                 '--boot-directory', boot_directory,
@@ -242,12 +244,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             )
             self.efi_mount.mount()
 
-            # Before we call shim-install, the grub2-install binary is
+            # Before we call shim-install, the grub installer binary is
             # replaced by a noop. Actually there is no reason for shim-install
-            # to call grub2-install because it should only setup the system
+            # to call the grub installer because it should only setup the system
             # for EFI secure boot which does not require any bootloader code
             # in the master boot record. In addition kiwi has called
-            # grub2-install right before
+            # the grub installer right before
             self._disable_grub2_install(self.root_mount.mountpoint)
             Command.run(
                 [
@@ -256,15 +258,18 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     self.install_device
                 ]
             )
-            # restore the grub2-install noop
+            # restore the grub installer noop
             self._enable_grub2_install(self.root_mount.mountpoint)
 
     def _disable_grub2_install(self, root_path):
         grub2_install = ''.join(
-            [root_path, '/usr/sbin/grub2-install']
+            [
+                root_path, '/usr/sbin/',
+                self._get_grub2_install_tool_name(root_path)
+            ]
         )
         grub2_install_backup = ''.join(
-            [root_path, '/usr/sbin/grub2-install.orig']
+            [grub2_install, '.orig']
         )
         grub2_install_noop = ''.join(
             [root_path, '/bin/true']
@@ -278,15 +283,31 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
     def _enable_grub2_install(self, root_path):
         grub2_install = ''.join(
-            [root_path, '/usr/sbin/grub2-install']
+            [
+                root_path, '/usr/sbin/',
+                self._get_grub2_install_tool_name(root_path)
+            ]
         )
         grub2_install_backup = ''.join(
-            [root_path, '/usr/sbin/grub2-install.orig']
+            [grub2_install, '.orig']
         )
         if os.path.exists(grub2_install_backup):
             Command.run(
                 ['cp', '-p', grub2_install_backup, grub2_install]
             )
+
+    def _get_grub2_install_tool_name(self, root_path):
+        chroot_env = {'PATH': os.sep.join([root_path, 'usr', 'sbin'])}
+        grub2_install_tools = ['grub2-install', 'grub-install']
+        for grub2_install_tool in grub2_install_tools:
+            if Path.which(filename=grub2_install_tool, custom_env=chroot_env):
+                return grub2_install_tool
+
+        # no grub installer was found, we intentionally don't
+        # raise here but return the default tool name and raise
+        # an exception at invocation time in order to log the
+        # expected call and its arguments
+        return grub2_install_tools[0]
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

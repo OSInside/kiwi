@@ -1039,6 +1039,12 @@ parameters:
   This variable sets to mount the clicfs or unionfs read/write device on a
   ram disk or not. Any empty value activates the ramonly mode.
 
+``kiwinoswapsearch``
+  This variable prevents the search for an existing swap partition.
+  The lookup of a swap partition is done when using the oem
+  installer in partition based installation mode or on live images
+  in order to activate swap when it exists.
+
 
 Boot Debugging
 ''''''''''''''
