@@ -89,7 +89,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         EFI boot path according to configuration
 
     * :attr:`boot_directory_name`
-        grub boot directory below boot path set to: grub2
+        grub2 boot directory below boot path set to: grub2
     """
     def post_init(self, custom_args):
         """
@@ -175,7 +175,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def setup_sysconfig_bootloader(self):
         """
         Create or update etc/sysconfig/bootloader by the following
-        parameters required according to the grub bootloader setup
+        parameters required according to the grub2 bootloader setup
 
         * LOADER_TYPE
         * LOADER_LOCATION
@@ -228,7 +228,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string kernel: kernel name
         :param string initrd: initrd name
         """
-        log.info('Creating grub config file from template')
+        log.info('Creating grub2 config file from template')
         self.cmdline = self.get_boot_cmdline(root_uuid)
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
@@ -269,14 +269,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-        Create grub config file to boot from an ISO install image
+        Create grub2 config file to boot from an ISO install image
 
         :param string mbrid: mbrid file name on boot device
         :param string hypervisor: hypervisor name
         :param string kernel: kernel name
         :param string initrd: initrd name
         """
-        log.info('Creating grub install config file from template')
+        log.info('Creating grub2 install config file from template')
         self.iso_efi_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
@@ -294,6 +294,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_install_title(),
             'bootpath': '/boot/' + self.arch + '/loader',
+            'boot_directory_name': self.boot_directory_name
         }
         if self.multiboot:
             log.info('--> Using multiboot install template')
@@ -318,14 +319,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
-        Create grub config file to boot a live media ISO image
+        Create grub2 config file to boot a live media ISO image
 
         :param string mbrid: mbrid file name on boot device
         :param string hypervisor: hypervisor name
         :param string kernel: kernel name
         :param string initrd: initrd name
         """
-        log.info('Creating grub live ISO config file from template')
+        log.info('Creating grub2 live ISO config file from template')
         self.iso_efi_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
@@ -343,6 +344,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(plain=True),
             'bootpath': '/boot/' + self.arch + '/loader',
+            'boot_directory_name': self.boot_directory_name
         }
         if self.multiboot:
             log.info('--> Using multiboot template')
@@ -365,16 +367,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         """
-        Create/Provide grub boot images and metadata
+        Create/Provide grub2 boot images and metadata
 
-        In order to boot from the ISO grub modules, images and theme
+        In order to boot from the ISO grub2 modules, images and theme
         data needs to be created and provided at the correct place on
         the iso filesystem
 
         :param string mbrid: mbrid file name on boot device
         :param string lookup_path: custom module lookup path
         """
-        log.info('Creating grub bootloader images')
+        log.info('Creating grub2 bootloader images')
         self.efi_boot_path = self.create_efi_path(in_sub_dir='')
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
@@ -406,7 +408,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
-        Create/Provide grub boot images and metadata
+        Create/Provide grub2 boot images and metadata
 
         Calls setup_install_boot_images because no different action required
         """
@@ -414,16 +416,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
-        Create/Provide grub boot images and metadata
+        Create/Provide grub2 boot images and metadata
 
-        In order to boot from the disk grub modules, images and theme
+        In order to boot from the disk grub2 modules, images and theme
         data needs to be created and provided at the correct place in
         the filesystem
 
         :param string boot_uuid: boot device UUID
         :param string lookup_path: custom module lookup path
         """
-        log.info('Creating grub bootloader images')
+        log.info('Creating grub2 bootloader images')
 
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()
@@ -499,7 +501,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
 
         if grub_default_entries:
-            log.info('Writing grub defaults file')
+            log.info('Writing grub2 defaults file')
             grub_default_location = ''.join([self.root_dir, '/etc/default/'])
             if os.path.exists(grub_default_location):
                 grub_default_file = ''.join([grub_default_location, 'grub'])
@@ -514,7 +516,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _setup_secure_boot_efi_image(self, lookup_path):
         """
-        Provide the shim loader and the shim signed grub loader
+        Provide the shim loader and the shim signed grub2 loader
         in the required boot path. Normally this task is done by
         the shim-install tool. However, shim-install does not exist
         on all distributions and the script does not operate well
@@ -724,19 +726,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _get_grub2_boot_directory_name(self):
         """
-        Get grub data directory name in boot/ directory
+        Get grub2 data directory name in boot/ directory
 
-        Depending on the distribution the grub boot path could be
+        Depending on the distribution the grub2 boot path could be
         either boot/grub2 or boot/grub. The method will decide for
         the correct base directory name according to the name pattern
-        of the installed grub tools
+        of the installed grub2 tools
         """
         chroot_env = {
             'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
         }
         if Path.which(filename='grub2-install', custom_env=chroot_env):
             # the presence of grub2-install is an indicator to put all
-            # grub data below boot/grub2
+            # grub2 data below boot/grub2
             return 'grub2'
         else:
             # in any other case the assumption is made that all grub
