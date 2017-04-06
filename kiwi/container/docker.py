@@ -24,6 +24,7 @@ from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.sync import DataSync
 from kiwi.utils.compress import Compress
+from kiwi.archive.tar import ArchiveTar
 
 
 class ContainerImageDocker(object):
@@ -116,10 +117,12 @@ class ContainerImageDocker(object):
         )
 
         if base_image:
+            Path.create(container_dir)
+            image_tar = ArchiveTar(base_image)
+            image_tar.extract(container_dir)
             Command.run([
-                'skopeo', 'copy',
-                'docker-archive:{0}'.format(base_image),
-                'oci:{0}'.format(container_name)
+                'umoci', 'config', '--image',
+                container_dir, '--tag', self.container_tag
             ])
         else:
             Command.run(
@@ -157,7 +160,6 @@ class ContainerImageDocker(object):
             self.labels +
             [
                 '--image', container_name,
-                '--tag', self.container_tag
             ]
         )
         Command.run(
