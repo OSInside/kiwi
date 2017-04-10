@@ -168,6 +168,8 @@ class SystemPrepare(object):
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
+        else:
+            manager.process_plus_recommended()
         all_install_items = self._setup_requests(
             manager,
             bootstrap_packages,
@@ -222,6 +224,8 @@ class SystemPrepare(object):
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
+        else:
+            manager.process_plus_recommended()
         all_install_items = self._setup_requests(
             manager,
             system_packages,
