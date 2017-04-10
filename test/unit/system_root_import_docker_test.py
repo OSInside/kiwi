@@ -83,6 +83,7 @@ class TestRootImportDocker(object):
         )
         mock_path.assert_called_once_with('root_dir/image')
 
+    @patch('kiwi.system.root_import.base.log.warning')
     @patch('os.path.exists')
     @patch('kiwi.system.root_import.docker.ArchiveTar')
     @patch('kiwi.system.root_import.base.Checksum')
@@ -92,7 +93,7 @@ class TestRootImportDocker(object):
     @patch('kiwi.system.root_import.docker.mkdtemp')
     def test_sync_data_unknown_uri(
         self, mock_mkdtemp, mock_sync, mock_run,
-        mock_create, mock_md5, mock_tar, mock_exists
+        mock_create, mock_md5, mock_tar, mock_exists, mock_log_warn
     ):
         mock_exists.return_value = True
         docker_import = RootImportDocker(
@@ -113,6 +114,7 @@ class TestRootImportDocker(object):
 
         docker_import.sync_data()
 
+        assert mock_log_warn.called
         assert mock_run.call_args_list == [
             call([
                 'skopeo', 'copy', 'docker://opensuse:leap',

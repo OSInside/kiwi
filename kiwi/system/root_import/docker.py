@@ -20,6 +20,7 @@ import os
 
 # project
 from kiwi.system.root_import.base import RootImportBase
+from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.utils.sync import DataSync
 from kiwi.utils.compress import Compress
@@ -52,6 +53,7 @@ class RootImportDocker(RootImportBase):
             self.uncompressed_image = compressor.uncompressed_filename
             skopeo_uri = 'docker-archive:{0}'.format(self.uncompressed_image)
         else:
+            log.warning('Bypassing base image URI to skopeo tool')
             skopeo_uri = self.unknown_uri
 
         self.oci_layout_dir = mkdtemp(prefix='kiwi_layout_dir.')
