@@ -18,6 +18,8 @@
 from tempfile import mkdtemp
 import platform
 import shutil
+import glob
+import os
 
 # project
 from kiwi.bootloader.config import BootLoaderConfig
@@ -240,10 +242,11 @@ class LiveImageBuilder(object):
             if self.firmware.efi_mode() == 'uefi':
                 # write bootloader config to EFI directory in order to allow
                 # grub loaded by shim to find the config file
-                shutil.copy(
-                    self.media_dir + '/boot/grub2/grub.cfg',
-                    self.media_dir + '/EFI/BOOT'
+                grubconf_glob = os.sep.join(
+                    [self.media_dir, 'boot/grub*/grub.cfg']
                 )
+                for grubconf in glob.glob(grubconf_glob):
+                    shutil.copy(grubconf, self.media_dir + '/EFI/BOOT')
 
         # create initrd for live image
         log.info('Creating live ISO boot image')
