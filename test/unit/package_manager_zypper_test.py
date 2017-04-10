@@ -139,6 +139,12 @@ class TestPackageManagerZypper(object):
         self.manager.process_only_required()
         assert self.manager.custom_args == ['--no-recommends']
 
+    def test_process_plus_recommended(self):
+        self.manager.process_only_required()
+        assert self.manager.custom_args == ['--no-recommends']
+        self.manager.process_plus_recommended()
+        assert '--no-recommends' not in self.manager.custom_args
+
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Installing: foo')
 

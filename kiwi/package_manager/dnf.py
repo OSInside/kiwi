@@ -191,7 +191,15 @@ class PackageManagerDnf(PackageManagerBase):
         """
         Setup package processing only for required packages
 
-        There is no required/recommends information in the rhel repo data
+        Kiwi has no required/recommends support for dnf manager yet
+        """
+        pass
+
+    def process_plus_recommended(self):
+        """
+        Setup package processing to also include recommended dependencies
+
+        Kiwi has no required/recommends support for dnf manager yet
         """
         pass
 

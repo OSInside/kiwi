@@ -129,6 +129,9 @@ class TestPackageManagerYum(object):
     def test_process_only_required(self):
         self.manager.process_only_required()
 
+    def test_process_plus_recommended(self):
+        self.manager.process_plus_recommended()
+
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Installing : foo')
 

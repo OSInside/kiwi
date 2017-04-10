@@ -54,6 +54,10 @@ class TestPackageManagerBase(object):
         self.manager.process_only_required()
 
     @raises(NotImplementedError)
+    def test_process_plus_recommended(self):
+        self.manager.process_plus_recommended()
+
+    @raises(NotImplementedError)
     def test_match_package_installed(self):
         self.manager.match_package_installed('package_name', 'log')
 

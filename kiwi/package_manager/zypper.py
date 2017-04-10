@@ -194,6 +194,13 @@ class PackageManagerZypper(PackageManagerBase):
         if '--no-recommends' not in self.custom_args:
             self.custom_args.append('--no-recommends')
 
+    def process_plus_recommended(self):
+        """
+        Setup package processing to also include recommended dependencies.
+        """
+        if '--no-recommends' in self.custom_args:
+            self.custom_args.remove('--no-recommends')
+
     def match_package_installed(self, package_name, zypper_output):
         """
         Match expression to indicate a package has been installed

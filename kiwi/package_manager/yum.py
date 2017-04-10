@@ -193,6 +193,14 @@ class PackageManagerYum(PackageManagerBase):
         """
         pass
 
+    def process_plus_recommended(self):
+        """
+        Setup package processing to also include recommended dependencies
+
+        There is no required/recommends information in the rhel repo data
+        """
+        pass
+
     def match_package_installed(self, package_name, yum_output):
         """
         Match expression to indicate a package has been installed
