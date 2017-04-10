@@ -29,9 +29,9 @@
 %define distro suse-SLES12
 %endif
 
-# SLE13:
-%if 0%{?sle_version} == 130000 && !0%{?is_opensuse}
-%define distro suse-SLES13
+# SLE15:
+%if 0%{?sle_version} == 150000 && !0%{?is_opensuse}
+%define distro suse-SLES15
 %endif
 
 # Leap 42.1(openSUSE product based on SLE 12SP1):
