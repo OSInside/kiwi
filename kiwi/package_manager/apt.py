@@ -145,28 +145,24 @@ class PackageManagerApt(PackageManagerBase):
                 options=['-a', '-H', '-X', '-A']
             )
         except Exception as e:
-            Path.wipe(bootstrap_dir)
             raise KiwiDebootstrapError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
-        chroot_apt_get_args = self.root_bind.move_to_root(
-            self.apt_get_args
-        )
-        bash_command = [
-            'rm', '-r', '-f', bootstrap_dir, '&&',
-            'chroot', self.root_dir, 'apt-get'
-        ] + chroot_apt_get_args + self.custom_args + [
-            'update'
-        ]
-        Command.run(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
-        )
+        finally:
+            Path.wipe(bootstrap_dir)
+
         return self.process_install_requests()
 
     def process_install_requests(self):
         """
         Process package install requests for image phase (chroot)
         """
+        update_command = ['chroot', self.root_dir, 'apt-get']
+        update_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        update_command.extend(self.custom_args)
+        update_command.append('update')
+        Command.run(update_command, self.command_env)
+
         apt_get_command = ['chroot', self.root_dir, 'apt-get']
         apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
         apt_get_command.extend(self.custom_args)
