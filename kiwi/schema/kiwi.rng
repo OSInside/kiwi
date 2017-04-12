@@ -299,6 +299,12 @@ file was fetched</a:documentation>
       <ref name="image-name"/>
     </attribute>
   </define>
+  <define name="k.clear.attribute">
+    <attribute name="clear">
+      <a:documentation>Specifies to clear or not some data or configurations</a:documentation>
+      <data type="boolean"/>
+    </attribute>
+  </define>
   <div>
     <define name="k._any.attribute">
       <attribute>
@@ -3507,7 +3513,10 @@ image is imported via the docker load command</a:documentation>
       </attribute>
     </define>
     <define name="k.entrypoint.attlist">
-      <ref name="k.entrypoint.execute.attribute"/>
+      <choice>
+        <ref name="k.entrypoint.execute.attribute"/>
+        <ref name="k.clear.attribute"/>
+      </choice>
     </define>
     <define name="k.entrypoint">
       <element name="entrypoint">
@@ -3535,7 +3544,10 @@ can be optionally specified</a:documentation>
       </attribute>
     </define>
     <define name="k.subcommand.attlist">
-      <ref name="k.subcommand.execute.attribute"/>
+      <choice>
+        <ref name="k.subcommand.execute.attribute"/>
+        <ref name="k.clear.attribute"/>
+      </choice>
     </define>
     <define name="k.subcommand">
       <element name="subcommand">
