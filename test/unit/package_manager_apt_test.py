@@ -101,11 +101,11 @@ class TestPackageManagerApt(object):
                 'debootstrap', '--no-check-gpg', 'xenial',
                 'root-dir.debootstrap', 'xenial_path'],
                 ['env']),
+            call(['rm', '-r', '-f', 'root-dir.debootstrap']),
             call([
-                'bash', '-c',
-                'rm -r -f root-dir.debootstrap &&' +
-                ' chroot root-dir apt-get root-moved-arguments update'],
-                ['env'])
+                'chroot', 'root-dir', 'apt-get',
+                'root-moved-arguments', 'update'
+            ], ['env'])
         ]
         mock_call.assert_called_once_with([
             'chroot', 'root-dir', 'apt-get',
