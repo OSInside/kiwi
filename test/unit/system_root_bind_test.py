@@ -70,8 +70,10 @@ class TestRootBind(object):
         self.bind_root.setup_intermediate_config()
         mock.cleanup.assert_called_once_with()
 
+    @patch('kiwi.system.root_bind.os.path.exists')
     @patch('kiwi.system.root_bind.MountManager')
-    def test_mount_kernel_file_systems(self, mock_mount):
+    def test_mount_kernel_file_systems(self, mock_mount, mock_exists):
+        mock_exists.return_value = True
         shared_mount = mock.Mock()
         mock_mount.return_value = shared_mount
         self.bind_root.mount_kernel_file_systems()
