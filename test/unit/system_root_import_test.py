@@ -14,6 +14,13 @@ class TestRootImport(object):
             'root_dir', 'file:///image.tar.xz'
         )
 
+    @patch('kiwi.system.root_import.RootImportOCI')
+    def test_oci_import(self, mock_oci_import):
+        RootImport('root_dir', 'file:///image.tar.xz', 'oci')
+        mock_oci_import.assert_called_once_with(
+            'root_dir', 'file:///image.tar.xz'
+        )
+
     @raises(KiwiRootImportError)
     def test_not_implemented_import(self):
         RootImport('root_dir', 'file:///image.tar.xz', 'foo')

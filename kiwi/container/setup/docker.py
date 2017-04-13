@@ -17,42 +17,10 @@
 #
 
 # project
-from kiwi.container.setup.base import ContainerSetupBase
+from kiwi.container.setup.oci import ContainerSetupOCI
 
 
-class ContainerSetupDocker(ContainerSetupBase):
+class ContainerSetupDocker(ContainerSetupOCI):
     """
     Docker container setup
     """
-    def post_init(self, custom_args):
-        """
-        Post initialization method
-
-        Store custom arguments
-
-        :param list custom_args: custom bootloader arguments
-        """
-        if custom_args:
-            self.custom_args = custom_args
-
-    def setup(self):
-        """
-        Setup system for use with docker
-        """
-
-        services_to_deactivate = [
-            'device-mapper.service',
-            'kbd.service',
-            'swap.service',
-            'udev.service',
-            'proc-sys-fs-binfmt_misc.automount'
-        ]
-
-        self.create_fstab()
-        self.deactivate_bootloader_setup()
-        self.deactivate_root_filesystem_check()
-        self.setup_static_device_nodes()
-        self.setup_root_console()
-
-        for service in services_to_deactivate:
-            self.deactivate_systemd_service(service)

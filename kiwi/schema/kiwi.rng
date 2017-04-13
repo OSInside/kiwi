@@ -2431,6 +2431,7 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>tbz</value>
           <value>vmx</value>
           <value>xfs</value>
+          <value>oci</value>
         </choice>
       </attribute>
     </define>
@@ -2628,7 +2629,7 @@ to work on.</a:documentation>
       </attribute>
       <sch:pattern id="derived_from" is-a="image_type">
         <sch:param name="attr" value="derived_from"/>
-        <sch:param name="types" value="docker"/>
+        <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.type.attlist">
@@ -3409,7 +3410,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="name" is-a="container_type">
         <sch:param name="attr" value="name"/>
-        <sch:param name="types" value="docker"/>
+        <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.tag.attribute">
@@ -3420,7 +3421,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="tag" is-a="container_type">
         <sch:param name="attr" value="tag"/>
-        <sch:param name="types" value="docker"/>
+        <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.maintainer.attribute">
@@ -3429,7 +3430,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="maintainer" is-a="container_type">
         <sch:param name="attr" value="maintainer"/>
-        <sch:param name="types" value="docker"/>
+        <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.user.attribute">
@@ -3438,7 +3439,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="user" is-a="container_type">
         <sch:param name="attr" value="user"/>
-        <sch:param name="types" value="docker"/>
+        <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.workingdir.attribute">
@@ -3447,7 +3448,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="workingdir" is-a="container_type">
         <sch:param name="attr" value="workingdir"/>
-        <sch:param name="types" value="docker"/>
+        <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.attlist">
@@ -4067,6 +4068,7 @@ packages are only installed if this build type is requested.</a:documentation>
           <value>oem</value>
           <value>pxe</value>
           <value>vmx</value>
+          <value>oci</value>
         </choice>
       </attribute>
     </define>

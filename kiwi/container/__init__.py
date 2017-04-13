@@ -17,6 +17,7 @@
 #
 # project
 from kiwi.container.docker import ContainerImageDocker
+from kiwi.container.oci import ContainerImageOCI
 
 from kiwi.exceptions import (
     KiwiContainerImageSetupError
@@ -33,6 +34,8 @@ class ContainerImage(object):
     def __new__(self, name, root_dir, custom_args=None):
         if name == 'docker':
             return ContainerImageDocker(root_dir, custom_args)
+        elif name == 'oci':
+            return ContainerImageOCI(root_dir, custom_args)
         else:
             raise KiwiContainerImageSetupError(
                 'Support for %s container not implemented' % name

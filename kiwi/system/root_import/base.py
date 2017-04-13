@@ -60,9 +60,9 @@ class RootImportBase(object):
             )
             self.unknown_uri = image_uri.uri
         finally:
-            self.post_init()
+            self.post_init(image_uri)
 
-    def post_init(self):
+    def post_init(self, image_uri):
         """
         Post initalization method
 
