@@ -99,6 +99,10 @@ class RepositoryApt(RepositoryBase):
         Setup apt-get repository operations to store all data
         in the default places
         """
+        self.shared_apt_get_dir['sources-dir'] = \
+            self.root_dir + '/etc/apt/sources.list.d'
+        self.shared_apt_get_dir['preferences-dir'] = \
+            self.root_dir + '/etc/apt/preferences.d'
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self):
