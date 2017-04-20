@@ -140,7 +140,7 @@ class ContainerImageDocker(object):
             os.sep.join([self.docker_root_dir, 'rootfs'])
         )
         docker_root.sync_data(
-            options=['-a', '-H', '-X', '-A'], exclude=exclude_list
+            options=['-a', '-H', '-X', '-A', '--delete'], exclude=exclude_list
         )
         Command.run(
             ['umoci', 'repack', '--image', container_name, self.docker_root_dir]
