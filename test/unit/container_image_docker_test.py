@@ -121,7 +121,7 @@ class TestContainerImageDocker(object):
                 'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
                 'var/cache/kiwi'
             ],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--delete']
         )
         mock_compress.assert_called_once_with('result.tar')
         compressor.xz.assert_called_once_with()
@@ -189,7 +189,7 @@ class TestContainerImageDocker(object):
                 'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
                 'var/cache/kiwi'
             ],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--delete']
         )
         mock_compress.assert_called_once_with('result.tar')
         compressor.xz.assert_called_once_with()
