@@ -119,7 +119,7 @@ class TestContainerImageOCI(object):
                 'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
                 'var/cache/kiwi'
             ],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--delete']
         )
 
         mock_tar.called_once_with('result.tar.xz')
@@ -184,7 +184,7 @@ class TestContainerImageOCI(object):
                 'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
                 'var/cache/kiwi'
             ],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--delete']
         )
         mock_tar.call_args_list == [
             call('root_dir/image/image_file'), call('result.tar.xz')

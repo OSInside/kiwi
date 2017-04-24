@@ -140,7 +140,7 @@ class ContainerImageOCI(object):
             os.sep.join([self.oci_root_dir, 'rootfs'])
         )
         oci_root.sync_data(
-            options=['-a', '-H', '-X', '-A'], exclude=exclude_list
+            options=['-a', '-H', '-X', '-A', '--delete'], exclude=exclude_list
         )
         Command.run(
             ['umoci', 'repack', '--image', container_name, self.oci_root_dir]
