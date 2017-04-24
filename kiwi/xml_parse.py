@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Apr 13 09:10:11 2017 by generateDS.py version 2.25a.
+# Generated Wed Apr 12 14:43:43 2017 by generateDS.py version 2.25a.
 #
 # Command line options:
 #   ('-f', '')
@@ -4729,9 +4729,10 @@ class entrypoint(GeneratedsSuper):
     specified"""
     subclass = None
     superclass = None
-    def __init__(self, execute=None, argument=None):
+    def __init__(self, execute=None, clear=None, argument=None):
         self.original_tagname_ = None
         self.execute = _cast(None, execute)
+        self.clear = _cast(bool, clear)
         if argument is None:
             self.argument = []
         else:
@@ -4754,6 +4755,8 @@ class entrypoint(GeneratedsSuper):
     def replace_argument_at(self, index, value): self.argument[index] = value
     def get_execute(self): return self.execute
     def set_execute(self, execute): self.execute = execute
+    def get_clear(self): return self.clear
+    def set_clear(self, clear): self.clear = clear
     def hasContent_(self):
         if (
             self.argument
@@ -4783,6 +4786,9 @@ class entrypoint(GeneratedsSuper):
         if self.execute is not None and 'execute' not in already_processed:
             already_processed.add('execute')
             outfile.write(' execute=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.execute), input_name='execute')), ))
+        if self.clear is not None and 'clear' not in already_processed:
+            already_processed.add('clear')
+            outfile.write(' clear="%s"' % self.gds_format_boolean(self.clear, input_name='clear'))
     def exportChildren(self, outfile, level, namespace_='', name_='entrypoint', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4802,6 +4808,15 @@ class entrypoint(GeneratedsSuper):
         if value is not None and 'execute' not in already_processed:
             already_processed.add('execute')
             self.execute = value
+        value = find_attr_value_('clear', node)
+        if value is not None and 'clear' not in already_processed:
+            already_processed.add('clear')
+            if value in ('true', '1'):
+                self.clear = True
+            elif value in ('false', '0'):
+                self.clear = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'argument':
             obj_ = argument.factory()
@@ -4820,9 +4835,10 @@ class subcommand(GeneratedsSuper):
     a valid execution command"""
     subclass = None
     superclass = None
-    def __init__(self, execute=None, argument=None):
+    def __init__(self, execute=None, clear=None, argument=None):
         self.original_tagname_ = None
         self.execute = _cast(None, execute)
+        self.clear = _cast(bool, clear)
         if argument is None:
             self.argument = []
         else:
@@ -4845,6 +4861,8 @@ class subcommand(GeneratedsSuper):
     def replace_argument_at(self, index, value): self.argument[index] = value
     def get_execute(self): return self.execute
     def set_execute(self, execute): self.execute = execute
+    def get_clear(self): return self.clear
+    def set_clear(self, clear): self.clear = clear
     def hasContent_(self):
         if (
             self.argument
@@ -4874,6 +4892,9 @@ class subcommand(GeneratedsSuper):
         if self.execute is not None and 'execute' not in already_processed:
             already_processed.add('execute')
             outfile.write(' execute=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.execute), input_name='execute')), ))
+        if self.clear is not None and 'clear' not in already_processed:
+            already_processed.add('clear')
+            outfile.write(' clear="%s"' % self.gds_format_boolean(self.clear, input_name='clear'))
     def exportChildren(self, outfile, level, namespace_='', name_='subcommand', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4893,6 +4914,15 @@ class subcommand(GeneratedsSuper):
         if value is not None and 'execute' not in already_processed:
             already_processed.add('execute')
             self.execute = value
+        value = find_attr_value_('clear', node)
+        if value is not None and 'clear' not in already_processed:
+            already_processed.add('clear')
+            if value in ('true', '1'):
+                self.clear = True
+            elif value in ('false', '0'):
+                self.clear = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'argument':
             obj_ = argument.factory()

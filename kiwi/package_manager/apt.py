@@ -209,18 +209,16 @@ class PackageManagerApt(PackageManagerBase):
     def process_only_required(self):
         """
         Setup package processing only for required packages
-
-        Kiwi has no required/recommends support for apt manager yet
         """
-        pass
+        if '--no-install-recommends' not in self.custom_args:
+            self.custom_args.append('--no-install-recommends')
 
     def process_plus_recommended(self):
         """
-        Setup package processing to also include recommended dependencies
-
-        Kiwi has no required/recommends support for apt manager yet
+        Setup package processing to also include recommended dependencies.
         """
-        pass
+        if '--no-install-recommends' in self.custom_args:
+            self.custom_args.remove('--no-install-recommends')
 
     def match_package_installed(self, package_name, apt_get_output):
         """

@@ -152,9 +152,13 @@ class TestPackageManagerApt(object):
 
     def test_process_only_required(self):
         self.manager.process_only_required()
+        assert self.manager.custom_args == ['--no-install-recommends']
 
     def test_process_plus_recommended(self):
+        self.manager.process_only_required()
+        assert self.manager.custom_args == ['--no-install-recommends']
         self.manager.process_plus_recommended()
+        assert '--no-install-recommends' not in self.manager.custom_args
 
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Unpacking foo')
