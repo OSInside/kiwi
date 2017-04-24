@@ -574,11 +574,30 @@ class TestXMLState(object):
         state = XMLState(xml_data, ['vmxFlavour'], 'docker')
         assert state.get_container_config() == expected_config
 
+    def test_get_container_config_clear_commands(self):
+        expected_config = {
+            'maintainer': ['--author=tux'],
+            'entry_subcommand': [
+                '--clear=config.cmd'
+            ],
+            'container_name': 'container_name',
+            'container_tag': 'container_tag',
+            'workingdir': ['--config.workingdir=/root'],
+            'user': ['--config.user=root'],
+            'entry_command': [
+                '--clear=config.entrypoint',
+            ]
+        }
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['derivedContainer'], 'docker')
+        assert state.get_container_config() == expected_config
+
     def test_get_spare_part(self):
         assert self.state.get_build_type_spare_part_size() == 200
 
     def test_get_derived_from_image_uri(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
-        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        state = XMLState(xml_data, ['derivedContainer'], 'docker')
         assert state.get_derived_from_image_uri().translate() == '/image.tar.xz'

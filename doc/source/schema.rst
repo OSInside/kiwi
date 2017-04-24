@@ -369,6 +369,7 @@ Children:
 List of attributes for ``entrypoint``:
 
 * ``execute`` : Specifies the entry point program name to execute
+* ``clear`` : Specifies to clear or not some data or configurations
 
 .. _k.image.preferences.type.containerconfig.entrypoint.argument:
 
@@ -400,6 +401,7 @@ Children:
 List of attributes for ``subcommand``:
 
 * ``execute`` : Specifies the subcommand program name to execute
+* ``clear`` : Specifies to clear or not some data or configurations
 
 .. _k.image.preferences.type.containerconfig.subcommand.argument:
 

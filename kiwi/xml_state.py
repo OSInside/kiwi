@@ -711,7 +711,7 @@ class XMLState(object):
         container_entry = {}
         if container_config_section:
             entrypoint = container_config_section.get_entrypoint()
-            if entrypoint:
+            if entrypoint and entrypoint[0].get_execute():
                 container_entry['entry_command'] = [
                     ''.join(
                         [
@@ -731,6 +731,14 @@ class XMLState(object):
                                 ]
                             )
                         )
+            elif entrypoint and entrypoint[0].get_clear():
+                container_entry['entry_command'] = [
+                    ''.join(
+                        [
+                            '--clear=config.entrypoint'
+                        ]
+                    )
+                ]
         return container_entry
 
     def _match_docker_subcommand(self):
@@ -741,7 +749,7 @@ class XMLState(object):
         container_subcommand = {}
         if container_config_section:
             subcommand = container_config_section.get_subcommand()
-            if subcommand:
+            if subcommand and subcommand[0].get_execute():
                 container_subcommand['entry_subcommand'] = [
                     ''.join(
                         [
@@ -761,6 +769,14 @@ class XMLState(object):
                                 ]
                             )
                         )
+            elif subcommand and subcommand[0].get_clear():
+                container_subcommand['entry_subcommand'] = [
+                    ''.join(
+                        [
+                            '--clear=config.cmd',
+                        ]
+                    )
+                ]
         return container_subcommand
 
     def _match_docker_expose_ports(self):

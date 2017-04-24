@@ -172,6 +172,9 @@ k.username.attribute    =
 k.imagename.attribute   =
     ## An image name without / and spaces
     attribute name { image-name }
+k.clear.attribute   =
+    ## Specifies to clear or not some data or configurations
+    attribute clear { xsd:boolean }
 
 div {
     k._any.attribute =
@@ -2516,7 +2519,7 @@ div {
         attribute execute { text }
 
     k.entrypoint.attlist =
-        k.entrypoint.execute.attribute
+        k.entrypoint.execute.attribute | k.clear.attribute
 
     k.entrypoint =
         ## Provides details for the entry point command. This
@@ -2537,7 +2540,7 @@ div {
         attribute execute { text }
 
     k.subcommand.attlist =
-        k.subcommand.execute.attribute
+        k.subcommand.execute.attribute | k.clear.attribute
 
     k.subcommand =
         ## Provides details for the subcommand command. This
