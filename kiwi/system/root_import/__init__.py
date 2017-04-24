@@ -17,6 +17,7 @@
 #
 # project
 from kiwi.system.root_import.docker import RootImportDocker
+from kiwi.system.root_import.oci import RootImportOCI
 from kiwi.exceptions import KiwiRootImportError
 from kiwi.logger import log
 
@@ -37,16 +38,17 @@ class RootImport(object):
         type of the image to import
     """
     def __new__(self, root_dir, image_uri, image_type):
+        log.info(
+            'Importing root from a {0} image type'.format(image_type)
+        )
         if image_type == 'docker':
             root_import = RootImportDocker(root_dir, image_uri)
+        elif image_type == 'oci':
+            root_import = RootImportOCI(root_dir, image_uri)
         else:
             raise KiwiRootImportError(
                 'Support to import {0} images not implemented'.format(
                     image_type
                 )
             )
-
-        log.info(
-            'Importing root from a {0} image type'.format(image_type)
-        )
         return root_import

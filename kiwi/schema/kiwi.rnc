@@ -1860,7 +1860,7 @@ div {
         attribute image {
             "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
             "ext4" | "iso" | "oem" | "pxe" | "squashfs" | "tbz" |
-            "vmx" | "xfs"
+            "vmx" | "xfs" | "oci"
         }
     k.type.installboot.attribute =
         ## Specifies the bootloader default boot entry for the"
@@ -2009,7 +2009,7 @@ div {
         attribute derived_from { text }
         >> sch:pattern [ id = "derived_from" is-a = "image_type"
             sch:param [ name = "attr" value = "derived_from" ]
-            sch:param [ name = "types" value = "docker" ]
+            sch:param [ name = "types" value = "docker oci" ]
         ]
     k.type.attlist =
         ## Specifies the image type
@@ -2449,7 +2449,7 @@ div {
         attribute name { text }
         >> sch:pattern [ id = "name" is-a = "container_type"
             sch:param [ name = "attr" value = "name" ]
-            sch:param [ name = "types" value = "docker" ]
+            sch:param [ name = "types" value = "docker oci" ]
         ]
     k.containerconfig.tag.attribute =
         ## Specifies a tag for the container. This is usually the
@@ -2458,28 +2458,28 @@ div {
         attribute tag { text }
         >> sch:pattern [ id = "tag" is-a = "container_type"
             sch:param [ name = "attr" value = "tag" ]
-            sch:param [ name = "types" value = "docker" ]
+            sch:param [ name = "types" value = "docker oci" ]
         ]
     k.containerconfig.maintainer.attribute =
         ## Specifies a maintainer for the container.
         attribute maintainer { text }
         >> sch:pattern [ id = "maintainer" is-a = "container_type"
             sch:param [ name = "attr" value = "maintainer" ]
-            sch:param [ name = "types" value = "docker" ]
+            sch:param [ name = "types" value = "docker oci" ]
         ]
     k.containerconfig.user.attribute =
         ## Specifies a user for the container.
         attribute user { text }
         >> sch:pattern [ id = "user" is-a = "container_type"
             sch:param [ name = "attr" value = "user" ]
-            sch:param [ name = "types" value = "docker" ]
+            sch:param [ name = "types" value = "docker oci" ]
         ]
     k.containerconfig.workingdir.attribute =
         ## Specifies the default working directory of the container
         attribute workingdir { text }
         >> sch:pattern [ id = "workingdir" is-a = "container_type"
             sch:param [ name = "attr" value = "workingdir" ]
-            sch:param [ name = "types" value = "docker" ]
+            sch:param [ name = "types" value = "docker oci" ]
         ]
     k.containerconfig.attlist =
         k.containerconfig.name.attribute &
@@ -2877,7 +2877,7 @@ div {
         ## packages are only installed if this build type is requested.
         attribute type {
             "bootstrap" | "delete" | "docker" | "image" |
-            "iso" | "oem" | "pxe" | "vmx"
+            "iso" | "oem" | "pxe" | "vmx" | "oci"
         }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =

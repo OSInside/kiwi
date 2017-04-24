@@ -170,6 +170,13 @@ class Uri(object):
                     'URI type %s unknown' % uri.scheme
                 )
 
+    def get_fragment(self):
+        """
+        Returns the fragment part of the URI.
+        """
+        uri = urlparse(self.uri)
+        return uri.fragment
+
     def _iso_mount_path(self, path):
         # The prefix name 'kiwi_iso_mount' has a meaning here because the
         # zypper repository manager looks up iso mount paths by its repo
