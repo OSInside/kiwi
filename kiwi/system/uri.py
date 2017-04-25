@@ -46,7 +46,7 @@ class Uri(object):
         URI, repository location, file
 
     * :attr:`repo_type`
-        repository type name, rpm-dir, rpm-md, yast2
+        repository type name, rpm-dir, rpm-md, yast2, container
 
     * :attr:`mount_stack`
         list of mounted locations
@@ -111,7 +111,7 @@ class Uri(object):
             return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
             return self._suse_buildservice_path(
-                ''.join([uri.netloc, uri.path])
+                ''.join([uri.netloc, uri.path]), uri.fragment
             )
         elif uri.scheme == 'http' or uri.scheme == 'https' or uri.scheme == 'ftp':
             return ''.join([uri.scheme, '://', uri.netloc, uri.path])
@@ -210,15 +210,23 @@ class Uri(object):
             )
         return obs_distribution
 
-    def _suse_buildservice_path(self, name):
+    def _suse_buildservice_path(self, name, fragment=None):
         """
         Special to openSUSE buildservice. If the buildservice builds
         the image it arranges the repos for each build in a special
         environment, the so called build worker.
         """
-        return self._local_path(
-            '/usr/src/packages/SOURCES/repos/' + name
-        )
+        if self.repo_type == 'container':
+            local_path = ''.join(
+                ['/usr/src/packages/SOURCES/containers/', name]
+            )
+            if fragment:
+                local_path = ''.join([local_path, '#', fragment])
+        else:
+            local_path = ''.join(
+                ['/usr/src/packages/SOURCES/repos/', name]
+            )
+        return self._local_path(local_path)
 
     def __del__(self):
         for mount in reversed(self.mount_stack):
