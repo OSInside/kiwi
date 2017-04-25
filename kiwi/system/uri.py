@@ -73,7 +73,8 @@ class Uri(object):
             'iso': True,
             'dir': True,
             'file': True,
-            'suse': True
+            'suse': True,
+            'obsrepositories': True
         }
 
     def translate(self):
@@ -99,6 +100,12 @@ class Uri(object):
             return self._obs_project(
                 ''.join([uri.netloc, uri.path])
             )
+        elif uri.scheme == 'obsrepositories':
+            return self._suse_buildservice_path(
+                name=''.join([uri.netloc, uri.path]),
+                fragment=uri.fragment,
+                urischeme=uri.scheme
+            )
         elif uri.scheme == 'ibs':
             return self._ibs_project(
                 ''.join([uri.netloc, uri.path])
@@ -111,7 +118,9 @@ class Uri(object):
             return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
             return self._suse_buildservice_path(
-                ''.join([uri.netloc, uri.path]), uri.fragment
+                name=''.join([uri.netloc, uri.path]),
+                fragment=uri.fragment,
+                urischeme=uri.scheme
             )
         elif uri.scheme == 'http' or uri.scheme == 'https' or uri.scheme == 'ftp':
             return ''.join([uri.scheme, '://', uri.netloc, uri.path])
@@ -210,21 +219,27 @@ class Uri(object):
             )
         return obs_distribution
 
-    def _suse_buildservice_path(self, name, fragment=None):
+    def _suse_buildservice_path(self, name, urischeme, fragment=None):
         """
         Special to openSUSE buildservice. If the buildservice builds
         the image it arranges the repos for each build in a special
         environment, the so called build worker.
         """
+        bs_source_dir = '/usr/src/packages/SOURCES'
         if self.repo_type == 'container':
-            local_path = ''.join(
-                ['/usr/src/packages/SOURCES/containers/', name]
-            )
+            if urischeme == 'obsrepositories':
+                local_path = os.sep.join(
+                    [bs_source_dir, 'containers/_obsrepositories', name]
+                )
+            else:
+                local_path = os.sep.join(
+                    [bs_source_dir, 'containers', name]
+                )
             if fragment:
                 local_path = ''.join([local_path, '#', fragment])
         else:
-            local_path = ''.join(
-                ['/usr/src/packages/SOURCES/repos/', name]
+            local_path = os.sep.join(
+                [bs_source_dir, 'repos', name]
             )
         return self._local_path(local_path)
 
