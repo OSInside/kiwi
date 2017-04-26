@@ -537,6 +537,19 @@ class TestXMLState(object):
         assert containerconfig.get_workingdir() == \
             '/root'
 
+    def test_set_container_tag(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        state.set_container_config_tag('new_tag')
+        config = state.get_container_config()
+        assert config['container_tag'] == 'new_tag'
+
+    @patch('kiwi.logger.log.warning')
+    def test_set_container_tag_not_applied(self, mock_log_warn):
+        self.state.set_container_config_tag('new_tag')
+        assert mock_log_warn.called
+
     def test_get_container_config(self):
         expected_config = {
             'labels': [
@@ -601,3 +614,15 @@ class TestXMLState(object):
         xml_data = description.load()
         state = XMLState(xml_data, ['derivedContainer'], 'docker')
         assert state.get_derived_from_image_uri().translate() == '/image.tar.xz'
+
+    def test_set_derived_from_image_uri(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['derivedContainer'], 'docker')
+        state.set_derived_from_image_uri('file:///new_uri')
+        assert state.get_derived_from_image_uri().translate() == '/new_uri'
+
+    @patch('kiwi.logger.log.warning')
+    def test_set_derived_from_image_uri_not_applied(self, mock_log_warn):
+        self.state.set_derived_from_image_uri('file:///new_uri')
+        assert mock_log_warn.called

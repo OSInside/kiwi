@@ -20,9 +20,11 @@ import copy
 import platform
 from collections import namedtuple
 from six.moves.urllib.parse import urlparse
+from textwrap import dedent
 
 # project
 from . import xml_parse
+from .logger import log
 from .system.uri import Uri
 from .defaults import Defaults
 
@@ -889,6 +891,28 @@ class XMLState(object):
         )
         return container_config
 
+    def set_container_config_tag(self, tag):
+        """
+        Set new tag name in containerconfig section
+
+        In order to set a new tag value an existing containerconfig and
+        tag setup is required
+
+        :param string tag: tag name
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        if container_config_section and container_config_section.get_tag():
+            container_config_section.set_tag(tag)
+        else:
+            message = dedent('''\n
+                No <containerconfig> section and/or tag attribute configured
+
+                In order to set the tag {0} as new container tag,
+                an initial containerconfig section including a tag
+                setup is required
+            ''')
+            log.warning(message.format(tag))
+
     def get_volumes(self):
         """
         List of configured systemdisk volumes.
@@ -1508,6 +1532,27 @@ class XMLState(object):
         derived_image = self.build_type.get_derived_from()
         if derived_image:
             return Uri(derived_image, repo_type='container')
+
+    def set_derived_from_image_uri(self, uri):
+        """
+        Set derived_from attribute to a new value
+
+        In order to set a new value the derived_from attribute
+        must be already present in the image configuration
+
+        :param string uri: URI
+        """
+        if self.build_type.get_derived_from():
+            self.build_type.set_derived_from(uri)
+        else:
+            message = dedent('''\n
+                No derived_from attribute configured in image <type>
+
+                In order to set the uri {0} as base container reference
+                an initial derived_from attribute must be set in the
+                type section
+            ''')
+            log.warning(message.format(uri))
 
     def _used_profiles(self, profiles=None):
         """
