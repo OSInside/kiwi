@@ -131,6 +131,16 @@ class TestUri(object):
         assert uri.translate() == \
             '/usr/src/packages/SOURCES/repos/openSUSE:13.2/standard'
 
+    def test_translate_suse_buildservice_container_path(self):
+        uri = Uri('suse://project/repo/container#latest', 'container')
+        assert uri.translate() == \
+            '/usr/src/packages/SOURCES/containers/project/repo/container#latest'
+
+    def test_translate_buildservice_obsrepositories_container_path(self):
+        uri = Uri('obsrepositories:/container#latest', 'container')
+        assert uri.translate() == \
+            '/usr/src/packages/SOURCES/containers/_obsrepositories/container#latest'
+
     @patch('kiwi.system.uri.MountManager')
     @patch('kiwi.system.uri.mkdtemp')
     @patch('kiwi.system.uri.Path.wipe')
