@@ -19,9 +19,12 @@ import re
 import copy
 import platform
 from collections import namedtuple
+from six.moves.urllib.parse import urlparse
+from textwrap import dedent
 
 # project
 from . import xml_parse
+from .logger import log
 from .system.uri import Uri
 from .defaults import Defaults
 
@@ -711,7 +714,7 @@ class XMLState(object):
         container_entry = {}
         if container_config_section:
             entrypoint = container_config_section.get_entrypoint()
-            if entrypoint:
+            if entrypoint and entrypoint[0].get_execute():
                 container_entry['entry_command'] = [
                     ''.join(
                         [
@@ -731,6 +734,14 @@ class XMLState(object):
                                 ]
                             )
                         )
+            elif entrypoint and entrypoint[0].get_clear():
+                container_entry['entry_command'] = [
+                    ''.join(
+                        [
+                            '--clear=config.entrypoint'
+                        ]
+                    )
+                ]
         return container_entry
 
     def _match_docker_subcommand(self):
@@ -741,7 +752,7 @@ class XMLState(object):
         container_subcommand = {}
         if container_config_section:
             subcommand = container_config_section.get_subcommand()
-            if subcommand:
+            if subcommand and subcommand[0].get_execute():
                 container_subcommand['entry_subcommand'] = [
                     ''.join(
                         [
@@ -761,6 +772,14 @@ class XMLState(object):
                                 ]
                             )
                         )
+            elif subcommand and subcommand[0].get_clear():
+                container_subcommand['entry_subcommand'] = [
+                    ''.join(
+                        [
+                            '--clear=config.cmd',
+                        ]
+                    )
+                ]
         return container_subcommand
 
     def _match_docker_expose_ports(self):
@@ -871,6 +890,28 @@ class XMLState(object):
             self._match_docker_labels()
         )
         return container_config
+
+    def set_container_config_tag(self, tag):
+        """
+        Set new tag name in containerconfig section
+
+        In order to set a new tag value an existing containerconfig and
+        tag setup is required
+
+        :param string tag: tag name
+        """
+        container_config_section = self.get_build_type_containerconfig_section()
+        if container_config_section and container_config_section.get_tag():
+            container_config_section.set_tag(tag)
+        else:
+            message = dedent('''\n
+                No <containerconfig> section and/or tag attribute configured
+
+                In order to set the tag {0} as new container tag,
+                an initial containerconfig section including a tag
+                setup is required
+            ''')
+            log.warning(message.format(tag))
 
     def get_volumes(self):
         """
@@ -1113,30 +1154,32 @@ class XMLState(object):
 
     def translate_obs_to_ibs_repositories(self):
         """
-        Change obs:// repotype to ibs:// type
+        Change obs repotype to ibs type
 
         This will result in pointing to build.suse.de instead of
         build.opensuse.org
         """
         for repository in self.get_repository_sections():
             source_path = repository.get_source()
-            if 'obs://' in source_path.get_path():
+            source_uri = urlparse(source_path.get_path())
+            if source_uri.scheme == 'obs':
                 source_path.set_path(
-                    source_path.get_path().replace('obs://', 'ibs://')
+                    source_path.get_path().replace('obs:', 'ibs:')
                 )
 
     def translate_obs_to_suse_repositories(self):
         """
-        Change obs:// repotype to suse:// type
+        Change obs: repotype to suse: type
 
         This will result in a local repo path suitable for a
         buildservice worker instance
         """
         for repository in self.get_repository_sections():
             source_path = repository.get_source()
-            if 'obs://' in source_path.get_path():
+            source_uri = urlparse(source_path.get_path())
+            if source_uri.scheme == 'obs':
                 source_path.set_path(
-                    source_path.get_path().replace('obs://', 'suse://')
+                    source_path.get_path().replace('obs:', 'suse:')
                 )
 
     def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):
@@ -1488,7 +1531,28 @@ class XMLState(object):
         """
         derived_image = self.build_type.get_derived_from()
         if derived_image:
-            return Uri(derived_image)
+            return Uri(derived_image, repo_type='container')
+
+    def set_derived_from_image_uri(self, uri):
+        """
+        Set derived_from attribute to a new value
+
+        In order to set a new value the derived_from attribute
+        must be already present in the image configuration
+
+        :param string uri: URI
+        """
+        if self.build_type.get_derived_from():
+            self.build_type.set_derived_from(uri)
+        else:
+            message = dedent('''\n
+                No derived_from attribute configured in image <type>
+
+                In order to set the uri {0} as base container reference
+                an initial derived_from attribute must be set in the
+                type section
+            ''')
+            log.warning(message.format(uri))
 
     def _used_profiles(self, profiles=None):
         """

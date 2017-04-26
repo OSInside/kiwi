@@ -46,7 +46,7 @@ class Uri(object):
         URI, repository location, file
 
     * :attr:`repo_type`
-        repository type name, rpm-dir, rpm-md, yast2
+        repository type name, rpm-dir, rpm-md, yast2, container
 
     * :attr:`mount_stack`
         list of mounted locations
@@ -73,7 +73,8 @@ class Uri(object):
             'iso': True,
             'dir': True,
             'file': True,
-            'suse': True
+            'suse': True,
+            'obsrepositories': True
         }
 
     def translate(self):
@@ -99,6 +100,12 @@ class Uri(object):
             return self._obs_project(
                 ''.join([uri.netloc, uri.path])
             )
+        elif uri.scheme == 'obsrepositories':
+            return self._suse_buildservice_path(
+                name=''.join([uri.netloc, uri.path]),
+                fragment=uri.fragment,
+                urischeme=uri.scheme
+            )
         elif uri.scheme == 'ibs':
             return self._ibs_project(
                 ''.join([uri.netloc, uri.path])
@@ -111,7 +118,9 @@ class Uri(object):
             return self._iso_mount_path(uri.path)
         elif uri.scheme == 'suse':
             return self._suse_buildservice_path(
-                ''.join([uri.netloc, uri.path])
+                name=''.join([uri.netloc, uri.path]),
+                fragment=uri.fragment,
+                urischeme=uri.scheme
             )
         elif uri.scheme == 'http' or uri.scheme == 'https' or uri.scheme == 'ftp':
             return ''.join([uri.scheme, '://', uri.netloc, uri.path])
@@ -170,6 +179,13 @@ class Uri(object):
                     'URI type %s unknown' % uri.scheme
                 )
 
+    def get_fragment(self):
+        """
+        Returns the fragment part of the URI.
+        """
+        uri = urlparse(self.uri)
+        return uri.fragment
+
     def _iso_mount_path(self, path):
         # The prefix name 'kiwi_iso_mount' has a meaning here because the
         # zypper repository manager looks up iso mount paths by its repo
@@ -203,15 +219,29 @@ class Uri(object):
             )
         return obs_distribution
 
-    def _suse_buildservice_path(self, name):
+    def _suse_buildservice_path(self, name, urischeme, fragment=None):
         """
         Special to openSUSE buildservice. If the buildservice builds
         the image it arranges the repos for each build in a special
         environment, the so called build worker.
         """
-        return self._local_path(
-            '/usr/src/packages/SOURCES/repos/' + name
-        )
+        bs_source_dir = '/usr/src/packages/SOURCES'
+        if self.repo_type == 'container':
+            if urischeme == 'obsrepositories':
+                local_path = os.sep.join(
+                    [bs_source_dir, 'containers/_obsrepositories', name]
+                )
+            else:
+                local_path = os.sep.join(
+                    [bs_source_dir, 'containers', name]
+                )
+            if fragment:
+                local_path = ''.join([local_path, '#', fragment])
+        else:
+            local_path = os.sep.join(
+                [bs_source_dir, 'repos', name]
+            )
+        return self._local_path(local_path)
 
     def __del__(self):
         for mount in reversed(self.mount_stack):

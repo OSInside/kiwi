@@ -1092,16 +1092,17 @@ function installBootLoaderS390Grub {
     # - create active_devices.txt
     # - delete kiwi initrd/kernel .vmx files
     # Run grub2-mkconfig
-    # - create new boot/grub2/grub.cfg
+    # - create new grub.cfg
     # Run grub2-install
     # - creates a new boot/zipl/config
     # - creates zipl initrd which loads grub2/kexec
     # - install zipl
     # ----
     local IFS=$IFS_ORIG
+    local boot_loader_path=/boot/grub2
     local confTool=grub2-mkconfig
     local instTool=grub2-install
-    local confFile_grub=/boot/grub2/grub.cfg
+    local confFile_grub=${boot_loader_path}/grub.cfg
     local active_devs=/boot/zipl/active_devices.txt
     local deviceID=$(cat /sys/firmware/ipl/device)
     local instTooOptions
@@ -1186,15 +1187,16 @@ function installBootLoaderS390 {
 function installBootLoaderGrub2 {
     # /.../
     # configure and install grub2 according to the
-    # contents of /boot/grub2/grub.cfg
+    # contents of grub.cfg
     # ----
     local IFS=$IFS_ORIG
+    local boot_loader_path=/boot/grub2
     local confTool=grub2-mkconfig
     local instTool=grub2-install
-    local confFile_grub_bios=/boot/grub2/grub.cfg
+    local confFile_grub_bios=${boot_loader_path}/grub.cfg
     local confFile_uefi=/boot/efi/EFI/BOOT/grub.cfg
     local confFile_grub=$confFile_grub_bios
-    local bios_grub=/boot/grub2/i386-pc
+    local bios_grub=${boot_loader_path}/i386-pc
     local product=/etc/products.d/baseproduct
     local grub_efi=/boot/efi/EFI/BOOT/grub.efi
     local isEFI=0
@@ -1285,11 +1287,12 @@ function installBootLoaderGrub2Recovery {
     # last primary partition of the disk
     # ----
     local IFS=$IFS_ORIG
+    local boot_loader_path=/boot/grub2
     local confTool=grub2-mkconfig
-    local confFile_grub_bios=/boot/grub2/grub.cfg
+    local confFile_grub_bios=${boot_loader_path}/grub.cfg
     local confFile_uefi=/boot/efi/EFI/BOOT/grub.cfg
     local confFile_grub=$confFile_grub_bios
-    local bios_grub=/reco-save/boot/grub2/i386-pc
+    local bios_grub=/reco-save${boot_loader_path}/i386-pc
     local isEFI=0
     #======================================
     # check for EFI and mount EFI partition
@@ -1331,7 +1334,7 @@ cat > /etc/grub.d/40_custom << DONE
 cat << EOF
 menuentry 'Recovery' --class os {
     search --no-floppy --fs-uuid --set=root $reco_uuid
-    configfile /boot/grub2/grub.cfg
+    configfile ${boot_loader_path}/grub.cfg
 }
 EOF
 DONE
@@ -1597,12 +1600,13 @@ function setupBootLoaderGrub2Recovery {
     # create grub.cfg file for the recovery boot system
     # ----
     local IFS=$IFS_ORIG
+    local boot_loader_path=/boot/grub2
     local mountPrefix=$1  # mount path of the image
     local destsPrefix=$2  # base dir for the config files
     local gfix=$3         # grub title
     local kernel=vmlinuz  # this is a copy of the kiwi linux.vmx file
     local initrd=initrd   # this is a copy of the kiwi initrd.vmx file
-    local conf=$destsPrefix/boot/grub2/grub.cfg
+    local conf=${destsPrefix}${boot_loader_path}/grub.cfg
     local theme=$RECOVERY_THEME
     #======================================
     # setup ID device names
@@ -1619,9 +1623,9 @@ function setupBootLoaderGrub2Recovery {
     # import grub2 modules into recovery
     #--------------------------------------
     mkdir -p $destsPrefix/boot
-    cp -a $mountPrefix/boot/grub2 $destsPrefix/boot/
-    rm -f $destsPrefix/boot/grub2/grub.cfg
-    rm -f $destsPrefix/boot/grub2/bootpart.cfg
+    cp -a ${mountPrefix}${boot_loader_path} $destsPrefix/boot/
+    rm -f ${destsPrefix}${boot_loader_path}/grub.cfg
+    rm -f ${destsPrefix}${boot_loader_path}/bootpart.cfg
     #======================================
     # check for kernel options
     #--------------------------------------
@@ -1667,13 +1671,13 @@ if loadfont \$font ;then
         terminal gfxterm
     fi
 fi
-if loadfont /boot/grub2/themes/$theme/ascii.pf2;then
-    loadfont /boot/grub2/themes/$theme/DejaVuSans-Bold14.pf2
-    loadfont /boot/grub2/themes/$theme/DejaVuSans10.pf2
-    loadfont /boot/grub2/themes/$theme/DejaVuSans12.pf2
-    loadfont /boot/grub2/themes/$theme/ascii.pf2
-    set theme=/boot/grub2/themes/$theme/theme.txt
-    set bgimg=/boot/grub2/themes/$theme/background.png
+if loadfont ${boot_loader_path}/themes/$theme/ascii.pf2;then
+    loadfont ${boot_loader_path}/themes/$theme/DejaVuSans-Bold14.pf2
+    loadfont ${boot_loader_path}/themes/$theme/DejaVuSans10.pf2
+    loadfont ${boot_loader_path}/themes/$theme/DejaVuSans12.pf2
+    loadfont ${boot_loader_path}/themes/$theme/ascii.pf2
+    set theme=${boot_loader_path}/themes/$theme/theme.txt
+    set bgimg=${boot_loader_path}/themes/$theme/background.png
     background_image -m stretch \$bgimg
 fi
 if [ \$grub_platform = "efi" ]; then
@@ -1759,9 +1763,10 @@ function setupBootLoaderS390Grub {
     #======================================
     # setup path names
     #--------------------------------------
+    local boot_loader_path=/boot/grub2
     local inst_default_grub=$destsPrefix/etc/default/grub
     local inst_default_grubdev=$destsPrefix/etc/default/grub_installdevice
-    local inst_default_grubmap=$destsPrefix/boot/grub2/device.map
+    local inst_default_grubmap=${destsPrefix}${boot_loader_path}/device.map
     local inst_sysb=$destsPrefix/etc/sysconfig/bootloader
     #======================================
     # setup ID device names
@@ -1835,9 +1840,9 @@ cat > $inst_default_grubdev << EOF
 $diskByID
 EOF
     #======================================
-    # write boot/grub2/device.map
+    # write device.map
     #--------------------------------------
-    mkdir -p $destsPrefix/boot/grub2
+    mkdir -p ${destsPrefix}${boot_loader_path}
 cat > $inst_default_grubmap << EOF
 (hd0) $diskByID
 EOF
@@ -1906,9 +1911,10 @@ function setupBootLoaderGrub2 {
     #======================================
     # setup path names
     #--------------------------------------
+    local boot_loader_path=/boot/grub2
     local inst_default_grub=$destsPrefix/etc/default/grub
     local inst_default_grubdev=$destsPrefix/etc/default/grub_installdevice
-    local inst_default_grubmap=$destsPrefix/boot/grub2/device.map
+    local inst_default_grubmap=${destsPrefix}${boot_loader_path}/device.map
     local unifont=$mountPrefix/usr/share/grub2/unicode.pf2
     #======================================
     # setup title name
@@ -1996,9 +2002,9 @@ cat > $inst_default_grubdev << EOF
 $grub_install_device
 EOF
     #======================================
-    # write boot/grub2/device.map
+    # write device.map
     #--------------------------------------
-    mkdir -p $destsPrefix/boot/grub2
+    mkdir -p ${destsPrefix}${boot_loader_path}
 cat > $inst_default_grubmap << EOF
 (hd0) $diskByID
 EOF
@@ -2028,8 +2034,8 @@ EOF
     # write bootloader theme setup
     #--------------------------------------
     if [ ! -z "$kiwi_loader_theme" ];then
-        local theme=/boot/grub2/themes/$kiwi_loader_theme/theme.txt
-        local bgpng=/boot/grub2/themes/$kiwi_loader_theme/background.png
+        local theme=${boot_loader_path}/themes/$kiwi_loader_theme/theme.txt
+        local bgpng=${boot_loader_path}/themes/$kiwi_loader_theme/background.png
         echo "GRUB_THEME=\"$theme\""      >> $inst_default_grub
         echo "GRUB_BACKGROUND=\"$bgpng\"" >> $inst_default_grub
     fi

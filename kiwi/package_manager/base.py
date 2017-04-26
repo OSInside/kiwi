@@ -154,6 +154,14 @@ class PackageManagerBase(object):
         """
         raise NotImplementedError
 
+    def process_plus_recommended(self):
+        """
+        Setup package processing to also include recommended dependencies
+
+        Implementation in specialized package manager class
+        """
+        raise NotImplementedError
+
     def match_package_installed(self, package_list, log_line):
         """
         Match expression to indicate a package has been installed

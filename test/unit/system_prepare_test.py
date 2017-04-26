@@ -267,6 +267,16 @@ class TestSystemPrepare(object):
         mock_tar.assert_called_once_with('../data/bootstrap.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.xml_state.XMLState.get_bootstrap_packages_sections')
+    def test_install_bootstrap_skipped(
+        self, mock_bootstrap_section, mock_log_warning
+    ):
+        mock_bootstrap_section.return_value = []
+        self.system.install_bootstrap(self.manager)
+        mock_bootstrap_section.assert_called_once_with()
+        assert mock_log_warning.called
+
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     @patch('kiwi.system.prepare.ArchiveTar')

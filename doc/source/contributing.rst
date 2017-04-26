@@ -3,59 +3,61 @@ Development and Contributing
 
 .. hint:: **Abstract**
 
-   This document describes the development process of KIWI.
-   This description applies for version |version|.
+   This document describes the development process of KIWI
+   and how you can be part of it. This description applies
+   for version |version|.
 
 The core appliance builder is developed in Python and follows the test
 driven development rules.
 
-Runtime Requirements
----------------------
+Fork the upstream KIWI repository
+---------------------------------
 
-KIWI requires the following Python modules to run:
+1. On GitHub, navigate to: https://github.com/SUSE/kiwi
 
-* :mod:`lxml`
-* :mod:`docopt`
-* :mod:`xattr`
+2. In the top-right corner of the page, click :command:`Fork`.
 
-Development Requirements
--------------------------
+Create a local clone of the forked KIWI repository
+--------------------------------------------------
+
+.. code:: bash
+
+    $ git clone https://github.com/YOUR-USERNAME/kiwi
+
+    $ git remote add upstream https://github.com/SUSE/kiwi.git
+
+Create a python virtual development environment
+-----------------------------------------------
 
 The Python project uses :command:`pyvenv` to setup a development environment
 for the desired Python version. The script :command:`pyvenv` is already
 installed when using Python 3.3 and higher (see
 https://docs.python.org/3.3/whatsnew/3.3.html#pep-405-virtual-environments
-for details). For Python 2.7 use :command:`virtualenv`.
+for details). For Python 2.7 use :command:`virtualenv`, which is provided
+via pip or as an extra package in your favourite Linux distribution.
 
 However, for setting up a Python virtual development environment the
 following additional include, header files and compilers are required
 in order to allow for compiling the C parts of the runtime required
-Python modules listed above:
+Python modules:
 
 * XML processing with libxml2 and libxslt (for :mod:`lxml`)
 * Foreign function interface library (libffi48)
 * Python header files (for :mod:`xattr`)
 * GCC compiler and glibc-devel header files
 
-The required components can be installed with the following command:
+.. note::
+
+    On SUSE systems the required components can be installed
+    with the following command. Package names and install command
+    are different on other systems.
 
 .. code:: bash
 
     $ zypper in python3-devel libxml2-devel libxslt-devel libffi48-devel glibc-devel gcc
 
-.. note::
-
-    The command above is only valid for SUSE systems.
-    Package names and install command might be different
-    on other systems.
-
-For development, KIWI also takes the following additional
-Python modules from :ghkiwi:`.virtualenv.dev-requirements.txt`
-into account.
-
-Contributing
-------------
-
+Once the basic python module requirements are installed on your system,
+the next step is to create the virtual development environment.
 The following procedure describes how to create a Python3 virtual
 development environment:
 
@@ -87,12 +89,13 @@ Once the development environment is activated and initialized with the
 project required Python modules, you are ready to work.
 
 The :command:`develop` target of the :command:`setup.py` script
-automatically creates the application entry point called :command:`kiwi-ng`,
-which allows to simply call the application from the current code base:
+automatically creates the application entry point called :command:`kiwi-ng-3`,
+which allows to simply call the application from the code in the
+virtual environment:
 
 .. code:: bash
 
-    $ kiwi-ng --help
+    $ kiwi-ng-3 --help
 
 In order to leave the development mode just call:
 
@@ -115,12 +118,16 @@ entry point after a version change by recalling:
     $ ./setup.py develop
 
 Running Test Cases
-~~~~~~~~~~~~~~~~~~
+------------------
 
 For running test cases, the preferred method is to use Tox. The Tox
 execution environment can be used to run any kind of target, tests are
 just one, documentation is another one. Refer to :file:`tox.ini` for more
-details.
+details. Tox itself creates a python virtual environment for each tox
+target below :file:`./.tox`.
+
+Before you start to contribute code make sure all tests pass by calling
+the following command:
 
 .. code:: bash
 
@@ -142,12 +149,63 @@ example runs the test cases for the 3.4 interpreter only:
 
     $ tox -e 3.4
 
-Working with Branches
-~~~~~~~~~~~~~~~~~~~~~
+Create a branch for each feature or bugfix
+==========================================
 
-Code changes should be done in an extra git branch of the origin or
-a forked git repository. This allows for creating github pull requests
+Congratulation ! you successfully created a KIWI development environment
+and all tests passed. Now it's time to hack on KIWI. Code changes should
+be done in an extra git branch. This allows for creating GitHub pull requests
 in a clean way. Also See `Github Issues and Pull Requests <https://help.github.com/categories/collaborating-on-projects-using-issues-and-pull-requests>`__
+
+.. code:: bash
+
+    $ git checkout -b my-topic-branch
+
+Make and commit your changes.
+
+.. note::
+
+    You can make multiple commits which is generally useful to
+    give your changes a clear structure and to allow us to better
+    review your work effort.
+
+.. note::
+
+    Your work is important and should be signed to ensure the
+    integrity of the repository and the code. Thus we recommend
+    to setup a signing key as documented in Signing_Git_Patches_.
+
+.. code:: bash
+
+    $ git commit -S -a
+
+Run tests and code style checks. All of these are also performed by
+the travis integration test system at the time when a pull request
+will be created.
+
+.. code:: bash
+
+    $ tox
+
+Once all is done push your local branch to the forked repository
+and head out to GitHub for creating a pull request into the upstream
+repository.
+
+.. code:: bash
+
+    $ git push origin my-topic-branch
+
+Thanks much for contributing to KIWI. Your time and work effort is
+very much appreciated.
+
+Good to know
+------------
+
+The following sections provides further information about repository
+integrity, version, package and documentation management and are a good
+read to complete the picture of how the KIWI project works.
+
+.. _Signing_Git_Patches:
 
 Signing Git Patches
 ~~~~~~~~~~~~~~~~~~~
@@ -191,23 +249,8 @@ To prepare Git to sign commits, follow these one-time instructions:
     email = developer@foo.bar
     signingkey = 11223344
 
-Once you have done the previous steps, use the following command to sign
-your commit:
-
-.. code:: bash
-
-    $ git commit -S -a
-
-The signatures created by this can later be verified using the
-following command:
-
-.. code:: bash
-
-  $ git log --show-signature
-
-
 Raising Versions
-----------------
+~~~~~~~~~~~~~~~~
 
 The KIWI project follows the `Semantic Versioning <http://semver.org>`__
 method. To make it easier to follow this method, :command:`bumpversion` is
@@ -236,9 +279,8 @@ version:
 
     $ bumpversion major
 
-
 Creating a Package
-------------------
+~~~~~~~~~~~~~~~~~~
 
 The creation of RPM package sources has to be done by calling the
 following make target:
@@ -251,9 +293,8 @@ The sources are collected below the :file:`dist/` directory. In there you
 will find all required files to submit a package to the Open Build
 Service or just build it with :command:`rpmbuild`.
 
-
 Building Documentation
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 The documentation is implemented using Sphinx with the ReST markup. In
 order to build the documentation just call:

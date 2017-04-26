@@ -16,3 +16,8 @@ class TestContainerImage(object):
     def test_container_image_docker(self, mock_docker):
         ContainerImage('docker', 'root_dir')
         mock_docker.assert_called_once_with('root_dir', None)
+
+    @patch('kiwi.container.ContainerImageOCI')
+    def test_container_image_oci(self, mock_oci):
+        ContainerImage('oci', 'root_dir')
+        mock_oci.assert_called_once_with('root_dir', None)

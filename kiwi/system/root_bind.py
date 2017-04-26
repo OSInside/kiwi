@@ -88,9 +88,14 @@ class RootBind(object):
         """
         try:
             for location in self.bind_locations:
-                if os.path.exists(location):
+                location_mount_target = os.path.normpath(os.sep.join([
+                    self.root_dir, location
+                ]))
+                if os.path.exists(location) and os.path.exists(
+                    location_mount_target
+                ):
                     shared_mount = MountManager(
-                        device=location, mountpoint=self.root_dir + location
+                        device=location, mountpoint=location_mount_target
                     )
                     shared_mount.bind_mount()
                     self.mount_stack.append(shared_mount)

@@ -188,10 +188,16 @@ class PackageManagerYum(PackageManagerBase):
     def process_only_required(self):
         """
         Setup package processing only for required packages
-
-        There is no required/recommends information in the rhel repo data
         """
-        pass
+        if '--setopt=requires_policy=strong' not in self.custom_args:
+            self.custom_args.append('--setopt=requires_policy=strong')
+
+    def process_plus_recommended(self):
+        """
+        Setup package processing to also include recommended dependencies.
+        """
+        if '--setopt=requires_policy=strong' in self.custom_args:
+            self.custom_args.remove('--setopt=requires_policy=strong')
 
     def match_package_installed(self, package_name, yum_output):
         """

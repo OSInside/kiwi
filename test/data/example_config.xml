@@ -29,6 +29,7 @@
         <profile name="xenFlavour" description="VMX with Xen kernel"/>
         <profile name="ec2Flavour" description="VMX with EC2/Xen kernel"/>
         <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
+        <profile name="derivedContainer" description="Container built on top of a base issue"/>
     </profiles>
     <preferences>
         <locale>de_DE</locale>
@@ -99,7 +100,7 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
-        <type image="docker" derived_from="file:///image.tar.xz">
+        <type image="docker">
             <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
                 <entrypoint execute="/bin/bash">
                     <argument name="-x"/>
@@ -123,6 +124,14 @@
                     <label name="somelabel" value="labelvalue"/>
                     <label name="someotherlabel" value="anotherlabelvalue"/>
                 </labels>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="derivedContainer">
+        <type image="docker" derived_from="file:///image.tar.xz">
+            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
+                <entrypoint clear="true"/>
+                <subcommand clear="true"/>
             </containerconfig>
         </type>
     </preferences>

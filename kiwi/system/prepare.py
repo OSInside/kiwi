@@ -155,6 +155,11 @@ class SystemPrepare(object):
         Install system software using the package manager
         from the host, also known as bootstrapping
         """
+        if not self.xml_state.get_bootstrap_packages_sections():
+            log.warning('No <packages> sections marked as "bootstrap" found')
+            log.info('Processing of bootstrap stage skipped')
+            return
+
         log.info('Installing bootstrap packages')
         bootstrap_packages = self.xml_state.get_bootstrap_packages()
         bootstrap_packages.append(
@@ -168,6 +173,8 @@ class SystemPrepare(object):
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
+        else:
+            manager.process_plus_recommended()
         all_install_items = self._setup_requests(
             manager,
             bootstrap_packages,
@@ -222,6 +229,8 @@ class SystemPrepare(object):
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
+        else:
+            manager.process_plus_recommended()
         all_install_items = self._setup_requests(
             manager,
             system_packages,

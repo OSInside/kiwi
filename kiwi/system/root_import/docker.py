@@ -15,64 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import mkdtemp
-import os
-
 # project
-from kiwi.system.root_import.base import RootImportBase
-from kiwi.path import Path
-from kiwi.utils.sync import DataSync
+from kiwi.system.root_import.oci import RootImportOCI
+from kiwi.logger import log
 from kiwi.utils.compress import Compress
 from kiwi.command import Command
 
 
-class RootImportDocker(RootImportBase):
+class RootImportDocker(RootImportOCI):
     """
-    Implements the base class for importing a root system from
-    a docker image compressed tarball file.
+    Extends OCI import class to hanlde docker images in a xz
+    compressed tarball file.
     """
-    def post_init(self):
+    def extract_oci_image(self):
         """
-        Post initialization method
+        Extract and converts to OCI the image from the provided
+        image file to a temporary location to KIWI can work with it.
         """
-        self.uncompressed_image = None
-        self.oci_unpack_dir = None
-        self.oci_layout_dir = None
-
-    def sync_data(self):
-        compressor = Compress(self.image_file)
-        compressor.uncompress(True)
-        self.uncompressed_image = compressor.uncompressed_filename
-
-        self.oci_layout_dir = mkdtemp(prefix='kiwi_layout_dir.')
-        self.oci_unpack_dir = mkdtemp(prefix='kiwi_unpack_dir.')
+        if not self.unknown_uri:
+            compressor = Compress(self.image_file)
+            compressor.uncompress(True)
+            self.uncompressed_image = compressor.uncompressed_filename
+            skopeo_uri = 'docker-archive:{0}'.format(self.uncompressed_image)
+        else:
+            log.warning('Bypassing base image URI to skopeo tool')
+            skopeo_uri = self.unknown_uri
 
         Command.run([
-            'skopeo', 'copy',
-            'docker-archive:{0}'.format(self.uncompressed_image),
-            'oci:{0}'.format(self.oci_layout_dir)
+            'skopeo', 'copy', skopeo_uri, 'oci:{0}'.format(self.oci_layout_dir)
         ])
-        Command.run([
-            'umoci', 'unpack', '--image',
-            self.oci_layout_dir, self.oci_unpack_dir
-        ])
-
-        synchronizer = DataSync(
-            os.sep.join([self.oci_unpack_dir, 'rootfs', '']),
-            ''.join([self.root_dir, os.sep])
-        )
-        synchronizer.sync_data(options=['-a', '-H', '-X', '-A'])
-
-        # A copy of the uncompressed image and its checksum are
-        # kept inside the root_dir in order to ensure the later steps
-        # i.e. system create are atomic and don't need any third
-        # party archive.
-        self._copy_image(self.uncompressed_image)
-
-    def __del__(self):
-        if self.oci_layout_dir:
-            Path.wipe(self.oci_layout_dir)
-        if self.oci_unpack_dir:
-            Path.wipe(self.oci_unpack_dir)
-        if self.uncompressed_image:
-            Path.wipe(self.uncompressed_image)

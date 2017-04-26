@@ -97,7 +97,7 @@ class RepositoryYum(RepositoryBase):
         in the default places
         """
         self.shared_yum_dir['reposd-dir'] = \
-            self.root_dir + '/etc/yum/repos.d'
+            self.root_dir + '/etc/yum.repos.d'
         self.shared_yum_dir['cache-dir'] = \
             self.root_dir + '/var/cache/yum'
         self.shared_yum_dir['pluginconf-dir'] = \

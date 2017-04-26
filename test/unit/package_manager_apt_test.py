@@ -101,11 +101,11 @@ class TestPackageManagerApt(object):
                 'debootstrap', '--no-check-gpg', 'xenial',
                 'root-dir.debootstrap', 'xenial_path'],
                 ['env']),
+            call(['rm', '-r', '-f', 'root-dir.debootstrap']),
             call([
-                'bash', '-c',
-                'rm -r -f root-dir.debootstrap &&' +
-                ' chroot root-dir apt-get root-moved-arguments update'],
-                ['env'])
+                'chroot', 'root-dir', 'apt-get',
+                'root-moved-arguments', 'update'
+            ], ['env'])
         ]
         mock_call.assert_called_once_with([
             'chroot', 'root-dir', 'apt-get',
@@ -152,6 +152,13 @@ class TestPackageManagerApt(object):
 
     def test_process_only_required(self):
         self.manager.process_only_required()
+        assert self.manager.custom_args == ['--no-install-recommends']
+
+    def test_process_plus_recommended(self):
+        self.manager.process_only_required()
+        assert self.manager.custom_args == ['--no-install-recommends']
+        self.manager.process_plus_recommended()
+        assert '--no-install-recommends' not in self.manager.custom_args
 
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Unpacking foo')

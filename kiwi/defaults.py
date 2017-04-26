@@ -567,7 +567,7 @@ class Defaults(object):
         :return: container names
         :rtype: list
         """
-        return ['docker', 'aci']
+        return ['docker', 'oci']
 
     @classmethod
     def get_filesystem_image_types(self):

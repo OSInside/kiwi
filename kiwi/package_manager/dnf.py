@@ -190,10 +190,16 @@ class PackageManagerDnf(PackageManagerBase):
     def process_only_required(self):
         """
         Setup package processing only for required packages
-
-        There is no required/recommends information in the rhel repo data
         """
-        pass
+        if '--setopt=install_weak_deps=False' not in self.custom_args:
+            self.custom_args.append('--setopt=install_weak_deps=False')
+
+    def process_plus_recommended(self):
+        """
+        Setup package processing to also include recommended dependencies.
+        """
+        if '--setopt=install_weak_deps=False' in self.custom_args:
+            self.custom_args.remove('--setopt=install_weak_deps=False')
 
     def match_package_installed(self, package_name, dnf_output):
         """
