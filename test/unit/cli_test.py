@@ -43,6 +43,8 @@ class TestCli(object):
             '--set-repo': None,
             '--add-package': [],
             '--delete-package': [],
+            '--set-container-derived-from': None,
+            '--set-container-tag': None,
             '-h': False,
             'help': False,
             'prepare': True,

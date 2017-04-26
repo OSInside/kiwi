@@ -25,6 +25,8 @@ usage: kiwi system prepare -h | --help
            [--obs-repo-internal]
            [--add-package=<name>...]
            [--delete-package=<name>...]
+           [--set-container-derived-from=<uri>]
+           [--set-container-tag=<name>]
        kiwi system prepare help
 
 commands:
@@ -55,6 +57,15 @@ options:
         buildservice is granted
     --root=<directory>
         the path to the new root directory of the system
+    --set-container-derived-from=<uri>
+        overwrite the source location of the base container
+        for the selected image type. The setting is only effective
+        if the configured image type is setup with an initial
+        derived_from reference
+    --set-container-tag=<name>
+        overwrite the container tag in the container configuration.
+        The setting is only effective if the container configuraiton
+        provides an initial tag value
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
@@ -123,6 +134,16 @@ class SystemPrepareTask(CliTask):
                 self.xml_state.add_repository(
                     repo_source, repo_type, repo_alias, repo_prio
                 )
+
+        if self.command_args['--set-container-tag']:
+            self.xml_state.set_container_config_tag(
+                self.command_args['--set-container-tag']
+            )
+
+        if self.command_args['--set-container-derived-from']:
+            self.xml_state.set_derived_from_image_uri(
+                self.command_args['--set-container-derived-from']
+            )
 
         self.runtime_checker.check_repositories_configured()
 

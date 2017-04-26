@@ -78,6 +78,8 @@ class TestSystemBuildTask(object):
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
+        self.task.command_args['--set-container-derived-from'] = None
+        self.task.command_args['--set-container-tag'] = None
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build(self, mock_log):
@@ -136,6 +138,30 @@ class TestSystemBuildTask(object):
         self.system_prepare.setup_repositories.assert_called_once_with()
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']
+        )
+
+    @patch('kiwi.xml_state.XMLState.set_container_config_tag')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_build_prepare_stage_set_container_tag(
+        self, mock_log, mock_set_container_tag
+    ):
+        self._init_command_args()
+        self.task.command_args['--set-container-tag'] = 'new_tag'
+        self.task.process()
+        mock_set_container_tag.assert_called_once_with(
+            'new_tag'
+        )
+
+    @patch('kiwi.xml_state.XMLState.set_derived_from_image_uri')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_build_prepare_stage_set_derived_from_uri(
+        self, mock_log, mock_set_derived_from_uri
+    ):
+        self._init_command_args()
+        self.task.command_args['--set-container-derived-from'] = 'file:///new'
+        self.task.process()
+        mock_set_derived_from_uri.assert_called_once_with(
+            'file:///new'
         )
 
     @patch('kiwi.xml_state.XMLState.set_repository')
