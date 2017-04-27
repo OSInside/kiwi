@@ -118,9 +118,8 @@ class PackageManagerZypper(PackageManagerBase):
         if self.exclude_requests:
             # For zypper excluding a package means, removing it from
             # the solver operation. This is done by adding a package
-            # lock. However if the package is hard required by another
-            # package it can't be excluded, which means the lock has
-            # no effect and the package in question will be pulled in
+            # lock. This means that if the package is hard required
+            # by another package, it will break the transaction.
             metadata_dir = ''.join([self.root_dir, '/etc/zypp'])
             if not os.path.exists(metadata_dir):
                 Path.create(metadata_dir)
