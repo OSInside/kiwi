@@ -621,8 +621,9 @@ then
         done
         imageRootDevice=$imageDevice
         if [ ! -z "$UNIONFS_CONFIG" ];then
-            imageRWDevice=`echo $UNIONFS_CONFIG | cut -d , -f 1`
-            imageRODevice=`echo $UNIONFS_CONFIG | cut -d , -f 2`
+            imageRWDevice=$(echo $UNIONFS_CONFIG | cut -d , -f 1)
+            imageRODevice=$(echo $UNIONFS_CONFIG | cut -d , -f 2)
+            unionFST=$(echo $UNIONFS_CONFIG | cut -d , -f 3)
         fi
         rm -f /etc/ireal.md5
         rm -f /etc/image.md5
