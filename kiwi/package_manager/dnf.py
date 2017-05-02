@@ -18,7 +18,6 @@
 import re
 
 # project
-from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.exceptions import (
@@ -87,11 +86,9 @@ class PackageManagerDnf(PackageManagerBase):
 
         Package exclusion for dnf package manager not yet implemented
 
-        :param string name: unused
+        :param string name: package name
         """
-        log.warning(
-            'Package exclusion for (%s) not supported for dnf', name
-        )
+        self.exclude_requests.append(name)
 
     def process_install_requests_bootstrap(self):
         """
@@ -122,6 +119,13 @@ class PackageManagerDnf(PackageManagerBase):
         """
         Process package install requests for image phase (chroot)
         """
+        if self.exclude_requests:
+            # For DNF, excluding a package means removing it from
+            # the solver operation. This is done by adding --exclude
+            # to the command line. This means that if the package is
+            # hard required by another package, it will break the transaction.
+            for package in self.exclude_requests:
+                self.custom_args.append('--exclude=' + package)
         Command.run(
             ['chroot', self.root_dir, 'rpm', '--rebuilddb']
         )
