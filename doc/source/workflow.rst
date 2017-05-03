@@ -216,6 +216,8 @@ KIWI:
 
    #. **Container Image**: Base images for the Docker engine.
 
+.. _image-components:
+
 Components of an Image Description
 ----------------------------------
 
@@ -258,6 +260,7 @@ These are the optional components of an image description:
           <archive name="custom-archive.tgz"/>
       </packages>
 
+.. _custom-config.sh:
 
 Image Customization with ``config.sh`` Shell Script
 ...................................................
