@@ -150,7 +150,7 @@ example runs the test cases for the 3.4 interpreter only:
     $ tox -e 3.4
 
 Create a branch for each feature or bugfix
-==========================================
+------------------------------------------
 
 Congratulation ! you successfully created a KIWI development environment
 and all tests passed. Now it's time to hack on KIWI. Code changes should
