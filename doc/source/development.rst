@@ -7,6 +7,14 @@ Development and Contributing
    and how you can be part of it. This description applies
    for version |version|.
 
+.. toctree::
+   :maxdepth: 1
+
+   development/kiwi_from_python
+   development/api/kiwi
+   development/schema
+   development/schema_extensions.rst
+
 The core appliance builder is developed in Python and follows the test
 driven development rules.
 

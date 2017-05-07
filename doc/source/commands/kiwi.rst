@@ -1,5 +1,5 @@
-Manual Pages
-============
+kiwi
+====
 
 SYNOPSIS
 --------
@@ -123,20 +123,6 @@ EXAMPLE
    $ kiwi --type vmx system build \
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
-
-SERVICES and COMMANDS
----------------------
-
-.. toctree::
-
-   image_resize
-   image_info
-   result_list
-   result_bundle
-   system_prepare
-   system_create
-   system_update
-   system_build
 
 COMPATIBILITY
 -------------

@@ -60,7 +60,7 @@ The second step, the ``create`` operation, creates the *packed image* or
 *image* in the specified format based on the unpacked image and the information
 provided in the :file:`config.xml` configuration file.
 
-.. figure:: img/intro.png
+.. figure:: ../.images/intro.png
     :align: center
     :alt: Image Creation Architecture
 
@@ -726,7 +726,7 @@ attribute withint the ``type`` section of the configuration file. For example:
    cases. Creating custom boot descriptions should not be necessary, unless you
    have special requirements. 
 
-.. figure:: img/activation.png
+.. figure:: ../.images/activation.png
    :align: center
    :alt: Image Descriptions
 

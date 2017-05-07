@@ -108,3 +108,30 @@ consider to use the legacy KIWI version.
    lxc has a successor in docker based on the former lxc technology.
    Many distributions also dropped the lxc tools from the distribution
    in favour of docker.
+
+Compatibility
+-------------
+
+The legacy KIWI version can be installed and used together with the next
+generation KIWI.
+
+.. note:: Automatic Link Creation for :command:`kiwi` Command
+
+   Note the python3-kiwi package uses the alternatives mechanism to
+   setup a symbolic link named :command:`kiwi` to the real executable
+   named :command:`kiwi-ng`. If the link target :file:`/usr/bin/kiwi`
+   already exists on your system, the alternative setup will skip the
+   creation of the link target because it already exists.
+
+From an appliance description perspective, both KIWI versions are fully
+compatible. Users can build their appliances with both versions and the
+same appliance description. If the appliance description uses features
+the next generation KIWI does not provide, the build will fail with an
+exception early. If the appliance description uses next generation
+features like the selection of the initrd system, it's not possible to
+build that with the legacy KIWI, unless the appliance description
+properly encapsulates the differences into a profile.
+
+The next generation KIWI also provides the `--compat` option and
+the :command:`kiwicompat` tool to be able to use the same commandline
+as provided with the legacy KIWI version.
