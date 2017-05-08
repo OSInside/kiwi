@@ -84,8 +84,6 @@ class PackageManagerDnf(PackageManagerBase):
         """
         Queue a package exclusion(skip) request
 
-        Package exclusion for dnf package manager not yet implemented
-
         :param string name: package name
         """
         self.exclude_requests.append(name)
