@@ -9,11 +9,32 @@ Build a Docker Container Image
 The following example shows how to build and run a container image
 based on SUSE Leap for the docker container system.
 
-.. note:: Requirements
+Installing the Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   In order to successfully build a docker container the docker
-   tools :command:`umoci` and :command:`skopeo` must be installed
-   on the build host system.
+Building Docker images with KIWI requires a couple of additional tools.
+In practice, :command:`umoci` and :command:`skopeo` utilities are mandatory.
+These tools are not yet in all regular openSUSE repositories, however a packaged
+version can be found in the *Virtualization:containers* repository
+`here <http://download.opensuse.org/repositories/Virtualization:/containers/>`_.
+In order to install them first add the repository using the :command:`zypper ar`
+command:
+
+.. code:: bash
+
+   $ zypper ar -f http://download.opensuse.org/repositories/Virtualization:/containers/<DIST>
+
+where the placeholder `<DIST>` is the preferred distribution. Once the
+repository has been added install the required utilities:
+
+.. code:: bash
+
+   $ zypper in umoci skopeo
+
+Building the Image
+~~~~~~~~~~~~~~~~~~
+
+Run the following KIWI command in order to build the base image example.
 
 .. code:: bash
 
@@ -68,17 +89,21 @@ The metadata information is provided within the KIWI XML description
 as part of the ``<containerconfig>`` section. The following parameters
 can be specified:
 
-* ``maintainer``: @David, please describe meaning for the user
-* ``cmd``: @David, please describe meaning for the user
-* ``label``: @David, please describe meaning for the user
-* ``expose``: @David, please describe meaning for the user
-* ``env``: @David, please describe meaning for the user
-* ``entrypoint``: @David, please describe meaning for the user
-* ``volume``: @David, please describe meaning for the user
-* ``user``: @David, please describe meaning for the user
-* ``workdir``: @David, please describe meaning for the user
+* ``maintainer``: Specifies the author field of the container.
+* ``cmd``: Provides the default execution parameters of the container.
+* ``label``: Adds custom metadata to an image, is key-value pair.
+* ``expose``: Informs at which ports is the container listening at runtime.
+* ``env``: Sets an environment value, is key-value pair.
+* ``entrypoint``: Sets the executable that the container will run, it can
+  include parameters.
+* ``volume``: Creates a mountpoint with the given name and marks it to hold
+  external volumes from the host or from other contianers.
+* ``user``: Sets the user name or UID to be used when running `cmd` and
+  `entrypoint`.
+* ``workdir``: Sets the working directory to be used when running `cmd` and
+  `entrypoint`.
 
-Map DockerFile directives to KIWI
+Map DockerFile Directives to KIWI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The native build description in docker is provided by a so called
@@ -91,18 +116,26 @@ KIWI:
 
 * `ADD`
 
-  @David, please describe how this could be mapped in KIWI
+  In order to include a tarball and auto extract it in KIWI it can be done by
+  including the files in the :ref:`overlay tree <decription_components>`,
+  or by including an `<archive>` item inside the `<packages type="image">`
+  section. **ADD** also handles remote content, in KIWI this should be done
+  within the `config.sh` script.
 
 * `RUN`
 
-  @David, please describe how this could be mapped in KIWI
+  In order to execute commands during build time in KIWI it can be done by
+  extending the `config.sh` script. Note that the `config.sh` is executed
+  after all the packages have been installed and after the overlay tree has
+  been applied.
 
 * `COPY`
 
-  @David, please describe how this could be mapped in KIWI
+  The equivalent in KIWI is to make use of the :ref:`overlay tree
+  <decription_components>` in order to include files in a specific location.
 
 
-Using an existing Docker Image as Base Image
+Using an Existing Docker Image as Base Image
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 KIWI also supports building of a container image on top of another base image.
@@ -114,7 +147,7 @@ be done using the **derived_from** optional attribute of ``<type>`` tag.
 The value of the **derived_from** attribute is the URI of the image;
 currently KIWI only supports references to local files (it expects a xz
 compressed tarball image) and any other URI type that is supported by
-the skopeo tool (e.g. DockerHub URIs as
+the skopeo tool (for example DockerHub URIs as
 ``derived_from="docker://opensuse:leap"``). The following example
 type specification shows how to specify a base image setup:
 
@@ -131,12 +164,12 @@ type specification shows how to specify a base image setup:
 
    The configuration metadata is inherited from the base image to
    the derived one, the only way to change the inherited metadata is by
-   overwriting it. The ``entrypoint`` and ``subcommand`` statements
-   builds an exception in a way that they can be wiped using the
-   **clear** attribute as used in the above example
+   overwriting it. Only the ``entrypoint`` and ``subcommand`` statements
+   builds are an exception, they can be wiped using the ``clear`` attribute
+   as used in the above example.
 
 
-Export image from docker to be usable as Base Image
+Export Image from Docker to Be Usable as Base Image
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Given there is an image in docker which should be used as a base image

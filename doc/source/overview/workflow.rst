@@ -216,6 +216,8 @@ KIWI:
 
    #. **Container Image**: Base images for the Docker engine.
 
+.. _decription_components:
+
 Components of an Image Description
 ----------------------------------
 
