@@ -64,7 +64,7 @@ spelling_ignore_acronyms = True
 spelling_ignore_importable_modules = True
 spelling_ignore_python_builtins = True
 spelling_ignore_pypi_package_names = True
-spelling_word_list_filename = 'spelling_wordlist.txt'
+spelling_word_list_filename = '.wordlists/spelling_wordlist.txt'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -144,7 +144,7 @@ autosummary_generate = True
 #html_short_title = '%s-%s' % (project, version)
 #html_last_updated_fmt = '%b %d, %Y'
 #html_split_index = True
-html_logo = 'img/kiwi-logo.png'
+html_logo = '.images/kiwi-logo.png'
 
 html_sidebars = {
    '**': [
@@ -165,15 +165,15 @@ html_theme_options = {
 # -- Options for manual page output ---------------------------------------
 
 # The man page toctree documents.
-kiwi_doc = 'manual/kiwi'
-result_list_doc = 'manual/result_list'
-result_bundle_doc = 'manual/result_bundle'
-system_prepare_doc = 'manual/system_prepare'
-system_update_doc = 'manual/system_update'
-system_build_doc = 'manual/system_build'
-system_create_doc = 'manual/system_create'
-image_resize_doc = 'manual/image_resize'
-image_info_doc = 'manual/image_info'
+kiwi_doc = 'commands/kiwi'
+result_list_doc = 'commands/result_list'
+result_bundle_doc = 'commands/result_bundle'
+system_prepare_doc = 'commands/system_prepare'
+system_update_doc = 'commands/system_update'
+system_build_doc = 'commands/system_build'
+system_create_doc = 'commands/system_create'
+image_resize_doc = 'commands/image_resize'
+image_info_doc = 'commands/image_info'
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).

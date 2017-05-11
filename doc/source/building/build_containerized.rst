@@ -1,3 +1,5 @@
+.. _container-building:
+
 Building in a Self-Contained Environment
 ========================================
 
