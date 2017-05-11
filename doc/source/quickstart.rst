@@ -1,177 +1,193 @@
-Quick Start
-===========
+Quick Start: Building an Image with KIWI |version|
+==================================================
 
 .. hint:: **Abstract**
 
-   This document describes how to start with KIWI, an OS appliance builder.
-   This description applies for version |version|.
+   This document describes how to start with KIWI, an OS appliance builder,
+   to build system images.
+   This Quick Start Guide covers:
 
-Installation
-------------
+   * what KIWI and an appliance is
+   * how to use KIWI to build a syste, image from a predefinied image description
+   * how you can start and use the created image
+
+
+Usage Scenario
+--------------
+The procedures in this guide describe the process of creating a minimal
+image with KIWI and how to start it with a virtualization technology.
+
+For this, you will use an existing image description
+The resulting image contains the following characteristics:
+
+* openSUSE Leap
+* FIXME B
+* FIXME C
+
+
+Conceptual Overview
+-------------------
+A system image (usually called "image"), is a *complete installation* of a Linux
+system within a file. The image represents an operation system and,
+optionally, contains the "final" configuration.
+
+KIWI creates images in a two step process:
+
+1. The first step, the *prepare operation*, generates a so-called
+   *unpacked image tree* (directory) using the information provided in
+   the image description.
+
+2. The second step, the *create operation*, creates the *packed image* or
+   *image* in the specified format based on the unpacked image and the
+   information provided in the configuration file.
+
+The image creation process with KIWI is automated and does not require any
+user interaction. The information required for the image creation process is
+provided by the image description.
+
+
+Terminology
+~~~~~~~~~~~
+
+Appliance
+   An appliance is a ready to use image of an operating system
+   including a preconfigured application for a specific use case.
+   The appliance is provided as an image file and needs to be
+   deployed to, or activated in the target system or service.
+
+Image
+   The result of a KIWI build process.
+
+Image Description
+   Specification to define an appliance. The image description is a
+   collection of human readable files in a directory. At least one XML
+   file :file:`config.xml` or :file:`.kiwi` is required. In addition
+   there may be as well other files like scripts or configuration data.
+   These can be used to customize certain parts either of the KIWI
+   build process or of the initial start-up behavior of the image.
+
+KIWI
+   An OS appliance builder.
+
+Virtualization Technology
+   Software simulated computer hardware. A virtual machine acts like
+   a real computer, but is separated from the physical hardware.
+
+
+System Requirements
+-------------------
+To use and run KIWI, you need:
+
+* A supported Linux distribution. Currently, KIWI can build appliances for
+  distributions which are equal or newer compared to the following list:
+
+  * CentOS 7
+  * Fedora 25+
+  * openSUSE Leap, Tumbleweed
+  * Red Hat Enterprise 7
+  * SUSE Linux Enterprise 12
+  * Ubuntu Xenial
+
+* Enough free disk space to build and store the image. We recommend a minimum of FIXME GB.
+* Python version 2.7, 3.4 or higher; as KIWI supports both Python
+  versions, the information in this guide applies also to both
+  packages, be it ``python3-kiwi`` or ``python2-kiwi``.
+* Git (package ``git-core``) to clone a repository.
+* Virtualization technology to start the image.
+
+
+Installing KIWI
+---------------
+KIWI can be installed with different methods. For this guide, only the
+installation as a packages through a package manager is described.
 
 Packages for the new KIWI version are provided at the `openSUSE
 buildservice <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__.
 
-Add the repository with :command:`zypper ar` (see following code) and replace
-the distribution placeholder. The best approach is to click on the
-desired distribution from the build service link above and there follow
-the **Go to download repository** link.
+.. todo:: Two questions:
+    a) Is the following procedure a bit "too much"?
+    b) Should we mention/describe/... other distributions too?
 
-.. note:: Multipython packages
+To install KIWI, do:
 
-   This version of KIWI is provided for python 2 and python 3 versions.
-   The following information is based on the installation of the
-   python3-kiwi package and applies also to the installation of the
-   python2-kiwi package.
+1. Open the URL http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder
+   in your browser.
 
-.. code:: bash
+2. Click the link of your preferred operating system.
 
-    $ sudo zypper ar -f \
-        http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>
-    $ sudo zypper in python3-kiwi
+3. Right-click on the file :file:`Virtualization:Appliances:Builder.repo` and copy the URL.
+   In Firefox it is the menu :menuselection:`Copy link address`.
+
+4. Insert the copied URL from the last step in your shell. The ``DIST`` placeholder
+   contains the respective distribution. Use :command:`zypper ar` to add it to your
+   list of repositories:
+
+   .. code-block:: shell-session
+
+      $ sudo zypper ar -f http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>/Virtualization:Appliances:Builder.repo
+
+5. Install KIWI:
+
+   .. code-block:: shell-session
+
+      $ sudo zypper in python3-kiwi
 
 
-Compatibility
--------------
+.. note:: **Compatibility with Legacy KIWI**
 
-The legacy KIWI version can be installed and used together with the next
-generation KIWI.
+   A legacy KIWI version can be installed and used together with
+   KIWI version 9 and higher ("next generation").
 
-.. note:: Automatic Link Creation for :command:`kiwi` Command
-
-   Note the python3-kiwi package uses the alternatives mechanism to
+   The ``python3-kiwi`` package uses the alternatives mechanism to
    setup a symbolic link named :command:`kiwi` to the real executable
    named :command:`kiwi-ng`. If the link target :file:`/usr/bin/kiwi`
    already exists on your system, the alternative setup will skip the
    creation of the link target because it already exists.
 
-From an appliance description perspective, both KIWI versions are fully
-compatible. Users can build their appliances with both versions and the
-same appliance description. If the appliance description uses features
-the next generation KIWI does not provide, the build will fail with an
-exception early. If the appliance description uses next generation
-features like the selection of the initrd system, it's not possible to
-build that with the legacy KIWI, unless the appliance description
-properly encapsulates the differences into a profile.
 
-The next generation KIWI also provides the `--compat` option and
-the :command:`kiwicompat` tool to be able to use the same commandline
-as provided with the legacy KIWI version.
+Building an Image
+-----------------
+As you want to create a image for openSUSE Leap, the following procedure describes
+how to do it:
 
-Example Appliance Descriptions
-------------------------------
+1. Open a shell and clone some KIWI example descriptions:
 
-For use with the next generation KIWI there is also a GitHub project
-hosting example appliance descriptions. Users who need an example to
-start with should checkout the project as follows:
+   .. code-block:: shell-session
 
-.. code:: bash
+      $ git clone https://github.com/SUSE/kiwi-descriptions
 
-    $ git clone https://github.com/SUSE/kiwi-descriptions
+2. Build the openSUSE Leap image with :command:`kiwi-ng`:
 
-Example Image Build on Host System
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   .. code-block:: shell-session
 
-Install python3-kiwi as explained above and build as follows:
-
-.. code:: bash
-
-    $ sudo kiwi-ng --type vmx system build \
+      $ sudo kiwi-ng --type vmx system build \
         --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
         --target-dir /tmp/myimage
 
-Find the image with the suffix :file:`.raw` below :file:`/tmp/myimage`.
+After the command is successfully executed, find the image with the
+suffix :file:`.raw` below :file:`/tmp/myimage`.
 
-Example Image Build in Container
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Install `dice <https://github.com/SUSE/dice>`__ and build as follows:
+Starting the Image
+------------------
+The disk image built in the last step can be used with any virtualization
+technology you may use already.
 
-.. code:: bash
+.. todo:: this procedure doesn't work correct. Any tips/recommendations how to
+   "start" the image? What should we recommend: VirtualBox, KVM, QEMU, VMware, ...
+   There are so many...
 
-    $ dice build kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS
-    $ dice status kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS
 
-Find the image in a tarball displayed by the :command:`status` command.
+1. Install the CPU emulator QEMU:
 
-In order to run your image build, call :command:`qemu` as follows:
+   .. code-block:: shell-session
 
-.. code:: bash
+      $ sudo zypper in qemu-x86
 
-    $ qemu -drive \
-        file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio
+2. Start the image through QEMU:
 
-Using KIWI NG from Build Service
---------------------------------
+   .. code-block:: shell-session
 
-The next generation KIWI is fully integrated with the build service. As
-an example you can find the integration testing system in the
-buildservice project `Virtualization:Appliances:Images:Testing_<arch>` at:
+      $ su -
+      # qemu-sysstem-x86_64 -drive format=raw,file=/tmp/myimage/*.raw
 
-https://build.opensuse.org
-
-In order to use the next generation KIWI to build an appliance in the
-build service it is only required to add the Builder project as
-repository to the KIWI XML configuration like in the following example:
-
-.. code:: xml
-
- <repository type="rpm-md" alias="kiwi-next-generation">
-     <source path="obs://Virtualization:Appliances:Builder/Factory"/>
- </repository>
-
-The Builder project configuration in the build service is setup to prefer
-the next generation KIWI over the legacy version. Thus adding the
-Builder repository inherits this project setup and activates building
-with the next generation KIWI.
-
-Using KIWI NG in a Python Project
-----------------------------------
-
-KIWI NG can also function as a module for other Python projects.
-The following example demonstrates how to read an existing image
-description, add a new repository definition and export the
-modified description on stdout.
-
-.. code:: python
-
-    import sys
-    import logging
-
-    from kiwi.xml_description import XMLDescription
-    from kiwi.xml_state import XMLState
-
-    # Import of log handler only needed if default logging
-    # setup is not appropriate for the project
-    # from kiwi.logger import log
-
-    # By default the logging level is set to DEBUG, which
-    # can be changed by the following call
-    # log.setLogLevel(logging.INFO)
-
-    # Logging can also be disabled completely
-    # log.disabled = True
-
-    description = XMLDescription('path/to/kiwi/XML/config.xml')
-
-    xml_data = description.load()
-
-    xml_state = XMLState(
-        xml_data=xml_data, profiles=[], build_type='iso'
-    )
-
-    xml_state.add_repository(
-        repo_source='http://repo',
-        repo_type='rpm-md',
-        repo_alias='myrepo',
-        repo_prio=99
-    )
-
-    xml_data.export(
-        outfile=sys.stdout, level=0
-    )
-
-All classes are written in a way to care for a single responsibility
-in order to allow for re-use on other use cases. Therefore it is possible
-to use KIWI NG outside of the main image building scope to manage e.g
-the setup of loop devices, filesystems, partitions, etc...
