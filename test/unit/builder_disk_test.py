@@ -489,6 +489,28 @@ class TestDiskBuilder(object):
         )
 
     @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Path.which')
+    @patch('kiwi.builder.disk.re.findall')
+    def test_create_disk_standard_root_dracut_initramfs_system(
+        self, mock_re_findall, mock_which, mock_command, mock_open, mock_fs
+    ):
+        mock_re_findall.return_value = ['initramfs-$kernel.img']
+        mock_which.return_value = 'dracut_found'
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.volume_manager_name = None
+        kernel = mock.Mock()
+        kernel.version = '1.2.3'
+        kernel.name = 'vmlinuz-1.2.3'
+        self.kernel.get_kernel.return_value = kernel
+        self.disk_builder.create_disk()
+        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+            initrd='initramfs-1.2.3.img', kernel=kernel.name,
+            boot_uuid='0815', root_uuid='0815'
+        )
+
+    @patch('kiwi.builder.disk.FileSystem')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
