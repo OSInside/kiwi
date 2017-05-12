@@ -142,6 +142,6 @@ class BootImageKiwi(BootImageBase):
             log.info(
                 '--> xz compressing archive'
             )
-            compress = Compress(self.initrd_file_name)
+            compress = Compress(temp_boot_root_directory + "/" + self.initrd_file_name)
             compress.xz()
             self.initrd_filename = compress.compressed_filename
