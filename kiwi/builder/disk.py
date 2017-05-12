@@ -1009,7 +1009,7 @@ class DiskBuilder(object):
         all over the place in order to stay compatible with what the
         distribution does
         """
-        default_outfile_format = 'initrd-{kernel_version}'
+        default_outfile_format = 'initramfs-{kernel_version}.img'
         dracut_search_env = {
             'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
         }
