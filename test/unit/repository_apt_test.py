@@ -44,7 +44,10 @@ class TestRepositoryApt(object):
             self.exclude_docs
         )
         template.substitute.assert_called_once_with(
-            {'apt_shared_base': '/shared-dir/apt-get'}
+            {
+                'apt_shared_base': '/shared-dir/apt-get',
+                'unauthenticated': 'true'
+            }
         )
 
     @patch_open
@@ -53,6 +56,14 @@ class TestRepositoryApt(object):
     def test_post_init_no_custom_args(self, mock_open, mock_path, mock_temp):
         self.repo.post_init()
         assert self.repo.custom_args == []
+
+    @patch_open
+    @patch('kiwi.repository.apt.NamedTemporaryFile')
+    @patch('kiwi.repository.apt.Path.create')
+    def test_post_init_with_custom_args(self, mock_open, mock_path, mock_temp):
+        self.repo.post_init(['check_signatures'])
+        assert self.repo.custom_args == []
+        assert self.repo.unauthenticated == 'false'
 
     @patch_open
     def test_use_default_location(self, mock_open):

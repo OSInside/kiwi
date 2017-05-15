@@ -64,6 +64,12 @@ class RepositoryApt(RepositoryBase):
             self.custom_args.remove('exclude_docs')
             self.exclude_docs = True
 
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.unauthenticated = 'false'
+        else:
+            self.unauthenticated = 'true'
+
         self.distribution = None
         self.distribution_path = None
         self.repo_names = []
@@ -202,7 +208,8 @@ class RepositoryApt(RepositoryBase):
     def _write_runtime_config(self, system_default=False):
         if not system_default:
             parameters = {
-                'apt_shared_base': self.manager_base
+                'apt_shared_base': self.manager_base,
+                'unauthenticated': self.unauthenticated
             }
             template = self.apt_conf.get_host_template(self.exclude_docs)
             apt_conf_data = template.substitute(parameters)

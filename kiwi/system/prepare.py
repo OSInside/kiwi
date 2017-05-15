@@ -101,6 +101,8 @@ class SystemPrepare(object):
         repository_options = []
         repository_sections = self.xml_state.get_repository_sections()
         package_manager = self.xml_state.get_package_manager()
+        if self.xml_state.get_rpm_check_signatures():
+            repository_options.append('check_signatures')
         if self.xml_state.get_rpm_excludedocs():
             repository_options.append('exclude_docs')
         repo = Repository(

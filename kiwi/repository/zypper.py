@@ -72,6 +72,11 @@ class RepositoryZypper(RepositoryBase):
             self.custom_args.remove('exclude_docs')
             self.exclude_docs = True
 
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+        else:
+            self.custom_args.append('--no-gpg-checks')
+
         self.repo_names = []
 
         # zypper support by default point all actions into the root
@@ -111,7 +116,7 @@ class RepositoryZypper(RepositoryBase):
         )
 
         self.zypper_args = [
-            '--non-interactive', '--no-gpg-checks',
+            '--non-interactive',
             '--pkg-cache-dir', self.shared_zypper_dir['pkg-cache-dir'],
             '--reposd-dir', self.shared_zypper_dir['reposd-dir'],
             '--solv-cache-dir', self.shared_zypper_dir['solv-cache-dir'],
@@ -150,7 +155,7 @@ class RepositoryZypper(RepositoryBase):
         self.shared_zypper_dir['credentials-dir'] = \
             self.root_dir + '/etc/zypp/credentials.d'
         self.zypper_args = [
-            '--non-interactive', '--no-gpg-checks'
+            '--non-interactive',
         ] + self.custom_args
         self.command_env = dict(os.environ, LANG='C')
 

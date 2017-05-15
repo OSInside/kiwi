@@ -39,6 +39,7 @@ class TestRepositoryYum(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'gpgcheck', '0'),
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat'),
             call('main', 'enabled', '1')
@@ -53,6 +54,14 @@ class TestRepositoryYum(object):
     def test_post_init_no_custom_args(self, mock_path, mock_temp, mock_open):
         self.repo.post_init()
         assert self.repo.custom_args == []
+
+    @patch_open
+    @patch('kiwi.repository.yum.NamedTemporaryFile')
+    @patch('kiwi.repository.yum.Path.create')
+    def test_post_init_with_custom_args(self, mock_path, mock_temp, mock_open):
+        self.repo.post_init(['check_signatures'])
+        assert self.repo.custom_args == []
+        assert self.repo.gpg_check == '1'
 
     @patch_open
     @patch('kiwi.repository.yum.ConfigParser')
@@ -73,6 +82,7 @@ class TestRepositoryYum(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'gpgcheck', '0'),
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat'),
             call('main', 'enabled', '1')

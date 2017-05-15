@@ -42,6 +42,15 @@ class TestRepositoryZypper(object):
     @patch_open
     def test_custom_args_init(self, mock_open, mock_temp, mock_command):
         self.repo = RepositoryZypper(self.root_bind)
+        assert self.repo.custom_args == ['--no-gpg-checks']
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch_open
+    def test_custom_args_init_check_signatures(
+        self, mock_open, mock_temp, mock_command
+    ):
+        self.repo = RepositoryZypper(self.root_bind, ['check_signatures'])
         assert self.repo.custom_args == []
 
     @raises(KiwiRepoTypeUnknown)
