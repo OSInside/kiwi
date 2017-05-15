@@ -8,7 +8,7 @@ Build an ISO Hybrid Live Image
    This page explains how to build a live image. It contains:
 
    * how to build an ISO image
-   * how to start it with QEMU
+   * how to run it with QEMU
    * how to dump the resulting ISO image on an USB stick
 
 In KIWI all generated ISO images are created to be hybrid. This means,
@@ -41,33 +41,5 @@ openSUSE Leap:
 
       $ qemu -cdrom LimeJeOS-Leap-42.1.x86_64-1.42.1.iso -m 4096
 
-4. Plug in a USB stick
-
-   Once plugged in, check which Unix device name the stick was assigned
-   to. The following command provides an overview about all linux
-   storage devices:
-
-   .. code:: bash
-
-      $ lsblk
-
-5. Dump the ISO image on the USB stick:
-
-   .. warning::
-
-      Make sure the selected device really points to your stick because
-      the following operation can not be revoked and will destroy all
-      data on the selected device
-
-   .. code:: bash
-
-      $ dd if=LimeJeOS-Leap-42.1.x86_64-1.42.1.iso of=/dev/<stickdevice>
-
-6. Start system from USB stick
-
-   Like in the example above use QEMU to start the system, but attach
-   the USB stick device as the system disk as follows:
-
-   .. code:: bash
-
-      $ qemu -hda /dev/<stickdevice> -m 4096
+After the test was successful, the image is complete and ready to use.
+See :ref:`dump_usb_stick` for further information.
