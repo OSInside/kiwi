@@ -1,3 +1,5 @@
+.. _hybrid_iso:
+
 Build an ISO Hybrid Live Image
 ==============================
 
