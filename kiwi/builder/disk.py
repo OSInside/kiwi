@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import platform
 import pickle
 from collections import namedtuple
@@ -986,12 +987,44 @@ class DiskBuilder(object):
                 self.boot_image.boot_root_directory
             )
         if self.initrd_system and self.initrd_system == 'dracut':
+            dracut_output_format = self._get_dracut_output_file_format()
             return boot_names_type(
                 kernel_name=kernel_info.name,
-                initrd_name='initrd-' + kernel_info.version
+                initrd_name=dracut_output_format.format(
+                    kernel_version=kernel_info.version
+                )
             )
         else:
             return boot_names_type(
                 kernel_name='linux.vmx',
                 initrd_name='initrd.vmx'
             )
+
+    def _get_dracut_output_file_format(self):
+        """
+        Unfortunately the dracut initrd output file format varies between
+        the different Linux distributions. Tools like lsinitrd, and also
+        grub2 rely on the initrd output file to be in that format.
+        Thus when kiwi uses dracut the same file format should be used
+        all over the place in order to stay compatible with what the
+        distribution does
+        """
+        default_outfile_format = 'initramfs-{kernel_version}.img'
+        dracut_search_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
+        }
+        dracut_tool = Path.which(
+            'dracut', custom_env=dracut_search_env, access_mode=os.X_OK
+        )
+        if dracut_tool:
+            outfile_expression = r'outfile="/boot/(init.*\$kernel.*)"'
+            with open(dracut_tool) as dracut:
+                outfile = re.findall(outfile_expression, dracut.read())[0]
+                if outfile:
+                    return outfile.replace('$kernel', '{kernel_version}')
+
+        log.warning('Could not detect dracut output file format')
+        log.warning('Using default initrd file name format {0}'.format(
+            default_outfile_format
+        ))
+        return default_outfile_format

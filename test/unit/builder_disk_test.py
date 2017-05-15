@@ -410,7 +410,7 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd-1.2.3', kernel='vmlinuz-1.2.3-default',
+            initrd='initramfs-1.2.3.img', kernel='vmlinuz-1.2.3-default',
             boot_uuid='0815', root_uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
@@ -460,7 +460,7 @@ class TestDiskBuilder(object):
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3']),
+            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir_kiwi'])
         ]
         self.setup.export_rpm_package_list.assert_called_once_with(
@@ -473,7 +473,29 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Path.which')
+    @patch('kiwi.builder.disk.re.findall')
     def test_create_disk_standard_root_dracut_initrd_system(
+        self, mock_re_findall, mock_which, mock_command, mock_open, mock_fs
+    ):
+        mock_re_findall.return_value = ['initrd-$kernel']
+        mock_which.return_value = 'dracut_found'
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.volume_manager_name = None
+        kernel = mock.Mock()
+        kernel.version = '1.2.3'
+        kernel.name = 'vmlinuz-1.2.3'
+        self.kernel.get_kernel.return_value = kernel
+        self.disk_builder.create_disk()
+        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+            initrd='initrd-1.2.3', kernel=kernel.name,
+            boot_uuid='0815', root_uuid='0815'
+        )
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_disk_standard_root_dracut_initramfs_system(
         self, mock_command, mock_open, mock_fs
     ):
         self.disk_builder.initrd_system = 'dracut'
@@ -484,7 +506,7 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd-1.2.3', kernel=kernel.name,
+            initrd='initramfs-1.2.3.img', kernel=kernel.name,
             boot_uuid='0815', root_uuid='0815'
         )
 
@@ -540,7 +562,7 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd-1.2.3', kernel=kernel.name,
+            initrd='initramfs-1.2.3.img', kernel=kernel.name,
             boot_uuid='0815', root_uuid='0815'
         )
 
