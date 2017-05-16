@@ -6,4 +6,4 @@ different image types.
 
 .. toctree::
 
-   dump_to_usb-stick
+   working_with_images/iso_to_usb_stick_deployment

@@ -9,15 +9,11 @@ Build an ISO Hybrid Live Image
 
    * how to build an ISO image
    * how to run it with QEMU
-   * how to dump the resulting ISO image on an USB stick
 
-In KIWI all generated ISO images are created to be hybrid. This means,
-the image can be used as a CD/DVD or as a disk. This works because
-the ISO image also has a partition table embedded. With more and more
-computers delivered without a CD/DVD drive this becomes important.
-
-The very same ISO image can be copied onto a USB stick and used as a
-bootable disk.
+A Live ISO image is a system on a removable media, e.g CD/DVD or USB stick.
+Once built and deployed it boots off from this media without interferring
+with other system storage components. A useful pocket system for testing
+and demo and debugging purposes.
 
 The following example shows how to build a live ISO image based on
 openSUSE Leap:
@@ -42,4 +38,4 @@ openSUSE Leap:
       $ qemu -cdrom LimeJeOS-Leap-42.1.x86_64-1.42.1.iso -m 4096
 
 After the test was successful, the image is complete and ready to use.
-See :ref:`dump_usb_stick` for further information.
+See :ref:`iso_to_usb_stick` for further information.

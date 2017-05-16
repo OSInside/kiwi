@@ -1,8 +1,23 @@
-.. _dump_usb_stick:
+.. _iso_to_usb_stick:
 
-Dumping an Image to an USB Stick
+Deploy ISO Image on an USB Stick
 ================================
 
+.. sidebar:: Abstract
+
+   This page provides further information for handling
+   ISO images built with KIWI and references the following
+   articles:
+
+   * :ref:`hybrid_iso`
+
+In KIWI all generated ISO images are created to be hybrid. This means,
+the image can be used as a CD/DVD or as a disk. This works because
+the ISO image also has a partition table embedded. With more and more
+computers delivered without a CD/DVD drive this becomes important.
+
+The very same ISO image can be copied onto a USB stick and used as a
+bootable disk. The following procedure shows how to do this:
 
 1. Plug in a USB stick
 
