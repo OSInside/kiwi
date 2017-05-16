@@ -61,6 +61,12 @@ class RepositoryDnf(RepositoryBase):
             self.custom_args.remove('exclude_docs')
             self.exclude_docs = True
 
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.gpg_check = '1'
+        else:
+            self.gpg_check = '0'
+
         self.repo_names = []
 
         # dnf support is based on creating repo files which contains
@@ -224,6 +230,9 @@ class RepositoryDnf(RepositoryBase):
         )
         self.runtime_dnf_config.set(
             'main', 'plugins', '1'
+        )
+        self.runtime_dnf_config.set(
+            'main', 'gpgcheck', self.gpg_check
         )
         if self.exclude_docs:
             self.runtime_dnf_config.set(

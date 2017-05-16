@@ -40,6 +40,7 @@ class TestRepositoryDnf(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]
@@ -50,6 +51,14 @@ class TestRepositoryDnf(object):
     def test_post_init_no_custom_args(self, mock_path, mock_temp, mock_open):
         self.repo.post_init()
         assert self.repo.custom_args == []
+
+    @patch_open
+    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Path.create')
+    def test_post_init_with_custom_args(self, mock_path, mock_temp, mock_open):
+        self.repo.post_init(['check_signatures'])
+        assert self.repo.custom_args == []
+        assert self.repo.gpg_check == '1'
 
     @patch_open
     @patch('kiwi.repository.dnf.ConfigParser')
@@ -70,6 +79,7 @@ class TestRepositoryDnf(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]

@@ -61,6 +61,12 @@ class RepositoryYum(RepositoryBase):
             self.custom_args.remove('exclude_docs')
             log.warning('rpm-excludedocs not supported for yum: ignoring')
 
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.gpg_check = '1'
+        else:
+            self.gpg_check = '0'
+
         self.repo_names = []
 
         # yum support is based on creating repo files which contains
@@ -224,6 +230,9 @@ class RepositoryYum(RepositoryBase):
         )
         self.runtime_yum_config.set(
             'main', 'plugins', '1'
+        )
+        self.runtime_yum_config.set(
+            'main', 'gpgcheck', self.gpg_check
         )
         self.runtime_yum_config.set(
             'main', 'metadata_expire', '1800'

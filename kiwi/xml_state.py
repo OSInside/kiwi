@@ -124,6 +124,20 @@ class XMLState(object):
                 return exclude_docs[0]
         return False
 
+    def get_rpm_check_signatures(self):
+        """
+        Gets the rpm-check-signatures configuration flag. Returns
+        False if not present.
+
+        :return: check-signatures flag
+        :rtype: bool
+        """
+        for preferences in self.get_preferences_sections():
+            check_signatures = preferences.get_rpm_check_signatures()
+            if check_signatures:
+                return check_signatures[0]
+        return False
+
     def get_package_manager(self):
         """
         Configured package manager

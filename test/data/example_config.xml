@@ -57,6 +57,7 @@
         <timezone>Europe/Berlin</timezone>
         <hwclock>utc</hwclock>
         <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>true</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>

@@ -46,6 +46,14 @@ class TestXMLState(object):
     def test_get_rpm_excludedocs(self):
         assert self.state.get_rpm_excludedocs() is True
 
+    @patch('kiwi.xml_state.XMLState.get_preferences_sections')
+    def test_get_rpm_check_signatures_without_entry(self, mock_preferences):
+        mock_preferences.return_value = []
+        assert self.state.get_rpm_check_signatures() is False
+
+    def test_get_rpm_check_signatures(self):
+        assert self.state.get_rpm_check_signatures() is True
+
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
 
