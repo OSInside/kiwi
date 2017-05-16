@@ -17,6 +17,8 @@ Building Images
    building/build_docker_container
    building/build_containerized
    building/build_in_buildservice
+   building/working_with_images
+
 
 * ISO Hybrid Live Image
 

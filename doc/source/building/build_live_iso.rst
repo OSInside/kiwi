@@ -1,70 +1,41 @@
+.. _hybrid_iso:
+
 Build an ISO Hybrid Live Image
 ==============================
 
-.. hint::
+.. sidebar:: Abstract
 
-   Make sure you have checked out the example image descriptions
-   For details see :ref:`example-descriptions`
+   This page explains how to build a live image. It contains:
 
-The following example shows how to build a live system image
-based on SUSE Leap
+   * how to build an ISO image
+   * how to run it with QEMU
 
-.. code:: bash
+A Live ISO image is a system on a removable media, e.g CD/DVD or USB stick.
+Once built and deployed it boots off from this media without interferring
+with other system storage components. A useful pocket system for testing
+and demo and debugging purposes.
 
-    $ sudo kiwi-ng --type iso system build \
-        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
-        --target-dir /tmp/myimage
+The following example shows how to build a live ISO image based on
+openSUSE Leap:
 
-Find the image with the suffix :file:`.iso` below :file:`/tmp/myimage`.
-For testing the live system a virtual machine with the iso image attached
-as CD/DVD device can be used. The following example shows how to use the
-Qemu system to run the image:
+1. Make sure you have checked out the example image descriptions,
+   see :ref:`example-descriptions`.
 
-.. code:: bash
-
-    $ qemu -cdrom LimeJeOS-Leap-42.1.x86_64-1.42.1.iso -m 4096
-
-.. _hybrid_iso:
-
-Use Live System from USB Stick
-------------------------------
-
-In KIWI all generated iso images are created to be hybrid. This means
-the image can be used as a CD/DVD or as a disk. This works because
-the iso image also has a partition table embedded. With more and more
-computers delivered without a CD/DVD drive this becomes important.
-
-As a used the very same iso image can be copied onto a USB stick
-and used as a bootable disk. Thus in order to use the above live
-system from stick do the following:
-
-1. Plug in a USB stick
-
-   Once plugged in, check which Unix device name the stick was assigned
-   to. The following command provides an overview about all linux
-   storage devices:
+2. Build the image with KIWI:
 
    .. code:: bash
 
-      $ lsblk
+      $ sudo kiwi-ng --type iso system build \
+           --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+           --target-dir /tmp/myimage
 
-2. Dump iso image on the stick
+   Find the image with the suffix :file:`.iso` below :file:`/tmp/myimage`.
 
-   .. warning::
-
-      Make sure the selected device really points to your stick because
-      the following operation can not be revoked and will destroy all
-      data on the selected device
+3. Test the live image with QEMU:
 
    .. code:: bash
 
-      $ dd if=LimeJeOS-Leap-42.1.x86_64-1.42.1.iso of=/dev/<stickdevice>
+      $ qemu -cdrom LimeJeOS-Leap-42.1.x86_64-1.42.1.iso -m 4096
 
-3. Run system from stick
-
-   Like in the example above use Qemu to run the system, but attach
-   the USB stick device as the system disk as follows:
-
-   .. code:: bash
-
-      $ qemu -hda /dev/<stickdevice> -m 4096
+After the test was successful, the image is complete and ready to use.
+See :ref:`iso_to_usb_stick` for further information.
