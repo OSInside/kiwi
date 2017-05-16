@@ -44,9 +44,18 @@ class TestPackageManagerYum(object):
         self.manager.request_package_exclusion('name')
         assert self.manager.exclude_requests == ['name']
 
+    @patch('kiwi.path.Path.which')
+    def test_get_yum_binary_name(self, mock_exists):
+        mock_exists.return_value = '/usr/bin/yum-deprecated'
+        assert self.manager._get_yum_binary_name() == 'yum-deprecated'
+        mock_exists.return_value = None
+        assert self.manager._get_yum_binary_name() == 'yum'
+
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
-    def test_process_install_requests_bootstrap(self, mock_run, mock_call):
+    def test_process_install_requests_bootstrap(self, mock_run, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
@@ -62,9 +71,11 @@ class TestPackageManagerYum(object):
             ], ['env']
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
-    def test_process_install_requests(self, mock_run, mock_call):
+    def test_process_install_requests(self, mock_run, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.request_package_exclusion('skipme')
@@ -112,8 +123,10 @@ class TestPackageManagerYum(object):
             ['chroot', 'root-dir', 'rpm', '-q', 'vim']
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
-    def test_update(self, mock_call):
+    def test_update(self, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.update()
         self.manager.root_bind.move_to_root(
             self.manager.yum_args
