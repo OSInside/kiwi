@@ -1,3 +1,5 @@
+.. _vmx:
+
 Build a Virtual Disk Image
 ==========================
 
