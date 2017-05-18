@@ -8,3 +8,4 @@ different image types.
 
    working_with_images/iso_to_usb_stick_deployment
    working_with_images/vmx_setup_for_ec2
+   working_with_images/vmx_setup_for_azure
