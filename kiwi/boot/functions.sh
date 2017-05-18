@@ -4498,7 +4498,7 @@ function partedGetPartitionID {
         local name=$(parted -m -s $1 print | grep ^$2: | cut -f6 -d:)
         if lookup sgdisk &>/dev/null;then
             # map to short gdisk code
-            echo $(sgdisk -p $1 | grep -E "^   $2") | cut -f6 -d ' '
+            echo $(sgdisk -p $1 | grep -E "^   $2") | cut -f6 -d ' ' | cut -c-2
         elif [ "$name" = "lxroot" ];then
             # map lxroot to MBR type 83 (linux)
             echo 83
