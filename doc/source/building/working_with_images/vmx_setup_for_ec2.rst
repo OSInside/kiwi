@@ -1,6 +1,6 @@
 .. _setup_for_ec2:
 
-KIWI image description for Amazon EC2
+KIWI Image Description for Amazon EC2
 =====================================
 
 .. sidebar:: Abstract
@@ -15,14 +15,14 @@ A virtual disk image which is able to boot in the Amazon EC2
 cloud framework has to comply the following constraints:
 
 * Xen tools and libraries must be installed
-* cloud-init must be installed
-* cloud-init configuration for amazon must be provided
-* grub bootloader modules for Xen must be installed
+* cloud-init package must be installed
+* cloud-init configuration for Amazon must be provided
+* Grub bootloader modules for Xen must be installed
 * AWS tools must be installed
 * Disk size must be set to 10G
 * Kernel parameters must allow for xen console
 
-In order to meet this requirements add or update the KIWI image
+To meet this requirements add or update the KIWI image
 description as follows:
 
 1. Software packages
@@ -64,9 +64,9 @@ description as follows:
 
    Cloud init is a service which runs at boot time and allows
    to customize the system by activating one ore more cloud init
-   modules. For Amazon EC2 the following :file:`etc/cloud/cloud.cfg`
-   needs to be provided as part of the overlay files in your KIWI
-   image description
+   modules. For Amazon EC2 the following configuration file
+   :file:`/etc/cloud/cloud.cfg` needs to be provided as part of the
+   overlay files in your KIWI image description
 
    .. code:: yaml
 

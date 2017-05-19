@@ -1,6 +1,6 @@
 .. _setup_for_azure:
 
-KIWI image description for Microsoft Azure
+KIWI Image Description for Microsoft Azure
 ==========================================
 
 .. sidebar:: Abstract
@@ -19,7 +19,7 @@ cloud framework has to comply the following constraints:
 * Disk size must be set to 30G
 * Kernel parameters must allow for serial console
 
-In order to meet this requirements update the KIWI image
+To meet this requirements update the KIWI image
 description as follows:
 
 1. Software packages

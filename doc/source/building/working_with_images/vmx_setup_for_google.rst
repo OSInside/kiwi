@@ -1,6 +1,6 @@
 .. _setup_for_gce:
 
-KIWI image description for Google Compute Engine
+KIWI Image Description for Google Compute Engine
 ================================================
 
 .. sidebar:: Abstract
@@ -19,7 +19,7 @@ cloud framework has to comply the following constraints:
 * Disk size must be set to 10G
 * Kernel parameters must allow for serial console
 
-In order to meet this requirements update the KIWI image
+To meet this requirements update the KIWI image
 description as follows:
 
 1. Software packages
@@ -38,9 +38,9 @@ description as follows:
 
 2. Image Type definition
 
-   In order to allow the image to be expanded to the configured disk
+   To allow the image to be expanded to the configured disk
    geometry of the instance started by Google Compute Engine it is
-   suggested to let KIWI's oem boot code take over that task. It would
+   suggested to let KIWI's OEM boot code take over that task. It would
    also be possible to try cloud-init's resize module but we found
    conflicts when two cloud init systems, `google-compute-engine-init` and
    `cloud-init` were used together. Thus for now we stick with KIWI's
