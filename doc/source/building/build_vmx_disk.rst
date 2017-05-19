@@ -1,27 +1,46 @@
+.. _vmx:
+
 Build a Virtual Disk Image
 ==========================
 
-.. hint::
+.. sidebar:: Abstract
 
-   Make sure you have checked out the example image descriptions
-   For details see :ref:`example-descriptions`
+   This page explains how to build a simple disk image. It contains:
 
-The following example shows how to build and run a simple system
-disk image based on SUSE Leap
+   * how to build a vmx image
+   * how to run it with QEMU
 
-.. code:: bash
+A simple disk image represents the system disk, useful for cloud frameworks
+like Amazon EC2, Google Compute Engine or Microsoft Azure.
 
-    $ sudo kiwi-ng --type vmx system build \
-        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
-        --target-dir /tmp/myimage
+The following example shows how to build a simple disk image based on
+openSUSE Leap and ready to run in QEMU:
 
-Find the image with the suffix :file:`.raw` below :file:`/tmp/myimage`.
-For testing the disk image a virtual machine with the disk image attached
-can be used. The following example shows how to use the Qemu system to
-run the image:
 
-.. code:: bash
+1. Make sure you have checked out the example image descriptions,
+   see :ref:`example-descriptions`.
 
-    $ qemu \
-        -drive file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio \
-        -m 4096
+2. Build the image with KIWI:
+
+   .. code:: bash
+
+      $ sudo kiwi-ng --type vmx system build \
+          --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+          --target-dir /tmp/myimage
+
+   Find the image with the suffix :file:`.raw` below :file:`/tmp/myimage`.
+
+3. Test the live image with QEMU:
+
+   .. code:: bash
+
+      $ qemu \
+          -drive file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio \
+          -m 4096
+
+After the test was successful, the image is complete. For further information
+how to setup the image to work within a cloud framework see:
+
+* :ref:`setup_for_ec2`
+* :ref:`setup_for_azure`
+* :ref:`setup_for_gce`
