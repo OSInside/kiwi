@@ -235,6 +235,9 @@ class RepositoryYum(RepositoryBase):
             'main', 'gpgcheck', self.gpg_check
         )
         self.runtime_yum_config.set(
+            'main', 'repo_gpgcheck', self.gpg_check
+        )
+        self.runtime_yum_config.set(
             'main', 'metadata_expire', '1800'
         )
         self.runtime_yum_config.set(

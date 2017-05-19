@@ -41,6 +41,7 @@ class TestRepositoryDnf(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
+            call('main', 'repo_gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]
@@ -80,6 +81,7 @@ class TestRepositoryDnf(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
+            call('main', 'repo_gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]

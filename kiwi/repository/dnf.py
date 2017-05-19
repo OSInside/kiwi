@@ -234,6 +234,9 @@ class RepositoryDnf(RepositoryBase):
         self.runtime_dnf_config.set(
             'main', 'gpgcheck', self.gpg_check
         )
+        self.runtime_dnf_config.set(
+            'main', 'repo_gpgcheck', self.gpg_check
+        )
         if self.exclude_docs:
             self.runtime_dnf_config.set(
                 'main', 'tsflags', 'nodocs'

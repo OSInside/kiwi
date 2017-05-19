@@ -64,6 +64,7 @@ class RepositoryZypper(RepositoryBase):
         """
         self.custom_args = custom_args
         self.exclude_docs = False
+        self.gpgcheck = False
         if not custom_args:
             self.custom_args = []
 
@@ -74,8 +75,7 @@ class RepositoryZypper(RepositoryBase):
 
         if 'check_signatures' in self.custom_args:
             self.custom_args.remove('check_signatures')
-        else:
-            self.custom_args.append('--no-gpg-checks')
+            self.gpgcheck = True
 
         self.repo_names = []
 
@@ -141,6 +141,18 @@ class RepositoryZypper(RepositoryBase):
         if self.exclude_docs:
             self.runtime_zypp_config.set(
                 'main', 'rpm.install.excludedocs', 'yes'
+            )
+
+        if self.gpgcheck:
+            self.runtime_zypp_config.set(
+                'main', 'pkg_gpgcheck', '1'
+            )
+            self.runtime_zypp_config.set(
+                'main', 'repo_gpgcheck', '1'
+            )
+        else:
+            self.runtime_zypp_config.set(
+                'main', 'gpgcheck', '0'
             )
 
         self._write_runtime_config()
