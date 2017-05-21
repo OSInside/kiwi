@@ -28,6 +28,7 @@ try:
     from lxml import etree as etree_
 except ImportError:
     from xml.etree import ElementTree as etree_
+from xml.sax.saxutils import escape, quoteattr
 
 
 Validate_simpletypes_ = True
@@ -441,42 +442,15 @@ def quote_xml(inStr):
     return s2
 
 
-def quote_xml_aux(inStr):
-    s1 = inStr.replace('&', '&amp;')
-    s1 = s1.replace('<', '&lt;')
-    s1 = s1.replace('>', '&gt;')
-    return s1
+quote_xml_aux = escape
 
 
 def quote_attrib(inStr):
     s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
-    s1 = s1.replace('&', '&amp;')
-    s1 = s1.replace('<', '&lt;')
-    s1 = s1.replace('>', '&gt;')
-    if '"' in s1:
-        if "'" in s1:
-            s1 = '"%s"' % s1.replace('"', "&quot;")
-        else:
-            s1 = "'%s'" % s1
-    else:
-        s1 = '"%s"' % s1
-    return s1
+    return quoteattr(inStr)
 
 
-def quote_python(inStr):
-    s1 = inStr
-    if s1.find("'") == -1:
-        if s1.find('\n') == -1:
-            return "'%s'" % s1
-        else:
-            return "'''%s'''" % s1
-    else:
-        if s1.find('"') != -1:
-            s1 = s1.replace('"', '\\"')
-        if s1.find('\n') == -1:
-            return '"%s"' % s1
-        else:
-            return '"""%s"""' % s1
+quote_python = repr
 
 
 def get_all_text_(node):
