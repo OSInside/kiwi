@@ -85,6 +85,8 @@ def usage(command_usage):
        short form by default, long form with -h | --help
 
     3. the global options
+
+    :param command_usage: the usage string
     """
     with open(Defaults.project_file('cli.py'), 'r') as cli:
         program_code = cli.readlines()

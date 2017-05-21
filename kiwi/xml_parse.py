@@ -38,6 +38,7 @@ else:
 
 
 def parsexml_(infile, parser=None, **kwargs):
+    """ TBD """
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
@@ -418,6 +419,13 @@ CurrentSubclassModule_ = None
 
 
 def showIndent(outfile, level, pretty_print=True):
+    """Indent code
+
+    :param outfile: file like object
+    :param level: integer level of spaces (multiplied with 4)
+    :param pretty_print: boolean to real pretty print (True)
+                         or not (False)
+    """
     if pretty_print:
         for idx in range(level):
             outfile.write('    ')
@@ -7292,11 +7300,13 @@ Usage: python <Parser>.py [ -s ] <in_xml_file>
 
 
 def usage():
+    """Output usage and exit code 1"""
     print(USAGE_TEXT)
     sys.exit(1)
 
 
 def get_root_tag(node):
+    """TBD"""
     tag = Tag_pattern_.match(node.tag).groups()[-1]
     rootClass = GDSClassesMapping.get(tag)
     if rootClass is None:
@@ -7305,6 +7315,7 @@ def get_root_tag(node):
 
 
 def parse(inFileName, silence=False):
+    """TBD"""
     parser = None
     doc = parsexml_(inFileName, parser)
     rootNode = doc.getroot()
@@ -7326,6 +7337,7 @@ def parse(inFileName, silence=False):
 
 
 def parseEtree(inFileName, silence=False):
+    """TBD"""
     parser = None
     doc = parsexml_(inFileName, parser)
     rootNode = doc.getroot()
@@ -7350,6 +7362,7 @@ def parseEtree(inFileName, silence=False):
 
 
 def parseString(inString, silence=False):
+    """TBD"""
     if sys.version_info.major == 2:
         from StringIO import StringIO as IOBuffer
     else:
@@ -7374,6 +7387,7 @@ def parseString(inString, silence=False):
 
 
 def parseLiteral(inFileName, silence=False):
+    """TBD"""
     parser = None
     doc = parsexml_(inFileName, parser)
     rootNode = doc.getroot()
@@ -7395,6 +7409,7 @@ def parseLiteral(inFileName, silence=False):
 
 
 def main():
+    """Parse XML file"""
     args = sys.argv[1:]
     if len(args) == 1:
         parse(args[0])
