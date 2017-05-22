@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from tempfile import mkdtemp
 
 from kiwi.defaults import Defaults
@@ -122,7 +123,9 @@ class BootImageKiwi(BootImageBase):
                 image_identifier = boot_directory + '/mbrid'
                 mbrid.write(image_identifier)
 
-            cpio = ArchiveCpio(self.initrd_file_name)
+            cpio = ArchiveCpio(
+                os.sep.join([self.target_dir, self.initrd_base_name])
+            )
             # the following is a list of directories which were needed
             # during the process of creating an image but not when the
             # image is actually booting with this initrd
@@ -142,6 +145,8 @@ class BootImageKiwi(BootImageBase):
             log.info(
                 '--> xz compressing archive'
             )
-            compress = Compress(self.initrd_file_name)
+            compress = Compress(
+                os.sep.join([self.target_dir, self.initrd_base_name])
+            )
             compress.xz()
             self.initrd_filename = compress.compressed_filename

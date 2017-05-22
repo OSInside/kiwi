@@ -18,7 +18,6 @@
 import os
 
 # project
-from kiwi.utils.compress import Compress
 from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.system.kernel import Kernel
@@ -39,7 +38,8 @@ class BootImageDracut(BootImageBase):
 
     def create_initrd(self, mbrid=None):
         """
-        Call dracut to create the initrd and XZ compress the result
+        Call dracut as chroot operation to create the initrd and move
+        the result into the image build target directory
 
         :param object mbrid: unused
         """
@@ -47,29 +47,27 @@ class BootImageDracut(BootImageBase):
             log.info('Creating generic dracut initrd archive')
             kernel_info = Kernel(self.boot_root_directory)
             kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
+            dracut_initrd_basename = self.initrd_base_name + '.xz'
             Command.run(
                 [
                     'chroot', self.boot_root_directory,
                     'dracut', '--force',
                     '--no-hostonly',
                     '--no-hostonly-cmdline',
-                    '--no-compress',
-                    os.path.basename(self.initrd_file_name),
+                    '--xz',
+                    dracut_initrd_basename,
                     kernel_details.version
                 ]
             )
             Command.run(
                 [
                     'mv',
-                    self.boot_root_directory + '/' + os.path.basename(
-                        self.initrd_file_name
+                    os.sep.join(
+                        [self.boot_root_directory, dracut_initrd_basename]
                     ),
-                    self.initrd_file_name
+                    self.target_dir
                 ]
             )
-            log.info(
-                '--> xz compressing archive'
+            self.initrd_filename = os.sep.join(
+                [self.target_dir, dracut_initrd_basename]
             )
-            compress = Compress(self.initrd_file_name)
-            compress.xz()
-            self.initrd_filename = compress.compressed_filename
