@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, call
 
 import mock
 
@@ -157,3 +157,12 @@ class TestRepositoryApt(object):
         mock_create.assert_called_once_with(
             '/shared-dir/apt-get/sources.list.d'
         )
+
+    @patch('kiwi.path.Path.wipe')
+    def test_delete_repo_cache(self, mock_wipe):
+        self.repo.delete_repo_cache('foo')
+        assert mock_wipe.call_args_list == [
+            call('/shared-dir/apt-get/archives'),
+            call('/shared-dir/apt-get/pkgcache.bin'),
+            call('/shared-dir/apt-get/srcpkgcache.bin')
+        ]

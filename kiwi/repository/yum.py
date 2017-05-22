@@ -176,6 +176,20 @@ class RepositoryYum(RepositoryBase):
         Path.wipe(self.shared_yum_dir['reposd-dir'])
         Path.create(self.shared_yum_dir['reposd-dir'])
 
+    def delete_repo_cache(self, name):
+        """
+        Delete yum repository cache
+
+        The cache data for each repository is stored in a directory
+        of the same name as the repository name. The method deletes
+        this directory to cleanup the cache information
+
+        :param string name: repository name
+        """
+        Path.wipe(
+            os.sep.join([self.shared_yum_dir['cache-dir'], name])
+        )
+
     def cleanup_unused_repos(self):
         """
         Delete unused yum repositories

@@ -90,7 +90,7 @@ class SystemPrepare(object):
         # for System operations
         self.uri_list = []
 
-    def setup_repositories(self):
+    def setup_repositories(self, clear_cache=False):
         """
         Set up repositories for software installation and return a
         package manager for performing software installation tasks
@@ -146,6 +146,8 @@ class SystemPrepare(object):
                 repo_type, repo_priority, repo_dist, repo_components,
                 repo_user, repo_secret, uri.credentials_file_name()
             )
+            if clear_cache:
+                repo.delete_repo_cache(repo_alias)
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()
         return PackageManager(

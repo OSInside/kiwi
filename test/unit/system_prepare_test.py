@@ -181,7 +181,7 @@ class TestSystemPrepare(object):
         repo = mock.Mock()
         mock_repo.return_value = repo
 
-        self.system.setup_repositories()
+        self.system.setup_repositories(clear_cache=True)
 
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name',
@@ -206,6 +206,10 @@ class TestSystemPrepare(object):
                 'uri-alias', 'uri', 'rpm-md', None,
                 None, None, None, None, 'credentials-file'
             )
+        ]
+        assert repo.delete_repo_cache.call_args_list == [
+            call('uri-alias'),
+            call('uri-alias')
         ]
 
     @patch('kiwi.system.prepare.Repository')

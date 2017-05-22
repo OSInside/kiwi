@@ -18,6 +18,7 @@
 """
 usage: kiwi system build -h | --help
        kiwi system build --description=<directory> --target-dir=<directory>
+           [--clear-cache]
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
@@ -40,6 +41,9 @@ options:
         install the given package name
     --add-repo=<source,type,alias,priority>
         add repository with given source, type, alias and priority.
+    --clear-cache
+        delete repository cache for each of the used repositories
+        before installing any package
     --delete-package=<name>
         delete the given package name
     --description=<directory>
@@ -176,7 +180,9 @@ class SystemBuildTask(CliTask):
         system = SystemPrepare(
             self.xml_state, image_root, True
         )
-        manager = system.setup_repositories()
+        manager = system.setup_repositories(
+            self.command_args['--clear-cache']
+        )
         system.install_bootstrap(manager)
         system.install_system(
             manager

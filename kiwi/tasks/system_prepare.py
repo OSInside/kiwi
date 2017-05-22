@@ -19,6 +19,7 @@
 usage: kiwi system prepare -h | --help
        kiwi system prepare --description=<directory> --root=<directory>
            [--allow-existing-root]
+           [--clear-cache]
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
@@ -46,6 +47,9 @@ options:
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
         contents does not fit to the additional installation
+    --clear-cache
+        delete repository cache for each of the used repositories
+        before installing any package
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
@@ -169,7 +173,9 @@ class SystemPrepareTask(CliTask):
             abs_root_path,
             self.command_args['--allow-existing-root']
         )
-        manager = system.setup_repositories()
+        manager = system.setup_repositories(
+            self.command_args['--clear-cache']
+        )
         system.install_bootstrap(manager)
         system.install_system(
             manager

@@ -69,12 +69,14 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
+        self.task.command_args['--clear-cache'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
 
     def test_process_system_prepare(self):
         self._init_command_args()
         self.task.command_args['prepare'] = True
+        self.task.command_args['--clear-cache'] = True
         self.task.process()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
@@ -82,7 +84,7 @@ class TestSystemPrepareTask(object):
             self.abs_root_dir
         )
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(True)
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )
@@ -111,7 +113,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False)
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
         )
@@ -120,7 +122,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False)
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']
         )

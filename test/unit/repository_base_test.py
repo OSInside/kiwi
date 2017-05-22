@@ -38,3 +38,7 @@ class TestRepositoryBase(object):
     @raises(NotImplementedError)
     def test_cleanup_unused_repos(self):
         self.repo.cleanup_unused_repos()
+
+    @raises(NotImplementedError)
+    def test_delete_repo_cache(self):
+        self.repo.delete_repo_cache('foo')

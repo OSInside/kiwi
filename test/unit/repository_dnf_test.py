@@ -141,3 +141,15 @@ class TestRepositoryDnf(object):
         mock_create.assert_called_once_with(
             '/shared-dir/dnf/repos'
         )
+
+    @patch('kiwi.path.Path.wipe')
+    @patch('kiwi.repository.dnf.glob.iglob')
+    def test_delete_repo_cache(self, mock_glob, mock_wipe):
+        mock_glob.return_value = ['foo_cache']
+        self.repo.delete_repo_cache('foo')
+        mock_glob.assert_called_once_with(
+            '/shared-dir/dnf/cache/foo*'
+        )
+        mock_wipe.assert_called_once_with(
+            'foo_cache'
+        )

@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import glob
 from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
@@ -175,6 +176,24 @@ class RepositoryDnf(RepositoryBase):
         """
         Path.wipe(self.shared_dnf_dir['reposd-dir'])
         Path.create(self.shared_dnf_dir['reposd-dir'])
+
+    def delete_repo_cache(self, name):
+        """
+        Delete dnf repository cache
+
+        The cache data for each repository is stored in a directory
+        and additional files all starting with the repository name.
+        The method glob deletes all files and directories matching
+        the repository name followed by any characters to cleanup
+        the cache information
+
+        :param string name: repository name
+        """
+        dnf_cache_glob_pattern = ''.join(
+            [self.shared_dnf_dir['cache-dir'], os.sep, name, '*']
+        )
+        for dnf_cache_file in glob.iglob(dnf_cache_glob_pattern):
+            Path.wipe(dnf_cache_file)
 
     def cleanup_unused_repos(self):
         """
