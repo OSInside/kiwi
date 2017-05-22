@@ -42,10 +42,30 @@ def getmodules(module, predicate=None):
 def getallfunctions(module):
     yield from getmodules(module)
 
+# List of qualified function names as regex to ignore
+IGNORELIST=(r"kiwi\.xml_parse\.(.*)",
+            )
+IGNORELIST = tuple(re.compile(p) for p in IGNORELIST)
+
+def ignore(func):
+    """Check if function should be ignored
+
+    :param func: function
+    :return: True (=ignore) or False (=don't ignore)
+    """
+    fname = func.__name__
+    if fname.startswith("_"):
+        # Ignore any private functions
+        return False
+    # Use now the complete qualified function name:
+    fname = "%s.%s" % (func.__module__, func.__name__)
+    print(">>>", fname)
+    return not any(pattern.search(fname) for pattern in IGNORELIST)
 
 # Only add modules/functions starting not with "_"; this would indicate a private
 # member.
-modfuncs = [ff for ff in getallfunctions(kiwi) if not ff.__name__.startswith("_")]
+modfuncs = [ff for ff in getallfunctions(kiwi) if ignore(ff)]
+# modfuncs = [ff for ff in modfuncs if ff.__name__ not in IGNORELIST]
 modfuncsnames = ["%s.%s" % (ff.__module__, ff.__name__) for ff in modfuncs]
 
 
