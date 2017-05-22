@@ -134,7 +134,22 @@ class TestIso(object):
         )
 
     @patch('os.path.exists')
-    def test_add_efi_loader_parameters(self, mock_exists):
+    @patch('os.path.getsize')
+    def test_add_efi_loader_parameters(self, mock_getsize, mock_exists):
+        mock_getsize.return_value = 4096
+        mock_exists.return_value = True
+        self.iso.add_efi_loader_parameters()
+        assert self.iso.iso_loaders == [
+            '-eltorito-alt-boot', '-b', 'boot/x86_64/efi',
+            '-no-emul-boot', '-joliet-long', '-boot-load-size', '8'
+        ]
+
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    def test_add_efi_loader_parameters_big_loader(
+        self, mock_getsize, mock_exists
+    ):
+        mock_getsize.return_value = 33554432
         mock_exists.return_value = True
         self.iso.add_efi_loader_parameters()
         assert self.iso.iso_loaders == [

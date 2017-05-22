@@ -272,11 +272,23 @@ class Iso(object):
         bootloader/config/grub2.py
         """
         loader_file = self.boot_path + '/efi'
-        if os.path.exists(self.source_dir + '/' + loader_file):
+        if os.path.exists(os.sep.join([self.source_dir, loader_file])):
             self.iso_loaders += [
                 '-eltorito-alt-boot', '-b', loader_file,
                 '-no-emul-boot', '-joliet-long'
             ]
+            loader_file_512_byte_blocks = os.path.getsize(
+                os.sep.join([self.source_dir, loader_file])
+            ) / 512
+            # boot-load-size is stored in a 16bit range, thus we only
+            # set the value if it fits into that range
+            if loader_file_512_byte_blocks <= 0xffff:
+                self.iso_loaders.append(
+                    '-boot-load-size'
+                )
+                self.iso_loaders.append(
+                    format(int(loader_file_512_byte_blocks))
+                )
 
     def get_iso_creation_parameters(self):
         """
