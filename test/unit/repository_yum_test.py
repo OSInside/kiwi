@@ -40,6 +40,7 @@ class TestRepositoryYum(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
+            call('main', 'repo_gpgcheck', '0'),
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat'),
             call('main', 'enabled', '1')
@@ -83,6 +84,7 @@ class TestRepositoryYum(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
+            call('main', 'repo_gpgcheck', '0'),
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat'),
             call('main', 'enabled', '1')

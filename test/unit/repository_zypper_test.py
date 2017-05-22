@@ -40,18 +40,32 @@ class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.NamedTemporaryFile')
     @patch_open
-    def test_custom_args_init(self, mock_open, mock_temp, mock_command):
+    def test_custom_args_init_excludedocs(
+        self, mock_open, mock_temp, mock_command
+    ):
         self.repo = RepositoryZypper(self.root_bind)
-        assert self.repo.custom_args == ['--no-gpg-checks']
+        assert self.repo.custom_args == []
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.ConfigParser')
     @patch_open
     def test_custom_args_init_check_signatures(
-        self, mock_open, mock_temp, mock_command
+        self, mock_open, mock_config, mock_temp, mock_command
     ):
+        runtime_zypp_config = mock.Mock()
+        mock_config.return_value = runtime_zypp_config
         self.repo = RepositoryZypper(self.root_bind, ['check_signatures'])
         assert self.repo.custom_args == []
+        assert runtime_zypp_config.set.call_args_list == [
+            call(
+                'main',
+                'credentials.global.dir',
+                '../data/shared-dir/zypper/credentials'
+            ),
+            call('main', 'pkg_gpgcheck', '1'),
+            call('main', 'repo_gpgcheck', '1')
+        ]
 
     @raises(KiwiRepoTypeUnknown)
     @patch('kiwi.command.Command.run')
@@ -61,7 +75,7 @@ class TestRepositoryZypper(object):
     def test_use_default_location(self):
         self.repo.use_default_location()
         assert self.repo.zypper_args == [
-            '--non-interactive', '--no-gpg-checks'
+            '--non-interactive'
         ]
         assert self.repo.shared_zypper_dir['reposd-dir'] == \
             '../data/etc/zypp/repos.d'
