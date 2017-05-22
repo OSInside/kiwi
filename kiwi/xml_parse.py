@@ -488,12 +488,6 @@ def quote_python(inStr):
 
 
 def get_all_text_(node):
-    """Get all texts from a node and their child nodes
-
-    :param node: element node
-    :return: the combined string of the node and all their child nodes
-    :rtype: str
-    """
     if node.text is not None:
         text = node.text
     else:
@@ -505,12 +499,6 @@ def get_all_text_(node):
 
 
 def find_attr_value_(attr_name, node):
-    """Find attribute value from node
-
-    :param attr_name: name of the attribute
-    :param node: element node
-    :return: attribute value
-    """
     attrs = node.attrib
     attr_parts = attr_name.split(':')
     value = None

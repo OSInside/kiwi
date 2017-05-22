@@ -214,7 +214,6 @@ class Command(object):
 
 
 def main():
-    """Entry point for :command:`kiwicompat`"""
     logging.basicConfig(format='%(message)s', level=logging.INFO)
 
     try:
