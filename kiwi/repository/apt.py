@@ -184,6 +184,21 @@ class RepositoryApt(RepositoryBase):
         Path.wipe(self.shared_apt_get_dir['sources-dir'])
         Path.create(self.shared_apt_get_dir['sources-dir'])
 
+    def delete_repo_cache(self, name):
+        """
+        Delete apt-get repository cache
+
+        Apt stores the package cache in a collection of binary files
+        and deb archives. As of now I couldn't came across a solution
+        which allows for deleting only the cache data for a specific
+        repository. Thus the repo cache cleanup affects all cache
+        data
+
+        :param string name: unused
+        """
+        for cache_file in ['archives', 'pkgcache.bin', 'srcpkgcache.bin']:
+            Path.wipe(os.sep.join([self.manager_base, cache_file]))
+
     def cleanup_unused_repos(self):
         """
         Delete unused apt_get repositories

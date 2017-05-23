@@ -11,6 +11,7 @@ SYNOPSIS
    kiwi system prepare -h | --help
    kiwi system prepare --description=<directory> --root=<directory>
        [--allow-existing-root]
+       [--clear-cache]
        [--ignore-repos]
        [--set-repo=<source,type,alias,priority>]
        [--add-repo=<source,type,alias,priority>...]
@@ -46,6 +47,17 @@ OPTIONS
 --allow-existing-root
 
   allow to re-use an existing image root directory
+
+--clear-cache
+
+  delete repository cache for each of the used repositories
+  before installing any package. This is useful if an image build
+  should take and validate the signature of the package from the
+  original repository source for any build. Some package managers
+  unconditionally trust the contents of the cache, which is ok for
+  cache data dedicated to one build but in case of kiwi the cache
+  is shared between multiple image builds on that host for performance
+  reasons.
 
 --delete-package=<name>
 

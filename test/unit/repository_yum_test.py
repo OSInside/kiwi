@@ -145,3 +145,10 @@ class TestRepositoryYum(object):
         mock_create.assert_called_once_with(
             '/shared-dir/yum/repos'
         )
+
+    @patch('kiwi.path.Path.wipe')
+    def test_delete_repo_cache(self, mock_wipe):
+        self.repo.delete_repo_cache('foo')
+        mock_wipe.assert_called_once_with(
+            '/shared-dir/yum/cache/foo'
+        )

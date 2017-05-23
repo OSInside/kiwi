@@ -263,6 +263,26 @@ class RepositoryZypper(RepositoryBase):
         Path.wipe(self.shared_zypper_dir['reposd-dir'])
         Path.create(self.shared_zypper_dir['reposd-dir'])
 
+    def delete_repo_cache(self, name):
+        """
+        Delete zypper repository cache
+
+        The cache data for each repository is stored in a list of
+        directories of the same name as the repository name. The method
+        deletes these directories to cleanup the cache information
+
+        :param string name: repository name
+        """
+        Path.wipe(
+            os.sep.join([self.shared_zypper_dir['pkg-cache-dir'], name])
+        )
+        Path.wipe(
+            os.sep.join([self.shared_zypper_dir['solv-cache-dir'], name])
+        )
+        Path.wipe(
+            os.sep.join([self.shared_zypper_dir['raw-cache-dir'], name])
+        )
+
     def cleanup_unused_repos(self):
         """
         Delete unused zypper repositories

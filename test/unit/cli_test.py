@@ -38,6 +38,7 @@ class TestCli(object):
             '--description': 'description',
             '--help': False,
             '--ignore-repos': False,
+            '--clear-cache': False,
             '--obs-repo-internal': False,
             '--root': 'directory',
             '--set-repo': None,

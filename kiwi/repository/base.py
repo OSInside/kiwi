@@ -114,3 +114,13 @@ class RepositoryBase(object):
         Implementation in specialized repository class
         """
         raise NotImplementedError
+
+    def delete_repo_cache(self, name):
+        """
+        Delete repository cache
+
+        Implementation in specialized repository class
+
+        :param string name: unused
+        """
+        raise NotImplementedError
