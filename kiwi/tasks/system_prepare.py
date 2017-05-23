@@ -41,8 +41,6 @@ options:
         install the given package name
     --add-repo=<source,type,alias,priority>
         add repository with given source, type, alias and priority.
-    --delete-package=<name>
-        delete the given package name
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
@@ -50,6 +48,8 @@ options:
     --clear-cache
         delete repository cache for each of the used repositories
         before installing any package
+    --delete-package=<name>
+        delete the given package name
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
