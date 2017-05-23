@@ -205,9 +205,11 @@ class TestRepositoryZypper(object):
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo_cache(self, mock_wipe):
         self.repo.delete_repo_cache('foo')
-        mock_wipe.assert_called_once_with(
-            '../data/shared-dir/packages/foo'
-        )
+        assert mock_wipe.call_args_list == [
+            call('../data/shared-dir/packages/foo'),
+            call('../data/shared-dir/zypper/solv/foo'),
+            call('../data/shared-dir/zypper/raw/foo')
+        ]
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
