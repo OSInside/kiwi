@@ -18,6 +18,7 @@
 """
 usage: kiwi system build -h | --help
        kiwi system build --description=<directory> --target-dir=<directory>
+           [--allow-existing-root]
            [--clear-cache]
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority>]
@@ -40,7 +41,12 @@ options:
     --add-package=<name>
         install the given package name
     --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority.
+        add repository with given source, type, alias and priority
+    --allow-existing-root
+        allow to use an existing root directory from an earlier
+        build attempt. Use with caution this could cause an inconsistent
+        root tree if the existing contents does not fit to the
+        former image type setup
     --clear-cache
         delete repository cache for each of the used repositories
         before installing any package
@@ -178,7 +184,9 @@ class SystemBuildTask(CliTask):
 
         log.info('Preparing new root system')
         system = SystemPrepare(
-            self.xml_state, image_root, True
+            self.xml_state,
+            image_root,
+            self.command_args['--allow-existing-root']
         )
         manager = system.setup_repositories(
             self.command_args['--clear-cache']

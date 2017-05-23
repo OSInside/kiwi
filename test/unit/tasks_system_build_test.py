@@ -70,6 +70,7 @@ class TestSystemBuildTask(object):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['build'] = False
+        self.task.command_args['--allow-existing-root'] = True
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
         self.task.command_args['--obs-repo-internal'] = None
