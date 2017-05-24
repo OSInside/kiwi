@@ -132,6 +132,13 @@ class PackageManagerApt(PackageManagerBase):
                 device='/dev', mountpoint=self.root_dir + '/dev'
             )
             dev_mount.umount()
+            if self.repository.unauthenticated == 'false':
+                log.warning(
+                    'KIWI does not support signature checks for apt-get '
+                    'package manager during the bootstrap procedure, any '
+                    'provided key will only be used inside the chroot '
+                    'environment'
+                )
             Command.run(
                 [
                     'debootstrap', '--no-check-gpg', self.distribution,
@@ -144,6 +151,10 @@ class PackageManagerApt(PackageManagerBase):
             data.sync_data(
                 options=['-a', '-H', '-X', '-A']
             )
+            for key in self.repository.signing_keys:
+                Command.run([
+                    'chroot', self.root_dir, 'apt-key', 'add', key
+                ], self.command_env)
         except Exception as e:
             raise KiwiDebootstrapError(
                 '%s: %s' % (type(e).__name__, format(e))

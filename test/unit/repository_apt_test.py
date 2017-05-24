@@ -128,6 +128,10 @@ class TestRepositoryApt(object):
             '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
         )
 
+    def test_import_trusted_keys(self):
+        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
+        assert self.repo.signing_keys == ['key-file-a.asc', 'key-file-b.asc']
+
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
         self.repo.delete_repo('foo')
