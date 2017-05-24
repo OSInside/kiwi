@@ -440,10 +440,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
+            log.info('--> Using signed secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
-            log.info(
-                '--> Using signed secure boot efi image, done by shim-install'
-            )
+            if not self._get_shim_install():
+                self._setup_secure_boot_efi_image(lookup_path)
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
@@ -526,18 +526,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         to the target block device. In any other case this setup
         code should act as the fallback solution
         """
-        secure_efi_lookup_path = self.root_dir + '/usr/lib64/efi/'
-        if lookup_path:
-            secure_efi_lookup_path = lookup_path + '/usr/lib64/efi/'
-        shim_image = secure_efi_lookup_path + Defaults.get_shim_name()
-        if not os.path.exists(shim_image):
+        if not lookup_path:
+            lookup_path = self.root_dir
+        shim_image = Defaults.get_shim_loader(lookup_path)
+        if not shim_image:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Microsoft signed shim loader %s not found' % shim_image
+                'Microsoft signed shim loader not found'
             )
-        grub_image = secure_efi_lookup_path + Defaults.get_signed_grub_name()
-        if not os.path.exists(grub_image):
+        grub_image = Defaults.get_signed_grub_loader(lookup_path)
+        if not grub_image:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Signed grub2 efi loader %s not found' % grub_image
+                'Shim signed grub2 efi loader not found'
             )
         Command.run(
             ['cp', shim_image, self._get_efi_image_name()]
@@ -744,3 +743,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # in any other case the assumption is made that all grub
             # boot data should live below boot/grub
             return 'grub'
+
+    def _get_shim_install(self):
+        chroot_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
+        }
+        return Path.which(
+            filename='shim-install', custom_env=chroot_env
+        )

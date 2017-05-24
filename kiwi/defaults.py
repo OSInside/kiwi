@@ -308,12 +308,34 @@ class Defaults(object):
         return 'SUSE LINUX GmbH'
 
     @classmethod
-    def get_shim_name(self):
-        return 'shim.efi'
+    def get_shim_loader(self, root_path):
+        """
+        Return shim loader file path or None if not found
+
+        :param string root_path: image root path
+        """
+        shim_files = [
+            '/usr/lib64/efi/shim.efi',
+            '/boot/efi/EFI/fedora/shim.efi'
+        ]
+        for shim_file in shim_files:
+            if os.path.exists(root_path + shim_file):
+                return root_path + shim_file
 
     @classmethod
-    def get_signed_grub_name(self):
-        return 'grub.efi'
+    def get_signed_grub_loader(self, root_path):
+        """
+        Return shim signed grub loader file path or None
+
+        :param string root_path: image root path
+        """
+        signed_grub_files = [
+            '/usr/lib64/efi/grub.efi',
+            '/boot/efi/EFI/fedora/grubx64.efi'
+        ]
+        for signed_grub_file in signed_grub_files:
+            if os.path.exists(root_path + signed_grub_file):
+                return root_path + signed_grub_file
 
     @classmethod
     def get_default_volume_group_name(self):

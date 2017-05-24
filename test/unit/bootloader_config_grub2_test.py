@@ -120,8 +120,8 @@ class TestBootLoaderConfigGrub2(object):
         BootLoaderConfigGrub2(mock.Mock(), 'root_dir')
 
     @patch('kiwi.logger.log.warning')
-    @patch('kiwi.defaults.Defaults.get_shim_name')
-    @patch('kiwi.defaults.Defaults.get_signed_grub_name')
+    @patch('kiwi.defaults.Defaults.get_shim_loader')
+    @patch('kiwi.defaults.Defaults.get_signed_grub_loader')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
@@ -137,7 +137,7 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
-        mock_shim.return_value = 'does-not-exist'
+        mock_shim.return_value = None
         mock_grub.return_value = 'grub.efi'
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
@@ -151,8 +151,8 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_install_boot_images(self.mbrid)
 
     @patch('kiwi.logger.log.warning')
-    @patch('kiwi.defaults.Defaults.get_shim_name')
-    @patch('kiwi.defaults.Defaults.get_signed_grub_name')
+    @patch('kiwi.defaults.Defaults.get_shim_loader')
+    @patch('kiwi.defaults.Defaults.get_signed_grub_loader')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
@@ -169,7 +169,7 @@ class TestBootLoaderConfigGrub2(object):
             return_value='uefi'
         )
         mock_shim.return_value = 'shim.efi'
-        mock_grub.return_value = 'does-not-exist'
+        mock_grub.return_value = None
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
@@ -636,6 +636,47 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/usr/lib/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi']
             )]
+        assert mock_log.called
+
+    @patch('kiwi.bootloader.config.grub2.Path.which')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    @patch('kiwi.logger.log.info')
+    def test_setup_disk_boot_images_bios_plus_efi_secure_boot_no_shim_install(
+        self, mock_log, mock_machine, mock_exists, mock_command, mock_which
+    ):
+        mock_which.return_value = None
+        mock_machine.return_value = 'x86_64'
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_disk_boot_images('uuid')
+        assert mock_command.call_args_list == [
+            call([
+                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/boot/grub2/i386-pc'
+            ]),
+            call([
+                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/boot/grub2/x86_64-efi'
+            ]),
+            call([
+                'cp', 'root_dir/usr/lib64/efi/shim.efi',
+                'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+            ]),
+            call([
+                'cp', 'root_dir/usr/lib64/efi/grub.efi',
+                'root_dir/boot/efi/EFI/BOOT'
+            ])
+        ]
         assert mock_log.called
 
     @patch('kiwi.bootloader.config.grub2.Command.run')

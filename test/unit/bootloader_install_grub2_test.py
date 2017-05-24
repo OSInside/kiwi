@@ -325,10 +325,59 @@ class TestBootLoaderInstallGrub2(object):
         self.sysfs_mount.bind_mount.assert_called_once_with()
         self.efi_mount.mount.assert_called_once_with()
 
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
-    def test_destructor(self, mock_grub_path, mock_mount_manager, mock_command):
+    @patch('kiwi.bootloader.install.grub2.glob.glob')
+    @patch('os.path.exists')
+    def test_install_secure_boot_no_shim_install(
+        self, mock_exists, mock_glob, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
+    ):
+        mock_which.return_value = None
+        mock_exists.return_value = True
+        mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2'
+        self.firmware.efi_mode.return_value = 'uefi'
+        self.boot_mount.device = self.root_mount.device
+
+        def side_effect(device, mountpoint=None):
+            return self.mount_managers.pop()
+
+        mock_mount_manager.side_effect = side_effect
+
+        self.bootloader.install()
+
+        mock_wipe.assert_called_once_with(
+            'tmp_root/boot/grub2/grubenv'
+        )
+        assert mock_command.call_args_list == [
+            call([
+                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                '--directory', '/usr/lib/grub2/i386-pc',
+                '--boot-directory', '/boot',
+                '--target', 'i386-pc',
+                '--modules', ' '.join(
+                    Defaults.get_grub_bios_modules(multiboot=True)
+                ),
+                '/dev/some-device'
+            ])
+        ]
+        self.device_mount.bind_mount.assert_called_once_with()
+        self.proc_mount.bind_mount.assert_called_once_with()
+        self.sysfs_mount.bind_mount.assert_called_once_with()
+
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('os.path.exists')
+    def test_destructor(
+        self, mock_exists, mock_grub_path, mock_mount_manager, mock_command
+    ):
+        mock_exists.return_value = True
         self.firmware.efi_mode.return_value = 'uefi'
 
         def side_effect(device, mountpoint=None):
