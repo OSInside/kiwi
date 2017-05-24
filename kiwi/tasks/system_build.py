@@ -27,6 +27,7 @@ usage: kiwi system build -h | --help
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
+           [--signing-key=<key-file>...]
        kiwi system build help
 
 commands:
@@ -69,6 +70,8 @@ options:
         repository in the XML description
     --target-dir=<directory>
         the target directory to store the system image file(s)
+    --signing-key=<key-file>
+        includes the key-file as a trusted key for package manager validations
 """
 import os
 
@@ -181,7 +184,8 @@ class SystemBuildTask(CliTask):
             self.xml_state, image_root, True
         )
         manager = system.setup_repositories(
-            self.command_args['--clear-cache']
+            self.command_args['--clear-cache'],
+            self.command_args['--signing-key']
         )
         system.install_bootstrap(manager)
         system.install_system(

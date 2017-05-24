@@ -28,6 +28,7 @@ usage: kiwi system prepare -h | --help
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
+           [--signing-key=<key-file>...]
        kiwi system prepare help
 
 commands:
@@ -73,6 +74,8 @@ options:
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
+     --signing-key=<key-file>
+        includes the key-file as a trusted key for package manager validations
 """
 import os
 
@@ -174,7 +177,8 @@ class SystemPrepareTask(CliTask):
             self.command_args['--allow-existing-root']
         )
         manager = system.setup_repositories(
-            self.command_args['--clear-cache']
+            self.command_args['--clear-cache'],
+            self.command_args['--signing-key']
         )
         system.install_bootstrap(manager)
         system.install_system(

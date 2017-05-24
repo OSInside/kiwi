@@ -72,6 +72,7 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
+        self.task.command_args['--signing-key'] = None
 
     def test_process_system_prepare(self):
         self._init_command_args()
@@ -84,7 +85,7 @@ class TestSystemPrepareTask(object):
             self.abs_root_dir
         )
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
-        self.system_prepare.setup_repositories.assert_called_once_with(True)
+        self.system_prepare.setup_repositories.assert_called_once_with(True, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )
@@ -113,7 +114,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with(False)
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
         )
@@ -122,7 +123,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with(False)
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']
         )

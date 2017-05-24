@@ -243,6 +243,15 @@ class RepositoryZypper(RepositoryBase):
             )
         self._restore_package_cache()
 
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            Command.run(['rpm', '--root', self.root_dir, '--import', key])
+
     def delete_repo(self, name):
         """
         Delete zypper repository

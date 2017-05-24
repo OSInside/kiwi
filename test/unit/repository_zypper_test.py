@@ -127,6 +127,14 @@ class TestRepositoryZypper(object):
         ]
 
     @patch('kiwi.command.Command.run')
+    def test_import_trusted_keys(self, mock_run):
+        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
+        assert mock_run.call_args_list == [
+            call(['rpm', '--root', '../data', '--import', 'key-file-a.asc']),
+            call(['rpm', '--root', '../data', '--import', 'key-file-b.asc'])
+        ]
+
+    @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Path.wipe')
     @patch('os.path.exists')
     @patch_open
