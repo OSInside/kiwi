@@ -114,8 +114,9 @@ class SystemBuildTask(CliTask):
         abs_target_dir_path = os.path.abspath(
             self.command_args['--target-dir']
         )
-        image_root = os.sep.join([abs_target_dir_path, 'build', 'image-root'])
-        Path.create(image_root)
+        build_dir = os.sep.join([abs_target_dir_path, 'build'])
+        image_root = os.sep.join([build_dir, 'image-root'])
+        Path.create(build_dir)
 
         if not self.global_args['--logfile']:
             log.set_logfile(

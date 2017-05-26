@@ -74,6 +74,7 @@ class RootInit(object):
         initial setup
         """
         root = mkdtemp(prefix='kiwi_root.')
+        Path.create(self.root_dir)
         try:
             self._create_base_directories(root)
             self._create_device_nodes(root)
@@ -83,12 +84,13 @@ class RootInit(object):
             data.sync_data(
                 options=['-a', '--ignore-existing']
             )
-            rmtree(root, ignore_errors=True)
         except Exception as e:
-            rmtree(root, ignore_errors=True)
+            self.delete()
             raise KiwiRootInitCreationError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
+        finally:
+            rmtree(root, ignore_errors=True)
 
     def _setup_config_templates(self, root):
         group_template = '/var/adm/fillup-templates/group.aaa_base'
