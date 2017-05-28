@@ -228,6 +228,7 @@ outside of the scope of kiwi appliance building.
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
 Requires:       syslinux
+PreReq:         shadow
 License:        GPL-3.0+
 Group:          System/Management
 
