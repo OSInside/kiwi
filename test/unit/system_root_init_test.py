@@ -28,9 +28,10 @@ class TestRootInit(object):
     @patch('shutil.rmtree')
     @patch('kiwi.system.root_init.DataSync')
     @patch('kiwi.system.root_init.mkdtemp')
+    @patch('kiwi.system.root_init.Command.run')
     def test_create_raises_error(
-        self, mock_temp, mock_data_sync, mock_rmtree, mock_symlink,
-        mock_mknod, mock_chwon, mock_makedirs, mock_path
+        self, mock_command, mock_temp, mock_data_sync, mock_rmtree,
+        mock_symlink, mock_mknod, mock_chwon, mock_makedirs, mock_path
     ):
         mock_path.return_value = False
         mock_temp.return_value = 'tmpdir'
@@ -109,6 +110,7 @@ class TestRootInit(object):
             call('/run', 'tmpdir/var/run')
         ]
         assert mock_command.call_args_list == [
+            call(['mkdir', '-p', 'root_dir']),
             call([
                 'cp',
                 '/var/adm/fillup-templates/group.aaa_base',
