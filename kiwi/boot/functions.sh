@@ -106,7 +106,7 @@ fi
 #--------------------------------------
 failsafe="ide=nodma apm=off noresume edd=off"
 failsafe="$failsafe powersaved=off nohz=off"
-failsafe="$failsafe highres=off processsor.max+cstate=1"
+failsafe="$failsafe highres=off processor.max+cstate=1"
 failsafe="$failsafe nomodeset x11failsafe"
 
 #======================================
