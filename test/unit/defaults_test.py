@@ -2,8 +2,6 @@ import sys
 
 import mock
 
-from mock import patch
-
 from .test_helper import argv_kiwi_tests
 
 from kiwi.defaults import Defaults
@@ -52,15 +50,3 @@ class TestDefaults(object):
             '--description', 'description', '--root', 'directory'
         ]
         assert Defaults.get_shared_cache_location() == 'my/cachedir'
-
-    @patch('os.path.exists')
-    def test_get_shim_loader(self, mock_exists):
-        mock_exists.return_value = True
-        assert Defaults.get_shim_loader('some-root') == \
-            'some-root/usr/lib64/efi/shim.efi'
-
-    @patch('os.path.exists')
-    def test_get_signed_grub_loader(self, mock_exists):
-        mock_exists.return_value = True
-        assert Defaults.get_signed_grub_loader('some-root') == \
-            'some-root/usr/lib64/efi/grub.efi'

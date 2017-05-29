@@ -57,6 +57,10 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/usr/lib64/efi/grub.efi': True,
             'root_dir/usr/lib64/efi/does-not-exist': False
         }
+        self.glob_iglob = [
+            ['root_dir/usr/lib64/efi/grub.efi'],
+            ['root_dir/usr/lib64/efi/shim.efi']
+        ]
         mock_machine.return_value = 'x86_64'
         mock_theme.return_value = None
         mock_domain.return_value = None
@@ -643,9 +647,13 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')
+    @patch('glob.iglob')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot_no_shim_install(
-        self, mock_log, mock_machine, mock_exists, mock_command, mock_which
+        self, mock_glob, mock_log, mock_machine, mock_exists,
+        mock_command, mock_which
     ):
+        # we expect the copy of shim.efi and grub.efi from the fallback
+        # code if no shim_install was found for building the disk image
         mock_which.return_value = None
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -655,6 +663,10 @@ class TestBootLoaderConfigGrub2(object):
         def side_effect(arg):
             return self.os_exists[arg]
 
+        def side_effect_glob(arg):
+            return self.glob_iglob.pop()
+
+        mock_glob.side_effect = side_effect_glob
         mock_exists.side_effect = side_effect
         self.bootloader.setup_disk_boot_images('uuid')
         assert mock_command.call_args_list == [
@@ -764,18 +776,23 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')
+    @patch('glob.iglob')
     def test_setup_install_boot_images_efi_secure_boot(
-        self, mock_log, mock_machine, mock_exists, mock_command
+        self, mock_glob, mock_log, mock_machine, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
 
-        def side_effect(arg):
+        def side_effect_exists(arg):
             return self.os_exists[arg]
 
-        mock_exists.side_effect = side_effect
+        def side_effect_glob(arg):
+            return self.glob_iglob.pop()
+
+        mock_glob.side_effect = side_effect_glob
+        mock_exists.side_effect = side_effect_exists
         self.bootloader.setup_install_boot_images(self.mbrid, 'root_dir')
         assert mock_command.call_args_list == [
             call([

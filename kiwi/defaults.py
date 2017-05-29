@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import glob
 from collections import namedtuple
 import platform
 from pkg_resources import resource_filename
@@ -314,13 +315,13 @@ class Defaults(object):
 
         :param string root_path: image root path
         """
-        shim_files = [
+        shim_file_patterns = [
             '/usr/lib64/efi/shim.efi',
-            '/boot/efi/EFI/fedora/shim.efi'
+            '/boot/efi/EFI/*/shim.efi'
         ]
-        for shim_file in shim_files:
-            if os.path.exists(root_path + shim_file):
-                return root_path + shim_file
+        for shim_file_pattern in shim_file_patterns:
+            for shim_file in glob.iglob(root_path + shim_file_pattern):
+                return shim_file
 
     @classmethod
     def get_signed_grub_loader(self, root_path):
@@ -329,13 +330,13 @@ class Defaults(object):
 
         :param string root_path: image root path
         """
-        signed_grub_files = [
+        signed_grub_file_patterns = [
             '/usr/lib64/efi/grub.efi',
-            '/boot/efi/EFI/fedora/grubx64.efi'
+            '/boot/efi/EFI/*/grub*.efi'
         ]
-        for signed_grub_file in signed_grub_files:
-            if os.path.exists(root_path + signed_grub_file):
-                return root_path + signed_grub_file
+        for signed_grub_pattern in signed_grub_file_patterns:
+            for signed_grub in glob.iglob(root_path + signed_grub_pattern):
+                return signed_grub
 
     @classmethod
     def get_default_volume_group_name(self):
