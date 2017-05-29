@@ -3839,10 +3839,7 @@ function setupNetworkDHCLIENT {
             grep -q "fixed-address" /var/lib/dhclient/${try_iface}.lease
         then
             export PXE_IFACE=$try_iface
-            export IPADDR=$(
-                cat /var/lib/dhclient/${try_iface}.lease |\
-                    grep 'fixed-address'| awk  '{print $2}' | tr -d ';'
-                )
+            dhclientImportInfo "$PXE_IFACE"
             break
         fi
     done
@@ -3850,10 +3847,6 @@ function setupNetworkDHCLIENT {
     # setup selected interface
     #--------------------------------------
     setupNic lo 127.0.0.1/8 255.0.0.0
-    if [ -f /var/lib/dhclient/$PXE_IFACE.lease ] &&
-        grep -q "fixed-address" /var/lib/dhclient/$PXE_IFACE.lease; then
-        dhclientImportInfo "$PXE_IFACE"
-    fi
 }
 #======================================
 # setupNetwork
