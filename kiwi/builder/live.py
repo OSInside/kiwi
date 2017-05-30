@@ -222,7 +222,8 @@ class LiveImageBuilder(object):
         )
         bootloader_config_isolinux.write()
         self.system_setup.call_edit_boot_config_script(
-            filesystem=self.types[self.live_type], boot_part_id=1
+            filesystem=self.types[self.live_type], boot_part_id=1,
+            working_directory=self.media_dir
         )
 
         # setup bootloader config to boot the ISO via EFI

@@ -450,39 +450,49 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
+    @patch('os.path.abspath')
     def test_call_edit_boot_config_script(
-        self, mock_os_path, mock_watch, mock_command
+        self, mock_abspath, mock_exists, mock_watch, mock_command
     ):
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
         mock_result = result_type(stderr='stderr', returncode=0)
-        mock_os_path.return_value = True
+        mock_exists.return_value = True
+        mock_abspath.return_value = '/root_dir/image/edit_boot_config.sh'
         mock_watch.return_value = mock_result
         self.setup.call_edit_boot_config_script('ext4', 1)
+        mock_abspath.assert_called_once_with(
+            'root_dir/image/edit_boot_config.sh'
+        )
         mock_command.assert_called_once_with([
             'bash', '-c',
-            'cd root_dir && bash --norc image/edit_boot_config.sh ext4 1'
+            'cd root_dir && bash --norc /root_dir/image/edit_boot_config.sh ext4 1'
         ])
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
+    @patch('os.path.abspath')
     def test_call_edit_boot_install_script(
-        self, mock_os_path, mock_watch, mock_command
+        self, mock_abspath, mock_exists, mock_watch, mock_command
     ):
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
         mock_result = result_type(stderr='stderr', returncode=0)
-        mock_os_path.return_value = True
+        mock_exists.return_value = True
+        mock_abspath.return_value = '/root_dir/image/edit_boot_install.sh'
         mock_watch.return_value = mock_result
         self.setup.call_edit_boot_install_script(
             'my_image.raw', '/dev/mapper/loop0p1'
         )
+        mock_abspath.assert_called_once_with(
+            'root_dir/image/edit_boot_install.sh'
+        )
         mock_command.assert_called_once_with([
             'bash', '-c',
-            'cd root_dir && bash --norc image/edit_boot_install.sh my_image.raw /dev/mapper/loop0p1'
+            'cd root_dir && bash --norc /root_dir/image/edit_boot_install.sh my_image.raw /dev/mapper/loop0p1'
         ])
 
     @raises(KiwiScriptFailed)

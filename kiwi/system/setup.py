@@ -466,7 +466,9 @@ class SystemSetup(object):
         """
         self._call_script('images.sh')
 
-    def call_edit_boot_config_script(self, filesystem, boot_part_id):
+    def call_edit_boot_config_script(
+        self, filesystem, boot_part_id, working_directory=None
+    ):
         """
         Call configured editbootconfig script _NON_ chrooted
 
@@ -475,12 +477,17 @@ class SystemSetup(object):
 
         :param string filesystem: boot filesystem name
         :param int boot_part_id: boot partition number
+        :param string working_directory: directory name
         """
         self._call_script_no_chroot(
-            'edit_boot_config.sh', [filesystem, format(boot_part_id)]
+            name='edit_boot_config.sh',
+            option_list=[filesystem, format(boot_part_id)],
+            working_directory=working_directory
         )
 
-    def call_edit_boot_install_script(self, diskname, boot_device_node):
+    def call_edit_boot_install_script(
+        self, diskname, boot_device_node, working_directory=None
+    ):
         """
         Call configured editbootinstall script _NON_ chrooted
 
@@ -489,9 +496,12 @@ class SystemSetup(object):
 
         :param string diskname: file path name
         :param string boot_device_node: boot device node name
+        :param string working_directory: directory name
         """
         self._call_script_no_chroot(
-            'edit_boot_install.sh', [diskname, boot_device_node]
+            name='edit_boot_install.sh',
+            option_list=[diskname, boot_device_node],
+            working_directory=working_directory
         )
 
     def create_fstab(self, entries):
@@ -739,11 +749,18 @@ class SystemSetup(object):
                     '%s failed: %s' % (name, format(result.stderr))
                 )
 
-    def _call_script_no_chroot(self, name, option_list):
-        if os.path.exists(self.root_dir + '/image/' + name):
+    def _call_script_no_chroot(
+        self, name, option_list, working_directory
+    ):
+        if not working_directory:
+            working_directory = self.root_dir
+        script_path = os.path.abspath(
+            os.sep.join([self.root_dir, 'image', name])
+        )
+        if os.path.exists(script_path):
             bash_command = [
-                'cd', self.root_dir, '&&',
-                'bash', '--norc', 'image/' + name, ' '.join(option_list)
+                'cd', working_directory, '&&',
+                'bash', '--norc', script_path, ' '.join(option_list)
             ]
             config_script = Command.call(
                 ['bash', '-c', ' '.join(bash_command)]
