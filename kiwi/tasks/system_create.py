@@ -18,6 +18,7 @@
 """
 usage: kiwi system create -h | --help
        kiwi system create --root=<directory> --target-dir=<directory>
+           [--signing-key=<key-file>...]
        kiwi system create help
 
 commands:
@@ -34,6 +35,8 @@ options:
         a former system prepare call
     --target-dir=<directory>
         the target directory to store the system image file(s)
+    --signing-key=<key-file>
+        includes the key-file as a trusted key for package manager validations
 """
 import os
 
@@ -93,7 +96,8 @@ class SystemCreateTask(CliTask):
         image_builder = ImageBuilder(
             self.xml_state,
             abs_target_dir_path,
-            abs_root_path
+            abs_root_path,
+            custom_args={'signing_keys': self.command_args['--signing-key']}
         )
         result = image_builder.create()
         result.print_results()

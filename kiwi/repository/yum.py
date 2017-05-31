@@ -21,6 +21,7 @@ from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.logger import log
+from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 
@@ -159,6 +160,15 @@ class RepositoryYum(RepositoryBase):
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
 
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            Command.run(['rpm', '--root', self.root_dir, '--import', key])
+
     def delete_repo(self, name):
         """
         Delete yum repository
@@ -248,9 +258,9 @@ class RepositoryYum(RepositoryBase):
         self.runtime_yum_config.set(
             'main', 'gpgcheck', self.gpg_check
         )
-        self.runtime_yum_config.set(
-            'main', 'repo_gpgcheck', self.gpg_check
-        )
+        # We are not setting repo_gpgcheck, which forces repository
+        # signature checks. Because, at the time of writing this comment,
+        # yum v3.4.3 was not capable to perform a repository key validation
         self.runtime_yum_config.set(
             'main', 'metadata_expire', '1800'
         )

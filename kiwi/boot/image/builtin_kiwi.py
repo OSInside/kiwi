@@ -52,7 +52,7 @@ class BootImageKiwi(BootImageBase):
             root_dir=self.boot_root_directory,
             allow_existing=True
         )
-        manager = system.setup_repositories()
+        manager = system.setup_repositories(signing_keys=self.signing_keys)
         system.install_bootstrap(
             manager
         )

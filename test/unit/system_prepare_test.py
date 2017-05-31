@@ -181,7 +181,10 @@ class TestSystemPrepare(object):
         repo = mock.Mock()
         mock_repo.return_value = repo
 
-        self.system.setup_repositories(clear_cache=True)
+        self.system.setup_repositories(
+            clear_cache=True,
+            signing_keys=['key-file-a.asc', 'key-file-b.asc']
+        )
 
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name',
@@ -211,6 +214,9 @@ class TestSystemPrepare(object):
             call('uri-alias'),
             call('uri-alias')
         ]
+        repo.import_trusted_keys.assert_called_once_with(
+            ['key-file-a.asc', 'key-file-b.asc']
+        )
 
     @patch('kiwi.system.prepare.Repository')
     @patch('kiwi.system.prepare.Uri')

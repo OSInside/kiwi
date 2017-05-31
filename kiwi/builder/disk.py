@@ -171,7 +171,7 @@ class DiskBuilder(object):
     * :attr:`result`
         Instance of Result
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
             self.arch = 'ix86'
@@ -206,8 +206,15 @@ class DiskBuilder(object):
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
+        self.custom_args = custom_args
+
+        self.signing_keys = None
+        if custom_args and 'signing_keys' in custom_args:
+            self.signing_keys = custom_args['signing_keys']
+
         self.boot_image = BootImage(
-            xml_state, target_dir, root_dir
+            xml_state, target_dir, root_dir,
+            signing_keys=self.signing_keys
         )
         self.firmware = FirmWare(
             xml_state
@@ -256,7 +263,7 @@ class DiskBuilder(object):
         * image="vmx"
         """
         disk = DiskBuilder(
-            self.xml_state, self.target_dir, self.root_dir
+            self.xml_state, self.target_dir, self.root_dir, self.custom_args
         )
         result = disk.create_disk()
 
@@ -480,7 +487,8 @@ class DiskBuilder(object):
                     self.xml_state.build_type.get_initrd_system()
 
                 self.boot_image = BootImageKiwi(
-                    self.xml_state, self.target_dir
+                    self.xml_state, self.target_dir,
+                    signing_keys=self.signing_keys
                 )
 
                 self.boot_image.prepare()

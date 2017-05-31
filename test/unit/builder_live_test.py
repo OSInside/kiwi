@@ -67,7 +67,8 @@ class TestLiveImageBuilder(object):
             return_value='custom_cmdline'
         )
         self.live_image = LiveImageBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
+            self.xml_state, 'target_dir', 'root_dir',
+            custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
         self.live_image.machine = mock.Mock()
         self.live_image.machine.get_domain = mock.Mock(

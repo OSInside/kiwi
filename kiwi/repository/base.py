@@ -86,6 +86,16 @@ class RepositoryBase(object):
         """
         raise NotImplementedError
 
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        Implementation in specialized repository class
+
+        :param list signing_keys: list of the key files to import
+        """
+        raise NotImplementedError
+
     def cleanup_unused_repos(self):
         """
         Cleanup/Delete unused repositories

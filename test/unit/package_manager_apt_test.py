@@ -12,6 +12,8 @@ class TestPackageManagerApt(object):
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
+        repository.signing_keys = ['key-file.asc']
+        repository.unauthenticated = 'false'
 
         root_bind = mock.Mock()
         root_bind.move_to_root = mock.Mock(
@@ -76,12 +78,13 @@ class TestPackageManagerApt(object):
         mock_exists.return_value = True
         self.manager.process_install_requests_bootstrap()
 
+    @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.package_manager.apt.DataSync')
     def test_process_install_requests_bootstrap(
-        self, mock_sync, mock_exists, mock_run, mock_call
+        self, mock_sync, mock_exists, mock_run, mock_call, mock_warn
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
@@ -101,6 +104,9 @@ class TestPackageManagerApt(object):
                 'debootstrap', '--no-check-gpg', 'xenial',
                 'root-dir.debootstrap', 'xenial_path'],
                 ['env']),
+            call([
+                'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'
+            ], ['env']),
             call(['rm', '-r', '-f', 'root-dir.debootstrap']),
             call([
                 'chroot', 'root-dir', 'apt-get',
@@ -112,6 +118,7 @@ class TestPackageManagerApt(object):
             'root-moved-arguments', 'install', 'vim'],
             ['env']
         )
+        assert mock_warn.called
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')

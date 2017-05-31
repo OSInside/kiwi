@@ -56,6 +56,7 @@ class RepositoryApt(RepositoryBase):
         """
         self.custom_args = custom_args
         self.exclude_docs = False
+        self.signing_keys = []
         if not custom_args:
             self.custom_args = []
 
@@ -166,6 +167,16 @@ class RepositoryApt(RepositoryBase):
                 repo.write(
                     'deb %s %s %s\n' % (uri, dist, components)
                 )
+
+    def import_trusted_keys(self, signing_keys):
+        """
+        Keeps trusted keys so that later on they can be imported into
+        the image by the PackageManager instance.
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            self.signing_keys.append(key)
 
     def delete_repo(self, name):
         """

@@ -41,7 +41,6 @@ class TestRepositoryDnf(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
-            call('main', 'repo_gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]
@@ -81,7 +80,6 @@ class TestRepositoryDnf(object):
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
-            call('main', 'repo_gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
             call('main', 'enabled', '1')
         ]
@@ -111,6 +109,14 @@ class TestRepositoryDnf(object):
         mock_open.assert_called_once_with(
             '/shared-dir/dnf/repos/foo.repo', 'w'
         )
+
+    @patch('kiwi.command.Command.run')
+    def test_import_trusted_keys(self, mock_run):
+        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
+        assert mock_run.call_args_list == [
+            call(['rpm', '--root', '../data', '--import', 'key-file-a.asc']),
+            call(['rpm', '--root', '../data', '--import', 'key-file-b.asc'])
+        ]
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):

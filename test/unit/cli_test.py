@@ -46,6 +46,7 @@ class TestCli(object):
             '--delete-package': [],
             '--set-container-derived-from': None,
             '--set-container-tag': None,
+            '--signing-key': [],
             '-h': False,
             'help': False,
             'prepare': True,

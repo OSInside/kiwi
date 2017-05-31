@@ -23,6 +23,7 @@ from tempfile import NamedTemporaryFile
 # project
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
+from kiwi.command import Command
 
 
 class RepositoryDnf(RepositoryBase):
@@ -160,6 +161,15 @@ class RepositoryDnf(RepositoryBase):
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
 
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            Command.run(['rpm', '--root', self.root_dir, '--import', key])
+
     def delete_repo(self, name):
         """
         Delete dnf repository
@@ -253,9 +263,9 @@ class RepositoryDnf(RepositoryBase):
         self.runtime_dnf_config.set(
             'main', 'gpgcheck', self.gpg_check
         )
-        self.runtime_dnf_config.set(
-            'main', 'repo_gpgcheck', self.gpg_check
-        )
+        # We are not setting repo_gpgcheck, which forces repository
+        # signatures checks, because current Fedora 25 releases do not
+        # provide signed repositories, only signed packages
         if self.exclude_docs:
             self.runtime_dnf_config.set(
                 'main', 'tsflags', 'nodocs'

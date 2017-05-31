@@ -28,6 +28,10 @@ class TestRepositoryBase(object):
         )
 
     @raises(NotImplementedError)
+    def test_import_trusted_keys(self):
+        self.repo.import_trusted_keys(['key-file.asc'])
+
+    @raises(NotImplementedError)
     def test_delete_repo(self):
         self.repo.delete_repo('name')
 
