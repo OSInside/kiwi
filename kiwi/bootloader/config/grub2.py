@@ -148,6 +148,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.cmdline_failsafe = None
         self.cmdline = None
         self.iso_efi_boot = False
+        self.shim_fallback_setup = False
 
     def write(self):
         """
@@ -161,11 +162,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-            if self.iso_efi_boot:
-                grub_config_file_for_efi_boot = os.path.normpath(
-                    os.sep.join([self.efi_boot_path, 'grub.cfg'])
+            if self.iso_efi_boot or self.shim_fallback_setup:
+                efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
+                    self.root_dir
                 )
-                log.info('Writing grub.cfg file to be found by EFI firmware')
+                if efi_vendor_boot_path:
+                    grub_config_file_for_efi_boot = os.sep.join(
+                        [efi_vendor_boot_path, 'grub.cfg']
+                    )
+                else:
+                    grub_config_file_for_efi_boot = os.path.normpath(
+                        os.sep.join([self.efi_boot_path, 'grub.cfg'])
+                    )
+                log.info(
+                    'Writing {0} file to be found by EFI firmware'.format(
+                        grub_config_file_for_efi_boot
+                    )
+                )
                 with open(grub_config_file_for_efi_boot, 'w') as config:
                     config.write(self.config)
 
@@ -443,6 +456,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Using signed secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
             if not self._get_shim_install():
+                self.shim_fallback_setup = True
                 self._setup_secure_boot_efi_image(lookup_path)
 
         if self.xen_guest:

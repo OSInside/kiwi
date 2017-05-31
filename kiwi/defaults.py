@@ -339,6 +339,20 @@ class Defaults(object):
                 return signed_grub
 
     @classmethod
+    def get_shim_vendor_directory(self, root_path):
+        """
+        Return shim vendor directory or None
+
+        :param string root_path: image root path
+        """
+        shim_vendor_patterns = [
+            '/boot/efi/EFI/*/shim.efi'
+        ]
+        for shim_vendor_pattern in shim_vendor_patterns:
+            for shim_file in glob.iglob(root_path + shim_vendor_pattern):
+                return os.path.dirname(shim_file)
+
+    @classmethod
     def get_default_volume_group_name(self):
         """
         Implements default LVM volume group name

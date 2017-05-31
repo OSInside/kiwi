@@ -252,15 +252,17 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
     @patch.object(BootLoaderConfigGrub2, 'setup_sysconfig_bootloader')
+    @patch('glob.iglob')
     def test_write(
-        self, mock_setup_sysconfig_bootloader, mock_setup_default_grub,
-        mock_exists, mock_open
+        self, mock_glob, mock_setup_sysconfig_bootloader,
+        mock_setup_default_grub, mock_exists, mock_open
     ):
         mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.bootloader.config = 'some-data'
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
         self.bootloader.iso_efi_boot = True
+        mock_glob.return_value = []
         self.bootloader.write()
         assert mock_open.call_args_list == [
             call('root_dir/boot/grub2/grub.cfg', 'w'),
@@ -272,6 +274,27 @@ class TestBootLoaderConfigGrub2(object):
         ]
         mock_setup_default_grub.assert_called_once_with()
         mock_setup_sysconfig_bootloader.assert_called_once_with()
+
+    @patch_open
+    @patch('os.path.exists')
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    @patch.object(BootLoaderConfigGrub2, 'setup_sysconfig_bootloader')
+    @patch('glob.iglob')
+    def test_write_efi_for_vendor(
+        self, mock_glob, mock_setup_sysconfig_bootloader,
+        mock_setup_default_grub, mock_exists, mock_open
+    ):
+        mock_exists.return_value = True
+        mock_open.return_value = self.context_manager_mock
+        self.bootloader.config = 'some-data'
+        self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
+        self.bootloader.iso_efi_boot = True
+        mock_glob.return_value = ['root_dir/boot/efi/EFI/fedora/shim.efi']
+        self.bootloader.write()
+        assert mock_open.call_args_list == [
+            call('root_dir/boot/grub2/grub.cfg', 'w'),
+            call('root_dir/boot/efi/EFI/fedora/grub.cfg', 'w')
+        ]
 
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')
