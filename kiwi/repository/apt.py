@@ -170,7 +170,7 @@ class RepositoryApt(RepositoryBase):
 
     def import_trusted_keys(self, signing_keys):
         """
-        Keeps trusted keys so that later on they can be immported into
+        Keeps trusted keys so that later on they can be imported into
         the image by the PackageManager instance.
 
         :param list signing_keys: list of the key files to import

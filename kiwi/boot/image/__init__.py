@@ -37,7 +37,7 @@ class BootImage(object):
                 xml_state, target_dir, signing_keys=signing_keys
             )
         elif initrd_system == 'dracut':
-            return BootImageDracut(xml_state, target_dir)
+            return BootImageDracut(xml_state, target_dir, root_dir)
         else:
             raise KiwiBootImageSetupError(
                 'Support for %s initrd system not implemented' % initrd_system

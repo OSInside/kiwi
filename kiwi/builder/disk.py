@@ -208,13 +208,13 @@ class DiskBuilder(object):
         )
         self.custom_args = custom_args
 
-        self.boot_signing_keys = None
+        self.signing_keys = None
         if custom_args and 'signing_keys' in custom_args:
-            self.boot_signing_keys = custom_args['signing_keys']
+            self.signing_keys = custom_args['signing_keys']
 
         self.boot_image = BootImage(
             xml_state, target_dir, root_dir,
-            signing_keys=self.boot_signing_keys
+            signing_keys=self.signing_keys
         )
         self.firmware = FirmWare(
             xml_state
@@ -488,7 +488,7 @@ class DiskBuilder(object):
 
                 self.boot_image = BootImageKiwi(
                     self.xml_state, self.target_dir,
-                    signing_keys=self.boot_signing_keys
+                    signing_keys=self.signing_keys
                 )
 
                 self.boot_image.prepare()

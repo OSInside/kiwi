@@ -259,8 +259,8 @@ class RepositoryYum(RepositoryBase):
             'main', 'gpgcheck', self.gpg_check
         )
         # We are not setting repo_gpgcheck, which forces repository
-        # signature checks, because I could not manage to make it work.
-        # Nevertheless, package signature validation is functional.
+        # signature checks. Because, at the time of writing this comment,
+        # yum v3.4.3 was not capable to perform a repository key validation
         self.runtime_yum_config.set(
             'main', 'metadata_expire', '1800'
         )
