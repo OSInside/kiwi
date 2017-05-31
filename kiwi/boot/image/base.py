@@ -56,7 +56,9 @@ class BootImageBase(object):
         Instance of XMLState of the boot image description
 
     """
-    def __init__(self, xml_state, target_dir, root_dir=None):
+    def __init__(
+        self, xml_state, target_dir, root_dir=None, signing_keys=None
+    ):
         self.xml_state = xml_state
         self.target_dir = target_dir
         self.initrd_filename = None
@@ -64,6 +66,7 @@ class BootImageBase(object):
         self.setup = None
         self.temp_directories = []
         self.call_destructor = True
+        self.signing_keys = signing_keys
 
         self.boot_root_directory = root_dir
         if not self.boot_root_directory:

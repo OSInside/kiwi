@@ -100,7 +100,7 @@ class LiveImageBuilder(object):
     * :attr:`result`
         Instance of Result
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.media_dir = None
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
@@ -122,8 +122,12 @@ class LiveImageBuilder(object):
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
 
+        boot_signing_keys = None
+        if custom_args and 'signing_keys' in custom_args:
+            boot_signing_keys = custom_args['signing_keys']
+
         self.boot_image_task = BootImage(
-            xml_state, target_dir
+            xml_state, target_dir, signing_keys=boot_signing_keys
         )
         self.firmware = FirmWare(
             xml_state

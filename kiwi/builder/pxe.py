@@ -73,7 +73,7 @@ class PxeBuilder(object):
     * :attr:`result`
         Instance of Result
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.machine = xml_state.get_build_type_machine_section()
@@ -84,8 +84,13 @@ class PxeBuilder(object):
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
         )
+
+        boot_signing_keys = None
+        if custom_args and 'signing_keys' in custom_args:
+            boot_signing_keys = custom_args['signing_keys']
+
         self.boot_image_task = BootImage(
-            xml_state, target_dir
+            xml_state, target_dir, signing_keys=boot_signing_keys
         )
         self.image_name = ''.join(
             [

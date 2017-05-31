@@ -50,7 +50,9 @@ class TestBootImageKiwi(object):
     def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'
         self.boot_image.prepare()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(
+            signing_keys=None
+        )
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )

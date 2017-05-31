@@ -28,14 +28,16 @@ class BootImage(object):
     """
         BootImge factory
     """
-    def __new__(self, xml_state, target_dir, root_dir=None):
+    def __new__(self, xml_state, target_dir, root_dir=None, signing_keys=None):
         initrd_system = xml_state.build_type.get_initrd_system()
         if not initrd_system:
             initrd_system = 'kiwi'
         if initrd_system == 'kiwi':
-            return BootImageKiwi(xml_state, target_dir)
+            return BootImageKiwi(
+                xml_state, target_dir, signing_keys=signing_keys
+            )
         elif initrd_system == 'dracut':
-            return BootImageDracut(xml_state, target_dir, root_dir)
+            return BootImageDracut(xml_state, target_dir)
         else:
             raise KiwiBootImageSetupError(
                 'Support for %s initrd system not implemented' % initrd_system

@@ -243,7 +243,8 @@ class SystemBuildTask(CliTask):
         image_builder = ImageBuilder(
             self.xml_state,
             abs_target_dir_path,
-            image_root
+            image_root,
+            {'signing_keys': self.command_args['--signing-key']}
         )
         result = image_builder.create()
         result.print_results()
