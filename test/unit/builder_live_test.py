@@ -144,7 +144,8 @@ class TestLiveImageBuilder(object):
             'initrd_dir'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
-            boot_part_id=1, filesystem='squashfs'
+            boot_part_id=1, filesystem='squashfs',
+            working_directory='temp_media_dir'
         )
         mock_fs.assert_called_once_with(
             custom_args={'mount_options': 'async'},
