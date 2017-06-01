@@ -108,6 +108,8 @@ class TestRepositoryYum(object):
         assert repo_config.set.call_args_list == [
             call('foo', 'name', 'foo'),
             call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+            call('foo', 'enabled', '1'),
+            call('foo', 'gpgcheck', '0'),
             call('foo', 'priority', '42')
         ]
         mock_open.assert_called_once_with(

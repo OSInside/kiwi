@@ -153,6 +153,12 @@ class RepositoryYum(RepositoryBase):
         repo_config.set(
             name, 'baseurl', uri
         )
+        repo_config.set(
+            name, 'enabled', '1'
+        )
+        repo_config.set(
+            name, 'gpgcheck', self.gpg_check
+        )
         if prio:
             repo_config.set(
                 name, 'priority', format(prio)
