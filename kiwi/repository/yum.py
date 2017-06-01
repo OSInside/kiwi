@@ -158,7 +158,7 @@ class RepositoryYum(RepositoryBase):
                 name, 'priority', format(prio)
             )
         with open(repo_file, 'w') as repo:
-            repo_config.write(repo)
+            repo_config.write(RepositoryYumSpaceRemover(repo))
 
     def import_trusted_keys(self, signing_keys):
         """
@@ -278,8 +278,48 @@ class RepositoryYum(RepositoryBase):
 
     def _write_runtime_config(self):
         with open(self.runtime_yum_config_file.name, 'w') as config:
-            self.runtime_yum_config.write(config)
+            self.runtime_yum_config.write(
+                RepositoryYumSpaceRemover(config)
+            )
         yum_plugin_config_file = \
             self.shared_yum_dir['pluginconf-dir'] + '/priorities.conf'
         with open(yum_plugin_config_file, 'w') as pluginconfig:
-            self.runtime_yum_plugin_config.write(pluginconfig)
+            self.runtime_yum_plugin_config.write(
+                RepositoryYumSpaceRemover(pluginconfig)
+            )
+
+
+class RepositoryYumSpaceRemover(object):
+    """
+    Yum is not able to deal with key = value pairs if there are
+    spaces around the '=' delimiter
+
+    This is a helper class to eliminate spaces around delimiters
+    when writing out the data of a ConfigParser instance. In python3
+    ConfigParser.write() supports the parameter:
+
+    ConfigParser.write(
+        file_object, space_around_delimiters=False
+    )
+
+    Unfortunately in python2 the spaces are hard coded and can't be
+    configured. In order to still support both python versions this
+    helper class provides a custom write() method which deletes the
+    unwanted spaces.
+
+    Instead of passing an instance of a file_object to ConfigParser
+    we pass an instance of a RepositoryYumSpaceRemover object
+
+    ConfigParser.write(
+        RepositoryYumSpaceRemover(file_object)
+    )
+
+    It is expected that ConfigParser.write() only calls the write()
+    method of the usually provided file object. Thus this helper
+    class only provides a custom version of this write method
+    """
+    def __init__(self, file_object):
+        self.file_object = file_object
+
+    def write(self, data):
+        self.file_object.write(data.replace(' = ', '=', 1))
