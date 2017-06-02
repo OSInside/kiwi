@@ -2,18 +2,20 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Wed Apr 12 14:43:43 2017 by generateDS.py version 2.25a.
+# Generated  by generateDS.py version 2.26a.
 #
 # Command line options:
 #   ('-f', '')
 #   ('--external-encoding', 'utf-8')
+#   ('--no-dates', '')
+#   ('--no-warnings', '')
 #   ('-o', 'kiwi/xml_parse.py')
 #
 # Command line arguments:
-#   kiwi/schema/kiwi.xsd
+#   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env2/bin/generateDS.py -f --external-encoding="utf-8" -o "kiwi/xml_parse.py" kiwi/schema/kiwi.xsd
+#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -1210,7 +1212,7 @@ class configuration(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -1303,7 +1305,7 @@ class file(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -1389,7 +1391,7 @@ class ignore(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -1475,7 +1477,7 @@ class namedCollection(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -1561,7 +1563,7 @@ class product(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -1656,7 +1658,7 @@ class package(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_arch_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x)(,(x86_64$|^i586$|^i686$|^ix86$|^aarch64$|^arm64$|^armv5el$|^armv5tel$|^armv6hl$|^armv6l$|^armv7hl$|^armv7l$|^ppc$|^ppc64$|^ppc64le$|^s390$|^s390x))*$']]
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
