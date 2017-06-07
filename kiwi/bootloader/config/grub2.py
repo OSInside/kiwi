@@ -116,6 +116,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'host architecture %s not supported for grub2 setup' % arch
             )
 
+        if self.custom_args and 'grub_directory_name' in self.custom_args:
+            self.boot_directory_name = self.custom_args['grub_directory_name']
+        else:
+            self.boot_directory_name = 'grub'
+
         self.terminal = self.xml_state.build_type.get_bootloader_console() \
             or 'gfxterm'
         self.gfxmode = self.get_gfxmode('grub2')
@@ -144,10 +149,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.grub2 = BootLoaderTemplateGrub2()
         self.config = None
         self.efi_boot_path = None
-        self.boot_directory_name = self._get_grub2_boot_directory_name()
         self.cmdline_failsafe = None
         self.cmdline = None
-        self.iso_efi_boot = False
+        self.iso_boot = False
+        self.shim_fallback_setup = False
 
     def write(self):
         """
@@ -161,13 +166,29 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-            if self.iso_efi_boot:
-                grub_config_file_for_efi_boot = os.path.normpath(
-                    os.sep.join([self.efi_boot_path, 'grub.cfg'])
-                )
-                log.info('Writing grub.cfg file to be found by EFI firmware')
-                with open(grub_config_file_for_efi_boot, 'w') as config:
-                    config.write(self.config)
+            if self.firmware.efi_mode():
+                if self.iso_boot or self.shim_fallback_setup:
+                    efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
+                        self.root_dir
+                    )
+                    if efi_vendor_boot_path:
+                        grub_config_file_for_efi_boot = os.sep.join(
+                            [efi_vendor_boot_path, 'grub.cfg']
+                        )
+                    else:
+                        grub_config_file_for_efi_boot = os.path.normpath(
+                            os.sep.join([self.efi_boot_path, 'grub.cfg'])
+                        )
+                    log.info(
+                        'Writing {0} file to be found by EFI firmware'.format(
+                            grub_config_file_for_efi_boot
+                        )
+                    )
+                    with open(grub_config_file_for_efi_boot, 'w') as config:
+                        config.write(self.config)
+
+                if self.iso_boot:
+                    self._create_embedded_fat_efi_image()
 
             self._setup_default_grub()
             self.setup_sysconfig_bootloader()
@@ -277,7 +298,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 install config file from template')
-        self.iso_efi_boot = True
+        self.iso_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
@@ -327,7 +348,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 live ISO config file from template')
-        self.iso_efi_boot = True
+        self.iso_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
@@ -395,6 +416,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self._supports_bios_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
 
+        if self.firmware.efi_mode():
+            self._setup_EFI_path(lookup_path)
+
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
             self._create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
@@ -403,8 +427,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Setting up shim secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
             self._setup_secure_boot_efi_image(lookup_path)
-
-        self._create_embedded_fat_efi_image()
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
@@ -440,10 +462,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
+            log.info('--> Using signed secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
-            log.info(
-                '--> Using signed secure boot efi image, done by shim-install'
-            )
+            if not self._get_shim_install():
+                self.shim_fallback_setup = True
+                self._setup_secure_boot_efi_image(lookup_path)
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
@@ -526,18 +549,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         to the target block device. In any other case this setup
         code should act as the fallback solution
         """
-        secure_efi_lookup_path = self.root_dir + '/usr/lib64/efi/'
-        if lookup_path:
-            secure_efi_lookup_path = lookup_path + '/usr/lib64/efi/'
-        shim_image = secure_efi_lookup_path + Defaults.get_shim_name()
-        if not os.path.exists(shim_image):
+        if not lookup_path:
+            lookup_path = self.root_dir
+        shim_image = Defaults.get_shim_loader(lookup_path)
+        if not shim_image:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Microsoft signed shim loader %s not found' % shim_image
+                'Microsoft signed shim loader not found'
             )
-        grub_image = secure_efi_lookup_path + Defaults.get_signed_grub_name()
-        if not os.path.exists(grub_image):
+        grub_image = Defaults.get_signed_grub_loader(lookup_path)
+        if not grub_image:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Signed grub2 efi loader %s not found' % grub_image
+                'Shim signed grub2 efi loader not found'
             )
         Command.run(
             ['cp', shim_image, self._get_efi_image_name()]
@@ -552,7 +574,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             [self.root_dir + '/boot/', self.arch, '/efi']
         )
         Command.run(
-            ['qemu-img', 'create', efi_fat_image, '4M']
+            ['qemu-img', 'create', efi_fat_image, '15M']
         )
         Command.run(
             ['mkdosfs', '-n', 'BOOT', efi_fat_image]
@@ -685,6 +707,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 log.warning('Set bootloader terminal to console mode')
                 self.terminal = 'console'
 
+    def _setup_EFI_path(self, lookup_path):
+        """
+        Copy efi boot data from lookup_path to the root directory
+        """
+        if not lookup_path:
+            lookup_path = self.root_dir
+        efi_path = lookup_path + '/boot/efi/'
+        if os.path.exists(efi_path):
+            efi_data = DataSync(efi_path, self.root_dir)
+            efi_data.sync_data(options=['-a'])
+
     def _copy_efi_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(
             self._get_efi_modules_path(lookup_path)
@@ -724,23 +757,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'No grub2 installation found in %s' % lookup_path
         )
 
-    def _get_grub2_boot_directory_name(self):
-        """
-        Get grub2 data directory name in boot/ directory
-
-        Depending on the distribution the grub2 boot path could be
-        either boot/grub2 or boot/grub. The method will decide for
-        the correct base directory name according to the name pattern
-        of the installed grub2 tools
-        """
+    def _get_shim_install(self):
         chroot_env = {
             'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
         }
-        if Path.which(filename='grub2-install', custom_env=chroot_env):
-            # the presence of grub2-install is an indicator to put all
-            # grub2 data below boot/grub2
-            return 'grub2'
-        else:
-            # in any other case the assumption is made that all grub
-            # boot data should live below boot/grub
-            return 'grub'
+        return Path.which(
+            filename='shim-install', custom_env=chroot_env
+        )

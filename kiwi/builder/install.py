@@ -25,6 +25,7 @@ from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.path import Path
+from kiwi.defaults import Defaults
 from kiwi.utils.checksum import Checksum
 from kiwi.logger import log
 from kiwi.system.kernel import Kernel
@@ -90,10 +91,11 @@ class InstallImageBuilder(object):
     * :attr:`custom_iso_args`
         Additional custom ISO creation arguments
     """
-    def __init__(self, xml_state, target_dir, boot_image_task):
+    def __init__(self, xml_state, root_dir, target_dir, boot_image_task):
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
             self.arch = 'ix86'
+        self.root_dir = root_dir
         self.target_dir = target_dir
         self.machine = xml_state.get_build_type_machine_section()
         self.boot_image_task = boot_image_task
@@ -209,7 +211,10 @@ class InstallImageBuilder(object):
 
         # setup bootloader config to boot the ISO via EFI
         bootloader_config_grub = BootLoaderConfig(
-            'grub2', self.xml_state, self.media_dir
+            'grub2', self.xml_state, self.media_dir, {
+                'grub_directory_name':
+                    Defaults.get_grub_boot_directory_name(self.root_dir)
+            }
         )
         bootloader_config_grub.setup_install_boot_images(
             mbrid=self.mbrid,

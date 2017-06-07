@@ -16,11 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import glob
 from collections import namedtuple
 import platform
 from pkg_resources import resource_filename
 
 # project
+from .path import Path
 from .version import __githash__
 
 
@@ -171,6 +173,28 @@ class Defaults(object):
         return '0x303'
 
     @classmethod
+    def get_grub_boot_directory_name(self, lookup_path):
+        """
+        Get grub2 data directory name in boot/ directory
+
+        Depending on the distribution the grub2 boot path could be
+        either boot/grub2 or boot/grub. The method will decide for
+        the correct base directory name according to the name pattern
+        of the installed grub2 tools
+        """
+        chroot_env = {
+            'PATH': os.sep.join([lookup_path, 'usr', 'sbin'])
+        }
+        if Path.which(filename='grub2-install', custom_env=chroot_env):
+            # the presence of grub2-install is an indicator to put all
+            # grub2 data below boot/grub2
+            return 'grub2'
+        else:
+            # in any other case the assumption is made that all grub
+            # boot data should live below boot/grub
+            return 'grub'
+
+    @classmethod
     def get_grub_basic_modules(self, multiboot):
         """
         Implements list of basic grub modules
@@ -308,12 +332,49 @@ class Defaults(object):
         return 'SUSE LINUX GmbH'
 
     @classmethod
-    def get_shim_name(self):
-        return 'shim.efi'
+    def get_shim_loader(self, root_path):
+        """
+        Return shim loader file path or None if not found
+
+        :param string root_path: image root path
+        """
+        shim_file_patterns = [
+            '/usr/lib64/efi/shim.efi',
+            '/boot/efi/EFI/*/shim.efi'
+        ]
+        for shim_file_pattern in shim_file_patterns:
+            for shim_file in glob.iglob(root_path + shim_file_pattern):
+                return shim_file
 
     @classmethod
-    def get_signed_grub_name(self):
-        return 'grub.efi'
+    def get_signed_grub_loader(self, root_path):
+        """
+        Return shim signed grub loader file path or None
+
+        :param string root_path: image root path
+        """
+        signed_grub_file_patterns = [
+            '/usr/lib64/efi/grub.efi',
+            '/boot/efi/EFI/*/grub*.efi'
+        ]
+        for signed_grub_pattern in signed_grub_file_patterns:
+            for signed_grub in glob.iglob(root_path + signed_grub_pattern):
+                return signed_grub
+
+    @classmethod
+    def get_shim_vendor_directory(self, root_path):
+        """
+        Return shim vendor directory or None
+
+        :param string root_path: image root path
+        """
+        shim_vendor_patterns = [
+            '/boot/efi/EFI/*/shim.efi',
+            '/EFI/*/shim.efi'
+        ]
+        for shim_vendor_pattern in shim_vendor_patterns:
+            for shim_file in glob.iglob(root_path + shim_vendor_pattern):
+                return os.path.dirname(shim_file)
 
     @classmethod
     def get_default_volume_group_name(self):

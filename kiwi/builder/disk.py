@@ -320,8 +320,12 @@ class DiskBuilder(object):
 
         # create the bootloader instance
         self.bootloader_config = BootLoaderConfig(
-            self.bootloader, self.xml_state, self.root_dir,
-            {'targetbase': loop_provider.get_device()}
+            self.bootloader, self.xml_state, self.root_dir, {
+                'targetbase':
+                    loop_provider.get_device(),
+                'grub_directory_name':
+                    Defaults.get_grub_boot_directory_name(self.root_dir)
+            }
         )
 
         # create disk partitions and instance device map
@@ -561,7 +565,7 @@ class DiskBuilder(object):
         """
         if self.install_media:
             install_image = InstallImageBuilder(
-                self.xml_state, self.target_dir,
+                self.xml_state, self.root_dir, self.target_dir,
                 self._load_boot_image_instance()
             )
 

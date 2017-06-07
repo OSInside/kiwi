@@ -241,9 +241,11 @@ class TestDiskBuilder(object):
     @patch_open
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     def test_create_disk_standard_root_with_kiwi_initrd(
-        self, mock_path, mock_command, mock_rand, mock_open, mock_fs
+        self, mock_path, mock_grub_dir, mock_command, mock_rand,
+        mock_open, mock_fs
     ):
         mock_path.return_value = True
         mock_rand.return_value = 15
@@ -356,9 +358,11 @@ class TestDiskBuilder(object):
     @patch_open
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     def test_create_disk_standard_root_with_dracut_initrd(
-        self, mock_path, mock_command, mock_rand, mock_open, mock_fs
+        self, mock_path, mock_grub_dir, mock_command, mock_rand,
+        mock_open, mock_fs
     ):
         mock_path.return_value = True
         mock_rand.return_value = 15
@@ -474,10 +478,12 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('kiwi.builder.disk.Path.which')
     @patch('kiwi.builder.disk.re.findall')
     def test_create_disk_standard_root_dracut_initrd_system(
-        self, mock_re_findall, mock_which, mock_command, mock_open, mock_fs
+        self, mock_re_findall, mock_which, mock_grub_dir, mock_command,
+        mock_open, mock_fs
     ):
         mock_re_findall.return_value = ['initrd-$kernel']
         mock_which.return_value = 'dracut_found'
@@ -496,8 +502,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_standard_root_dracut_initramfs_system(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         self.disk_builder.initrd_system = 'dracut'
         self.disk_builder.volume_manager_name = None
@@ -515,11 +522,12 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystemSquashFs')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     @patch('os.path.getsize')
     @patch('kiwi.builder.disk.NamedTemporaryFile')
     def test_create_disk_standard_root_is_overlay(
-        self, mock_temp, mock_getsize, mock_exists, mock_command,
+        self, mock_temp, mock_getsize, mock_exists, mock_grub_dir, mock_command,
         mock_open, mock_squashfs, mock_fs
     ):
         self.disk_builder.root_filesystem_is_overlay = True
@@ -551,8 +559,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_standard_root_dracut_initrd_system_on_arm(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         self.disk_builder.initrd_system = 'dracut'
         self.disk_builder.arch = 'aarch64'
@@ -592,8 +601,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_standard_root_s390_boot(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -610,8 +620,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_standard_root_secure_boot(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -626,7 +637,10 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
-    def test_create_disk_mdraid_root(self, mock_command, mock_open, mock_fs):
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    def test_create_disk_mdraid_root(
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
+    ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -645,7 +659,10 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
-    def test_create_disk_luks_root(self, mock_command, mock_open, mock_fs):
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    def test_create_disk_luks_root(
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
+    ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -662,9 +679,11 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.VolumeManager')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     def test_create_disk_volume_managed_root(
-        self, mock_exists, mock_command, mock_open, mock_volume_manager, mock_fs
+        self, mock_exists, mock_grub_dir, mock_command,
+        mock_open, mock_volume_manager, mock_fs
     ):
         mock_exists.return_value = True
         volume_manager = mock.Mock()
@@ -713,8 +732,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_hybrid_gpt_requested(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -727,8 +747,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_force_mbr_requested(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
@@ -757,8 +778,9 @@ class TestDiskBuilder(object):
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_spare_part_requested(
-        self, mock_command, mock_open, mock_fs
+        self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem

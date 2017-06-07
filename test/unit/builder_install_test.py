@@ -62,7 +62,7 @@ class TestInstallImageBuilder(object):
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
         self.install_image = InstallImageBuilder(
-            self.xml_state, 'target_dir', self.boot_image_task
+            self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
         )
         self.install_image.machine = mock.Mock()
         self.install_image.machine.get_domain = mock.Mock(
@@ -83,7 +83,7 @@ class TestInstallImageBuilder(object):
             return_value='custom_kernel_options'
         )
         install_image = InstallImageBuilder(
-            xml_state, 'target_dir', mock.Mock()
+            xml_state, 'root_dir', 'target_dir', mock.Mock()
         )
         assert install_image.arch == 'ix86'
 
@@ -91,8 +91,9 @@ class TestInstallImageBuilder(object):
     @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Iso.create_hybrid')
+    @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
     def test_create_install_iso(
-        self, mock_hybrid, mock_command, mock_open, mock_dtemp
+        self, mock_grub_dir, mock_hybrid, mock_command, mock_open, mock_dtemp
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 

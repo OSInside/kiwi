@@ -17,9 +17,6 @@
 #
 from tempfile import mkdtemp
 import platform
-import shutil
-import glob
-import os
 
 # project
 from kiwi.bootloader.config import BootLoaderConfig
@@ -234,7 +231,10 @@ class LiveImageBuilder(object):
         if self.firmware.efi_mode():
             log.info('Setting up EFI grub bootloader configuration')
             bootloader_config_grub = BootLoaderConfig(
-                'grub2', self.xml_state, self.media_dir
+                'grub2', self.xml_state, self.media_dir, {
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                }
             )
             bootloader_config_grub.setup_live_boot_images(
                 mbrid=self.mbrid,
@@ -244,14 +244,6 @@ class LiveImageBuilder(object):
                 mbrid=self.mbrid
             )
             bootloader_config_grub.write()
-            if self.firmware.efi_mode() == 'uefi':
-                # write bootloader config to EFI directory in order to allow
-                # grub loaded by shim to find the config file
-                grubconf_glob = os.sep.join(
-                    [self.media_dir, 'boot/grub*/grub.cfg']
-                )
-                for grubconf in glob.glob(grubconf_glob):
-                    shutil.copy(grubconf, self.media_dir + '/EFI/BOOT')
 
         # create initrd for live image
         log.info('Creating live ISO boot image')
