@@ -298,31 +298,30 @@ class RepositoryYum(RepositoryBase):
 class RepositoryYumSpaceRemover(object):
     """
     Yum is not able to deal with key = value pairs if there are
-    spaces around the '=' delimiter
+    spaces around the '=' delimiter.
 
     This is a helper class to eliminate spaces around delimiters
-    when writing out the data of a ConfigParser instance. In python3
-    ConfigParser.write() supports the parameter:
+    when writing out the data of a ConfigParser instance. In Python 3
+    :py:func:`ConfigParser.write` supports the parameter::
 
-    ConfigParser.write(
-        file_object, space_around_delimiters=False
-    )
+       ConfigParser.write(file_object, space_around_delimiters=False)
 
-    Unfortunately in python2 the spaces are hard coded and can't be
-    configured. In order to still support both python versions this
-    helper class provides a custom write() method which deletes the
-    unwanted spaces.
+    Unfortunately, in Python 2 the spaces are hard coded and can't be
+    configured. In order to still support both Python versions this
+    helper class provides a custom :py:meth:`write()` method which
+    deletes the unwanted spaces.
 
-    Instead of passing an instance of a file_object to ConfigParser
-    we pass an instance of a RepositoryYumSpaceRemover object
+    Instead of passing an instance of a :py:attr:`file_object` to
+    :py:class:`ConfigParser` we pass an instance of a
+    :py:class:`RepositoryYumSpaceRemover` object::
 
-    ConfigParser.write(
-        RepositoryYumSpaceRemover(file_object)
-    )
+       ConfigParser.write(RepositoryYumSpaceRemover(file_object))
 
-    It is expected that ConfigParser.write() only calls the write()
+    It is expected that :py:func:`ConfigParser.write` only calls
+    the :py:meth:`write`
     method of the usually provided file object. Thus this helper
-    class only provides a custom version of this write method
+    class only provides a custom version of this :py:meth:`write`
+    method.
     """
     def __init__(self, file_object):
         self.file_object = file_object
