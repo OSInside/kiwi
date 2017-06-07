@@ -100,11 +100,13 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.builder.live.FileSystemIsoFs')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
     @patch_open
     def test_create_overlay_structure(
-        self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
-        mock_hybrid, mock_command, mock_dtemp
+        self, mock_open, mock_grub_dir, mock_size, mock_bootloader,
+        mock_isofs, mock_fs, mock_hybrid, mock_command, mock_dtemp
     ):
+        mock_grub_dir.return_value = 'grub2'
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 
         def side_effect(prefix, dir):
@@ -179,7 +181,8 @@ class TestLiveImageBuilder(object):
         assert bootloader.write.call_args_list[0] == call()
 
         assert mock_bootloader.call_args_list[1] == call(
-            'grub2', self.xml_state, 'temp_media_dir'
+            'grub2', self.xml_state, 'temp_media_dir',
+            {'grub_directory_name': 'grub2'}
         )
         assert bootloader.setup_live_boot_images.call_args_list[1] == call(
             lookup_path=self.live_image.boot_image_task.boot_root_directory,

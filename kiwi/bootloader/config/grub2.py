@@ -116,6 +116,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'host architecture %s not supported for grub2 setup' % arch
             )
 
+        if self.custom_args and 'grub_directory_name' in self.custom_args:
+            self.boot_directory_name = self.custom_args['grub_directory_name']
+        else:
+            self.boot_directory_name = 'grub'
+
         self.terminal = self.xml_state.build_type.get_bootloader_console() \
             or 'gfxterm'
         self.gfxmode = self.get_gfxmode('grub2')
@@ -144,7 +149,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.grub2 = BootLoaderTemplateGrub2()
         self.config = None
         self.efi_boot_path = None
-        self.boot_directory_name = self._get_grub2_boot_directory_name()
         self.cmdline_failsafe = None
         self.cmdline = None
         self.iso_boot = False
@@ -752,27 +756,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         raise KiwiBootLoaderGrubDataError(
             'No grub2 installation found in %s' % lookup_path
         )
-
-    def _get_grub2_boot_directory_name(self):
-        """
-        Get grub2 data directory name in boot/ directory
-
-        Depending on the distribution the grub2 boot path could be
-        either boot/grub2 or boot/grub. The method will decide for
-        the correct base directory name according to the name pattern
-        of the installed grub2 tools
-        """
-        chroot_env = {
-            'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
-        }
-        if Path.which(filename='grub2-install', custom_env=chroot_env):
-            # the presence of grub2-install is an indicator to put all
-            # grub2 data below boot/grub2
-            return 'grub2'
-        else:
-            # in any other case the assumption is made that all grub
-            # boot data should live below boot/grub
-            return 'grub'
 
     def _get_shim_install(self):
         chroot_env = {

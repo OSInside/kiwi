@@ -231,7 +231,10 @@ class LiveImageBuilder(object):
         if self.firmware.efi_mode():
             log.info('Setting up EFI grub bootloader configuration')
             bootloader_config_grub = BootLoaderConfig(
-                'grub2', self.xml_state, self.media_dir
+                'grub2', self.xml_state, self.media_dir, {
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                }
             )
             bootloader_config_grub.setup_live_boot_images(
                 mbrid=self.mbrid,

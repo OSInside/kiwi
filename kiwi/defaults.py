@@ -22,6 +22,7 @@ import platform
 from pkg_resources import resource_filename
 
 # project
+from .path import Path
 from .version import __githash__
 
 
@@ -170,6 +171,28 @@ class Defaults(object):
         :rtype: string
         """
         return '0x303'
+
+    @classmethod
+    def get_grub_boot_directory_name(self, lookup_path):
+        """
+        Get grub2 data directory name in boot/ directory
+
+        Depending on the distribution the grub2 boot path could be
+        either boot/grub2 or boot/grub. The method will decide for
+        the correct base directory name according to the name pattern
+        of the installed grub2 tools
+        """
+        chroot_env = {
+            'PATH': os.sep.join([lookup_path, 'usr', 'sbin'])
+        }
+        if Path.which(filename='grub2-install', custom_env=chroot_env):
+            # the presence of grub2-install is an indicator to put all
+            # grub2 data below boot/grub2
+            return 'grub2'
+        else:
+            # in any other case the assumption is made that all grub
+            # boot data should live below boot/grub
+            return 'grub'
 
     @classmethod
     def get_grub_basic_modules(self, multiboot):

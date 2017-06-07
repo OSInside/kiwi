@@ -27,13 +27,10 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.FirmWare')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
-    @patch.object(BootLoaderConfigGrub2, '_get_grub2_boot_directory_name')
     @patch('platform.machine')
     def setup(
-        self, mock_machine, mock_grub2_boot_directory_name,
-        mock_domain, mock_theme, mock_firmware
+        self, mock_machine, mock_domain, mock_theme, mock_firmware
     ):
-        mock_grub2_boot_directory_name.return_value = 'grub2'
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()
         self.enter_mock = mock.Mock()
@@ -91,7 +88,7 @@ class TestBootLoaderConfigGrub2(object):
             XMLDescription('../data/example_config.xml').load()
         )
         self.bootloader = BootLoaderConfigGrub2(
-            self.state, 'root_dir'
+            self.state, 'root_dir', {'grub_directory_name': 'grub2'}
         )
 
     @patch('platform.machine')
@@ -105,18 +102,6 @@ class TestBootLoaderConfigGrub2(object):
         mock_which.return_value = None
         bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
         assert bootloader.boot_directory_name == 'grub'
-
-    @patch('platform.machine')
-    @patch('kiwi.bootloader.config.grub2.Path.which')
-    def test_post_init_grub_boot_directory(self, mock_which, mock_machine):
-        xml_state = mock.MagicMock()
-        xml_state.build_type.get_firmware = mock.Mock(
-            return_value=None
-        )
-        mock_machine.return_value = 'i686'
-        mock_which.return_value = 'root_dir/usr/sbin/grub2-install'
-        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
-        assert bootloader.boot_directory_name == 'grub2'
 
     @raises(KiwiBootLoaderGrubPlatformError)
     @patch('platform.machine')
