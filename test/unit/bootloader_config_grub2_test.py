@@ -55,7 +55,8 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/x86_64-xen': False,
             'root_dir/usr/lib64/efi/shim.efi': True,
             'root_dir/usr/lib64/efi/grub.efi': True,
-            'root_dir/usr/lib64/efi/does-not-exist': False
+            'root_dir/usr/lib64/efi/does-not-exist': False,
+            'root_dir/boot/efi/': True
         }
         self.glob_iglob = [
             ['root_dir/usr/lib64/efi/grub.efi'],
@@ -253,15 +254,19 @@ class TestBootLoaderConfigGrub2(object):
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
     @patch.object(BootLoaderConfigGrub2, 'setup_sysconfig_bootloader')
     @patch('glob.iglob')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_write(
-        self, mock_glob, mock_setup_sysconfig_bootloader,
+        self, mock_command, mock_glob, mock_setup_sysconfig_bootloader,
         mock_setup_default_grub, mock_exists, mock_open
     ):
         mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.bootloader.config = 'some-data'
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
-        self.bootloader.iso_efi_boot = True
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+        self.bootloader.iso_boot = True
         mock_glob.return_value = []
         self.bootloader.write()
         assert mock_open.call_args_list == [
@@ -272,6 +277,18 @@ class TestBootLoaderConfigGrub2(object):
             call('some-data'),
             call('some-data')
         ]
+        assert mock_command.call_args_list == [
+            call([
+                'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '15M'
+            ]),
+            call([
+                'mkdosfs', '-n', 'BOOT', 'root_dir/boot/x86_64/efi'
+            ]),
+            call([
+                'mcopy', '-Do', '-s', '-i', 'root_dir/boot/x86_64/efi',
+                'root_dir/EFI', '::'
+            ])
+        ]
         mock_setup_default_grub.assert_called_once_with()
         mock_setup_sysconfig_bootloader.assert_called_once_with()
 
@@ -280,15 +297,19 @@ class TestBootLoaderConfigGrub2(object):
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
     @patch.object(BootLoaderConfigGrub2, 'setup_sysconfig_bootloader')
     @patch('glob.iglob')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_write_efi_for_vendor(
-        self, mock_glob, mock_setup_sysconfig_bootloader,
+        self, mock_command, mock_glob, mock_setup_sysconfig_bootloader,
         mock_setup_default_grub, mock_exists, mock_open
     ):
         mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.bootloader.config = 'some-data'
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
-        self.bootloader.iso_efi_boot = True
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+        self.bootloader.iso_boot = True
         mock_glob.return_value = ['root_dir/boot/efi/EFI/fedora/shim.efi']
         self.bootloader.write()
         assert mock_open.call_args_list == [
@@ -729,6 +750,7 @@ class TestBootLoaderConfigGrub2(object):
             return_value='efi'
         )
         self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/efi/'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -768,16 +790,6 @@ class TestBootLoaderConfigGrub2(object):
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
                 'btrfs', 'lvm', 'test', 'part_gpt', 'part_msdos', 'efi_gop',
                 'efi_uga', 'linuxefi'
-            ]),
-            call([
-                'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'
-            ]),
-            call([
-                'mkdosfs', '-n', 'BOOT', 'root_dir/boot/x86_64/efi'
-            ]),
-            call([
-                'mcopy', '-Do', '-s', '-i', 'root_dir/boot/x86_64/efi',
-                'root_dir/EFI', '::'
             ])
         ]
         assert mock_sync.call_args_list == [
@@ -824,6 +836,9 @@ class TestBootLoaderConfigGrub2(object):
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
+                'rsync', '-a', 'root_dir/boot/efi/', 'root_dir'
+            ]),
+            call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
                 'root_dir/usr/lib/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
@@ -834,16 +849,6 @@ class TestBootLoaderConfigGrub2(object):
             ]),
             call([
                 'cp', 'root_dir/usr/lib64/efi/grub.efi', 'root_dir//EFI/BOOT'
-            ]),
-            call([
-                'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '4M'
-            ]),
-            call([
-                'mkdosfs', '-n', 'BOOT', 'root_dir/boot/x86_64/efi'
-            ]),
-            call([
-                'mcopy', '-Do', '-s', '-i', 'root_dir/boot/x86_64/efi',
-                'root_dir/EFI', '::'
             ])
         ]
         assert mock_log.called

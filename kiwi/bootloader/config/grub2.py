@@ -147,7 +147,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.boot_directory_name = self._get_grub2_boot_directory_name()
         self.cmdline_failsafe = None
         self.cmdline = None
-        self.iso_efi_boot = False
+        self.iso_boot = False
         self.shim_fallback_setup = False
 
     def write(self):
@@ -162,25 +162,29 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-            if self.iso_efi_boot or self.shim_fallback_setup:
-                efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
-                    self.root_dir
-                )
-                if efi_vendor_boot_path:
-                    grub_config_file_for_efi_boot = os.sep.join(
-                        [efi_vendor_boot_path, 'grub.cfg']
+            if self.firmware.efi_mode():
+                if self.iso_boot or self.shim_fallback_setup:
+                    efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
+                        self.root_dir
                     )
-                else:
-                    grub_config_file_for_efi_boot = os.path.normpath(
-                        os.sep.join([self.efi_boot_path, 'grub.cfg'])
+                    if efi_vendor_boot_path:
+                        grub_config_file_for_efi_boot = os.sep.join(
+                            [efi_vendor_boot_path, 'grub.cfg']
+                        )
+                    else:
+                        grub_config_file_for_efi_boot = os.path.normpath(
+                            os.sep.join([self.efi_boot_path, 'grub.cfg'])
+                        )
+                    log.info(
+                        'Writing {0} file to be found by EFI firmware'.format(
+                            grub_config_file_for_efi_boot
+                        )
                     )
-                log.info(
-                    'Writing {0} file to be found by EFI firmware'.format(
-                        grub_config_file_for_efi_boot
-                    )
-                )
-                with open(grub_config_file_for_efi_boot, 'w') as config:
-                    config.write(self.config)
+                    with open(grub_config_file_for_efi_boot, 'w') as config:
+                        config.write(self.config)
+
+                if self.iso_boot:
+                    self._create_embedded_fat_efi_image()
 
             self._setup_default_grub()
             self.setup_sysconfig_bootloader()
@@ -290,7 +294,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 install config file from template')
-        self.iso_efi_boot = True
+        self.iso_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
@@ -340,7 +344,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 live ISO config file from template')
-        self.iso_efi_boot = True
+        self.iso_boot = True
         self.cmdline = self.get_boot_cmdline()
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
@@ -408,6 +412,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self._supports_bios_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
 
+        if self.firmware.efi_mode():
+            self._setup_EFI_path(lookup_path)
+
         if self.firmware.efi_mode() == 'efi':
             log.info('--> Creating unsigned efi image')
             self._create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
@@ -416,8 +423,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Setting up shim secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
             self._setup_secure_boot_efi_image(lookup_path)
-
-        self._create_embedded_fat_efi_image()
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
@@ -565,7 +570,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             [self.root_dir + '/boot/', self.arch, '/efi']
         )
         Command.run(
-            ['qemu-img', 'create', efi_fat_image, '4M']
+            ['qemu-img', 'create', efi_fat_image, '15M']
         )
         Command.run(
             ['mkdosfs', '-n', 'BOOT', efi_fat_image]
@@ -697,6 +702,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 log.warning('Theme %s not found', theme_dir)
                 log.warning('Set bootloader terminal to console mode')
                 self.terminal = 'console'
+
+    def _setup_EFI_path(self, lookup_path):
+        """
+        Copy efi boot data from lookup_path to the root directory
+        """
+        if not lookup_path:
+            lookup_path = self.root_dir
+        efi_path = lookup_path + '/boot/efi/'
+        if os.path.exists(efi_path):
+            efi_data = DataSync(efi_path, self.root_dir)
+            efi_data.sync_data(options=['-a'])
 
     def _copy_efi_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(
