@@ -1,28 +1,42 @@
 Build an OEM Expandable Disk Image
 ==================================
 
-.. hint::
+.. sidebar:: Abstract
 
-   Make sure you have checked out the example image descriptions
-   For details see :ref:`example-descriptions`
+   This page explains how to build an OEM disk image. It contains:
 
-The following example shows how to build and deploy an expandable
-system image based on SUSE Leap
+   * how to build an OEM image
+   * how to deploy an OEM image
+   * how to run the deployed system
 
-.. code:: bash
+An OEM disk represents the system disk with the capability to auto
+expand the disk and its filesystem to a custom disk geometry. This
+allows deploying the same OEM image on target systems of a different
+hardware setup.
 
-    $ sudo kiwi-ng --type oem system build \
-        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
-        --target-dir /tmp/myimage
+The following example shows how to build and deploy an OEM disk image
+based on openSUSE Leap using a QEMU virtual machine as OEM target
+system:
 
-The result below :file:`/tmp/myimage` consists out of two major images:
+1. Make sure you have checked out the example image descriptions,
+   see :ref:`example-descriptions`.
 
-1. The OEM disk image with the suffix :file:`.raw` is an expandable
-   virtual disk. It can expand itself to a custom disk geometry.
+2. Build the image with KIWI:
 
-2. The OEM installation image with the suffix :file:`install.iso` is a
-   hybrid installation system which contains the OEM disk image and is
-   capable to install this image on any target disk.
+    .. code:: bash
+
+        $ sudo kiwi-ng --type oem system build \
+            --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+            --target-dir /tmp/myimage
+
+    Find the following result images below :file:`/tmp/myimage`.
+
+    * The OEM disk image with the suffix :file:`.raw` is an expandable
+      virtual disk. It can expand itself to a custom disk geometry.
+
+    * The OEM installation image with the suffix :file:`install.iso` is a
+      hybrid installation system which contains the OEM disk image and is
+      capable to install this image on any target disk.
 
 Deployment Methods
 ------------------
@@ -33,13 +47,21 @@ media.
 
 There are the following basic deployment strategies:
 
-1. Manually deploy the OEM disk image onto the target disk
+1. :ref:`deploy_manually`
 
-2. Boot the OEM installation image and let KIWI's oem installer
+   Manually deploy the OEM disk image onto the target disk
+
+2. :ref:`deploy_from_iso`
+
+   Boot the OEM installation image and let KIWI's OEM installer
    deploy the OEM disk image from CD/DVD or USB stick onto the target disk
 
-3. PXE boot the target system and let KIWI's oem installer
+3. :ref:`deploy_from_network`
+
+   PXE boot the target system and let KIWI's OEM installer
    deploy the OEM disk image from the network onto the target disk
+
+.. _deploy_manually:
 
 Manual Deployment
 -----------------
@@ -78,6 +100,8 @@ The following steps shows how to do it:
    configured storage layout. By default the system root partition
    and filesystem is resized to the maximum free space available.
 
+.. _deploy_from_iso:
+
 CD/DVD Deployment
 -----------------
 
@@ -102,6 +126,8 @@ The following steps shows how to do it:
        image is a hybrid image. Thus it can also be used on USB stick and
        serve as installation stick image like it is explained in
        :ref:`hybrid_iso`
+
+.. _deploy_from_network:
 
 Network Deployment
 ------------------
