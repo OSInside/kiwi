@@ -5,8 +5,8 @@ Build an OEM Expandable Disk Image
 
    This page explains how to build an OEM disk image. It contains:
 
-   * how to build an oem image
-   * how to deploy an oem image
+   * how to build an OEM image
+   * how to deploy an OEM image
    * how to run the deployed system
 
 An OEM disk represents the system disk with the capability to auto
@@ -53,12 +53,12 @@ There are the following basic deployment strategies:
 
 2. :ref:`deploy_from_iso`
 
-   Boot the OEM installation image and let KIWI's oem installer
+   Boot the OEM installation image and let KIWI's OEM installer
    deploy the OEM disk image from CD/DVD or USB stick onto the target disk
 
 3. :ref:`deploy_from_network`
 
-   PXE boot the target system and let KIWI's oem installer
+   PXE boot the target system and let KIWI's OEM installer
    deploy the OEM disk image from the network onto the target disk
 
 .. _deploy_manually:
