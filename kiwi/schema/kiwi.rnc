@@ -1255,10 +1255,14 @@ div {
         ## resulting image. Boolean value true or false, the default is false.
         attribute imageinclude { xsd:boolean }
     k.repository.repository_gpgcheck.attribute =
-        ## TODO
+        ## Specify whether or not this specific repository is configured to
+        ## to run repository signature validation. If not set, no value is
+        ## appended into the repository configuration file.
         attribute repository_gpgcheck { xsd:boolean }
     k.repository.package_gpgcheck.attribute =
-        ## TODO
+        ## Specify whether or not this specific repository is configured to
+        ## to run package signature validation. If not set, no value is
+        ## appended into the repository configuration file.
         attribute package_gpgcheck { xsd:boolean }
     k.repository.prefer-license.attribute =
         ## Use the license found in this repository, if any, as the
