@@ -1274,6 +1274,8 @@ List of attributes for ``repository``:
 * ``components`` `[?]`_: Distribution components, used for deb repositories. If not set it defaults to main
 * ``distribution`` `[?]`_: Distribution name information, used for deb repositories
 * ``imageinclude`` `[?]`_: Specify whether or not this repository should be configured in the resulting image. Boolean value true or false, the default is false.
+* ``repository_gpgcheck`` `[?]`_: TODO
+* ``package_gpgcheck`` `[?]`_: TODO
 * ``prefer-license`` `[?]`_: Use the license found in this repository, if any, as the license installed in the image
 * ``priority`` `[?]`_: Channel priority assigned to all packages available in this channel (0 if not set). If the exact same package is available in more than one channel, the highest priority is used
 * ``password`` `[?]`_: The password

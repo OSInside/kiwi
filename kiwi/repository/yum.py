@@ -125,7 +125,8 @@ class RepositoryYum(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add yum repository
@@ -139,6 +140,8 @@ class RepositoryYum(RepositoryBase):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param bool pkg_gpgcheck: enable package signature validation
         """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -156,12 +159,17 @@ class RepositoryYum(RepositoryBase):
         repo_config.set(
             name, 'enabled', '1'
         )
-        repo_config.set(
-            name, 'gpgcheck', self.gpg_check
-        )
         if prio:
             repo_config.set(
                 name, 'priority', format(prio)
+            )
+        if repo_gpgcheck is not None:
+            repo_config.set(
+                name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+            )
+        if pkg_gpgcheck is not None:
+            repo_config.set(
+                name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
             )
         with open(repo_file, 'w') as repo:
             repo_config.write(RepositoryYumSpaceRemover(repo))
@@ -264,9 +272,6 @@ class RepositoryYum(RepositoryBase):
         self.runtime_yum_config.set(
             'main', 'gpgcheck', self.gpg_check
         )
-        # We are not setting repo_gpgcheck, which forces repository
-        # signature checks. Because, at the time of writing this comment,
-        # yum v3.4.3 was not capable to perform a repository key validation
         self.runtime_yum_config.set(
             'main', 'metadata_expire', '1800'
         )

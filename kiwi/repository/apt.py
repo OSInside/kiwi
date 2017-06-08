@@ -126,7 +126,8 @@ class RepositoryApt(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='deb',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add apt_get repository
@@ -140,6 +141,8 @@ class RepositoryApt(RepositoryBase):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param pkg_gpgcheck: unused
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
@@ -151,6 +154,12 @@ class RepositoryApt(RepositoryBase):
         if not components:
             components = 'main'
         with open(list_file, 'w') as repo:
+            if repo_gpgcheck is None:
+                repo_line = 'deb {0}'.format(uri)
+            else:
+                repo_line = 'deb [trusted={0}] {1}'.format(
+                    'no' if repo_gpgcheck else 'yes', uri
+                )
             if not dist:
                 # create a debian flat repository setup. We consider the
                 # repository metadata to exist on the toplevel of the
@@ -158,15 +167,14 @@ class RepositoryApt(RepositoryBase):
                 # service creates debian repositories and should be
                 # done in the same way for other repositories when used
                 # with kiwi
-                repo.write('deb %s ./\n' % uri)
+                repo_line += ' ./\n'
             else:
                 # create a debian distributon repository setup for the
                 # specified distributon name and components
                 self.distribution = dist
                 self.distribution_path = uri
-                repo.write(
-                    'deb %s %s %s\n' % (uri, dist, components)
-                )
+                repo_line += ' {0} {1}\n'.format(dist, components)
+            repo.write(repo_line)
 
     def import_trusted_keys(self, signing_keys):
         """

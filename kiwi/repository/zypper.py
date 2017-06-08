@@ -145,10 +145,7 @@ class RepositoryZypper(RepositoryBase):
 
         if self.gpgcheck:
             self.runtime_zypp_config.set(
-                'main', 'pkg_gpgcheck', '1'
-            )
-            self.runtime_zypp_config.set(
-                'main', 'repo_gpgcheck', '1'
+                'main', 'gpgcheck', '1'
             )
         else:
             self.runtime_zypp_config.set(
@@ -183,7 +180,8 @@ class RepositoryZypper(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add zypper repository
@@ -197,6 +195,8 @@ class RepositoryZypper(RepositoryBase):
         :param user: credentials username
         :param secret: credentials password
         :param credentials_file: zypper credentials file
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param bool pkg_gpgcheck: enable package signature validation
         """
         if credentials_file:
             repo_secret = os.sep.join(
@@ -233,19 +233,28 @@ class RepositoryZypper(RepositoryBase):
             ],
             self.command_env
         )
-        if prio:
-            Command.run(
-                ['zypper'] + self.zypper_args + [
-                    '--root', self.root_dir,
-                    'modifyrepo', '--priority', format(prio), name
-                ],
-                self.command_env
-            )
+        if prio or repo_gpgcheck is not None or pkg_gpgcheck is not None:
+            repo_config = ConfigParser()
+            repo_config.read(repo_file)
+            if repo_gpgcheck is not None:
+                repo_config.set(
+                    name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+                )
+            if pkg_gpgcheck is not None:
+                repo_config.set(
+                    name, 'pkg_gpgcheck', '1' if pkg_gpgcheck else '0'
+                )
+            if prio:
+                repo_config.set(
+                    name, 'priority', format(prio)
+                )
+            with open(repo_file, 'w') as repo:
+                repo_config.write(repo)
         self._restore_package_cache()
 
     def import_trusted_keys(self, signing_keys):
         """
-        Imports trusted keys into the image
+        Imports trusted keys into the imagen
 
         :param list signing_keys: list of the key files to import
         """

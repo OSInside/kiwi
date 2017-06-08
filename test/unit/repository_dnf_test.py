@@ -110,6 +110,33 @@ class TestRepositoryDnf(object):
             '/shared-dir/dnf/repos/foo.repo', 'w'
         )
 
+    @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('os.path.exists')
+    @patch_open
+    def test_add_repo_with_gpgchecks(
+        self, mock_open, mock_exists, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
+        mock_exists.return_value = True
+
+        self.repo.add_repo(
+            'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+            repo_gpgcheck=False, pkg_gpgcheck=True
+        )
+
+        repo_config.add_section.assert_called_once_with('foo')
+        assert repo_config.set.call_args_list == [
+            call('foo', 'name', 'foo'),
+            call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+            call('foo', 'priority', '42'),
+            call('foo', 'repo_gpgcheck', '0'),
+            call('foo', 'gpgcheck', '1')
+        ]
+        mock_open.assert_called_once_with(
+            '/shared-dir/dnf/repos/foo.repo', 'w'
+        )
+
     @patch('kiwi.command.Command.run')
     def test_import_trusted_keys(self, mock_run):
         self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])

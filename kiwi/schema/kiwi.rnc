@@ -1254,6 +1254,12 @@ div {
         ## Specify whether or not this repository should be configured in the
         ## resulting image. Boolean value true or false, the default is false.
         attribute imageinclude { xsd:boolean }
+    k.repository.repository_gpgcheck.attribute =
+        ## TODO
+        attribute repository_gpgcheck { xsd:boolean }
+    k.repository.package_gpgcheck.attribute =
+        ## TODO
+        attribute package_gpgcheck { xsd:boolean }
     k.repository.prefer-license.attribute =
         ## Use the license found in this repository, if any, as the
         ## license installed in the image
@@ -1280,6 +1286,8 @@ div {
         k.repository.components.attribute? &
         k.repository.distribution.attribute? &
         k.repository.imageinclude.attribute? &
+        k.repository.repository_gpgcheck.attribute? &
+        k.repository.package_gpgcheck.attribute? &
         k.repository.prefer-license.attribute? &
         k.repository.priority.attribute? &
         k.repository.password.attribute? &

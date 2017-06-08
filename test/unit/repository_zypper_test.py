@@ -63,8 +63,7 @@ class TestRepositoryZypper(object):
                 'credentials.global.dir',
                 '../data/shared-dir/zypper/credentials'
             ),
-            call('main', 'pkg_gpgcheck', '1'),
-            call('main', 'repo_gpgcheck', '1')
+            call('main', 'gpgcheck', '1'),
         ]
 
     @raises(KiwiRepoTypeUnknown)
@@ -89,10 +88,16 @@ class TestRepositoryZypper(object):
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
+    @patch('kiwi.repository.zypper.ConfigParser')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Path.wipe')
     @patch('os.path.exists')
-    def test_add_repo(self, mock_exists, mock_wipe, mock_command):
+    @patch_open
+    def test_add_repo(
+        self, mock_open, mock_exists, mock_wipe, mock_command, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
         mock_exists.return_value = True
         self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
         mock_wipe.assert_called_once_with(
@@ -114,10 +119,53 @@ class TestRepositoryZypper(object):
                     'foo'
                 ], self.repo.command_env
             ),
+            call([
+                'mv', '-f',
+                '/shared-dir/packages.moved', '/shared-dir/packages'
+            ])
+        ]
+        repo_config.read.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
+        )
+        repo_config.set.assert_called_once_with(
+            'foo', 'priority', '42'
+        )
+        mock_open.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo', 'w'
+        )
+
+    @patch('kiwi.repository.zypper.ConfigParser')
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Path.wipe')
+    @patch('os.path.exists')
+    @patch_open
+    def test_add_repo_with_gpgchecks(
+        self, mock_open, mock_exists, mock_wipe, mock_command, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
+        mock_exists.return_value = True
+        self.repo.add_repo(
+            'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+            repo_gpgcheck=False, pkg_gpgcheck=True
+        )
+        mock_wipe.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
+        )
+        assert mock_command.call_args_list == [
+            call([
+                'mv', '-f',
+                '/shared-dir/packages', '/shared-dir/packages.moved'
+            ]),
             call(
                 ['zypper'] + self.repo.zypper_args + [
                     '--root', '../data',
-                    'modifyrepo', '--priority', '42', 'foo'
+                    'addrepo', '--refresh',
+                    '--type', 'YUM',
+                    '--keep-packages',
+                    '-C',
+                    'kiwi_iso_mount/uri',
+                    'foo'
                 ], self.repo.command_env
             ),
             call([
@@ -125,6 +173,17 @@ class TestRepositoryZypper(object):
                 '/shared-dir/packages.moved', '/shared-dir/packages'
             ])
         ]
+        repo_config.read.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
+        )
+        assert repo_config.set.call_args_list == [
+            call('foo', 'repo_gpgcheck', '0'),
+            call('foo', 'pkg_gpgcheck', '1'),
+            call('foo', 'priority', '42')
+        ]
+        mock_open.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo', 'w'
+        )
 
     @patch('kiwi.command.Command.run')
     def test_import_trusted_keys(self, mock_run):
