@@ -106,10 +106,11 @@ class RepositoryApt(RepositoryBase):
         Setup apt-get repository operations to store all data
         in the default places
         """
+        self.manager_base = os.sep.join([self.root_dir, 'etc/apt'])
         self.shared_apt_get_dir['sources-dir'] = \
-            self.root_dir + '/etc/apt/sources.list.d'
+            os.sep.join([self.manager_base, 'sources.list.d'])
         self.shared_apt_get_dir['preferences-dir'] = \
-            self.root_dir + '/etc/apt/preferences.d'
+            os.sep.join([self.root_dir, 'preferences.d'])
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self):
@@ -232,16 +233,16 @@ class RepositoryApt(RepositoryBase):
         )
 
     def _write_runtime_config(self, system_default=False):
+        parameters = {
+            'apt_shared_base': self.manager_base,
+            'unauthenticated': self.unauthenticated
+        }
         if not system_default:
-            parameters = {
-                'apt_shared_base': self.manager_base,
-                'unauthenticated': self.unauthenticated
-            }
             template = self.apt_conf.get_host_template(self.exclude_docs)
             apt_conf_data = template.substitute(parameters)
         else:
             template = self.apt_conf.get_image_template(self.exclude_docs)
-            apt_conf_data = template.substitute()
+            apt_conf_data = template.substitute(parameters)
 
         with open(self.runtime_apt_get_config_file.name, 'w') as config:
             config.write(apt_conf_data)
