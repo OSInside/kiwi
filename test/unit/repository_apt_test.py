@@ -73,7 +73,9 @@ class TestRepositoryApt(object):
         self.apt_conf.get_image_template.assert_called_once_with(
             self.exclude_docs
         )
-        template.substitute.assert_called_once_with()
+        template.substitute.assert_called_once_with(
+            {'apt_shared_base': '../data/etc/apt', 'unauthenticated': 'true'}
+        )
 
     def test_runtime_config(self):
         assert self.repo.runtime_config()['apt_get_args'] == \
