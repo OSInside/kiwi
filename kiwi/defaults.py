@@ -22,6 +22,7 @@ import platform
 from pkg_resources import resource_filename
 
 # project
+from .path import Path
 from .version import __githash__
 
 
@@ -178,12 +179,19 @@ class Defaults(object):
 
         Depending on the distribution the grub2 boot path could be
         either boot/grub2 or boot/grub. The method will decide for
-        the correct base directory name according to the installation
-        directory of the grub2 package
+        the correct base directory name according to the name pattern
+        of the installed grub2 tools
         """
-        if os.path.exists(os.sep.join([lookup_path, 'usr', 'lib', 'grub2'])):
+        chroot_env = {
+            'PATH': os.sep.join([lookup_path, 'usr', 'sbin'])
+        }
+        if Path.which(filename='grub2-install', custom_env=chroot_env):
+            # the presence of grub2-install is an indicator to put all
+            # grub2 data below boot/grub2
             return 'grub2'
         else:
+            # in any other case the assumption is made that all grub
+            # boot data should live below boot/grub
             return 'grub'
 
     @classmethod
