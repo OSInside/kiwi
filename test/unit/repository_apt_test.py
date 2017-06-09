@@ -100,6 +100,24 @@ class TestRepositoryApt(object):
 
     @patch('os.path.exists')
     @patch_open
+    def test_add_repo_distribution_with_gpgchecks(
+        self, mock_open, mock_exists
+    ):
+        mock_open.return_value = self.context_manager_mock
+        mock_exists.return_value = True
+        self.repo.add_repo(
+            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
+            repo_gpgcheck=True, pkg_gpgcheck=False
+        )
+        self.file_mock.write.assert_called_once_with(
+            'deb [trusted=no] file:/kiwi_iso_mount/uri xenial a b\n'
+        )
+        mock_open.assert_called_once_with(
+            '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+        )
+
+    @patch('os.path.exists')
+    @patch_open
     def test_add_repo_distribution_default_component(
         self, mock_open, mock_exists
     ):

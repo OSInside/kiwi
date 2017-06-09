@@ -705,5 +705,7 @@ class TestSystemSetup(object):
             None,
             None,
             None,
-            'kiwiRepoCredentials'
+            'kiwiRepoCredentials',
+            None,
+            None
         )

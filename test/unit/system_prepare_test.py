@@ -203,11 +203,11 @@ class TestSystemPrepare(object):
         assert repo.add_repo.call_args_list == [
             call(
                 'uri-alias', 'uri', 'yast2', 42,
-                None, None, None, None, 'credentials-file'
+                None, None, None, None, 'credentials-file', None, None
             ),
             call(
                 'uri-alias', 'uri', 'rpm-md', None,
-                None, None, None, None, 'credentials-file'
+                None, None, None, None, 'credentials-file', None, None
             )
         ]
         assert repo.delete_repo_cache.call_args_list == [

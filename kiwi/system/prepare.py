@@ -119,6 +119,8 @@ class SystemPrepare(object):
             repo_priority = xml_repo.get_priority()
             repo_dist = xml_repo.get_distribution()
             repo_components = xml_repo.get_components()
+            repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
+            repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
             log.info('Setting up repository %s', repo_source)
             log.info('--> Type: %s', repo_type)
             if repo_priority:
@@ -146,7 +148,8 @@ class SystemPrepare(object):
             repo.add_repo(
                 repo_alias, repo_source_translated,
                 repo_type, repo_priority, repo_dist, repo_components,
-                repo_user, repo_secret, uri.credentials_file_name()
+                repo_user, repo_secret, uri.credentials_file_name(),
+                repo_repository_gpgcheck, repo_package_gpgcheck
             )
             if clear_cache:
                 repo.delete_repo_cache(repo_alias)

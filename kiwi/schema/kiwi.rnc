@@ -1254,6 +1254,16 @@ div {
         ## Specify whether or not this repository should be configured in the
         ## resulting image. Boolean value true or false, the default is false.
         attribute imageinclude { xsd:boolean }
+    k.repository.repository_gpgcheck.attribute =
+        ## Specify whether or not this specific repository is configured to
+        ## to run repository signature validation. If not set, no value is
+        ## appended into the repository configuration file.
+        attribute repository_gpgcheck { xsd:boolean }
+    k.repository.package_gpgcheck.attribute =
+        ## Specify whether or not this specific repository is configured to
+        ## to run package signature validation. If not set, no value is
+        ## appended into the repository configuration file.
+        attribute package_gpgcheck { xsd:boolean }
     k.repository.prefer-license.attribute =
         ## Use the license found in this repository, if any, as the
         ## license installed in the image
@@ -1280,6 +1290,8 @@ div {
         k.repository.components.attribute? &
         k.repository.distribution.attribute? &
         k.repository.imageinclude.attribute? &
+        k.repository.repository_gpgcheck.attribute? &
+        k.repository.package_gpgcheck.attribute? &
         k.repository.prefer-license.attribute? &
         k.repository.priority.attribute? &
         k.repository.password.attribute? &
@@ -1314,14 +1326,12 @@ div {
     k.rpm-check-signatures.content = xsd:boolean
     k.rpm-check-signatures.attlist = empty
     k.rpm-check-signatures =
-        ## Setup a Package Signature
-        [
-        db:para [
-            "Setup if the package manager should check the package\x{a}"~
-            "signature or not. This option could be ignored according\x{a}"~
-            "to the used package manager."
-        ]
-        ]
+        ## Sets the used package manager to validate, or not, the 
+        ## repository and/or package signatures. The behavior can be
+        ## slightly different depending on the used package manager.
+        ## This is a system wide package manager option, so that, this
+        ## value can be overwritten by repository specific configurations.
+        ## The default value is false.
         element rpm-check-signatures {
             k.rpm-check-signatures.attlist,
             k.rpm-check-signatures.content

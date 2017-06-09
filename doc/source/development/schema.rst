@@ -212,7 +212,7 @@ Parents:
 rpm-check-signatures
 ....................
 
-Setup a Package Signature
+Sets the used package manager to validate, or not, the  repository and/or package signatures. The behavior can be slightly different depending on the used package manager. This is a system wide package manager option, so that, this value can be overwritten by repository specific configurations. The default value is false.
 
 Parents:
    These elements contain ``rpm-check-signatures``: :ref:`k.image.preferences`
@@ -1274,6 +1274,8 @@ List of attributes for ``repository``:
 * ``components`` `[?]`_: Distribution components, used for deb repositories. If not set it defaults to main
 * ``distribution`` `[?]`_: Distribution name information, used for deb repositories
 * ``imageinclude`` `[?]`_: Specify whether or not this repository should be configured in the resulting image. Boolean value true or false, the default is false.
+* ``repository_gpgcheck`` `[?]`_: Specify whether or not this specific repository is configured to to run repository signature validation. If not set, no value is appended into the repository configuration file.
+* ``package_gpgcheck`` `[?]`_: Specify whether or not this specific repository is configured to to run package signature validation. If not set, no value is appended into the repository configuration file.
 * ``prefer-license`` `[?]`_: Use the license found in this repository, if any, as the license installed in the image
 * ``priority`` `[?]`_: Channel priority assigned to all packages available in this channel (0 if not set). If the exact same package is available in more than one channel, the highest priority is used
 * ``password`` `[?]`_: The password

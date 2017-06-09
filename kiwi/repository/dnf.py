@@ -126,7 +126,8 @@ class RepositoryDnf(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add dnf repository
@@ -140,6 +141,8 @@ class RepositoryDnf(RepositoryBase):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param bool pkg_gpgcheck: enable package signature validation
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -157,6 +160,14 @@ class RepositoryDnf(RepositoryBase):
         if prio:
             repo_config.set(
                 name, 'priority', format(prio)
+            )
+        if repo_gpgcheck is not None:
+            repo_config.set(
+                name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+            )
+        if pkg_gpgcheck is not None:
+            repo_config.set(
+                name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
             )
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
@@ -263,9 +274,6 @@ class RepositoryDnf(RepositoryBase):
         self.runtime_dnf_config.set(
             'main', 'gpgcheck', self.gpg_check
         )
-        # We are not setting repo_gpgcheck, which forces repository
-        # signatures checks, because current Fedora 25 releases do not
-        # provide signed repositories, only signed packages
         if self.exclude_docs:
             self.runtime_dnf_config.set(
                 'main', 'tsflags', 'nodocs'

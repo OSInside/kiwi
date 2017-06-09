@@ -1606,6 +1606,22 @@ resulting image. Boolean value true or false, the default is false.</a:documenta
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.repository.repository_gpgcheck.attribute">
+      <attribute name="repository_gpgcheck">
+        <a:documentation>Specify whether or not this specific repository is configured to
+to run repository signature validation. If not set, no value is
+appended into the repository configuration file.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
+    <define name="k.repository.package_gpgcheck.attribute">
+      <attribute name="package_gpgcheck">
+        <a:documentation>Specify whether or not this specific repository is configured to
+to run package signature validation. If not set, no value is
+appended into the repository configuration file.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.repository.prefer-license.attribute">
       <attribute name="prefer-license">
         <a:documentation>Use the license found in this repository, if any, as the
@@ -1656,6 +1672,12 @@ whether and how this information is passed</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.imageinclude.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.repository_gpgcheck.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.package_gpgcheck.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.prefer-license.attribute"/>
@@ -1714,10 +1736,12 @@ as well as a path specification</a:documentation>
     </define>
     <define name="k.rpm-check-signatures">
       <element name="rpm-check-signatures">
-        <a:documentation>Setup a Package Signature</a:documentation>
-        <db:para>Setup if the package manager should check the package
-signature or not. This option could be ignored according
-to the used package manager.</db:para>
+        <a:documentation>Sets the used package manager to validate, or not, the 
+repository and/or package signatures. The behavior can be
+slightly different depending on the used package manager.
+This is a system wide package manager option, so that, this
+value can be overwritten by repository specific configurations.
+The default value is false.</a:documentation>
         <ref name="k.rpm-check-signatures.attlist"/>
         <ref name="k.rpm-check-signatures.content"/>
       </element>
