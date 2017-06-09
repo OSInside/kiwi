@@ -1736,10 +1736,12 @@ as well as a path specification</a:documentation>
     </define>
     <define name="k.rpm-check-signatures">
       <element name="rpm-check-signatures">
-        <a:documentation>Setup a Package Signature</a:documentation>
-        <db:para>Setup if the package manager should check the package
-signature or not. This option could be ignored according
-to the used package manager.</db:para>
+        <a:documentation>Sets the used package manager to validate, or not, the 
+repository and/or package signatures. The behavior can be
+slightly different depending on the used package manager.
+This is a system wide package manager option, so that, this
+value can be overwritten by repository specific configurations.
+The default value is false.</a:documentation>
         <ref name="k.rpm-check-signatures.attlist"/>
         <ref name="k.rpm-check-signatures.content"/>
       </element>

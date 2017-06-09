@@ -254,7 +254,7 @@ class RepositoryZypper(RepositoryBase):
 
     def import_trusted_keys(self, signing_keys):
         """
-        Imports trusted keys into the imagen
+        Imports trusted keys into the image
 
         :param list signing_keys: list of the key files to import
         """

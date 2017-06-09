@@ -212,7 +212,7 @@ Parents:
 rpm-check-signatures
 ....................
 
-Setup a Package Signature
+Sets the used package manager to validate, or not, the  repository and/or package signatures. The behavior can be slightly different depending on the used package manager. This is a system wide package manager option, so that, this value can be overwritten by repository specific configurations. The default value is false.
 
 Parents:
    These elements contain ``rpm-check-signatures``: :ref:`k.image.preferences`

@@ -1326,14 +1326,12 @@ div {
     k.rpm-check-signatures.content = xsd:boolean
     k.rpm-check-signatures.attlist = empty
     k.rpm-check-signatures =
-        ## Setup a Package Signature
-        [
-        db:para [
-            "Setup if the package manager should check the package\x{a}"~
-            "signature or not. This option could be ignored according\x{a}"~
-            "to the used package manager."
-        ]
-        ]
+        ## Sets the used package manager to validate, or not, the 
+        ## repository and/or package signatures. The behavior can be
+        ## slightly different depending on the used package manager.
+        ## This is a system wide package manager option, so that, this
+        ## value can be overwritten by repository specific configurations.
+        ## The default value is false.
         element rpm-check-signatures {
             k.rpm-check-signatures.attlist,
             k.rpm-check-signatures.content
