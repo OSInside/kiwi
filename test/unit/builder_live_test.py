@@ -185,8 +185,7 @@ class TestLiveImageBuilder(object):
             {'grub_directory_name': 'grub2'}
         )
         assert bootloader.setup_live_boot_images.call_args_list[1] == call(
-            lookup_path=self.live_image.boot_image_task.boot_root_directory,
-            mbrid=self.mbrid
+            lookup_path='root_dir', mbrid=self.mbrid
         )
         assert bootloader.setup_live_image_config.call_args_list[1] == call(
             mbrid=self.mbrid

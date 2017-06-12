@@ -128,11 +128,7 @@ class TestInstallImageBuilder(object):
         )
         assert self.bootloader.setup_install_boot_images.call_args_list == [
             call(lookup_path='initrd_dir', mbrid=None),
-            call(lookup_path='initrd_dir', mbrid=self.mbrid)
-        ]
-        assert self.bootloader.setup_install_boot_images.call_args_list == [
-            call(lookup_path='initrd_dir', mbrid=None),
-            call(lookup_path='initrd_dir', mbrid=self.mbrid)
+            call(lookup_path='root_dir', mbrid=self.mbrid)
         ]
         assert self.bootloader.setup_install_image_config.call_args_list == [
             call(mbrid=None),
