@@ -117,12 +117,6 @@
         <package name="gfxboot"/>
         <package name="glibc"/>
         <package name="glibc-locale"/>
-        <package name="grub2"/>
-        <package name="grub2-x86_64-efi" arch="x86_64"/>
-        <package name="grub2-i386-efi" arch="i686"/>
-        <package name="grub2-i386-efi" arch="i586"/>
-        <package name="grub2-i386-pc"/>
-        <package name="shim" arch="x86_64"/>
         <package name="hdparm"/>
         <package name="hwinfo"/>
         <package name="iproute2"/>
