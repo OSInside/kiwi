@@ -1276,6 +1276,16 @@ function suseGFXBoot {
     elif [ -f /usr/lib/syslinux/isolinux.bin ];then
         mv /usr/lib/syslinux/isolinux.bin  /image/loader
     fi
+    # syslinux libraries...
+    if [ -f /usr/share/syslinux/ldlinux.c32 ];then
+        mv /usr/share/syslinux/ldlinux.c32 /image/loader
+    fi
+    if [ -f /usr/share/syslinux/libcom32.c32 ];then
+        mv /usr/share/syslinux/libcom32.c32 /image/loader
+    fi
+    if [ -f /usr/share/syslinux/libutil.c32 ];then
+        mv /usr/share/syslinux/libutil.c32 /image/loader
+    fi
     # use either gfxboot.com or gfxboot.c32
     if [ -f /usr/share/syslinux/gfxboot.com ];then
         mv /usr/share/syslinux/gfxboot.com /image/loader
