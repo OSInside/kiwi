@@ -115,7 +115,7 @@ class SystemSetup(object):
         imageinclude attribute should be permanently added to
         the image repository configuration
         """
-        repository_sections = self.xml_state.get_repository_sections()
+        repository_sections = self.xml_state.get_image_repository_sections()
         root = RootInit(
             root_dir=self.root_dir, allow_existing=True
         )
@@ -124,33 +124,30 @@ class SystemSetup(object):
         )
         repo.use_default_location()
         for xml_repo in repository_sections:
-            repo_marked_for_image_include = xml_repo.get_imageinclude()
-
-            if repo_marked_for_image_include:
-                repo_type = xml_repo.get_type()
-                repo_source = xml_repo.get_source().get_path()
-                repo_user = xml_repo.get_username()
-                repo_secret = xml_repo.get_password()
-                repo_alias = xml_repo.get_alias()
-                repo_priority = xml_repo.get_priority()
-                repo_dist = xml_repo.get_distribution()
-                repo_components = xml_repo.get_components()
-                repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
-                repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
-                uri = Uri(repo_source, repo_type)
-                repo_source_translated = uri.translate()
-                if not repo_alias:
-                    repo_alias = uri.alias()
-                log.info('Setting up image repository %s', repo_source)
-                log.info('--> Type: %s', repo_type)
-                log.info('--> Translated: %s', repo_source_translated)
-                log.info('--> Alias: %s', repo_alias)
-                repo.add_repo(
-                    repo_alias, repo_source_translated,
-                    repo_type, repo_priority, repo_dist, repo_components,
-                    repo_user, repo_secret, uri.credentials_file_name(),
-                    repo_repository_gpgcheck, repo_package_gpgcheck
-                )
+            repo_type = xml_repo.get_type()
+            repo_source = xml_repo.get_source().get_path()
+            repo_user = xml_repo.get_username()
+            repo_secret = xml_repo.get_password()
+            repo_alias = xml_repo.get_alias()
+            repo_priority = xml_repo.get_priority()
+            repo_dist = xml_repo.get_distribution()
+            repo_components = xml_repo.get_components()
+            repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
+            repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+            uri = Uri(repo_source, repo_type)
+            repo_source_translated = uri.translate()
+            if not repo_alias:
+                repo_alias = uri.alias()
+            log.info('Setting up image repository %s', repo_source)
+            log.info('--> Type: %s', repo_type)
+            log.info('--> Translated: %s', repo_source_translated)
+            log.info('--> Alias: %s', repo_alias)
+            repo.add_repo(
+                repo_alias, repo_source_translated,
+                repo_type, repo_priority, repo_dist, repo_components,
+                repo_user, repo_secret, uri.credentials_file_name(),
+                repo_repository_gpgcheck, repo_package_gpgcheck
+            )
 
     def import_shell_environment(self, profile):
         """

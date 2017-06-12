@@ -15,7 +15,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env2.7/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2114,7 +2114,7 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, status=None, alias=None, components=None, distribution=None, imageinclude=None, repository_gpgcheck=None, package_gpgcheck=None, prefer_license=None, priority=None, password=None, username=None):
+    def __init__(self, source=None, type_=None, profiles=None, status=None, alias=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, prefer_license=None, priority=None, password=None, username=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
@@ -2124,6 +2124,7 @@ class repository(k_source):
         self.components = _cast(None, components)
         self.distribution = _cast(None, distribution)
         self.imageinclude = _cast(bool, imageinclude)
+        self.imageonly = _cast(bool, imageonly)
         self.repository_gpgcheck = _cast(bool, repository_gpgcheck)
         self.package_gpgcheck = _cast(bool, package_gpgcheck)
         self.prefer_license = _cast(bool, prefer_license)
@@ -2155,6 +2156,8 @@ class repository(k_source):
     def set_distribution(self, distribution): self.distribution = distribution
     def get_imageinclude(self): return self.imageinclude
     def set_imageinclude(self, imageinclude): self.imageinclude = imageinclude
+    def get_imageonly(self): return self.imageonly
+    def set_imageonly(self, imageonly): self.imageonly = imageonly
     def get_repository_gpgcheck(self): return self.repository_gpgcheck
     def set_repository_gpgcheck(self, repository_gpgcheck): self.repository_gpgcheck = repository_gpgcheck
     def get_package_gpgcheck(self): return self.package_gpgcheck
@@ -2218,6 +2221,9 @@ class repository(k_source):
         if self.imageinclude is not None and 'imageinclude' not in already_processed:
             already_processed.add('imageinclude')
             outfile.write(' imageinclude="%s"' % self.gds_format_boolean(self.imageinclude, input_name='imageinclude'))
+        if self.imageonly is not None and 'imageonly' not in already_processed:
+            already_processed.add('imageonly')
+            outfile.write(' imageonly="%s"' % self.gds_format_boolean(self.imageonly, input_name='imageonly'))
         if self.repository_gpgcheck is not None and 'repository_gpgcheck' not in already_processed:
             already_processed.add('repository_gpgcheck')
             outfile.write(' repository_gpgcheck="%s"' % self.gds_format_boolean(self.repository_gpgcheck, input_name='repository_gpgcheck'))
@@ -2279,6 +2285,15 @@ class repository(k_source):
                 self.imageinclude = True
             elif value in ('false', '0'):
                 self.imageinclude = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('imageonly', node)
+        if value is not None and 'imageonly' not in already_processed:
+            already_processed.add('imageonly')
+            if value in ('true', '1'):
+                self.imageonly = True
+            elif value in ('false', '0'):
+                self.imageonly = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('repository_gpgcheck', node)

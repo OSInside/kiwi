@@ -1158,7 +1158,37 @@ class XMLState(object):
         :rtype: bool
         """
         repos = self.get_repository_sections()
-        return bool(list(repo for repo in repos if repo.get_imageinclude()))
+        return bool(list(
+            repo for repo in repos if repo.get_imageinclude() or
+            repo.get_imageonly()
+        ))
+
+    def get_build_repository_sections(self):
+        """
+        List the repositorys sections used to build the image matching
+        configured profiles.
+
+        :return: <repository>
+        :rtype: list
+        """
+        repos = self.get_repository_sections()
+        return list(
+            repo for repo in repos if not repo.get_imageonly()
+        )
+
+    def get_image_repository_sections(self):
+        """
+        List the repositorys sections to be configured in the resulting
+        image matching configured profiles.
+
+        :return: <repository>
+        :rtype: list
+        """
+        repos = self.get_repository_sections()
+        return list(
+            repo for repo in repos if repo.get_imageinclude() or
+            repo.get_imageonly()
+        )
 
     def delete_repository_sections(self):
         """
