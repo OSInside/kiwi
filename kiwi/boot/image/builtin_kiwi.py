@@ -37,6 +37,21 @@ class BootImageKiwi(BootImageBase):
     to control the first boot an appliance. The kiwi initrd replaces
     itself after first boot by the result of dracut.
     """
+    def post_init(self):
+        """
+        Post initialization method
+
+        Creates custom directory to prepare the boot image
+        root filesystem which is a separate image to create
+        the initrd from
+        """
+        self.boot_root_directory = mkdtemp(
+            prefix='kiwi_boot_root.', dir=self.target_dir
+        )
+        self.temp_directories.append(
+            self.boot_root_directory
+        )
+
     def prepare(self):
         """
         Prepare new root system suitable to create a kiwi initrd from it
