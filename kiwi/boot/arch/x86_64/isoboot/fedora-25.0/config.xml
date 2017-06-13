@@ -9,7 +9,7 @@
     <preferences>
         <type image="cpio" bootprofile="default" bootkernel="std"/>
         <version>2.7.0</version>
-        <packagemanager>yum</packagemanager>
+        <packagemanager>dnf</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <profiles>
