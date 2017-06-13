@@ -1274,6 +1274,7 @@ List of attributes for ``repository``:
 * ``components`` `[?]`_: Distribution components, used for deb repositories. If not set it defaults to main
 * ``distribution`` `[?]`_: Distribution name information, used for deb repositories
 * ``imageinclude`` `[?]`_: Specify whether or not this repository should be configured in the resulting image. Boolean value true or false, the default is false.
+* ``imageonly`` `[?]`_: Specify whether or not this repository should be configured in the resulting image without using it at build time. Boolean value true or false, the default is false.
 * ``repository_gpgcheck`` `[?]`_: Specify whether or not this specific repository is configured to to run repository signature validation. If not set, no value is appended into the repository configuration file.
 * ``package_gpgcheck`` `[?]`_: Specify whether or not this specific repository is configured to to run package signature validation. If not set, no value is appended into the repository configuration file.
 * ``prefer-license`` `[?]`_: Use the license found in this repository, if any, as the license installed in the image

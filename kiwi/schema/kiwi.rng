@@ -1606,6 +1606,14 @@ resulting image. Boolean value true or false, the default is false.</a:documenta
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.repository.imageonly.attribute">
+      <attribute name="imageonly">
+        <a:documentation>Specify whether or not this repository should be configured in the
+resulting image without using it at build time. Boolean value true
+or false, the default is false.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.repository.repository_gpgcheck.attribute">
       <attribute name="repository_gpgcheck">
         <a:documentation>Specify whether or not this specific repository is configured to
@@ -1671,7 +1679,10 @@ whether and how this information is passed</a:documentation>
           <ref name="k.repository.distribution.attribute"/>
         </optional>
         <optional>
-          <ref name="k.repository.imageinclude.attribute"/>
+          <choice>
+            <ref name="k.repository.imageinclude.attribute"/>
+            <ref name="k.repository.imageonly.attribute"/>
+          </choice>
         </optional>
         <optional>
           <ref name="k.repository.repository_gpgcheck.attribute"/>
