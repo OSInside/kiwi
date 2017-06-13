@@ -40,6 +40,7 @@ class TestBootLoaderConfigGrub2(object):
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.os_exists = {
             'root_dir/boot/unicode.pf2': True,
+            'root_dir/boot/grub2/themes/some-theme/background.png': True,
             'root_dir/usr/share/grub2': True,
             'root_dir/usr/share/grub': False,
             'root_dir/boot/grub2/themes': False,
@@ -116,14 +117,12 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
-    @patch('os.listdir')
     @patch('platform.machine')
     @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_install_boot_images_raises_no_shim(
-        self, mock_machine, mock_listdir, mock_exists, mock_open,
+        self, mock_machine, mock_exists, mock_open,
         mock_sync, mock_command, mock_grub, mock_shim, mock_warn
     ):
-        mock_listdir.return_value = []
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
@@ -147,14 +146,12 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
-    @patch('os.listdir')
     @patch('platform.machine')
     @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_install_boot_images_raises_no_efigrub(
-        self, mock_machine, mock_listdir, mock_exists, mock_open,
+        self, mock_machine, mock_exists, mock_open,
         mock_sync, mock_command, mock_grub, mock_shim, mock_warn
     ):
-        mock_listdir.return_value = []
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
@@ -842,28 +839,83 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch_open
     @patch('os.path.exists')
-    @patch('os.listdir')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
-    def test_setup_install_boot_images_with_theme(
-        self, mock_machine, mock_warn, mock_listdir, mock_exists, mock_open,
+    @patch('glob.iglob')
+    def test_setup_install_boot_images_with_theme_from_usr_share(
+        self, mock_glob, mock_machine, mock_warn, mock_exists, mock_open,
         mock_sync, mock_command
     ):
-        mock_listdir.return_value = []
+        mock_glob.return_value = [
+            'root_dir/boot/grub2/themes/some-theme/background.png'
+        ]
         data = mock.Mock()
         mock_sync.return_value = data
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
-        self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = True
+        self.os_exists['lookup_path/usr/share/grub2'] = True
+        self.os_exists['lookup_path/usr/lib/grub2'] = True
+        self.os_exists['lookup_path/usr/share/grub2/themes/some-theme'] = True
+        self.os_exists['lookup_path/boot/grub2/themes/some-theme'] = True
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
 
         mock_exists.side_effect = side_effect
-        self.bootloader.setup_install_boot_images(self.mbrid)
+        self.bootloader.setup_install_boot_images(
+            self.mbrid, lookup_path='lookup_path'
+        )
+        assert mock_command.call_args_list == [
+            call([
+                'cp', 'root_dir/boot/grub2/themes/some-theme/background.png',
+                'root_dir/background.png'
+            ]),
+            call([
+                'mv', 'root_dir/background.png',
+                'root_dir/boot/grub2/themes/some-theme'
+            ])
+        ]
         assert mock_sync.call_args_list[0] == call(
-            'root_dir/usr/share/grub2/themes/some-theme',
+            'lookup_path/usr/share/grub2/themes/some-theme',
+            'root_dir/boot/grub2/themes'
+        )
+        assert data.sync_data.call_args_list[0] == call(
+            options=['-z', '-a']
+        )
+
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch_open
+    @patch('os.path.exists')
+    @patch('kiwi.logger.log.warning')
+    @patch('platform.machine')
+    @patch('glob.iglob')
+    def test_setup_install_boot_images_with_theme_from_boot(
+        self, mock_glob, mock_machine, mock_warn, mock_exists,
+        mock_open, mock_sync
+    ):
+        mock_glob.return_value = [
+            'lookup_path/boot/grub2/themes/some-theme/background.png'
+        ]
+        data = mock.Mock()
+        mock_sync.return_value = data
+        mock_machine.return_value = 'x86_64'
+        self.bootloader.theme = 'some-theme'
+
+        self.os_exists['lookup_path/usr/share/grub2'] = True
+        self.os_exists['lookup_path/usr/lib/grub2'] = True
+        self.os_exists['lookup_path/usr/share/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+        self.bootloader.setup_install_boot_images(
+            self.mbrid, lookup_path='lookup_path'
+        )
+        assert mock_sync.call_args_list[0] == call(
+            'lookup_path/boot/grub2/themes/some-theme',
             'root_dir/boot/grub2/themes'
         )
         assert data.sync_data.call_args_list[0] == call(
@@ -874,14 +926,12 @@ class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('builtins.open')
     @patch('os.path.exists')
-    @patch('os.listdir')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_machine, mock_warn, mock_listdir, mock_exists, mock_open,
+        self, mock_machine, mock_warn, mock_exists, mock_open,
         mock_sync, mock_command
     ):
-        mock_listdir.return_value = []
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False

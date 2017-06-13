@@ -17,6 +17,7 @@
 #
 import os
 import platform
+import glob
 from collections import OrderedDict
 
 # project
@@ -661,6 +662,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
+    def _find_theme_background_file(self, lookup_path):
+        background_pattern = os.sep.join(
+            [
+                lookup_path, 'boot', self.boot_directory_name, 'themes',
+                '*', 'background.png'
+            ]
+        )
+        for background_file in glob.iglob(background_pattern):
+            return background_file
+
     def _copy_theme_data_to_boot_directory(self, lookup_path):
         if not lookup_path:
             lookup_path = self.root_dir
@@ -681,12 +692,47 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             [self.root_dir, 'boot', self.boot_directory_name, 'themes']
         )
         Path.create(boot_theme_dir)
-        if self.theme and not os.listdir(boot_theme_dir):
+
+        if self.theme:
             theme_dir = self._find_grub_data(lookup_path + '/usr/share') + \
                 '/themes/' + self.theme
-            if os.path.exists(theme_dir):
+            # lookup theme background, it is expected that the
+            # installation of the theme package provided an appropriate
+            # background file
+            boot_theme_background_file = self._find_theme_background_file(
+                lookup_path
+            )
+            if os.path.exists(theme_dir) and boot_theme_background_file:
+                # store a backup of the background file
+                boot_theme_background_backup_file = os.sep.join(
+                    [self.root_dir, 'background.png']
+                )
+                Command.run(
+                    [
+                        'cp', boot_theme_background_file,
+                        boot_theme_background_backup_file
+                    ]
+                )
+                # sync theme data from install path to boot path
                 data = DataSync(
                     theme_dir, boot_theme_dir
+                )
+                data.sync_data(
+                    options=['-z', '-a']
+                )
+                # restore background file
+                Command.run(
+                    [
+                        'mv', boot_theme_background_backup_file,
+                        os.sep.join([boot_theme_dir, self.theme])
+                    ]
+                )
+            elif boot_theme_background_file:
+                # assume all theme data is in the directory of the
+                # background file and just sync that directory to the
+                # boot path
+                data = DataSync(
+                    os.path.dirname(boot_theme_background_file), boot_theme_dir
                 )
                 data.sync_data(
                     options=['-z', '-a']

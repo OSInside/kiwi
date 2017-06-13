@@ -237,8 +237,7 @@ class LiveImageBuilder(object):
                 }
             )
             bootloader_config_grub.setup_live_boot_images(
-                mbrid=self.mbrid,
-                lookup_path=self.boot_image_task.boot_root_directory
+                mbrid=self.mbrid, lookup_path=self.root_dir
             )
             bootloader_config_grub.setup_live_image_config(
                 mbrid=self.mbrid

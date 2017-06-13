@@ -14,8 +14,8 @@ from kiwi.exceptions import KiwiConfigFileNotFound
 
 
 class TestBootImageKiwi(object):
-    @patch('kiwi.boot.image.base.mkdtemp')
-    @patch('kiwi.boot.image.base.os.path.exists')
+    @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
+    @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists, mock_mkdtemp):
         mock_machine.return_value = 'x86_64'
@@ -41,7 +41,7 @@ class TestBootImageKiwi(object):
         kiwi.boot.image.builtin_kiwi.Profile = mock.Mock(
             return_value=self.profile
         )
-        mock_mkdtemp.return_value = 'boot-directory'
+        mock_mkdtemp.return_value = 'boot-root-directory'
         self.boot_image = BootImageKiwi(
             self.xml_state, 'some-target-dir'
         )
@@ -104,7 +104,7 @@ class TestBootImageKiwi(object):
         mock_compress.return_value = compress
         self.boot_image.create_initrd(mbrid)
         mock_sync.assert_called_once_with(
-            'boot-directory/', 'temp-boot-directory'
+            'boot-root-directory/', 'temp-boot-directory'
         )
         data.sync_data.assert_called_once_with(options=['-z', '-a'])
         mock_cpio.assert_called_once_with(
@@ -132,3 +132,10 @@ class TestBootImageKiwi(object):
             ]
         )
         compress.xz.assert_called_once_with()
+
+    @patch('kiwi.boot.image.base.Path.wipe')
+    @patch('os.path.exists')
+    def test_destructor(self, mock_path, mock_wipe):
+        mock_path.return_value = True
+        self.boot_image.__del__()
+        mock_wipe.assert_called_once_with('boot-root-directory')

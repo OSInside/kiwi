@@ -18,7 +18,6 @@
 import os
 import platform
 import pickle
-from tempfile import mkdtemp
 
 # project
 from kiwi.defaults import Defaults
@@ -67,15 +66,7 @@ class BootImageBase(object):
         self.temp_directories = []
         self.call_destructor = True
         self.signing_keys = signing_keys
-
         self.boot_root_directory = root_dir
-        if not self.boot_root_directory:
-            self.boot_root_directory = mkdtemp(
-                prefix='kiwi_boot_root.', dir=self.target_dir
-            )
-            self.temp_directories.append(
-                self.boot_root_directory
-            )
 
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
@@ -90,6 +81,15 @@ class BootImageBase(object):
                 '.initrd'
             ]
         )
+        self.post_init()
+
+    def post_init(self):
+        """
+        Post initialization method
+
+        Implementation in specialized boot image class
+        """
+        pass
 
     def dump(self, filename):
         """
