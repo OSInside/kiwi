@@ -115,7 +115,8 @@ class SystemSetup(object):
         imageinclude attribute should be permanently added to
         the image repository configuration
         """
-        repository_sections = self.xml_state.get_image_repository_sections()
+        repository_sections = \
+            self.xml_state.get_repository_sections_used_in_image()
         root = RootInit(
             root_dir=self.root_dir, allow_existing=True
         )

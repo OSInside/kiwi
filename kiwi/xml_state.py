@@ -1163,7 +1163,7 @@ class XMLState(object):
             repo.get_imageonly()
         ))
 
-    def get_build_repository_sections(self):
+    def get_repository_sections_used_for_build(self):
         """
         List the repositorys sections used to build the image matching
         configured profiles.
@@ -1176,7 +1176,7 @@ class XMLState(object):
             repo for repo in repos if not repo.get_imageonly()
         )
 
-    def get_image_repository_sections(self):
+    def get_repository_sections_used_in_image(self):
         """
         List the repositorys sections to be configured in the resulting
         image matching configured profiles.

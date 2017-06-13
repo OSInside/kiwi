@@ -99,7 +99,8 @@ class SystemPrepare(object):
         :rtype: PackageManager
         """
         repository_options = []
-        repository_sections = self.xml_state.get_build_repository_sections()
+        repository_sections = \
+            self.xml_state.get_repository_sections_used_for_build()
         package_manager = self.xml_state.get_package_manager()
         if self.xml_state.get_rpm_check_signatures():
             repository_options.append('check_signatures')
