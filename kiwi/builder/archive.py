@@ -36,29 +36,14 @@ class ArchiveBuilder(object):
 
     Attributes
 
-    * :attr:`root_dir`
-        root directory path name
+    * :attr:`xml_state`
+        Instance of XMLState
 
     * :attr:`target_dir`
         target directory path name
 
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`requested_archive_type`
-        Configured archive type
-
-    * :attr:`result`
-        Instance of Result
-
-    * :attr:`system_setup`
-        Instance of SystemSetup
-
-    * :attr:`filename`
-        File name of the archive file
-
-    * :attr:`checksum`
-        File name of the checksum file
+    * :attr:`root_dir`
+        root directory path name
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.root_dir = root_dir

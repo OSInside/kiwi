@@ -40,38 +40,18 @@ class PxeBuilder(object):
 
     Attributes
 
+    * :attr:`xml_state`
+        Instance of XMLState
+
     * :attr:`target_dir`
-        target directory path name
+        Target directory path name
 
-    * :attr:`compressed`
-        Request to XZ compress filesystem image
+    * :attr:`root_dir`
+        System image root directory
 
-    * :attr:`machine`
-        Configured build type machine section
-
-    * :attr:`pxedeploy`
-        Configured build type pxedeploy section
-
-    * :attr:`filesystem`
-        Instance of FileSystemBuilder
-
-    * :attr:`system_setup`
-        Instance of SystemSetup
-
-    * :attr:`boot_image_task`
-        Instance of BootImage
-
-    * :attr:`image_name`
-        File name of the filesystem image
-
-    * :attr:`kernel_filename`
-        File name of the kernel image
-
-    * :attr:`hypervisor_filename`
-        File name of the hypervisor image
-
-    * :attr:`result`
-        Instance of Result
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * signing_keys: list of package signing keys
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.target_dir = target_dir
