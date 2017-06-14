@@ -82,7 +82,7 @@ class TestPxeBuilder(object):
         mock_rename.assert_called_once_with(
             'myimage.fs', 'myimage'
         )
-        compress.xz.assert_called_once_with()
+        compress.xz.assert_called_once_with(None)
         checksum.md5.assert_called_once_with('compressed-file-name.md5')
         self.boot_image_task.prepare.assert_called_once_with()
         self.setup.export_modprobe_setup.assert_called_once_with(

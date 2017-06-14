@@ -73,6 +73,7 @@ class DiskBuilder(object):
     * :attr:`custom_args`
         Custom processing arguments defined as hash keys:
         * signing_keys: list of package signing keys
+        * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = platform.machine()
@@ -117,7 +118,7 @@ class DiskBuilder(object):
 
         self.boot_image = BootImage(
             xml_state, target_dir, root_dir,
-            signing_keys=self.signing_keys
+            signing_keys=self.signing_keys, custom_args=self.custom_args
         )
         self.firmware = FirmWare(
             xml_state
@@ -469,7 +470,7 @@ class DiskBuilder(object):
         if self.install_media:
             install_image = InstallImageBuilder(
                 self.xml_state, self.root_dir, self.target_dir,
-                self._load_boot_image_instance()
+                self._load_boot_image_instance(), self.custom_args
             )
 
             if self.install_iso or self.install_stick:

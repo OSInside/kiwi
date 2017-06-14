@@ -23,7 +23,7 @@ class TestBootImage(object):
         self.xml_state.build_type.get_initrd_system.return_value = None
         BootImage(self.xml_state, 'target_dir')
         mock_kiwi.assert_called_once_with(
-            self.xml_state, 'target_dir', None, None
+            self.xml_state, 'target_dir', None, None, None
         )
 
     @patch('kiwi.boot.image.BootImageKiwi')
@@ -31,7 +31,7 @@ class TestBootImage(object):
         self.xml_state.build_type.get_initrd_system.return_value = 'kiwi'
         BootImage(self.xml_state, 'target_dir')
         mock_kiwi.assert_called_once_with(
-            self.xml_state, 'target_dir', None, None
+            self.xml_state, 'target_dir', None, None, None
         )
 
     @patch('kiwi.boot.image.BootImageDracut')

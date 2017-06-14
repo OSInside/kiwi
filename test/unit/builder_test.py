@@ -62,7 +62,7 @@ class TestImageBuilder(object):
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
-            xml_state, 'target_dir', 'root_dir'
+            xml_state, 'target_dir', 'root_dir', None
         )
 
     @patch('kiwi.builder.ContainerBuilder')
@@ -73,7 +73,7 @@ class TestImageBuilder(object):
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
-            xml_state, 'target_dir', 'root_dir'
+            xml_state, 'target_dir', 'root_dir', None
         )
 
     @raises(KiwiRequestedTypeError)

@@ -53,11 +53,11 @@ class ImageBuilder(object):
             )
         elif requested_image_type in Defaults.get_archive_image_types():
             return ArchiveBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         elif requested_image_type in Defaults.get_container_image_types():
             return ContainerBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         else:
             raise KiwiRequestedTypeError(

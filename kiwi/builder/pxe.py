@@ -52,6 +52,7 @@ class PxeBuilder(object):
     * :attr:`custom_args`
         Custom processing arguments defined as hash keys:
         * signing_keys: list of package signing keys
+        * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.target_dir = target_dir
@@ -65,12 +66,15 @@ class PxeBuilder(object):
             xml_state=xml_state, root_dir=root_dir
         )
 
-        boot_signing_keys = None
-        if custom_args and 'signing_keys' in custom_args:
-            boot_signing_keys = custom_args['signing_keys']
+        self.boot_signing_keys = custom_args['signing_keys'] if custom_args \
+            and 'signing_keys' in custom_args else None
+
+        self.xz_options = custom_args['xz_options'] if custom_args \
+            and 'xz_options' in custom_args else None
 
         self.boot_image_task = BootImage(
-            xml_state, target_dir, signing_keys=boot_signing_keys
+            xml_state, target_dir,
+            signing_keys=self.boot_signing_keys, custom_args=custom_args
         )
         self.image_name = ''.join(
             [
@@ -105,7 +109,7 @@ class PxeBuilder(object):
         if self.compressed:
             log.info('xz compressing root filesystem image')
             compress = Compress(self.image)
-            compress.xz()
+            compress.xz(self.xz_options)
             self.image = compress.compressed_filename
 
         log.info('Creating PXE root filesystem MD5 checksum')

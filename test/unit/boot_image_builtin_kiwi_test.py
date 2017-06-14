@@ -131,7 +131,7 @@ class TestBootImageKiwi(object):
                 '/usr/share/doc', '/usr/share/man', '/home', '/media', '/srv'
             ]
         )
-        compress.xz.assert_called_once_with()
+        compress.xz.assert_called_once_with(None)
 
     @patch('kiwi.boot.image.base.Path.wipe')
     @patch('os.path.exists')
