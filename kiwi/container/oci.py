@@ -37,7 +37,18 @@ class ContainerImageOCI(object):
         root directory path name
 
     * :attr:`custom_args`
-        representation of the containerconfig and its subsections
+        Custom processing arguments defined as hash keys:
+        * container_name: container name
+        * container_tag: container tag name
+        * entry_command: container entry command
+        * entry_subcommand: container subcommands
+        * maintainer: container maintainer
+        * user: container user
+        * workingdir: container working directory
+        * expose_ports: ports to expose from container
+        * volumes: storage volumes to attach to container
+        * environment: environment variables
+        * labels: container labels
     """
     def __init__(self, root_dir, custom_args=None):
         self.root_dir = root_dir

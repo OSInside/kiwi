@@ -44,52 +44,17 @@ class InstallImageBuilder(object):
 
     Attributes
 
-    * :attr:`arch`
-        platform.machine
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`root_dir`
+        systemi image root directory
 
     * :attr:`target_dir`
         target directory path name
 
-    * :attr:`machine`
-        Configured build type machine section
-
-    * :attr:`boot_image`
+    * :attr:`boot_image_task`
         Instance of BootImage
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`diskname`
-        File name of the disk image
-
-    * :attr:`isoname`
-        File name of the install ISO image
-
-    * :attr:`pxename`
-        File name of the install PXE archive
-
-    * :attr:`squashed_diskname`
-        File name of the squahsfs compressed disk image
-
-    * :attr:`md5name`
-        File name of the disk checksum file
-
-    * :attr:`mbrid`
-        Instance of SystemIdentifier
-
-    * :attr:`media_dir`
-        Temporary directory to collect the install ISO contents
-
-    * :attr:`pxe_dir`
-        Temporary directory to collect the PXE install Archive contents
-
-    * :attr:`squashed_contents`
-        Temporary directory to collect the contents of the squashfs
-        compressed disk image. These are the disk image file itself
-        and the checksum file
-
-    * :attr:`custom_iso_args`
-        Additional custom ISO creation arguments
     """
     def __init__(self, xml_state, root_dir, target_dir, boot_image_task):
         self.arch = platform.machine()

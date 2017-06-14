@@ -36,6 +36,10 @@ class BootImageKiwi(BootImageBase):
     The kiwi initrd is a customized first boot initrd which allows
     to control the first boot an appliance. The kiwi initrd replaces
     itself after first boot by the result of dracut.
+
+    Attributes
+
+    Inherited from BootImageBase
     """
     def post_init(self):
         """

@@ -45,15 +45,11 @@ class BootImageBase(object):
     * :attr:`target_dir`
         target dir to store the initrd
 
-    * :attr:`initrd_filename`
-        initrd file name
+    * :attr:`root_dir`
+        system image root directory
 
-    * :attr:`temp_boot_root_directory`
-        temporary directory to create the initrd system
-
-    * :attr:`boot_xml_state`
-        Instance of XMLState of the boot image description
-
+    * :attr:`signing_keys`
+        list of package signing keys
     """
     def __init__(
         self, xml_state, target_dir, root_dir=None, signing_keys=None
