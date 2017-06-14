@@ -221,8 +221,7 @@ class SystemPrepareTask(CliTask):
         del manager
 
         # setup permanent image repositories after cleanup
-        if self.xml_state.has_repositories_marked_as_imageinclude():
-            setup.import_repositories_marked_as_imageinclude()
+        setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
 
         # make sure system instance is cleaned up now

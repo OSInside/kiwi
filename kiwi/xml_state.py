@@ -1150,19 +1150,6 @@ class XMLState(object):
             self.xml_data.get_repository()
         )
 
-    def has_repositories_marked_as_imageinclude(self):
-        """
-        Return true if has one or more repository section
-        marked as imageinclude.
-
-        :rtype: bool
-        """
-        repos = self.get_repository_sections()
-        return bool(list(
-            repo for repo in repos if repo.get_imageinclude() or
-            repo.get_imageonly()
-        ))
-
     def get_repository_sections_used_for_build(self):
         """
         List the repositorys sections used to build the image matching
