@@ -111,6 +111,7 @@ Requires:       python-lxml
 Requires:       python-xattr
 Requires:       python-six
 Requires:       python-future
+Requires:       python-PyYAML
 Requires(post): update-alternatives
 Requires(postun): update-alternatives
 # tools used by kiwi
@@ -171,6 +172,7 @@ Requires:       python3-lxml
 Requires:       python3-xattr
 Requires:       python3-six
 Requires:       python3-future
+Requires:       python3-PyYAML
 Requires(post): update-alternatives
 Requires(postun): update-alternatives
 # tools used by kiwi
