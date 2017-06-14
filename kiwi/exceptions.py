@@ -579,6 +579,13 @@ class KiwiRpmDirNotRemoteError(KiwiError):
     """
 
 
+class KiwiRuntimeConfigFormatError(KiwiError):
+    """
+    Exception raised if the expected format in the yaml KIWI
+    runtime config file does not match
+    """
+
+
 class KiwiRuntimeError(KiwiError):
     """
     Exception raised if a runtime check has failed.
