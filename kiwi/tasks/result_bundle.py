@@ -31,11 +31,9 @@ commands:
 options:
     --bundle-dir=<directory>
         directory to store the bundle results
-
     --id=<bundle_id>
         the bundle id. A free form text appended to the version
         information of the result image filename
-
     --target-dir=<directory>
         the target directory to expect image build results
 """

@@ -74,10 +74,10 @@ options:
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
-    --target-dir=<directory>
-        the target directory to store the system image file(s)
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
+    --target-dir=<directory>
+        the target directory to store the system image file(s)
 """
 import os
 
