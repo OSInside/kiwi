@@ -72,6 +72,7 @@ class DiskBuilder(object):
 
     * :attr:`custom_args`
         Custom processing arguments defined as hash keys:
+        * signing_keys: list of package signing keys
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = platform.machine()
