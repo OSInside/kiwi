@@ -124,6 +124,22 @@ EXAMPLE
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
 
+RUNTIME CONFIG FILE
+-------------------
+
+To control custom paramters of the tool chain used by KIWI a user
+specific configuration file can be provided as:
+
+:file:`~/.config/kiwi/config.yml`
+
+The contents of the file is in YAML format and supports the following
+setup parameters:
+
+.. code-block:: yaml
+
+   xz:
+    - options: XZ-compression-options
+
 COMPATIBILITY
 -------------
 
