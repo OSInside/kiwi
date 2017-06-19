@@ -50,9 +50,13 @@ class TestCliTask(object):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
 
     @patch('kiwi.tasks.base.RuntimeChecker')
-    def test_load_xml_description(self, mock_runtime_checker):
+    @patch('kiwi.tasks.base.RuntimeConfig')
+    def test_load_xml_description(
+        self, mock_runtime_config, mock_runtime_checker
+    ):
         self.task.load_xml_description('../data/description')
         mock_runtime_checker.assert_called_once_with(self.task.xml_state)
+        mock_runtime_config.assert_called_once_with()
         assert self.task.config_file == '../data/description/config.xml'
         assert isinstance(self.task.xml_data, kiwi.xml_parse.image)
         assert self.task.xml_state.profiles == ['vmxFlavour']

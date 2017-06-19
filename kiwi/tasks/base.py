@@ -24,6 +24,7 @@ from kiwi.cli import Cli
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiConfigFileNotFound
@@ -51,6 +52,9 @@ class CliTask(object):
 
         # initialize runtime checker
         self.runtime_checker = None
+
+        # initialize runtime configuration
+        self.runtime_config = None
 
         # help requested
         self.cli.show_and_exit_on_help_request()
@@ -138,6 +142,7 @@ class CliTask(object):
             )
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def quadruple_token(self, option):
         """
