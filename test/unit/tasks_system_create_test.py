@@ -32,6 +32,11 @@ class TestSystemCreateTask(object):
             return_value=self.runtime_checker
         )
 
+        self.runtime_config = mock.Mock()
+        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
+
         self.setup = mock.Mock()
         kiwi.tasks.system_create.SystemSetup = mock.Mock(
             return_value=self.setup

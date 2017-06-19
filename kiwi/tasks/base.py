@@ -24,6 +24,7 @@ from kiwi.cli import Cli
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiConfigFileNotFound
@@ -37,20 +38,12 @@ class CliTask(object):
 
     Attributes
 
-    * :attr:`cli`
-        Instance of Cli
-
-    * :attr:`task`
-        Instance of imported task class
-
-    * :attr:`command_args`
-        command specific docopt arguments dictionary
-
-    * :attr:`global_args`
-        global docopt arguments dictionary
-
-    * :attr:`runtime_checker`
-        Instance of RuntimeChecker
+    * :attr:`should_perform_task_setup`
+        Indicates if the task should perform the setup steps
+        which covers the following task configurations:
+        * setup debug level
+        * setup logfile
+        * setup color output
     """
     def __init__(self, should_perform_task_setup=True):
         from ..logger import log
@@ -59,6 +52,9 @@ class CliTask(object):
 
         # initialize runtime checker
         self.runtime_checker = None
+
+        # initialize runtime configuration
+        self.runtime_config = None
 
         # help requested
         self.cli.show_and_exit_on_help_request()
@@ -146,6 +142,7 @@ class CliTask(object):
             )
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def quadruple_token(self, option):
         """

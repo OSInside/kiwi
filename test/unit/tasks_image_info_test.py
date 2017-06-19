@@ -43,6 +43,10 @@ class TestImageInfoTask(object):
         kiwi.tasks.base.RuntimeChecker = mock.Mock(
             return_value=self.runtime_checker
         )
+        self.runtime_config = mock.Mock()
+        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
         self.solver = mock.MagicMock()
         self.solver.solve = mock.Mock(
             return_value={
