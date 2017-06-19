@@ -17,4 +17,4 @@ class TestRuntimeConfig(object):
         self.runtime_config.get_xz_options()
 
     def test_get_xz_options(self):
-        assert self.runtime_config.get_xz_options() == '-a -b xxx'
+        assert self.runtime_config.get_xz_options() == ['-a', '-b', 'xxx']

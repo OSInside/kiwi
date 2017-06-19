@@ -49,7 +49,7 @@ class RuntimeConfig(object):
     def get_xz_options(self):
         if self.config_data and 'xz' in self.config_data:
             try:
-                return self.config_data['xz'][0]['options']
+                return self.config_data['xz'][0]['options'].split()
             except Exception as e:
                 raise KiwiRuntimeConfigFormatError(
                     '{error_type}: {error_text}'.format(
