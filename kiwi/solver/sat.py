@@ -67,7 +67,7 @@ class Sat(object):
         self.pool.addfileprovides()
         self.pool.createwhatprovides()
 
-    def solve(self, job_names, skip_missing=False):
+    def solve(self, job_names, skip_missing=False, ignore_recommended=True):
         """
         Solve dependencies for the given job list. The list is allowd
         to contain element names of the following format:
@@ -87,11 +87,15 @@ class Sat(object):
 
         :param list job_names: list of strings
         :param bool skip_missing: skip job if not found
+        :param bool ignore_recommended: do not include recommended packages
 
         :rtype: dict
         :return: Transaction result information
         """
         solver = self.pool.Solver()
+        if ignore_recommended:
+            solver.set_flag(self.solv.Solver.SOLVER_FLAG_IGNORE_RECOMMENDED, 1)
+
         solver_problems = solver.solve(
             self._setup_jobs(job_names, skip_missing)
         )
