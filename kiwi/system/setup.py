@@ -353,6 +353,27 @@ class SystemSetup(object):
                         home_path
                     )
 
+    def setup_plymouth_splash(self):
+        """
+        Setup the KIWI configured splash theme as default
+
+        The method uses the plymouth-set-default-theme tool to setup the
+        theme for the plymouth splash system. Only in case the tool could
+        be found in the image root, it is assumed plymouth splash is in
+        use and the tool is called in a chroot operation
+        """
+        chroot_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
+        }
+        theme_setup = 'plymouth-set-default-theme'
+        if Path.which(filename=theme_setup, custom_env=chroot_env):
+            for preferences in self.xml_state.get_preferences_sections():
+                splash_theme = preferences.get_bootsplash_theme()
+                if splash_theme:
+                    Command.run(
+                        ['chroot', self.root_dir, theme_setup, splash_theme]
+                    )
+
     def import_image_identifier(self):
         """
         Create etc/ImageID identifier file

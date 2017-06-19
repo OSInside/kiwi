@@ -405,6 +405,26 @@ class TestSystemSetup(object):
         ]
         users.user_modify.assert_has_calls(calls)
 
+    @patch('kiwi.system.setup.Path.which')
+    @patch('kiwi.system.setup.Command.run')
+    def test_setup_plymouth_splash(self, mock_command, mock_which):
+        mock_which.return_value = 'plymouth-set-default-theme'
+        preferences = mock.Mock()
+        preferences.get_bootsplash_theme = mock.Mock(
+            return_value='some-theme'
+        )
+        self.xml_state.get_preferences_sections = mock.Mock(
+            return_value=[preferences]
+        )
+        self.setup.setup_plymouth_splash()
+        mock_which.assert_called_once_with(
+            custom_env={'PATH': 'root_dir/usr/sbin'},
+            filename='plymouth-set-default-theme'
+        )
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', 'plymouth-set-default-theme', 'some-theme']
+        )
+
     @patch_open
     @patch('os.path.exists')
     def test_import_image_identifier(self, mock_os_path, mock_open):
