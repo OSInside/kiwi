@@ -63,6 +63,13 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_xz_compression_options(self):
+        return [
+            '--check=crc32',
+            '--lzma2=dict=512KiB'
+        ]
+
+    @classmethod
     def is_obs_worker(self):
         # the presence of /.buildenv on the build host indicates
         # we are building inside of the open buildservice

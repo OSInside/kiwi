@@ -20,6 +20,7 @@ from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiFileNotFound,
@@ -61,14 +62,14 @@ class Compress(object):
         self.compressed_filename = None
         self.uncompressed_filename = None
 
-    def xz(self):
+    def xz(self, options=None):
         """
         Create XZ compressed file
+
+        :param list options: custom xz compression options
         """
-        options = [
-            '--check=crc32',
-            '--lzma2=dict=512KiB'
-        ]
+        if not options:
+            options = Defaults.get_xz_compression_options()
         if self.keep_source:
             options.append('--keep')
         Command.run(
