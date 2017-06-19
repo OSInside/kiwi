@@ -121,9 +121,32 @@ class TestArchiveTar(object):
         self.archive.create_xz_compressed('source-dir')
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir',
-                '--xattrs', '--xattrs-include=*',
-                '-c', '-J', '-f', 'foo.tar.xz', 'foo', 'bar'
+                'bash', '-c',
+                ' '.join([
+                    'tar', '-C', 'source-dir', '--xattrs',
+                    '--xattrs-include=*', '-c', '--to-stdout',
+                    'foo', 'bar', '|', 'xz', '-f', '--check=crc32',
+                    '--lzma2=dict=512KiB', '>', 'foo.tar.xz'
+                ])
+            ]
+        )
+
+    @patch('kiwi.archive.tar.Command.run')
+    @patch('os.listdir')
+    def test_create_xz_compressed_with_custom_xz_options(
+        self, mock_os_dir, mock_command
+    ):
+        mock_os_dir.return_value = ['foo', 'bar']
+        self.archive.create_xz_compressed('source-dir', xz_options=['-a', '-b'])
+        mock_command.assert_called_once_with(
+            [
+                'bash', '-c',
+                ' '.join([
+                    'tar', '-C', 'source-dir', '--xattrs',
+                    '--xattrs-include=*', '-c', '--to-stdout',
+                    'foo', 'bar', '|', 'xz', '-f', '-a', '-b',
+                    '>', 'foo.tar.xz'
+                ])
             ]
         )
 

@@ -20,6 +20,7 @@ import os
 # project
 from kiwi.command import Command
 from kiwi.exceptions import KiwiArchiveTarError
+from kiwi.defaults import Defaults
 
 
 class ArchiveTar(object):
@@ -92,24 +93,31 @@ class ArchiveTar(object):
             self.xattrs_options + files_to_append
         )
 
-    def create_xz_compressed(self, source_dir, exclude=None, options=None):
+    def create_xz_compressed(
+        self, source_dir, exclude=None, options=None, xz_options=None
+    ):
         """
         Create XZ compressed tar archive
 
         :param string source_dir: data source directory
         :param list exclude: list of excluded items
-        :param list options: custom creation options
+        :param list options: custom tar creation options
+        :param list xz_options: custom xz compression options
         """
         if not options:
             options = []
-        Command.run(
-            [
-                'tar', '-C', source_dir
-            ] + options +
-            self.xattrs_options + [
-                '-c', '-J', '-f', self.filename + '.xz'
-            ] + self._get_archive_items(source_dir, exclude)
-        )
+        if not xz_options:
+            xz_options = Defaults.get_xz_compression_options()
+        bash_command = [
+            'tar', '-C', source_dir
+        ] + options + self.xattrs_options + [
+            '-c', '--to-stdout'
+        ] + self._get_archive_items(source_dir, exclude) + [
+            '|', 'xz', '-f'
+        ] + xz_options + [
+            '>', self.filename + '.xz'
+        ]
+        Command.run(['bash', '-c', ' '.join(bash_command)])
 
     def create_gnu_gzip_compressed(self, source_dir, exclude=None):
         """
