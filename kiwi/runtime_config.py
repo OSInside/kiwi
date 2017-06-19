@@ -47,9 +47,12 @@ class RuntimeConfig(object):
                 self.config_data = yaml.load(config)
 
     def get_xz_options(self):
-        if self.config_data and 'xz' in self.config_data:
+        return self._get_attribute_list(element='xz', attribute='options')
+
+    def _get_attribute_list(self, element, attribute):
+        if self.config_data and element in self.config_data:
             try:
-                return self.config_data['xz'][0]['options'].split()
+                return self.config_data[element][0][attribute].split()
             except Exception as e:
                 raise KiwiRuntimeConfigFormatError(
                     '{error_type}: {error_text}'.format(
