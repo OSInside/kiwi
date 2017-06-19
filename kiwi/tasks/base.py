@@ -37,20 +37,12 @@ class CliTask(object):
 
     Attributes
 
-    * :attr:`cli`
-        Instance of Cli
-
-    * :attr:`task`
-        Instance of imported task class
-
-    * :attr:`command_args`
-        command specific docopt arguments dictionary
-
-    * :attr:`global_args`
-        global docopt arguments dictionary
-
-    * :attr:`runtime_checker`
-        Instance of RuntimeChecker
+    * :attr:`should_perform_task_setup`
+        Indicates if the task should perform the setup steps
+        which covers the following task configurations:
+        * setup debug level
+        * setup logfile
+        * setup color output
     """
     def __init__(self, should_perform_task_setup=True):
         from ..logger import log
