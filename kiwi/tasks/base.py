@@ -54,7 +54,7 @@ class CliTask(object):
         self.runtime_checker = None
 
         # initialize runtime configuration
-        self.runtime_config = None
+        self.runtime_config = RuntimeConfig()
 
         # help requested
         self.cli.show_and_exit_on_help_request()
@@ -142,7 +142,6 @@ class CliTask(object):
             )
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
-        self.runtime_config = RuntimeConfig()
 
     def quadruple_token(self, option):
         """
