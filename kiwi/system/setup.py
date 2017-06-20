@@ -368,8 +368,9 @@ class SystemSetup(object):
         theme_setup = 'plymouth-set-default-theme'
         if Path.which(filename=theme_setup, custom_env=chroot_env):
             for preferences in self.xml_state.get_preferences_sections():
-                splash_theme = preferences.get_bootsplash_theme()
-                if splash_theme:
+                splash_section_content = preferences.get_bootsplash_theme()
+                if splash_section_content:
+                    splash_theme = splash_section_content[0]
                     Command.run(
                         ['chroot', self.root_dir, theme_setup, splash_theme]
                     )

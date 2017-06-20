@@ -411,7 +411,7 @@ class TestSystemSetup(object):
         mock_which.return_value = 'plymouth-set-default-theme'
         preferences = mock.Mock()
         preferences.get_bootsplash_theme = mock.Mock(
-            return_value='some-theme'
+            return_value=['some-theme']
         )
         self.xml_state.get_preferences_sections = mock.Mock(
             return_value=[preferences]
