@@ -55,8 +55,15 @@ class InstallImageBuilder(object):
 
     * :attr:`boot_image_task`
         Instance of BootImage
+
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, root_dir, target_dir, boot_image_task):
+    def __init__(
+        self, xml_state, root_dir, target_dir, boot_image_task,
+        custom_args=None
+    ):
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
             self.arch = 'ix86'
@@ -98,6 +105,8 @@ class InstallImageBuilder(object):
         self.md5name = ''.join(
             [xml_state.xml_data.get_name(), '.md5']
         )
+        self.xz_options = custom_args['xz_options'] if custom_args \
+            and 'xz_options' in custom_args else None
 
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
@@ -236,7 +245,7 @@ class InstallImageBuilder(object):
             source_filename=self.diskname,
             keep_source_on_compress=True
         )
-        compress.xz()
+        compress.xz(self.xz_options)
         Command.run(
             ['mv', compress.compressed_filename, pxe_image_filename]
         )
@@ -280,7 +289,7 @@ class InstallImageBuilder(object):
             self.pxename.replace('.xz', '')
         )
         archive.create_xz_compressed(
-            self.pxe_dir
+            self.pxe_dir, xz_options=self.xz_options
         )
 
     def _create_pxe_install_kernel_and_initrd(self):

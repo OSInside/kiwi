@@ -58,6 +58,7 @@ class LiveImageBuilder(object):
     * :attr:`custom_args`
         Custom processing arguments defined as hash keys:
         * signing_keys: list of package signing keys
+        * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.media_dir = None
@@ -86,7 +87,8 @@ class LiveImageBuilder(object):
             boot_signing_keys = custom_args['signing_keys']
 
         self.boot_image_task = BootImage(
-            xml_state, target_dir, signing_keys=boot_signing_keys
+            xml_state, target_dir,
+            signing_keys=boot_signing_keys, custom_args=custom_args
         )
         self.firmware = FirmWare(
             xml_state

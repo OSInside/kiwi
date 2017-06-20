@@ -44,8 +44,12 @@ class ArchiveBuilder(object):
 
     * :attr:`root_dir`
         root directory path name
+
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -56,6 +60,8 @@ class ArchiveBuilder(object):
         )
         self.filename = self._target_file_for('tar.xz')
         self.checksum = self._target_file_for('md5')
+        self.xz_options = custom_args['xz_options'] if custom_args \
+            and 'xz_options' in custom_args else None
 
     def create(self):
         """
@@ -78,7 +84,9 @@ class ArchiveBuilder(object):
             archive = ArchiveTar(
                 self._target_file_for('tar')
             )
-            archive.create_xz_compressed(self.root_dir)
+            archive.create_xz_compressed(
+                self.root_dir, xz_options=self.xz_options
+            )
             checksum = Checksum(self.filename)
             log.info('--> Creating archive checksum')
             checksum.md5(self.checksum)

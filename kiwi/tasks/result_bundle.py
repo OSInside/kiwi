@@ -120,7 +120,7 @@ class ResultBundleTask(CliTask):
                 if result_file.compress:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
-                    compress.xz()
+                    compress.xz(self.runtime_config.get_xz_options())
                     bundle_file = compress.compressed_filename
                     checksum_file = compress.compressed_filename + '.sha256'
                 if result_file.shasum:

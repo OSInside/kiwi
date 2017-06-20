@@ -43,14 +43,21 @@ class ContainerBuilder(object):
 
     * :attr:`root_dir`
         root directory path name
+
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
         self.base_image = None
         self.base_image_md5 = None
+
+        self.container_config['xz_options'] = custom_args['xz_options'] \
+            if custom_args and 'xz_options' in custom_args else None
 
         if xml_state.get_derived_from_image_uri():
             # The base image is expected to be unpacked by the kiwi

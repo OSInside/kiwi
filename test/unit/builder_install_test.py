@@ -248,7 +248,7 @@ class TestInstallImageBuilder(object):
             keep_source_on_compress=True,
             source_filename='target_dir/result-image.x86_64-1.2.3.raw'
         )
-        compress.xz.assert_called_once_with()
+        compress.xz.assert_called_once_with(None)
         assert mock_command.call_args_list[0] == call(
             ['mv', compress.compressed_filename, 'tmpdir/result-image.xz']
         )
@@ -282,7 +282,7 @@ class TestInstallImageBuilder(object):
             'target_dir/result-image.x86_64-1.2.3.install.tar'
         )
         archive.create_xz_compressed.assert_called_once_with(
-            'tmpdir'
+            'tmpdir', xz_options=None
         )
 
     @patch('kiwi.builder.install.Path.wipe')

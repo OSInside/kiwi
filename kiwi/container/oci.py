@@ -49,12 +49,14 @@ class ContainerImageOCI(object):
         * volumes: storage volumes to attach to container
         * environment: environment variables
         * labels: container labels
+        * xz_options: string of XZ compression parameters
     """
     def __init__(self, root_dir, custom_args=None):
         self.root_dir = root_dir
         self.oci_dir = None
         self.oci_root_dir = None
 
+        self.xz_options = None
         self.container_name = ''
         self.container_tag = 'latest'
         self.entry_command = []
@@ -100,6 +102,9 @@ class ContainerImageOCI(object):
 
             if 'labels' in custom_args:
                 self.labels = custom_args['labels']
+
+            if 'xz_options' in custom_args:
+                self.xz_options = custom_args['xz_options']
 
         if not self.entry_command and not self.entry_subcommand:
             self.entry_subcommand = ['--config.cmd=/bin/bash']
@@ -190,7 +195,9 @@ class ContainerImageOCI(object):
         """
         image_dir = os.sep.join([self.oci_dir, 'umoci_layout'])
         oci_tarfile = ArchiveTar(filename.replace('.xz', ''))
-        oci_tarfile.create_xz_compressed(image_dir)
+        oci_tarfile.create_xz_compressed(
+            image_dir, xz_options=self.xz_options
+        )
 
     def __del__(self):
         if self.oci_dir:

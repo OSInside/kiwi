@@ -62,7 +62,7 @@ class TestArchiveBuilder(object):
             'target_dir/myimage.x86_64-1.2.3.tar'
         )
         archive.create_xz_compressed.assert_called_once_with(
-            'root_dir'
+            'root_dir', xz_options=None
         )
         mock_checksum.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.tar.xz'

@@ -57,4 +57,4 @@ class ContainerImageDocker(ContainerImageOCI):
             ]
         )
         compressor = Compress(docker_tarfile)
-        compressor.xz()
+        compressor.xz(self.xz_options)

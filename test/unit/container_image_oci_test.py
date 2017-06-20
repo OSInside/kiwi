@@ -15,39 +15,53 @@ class TestContainerImageOCI(object):
         )
 
     def test_init_custom_args(self):
-        ContainerImageOCI(
-            'root_dir', {
-                'container_name': 'foo',
-                'container_tag': '1.0',
-                'entry_command': [
-                    "--config.entrypoint=/bin/bash",
-                    "--config.entrypoint=-x"
-                ],
-                'entry_subcommand': [
-                    "--config.cmd=ls",
-                    "--config.cmd=-l"
-                ],
-                'maintainer': ['--author=tux'],
-                'user': ['--config.user=root'],
-                'workingdir': ['--config.workingdir=/root'],
-                'expose_ports': [
-                    "--config.exposedports=80",
-                    "--config.exposedports=42"
-                ],
-                'volumes': [
-                    "--config.volume=/var/log",
-                    "--config.volume=/tmp"
-                ],
-                'environment': [
-                    "--config.env=PATH=/bin'",
-                    "--config.env=FOO=bar"
-                ],
-                'labels': [
-                    "--config.label=a=value",
-                    "--config.label=b=value"
-                ]
-            }
+        custom_args = {
+            'container_name': 'foo',
+            'container_tag': '1.0',
+            'entry_command': [
+                '--config.entrypoint=/bin/bash',
+                '--config.entrypoint=-x'
+            ],
+            'entry_subcommand': [
+                '--config.cmd=ls',
+                '--config.cmd=-l'
+            ],
+            'maintainer': ['--author=tux'],
+            'user': ['--config.user=root'],
+            'workingdir': ['--config.workingdir=/root'],
+            'expose_ports': [
+                '--config.exposedports=80',
+                '--config.exposedports=42'
+            ],
+            'volumes': [
+                '--config.volume=/var/log',
+                '--config.volume=/tmp'
+            ],
+            'environment': [
+                '--config.env=PATH=/bin',
+                '--config.env=FOO=bar'
+            ],
+            'labels': [
+                '--config.label=a=value',
+                '--config.label=b=value'
+            ],
+            'xz_options': ['-a', '-b']
+        }
+        container = ContainerImageOCI(
+            'root_dir', custom_args
         )
+        assert container.container_name == custom_args['container_name']
+        assert container.container_tag == custom_args['container_tag']
+        assert container.entry_command == custom_args['entry_command']
+        assert container.entry_subcommand == custom_args['entry_subcommand']
+        assert container.maintainer == custom_args['maintainer']
+        assert container.user == custom_args['user']
+        assert container.workingdir == custom_args['workingdir']
+        assert container.expose_ports == custom_args['expose_ports']
+        assert container.volumes == custom_args['volumes']
+        assert container.environment == custom_args['environment']
+        assert container.labels == custom_args['labels']
+        assert container.xz_options == custom_args['xz_options']
 
     @patch('kiwi.container.oci.Path.wipe')
     def test_del(self, mock_wipe):

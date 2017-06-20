@@ -97,7 +97,10 @@ class SystemCreateTask(CliTask):
             self.xml_state,
             abs_target_dir_path,
             abs_root_path,
-            custom_args={'signing_keys': self.command_args['--signing-key']}
+            custom_args={
+                'signing_keys': self.command_args['--signing-key'],
+                'xz_options': self.runtime_config.get_xz_options()
+            }
         )
         result = image_builder.create()
         result.print_results()
