@@ -38,6 +38,11 @@ class TestSystemBuildTask(object):
             return_value=self.runtime_checker
         )
 
+        self.runtime_config = mock.Mock()
+        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
+
         kiwi.tasks.system_build.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
@@ -70,6 +75,7 @@ class TestSystemBuildTask(object):
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['build'] = False
+        self.task.command_args['--allow-existing-root'] = True
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
         self.task.command_args['--obs-repo-internal'] = None
@@ -80,6 +86,8 @@ class TestSystemBuildTask(object):
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
+        self.task.command_args['--clear-cache'] = False
+        self.task.command_args['--signing-key'] = None
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build(self, mock_log):
@@ -90,7 +98,7 @@ class TestSystemBuildTask(object):
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(self.abs_target_dir)
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )
@@ -125,7 +133,7 @@ class TestSystemBuildTask(object):
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
         )
@@ -135,7 +143,7 @@ class TestSystemBuildTask(object):
         self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']
         )

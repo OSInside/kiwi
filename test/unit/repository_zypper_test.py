@@ -40,9 +40,31 @@ class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.NamedTemporaryFile')
     @patch_open
-    def test_custom_args_init(self, mock_open, mock_temp, mock_command):
+    def test_custom_args_init_excludedocs(
+        self, mock_open, mock_temp, mock_command
+    ):
         self.repo = RepositoryZypper(self.root_bind)
         assert self.repo.custom_args == []
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.ConfigParser')
+    @patch_open
+    def test_custom_args_init_check_signatures(
+        self, mock_open, mock_config, mock_temp, mock_command
+    ):
+        runtime_zypp_config = mock.Mock()
+        mock_config.return_value = runtime_zypp_config
+        self.repo = RepositoryZypper(self.root_bind, ['check_signatures'])
+        assert self.repo.custom_args == []
+        assert runtime_zypp_config.set.call_args_list == [
+            call(
+                'main',
+                'credentials.global.dir',
+                '../data/shared-dir/zypper/credentials'
+            ),
+            call('main', 'gpgcheck', '1'),
+        ]
 
     @raises(KiwiRepoTypeUnknown)
     @patch('kiwi.command.Command.run')
@@ -52,7 +74,7 @@ class TestRepositoryZypper(object):
     def test_use_default_location(self):
         self.repo.use_default_location()
         assert self.repo.zypper_args == [
-            '--non-interactive', '--no-gpg-checks'
+            '--non-interactive'
         ]
         assert self.repo.shared_zypper_dir['reposd-dir'] == \
             '../data/etc/zypp/repos.d'
@@ -66,10 +88,16 @@ class TestRepositoryZypper(object):
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
+    @patch('kiwi.repository.zypper.ConfigParser')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Path.wipe')
     @patch('os.path.exists')
-    def test_add_repo(self, mock_exists, mock_wipe, mock_command):
+    @patch_open
+    def test_add_repo(
+        self, mock_open, mock_exists, mock_wipe, mock_command, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
         mock_exists.return_value = True
         self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
         mock_wipe.assert_called_once_with(
@@ -91,16 +119,78 @@ class TestRepositoryZypper(object):
                     'foo'
                 ], self.repo.command_env
             ),
+            call([
+                'mv', '-f',
+                '/shared-dir/packages.moved', '/shared-dir/packages'
+            ])
+        ]
+        repo_config.read.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
+        )
+        repo_config.set.assert_called_once_with(
+            'foo', 'priority', '42'
+        )
+        mock_open.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo', 'w'
+        )
+
+    @patch('kiwi.repository.zypper.ConfigParser')
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Path.wipe')
+    @patch('os.path.exists')
+    @patch_open
+    def test_add_repo_with_gpgchecks(
+        self, mock_open, mock_exists, mock_wipe, mock_command, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
+        mock_exists.return_value = True
+        self.repo.add_repo(
+            'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+            repo_gpgcheck=False, pkg_gpgcheck=True
+        )
+        mock_wipe.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
+        )
+        assert mock_command.call_args_list == [
+            call([
+                'mv', '-f',
+                '/shared-dir/packages', '/shared-dir/packages.moved'
+            ]),
             call(
                 ['zypper'] + self.repo.zypper_args + [
                     '--root', '../data',
-                    'modifyrepo', '--priority', '42', 'foo'
+                    'addrepo', '--refresh',
+                    '--type', 'YUM',
+                    '--keep-packages',
+                    '-C',
+                    'kiwi_iso_mount/uri',
+                    'foo'
                 ], self.repo.command_env
             ),
             call([
                 'mv', '-f',
                 '/shared-dir/packages.moved', '/shared-dir/packages'
             ])
+        ]
+        repo_config.read.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo'
+        )
+        assert repo_config.set.call_args_list == [
+            call('foo', 'repo_gpgcheck', '0'),
+            call('foo', 'pkg_gpgcheck', '1'),
+            call('foo', 'priority', '42')
+        ]
+        mock_open.assert_called_once_with(
+            '../data/shared-dir/zypper/repos/foo.repo', 'w'
+        )
+
+    @patch('kiwi.command.Command.run')
+    def test_import_trusted_keys(self, mock_run):
+        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
+        assert mock_run.call_args_list == [
+            call(['rpm', '--root', '../data', '--import', 'key-file-a.asc']),
+            call(['rpm', '--root', '../data', '--import', 'key-file-b.asc'])
         ]
 
     @patch('kiwi.command.Command.run')
@@ -178,6 +268,15 @@ class TestRepositoryZypper(object):
             call([
                 'mkdir', '-p', '../data/shared-dir/zypper/repos'
             ])
+
+    @patch('kiwi.path.Path.wipe')
+    def test_delete_repo_cache(self, mock_wipe):
+        self.repo.delete_repo_cache('foo')
+        assert mock_wipe.call_args_list == [
+            call('../data/shared-dir/packages/foo'),
+            call('../data/shared-dir/zypper/solv/foo'),
+            call('../data/shared-dir/zypper/raw/foo')
+        ]
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')

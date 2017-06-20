@@ -56,6 +56,7 @@ class RepositoryApt(RepositoryBase):
         """
         self.custom_args = custom_args
         self.exclude_docs = False
+        self.signing_keys = []
         if not custom_args:
             self.custom_args = []
 
@@ -63,6 +64,12 @@ class RepositoryApt(RepositoryBase):
         if 'exclude_docs' in self.custom_args:
             self.custom_args.remove('exclude_docs')
             self.exclude_docs = True
+
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.unauthenticated = 'false'
+        else:
+            self.unauthenticated = 'true'
 
         self.distribution = None
         self.distribution_path = None
@@ -99,10 +106,11 @@ class RepositoryApt(RepositoryBase):
         Setup apt-get repository operations to store all data
         in the default places
         """
+        self.manager_base = os.sep.join([self.root_dir, 'etc/apt'])
         self.shared_apt_get_dir['sources-dir'] = \
-            self.root_dir + '/etc/apt/sources.list.d'
+            os.sep.join([self.manager_base, 'sources.list.d'])
         self.shared_apt_get_dir['preferences-dir'] = \
-            self.root_dir + '/etc/apt/preferences.d'
+            os.sep.join([self.root_dir, 'preferences.d'])
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self):
@@ -119,7 +127,8 @@ class RepositoryApt(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='deb',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add apt_get repository
@@ -133,6 +142,8 @@ class RepositoryApt(RepositoryBase):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param pkg_gpgcheck: unused
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
@@ -144,6 +155,12 @@ class RepositoryApt(RepositoryBase):
         if not components:
             components = 'main'
         with open(list_file, 'w') as repo:
+            if repo_gpgcheck is None:
+                repo_line = 'deb {0}'.format(uri)
+            else:
+                repo_line = 'deb [trusted={0}] {1}'.format(
+                    'no' if repo_gpgcheck else 'yes', uri
+                )
             if not dist:
                 # create a debian flat repository setup. We consider the
                 # repository metadata to exist on the toplevel of the
@@ -151,15 +168,24 @@ class RepositoryApt(RepositoryBase):
                 # service creates debian repositories and should be
                 # done in the same way for other repositories when used
                 # with kiwi
-                repo.write('deb %s ./\n' % uri)
+                repo_line += ' ./\n'
             else:
                 # create a debian distributon repository setup for the
                 # specified distributon name and components
                 self.distribution = dist
                 self.distribution_path = uri
-                repo.write(
-                    'deb %s %s %s\n' % (uri, dist, components)
-                )
+                repo_line += ' {0} {1}\n'.format(dist, components)
+            repo.write(repo_line)
+
+    def import_trusted_keys(self, signing_keys):
+        """
+        Keeps trusted keys so that later on they can be imported into
+        the image by the PackageManager instance.
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            self.signing_keys.append(key)
 
     def delete_repo(self, name):
         """
@@ -177,6 +203,21 @@ class RepositoryApt(RepositoryBase):
         """
         Path.wipe(self.shared_apt_get_dir['sources-dir'])
         Path.create(self.shared_apt_get_dir['sources-dir'])
+
+    def delete_repo_cache(self, name):
+        """
+        Delete apt-get repository cache
+
+        Apt stores the package cache in a collection of binary files
+        and deb archives. As of now I couldn't came across a solution
+        which allows for deleting only the cache data for a specific
+        repository. Thus the repo cache cleanup affects all cache
+        data
+
+        :param string name: unused
+        """
+        for cache_file in ['archives', 'pkgcache.bin', 'srcpkgcache.bin']:
+            Path.wipe(os.sep.join([self.manager_base, cache_file]))
 
     def cleanup_unused_repos(self):
         """
@@ -200,15 +241,16 @@ class RepositoryApt(RepositoryBase):
         )
 
     def _write_runtime_config(self, system_default=False):
+        parameters = {
+            'apt_shared_base': self.manager_base,
+            'unauthenticated': self.unauthenticated
+        }
         if not system_default:
-            parameters = {
-                'apt_shared_base': self.manager_base
-            }
             template = self.apt_conf.get_host_template(self.exclude_docs)
             apt_conf_data = template.substitute(parameters)
         else:
             template = self.apt_conf.get_image_template(self.exclude_docs)
-            apt_conf_data = template.substitute()
+            apt_conf_data = template.substitute(parameters)
 
         with open(self.runtime_apt_get_config_file.name, 'w') as config:
             config.write(apt_conf_data)

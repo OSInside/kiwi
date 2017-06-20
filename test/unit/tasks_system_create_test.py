@@ -32,6 +32,11 @@ class TestSystemCreateTask(object):
             return_value=self.runtime_checker
         )
 
+        self.runtime_config = mock.Mock()
+        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
+
         self.setup = mock.Mock()
         kiwi.tasks.system_create.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -57,6 +62,7 @@ class TestSystemCreateTask(object):
         self.task.command_args['create'] = False
         self.task.command_args['--root'] = '../data/root-dir'
         self.task.command_args['--target-dir'] = 'some-target'
+        self.task.command_args['--signing-key'] = ['some-key-file']
 
     def test_process_system_create(self):
         self._init_command_args()

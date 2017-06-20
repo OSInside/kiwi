@@ -17,8 +17,9 @@ class TestCliTask(object):
     @patch('kiwi.cli.Cli.load_command')
     @patch('kiwi.cli.Cli.get_command_args')
     @patch('kiwi.cli.Cli.get_global_args')
+    @patch('kiwi.tasks.base.RuntimeConfig')
     def setup(
-        self, mock_global_args, mock_command_args,
+        self, mock_runtime_config, mock_global_args, mock_command_args,
         mock_load_command, mock_help_check, mock_color,
         mock_setlog, mock_setlevel
     ):
@@ -45,6 +46,7 @@ class TestCliTask(object):
         mock_setlevel.assert_called_once_with(logging.DEBUG)
         mock_setlog.assert_called_once_with('log')
         mock_color.assert_called_once_with()
+        mock_runtime_config.assert_called_once_with()
 
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]

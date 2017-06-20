@@ -16,12 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import glob
 from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
+from kiwi.command import Command
 
 
 class RepositoryDnf(RepositoryBase):
@@ -60,6 +62,12 @@ class RepositoryDnf(RepositoryBase):
         if 'exclude_docs' in self.custom_args:
             self.custom_args.remove('exclude_docs')
             self.exclude_docs = True
+
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.gpg_check = '1'
+        else:
+            self.gpg_check = '0'
 
         self.repo_names = []
 
@@ -118,7 +126,8 @@ class RepositoryDnf(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add dnf repository
@@ -132,6 +141,8 @@ class RepositoryDnf(RepositoryBase):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param bool pkg_gpgcheck: enable package signature validation
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -150,8 +161,25 @@ class RepositoryDnf(RepositoryBase):
             repo_config.set(
                 name, 'priority', format(prio)
             )
+        if repo_gpgcheck is not None:
+            repo_config.set(
+                name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+            )
+        if pkg_gpgcheck is not None:
+            repo_config.set(
+                name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
+            )
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
+
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            Command.run(['rpm', '--root', self.root_dir, '--import', key])
 
     def delete_repo(self, name):
         """
@@ -169,6 +197,24 @@ class RepositoryDnf(RepositoryBase):
         """
         Path.wipe(self.shared_dnf_dir['reposd-dir'])
         Path.create(self.shared_dnf_dir['reposd-dir'])
+
+    def delete_repo_cache(self, name):
+        """
+        Delete dnf repository cache
+
+        The cache data for each repository is stored in a directory
+        and additional files all starting with the repository name.
+        The method glob deletes all files and directories matching
+        the repository name followed by any characters to cleanup
+        the cache information
+
+        :param string name: repository name
+        """
+        dnf_cache_glob_pattern = ''.join(
+            [self.shared_dnf_dir['cache-dir'], os.sep, name, '*']
+        )
+        for dnf_cache_file in glob.iglob(dnf_cache_glob_pattern):
+            Path.wipe(dnf_cache_file)
 
     def cleanup_unused_repos(self):
         """
@@ -224,6 +270,9 @@ class RepositoryDnf(RepositoryBase):
         )
         self.runtime_dnf_config.set(
             'main', 'plugins', '1'
+        )
+        self.runtime_dnf_config.set(
+            'main', 'gpgcheck', self.gpg_check
         )
         if self.exclude_docs:
             self.runtime_dnf_config.set(

@@ -7,6 +7,14 @@ Development and Contributing
    and how you can be part of it. This description applies
    for version |version|.
 
+.. toctree::
+   :maxdepth: 1
+
+   development/kiwi_from_python
+   development/api/kiwi
+   development/schema
+   development/schema_extensions.rst
+
 The core appliance builder is developed in Python and follows the test
 driven development rules.
 
@@ -150,7 +158,7 @@ example runs the test cases for the 3.4 interpreter only:
     $ tox -e 3.4
 
 Create a branch for each feature or bugfix
-==========================================
+------------------------------------------
 
 Congratulation ! you successfully created a KIWI development environment
 and all tests passed. Now it's time to hack on KIWI. Code changes should

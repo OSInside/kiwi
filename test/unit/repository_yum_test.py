@@ -39,6 +39,7 @@ class TestRepositoryYum(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'gpgcheck', '0'),
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat'),
             call('main', 'enabled', '1')
@@ -53,6 +54,14 @@ class TestRepositoryYum(object):
     def test_post_init_no_custom_args(self, mock_path, mock_temp, mock_open):
         self.repo.post_init()
         assert self.repo.custom_args == []
+
+    @patch_open
+    @patch('kiwi.repository.yum.NamedTemporaryFile')
+    @patch('kiwi.repository.yum.Path.create')
+    def test_post_init_with_custom_args(self, mock_path, mock_temp, mock_open):
+        self.repo.post_init(['check_signatures'])
+        assert self.repo.custom_args == []
+        assert self.repo.gpg_check == '1'
 
     @patch_open
     @patch('kiwi.repository.yum.ConfigParser')
@@ -73,6 +82,7 @@ class TestRepositoryYum(object):
             call('main', 'exactarch', '1'),
             call('main', 'obsoletes', '1'),
             call('main', 'plugins', '1'),
+            call('main', 'gpgcheck', '0'),
             call('main', 'metadata_expire', '1800'),
             call('main', 'group_command', 'compat'),
             call('main', 'enabled', '1')
@@ -98,11 +108,48 @@ class TestRepositoryYum(object):
         assert repo_config.set.call_args_list == [
             call('foo', 'name', 'foo'),
             call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+            call('foo', 'enabled', '1'),
             call('foo', 'priority', '42')
         ]
         mock_open.assert_called_once_with(
             '/shared-dir/yum/repos/foo.repo', 'w'
         )
+
+    @patch('kiwi.repository.yum.ConfigParser')
+    @patch('os.path.exists')
+    @patch_open
+    def test_add_repo_with_gpgchecks(
+        self, mock_open, mock_exists, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
+        mock_exists.return_value = True
+
+        self.repo.add_repo(
+            'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+            repo_gpgcheck=False, pkg_gpgcheck=True
+        )
+
+        repo_config.add_section.assert_called_once_with('foo')
+        assert repo_config.set.call_args_list == [
+            call('foo', 'name', 'foo'),
+            call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+            call('foo', 'enabled', '1'),
+            call('foo', 'priority', '42'),
+            call('foo', 'repo_gpgcheck', '0'),
+            call('foo', 'gpgcheck', '1')
+        ]
+        mock_open.assert_called_once_with(
+            '/shared-dir/yum/repos/foo.repo', 'w'
+        )
+
+    @patch('kiwi.command.Command.run')
+    def test_import_trusted_keys(self, mock_run):
+        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
+        assert mock_run.call_args_list == [
+            call(['rpm', '--root', '../data', '--import', 'key-file-a.asc']),
+            call(['rpm', '--root', '../data', '--import', 'key-file-b.asc'])
+        ]
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
@@ -132,4 +179,11 @@ class TestRepositoryYum(object):
         )
         mock_create.assert_called_once_with(
             '/shared-dir/yum/repos'
+        )
+
+    @patch('kiwi.path.Path.wipe')
+    def test_delete_repo_cache(self, mock_wipe):
+        self.repo.delete_repo_cache('foo')
+        mock_wipe.assert_called_once_with(
+            '/shared-dir/yum/cache/foo'
         )

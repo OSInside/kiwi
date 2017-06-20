@@ -18,6 +18,8 @@
 """
 usage: kiwi system build -h | --help
        kiwi system build --description=<directory> --target-dir=<directory>
+           [--allow-existing-root]
+           [--clear-cache]
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
@@ -26,6 +28,7 @@ usage: kiwi system build -h | --help
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
+           [--signing-key=<key-file>...]
        kiwi system build help
 
 commands:
@@ -39,7 +42,15 @@ options:
     --add-package=<name>
         install the given package name
     --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority.
+        add repository with given source, type, alias and priority
+    --allow-existing-root
+        allow to use an existing root directory from an earlier
+        build attempt. Use with caution this could cause an inconsistent
+        root tree if the existing contents does not fit to the
+        former image type setup
+    --clear-cache
+        delete repository cache for each of the used repositories
+        before installing any package
     --delete-package=<name>
         delete the given package name
     --description=<directory>
@@ -63,6 +74,8 @@ options:
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
+    --signing-key=<key-file>
+        includes the key-file as a trusted key for package manager validations
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
@@ -104,8 +117,9 @@ class SystemBuildTask(CliTask):
         abs_target_dir_path = os.path.abspath(
             self.command_args['--target-dir']
         )
-        image_root = os.sep.join([abs_target_dir_path, 'build', 'image-root'])
-        Path.create(image_root)
+        build_dir = os.sep.join([abs_target_dir_path, 'build'])
+        image_root = os.sep.join([build_dir, 'image-root'])
+        Path.create(build_dir)
 
         if not self.global_args['--logfile']:
             log.set_logfile(
@@ -174,9 +188,14 @@ class SystemBuildTask(CliTask):
 
         log.info('Preparing new root system')
         system = SystemPrepare(
-            self.xml_state, image_root, True
+            self.xml_state,
+            image_root,
+            self.command_args['--allow-existing-root']
         )
-        manager = system.setup_repositories()
+        manager = system.setup_repositories(
+            self.command_args['--clear-cache'],
+            self.command_args['--signing-key']
+        )
         system.install_bootstrap(manager)
         system.install_system(
             manager
@@ -217,8 +236,7 @@ class SystemBuildTask(CliTask):
         del manager
 
         # setup permanent image repositories after cleanup
-        if self.xml_state.has_repositories_marked_as_imageinclude():
-            setup.import_repositories_marked_as_imageinclude()
+        setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
 
         # make sure system instance is cleaned up now
@@ -233,7 +251,11 @@ class SystemBuildTask(CliTask):
         image_builder = ImageBuilder(
             self.xml_state,
             abs_target_dir_path,
-            image_root
+            image_root,
+            custom_args={
+                'signing_keys': self.command_args['--signing-key'],
+                'xz_options': self.runtime_config.get_xz_options()
+            }
         )
         result = image_builder.create()
         result.print_results()

@@ -28,6 +28,11 @@ class TestSystemPrepareTask(object):
             return_value=self.runtime_checker
         )
 
+        self.runtime_config = mock.Mock()
+        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
+
         self.system_prepare = mock.Mock()
         kiwi.tasks.system_prepare.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
@@ -69,12 +74,15 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
+        self.task.command_args['--clear-cache'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
+        self.task.command_args['--signing-key'] = None
 
     def test_process_system_prepare(self):
         self._init_command_args()
         self.task.command_args['prepare'] = True
+        self.task.command_args['--clear-cache'] = True
         self.task.process()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
         self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
@@ -82,7 +90,7 @@ class TestSystemPrepareTask(object):
             self.abs_root_dir
         )
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(True, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
         )
@@ -101,6 +109,7 @@ class TestSystemPrepareTask(object):
         self.setup.setup_users.assert_called_once_with()
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
+        self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
 
         self.system_prepare.pinch_system.assert_called_once_with(
@@ -111,7 +120,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
         )
@@ -120,7 +129,7 @@ class TestSystemPrepareTask(object):
         self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with()
+        self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']
         )

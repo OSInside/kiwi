@@ -24,8 +24,12 @@ class TestRepositoryBase(object):
     def test_add_repo(self):
         self.repo.add_repo(
             'name', 'uri', 'type', 'prio', 'dist', ['components'],
-            'user', 'secret', 'credentials-file'
+            'user', 'secret', 'credentials-file', False, False
         )
+
+    @raises(NotImplementedError)
+    def test_import_trusted_keys(self):
+        self.repo.import_trusted_keys(['key-file.asc'])
 
     @raises(NotImplementedError)
     def test_delete_repo(self):
@@ -38,3 +42,7 @@ class TestRepositoryBase(object):
     @raises(NotImplementedError)
     def test_cleanup_unused_repos(self):
         self.repo.cleanup_unused_repos()
+
+    @raises(NotImplementedError)
+    def test_delete_repo_cache(self):
+        self.repo.delete_repo_cache('foo')

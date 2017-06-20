@@ -14,6 +14,9 @@ docopt
 # Powerful and Pythonic XML processing library
 lxml
 
+# YAML file parsing
+PyYAML
+
 # Python wrapper for extended filesystem attributes
 xattr
 

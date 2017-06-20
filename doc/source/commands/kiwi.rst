@@ -1,5 +1,5 @@
-Manual Pages
-============
+kiwi
+====
 
 SYNOPSIS
 --------
@@ -124,19 +124,21 @@ EXAMPLE
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --target-dir /tmp/myimage
 
-SERVICES and COMMANDS
----------------------
+RUNTIME CONFIG FILE
+-------------------
 
-.. toctree::
+To control custom paramters of the tool chain used by KIWI a user
+specific configuration file can be provided as:
 
-   image_resize
-   image_info
-   result_list
-   result_bundle
-   system_prepare
-   system_create
-   system_update
-   system_build
+:file:`~/.config/kiwi/config.yml`
+
+The contents of the file is in YAML format and supports the following
+setup parameters:
+
+.. code-block:: yaml
+
+   xz:
+    - options: XZ-compression-options
 
 COMPATIBILITY
 -------------

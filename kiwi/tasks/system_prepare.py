@@ -19,6 +19,7 @@
 usage: kiwi system prepare -h | --help
        kiwi system prepare --description=<directory> --root=<directory>
            [--allow-existing-root]
+           [--clear-cache]
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
@@ -27,6 +28,7 @@ usage: kiwi system prepare -h | --help
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
+           [--signing-key=<key-file>...]
        kiwi system prepare help
 
 commands:
@@ -40,12 +42,15 @@ options:
         install the given package name
     --add-repo=<source,type,alias,priority>
         add repository with given source, type, alias and priority.
-    --delete-package=<name>
-        delete the given package name
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
         contents does not fit to the additional installation
+    --clear-cache
+        delete repository cache for each of the used repositories
+        before installing any package
+    --delete-package=<name>
+        delete the given package name
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
@@ -69,6 +74,8 @@ options:
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
+     --signing-key=<key-file>
+        includes the key-file as a trusted key for package manager validations
 """
 import os
 
@@ -169,7 +176,10 @@ class SystemPrepareTask(CliTask):
             abs_root_path,
             self.command_args['--allow-existing-root']
         )
-        manager = system.setup_repositories()
+        manager = system.setup_repositories(
+            self.command_args['--clear-cache'],
+            self.command_args['--signing-key']
+        )
         system.install_bootstrap(manager)
         system.install_system(
             manager
@@ -201,6 +211,7 @@ class SystemPrepareTask(CliTask):
         setup.setup_users()
         setup.setup_keyboard_map()
         setup.setup_locale()
+        setup.setup_plymouth_splash()
         setup.setup_timezone()
 
         system.pinch_system(
@@ -211,8 +222,7 @@ class SystemPrepareTask(CliTask):
         del manager
 
         # setup permanent image repositories after cleanup
-        if self.xml_state.has_repositories_marked_as_imageinclude():
-            setup.import_repositories_marked_as_imageinclude()
+        setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
 
         # make sure system instance is cleaned up now

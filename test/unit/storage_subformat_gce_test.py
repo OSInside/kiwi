@@ -65,7 +65,7 @@ class TestDiskFormatGce(object):
         ]
         mock_archive.assert_called_once_with(
             filename='target_dir/distribution-guest-gce-0.8.15.tar',
-            file_list=['disk.raw', 'manifest.json']
+            file_list=['manifest.json', 'disk.raw']
         )
         archive.create_gnu_gzip_compressed.assert_called_once_with(
             'tmpdir'

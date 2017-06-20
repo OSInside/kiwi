@@ -223,6 +223,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         )
         for grubenv in glob.glob(grubenv_glob):
             Path.wipe(grubenv)
+
         # install grub2 boot code
         Command.run(
             [
@@ -238,28 +239,36 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         )
 
         if self.firmware and self.firmware.efi_mode() == 'uefi':
-            self.efi_mount = MountManager(
-                device=self.custom_args['efi_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot/efi'
+            shim_install = self._get_shim_install_tool_name(
+                self.root_mount.mountpoint
             )
-            self.efi_mount.mount()
+            # if shim-install does _not_ exist the fallback mechanism
+            # has applied at the bootloader/config level and we expect
+            # no further tool calls to be required
+            if shim_install:
+                self.efi_mount = MountManager(
+                    device=self.custom_args['efi_device'],
+                    mountpoint=self.root_mount.mountpoint + '/boot/efi'
+                )
+                self.efi_mount.mount()
 
-            # Before we call shim-install, the grub installer binary is
-            # replaced by a noop. Actually there is no reason for shim-install
-            # to call the grub installer because it should only setup the system
-            # for EFI secure boot which does not require any bootloader code
-            # in the master boot record. In addition kiwi has called
-            # the grub installer right before
-            self._disable_grub2_install(self.root_mount.mountpoint)
-            Command.run(
-                [
-                    'chroot', self.root_mount.mountpoint,
-                    'shim-install', '--removable',
-                    self.install_device
-                ]
-            )
-            # restore the grub installer noop
-            self._enable_grub2_install(self.root_mount.mountpoint)
+                # Before we call shim-install, the grub installer binary is
+                # replaced by a noop. Actually there is no reason for
+                # shim-install to call the grub installer because it should
+                # only setup the system for EFI secure boot which does not
+                # require any bootloader code in the master boot record.
+                # In addition kiwi has called the grub installer right
+                # before
+                self._disable_grub2_install(self.root_mount.mountpoint)
+                Command.run(
+                    [
+                        'chroot', self.root_mount.mountpoint,
+                        'shim-install', '--removable',
+                        self.install_device
+                    ]
+                )
+                # restore the grub installer noop
+                self._enable_grub2_install(self.root_mount.mountpoint)
 
     def _disable_grub2_install(self, root_path):
         grub2_install = ''.join(
@@ -297,17 +306,29 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             )
 
     def _get_grub2_install_tool_name(self, root_path):
-        chroot_env = {'PATH': os.sep.join([root_path, 'usr', 'sbin'])}
-        grub2_install_tools = ['grub2-install', 'grub-install']
-        for grub2_install_tool in grub2_install_tools:
-            if Path.which(filename=grub2_install_tool, custom_env=chroot_env):
-                return grub2_install_tool
+        return self._get_tool_name(
+            root_path, lookup_list=['grub2-install', 'grub-install']
+        )
 
-        # no grub installer was found, we intentionally don't
-        # raise here but return the default tool name and raise
-        # an exception at invocation time in order to log the
-        # expected call and its arguments
-        return grub2_install_tools[0]
+    def _get_shim_install_tool_name(self, root_path):
+        return self._get_tool_name(
+            root_path, lookup_list=['shim-install'], fallback_on_not_found=False
+        )
+
+    def _get_tool_name(
+        self, root_path, lookup_list, fallback_on_not_found=True
+    ):
+        chroot_env = {'PATH': os.sep.join([root_path, 'usr', 'sbin'])}
+        for tool in lookup_list:
+            if Path.which(filename=tool, custom_env=chroot_env):
+                return tool
+
+        if fallback_on_not_found:
+            # no tool from the list was found, we intentionally don't
+            # raise here but return the default tool name and raise
+            # an exception at invocation time in order to log the
+            # expected call and its arguments
+            return lookup_list[0]
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

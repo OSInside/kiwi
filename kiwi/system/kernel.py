@@ -145,8 +145,8 @@ class Kernel(object):
             # generated names first
             'vmlinux', 'vmlinuz', 'zImage'
         ]
-        kernel_dir = os.listdir(''.join([self.root_dir, '/lib/modules']))
-        if kernel_dir:
+        kernel_dirs = os.listdir(''.join([self.root_dir, '/lib/modules']))
+        if kernel_dirs:
             # append lookup for the real kernel image names
             # depending on the arch and os they are different
             # in their prefix
@@ -155,9 +155,10 @@ class Kernel(object):
             ]
             kernel_name_pattern = '{prefix}-{name}'
             for kernel_prefix in kernel_prefixes:
-                kernel_names.append(
-                    kernel_name_pattern.format(
-                        prefix=kernel_prefix, name=kernel_dir[0]
+                for kernel_dir in kernel_dirs:
+                    kernel_names.append(
+                        kernel_name_pattern.format(
+                            prefix=kernel_prefix, name=kernel_dir
+                        )
                     )
-                )
         return kernel_names

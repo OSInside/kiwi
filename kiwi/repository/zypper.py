@@ -64,6 +64,7 @@ class RepositoryZypper(RepositoryBase):
         """
         self.custom_args = custom_args
         self.exclude_docs = False
+        self.gpgcheck = False
         if not custom_args:
             self.custom_args = []
 
@@ -71,6 +72,10 @@ class RepositoryZypper(RepositoryBase):
         if 'exclude_docs' in self.custom_args:
             self.custom_args.remove('exclude_docs')
             self.exclude_docs = True
+
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.gpgcheck = True
 
         self.repo_names = []
 
@@ -111,7 +116,7 @@ class RepositoryZypper(RepositoryBase):
         )
 
         self.zypper_args = [
-            '--non-interactive', '--no-gpg-checks',
+            '--non-interactive',
             '--pkg-cache-dir', self.shared_zypper_dir['pkg-cache-dir'],
             '--reposd-dir', self.shared_zypper_dir['reposd-dir'],
             '--solv-cache-dir', self.shared_zypper_dir['solv-cache-dir'],
@@ -138,6 +143,15 @@ class RepositoryZypper(RepositoryBase):
                 'main', 'rpm.install.excludedocs', 'yes'
             )
 
+        if self.gpgcheck:
+            self.runtime_zypp_config.set(
+                'main', 'gpgcheck', '1'
+            )
+        else:
+            self.runtime_zypp_config.set(
+                'main', 'gpgcheck', '0'
+            )
+
         self._write_runtime_config()
 
     def use_default_location(self):
@@ -150,7 +164,7 @@ class RepositoryZypper(RepositoryBase):
         self.shared_zypper_dir['credentials-dir'] = \
             self.root_dir + '/etc/zypp/credentials.d'
         self.zypper_args = [
-            '--non-interactive', '--no-gpg-checks'
+            '--non-interactive',
         ] + self.custom_args
         self.command_env = dict(os.environ, LANG='C')
 
@@ -166,7 +180,8 @@ class RepositoryZypper(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add zypper repository
@@ -180,6 +195,8 @@ class RepositoryZypper(RepositoryBase):
         :param user: credentials username
         :param secret: credentials password
         :param credentials_file: zypper credentials file
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param bool pkg_gpgcheck: enable package signature validation
         """
         if credentials_file:
             repo_secret = os.sep.join(
@@ -216,15 +233,33 @@ class RepositoryZypper(RepositoryBase):
             ],
             self.command_env
         )
-        if prio:
-            Command.run(
-                ['zypper'] + self.zypper_args + [
-                    '--root', self.root_dir,
-                    'modifyrepo', '--priority', format(prio), name
-                ],
-                self.command_env
-            )
+        if prio or repo_gpgcheck is not None or pkg_gpgcheck is not None:
+            repo_config = ConfigParser()
+            repo_config.read(repo_file)
+            if repo_gpgcheck is not None:
+                repo_config.set(
+                    name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+                )
+            if pkg_gpgcheck is not None:
+                repo_config.set(
+                    name, 'pkg_gpgcheck', '1' if pkg_gpgcheck else '0'
+                )
+            if prio:
+                repo_config.set(
+                    name, 'priority', format(prio)
+                )
+            with open(repo_file, 'w') as repo:
+                repo_config.write(repo)
         self._restore_package_cache()
+
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            Command.run(['rpm', '--root', self.root_dir, '--import', key])
 
     def delete_repo(self, name):
         """
@@ -245,6 +280,26 @@ class RepositoryZypper(RepositoryBase):
         """
         Path.wipe(self.shared_zypper_dir['reposd-dir'])
         Path.create(self.shared_zypper_dir['reposd-dir'])
+
+    def delete_repo_cache(self, name):
+        """
+        Delete zypper repository cache
+
+        The cache data for each repository is stored in a list of
+        directories of the same name as the repository name. The method
+        deletes these directories to cleanup the cache information
+
+        :param string name: repository name
+        """
+        Path.wipe(
+            os.sep.join([self.shared_zypper_dir['pkg-cache-dir'], name])
+        )
+        Path.wipe(
+            os.sep.join([self.shared_zypper_dir['solv-cache-dir'], name])
+        )
+        Path.wipe(
+            os.sep.join([self.shared_zypper_dir['raw-cache-dir'], name])
+        )
 
     def cleanup_unused_repos(self):
         """

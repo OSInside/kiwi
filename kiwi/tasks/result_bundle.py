@@ -31,11 +31,9 @@ commands:
 options:
     --bundle-dir=<directory>
         directory to store the bundle results
-
     --id=<bundle_id>
         the bundle id. A free form text appended to the version
         information of the result image filename
-
     --target-dir=<directory>
         the target directory to expect image build results
 """
@@ -122,7 +120,7 @@ class ResultBundleTask(CliTask):
                 if result_file.compress:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
-                    compress.xz()
+                    compress.xz(self.runtime_config.get_xz_options())
                     bundle_file = compress.compressed_filename
                     checksum_file = compress.compressed_filename + '.sha256'
                 if result_file.shasum:

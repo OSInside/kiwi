@@ -50,7 +50,8 @@ class TestPxeBuilder(object):
             return_value=self.kernel
         )
         self.pxe = PxeBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
+            self.xml_state, 'target_dir', 'root_dir',
+            custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
         self.machine = mock.Mock()
         self.machine.get_domain = mock.Mock(
@@ -81,7 +82,7 @@ class TestPxeBuilder(object):
         mock_rename.assert_called_once_with(
             'myimage.fs', 'myimage'
         )
-        compress.xz.assert_called_once_with()
+        compress.xz.assert_called_once_with(None)
         checksum.md5.assert_called_once_with('compressed-file-name.md5')
         self.boot_image_task.prepare.assert_called_once_with()
         self.setup.export_modprobe_setup.assert_called_once_with(

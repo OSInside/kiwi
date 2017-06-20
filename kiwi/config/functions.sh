@@ -73,7 +73,7 @@ function baseSystemdCall {
     local service_name=$1; shift
     local service=$(baseSystemdServiceInstalled "$service_name")
     if [ ! -z "$service" ];then
-        systemctl "$@" "$service"
+        systemctl "$@" "$service_name"
     else
         local legacy_service=$(baseSysVServiceInstalled "$service_name")
         if [ ! -z "$legacy_service" ];then
@@ -952,27 +952,9 @@ function debianGFXBoot {
     fi
     test -d /image/loader || mkdir /image/loader
     #======================================
-    # setup grub2 bootloader data
-    #--------------------------------------
-    if [ -d /boot/grub/themes/$loader_theme ];then
-        #======================================
-        # use boot theme from grub2
-        #--------------------------------------
-        echo "using grub2 branding data"
-        mkdir -p /usr/share/grub2/themes/$loader_theme
-        mv /boot/grub/themes/$loader_theme/* \
-            /usr/share/grub2/themes/$loader_theme
-        mv /boot/grub/unicode.pf2 /usr/share/grub2
-    else
-        #======================================
-        # no grub2 based graphics boot data
-        #--------------------------------------
-        echo "grub2 branding not installed"
-        echo "grub2 graphics boot skipped !"
-    fi
-    #======================================
     # copy isolinux loader data
     #--------------------------------------
+    # isolinux boot code...
     if [ -f /usr/lib/ISOLINUX/isolinux.bin ];then
         mv /usr/lib/ISOLINUX/isolinux.bin /image/loader
         mv /usr/lib/syslinux/modules/bios/* /image/loader
@@ -1229,22 +1211,7 @@ function suseGFXBoot {
     #======================================
     # setup grub2 bootloader data
     #--------------------------------------
-    if [ -d /usr/share/grub2/themes/$loader_theme ];then
-        #======================================
-        # use boot theme from grub2-branding
-        #--------------------------------------
-        echo "using grub2 branding data"
-        mv /boot/grub2/themes/$loader_theme/background.png \
-            /usr/share/grub2/themes/$loader_theme
-        test -d /image/loader || mkdir /image/loader
-    else
-        #======================================
-        # no grub2 based graphics boot data
-        #--------------------------------------
-        echo "grub2 branding not installed"
-        echo "grub2 graphics boot skipped !"
-        test -d /image/loader || mkdir /image/loader
-    fi
+    test -d /image/loader || mkdir /image/loader
     #======================================
     # copy bootloader binaries if required
     #--------------------------------------
@@ -1275,6 +1242,16 @@ function suseGFXBoot {
         mv /usr/share/syslinux/isolinux.bin /image/loader
     elif [ -f /usr/lib/syslinux/isolinux.bin ];then
         mv /usr/lib/syslinux/isolinux.bin  /image/loader
+    fi
+    # syslinux libraries...
+    if [ -f /usr/share/syslinux/ldlinux.c32 ];then
+        mv /usr/share/syslinux/ldlinux.c32 /image/loader
+    fi
+    if [ -f /usr/share/syslinux/libcom32.c32 ];then
+        mv /usr/share/syslinux/libcom32.c32 /image/loader
+    fi
+    if [ -f /usr/share/syslinux/libutil.c32 ];then
+        mv /usr/share/syslinux/libutil.c32 /image/loader
     fi
     # use either gfxboot.com or gfxboot.c32
     if [ -f /usr/share/syslinux/gfxboot.com ];then

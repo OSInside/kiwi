@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import platform
 import pickle
 from collections import namedtuple
@@ -60,117 +61,21 @@ class DiskBuilder(object):
 
     Attributes
 
-    * :attr:`arch`
-        platform.machine
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`target_dir`
-        target directory path name
-
     * :attr:`xml_state`
         Instance of XMLState
 
-    * :attr:`custom_root_mount_args`
-        Configured custom root mount arguments
+    * :attr:`target_dir`
+        Target directory path name
 
-    * :attr:`build_type_name`
-        Configured build type name, oem or vmx
+    * :attr:`root_dir`
+        Root directory path name
 
-    * :attr:`image_format`
-        Configured disk image format
-
-    * :attr:`install_iso`
-        Request for install ISO image
-
-    * :attr:`install_stick`
-        Request for install Stick image, converts into a request
-        for the install ISO image because it can handle both cases
-        by the hybrid ISO setup
-
-    * :attr:`install_pxe`
-        Request for install PXE archive
-
-    * :attr:`blocksize`
-        Configured disk blocksize
-
-    * :attr:`volume_manager_name`
-        Configured volume manager
-
-    * :attr:`volumes`
-        Configured disk volumes
-
-    * :attr:`volume_group_name`
-        Configured volume group name
-
-    * :attr:`mdraid`
-        Request for md raid, degraded setup
-
-    * :attr:`hybrid_mbr`
-        Request to convert partition table to hybrid GPT/MBR'
-
-    * :attr:`luks`
-        LUKS encryption credentials, also triggers to
-        encrypt the disk
-
-    * :attr:`luks_os`
-        Target operating system name for LUKS encryption
-
-    * :attr:`machine`
-        Configured build type machine section
-
-    * :attr:`requested_filesystem`
-        Configured root filesystem
-
-    * :attr:`requested_boot_filesystem`
-        Configured boot filesystem
-
-    * :attr:`bootloader`
-        Configured boot loader
-
-    * :attr:`initrd_system`
-        Configured initrd system
-
-    * :attr:`disk_setup`
-        Instance of DiskSetup
-
-    * :attr:`boot_image`
-        Instance of BootImage
-
-    * :attr:`firmware`
-        Instance of FirmWare
-
-    * :attr:`system_setup`
-        Instance of SystemSetup
-
-    * :attr:`diskname`
-        File name of the disk image
-
-    * :attr:`install_media`
-        Build of install media requested true|false
-
-    * :attr:`system`
-        Instance of a class with the sync_data capability
-        representing the entire image system except for the boot/ area
-        which could live on other parts of the disk
-
-    * :attr:`system_boot`
-        Instance of a class with the sync_data capability
-        representing the boot/ area of the disk if not part of
-        system
-
-    * :attr:`system_efi`
-        Instance of a class with the sync_data capability
-        representing the boot/efi area of the disk
-
-    * :attr:`generic_fstab_entries`
-        List of generic/persistent fstab entries
-
-    * :attr:`result`
-        Instance of Result
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * signing_keys: list of package signing keys
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
             self.arch = 'ix86'
@@ -205,8 +110,15 @@ class DiskBuilder(object):
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
+        self.custom_args = custom_args
+
+        self.signing_keys = None
+        if custom_args and 'signing_keys' in custom_args:
+            self.signing_keys = custom_args['signing_keys']
+
         self.boot_image = BootImage(
-            xml_state, target_dir, root_dir
+            xml_state, target_dir, root_dir,
+            signing_keys=self.signing_keys, custom_args=self.custom_args
         )
         self.firmware = FirmWare(
             xml_state
@@ -255,7 +167,7 @@ class DiskBuilder(object):
         * image="vmx"
         """
         disk = DiskBuilder(
-            self.xml_state, self.target_dir, self.root_dir
+            self.xml_state, self.target_dir, self.root_dir, self.custom_args
         )
         result = disk.create_disk()
 
@@ -312,8 +224,12 @@ class DiskBuilder(object):
 
         # create the bootloader instance
         self.bootloader_config = BootLoaderConfig(
-            self.bootloader, self.xml_state, self.root_dir,
-            {'targetbase': loop_provider.get_device()}
+            self.bootloader, self.xml_state, self.root_dir, {
+                'targetbase':
+                    loop_provider.get_device(),
+                'grub_directory_name':
+                    Defaults.get_grub_boot_directory_name(self.root_dir)
+            }
         )
 
         # create disk partitions and instance device map
@@ -479,7 +395,8 @@ class DiskBuilder(object):
                     self.xml_state.build_type.get_initrd_system()
 
                 self.boot_image = BootImageKiwi(
-                    self.xml_state, self.target_dir
+                    self.xml_state, self.target_dir,
+                    signing_keys=self.signing_keys
                 )
 
                 self.boot_image.prepare()
@@ -552,8 +469,8 @@ class DiskBuilder(object):
         """
         if self.install_media:
             install_image = InstallImageBuilder(
-                self.xml_state, self.target_dir,
-                self._load_boot_image_instance()
+                self.xml_state, self.root_dir, self.target_dir,
+                self._load_boot_image_instance(), self.custom_args
             )
 
             if self.install_iso or self.install_stick:
@@ -986,12 +903,44 @@ class DiskBuilder(object):
                 self.boot_image.boot_root_directory
             )
         if self.initrd_system and self.initrd_system == 'dracut':
+            dracut_output_format = self._get_dracut_output_file_format()
             return boot_names_type(
                 kernel_name=kernel_info.name,
-                initrd_name='initrd-' + kernel_info.version
+                initrd_name=dracut_output_format.format(
+                    kernel_version=kernel_info.version
+                )
             )
         else:
             return boot_names_type(
                 kernel_name='linux.vmx',
                 initrd_name='initrd.vmx'
             )
+
+    def _get_dracut_output_file_format(self):
+        """
+        Unfortunately the dracut initrd output file format varies between
+        the different Linux distributions. Tools like lsinitrd, and also
+        grub2 rely on the initrd output file to be in that format.
+        Thus when kiwi uses dracut the same file format should be used
+        all over the place in order to stay compatible with what the
+        distribution does
+        """
+        default_outfile_format = 'initramfs-{kernel_version}.img'
+        dracut_search_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
+        }
+        dracut_tool = Path.which(
+            'dracut', custom_env=dracut_search_env, access_mode=os.X_OK
+        )
+        if dracut_tool:
+            outfile_expression = r'outfile="/boot/(init.*\$kernel.*)"'
+            with open(dracut_tool) as dracut:
+                outfile = re.findall(outfile_expression, dracut.read())[0]
+                if outfile:
+                    return outfile.replace('$kernel', '{kernel_version}')
+
+        log.warning('Could not detect dracut output file format')
+        log.warning('Using default initrd file name format {0}'.format(
+            default_outfile_format
+        ))
+        return default_outfile_format

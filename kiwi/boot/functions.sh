@@ -106,7 +106,7 @@ fi
 #--------------------------------------
 failsafe="ide=nodma apm=off noresume edd=off"
 failsafe="$failsafe powersaved=off nohz=off"
-failsafe="$failsafe highres=off processsor.max+cstate=1"
+failsafe="$failsafe highres=off processor.max+cstate=1"
 failsafe="$failsafe nomodeset x11failsafe"
 
 #======================================
@@ -3839,10 +3839,7 @@ function setupNetworkDHCLIENT {
             grep -q "fixed-address" /var/lib/dhclient/${try_iface}.lease
         then
             export PXE_IFACE=$try_iface
-            export IPADDR=$(
-                cat /var/lib/dhclient/${try_iface}.lease |\
-                    grep 'fixed-address'| awk  '{print $2}' | tr -d ';'
-                )
+            dhclientImportInfo "$PXE_IFACE"
             break
         fi
     done
@@ -3850,10 +3847,6 @@ function setupNetworkDHCLIENT {
     # setup selected interface
     #--------------------------------------
     setupNic lo 127.0.0.1/8 255.0.0.0
-    if [ -f /var/lib/dhclient/$PXE_IFACE.lease ] &&
-        grep -q "fixed-address" /var/lib/dhclient/$PXE_IFACE.lease; then
-        dhclientImportInfo "$PXE_IFACE"
-    fi
 }
 #======================================
 # setupNetwork
@@ -4498,7 +4491,8 @@ function partedGetPartitionID {
         local name=$(parted -m -s $1 print | grep ^$2: | cut -f6 -d:)
         if lookup sgdisk &>/dev/null;then
             # map to short gdisk code
-            echo $(sgdisk -p $1 | grep -E "^   $2") | cut -f6 -d ' '
+            echo $(sgdisk -p $1 | grep -E "^   $2") |\
+                cut -f6 -d ' ' | cut -c-2 | tr [:upper:] [:lower:]
         elif [ "$name" = "lxroot" ];then
             # map lxroot to MBR type 83 (linux)
             echo 83

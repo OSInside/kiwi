@@ -181,10 +181,14 @@ class TestSystemPrepare(object):
         repo = mock.Mock()
         mock_repo.return_value = repo
 
-        self.system.setup_repositories()
+        self.system.setup_repositories(
+            clear_cache=True,
+            signing_keys=['key-file-a.asc', 'key-file-b.asc']
+        )
 
         mock_repo.assert_called_once_with(
-            self.system.root_bind, 'package-manager-name', ['exclude_docs']
+            self.system.root_bind, 'package-manager-name',
+            ['check_signatures', 'exclude_docs']
         )
         # mock local repos will be translated and bind mounted
         assert uri.translate.call_args_list == [
@@ -199,13 +203,20 @@ class TestSystemPrepare(object):
         assert repo.add_repo.call_args_list == [
             call(
                 'uri-alias', 'uri', 'yast2', 42,
-                None, None, None, None, 'credentials-file'
+                None, None, None, None, 'credentials-file', None, None
             ),
             call(
                 'uri-alias', 'uri', 'rpm-md', None,
-                None, None, None, None, 'credentials-file'
+                None, None, None, None, 'credentials-file', None, None
             )
         ]
+        assert repo.delete_repo_cache.call_args_list == [
+            call('uri-alias'),
+            call('uri-alias')
+        ]
+        repo.import_trusted_keys.assert_called_once_with(
+            ['key-file-a.asc', 'key-file-b.asc']
+        )
 
     @patch('kiwi.system.prepare.Repository')
     @patch('kiwi.system.prepare.Uri')

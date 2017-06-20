@@ -1,3 +1,5 @@
+from mock import patch
+
 import sys
 
 import mock
@@ -50,3 +52,14 @@ class TestDefaults(object):
             '--description', 'description', '--root', 'directory'
         ]
         assert Defaults.get_shared_cache_location() == 'my/cachedir'
+
+    @patch('kiwi.defaults.Path.which')
+    def test_get_grub_boot_directory_name(self, mock_which):
+        mock_which.return_value = 'grub2-install-was-found'
+        assert Defaults.get_grub_boot_directory_name(
+            lookup_path='lookup_path'
+        ) == 'grub2'
+        mock_which.return_value = None
+        assert Defaults.get_grub_boot_directory_name(
+            lookup_path='lookup_path'
+        ) == 'grub'

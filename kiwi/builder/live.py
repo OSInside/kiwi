@@ -17,9 +17,6 @@
 #
 from tempfile import mkdtemp
 import platform
-import shutil
-import glob
-import os
 
 # project
 from kiwi.bootloader.config import BootLoaderConfig
@@ -49,58 +46,21 @@ class LiveImageBuilder(object):
 
     Attributes
 
-    * :attr:`media_dir`
-        Temporary directory to collect the install ISO contents
-
-    * :attr:`arch`
-        platform.machine
-
-    * :attr:`root_dir`
-        root directory path name
+    * :attr:`xml_state`
+        Instance of XMLState
 
     * :attr:`target_dir`
         target directory path name
 
-    * :attr:`xml_state`
-        Instance of XMLState
+    * :attr:`root_dir`
+        root directory path name
 
-    * :attr:`live_type`
-        Configured live ISO type name
-
-    * :attr:`types`
-        List of supported live ISO types
-
-    * :attr:`hybrid`
-        Request for hybrid ISO: true|false
-
-    * :attr:`volume_id`
-        Configured ISO volume ID or default
-
-    * :attr:`mbrid`
-        Instance of SystemIdentifier
-
-    * :attr:`filesystem_custom_parameters`
-        Configured custom filesystem mount and creation arguments
-
-    * :attr:`boot_image_task`
-        Instance of BootImage
-
-    * :attr:`firmware`
-        Instance of FirmWare
-
-    * :attr:`system_setup`
-        Instance of SystemSetup
-
-    * :attr:`isoname`
-        File name of the live ISO image
-
-    * :attr:`live_image_file`
-        File name of compressed image on the ISO
-
-    * :attr:`result`
-        Instance of Result
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * signing_keys: list of package signing keys
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.media_dir = None
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
@@ -122,8 +82,13 @@ class LiveImageBuilder(object):
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
 
+        boot_signing_keys = None
+        if custom_args and 'signing_keys' in custom_args:
+            boot_signing_keys = custom_args['signing_keys']
+
         self.boot_image_task = BootImage(
-            xml_state, target_dir
+            xml_state, target_dir,
+            signing_keys=boot_signing_keys, custom_args=custom_args
         )
         self.firmware = FirmWare(
             xml_state
@@ -222,31 +187,26 @@ class LiveImageBuilder(object):
         )
         bootloader_config_isolinux.write()
         self.system_setup.call_edit_boot_config_script(
-            filesystem=self.types[self.live_type], boot_part_id=1
+            filesystem=self.types[self.live_type], boot_part_id=1,
+            working_directory=self.media_dir
         )
 
         # setup bootloader config to boot the ISO via EFI
         if self.firmware.efi_mode():
             log.info('Setting up EFI grub bootloader configuration')
             bootloader_config_grub = BootLoaderConfig(
-                'grub2', self.xml_state, self.media_dir
+                'grub2', self.xml_state, self.media_dir, {
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                }
             )
             bootloader_config_grub.setup_live_boot_images(
-                mbrid=self.mbrid,
-                lookup_path=self.boot_image_task.boot_root_directory
+                mbrid=self.mbrid, lookup_path=self.root_dir
             )
             bootloader_config_grub.setup_live_image_config(
                 mbrid=self.mbrid
             )
             bootloader_config_grub.write()
-            if self.firmware.efi_mode() == 'uefi':
-                # write bootloader config to EFI directory in order to allow
-                # grub loaded by shim to find the config file
-                grubconf_glob = os.sep.join(
-                    [self.media_dir, 'boot/grub*/grub.cfg']
-                )
-                for grubconf in glob.glob(grubconf_glob):
-                    shutil.copy(grubconf, self.media_dir + '/EFI/BOOT')
 
         # create initrd for live image
         log.info('Creating live ISO boot image')

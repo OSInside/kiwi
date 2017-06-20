@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, call
 
 import mock
 
@@ -44,7 +44,10 @@ class TestRepositoryApt(object):
             self.exclude_docs
         )
         template.substitute.assert_called_once_with(
-            {'apt_shared_base': '/shared-dir/apt-get'}
+            {
+                'apt_shared_base': '/shared-dir/apt-get',
+                'unauthenticated': 'true'
+            }
         )
 
     @patch_open
@@ -55,6 +58,14 @@ class TestRepositoryApt(object):
         assert self.repo.custom_args == []
 
     @patch_open
+    @patch('kiwi.repository.apt.NamedTemporaryFile')
+    @patch('kiwi.repository.apt.Path.create')
+    def test_post_init_with_custom_args(self, mock_open, mock_path, mock_temp):
+        self.repo.post_init(['check_signatures'])
+        assert self.repo.custom_args == []
+        assert self.repo.unauthenticated == 'false'
+
+    @patch_open
     def test_use_default_location(self, mock_open):
         template = mock.Mock()
         self.apt_conf.get_image_template.return_value = template
@@ -62,7 +73,9 @@ class TestRepositoryApt(object):
         self.apt_conf.get_image_template.assert_called_once_with(
             self.exclude_docs
         )
-        template.substitute.assert_called_once_with()
+        template.substitute.assert_called_once_with(
+            {'apt_shared_base': '../data/etc/apt', 'unauthenticated': 'true'}
+        )
 
     def test_runtime_config(self):
         assert self.repo.runtime_config()['apt_get_args'] == \
@@ -80,6 +93,24 @@ class TestRepositoryApt(object):
         )
         self.file_mock.write.assert_called_once_with(
             'deb file:/kiwi_iso_mount/uri xenial a b\n'
+        )
+        mock_open.assert_called_once_with(
+            '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+        )
+
+    @patch('os.path.exists')
+    @patch_open
+    def test_add_repo_distribution_with_gpgchecks(
+        self, mock_open, mock_exists
+    ):
+        mock_open.return_value = self.context_manager_mock
+        mock_exists.return_value = True
+        self.repo.add_repo(
+            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
+            repo_gpgcheck=True, pkg_gpgcheck=False
+        )
+        self.file_mock.write.assert_called_once_with(
+            'deb [trusted=no] file:/kiwi_iso_mount/uri xenial a b\n'
         )
         mock_open.assert_called_once_with(
             '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
@@ -117,6 +148,10 @@ class TestRepositoryApt(object):
             '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
         )
 
+    def test_import_trusted_keys(self):
+        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
+        assert self.repo.signing_keys == ['key-file-a.asc', 'key-file-b.asc']
+
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
         self.repo.delete_repo('foo')
@@ -146,3 +181,12 @@ class TestRepositoryApt(object):
         mock_create.assert_called_once_with(
             '/shared-dir/apt-get/sources.list.d'
         )
+
+    @patch('kiwi.path.Path.wipe')
+    def test_delete_repo_cache(self, mock_wipe):
+        self.repo.delete_repo_cache('foo')
+        assert mock_wipe.call_args_list == [
+            call('/shared-dir/apt-get/archives'),
+            call('/shared-dir/apt-get/pkgcache.bin'),
+            call('/shared-dir/apt-get/srcpkgcache.bin')
+        ]

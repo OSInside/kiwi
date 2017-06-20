@@ -67,7 +67,7 @@ class RepositoryBase(object):
 
     def add_repo(
         self, name, uri, repo_type, prio, dist, components,
-        user, secret, credentials_file
+        user, secret, credentials_file, repo_gpgcheck, pkg_gpgcheck
     ):
         """
         Add repository
@@ -83,6 +83,18 @@ class RepositoryBase(object):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param repo_gpgcheck: unused
+        :param pkg_gpgcheck: unused
+        """
+        raise NotImplementedError
+
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        Implementation in specialized repository class
+
+        :param list signing_keys: list of the key files to import
         """
         raise NotImplementedError
 
@@ -112,5 +124,15 @@ class RepositoryBase(object):
         Delete all repositories
 
         Implementation in specialized repository class
+        """
+        raise NotImplementedError
+
+    def delete_repo_cache(self, name):
+        """
+        Delete repository cache
+
+        Implementation in specialized repository class
+
+        :param string name: unused
         """
         raise NotImplementedError

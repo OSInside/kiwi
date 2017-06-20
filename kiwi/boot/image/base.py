@@ -18,7 +18,6 @@
 import os
 import platform
 import pickle
-from tempfile import mkdtemp
 
 # project
 from kiwi.defaults import Defaults
@@ -46,17 +45,20 @@ class BootImageBase(object):
     * :attr:`target_dir`
         target dir to store the initrd
 
-    * :attr:`initrd_filename`
-        initrd file name
+    * :attr:`root_dir`
+        system image root directory
 
-    * :attr:`temp_boot_root_directory`
-        temporary directory to create the initrd system
+    * :attr:`signing_keys`
+        list of package signing keys
 
-    * :attr:`boot_xml_state`
-        Instance of XMLState of the boot image description
-
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir=None):
+    def __init__(
+        self, xml_state, target_dir, root_dir=None,
+        signing_keys=None, custom_args=None
+    ):
         self.xml_state = xml_state
         self.target_dir = target_dir
         self.initrd_filename = None
@@ -64,30 +66,34 @@ class BootImageBase(object):
         self.setup = None
         self.temp_directories = []
         self.call_destructor = True
-
+        self.signing_keys = signing_keys
         self.boot_root_directory = root_dir
-        if not self.boot_root_directory:
-            self.boot_root_directory = mkdtemp(
-                prefix='kiwi_boot_root.', dir=self.target_dir
-            )
-            self.temp_directories.append(
-                self.boot_root_directory
-            )
+
+        self.xz_options = custom_args['xz_options'] if custom_args \
+            and 'xz_options' in custom_args else None
 
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
                 'target directory %s not found' % target_dir
             )
 
-        self.initrd_file_name = ''.join(
+        self.initrd_base_name = ''.join(
             [
-                self.target_dir, '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + platform.machine(),
                 '-' + self.xml_state.get_image_version(),
                 '.initrd'
             ]
         )
+        self.post_init()
+
+    def post_init(self):
+        """
+        Post initialization method
+
+        Implementation in specialized boot image class
+        """
+        pass
 
     def dump(self, filename):
         """

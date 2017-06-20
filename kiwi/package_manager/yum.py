@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import re
 
 # project
-from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
+from kiwi.path import Path
 from kiwi.exceptions import (
     KiwiRequestError
 )
@@ -85,29 +86,37 @@ class PackageManagerYum(PackageManagerBase):
         """
         Queue a package exclusion(skip) request
 
-        Package exclusion for yum package manager not yet implemented
-
-        :param string name: unused
+        :param string name: package name
         """
-        log.warning(
-            'Package exclusion for (%s) not supported for yum', name
-        )
+        self.exclude_requests.append(name)
+
+    def _get_yum_binary_name(self):
+        """
+        Identify whether yum is 'yum' or 'yum-deprecated'
+
+        :return: name of yum command
+        """
+        yum_binary = 'yum'
+        if Path.which(filename='yum-deprecated', access_mode=os.X_OK):
+            yum_binary = 'yum-deprecated'
+        return yum_binary
 
     def process_install_requests_bootstrap(self):
         """
         Process package install requests for bootstrap phase (no chroot)
         """
+        yum = self._get_yum_binary_name()
         Command.run(
-            ['yum'] + self.yum_args + ['makecache']
+            [yum] + self.yum_args + ['makecache']
         )
         bash_command = [
-            'yum'
+            yum
         ] + self.yum_args + [
             '--installroot', self.root_dir
         ] + self.custom_args + ['install'] + self.package_requests
         if self.collection_requests:
             bash_command += [
-                '&&', 'yum'
+                '&&', yum
             ] + self.yum_args + [
                 '--installroot', self.root_dir
             ] + self.custom_args + ['groupinstall'] + self.collection_requests
@@ -120,6 +129,14 @@ class PackageManagerYum(PackageManagerBase):
         """
         Process package install requests for image phase (chroot)
         """
+        yum = self._get_yum_binary_name()
+        if self.exclude_requests:
+            # For Yum, excluding a package means removing it from
+            # the solver operation. This is done by adding --exclude
+            # to the command line. This means that if the package is
+            # hard required by another package, it will break the transaction.
+            for package in self.exclude_requests:
+                self.custom_args.append('--exclude=' + package)
         Command.run(
             ['chroot', self.root_dir, 'rpm', '--rebuilddb']
         )
@@ -127,13 +144,13 @@ class PackageManagerYum(PackageManagerBase):
             self.yum_args
         )
         bash_command = [
-            'chroot', self.root_dir, 'yum'
+            'chroot', self.root_dir, yum
         ] + chroot_yum_args + self.custom_args + [
             'install'
         ] + self.package_requests
         if self.collection_requests:
             bash_command += [
-                '&&', 'chroot', self.root_dir, 'yum'
+                '&&', 'chroot', self.root_dir, yum
             ] + chroot_yum_args + self.custom_args + [
                 'groupinstall'
             ] + self.collection_requests
@@ -173,12 +190,13 @@ class PackageManagerYum(PackageManagerBase):
         """
         Process package update requests (chroot)
         """
+        yum = self._get_yum_binary_name()
         chroot_yum_args = self.root_bind.move_to_root(
             self.yum_args
         )
         return Command.call(
             [
-                'chroot', self.root_dir, 'yum'
+                'chroot', self.root_dir, yum
             ] + chroot_yum_args + self.custom_args + [
                 'upgrade'
             ],

@@ -62,7 +62,7 @@ class TestInstallImageBuilder(object):
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
         self.install_image = InstallImageBuilder(
-            self.xml_state, 'target_dir', self.boot_image_task
+            self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
         )
         self.install_image.machine = mock.Mock()
         self.install_image.machine.get_domain = mock.Mock(
@@ -83,7 +83,7 @@ class TestInstallImageBuilder(object):
             return_value='custom_kernel_options'
         )
         install_image = InstallImageBuilder(
-            xml_state, 'target_dir', mock.Mock()
+            xml_state, 'root_dir', 'target_dir', mock.Mock()
         )
         assert install_image.arch == 'ix86'
 
@@ -91,8 +91,9 @@ class TestInstallImageBuilder(object):
     @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Iso.create_hybrid')
+    @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
     def test_create_install_iso(
-        self, mock_hybrid, mock_command, mock_open, mock_dtemp
+        self, mock_grub_dir, mock_hybrid, mock_command, mock_open, mock_dtemp
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 
@@ -127,11 +128,7 @@ class TestInstallImageBuilder(object):
         )
         assert self.bootloader.setup_install_boot_images.call_args_list == [
             call(lookup_path='initrd_dir', mbrid=None),
-            call(lookup_path='initrd_dir', mbrid=self.mbrid)
-        ]
-        assert self.bootloader.setup_install_boot_images.call_args_list == [
-            call(lookup_path='initrd_dir', mbrid=None),
-            call(lookup_path='initrd_dir', mbrid=self.mbrid)
+            call(lookup_path='root_dir', mbrid=self.mbrid)
         ]
         assert self.bootloader.setup_install_image_config.call_args_list == [
             call(mbrid=None),
@@ -251,7 +248,7 @@ class TestInstallImageBuilder(object):
             keep_source_on_compress=True,
             source_filename='target_dir/result-image.x86_64-1.2.3.raw'
         )
-        compress.xz.assert_called_once_with()
+        compress.xz.assert_called_once_with(None)
         assert mock_command.call_args_list[0] == call(
             ['mv', compress.compressed_filename, 'tmpdir/result-image.xz']
         )
@@ -285,7 +282,7 @@ class TestInstallImageBuilder(object):
             'target_dir/result-image.x86_64-1.2.3.install.tar'
         )
         archive.create_xz_compressed.assert_called_once_with(
-            'tmpdir'
+            'tmpdir', xz_options=None
         )
 
     @patch('kiwi.builder.install.Path.wipe')

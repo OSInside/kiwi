@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from tempfile import mkdtemp
 
 from kiwi.defaults import Defaults
@@ -35,7 +36,26 @@ class BootImageKiwi(BootImageBase):
     The kiwi initrd is a customized first boot initrd which allows
     to control the first boot an appliance. The kiwi initrd replaces
     itself after first boot by the result of dracut.
+
+    Attributes
+
+    Inherited from BootImageBase
     """
+    def post_init(self):
+        """
+        Post initialization method
+
+        Creates custom directory to prepare the boot image
+        root filesystem which is a separate image to create
+        the initrd from
+        """
+        self.boot_root_directory = mkdtemp(
+            prefix='kiwi_boot_root.', dir=self.target_dir
+        )
+        self.temp_directories.append(
+            self.boot_root_directory
+        )
+
     def prepare(self):
         """
         Prepare new root system suitable to create a kiwi initrd from it
@@ -51,7 +71,7 @@ class BootImageKiwi(BootImageBase):
             root_dir=self.boot_root_directory,
             allow_existing=True
         )
-        manager = system.setup_repositories()
+        manager = system.setup_repositories(signing_keys=self.signing_keys)
         system.install_bootstrap(
             manager
         )
@@ -122,7 +142,9 @@ class BootImageKiwi(BootImageBase):
                 image_identifier = boot_directory + '/mbrid'
                 mbrid.write(image_identifier)
 
-            cpio = ArchiveCpio(self.initrd_file_name)
+            cpio = ArchiveCpio(
+                os.sep.join([self.target_dir, self.initrd_base_name])
+            )
             # the following is a list of directories which were needed
             # during the process of creating an image but not when the
             # image is actually booting with this initrd
@@ -142,6 +164,8 @@ class BootImageKiwi(BootImageBase):
             log.info(
                 '--> xz compressing archive'
             )
-            compress = Compress(self.initrd_file_name)
-            compress.xz()
+            compress = Compress(
+                os.sep.join([self.target_dir, self.initrd_base_name])
+            )
+            compress.xz(self.xz_options)
             self.initrd_filename = compress.compressed_filename

@@ -67,14 +67,15 @@ class DiskFormatGce(DiskFormatBase):
                 '.raw'
             ]
         )
-        Command.run(
-            ['cp', diskname, self.temp_image_dir + '/disk.raw']
-        )
-        gce_tar_ball_file_list.append('disk.raw')
         if self.tag:
             with open(self.temp_image_dir + '/manifest.json', 'w') as manifest:
                 manifest.write('{"licenses": ["%s"]}' % self.tag)
             gce_tar_ball_file_list.append('manifest.json')
+
+        Command.run(
+            ['cp', diskname, self.temp_image_dir + '/disk.raw']
+        )
+        gce_tar_ball_file_list.append('disk.raw')
 
         archive_name = self.get_target_name_for_format(self.image_format)
 

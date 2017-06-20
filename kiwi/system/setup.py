@@ -115,7 +115,8 @@ class SystemSetup(object):
         imageinclude attribute should be permanently added to
         the image repository configuration
         """
-        repository_sections = self.xml_state.get_repository_sections()
+        repository_sections = \
+            self.xml_state.get_repository_sections_used_in_image()
         root = RootInit(
             root_dir=self.root_dir, allow_existing=True
         )
@@ -124,30 +125,30 @@ class SystemSetup(object):
         )
         repo.use_default_location()
         for xml_repo in repository_sections:
-            repo_marked_for_image_include = xml_repo.get_imageinclude()
-
-            if repo_marked_for_image_include:
-                repo_type = xml_repo.get_type()
-                repo_source = xml_repo.get_source().get_path()
-                repo_user = xml_repo.get_username()
-                repo_secret = xml_repo.get_password()
-                repo_alias = xml_repo.get_alias()
-                repo_priority = xml_repo.get_priority()
-                repo_dist = xml_repo.get_distribution()
-                repo_components = xml_repo.get_components()
-                uri = Uri(repo_source, repo_type)
-                repo_source_translated = uri.translate()
-                if not repo_alias:
-                    repo_alias = uri.alias()
-                log.info('Setting up image repository %s', repo_source)
-                log.info('--> Type: %s', repo_type)
-                log.info('--> Translated: %s', repo_source_translated)
-                log.info('--> Alias: %s', repo_alias)
-                repo.add_repo(
-                    repo_alias, repo_source_translated,
-                    repo_type, repo_priority, repo_dist, repo_components,
-                    repo_user, repo_secret, uri.credentials_file_name()
-                )
+            repo_type = xml_repo.get_type()
+            repo_source = xml_repo.get_source().get_path()
+            repo_user = xml_repo.get_username()
+            repo_secret = xml_repo.get_password()
+            repo_alias = xml_repo.get_alias()
+            repo_priority = xml_repo.get_priority()
+            repo_dist = xml_repo.get_distribution()
+            repo_components = xml_repo.get_components()
+            repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
+            repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+            uri = Uri(repo_source, repo_type)
+            repo_source_translated = uri.translate()
+            if not repo_alias:
+                repo_alias = uri.alias()
+            log.info('Setting up image repository %s', repo_source)
+            log.info('--> Type: %s', repo_type)
+            log.info('--> Translated: %s', repo_source_translated)
+            log.info('--> Alias: %s', repo_alias)
+            repo.add_repo(
+                repo_alias, repo_source_translated,
+                repo_type, repo_priority, repo_dist, repo_components,
+                repo_user, repo_secret, uri.credentials_file_name(),
+                repo_repository_gpgcheck, repo_package_gpgcheck
+            )
 
     def import_shell_environment(self, profile):
         """
@@ -352,6 +353,27 @@ class SystemSetup(object):
                         home_path
                     )
 
+    def setup_plymouth_splash(self):
+        """
+        Setup the KIWI configured splash theme as default
+
+        The method uses the plymouth-set-default-theme tool to setup the
+        theme for the plymouth splash system. Only in case the tool could
+        be found in the image root, it is assumed plymouth splash is in
+        use and the tool is called in a chroot operation
+        """
+        chroot_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
+        }
+        theme_setup = 'plymouth-set-default-theme'
+        if Path.which(filename=theme_setup, custom_env=chroot_env):
+            for preferences in self.xml_state.get_preferences_sections():
+                splash_theme = preferences.get_bootsplash_theme()
+                if splash_theme:
+                    Command.run(
+                        ['chroot', self.root_dir, theme_setup, splash_theme]
+                    )
+
     def import_image_identifier(self):
         """
         Create etc/ImageID identifier file
@@ -466,7 +488,9 @@ class SystemSetup(object):
         """
         self._call_script('images.sh')
 
-    def call_edit_boot_config_script(self, filesystem, boot_part_id):
+    def call_edit_boot_config_script(
+        self, filesystem, boot_part_id, working_directory=None
+    ):
         """
         Call configured editbootconfig script _NON_ chrooted
 
@@ -475,12 +499,17 @@ class SystemSetup(object):
 
         :param string filesystem: boot filesystem name
         :param int boot_part_id: boot partition number
+        :param string working_directory: directory name
         """
         self._call_script_no_chroot(
-            'edit_boot_config.sh', [filesystem, format(boot_part_id)]
+            name='edit_boot_config.sh',
+            option_list=[filesystem, format(boot_part_id)],
+            working_directory=working_directory
         )
 
-    def call_edit_boot_install_script(self, diskname, boot_device_node):
+    def call_edit_boot_install_script(
+        self, diskname, boot_device_node, working_directory=None
+    ):
         """
         Call configured editbootinstall script _NON_ chrooted
 
@@ -489,9 +518,12 @@ class SystemSetup(object):
 
         :param string diskname: file path name
         :param string boot_device_node: boot device node name
+        :param string working_directory: directory name
         """
         self._call_script_no_chroot(
-            'edit_boot_install.sh', [diskname, boot_device_node]
+            name='edit_boot_install.sh',
+            option_list=[diskname, boot_device_node],
+            working_directory=working_directory
         )
 
     def create_fstab(self, entries):
@@ -739,11 +771,18 @@ class SystemSetup(object):
                     '%s failed: %s' % (name, format(result.stderr))
                 )
 
-    def _call_script_no_chroot(self, name, option_list):
-        if os.path.exists(self.root_dir + '/image/' + name):
+    def _call_script_no_chroot(
+        self, name, option_list, working_directory
+    ):
+        if not working_directory:
+            working_directory = self.root_dir
+        script_path = os.path.abspath(
+            os.sep.join([self.root_dir, 'image', name])
+        )
+        if os.path.exists(script_path):
             bash_command = [
-                'cd', self.root_dir, '&&',
-                'bash', '--norc', 'image/' + name, ' '.join(option_list)
+                'cd', working_directory, '&&',
+                'bash', '--norc', script_path, ' '.join(option_list)
             ]
             config_script = Command.call(
                 ['bash', '-c', ' '.join(bash_command)]

@@ -405,6 +405,26 @@ class TestSystemSetup(object):
         ]
         users.user_modify.assert_has_calls(calls)
 
+    @patch('kiwi.system.setup.Path.which')
+    @patch('kiwi.system.setup.Command.run')
+    def test_setup_plymouth_splash(self, mock_command, mock_which):
+        mock_which.return_value = 'plymouth-set-default-theme'
+        preferences = mock.Mock()
+        preferences.get_bootsplash_theme = mock.Mock(
+            return_value='some-theme'
+        )
+        self.xml_state.get_preferences_sections = mock.Mock(
+            return_value=[preferences]
+        )
+        self.setup.setup_plymouth_splash()
+        mock_which.assert_called_once_with(
+            custom_env={'PATH': 'root_dir/usr/sbin'},
+            filename='plymouth-set-default-theme'
+        )
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', 'plymouth-set-default-theme', 'some-theme']
+        )
+
     @patch_open
     @patch('os.path.exists')
     def test_import_image_identifier(self, mock_os_path, mock_open):
@@ -450,39 +470,49 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
+    @patch('os.path.abspath')
     def test_call_edit_boot_config_script(
-        self, mock_os_path, mock_watch, mock_command
+        self, mock_abspath, mock_exists, mock_watch, mock_command
     ):
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
         mock_result = result_type(stderr='stderr', returncode=0)
-        mock_os_path.return_value = True
+        mock_exists.return_value = True
+        mock_abspath.return_value = '/root_dir/image/edit_boot_config.sh'
         mock_watch.return_value = mock_result
         self.setup.call_edit_boot_config_script('ext4', 1)
+        mock_abspath.assert_called_once_with(
+            'root_dir/image/edit_boot_config.sh'
+        )
         mock_command.assert_called_once_with([
             'bash', '-c',
-            'cd root_dir && bash --norc image/edit_boot_config.sh ext4 1'
+            'cd root_dir && bash --norc /root_dir/image/edit_boot_config.sh ext4 1'
         ])
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
+    @patch('os.path.abspath')
     def test_call_edit_boot_install_script(
-        self, mock_os_path, mock_watch, mock_command
+        self, mock_abspath, mock_exists, mock_watch, mock_command
     ):
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
         mock_result = result_type(stderr='stderr', returncode=0)
-        mock_os_path.return_value = True
+        mock_exists.return_value = True
+        mock_abspath.return_value = '/root_dir/image/edit_boot_install.sh'
         mock_watch.return_value = mock_result
         self.setup.call_edit_boot_install_script(
             'my_image.raw', '/dev/mapper/loop0p1'
         )
+        mock_abspath.assert_called_once_with(
+            'root_dir/image/edit_boot_install.sh'
+        )
         mock_command.assert_called_once_with([
             'bash', '-c',
-            'cd root_dir && bash --norc image/edit_boot_install.sh my_image.raw /dev/mapper/loop0p1'
+            'cd root_dir && bash --norc /root_dir/image/edit_boot_install.sh my_image.raw /dev/mapper/loop0p1'
         ])
 
     @raises(KiwiScriptFailed)
@@ -695,5 +725,7 @@ class TestSystemSetup(object):
             None,
             None,
             None,
-            'kiwiRepoCredentials'
+            'kiwiRepoCredentials',
+            None,
+            None
         )

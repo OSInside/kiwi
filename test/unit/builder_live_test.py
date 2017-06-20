@@ -67,7 +67,8 @@ class TestLiveImageBuilder(object):
             return_value='custom_cmdline'
         )
         self.live_image = LiveImageBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
+            self.xml_state, 'target_dir', 'root_dir',
+            custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
         self.live_image.machine = mock.Mock()
         self.live_image.machine.get_domain = mock.Mock(
@@ -92,8 +93,6 @@ class TestLiveImageBuilder(object):
         )
         assert live_image.arch == 'ix86'
 
-    @patch('shutil.copy')
-    @patch('kiwi.builder.live.glob.glob')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.Iso.create_hybrid')
@@ -101,17 +100,18 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.builder.live.FileSystemIsoFs')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
     @patch_open
     def test_create_overlay_structure(
-        self, mock_open, mock_size, mock_bootloader, mock_isofs, mock_fs,
-        mock_hybrid, mock_command, mock_dtemp, mock_glob, mock_copy
+        self, mock_open, mock_grub_dir, mock_size, mock_bootloader,
+        mock_isofs, mock_fs, mock_hybrid, mock_command, mock_dtemp
     ):
+        mock_grub_dir.return_value = 'grub2'
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 
         def side_effect(prefix, dir):
             return tmpdir_name.pop()
 
-        mock_glob.return_value = ['temp_media_dir/boot/grub2/grub.cfg']
         mock_dtemp.side_effect = side_effect
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
@@ -144,7 +144,8 @@ class TestLiveImageBuilder(object):
             'initrd_dir'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
-            boot_part_id=1, filesystem='squashfs'
+            boot_part_id=1, filesystem='squashfs',
+            working_directory='temp_media_dir'
         )
         mock_fs.assert_called_once_with(
             custom_args={'mount_options': 'async'},
@@ -178,19 +179,13 @@ class TestLiveImageBuilder(object):
             mbrid=None
         )
         assert bootloader.write.call_args_list[0] == call()
-        mock_glob.assert_called_once_with(
-            'temp_media_dir/boot/grub*/grub.cfg'
-        )
-        mock_copy.assert_called_once_with(
-            'temp_media_dir/boot/grub2/grub.cfg', 'temp_media_dir/EFI/BOOT'
-        )
 
         assert mock_bootloader.call_args_list[1] == call(
-            'grub2', self.xml_state, 'temp_media_dir'
+            'grub2', self.xml_state, 'temp_media_dir',
+            {'grub_directory_name': 'grub2'}
         )
         assert bootloader.setup_live_boot_images.call_args_list[1] == call(
-            lookup_path=self.live_image.boot_image_task.boot_root_directory,
-            mbrid=self.mbrid
+            lookup_path='root_dir', mbrid=self.mbrid
         )
         assert bootloader.setup_live_image_config.call_args_list[1] == call(
             mbrid=self.mbrid
@@ -267,34 +262,26 @@ class TestLiveImageBuilder(object):
         self.live_image.live_type = 'bogus'
         self.live_image.create()
 
-    @patch('shutil.copy')
-    @patch('kiwi.builder.live.glob.glob')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch_open
     @raises(KiwiLiveBootImageError)
     def test_create_no_kernel_found(
-        self, mock_open, mock_boot, mock_command,
-        mock_dtemp, mock_glob, mock_copy
+        self, mock_open, mock_boot, mock_command, mock_dtemp
     ):
-        mock_glob.return_value = []
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_kernel.return_value = False
         self.live_image.create()
 
-    @patch('shutil.copy')
-    @patch('kiwi.builder.live.glob.glob')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.BootLoaderConfig')
     @patch_open
     @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
-        self, mock_open, mock_boot, mock_command,
-        mock_dtemp, mock_glob, mock_copy
+        self, mock_open, mock_boot, mock_command, mock_dtemp
     ):
-        mock_glob.return_value = []
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
         self.live_image.create()

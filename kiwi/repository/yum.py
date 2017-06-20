@@ -21,6 +21,7 @@ from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.logger import log
+from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 
@@ -60,6 +61,12 @@ class RepositoryYum(RepositoryBase):
         if 'exclude_docs' in self.custom_args:
             self.custom_args.remove('exclude_docs')
             log.warning('rpm-excludedocs not supported for yum: ignoring')
+
+        if 'check_signatures' in self.custom_args:
+            self.custom_args.remove('check_signatures')
+            self.gpg_check = '1'
+        else:
+            self.gpg_check = '0'
 
         self.repo_names = []
 
@@ -118,7 +125,8 @@ class RepositoryYum(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None
+        user=None, secret=None, credentials_file=None,
+        repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
         Add yum repository
@@ -132,6 +140,8 @@ class RepositoryYum(RepositoryBase):
         :param user: unused
         :param secret: unused
         :param credentials_file: unused
+        :param bool repo_gpgcheck: enable repository signature validation
+        :param bool pkg_gpgcheck: enable package signature validation
         """
         repo_file = self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -146,12 +156,32 @@ class RepositoryYum(RepositoryBase):
         repo_config.set(
             name, 'baseurl', uri
         )
+        repo_config.set(
+            name, 'enabled', '1'
+        )
         if prio:
             repo_config.set(
                 name, 'priority', format(prio)
             )
+        if repo_gpgcheck is not None:
+            repo_config.set(
+                name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+            )
+        if pkg_gpgcheck is not None:
+            repo_config.set(
+                name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
+            )
         with open(repo_file, 'w') as repo:
-            repo_config.write(repo)
+            repo_config.write(RepositoryYumSpaceRemover(repo))
+
+    def import_trusted_keys(self, signing_keys):
+        """
+        Imports trusted keys into the image
+
+        :param list signing_keys: list of the key files to import
+        """
+        for key in signing_keys:
+            Command.run(['rpm', '--root', self.root_dir, '--import', key])
 
     def delete_repo(self, name):
         """
@@ -169,6 +199,20 @@ class RepositoryYum(RepositoryBase):
         """
         Path.wipe(self.shared_yum_dir['reposd-dir'])
         Path.create(self.shared_yum_dir['reposd-dir'])
+
+    def delete_repo_cache(self, name):
+        """
+        Delete yum repository cache
+
+        The cache data for each repository is stored in a directory
+        of the same name as the repository name. The method deletes
+        this directory to cleanup the cache information
+
+        :param string name: repository name
+        """
+        Path.wipe(
+            os.sep.join([self.shared_yum_dir['cache-dir'], name])
+        )
 
     def cleanup_unused_repos(self):
         """
@@ -226,6 +270,9 @@ class RepositoryYum(RepositoryBase):
             'main', 'plugins', '1'
         )
         self.runtime_yum_config.set(
+            'main', 'gpgcheck', self.gpg_check
+        )
+        self.runtime_yum_config.set(
             'main', 'metadata_expire', '1800'
         )
         self.runtime_yum_config.set(
@@ -242,8 +289,47 @@ class RepositoryYum(RepositoryBase):
 
     def _write_runtime_config(self):
         with open(self.runtime_yum_config_file.name, 'w') as config:
-            self.runtime_yum_config.write(config)
+            self.runtime_yum_config.write(
+                RepositoryYumSpaceRemover(config)
+            )
         yum_plugin_config_file = \
             self.shared_yum_dir['pluginconf-dir'] + '/priorities.conf'
         with open(yum_plugin_config_file, 'w') as pluginconfig:
-            self.runtime_yum_plugin_config.write(pluginconfig)
+            self.runtime_yum_plugin_config.write(
+                RepositoryYumSpaceRemover(pluginconfig)
+            )
+
+
+class RepositoryYumSpaceRemover(object):
+    """
+    Yum is not able to deal with key = value pairs if there are
+    spaces around the '=' delimiter.
+
+    This is a helper class to eliminate spaces around delimiters
+    when writing out the data of a ConfigParser instance. In Python 3
+    :py:func:`ConfigParser.write` supports the parameter::
+
+       ConfigParser.write(file_object, space_around_delimiters=False)
+
+    Unfortunately, in Python 2 the spaces are hard coded and can't be
+    configured. In order to still support both Python versions this
+    helper class provides a custom :py:meth:`write()` method which
+    deletes the unwanted spaces.
+
+    Instead of passing an instance of a :py:attr:`file_object` to
+    :py:class:`ConfigParser` we pass an instance of a
+    :py:class:`RepositoryYumSpaceRemover` object::
+
+       ConfigParser.write(RepositoryYumSpaceRemover(file_object))
+
+    It is expected that :py:func:`ConfigParser.write` only calls
+    the :py:meth:`write`
+    method of the usually provided file object. Thus this helper
+    class only provides a custom version of this :py:meth:`write`
+    method.
+    """
+    def __init__(self, file_object):
+        self.file_object = file_object
+
+    def write(self, data):
+        self.file_object.write(data.replace(' = ', '=', 1))

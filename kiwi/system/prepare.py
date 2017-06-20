@@ -90,7 +90,7 @@ class SystemPrepare(object):
         # for System operations
         self.uri_list = []
 
-    def setup_repositories(self):
+    def setup_repositories(self, clear_cache=False, signing_keys=None):
         """
         Set up repositories for software installation and return a
         package manager for performing software installation tasks
@@ -99,13 +99,18 @@ class SystemPrepare(object):
         :rtype: PackageManager
         """
         repository_options = []
-        repository_sections = self.xml_state.get_repository_sections()
+        repository_sections = \
+            self.xml_state.get_repository_sections_used_for_build()
         package_manager = self.xml_state.get_package_manager()
+        if self.xml_state.get_rpm_check_signatures():
+            repository_options.append('check_signatures')
         if self.xml_state.get_rpm_excludedocs():
             repository_options.append('exclude_docs')
         repo = Repository(
             self.root_bind, package_manager, repository_options
         )
+        if signing_keys:
+            repo.import_trusted_keys(signing_keys)
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()
@@ -115,6 +120,8 @@ class SystemPrepare(object):
             repo_priority = xml_repo.get_priority()
             repo_dist = xml_repo.get_distribution()
             repo_components = xml_repo.get_components()
+            repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
+            repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
             log.info('Setting up repository %s', repo_source)
             log.info('--> Type: %s', repo_type)
             if repo_priority:
@@ -142,8 +149,11 @@ class SystemPrepare(object):
             repo.add_repo(
                 repo_alias, repo_source_translated,
                 repo_type, repo_priority, repo_dist, repo_components,
-                repo_user, repo_secret, uri.credentials_file_name()
+                repo_user, repo_secret, uri.credentials_file_name(),
+                repo_repository_gpgcheck, repo_package_gpgcheck
             )
+            if clear_cache:
+                repo.delete_repo_cache(repo_alias)
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()
         return PackageManager(

@@ -46,7 +46,7 @@ class PackageManagerTemplateAptGet(object):
                     AllowDowngrades "true";
                     AllowRemoveEssential "true";
                     AllowChangeHeldPackages "true";
-                    AllowUnauthenticated "true";
+                    AllowUnauthenticated "${unauthenticated}";
                 }
             };
         ''').strip() + os.linesep

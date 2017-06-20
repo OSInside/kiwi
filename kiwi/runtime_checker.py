@@ -94,10 +94,11 @@ class RuntimeChecker(object):
         ''')
 
         shared_cache_location = Defaults.get_shared_cache_location()
-        absolute_target_dir = os.path.abspath(
+
+        target_dir_stack = os.path.abspath(
             os.path.normpath(target_dir)
-        ).replace('//', '/')
-        if absolute_target_dir.startswith('/' + shared_cache_location):
+        ).replace(os.sep + os.sep, os.sep).split(os.sep)
+        if target_dir_stack[1:4] == shared_cache_location.split(os.sep):
             raise KiwiRuntimeError(
                 message % (target_dir, shared_cache_location)
             )

@@ -53,12 +53,23 @@ kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 	# the short form of the RelaxNG schema to the format used
 	# in code and auto generates the python data structures
 	trang -I rnc -O rng kiwi/schema/kiwi.rnc kiwi/schema/kiwi.rng
-	trang -I rnc -O xsd kiwi/schema/kiwi.rnc kiwi/schema/kiwi.xsd
 	# XML parser code is auto generated from schema using generateDS
 	# http://pythonhosted.org/generateDS
-	generateDS.py -f --external-encoding='utf-8' \
-		-o kiwi/xml_parse.py kiwi/schema/kiwi.xsd
-	rm kiwi/schema/kiwi.xsd
+	# ---
+	# a) modify arch-name xsd:token pattern to be generic because
+	#    generateDS translates the regular expression into another
+	#    expression which is different and wrong compared to the
+	#    expression in the schema
+	cat kiwi/schema/kiwi.rnc | sed -e \
+		s'@arch-name = xsd:token.*@arch-name = xsd:token {pattern = ".*"}@' >\
+		kiwi/schema/kiwi_modified_for_generateDS.rnc
+	# convert schema rnc format into xsd format and call generateDS
+	trang -I rnc -O xsd kiwi/schema/kiwi_modified_for_generateDS.rnc \
+		kiwi/schema/kiwi_for_generateDS.xsd
+	generateDS.py -f --external-encoding='utf-8' --no-dates --no-warnings \
+		-o kiwi/xml_parse.py kiwi/schema/kiwi_for_generateDS.xsd
+	rm kiwi/schema/kiwi_for_generateDS.xsd
+	rm kiwi/schema/kiwi_modified_for_generateDS.rnc
 
 po:
 	./.locale

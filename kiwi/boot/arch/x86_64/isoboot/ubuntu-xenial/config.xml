@@ -74,15 +74,14 @@
         <package name="dialog"/>
         <package name="plymouth"/>
         <package name="hwinfo"/>
-        <package name="grub-efi-amd64"/>
         <package name="isolinux"/>
         <package name="syslinux"/>
+        <package name="syslinux-common"/>
         <package name="genisoimage"/>
         <package name="gawk"/>
         <package name="parted"/>
     </packages>
     <packages type="bootstrap">
         <package name="initramfs-tools"/>
-        <package name="grub2"/>
     </packages>
 </image>

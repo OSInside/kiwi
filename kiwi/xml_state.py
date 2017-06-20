@@ -124,6 +124,20 @@ class XMLState(object):
                 return exclude_docs[0]
         return False
 
+    def get_rpm_check_signatures(self):
+        """
+        Gets the rpm-check-signatures configuration flag. Returns
+        False if not present.
+
+        :return: check-signatures flag
+        :rtype: bool
+        """
+        for preferences in self.get_preferences_sections():
+            check_signatures = preferences.get_rpm_check_signatures()
+            if check_signatures:
+                return check_signatures[0]
+        return False
+
     def get_package_manager(self):
         """
         Configured package manager
@@ -1136,15 +1150,32 @@ class XMLState(object):
             self.xml_data.get_repository()
         )
 
-    def has_repositories_marked_as_imageinclude(self):
+    def get_repository_sections_used_for_build(self):
         """
-        Return true if has one or more repository section
-        marked as imageinclude.
+        List the repositorys sections used to build the image matching
+        configured profiles.
 
-        :rtype: bool
+        :return: <repository>
+        :rtype: list
         """
         repos = self.get_repository_sections()
-        return bool(list(repo for repo in repos if repo.get_imageinclude()))
+        return list(
+            repo for repo in repos if not repo.get_imageonly()
+        )
+
+    def get_repository_sections_used_in_image(self):
+        """
+        List the repositorys sections to be configured in the resulting
+        image matching configured profiles.
+
+        :return: <repository>
+        :rtype: list
+        """
+        repos = self.get_repository_sections()
+        return list(
+            repo for repo in repos if repo.get_imageinclude() or
+            repo.get_imageonly()
+        )
 
     def delete_repository_sections(self):
         """

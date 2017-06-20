@@ -33,7 +33,7 @@ class ImageBuilder(object):
     """
         image builder factory
     """
-    def __new__(self, xml_state, target_dir, root_dir):
+    def __new__(self, xml_state, target_dir, root_dir, custom_args=None):
         requested_image_type = xml_state.get_build_type_name()
         if requested_image_type in Defaults.get_filesystem_image_types():
             return FileSystemBuilder(
@@ -41,23 +41,23 @@ class ImageBuilder(object):
             )
         elif requested_image_type in Defaults.get_disk_image_types():
             return DiskBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         elif requested_image_type in Defaults.get_live_image_types():
             return LiveImageBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         elif requested_image_type in Defaults.get_network_image_types():
             return PxeBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         elif requested_image_type in Defaults.get_archive_image_types():
             return ArchiveBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         elif requested_image_type in Defaults.get_container_image_types():
             return ContainerBuilder(
-                xml_state, target_dir, root_dir
+                xml_state, target_dir, root_dir, custom_args
             )
         else:
             raise KiwiRequestedTypeError(

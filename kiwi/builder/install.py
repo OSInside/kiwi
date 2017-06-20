@@ -25,6 +25,7 @@ from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.path import Path
+from kiwi.defaults import Defaults
 from kiwi.utils.checksum import Checksum
 from kiwi.logger import log
 from kiwi.system.kernel import Kernel
@@ -43,57 +44,30 @@ class InstallImageBuilder(object):
 
     Attributes
 
-    * :attr:`arch`
-        platform.machine
+    * :attr:`xml_state`
+        Instance of XMLState
+
+    * :attr:`root_dir`
+        systemi image root directory
 
     * :attr:`target_dir`
         target directory path name
 
-    * :attr:`machine`
-        Configured build type machine section
-
-    * :attr:`boot_image`
+    * :attr:`boot_image_task`
         Instance of BootImage
 
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`diskname`
-        File name of the disk image
-
-    * :attr:`isoname`
-        File name of the install ISO image
-
-    * :attr:`pxename`
-        File name of the install PXE archive
-
-    * :attr:`squashed_diskname`
-        File name of the squahsfs compressed disk image
-
-    * :attr:`md5name`
-        File name of the disk checksum file
-
-    * :attr:`mbrid`
-        Instance of SystemIdentifier
-
-    * :attr:`media_dir`
-        Temporary directory to collect the install ISO contents
-
-    * :attr:`pxe_dir`
-        Temporary directory to collect the PXE install Archive contents
-
-    * :attr:`squashed_contents`
-        Temporary directory to collect the contents of the squashfs
-        compressed disk image. These are the disk image file itself
-        and the checksum file
-
-    * :attr:`custom_iso_args`
-        Additional custom ISO creation arguments
+    * :attr:`custom_args`
+        Custom processing arguments defined as hash keys:
+        * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, boot_image_task):
+    def __init__(
+        self, xml_state, root_dir, target_dir, boot_image_task,
+        custom_args=None
+    ):
         self.arch = platform.machine()
         if self.arch == 'i686' or self.arch == 'i586':
             self.arch = 'ix86'
+        self.root_dir = root_dir
         self.target_dir = target_dir
         self.machine = xml_state.get_build_type_machine_section()
         self.boot_image_task = boot_image_task
@@ -131,6 +105,8 @@ class InstallImageBuilder(object):
         self.md5name = ''.join(
             [xml_state.xml_data.get_name(), '.md5']
         )
+        self.xz_options = custom_args['xz_options'] if custom_args \
+            and 'xz_options' in custom_args else None
 
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
@@ -209,11 +185,13 @@ class InstallImageBuilder(object):
 
         # setup bootloader config to boot the ISO via EFI
         bootloader_config_grub = BootLoaderConfig(
-            'grub2', self.xml_state, self.media_dir
+            'grub2', self.xml_state, self.media_dir, {
+                'grub_directory_name':
+                    Defaults.get_grub_boot_directory_name(self.root_dir)
+            }
         )
         bootloader_config_grub.setup_install_boot_images(
-            mbrid=self.mbrid,
-            lookup_path=self.boot_image_task.boot_root_directory
+            mbrid=self.mbrid, lookup_path=self.root_dir
         )
         bootloader_config_grub.setup_install_image_config(
             mbrid=self.mbrid
@@ -267,7 +245,7 @@ class InstallImageBuilder(object):
             source_filename=self.diskname,
             keep_source_on_compress=True
         )
-        compress.xz()
+        compress.xz(self.xz_options)
         Command.run(
             ['mv', compress.compressed_filename, pxe_image_filename]
         )
@@ -311,7 +289,7 @@ class InstallImageBuilder(object):
             self.pxename.replace('.xz', '')
         )
         archive.create_xz_compressed(
-            self.pxe_dir
+            self.pxe_dir, xz_options=self.xz_options
         )
 
     def _create_pxe_install_kernel_and_initrd(self):
