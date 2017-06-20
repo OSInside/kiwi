@@ -99,9 +99,21 @@ class ImageInfoTask(CliTask):
 
         if self.command_args['--resolve-package-list']:
             solver = self._setup_solver()
-            package_list = self.xml_state.get_bootstrap_packages() + \
+            boostrap_package_list = self.xml_state.get_bootstrap_packages() + \
+                [self.xml_state.get_package_manager()]
+            package_list = boostrap_package_list + \
                 self.xml_state.get_system_packages()
-            solved_packages = solver.solve(package_list)
+            bootstrap_packages = solver.solve(
+                boostrap_package_list, False,
+                True if self.xml_state.get_bootstrap_collection_type() is
+                'onlyRequired' else False
+            )
+            solved_packages = solver.solve(
+                self.xml_state.get_system_packages(), False,
+                True if self.xml_state.get_system_collection_type() is
+                'onlyRequired' else False
+            )
+            solved_packages.update(bootstrap_packages)
             package_info = {}
             for package, metadata in sorted(list(solved_packages.items())):
                 if package in package_list:
