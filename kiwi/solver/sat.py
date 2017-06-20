@@ -69,7 +69,7 @@ class Sat(object):
 
     def solve(self, job_names, skip_missing=False, ignore_recommended=True):
         """
-        Solve dependencies for the given job list. The list is allowd
+        Solve dependencies for the given job list. The list is allowed
         to contain element names of the following format:
 
         * name
