@@ -178,7 +178,7 @@ class RepositoryZypper(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='rpm-md',
+        self, name, uri, repo_type=None,
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None
@@ -220,16 +220,17 @@ class RepositoryZypper(RepositoryBase):
             Path.wipe(repo_file)
 
         self._backup_package_cache()
+        repo_setup_options = [
+            '--refresh', '--keep-packages', '--no-check'
+        ]
+        if repo_type:
+            repo_setup_options.append('--type')
+            repo_setup_options.append(self._translate_repo_type(repo_type))
         Command.run(
             ['zypper'] + self.zypper_args + [
-                '--root', self.root_dir,
-                'addrepo',
-                '--refresh',
-                '--type', self._translate_repo_type(repo_type),
-                '--keep-packages',
-                '-C',
-                uri,
-                name
+                '--root', self.root_dir, 'addrepo'
+            ] + repo_setup_options + [
+                uri, name
             ],
             self.command_env
         )

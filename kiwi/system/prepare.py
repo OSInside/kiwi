@@ -123,7 +123,8 @@ class SystemPrepare(object):
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
             log.info('Setting up repository %s', repo_source)
-            log.info('--> Type: %s', repo_type)
+            if repo_type:
+                log.info('--> Type: %s', repo_type)
             if repo_priority:
                 log.info('--> Priority: %s', repo_priority)
 

@@ -140,7 +140,8 @@ class SystemSetup(object):
             if not repo_alias:
                 repo_alias = uri.alias()
             log.info('Setting up image repository %s', repo_source)
-            log.info('--> Type: %s', repo_type)
+            if repo_type:
+                log.info('--> Type: %s', repo_type)
             log.info('--> Translated: %s', repo_source_translated)
             log.info('--> Alias: %s', repo_alias)
             repo.add_repo(

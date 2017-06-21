@@ -124,7 +124,7 @@ class RepositoryDnf(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='rpm-md',
+        self, name, uri, repo_type=None,
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None
@@ -134,7 +134,7 @@ class RepositoryDnf(RepositoryBase):
 
         :param string name: repository base file name
         :param string uri: repository URI
-        :param repo_type: repostory type name
+        :param repo_type: unused
         :param int prio: dnf repostory priority
         :param dist: unused
         :param components: unused
