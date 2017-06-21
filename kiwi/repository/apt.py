@@ -125,7 +125,7 @@ class RepositoryApt(RepositoryBase):
         }
 
     def add_repo(
-        self, name, uri, repo_type='deb',
+        self, name, uri, repo_type=None,
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None

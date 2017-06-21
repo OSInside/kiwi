@@ -112,9 +112,9 @@ class TestRepositoryZypper(object):
                 ['zypper'] + self.repo.zypper_args + [
                     '--root', '../data',
                     'addrepo', '--refresh',
-                    '--type', 'YUM',
                     '--keep-packages',
-                    '-C',
+                    '--no-check',
+                    '--type', 'YUM',
                     'kiwi_iso_mount/uri',
                     'foo'
                 ], self.repo.command_env
@@ -161,9 +161,9 @@ class TestRepositoryZypper(object):
                 ['zypper'] + self.repo.zypper_args + [
                     '--root', '../data',
                     'addrepo', '--refresh',
-                    '--type', 'YUM',
                     '--keep-packages',
-                    '-C',
+                    '--no-check',
+                    '--type', 'YUM',
                     'kiwi_iso_mount/uri',
                     'foo'
                 ], self.repo.command_env
@@ -225,9 +225,8 @@ class TestRepositoryZypper(object):
             ['zypper'] + self.repo.zypper_args + [
                 '--root', '../data',
                 'addrepo', '--refresh',
-                '--type', 'YUM',
                 '--keep-packages',
-                '-C',
+                '--no-check',
                 'http://some/repo?credentials=credentials_file',
                 'foo'
             ], self.repo.command_env
