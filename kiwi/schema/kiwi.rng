@@ -1242,10 +1242,9 @@ partition in MB. No swapspace with oem-swap set to false.</db:para>
     </define>
     <define name="k.oem-systemsize">
       <element name="oem-systemsize">
-        <a:documentation>For oemboot driven images: Set the size of the system
-(root) partition in MB</a:documentation>
-        <db:para>For oemboot driven images: Set the size of the system
-(root) partition in MB.</db:para>
+        <a:documentation>For oemboot driven images: Set the size of the system (root)
+partition or LVM partition in MB. If not provided the partition
+will grow to the maximum available free space on the disk</a:documentation>
         <ref name="k.oem-systemsize.attlist"/>
         <data type="nonNegativeInteger"/>
       </element>

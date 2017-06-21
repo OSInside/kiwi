@@ -895,7 +895,7 @@ Parents:
 oem-systemsize
 ::::::::::::::
 
-For oemboot driven images: Set the size of the system (root) partition in MB
+For oemboot driven images: Set the size of the system (root) partition or LVM partition in MB. If not provided the partition will grow to the maximum available free space on the disk
 
 Parents:
    These elements contain ``oem-systemsize``: :ref:`k.image.preferences.type.oemconfig`
