@@ -1002,14 +1002,9 @@ div {
 div {
     k.oem-systemsize.attlist = empty
     k.oem-systemsize =
-        ## For oemboot driven images: Set the size of the system
-        ## (root) partition in MB
-        [
-        db:para [
-            "For oemboot driven images: Set the size of the system\x{a}"~
-            "(root) partition in MB."
-        ]
-        ]
+        ## For oemboot driven images: Set the size of the system (root)
+        ## partition or LVM partition in MB. If not provided the partition
+        ## will grow to the maximum available free space on the disk
         element oem-systemsize {
             k.oem-systemsize.attlist,
             xsd:nonNegativeInteger
