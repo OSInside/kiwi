@@ -17,8 +17,7 @@ container configurations.
 The Docker configuration metadata is provided to KIWI as part of the
 :ref:`XML description file <decription_components>` using the
 ``<containerconfig>`` tag. The following configuration metadata can be
-specified (detailed XML schema documentation
-:ref:`here <k.image.preferences.type.containerconfig>`).
+specified:
 
 `containerconfig` attributes:
 
