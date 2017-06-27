@@ -716,7 +716,7 @@ class TestSystemSetup(object):
         repo = mock.Mock()
         mock_repo.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
-        repo.add_repo.assert_called_once_with(
+        assert repo.add_repo.call_args_list[0] == call(
             '95811799a6d1889c5b2363d3886986de',
             'http://download.opensuse.org/repositories/Devel:PubCloud:AmazonEC2/SLE_12_GA',
             'rpm-md',

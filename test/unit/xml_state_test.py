@@ -165,11 +165,11 @@ class TestXMLState(object):
 
     def test_add_repository(self):
         self.state.add_repository('repo', 'type', 'alias', 1)
-        assert self.state.xml_data.get_repository()[2].get_source().get_path() \
+        assert self.state.xml_data.get_repository()[3].get_source().get_path() \
             == 'repo'
-        assert self.state.xml_data.get_repository()[2].get_type() == 'type'
-        assert self.state.xml_data.get_repository()[2].get_alias() == 'alias'
-        assert self.state.xml_data.get_repository()[2].get_priority() == 1
+        assert self.state.xml_data.get_repository()[3].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[3].get_alias() == 'alias'
+        assert self.state.xml_data.get_repository()[3].get_priority() == 1
 
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == [
@@ -502,6 +502,10 @@ class TestXMLState(object):
     def test_delete_repository_sections(self):
         self.state.delete_repository_sections()
         assert self.state.get_repository_sections() == []
+
+    def test_delete_repository_sections_used_for_build(self):
+        self.state.delete_repository_sections_used_for_build()
+        assert self.state.get_repository_sections()[0].get_imageonly()
 
     def test_get_build_type_vmconfig_entries(self):
         assert self.state.get_build_type_vmconfig_entries() == []

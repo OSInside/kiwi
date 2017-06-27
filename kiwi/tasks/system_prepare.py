@@ -125,7 +125,7 @@ class SystemPrepareTask(CliTask):
         )
 
         if self.command_args['--ignore-repos']:
-            self.xml_state.delete_repository_sections()
+            self.xml_state.delete_repository_sections_used_for_build()
 
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \

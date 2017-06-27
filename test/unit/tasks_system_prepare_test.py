@@ -202,7 +202,7 @@ class TestSystemPrepareTask(object):
             'kiwi::system::prepare'
         )
 
-    @patch('kiwi.xml_state.XMLState.delete_repository_sections')
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
     def test_process_system_prepare_delete_repos(self, mock_delete_repos):
         self._init_command_args()
         self.task.command_args['--ignore-repos'] = True

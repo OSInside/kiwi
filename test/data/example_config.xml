@@ -147,6 +147,9 @@
     <repository type="rpm-md" imageinclude="true">
         <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
     </repository>
+    <repository type="rpm-md" imageonly="true">
+        <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker"/>
+    </repository>
     <packages type="image" patternType="plusRecommended">
         <namedCollection name="base"/>
         <product name="openSUSE"/>

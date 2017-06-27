@@ -1183,6 +1183,17 @@ class XMLState(object):
         """
         self.xml_data.set_repository([])
 
+    def delete_repository_sections_used_for_build(self):
+        """
+        Delete all repository sections used to build the image matching
+        configured profiles
+        """
+        used_for_build = self.get_repository_sections_used_for_build()
+        all_repos = self.get_repository_sections()
+        self.xml_data.set_repository([
+            repo for repo in all_repos if repo not in used_for_build
+        ])
+
     def translate_obs_to_ibs_repositories(self):
         """
         Change obs repotype to ibs type

@@ -228,7 +228,7 @@ class TestSystemBuildTask(object):
             'kiwi::system::build'
         )
 
-    @patch('kiwi.xml_state.XMLState.delete_repository_sections')
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_prepare_ignore_repos(
         self, mock_log, mock_delete_repos
