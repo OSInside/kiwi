@@ -18,6 +18,7 @@
 """
 usage: kiwi result bundle -h | --help
        kiwi result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+           [--zsync-source=<download_location>]
        kiwi result bundle help
 
 commands:
@@ -36,6 +37,14 @@ options:
         information of the result image filename
     --target-dir=<directory>
         the target directory to expect image build results
+    --zsync-source=<download_location>
+        specify the download location from which the bundle file(s)
+        can be fetched from. The information is effective if zsync is
+        used to sync the bundle. The zsync control file is only created
+        for those bundle files which are marked for compression because
+        in a kiwi build only those are meaningful for a partial binary
+        file download. It is expected that all files from a bundle
+        are placed to the same download location
 """
 from collections import OrderedDict
 import os
@@ -123,6 +132,27 @@ class ResultBundleTask(CliTask):
                     compress.xz(self.runtime_config.get_xz_options())
                     bundle_file = compress.compressed_filename
                     checksum_file = compress.compressed_filename + '.sha256'
+                    if self.command_args['--zsync-source']:
+                        zsyncmake = Path.which('zsyncmake', access_mode=os.X_OK)
+                        if zsyncmake:
+                            log.info('--> Creating zsync control file')
+                            Command.run(
+                                [
+                                    zsyncmake, '-e',
+                                    '-u', os.sep.join(
+                                        [
+                                            self.command_args['--zsync-source'],
+                                            os.path.basename(bundle_file)
+                                        ]
+                                    ),
+                                    '-o', bundle_file + '.zsync',
+                                    bundle_file
+                                ]
+                            )
+                        else:
+                            log.warning(
+                                '--> zsyncmake missing, zsync setup skipped'
+                            )
                 if result_file.shasum:
                     log.info('--> Creating SHA 256 sum')
                     checksum = Checksum(bundle_file)

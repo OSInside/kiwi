@@ -10,6 +10,7 @@ SYNOPSIS
 
    kiwi result bundle -h | --help
    kiwi result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+       [--zsync_source=<download_location>]
    kiwi result bundle help
 
 DESCRIPTION
@@ -36,3 +37,16 @@ OPTIONS
 --target-dir=<directory>
 
   directory containing the kiwi build results
+
+--zsync_source=<download_location>
+
+  Specify the download location from which the bundle file(s)
+  can be fetched from. The information is effective if `zsync` is
+  used to sync the bundle.
+
+  * The zsync control file is only created for those bundle files
+    which are marked for compression because in a KIWI build only those
+    are meaningful for a partial binary file download.
+
+  * It is expected that all files from a bundle are placed to the same
+    download location
