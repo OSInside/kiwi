@@ -156,20 +156,22 @@ class TestXMLState(object):
             'suse://Devel:PubCloud:AmazonEC2/SLE_12_GA'
 
     def test_set_repository(self):
-        self.state.set_repository('repo', 'type', 'alias', 1)
+        self.state.set_repository('repo', 'type', 'alias', 1, True)
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \
             == 'repo'
         assert self.state.xml_data.get_repository()[0].get_type() == 'type'
         assert self.state.xml_data.get_repository()[0].get_alias() == 'alias'
         assert self.state.xml_data.get_repository()[0].get_priority() == 1
+        assert self.state.xml_data.get_repository()[0].get_imageinclude() is True
 
     def test_add_repository(self):
-        self.state.add_repository('repo', 'type', 'alias', 1)
+        self.state.add_repository('repo', 'type', 'alias', 1, True)
         assert self.state.xml_data.get_repository()[3].get_source().get_path() \
             == 'repo'
         assert self.state.xml_data.get_repository()[3].get_type() == 'type'
         assert self.state.xml_data.get_repository()[3].get_alias() == 'alias'
         assert self.state.xml_data.get_repository()[3].get_priority() == 1
+        assert self.state.xml_data.get_repository()[3].get_imageinclude() is True
 
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == [

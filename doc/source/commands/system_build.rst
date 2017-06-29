@@ -13,8 +13,8 @@ SYNOPSIS
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
-       [--set-repo=<source,type,alias,priority>]
-       [--add-repo=<source,type,alias,priority>...]
+       [--set-repo=<source,type,alias,priority,imageinclude>]
+       [--add-repo=<source,type,alias,priority,imageinclude>...]
        [--obs-repo-internal]
        [--add-package=<name>...]
        [--delete-package=<name>...]
@@ -39,10 +39,12 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority>
+--add-repo=<source,type,alias,priority,imageinclude>
 
   Add a new repository to the existing repository setup in the XML
-  description. This option can be specified multiple times
+  description. This option can be specified multiple times.
+  For details about the provided option values see the **--set-repo**
+  information below
 
 --allow-existing-root
 
@@ -90,7 +92,7 @@ OPTIONS
   internal build service. Please note this requires access permissions
   to the SUSE internal build service on the machine building the image.
 
---set-repo=<source,type,alias,priority>
+--set-repo=<source,type,alias,priority,imageinclude>
 
   Overwrite the first repository entry in the XML description with the
   provided information:
@@ -118,6 +120,11 @@ OPTIONS
     depends on the selected package manager. Please refer to the package
     manager documentation for details about the supported priority ranges
     and their meaning.
+
+  - **imageinclude**
+
+    Set to either **true** or **false** to specify if this repository
+    should be part of the system image repository setup or not
 
 --target-dir=<directory>
 

@@ -21,8 +21,8 @@ usage: kiwi system prepare -h | --help
            [--allow-existing-root]
            [--clear-cache]
            [--ignore-repos]
-           [--set-repo=<source,type,alias,priority>]
-           [--add-repo=<source,type,alias,priority>...]
+           [--set-repo=<source,type,alias,priority,imageinclude>]
+           [--add-repo=<source,type,alias,priority,imageinclude>...]
            [--obs-repo-internal]
            [--add-package=<name>...]
            [--delete-package=<name>...]
@@ -40,8 +40,11 @@ commands:
 options:
     --add-package=<name>
         install the given package name
-    --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority.
+    --add-repo=<source,type,alias,priority,imageinclude>
+        add repository with given source, type, alias, priority
+        and the imageinclude flag set to true|false which indicates
+        if this repository should be part of the system image
+        repository setup or not
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
@@ -71,9 +74,11 @@ options:
         overwrite the container tag in the container configuration.
         The setting is only effective if the container configuraiton
         provides an initial tag value
-    --set-repo=<source,type,alias,priority>
-        overwrite the repo source, type, alias or priority for the first
-        repository in the XML description
+    --set-repo=<source,type,alias,priority,imageinclude>
+        overwrite the first XML listed repository source, type, alias,
+        priority and the imageinclude flag set to true|false which
+        indicates if this repository should be part of the system
+        image repository setup or not
      --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
 """
@@ -128,18 +133,14 @@ class SystemPrepareTask(CliTask):
             self.xml_state.delete_repository_sections_used_for_build()
 
         if self.command_args['--set-repo']:
-            (repo_source, repo_type, repo_alias, repo_prio) = \
-                self.quadruple_token(self.command_args['--set-repo'])
             self.xml_state.set_repository(
-                repo_source, repo_type, repo_alias, repo_prio
+                *self.quintuple_token(self.command_args['--set-repo'])
             )
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
-                (repo_source, repo_type, repo_alias, repo_prio) = \
-                    self.quadruple_token(add_repo)
                 self.xml_state.add_repository(
-                    repo_source, repo_type, repo_alias, repo_prio
+                    *self.quintuple_token(add_repo)
                 )
 
         if self.command_args['--set-container-tag']:

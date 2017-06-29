@@ -181,7 +181,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_set_repo.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', None, None
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
@@ -191,11 +191,11 @@ class TestSystemBuildTask(object):
     ):
         self._init_command_args()
         self.task.command_args['--add-repo'] = [
-            'http://example.com,yast2,alias'
+            'http://example.com,yast2,alias,99,false'
         ]
         self.task.process()
         mock_add_repo.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', '99', False
         )
 
     @patch('kiwi.logger.Logger.set_logfile')
