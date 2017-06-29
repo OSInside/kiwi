@@ -22,5 +22,5 @@ else
 	EOF
     trang -I rnc -O xsd ../kiwi/schema/kiwi.rnc kiwi.xsd && \
         bash $oxygen_tool kiwi.xsd -cfg:schema_docs.conf
-    rm -f kiwi.xsd xsi.xsd
+    rm -f kiwi.xsd xsi.xsd ../doc/source/development/schema/xsdDocHtml.css
 fi
