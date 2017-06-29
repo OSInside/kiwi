@@ -24,15 +24,6 @@ namespace db  = "http://docbook.org/ns/docbook"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace nul = ""
 
-db:info [
-    db:releaseinfo [
-        "$Id: $"
-    ]
-    db:releaseinfo [ "RNC Schema Version 6.4" ]
-    db:pubdate [ "START" ]
-    db:pubdate [ "2016-03-18" ]
-]
-
 image-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
 locale-name = xsd:token {pattern = "[a-z]{2}_[A-Z]{2}(,[a-z]{2}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
@@ -87,12 +78,6 @@ div {
 
     k.image =
         ## The root element of the configuration file   
-        [
-        db:para [
-            "Each KIWI configuration file consists of a root element\x{a}" ~
-            "image."
-        ]
-        ]
         element image {
             k.image.attlist &
             k.description &
@@ -235,11 +220,6 @@ div {
     k.bootloader-theme.attlist = empty
     k.bootloader-theme =
         ## Image bootloader theme setup.
-        [
-        db:para [
-            "The value will be used in KIWIConfig.sh::suseGFXBoot"
-        ]
-        ]
         element bootloader-theme {
             k.bootloader-theme.attlist,
             text
@@ -253,11 +233,6 @@ div {
     k.bootsplash-theme.attlist = empty
     k.bootsplash-theme =
         ## Image bootsplash theme setup.
-        [
-        db:para [
-            "The value will be used in KIWIConfig.sh::suseGFXBoot"
-        ]
-        ]
         element bootsplash-theme {
             k.bootsplash-theme.attlist,
             text
@@ -277,14 +252,9 @@ div {
         k.configuration.arch.attribute?
 
     k.configuration =
-        ## Specifies Configuration files
-        [
-        db:para [
-            "As part of the network deploy configuration this section\x{a}" ~
-            "specifies the configuration files which should be included\x{a}"~
-            "into the image after deployment."
-        ]
-        ]
+        ## As part of the network deploy configuration this section
+        ## specifies the configuration files which should be included
+        ## into the image after deployment
         element configuration {
             k.configuration.attlist,
             empty
@@ -369,12 +339,6 @@ div {
     k.hwclock.attlist = empty
     k.hwclock =
         ## Setup Image harware clock setup, either utc or localtime
-        [
-        db:para [
-            "Image hardware clock setup. The value can be either\x{a}"~
-            "set to utc or localtime."
-        ]
-        ]
         element hwclock {
             k.hwclock.attlist,
             k.hwclock.content
@@ -404,13 +368,8 @@ div {
 div {
     k.initrd.attlist = empty
     k.initrd =
-        ## Specifies where the Boot Image can be Found
-        [
-        db:para [
-            "As part of the network deploy configuration this element\x{a}"~
-            "specifies where the boot image (initrd) can be found."
-        ]
-        ]
+        ## As part of the network deploy configuration this element
+        ## specifies where the boot image (initrd) can be found
         element initrd {
             k.initrd.attlist,
             text
@@ -423,13 +382,8 @@ div {
 div {
     k.kernel.attlist = empty
     k.kernel =
-        ## Specifies Where to Find the Boot Kernel
-        [
-        db:para [
-            "As part of the network deploy configuration this section\x{a}" ~
-            "specifies the where to find the boot kernel."
-        ]
-        ]
+        ## As part of the network deploy configuration this section
+        ## specifies the where to find the boot kernel
         element kernel {
             k.kernel.attlist,
             text
@@ -443,11 +397,6 @@ div {
     k.keytable.attlist = empty
     k.keytable =
         ## Image keytable setup.
-        [
-        db:para [
-            "The value will be part of /etc/sysconfig/keyboard"
-        ]
-        ]
         element keytable {
             k.keytable.attlist,
             text
@@ -461,11 +410,6 @@ div { # locale
     k.locale.attlist = empty
     k.locale =
         ## Image locale setup.
-        [
-        db:para [
-            "The value will be part of /etc/sysconfig/keyboard"
-        ]
-        ]
         element locale {
             k.locale.attlist,
             locale-name
@@ -498,13 +442,6 @@ div {
         ## For oemboot driven images: setup of the boot menu text
         ## displayed within the square brackets after first reboot
         ## of the OEM image
-        [
-        db:para [
-            "For oemboot driven images: setup of the boot menu text\x{a}"~
-            "displayed within the square brackets after first reboot\x{a}"~
-            "of the OEM image."
-        ]
-        ]
         element oem-boot-title {
             k.oem-boot-title.attlist,
             text
@@ -519,15 +456,6 @@ div {
     k.oem-bootwait.attlist = empty
     k.oem-bootwait =
         ## For oemboot driven images: halt system after image dump true/false
-        [
-        db:para [
-            "For oemboot driven images: wait for user acknowledgement "~
-            "after first deployment true/false. A message to be "~
-            "acknowledged by the user is posted after the image has been "~
-            "dumped (installed) on the target disk. After user interaction "~
-            "the system reboots (softboot)."
-        ]
-        ]
         element oem-bootwait {
             k.oem-bootwait.attlist,
             k.oem-bootwait.content
@@ -544,13 +472,6 @@ div {
         ## For oemboot driven images: filter install devices by given
         ## regular expression. The expression is handled by the bash regexp
         ## operator
-        [
-        db:para [
-            "For oemboot driven images: filter install devices by given"~
-            "regular expression. The expression is handled by the bash"~
-            "regexp operator"
-        ]
-        ]
         element oem-device-filter {
             k.oem-device-filter.attlist,
             k.oem-device-filter.content
@@ -570,16 +491,6 @@ div {
         ## other interface names stay in the list. It is also possible to
         ## pass the variable kiwi_oemnicfilter as kernel command
         ## line in a PXE deployment
-        [
-        db:para [
-            "For oemboot driven images: filter network interface names by given"
-            "regular expression. The expression is handled by the bash regexp"
-            "operator. Interface names matching the rule will be skipped. All"
-            "other interface names stay in the list. It is also possible to"
-            "pass the variable kiwi_oemnicfilter as kernel command"
-            "line in a PXE deployment"
-        ]
-        ]
         element oem-nic-filter {
             k.oem-nic-filter.attlist,
             k.oem-nic-filter.content
@@ -597,14 +508,6 @@ div {
         ## recovery archive should be stored as part of the image
         ## or not. If it's not stored it's created during install
         ## of the oem image
-        [
-        db:para [
-            "For oemboot driven images: Specify whether the\x{a}"~
-            "recovery archive should be stored as part of the image\x{a}"~
-            "or not. If it's not stored it's created during install\x{a}"~
-            "of the oem image"
-        ]
-        ]
         element oem-inplace-recovery {
             k.oem-inplace-recovery.attlist,
             k.oem-inplace-recovery.content
@@ -620,12 +523,6 @@ div {
     k.oem-kiwi-initrd =
         ## For oemboot driven images: use kiwi initrd in any case
         ## and don't replace it with mkinitrd created initrd
-        [
-        db:para [
-            "For oemboot driven images: use kiwi initrd in any case\x{a}"~
-            "and don't replace it with mkinitrd created initrd"
-        ]
-        ]
         element oem-kiwi-initrd {
             k.oem-kiwi-initrd.attlist,
             k.oem-kiwi-initrd.content
@@ -643,14 +540,6 @@ div {
         ## disk but into a free partition. If this option is set
         ## all other oem-* options concerning the partition table
         ## will not have any effect
-        [
-        db:para [
-            "For oemboot driven images: install the system not as\x{a}"~
-            "disk but into a free partition. If this option is set\x{a}"~
-            "all other oem-* options concerning the partition table\x{a}"~
-            "will not have any effect"
-        ]
-        ]
         element oem-partition-install {
             k.oem-partition-install.attlist,
             k.oem-partition-install.content
@@ -665,14 +554,6 @@ div {
     k.oem-reboot.attlist = empty
     k.oem-reboot =
         ## For oemboot driven images: reboot after first deployment true/false
-        [
-        db:para [
-            "For oemboot driven images: reboot after first deployment "~
-            "true/false. The system is rebooted in similar fashion to "~
-            "shutdown -r after the image has been dumped (installed) "~
-            "and expanded on the target disk."
-        ]
-        ]
         element oem-reboot {
             k.oem-reboot.attlist,
             k.oem-reboot.content
@@ -686,16 +567,8 @@ div {
     k.oem-reboot-interactive.content = xsd:boolean
     k.oem-reboot-interactive.attlist = empty
     k.oem-reboot-interactive =
-        ## For oemboot driven images: reboot after first deployment true/false
-        [
-        db:para [
-            "For oemboot driven images: reboot after first deployment "~
-            "true/false. A message to be acknowledged by the user is "~
-            "posted after the image has been dumped (installed) and "~
-            "expanded on the target disk. After user interaction the "~
-            "system is rebooted in similar fashion to shutdown -r."
-        ]
-        ]
+        ## For oemboot driven images: reboot after first deployment
+        ## with an interactive dialog true/false
         element oem-reboot-interactive {
             k.oem-reboot-interactive.attlist,
             k.oem-reboot-interactive.content
@@ -710,11 +583,6 @@ div {
     k.oem-recovery.attlist = empty
     k.oem-recovery =
         ## For oemboot driven images: create a recovery archive yes/no
-        [
-        db:para [
-            "For oemboot driven images: create a recovery archive yes/no"
-        ]
-        ]
         element oem-recovery {
             k.oem-recovery.attlist,
             k.oem-recovery.content
@@ -729,12 +597,6 @@ div {
     k.oem-recoveryID =
         ## For oemboot driven images: Set the partition ID of
         ## recovery partition. Default value is 83 (Linux)
-        [
-        db:para [
-            "For oemboot driven images: Set the partition ID of\x{a}"~
-            "recovery partition. Default value is 83 (Linux)"
-        ]
-        ]
         element oem-recoveryID {
             k.oem-recoveryID.attlist,
             xsd:nonNegativeInteger
@@ -749,12 +611,6 @@ div {
     k.oem-recovery-part-size =
         ## For oemboot driven images: Set the size of the
         ## recovery partition. Value is interpreted as MB
-        [
-        db:para [
-            "For oemboot driven images: Set the size of\x{a}"~
-            "the recovery partition in MBytes."
-        ]
-        ]
         element oem-recovery-part-size {
             k.oem-recovery-part-size.attlist,
             xsd:nonNegativeInteger
@@ -770,13 +626,6 @@ div {
     k.oem-shutdown =
         ## For oemboot driven images: shutdown after first deployment 
         ## true/false
-        [
-        db:para [
-            "For oemboot driven images: shutdown after first deployment "~
-            "true/false. The system is powered down after the image has "~
-            "been dumped (installed) and expanded on the target disk. "
-        ]
-        ]
         element oem-shutdown {
             k.oem-shutdown.attlist,
             k.oem-shutdown.content
@@ -792,14 +641,6 @@ div {
     k.oem-shutdown-interactive =
         ## For oemboot driven images: shutdown after first deployment 
         ## true/false
-        [
-        db:para [
-            "For oemboot driven images: shutdown after first deployment "~
-            "true/false. A message to be acknowledged by the user is posted "~
-            "after the image has been dumped (installed) and expanded on "~
-            "the target disk. After user interaction the system is shutdown."
-        ]
-        ]
         element oem-shutdown-interactive {
             k.oem-shutdown-interactive.attlist,
             k.oem-shutdown-interactive.content
@@ -815,12 +656,6 @@ div {
     k.oem-silent-boot =
         ## For oemboot driven images: boot silently during the initial boot
         ## true/false
-        [
-        db:para [
-            "For oemboot driven images: complete the initial boot of the "~
-            "system in silent mode, true/false. "
-        ]
-        ]
         element oem-silent-boot {
             k.oem-silent-boot.attlist,
             k.oem-silent-boot.content
@@ -835,15 +670,9 @@ div {
     k.oem-silent-install.attlist = empty
     k.oem-silent-install =
         ## For oemboot driven images: do not show progress of the image
-                ## dump process, true/false
-        [
-        db:para [
-            "For oemboot driven images: do not show progress of the image "~
-                        "dump process, true/false (default is false.) "
-        ]
-        ]
+        ## dump process, true/false
         element oem-silent-install {
-                        k.oem-silent-install.attlist,
+            k.oem-silent-install.attlist,
             k.oem-silent-install.content
         }
 }
@@ -857,12 +686,6 @@ div {
     k.oem-skip-verify =
         ## For oemboot driven images: do not perform the md5
         ## verification process, true/false
-        [
-        db:para [
-            "For oemboot driven images: do not perform the md5 "~
-            "verification process, true/false (default is false.) "
-        ]
-        ]
         element oem-skip-verify {
             k.oem-skip-verify.attlist,
             k.oem-skip-verify.content
@@ -879,13 +702,6 @@ div {
         ## For oemboot driven images: turn on or off the search
         ## for ata raid devices (aka fake raid controllers)
         ## true/false (default is true)
-        [
-        db:para [
-            "For oemboot driven images: turn on or off the search "~
-            "for ata raid devices (aka fake raid controllers) "
-            "true/false (default is true) "
-        ]
-        ]
         element oem-ataraid-scan {
             k.oem-ataraid-scan.attlist,
             k.oem-ataraid-scan.content
@@ -902,13 +718,6 @@ div {
         ## For oemboot driven images: provide the name of a parmfile
         ## which is loaded via cmsfscat on s390 systems. Default value
         ## is set to: PARM-S11
-        [
-        db:para [
-            "For oemboot driven images: provide the name of a parmfile "~
-            "which is loaded via cmsfscat on s390 systems. Default value "~
-            "is set to: PARM-S11"
-        ]
-        ]
         element oem-vmcp-parmfile {
             k.oem-vmcp-parmfile.attlist,
             k.oem-vmcp-parmfile.content
@@ -924,12 +733,6 @@ div {
     k.oem-multipath-scan =
         ## For oemboot driven images: turn on or off the search
         ## for multipath devices: true/false (default is true)
-        [
-        db:para [
-            "For oemboot driven images: turn on or off the search "~
-            "for multipath devices: true/false (default is true) "
-        ]
-        ]
         element oem-multipath-scan {
             k.oem-multipath-scan.attlist,
             k.oem-multipath-scan.content
@@ -944,15 +747,9 @@ div {
     k.oem-silent-verify.attlist = empty
     k.oem-silent-verify =
         ## For oemboot driven images: do not show progress of the image
-                ## verification process, true/false
-        [
-        db:para [
-            "For oemboot driven images: do not show progress of the image "~
-                        "verification process, true/false (default is false.) "
-        ]
-        ]
+        ## verification process, true/false
         element oem-silent-verify {
-                        k.oem-silent-verify.attlist,
+            k.oem-silent-verify.attlist,
             k.oem-silent-verify.content
         }
 }
@@ -965,11 +762,6 @@ div {
     k.oem-swap.attlist = empty
     k.oem-swap =
         ## For oemboot driven images: use a swap partition yes/no
-        [
-        db:para [
-            "For oemboot driven images: use a swap partition yes/no."
-        ]
-        ]
         element oem-swap {
             k.oem-swap.attlist,
             k.oem-swap.content
@@ -984,12 +776,6 @@ div {
     k.oem-swapsize =
         ## For oemboot driven images: Set the size of the swap
         ## partition in MB
-        [
-        db:para [
-            "For oemboot driven images: Set the size of the swap\x{a}"~
-            "partition in MB. No swapspace with oem-swap set to false."
-        ]
-        ]
         element oem-swapsize {
             k.oem-swapsize.attlist,
             xsd:nonNegativeInteger
@@ -1020,12 +806,6 @@ div {
     k.oem-unattended =
         ## For oemboot driven images: don't ask questions if possible
         ## true/false
-        [
-        db:para [
-            "For oemboot driven images: don't ask questions if"~
-            "possible true/false"
-        ]
-        ]
         element oem-unattended {
             k.oem-unattended.attlist,
             k.oem-unattended.content
@@ -1040,12 +820,6 @@ div {
     k.oem-unattended-id =
         ## For oemboot driven images: use the specified disk id
         ## the device is looked up in /dev/disk/by-* and /dev/mapper/*
-        [
-        db:para [
-            "For oemboot driven images: use the specified disk id"
-            "the device is looked up in /dev/disk/by-* and /dev/mapper/*"
-        ]
-        ]
         element oem-unattended-id {
             k.oem-unattended-id.attlist,
             text
@@ -1101,12 +875,6 @@ div {
     k.packagemanager.attlist = empty
     k.packagemanager =
         ## Name of the Package Manager
-        [
-        db:para [
-            "The package manager used for package installation\x{a}"~
-            "could be either zypper or smart"
-        ]
-        ]
         element packagemanager {
             k.packagemanager.attlist,
             k.packagemanager.content
@@ -1121,12 +889,6 @@ div {
     k.partitioner.attlist = empty
     k.partitioner =
         ## Name of the Partitioner used for any disk partition tasks
-        [
-        db:para [
-            "The partitioner used for creating disk partitions\x{a}"~
-            "could be either parted or fdasd"
-        ]
-        ]
         element partitioner {
             k.partitioner.attlist,
             k.partitioner.content
@@ -1199,15 +961,10 @@ div {
         k.profile.description.attribute &
         k.profile.import.attribute?
     k.profile =
-        ## Creates Profiles
-        [
-        db:para [
-            "Profiles creates a namespace on an image description and\x{a}"~
-            "thus can be used to have one description with different\x{a}"~
-            "profiles for example KDE and GNOME including different\x{a}"~
-            "packages."
-        ]
-        ]
+        ## Profiles creates a namespace on an image description and
+        ## thus can be used to have one description with different
+        ## profiles for example KDE and GNOME including different
+        ## packages.
         element profile {
             k.profile.attlist,
             empty
@@ -1348,14 +1105,9 @@ div {
     k.rpm-excludedocs.content = xsd:boolean
     k.rpm-excludedocs.attlist = empty
     k.rpm-excludedocs =
-        ## Do not install files marked as documentation in the package
-        [
-        db:para [
-            "Setup if the package manager should exclude docs files\x{a}"~
-            "during package installation. This option could be ignored\x{a}"~
-            "according to the used package manager."
-        ]
-        ]
+        ## Setup if the package manager should exclude docs files
+        ## during package installation. This option could be ignored
+        ## according to the used package manager.
         element rpm-excludedocs {
             k.rpm-excludedocs.attlist,
             k.rpm-excludedocs.content
@@ -1370,13 +1122,6 @@ div {
     k.rpm-force.attlist = empty
     k.rpm-force =
         ## Force the Installation of a Package
-        [
-        db:para [
-        "Setup if the package manager should force the install\x{a}"~
-        "of the package or not. This option could be ignored\x{a}"~
-        "according to the used package manager."
-        ]
-        ]
         element rpm-force {
             k.rpm-force.attlist,
             k.rpm-force.content
@@ -1389,13 +1134,8 @@ div {
 div {
     k.showlicense.attlist = empty
     k.showlicense =
-        ## Setup showlicense
-        [
-        db:para [
-            "Image license setup. The specfied license name\x{a}"~
-            "will be displayed in a dialog window on boot."
-        ]
-        ]
+        ## Image license setup. The specfied license name
+        ## will be displayed in a dialog window on boot.
         element showlicense {
             k.showlicense.attlist,
             text
@@ -1432,13 +1172,8 @@ div {
 div {
     k.specification.attlist = empty
     k.specification =
-        ## A Detailed Description
-        [
-        db:para [
-            "A detailed description of this image and what it can be\x{a}"~
-            "used for."
-        ]
-        ]
+        ## A detailed description of this image and what it
+        ## can be used for.
         element specification {
             k.specification.attlist,
             text
@@ -1463,11 +1198,6 @@ div {
         k.systemdisk.preferlvm.attribute?
     k.systemdisk =
         ## Specify volumes and size attributes
-        [
-        db:para [
-            "Specify volumes and size attributes"
-        ]
-        ]
         element systemdisk {
             k.systemdisk.attlist &
             k.volume*
@@ -1481,12 +1211,6 @@ div {
     k.timeout.attlist = empty
     k.timeout = 
         ## Specifies an ATFTP Download Timeout
-        [
-        db:para [
-            "As part of the network deploy configuration this section\x{a}"~
-            "specifies an ATFTP download timeout"
-        ]
-        ]
         element timeout {
             k.timeout.attlist,
             text
@@ -1500,12 +1224,6 @@ div {
     k.timezone.attlist = empty
     k.timezone =  
         ## Setup Image Timezone setup
-        [
-        db:para [
-            "Image timezone setup. The value will be used to search\x{a}"~
-            "the correct timezone and copy it to /etc/localtime."
-        ]
-        ]
         element timezone {
             k.timezone.attlist,
             text
@@ -2113,16 +1831,11 @@ div {
         k.union.type.attribute
     
     k.union =  
-        ## Specifies the Overlay Filesystem
-        [
-        db:para [
-            "As part of the network deploy configuration this section\x{a}"~
-            "specifies the overlay filesystem setup if required by the\x{a}"~
-            "filesystem type of the system image.An overlay setup is\x{a}"~
-            "only required if the system image uses a squashfs\x{a}"~
-            "compressed filesystem."
-        ]
-        ]
+        ## As part of the network deploy configuration this section
+        ## specifies the overlay filesystem setup if required by the
+        ## filesystem type of the system image.An overlay setup is
+        ## only required if the system image uses a squashfs
+        ## compressed filesystem.
         element union {
             k.union.attlist,
             empty
@@ -2333,12 +2046,6 @@ div {
     k.volume =
         ## Specify which parts of the filesystem should be
         ## on an extra volume.
-        [
-        db:para [
-            "Specify which parts of the filesystem should be on\x{a}"
-            "an extra volume."
-        ]
-        ]
         element volume {
             k.volume.attlist,
             empty
@@ -2360,13 +2067,6 @@ div {
         k.pxedeploy.blocksize.attribute?
     k.pxedeploy =
         ## Controls the Image Deploy Process
-        [
-        db:para [
-            "The deploy section is used to allow kiwi to create the\x{a}"~
-            "config.<MAC> file required by PXE based network images.\x{a}"~
-            "the contents of this file controls the image deploy process."
-        ]
-        ]
         element pxedeploy {
             k.pxedeploy.attlist &
             k.timeout? &
@@ -2502,16 +2202,11 @@ div {
         k.containerconfig.workingdir.attribute?
 
     k.containerconfig =
-        ## Provides metadata information for containers
-        [
-        db:para [
-            "The containerconfig element provides metadata information"
-            "to setup a container in order to be prepared for use with"
-            "the container engine tool chain. container specific data"
-            "should be provided in an additional subsection whereas this"
-            "section provides globally useful container information"
-        ]
-        ]
+        ## The containerconfig element provides metadata information
+        ## to setup a container in order to be prepared for use with
+        ## the container engine tool chain. container specific data
+        ## should be provided in an additional subsection whereas this
+        ## section provides globally useful container information.
         element containerconfig {
             k.containerconfig.attlist &
             k.entrypoint? &
@@ -2718,14 +2413,9 @@ div {
 div {
     k.oemconfig.attlist = empty
     k.oemconfig =
-        ## Specifies the OEM configuration section
-        [
-        db:para [
-            "The oemconfig element specifies the OEM image\x{a}"~
-            "configuration options which are used to repartition\x{a}"~
-            "and setup the system disk"
-        ]
-        ]
+        ## The oemconfig element specifies the OEM image
+        ## configuration options which are used to repartition
+        ## and setup the system disk.
         element oemconfig {
             k.oemconfig.attlist &
             k.oem-ataraid-scan? &
@@ -2765,42 +2455,23 @@ div {
         ## The vagrant provider for this box
         attribute provider { "libvirt" }
     k.vagrantconfig.virtualsize.attribute =
-        ## The vagrant virtual image size in GB
-        [
-        db:para [
-            "virtualsize provides the value of the virtual_size key"
-            "which is embedded in the metadata.json hash inside the"
-            ".box file, as described here:"
-            ""
-            "http://docs.vagrantup.com/v2/boxes/format.html"
-            ""
-            "This tells the Vagrant provider how big to make the"
-            "virtual disk when it creates the VM."
-        ]
-        ]
+        ## virtualsize provides the value of the virtual_size key which
+        ## is embedded in the metadata.json hash inside the box file, as
+        ## described in http://docs.vagrantup.com/v2/boxes/format.html
+        ## This tells the Vagrant provider how big to make the
+        ## virtual disk when it creates the VM.
         attribute virtualsize { xsd:nonNegativeInteger }
     k.vagrantconfig.boxname.attribute =
         ## The boxname as it's written into the json file
         ## If not specified the image name is used
-        [
-        db:para [
-            "The boxname as it's written into the json file."
-            "If not specified the image name is used."
-        ]
-        ]
         attribute boxname { text }
     k.vagrantconfig.attlist =
         k.vagrantconfig.provider.attribute &
         k.vagrantconfig.virtualsize.attribute &
         k.vagrantconfig.boxname.attribute?
     k.vagrantconfig =
-        ## Specifies the Vagrant configuration section
-        [
-        db:para [
-            "The vagrantconfig element specifies the Vagrant meta"
-            "configuration options which are used inside a vagrant box"
-        ]
-        ]
+        ## The vagrantconfig element specifies the Vagrant meta
+        ## configuration options which are used inside a vagrant box
         element vagrantconfig {
             k.vagrantconfig.attlist
         }
@@ -2859,14 +2530,9 @@ div {
         k.machine.memory.attribute? &
         k.machine.ncpus.attribute?
     k.machine =
-        ## specifies the VM configuration sections
-        [
-        db:para [
-            "The machine element specifies the VM guest\x{a}"~
-            "configuration options which are used by the\x{a}"~
-            "virtual machine when running the image."
-        ]
-        ]
+        ## The machine element specifies the VM guest
+        ## configuration options which are used by the
+        ## virtual machine when running the image.
         element machine {
             k.machine.attlist &
             k.vmconfig-entry * &
@@ -2905,14 +2571,6 @@ div {
         k.packages.patternType.attribute?
     k.packages =
         ## Specifies Packages/Patterns Used in Different Stages
-        [
-        db:para [
-            "The packages elements specifies a set of packages\x{a}"~
-            "and/or patterns which are used in different stages of the\x{a}"~
-            "image building process\x{a}"~
-            "and also depends of the selected image output type."
-        ]
-        ]
         element packages {
             k.packages.attlist &
             k.archive* &
@@ -2963,13 +2621,8 @@ div {
 div {
     k.profiles.attlist = empty
     k.profiles =  
-        ## Creates Namespace Section for Drivers
-        [
-        db:para [
-            "Namespace section which creates a namespace and the\x{a}"~
-            "drivers can bind itself to one of the listed namespaces."
-        ]
-        ]
+        ## Namespace section which creates a namespace and the
+        ## drivers can bind itself to one of the listed namespaces.
         element profiles {
             k.profiles.attlist &
             k.profile+

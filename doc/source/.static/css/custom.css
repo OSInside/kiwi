@@ -1,0 +1,447 @@
+/*----------------------------------------
+    Global 
+-----------------------------------------*/
+table {
+    font-family:arial, helvetica, sans-serif;
+    font-size:12px;
+}
+
+/*--------------------------------------------
+    Source code in the instance, source or 
+    annotations.
+--------------------------------------------*/
+span.tokenElement {
+    color: #000096;
+    background-color:inherit;
+}
+span.tokenAttrName {
+    color: #F5844C;
+    background-color:inherit;
+}
+span.tokenAttrValue {
+    color: #993300;
+    background-color:inherit;
+}
+span.tokenIndent {
+    color: #000000;
+    background-color:inherit;
+}
+span.tokenText {
+    color: #000000;
+    background-color:inherit;
+    white-space: normal;
+}
+span.tokenComment {
+    color: #006400;
+    background-color:inherit;
+}
+span.tokenCDATA {
+    color: #008C00;
+    background-color:inherit;
+}
+span.tokenPI {
+    color: #8B26C9;
+    background-color:inherit;
+}
+span.tokenEntity {
+    color: #969600;
+    background-color:inherit;
+}
+span.qname{
+    color:#000096;
+    background-color:inherit;
+}
+
+/*-----------------------------------------
+    Documentation sections.
+------------------------------------------*/
+
+div.componentTitle {
+    font-size:1.4em;
+    font-weight:bold;
+    text-align:left;
+    margin-top:1.4em;
+    margin-bottom:0.7em;
+}
+div.componentTitle{
+/*    color:rgb(255, 160, 100);*/
+    color:#333333;
+    background-color:inherit;
+}
+
+
+/* Tables. */
+
+td, th {
+    padding:2px 2px 2px 5px;
+    text-align:left;
+    vertical-align:top;
+}
+
+tr > th {
+    background-color:#C4DAF4;
+    color:inherit;
+}
+
+/* Contrast for the titles*/
+table.component {
+    width:100%;
+    border-spacing:1px;
+}
+
+@media print{
+    table.component{
+        border:1px solid gray;
+        border-collapse:collapse;
+    }
+    
+    table.component td{
+        border:1px solid gray;
+    }
+}
+
+table.component td.firstColumn{
+    background-color:#C4DAF4;
+    color:black;
+    width:12%;
+}
+
+table.component table td.firstColumn{
+    border:none;
+    background-color:#EAF1FB;
+    color: inherit;
+}
+
+td.firstColumn b{
+    font-weight:normal;
+}
+
+
+/* The Name and Expand/Collapse control are on the same line
+ but at different ends.*/
+td.firstColumn div.floatLeft{
+    float:left;
+}
+td.firstColumn div.floatRight{
+    float:right;
+}
+
+/* Subtables */
+table.component table{
+    width:100%;
+}
+table.component table,
+table.component table td,
+table.component table th{
+    border:0;
+}
+
+
+/* Properties table */
+table.propertiesTable {
+    border-spacing:1px;
+}
+table.propertiesTable td.firstColumn{
+    width:140px;
+    text-transform:capitalize;        
+}
+/* Used by table */
+table.usedByTable {
+    border-spacing:1px;
+}
+table.usedByTable td.firstColumn{
+    width:140px;
+    text-transform:capitalize;        
+}
+
+/* Facets table*/
+table.facetsTable {
+    border-spacing:1px;
+}
+table.facetsTable td.firstColumn{
+    width:140px;
+    text-transform:capitalize;        
+}
+
+/* Attributes table */
+table.attributesTable {
+    border-spacing:1px;
+}
+table.attributesTable th{
+    font-weight:normal;
+}
+table.attributesTable tr:hover{
+    color:inherit;
+    background-color:#EAF1FB;
+}
+
+
+/* Identity constraints table */
+table.identityConstraintsTable {
+    border-spacing:1px;
+}
+table.identityConstraintsTable th{
+    font-weight:normal;
+}
+table.identityConstraintsTable tr:hover{
+    color:inherit;
+    background-color:#EAF1FB;
+}
+
+
+
+/*---------------------------------------
+    The diagram.    
+----------------------------------------*/
+table.component td.diagram {
+    background-color:white;
+    color:inherit;
+}
+
+/* This table is a workaround for an IE bug regarding pre-wrap */
+table.preWrapContainer,
+table.preWrapContainer td{
+    border:0;
+    margin:0;
+    padding:0;
+}
+
+
+/* Annotations. */
+div.annotation{    
+}
+div.annotation pre{
+    font-family:arial, helvetica, sans-serif;
+    margin:0;
+}
+div.annotation,
+div.annotation table,
+div.annotation table td{
+    margin:0;
+    padding:0;
+}
+
+/*  Hierarchy */
+ul > li{
+    list-style:none;
+}
+
+ul {
+    margin:2px;
+    padding:0;
+}
+
+ul ul li {
+    padding-left:10px;
+    
+    list-style-image:url('images/hierarchy_arrow.gif');
+    list-style-position:inside;
+}
+
+/*-------------------------------------
+    Rounded tables.
+---------------------------------------*/
+table.rt,
+table.rt_with_bg{
+    border-collapse:collapse;
+    border-spacing:0;
+    width:100%;
+} 
+table.rt_with_bg{
+    /*background-color:#C0F0A0;*/
+    background-color:white;
+    color:inherit;
+}
+
+
+.rt_cornerTopLeft{
+    background-color:transparent;
+    background-repeat:no-repeat;
+    background-position:right;    
+    width:8px;
+    height:8px;
+    margin:0;
+    padding:0;
+}
+.rt_cornerTopLeft{
+    background-image:url('images/corner_top_left.gif');
+}
+
+
+.rt_cornerBottomLeft{
+    background-color:transparent;
+    background-repeat:no-repeat;
+    background-position:right;    
+    width:8px;
+    height:8px;
+    margin:0;
+    padding:0;
+}
+.rt_cornerBottomLeft{
+    background-image:url('images/corner_bottom_left.gif');
+}
+
+
+.rt_cornerTopRight{
+    background-color:transparent;
+    background-repeat:no-repeat;
+    width:8px;
+    height:8px;
+    margin:0;
+    padding:0;
+
+}
+.rt_cornerTopRight{
+    background-image:url('images/corner_top_right.gif');
+}
+
+
+.rt_cornerBottomRight{
+    background-color:transparent;
+    background-repeat:no-repeat;
+    width:8px;
+    height:8px;
+    margin:0;
+    padding:0;
+
+}
+.rt_cornerBottomRight{
+    background-image:url('images/corner_bottom_right.gif');    
+}
+
+
+.rt_content{
+    background-color:white;
+    color:inherit;
+    width:auto;
+    margin:0;
+    padding:0;
+}
+
+
+.rt_lineLeft{
+    background-color:transparent;
+    background-repeat:repeat-y;
+    background-position:right;    
+    width:8px;
+    margin:0;
+    padding:0;
+
+}
+.rt_lineLeft{
+    background-image:url('images/line_left.gif');
+}
+
+
+.rt_lineRight{
+    background-repeat:repeat-y;
+    width:8px;
+    margin:0;
+    padding:0;
+}
+.rt_lineRight{
+    background-image:url('images/line_right.gif');
+}
+
+
+.rt_lineTop{
+    background-color:transparent;
+    background-repeat:repeat-x;
+    height:8px;
+    width:auto;
+    margin:0;
+    padding:0;
+}
+.rt_lineTop{
+    background-image:url('images/line_top.gif');        
+}
+
+.rt_lineBottom{
+    background-color:transparent;
+    background-repeat:repeat-x;
+    height:8px;
+    width:auto;
+    margin:0;
+    padding:0;
+}
+.rt_lineBottom{
+    background-image:url('images/line_bottom.gif');
+}
+
+
+/* -------------------------------------- 
+    Controls for bulk showing/hidding sections 
+    from the documentation.
+----------------------------------------*/
+.globalControls h3{
+    margin:0.1em;
+    font-size:1.2em;
+}
+
+.globalControls table td{
+    padding:0;
+    margin:0;
+}
+
+.globalControls{
+    position:fixed;
+    left:0;
+    background-color:transparent;
+    padding-left:0.5em;
+    padding-right:0.5em;
+    padding-bottom:0.5em;
+    width:190px;
+}
+
+@media print{
+    .globalControls{
+        display:none;
+    }
+}
+
+/* Expand/collapse of a single section. */
+input.control {
+    text-align:center;
+    vertical-align:middle;
+    padding:0;
+    padding-right:3px;
+    padding-bottom:2px;
+    
+}
+
+
+/* close button */
+td.rt_content div span input{
+    font-size:0.8em;
+}
+
+@media print{
+    input.control{
+        display:none;
+    }
+}
+
+/*------------------------------------------
+  The second level of index. Floating DIVs
+-------------------------------------------*/
+.toc {
+}
+.toc div.verticalLayout, div.horizontalLayout{
+    float:left;
+    display:block;
+
+    background-color:white;
+    color:inherit;
+
+    min-width:130px;
+    min-height:50px;
+    
+    padding:0.5em;
+}
+
+.toc div.componentGroupTitle{
+    font-weight:bold;
+    margin-bottom:0.5em;
+    color:black;
+    background-color:inherit;
+}

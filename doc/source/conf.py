@@ -57,6 +57,7 @@ def remove_module_docstring(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect("autodoc-process-docstring", remove_module_docstring)
+    app.add_stylesheet('css/custom.css')
 
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
@@ -156,6 +157,8 @@ html_sidebars = {
 html_theme = "sphinx_rtd_theme"
 
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+html_static_path = ['.static']
 
 html_theme_options = {
     'collapse_navigation': False,

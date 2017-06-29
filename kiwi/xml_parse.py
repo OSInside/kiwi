@@ -15,7 +15,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -1219,7 +1219,9 @@ class archive(GeneratedsSuper):
 
 
 class configuration(GeneratedsSuper):
-    """Specifies Configuration files"""
+    """As part of the network deploy configuration this section specifies
+    the configuration files which should be included into the image
+    after deployment"""
     subclass = None
     superclass = None
     def __init__(self, source=None, dest=None, arch=None):
@@ -2016,7 +2018,9 @@ class partitions(GeneratedsSuper):
 
 
 class profile(GeneratedsSuper):
-    """Creates Profiles"""
+    """Profiles creates a namespace on an image description and thus can be
+    used to have one description with different profiles for example
+    KDE and GNOME including different packages."""
     subclass = None
     superclass = None
     def __init__(self, name=None, description=None, import_=None):
@@ -3483,7 +3487,10 @@ class type_(GeneratedsSuper):
 
 
 class union(GeneratedsSuper):
-    """Specifies the Overlay Filesystem"""
+    """As part of the network deploy configuration this section specifies
+    the overlay filesystem setup if required by the filesystem type
+    of the system image.An overlay setup is only required if the
+    system image uses a squashfs compressed filesystem."""
     subclass = None
     superclass = None
     def __init__(self, ro=None, rw=None, type_=None):
@@ -4670,7 +4677,11 @@ class strip(GeneratedsSuper):
 
 
 class containerconfig(GeneratedsSuper):
-    """Provides metadata information for containers"""
+    """The containerconfig element provides metadata information to setup a
+    container in order to be prepared for use with the container
+    engine tool chain. container specific data should be provided in
+    an additional subsection whereas this section provides globally
+    useful container information."""
     subclass = None
     superclass = None
     def __init__(self, name=None, tag=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None):
@@ -5732,7 +5743,8 @@ class label(GeneratedsSuper):
 
 
 class oemconfig(GeneratedsSuper):
-    """Specifies the OEM configuration section"""
+    """The oemconfig element specifies the OEM image configuration options
+    which are used to repartition and setup the system disk."""
     subclass = None
     superclass = None
     def __init__(self, oem_ataraid_scan=None, oem_boot_title=None, oem_bootwait=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
@@ -6364,7 +6376,8 @@ class oemconfig(GeneratedsSuper):
 
 
 class vagrantconfig(GeneratedsSuper):
-    """Specifies the Vagrant configuration section"""
+    """The vagrantconfig element specifies the Vagrant meta configuration
+    options which are used inside a vagrant box"""
     subclass = None
     superclass = None
     def __init__(self, provider=None, virtualsize=None, boxname=None):
@@ -6460,7 +6473,8 @@ class vagrantconfig(GeneratedsSuper):
 
 
 class machine(GeneratedsSuper):
-    """specifies the VM configuration sections"""
+    """The machine element specifies the VM guest configuration options
+    which are used by the virtual machine when running the image."""
     subclass = None
     superclass = None
     def __init__(self, min_memory=None, max_memory=None, min_cpu=None, max_cpu=None, ovftype=None, HWversion=None, arch=None, domain=None, guestOS=None, memory=None, ncpus=None, vmconfig_entry=None, vmdisk=None, vmdvd=None, vmnic=None):
@@ -7312,7 +7326,8 @@ class preferences(GeneratedsSuper):
 
 
 class profiles(GeneratedsSuper):
-    """Creates Namespace Section for Drivers"""
+    """Namespace section which creates a namespace and the drivers can bind
+    itself to one of the listed namespaces."""
     subclass = None
     superclass = None
     def __init__(self, profile=None):
