@@ -1224,6 +1224,19 @@ class XMLState(object):
                     source_path.get_path().replace('obs:', 'suse:')
                 )
 
+    def translate_obs_to_suse_derived_from_image_uri(self):
+        """
+        Change obs: repotype to suse: type
+
+        This will result in a local base image path, which is needed
+        by RootImport.
+        """
+        uri_obj = self.get_derived_from_image_uri()
+        if uri_obj:
+            uri = uri_obj.uri
+            if urlparse(uri).scheme == 'obs':
+                self.set_derived_from_image_uri(uri.replace('obs:', 'suse:'))
+
     def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):
         """
         Overwrite repository data of the first repository
