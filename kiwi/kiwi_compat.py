@@ -151,6 +151,7 @@ class Translate(object):
         self.translated.append('system')
         self.translated.append('update')
         self.translated.append('--root')
+        self.translated.append(root)
         if self.arguments['--add-package']:
             for add_package in self.arguments['--add-package']:
                 self.translated.append('--add-package')
@@ -159,7 +160,6 @@ class Translate(object):
             for del_package in self.arguments['--del-package']:
                 self.translated.append('--delete-package')
                 self.translated.append(del_package)
-        self.translated.append(root)
 
     def _set_add_repo_arguments(self):
         if self.arguments['--add-repo']:
