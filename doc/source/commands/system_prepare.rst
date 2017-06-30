@@ -13,8 +13,8 @@ SYNOPSIS
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
-       [--set-repo=<source,type,alias,priority>]
-       [--add-repo=<source,type,alias,priority>...]
+       [--set-repo=<source,type,alias,priority,imageinclude>]
+       [--add-repo=<source,type,alias,priority,imageinclude>...]
        [--obs-repo-internal]
        [--add-package=<name>...]
        [--delete-package=<name>...]
@@ -41,7 +41,7 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority>
+--add-repo=<source,type,alias,priority,imageinclude>
 
   See the kiwi::system::build manual page for further details
 
@@ -86,6 +86,6 @@ OPTIONS
 
   Path to create the new root system.
 
---set-repo=<source,type,alias,priority>
+--set-repo=<source,type,alias,priority,imageinclude>
 
   See the kiwi::system::build manual page for further details

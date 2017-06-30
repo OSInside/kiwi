@@ -160,6 +160,28 @@ class CliTask(object):
             )
         ]
 
+    def quintuple_token(self, option):
+        """
+        Helper method for commandline options of the form --option a,b,c,d,e
+
+        Make sure to provide a common result for option values which
+        separates the information in a comma separated list of values
+
+        :return: common option value representation
+        :rtype: string
+        """
+        tokens = option.split(',', 4)
+        return [
+            self._pop_token(tokens) if len(tokens) else None for _ in range(
+                0, 5
+            )
+        ]
+
     def _pop_token(self, tokens):
         token = tokens.pop(0)
-        return token if len(token) > 0 else None
+        if len(token) > 0 and token == 'true':
+            return True
+        elif len(token) > 0 and token == 'false':
+            return False
+        else:
+            return token

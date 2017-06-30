@@ -1237,7 +1237,10 @@ class XMLState(object):
             if urlparse(uri).scheme == 'obs':
                 self.set_derived_from_image_uri(uri.replace('obs:', 'suse:'))
 
-    def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):
+    def set_repository(
+        self, repo_source, repo_type, repo_alias, repo_prio,
+        repo_imageinclude=False
+    ):
         """
         Overwrite repository data of the first repository
 
@@ -1245,6 +1248,7 @@ class XMLState(object):
         :param string repo_type: type name defined by schema
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
+        :param boolean imageinclude: setup repository inside of the image
         """
         repository_sections = self.get_repository_sections()
         if repository_sections:
@@ -1257,8 +1261,13 @@ class XMLState(object):
                 repository.get_source().set_path(repo_source)
             if repo_prio:
                 repository.set_priority(int(repo_prio))
+            if repo_imageinclude:
+                repository.set_imageinclude(repo_imageinclude)
 
-    def add_repository(self, repo_source, repo_type, repo_alias, repo_prio):
+    def add_repository(
+        self, repo_source, repo_type, repo_alias, repo_prio,
+        repo_imageinclude=False
+    ):
         """
         Add a new repository section at the end of the list
 
@@ -1266,13 +1275,15 @@ class XMLState(object):
         :param string repo_type: type name defined by schema
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
+        :param boolean imageinclude: setup repository inside of the image
         """
         self.xml_data.add_repository(
             xml_parse.repository(
                 type_=repo_type,
                 alias=repo_alias,
                 priority=repo_prio,
-                source=xml_parse.source(path=repo_source)
+                source=xml_parse.source(path=repo_source),
+                imageinclude=repo_imageinclude
             )
         )
 
