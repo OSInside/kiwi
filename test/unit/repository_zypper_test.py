@@ -219,7 +219,8 @@ class TestRepositoryZypper(object):
             '../data/shared-dir/zypper/credentials/credentials_file', 'w'
         )
         assert self.file_mock.write.call_args_list == [
-            call('username=user'), call('password=secret')
+            call('username=user\n'),
+            call('password=secret\n')
         ]
         mock_command.assert_called_once_with(
             ['zypper'] + self.repo.zypper_args + [
