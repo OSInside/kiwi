@@ -129,7 +129,7 @@
         </type>
     </preferences>
     <preferences profiles="derivedContainer">
-        <type image="docker" derived_from="file:///image.tar.xz">
+        <type image="docker" derived_from="obs://project/repo/image#mytag">
             <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
                 <entrypoint clear="true"/>
                 <subcommand clear="true"/>

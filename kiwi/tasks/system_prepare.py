@@ -157,8 +157,10 @@ class SystemPrepareTask(CliTask):
 
         if Defaults.is_obs_worker():
             # This build runs inside of a buildservice worker. Therefore
-            # the repo defintions is adapted accordingly
+            # the repo defintions and the base image uri are adapted
+            # accordingly
             self.xml_state.translate_obs_to_suse_repositories()
+            self.xml_state.translate_obs_to_suse_derived_from_image_uri()
 
         elif self.command_args['--obs-repo-internal']:
             # This build should use the internal SUSE buildservice
