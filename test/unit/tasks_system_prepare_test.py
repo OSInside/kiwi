@@ -162,18 +162,18 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_state.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', None, None
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     def test_process_system_prepare_add_repo(self, mock_state):
         self._init_command_args()
         self.task.command_args['--add-repo'] = [
-            'http://example.com,yast2,alias'
+            'http://example.com,yast2,alias,99,true'
         ]
         self.task.process()
         mock_state.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', '99', True
         )
 
     @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
