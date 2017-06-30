@@ -1216,7 +1216,7 @@ class XMLState(object):
         This will result in a local repo path suitable for a
         buildservice worker instance
         """
-        for repository in self.get_repository_sections():
+        for repository in self.get_repository_sections_used_for_build():
             source_path = repository.get_source()
             source_uri = urlparse(source_path.get_path())
             if source_uri.scheme == 'obs':
