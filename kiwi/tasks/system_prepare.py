@@ -124,7 +124,6 @@ class SystemPrepareTask(CliTask):
         self.runtime_checker.check_boot_image_reference_correctly_setup()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
-        self.runtime_checker.check_image_include_repos_http_resolvable()
         self.runtime_checker.check_target_directory_not_in_shared_cache(
             abs_root_path
         )
@@ -166,6 +165,8 @@ class SystemPrepareTask(CliTask):
             # This build should use the internal SUSE buildservice
             # Be aware that the buildhost has to provide access
             self.xml_state.translate_obs_to_ibs_repositories()
+
+        self.runtime_checker.check_image_include_repos_http_resolvable()
 
         package_requests = False
         if self.command_args['--add-package']:
