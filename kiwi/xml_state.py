@@ -1277,6 +1277,10 @@ class XMLState(object):
         :param string repo_prio: priority number, package manager specific
         :param boolean imageinclude: setup repository inside of the image
         """
+        try:
+            repo_prio = int(repo_prio)
+        except:
+            repo_prio = None
         self.xml_data.add_repository(
             xml_parse.repository(
                 type_=repo_type,

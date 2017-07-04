@@ -181,6 +181,15 @@ class TestXMLState(object):
         assert self.state.xml_data.get_repository()[3].get_priority() == 1
         assert self.state.xml_data.get_repository()[3].get_imageinclude() is True
 
+    def test_add_repository_with_empty_values(self):
+        self.state.add_repository('repo', 'type', '', '', True)
+        assert self.state.xml_data.get_repository()[3].get_source().get_path() \
+            == 'repo'
+        assert self.state.xml_data.get_repository()[3].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[3].get_alias() == ''
+        assert self.state.xml_data.get_repository()[3].get_priority() is None
+        assert self.state.xml_data.get_repository()[3].get_imageinclude() is True
+
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == [
             'kernel-debug'
