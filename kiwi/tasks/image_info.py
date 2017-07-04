@@ -37,9 +37,10 @@ options:
     --ignore-repos
         ignore all repos from the XML configuration
     --obs-repo-internal
-        when using obs:// repos resolve them using the SUSE internal
-        buildservice. This only works if access to SUSE's internal
-        buildservice is granted
+        Obsolete and kept for compatibility only:
+        For changing to another/private buildservice instance please
+        configure access and privacy information in the kiwi config
+        file
     --resolve-package-list
         solve package dependencies and return a list of all
         packages including their attributes e.g size,
@@ -87,11 +88,6 @@ class ImageInfoTask(CliTask):
                 )
 
         self.runtime_checker.check_repositories_configured()
-
-        if self.command_args['--obs-repo-internal']:
-            # This build should use the internal SUSE buildservice
-            # Be aware that the buildhost has to provide access
-            self.xml_state.translate_obs_to_ibs_repositories()
 
         result = {
             'image': self.xml_state.xml_data.get_name()

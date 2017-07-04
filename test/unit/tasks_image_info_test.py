@@ -83,7 +83,6 @@ class TestImageInfoTask(object):
         self.task.command_args['info'] = False
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--add-repo'] = []
-        self.task.command_args['--obs-repo-internal'] = False
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--resolve-package-list'] = False
 
@@ -135,14 +134,6 @@ class TestImageInfoTask(object):
         mock_state.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', None
         )
-
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
-    @patch('kiwi.tasks.image_info.DataOutput')
-    def test_process_image_info_use_ibs_repos(self, mock_out, mock_state):
-        self._init_command_args()
-        self.task.command_args['--obs-repo-internal'] = True
-        self.task.process()
-        mock_state.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
     @patch('kiwi.tasks.image_info.DataOutput')

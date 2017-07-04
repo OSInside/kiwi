@@ -53,7 +53,7 @@ class RuntimeChecker(object):
                 'No repositories configured'
             )
 
-    def check_image_include_repos_http_resolvable(self):
+    def check_image_include_repos_publicly_resolvable(self):
         """
         Verify that all repos marked with the imageinclude attribute
         can be resolved into a http based web URL
@@ -74,7 +74,7 @@ class RuntimeChecker(object):
                 repo_source = xml_repo.get_source().get_path()
                 repo_type = xml_repo.get_type()
                 uri = Uri(repo_source, repo_type)
-                if not uri.is_remote():
+                if not uri.is_public():
                     raise KiwiRuntimeError(message % repo_source)
 
     def check_target_directory_not_in_shared_cache(self, target_dir):

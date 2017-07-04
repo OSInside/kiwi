@@ -19,8 +19,8 @@ class TestRuntimeChecker(object):
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
     @raises(KiwiRuntimeError)
-    def test_check_image_include_repos_http_resolvable(self):
-        self.runtime_checker.check_image_include_repos_http_resolvable()
+    def test_check_image_include_repos_publicly_resolvable(self):
+        self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
     @raises(KiwiRuntimeError)
     def test_invalid_target_dir_pointing_to_shared_cache_1(self):

@@ -138,7 +138,21 @@ setup parameters:
 .. code-block:: yaml
 
    xz:
-    - options: XZ-compression-options
+     - options: -a -b -c
+
+       # Specifies XZ-compression-options
+       # For details see man xz
+
+   obs:
+     - download_url: url
+
+       # Specifies download server url of an open buildservice instance
+       # defaults to: http://download.opensuse.org
+
+     - public: true|false
+
+       # Specifies if the buildservice instance is public or private
+       # defaults to: true
 
 COMPATIBILITY
 -------------

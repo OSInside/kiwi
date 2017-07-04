@@ -78,7 +78,6 @@ class TestSystemBuildTask(object):
         self.task.command_args['--allow-existing-root'] = True
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
-        self.task.command_args['--obs-repo-internal'] = None
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--add-package'] = []
@@ -95,7 +94,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['build'] = True
         self.task.process()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
-        self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
+        self.runtime_checker.check_image_include_repos_publicly_resolvable.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(self.abs_target_dir)
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(False, None)
@@ -197,27 +196,6 @@ class TestSystemBuildTask(object):
         mock_add_repo.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', '99', False
         )
-
-    @patch('kiwi.logger.Logger.set_logfile')
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
-    def test_process_system_prepare_use_ibs_repos(
-        self, mock_ibs_repo, mock_log
-    ):
-        self._init_command_args()
-        self.task.command_args['--obs-repo-internal'] = True
-        self.task.process()
-        mock_ibs_repo.assert_called_once_with()
-
-    @patch('kiwi.logger.Logger.set_logfile')
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_suse_repositories')
-    @patch('os.path.exists')
-    def test_process_system_prepare_use_suse_repos(
-        self, mock_exists, mock_suse_repos, mock_log
-    ):
-        self._init_command_args()
-        mock_exists.return_value = True
-        self.task.process()
-        mock_suse_repos.assert_called_once_with()
 
     def test_process_system_build_help(self):
         self._init_command_args()
