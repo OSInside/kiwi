@@ -1177,7 +1177,7 @@ solutions to the most common scenarios that require a customized boot image.
   ``strip`` section to the system image :file:`config.xml` file, with the type
   attribute set to tools, as follows:
 
-  .. code-block: xml
+  .. code-block:: xml
 
      <strip type="tools"/>
        <file name="FILENAME"/>
