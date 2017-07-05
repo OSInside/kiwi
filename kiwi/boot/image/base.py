@@ -211,6 +211,9 @@ class BootImageBase(object):
         strip_xml_state.copy_strip_sections(
             self.boot_xml_state
         )
+        self.xml_state.copy_strip_sections(
+            self.boot_xml_state
+        )
         preferences_subsection_names = [
             'bootloader_theme',
             'bootsplash_theme',
