@@ -185,63 +185,63 @@ man_pages = [
         kiwi_doc,
         'kiwi', u'Creating Operating System Images',
         [author],
-        2
+        8
     ),
     (
         result_list_doc,
         'kiwi::result::list',
         u'List build results',
         [author],
-        2
+        8
     ),
     (
         result_bundle_doc,
         'kiwi::result::bundle',
         u'Bundle build results',
         [author],
-        2
+        8
     ),
     (
         system_prepare_doc,
         'kiwi::system::prepare',
         u'Prepare image root system',
         [author],
-        2
+        8
     ),
     (
         system_create_doc,
         'kiwi::system::create',
         u'Create image from prepared root system',
         [author],
-        2
+        8
     ),
     (
         system_update_doc,
         'kiwi::system::update',
         u'Update/Upgrade image root system',
         [author],
-        2
+        8
     ),
     (
         system_build_doc,
         'kiwi::system::build',
         u'Build image in combined prepare and create step',
         [author],
-        2
+        8
     ),
     (
         image_resize_doc,
         'kiwi::image::resize',
         u'Resize disk images to new geometry',
         [author],
-        2
+        8
     ),
     (
         image_info_doc,
         'kiwi::image::info',
         u'Provide detailed information about an image description',
         [author],
-        2
+        8
     )
 ]
 

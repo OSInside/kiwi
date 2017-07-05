@@ -399,7 +399,7 @@ fi
 %dir %{_defaultdocdir}/python-kiwi
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
-%doc %{_mandir}/man2/*
+%doc %{_mandir}/man8/*
 
 %files -n kiwi-tools
 %defattr(-, root, root)

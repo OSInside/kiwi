@@ -33,7 +33,7 @@ class Help(object):
         """
         Call man to show the command specific manual page
 
-        All kiwi commands store their manual page in the section '2'
+        All kiwi commands store their manual page in the section '8'
         of the man system. The calling process is replaced by the
         man process
         """
