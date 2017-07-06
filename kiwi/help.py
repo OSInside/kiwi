@@ -39,4 +39,4 @@ class Help(object):
         """
         if not command:
             raise KiwiHelpNoCommandGiven("No help context specified")
-        subprocess.call('man 2 ' + command, shell=True)
+        subprocess.call('man 8 ' + command, shell=True)
