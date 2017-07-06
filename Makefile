@@ -27,12 +27,12 @@ install:
 	# see setup.py for details when this target is called
 	${MAKE} -C tools buildroot=${buildroot} install
 	# manual pages
-	install -d -m 755 ${buildroot}usr/share/man/man2
-	for man in doc/build/man/*.2; do \
+	install -d -m 755 ${buildroot}usr/share/man/man8
+	for man in doc/build/man/*.8; do \
 		test -e $$man && gzip -f $$man || true ;\
 	done
-	for man in doc/build/man/*.2.gz; do \
-		install -m 644 $$man ${buildroot}usr/share/man/man2 ;\
+	for man in doc/build/man/*.8.gz; do \
+		install -m 644 $$man ${buildroot}usr/share/man/man8 ;\
 	done
 	# completion
 	install -d -m 755 ${buildroot}etc/bash_completion.d
