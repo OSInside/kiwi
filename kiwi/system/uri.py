@@ -88,6 +88,15 @@ class Uri(object):
         be adapted e.g loop mounted in case of an ISO or updated
         by the service URL in case of an open buildservice project
         name
+
+        :param bool check_build_environment:
+
+            specify if the uri translation should depend on the
+            environment the build is called in. As of today this only
+            effects the translation result if the image build happens
+            inside of the Open Build Service
+
+        :rtype: string
         """
         uri = urlparse(self.uri)
         if not uri.scheme:
