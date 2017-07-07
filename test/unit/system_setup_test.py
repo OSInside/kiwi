@@ -712,20 +712,26 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.system.setup.Repository')
-    def test_import_repositories_marked_as_imageinclude(self, mock_repo):
+    @patch('kiwi.system.setup.Uri')
+    def test_import_repositories_marked_as_imageinclude(
+        self, mock_uri, mock_repo
+    ):
+        uri = mock.Mock()
+        mock_uri.return_value = uri
+        uri.translate = mock.Mock(
+            return_value="uri"
+        )
+        uri.alias = mock.Mock(
+            return_value="uri-alias"
+        )
+        uri.credentials_file_name = mock.Mock(
+            return_value='kiwiRepoCredentials'
+        )
+        mock_uri.return_value = uri
         repo = mock.Mock()
         mock_repo.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
         assert repo.add_repo.call_args_list[0] == call(
-            '95811799a6d1889c5b2363d3886986de',
-            'http://download.opensuse.org/repositories/Devel:PubCloud:AmazonEC2/SLE_12_GA',
-            'rpm-md',
-            None,
-            None,
-            None,
-            None,
-            None,
-            'kiwiRepoCredentials',
-            None,
-            None
+            'uri-alias', 'uri', 'rpm-md', None, None, None, None, None,
+            'kiwiRepoCredentials', None, None
         )

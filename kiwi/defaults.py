@@ -70,10 +70,18 @@ class Defaults(object):
         ]
 
     @classmethod
-    def is_obs_worker(self):
+    def is_buildservice_worker(self):
         # the presence of /.buildenv on the build host indicates
         # we are building inside of the open buildservice
         return os.path.exists('/.buildenv')
+
+    @classmethod
+    def get_obs_download_server_url(self):
+        """
+        The default download server url hosting the public open
+        buildservice repositories
+        """
+        return 'http://download.opensuse.org/repositories'
 
     @classmethod
     def get_s390_disk_block_size(self):

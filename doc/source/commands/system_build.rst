@@ -15,7 +15,6 @@ SYNOPSIS
        [--ignore-repos]
        [--set-repo=<source,type,alias,priority,imageinclude>]
        [--add-repo=<source,type,alias,priority,imageinclude>...]
-       [--obs-repo-internal]
        [--add-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
@@ -81,16 +80,6 @@ OPTIONS
 
   Path to the XML description. This is a directory containing at least
   one _config.xml_ or _*.kiwi_ XML file.
-
---obs-repo-internal
-
-  The repository source type **obs://** by default points to the
-  `Open Build Service <http://download.opensuse.org>`_. With the
-  *--obs-repo-internal* option the source type is changed to the
-  **ibs://** type, pointing to the **Internal Build Service**.
-  This allows to build images with repositories pointing to the SUSE
-  internal build service. Please note this requires access permissions
-  to the SUSE internal build service on the machine building the image.
 
 --set-repo=<source,type,alias,priority,imageinclude>
 

@@ -39,7 +39,6 @@ class TestCli(object):
             '--help': False,
             '--ignore-repos': False,
             '--clear-cache': False,
-            '--obs-repo-internal': False,
             '--root': 'directory',
             '--set-repo': None,
             '--add-package': [],

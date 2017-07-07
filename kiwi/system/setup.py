@@ -136,7 +136,9 @@ class SystemSetup(object):
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
             uri = Uri(repo_source, repo_type)
-            repo_source_translated = uri.translate()
+            repo_source_translated = uri.translate(
+                check_build_environment=False
+            )
             if not repo_alias:
                 repo_alias = uri.alias()
             log.info('Setting up image repository %s', repo_source)

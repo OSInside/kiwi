@@ -70,7 +70,6 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--allow-existing-root'] = False
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
-        self.task.command_args['--obs-repo-internal'] = False
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
@@ -85,7 +84,7 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--clear-cache'] = True
         self.task.process()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
-        self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
+        self.runtime_checker.check_image_include_repos_publicly_resolvable.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(
             self.abs_root_dir
         )
@@ -175,23 +174,6 @@ class TestSystemPrepareTask(object):
         mock_state.assert_called_once_with(
             'http://example.com', 'yast2', 'alias', '99', True
         )
-
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
-    def test_process_system_prepare_use_ibs_repos(self, mock_state):
-        self._init_command_args()
-        self.task.command_args['--obs-repo-internal'] = True
-        self.task.process()
-        mock_state.assert_called_once_with()
-
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_suse_repositories')
-    @patch('os.path.exists')
-    def test_process_system_prepare_use_suse_repos(
-        self, mock_exists, mock_suse_repos
-    ):
-        self._init_command_args()
-        mock_exists.return_value = True
-        self.task.process()
-        mock_suse_repos.assert_called_once_with()
 
     def test_process_system_prepare_help(self):
         self._init_command_args()

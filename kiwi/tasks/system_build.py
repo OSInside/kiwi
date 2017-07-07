@@ -23,7 +23,6 @@ usage: kiwi system build -h | --help
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority,imageinclude>]
            [--add-repo=<source,type,alias,priority,imageinclude>...]
-           [--obs-repo-internal]
            [--add-package=<name>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
@@ -61,10 +60,6 @@ options:
         description and optional metadata files
     --ignore-repos
         ignore all repos from the XML configuration
-    --obs-repo-internal
-        when using obs:// repos resolve them using the SUSE internal
-        buildservice. This only works if access to SUSE's internal
-        buildservice is granted
     --set-container-derived-from=<uri>
         overwrite the source location of the base container
         for the selected image type. The setting is only effective
@@ -167,20 +162,7 @@ class SystemBuildTask(CliTask):
             )
 
         self.runtime_checker.check_repositories_configured()
-
-        if Defaults.is_obs_worker():
-            # This build runs inside of a buildservice worker. Therefore
-            # the repo defintions and the base image uri are adapted
-            # accordingly
-            self.xml_state.translate_obs_to_suse_repositories()
-            self.xml_state.translate_obs_to_suse_derived_from_image_uri()
-
-        elif self.command_args['--obs-repo-internal']:
-            # This build should use the internal SUSE buildservice
-            # Be aware that the buildhost has to provide access
-            self.xml_state.translate_obs_to_ibs_repositories()
-
-        self.runtime_checker.check_image_include_repos_http_resolvable()
+        self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
         package_requests = False
         if self.command_args['--add-package']:

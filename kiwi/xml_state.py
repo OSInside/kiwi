@@ -19,7 +19,6 @@ import re
 import copy
 import platform
 from collections import namedtuple
-from six.moves.urllib.parse import urlparse
 from textwrap import dedent
 
 # project
@@ -1193,49 +1192,6 @@ class XMLState(object):
         self.xml_data.set_repository([
             repo for repo in all_repos if repo not in used_for_build
         ])
-
-    def translate_obs_to_ibs_repositories(self):
-        """
-        Change obs repotype to ibs type
-
-        This will result in pointing to build.suse.de instead of
-        build.opensuse.org
-        """
-        for repository in self.get_repository_sections():
-            source_path = repository.get_source()
-            source_uri = urlparse(source_path.get_path())
-            if source_uri.scheme == 'obs':
-                source_path.set_path(
-                    source_path.get_path().replace('obs:', 'ibs:')
-                )
-
-    def translate_obs_to_suse_repositories(self):
-        """
-        Change obs: repotype to suse: type
-
-        This will result in a local repo path suitable for a
-        buildservice worker instance
-        """
-        for repository in self.get_repository_sections_used_for_build():
-            source_path = repository.get_source()
-            source_uri = urlparse(source_path.get_path())
-            if source_uri.scheme == 'obs':
-                source_path.set_path(
-                    source_path.get_path().replace('obs:', 'suse:')
-                )
-
-    def translate_obs_to_suse_derived_from_image_uri(self):
-        """
-        Change obs: repotype to suse: type
-
-        This will result in a local base image path, which is needed
-        by RootImport.
-        """
-        uri_obj = self.get_derived_from_image_uri()
-        if uri_obj:
-            uri = uri_obj.uri
-            if urlparse(uri).scheme == 'obs':
-                self.set_derived_from_image_uri(uri.replace('obs:', 'suse:'))
 
     def set_repository(
         self, repo_source, repo_type, repo_alias, repo_prio,

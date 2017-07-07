@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, call
 
 from .test_helper import raises
 
@@ -11,8 +11,12 @@ class TestRootImportBase(object):
     @patch('os.path.exists')
     def test_init(self, mock_path):
         mock_path.return_value = True
-        RootImportBase('root_dir', Uri('file:///image.tar.xz'))
-        mock_path.assert_called_once_with('/image.tar.xz')
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            RootImportBase('root_dir', Uri('file:///image.tar.xz'))
+        assert mock_path.call_args_list == [
+            call('../data/.config/kiwi/config.yml'),
+            call('/image.tar.xz')
+        ]
 
     @raises(KiwiRootImportError)
     def test_init_remote_uri(self):
@@ -28,12 +32,16 @@ class TestRootImportBase(object):
     @raises(KiwiRootImportError)
     def test_init_non_existing(self, mock_path):
         mock_path.return_value = False
-        RootImportBase('root_dir', Uri('file:///image.tar.xz'))
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            RootImportBase('root_dir', Uri('file:///image.tar.xz'))
         mock_path.assert_called_once_with('/image.tar.xz')
 
     @raises(NotImplementedError)
     @patch('os.path.exists')
     def test_data_sync(self, mock_path):
         mock_path.return_value = True
-        root_import = RootImportBase('root_dir', Uri('file:///image.tar.xz'))
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            root_import = RootImportBase(
+                'root_dir', Uri('file:///image.tar.xz')
+            )
         root_import.sync_data()

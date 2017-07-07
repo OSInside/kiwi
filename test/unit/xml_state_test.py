@@ -143,26 +143,6 @@ class TestXMLState(object):
     def test_get_bootstrap_collection_type(self):
         assert self.state.get_bootstrap_collection_type() == 'onlyRequired'
 
-    def test_translate_obs_to_ibs_repositories(self):
-        self.state.translate_obs_to_ibs_repositories()
-        source_path = self.state.xml_data.get_repository()[1].get_source()
-        assert source_path.get_path() == \
-            'ibs://Devel:PubCloud:AmazonEC2/SLE_12_GA'
-
-    def test_translate_obs_to_suse_repositories(self):
-        self.state.translate_obs_to_suse_repositories()
-        source_path = self.state.xml_data.get_repository()[1].get_source()
-        assert source_path.get_path() == \
-            'suse://Devel:PubCloud:AmazonEC2/SLE_12_GA'
-
-    def test_translate_obs_to_suse_derived_from_image_uri(self):
-        description = XMLDescription('../data/example_config.xml')
-        xml_data = description.load()
-        state = XMLState(xml_data, ['derivedContainer'], 'docker')
-        state.translate_obs_to_suse_derived_from_image_uri()
-        assert state.get_derived_from_image_uri().uri == \
-            'suse://project/repo/image#mytag'
-
     def test_set_repository(self):
         self.state.set_repository('repo', 'type', 'alias', 1, True)
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \

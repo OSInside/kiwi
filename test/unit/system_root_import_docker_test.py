@@ -25,9 +25,10 @@ class TestRootImportDocker(object):
 
         mock_mkdtemp.side_effect = call_mkdtemp
 
-        docker_import = RootImportDocker(
-            'root_dir', Uri('file:///image.tar.xz')
-        )
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            docker_import = RootImportDocker(
+                'root_dir', Uri('file:///image.tar.xz')
+            )
         docker_import.extract_oci_image()
         mock_compress.assert_called_once_with('/image.tar.xz')
         uncompress.uncompress.assert_called_once_with(True)
@@ -51,9 +52,10 @@ class TestRootImportDocker(object):
 
         mock_mkdtemp.side_effect = call_mkdtemp
 
-        docker_import = RootImportDocker(
-            'root_dir', Uri('docker://opensuse')
-        )
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            docker_import = RootImportDocker(
+                'root_dir', Uri('docker://opensuse')
+            )
         docker_import.extract_oci_image()
         mock_run.assert_called_once_with([
             'skopeo', 'copy', 'docker://opensuse',

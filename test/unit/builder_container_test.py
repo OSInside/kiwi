@@ -16,7 +16,8 @@ class TestContainerBuilder(object):
     def setup(self, mock_exists, mock_machine):
         mock_exists.return_value = True
         mock_machine.return_value = 'x86_64'
-        self.uri = Uri('file:///image_file.tar.xz')
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            self.uri = Uri('file:///image_file.tar.xz')
         self.xml_state = mock.Mock()
         self.xml_state.get_derived_from_image_uri.return_value = self.uri
         self.container_config = {
