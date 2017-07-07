@@ -21,7 +21,6 @@ usage: kiwi image info -h | --help
            [--resolve-package-list]
            [--ignore-repos]
            [--add-repo=<source,type,alias,priority>...]
-           [--obs-repo-internal]
        kiwi image info help
 
 commands:
@@ -36,11 +35,6 @@ options:
         description and optional metadata files
     --ignore-repos
         ignore all repos from the XML configuration
-    --obs-repo-internal
-        Obsolete and kept for compatibility only:
-        For changing to another/private buildservice instance please
-        configure access and privacy information in the kiwi config
-        file
     --resolve-package-list
         solve package dependencies and return a list of all
         packages including their attributes e.g size,

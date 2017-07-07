@@ -15,7 +15,6 @@ SYNOPSIS
        [--ignore-repos]
        [--set-repo=<source,type,alias,priority,imageinclude>]
        [--add-repo=<source,type,alias,priority,imageinclude>...]
-       [--obs-repo-internal]
        [--add-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
@@ -77,10 +76,6 @@ OPTIONS
 
   Path to the kiwi XML description. Inside of that directory there
   must be at least a config.xml of \*.kiwi XML description.
-
---obs-repo-internal
-
-  See the kiwi::system::build manual page for further details
 
 --root=<directory>
 

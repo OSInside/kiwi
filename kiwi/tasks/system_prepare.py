@@ -23,7 +23,6 @@ usage: kiwi system prepare -h | --help
            [--ignore-repos]
            [--set-repo=<source,type,alias,priority,imageinclude>]
            [--add-repo=<source,type,alias,priority,imageinclude>...]
-           [--obs-repo-internal]
            [--add-package=<name>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
@@ -59,11 +58,6 @@ options:
         description and optional metadata files
     --ignore-repos
         ignore all repos from the XML configuration
-    --obs-repo-internal
-        Obsolete and kept for compatibility only:
-        For changing to another/private buildservice instance please
-        configure access and privacy information in the kiwi config
-        file
     --root=<directory>
         the path to the new root directory of the system
     --set-container-derived-from=<uri>
