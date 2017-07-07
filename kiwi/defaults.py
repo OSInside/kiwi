@@ -81,7 +81,7 @@ class Defaults(object):
         The default download server url hosting the public open
         buildservice repositories
         """
-        return 'http://download.opensuse.org'
+        return 'http://download.opensuse.org/repositories'
 
     @classmethod
     def get_s390_disk_block_size(self):

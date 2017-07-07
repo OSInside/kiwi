@@ -147,7 +147,7 @@ setup parameters:
      - download_url: url
 
        # Specifies download server url of an open buildservice instance
-       # defaults to: http://download.opensuse.org
+       # defaults to: http://download.opensuse.org/repositories
 
      - public: true|false
 

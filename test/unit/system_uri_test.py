@@ -6,7 +6,8 @@ from .test_helper import raises
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
+    KiwiUriTypeUnknown,
+    KiwiUriOpenError
 )
 
 from kiwi.system.uri import Uri
@@ -15,37 +16,32 @@ import hashlib
 
 
 class TestUri(object):
-    @classmethod
-    def setup_class(self):
+    def setup(self):
         self.mock_mkdtemp = mock.Mock()
         self.mock_manager = mock.Mock()
         self.runtime_config = mock.Mock()
         self.runtime_config.get_obs_download_server_url = mock.Mock(
-            return_value='http://download.opensuse.org'
+            return_value='obs_server'
         )
 
     @raises(KiwiUriStyleUnknown)
     def test_is_remote_raises_style_error(self):
         uri = Uri('xxx', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         uri.is_remote()
 
     @raises(KiwiUriTypeUnknown)
     def test_is_remote_raises_type_error(self):
         uri = Uri('xtp://download.example.com', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         uri.is_remote()
 
     @raises(KiwiUriStyleUnknown)
     def test_translate_unknown_style(self):
         uri = Uri('xxx', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         uri.translate()
 
     @raises(KiwiUriStyleUnknown)
     def test_translate_unsupported_style(self):
         uri = Uri('ms://foo', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         uri.translate()
 
     @raises(KiwiUriStyleUnknown)
@@ -55,22 +51,27 @@ class TestUri(object):
     ):
         mock_buildservice.return_value = False
         uri = Uri('obsrepositories:/')
-        uri.runtime_config = self.runtime_config
         uri.translate()
+
+    @raises(KiwiUriOpenError)
+    @patch('kiwi.system.uri.requests.get')
+    def test_translate_obs_uri_not_found(mock_request_get, self):
+        mock_request_get.side_effect = Exception
+        uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
+        uri.runtime_config = self.runtime_config
+        assert uri.translate()
 
     def test_is_remote(self):
         uri = Uri('https://example.com', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.is_remote() is True
         uri = Uri('dir:///path/to/repo', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.is_remote() is False
 
-    def test_is_public(self):
+    @patch('kiwi.system.uri.requests')
+    def test_is_public(self, mock_request):
         uri = Uri('https://example.com', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.is_public() is True
-        uri = Uri('obs://13.2/repo/oss', 'yast2')
+        uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
         self.runtime_config.is_obs_public = mock.Mock(
             return_value=False
         )
@@ -79,7 +80,6 @@ class TestUri(object):
 
     def test_alias(self):
         uri = Uri('https://example.com', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.alias() == hashlib.md5(
             'https://example.com'.encode()).hexdigest(
         )
@@ -89,7 +89,6 @@ class TestUri(object):
             'http://example.com/foo?credentials=my_credentials&x=2',
             'rpm-md'
         )
-        uri.runtime_config = self.runtime_config
         assert uri.credentials_file_name() == 'my_credentials'
 
     def test_credentials_default_file_name(self):
@@ -97,7 +96,6 @@ class TestUri(object):
             'http://example.com/foo',
             'rpm-md'
         )
-        uri.runtime_config = self.runtime_config
         assert uri.credentials_file_name() == 'kiwiRepoCredentials'
 
     def test_translate_http_path_with_credentials(self):
@@ -105,45 +103,31 @@ class TestUri(object):
             'http://example.com/foo?credentials=kiwiRepoCredentials',
             'rpm-md'
         )
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == 'http://example.com/foo'
 
-    def test_translate_obs_distro(self):
-        uri = Uri('obs://13.2/repo/oss', 'yast2')
+    @patch('kiwi.system.uri.requests.get')
+    def test_translate_obs_project(self, mock_request_get):
+        uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
         uri.runtime_config = self.runtime_config
-        assert uri.translate() == \
-            'http://download.opensuse.org/distribution/13.2/repo/oss'
-
-    def test_translate_obs_factory_distro(self):
-        uri = Uri('obs://openSUSE:Factory/standard', 'yast2')
-        uri.runtime_config = self.runtime_config
-        assert uri.translate() == \
-            'http://download.opensuse.org/tumbleweed/repo/oss'
-
-    def test_translate_obs_project(self):
-        uri = Uri('obs://Virt:Appliances/SLE_12', 'rpm-md')
-        uri.runtime_config = self.runtime_config
-        assert uri.translate() == \
-            'http://download.opensuse.org/repositories/Virt:Appliances/SLE_12'
+        uri.translate()
+        mock_request_get.assert_called_once_with(
+            'obs_server/openSUSE:/Leap:/42.2/standard'
+        )
 
     def test_translate_dir_path(self):
         uri = Uri('dir:///some/path', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == '/some/path'
 
     def test_translate_http_path(self):
         uri = Uri('http://example.com/foo', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == 'http://example.com/foo'
 
     def test_translate_https_path(self):
         uri = Uri('https://example.com/foo', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == 'https://example.com/foo'
 
     def test_translate_ftp_path(self):
         uri = Uri('ftp://example.com/foo', 'rpm-md')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == 'ftp://example.com/foo'
 
     @patch('kiwi.system.uri.MountManager')
@@ -154,7 +138,6 @@ class TestUri(object):
         manager.mountpoint = mock_mkdtemp.return_value
         mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
-        uri.runtime_config = self.runtime_config
         result = uri.translate()
         mock_manager.assert_called_once_with(
             device='/image/CDs/openSUSE-13.2-DVD-x86_64.iso',
@@ -168,23 +151,20 @@ class TestUri(object):
     def test_translate_buildservice_path(self, mock_buildservice):
         mock_buildservice.return_value = True
         uri = Uri('obs://openSUSE:13.2/standard', 'yast2')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == \
             '/usr/src/packages/SOURCES/repos/openSUSE:13.2/standard'
 
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_translate_buildservice_project(self, mock_buildservice):
         mock_buildservice.return_value = True
-        uri = Uri('obs://Virt:Appliances/SLE_12', 'rpm-md')
-        uri.runtime_config = self.runtime_config
+        uri = Uri('obs://Virtualization:/Appliances/CentOS_7', 'rpm-md')
         assert uri.translate() == \
-            '/usr/src/packages/SOURCES/repos/Virt:Appliances/SLE_12'
+            '/usr/src/packages/SOURCES/repos/Virtualization:Appliances/CentOS_7'
 
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_translate_buildservice_container_path(self, mock_buildservice):
         mock_buildservice.return_value = True
         uri = Uri('obs://project/repo/container#latest', 'container')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == \
             '/usr/src/packages/SOURCES/containers/project/repo/container#latest'
 
@@ -194,15 +174,17 @@ class TestUri(object):
     ):
         mock_buildservice.return_value = True
         uri = Uri('obsrepositories:/container#latest', 'container')
-        uri.runtime_config = self.runtime_config
-        assert uri.translate() == \
-            '/usr/src/packages/SOURCES/containers/_obsrepositories/container#latest'
+        assert uri.translate() == ''.join(
+            [
+                '/usr/src/packages/SOURCES/containers/',
+                '_obsrepositories/container#latest'
+            ]
+        )
 
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_translate_buildservice_obsrepositories(self, mock_buildservice):
         mock_buildservice.return_value = True
         uri = Uri('obsrepositories:/')
-        uri.runtime_config = self.runtime_config
         assert uri.translate() == '/usr/src/packages/SOURCES/repos'
 
     @patch('kiwi.system.uri.MountManager')
@@ -217,7 +199,6 @@ class TestUri(object):
         )
         mock_manager.return_value = manager
         uri = Uri('iso:///image/CDs/openSUSE-13.2-DVD-x86_64.iso', 'yast2')
-        uri.runtime_config = self.runtime_config
         uri.translate()
         uri.__del__()
         manager.umount.assert_called_once_with()

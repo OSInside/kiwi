@@ -18,6 +18,7 @@
 import os
 from tempfile import mkdtemp
 from six.moves.urllib.parse import urlparse
+import requests
 import hashlib
 
 # project
@@ -28,7 +29,8 @@ from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
+    KiwiUriTypeUnknown,
+    KiwiUriOpenError
 )
 
 
@@ -95,19 +97,14 @@ class Uri(object):
         elif uri.scheme == 'obs':
             if check_build_environment and Defaults.is_buildservice_worker():
                 return self._buildservice_path(
-                    name=''.join([uri.netloc, uri.path]),
+                    name=''.join([uri.netloc, uri.path]).replace(':/', ':'),
                     fragment=uri.fragment,
                     urischeme=uri.scheme
                 )
             else:
-                if self.repo_type == 'yast2':
-                    return self._obs_distribution(
-                        ''.join([uri.netloc, uri.path])
-                    )
-                else:
-                    return self._obs_project(
-                        ''.join([uri.netloc, uri.path])
-                    )
+                return self._obs_project_download_link(
+                    ''.join([uri.netloc, uri.path]).replace(':/', ':')
+                )
         elif uri.scheme == 'obsrepositories':
             if not Defaults.is_buildservice_worker():
                 raise KiwiUriStyleUnknown(
@@ -116,7 +113,7 @@ class Uri(object):
                     )
                 )
             return self._buildservice_path(
-                name=''.join([uri.netloc, uri.path]),
+                name=''.join([uri.netloc, uri.path]).replace(':/', ':'),
                 fragment=uri.fragment,
                 urischeme=uri.scheme
             )
@@ -220,27 +217,24 @@ class Uri(object):
     def _local_path(self, path):
         return os.path.normpath(path)
 
-    def _obs_project(self, name):
-        return ''.join(
-            [
-                self.runtime_config.get_obs_download_server_url(),
-                '/repositories/', name
-            ]
-        )
-
-    def _obs_distribution(self, name):
-        obs_download_server_url = \
-            self.runtime_config.get_obs_download_server_url()
-        if name == 'openSUSE:Factory/standard':
-            # special handling for SUSE factory repo
-            obs_distribution = ''.join(
-                [obs_download_server_url, '/tumbleweed/repo/oss']
+    def _obs_project_download_link(self, name):
+        name_parts = name.split(os.sep)
+        repository = name_parts.pop()
+        project = os.sep.join(name_parts)
+        try:
+            download_link = os.sep.join(
+                [
+                    self.runtime_config.get_obs_download_server_url(),
+                    project.replace(':', ':/'), repository
+                ]
             )
-        else:
-            obs_distribution = ''.join(
-                [obs_download_server_url, '/distribution/', name]
+            request = requests.get(download_link)
+            request.raise_for_status()
+            return request.url
+        except Exception as e:
+            raise KiwiUriOpenError(
+                '{0}: {1}'.format(type(e).__name__, format(e))
             )
-        return obs_distribution
 
     def _buildservice_path(self, name, urischeme, fragment=None):
         """
