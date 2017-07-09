@@ -11,9 +11,12 @@ class TestRootImportDocker(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_import.docker.Compress')
     @patch('kiwi.system.root_import.oci.mkdtemp')
+    @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_extract_oci_image(
-        self, mock_mkdtemp, mock_compress, mock_run, mock_exists
+        self, mock_buildservice, mock_mkdtemp, mock_compress,
+        mock_run, mock_exists
     ):
+        mock_buildservice.return_value = False
         mock_exists.return_value = True
         uncompress = mock.Mock()
         uncompress.uncompressed_filename = 'tmp_uncompressed'
@@ -41,9 +44,11 @@ class TestRootImportDocker(object):
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_import.oci.mkdtemp')
     @patch('kiwi.system.root_import.base.log.warning')
+    @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_extract_oci_image_unknown_uri(
-        self, mock_warn, mock_mkdtemp, mock_run, mock_exists
+        self, mock_buildservice, mock_warn, mock_mkdtemp, mock_run, mock_exists
     ):
+        mock_buildservice.return_value = False
         mock_exists.return_value = True
         tmpdirs = ['kiwi_unpack_dir', 'kiwi_layout_dir']
 

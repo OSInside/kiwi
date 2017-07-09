@@ -9,7 +9,9 @@ from kiwi.exceptions import KiwiRootImportError
 
 class TestRootImportBase(object):
     @patch('os.path.exists')
-    def test_init(self, mock_path):
+    @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
+    def test_init(self, mock_buildservice, mock_path):
+        mock_buildservice.return_value = False
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             RootImportBase('root_dir', Uri('file:///image.tar.xz'))

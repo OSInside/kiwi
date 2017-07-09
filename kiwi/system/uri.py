@@ -179,15 +179,16 @@ class Uri(object):
             raise KiwiUriStyleUnknown(
                 'URI scheme not detected %s' % self.uri
             )
-        if uri.scheme in self.remote_uri_types:
+        if uri.scheme == 'obs' and Defaults.is_buildservice_worker():
+            return False
+        elif uri.scheme in self.remote_uri_types:
             return True
+        elif uri.scheme in self.local_uri_type:
+            return False
         else:
-            if uri.scheme in self.local_uri_type:
-                return False
-            else:
-                raise KiwiUriTypeUnknown(
-                    'URI type %s unknown' % uri.scheme
-                )
+            raise KiwiUriTypeUnknown(
+                'URI type %s unknown' % uri.scheme
+            )
 
     def is_public(self):
         """
