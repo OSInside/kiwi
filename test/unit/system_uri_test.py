@@ -67,8 +67,18 @@ class TestUri(object):
         uri = Uri('dir:///path/to/repo', 'rpm-md')
         assert uri.is_remote() is False
 
+    @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
+    def test_is_remote_in_buildservice(
+        self, mock_buildservice
+    ):
+        mock_buildservice.return_value = True
+        uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
+        assert uri.is_remote() is False
+
     @patch('kiwi.system.uri.requests')
     def test_is_public(self, mock_request):
+        uri = Uri('xxx', 'rpm-md')
+        assert uri.is_public() is False
         uri = Uri('https://example.com', 'rpm-md')
         assert uri.is_public() is True
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')

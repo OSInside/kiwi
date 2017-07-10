@@ -179,15 +179,16 @@ class Uri(object):
             raise KiwiUriStyleUnknown(
                 'URI scheme not detected %s' % self.uri
             )
-        if uri.scheme in self.remote_uri_types:
+        if uri.scheme == 'obs' and Defaults.is_buildservice_worker():
+            return False
+        elif uri.scheme in self.remote_uri_types:
             return True
+        elif uri.scheme in self.local_uri_type:
+            return False
         else:
-            if uri.scheme in self.local_uri_type:
-                return False
-            else:
-                raise KiwiUriTypeUnknown(
-                    'URI type %s unknown' % uri.scheme
-                )
+            raise KiwiUriTypeUnknown(
+                'URI type %s unknown' % uri.scheme
+            )
 
     def is_public(self):
         """
@@ -195,13 +196,18 @@ class Uri(object):
 
         :rtype: bool
         """
-        if self.is_remote():
-            uri = urlparse(self.uri)
-            if uri.scheme == 'obs' and not self.runtime_config.is_obs_public():
-                return False
-            else:
-                return True
+        uri = urlparse(self.uri)
+        if not uri.scheme:
+            # unknown uri schema is considered not public
+            return False
+        elif uri.scheme == 'obs':
+            # obs is public but only if the configured download_server is public
+            return self.runtime_config.is_obs_public()
+        elif uri.scheme in self.remote_uri_types:
+            # listed in remote uri types, thus public
+            return True
         else:
+            # unknown uri type considered not public
             return False
 
     def get_fragment(self):
