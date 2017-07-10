@@ -77,6 +77,8 @@ class TestUri(object):
 
     @patch('kiwi.system.uri.requests')
     def test_is_public(self, mock_request):
+        uri = Uri('xxx', 'rpm-md')
+        assert uri.is_public() is False
         uri = Uri('https://example.com', 'rpm-md')
         assert uri.is_public() is True
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
