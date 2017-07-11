@@ -70,6 +70,9 @@ class TestUri(object):
         self.runtime_config.is_obs_public = mock.Mock(
             return_value=False
         )
+        self.runtime_config.get_obs_download_server_url = mock.Mock(
+            return_value='obs_server'
+        )
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'rpm-md')
         uri.runtime_config = self.runtime_config
         uri.translate(False)
