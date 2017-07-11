@@ -26,6 +26,7 @@ from kiwi.mount_manager import MountManager
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
@@ -247,12 +248,12 @@ class Uri(object):
                 request = requests.get(download_link)
                 request.raise_for_status()
                 return request.url
-            elif self.runtime_config.is_obs_public():
+            else:
+                log.warning(
+                    'Using {0} without location verification due to build '
+                    'in isolated environment'.format(download_link)
+                )
                 return download_link
-            raise KiwiUriOpenError(
-                'build service is not public, download link'
-                'cannot be verified'
-            )
         except Exception as e:
             raise KiwiUriOpenError(
                 '{0}: {1}'.format(type(e).__name__, format(e))
