@@ -243,9 +243,16 @@ class Uri(object):
                     project.replace(':', ':/'), repository
                 ]
             )
-            request = requests.get(download_link)
-            request.raise_for_status()
-            return request.url
+            if not Defaults.is_buildservice_worker():
+                request = requests.get(download_link)
+                request.raise_for_status()
+                return request.url
+            elif self.runtime_config.is_obs_public():
+                return download_link
+            raise KiwiUriOpenError(
+                'build service is not public, download link'
+                'cannot be verified'
+            )
         except Exception as e:
             raise KiwiUriOpenError(
                 '{0}: {1}'.format(type(e).__name__, format(e))

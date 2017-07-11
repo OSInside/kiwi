@@ -61,6 +61,27 @@ class TestUri(object):
         uri.runtime_config = self.runtime_config
         assert uri.translate()
 
+    @raises(KiwiUriOpenError)
+    @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
+    def test_translate_obs_uri_in_private_buildservice(
+            mock_buildservice, self
+    ):
+        mock_buildservice.return_value = True
+        self.runtime_config.is_obs_public = mock.Mock(
+            return_value=False
+        )
+        uri = Uri('obs://openSUSE:Leap:42.2/standard', 'rpm-md')
+        uri.runtime_config = self.runtime_config
+        uri.translate(False)
+
+    @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
+    def test_translate_obs_uri_inside_buildservice(self, mock_buildservice):
+        mock_buildservice.return_value = True
+        uri = Uri('obs://openSUSE:Leap:42.2/standard', 'rpm-md')
+        uri.runtime_config = self.runtime_config
+        assert uri.translate(False) == \
+            'obs_server/openSUSE:/Leap:/42.2/standard'
+
     def test_is_remote(self):
         uri = Uri('https://example.com', 'rpm-md')
         assert uri.is_remote() is True
