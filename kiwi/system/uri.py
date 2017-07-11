@@ -26,6 +26,7 @@ from kiwi.mount_manager import MountManager
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
@@ -243,9 +244,16 @@ class Uri(object):
                     project.replace(':', ':/'), repository
                 ]
             )
-            request = requests.get(download_link)
-            request.raise_for_status()
-            return request.url
+            if not Defaults.is_buildservice_worker():
+                request = requests.get(download_link)
+                request.raise_for_status()
+                return request.url
+            else:
+                log.warning(
+                    'Using {0} without location verification due to build '
+                    'in isolated environment'.format(download_link)
+                )
+                return download_link
         except Exception as e:
             raise KiwiUriOpenError(
                 '{0}: {1}'.format(type(e).__name__, format(e))
