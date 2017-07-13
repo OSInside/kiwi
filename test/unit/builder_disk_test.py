@@ -329,7 +329,7 @@ class TestDiskBuilder(object):
         call = filesystem.sync_data.call_args_list[2]
         assert filesystem.sync_data.call_args_list[2] == \
             call([
-                'image', '.profile', '.kconfig', 'var/cache/kiwi',
+                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
         assert mock_open.call_args_list[0:3] == [
@@ -449,7 +449,7 @@ class TestDiskBuilder(object):
         call = filesystem.sync_data.call_args_list[2]
         assert filesystem.sync_data.call_args_list[2] == \
             call([
-                'image', '.profile', '.kconfig', 'var/cache/kiwi',
+                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
         assert mock_open.call_args_list == [
@@ -547,7 +547,7 @@ class TestDiskBuilder(object):
         assert squashfs.create_on_file.call_args_list == [
             call(exclude=['var/cache/kiwi'], filename='tempname'),
             call(exclude=[
-                'image', '.profile', '.kconfig', 'var/cache/kiwi',
+                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ], filename='tempname')
         ]
@@ -708,7 +708,7 @@ class TestDiskBuilder(object):
         volume_manager.mount_volumes.call_args_list[0].assert_called_once_with()
         volume_manager.get_fstab.assert_called_once_with(None, 'btrfs')
         volume_manager.sync_data.assert_called_once_with([
-            'image', '.profile', '.kconfig', 'var/cache/kiwi',
+            'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
             'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
         ])
         volume_manager.umount_volumes.call_args_list[0].assert_called_once_with()

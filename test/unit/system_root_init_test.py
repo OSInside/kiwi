@@ -45,12 +45,13 @@ class TestRootInit(object):
     @patch('os.mknod')
     @patch('os.symlink')
     @patch('os.makedev')
+    @patch('kiwi.system.root_init.copy')
     @patch('kiwi.system.root_init.rmtree')
     @patch('kiwi.system.root_init.DataSync')
     @patch('kiwi.system.root_init.mkdtemp')
     @patch('kiwi.system.root_init.Command.run')
     def test_create(
-        self, mock_command, mock_temp, mock_data_sync, mock_rmtree,
+        self, mock_command, mock_temp, mock_data_sync, mock_rmtree, mock_copy,
         mock_makedev, mock_symlink, mock_mknod, mock_chwon, mock_makedirs,
         mock_path
     ):
@@ -58,7 +59,7 @@ class TestRootInit(object):
         mock_data_sync.return_value = data_sync
         mock_makedev.return_value = 'makedev'
         mock_path_return = [
-            True, True, True, False, False, False, False, False, False, False
+            True, True, True, True, False, False, False, False, False, False, False
         ]
 
         def path_exists(self):
@@ -136,6 +137,7 @@ class TestRootInit(object):
         mock_rmtree.assert_called_once_with(
             'tmpdir', ignore_errors=True
         )
+        mock_copy.assert_called_once_with('/.buildenv', 'root_dir')
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')

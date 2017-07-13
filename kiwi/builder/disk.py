@@ -527,7 +527,7 @@ class DiskBuilder(object):
 
     def _get_exclude_list_for_root_data_sync(self, device_map):
         exclude_list = [
-            'image', '.profile', '.kconfig',
+            'image', '.profile', '.kconfig', '.buildenv',
             Defaults.get_shared_cache_location()
         ]
         if 'boot' in device_map and self.bootloader == 'grub2_s390x_emu':
