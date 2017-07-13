@@ -19,7 +19,6 @@ import stat
 from pwd import getpwnam
 from tempfile import mkdtemp
 from shutil import rmtree
-from shutil import copy
 import os
 
 # project
@@ -85,8 +84,9 @@ class RootInit(object):
             data.sync_data(
                 options=['-a', '--ignore-existing']
             )
-            if Defaults.is_buildservice_worker():
-                copy('/.buildenv', self.root_dir)
+            Command.run([
+                'touch', os.sep.join([self.root_dir, '.buildenv'])
+            ])
         except Exception as e:
             self.delete()
             raise KiwiRootInitCreationError(
