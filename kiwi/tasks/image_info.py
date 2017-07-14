@@ -71,7 +71,7 @@ class ImageInfoTask(CliTask):
         )
 
         if self.command_args['--ignore-repos']:
-            self.xml_state.delete_repository_sections_used_for_build()
+            self.xml_state.delete_repository_sections()
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:

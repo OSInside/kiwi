@@ -21,6 +21,7 @@ usage: kiwi system build -h | --help
            [--allow-existing-root]
            [--clear-cache]
            [--ignore-repos]
+           [--ignore-repos-used-for-build]
            [--set-repo=<source,type,alias,priority,imageinclude>]
            [--add-repo=<source,type,alias,priority,imageinclude>...]
            [--add-package=<name>...]
@@ -60,6 +61,9 @@ options:
         description and optional metadata files
     --ignore-repos
         ignore all repos from the XML configuration
+    --ignore-repos-used-for-build
+        ignore all repos from the XML configuration except the
+        ones marked as imageonly
     --set-container-derived-from=<uri>
         overwrite the source location of the base container
         for the selected image type. The setting is only effective
@@ -138,6 +142,8 @@ class SystemBuildTask(CliTask):
         )
 
         if self.command_args['--ignore-repos']:
+            self.xml_state.delete_repository_sections()
+        elif self.command_args['--ignore-repos-used-for-build']:
             self.xml_state.delete_repository_sections_used_for_build()
 
         if self.command_args['--set-repo']:

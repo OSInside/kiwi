@@ -135,7 +135,7 @@ class TestImageInfoTask(object):
             'http://example.com', 'yast2', 'alias', None
         )
 
-    @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections')
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info_delete_repos(self, mock_out, mock_delete_repos):
         self._init_command_args()

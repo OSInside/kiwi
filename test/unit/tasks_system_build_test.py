@@ -83,6 +83,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
+        self.task.command_args['--ignore-repos-used-for-build'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
         self.task.command_args['--clear-cache'] = False
@@ -206,12 +207,22 @@ class TestSystemBuildTask(object):
             'kiwi::system::build'
         )
 
-    @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections')
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_prepare_ignore_repos(
         self, mock_log, mock_delete_repos
     ):
         self._init_command_args()
         self.task.command_args['--ignore-repos'] = True
+        self.task.process()
+        mock_delete_repos.assert_called_once_with()
+
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_prepare_ignore_repos_used_for_build(
+        self, mock_log, mock_delete_repos
+    ):
+        self._init_command_args()
+        self.task.command_args['--ignore-repos-used-for-build'] = True
         self.task.process()
         mock_delete_repos.assert_called_once_with()

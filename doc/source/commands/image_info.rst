@@ -42,7 +42,11 @@ OPTIONS
 
 --ignore-repos
 
-  Ignore all repos from the XML configuration.
+  Ignore all repository configurations from the XML description.
+  Using that option is usally done with a sequence of --add-repo
+  options otherwise there are no repositories available for the
+  processing the requested image information which could lead
+  to an error.
 
 --resolve-package-list
 
