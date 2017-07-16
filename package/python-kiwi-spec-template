@@ -1,7 +1,7 @@
 #
-# spec file for package kiwi
+# spec file for package python-kiwi
 #
-# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -11,11 +11,11 @@
 # case the license is the MIT License). An "Open Source License" is a
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
-#
 # Please submit bugfixes or comments via:
 #
 #       https://github.com/SUSE/kiwi/issues
 #
+
 %{!?python2_sitelib:%global python2_sitelib %{python_sitelib}}
 
 # translate version id to distribution name as it is used in kiwi
@@ -66,11 +66,18 @@
 %define distro rhel-07.0
 %endif
 
+# Fedora
+# use the rhel templates for CentOS, too
+%if 0%{?fedora_version}
+%define distro fedora-25.0
+%endif
 
 Name:           python-kiwi
 Version:        %%VERSION
-Provides:       kiwi-schema = 6.5
 Release:        0
+Provides:       kiwi-schema = 6.5
+Provides:       kiwi
+Obsoletes:      kiwi <= 9.0
 Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0+
@@ -79,13 +86,20 @@ Source:         %{name}.tar.gz
 Source1:        %{name}-boot-packages
 Source2:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  python3-devel
-BuildRequires:  python3-setuptools
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
+%if 0%{?fedora_version} || 0%{?suse_version}
+BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
+%endif
+%if 0%{?suse_version}
 BuildRequires:  fdupes
-BuildRequires:  update-alternatives
 BuildRequires:  shadow
+BuildRequires:  update-alternatives
+%endif
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires:  chkconfig
+%endif
 
 %description
 The KIWI Image System provides an operating system image builder
@@ -95,56 +109,73 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 # python2-kiwi
 %package -n python2-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
+License:        GPL-3.0+
 Group:          Development/Languages/Python
-Provides:       python-kiwi = %{version}-%{release}
-Provides:       kiwi-image:tbz
+Provides:       kiwi
+Obsoletes:      kiwi <= 9.0
 Provides:       kiwi-image:docker
 Provides:       kiwi-image:iso
-Provides:       kiwi-image:vmx
-Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:tbz
+Provides:       kiwi-image:vmx
+Provides:       python-kiwi = %{version}-%{release}
+%if 0%{?fedora_version} || 0%{?suse_version}
 Recommends:     jing
-Requires:       update-alternatives
-Requires:       python-docopt
-Requires:       python-setuptools
-Requires:       python-lxml
-Requires:       python-xattr
-Requires:       python-six
-Requires:       python-future
+%else
+Requires:       jing
+%endif
 Requires:       python-PyYAML
+Requires:       python-docopt
+Requires:       python-future
+Requires:       python-lxml
 Requires:       python-requests
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
+Requires:       python-setuptools
+Requires:       python-six
+Requires:       python-xattr
 # tools used by kiwi
 %if 0%{?suse_version}
-Requires:       zypper
-Requires:       squashfs
-Provides:       kiwi-packagemanager:zypper
-%endif
-%if 0%{?rhel_version} || 0%{?centos_version}
-Requires:       yum
-Requires:       squashfs-tools
-Provides:       kiwi-packagemanager:yum
-%endif
-Requires:       genisoimage
-Requires:       kiwi-tools
-Requires:       kiwi-man-pages
-Requires:       rsync
-Requires:       tar >= 1.2.7
-Requires:       gptfdisk
-Requires:       qemu-tools
-Requires:       dosfstools
-Requires:       e2fsprogs
-Requires:       lvm2
-Requires:       parted
-Requires:       multipath-tools
-Requires:       grub2
-Requires:       mtools
-%ifarch %arm aarch64
-Requires:       u-boot-tools
-%endif
+Requires:       update-alternatives
+Requires(post): update-alternatives
+Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
+%endif
+Requires:       qemu-tools
+Requires:       multipath-tools
+Requires:       squashfs
+Requires:       gptfdisk
+Requires:       zypper
+Provides:       kiwi-packagemanager:zypper
+%endif
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
+Requires:         chkconfig
+Requires(post):   chkconfig
+Requires(postun): chkconfig
+Requires:       qemu-img
+Requires:       squashfs-tools
+Requires:       device-mapper-multipath
+Requires:       gdisk
+Requires:       yum
+Provides:       kiwi-packagemanager:yum
+%if 0%{?fedora_version}
+Requires:       dnf
+Provides:       kiwi-packagemanager:dnf
+%endif
+%endif
+Requires:       dosfstools
+Requires:       e2fsprogs
+Requires:       genisoimage
+Requires:       grub2
+Requires:       kiwi-man-pages
+Requires:       kiwi-tools
+Requires:       lvm2
+Requires:       mtools
+Requires:       parted
+Requires:       rsync
+Requires:       tar >= 1.2.7
+%ifarch %arm aarch64
+Requires:       u-boot-tools
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
@@ -155,58 +186,72 @@ Python 2 library of the KIWI Image System. Provides an operating system
 image builder for Linux supported hardware platforms as well as for
 virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 
+%if 0%{?fedora_version} || 0%{?suse_version}
 # python3-kiwi
 %package -n python3-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
+License:        GPL-3.0+
 Group:          Development/Languages/Python
-Provides:       kiwi-image:tbz
+Provides:       kiwi
+Obsoletes:      kiwi <= 9.0
 Provides:       kiwi-image:docker
 Provides:       kiwi-image:iso
-Provides:       kiwi-image:vmx
-Provides:       kiwi-image:pxe
 Provides:       kiwi-image:oem
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:tbz
+Provides:       kiwi-image:vmx
 Recommends:     jing
-Requires:       update-alternatives
-Requires:       python3-docopt
-Requires:       python3-setuptools
-Requires:       python3-lxml
-Requires:       python3-xattr
-Requires:       python3-six
-Requires:       python3-future
 Requires:       python3-PyYAML
+Requires:       python3-docopt
+Requires:       python3-future
+Requires:       python3-lxml
 Requires:       python3-requests
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
+Requires:       python3-setuptools
+Requires:       python3-six
+Requires:       python3-xattr
 # tools used by kiwi
 %if 0%{?suse_version}
-Requires:       zypper
-Requires:       squashfs
-Provides:       kiwi-packagemanager:zypper
-%endif
-%if 0%{?rhel_version} || 0%{?centos_version}
-Requires:       yum
-Requires:       squashfs-tools
-Provides:       kiwi-packagemanager:yum
-%endif
-Requires:       genisoimage
-Requires:       kiwi-tools
-Requires:       kiwi-man-pages
-Requires:       rsync
-Requires:       tar >= 1.2.7
-Requires:       gptfdisk
-Requires:       qemu-tools
-Requires:       dosfstools
-Requires:       e2fsprogs
-Requires:       lvm2
-Requires:       parted
-Requires:       multipath-tools
-Requires:       grub2
-Requires:       mtools
-%ifarch %arm aarch64
-Requires:       u-boot-tools
-%endif
+Requires:       update-alternatives
+Requires(post): update-alternatives
+Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
+%endif
+Requires:       qemu-tools
+Requires:       multipath-tools
+Requires:       squashfs
+Requires:       gptfdisk
+Requires:       zypper
+Provides:       kiwi-packagemanager:zypper
+%endif
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
+Requires:         chkconfig
+Requires(post):   chkconfig
+Requires(postun): chkconfig
+Requires:       qemu-img
+Requires:       squashfs-tools
+Requires:       device-mapper-multipath
+Requires:       gdisk
+Requires:       yum
+Provides:       kiwi-packagemanager:yum
+%if 0%{?fedora_version}
+Requires:       dnf
+Provides:       kiwi-packagemanager:dnf
+%endif
+%endif
+Requires:       dosfstools
+Requires:       e2fsprogs
+Requires:       genisoimage
+Requires:       grub2
+Requires:       kiwi-man-pages
+Requires:       kiwi-tools
+Requires:       lvm2
+Requires:       mtools
+Requires:       parted
+Requires:       rsync
+Requires:       tar >= 1.2.7
+%ifarch %arm aarch64
+Requires:       u-boot-tools
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
@@ -216,6 +261,8 @@ Requires:       s390-tools
 Python 3 library of the KIWI Image System. Provides an operating system
 image builder for Linux supported hardware platforms as well as for
 virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
+
+%endif
 
 %package -n kiwi-tools
 Summary:        KIWI - Collection of Boot Helper Tools
@@ -231,14 +278,14 @@ outside of the scope of kiwi appliance building.
 %ifarch %ix86 x86_64
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
+License:        GPL-3.0+
+Group:          System/Management
 Requires:       syslinux
 %if 0%{?fedora} || 0%{?rhel}
 Requires(pre):  shadow-utils
 %else
 Requires(pre):  shadow
 %endif
-License:        GPL-3.0+
-Group:          System/Management
 
 %description -n kiwi-pxeboot
 This package contains the basic PXE directory structure which is
@@ -248,21 +295,27 @@ needed to serve kiwi built images via PXE.
 %package -n kiwi-boot-requires
 Summary:        KIWI - buildservice package requirements for boot images
 Provides:       kiwi-boot:isoboot
-Provides:       kiwi-boot:vmxboot
 Provides:       kiwi-boot:netboot
 Provides:       kiwi-boot:oemboot
+Provides:       kiwi-boot:vmxboot
 Provides:       kiwi-filesystem:btrfs
-Provides:       kiwi-filesystem:xfs
 Provides:       kiwi-filesystem:ext3
 Provides:       kiwi-filesystem:ext4
 Provides:       kiwi-filesystem:squashfs
-Requires:       btrfsprogs
+Provides:       kiwi-filesystem:xfs
 Requires:       e2fsprogs
-Requires:       xfsprogs
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
+Requires:       btrfs-progs
+%else
+Requires:       btrfsprogs
+%endif
+%if 0%{?fedora_version} || 0%{?suse_version}
 Requires:       python3-kiwi = %{version}
+%else
+Requires:       python2-kiwi = %{version}
+%endif
+Requires:       xfsprogs
 Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
-License:        GPL-3.0+
-Group:          System/Management
 
 %description -n kiwi-boot-requires
 Meta package for the buildservice to pull in all required packages in
@@ -286,15 +339,19 @@ Provides manual pages to describe the kiwi commands
 # Build Python 2 version
 python2 setup.py build --cflags="${RPM_OPT_FLAGS}"
 
+%if 0%{?fedora_version} || 0%{?suse_version}
 # Build Python 3 version
 python3 setup.py build --cflags="${RPM_OPT_FLAGS}"
+%endif
 
 %install
 # Install Python 2 version
 python2 setup.py install --prefix=%{_prefix} --root=%{buildroot}
 
+%if 0%{?fedora_version} || 0%{?suse_version}
 # Install Python 3 version
 python3 setup.py install --prefix=%{_prefix} --root=%{buildroot}
+%endif
 
 # init alternatives setup
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
@@ -321,9 +378,17 @@ for i in KIWI pxelinux.cfg image upload boot; do \
 done
 %endif
 
+%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora_version}
+install -m 755 -d %{buildroot}/%{_defaultdocdir}/python-kiwi
+mv %{buildroot}/%{_defaultdocdir}/packages/python-kiwi/* %{buildroot}/%{_defaultdocdir}/python-kiwi
+rm -rf %{buildroot}/%{_defaultdocdir}/packages
+%endif
+
+%if 0%{?suse_version}
 %fdupes %{buildroot}/srv/tftpboot
 %fdupes %{buildroot}/%{python3_sitelib}/kiwi/boot
 %fdupes %{buildroot}/%{python2_sitelib}/kiwi/boot
+%endif
 
 %post -n python2-kiwi
 %{_sbindir}/update-alternatives \
@@ -333,6 +398,7 @@ done
 %{_sbindir}/update-alternatives \
     --install %_bindir/kiwicompat kiwicompat %_bindir/kiwicompat-2 10
 
+%if 0%{?fedora_version} || 0%{?suse_version}
 %post -n python3-kiwi
 %{_sbindir}/update-alternatives \
     --install %_bindir/kiwi kiwi %_bindir/kiwi-ng-3 10
@@ -340,6 +406,7 @@ done
     --install %_bindir/kiwi-ng kiwi-ng %_bindir/kiwi-ng-3 10
 %{_sbindir}/update-alternatives \
     --install %_bindir/kiwicompat kiwicompat %_bindir/kiwicompat-3 10
+%endif
 
 %preun -n python2-kiwi
 %{_sbindir}/update-alternatives \
@@ -349,6 +416,7 @@ done
 %{_sbindir}/update-alternatives \
     --remove kiwicompat %_bindir/kiwicompat
 
+%if 0%{?fedora_version} || 0%{?suse_version}
 %preun -n python3-kiwi
 %{_sbindir}/update-alternatives \
     --remove kiwi %_bindir/kiwi
@@ -356,6 +424,7 @@ done
     --remove kiwi %_bindir/kiwi-ng
 %{_sbindir}/update-alternatives \
     --remove kiwicompat %_bindir/kiwicompat
+%endif
 
 %ifarch %ix86 x86_64
 %pre -n kiwi-pxeboot
@@ -383,6 +452,7 @@ fi
 %{python2_sitelib}/*
 %config %_sysconfdir/bash_completion.d/kiwi-ng-2*.sh
 
+%if 0%{?fedora_version} || 0%{?suse_version}
 %files -n python3-kiwi
 %defattr(-,root,root,-)
 %{_bindir}/kiwi-ng-3*
@@ -395,6 +465,7 @@ fi
 %ghost %_sysconfdir/alternatives/kiwicompat
 %{python3_sitelib}/*
 %config %_sysconfdir/bash_completion.d/kiwi-ng-3*.sh
+%endif
 
 %files -n kiwi-man-pages
 %defattr(-, root, root)
