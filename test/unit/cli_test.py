@@ -7,6 +7,7 @@ from .test_helper import argv_kiwi_tests, raises
 from kiwi.cli import Cli
 from kiwi.exceptions import (
     KiwiCompatError,
+    KiwiCommandNotFound,
     KiwiLoadCommandUndefined,
     KiwiCommandNotLoaded,
     KiwiUnknownServiceName
@@ -18,6 +19,7 @@ class TestCli(object):
         self.help_global_args = {
             'help': False,
             '--compat': False,
+            'compat': False,
             '--type': None,
             'image': False,
             'system': True,
@@ -69,10 +71,21 @@ class TestCli(object):
         cli = Cli()
         assert cli.get_servicename() == 'system'
 
-    def test_get_servicename_compat(self):
+    def test_get_servicename_compat_as_option(self):
         sys.argv = [
             sys.argv[0],
             '--compat', '--',
+            '--build', 'description',
+            '--type', 'vmx',
+            '-d', 'destination'
+        ]
+        cli = Cli()
+        assert cli.get_servicename() == 'compat'
+
+    def test_get_servicename_compat_as_service(self):
+        sys.argv = [
+            sys.argv[0],
+            'compat',
             '--build', 'description',
             '--type', 'vmx',
             '-d', 'destination'
@@ -128,11 +141,17 @@ class TestCli(object):
         )
 
     @raises(KiwiCompatError)
-    @patch('os.path.exists')
+    @patch('kiwi.cli.Path.which')
     @patch('os.execvp')
-    def test_invoke_kiwicompat_exec_failed(self, mock_exec, mock_exists):
-        mock_exists.return_value = True
+    def test_invoke_kiwicompat_exec_failed(self, mock_exec, mock_which):
+        mock_which.return_value = 'kiwicompat'
         mock_exec.side_effect = Exception
+        self.cli.invoke_kiwicompat([])
+
+    @raises(KiwiCommandNotFound)
+    @patch('kiwi.cli.Path.which')
+    def test_invoke_kiwicompat_not_found(self, mock_which):
+        mock_which.return_value = None
         self.cli.invoke_kiwicompat([])
 
     @raises(SystemExit)

@@ -47,6 +47,9 @@ import logging
 from docopt import docopt
 from docopt import DocoptExit
 
+# project
+from .path import Path
+
 
 class Cli(object):
     """
@@ -210,7 +213,15 @@ class Translate(object):
 class Command(object):
     @classmethod
     def execute(self, arguments):
-        os.execvp('kiwi-ng', ['kiwi'] + arguments)
+        os.execvp(Command.lookup_kiwi(), ['kiwi'] + arguments)
+
+    @classmethod
+    def lookup_kiwi(self):
+        for kiwi_name in ['kiwi-ng-3', 'kiwi-ng-2']:
+            kiwi = Path.which(kiwi_name, access_mode=os.X_OK)
+            if kiwi:
+                return kiwi
+        raise OSError('kiwi not found')
 
 
 def main():

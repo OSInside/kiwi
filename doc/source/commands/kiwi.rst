@@ -25,7 +25,7 @@ SYNOPSIS
         [--debug]
         [--color-output]
        system <command> [<args>...]
-   kiwi --compat <legacy_args>...
+   kiwi compat <legacy_args>...
    kiwi -v | --version
    kiwi help
 
@@ -76,10 +76,6 @@ GLOBAL OPTIONS
   those escape characters. Error messages appear red, warning
   messages yellow and debugging information will be printed light
   grey.
-
---compat
-
-  Support legacy kiwi commandline, see COMPATIBILITY section for details.
 
 --debug
 
@@ -163,6 +159,6 @@ to use a legacy KIWI commandline as follows:
 
 .. code-block:: bash
 
-   $ kiwi --compat -- \
+   $ kiwi compat \
        --build kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
        --type vmx -d /tmp/myimage

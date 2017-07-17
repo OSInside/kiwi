@@ -20,20 +20,41 @@ class TestKiwiCompat(object):
         assert mock_log_error.called
 
     @patch('os.execvp')
+    @patch('kiwi.kiwi_compat.Path.which')
     @patch('logging.error')
-    def test_compat_mode_exec_failed(self, mock_log_error, mock_exec):
+    def test_compat_mode_exec_failed(self, mock_log_error, mock_which, mock_exec):
+        mock_which.return_value = 'kiwi-ng'
         sys.argv = [
             'kiwicompat',
             '--create', 'root_dir',
             '--type', 'vmx',
             '-d', 'destination'
         ]
-        mock_exec.side_effect = OSError
+        mock_exec.side_effect = OSError('exec failed')
         kiwi.kiwi_compat.main()
-        assert mock_log_error.called
+        mock_log_error.assert_called_once_with(
+            'KiwiCompatError: %s', 'exec failed'
+        )
+
+    @patch('kiwi.kiwi_compat.Path.which')
+    @patch('logging.error')
+    def test_compat_mode_kiwi_not_found(self, mock_log_error, mock_which):
+        mock_which.return_value = None
+        sys.argv = [
+            'kiwicompat',
+            '--create', 'root_dir',
+            '--type', 'vmx',
+            '-d', 'destination'
+        ]
+        kiwi.kiwi_compat.main()
+        mock_log_error.assert_called_once_with(
+            'KiwiCompatError: %s', 'kiwi not found'
+        )
 
     @patch('os.execvp')
-    def test_version_compat_mode(self, mock_exec):
+    @patch('kiwi.path.Path.which')
+    def test_version_compat_mode(self, mock_which, mock_exec):
+        mock_which.return_value = 'kiwi-ng'
         sys.argv = [
             'kiwicompat', '--version'
         ]
@@ -43,7 +64,9 @@ class TestKiwiCompat(object):
         )
 
     @patch('os.execvp')
-    def test_build_compat_mode(self, mock_exec):
+    @patch('kiwi.kiwi_compat.Path.which')
+    def test_build_compat_mode(self, mock_which, mock_exec):
+        mock_which.return_value = 'kiwi-ng'
         sys.argv = [
             'kiwicompat',
             '--build', 'description',
@@ -82,7 +105,9 @@ class TestKiwiCompat(object):
         )
 
     @patch('os.execvp')
-    def test_create_compat_mode(self, mock_exec):
+    @patch('kiwi.path.Path.which')
+    def test_create_compat_mode(self, mock_which, mock_exec):
+        mock_which.return_value = 'kiwi-ng'
         sys.argv = [
             'kiwicompat',
             '--create', 'root_dir',
@@ -101,7 +126,9 @@ class TestKiwiCompat(object):
         )
 
     @patch('os.execvp')
-    def test_prepare_compat_mode(self, mock_exec):
+    @patch('kiwi.path.Path.which')
+    def test_prepare_compat_mode(self, mock_which, mock_exec):
+        mock_which.return_value = 'kiwi-ng'
         sys.argv = [
             'kiwicompat',
             '--prepare', 'description',
@@ -134,7 +161,9 @@ class TestKiwiCompat(object):
         )
 
     @patch('os.execvp')
-    def test_upgrade_compat_mode(self, mock_exec):
+    @patch('kiwi.path.Path.which')
+    def test_upgrade_compat_mode(self, mock_which, mock_exec):
+        mock_which.return_value = 'kiwi-ng'
         sys.argv = [
             'kiwicompat',
             '--upgrade', 'root_dir',
