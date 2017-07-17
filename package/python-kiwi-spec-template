@@ -76,8 +76,6 @@ Name:           python-kiwi
 Version:        %%VERSION
 Release:        0
 Provides:       kiwi-schema = 6.5
-Provides:       kiwi
-Obsoletes:      kiwi <= 9.0
 Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0+
