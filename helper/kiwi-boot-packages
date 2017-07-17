@@ -14,9 +14,10 @@ def get_boot_description_packages_for_arch(boot_description_dir, arch):
         package_type = packages.attributes['type'].value
         if not package_type == 'delete':
             for package in packages.getElementsByTagName('package'):
-                for_arch = None
-                if 'arch' in package.attributes:
+                try:
                     for_arch = package.attributes['arch'].value
+                except KeyError:
+                    for_arch = None
                 if for_arch:
                     if for_arch == arch:
                         package_list.append(
