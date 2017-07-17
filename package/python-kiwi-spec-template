@@ -108,8 +108,6 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 %package -n python2-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          Development/Languages/Python
-Provides:       kiwi
-Obsoletes:      kiwi <= 9.0
 Provides:       kiwi-image:docker
 Provides:       kiwi-image:iso
 Provides:       kiwi-image:oem
@@ -190,8 +188,6 @@ virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 %package -n python3-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          Development/Languages/Python
-Provides:       kiwi
-Obsoletes:      kiwi <= 9.0
 Provides:       kiwi-image:docker
 Provides:       kiwi-image:iso
 Provides:       kiwi-image:oem
