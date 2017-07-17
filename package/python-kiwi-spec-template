@@ -68,7 +68,7 @@
 
 # Fedora
 # use the rhel templates for CentOS, too
-%if 0%{?fedora_version}
+%if 0%{?fedora_version} >= 25
 %define distro fedora-25.0
 %endif
 
