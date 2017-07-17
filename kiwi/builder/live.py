@@ -163,7 +163,10 @@ class LiveImageBuilder(object):
                 root_dir=self.root_dir,
                 custom_args=self.filesystem_custom_parameters
             )
-            live_type_image.create_on_file(self.live_image_file)
+            live_type_image.create_on_file(
+                self.live_image_file,
+                exclude=Defaults.get_exclude_list_for_root_data_sync()
+            )
             Command.run(
                 ['mv', self.live_image_file, self.media_dir]
             )

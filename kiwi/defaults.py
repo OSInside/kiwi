@@ -73,7 +73,9 @@ class Defaults(object):
     def is_buildservice_worker(self):
         # the presence of /.buildenv on the build host indicates
         # we are building inside of the open buildservice
-        return os.path.exists('/.buildenv')
+        return os.path.exists(
+            os.sep + Defaults.get_buildservice_env_name()
+        )
 
     @classmethod
     def get_buildservice_env_name(self):
@@ -127,6 +129,20 @@ class Defaults(object):
         return os.path.abspath(os.path.normpath(
             Cli().get_global_args().get('--shared-cache-dir')
         )).lstrip(os.sep)
+
+    @classmethod
+    def get_exclude_list_for_root_data_sync(self):
+        """
+        Returns the list of files or folders that are created
+        by KIWI for its own purposes. Those files should be not
+        be included in the resulting image.
+        """
+        exclude_list = [
+            'image', '.profile', '.kconfig',
+            Defaults.get_buildservice_env_name(),
+            Defaults.get_shared_cache_location()
+        ]
+        return exclude_list
 
     @classmethod
     def get_failsafe_kernel_options(self):

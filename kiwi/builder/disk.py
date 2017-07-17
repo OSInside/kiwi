@@ -526,10 +526,7 @@ class DiskBuilder(object):
             return True
 
     def _get_exclude_list_for_root_data_sync(self, device_map):
-        exclude_list = [
-            'image', '.profile', '.kconfig',
-            Defaults.get_shared_cache_location()
-        ]
+        exclude_list = Defaults.get_exclude_list_for_root_data_sync()
         if 'boot' in device_map and self.bootloader == 'grub2_s390x_emu':
             exclude_list.append('boot/zipl/*')
             exclude_list.append('boot/zipl/.*')

@@ -152,7 +152,10 @@ class TestLiveImageBuilder(object):
             device_provider=None, name='squashfs', root_dir='root_dir'
         )
         live_type_image.create_on_file.assert_called_once_with(
-            'target_dir/result-image-read-only.x86_64-1.2.3'
+            'target_dir/result-image-read-only.x86_64-1.2.3',
+            exclude=[
+                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi'
+            ]
         )
         assert mock_command.call_args_list[0] == call(
             [
@@ -160,9 +163,9 @@ class TestLiveImageBuilder(object):
                 'temp_media_dir'
             ]
         )
-        mock_open.assert_called_once_with(
+        assert call(
             'temp_media_dir/config.isoclient', 'w'
-        )
+        ) in mock_open.call_args_list
         assert file_mock.write.call_args_list == [
             call('IMAGE="loop;result-image.x86_64;1.2.3"\n'),
             call('UNIONFS_CONFIG="tmpfs,loop,overlay"\n')

@@ -117,10 +117,11 @@ class ContainerImageOCI(object):
 
         :param string base_image: archive used as a base image
         """
-        exclude_list = [
-            'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
-            Defaults.get_shared_cache_location()
-        ]
+        exclude_list = Defaults.get_exclude_list_for_root_data_sync()
+        exclude_list.append('boot')
+        exclude_list.append('dev')
+        exclude_list.append('sys')
+        exclude_list.append('proc')
 
         self.oci_dir = mkdtemp(prefix='kiwi_oci_dir.')
         self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
