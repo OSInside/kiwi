@@ -85,7 +85,8 @@ class ArchiveBuilder(object):
                 self._target_file_for('tar')
             )
             archive.create_xz_compressed(
-                self.root_dir, xz_options=self.xz_options
+                self.root_dir, xz_options=self.xz_options,
+                exclude=Defaults.get_exclude_list_for_root_data_sync()
             )
             checksum = Checksum(self.filename)
             log.info('--> Creating archive checksum')

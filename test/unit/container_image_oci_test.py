@@ -130,8 +130,8 @@ class TestContainerImageOCI(object):
         )
         oci_root.sync_data.assert_called_once_with(
             exclude=[
-                'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
-                'var/cache/kiwi'
+                'image', '.profile', '.kconfig', '.buildenv',
+                'var/cache/kiwi', 'boot', 'dev', 'sys', 'proc',
             ],
             options=['-a', '-H', '-X', '-A', '--delete']
         )
@@ -195,8 +195,8 @@ class TestContainerImageOCI(object):
         )
         oci_root.sync_data.assert_called_once_with(
             exclude=[
-                'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
-                'var/cache/kiwi'
+                'image', '.profile', '.kconfig', '.buildenv',
+                'var/cache/kiwi', 'boot', 'dev', 'sys', 'proc'
             ],
             options=['-a', '-H', '-X', '-A', '--delete']
         )
