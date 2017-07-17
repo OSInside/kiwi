@@ -86,7 +86,9 @@ class RootInit(object):
                 options=['-a', '--ignore-existing']
             )
             if Defaults.is_buildservice_worker():
-                copy(Defaults.get_buildservice_env_name(), self.root_dir)
+                copy(
+                    os.sep + Defaults.get_buildservice_env_name(),
+                    self.root_dir)
         except Exception as e:
             self.delete()
             raise KiwiRootInitCreationError(

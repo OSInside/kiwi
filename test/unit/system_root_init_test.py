@@ -10,7 +10,6 @@ from kiwi.exceptions import (
 )
 
 from kiwi.system.root_init import RootInit
-from kiwi.defaults import Defaults
 
 
 class TestRootInit(object):
@@ -140,7 +139,7 @@ class TestRootInit(object):
         )
 
         mock_copy.assert_called_once_with(
-            Defaults.get_buildservice_env_name(), 'root_dir'
+            '/.buildenv', 'root_dir'
         )
 
     @patch('kiwi.command.Command.run')
