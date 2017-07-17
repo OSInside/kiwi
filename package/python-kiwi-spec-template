@@ -142,8 +142,6 @@ Requires:       qemu-tools
 Requires:       multipath-tools
 Requires:       squashfs
 Requires:       gptfdisk
-Requires:       zypper
-Provides:       kiwi-packagemanager:zypper
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
@@ -159,6 +157,10 @@ Provides:       kiwi-packagemanager:yum
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 %endif
+%endif
+%if 0%{?fedora} >= 26 || 0%{?suse_version}
+Requires:       zypper
+Provides:       kiwi-packagemanager:zypper
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
@@ -217,8 +219,6 @@ Requires:       qemu-tools
 Requires:       multipath-tools
 Requires:       squashfs
 Requires:       gptfdisk
-Requires:       zypper
-Provides:       kiwi-packagemanager:zypper
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
@@ -234,6 +234,10 @@ Provides:       kiwi-packagemanager:yum
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 %endif
+%endif
+%if 0%{?fedora} >= 26 || 0%{?suse_version}
+Requires:       zypper
+Provides:       kiwi-packagemanager:zypper
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
