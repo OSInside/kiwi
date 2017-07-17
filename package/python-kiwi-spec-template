@@ -109,7 +109,6 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 # python2-kiwi
 %package -n python2-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
-License:        GPL-3.0+
 Group:          Development/Languages/Python
 Provides:       kiwi
 Obsoletes:      kiwi <= 9.0
@@ -190,7 +189,6 @@ virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 # python3-kiwi
 %package -n python3-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
-License:        GPL-3.0+
 Group:          Development/Languages/Python
 Provides:       kiwi
 Obsoletes:      kiwi <= 9.0
@@ -266,7 +264,6 @@ virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 
 %package -n kiwi-tools
 Summary:        KIWI - Collection of Boot Helper Tools
-License:        GPL-3.0+
 Group:          System/Management
 
 %description -n kiwi-tools
@@ -278,7 +275,6 @@ outside of the scope of kiwi appliance building.
 %ifarch %ix86 x86_64
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
-License:        GPL-3.0+
 Group:          System/Management
 Requires:       syslinux
 %if 0%{?fedora} || 0%{?rhel}
@@ -326,7 +322,6 @@ of the kiwi - buildservice integration exclusively
 
 %package -n kiwi-man-pages
 Summary:        KIWI - manual pages
-License:        GPL-3.0+
 Group:          System/Management
 
 %description -n kiwi-man-pages
