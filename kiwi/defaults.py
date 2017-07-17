@@ -76,6 +76,13 @@ class Defaults(object):
         return os.path.exists('/.buildenv')
 
     @classmethod
+    def get_buildservice_env_name(self):
+        """
+        The base name of the environment file in a buildservice worker
+        """
+        return '.buildenv'
+
+    @classmethod
     def get_obs_download_server_url(self):
         """
         The default download server url hosting the public open
