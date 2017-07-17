@@ -68,7 +68,7 @@
 
 # Fedora
 # use the rhel templates for CentOS, too
-%if 0%{?fedora_version} >= 25
+%if 0%{?fedora} >= 25
 %define distro fedora-25.0
 %endif
 
@@ -86,7 +86,7 @@ Source2:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
-%if 0%{?fedora_version} || 0%{?suse_version}
+%if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
 %endif
