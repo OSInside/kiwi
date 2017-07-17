@@ -62,7 +62,7 @@
 
 # RHEL // CentOS
 # use the rhel templates for CentOS, too
-%if 0%{?rhel} == 700
+%if 0%{?rhel} == 7
 %define distro rhel-07.0
 %endif
 
@@ -153,7 +153,7 @@ Requires:       device-mapper-multipath
 Requires:       gdisk
 Requires:       yum
 Provides:       kiwi-packagemanager:yum
-%if 0%{?fedora} || 0%{?rhel} > 800
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 %endif
@@ -230,7 +230,7 @@ Requires:       device-mapper-multipath
 Requires:       gdisk
 Requires:       yum
 Provides:       kiwi-packagemanager:yum
-%if 0%{?fedora} || 0%{?rhel} >= 800
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 %endif
