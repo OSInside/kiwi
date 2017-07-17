@@ -1,10 +1,13 @@
 buildroot = /
 python_version = 3
+python_lookup_name = python
+python = $(shell which $(python_lookup_name))
 
 LC = LC_MESSAGES
 
 version := $(shell \
-    python -c 'from kiwi.version import __version__; print(__version__)'\
+    $(python) -c \
+    'from kiwi.version import __version__; print(__version__)'\
 )
 
 .PHONY: test
@@ -124,7 +127,7 @@ build: clean po tox sdist_prepare
 	# managed in the spec file
 	sed -ie "s@>=[0-9.]*'@'@g" setup.py
 	# build the sdist source tarball
-	python setup.py sdist
+	$(python) setup.py sdist
 	# cleanup sdist_prepare actions
 	rm -f boot_arch.tgz && \
 		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
@@ -146,7 +149,7 @@ build: clean po tox sdist_prepare
 	helper/kiwi-boot-packages > dist/python-kiwi-boot-packages
 
 pypi: clean po tox sdist_prepare
-	python setup.py sdist upload
+	$(python) setup.py sdist upload
 	rm -f boot_arch.tgz && \
 		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 
