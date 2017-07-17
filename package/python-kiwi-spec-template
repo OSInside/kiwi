@@ -62,7 +62,7 @@
 
 # RHEL // CentOS
 # use the rhel templates for CentOS, too
-%if 0%{?rhel_version} == 700 || 0%{?centos_version} == 700
+%if 0%{?rhel} == 700
 %define distro rhel-07.0
 %endif
 
