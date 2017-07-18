@@ -1,0 +1,9 @@
+Virtualization:Appliances:Images:Testing_x86/test-image-oem images x86_64
+Virtualization:Appliances:Images:Testing_x86/test-image-vmx images x86_64
+Virtualization:Appliances:Images:Testing_x86/test-image-pxe images x86_64
+Virtualization:Appliances:Images:Testing_x86/test-image-docker images x86_64
+Virtualization:Appliances:Images:Testing_x86/test-image-orthos-oem images x86_64
+Virtualization:Appliances:Images:Testing_arm/test-image-panda-oem images armv7l
+Virtualization:Appliances:Images:Testing_s390/test-image-oem images s390x
+Virtualization:Appliances:Images/dice-image-docker images x86_64
+Virtualization:Appliances:Images/dice-image-vagrant-libvirt images x86_64
