@@ -6796,7 +6796,7 @@ function xenServer {
         # no xen domain set, assume domU
         return 1
     fi
-    if [ $kiwi_xendomain = "dom0" ];then
+    if [ "$kiwi_xendomain" = "dom0" ];then
         # xen dom0 requested
         return 0
     fi
