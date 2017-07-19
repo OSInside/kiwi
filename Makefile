@@ -97,6 +97,9 @@ po:
 po_status:
 	./.fuzzy
 
+obs_test_status:
+	./.obs_test_status
+
 valid:
 	for i in `find test kiwi -name *.xml`; do \
 		if [ ! -L $$i ];then \
