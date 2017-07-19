@@ -105,7 +105,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.5</value>
+        <value>6.6</value>
       </attribute>
     </define>
     <define name="k.image.kiwirevision.attribute">
@@ -1959,7 +1959,20 @@ By default a graphics console setup is used</a:documentation>
         <sch:param name="types" value="oem vmx iso"/>
       </sch:pattern>
     </define>
-    <define name="k.type.btrfs_root_is_snapshot">
+    <define name="k.type.xen_server.attribute">
+      <attribute name="xen_server">
+        <a:documentation>Specify the image is a Xen dom0 (Xen Server) image
+The information is used to create a correct bootloader
+configuration with regards to the required loading of
+the Xen Hypervisor</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="xen_server" is-a="image_type">
+        <sch:param name="attr" value="xen_server"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.btrfs_root_is_snapshot.attribute">
       <attribute name="btrfs_root_is_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
 The snapshot layout is compatible with the snapper management
@@ -1971,7 +1984,7 @@ toolkit. By default no snapshots are used</a:documentation>
         <sch:param name="types" value="oem vmx docker"/>
       </sch:pattern>
     </define>
-    <define name="k.type.btrfs_root_is_readonly_snapshot">
+    <define name="k.type.btrfs_root_is_readonly_snapshot.attribute">
       <attribute name="btrfs_root_is_readonly_snapshot">
         <a:documentation>Tell kiwi to set the btrfs root filesystem snapshot read-only
 Once all data has been placed to the root filesystem snapshot
@@ -1986,7 +1999,7 @@ is writable</a:documentation>
         <sch:param name="types" value="oem vmx docker"/>
       </sch:pattern>
     </define>
-    <define name="k.type.target_blocksize">
+    <define name="k.type.target_blocksize.attribute">
       <attribute name="target_blocksize">
         <a:documentation>Specifies the image blocksize in bytes which has to match
 the logical (SSZ) blocksize of the target storage device.
@@ -2000,7 +2013,7 @@ desired target by calling: blockdev --report device</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.target_removable">
+    <define name="k.type.target_removable.attribute">
       <attribute name="target_removable">
         <a:documentation>Indicate if the target disk for oem images is deployed
 to a removable device e.g a USB stick or not. This only
@@ -2015,7 +2028,7 @@ expected to be non-removable</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.spare_part">
+    <define name="k.type.spare_part.attribute">
       <attribute name="spare_part">
         <a:documentation>Request a spare partition right before the root partition
 of the requested size. The attribute takes a size value
@@ -2644,10 +2657,10 @@ to work on.</a:documentation>
           <ref name="k.type.boottimeout.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.btrfs_root_is_snapshot"/>
+          <ref name="k.type.btrfs_root_is_snapshot.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.btrfs_root_is_readonly_snapshot"/>
+          <ref name="k.type.btrfs_root_is_readonly_snapshot.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.checkprebuilt.attribute"/>
@@ -2744,13 +2757,13 @@ to work on.</a:documentation>
           <ref name="k.type.rootfs_label.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.spare_part"/>
+          <ref name="k.type.spare_part.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.target_blocksize"/>
+          <ref name="k.type.target_blocksize.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.target_removable"/>
+          <ref name="k.type.target_removable.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>
@@ -2766,6 +2779,9 @@ to work on.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.derived_from.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.xen_server.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -3908,12 +3924,13 @@ configuration options which are used inside a vagrant box</a:documentation>
         </choice>
       </attribute>
     </define>
-    <define name="k.machine.domain.attribute">
-      <attribute name="domain">
-        <a:documentation>The domain setup for the VM (xen only)</a:documentation>
+    <define name="k.machine.xen_loader.attribute">
+      <attribute name="xen_loader">
+        <a:documentation>the Xen target loader which is expected to load this guest</a:documentation>
         <choice>
-          <value>dom0</value>
-          <value>domU</value>
+          <value>hvmloader</value>
+          <value>pygrub</value>
+          <value>pvgrub</value>
         </choice>
       </attribute>
     </define>
@@ -3984,7 +4001,7 @@ formats)</a:documentation>
           <ref name="k.machine.arch.attribute"/>
         </optional>
         <optional>
-          <ref name="k.machine.domain.attribute"/>
+          <ref name="k.machine.xen_loader.attribute"/>
         </optional>
         <optional>
           <ref name="k.machine.guestOS.attribute"/>

@@ -57,7 +57,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.5" }
+        attribute schemaversion { "6.6" }
     k.image.kiwirevision.attribute =
         ## A kiwi git revision number which is known to build
         ## a working image from this description. If the kiwi git
@@ -1284,7 +1284,17 @@ div {
             sch:param [ name = "attr" value = "bootloader_console" ]
             sch:param [ name = "types" value = "oem vmx iso" ]
         ]
-    k.type.btrfs_root_is_snapshot =
+    k.type.xen_server.attribute =
+        ## Specify the image is a Xen dom0 (Xen Server) image
+        ## The information is used to create a correct bootloader
+        ## configuration with regards to the required loading of
+        ## the Xen Hypervisor
+        attribute xen_server { xsd:boolean }
+        >> sch:pattern [ id = "xen_server" is-a = "image_type"
+            sch:param [ name = "attr" value = "xen_server" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
+    k.type.btrfs_root_is_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
         ## toolkit. By default no snapshots are used
@@ -1293,7 +1303,7 @@ div {
             sch:param [ name = "attr" value = "btrfs_root_is_snapshot" ]
             sch:param [ name = "types" value = "oem vmx docker" ]
         ]
-    k.type.btrfs_root_is_readonly_snapshot =
+    k.type.btrfs_root_is_readonly_snapshot.attribute =
         ## Tell kiwi to set the btrfs root filesystem snapshot read-only
         ## Once all data has been placed to the root filesystem snapshot
         ## it will be turned into read-only mode if this option is set to
@@ -1305,7 +1315,7 @@ div {
             sch:param [ name = "attr" value = "btrfs_root_is_readonly_snapshot" ]
             sch:param [ name = "types" value = "oem vmx docker" ]
         ]
-    k.type.target_blocksize =
+    k.type.target_blocksize.attribute =
         ## Specifies the image blocksize in bytes which has to match
         ## the logical (SSZ) blocksize of the target storage device.
         ## By default 512 byte is used which works on many disks
@@ -1316,7 +1326,7 @@ div {
             sch:param [ name = "attr" value = "target_blocksize" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
-    k.type.target_removable =
+    k.type.target_removable.attribute =
         ## Indicate if the target disk for oem images is deployed
         ## to a removable device e.g a USB stick or not. This only
         ## affects the EFI setup if requested and in the end avoids
@@ -1328,7 +1338,7 @@ div {
             sch:param [ name = "attr" value = "target_removable" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
-    k.type.spare_part =
+    k.type.spare_part.attribute =
         ## Request a spare partition right before the root partition
         ## of the requested size. The attribute takes a size value
         ## and allows a unit in MB or GB, e.g 200M. If no unit is given
@@ -1756,8 +1766,8 @@ div {
         k.type.efipartsize.attribute? &
         k.type.bootprofile.attribute? &
         k.type.boottimeout.attribute? &
-        k.type.btrfs_root_is_snapshot? &
-        k.type.btrfs_root_is_readonly_snapshot? &
+        k.type.btrfs_root_is_snapshot.attribute? &
+        k.type.btrfs_root_is_readonly_snapshot.attribute? &
         k.type.checkprebuilt.attribute? &
         k.type.compressed.attribute? &
         k.type.devicepersistency.attribute? &
@@ -1790,14 +1800,15 @@ div {
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
-        k.type.spare_part? &
-        k.type.target_blocksize? &
-        k.type.target_removable? &
+        k.type.spare_part.attribute? &
+        k.type.target_blocksize.attribute? &
+        k.type.target_removable.attribute? &
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &
         k.type.wwid_wait_timeout.attribute? &
-        k.type.derived_from.attribute?
+        k.type.derived_from.attribute? &
+        k.type.xen_server.attribute?
     k.type =
         ## The Image Type of the Logical Extend
         element type { 
@@ -2491,9 +2502,9 @@ div {
     k.machine.arch.attribute =
         ## the VM architecture type (vmdk only)
         attribute arch { "ix86" | "x86_64" }
-    k.machine.domain.attribute =
-        ## The domain setup for the VM (xen only)
-        attribute domain { "dom0" | "domU" }
+    k.machine.xen_loader.attribute =
+        ## the Xen target loader which is expected to load this guest
+        attribute xen_loader { "hvmloader" | "pygrub" | "pvgrub" }
     k.machine.guestOS.attribute =
         ## The virtual guestOS identification string for the VM
         ## (vmdk and ovf, note the name designation is different for the two
@@ -2525,7 +2536,7 @@ div {
         k.machine.ovftype.attribute? &
         k.machine.HWversion.attribute? &
         k.machine.arch.attribute? &
-        k.machine.domain.attribute? &
+        k.machine.xen_loader.attribute? &
         k.machine.guestOS.attribute? &
         k.machine.memory.attribute? &
         k.machine.ncpus.attribute?
