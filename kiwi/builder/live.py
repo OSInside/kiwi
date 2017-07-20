@@ -72,7 +72,6 @@ class LiveImageBuilder(object):
         self.types = Defaults.get_live_iso_types()
         self.hybrid = xml_state.build_type.get_hybrid()
         self.volume_id = xml_state.build_type.get_volid()
-        self.machine = xml_state.get_build_type_machine_section()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
         self.filesystem_custom_parameters = {
@@ -275,7 +274,7 @@ class LiveImageBuilder(object):
                 'No kernel in boot image tree %s found' %
                 self.boot_image_task.boot_root_directory
             )
-        if self.machine and self.machine.get_domain() == 'dom0':
+        if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
                 kernel.copy_xen_hypervisor(boot_path, '/xen.gz')
             else:

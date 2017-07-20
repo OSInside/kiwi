@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.27a.
+# Generated  by generateDS.py version 2.28a.
 #
 # Command line options:
 #   ('-f', '')
@@ -15,7 +15,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/2.7/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -87,7 +87,7 @@ except ImportError:
 try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
-
+    
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
         class _FixedOffsetTZ(datetime_.tzinfo):
@@ -401,7 +401,13 @@ except ImportError as exp:
             else:
                 result = GeneratedsSuper.gds_encode(str(instring))
             return result
-
+        def __eq__(self, other):
+            if type(self) != type(other):
+                return False
+            return self.__dict__ == other.__dict__
+        def __ne__(self, other):
+            return not self.__eq__(other)
+    
     def getSubclassFromModule_(module, class_):
         '''Get the subclass of a class from a specific module.'''
         name = class_.__name__ + 'Sub'
@@ -570,7 +576,8 @@ class MixedContainer:
         return self.value
     def getName(self):
         return self.name
-    def export(self, outfile, level, name, namespace, pretty_print=True):
+    def export(self, outfile, level, name, namespace,
+               pretty_print=True):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
             if self.value.strip():
@@ -579,7 +586,8 @@ class MixedContainer:
             self.exportSimple(outfile, level, name)
         else:    # category == MixedContainer.CategoryComplex
             self.value.export(
-                outfile, level, namespace, name, pretty_print=pretty_print)
+                outfile, level, namespace, name,
+                pretty_print=pretty_print)
     def exportSimple(self, outfile, level, name):
         if self.content_type == MixedContainer.TypeString:
             outfile.write('<%s>%s</%s>' % (
@@ -597,7 +605,9 @@ class MixedContainer:
                 self.name, self.value, self.name))
         elif self.content_type == MixedContainer.TypeBase64:
             outfile.write('<%s>%s</%s>' % (
-                self.name, base64.b64encode(self.value), self.name))
+                self.name,
+                base64.b64encode(self.value),
+                self.name))
     def to_etree(self, element):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
@@ -613,7 +623,8 @@ class MixedContainer:
                     else:
                         element.text += self.value
         elif self.category == MixedContainer.CategorySimple:
-            subelement = etree_.SubElement(element, '%s' % self.name)
+            subelement = etree_.SubElement(
+                element, '%s' % self.name)
             subelement.text = self.to_etree_simple()
         else:    # category == MixedContainer.CategoryComplex
             self.value.to_etree(element)
@@ -636,12 +647,14 @@ class MixedContainer:
             showIndent(outfile, level)
             outfile.write(
                 'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
-                    self.category, self.content_type, self.name, self.value))
+                    self.category, self.content_type,
+                    self.name, self.value))
         elif self.category == MixedContainer.CategorySimple:
             showIndent(outfile, level)
             outfile.write(
                 'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
-                    self.category, self.content_type, self.name, self.value))
+                    self.category, self.content_type,
+                    self.name, self.value))
         else:    # category == MixedContainer.CategoryComplex
             showIndent(outfile, level)
             outfile.write(
@@ -653,10 +666,13 @@ class MixedContainer:
 
 
 class MemberSpec_(object):
-    def __init__(self, name='', data_type='', container=0, optional=0):
+    def __init__(self, name='', data_type='', container=0,
+            optional=0, child_attrs=None, choice=None):
         self.name = name
         self.data_type = data_type
         self.container = container
+        self.child_attrs = child_attrs
+        self.choice = choice
         self.optional = optional
     def set_name(self, name): self.name = name
     def get_name(self): return self.name
@@ -672,6 +688,10 @@ class MemberSpec_(object):
             return self.data_type
     def set_container(self, container): self.container = container
     def get_container(self): return self.container
+    def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
+    def get_child_attrs(self): return self.child_attrs
+    def set_choice(self, choice): self.choice = choice
+    def get_choice(self): return self.choice
     def set_optional(self, optional): self.optional = optional
     def get_optional(self): return self.optional
 
@@ -2621,7 +2641,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2677,6 +2697,7 @@ class type_(GeneratedsSuper):
         self.volid = _cast(None, volid)
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
         self.derived_from = _cast(None, derived_from)
+        self.xen_server = _cast(bool, xen_server)
         if containerconfig is None:
             self.containerconfig = []
         else:
@@ -2859,6 +2880,8 @@ class type_(GeneratedsSuper):
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
     def get_derived_from(self): return self.derived_from
     def set_derived_from(self, derived_from): self.derived_from = derived_from
+    def get_xen_server(self): return self.xen_server
+    def set_xen_server(self, xen_server): self.xen_server = xen_server
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3070,6 +3093,9 @@ class type_(GeneratedsSuper):
         if self.derived_from is not None and 'derived_from' not in already_processed:
             already_processed.add('derived_from')
             outfile.write(' derived_from=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.derived_from), input_name='derived_from')), ))
+        if self.xen_server is not None and 'xen_server' not in already_processed:
+            already_processed.add('xen_server')
+            outfile.write(' xen_server="%s"' % self.gds_format_boolean(self.xen_server, input_name='xen_server'))
     def exportChildren(self, outfile, level, namespace_='', name_='type', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3447,6 +3473,15 @@ class type_(GeneratedsSuper):
         if value is not None and 'derived_from' not in already_processed:
             already_processed.add('derived_from')
             self.derived_from = value
+        value = find_attr_value_('xen_server', node)
+        if value is not None and 'xen_server' not in already_processed:
+            already_processed.add('xen_server')
+            if value in ('true', '1'):
+                self.xen_server = True
+            elif value in ('false', '0'):
+                self.xen_server = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'containerconfig':
             obj_ = containerconfig.factory()
@@ -6477,7 +6512,7 @@ class machine(GeneratedsSuper):
     which are used by the virtual machine when running the image."""
     subclass = None
     superclass = None
-    def __init__(self, min_memory=None, max_memory=None, min_cpu=None, max_cpu=None, ovftype=None, HWversion=None, arch=None, domain=None, guestOS=None, memory=None, ncpus=None, vmconfig_entry=None, vmdisk=None, vmdvd=None, vmnic=None):
+    def __init__(self, min_memory=None, max_memory=None, min_cpu=None, max_cpu=None, ovftype=None, HWversion=None, arch=None, xen_loader=None, guestOS=None, memory=None, ncpus=None, vmconfig_entry=None, vmdisk=None, vmdvd=None, vmnic=None):
         self.original_tagname_ = None
         self.min_memory = _cast(int, min_memory)
         self.max_memory = _cast(int, max_memory)
@@ -6486,7 +6521,7 @@ class machine(GeneratedsSuper):
         self.ovftype = _cast(None, ovftype)
         self.HWversion = _cast(int, HWversion)
         self.arch = _cast(None, arch)
-        self.domain = _cast(None, domain)
+        self.xen_loader = _cast(None, xen_loader)
         self.guestOS = _cast(None, guestOS)
         self.memory = _cast(int, memory)
         self.ncpus = _cast(int, ncpus)
@@ -6551,8 +6586,8 @@ class machine(GeneratedsSuper):
     def set_HWversion(self, HWversion): self.HWversion = HWversion
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
-    def get_domain(self): return self.domain
-    def set_domain(self, domain): self.domain = domain
+    def get_xen_loader(self): return self.xen_loader
+    def set_xen_loader(self, xen_loader): self.xen_loader = xen_loader
     def get_guestOS(self): return self.guestOS
     def set_guestOS(self, guestOS): self.guestOS = guestOS
     def get_memory(self): return self.memory
@@ -6612,9 +6647,9 @@ class machine(GeneratedsSuper):
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
-        if self.domain is not None and 'domain' not in already_processed:
-            already_processed.add('domain')
-            outfile.write(' domain=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.domain), input_name='domain')), ))
+        if self.xen_loader is not None and 'xen_loader' not in already_processed:
+            already_processed.add('xen_loader')
+            outfile.write(' xen_loader=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.xen_loader), input_name='xen_loader')), ))
         if self.guestOS is not None and 'guestOS' not in already_processed:
             already_processed.add('guestOS')
             outfile.write(' guestOS=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.guestOS), input_name='guestOS')), ))
@@ -6699,11 +6734,11 @@ class machine(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-        value = find_attr_value_('domain', node)
-        if value is not None and 'domain' not in already_processed:
-            already_processed.add('domain')
-            self.domain = value
-            self.domain = ' '.join(self.domain.split())
+        value = find_attr_value_('xen_loader', node)
+        if value is not None and 'xen_loader' not in already_processed:
+            already_processed.add('xen_loader')
+            self.xen_loader = value
+            self.xen_loader = ' '.join(self.xen_loader.split())
         value = find_attr_value_('guestOS', node)
         if value is not None and 'guestOS' not in already_processed:
             already_processed.add('guestOS')

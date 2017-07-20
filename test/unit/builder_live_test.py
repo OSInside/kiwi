@@ -70,10 +70,6 @@ class TestLiveImageBuilder(object):
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
-        self.live_image.machine = mock.Mock()
-        self.live_image.machine.get_domain = mock.Mock(
-            return_value='dom0'
-        )
         self.result = mock.Mock()
         self.live_image.result = self.result
         self.live_image.hybrid = True

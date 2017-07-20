@@ -574,7 +574,7 @@ class Defaults(object):
         :return: firmware names
         :rtype: list
         """
-        return ['ec2', 'ec2hvm']
+        return ['ec2']
 
     @classmethod
     def get_efi_module_directory_name(self, arch):

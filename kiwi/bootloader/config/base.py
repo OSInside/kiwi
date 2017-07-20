@@ -185,17 +185,6 @@ class BootLoaderConfigBase(object):
             return False
         return True
 
-    def get_hypervisor_domain(self):
-        """
-        Hypervisor domain name
-
-        :return: domain name
-        :rtype: string
-        """
-        machine = self.xml_state.get_build_type_machine_section()
-        if machine:
-            return machine.get_domain()
-
     def get_boot_cmdline(self, uuid=None):
         """
         Boot commandline arguments passed to the kernel

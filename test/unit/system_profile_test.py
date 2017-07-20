@@ -97,7 +97,7 @@ class TestProfile(object):
             'kiwi_type': 'oem',
             'kiwi_vga': None,
             'kiwi_wwid_wait_timeout': None,
-            'kiwi_xendomain': None
+            'kiwi_xendomain': 'dom0'
         }
         assert result == [
             "kiwi_Volume_1='usr_lib|size:1024|usr/lib'",
@@ -122,7 +122,8 @@ class TestProfile(object):
             "kiwi_ramonly='true'",
             "kiwi_splash_theme='openSUSE'",
             "kiwi_timezone='Europe/Berlin'",
-            "kiwi_type='oem'"
+            "kiwi_type='oem'",
+            "kiwi_xendomain='dom0'"
         ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')

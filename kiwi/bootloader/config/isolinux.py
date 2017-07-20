@@ -94,14 +94,10 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
-        self.hypervisor_domain = self.get_hypervisor_domain()
 
         self.multiboot = False
-        if self.hypervisor_domain:
-            if self.hypervisor_domain == 'dom0':
-                self.multiboot = True
-            elif self.hypervisor_domain == 'domU':
-                self.multiboot = False
+        if self.xml_state.is_xen_server():
+            self.multiboot = True
 
         self.isolinux = BootLoaderTemplateIsoLinux()
         self.config = None
