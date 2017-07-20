@@ -168,11 +168,6 @@ class TestDiskBuilder(object):
         )
         self.disk_builder.root_filesystem_is_overlay = False
         self.disk_builder.build_type_name = 'oem'
-        self.machine = mock.Mock()
-        self.machine.get_domain = mock.Mock(
-            return_value='dom0'
-        )
-        self.disk_builder.machine = self.machine
         self.disk_builder.image_format = None
 
     @patch('os.path.exists')
@@ -596,7 +591,26 @@ class TestDiskBuilder(object):
     ):
         self.kernel.get_xen_hypervisor.return_value = False
         self.disk_builder.volume_manager_name = None
+        self.disk_builder.xen_server = True
         self.disk_builder.create_disk()
+
+    @patch('kiwi.builder.disk.FileSystem')
+    @patch_open
+    @patch('kiwi.builder.disk.Command.run')
+    def test_create_disk_standard_root_xen_server_boot(
+        self, mock_command, mock_open, mock_fs
+    ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.xen_server = True
+        self.firmware.efi_mode = mock.Mock(
+            return_value=False
+        )
+        self.disk_builder.create_disk()
+        self.kernel.copy_xen_hypervisor.assert_called_once_with(
+            'root_dir', '/boot/xen.gz'
+        )
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

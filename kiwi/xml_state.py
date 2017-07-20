@@ -452,6 +452,19 @@ class XMLState(object):
         """
         return self.get_products('image')
 
+    def is_xen_server(self):
+        return self.build_type.get_xen_server()
+
+    def is_xen_guest(self):
+        firmware = self.build_type.get_firmware()
+        machine_section = self.get_build_type_machine_section()
+        if firmware and firmware in Defaults.get_ec2_capable_firmware_names():
+            # the image is targeted to run in Amazon EC2 which is a Xen system
+            return True
+        elif machine_section and machine_section.get_xen_loader():
+            # the image provides a machine section with a guest loader setup
+            return True
+
     def get_build_type_system_disk_section(self):
         """
         First system disk section from the build type section

@@ -100,7 +100,7 @@ class DiskBuilder(object):
         self.force_mbr = xml_state.build_type.get_force_mbr()
         self.luks = xml_state.build_type.get_luks()
         self.luks_os = xml_state.build_type.get_luksOS()
-        self.machine = xml_state.get_build_type_machine_section()
+        self.xen_server = xml_state.is_xen_server()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
@@ -866,7 +866,7 @@ class DiskBuilder(object):
                 self.root_dir, ''.join(['/boot/', boot_names.kernel_name])
             )
 
-            if self.machine and self.machine.get_domain() == 'dom0':
+            if self.xen_server:
                 if kernel.get_xen_hypervisor():
                     log.info('--> boot image Xen hypervisor as xen.gz')
                     kernel.copy_xen_hypervisor(

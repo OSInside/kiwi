@@ -28,6 +28,12 @@ class TestBootLoaderConfigIsoLinux(object):
         self.state = XMLState(
             description.load()
         )
+        self.state.is_xen_server = mock.Mock(
+            return_value=False
+        )
+        self.state.is_xen_guest = mock.Mock(
+            return_value=False
+        )
         kiwi.bootloader.config.isolinux.Path = mock.Mock()
         kiwi.bootloader.config.base.Path = mock.Mock()
         self.isolinux = mock.Mock()
@@ -36,9 +42,6 @@ class TestBootLoaderConfigIsoLinux(object):
         )
         self.bootloader = BootLoaderConfigIsoLinux(
             self.state, 'root_dir'
-        )
-        self.bootloader.get_hypervisor_domain = mock.Mock(
-            return_value='domU'
         )
 
     @raises(KiwiBootLoaderIsoLinuxPlatformError)
@@ -59,10 +62,11 @@ class TestBootLoaderConfigIsoLinux(object):
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_post_init_dom0(self, mock_machine, mock_exists):
+        self.state.is_xen_server = mock.Mock(
+            return_value=True
+        )
         mock_machine.return_value = 'x86_64'
-        self.bootloader.get_hypervisor_domain.return_value = 'dom0'
         mock_exists.return_value = True
-
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
 

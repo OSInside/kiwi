@@ -64,10 +64,6 @@ class TestInstallImageBuilder(object):
         self.install_image = InstallImageBuilder(
             self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
         )
-        self.install_image.machine = mock.Mock()
-        self.install_image.machine.get_domain = mock.Mock(
-            return_value='dom0'
-        )
 
     @patch('platform.machine')
     def test_setup_ix86(self, mock_machine):

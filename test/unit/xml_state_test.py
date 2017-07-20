@@ -625,3 +625,15 @@ class TestXMLState(object):
     def test_set_derived_from_image_uri_not_applied(self, mock_log_warn):
         self.state.set_derived_from_image_uri('file:///new_uri')
         assert mock_log_warn.called
+
+    def test_is_xen_server(self):
+        assert self.state.is_xen_server() is True
+
+    def test_is_xen_guest_by_machine_setup(self):
+        assert self.state.is_xen_guest() is True
+
+    def test_is_xen_guest_by_firmware_setup(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['ec2Flavour'], 'vmx')
+        assert state.is_xen_guest() is True

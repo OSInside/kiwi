@@ -129,23 +129,20 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
-        self.hypervisor_domain = self.get_hypervisor_domain()
+        self.xen_guest = self.xml_state.is_xen_guest()
         self.firmware = FirmWare(
             self.xml_state
         )
-        self.hybrid_boot = True
-        self.multiboot = False
-        if self.hypervisor_domain:
-            if self.hypervisor_domain == 'dom0':
-                self.hybrid_boot = False
-                self.multiboot = True
-            elif self.hypervisor_domain == 'domU':
-                self.hybrid_boot = False
-                self.multiboot = False
 
-        self.xen_guest = False
-        if self.hypervisor_domain == 'domU' or self.firmware.ec2_mode():
-            self.xen_guest = True
+        if self.xml_state.is_xen_server():
+            self.hybrid_boot = False
+            self.multiboot = True
+        elif self.xen_guest:
+            self.hybrid_boot = False
+            self.multiboot = False
+        else:
+            self.hybrid_boot = True
+            self.multiboot = False
 
         self.grub2 = BootLoaderTemplateGrub2()
         self.config = None

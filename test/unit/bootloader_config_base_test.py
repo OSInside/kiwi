@@ -85,9 +85,6 @@ class TestBootLoaderConfigBase(object):
         mock_installprovidefailsafe.return_value = False
         assert self.bootloader.failsafe_boot_entry_requested() is False
 
-    def test_get_hypervisor_domain(self):
-        assert self.bootloader.get_hypervisor_domain() == 'domU'
-
     def test_get_boot_cmdline(self):
         assert self.bootloader.get_boot_cmdline() == 'splash'
 

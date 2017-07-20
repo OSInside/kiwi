@@ -53,11 +53,6 @@ class TestPxeBuilder(object):
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
-        self.machine = mock.Mock()
-        self.machine.get_domain = mock.Mock(
-            return_value='dom0'
-        )
-        self.pxe.machine = self.machine
         self.pxe.image_name = 'myimage'
 
     @patch('kiwi.builder.pxe.Checksum')

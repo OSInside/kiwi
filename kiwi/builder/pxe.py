@@ -57,7 +57,7 @@ class PxeBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
-        self.machine = xml_state.get_build_type_machine_section()
+        self.xen_server = xml_state.is_xen_server()
         self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, root_dir + '/'
@@ -146,7 +146,7 @@ class PxeBuilder(object):
             )
 
         # extract hypervisor from boot(initrd) root system
-        if self.machine and self.machine.get_domain() == 'dom0':
+        if self.xen_server:
             kernel_data = kernel.get_xen_hypervisor()
             if kernel_data:
                 self.hypervisor_filename = ''.join(
