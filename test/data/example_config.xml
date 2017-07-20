@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.5" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="6.6" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -35,10 +35,10 @@
         <locale>de_DE</locale>
     </preferences>
     <preferences>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" btrfs_root_is_snapshot="true" spare_part="200M">
+        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" btrfs_root_is_snapshot="true" spare_part="200M" xen_server="true">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
-            <machine memory="512" domain="domU">
+            <machine memory="512" xen_loader="hvmloader">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
                 <vmdvd id="0" controller="scsi"/>
@@ -66,7 +66,7 @@
     </preferences>
     <preferences profiles="xenFlavour">
         <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
-            <machine memory="512" domain="domU">
+            <machine memory="512" xen_loader="hvmloader">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
@@ -76,9 +76,6 @@
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
             </oemconfig>
-            <machine domain="dom0">
-                <vmdisk id="0" controller="ide"/>
-            </machine>
         </type>
     </preferences>
     <preferences profiles="vmxFlavour">
@@ -113,15 +110,15 @@
                     <port number="80"/>
                     <port number="8080"/>
                 </expose>
-                <volumes> 
+                <volumes>
                     <volume name="/tmp"/>
                     <volume name="/var/log"/>
                 </volumes>
-                <environment> 
+                <environment>
                     <env name="PATH" value="/bin:/usr/bin:/home/user/bin"/>
                     <env name="SOMEVAR" value="somevalue"/>
                 </environment>
-                <labels> 
+                <labels>
                     <label name="somelabel" value="labelvalue"/>
                     <label name="someotherlabel" value="anotherlabelvalue"/>
                 </labels>

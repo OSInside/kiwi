@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.5" name="initrd-vmxboot-ubuntu-xenial">
+<image schemaversion="6.6" name="initrd-vmxboot-ubuntu-xenial">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
