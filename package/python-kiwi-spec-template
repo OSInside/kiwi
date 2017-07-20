@@ -291,15 +291,16 @@ needed to serve kiwi built images via PXE.
 %package -n kiwi-boot-requires
 Summary:        KIWI - buildservice package requirements for boot images
 Provides:       kiwi-boot:isoboot
+Provides:       kiwi-boot:vmxboot
 Provides:       kiwi-boot:netboot
 Provides:       kiwi-boot:oemboot
-Provides:       kiwi-boot:vmxboot
 Provides:       kiwi-filesystem:btrfs
+Provides:       kiwi-filesystem:xfs
 Provides:       kiwi-filesystem:ext3
 Provides:       kiwi-filesystem:ext4
 Provides:       kiwi-filesystem:squashfs
-Provides:       kiwi-filesystem:xfs
 Requires:       e2fsprogs
+Requires:       xfsprogs
 %if 0%{?fedora} || 0%{?rhel}
 Requires:       btrfs-progs
 %else
@@ -310,7 +311,6 @@ Requires:       python3-kiwi = %{version}
 %else
 Requires:       python2-kiwi = %{version}
 %endif
-Requires:       xfsprogs
 Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
 License:        GPL-3.0+
 Group:          System/Management
