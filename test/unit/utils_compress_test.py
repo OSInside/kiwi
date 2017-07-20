@@ -26,7 +26,7 @@ class TestCompress(object):
         self.compress.xz()
         mock_command.assert_called_once_with(
             [
-                'xz', '-f', '--check=crc32', '--lzma2=dict=512KiB', '--keep',
+                'xz', '-f', '--threads=0', '--keep',
                 'some-file'
             ]
         )
