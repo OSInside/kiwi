@@ -63,6 +63,11 @@ class TestContainerImageOCI(object):
         assert container.labels == custom_args['labels']
         assert container.xz_options == custom_args['xz_options']
 
+    def test_init_without_custom_args(self):
+        container = ContainerImageOCI('root_dir')
+        assert container.container_name == 'kiwi-container'
+        assert container.container_tag == 'latest'
+
     @patch('kiwi.container.oci.Path.wipe')
     def test_del(self, mock_wipe):
         self.oci.oci_dir = 'dir_a'

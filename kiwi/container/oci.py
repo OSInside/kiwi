@@ -25,6 +25,7 @@ from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.sync import DataSync
 from kiwi.archive.tar import ArchiveTar
+from kiwi.logger import log
 
 
 class ContainerImageOCI(object):
@@ -57,7 +58,7 @@ class ContainerImageOCI(object):
         self.oci_root_dir = None
 
         self.xz_options = None
-        self.container_name = ''
+        self.container_name = 'kiwi-container'
         self.container_tag = 'latest'
         self.entry_command = []
         self.entry_subcommand = []
@@ -105,6 +106,12 @@ class ContainerImageOCI(object):
 
             if 'xz_options' in custom_args:
                 self.xz_options = custom_args['xz_options']
+
+        if not custom_args or 'container_name' not in custom_args:
+            log.info(
+                'No container configuration provided, '
+                'using default container name "kiwi-container:latest"'
+            )
 
         if not self.entry_command and not self.entry_subcommand:
             self.entry_subcommand = ['--config.cmd=/bin/bash']
