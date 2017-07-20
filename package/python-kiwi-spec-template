@@ -87,11 +87,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
+BuildRequires:  fdupes
 %endif
 BuildRequires:  python-devel
 BuildRequires:  python-setuptools
 %if 0%{?suse_version}
-BuildRequires:  fdupes
 BuildRequires:  shadow
 BuildRequires:  update-alternatives
 %endif
@@ -383,7 +383,7 @@ mv %{buildroot}/%{_defaultdocdir}/packages/python-kiwi/* %{buildroot}/%{_default
 rm -rf %{buildroot}/%{_defaultdocdir}/packages
 %endif
 
-%if 0%{?suse_version}
+%if 0%{?fedora} || 0%{?suse_version}
 %fdupes %{buildroot}/srv/tftpboot
 %fdupes %{buildroot}/%{python3_sitelib}/kiwi/boot
 %fdupes %{buildroot}/%{python2_sitelib}/kiwi/boot
