@@ -65,8 +65,7 @@ class Defaults(object):
     @classmethod
     def get_xz_compression_options(self):
         return [
-            '--check=crc32',
-            '--lzma2=dict=512KiB'
+            '--threads=0'
         ]
 
     @classmethod
