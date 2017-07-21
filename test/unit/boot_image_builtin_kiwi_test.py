@@ -132,7 +132,7 @@ class TestBootImageKiwi(object):
             ]
         )
         compress.xz.assert_called_once_with(
-            ['--check=crc32', '--lzma2=dict=1MiB', '-T0']
+            ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']
         )
 
     @patch('kiwi.boot.image.base.Path.wipe')

@@ -168,6 +168,6 @@ class BootImageKiwi(BootImageBase):
                 os.sep.join([self.target_dir, self.initrd_base_name])
             )
             compress.xz(
-                ['--check=crc32', '--lzma2=dict=1MiB', '-T0']
+                ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']
             )
             self.initrd_filename = compress.compressed_filename
