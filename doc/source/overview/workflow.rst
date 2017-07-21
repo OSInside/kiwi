@@ -216,7 +216,7 @@ KIWI:
 
    #. **Container Image**: Base images for the Docker engine.
 
-.. _decription_components:
+.. _description_components:
 
 Components of an Image Description
 ----------------------------------
@@ -708,7 +708,7 @@ modes like *oem install*, *pxe install*, *live images*, *network clients*, etc.
 However this KIWI version also provides support for :command:`dracut`
 generated images which is used when fast boot or small *initrd* images are
 important requirements. This is possible by setting the ``initrd_system``
-attribute withint the ``type`` section of the configuration file. For example:
+attribute within the ``type`` section of the configuration file. For example:
 
 .. code-block:: xml
 
@@ -1075,7 +1075,7 @@ added to the system image configuration:
 
 .. code-block:: xml
 
-   <packages type="image"/>
+   <packages type="image">
      <package name="dropbear" bootinclude="true"/>
    </packages>
 
@@ -1159,7 +1159,7 @@ solutions to the most common scenarios that require a customized boot image.
 
   .. code-block:: xml
 
-     <packages type="image"/>
+     <packages type="image">
        <package name="PACKAGE" bootinclude="true"/>
      </packages>
 
@@ -1179,7 +1179,7 @@ solutions to the most common scenarios that require a customized boot image.
 
   .. code-block:: xml
 
-     <strip type="tools"/>
+     <strip type="tools">
        <file name="FILENAME"/>
      </strip>
 
