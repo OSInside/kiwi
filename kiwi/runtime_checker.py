@@ -257,3 +257,41 @@ class RuntimeChecker(object):
                         initrd_system, boot_image_reference, build_type_name
                     )
                 )
+
+    def check_xen_uniquely_setup_as_server_or_guest(self):
+        """
+        If the image is classified to be used as Xen image, it can
+        be either a Xen Server(dom0) or a Xen guest. The image
+        configuration is checked if the information uniquely identifies
+        the image as such
+        """
+        xen_message = dedent('''\n
+            Inconsistent Xen setup found:
+
+            The use of the 'xen_server' or 'xen_loader' attributes indicates
+            the target system for this image is Xen. However the image
+            specifies both attributes at the same time which classifies
+            the image to be both, a Xen Server(dom0) and a Xen guest at
+            the same time, which is not supported.
+
+            Please cleanup your image description. Setup only one
+            of 'xen_server' or 'xen_loader'.
+        ''')
+        ec2_message = dedent('''\n
+            Inconsistent Amazon EC2 setup found:
+
+            The firmware setup indicates the target system for this image
+            is Amazon EC2, which uses a Xen based virtualisation technology.
+            Therefore the image must be classified as a Xen guest and can
+            not be a Xen server as indicated by the 'xen_server' attribute
+
+            Please cleanup your image description. Delete the 'xen_server'
+            attribute for images used with Amazon EC2.
+        ''')
+        if self.xml_state.is_xen_server() and self.xml_state.is_xen_guest():
+            firmware = self.xml_state.build_type.get_firmware()
+            ec2_firmware_names = Defaults.get_ec2_capable_firmware_names()
+            if firmware and firmware in ec2_firmware_names:
+                raise KiwiRuntimeError(ec2_message)
+            else:
+                raise KiwiRuntimeError(xen_message)

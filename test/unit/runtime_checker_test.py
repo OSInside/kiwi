@@ -1,5 +1,5 @@
 from mock import patch
-
+import mock
 from .test_helper import raises
 
 from kiwi.xml_state import XMLState
@@ -97,3 +97,29 @@ class TestRuntimeChecker(object):
         )
         runtime_checker = RuntimeChecker(xml_state)
         runtime_checker.check_consistent_kernel_in_boot_and_system_image()
+
+    @raises(KiwiRuntimeError)
+    def test_check_xen_uniquely_setup_as_server_or_guest_for_ec2(self):
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value='ec2'
+        )
+        self.xml_state.is_xen_server = mock.Mock(
+            return_value=True
+        )
+        self.xml_state.is_xen_guest = mock.Mock(
+            return_value=True
+        )
+        self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
+
+    @raises(KiwiRuntimeError)
+    def test_check_xen_uniquely_setup_as_server_or_guest_for_xen(self):
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value=None
+        )
+        self.xml_state.is_xen_server = mock.Mock(
+            return_value=True
+        )
+        self.xml_state.is_xen_guest = mock.Mock(
+            return_value=True
+        )
+        self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()

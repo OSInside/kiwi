@@ -94,8 +94,11 @@ class TestSystemBuildTask(object):
         self._init_command_args()
         self.task.command_args['build'] = True
         self.task.process()
+        self.runtime_checker.check_consistent_kernel_in_boot_and_system_image.assert_called_once_with()
+        self.runtime_checker.check_boot_image_reference_correctly_setup.assert_called_once_with()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
-        self.runtime_checker.check_image_include_repos_publicly_resolvable.assert_called_once_with()
+        self.runtime_checker.check_volume_setup_has_no_root_definition.assert_called_once_with()
+        self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(self.abs_target_dir)
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(False, None)
