@@ -878,13 +878,6 @@ function baseStripInitrd {
         return
     fi
     #==========================================
-    # Remove unneeded files
-    #------------------------------------------
-    for delete in $kiwi_strip_delete;do
-        echo "Removing file/directory: $delete"
-        rm -rf $delete
-    done
-    #==========================================
     # remove unneeded tools
     #------------------------------------------
     local tools="$kiwi_strip_tools"
@@ -1634,15 +1627,39 @@ function baseCreateCommonKernelFile {
 #--------------------------------------
 function baseStripKernel {
     # /.../
-    # this function will strip the kernel according to the drivers
-    # information in the xml description. It also creates the
-    # vmlinux.gz and vmlinuz files which are required for the
-    # kernel extraction in case of kiwi boot images
+    # this function will strip the kernel
+    #
+    # 1. create the vmlinux.gz and vmlinuz commonly named files
+    #    which are used as fallback for the kernel extraction in
+    #    case of kiwi boot images
+    #
+    # 2. handle <strip type="delete"> requests. Because this
+    #    information is generic not only files of the kernel
+    #    are affected but also other data which is unwanted
+    #    gets deleted here
+    #
+    # 3. only keep kernel modules matching the <drivers>
+    #    patterns from the kiwi boot image description
+    #
+    # 4. lookup kernel module dependencies and bring back
+    #    modules which were removed but still required by
+    #    other modules kept in the system to stay consistent
+    #
+    # 5. lookup for duplicate kernel modules due to kernel
+    #    module updates and keep only the latest version
+    #
+    # 6. lookup for kernel firmware files and keep only those
+    #    for which a kernel driver is still present in the
+    #    system
     # ----
     baseCreateCommonKernelFile
     if [ "$kiwi_initrd_system" = "dracut" ]; then
         echo "dracut initrd system requested, kernel strip skipped"
     else
+        for delete in $kiwi_strip_delete;do
+            echo "Removing file/directory: $delete"
+            rm -rf $delete
+        done
         baseCreateKernelTree
         baseStripKernelModules
         baseFixupKernelModuleDependencies
