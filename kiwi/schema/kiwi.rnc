@@ -2541,15 +2541,15 @@ div {
         k.machine.memory.attribute? &
         k.machine.ncpus.attribute?
     k.machine =
-        ## The machine element specifies the VM guest
-        ## configuration options which are used by the
-        ## virtual machine when running the image.
+        ## The machine element specifies VM guest configuration
+        ## options which are used by the virtual machine when
+        ## running the image.
         element machine {
             k.machine.attlist &
-            k.vmconfig-entry * &
-            k.vmdisk &
-            k.vmdvd ? &
-            k.vmnic *
+            k.vmconfig-entry* &
+            k.vmdisk? &
+            k.vmdvd? &
+            k.vmnic*
         }
 }
 

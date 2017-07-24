@@ -6508,8 +6508,8 @@ class vagrantconfig(GeneratedsSuper):
 
 
 class machine(GeneratedsSuper):
-    """The machine element specifies the VM guest configuration options
-    which are used by the virtual machine when running the image."""
+    """The machine element specifies VM guest configuration options which
+    are used by the virtual machine when running the image."""
     subclass = None
     superclass = None
     def __init__(self, min_memory=None, max_memory=None, min_cpu=None, max_cpu=None, ovftype=None, HWversion=None, arch=None, xen_loader=None, guestOS=None, memory=None, ncpus=None, vmconfig_entry=None, vmdisk=None, vmdvd=None, vmnic=None):

@@ -4016,15 +4016,17 @@ formats)</a:documentation>
     </define>
     <define name="k.machine">
       <element name="machine">
-        <a:documentation>The machine element specifies the VM guest
-configuration options which are used by the
-virtual machine when running the image.</a:documentation>
+        <a:documentation>The machine element specifies VM guest configuration
+options which are used by the virtual machine when
+running the image.</a:documentation>
         <interleave>
           <ref name="k.machine.attlist"/>
           <zeroOrMore>
             <ref name="k.vmconfig-entry"/>
           </zeroOrMore>
-          <ref name="k.vmdisk"/>
+          <optional>
+            <ref name="k.vmdisk"/>
+          </optional>
           <optional>
             <ref name="k.vmdvd"/>
           </optional>
