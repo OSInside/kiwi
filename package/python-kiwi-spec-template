@@ -223,7 +223,7 @@ Requires:       squashfs-tools
 Requires:       device-mapper-multipath
 Requires:       gdisk
 %endif
-%if 0%{?rhel} < 8
+%if 0%{?rhel} && 0%{?rhel} < 8
 Requires:       yum
 Provides:       kiwi-packagemanager:yum
 %endif
