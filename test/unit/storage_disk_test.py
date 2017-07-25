@@ -229,10 +229,11 @@ class TestDisk(object):
     @patch('kiwi.logger.log.warning')
     def test_destructor(self, mock_log_warn, mock_command):
         self.disk.is_mapped = True
+        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         mock_command.side_effect = Exception
         self.disk.__del__()
         mock_command.assert_called_once_with(
-            ['kpartx', '-s', '-d', '/dev/loop0']
+            ['dmsetup', 'remove', '/dev/mapper/loop0p1']
         )
         assert mock_log_warn.called
         self.disk.is_mapped = False

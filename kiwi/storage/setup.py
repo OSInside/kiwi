@@ -120,6 +120,11 @@ class DiskSetup(object):
             root_filesystem_mbytes
         )
         if self.volume_manager and self.volume_manager == 'lvm':
+            lvm_overhead_mbytes = Defaults.get_lvm_overhead_mbytes()
+            log.info(
+                '--> LVM overhead adding %s MB', lvm_overhead_mbytes
+            )
+            calculated_disk_mbytes += lvm_overhead_mbytes
             if self.build_type_name == 'vmx':
                 # only for vmx types we need to add the configured volume
                 # sizes. oem disks are self expandable and will resize to

@@ -434,6 +434,16 @@ class Defaults(object):
         return 30
 
     @classmethod
+    def get_lvm_overhead_mbytes(self):
+        """
+        Implements empiric LVM overhead size in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
+        return 80
+
+    @classmethod
     def get_default_boot_mbytes(self):
         """
         Implements default boot partition size in mbytes
