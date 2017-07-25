@@ -164,6 +164,7 @@ class TestDiskSetup(object):
 
     def test_get_disksize_mbytes_empty_volumes(self):
         assert self.setup_empty_volumes.get_disksize_mbytes() == \
+            Defaults.get_lvm_overhead_mbytes() + \
             Defaults.get_default_legacy_bios_mbytes() + \
             Defaults.get_default_efi_boot_mbytes() + \
             Defaults.get_default_boot_mbytes() + \
@@ -175,6 +176,7 @@ class TestDiskSetup(object):
         mock_exists.return_value = True
         root_size = self.size.accumulate_mbyte_file_sizes.return_value
         assert self.setup_volumes.get_disksize_mbytes() == \
+            Defaults.get_lvm_overhead_mbytes() + \
             Defaults.get_default_legacy_bios_mbytes() + \
             Defaults.get_default_efi_boot_mbytes() + \
             Defaults.get_default_boot_mbytes() + \
@@ -191,6 +193,7 @@ class TestDiskSetup(object):
         mock_exists.return_value = True
         root_size = self.size.accumulate_mbyte_file_sizes.return_value
         assert self.setup_root_volume.get_disksize_mbytes() == \
+            Defaults.get_lvm_overhead_mbytes() + \
             Defaults.get_default_legacy_bios_mbytes() + \
             Defaults.get_default_efi_boot_mbytes() + \
             Defaults.get_default_boot_mbytes() + \
