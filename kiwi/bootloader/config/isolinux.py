@@ -94,6 +94,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
+        self.mediacheck_boot = self.mediacheck_boot_entry_requested()
 
         self.multiboot = False
         if self.xml_state.is_xen_server():
@@ -196,12 +197,14 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             log.info('--> Using multiboot standard ISO template')
             parameters['hypervisor'] = hypervisor
             template = self.isolinux.get_multiboot_template(
-                self.failsafe_boot, self._have_theme(), self.terminal
+                self.failsafe_boot, self._have_theme(),
+                self.terminal, self.mediacheck_boot
             )
         else:
             log.info('--> Using standard ISO template')
             template = self.isolinux.get_template(
-                self.failsafe_boot, self._have_theme(), self.terminal
+                self.failsafe_boot, self._have_theme(),
+                self.terminal, self.mediacheck_boot
             )
         try:
             self.config = template.substitute(parameters)

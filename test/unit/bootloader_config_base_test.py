@@ -85,6 +85,14 @@ class TestBootLoaderConfigBase(object):
         mock_installprovidefailsafe.return_value = False
         assert self.bootloader.failsafe_boot_entry_requested() is False
 
+    @patch('kiwi.xml_parse.type_.get_checkiso')
+    def test_mediacheck_boot_entry_requested(self, mock_isocheck):
+        assert self.bootloader.mediacheck_boot_entry_requested() is False
+        mock_isocheck.return_value = True
+        assert self.bootloader.mediacheck_boot_entry_requested() is True
+        mock_isocheck.return_value = False
+        assert self.bootloader.mediacheck_boot_entry_requested() is False
+
     def test_get_boot_cmdline(self):
         assert self.bootloader.get_boot_cmdline() == 'splash'
 

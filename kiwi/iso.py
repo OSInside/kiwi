@@ -109,6 +109,24 @@ class Iso(object):
         )
 
     @classmethod
+    def add_tagmedia_check(self, isofile):
+        """
+        Include checksum tag in the ISO so it can be verified with
+        the mediacheck program.
+
+        :param string isofile: path to the ISO file
+        """
+        Command.run(
+            [
+                'tagmedia',
+                '--md5',
+                '--check',
+                '--pad', '150',
+                isofile
+            ]
+        )
+
+    @classmethod
     def relocate_boot_catalog(self, isofile):
         """
         Move ISO boot catalog to the standardized place

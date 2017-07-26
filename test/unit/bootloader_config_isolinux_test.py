@@ -174,7 +174,7 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_live_image_config(mbrid=None)
         self.isolinux.get_template.assert_called_once_with(
-            True, False, None
+            True, False, None, False
         )
         self.isolinux.get_message_template.assert_called_once_with()
         assert template_cfg.substitute.called
@@ -185,5 +185,5 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_live_image_config(mbrid=None)
         self.isolinux.get_multiboot_template.assert_called_once_with(
-            True, False, None
+            True, False, None, False
         )

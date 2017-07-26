@@ -66,6 +66,9 @@ class TestLiveImageBuilder(object):
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='custom_cmdline'
         )
+        self.xml_state.build_type.get_checkiso = mock.Mock(
+            return_value=True
+        )
         self.live_image = LiveImageBuilder(
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
@@ -253,6 +256,56 @@ class TestLiveImageBuilder(object):
         self.setup.export_rpm_package_list.assert_called_once_with(
             'target_dir'
         )
+
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.builder.live.mkdtemp')
+    @patch('kiwi.builder.live.Command.run')
+    @patch('kiwi.builder.live.Iso.create_hybrid')
+    @patch('kiwi.builder.live.FileSystem')
+    @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.BootLoaderConfig')
+    @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch_open
+    def test_create_overlay_structure_non_x86_arch(
+        self, mock_open, mock_grub_dir, mock_size, mock_bootloader,
+        mock_isofs, mock_fs, mock_hybrid, mock_command, mock_dtemp, mock_warn
+    ):
+        self.live_image.arch = 'aarch64'
+        mock_grub_dir.return_value = 'grub2'
+        tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+
+        def side_effect(prefix, dir):
+            return tmpdir_name.pop()
+
+        mock_dtemp.side_effect = side_effect
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+        self.live_image.live_type = 'overlay'
+        live_type_image = mock.Mock()
+        mock_fs.return_value = live_type_image
+        bootloader = mock.Mock()
+        mock_bootloader.return_value = bootloader
+        iso_image = mock.Mock()
+        iso_image.create_on_file.return_value = 'offset'
+        mock_isofs.return_value = iso_image
+        rootsize = mock.Mock()
+        rootsize.accumulate_mbyte_file_sizes = mock.Mock(
+            return_value=8192
+        )
+        mock_size.return_value = rootsize
+        self.setup.export_rpm_package_verification.return_value = '.verified'
+        self.setup.export_rpm_package_list.return_value = '.packages'
+
+        self.live_image.create()
+
+        assert mock_warn.called
 
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.Command.run')

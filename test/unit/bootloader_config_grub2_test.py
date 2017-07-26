@@ -351,14 +351,14 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.multiboot = True
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_multiboot_iso_template.assert_called_once_with(
-            True, 'gfxterm'
+            True, 'gfxterm', False
         )
 
     def test_setup_live_image_config_standard(self):
         self.bootloader.multiboot = False
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_iso_template.assert_called_once_with(
-            True, True, 'gfxterm'
+            True, True, 'gfxterm', False
         )
 
     def test_setup_disk_image_config_multiboot(self):

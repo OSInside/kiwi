@@ -72,6 +72,7 @@ class LiveImageBuilder(object):
         self.types = Defaults.get_live_iso_types()
         self.hybrid = xml_state.build_type.get_hybrid()
         self.volume_id = xml_state.build_type.get_volid()
+        self.checkiso = xml_state.build_type.get_checkiso()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
         self.filesystem_custom_parameters = {
@@ -235,6 +236,15 @@ class LiveImageBuilder(object):
             Iso.create_hybrid(
                 iso_header_offset, self.mbrid, self.isoname
             )
+
+        # include metadata for checkmedia tool
+        if self.checkiso is True and self.arch not in ['x86_64', 'ix86']:
+            log.warning(
+                'checkiso attribute is only supported for x86 architecture '
+                'family'
+            )
+        elif self.checkiso is True:
+            Iso.add_tagmedia_check(self.isoname)
 
         self.result.add(
             key='live_image',

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
 from collections import namedtuple
 
 # project
@@ -184,6 +185,17 @@ class BootLoaderConfigBase(object):
         if self.xml_state.build_type.get_installprovidefailsafe() is False:
             return False
         return True
+
+    def mediacheck_boot_entry_requested(self):
+        """
+        Check if a mediacheck boot entry is requested
+
+        :rtype: bool
+        """
+        if self.xml_state.build_type.get_checkiso() is True and \
+                platform.machine() in ['x86_64', 'i586', 'i686']:
+            return True
+        return False
 
     def get_boot_cmdline(self, uuid=None):
         """
