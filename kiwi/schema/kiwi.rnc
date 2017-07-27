@@ -57,20 +57,13 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.6" }
-    k.image.kiwirevision.attribute =
-        ## A kiwi git revision number which is known to build
-        ## a working image from this description. If the kiwi git
-        ## revision doesn't match the installed kiwi revision the
-        ## process will exit.
-        attribute kiwirevision { text }
+        attribute schemaversion { "6.7" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
         attribute id { xsd:string {length="10"} }
     k.image.attlist = k.image.name.attribute 
         & k.image.displayname.attribute?
-        & k.image.kiwirevision.attribute?
         & k.image.id?
         & k.image.schemaversion.attribute
         & ( k.image.noNamespaceSchemaLocation.attribute?
@@ -101,9 +94,6 @@ k.id.attribute          =
 k.name.attribute        =
     ## A name
     attribute name { text }
-k.replaces.attribute    =
-    ## Replace package with some other package
-    attribute replaces { text }
 k.bootinclude.attribute =
     ## Indicates that this package should be part of
     ## the boot image (initrd) too. This attribute
@@ -270,46 +260,6 @@ div {
         ## Contact Information from the Author, like Email etc.
         element contact {
             k.contact.attlist,
-            text
-        }
-}
-
-#==========================================
-# common element <defaultdestination>
-#
-div {
-    k.defaultdestination.attlist = empty
-    k.defaultdestination =
-        ## Default Path if destdir Otion is Not Specified
-        element defaultdestination {
-            k.defaultdestination.attlist,
-            text
-        }
-}
-
-#==========================================
-# common element <defaultprebuilt>
-#
-div {
-    k.defaultprebuilt.attlist = empty
-    k.defaultprebuilt =
-        ## Default directory name for pre-built boot images, used if
-        ## the directory is not specified on the command line
-        element defaultprebuilt {
-            k.defaultroot.attlist,
-            text
-        }
-}
-
-#==========================================
-# common element <defaultroot>
-#
-div {
-    k.defaultroot.attlist = empty
-    k.defaultroot =
-        ## Default Root Directory Name if root Option is Not Specified
-        element defaultroot {
-            k.defaultroot.attlist,
             text
         }
 }
@@ -849,13 +799,11 @@ div {
 div {
     k.package.name.attribute = k.name.attribute
     k.package.arch.attribute = k.arch.attribute
-    k.package.replaces.attribute = k.replaces.attribute
     k.package.bootinclude.attribute = k.bootinclude.attribute
     k.package.bootdelete.attribute = k.bootdelete.attribute
     k.package.attlist =
         k.package.name.attribute &
         k.package.arch.attribute? &
-        k.replaces.attribute? &
         k.bootdelete.attribute? &
         k.bootinclude.attribute?
     k.package =
@@ -878,20 +826,6 @@ div {
         element packagemanager {
             k.packagemanager.attlist,
             k.packagemanager.content
-        }
-}
-
-#==========================================
-# common element <partitioner>
-#
-div {
-    k.partitioner.content = "parted" | "fdasd"
-    k.partitioner.attlist = empty
-    k.partitioner =
-        ## Name of the Partitioner used for any disk partition tasks
-        element partitioner {
-            k.partitioner.attlist,
-            k.partitioner.content
         }
 }
 
@@ -983,10 +917,6 @@ div {
         "rpm-dir" | "rpm-md"  | "slack-site" | "up2date-mirrors" | "urpmi" |
         "yast2"
     }
-    k.repository.status.attribute =
-        ## Specifies the status of the repository. This can be
-        ## replaceable or if not specified it's a must have repository
-        attribute status {  "fixed" | "replaceable" }
     k.repository.alias.attribute =
         ## Alias name to be used for this repository. This is an
         ## optional free form text. If not set the source attribute
@@ -1021,10 +951,6 @@ div {
         ## to run package signature validation. If not set, no value is
         ## appended into the repository configuration file.
         attribute package_gpgcheck { xsd:boolean }
-    k.repository.prefer-license.attribute =
-        ## Use the license found in this repository, if any, as the
-        ## license installed in the image
-        attribute prefer-license { xsd:boolean }
     k.repository.priority.attribute =
         ## Channel priority assigned to all packages available in
         ## this channel (0 if not set). If the exact same package
@@ -1042,7 +968,6 @@ div {
     k.repository.attlist =
         k.repository.type.attribute? &
         k.repository.profiles.attribute? &
-        k.repository.status.attribute? &
         k.repository.alias.attribute? &
         k.repository.components.attribute? &
         k.repository.distribution.attribute? &
@@ -1052,7 +977,6 @@ div {
         )? &
         k.repository.repository_gpgcheck.attribute? &
         k.repository.package_gpgcheck.attribute? &
-        k.repository.prefer-license.attribute? &
         k.repository.priority.attribute? &
         k.repository.password.attribute? &
         k.repository.username.attribute?
@@ -1111,20 +1035,6 @@ div {
         element rpm-excludedocs {
             k.rpm-excludedocs.attlist,
             k.rpm-excludedocs.content
-        }
-}
-
-#==========================================
-# common element <rpm-force>
-#
-div {
-    k.rpm-force.content = xsd:boolean
-    k.rpm-force.attlist = empty
-    k.rpm-force =
-        ## Force the Installation of a Package
-        element rpm-force {
-            k.rpm-force.attlist,
-            k.rpm-force.content
         }
 }
 
@@ -1397,10 +1307,6 @@ div {
             sch:param [ name = "attr" value = "boottimeout" ]
             sch:param [ name = "types" value = "oem vmx iso pxe" ]
         ]
-    k.type.checkprebuilt.attribute =
-        ## Activates whether KIWI should search for a prebuild boot
-        ## image or not. Obsolete attribute since KIWI v8
-        attribute checkprebuilt { xsd:boolean }
     k.type.compressed.attribute =
         ## Specifies whether the image output file should be
         ## compressed or not. This makes only sense for filesystem
@@ -1540,10 +1446,6 @@ div {
             sch:param [ name = "attr" value = "force_mbr" ]
             sch:param [ name = "types" value = "vmx oem" ]
         ]
-    k.type.fsnocheck.attribute =
-        ## Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
-        ## since KIWI v8
-        attribute fsnocheck { xsd:boolean }
     k.type.fsmountoptions.attribute =
         ## Specifies the filesystem mount options which also ends up in fstab
         ## The string given here is passed as value to the -o option of mount
@@ -1768,7 +1670,6 @@ div {
         k.type.boottimeout.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &
-        k.type.checkprebuilt.attribute? &
         k.type.compressed.attribute? &
         k.type.devicepersistency.attribute? &
         k.type.editbootconfig.attribute? &
@@ -1777,7 +1678,6 @@ div {
         k.type.flags.attribute? &
         k.type.format.attribute? &
         k.type.formatoptions.attribute? &
-        k.type.fsnocheck.attribute? &
         k.type.fsmountoptions.attribute? &
         k.type.gcelicense.attribute? &
         k.type.hybrid.attribute? &
@@ -2608,17 +2508,12 @@ div {
             k.preferences.attlist &
             k.bootsplash-theme? &
             k.bootloader-theme? &
-            k.defaultdestination? &
-            k.defaultprebuilt? &
-            k.defaultroot? &
             k.hwclock? &
             k.keytable? &
             k.locale? &
             k.packagemanager? &
-            k.partitioner? &
             k.rpm-check-signatures? &
             k.rpm-excludedocs? &
-            k.rpm-force? &
             k.showlicense* &
             k.timezone? &
             k.type* &
