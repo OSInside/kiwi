@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="initrd-vmxboot-suse-tumbleweed">
+<image schemaversion="6.7" name="initrd-vmxboot-suse-tumbleweed">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -77,7 +77,7 @@
         <file name="drivers/input/misc/xen-kbdfront.ko"/>
         <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
-    <repository type="yast2" status="replaceable">
+    <repository type="yast2">
         <source path="obs://factory/repo/oss/"/>
     </repository>
     <packages type="image" profiles="std">

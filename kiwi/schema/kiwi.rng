@@ -105,15 +105,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.6</value>
-      </attribute>
-    </define>
-    <define name="k.image.kiwirevision.attribute">
-      <attribute name="kiwirevision">
-        <a:documentation>A kiwi git revision number which is known to build
-a working image from this description. If the kiwi git
-revision doesn't match the installed kiwi revision the
-process will exit.</a:documentation>
+        <value>6.7</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -130,9 +122,6 @@ named /etc/ImageID</a:documentation>
         <ref name="k.image.name.attribute"/>
         <optional>
           <ref name="k.image.displayname.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.image.kiwirevision.attribute"/>
         </optional>
         <optional>
           <ref name="k.image.id"/>
@@ -198,11 +187,6 @@ named /etc/ImageID</a:documentation>
   <define name="k.name.attribute">
     <attribute name="name">
       <a:documentation>A name</a:documentation>
-    </attribute>
-  </define>
-  <define name="k.replaces.attribute">
-    <attribute name="replaces">
-      <a:documentation>Replace package with some other package</a:documentation>
     </attribute>
   </define>
   <define name="k.bootinclude.attribute">
@@ -467,58 +451,6 @@ into the image after deployment</a:documentation>
       <element name="contact">
         <a:documentation>Contact Information from the Author, like Email etc.</a:documentation>
         <ref name="k.contact.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <defaultdestination>
-    
-  -->
-  <div>
-    <define name="k.defaultdestination.attlist">
-      <empty/>
-    </define>
-    <define name="k.defaultdestination">
-      <element name="defaultdestination">
-        <a:documentation>Default Path if destdir Otion is Not Specified</a:documentation>
-        <ref name="k.defaultdestination.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <defaultprebuilt>
-    
-  -->
-  <div>
-    <define name="k.defaultprebuilt.attlist">
-      <empty/>
-    </define>
-    <define name="k.defaultprebuilt">
-      <element name="defaultprebuilt">
-        <a:documentation>Default directory name for pre-built boot images, used if
-the directory is not specified on the command line</a:documentation>
-        <ref name="k.defaultroot.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <defaultroot>
-    
-  -->
-  <div>
-    <define name="k.defaultroot.attlist">
-      <empty/>
-    </define>
-    <define name="k.defaultroot">
-      <element name="defaultroot">
-        <a:documentation>Default Root Directory Name if root Option is Not Specified</a:documentation>
-        <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
     </define>
@@ -1278,9 +1210,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
     <define name="k.package.arch.attribute">
       <ref name="k.arch.attribute"/>
     </define>
-    <define name="k.package.replaces.attribute">
-      <ref name="k.replaces.attribute"/>
-    </define>
     <define name="k.package.bootinclude.attribute">
       <ref name="k.bootinclude.attribute"/>
     </define>
@@ -1292,9 +1221,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <ref name="k.package.name.attribute"/>
         <optional>
           <ref name="k.package.arch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.replaces.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootdelete.attribute"/>
@@ -1334,29 +1260,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <a:documentation>Name of the Package Manager</a:documentation>
         <ref name="k.packagemanager.attlist"/>
         <ref name="k.packagemanager.content"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <partitioner>
-    
-  -->
-  <div>
-    <define name="k.partitioner.content">
-      <choice>
-        <value>parted</value>
-        <value>fdasd</value>
-      </choice>
-    </define>
-    <define name="k.partitioner.attlist">
-      <empty/>
-    </define>
-    <define name="k.partitioner">
-      <element name="partitioner">
-        <a:documentation>Name of the Partitioner used for any disk partition tasks</a:documentation>
-        <ref name="k.partitioner.attlist"/>
-        <ref name="k.partitioner.content"/>
       </element>
     </define>
   </div>
@@ -1509,16 +1412,6 @@ packages.</a:documentation>
         </choice>
       </attribute>
     </define>
-    <define name="k.repository.status.attribute">
-      <attribute name="status">
-        <a:documentation>Specifies the status of the repository. This can be
-replaceable or if not specified it's a must have repository</a:documentation>
-        <choice>
-          <value>fixed</value>
-          <value>replaceable</value>
-        </choice>
-      </attribute>
-    </define>
     <define name="k.repository.alias.attribute">
       <attribute name="alias">
         <a:documentation>Alias name to be used for this repository. This is an
@@ -1571,13 +1464,6 @@ appended into the repository configuration file.</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
-    <define name="k.repository.prefer-license.attribute">
-      <attribute name="prefer-license">
-        <a:documentation>Use the license found in this repository, if any, as the
-license installed in the image</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-    </define>
     <define name="k.repository.priority.attribute">
       <attribute name="priority">
         <a:documentation>Channel priority assigned to all packages available in
@@ -1608,9 +1494,6 @@ whether and how this information is passed</a:documentation>
           <ref name="k.repository.profiles.attribute"/>
         </optional>
         <optional>
-          <ref name="k.repository.status.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.repository.alias.attribute"/>
         </optional>
         <optional>
@@ -1630,9 +1513,6 @@ whether and how this information is passed</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.package_gpgcheck.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repository.prefer-license.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.priority.attribute"/>
@@ -1718,26 +1598,6 @@ during package installation. This option could be ignored
 according to the used package manager.</a:documentation>
         <ref name="k.rpm-excludedocs.attlist"/>
         <ref name="k.rpm-excludedocs.content"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <rpm-force>
-    
-  -->
-  <div>
-    <define name="k.rpm-force.content">
-      <data type="boolean"/>
-    </define>
-    <define name="k.rpm-force.attlist">
-      <empty/>
-    </define>
-    <define name="k.rpm-force">
-      <element name="rpm-force">
-        <a:documentation>Force the Installation of a Package</a:documentation>
-        <ref name="k.rpm-force.attlist"/>
-        <ref name="k.rpm-force.content"/>
       </element>
     </define>
   </div>
@@ -2107,13 +1967,6 @@ seconds if syslinux is used</a:documentation>
         <sch:param name="types" value="oem vmx iso pxe"/>
       </sch:pattern>
     </define>
-    <define name="k.type.checkprebuilt.attribute">
-      <attribute name="checkprebuilt">
-        <a:documentation>Activates whether KIWI should search for a prebuild boot
-image or not. Obsolete attribute since KIWI v8</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-    </define>
     <define name="k.type.compressed.attribute">
       <attribute name="compressed">
         <a:documentation>Specifies whether the image output file should be
@@ -2315,13 +2168,6 @@ partitions</a:documentation>
         <sch:param name="attr" value="force_mbr"/>
         <sch:param name="types" value="vmx oem"/>
       </sch:pattern>
-    </define>
-    <define name="k.type.fsnocheck.attribute">
-      <attribute name="fsnocheck">
-        <a:documentation>Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
-since KIWI v8</a:documentation>
-        <data type="boolean"/>
-      </attribute>
     </define>
     <define name="k.type.fsmountoptions.attribute">
       <attribute name="fsmountoptions">
@@ -2663,9 +2509,6 @@ to work on.</a:documentation>
           <ref name="k.type.btrfs_root_is_readonly_snapshot.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.checkprebuilt.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.type.compressed.attribute"/>
         </optional>
         <optional>
@@ -2688,9 +2531,6 @@ to work on.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.formatoptions.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.fsnocheck.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.fsmountoptions.attribute"/>
@@ -4142,15 +3982,6 @@ definition</a:documentation>
             <ref name="k.bootloader-theme"/>
           </optional>
           <optional>
-            <ref name="k.defaultdestination"/>
-          </optional>
-          <optional>
-            <ref name="k.defaultprebuilt"/>
-          </optional>
-          <optional>
-            <ref name="k.defaultroot"/>
-          </optional>
-          <optional>
             <ref name="k.hwclock"/>
           </optional>
           <optional>
@@ -4163,16 +3994,10 @@ definition</a:documentation>
             <ref name="k.packagemanager"/>
           </optional>
           <optional>
-            <ref name="k.partitioner"/>
-          </optional>
-          <optional>
             <ref name="k.rpm-check-signatures"/>
           </optional>
           <optional>
             <ref name="k.rpm-excludedocs"/>
-          </optional>
-          <optional>
-            <ref name="k.rpm-force"/>
           </optional>
           <zeroOrMore>
             <ref name="k.showlicense"/>

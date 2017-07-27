@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="initrd-vmxboot-suse-tumbleweed">
+<image schemaversion="6.7" name="initrd-vmxboot-suse-tumbleweed">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -63,7 +63,7 @@
         <file name="lib/libcrc32c.ko"/>
         <file name="lib/zlib_deflate/zlib_deflate.ko"/>
     </drivers>
-    <repository type="yast2" status="replaceable">
+    <repository type="yast2">
         <source path="obs://openSUSE:/Factory:/ARM/standard"/>
     </repository>
     <packages type="image" profiles="std">

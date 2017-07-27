@@ -784,11 +784,10 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, kiwirevision=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
+    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
-        self.kiwirevision = _cast(None, kiwirevision)
         self.id = _cast(None, id)
         self.schemaversion = _cast(None, schemaversion)
         self.noNamespaceSchemaLocation = _cast(None, noNamespaceSchemaLocation)
@@ -889,8 +888,6 @@ class image(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_displayname(self): return self.displayname
     def set_displayname(self, displayname): self.displayname = displayname
-    def get_kiwirevision(self): return self.kiwirevision
-    def set_kiwirevision(self, kiwirevision): self.kiwirevision = kiwirevision
     def get_id(self): return self.id
     def set_id(self, id): self.id = id
     def get_schemaversion(self): return self.schemaversion
@@ -949,9 +946,6 @@ class image(GeneratedsSuper):
         if self.displayname is not None and 'displayname' not in already_processed:
             already_processed.add('displayname')
             outfile.write(' displayname=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.displayname), input_name='displayname')), ))
-        if self.kiwirevision is not None and 'kiwirevision' not in already_processed:
-            already_processed.add('kiwirevision')
-            outfile.write(' kiwirevision=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.kiwirevision), input_name='kiwirevision')), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
@@ -1005,10 +999,6 @@ class image(GeneratedsSuper):
         if value is not None and 'displayname' not in already_processed:
             already_processed.add('displayname')
             self.displayname = value
-        value = find_attr_value_('kiwirevision', node)
-        if value is not None and 'kiwirevision' not in already_processed:
-            already_processed.add('kiwirevision')
-            self.kiwirevision = value
         value = find_attr_value_('id', node)
         if value is not None and 'id' not in already_processed:
             already_processed.add('id')
@@ -1699,11 +1689,10 @@ class package(GeneratedsSuper):
     """Name of an image Package"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, arch=None, replaces=None, bootdelete=None, bootinclude=None):
+    def __init__(self, name=None, arch=None, bootdelete=None, bootinclude=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.arch = _cast(None, arch)
-        self.replaces = _cast(None, replaces)
         self.bootdelete = _cast(bool, bootdelete)
         self.bootinclude = _cast(bool, bootinclude)
     def factory(*args_, **kwargs_):
@@ -1721,8 +1710,6 @@ class package(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
-    def get_replaces(self): return self.replaces
-    def set_replaces(self, replaces): self.replaces = replaces
     def get_bootdelete(self): return self.bootdelete
     def set_bootdelete(self, bootdelete): self.bootdelete = bootdelete
     def get_bootinclude(self): return self.bootinclude
@@ -1768,9 +1755,6 @@ class package(GeneratedsSuper):
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-        if self.replaces is not None and 'replaces' not in already_processed:
-            already_processed.add('replaces')
-            outfile.write(' replaces=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.replaces), input_name='replaces')), ))
         if self.bootdelete is not None and 'bootdelete' not in already_processed:
             already_processed.add('bootdelete')
             outfile.write(' bootdelete="%s"' % self.gds_format_boolean(self.bootdelete, input_name='bootdelete'))
@@ -1797,10 +1781,6 @@ class package(GeneratedsSuper):
             self.arch = value
             self.arch = ' '.join(self.arch.split())
             self.validate_arch_name(self.arch)    # validate type arch-name
-        value = find_attr_value_('replaces', node)
-        if value is not None and 'replaces' not in already_processed:
-            already_processed.add('replaces')
-            self.replaces = value
         value = find_attr_value_('bootdelete', node)
         if value is not None and 'bootdelete' not in already_processed:
             already_processed.add('bootdelete')
@@ -2138,12 +2118,11 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, status=None, alias=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, prefer_license=None, priority=None, password=None, username=None):
+    def __init__(self, source=None, type_=None, profiles=None, alias=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
-        self.status = _cast(None, status)
         self.alias = _cast(None, alias)
         self.components = _cast(None, components)
         self.distribution = _cast(None, distribution)
@@ -2151,7 +2130,6 @@ class repository(k_source):
         self.imageonly = _cast(bool, imageonly)
         self.repository_gpgcheck = _cast(bool, repository_gpgcheck)
         self.package_gpgcheck = _cast(bool, package_gpgcheck)
-        self.prefer_license = _cast(bool, prefer_license)
         self.priority = _cast(int, priority)
         self.password = _cast(None, password)
         self.username = _cast(None, username)
@@ -2170,8 +2148,6 @@ class repository(k_source):
     def set_type(self, type_): self.type_ = type_
     def get_profiles(self): return self.profiles
     def set_profiles(self, profiles): self.profiles = profiles
-    def get_status(self): return self.status
-    def set_status(self, status): self.status = status
     def get_alias(self): return self.alias
     def set_alias(self, alias): self.alias = alias
     def get_components(self): return self.components
@@ -2186,8 +2162,6 @@ class repository(k_source):
     def set_repository_gpgcheck(self, repository_gpgcheck): self.repository_gpgcheck = repository_gpgcheck
     def get_package_gpgcheck(self): return self.package_gpgcheck
     def set_package_gpgcheck(self, package_gpgcheck): self.package_gpgcheck = package_gpgcheck
-    def get_prefer_license(self): return self.prefer_license
-    def set_prefer_license(self, prefer_license): self.prefer_license = prefer_license
     def get_priority(self): return self.priority
     def set_priority(self, priority): self.priority = priority
     def get_password(self): return self.password
@@ -2230,9 +2204,6 @@ class repository(k_source):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-        if self.status is not None and 'status' not in already_processed:
-            already_processed.add('status')
-            outfile.write(' status=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.status), input_name='status')), ))
         if self.alias is not None and 'alias' not in already_processed:
             already_processed.add('alias')
             outfile.write(' alias=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.alias), input_name='alias')), ))
@@ -2254,9 +2225,6 @@ class repository(k_source):
         if self.package_gpgcheck is not None and 'package_gpgcheck' not in already_processed:
             already_processed.add('package_gpgcheck')
             outfile.write(' package_gpgcheck="%s"' % self.gds_format_boolean(self.package_gpgcheck, input_name='package_gpgcheck'))
-        if self.prefer_license is not None and 'prefer_license' not in already_processed:
-            already_processed.add('prefer_license')
-            outfile.write(' prefer-license="%s"' % self.gds_format_boolean(self.prefer_license, input_name='prefer-license'))
         if self.priority is not None and 'priority' not in already_processed:
             already_processed.add('priority')
             outfile.write(' priority="%s"' % self.gds_format_integer(self.priority, input_name='priority'))
@@ -2285,11 +2253,6 @@ class repository(k_source):
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             self.profiles = value
-        value = find_attr_value_('status', node)
-        if value is not None and 'status' not in already_processed:
-            already_processed.add('status')
-            self.status = value
-            self.status = ' '.join(self.status.split())
         value = find_attr_value_('alias', node)
         if value is not None and 'alias' not in already_processed:
             already_processed.add('alias')
@@ -2336,15 +2299,6 @@ class repository(k_source):
                 self.package_gpgcheck = True
             elif value in ('false', '0'):
                 self.package_gpgcheck = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('prefer-license', node)
-        if value is not None and 'prefer-license' not in already_processed:
-            already_processed.add('prefer-license')
-            if value in ('true', '1'):
-                self.prefer_license = True
-            elif value in ('false', '0'):
-                self.prefer_license = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('priority', node)
@@ -2641,7 +2595,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, checkprebuilt=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsnocheck=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2657,7 +2611,6 @@ class type_(GeneratedsSuper):
         self.boottimeout = _cast(int, boottimeout)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
         self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
-        self.checkprebuilt = _cast(bool, checkprebuilt)
         self.compressed = _cast(bool, compressed)
         self.devicepersistency = _cast(None, devicepersistency)
         self.editbootconfig = _cast(None, editbootconfig)
@@ -2666,7 +2619,6 @@ class type_(GeneratedsSuper):
         self.flags = _cast(None, flags)
         self.format = _cast(None, format)
         self.formatoptions = _cast(None, formatoptions)
-        self.fsnocheck = _cast(bool, fsnocheck)
         self.fsmountoptions = _cast(None, fsmountoptions)
         self.gcelicense = _cast(None, gcelicense)
         self.hybrid = _cast(bool, hybrid)
@@ -2800,8 +2752,6 @@ class type_(GeneratedsSuper):
     def set_btrfs_root_is_snapshot(self, btrfs_root_is_snapshot): self.btrfs_root_is_snapshot = btrfs_root_is_snapshot
     def get_btrfs_root_is_readonly_snapshot(self): return self.btrfs_root_is_readonly_snapshot
     def set_btrfs_root_is_readonly_snapshot(self, btrfs_root_is_readonly_snapshot): self.btrfs_root_is_readonly_snapshot = btrfs_root_is_readonly_snapshot
-    def get_checkprebuilt(self): return self.checkprebuilt
-    def set_checkprebuilt(self, checkprebuilt): self.checkprebuilt = checkprebuilt
     def get_compressed(self): return self.compressed
     def set_compressed(self, compressed): self.compressed = compressed
     def get_devicepersistency(self): return self.devicepersistency
@@ -2818,8 +2768,6 @@ class type_(GeneratedsSuper):
     def set_format(self, format): self.format = format
     def get_formatoptions(self): return self.formatoptions
     def set_formatoptions(self, formatoptions): self.formatoptions = formatoptions
-    def get_fsnocheck(self): return self.fsnocheck
-    def set_fsnocheck(self, fsnocheck): self.fsnocheck = fsnocheck
     def get_fsmountoptions(self): return self.fsmountoptions
     def set_fsmountoptions(self, fsmountoptions): self.fsmountoptions = fsmountoptions
     def get_gcelicense(self): return self.gcelicense
@@ -2973,9 +2921,6 @@ class type_(GeneratedsSuper):
         if self.btrfs_root_is_readonly_snapshot is not None and 'btrfs_root_is_readonly_snapshot' not in already_processed:
             already_processed.add('btrfs_root_is_readonly_snapshot')
             outfile.write(' btrfs_root_is_readonly_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_readonly_snapshot, input_name='btrfs_root_is_readonly_snapshot'))
-        if self.checkprebuilt is not None and 'checkprebuilt' not in already_processed:
-            already_processed.add('checkprebuilt')
-            outfile.write(' checkprebuilt="%s"' % self.gds_format_boolean(self.checkprebuilt, input_name='checkprebuilt'))
         if self.compressed is not None and 'compressed' not in already_processed:
             already_processed.add('compressed')
             outfile.write(' compressed="%s"' % self.gds_format_boolean(self.compressed, input_name='compressed'))
@@ -3000,9 +2945,6 @@ class type_(GeneratedsSuper):
         if self.formatoptions is not None and 'formatoptions' not in already_processed:
             already_processed.add('formatoptions')
             outfile.write(' formatoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.formatoptions), input_name='formatoptions')), ))
-        if self.fsnocheck is not None and 'fsnocheck' not in already_processed:
-            already_processed.add('fsnocheck')
-            outfile.write(' fsnocheck="%s"' % self.gds_format_boolean(self.fsnocheck, input_name='fsnocheck'))
         if self.fsmountoptions is not None and 'fsmountoptions' not in already_processed:
             already_processed.add('fsmountoptions')
             outfile.write(' fsmountoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fsmountoptions), input_name='fsmountoptions')), ))
@@ -3214,15 +3156,6 @@ class type_(GeneratedsSuper):
                 self.btrfs_root_is_readonly_snapshot = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('checkprebuilt', node)
-        if value is not None and 'checkprebuilt' not in already_processed:
-            already_processed.add('checkprebuilt')
-            if value in ('true', '1'):
-                self.checkprebuilt = True
-            elif value in ('false', '0'):
-                self.checkprebuilt = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('compressed', node)
         if value is not None and 'compressed' not in already_processed:
             already_processed.add('compressed')
@@ -3264,15 +3197,6 @@ class type_(GeneratedsSuper):
         if value is not None and 'formatoptions' not in already_processed:
             already_processed.add('formatoptions')
             self.formatoptions = value
-        value = find_attr_value_('fsnocheck', node)
-        if value is not None and 'fsnocheck' not in already_processed:
-            already_processed.add('fsnocheck')
-            if value in ('true', '1'):
-                self.fsnocheck = True
-            elif value in ('false', '0'):
-                self.fsnocheck = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('fsmountoptions', node)
         if value is not None and 'fsmountoptions' not in already_processed:
             already_processed.add('fsmountoptions')
@@ -6969,7 +6893,7 @@ class preferences(GeneratedsSuper):
     sections based on profiles combine to create on vaild definition"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, defaultdestination=None, defaultprebuilt=None, defaultroot=None, hwclock=None, keytable=None, locale=None, packagemanager=None, partitioner=None, rpm_check_signatures=None, rpm_excludedocs=None, rpm_force=None, showlicense=None, timezone=None, type_=None, version=None):
+    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, hwclock=None, keytable=None, locale=None, packagemanager=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         if bootsplash_theme is None:
@@ -6980,18 +6904,6 @@ class preferences(GeneratedsSuper):
             self.bootloader_theme = []
         else:
             self.bootloader_theme = bootloader_theme
-        if defaultdestination is None:
-            self.defaultdestination = []
-        else:
-            self.defaultdestination = defaultdestination
-        if defaultprebuilt is None:
-            self.defaultprebuilt = []
-        else:
-            self.defaultprebuilt = defaultprebuilt
-        if defaultroot is None:
-            self.defaultroot = []
-        else:
-            self.defaultroot = defaultroot
         if hwclock is None:
             self.hwclock = []
         else:
@@ -7008,10 +6920,6 @@ class preferences(GeneratedsSuper):
             self.packagemanager = []
         else:
             self.packagemanager = packagemanager
-        if partitioner is None:
-            self.partitioner = []
-        else:
-            self.partitioner = partitioner
         if rpm_check_signatures is None:
             self.rpm_check_signatures = []
         else:
@@ -7020,10 +6928,6 @@ class preferences(GeneratedsSuper):
             self.rpm_excludedocs = []
         else:
             self.rpm_excludedocs = rpm_excludedocs
-        if rpm_force is None:
-            self.rpm_force = []
-        else:
-            self.rpm_force = rpm_force
         if showlicense is None:
             self.showlicense = []
         else:
@@ -7061,21 +6965,6 @@ class preferences(GeneratedsSuper):
     def add_bootloader_theme(self, value): self.bootloader_theme.append(value)
     def insert_bootloader_theme_at(self, index, value): self.bootloader_theme.insert(index, value)
     def replace_bootloader_theme_at(self, index, value): self.bootloader_theme[index] = value
-    def get_defaultdestination(self): return self.defaultdestination
-    def set_defaultdestination(self, defaultdestination): self.defaultdestination = defaultdestination
-    def add_defaultdestination(self, value): self.defaultdestination.append(value)
-    def insert_defaultdestination_at(self, index, value): self.defaultdestination.insert(index, value)
-    def replace_defaultdestination_at(self, index, value): self.defaultdestination[index] = value
-    def get_defaultprebuilt(self): return self.defaultprebuilt
-    def set_defaultprebuilt(self, defaultprebuilt): self.defaultprebuilt = defaultprebuilt
-    def add_defaultprebuilt(self, value): self.defaultprebuilt.append(value)
-    def insert_defaultprebuilt_at(self, index, value): self.defaultprebuilt.insert(index, value)
-    def replace_defaultprebuilt_at(self, index, value): self.defaultprebuilt[index] = value
-    def get_defaultroot(self): return self.defaultroot
-    def set_defaultroot(self, defaultroot): self.defaultroot = defaultroot
-    def add_defaultroot(self, value): self.defaultroot.append(value)
-    def insert_defaultroot_at(self, index, value): self.defaultroot.insert(index, value)
-    def replace_defaultroot_at(self, index, value): self.defaultroot[index] = value
     def get_hwclock(self): return self.hwclock
     def set_hwclock(self, hwclock): self.hwclock = hwclock
     def add_hwclock(self, value): self.hwclock.append(value)
@@ -7096,11 +6985,6 @@ class preferences(GeneratedsSuper):
     def add_packagemanager(self, value): self.packagemanager.append(value)
     def insert_packagemanager_at(self, index, value): self.packagemanager.insert(index, value)
     def replace_packagemanager_at(self, index, value): self.packagemanager[index] = value
-    def get_partitioner(self): return self.partitioner
-    def set_partitioner(self, partitioner): self.partitioner = partitioner
-    def add_partitioner(self, value): self.partitioner.append(value)
-    def insert_partitioner_at(self, index, value): self.partitioner.insert(index, value)
-    def replace_partitioner_at(self, index, value): self.partitioner[index] = value
     def get_rpm_check_signatures(self): return self.rpm_check_signatures
     def set_rpm_check_signatures(self, rpm_check_signatures): self.rpm_check_signatures = rpm_check_signatures
     def add_rpm_check_signatures(self, value): self.rpm_check_signatures.append(value)
@@ -7111,11 +6995,6 @@ class preferences(GeneratedsSuper):
     def add_rpm_excludedocs(self, value): self.rpm_excludedocs.append(value)
     def insert_rpm_excludedocs_at(self, index, value): self.rpm_excludedocs.insert(index, value)
     def replace_rpm_excludedocs_at(self, index, value): self.rpm_excludedocs[index] = value
-    def get_rpm_force(self): return self.rpm_force
-    def set_rpm_force(self, rpm_force): self.rpm_force = rpm_force
-    def add_rpm_force(self, value): self.rpm_force.append(value)
-    def insert_rpm_force_at(self, index, value): self.rpm_force.insert(index, value)
-    def replace_rpm_force_at(self, index, value): self.rpm_force[index] = value
     def get_showlicense(self): return self.showlicense
     def set_showlicense(self, showlicense): self.showlicense = showlicense
     def add_showlicense(self, value): self.showlicense.append(value)
@@ -7142,17 +7021,12 @@ class preferences(GeneratedsSuper):
         if (
             self.bootsplash_theme or
             self.bootloader_theme or
-            self.defaultdestination or
-            self.defaultprebuilt or
-            self.defaultroot or
             self.hwclock or
             self.keytable or
             self.locale or
             self.packagemanager or
-            self.partitioner or
             self.rpm_check_signatures or
             self.rpm_excludedocs or
-            self.rpm_force or
             self.showlicense or
             self.timezone or
             self.type_ or
@@ -7197,15 +7071,6 @@ class preferences(GeneratedsSuper):
         for bootloader_theme_ in self.bootloader_theme:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sbootloader-theme>%s</%sbootloader-theme>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(bootloader_theme_), input_name='bootloader-theme')), namespace_, eol_))
-        for defaultdestination_ in self.defaultdestination:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sdefaultdestination>%s</%sdefaultdestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(defaultdestination_), input_name='defaultdestination')), namespace_, eol_))
-        for defaultprebuilt_ in self.defaultprebuilt:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sdefaultprebuilt>%s</%sdefaultprebuilt>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(defaultprebuilt_), input_name='defaultprebuilt')), namespace_, eol_))
-        for defaultroot_ in self.defaultroot:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sdefaultroot>%s</%sdefaultroot>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(defaultroot_), input_name='defaultroot')), namespace_, eol_))
         for hwclock_ in self.hwclock:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%shwclock>%s</%shwclock>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(hwclock_), input_name='hwclock')), namespace_, eol_))
@@ -7218,18 +7083,12 @@ class preferences(GeneratedsSuper):
         for packagemanager_ in self.packagemanager:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%spackagemanager>%s</%spackagemanager>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), namespace_, eol_))
-        for partitioner_ in self.partitioner:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%spartitioner>%s</%spartitioner>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(partitioner_), input_name='partitioner')), namespace_, eol_))
         for rpm_check_signatures_ in self.rpm_check_signatures:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%srpm-check-signatures>%s</%srpm-check-signatures>%s' % (namespace_, self.gds_format_boolean(rpm_check_signatures_, input_name='rpm-check-signatures'), namespace_, eol_))
         for rpm_excludedocs_ in self.rpm_excludedocs:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%srpm-excludedocs>%s</%srpm-excludedocs>%s' % (namespace_, self.gds_format_boolean(rpm_excludedocs_, input_name='rpm-excludedocs'), namespace_, eol_))
-        for rpm_force_ in self.rpm_force:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%srpm-force>%s</%srpm-force>%s' % (namespace_, self.gds_format_boolean(rpm_force_, input_name='rpm-force'), namespace_, eol_))
         for showlicense_ in self.showlicense:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sshowlicense>%s</%sshowlicense>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(showlicense_), input_name='showlicense')), namespace_, eol_))
@@ -7262,18 +7121,6 @@ class preferences(GeneratedsSuper):
             bootloader_theme_ = child_.text
             bootloader_theme_ = self.gds_validate_string(bootloader_theme_, node, 'bootloader_theme')
             self.bootloader_theme.append(bootloader_theme_)
-        elif nodeName_ == 'defaultdestination':
-            defaultdestination_ = child_.text
-            defaultdestination_ = self.gds_validate_string(defaultdestination_, node, 'defaultdestination')
-            self.defaultdestination.append(defaultdestination_)
-        elif nodeName_ == 'defaultprebuilt':
-            defaultprebuilt_ = child_.text
-            defaultprebuilt_ = self.gds_validate_string(defaultprebuilt_, node, 'defaultprebuilt')
-            self.defaultprebuilt.append(defaultprebuilt_)
-        elif nodeName_ == 'defaultroot':
-            defaultroot_ = child_.text
-            defaultroot_ = self.gds_validate_string(defaultroot_, node, 'defaultroot')
-            self.defaultroot.append(defaultroot_)
         elif nodeName_ == 'hwclock':
             hwclock_ = child_.text
             if hwclock_:
@@ -7302,14 +7149,6 @@ class preferences(GeneratedsSuper):
                 packagemanager_ = ""
             packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
             self.packagemanager.append(packagemanager_)
-        elif nodeName_ == 'partitioner':
-            partitioner_ = child_.text
-            if partitioner_:
-                partitioner_ = re_.sub(String_cleanup_pat_, " ", partitioner_).strip()
-            else:
-                partitioner_ = ""
-            partitioner_ = self.gds_validate_string(partitioner_, node, 'partitioner')
-            self.partitioner.append(partitioner_)
         elif nodeName_ == 'rpm-check-signatures':
             sval_ = child_.text
             if sval_ in ('true', '1'):
@@ -7330,16 +7169,6 @@ class preferences(GeneratedsSuper):
                 raise_parse_error(child_, 'requires boolean')
             ival_ = self.gds_validate_boolean(ival_, node, 'rpm_excludedocs')
             self.rpm_excludedocs.append(ival_)
-        elif nodeName_ == 'rpm-force':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_force')
-            self.rpm_force.append(ival_)
         elif nodeName_ == 'showlicense':
             showlicense_ = child_.text
             showlicense_ = self.gds_validate_string(showlicense_, node, 'showlicense')

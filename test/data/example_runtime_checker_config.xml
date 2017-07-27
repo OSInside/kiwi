@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="6.7" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -127,22 +127,17 @@
         <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
     </packages>
     <packages type="image" profiles="ec2Flavour">
-        <package name="kernel-ec2" replaces="kernel-default"/>
-        <package name="kernel-ec2" replaces="kernel-xen"/>
-        <package name="xen-tools" arch="x86_64" replaces=""/>
-        <package name="xen" arch="x86_64" replaces=""/>
+        <package name="kernel-ec2"/>
+        <package name="xen-tools" arch="x86_64"/>
+        <package name="xen" arch="x86_64"/>
     </packages>
     <packages type="image" profiles="xenFlavour">
-        <package name="kernel-xen" replaces="kernel-default"/>
-        <package name="kernel-xen" replaces="kernel-ec2"/>
-        <package name="xen-tools" arch="x86_64" replaces=""/>
-        <package name="xen" arch="x86_64" replaces=""/>
+        <package name="kernel-xen"/>
+        <package name="xen-tools" arch="x86_64"/>
+        <package name="xen" arch="x86_64"/>
     </packages>
     <packages type="image" profiles="vmxFlavour">
-        <package name="kernel-default" replaces="kernel-xen"/>
-        <package name="kernel-default" replaces="kernel-ec2"/>
-        <package name="kernel-default" replaces="xen-tools"/>
-        <package name="kernel-default" replaces="xen"/>
+        <package name="kernel-default"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

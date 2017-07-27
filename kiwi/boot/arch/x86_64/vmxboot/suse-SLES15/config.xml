@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="initrd-vmxboot-suse-SLE15">
+<image schemaversion="6.7" name="initrd-vmxboot-suse-SLE15">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -74,7 +74,7 @@
         <file name="drivers/input/misc/xen-kbdfront.ko"/>
         <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
-    <repository type="yast2" status="replaceable">
+    <repository type="yast2">
         <source path="obs://SUSE:SLE-15:GA/standard"/>
     </repository>
     <packages type="image" profiles="std">
