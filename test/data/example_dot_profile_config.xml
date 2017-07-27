@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="LimeJeOS-openSUSE-13.2">
+<image schemaversion="6.6" name="LimeJeOS-openSUSE-13.2" displayname="schäfer">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -32,6 +32,7 @@
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
                 <oem-recovery>false</oem-recovery>
+                <oem-boot-title>schäfer</oem-boot-title>
             </oemconfig>
             <machine memory="512" guestOS="suse" HWversion="4">
                 <vmdisk id="0" controller="ide"/>
