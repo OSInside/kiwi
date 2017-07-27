@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="initrd-oemboot-suse-tumbleweed">
+<image schemaversion="6.7" name="initrd-oemboot-suse-tumbleweed">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -77,7 +77,7 @@
         <file name="lib/zlib_deflate/zlib_deflate.ko"/>
         <file name="net/packet/*"/>
     </drivers>
-    <repository type="rpm-md" status="replaceable">
+    <repository type="rpm-md">
         <source path="obs://openSUSE:/Factory:/ARM/standard"/>
     </repository>
     <packages type="image" profiles="std">

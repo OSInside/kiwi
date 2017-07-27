@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="initrd-isoboot-fedora-25.0">
+<image schemaversion="6.7" name="initrd-isoboot-fedora-25.0">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -70,7 +70,7 @@
         <file name="net/packet/*"/>
         <file name="net/sunrpc/*"/>
     </drivers>
-    <repository type="rpm-md" status="replaceable">
+    <repository type="rpm-md">
         <source path="iso:///image/CDs/Fedora-25.0-%arch-DVD.iso/Server"/>
     </repository>
     <packages type="image" profiles="std">

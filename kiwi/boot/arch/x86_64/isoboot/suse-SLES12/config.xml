@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="initrd-isoboot-suse-SLES12">
+<image schemaversion="6.7" name="initrd-isoboot-suse-SLES12">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -81,7 +81,7 @@
         <file name="drivers/input/misc/xen-kbdfront.ko"/>
         <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
-    <repository type="yast2" status="replaceable">
+    <repository type="yast2">
         <source path="obs://SUSE:SLE-12:GA/standard"/>
     </repository>
     <packages type="image" profiles="std">
