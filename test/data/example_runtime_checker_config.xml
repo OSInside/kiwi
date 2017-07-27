@@ -98,6 +98,7 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
+        <type image="iso" mediacheck="true"/>
     </preferences>
     <users>
         <user groups="root" pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>

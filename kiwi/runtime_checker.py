@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import platform
 from textwrap import dedent
 
 # project
@@ -295,3 +296,20 @@ class RuntimeChecker(object):
                 raise KiwiRuntimeError(ec2_message)
             else:
                 raise KiwiRuntimeError(xen_message)
+
+    def check_mediacheck_only_for_x86_arch(self):
+        """
+        If the current architecture is not from the x86 family the
+        'mediacheck' feature available for iso images is not supported.
+        Checkmedia tool and its related boot code are only available
+        for x86 platforms.
+        """
+        arch = platform.machine()
+        message = dedent('''\n
+            The attribute 'mediacheck' is only supported for
+            x86 platforms, thus it can't be set to 'true'
+            for the current ({0}) architecture.
+        ''')
+        if self.xml_state.build_type.get_mediacheck() is True and \
+                arch not in ['x86_64', 'i586', 'i686']:
+            raise KiwiRuntimeError(message.format(arch))

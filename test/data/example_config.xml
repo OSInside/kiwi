@@ -124,6 +124,7 @@
                 </labels>
             </containerconfig>
         </type>
+        <type image="iso" mediacheck="true"/>
     </preferences>
     <preferences profiles="derivedContainer">
         <type image="docker" derived_from="obs://project/repo/image#mytag">

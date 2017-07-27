@@ -236,6 +236,10 @@ class LiveImageBuilder(object):
                 iso_header_offset, self.mbrid, self.isoname
             )
 
+        # include metadata for checkmedia tool
+        if self.xml_state.build_type.get_mediacheck() is True:
+            Iso.set_media_tag(self.isoname)
+
         self.result.add(
             key='live_image',
             filename=self.isoname,

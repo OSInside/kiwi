@@ -43,6 +43,20 @@ class TestBootLoaderTemplateIsoLinux(object):
             bootpath='/boot'
         )
 
+    def test_get_template_checkiso(self):
+        assert self.isolinux.get_template(checkiso=True).substitute(
+            default_boot='LimeJeOS-SLE12-Community',
+            kernel_file='boot/linux.vmx',
+            initrd_file='boot/initrd.vmx',
+            boot_options='cdinst=1 splash',
+            failsafe_boot_options='cdinst=1 splash',
+            gfxmode='800x600',
+            theme='SLE',
+            boot_timeout='10',
+            title='LimeJeOS-SLE12-Community',
+            bootpath='/boot'
+        )
+
     def test_get_multiboot_template(self):
         assert self.isolinux.get_multiboot_template().substitute(
             default_boot='LimeJeOS-SLE12-Community',
@@ -82,6 +96,21 @@ class TestBootLoaderTemplateIsoLinux(object):
             initrd_file='initrd.vmx',
             boot_options='splash',
             failsafe_boot_options='splash',
+            boot_timeout='10',
+            title='LimeJeOS-SLE12-Community',
+            bootpath='/boot',
+            hypervisor='xen.gz'
+        )
+
+    def test_get_multiboot_template_checkiso(self):
+        assert self.isolinux.get_multiboot_template(checkiso=True).substitute(
+            default_boot='LimeJeOS-SLE12-Community',
+            kernel_file='linux.vmx',
+            initrd_file='initrd.vmx',
+            boot_options='splash',
+            failsafe_boot_options='splash',
+            gfxmode='800x600',
+            theme='SLE',
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',

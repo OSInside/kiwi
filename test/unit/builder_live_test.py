@@ -66,6 +66,9 @@ class TestLiveImageBuilder(object):
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='custom_cmdline'
         )
+        self.xml_state.build_type.get_mediacheck = mock.Mock(
+            return_value=True
+        )
         self.live_image = LiveImageBuilder(
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}

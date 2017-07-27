@@ -233,6 +233,38 @@ class BootLoaderTemplateGrub2(object):
             }
         ''').strip() + os.linesep
 
+        self.menu_mediacheck_entry_hybrid = dedent('''
+            menuentry "Mediacheck ${title}" --class os --unrestricted {
+                set gfxpayload=keep
+                echo Loading kernel...
+                $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 ${boot_options}
+                echo Loading initrd...
+                $$initrd ($$root)${bootpath}/${initrd_file}
+            }
+        ''').strip() + os.linesep
+
+        self.menu_mediacheck_entry_multiboot = dedent('''
+            menuentry "Mediacheck -- ${title}" --class os --unrestricted {
+                set gfxpayload=keep
+                echo Loading hypervisor...
+                multiboot ${bootpath}/${hypervisor} dummy
+                echo Loading kernel...
+                module ${bootpath}/${kernel_file} dummy mediacheck=1 ${failsafe_boot_options}
+                echo Loading initrd...
+                module ${bootpath}/${initrd_file} dummy
+            }
+        ''').strip() + os.linesep
+
+        self.menu_mediacheck_entry = dedent('''
+            menuentry "Mediacheck ${title}" --class os --unrestricted {
+                set gfxpayload=keep
+                echo Loading kernel...
+                linux ($$root)${bootpath}/${kernel_file} mediacheck=1 ${boot_options}
+                echo Loading initrd...
+                initrd ($$root)${bootpath}/${initrd_file}
+            }
+        ''').strip() + os.linesep
+
         self.menu_install_entry_failsafe_hybrid = dedent('''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
                 set gfxpayload=keep
@@ -336,7 +368,7 @@ class BootLoaderTemplateGrub2(object):
         return Template(template_data)
 
     def get_iso_template(
-        self, failsafe=True, hybrid=True, terminal='gfxterm'
+        self, failsafe=True, hybrid=True, terminal='gfxterm', checkiso=False
     ):
         """
         Bootloader configuration template for live ISO media
@@ -361,10 +393,14 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_entry_hybrid
             if failsafe:
                 template_data += self.menu_entry_failsafe_hybrid
+            if checkiso:
+                template_data += self.menu_mediacheck_entry_hybrid
         else:
             template_data += self.menu_entry
             if failsafe:
                 template_data += self.menu_entry_failsafe
+            if checkiso:
+                template_data += self.menu_mediacheck_entry
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':
@@ -372,7 +408,7 @@ class BootLoaderTemplateGrub2(object):
         return Template(template_data)
 
     def get_multiboot_iso_template(
-        self, failsafe=True, terminal='gfxterm'
+        self, failsafe=True, terminal='gfxterm', checkiso=False
     ):
         """
         Bootloader configuration template for live ISO media with
@@ -394,6 +430,8 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
+        if checkiso:
+            template_data += self.menu_mediacheck_entry_multiboot
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
         if terminal == 'gfxterm':

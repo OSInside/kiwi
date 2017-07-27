@@ -1546,6 +1546,15 @@ div {
             sch:param [ name = "attr" value = "installpxe" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.mediacheck.attribute =
+        ## Specifies if the bootloader menu should provide an"
+        ## mediacheck entry to verify ISO integrity or not.
+        ## Disabled by default and only available for x86 arch family."
+        attribute mediacheck { xsd:boolean }
+        >> sch:pattern [ id = "mediacheck" is-a = "image_type"
+            sch:param [ name = "attr" value = "mediacheck" ]
+            sch:param [ name = "types" value = "iso" ]
+        ]
     k.type.kernelcmdline.attribute =
         ## The kernelcmdline element specifies additional
         ## kernel command line options
@@ -1692,6 +1701,7 @@ div {
         k.type.installiso.attribute? &
         k.type.installstick.attribute? &
         k.type.installpxe.attribute? &
+        k.type.mediacheck.attribute? &
         k.type.kernelcmdline.attribute? &
         k.type.luks.attribute? &
         k.type.luksOS.attribute? &
