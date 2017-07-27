@@ -16,7 +16,7 @@
 <para xmlns="http://docbook.org/ns/docbook">
     Changed attribute <tag class="attribute">schemaversion</tag>
     to <tag class="attribute">schemaversion</tag> from
-    <literal>6.4</literal> to <literal>6.5</literal>.
+    <literal>6.5</literal> to <literal>6.6</literal>.
 </para>
 <xsl:template match="image" mode="conv65to66">
     <xsl:choose>

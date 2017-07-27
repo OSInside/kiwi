@@ -37,6 +37,7 @@
 <xsl:import href="convert63to64.xsl"/>
 <xsl:import href="convert64to65.xsl"/>
 <xsl:import href="convert65to66.xsl"/>
+<xsl:import href="convert66to67.xsl"/>
 <xsl:import href="pretty.xsl"/>
 
 
@@ -171,8 +172,12 @@
         <xsl:apply-templates select="exslt:node-set($v65)" mode="conv65to66"/>
     </xsl:variable>
 
+    <xsl:variable name="v67">
+        <xsl:apply-templates select="exslt:node-set($v66)" mode="conv66to67"/>
+    </xsl:variable>
+
     <xsl:apply-templates
-        select="exslt:node-set($v66)" mode="pretty"
+        select="exslt:node-set($v67)" mode="pretty"
     />
 </xsl:template>
 
