@@ -109,7 +109,7 @@ class Iso(object):
         )
 
     @classmethod
-    def add_tagmedia_check(self, isofile):
+    def set_media_tag(self, isofile):
         """
         Include checksum tag in the ISO so it can be verified with
         the mediacheck program.

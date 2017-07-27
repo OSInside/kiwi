@@ -123,3 +123,15 @@ class TestRuntimeChecker(object):
             return_value=True
         )
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
+
+    @raises(KiwiRuntimeError)
+    @patch('platform.machine')
+    def test_check_mediacheck_only_for_x86_arch(
+        self, mock_machine
+    ):
+        mock_machine.return_value = 'aarch64'
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_mediacheck_only_for_x86_arch()

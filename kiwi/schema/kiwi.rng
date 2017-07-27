@@ -2323,15 +2323,15 @@ be created (oem only)</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
-    <define name="k.type.checkiso.attribute">
-      <attribute name="checkiso">
+    <define name="k.type.mediacheck.attribute">
+      <attribute name="mediacheck">
         <a:documentation>Specifies if the bootloader menu should provide an"
 mediacheck entry to verify ISO integrity or not.
 Disabled by default and only available for x86 arch family."</a:documentation>
         <data type="boolean"/>
       </attribute>
-      <sch:pattern id="checkiso" is-a="image_type">
-        <sch:param name="attr" value="checkiso"/>
+      <sch:pattern id="mediacheck" is-a="image_type">
+        <sch:param name="attr" value="mediacheck"/>
         <sch:param name="types" value="iso"/>
       </sch:pattern>
     </define>
@@ -2585,7 +2585,7 @@ to work on.</a:documentation>
           <ref name="k.type.installpxe.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.checkiso.attribute"/>
+          <ref name="k.type.mediacheck.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.kernelcmdline.attribute"/>

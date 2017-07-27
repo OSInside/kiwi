@@ -94,7 +94,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
-        self.mediacheck_boot = self.mediacheck_boot_entry_requested()
+        self.mediacheck_boot = self.xml_state.get_build_type_mediacheck()
 
         self.multiboot = False
         if self.xml_state.is_xen_server():

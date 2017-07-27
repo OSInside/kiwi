@@ -127,6 +127,7 @@ class SystemPrepareTask(CliTask):
         self.runtime_checker.check_target_directory_not_in_shared_cache(
             abs_root_path
         )
+        self.runtime_checker.check_mediacheck_only_for_x86_arch()
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()

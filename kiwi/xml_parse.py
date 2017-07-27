@@ -2595,7 +2595,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, checkiso=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2633,7 +2633,7 @@ class type_(GeneratedsSuper):
         self.installiso = _cast(bool, installiso)
         self.installstick = _cast(bool, installstick)
         self.installpxe = _cast(bool, installpxe)
-        self.checkiso = _cast(bool, checkiso)
+        self.mediacheck = _cast(bool, mediacheck)
         self.kernelcmdline = _cast(None, kernelcmdline)
         self.luks = _cast(None, luks)
         self.luksOS = _cast(None, luksOS)
@@ -2797,8 +2797,8 @@ class type_(GeneratedsSuper):
     def set_installstick(self, installstick): self.installstick = installstick
     def get_installpxe(self): return self.installpxe
     def set_installpxe(self, installpxe): self.installpxe = installpxe
-    def get_checkiso(self): return self.checkiso
-    def set_checkiso(self, checkiso): self.checkiso = checkiso
+    def get_mediacheck(self): return self.mediacheck
+    def set_mediacheck(self, mediacheck): self.mediacheck = mediacheck
     def get_kernelcmdline(self): return self.kernelcmdline
     def set_kernelcmdline(self, kernelcmdline): self.kernelcmdline = kernelcmdline
     def get_luks(self): return self.luks
@@ -2990,9 +2990,9 @@ class type_(GeneratedsSuper):
         if self.installpxe is not None and 'installpxe' not in already_processed:
             already_processed.add('installpxe')
             outfile.write(' installpxe="%s"' % self.gds_format_boolean(self.installpxe, input_name='installpxe'))
-        if self.checkiso is not None and 'checkiso' not in already_processed:
-            already_processed.add('checkiso')
-            outfile.write(' checkiso="%s"' % self.gds_format_boolean(self.checkiso, input_name='checkiso'))
+        if self.mediacheck is not None and 'mediacheck' not in already_processed:
+            already_processed.add('mediacheck')
+            outfile.write(' mediacheck="%s"' % self.gds_format_boolean(self.mediacheck, input_name='mediacheck'))
         if self.kernelcmdline is not None and 'kernelcmdline' not in already_processed:
             already_processed.add('kernelcmdline')
             outfile.write(' kernelcmdline=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.kernelcmdline), input_name='kernelcmdline')), ))
@@ -3303,13 +3303,13 @@ class type_(GeneratedsSuper):
                 self.installpxe = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('checkiso', node)
-        if value is not None and 'checkiso' not in already_processed:
-            already_processed.add('checkiso')
+        value = find_attr_value_('mediacheck', node)
+        if value is not None and 'mediacheck' not in already_processed:
+            already_processed.add('mediacheck')
             if value in ('true', '1'):
-                self.checkiso = True
+                self.mediacheck = True
             elif value in ('false', '0'):
-                self.checkiso = False
+                self.mediacheck = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('kernelcmdline', node)

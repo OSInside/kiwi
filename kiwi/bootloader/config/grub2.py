@@ -129,7 +129,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
-        self.mediacheck_boot = self.mediacheck_boot_entry_requested()
+        self.mediacheck_boot = self.xml_state.get_build_type_mediacheck()
         self.xen_guest = self.xml_state.is_xen_guest()
         self.firmware = FirmWare(
             self.xml_state

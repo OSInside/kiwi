@@ -523,6 +523,12 @@ class TestXMLState(object):
         state = XMLState(xml_data)
         assert state.get_build_type_vmconfig_entries() == []
 
+    def test_get_build_type_mediacheck(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'iso')
+        assert state.get_build_type_mediacheck()
+
     def test_get_build_type_docker_containerconfig_section(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
