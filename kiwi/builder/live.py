@@ -237,7 +237,7 @@ class LiveImageBuilder(object):
             )
 
         # include metadata for checkmedia tool
-        if self.xml_state.get_build_type_mediacheck() is True:
+        if self.xml_state.build_type.get_mediacheck() is True:
             Iso.set_media_tag(self.isoname)
 
         self.result.add(

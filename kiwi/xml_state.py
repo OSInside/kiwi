@@ -623,17 +623,6 @@ class XMLState(object):
         if spare_part_size:
             return self._to_mega_byte(spare_part_size)
 
-    def get_build_type_mediacheck(self):
-        """
-        Get the mediacheck attribute from the build type. If
-        no mediacheck is present returns False.
-
-        :rtype: bool
-        """
-        if self.build_type.get_mediacheck() is True:
-            return True
-        return False
-
     def get_volume_group_name(self):
         """
         Volume group name from systemdisk section

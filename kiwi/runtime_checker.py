@@ -310,6 +310,6 @@ class RuntimeChecker(object):
             x86 platforms, thus it can't be set to 'true'
             for the current ({0}) architecture.
         ''')
-        if self.xml_state.get_build_type_mediacheck() and \
+        if self.xml_state.build_type.get_mediacheck() is True and \
                 arch not in ['x86_64', 'i586', 'i686']:
             raise KiwiRuntimeError(message.format(arch))
