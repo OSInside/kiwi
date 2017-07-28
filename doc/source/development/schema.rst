@@ -1,6 +1,6 @@
 .. _schema-docs:
 
-Schema Documentation 6.5
+Schema Documentation 6.7
 ========================
 
 .. raw:: html
