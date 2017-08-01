@@ -77,6 +77,22 @@ class TestRuntimeChecker(object):
         runtime_checker = RuntimeChecker(xml_state)
         runtime_checker.check_docker_tool_chain_installed()
 
+    @patch('kiwi.runtime_checker.Path.which')
+    @patch('kiwi.runtime_checker.Command.run')
+    @raises(KiwiRuntimeError)
+    def test_check_docker_tool_chain_installed_with_version(
+        self, mock_command, mock_which
+    ):
+        tool_version_call = mock.Mock()
+        tool_version_call.output = 'umoci version 2.2.3'
+        mock_which.return_value = True
+        mock_command.return_value = tool_version_call
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_docker_tool_chain_installed()
+
     @raises(KiwiRuntimeError)
     def test_check_boot_image_reference_correctly_setup(self):
         self.xml_state.build_type.set_image('vmx')

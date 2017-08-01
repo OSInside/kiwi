@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import platform
 from textwrap import dedent
 
@@ -25,6 +26,7 @@ from .xml_state import XMLState
 from .system.uri import Uri
 from .defaults import Defaults
 from .path import Path
+from .command import Command
 from .exceptions import (
     KiwiRuntimeError
 )
@@ -134,8 +136,8 @@ class RuntimeChecker(object):
         for those tools to be installed in the build system and fails if
         it can't find them
         """
-        message = dedent('''\n
-            Required tool {0} not found in caller environment
+        message_tool_not_found = dedent('''\n
+            Required tool {name} not found in caller environment
 
             Creation of docker images requires the tools umoci and skopeo
             to be installed on the build system. For SUSE based systems
@@ -143,10 +145,42 @@ class RuntimeChecker(object):
 
             http://download.opensuse.org/repositories/Virtualization:/containers
         ''')
+        message_version_unsupported = dedent('''\n
+            {name} tool found in unsupported version
+
+            Expected version: v{want_version}.x.x but got: v{got_version}.x.x
+        ''')
+
+        expected_version = 1
+
         if self.xml_state.get_build_type_name() == 'docker':
             for tool in ['umoci', 'skopeo']:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
-                    raise KiwiRuntimeError(message.format(tool))
+                    raise KiwiRuntimeError(
+                        message_tool_not_found.format(name=tool)
+                    )
+                else:
+                    tool_version_call = Command.run([tool, '--version'])
+                    tool_version_format = re.match(
+                        ''.join(
+                            [
+                                '^', tool, ' version ',
+                                '(\d+)', '\.', '(\d+)', '\.', '(\d+)$'
+                            ]
+                        ), tool_version_call.output
+                    )
+                    version = None
+                    if tool_version_format:
+                        version = tool_version_format.group(1)
+
+                    if not version or int(version) > expected_version:
+                        raise KiwiRuntimeError(
+                            message_version_unsupported.format(
+                                name=tool,
+                                want_version=expected_version,
+                                got_version=version or '[unknown]'
+                            )
+                        )
 
     def check_consistent_kernel_in_boot_and_system_image(self):
         """
