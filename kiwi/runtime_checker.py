@@ -151,7 +151,7 @@ class RuntimeChecker(object):
             Expected version: v{want_version}.x.x but got: v{got_version}.x.x
         ''')
 
-        expected_version = 0
+        expected_version = 1
 
         if self.xml_state.get_build_type_name() == 'docker':
             for tool in ['umoci', 'skopeo']:

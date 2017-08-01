@@ -84,7 +84,7 @@ class TestRuntimeChecker(object):
         self, mock_command, mock_which
     ):
         tool_version_call = mock.Mock()
-        tool_version_call.output = 'umoci version 1.2.3'
+        tool_version_call.output = 'umoci version 2.2.3'
         mock_which.return_value = True
         mock_command.return_value = tool_version_call
         xml_state = XMLState(
