@@ -40,6 +40,13 @@ class TestDiskSetup(object):
         )
 
         description = XMLDescription(
+            '../data/example_disk_size_oem_volume_config.xml'
+        )
+        self.setup_oem_volumes = DiskSetup(
+            XMLState(description.load()), 'root_dir'
+        )
+
+        description = XMLDescription(
             '../data/example_disk_size_empty_vol_config.xml'
         )
         self.setup_empty_volumes = DiskSetup(
@@ -186,6 +193,18 @@ class TestDiskSetup(object):
             30 + Defaults.get_min_volume_mbytes() + \
             Defaults.get_min_volume_mbytes()
         assert mock_log_warn.called
+
+    @patch('os.path.exists')
+    def test_get_disksize_mbytes_oem_volumes(self, mock_exists):
+        mock_exists.return_value = True
+        root_size = self.size.accumulate_mbyte_file_sizes.return_value
+        assert self.setup_oem_volumes.get_disksize_mbytes() == \
+            Defaults.get_lvm_overhead_mbytes() + \
+            Defaults.get_default_legacy_bios_mbytes() + \
+            Defaults.get_default_efi_boot_mbytes() + \
+            Defaults.get_default_boot_mbytes() + \
+            root_size + \
+            5 * Defaults.get_min_volume_mbytes()
 
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
