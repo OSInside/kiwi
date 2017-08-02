@@ -194,7 +194,7 @@ class PxeBuilder(object):
         # create image root metadata
         self.result.add(
             key='image_packages',
-            filename=self.system_setup.export_rpm_package_list(
+            filename=self.system_setup.export_package_list(
                 self.target_dir
             ),
             use_for_bundle=True,

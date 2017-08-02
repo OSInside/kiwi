@@ -861,6 +861,23 @@ class Defaults(object):
             reload_module(sys)  # Reload required to get setdefaultencoding back
             sys.setdefaultencoding('utf-8')
 
+    @classmethod
+    def get_default_packager_tool(self, package_manager):
+        """
+        Returns the packager tool according to the package manager
+
+        :param string package_manager: is the package_manger set in XML
+
+        :return: packager tool
+        :rtype: string
+        """
+        rpm_based = ['zypper', 'yum', 'dnf']
+        deb_based = ['apt-get']
+        if package_manager in rpm_based:
+            return 'rpm'
+        elif package_manager in deb_based:
+            return 'dpkg'
+
     def get(self, key):
         """
         Implements get method for profile elements

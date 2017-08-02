@@ -420,37 +420,30 @@ class SystemSetup(object):
                 options=['-z', '-a']
             )
 
-    def export_rpm_package_list(self, target_dir):
+    def export_package_list(self, target_dir):
         """
         Export image rpm package list as metadata reference
         used by the open buildservice
 
         :param string target_dir: path name
         """
-        if os.path.exists(self.root_dir + '/var/lib/rpm/Packages'):
-            log.info('Export rpm packages metadata')
-            filename = ''.join(
-                [
-                    target_dir, '/',
-                    self.xml_state.xml_data.get_name(),
-                    '.' + self.arch,
-                    '-' + self.xml_state.get_image_version(),
-                    '.packages'
-                ]
-            )
-            query_call = Command.run(
-                [
-                    'rpm', '--root', self.root_dir, '-qa', '--qf',
-                    '|'.join(
-                        [
-                            '%{NAME}', '%{EPOCH}', '%{VERSION}', '%{RELEASE}',
-                            '%{ARCH}', '%{DISTURL}', '\\n'
-                        ]
-                    )
-                ]
-            )
-            with open(filename, 'w') as packages:
-                packages.write(query_call.output)
+        filename = ''.join(
+            [
+                target_dir, '/',
+                self.xml_state.xml_data.get_name(),
+                '.' + self.arch,
+                '-' + self.xml_state.get_image_version(),
+                '.packages'
+            ]
+        )
+        packager = Defaults.get_default_packager_tool(
+            self.xml_state.get_package_manager()
+        )
+        if packager == 'rpm':
+            self._export_rpm_package_list(filename)
+            return filename
+        elif packager == 'dpkg':
+            self._export_deb_package_list(filename)
             return filename
 
     def export_rpm_package_verification(self, target_dir):
@@ -840,3 +833,30 @@ class SystemSetup(object):
         """
         if section_content:
             return section_content[0]
+
+    def _export_rpm_package_list(self, filename):
+        log.info('Export rpm packages metadata')
+        query_call = Command.run(
+            [
+                'rpm', '--root', self.root_dir, '-qa', '--qf',
+                '|'.join(
+                    [
+                        '%{NAME}', '%{EPOCH}', '%{VERSION}', '%{RELEASE}',
+                        '%{ARCH}', '%{DISTURL}', '\\n'
+                    ]
+                )
+            ]
+        )
+        with open(filename, 'w') as packages:
+            packages.write(query_call.output)
+
+    def _export_deb_package_list(self, filename):
+        log.info('Export deb packages metadata')
+        query_call = Command.run(
+            [
+                'chroot', self.root_dir, 'dpkg-query', '-W', '-f',
+                '${Package}|${Version}|${Architecture}\n'
+            ]
+        )
+        with open(filename, 'w') as packages:
+            packages.write(query_call.output)

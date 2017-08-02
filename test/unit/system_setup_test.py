@@ -29,6 +29,9 @@ class TestSystemSetup(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.xml_state = mock.MagicMock()
+        self.xml_state.get_package_manager = mock.Mock(
+            return_value='zypper'
+        )
         self.xml_state.build_type.get_filesystem = mock.Mock(
             return_value='ext3'
         )
@@ -662,20 +665,39 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.system.setup.Command.run')
-    @patch('os.path.exists')
     @patch_open
-    def test_export_rpm_package_list(
-        self, mock_open, mock_exists, mock_command
+    def test_export_package_list_rpm(
+        self, mock_open, mock_command
     ):
         command = mock.Mock()
         command.output = 'packages_data'
-        mock_exists.return_value = True
         mock_command.return_value = command
-        result = self.setup.export_rpm_package_list('target_dir')
+        result = self.setup.export_package_list('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
             'rpm', '--root', 'root_dir', '-qa', '--qf',
             '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}|\\n'
+        ])
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+        )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch_open
+    def test_export_package_list_dpkg(
+        self, mock_open, mock_command
+    ):
+        command = mock.Mock()
+        command.output = 'packages_data'
+        mock_command.return_value = command
+        self.xml_state.get_package_manager = mock.Mock(
+            return_value='apt-get'
+        )
+        result = self.setup.export_package_list('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
+        mock_command.assert_called_once_with([
+            'chroot', 'root_dir', 'dpkg-query', '-W',
+            '-f', '${Package}|${Version}|${Architecture}\n'
         ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
