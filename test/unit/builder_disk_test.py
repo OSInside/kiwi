@@ -345,7 +345,7 @@ class TestDiskBuilder(object):
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
 
@@ -466,7 +466,7 @@ class TestDiskBuilder(object):
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
 

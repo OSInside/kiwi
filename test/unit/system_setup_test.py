@@ -696,7 +696,7 @@ class TestSystemSetup(object):
         result = self.setup.export_package_list('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
-            'chroot', 'root_dir', 'dpkg-query', '-W',
+            'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg', '-W',
             '-f', '${Package}|${Version}|${Architecture}\n'
         ])
         mock_open.assert_called_once_with(
@@ -704,19 +704,41 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.system.setup.Command.run')
-    @patch('os.path.exists')
     @patch_open
-    def test_export_rpm_package_verification(
-        self, mock_open, mock_exists, mock_command
+    def test_export_package_verification(
+        self, mock_open, mock_command
     ):
         command = mock.Mock()
         command.output = 'verification_data'
-        mock_exists.return_value = True
         mock_command.return_value = command
-        result = self.setup.export_rpm_package_verification('target_dir')
+        result = self.setup.export_package_verification('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=['rpm', '--root', 'root_dir', '-Va'],
+            raise_on_error=False
+        )
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.verified', 'w'
+        )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch_open
+    def test_export_package_verification_dpkg(
+        self, mock_open, mock_command
+    ):
+        command = mock.Mock()
+        command.output = 'verification_data'
+        mock_command.return_value = command
+        self.xml_state.get_package_manager = mock.Mock(
+            return_value='apt-get'
+        )
+        result = self.setup.export_package_verification('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
+        mock_command.assert_called_once_with(
+            command=[
+                'dpkg', '--root', 'root_dir', '-V',
+                '--verify-format', 'rpm'
+            ],
             raise_on_error=False
         )
         mock_open.assert_called_once_with(

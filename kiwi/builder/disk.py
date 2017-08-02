@@ -435,7 +435,7 @@ class DiskBuilder(object):
         )
         self.result.add(
             key='image_verified',
-            filename=self.system_setup.export_rpm_package_verification(
+            filename=self.system_setup.export_package_verification(
                 self.target_dir
             ),
             use_for_bundle=True,
