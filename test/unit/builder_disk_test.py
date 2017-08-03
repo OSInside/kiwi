@@ -342,10 +342,10 @@ class TestDiskBuilder(object):
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
             call(['mv', 'initrd', 'root_dir/boot/initrd.vmx']),
         ]
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
 
@@ -463,10 +463,10 @@ class TestDiskBuilder(object):
             call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir_kiwi'])
         ]
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
 

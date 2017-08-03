@@ -101,8 +101,8 @@ class TestContainerBuilder(object):
         mock_setup.return_value = container_setup
         container_image = mock.Mock()
         mock_image.return_value = container_image
-        self.setup.export_rpm_package_verification.return_value = '.verified'
-        self.setup.export_rpm_package_list.return_value = '.packages'
+        self.setup.export_package_verification.return_value = '.verified'
+        self.setup.export_package_list.return_value = '.packages'
         self.container.base_image = None
         self.container.create()
         mock_setup.assert_called_once_with(
@@ -138,10 +138,10 @@ class TestContainerBuilder(object):
                 shasum=False
             )
         ]
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
 
@@ -163,8 +163,8 @@ class TestContainerBuilder(object):
 
         container_image = mock.Mock()
         mock_image.return_value = container_image
-        self.setup.export_rpm_package_verification.return_value = '.verified'
-        self.setup.export_rpm_package_list.return_value = '.packages'
+        self.setup.export_package_verification.return_value = '.verified'
+        self.setup.export_package_list.return_value = '.packages'
 
         container.create()
 
@@ -203,10 +203,10 @@ class TestContainerBuilder(object):
                 shasum=False
             )
         ]
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
 

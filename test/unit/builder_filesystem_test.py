@@ -100,10 +100,10 @@ class TestFileSystemBuilder(object):
         self.filesystem.sync_data.assert_called_once_with(
             ['image', '.profile', '.kconfig', 'var/cache/kiwi']
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
 
@@ -130,9 +130,9 @@ class TestFileSystemBuilder(object):
         self.filesystem.create_on_file.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.squashfs', None
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )

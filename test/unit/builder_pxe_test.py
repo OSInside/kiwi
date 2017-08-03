@@ -84,10 +84,10 @@ class TestPxeBuilder(object):
             'initrd_dir'
         )
         self.boot_image_task.create_initrd.assert_called_once_with()
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
         # warning for not implemented pxedeploy handling

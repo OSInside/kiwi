@@ -133,8 +133,8 @@ class TestLiveImageBuilder(object):
             return_value=8192
         )
         mock_size.return_value = rootsize
-        self.setup.export_rpm_package_verification.return_value = '.verified'
-        self.setup.export_rpm_package_list.return_value = '.packages'
+        self.setup.export_package_verification.return_value = '.verified'
+        self.setup.export_package_list.return_value = '.packages'
 
         self.live_image.create()
 
@@ -250,10 +250,10 @@ class TestLiveImageBuilder(object):
                 shasum=False
             )
         ]
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
 
