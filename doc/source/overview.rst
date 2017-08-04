@@ -55,6 +55,14 @@ Image Description
    These can be used to customize certain parts either of the KIWI
    build process or of the initial start-up behavior of the image.
 
+Overlay Files
+   A directory structure with files and subdirectories stored as part
+   of the Image Description. This directory structure is packaged as
+   a file :file:`root.tar.gz` or stored below a directory named
+   :file:`root`. The content of the directory structure is copied over
+   the existing file system (overlayed) of the appliance root.
+   This includes permissions and attributes as a supplement.
+
 KIWI
    An OS appliance builder.
 
