@@ -168,7 +168,8 @@ config = {
         'xattr',
         'future',
         'six',
-        'requests'
+        'requests',
+        'PyYAML'
     ],
     'packages': ['kiwi'],
     'cmdclass': {
