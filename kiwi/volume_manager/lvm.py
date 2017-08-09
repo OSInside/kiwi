@@ -118,12 +118,8 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         canonical_volume_list = self.get_canonical_volume_list()
         for volume in canonical_volume_list.volumes:
-            [size_type, volume_mbsize] = volume.size.split(':')
             volume_mbsize = self.get_volume_mbsize(
-                volume_mbsize,
-                size_type,
-                volume.realpath,
-                filesystem_name,
+                volume, self.volumes, filesystem_name,
                 self.custom_args['image_type']
             )
             log.info(

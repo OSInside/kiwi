@@ -227,9 +227,9 @@ class VolumeManagerBase(DeviceProvider):
         Implements creation of volume paths in the given root directory
         """
         for volume in self.volumes:
-            if volume.realpath and not volume.realpath == '/':
+            if volume.realpath and not volume.realpath == os.sep:
                 volume_image_path = os.path.normpath(
-                    self.root_dir + '/' + volume.realpath
+                    self.root_dir + os.sep + volume.realpath
                 )
                 if not os.path.exists(volume_image_path):
                     # not existing volume paths will be created in the image
@@ -268,21 +268,23 @@ class VolumeManagerBase(DeviceProvider):
         )
 
     def get_volume_mbsize(
-        self, mbsize, size_type, realpath, filesystem_name, image_type=None
+        self, volume, all_volumes, filesystem_name, image_type=None
     ):
         """
         Implements size lookup for the given path and desired
         filesystem according to the specified size type
 
-        :param int mbsize: configured volume size
-        :param string size_type: relative or absolute size setup
-        :param string realpath: volume real path name
+        :param tuple volume: volume to check size for
+        :param list all_volumes: list of all volume tuples
         :param string filesystem_name: filesystem name
         :param image_type: build type name
 
         :return: mbsize
         :rtype: int
         """
+        [size_type, mbsize] = volume.size.split(':')
+        lookup_path = volume.realpath
+
         if image_type and image_type == 'oem':
             # only for vmx types we need to create the volumes in the
             # configured size. oem disks are self expandable and will
@@ -293,25 +295,29 @@ class VolumeManagerBase(DeviceProvider):
             mbsize = 0
 
         if size_type == 'freespace':
-            # Please note for nested volumes which contains other volumes
-            # the freespace calculation is not correct. Example:
-            # /usr is a volume and /usr/lib is a volume. If freespace is
-            # set for the /usr volume the data size calculated also
-            # contains the data of the /usr/lib path which will live in
-            # an extra volume later. The result will be more freespace
-            # than expected ! Especially for the root volume this matters
-            # most because it always nests all other volumes. Thus it is
-            # better to use a fixed size for the root volume if it is not
-            # configured to use all rest space
-            #
-            # You are invited to fix it :)
+            exclude_paths = []
+            for volume in all_volumes:
+                volume_path = volume.realpath
+                if lookup_path == volume_path:
+                    continue
+                if lookup_path == os.sep:
+                    # exclude any sub volume path if lookup_path is / [LVRoot]
+                    exclude_paths.append(
+                        os.path.normpath(self.root_dir + os.sep + volume_path)
+                    )
+                elif volume_path.startswith(lookup_path):
+                    # exclude any sub volume path below lookup_path
+                    exclude_paths.append(
+                        os.path.normpath(self.root_dir + os.sep + volume_path)
+                    )
+
             volume_size = SystemSize(
-                self.root_dir + '/' + realpath
+                os.path.normpath(self.root_dir + os.sep + lookup_path)
             )
             mbsize = int(mbsize) + \
                 Defaults.get_min_volume_mbytes()
             mbsize += volume_size.customize(
-                volume_size.accumulate_mbyte_file_sizes(),
+                volume_size.accumulate_mbyte_file_sizes(exclude_paths),
                 filesystem_name
             )
         return mbsize

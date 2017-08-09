@@ -63,16 +63,24 @@ class SystemSize(object):
 
         return int(size)
 
-    def accumulate_mbyte_file_sizes(self):
+    def accumulate_mbyte_file_sizes(self, exclude=None):
         """
         Calculate data size of all data in the source tree
+
+        :param list exclude: list of paths to exclude
 
         :return: mbytes
         :rtype: int
         """
+        exclude_options = []
+        if exclude:
+            for item in exclude:
+                exclude_options.append('--exclude')
+                exclude_options.append(item)
         du_call = Command.run(
             [
-                'du', '-s', '--apparent-size', '--block-size', '1',
+                'du', '-s', '--apparent-size', '--block-size', '1'
+            ] + exclude_options + [
                 self.source_dir
             ]
         )
