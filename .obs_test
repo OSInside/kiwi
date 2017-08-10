@@ -4,6 +4,7 @@ Virtualization:Appliances:Images:Testing_x86/test-image-pxe images x86_64
 Virtualization:Appliances:Images:Testing_x86/test-image-docker images x86_64
 Virtualization:Appliances:Images:Testing_x86/test-image-orthos-oem images x86_64
 Virtualization:Appliances:Images:Testing_x86/test-image-ec2 images x86_64
+Virtualization:Appliances:Images:Testing_x86/test-image-azure images x86_64
 Virtualization:Appliances:Images:Testing_arm/test-image-panda-oem images armv7l
 Virtualization:Appliances:Images:Testing_s390/test-image-oem images s390x
 Virtualization:Appliances:Images/dice-image-docker images x86_64
