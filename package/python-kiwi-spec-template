@@ -40,12 +40,12 @@
 %endif
 
 # Leap 42.2:
-%if 0%{?leap_version} == 420200
+%if 0%{?is_opensuse} && 0%{?sle_version} == 120200
 %define distro suse-leap42.2
 %endif
 
 # Leap 42.3:
-%if 0%{?leap_version} == 420300
+%if 0%{?is_opensuse} && 0%{?sle_version} == 120300
 %define distro suse-leap42.3
 %endif
 
