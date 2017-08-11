@@ -49,6 +49,26 @@
 %define distro suse-leap42.3
 %endif
 
+# Leap 15.0:
+%if 0%{?is_opensuse} && 0%{?sle_version} == 150000
+%define distro suse-leap15.0
+%endif
+
+# Leap 15.1:
+%if 0%{?is_opensuse} && 0%{?sle_version} == 150100
+%define distro suse-leap15.1
+%endif
+
+# Leap 15.2:
+%if 0%{?is_opensuse} && 0%{?sle_version} == 150200
+%define distro suse-leap15.2
+%endif
+
+# Leap 15.3:
+%if 0%{?is_opensuse} && 0%{?sle_version} == 150300
+%define distro suse-leap15.3
+%endif
+
 # Tumbleweed:
 # Current Tumbleweed version, moving target
 %if 0%{?suse_version} == 1330
