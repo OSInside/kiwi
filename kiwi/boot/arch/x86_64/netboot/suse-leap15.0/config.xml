@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.7" name="initrd-netboot-suse-SLES15">
+<image schemaversion="6.7" name="initrd-netboot-suse-leap-15.0">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -108,7 +108,7 @@
         <file name="net/sunrpc/*"/>
     </drivers>
     <repository type="yast2">
-        <source path="obs://SUSE:SLE-15:GA/standard"/>
+        <source path="obs://openSUSE:Leap:15.0/standard"/>
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
@@ -188,7 +188,7 @@
         <package name="make"/>
         <package name="mingetty"/>
         <package name="Mesa"/>
-        <package name="sles-release"/>
+        <package name="openSUSE-release"/>
         <package name="pam"/>
         <package name="pam-modules"/>
         <package name="perl"/>
