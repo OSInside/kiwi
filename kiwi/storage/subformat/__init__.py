@@ -49,62 +49,65 @@ class DiskFormat(object):
         target directory path name
     """
     def __new__(self, name, xml_state, root_dir, target_dir):
+        custom_args = xml_state.get_build_type_format_options()
         if name == 'qcow2':
             return DiskFormatQcow2(
-                xml_state, root_dir, target_dir
+                xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vdi':
             return DiskFormatVdi(
-                xml_state, root_dir, target_dir
+                xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vhd':
             return DiskFormatVhd(
-                xml_state, root_dir, target_dir
+                xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vhd-fixed':
-            custom_args = None
             disk_tag = xml_state.build_type.get_vhdfixedtag()
             if disk_tag:
-                custom_args = {
-                    '--tag': disk_tag
-                }
+                custom_args.update(
+                    {'--tag': disk_tag}
+                )
             return DiskFormatVhdFixed(
                 xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'gce':
-            custom_args = None
             gce_license_tag = xml_state.build_type.get_gcelicense()
             if gce_license_tag:
-                custom_args = {
-                    '--tag': gce_license_tag
-                }
+                custom_args.update(
+                    {'--tag': gce_license_tag}
+                )
             return DiskFormatGce(
                 xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vmdk':
-            custom_args = None
             vmdisk_section = xml_state.get_build_type_vmdisk_section()
             if vmdisk_section:
-                custom_args = {}
                 disk_mode = vmdisk_section.get_diskmode()
                 disk_controller = vmdisk_section.get_controller()
                 if disk_mode:
-                    custom_args['subformat=%s' % disk_mode] = None
+                    custom_args.update(
+                        {'subformat={0}'.format(disk_mode): None}
+                    )
                 if disk_controller:
-                    custom_args['adapter_type=%s' % disk_controller] = None
+                    custom_args.update(
+                        {'adapter_type={0}'.format(disk_controller): None}
+                    )
             return DiskFormatVmdk(
                 xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vagrant':
             vagrant_config = xml_state.get_build_type_vagrant_config_section()
             if vagrant_config:
+                custom_args.update(
+                    {'vagrantconfig': vagrant_config}
+                )
                 provider = vagrant_config.get_provider()
             else:
                 provider = 'undefined'
             if provider == 'libvirt':
                 return DiskFormatVagrantLibVirt(
-                    xml_state, root_dir, target_dir,
-                    {'vagrantconfig': vagrant_config}
+                    xml_state, root_dir, target_dir, custom_args
                 )
             else:
                 raise KiwiDiskFormatSetupError(
@@ -114,7 +117,7 @@ class DiskFormat(object):
                 )
         elif name == 'raw':
             return DiskFormatBase(
-                xml_state, root_dir, target_dir
+                xml_state, root_dir, target_dir, custom_args
             )
         else:
             raise KiwiDiskFormatSetupError(

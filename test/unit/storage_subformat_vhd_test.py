@@ -24,7 +24,7 @@ class TestDiskFormatVhd(object):
 
     def test_post_init(self):
         self.disk_format.post_init({'option': 'value'})
-        assert self.disk_format.options == ['-o', 'option', 'value']
+        assert self.disk_format.options == ['-o', 'option=value']
 
     @patch('kiwi.storage.subformat.vhd.Command.run')
     def test_create_image_format(self, mock_command):

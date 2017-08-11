@@ -623,6 +623,24 @@ class XMLState(object):
         if spare_part_size:
             return self._to_mega_byte(spare_part_size)
 
+    def get_build_type_format_options(self):
+        """
+        Disk format options returned as a dictionary
+
+        :return: format options
+        :rtype: dict
+        """
+        result = {}
+        format_options = self.build_type.get_formatoptions()
+        if format_options:
+            for option in format_options.split(','):
+                key_value_list = option.split('=')
+                if len(key_value_list) == 2:
+                    result[key_value_list[0]] = key_value_list[1]
+                else:
+                    result[key_value_list[0]] = None
+        return result
+
     def get_volume_group_name(self):
         """
         Volume group name from systemdisk section

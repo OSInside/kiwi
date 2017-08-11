@@ -139,9 +139,10 @@ class DiskFormatBase(object):
             ordered_args = OrderedDict(sorted(custom_args.items()))
             for key, value in list(ordered_args.items()):
                 options.append('-o')
-                options.append(key)
                 if value:
-                    options.append(value)
+                    options.append('{0}={1}'.format(key, value))
+                else:
+                    options.append(key)
         return options
 
     def get_target_name_for_format(self, format_name):
