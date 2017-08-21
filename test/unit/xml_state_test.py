@@ -607,6 +607,12 @@ class TestXMLState(object):
     def test_get_spare_part(self):
         assert self.state.get_build_type_spare_part_size() == 200
 
+    def test_get_build_type_format_options(self):
+        assert self.state.get_build_type_format_options() == {
+            'super': 'man',
+            'force_size': None
+        }
+
     def test_get_derived_from_image_uri(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()

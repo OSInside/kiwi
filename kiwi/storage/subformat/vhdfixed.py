@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from collections import OrderedDict
 import struct
 from binascii import unhexlify
 import re
@@ -52,19 +51,14 @@ class DiskFormatVhdFixed(DiskFormatBase):
             disk format name: vhdfixed
         """
         self.image_format = 'vhdfixed'
-        self.options = [
-            '-o', 'subformat=fixed'
-        ]
         self.tag = None
-        if custom_args:
-            ordered_args = OrderedDict(list(custom_args.items()))
-            for key, value in list(ordered_args.items()):
-                if key == '--tag':
-                    self.tag = value
-                else:
-                    self.options.append(key)
-                    if value:
-                        self.options.append(value)
+        if '--tag' in custom_args:
+            self.tag = custom_args['--tag']
+            del custom_args['--tag']
+
+        self.options = self.get_qemu_option_list(custom_args)
+        self.options.append('-o')
+        self.options.append('subformat=fixed')
 
     def create_image_format(self):
         """

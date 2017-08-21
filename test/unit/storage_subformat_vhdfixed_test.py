@@ -28,13 +28,13 @@ class TestDiskFormatVhdFixed(object):
             return_value='1.2.3'
         )
         self.disk_format = DiskFormatVhdFixed(
-            self.xml_state, 'root_dir', 'target_dir'
+            self.xml_state, 'root_dir', 'target_dir', {'force_size': None}
         )
 
     def test_post_init(self):
         self.disk_format.post_init({'option': 'value', '--tag': 'tag'})
         assert self.disk_format.options == [
-            '-o', 'subformat=fixed', 'option', 'value'
+            '-o', 'option=value', '-o', 'subformat=fixed'
         ]
         assert self.disk_format.tag == 'tag'
 
@@ -64,7 +64,7 @@ class TestDiskFormatVhdFixed(object):
             [
                 'qemu-img', 'convert', '-f', 'raw',
                 'target_dir/some-disk-image.x86_64-1.2.3.raw', '-O', 'vpc',
-                '-o', 'subformat=fixed',
+                '-o', 'force_size', '-o', 'subformat=fixed',
                 'target_dir/some-disk-image.x86_64-1.2.3.vhdfixed'
             ]
         )
