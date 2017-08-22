@@ -50,7 +50,7 @@ class FileSystemSetup(object):
         else:
             self.requested_filesystem = xml_state.build_type.get_filesystem()
 
-    def get_size_mbytes(self):
+    def get_size_mbytes(self, filesystem=None):
         """
         Precalculate the requires size in mbytes to store all data
         from the root directory in the requested filesystem. Return
@@ -62,7 +62,7 @@ class FileSystemSetup(object):
         """
         root_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
         filesystem_mbytes = self.size.customize(
-            root_dir_mbytes, self.requested_filesystem
+            root_dir_mbytes, self.requested_filesystem or filesystem
         )
 
         if not self.configured_size:

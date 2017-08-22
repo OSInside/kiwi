@@ -264,6 +264,13 @@ class TestIso(object):
         mock_command.return_value = command
         Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
 
+    @patch('kiwi.iso.Command.run')
+    def test_set_media_tag(self, mock_command):
+        Iso.set_media_tag('foo')
+        mock_command.assert_called_once_with(
+            ['tagmedia', '--md5', '--check', '--pad', '150', 'foo']
+        )
+
     @patch_open
     @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_iso9660_invalid(self, mock_open):
@@ -311,7 +318,8 @@ class TestIso(object):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+            bytes(b'EL TORITO SPECIFICATION') + \
+            bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
         read_results = [eltorito_descriptor, volume_descriptor]
 
         def side_effect(arg):
@@ -326,7 +334,8 @@ class TestIso(object):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+            bytes(b'EL TORITO SPECIFICATION') + \
+            bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
         new_volume_descriptor = \
             bytes(b'bogus')
         next_new_volume_descriptor = \
@@ -361,8 +370,10 @@ class TestIso(object):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
-        boot_catalog = bytes(b'_') * 64 + struct.pack('B', 0x88) + bytes(b'_') * 32
+            bytes(b'EL TORITO SPECIFICATION') + \
+            bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+        boot_catalog = bytes(b'_') * 64 + struct.pack('B', 0x88) + \
+            bytes(b'_') * 32
         read_results = [
             boot_catalog,
             eltorito_descriptor,

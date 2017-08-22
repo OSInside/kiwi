@@ -135,6 +135,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.xml_state
         )
 
+        self.live_type = self.xml_state.build_type.get_flags()
+        if not self.live_type:
+            self.live_type = Defaults.get_default_live_iso_type()
+
+        self.volume_id = self.xml_state.build_type.get_volid() or \
+            Defaults.get_volume_id()
+
+        self.live_boot_options = [
+            'root=live:CDLABEL={0}'.format(self.volume_id),
+            'rd.live.image'
+        ]
+        if self.xml_state.build_type.get_hybridpersistent():
+            self.live_boot_options += \
+                Defaults.get_live_iso_persistent_boot_options(
+                    self.xml_state.build_type.get_hybridpersistent_filesystem()
+                )
+
         if self.xml_state.is_xen_server():
             self.hybrid_boot = False
             self.multiboot = True
@@ -357,8 +374,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'default_boot': '0',
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe,
+            'boot_options': ' '.join(
+                [self.cmdline] + self.live_boot_options
+            ),
+            'failsafe_boot_options': ' '.join(
+                [self.cmdline_failsafe] + self.live_boot_options
+            ),
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,

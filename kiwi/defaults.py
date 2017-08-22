@@ -202,6 +202,13 @@ class Defaults(object):
         }
 
     @classmethod
+    def get_volume_id(self):
+        """
+        Implements default value for ISO volume ID
+        """
+        return 'CDROM'
+
+    @classmethod
     def get_default_video_mode(self):
         """
         Implements 800x600 default video mode
@@ -693,36 +700,6 @@ class Defaults(object):
         ]
 
     @classmethod
-    def get_live_iso_types(self):
-        """
-        Implements list of supported live ISO image types
-
-        :return: live iso names
-        :rtype: list
-        """
-        return {
-            'overlay': 'squashfs',
-            'clic': 'clicfs'
-        }
-
-    @classmethod
-    def get_live_iso_client_parameters(self):
-        """
-        Implements parameters to setup the overlay filesystem used
-        for the live ISO image. Each supported overlay filesystem
-        needs the information about the target block device, the
-        copy on write device and the used kernel union filesystem
-        name
-
-        :return: union client parameters
-        :rtype: dict
-        """
-        return {
-            'overlay': ['loop', 'tmpfs', 'overlay'],
-            'clic': ['/dev/ram1', '/dev/ram1', 'clicfs']
-        }
-
-    @classmethod
     def get_default_live_iso_type(self):
         """
         Implements default live iso union type
@@ -731,6 +708,34 @@ class Defaults(object):
         :rtype: string
         """
         return 'overlay'
+
+    @classmethod
+    def get_default_live_iso_root_filesystem(self):
+        """
+        Implements default live iso root filesystem type
+
+        :return: filesystem name
+        :rtype: string
+        """
+        return 'ext4'
+
+    @classmethod
+    def get_live_iso_persistent_boot_options(self, persistent_filesystem=None):
+        """
+        Implements list of boot options passed to the dracut
+        kiwi-live module to setup persistent writing
+
+        :return: boot options
+        :rtype: list
+        """
+        live_iso_persistent_boot_options = [
+            'rd.live.overlay.persistent',
+        ]
+        if persistent_filesystem:
+            live_iso_persistent_boot_options.append(
+                'rd.live.overlay.cowfs={0}'.format(persistent_filesystem)
+            )
+        return live_iso_persistent_boot_options
 
     @classmethod
     def get_disk_image_types(self):
