@@ -1768,12 +1768,12 @@ volume management system</a:documentation>
     </sch:pattern>
     <define name="k.type.boot.attribute">
       <attribute name="boot">
-        <a:documentation>Specifies the path of the boot image (initrd), relative
-to /usr/share/kiwi/image</a:documentation>
+        <a:documentation>Specifies the path of the boot image (initrd) description
+provided with KIWI</a:documentation>
       </attribute>
       <sch:pattern id="boot" is-a="image_type">
         <sch:param name="attr" value="boot"/>
-        <sch:param name="types" value="oem iso pxe vmx"/>
+        <sch:param name="types" value="oem pxe vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.bootkernel.attribute">

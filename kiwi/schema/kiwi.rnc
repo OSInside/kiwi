@@ -1157,12 +1157,12 @@ div {
         ]
     ]
     k.type.boot.attribute =
-        ## Specifies the path of the boot image (initrd), relative
-        ## to /usr/share/kiwi/image
+        ## Specifies the path of the boot image (initrd) description
+        ## provided with KIWI
         attribute boot { text }
         >> sch:pattern [ id = "boot" is-a = "image_type"
             sch:param [ name = "attr" value = "boot" ]
-            sch:param [ name = "types" value = "oem iso pxe vmx" ]
+            sch:param [ name = "types" value = "oem pxe vmx" ]
         ]
     k.type.bootkernel.attribute =
         ## Specifies the kernel boot profile defined in the boot
