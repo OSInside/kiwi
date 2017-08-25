@@ -1,0 +1,43 @@
+#!/bin/bash
+
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
+[ -z "$root" ] && root=$(getarg root=)
+
+if [ "${root%%:*}" = "live" ] ; then
+    liveroot=$root
+fi
+
+[ "${liveroot%%:*}" = "live" ] || exit 0
+
+case "$liveroot" in
+    live:CDLABEL=*|CDLABEL=*) \
+        root="${root#live:}"
+        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="live:/dev/disk/by-label/${root#CDLABEL=}"
+        rootok=1 ;;
+esac
+
+[ "$rootok" != "1" ] && exit 0
+
+GENERATOR_DIR="$2"
+[ -z "$GENERATOR_DIR" ] && exit 1
+[ -d "$GENERATOR_DIR" ] || mkdir "$GENERATOR_DIR"
+
+ROOTFLAGS="$(getarg rootflags)"
+{
+    echo "[Unit]"
+    echo "Before=initrd-root-fs.target"
+    echo "[Mount]"
+    echo "Where=/sysroot"
+    echo "What=LiveOS_rootfs"
+    echo "Options=${ROOTFLAGS},lowerdir=/run/rootfsbase,upperdir=/run/overlayfs/rw,workdir=/run/overlayfs/work"
+    echo "Type=overlay"
+    _dev=LiveOS_rootfs
+} > "$GENERATOR_DIR"/sysroot.mount
+
+mkdir -p "$GENERATOR_DIR/$_dev.device.d"
+{
+    echo "[Unit]"
+    echo "JobTimeoutSec=3000"
+} > "$GENERATOR_DIR/$_dev.device.d/timeout.conf"
