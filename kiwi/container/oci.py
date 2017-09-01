@@ -107,6 +107,13 @@ class ContainerImageOCI(object):
             if 'xz_options' in custom_args:
                 self.xz_options = custom_args['xz_options']
 
+        # for builds inside the buildservice we include a reference to the
+        # specific build. Thus source label only exists inside the
+        # buildservice.
+        source_label = self._get_source_label()
+        if source_label:
+            self.labels.append(source_label)
+
         if not custom_args or 'container_name' not in custom_args:
             log.info(
                 'No container configuration provided, '
@@ -206,6 +213,23 @@ class ContainerImageOCI(object):
         oci_tarfile.create_xz_compressed(
             image_dir, xz_options=self.xz_options
         )
+
+    def _get_source(self):
+        if Defaults.is_buildservice_worker():
+            with open(os.sep + Defaults.get_buildservice_env_name()) as env:
+                for line in env:
+                    if line.startswith('BUILD_DISTURL') and '=' in line:
+                        return line.split('=')[1].strip()
+                log.warning('Could not find DISTURL inside .buildenv')
+
+        return None
+
+    def _get_source_label(self):
+        source = self._get_source()
+        if source:
+            return ''.join([
+                '--config.label=org.opencontainers.image.source=', source
+            ])
 
     def __del__(self):
         if self.oci_dir:
