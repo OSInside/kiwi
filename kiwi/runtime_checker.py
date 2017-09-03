@@ -261,6 +261,34 @@ class RuntimeChecker(object):
                     )
                 )
 
+    def check_dracut_module_for_live_iso_in_package_list(self):
+        """
+        Live ISO images uses a dracut initrd to boot and requires
+        the KIWI provided kiwi-live dracut module to be installed
+        at the time dracut is called. Thus this runtime check
+        examines if the required package is part of the package
+        list in the image description.
+        """
+        message = dedent('''\n
+            Required dracut module package missing in package list
+
+            The package '{0}' is required for the selected
+            live iso image type. Please add the following in your
+            <packages type="image"> section to your system XML
+            description:
+
+            <package name="{0}"/>
+        ''')
+        required_dracut_package = 'dracut-kiwi-live'
+        if self.xml_state.get_build_type_name() == 'iso':
+            package_names = \
+                self.xml_state.get_bootstrap_packages() + \
+                self.xml_state.get_system_packages()
+            if required_dracut_package not in package_names:
+                raise KiwiRuntimeError(
+                    message.format(required_dracut_package)
+                )
+
     def check_boot_image_reference_correctly_setup(self):
         """
         If an initrd_system different from "kiwi" is selected for a
