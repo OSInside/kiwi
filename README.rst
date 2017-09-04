@@ -1,4 +1,4 @@
-KIWI — Next Generation
+KIWI - Next Generation
 ======================
 
 .. |Build Status| image:: https://travis-ci.org/SUSE/kiwi.svg?branch=master
