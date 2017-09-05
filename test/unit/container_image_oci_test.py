@@ -3,6 +3,8 @@ from mock import patch
 
 import mock
 
+from .test_helper import patch_open
+
 from kiwi.container.oci import ContainerImageOCI
 
 
@@ -67,6 +69,34 @@ class TestContainerImageOCI(object):
         container = ContainerImageOCI('root_dir')
         assert container.container_name == 'kiwi-container'
         assert container.container_tag == 'latest'
+
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    @patch_open
+    def test_init_in_buildservice(self, mock_open, mock_buildservice):
+        mock_buildservice.return_value = True
+        handle = mock_open.return_value.__enter__.return_value
+        handle.__iter__.return_value =\
+            iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
+        container = ContainerImageOCI('root_dir')
+        mock_open.assert_called_once_with('/.buildenv')
+        assert container.labels == [
+            '--config.label=org.opencontainers.image.source='
+            'obs://build.opensuse.org/some:project'
+        ]
+
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    @patch_open
+    @patch('kiwi.logger.log.warning')
+    def test_init_in_buildservice_without_source(
+        self, mock_warn, mock_open, mock_buildservice
+    ):
+        mock_buildservice.return_value = True
+        handle = mock_open.return_value.__enter__.return_value
+        handle.__iter__.return_value = iter(['line content'])
+        container = ContainerImageOCI('root_dir')
+        mock_open.assert_called_once_with('/.buildenv')
+        assert container.labels == []
+        assert mock_warn.called
 
     @patch('kiwi.container.oci.Path.wipe')
     def test_del(self, mock_wipe):
