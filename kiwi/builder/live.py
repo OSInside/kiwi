@@ -233,7 +233,8 @@ class LiveImageBuilder(object):
         # make it hybrid
         if self.hybrid:
             Iso.create_hybrid(
-                iso_header_offset, self.mbrid, self.isoname
+                iso_header_offset, self.mbrid, self.isoname,
+                self.firmware.efi_mode()
             )
 
         # include metadata for checkmedia tool
