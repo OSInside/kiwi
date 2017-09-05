@@ -410,8 +410,10 @@ class BootLoaderConfigBase(object):
             want_root_cmdline_parameter = True
 
         if want_root_cmdline_parameter:
-            if uuid:
-                return 'root=UUID=%s rw' % format(uuid)
+            if uuid and self.xml_state.build_type.get_overlayroot():
+                return 'root=overlay:UUID={0}'.format(uuid)
+            elif uuid:
+                return 'root=UUID={0} rw'.format(uuid)
             else:
                 log.warning(
                     'root=UUID=<uuid> setup requested, but uuid is not provided'
