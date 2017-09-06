@@ -8,7 +8,8 @@ from builtins import bytes
 from kiwi.exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoToolError,
-    KiwiIsoMetaDataError
+    KiwiIsoMetaDataError,
+    KiwiCommandError
 )
 
 from kiwi.iso import Iso
@@ -239,7 +240,10 @@ class TestIso(object):
         mbrid.get_id = mock.Mock(
             return_value='0x0815'
         )
-        Iso.create_hybrid(42, mbrid, 'some-iso')
+        command = mock.Mock()
+        command.error = None
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
         mock_command.assert_called_once_with(
             [
                 'isohybrid', '--offset', '42',
@@ -247,6 +251,18 @@ class TestIso(object):
                 '--uefi', 'some-iso'
             ]
         )
+
+    @raises(KiwiCommandError)
+    @patch('kiwi.iso.Command.run')
+    def test_create_hybrid_with_error(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        command = mock.Mock()
+        command.error = 'some error message'
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
 
     @patch_open
     @raises(KiwiIsoMetaDataError)

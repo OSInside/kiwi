@@ -35,7 +35,8 @@ from .command import Command
 from .exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError,
-    KiwiIsoToolError
+    KiwiIsoToolError,
+    KiwiCommandError
 )
 
 
@@ -86,7 +87,7 @@ class Iso(object):
         self.iso_loaders = []
 
     @classmethod
-    def create_hybrid(self, offset, mbrid, isofile):
+    def create_hybrid(self, offset, mbrid, isofile, efi_mode=False):
         """
         Create hybrid ISO
 
@@ -98,15 +99,26 @@ class Iso(object):
         :param string mbrid: boot record id
         :param string isofile: path to the ISO file
         """
-        Command.run(
-            [
-                'isohybrid',
-                '--offset', format(offset),
-                '--id', mbrid.get_id(),
-                '--type', '0x83',
-                '--uefi', isofile
-            ]
+        isohybrid_parameters = [
+            '--offset', format(offset),
+            '--id', mbrid.get_id(),
+            '--type', '0x83',
+        ]
+        if efi_mode:
+            isohybrid_parameters.append('--uefi')
+        isohybrid_call = Command.run(
+            ['isohybrid'] + isohybrid_parameters + [isofile]
         )
+        # isohybrid warning messages on stderr should be treated
+        # as fatal errors because unexpected after effects might
+        # happen if e.g a gpt partition should be embedded but
+        # only a warning appears if isohybrid can't find an efi
+        # loader. Thus we are more strict and fail on any message
+        # on stderr
+        if isohybrid_call.error:
+            raise KiwiCommandError(
+                'isohybrid: {0}'.format(isohybrid_call.error)
+            )
 
     @classmethod
     def set_media_tag(self, isofile):

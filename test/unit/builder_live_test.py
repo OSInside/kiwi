@@ -225,7 +225,8 @@ class TestLiveImageBuilder(object):
             'target_dir/result-image.x86_64-1.2.3.iso'
         )
         mock_hybrid.assert_called_once_with(
-            'offset', self.mbrid, 'target_dir/result-image.x86_64-1.2.3.iso'
+            'offset', self.mbrid, 'target_dir/result-image.x86_64-1.2.3.iso',
+            'uefi'
         )
         assert self.result.add.call_args_list == [
             call(

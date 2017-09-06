@@ -15,6 +15,13 @@ class TestInstallImageBuilder(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
+        self.firmware = mock.Mock()
+        self.firmware.efi_mode = mock.Mock(
+            return_value='uefi'
+        )
+        kiwi.builder.install.FirmWare = mock.Mock(
+            return_value=self.firmware
+        )
         self.bootloader = mock.Mock()
         kiwi.builder.install.BootLoaderConfig = mock.Mock(
             return_value=self.bootloader
@@ -159,7 +166,8 @@ class TestInstallImageBuilder(object):
             'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
         mock_hybrid.assert_called_once_with(
-            42, self.mbrid, 'target_dir/result-image.x86_64-1.2.3.install.iso'
+            42, self.mbrid, 'target_dir/result-image.x86_64-1.2.3.install.iso',
+            'uefi'
         )
 
     @patch('kiwi.builder.install.mkdtemp')
