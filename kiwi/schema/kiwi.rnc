@@ -1157,12 +1157,12 @@ div {
         ]
     ]
     k.type.boot.attribute =
-        ## Specifies the path of the boot image (initrd), relative
-        ## to /usr/share/kiwi/image
+        ## Specifies the path of the boot image (initrd) description
+        ## provided with KIWI
         attribute boot { text }
         >> sch:pattern [ id = "boot" is-a = "image_type"
             sch:param [ name = "attr" value = "boot" ]
-            sch:param [ name = "types" value = "oem iso pxe vmx" ]
+            sch:param [ name = "types" value = "oem pxe vmx" ]
         ]
     k.type.bootkernel.attribute =
         ## Specifies the kernel boot profile defined in the boot
@@ -1396,17 +1396,11 @@ div {
             sch:param [ name = "types" value = "vmx oem" ]
         ]
     k.type.flags.attribute =
-        ## Specifies overlay filesystem flags for the iso image type.
-        ## `clic` uses the fuse based clicfs as root overlay filesystem.
-        ## When using clicfs make sure it is installed on your build host
-        ## system and also put as bootincluded package in your XML
-        ## description: `<package name="clicfs" bootinclude="true"/>`,
-        ## `clic_udf` same as clicfs but allows creation if live images
-        ## which exceeds the 4G boundary, `overlay` uses the kernel
-        ## overlayfs as root overlay filesystem. This is the most stable
-        ## and preferred method.
+        ## Specifies overlay filesystem flags for the iso image type
+        ## as they are supported by the kiwi-live dracut module.
+        ## `overlay` uses squashfs and the kernel overlayfs filesystem
         attribute flags {
-            "clic" | "clic_udf" | "overlay"
+            "overlay"
         }
         >> sch:pattern [ id = "flags" is-a = "image_type"
             sch:param [ name = "attr" value = "flags" ]
@@ -1471,9 +1465,9 @@ div {
     k.type.hybridpersistent_filesystem.attribute =
         ## Set the filesystem to use for persistent writing if a
         ## hybrid image is used as disk on e.g a USB Stick. By default
-        ## the btrfs filesystem is used
+        ## the ext4 filesystem is used
         attribute hybridpersistent_filesystem {
-            "btrfs" | "fat" | "exfat" | "ext4" | "xfs"
+            "ext4" | "xfs"
         }
         >> sch:pattern [ id = "hybridpersistent_filesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "hybridpersistent_filesystem" ]

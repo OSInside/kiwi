@@ -29,6 +29,9 @@ install:
 	# the C tools, the manual pages and the completion
 	# see setup.py for details when this target is called
 	${MAKE} -C tools buildroot=${buildroot} install
+	# dracut modules
+	install -d -m 755 ${buildroot}usr/lib/dracut/modules.d
+	cp -a dracut/modules.d/* ${buildroot}usr/lib/dracut/modules.d
 	# manual pages
 	install -d -m 755 ${buildroot}usr/share/man/man8
 	for man in doc/build/man/*.8; do \

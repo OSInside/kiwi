@@ -2,6 +2,7 @@
 
 graft doc/build/man
 graft tools
+graft dracut
 graft helper
 graft kiwi/boot
 graft kiwi/utils

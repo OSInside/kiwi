@@ -92,6 +92,8 @@ class TestSystemPrepareTask(object):
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(
             self.abs_root_dir
         )
+        self.runtime_checker.check_mediacheck_only_for_x86_arch.assert_called_once_with()
+        self.runtime_checker.check_dracut_module_for_live_iso_in_package_list.assert_called_once_with()
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(True, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(

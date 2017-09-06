@@ -1768,12 +1768,12 @@ volume management system</a:documentation>
     </sch:pattern>
     <define name="k.type.boot.attribute">
       <attribute name="boot">
-        <a:documentation>Specifies the path of the boot image (initrd), relative
-to /usr/share/kiwi/image</a:documentation>
+        <a:documentation>Specifies the path of the boot image (initrd) description
+provided with KIWI</a:documentation>
       </attribute>
       <sch:pattern id="boot" is-a="image_type">
         <sch:param name="attr" value="boot"/>
-        <sch:param name="types" value="oem iso pxe vmx"/>
+        <sch:param name="types" value="oem pxe vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.bootkernel.attribute">
@@ -2100,20 +2100,10 @@ e.g for the syslinux loader fat is required</a:documentation>
     </define>
     <define name="k.type.flags.attribute">
       <attribute name="flags">
-        <a:documentation>Specifies overlay filesystem flags for the iso image type.
-`clic` uses the fuse based clicfs as root overlay filesystem.
-When using clicfs make sure it is installed on your build host
-system and also put as bootincluded package in your XML
-description: `&lt;package name="clicfs" bootinclude="true"/&gt;`,
-`clic_udf` same as clicfs but allows creation if live images
-which exceeds the 4G boundary, `overlay` uses the kernel
-overlayfs as root overlay filesystem. This is the most stable
-and preferred method.</a:documentation>
-        <choice>
-          <value>clic</value>
-          <value>clic_udf</value>
-          <value>overlay</value>
-        </choice>
+        <a:documentation>Specifies overlay filesystem flags for the iso image type
+as they are supported by the kiwi-live dracut module.
+`overlay` uses squashfs and the kernel overlayfs filesystem</a:documentation>
+        <value>overlay</value>
       </attribute>
       <sch:pattern id="flags" is-a="image_type">
         <sch:param name="attr" value="flags"/>
@@ -2203,11 +2193,8 @@ to keep data persistent over a reboot</a:documentation>
       <attribute name="hybridpersistent_filesystem">
         <a:documentation>Set the filesystem to use for persistent writing if a
 hybrid image is used as disk on e.g a USB Stick. By default
-the btrfs filesystem is used</a:documentation>
+the ext4 filesystem is used</a:documentation>
         <choice>
-          <value>btrfs</value>
-          <value>fat</value>
-          <value>exfat</value>
           <value>ext4</value>
           <value>xfs</value>
         </choice>

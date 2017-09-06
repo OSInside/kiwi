@@ -151,3 +151,11 @@ class TestRuntimeChecker(object):
         )
         runtime_checker = RuntimeChecker(xml_state)
         runtime_checker.check_mediacheck_only_for_x86_arch()
+
+    @raises(KiwiRuntimeError)
+    def test_check_dracut_module_for_live_iso_in_package_list(self):
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_dracut_module_for_live_iso_in_package_list()

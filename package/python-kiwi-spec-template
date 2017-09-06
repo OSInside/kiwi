@@ -308,6 +308,25 @@ This package contains the basic PXE directory structure which is
 needed to serve kiwi built images via PXE.
 %endif
 
+%package -n dracut-kiwi-live
+Summary:        KIWI - Dracut module for iso(live) image type
+BuildRequires:  dracut
+Requires:       xfsprogs
+Requires:       e2fsprogs
+Requires:       util-linux
+Requires:       dracut
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       cdrkit
+%else
+Requires:       cdrkit-cdrtools-compat
+%endif
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n dracut-kiwi-live
+This package contains the kiwi-live dracut module which is used
+for booting iso(live) images built with KIWI
+
 %package -n kiwi-boot-requires
 Summary:        KIWI - buildservice package requirements for boot images
 Provides:       kiwi-boot:isoboot
@@ -500,6 +519,10 @@ fi
 %exclude %{_bindir}/kiwi-ng*
 %exclude %{_bindir}/kiwicompat-*
 %{_bindir}/*
+
+%files -n dracut-kiwi-live
+%defattr(-, root, root)
+%{_usr}/lib/dracut/modules.d/90kiwi-live
 
 %ifarch %ix86 x86_64
 %files -n kiwi-pxeboot
