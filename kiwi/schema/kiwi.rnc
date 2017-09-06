@@ -1162,7 +1162,7 @@ div {
         attribute boot { text }
         >> sch:pattern [ id = "boot" is-a = "image_type"
             sch:param [ name = "attr" value = "boot" ]
-            sch:param [ name = "types" value = "oem pxe vmx" ]
+            sch:param [ name = "types" value = "oem pxe" ]
         ]
     k.type.bootkernel.attribute =
         ## Specifies the kernel boot profile defined in the boot
@@ -1490,7 +1490,7 @@ div {
         }
         >> sch:pattern [ id = "initrd_system" is-a = "image_type"
             sch:param [ name = "attr" value = "initrd_system" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.image.attribute =
         ## Specifies the image type
