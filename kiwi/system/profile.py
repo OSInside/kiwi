@@ -292,7 +292,7 @@ class Profile(object):
         self.dot_profile['kiwi_hybridpersistent_filesystem'] = \
             type_section.get_hybridpersistent_filesystem()
         self.dot_profile['kiwi_initrd_system'] = \
-            type_section.get_initrd_system()
+            self.xml_state.get_initrd_system()
         self.dot_profile['kiwi_ramonly'] = \
             type_section.get_ramonly()
         self.dot_profile['kiwi_target_blocksize'] = \

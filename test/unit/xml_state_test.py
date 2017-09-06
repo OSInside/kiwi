@@ -643,3 +643,9 @@ class TestXMLState(object):
         xml_data = description.load()
         state = XMLState(xml_data, ['ec2Flavour'], 'vmx')
         assert state.is_xen_guest() is True
+
+    def test_get_initrd_system(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
+        assert state.get_initrd_system() == 'dracut'

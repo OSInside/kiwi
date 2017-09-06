@@ -94,13 +94,6 @@ class TestRuntimeChecker(object):
         runtime_checker.check_docker_tool_chain_installed()
 
     @raises(KiwiRuntimeError)
-    def test_check_boot_image_reference_correctly_setup(self):
-        self.xml_state.build_type.set_image('vmx')
-        self.xml_state.build_type.set_initrd_system('dracut')
-        self.xml_state.build_type.set_boot('boot/some-kiwi-boot-description')
-        self.runtime_checker.check_boot_image_reference_correctly_setup()
-
-    @raises(KiwiRuntimeError)
     @patch('platform.machine')
     @patch('kiwi.runtime_checker.Defaults.get_boot_image_description_path')
     def test_check_consistent_kernel_in_boot_and_system_image(
