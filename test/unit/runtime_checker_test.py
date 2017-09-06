@@ -141,6 +141,27 @@ class TestRuntimeChecker(object):
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
 
     @raises(KiwiRuntimeError)
+    def test_check_dracut_module_for_disk_overlay_in_package_list(self):
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        xml_state.build_type.get_overlayroot = mock.Mock(
+            return_value=True
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
+
+    @raises(KiwiRuntimeError)
+    def test_check_efi_mode_for_disk_overlay_correctly_setup(self):
+        self.xml_state.build_type.get_overlayroot = mock.Mock(
+            return_value=True
+        )
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value='uefi'
+        )
+        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
+
+    @raises(KiwiRuntimeError)
     @patch('platform.machine')
     def test_check_mediacheck_only_for_x86_arch(
         self, mock_machine
