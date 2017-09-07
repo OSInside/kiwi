@@ -271,7 +271,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             'libcom32.c32',
             'libutil.c32',
             'gfxboot.c32',
-            'gfxboot.com'
+            'gfxboot.com',
             'menu.c32',
             'chain.c32',
             'mboot.c32'

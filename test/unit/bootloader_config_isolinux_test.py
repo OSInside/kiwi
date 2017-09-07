@@ -194,7 +194,15 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/modules/bios/isolinux.bin',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/ldlinux.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/modules/bios/ldlinux.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -202,7 +210,15 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/modules/bios/libcom32.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/libutil.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/modules/bios/libutil.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -210,7 +226,23 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
-                'root_dir/usr/share/syslinux/gfxboot.commenu.c32',
+                'root_dir/usr/lib/syslinux/modules/bios/gfxboot.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/share/syslinux/gfxboot.com',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/modules/bios/gfxboot.com',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/share/syslinux/menu.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/modules/bios/menu.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -218,7 +250,15 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/modules/bios/chain.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/mboot.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/modules/bios/mboot.c32',
                 'root_dir/image/loader/'
             )
         ]
