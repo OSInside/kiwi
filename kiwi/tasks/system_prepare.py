@@ -119,8 +119,8 @@ class SystemPrepareTask(CliTask):
 
         abs_root_path = os.path.abspath(self.command_args['--root'])
 
+        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
-        self.runtime_checker.check_boot_image_reference_correctly_setup()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
@@ -129,6 +129,7 @@ class SystemPrepareTask(CliTask):
         )
         self.runtime_checker.check_mediacheck_only_for_x86_arch()
         self.runtime_checker.check_dracut_module_for_live_iso_in_package_list()
+        self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()

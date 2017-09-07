@@ -1773,7 +1773,7 @@ provided with KIWI</a:documentation>
       </attribute>
       <sch:pattern id="boot" is-a="image_type">
         <sch:param name="attr" value="boot"/>
-        <sch:param name="types" value="oem pxe vmx"/>
+        <sch:param name="types" value="oem pxe"/>
       </sch:pattern>
     </define>
     <define name="k.type.bootkernel.attribute">
@@ -2227,7 +2227,7 @@ system does not support all features of the kiwi initrd</a:documentation>
       </attribute>
       <sch:pattern id="initrd_system" is-a="image_type">
         <sch:param name="attr" value="initrd_system"/>
-        <sch:param name="types" value="vmx oem"/>
+        <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
     <define name="k.type.image.attribute">

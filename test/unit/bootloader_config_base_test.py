@@ -105,6 +105,17 @@ class TestBootLoaderConfigBase(object):
         assert self.bootloader.get_boot_cmdline('uuid') == \
             'splash root=UUID=uuid rw'
 
+    @patch('kiwi.xml_parse.type_.get_initrd_system')
+    def test_get_boot_cmdline_initrd_system_is_dracut_with_overlay(
+        self, mock_initrd
+    ):
+        mock_initrd.return_value = 'dracut'
+        self.state.build_type.get_overlayroot = mock.Mock(
+            return_value=True
+        )
+        assert self.bootloader.get_boot_cmdline('uuid') == \
+            'splash root=overlay:UUID=uuid'
+
     @patch('kiwi.xml_parse.type_.get_firmware')
     @patch('kiwi.logger.log.warning')
     def test_get_boot_cmdline_firmware_ec2_no_uuid(

@@ -85,7 +85,6 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--clear-cache'] = True
         self.task.process()
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image.assert_called_once_with()
-        self.runtime_checker.check_boot_image_reference_correctly_setup.assert_called_once_with()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
         self.runtime_checker.check_volume_setup_has_no_root_definition.assert_called_once_with()
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest.assert_called_once_with()
@@ -95,6 +94,8 @@ class TestSystemPrepareTask(object):
         self.runtime_checker.check_mediacheck_only_for_x86_arch.assert_called_once_with()
         self.runtime_checker.check_dracut_module_for_live_iso_in_package_list.assert_called_once_with()
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
+        self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list.assert_called_once_with()
+        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(True, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager

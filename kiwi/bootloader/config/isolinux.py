@@ -271,17 +271,22 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             'libcom32.c32',
             'libutil.c32',
             'gfxboot.c32',
-            'gfxboot.com'
+            'gfxboot.com',
             'menu.c32',
             'chain.c32',
             'mboot.c32'
         ]
+        syslinux_dirs = [
+            '/usr/share/syslinux/',
+            '/usr/lib/syslinux/modules/bios/'
+        ]
         for syslinux_file_name in syslinux_file_names:
-            syslinux_file = ''.join(
-                [lookup_path, '/usr/share/syslinux/', syslinux_file_name]
-            )
-            if os.path.exists(syslinux_file):
-                shutil.copy(syslinux_file, loader_data)
+            for syslinux_dir in syslinux_dirs:
+                syslinux_file = ''.join(
+                    [lookup_path, syslinux_dir, syslinux_file_name]
+                )
+                if os.path.exists(syslinux_file):
+                    shutil.copy(syslinux_file, loader_data)
 
         bash_command = ' '.join(
             ['cp', lookup_path + '/boot/memtest*', loader_data + '/memtest']

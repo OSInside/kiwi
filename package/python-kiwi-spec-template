@@ -327,10 +327,21 @@ Group:          System/Management
 This package contains the kiwi-live dracut module which is used
 for booting iso(live) images built with KIWI
 
+%package -n dracut-kiwi-overlay
+Summary:        KIWI - Dracut module for vmx(+overlay) image type
+BuildRequires:  dracut
+Requires:       util-linux
+Requires:       dracut
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n dracut-kiwi-overlay
+This package contains the kiwi-overlay dracut module which is used
+for booting vmx images built with KIWI and configured to use an
+overlay root filesystem
+
 %package -n kiwi-boot-requires
 Summary:        KIWI - buildservice package requirements for boot images
-Provides:       kiwi-boot:isoboot
-Provides:       kiwi-boot:vmxboot
 Provides:       kiwi-boot:netboot
 Provides:       kiwi-boot:oemboot
 Provides:       kiwi-filesystem:btrfs
@@ -523,6 +534,10 @@ fi
 %files -n dracut-kiwi-live
 %defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-live
+
+%files -n dracut-kiwi-overlay
+%defattr(-, root, root)
+%{_usr}/lib/dracut/modules.d/90kiwi-overlay
 
 %ifarch %ix86 x86_64
 %files -n kiwi-pxeboot

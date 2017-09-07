@@ -31,6 +31,13 @@ class TestDiskBuilder(object):
         description = XMLDescription(
             '../data/example_disk_config.xml'
         )
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.device_map = {
             'root': MappedDevice('/dev/root-device', mock.Mock()),
             'readonly': MappedDevice('/dev/readonly-root-device', mock.Mock()),
@@ -244,14 +251,7 @@ class TestDiskBuilder(object):
     ):
         mock_path.return_value = True
         mock_rand.return_value = 15
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -332,7 +332,7 @@ class TestDiskBuilder(object):
             call('root_dir/boot/mbrid', 'w'),
             call('/dev/some-loop', 'wb')
         ]
-        assert file_mock.write.call_args_list == [
+        assert self.file_mock.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
@@ -361,14 +361,7 @@ class TestDiskBuilder(object):
     ):
         mock_path.return_value = True
         mock_rand.return_value = 15
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+        mock_open.return_value = self.context_manager_mock
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -452,7 +445,7 @@ class TestDiskBuilder(object):
             call('/dev/some-loop', 'wb'),
             call('boot_dir_kiwi/config.partids', 'w')
         ]
-        assert file_mock.write.call_args_list == [
+        assert self.file_mock.write.call_args_list == [
             call('0x0f0f0f0f\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f')),
             call('kiwi_BootPart="1"\n'),
@@ -521,10 +514,13 @@ class TestDiskBuilder(object):
     @patch('os.path.exists')
     @patch('os.path.getsize')
     @patch('kiwi.builder.disk.NamedTemporaryFile')
+    @patch('random.randrange')
     def test_create_disk_standard_root_is_overlay(
-        self, mock_temp, mock_getsize, mock_exists, mock_grub_dir, mock_command,
-        mock_open, mock_squashfs, mock_fs
+        self, mock_rand, mock_temp, mock_getsize, mock_exists,
+        mock_grub_dir, mock_command, mock_open, mock_squashfs, mock_fs
     ):
+        mock_rand.return_value = 15
+        mock_open.return_value = self.context_manager_mock
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.volume_manager_name = None
         squashfs = mock.Mock()
@@ -550,6 +546,15 @@ class TestDiskBuilder(object):
         assert mock_command.call_args_list.pop() == call(
             ['dd', 'if=tempname', 'of=/dev/readonly-root-device']
         )
+        assert self.file_mock.write.call_args_list == [
+            call('kiwi_BootPart="1"\n'),
+            call('kiwi_RootPart="1"\n'),
+            call('0x0f0f0f0f\n'),
+            call('add_dracutmodules+=" kiwi-overlay "\n'),
+            call('hostonly="no"\n'),
+            call('dracut_rescue_image="no"\n'),
+            call(b'\x0f\x0f\x0f\x0f')
+        ]
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

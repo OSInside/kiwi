@@ -32,9 +32,7 @@ class BootImage(object):
         self, xml_state, target_dir, root_dir=None,
         signing_keys=None, custom_args=None
     ):
-        initrd_system = xml_state.build_type.get_initrd_system()
-        if not initrd_system:
-            initrd_system = 'kiwi'
+        initrd_system = xml_state.get_initrd_system()
         if initrd_system == 'kiwi':
             return BootImageKiwi(
                 xml_state, target_dir, root_dir, signing_keys, custom_args

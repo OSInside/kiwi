@@ -289,37 +289,62 @@ class RuntimeChecker(object):
                     message.format(required_dracut_package)
                 )
 
-    def check_boot_image_reference_correctly_setup(self):
+    def check_dracut_module_for_disk_overlay_in_package_list(self):
         """
-        If an initrd_system different from "kiwi" is selected for a
-        vmx (simple disk) image build, it does not make sense to setup
-        a reference to a kiwi boot image description, because no kiwi
-        boot image will be built.
+        Disk images configured to use a root filesystem overlay
+        requires the KIWI provided kiwi-overlay dracut module to
+        be installed at the time dracut is called. Thus this
+        runtime check examines if the required package is part of
+        the package list in the image description.
         """
         message = dedent('''\n
-            Selected initrd_system is: {0}
+            Required dracut module package missing in package list
 
-            The boot attribute selected: '{1}' which is an initrd image
-            used for the 'kiwi' initrd system. This boot image will not be
-            used according to the selected initrd system. Please cleanup
-            your image description:
+            The package '{0}' is required for the selected
+            overlayroot activated image type. Please add the
+            following in your <packages type="image"> section to
+            your system XML description:
 
-            1) If the selected initrd system is correct, delete the
-               obsolete boot attribute from the selected '{2}' build type
-
-            2) If the kiwi initrd image should be used, make sure to
-               set initrd_system="kiwi"
+            <package name="{0}"/>
         ''')
-        build_type_name = self.xml_state.get_build_type_name()
-        boot_image_reference = self.xml_state.build_type.get_boot()
-        if build_type_name == 'vmx' and boot_image_reference:
-            initrd_system = self.xml_state.build_type.get_initrd_system()
-            if initrd_system and initrd_system == 'dracut':
+        required_dracut_package = 'dracut-kiwi-overlay'
+        if self.xml_state.build_type.get_overlayroot():
+            package_names = \
+                self.xml_state.get_bootstrap_packages() + \
+                self.xml_state.get_system_packages()
+            if required_dracut_package not in package_names:
                 raise KiwiRuntimeError(
-                    message.format(
-                        initrd_system, boot_image_reference, build_type_name
-                    )
+                    message.format(required_dracut_package)
                 )
+
+    def check_efi_mode_for_disk_overlay_correctly_setup(self):
+        """
+        Disk images configured to use a root filesystem overlay
+        only supports the standard EFI mode and not secure boot.
+        That's because the shim setup performs changes to the
+        root filesystem which can not be applied during the
+        bootloader setup at build time because at that point
+        the root filesystem is a read-only squashfs source.
+        """
+        message = dedent('''\n
+            Secure Boot not supported with overlay disk image
+
+            Disk images configured to use a root filesystem overlay
+            only supports the standard EFI mode and not secure boot.
+            That's because the shim setup performs changes to the
+            root filesystem which can not be applied during the
+            bootloader setup at build time because at that point
+            the root filesystem is a read-only squashfs source
+
+            Thus please change the firmware attribute in the <type>
+            section of the system XML description as follows:
+
+            <type ... firmware="efi"/>
+        ''')
+        overlayroot = self.xml_state.build_type.get_overlayroot()
+        firmware = self.xml_state.build_type.get_firmware()
+        if overlayroot and firmware == 'uefi':
+            raise KiwiRuntimeError(message)
 
     def check_xen_uniquely_setup_as_server_or_guest(self):
         """

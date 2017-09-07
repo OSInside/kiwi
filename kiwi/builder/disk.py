@@ -105,7 +105,7 @@ class DiskBuilder(object):
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
         self.bootloader = xml_state.build_type.get_bootloader()
-        self.initrd_system = xml_state.build_type.get_initrd_system()
+        self.initrd_system = xml_state.get_initrd_system()
         self.target_removable = xml_state.build_type.get_target_removable()
         self.disk_setup = DiskSetup(
             xml_state, root_dir
@@ -326,6 +326,9 @@ class DiskBuilder(object):
 
         self._write_generic_fstab_to_system_image(device_map)
 
+        if self.root_filesystem_is_overlay:
+            self._create_dracut_overlay_config()
+
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
 
@@ -383,7 +386,7 @@ class DiskBuilder(object):
 
         # prepare for install media if requested
         if self.install_media:
-            if self.initrd_system and self.initrd_system == 'dracut':
+            if self.initrd_system == 'dracut':
                 # for the installation process we need a kiwi initrd
                 # Therefore an extra install boot root system needs to
                 # be prepared if dracut was set as the initrd system
@@ -391,8 +394,7 @@ class DiskBuilder(object):
                 log.info('Preparing extra install boot system')
 
                 self.xml_state.build_type.set_initrd_system('kiwi')
-                self.initrd_system = \
-                    self.xml_state.build_type.get_initrd_system()
+                self.initrd_system = self.xml_state.get_initrd_system()
 
                 self.boot_image = BootImageKiwi(
                     self.xml_state, self.target_dir,
@@ -656,8 +658,21 @@ class DiskBuilder(object):
 
         return self.disk.get_device()
 
+    def _create_dracut_overlay_config(self):
+        overlay_config_file = ''.join(
+            [self.root_dir, '/etc/dracut.conf.d/02-overlay.conf']
+        )
+        overlay_config = [
+            'add_dracutmodules+=" kiwi-overlay "',
+            'hostonly="no"',
+            'dracut_rescue_image="no"'
+        ]
+        with open(overlay_config_file, 'w') as config:
+            for entry in overlay_config:
+                config.write(entry + os.linesep)
+
     def _write_partition_id_config_to_boot_image(self):
-        if not self.initrd_system or self.initrd_system == 'kiwi':
+        if self.initrd_system == 'kiwi':
             log.info('Creating config.partids in boot system')
             filename = ''.join(
                 [self.boot_image.boot_root_directory, '/config.partids']
@@ -688,7 +703,7 @@ class DiskBuilder(object):
         self._write_generic_fstab(device_map, self.system_setup)
 
     def _write_generic_fstab_to_boot_image(self, device_map):
-        if not self.initrd_system or self.initrd_system == 'kiwi':
+        if self.initrd_system == 'kiwi':
             log.info('Creating generic boot image etc/fstab')
             self._write_generic_fstab(device_map, self.boot_image.setup)
 
@@ -857,7 +872,7 @@ class DiskBuilder(object):
 
     def _copy_first_boot_files_to_system_image(self):
         boot_names = self._get_boot_names()
-        if not self.initrd_system or self.initrd_system == 'kiwi':
+        if self.initrd_system == 'kiwi':
             log.info('Copy boot files to system image')
             kernel = Kernel(self.boot_image.boot_root_directory)
 
@@ -899,7 +914,7 @@ class DiskBuilder(object):
                 'No kernel in boot image tree %s found' %
                 self.boot_image.boot_root_directory
             )
-        if self.initrd_system and self.initrd_system == 'dracut':
+        if self.initrd_system == 'dracut':
             dracut_output_format = self._get_dracut_output_file_format()
             return boot_names_type(
                 kernel_name=kernel_info.name,

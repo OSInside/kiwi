@@ -388,7 +388,7 @@ class BootLoaderConfigBase(object):
 
     def _get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
-        initrd_system = self.xml_state.build_type.get_initrd_system()
+        initrd_system = self.xml_state.get_initrd_system()
         cmdline = self.xml_state.build_type.get_kernelcmdline()
         if cmdline and 'root=' in cmdline:
             log.info(
@@ -404,14 +404,16 @@ class BootLoaderConfigBase(object):
             # which has an impact on the devices attached to the guest.
             want_root_cmdline_parameter = True
 
-        if initrd_system and 'dracut' in initrd_system:
+        if initrd_system == 'dracut':
             # When using a dracut initrd we have to specify the location
             # of the root device
             want_root_cmdline_parameter = True
 
         if want_root_cmdline_parameter:
-            if uuid:
-                return 'root=UUID=%s rw' % format(uuid)
+            if uuid and self.xml_state.build_type.get_overlayroot():
+                return 'root=overlay:UUID={0}'.format(uuid)
+            elif uuid:
+                return 'root=UUID={0} rw'.format(uuid)
             else:
                 log.warning(
                     'root=UUID=<uuid> setup requested, but uuid is not provided'

@@ -109,6 +109,23 @@ class XMLState(object):
             if version:
                 return version[0]
 
+    def get_initrd_system(self):
+        """
+        Name of initrd system to use
+
+        Depending on the image type a specific initrd system is
+        either pre selected or free of choice according to the
+        XML type setup
+
+        :return: dracut|kiwi|None
+        :rtype: string
+        """
+        initrd_system = self.build_type.get_initrd_system() or 'kiwi'
+        if self.get_build_type_name() == 'vmx':
+            # vmx image type always uses dracut as initrd system
+            initrd_system = 'dracut'
+        return initrd_system
+
     def get_rpm_excludedocs(self):
         """
         Gets the rpm-excludedocs configuration flag. Returns

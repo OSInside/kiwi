@@ -64,10 +64,10 @@
         <type image="docker"/>
     </preferences>
     <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
+        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
     </preferences>
     <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
+        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
             <machine memory="512" xen_loader="pvgrub">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
@@ -81,7 +81,7 @@
         </type>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" boot="vmxboot/example-distribution" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
+        <type image="vmx" filesystem="ext3" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
             <systemdisk name="systemVG"/>
             <machine memory="512" guestOS="suse" HWversion="4">
                 <vmdisk id="0" controller="ide"/>

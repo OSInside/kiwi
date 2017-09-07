@@ -94,13 +94,6 @@ class TestRuntimeChecker(object):
         runtime_checker.check_docker_tool_chain_installed()
 
     @raises(KiwiRuntimeError)
-    def test_check_boot_image_reference_correctly_setup(self):
-        self.xml_state.build_type.set_image('vmx')
-        self.xml_state.build_type.set_initrd_system('dracut')
-        self.xml_state.build_type.set_boot('boot/some-kiwi-boot-description')
-        self.runtime_checker.check_boot_image_reference_correctly_setup()
-
-    @raises(KiwiRuntimeError)
     @patch('platform.machine')
     @patch('kiwi.runtime_checker.Defaults.get_boot_image_description_path')
     def test_check_consistent_kernel_in_boot_and_system_image(
@@ -139,6 +132,27 @@ class TestRuntimeChecker(object):
             return_value=True
         )
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
+
+    @raises(KiwiRuntimeError)
+    def test_check_dracut_module_for_disk_overlay_in_package_list(self):
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        xml_state.build_type.get_overlayroot = mock.Mock(
+            return_value=True
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
+
+    @raises(KiwiRuntimeError)
+    def test_check_efi_mode_for_disk_overlay_correctly_setup(self):
+        self.xml_state.build_type.get_overlayroot = mock.Mock(
+            return_value=True
+        )
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value='uefi'
+        )
+        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
 
     @raises(KiwiRuntimeError)
     @patch('platform.machine')
