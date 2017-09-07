@@ -1,4 +1,5 @@
 Virtualization:Appliances:Images:Testing_x86/test-image-oem images x86_64
+Virtualization:Appliances:Images:Testing_x86/test-image-iso images x86_64
 Virtualization:Appliances:Images:Testing_x86/test-image-vmx images x86_64
 Virtualization:Appliances:Images:Testing_x86/test-image-pxe images x86_64
 Virtualization:Appliances:Images:Testing_x86/test-image-docker images x86_64
