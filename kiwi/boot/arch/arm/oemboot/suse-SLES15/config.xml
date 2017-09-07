@@ -85,7 +85,6 @@
     <packages type="bootstrap">
         <package name="kbd"/>
         <package name="gptfdisk"/>
-        <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
         <package name="bind-utils"/>

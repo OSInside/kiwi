@@ -118,7 +118,6 @@
     </packages>
     <packages type="image" profiles="default">
         <package name="adaptec-firmware"/>
-        <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
         <package name="bind-utils"/>
@@ -146,7 +145,6 @@
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
         <package name="kbd"/>
-        <package name="atftp"/>
         <package name="bc"/>
         <package name="busybox"/>
         <package name="hwinfo"/>
