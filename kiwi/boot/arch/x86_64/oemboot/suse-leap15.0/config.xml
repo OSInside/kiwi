@@ -96,7 +96,6 @@
         <package name="kbd"/>
         <package name="gptfdisk"/>
         <package name="adaptec-firmware"/>
-        <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
         <package name="bind-utils"/>
