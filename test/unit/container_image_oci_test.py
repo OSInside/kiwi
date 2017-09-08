@@ -80,14 +80,14 @@ class TestContainerImageOCI(object):
         container = ContainerImageOCI('root_dir')
         mock_open.assert_called_once_with('/.buildenv')
         assert container.labels == [
-            '--config.label=org.opencontainers.image.source='
+            '--config.label=org.openbuildservice.disturl='
             'obs://build.opensuse.org/some:project'
         ]
 
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
     @patch('kiwi.logger.log.warning')
-    def test_init_in_buildservice_without_source(
+    def test_init_in_buildservice_without_disturl(
         self, mock_warn, mock_open, mock_buildservice
     ):
         mock_buildservice.return_value = True
