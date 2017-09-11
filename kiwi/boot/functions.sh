@@ -4558,23 +4558,40 @@ function kernelList {
     local kernel=""
     local initrd=""
     local kpair=""
-    local krunning=`uname -r`
+    local krunning=$(uname -r)
+    local irdbase=initrd
+    local irdpostfix=""
     KERNEL_LIST=""
     KERNEL_NAME=""
     KERNEL_PAIR=""
     #======================================
+    # Enter boot path
+    #--------------------------------------
+    if [ -d ${prefix}/boot_bind ];then
+        pushd ${prefix}/boot_bind
+    else
+        pushd ${prefix}/boot
+    fi
+    #======================================
+    # check initrd naming style
+    #--------------------------------------
+    if [ -e initramfs-${krunning}.img ];then
+        irdbase=initramfs
+        irdpostfix=.img
+    fi
+    #======================================
     # search running kernel first
     #--------------------------------------
-    if [ -d $prefix/lib/modules/$krunning ];then
+    if [ -d ${prefix}/lib/modules/${krunning} ];then
         for name in vmlinux vmlinuz image uImage;do
-            if [ -f $prefix/boot/$name-$krunning ];then
-                kernel=$name-$krunning
-                initrd=initrd-$krunning
+            if [ -f ${name}-${krunning} ];then
+                kernel=${name}-${krunning}
+                initrd=${irdbase}-${krunning}${irdpostfix}
                 break
             fi
         done
         if [ ! -z "$kernel" ];then
-            KERNEL_PAIR=$kernel:$initrd
+            KERNEL_PAIR=${kernel}:${initrd}
             KERNEL_NAME[$kcount]=$krunning
             KERNEL_LIST=$KERNEL_PAIR
             kcount=$((kcount+1))
@@ -4583,7 +4600,7 @@ function kernelList {
     #======================================
     # search for other kernels
     #--------------------------------------
-    for i in $prefix/lib/modules/*;do
+    for i in ${prefix}/lib/modules/*;do
         if [ ! -d $i ];then
             continue
         fi
@@ -4594,16 +4611,16 @@ function kernelList {
             continue
         fi
         for name in vmlinux vmlinuz image uImage;do
-            for k in $prefix/boot/$name-${i##*/}; do
+            for k in ${name}-${i##*/}; do
                 if [ -f $k ];then
                     kernel=${k##*/}
-                    initrd=initrd-${i##*/}
+                    initrd=${irdbase}-${i##*/}${irdpostfix}
                     break 2
                 fi
             done
         done
         if [ ! -z "$kernel" ];then
-            kpair=$kernel:$initrd
+            kpair=${kernel}:${initrd}
             KERNEL_NAME[$kcount]=$kname
             KERNEL_LIST=$KERNEL_LIST,$kpair
             kcount=$((kcount+1))
@@ -4620,15 +4637,15 @@ function kernelList {
         # downloaded over tftp so make sure the vmlinu[zx]/initrd combo
         # gets added as well as the linux.vmx/initrd.vmx combo
         # ----
-        if [ -e $prefix/boot/vmlinuz ];then
+        if [ -e vmlinuz ];then
             KERNEL_LIST="vmlinuz:initrd"
             KERNEL_NAME[1]=vmlinuz
         fi
-        if [ -e $prefix/boot/vmlinux ];then
+        if [ -e vmlinux ];then
             KERNEL_LIST="vmlinux:initrd"
             KERNEL_NAME[1]=vmlinux
         fi
-        if [ -e $prefix/boot/linux.vmx ];then
+        if [ -e linux.vmx ];then
             KERNEL_LIST="vmlinux:initrd"
             KERNEL_NAME[1]="vmlinux"
         fi
@@ -4637,6 +4654,7 @@ function kernelList {
     export KERNEL_LIST
     export KERNEL_NAME
     export KERNEL_PAIR
+    popd
 }
 #======================================
 # validateSize
