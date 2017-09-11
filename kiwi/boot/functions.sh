@@ -7232,6 +7232,8 @@ function ddn {
             echo $1"_part"$2
             return
         fi
+        echo $1"-part"$2
+        return
     elif echo $1 | grep -q "^\/dev\/ram";then
         name=$(echo $1 | tr -d /dev)
         echo /dev/mapper/${name}p$2
