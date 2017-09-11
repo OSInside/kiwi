@@ -234,7 +234,7 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + os.linesep
 
         self.menu_mediacheck_entry_hybrid = dedent('''
-            menuentry "Mediacheck ${title}" --class os --unrestricted {
+            menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
                 $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 ${boot_options}
@@ -244,7 +244,7 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + os.linesep
 
         self.menu_mediacheck_entry_multiboot = dedent('''
-            menuentry "Mediacheck -- ${title}" --class os --unrestricted {
+            menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
@@ -256,7 +256,7 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + os.linesep
 
         self.menu_mediacheck_entry = dedent('''
-            menuentry "Mediacheck ${title}" --class os --unrestricted {
+            menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
                 linux ($$root)${bootpath}/${kernel_file} mediacheck=1 ${boot_options}

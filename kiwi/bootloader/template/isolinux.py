@@ -99,7 +99,7 @@ class BootLoaderTemplateIsoLinux(object):
         ''').strip() + self.cr
 
         self.menu_mediacheck_entry_multiboot = dedent('''
-            label Mediacheck_${title}
+            label Mediacheck
                 kernel mboot.c32
                 append ${hypervisor} --- ${kernel_file} ${boot_options} mediacheck=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
@@ -129,7 +129,7 @@ class BootLoaderTemplateIsoLinux(object):
         ''').strip() + self.cr
 
         self.menu_mediacheck_entry = dedent('''
-            label Mediacheck_${title}
+            label Mediacheck
                 kernel ${kernel_file}
                 append initrd=${initrd_file} ${boot_options} mediacheck=1 kiwi_hybrid=1 showopts
         ''').strip() + self.cr
