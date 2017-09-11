@@ -146,7 +146,6 @@
         <package name="perl-HTML-Tagset"/>
         <package name="pm-utils"/>
         <package name="setserial"/>
-        <package name="syslinux"/>
         <package name="postfix"/>
         <package name="keyutils-libs"/>
         <package name="groff"/>
