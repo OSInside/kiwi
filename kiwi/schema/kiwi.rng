@@ -1766,6 +1766,11 @@ volume management system</a:documentation>
         <sch:assert test="contains('$types', @image)">$attr attribute is only available for the following image types: $types</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="image_type_requirement">
+      <sch:rule context="type[contains('$types', @image)]">
+        <sch:assert test="@$attr">$attr attribute must be set for the following image types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.type.boot.attribute">
       <attribute name="boot">
         <a:documentation>Specifies the path of the boot image (initrd) description
@@ -2027,6 +2032,10 @@ structure</a:documentation>
         </choice>
       </attribute>
       <sch:pattern id="filesystem" is-a="image_type">
+        <sch:param name="attr" value="filesystem"/>
+        <sch:param name="types" value="vmx oem pxe"/>
+      </sch:pattern>
+      <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>
         <sch:param name="types" value="vmx oem pxe"/>
       </sch:pattern>
