@@ -48,6 +48,13 @@ class TestDiskFormat(object):
             self.xml_state, 'root_dir', 'target_dir', {}
         )
 
+    @patch('kiwi.storage.subformat.DiskFormatVhdx')
+    def test_disk_format_vhdx(self, mock_vhdx):
+        DiskFormat('vhdx', self.xml_state, 'root_dir', 'target_dir')
+        mock_vhdx.assert_called_once_with(
+            self.xml_state, 'root_dir', 'target_dir', {}
+        )
+
     @patch('kiwi.storage.subformat.DiskFormatVhdFixed')
     def test_disk_format_vhdfixed(self, mock_vhdfixed):
         self.xml_state.build_type.get_vhdfixedtag = mock.Mock(
