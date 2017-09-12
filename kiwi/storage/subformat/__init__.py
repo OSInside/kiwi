@@ -18,6 +18,7 @@
 # project
 from kiwi.storage.subformat.qcow2 import DiskFormatQcow2
 from kiwi.storage.subformat.vhd import DiskFormatVhd
+from kiwi.storage.subformat.vhdx import DiskFormatVhdx
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 from kiwi.storage.subformat.gce import DiskFormatGce
@@ -60,6 +61,10 @@ class DiskFormat(object):
             )
         elif name == 'vhd':
             return DiskFormatVhd(
+                xml_state, root_dir, target_dir, custom_args
+            )
+        elif name == 'vhdx':
+            return DiskFormatVhdx(
                 xml_state, root_dir, target_dir, custom_args
             )
         elif name == 'vhd-fixed':

@@ -2131,6 +2131,7 @@ as they are supported by the kiwi-live dracut module.
           <value>vmdk</value>
           <value>vdi</value>
           <value>vhd</value>
+          <value>vhdx</value>
           <value>vhd-fixed</value>
         </choice>
       </attribute>

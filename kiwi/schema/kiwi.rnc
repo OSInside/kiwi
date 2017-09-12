@@ -1427,7 +1427,7 @@ div {
         ## Specifies the format of the virtual disk.
         attribute format {
             "gce" | "ovf" | "ova" | "qcow2" | "vagrant" | "vmdk" |
-            "vdi" | "vhd" | "vhd-fixed"
+            "vdi" | "vhd" | "vhdx" | "vhd-fixed"
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
             sch:param [ name = "attr" value = "format" ]
