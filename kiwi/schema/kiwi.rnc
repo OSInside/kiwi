@@ -1156,6 +1156,18 @@ div {
             ]
         ]
     ]
+    sch:pattern [
+        abstract = "true"
+        id = "image_type_requirement"
+        sch:rule [
+            context = "type[contains('$types', @image)]"
+            sch:assert [
+                test = "@$attr"
+                "$attr attribute must be set for the following "~
+                "image types: $types"
+            ]
+        ]
+    ]
     k.type.boot.attribute =
         ## Specifies the path of the boot image (initrd) description
         ## provided with KIWI
@@ -1346,6 +1358,11 @@ div {
             "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs"
         }
         >> sch:pattern [ id = "filesystem" is-a = "image_type"
+            sch:param [ name = "attr" value = "filesystem" ]
+            sch:param [ name = "types" value = "vmx oem pxe" ]
+        ]
+        >> sch:pattern [
+            id = "filesystem_mandatory" is-a = "image_type_requirement"
             sch:param [ name = "attr" value = "filesystem" ]
             sch:param [ name = "types" value = "vmx oem pxe" ]
         ]
