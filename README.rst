@@ -13,9 +13,7 @@ KIWI - Next Generation
 
 |Build Status| |Health|
 
-.. hint:: **Abstract**
-
-   KIWI, the OS image and appliance builder.
+**KIWI, the OS image and appliance builder.**
 
 * |Installation|
 
