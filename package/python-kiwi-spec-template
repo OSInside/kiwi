@@ -340,6 +340,7 @@ This package contains the kiwi-overlay dracut module which is used
 for booting vmx images built with KIWI and configured to use an
 overlay root filesystem
 
+%if 0%{?suse_version}
 %package -n kiwi-boot-requires
 Summary:        KIWI - buildservice package requirements for boot images
 Provides:       kiwi-boot:netboot
@@ -365,13 +366,13 @@ Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
 License:        GPL-3.0+
 Group:          System/Management
 
-
 %description -n kiwi-boot-requires
 Meta package for the buildservice to pull in all required packages in
 order to have them in the buildservice created repositories to allow
 kiwi to build the boot image. This package must never be published
 nor installed by anybody else except for the buildservice, it is part
 of the kiwi - buildservice integration exclusively
+%endif
 
 %package -n kiwi-man-pages
 Summary:        KIWI - manual pages
@@ -550,7 +551,9 @@ fi
 %dir /srv/tftpboot/boot
 %endif
 
+%if 0%{?suse_version}
 %files -n kiwi-boot-requires
 %defattr(-, root, root)
+%endif
 
 %changelog
