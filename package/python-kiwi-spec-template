@@ -145,11 +145,7 @@ Requires:       python-lxml
 Requires:       python-requests
 Requires:       python-setuptools
 Requires:       python-six
-%if 0%{?fedora} || 0%{?rhel}
-Requires:       python-pyxattr
-%else
 Requires:       python-xattr
-%endif
 # tools used by kiwi
 %if 0%{?suse_version}
 Requires:       update-alternatives
@@ -224,11 +220,7 @@ Requires:       python3-lxml
 Requires:       python3-requests
 Requires:       python3-setuptools
 Requires:       python3-six
-%if 0%{?fedora} || 0%{?rhel}
-Requires:       python3-pyxattr
-%else
 Requires:       python3-xattr
-%endif
 # tools used by kiwi
 %if 0%{?suse_version}
 Requires:       update-alternatives
