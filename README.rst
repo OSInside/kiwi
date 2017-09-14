@@ -9,7 +9,7 @@ KIWI - Next Generation
 .. |Installation| replace:: `Installation <https://suse.github.io/kiwi/quickstart.html>`__
 .. |Contributing| replace:: `Contributing <https://suse.github.io/kiwi/contributing.html>`__
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
-   :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9K53KN9GATNY8
+   :target: https://www.paypal.me/SchaeferMarcus
 
 |Build Status| |Health|
 
