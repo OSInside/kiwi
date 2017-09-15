@@ -24,7 +24,7 @@ namespace db  = "http://docbook.org/ns/docbook"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace nul = ""
 
-image-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
+safe-posix-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
 locale-name = xsd:token {pattern = "[a-z]{2}_[A-Z]{2}(,[a-z]{2}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
@@ -146,7 +146,7 @@ k.username.attribute    =
     attribute username { text }
 k.imagename.attribute   =
     ## An image name without / and spaces
-    attribute name { image-name }
+    attribute name { safe-posix-name }
 k.clear.attribute   =
     ## Specifies to clear or not some data or configurations
     attribute clear { xsd:boolean }
@@ -1651,7 +1651,7 @@ div {
         ## for the iso type only:
         ## Specifies the volume ID (volume name or label) to be written
         ## into the master block. There is space for 32 characters.
-        attribute volid { text }
+        attribute volid { safe-posix-name }
         >> sch:pattern [ id = "volid" is-a = "image_type"
             sch:param [ name = "attr" value = "volid" ]
             sch:param [ name = "types" value = "iso" ]
