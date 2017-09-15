@@ -21,7 +21,7 @@
   ****************
 -->
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-  <define name="image-name">
+  <define name="safe-posix-name">
     <data type="token">
       <param name="pattern">[a-zA-Z0-9_\-\.]+</param>
     </data>
@@ -272,7 +272,7 @@ file was fetched</a:documentation>
   <define name="k.imagename.attribute">
     <attribute name="name">
       <a:documentation>An image name without / and spaces</a:documentation>
-      <ref name="image-name"/>
+      <ref name="safe-posix-name"/>
     </attribute>
   </define>
   <define name="k.clear.attribute">
@@ -2432,6 +2432,7 @@ hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documen
         <a:documentation>for the iso type only:
 Specifies the volume ID (volume name or label) to be written
 into the master block. There is space for 32 characters.</a:documentation>
+        <ref name="safe-posix-name"/>
       </attribute>
       <sch:pattern id="volid" is-a="image_type">
         <sch:param name="attr" value="volid"/>

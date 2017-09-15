@@ -896,13 +896,13 @@ class image(GeneratedsSuper):
     def set_noNamespaceSchemaLocation(self, noNamespaceSchemaLocation): self.noNamespaceSchemaLocation = noNamespaceSchemaLocation
     def get_schemaLocation(self): return self.schemaLocation
     def set_schemaLocation(self, schemaLocation): self.schemaLocation = schemaLocation
-    def validate_image_name(self, value):
-        # Validate type image-name, a restriction on xs:token.
+    def validate_safe_posix_name(self, value):
+        # Validate type safe-posix-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_image_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_image_name_patterns_, ))
-    validate_image_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
+                    self.validate_safe_posix_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_name_patterns_, ))
+    validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
     def hasContent_(self):
         if (
             self.description or
@@ -994,7 +994,7 @@ class image(GeneratedsSuper):
             already_processed.add('name')
             self.name = value
             self.name = ' '.join(self.name.split())
-            self.validate_image_name(self.name)    # validate type image-name
+            self.validate_safe_posix_name(self.name)    # validate type safe-posix-name
         value = find_attr_value_('displayname', node)
         if value is not None and 'displayname' not in already_processed:
             already_processed.add('displayname')
@@ -2847,6 +2847,13 @@ class type_(GeneratedsSuper):
                     self.validate_vhd_tag_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_vhd_tag_type_patterns_, ))
     validate_vhd_tag_type_patterns_ = [['^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$']]
+    def validate_safe_posix_name(self, value):
+        # Validate type safe-posix-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_safe_posix_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_name_patterns_, ))
+    validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
     def hasContent_(self):
         if (
             self.containerconfig or
@@ -3034,7 +3041,7 @@ class type_(GeneratedsSuper):
             outfile.write(' vhdfixedtag=%s' % (quote_attrib(self.vhdfixedtag), ))
         if self.volid is not None and 'volid' not in already_processed:
             already_processed.add('volid')
-            outfile.write(' volid=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.volid), input_name='volid')), ))
+            outfile.write(' volid=%s' % (quote_attrib(self.volid), ))
         if self.wwid_wait_timeout is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
             outfile.write(' wwid_wait_timeout="%s"' % self.gds_format_integer(self.wwid_wait_timeout, input_name='wwid_wait_timeout'))
@@ -3399,6 +3406,8 @@ class type_(GeneratedsSuper):
         if value is not None and 'volid' not in already_processed:
             already_processed.add('volid')
             self.volid = value
+            self.volid = ' '.join(self.volid.split())
+            self.validate_safe_posix_name(self.volid)    # validate type safe-posix-name
         value = find_attr_value_('wwid_wait_timeout', node)
         if value is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
