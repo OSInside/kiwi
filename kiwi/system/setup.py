@@ -841,10 +841,10 @@ class SystemSetup(object):
                 'rpm', '--root', self.root_dir, '-qa', '--qf',
                 '|'.join(
                     [
-                        '%{NAME}', '%{EPOCH}', '%{VERSION}', '%{RELEASE}',
-                        '%{ARCH}', '%{DISTURL}', '\\n'
+                        '%{NAME}', '%{EPOCH}', '%{VERSION}',
+                        '%{RELEASE}', '%{ARCH}', '%{DISTURL}'
                     ]
-                )
+                ) + '\\n'
             ]
         )
         with open(filename, 'w') as packages:
@@ -856,7 +856,12 @@ class SystemSetup(object):
             [
                 'dpkg-query', '--admindir',
                 os.sep.join([self.root_dir, 'var/lib/dpkg']), '-W', '-f',
-                '${Package}|${Version}|${Architecture}\n'
+                '|'.join(
+                    [
+                        '${Package}', 'None', '${Version}',
+                        'None', '${Architecture}', 'None'
+                    ]
+                ) + '\\n'
             ]
         )
         with open(filename, 'w') as packages:

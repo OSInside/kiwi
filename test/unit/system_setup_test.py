@@ -676,7 +676,7 @@ class TestSystemSetup(object):
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
             'rpm', '--root', 'root_dir', '-qa', '--qf',
-            '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}|\\n'
+            '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n'
         ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
@@ -697,7 +697,7 @@ class TestSystemSetup(object):
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
             'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg', '-W',
-            '-f', '${Package}|${Version}|${Architecture}\n'
+            '-f', '${Package}|None|${Version}|None|${Architecture}|None\\n'
         ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
