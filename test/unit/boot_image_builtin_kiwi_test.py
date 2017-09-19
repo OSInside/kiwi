@@ -46,6 +46,10 @@ class TestBootImageKiwi(object):
             self.xml_state, 'some-target-dir'
         )
 
+    def test_include_file(self):
+        # is a nop for builtin kiwi initrd and does nothing
+        self.boot_image.include_file('/root/a')
+
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
     def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'

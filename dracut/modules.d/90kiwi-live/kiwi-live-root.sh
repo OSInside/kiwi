@@ -9,7 +9,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 setupDebugMode
 
 # device nodes and types
-initGlobalDevices $1
+initGlobalDevices "$1"
 
 # live options and their default values
 initGlobalOptions
@@ -22,13 +22,14 @@ iso_mount_point=$(mountIso)
 
 # mount squashfs compressed container
 container_mount_point=$(
-    mountCompressedContainerFromIso ${iso_mount_point}
+    mountCompressedContainerFromIso "${iso_mount_point}"
 )
 
 # mount readonly root filesystem from container
-mountReadOnlyRootImageFromContainer ${container_mount_point}
+mountReadOnlyRootImageFromContainer "${container_mount_point}"
 
 # prepare overlay for generated systemd LiveOS_rootfs service
+declare isodiskdev=${isodiskdev}
 if getargbool 0 rd.live.overlay.persistent && [ ! -z "${isodiskdev}" ]; then
     if ! preparePersistentOverlay; then
         warn "Failed to setup persistent write space !"

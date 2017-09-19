@@ -308,6 +308,42 @@ This package contains the basic PXE directory structure which is
 needed to serve kiwi built images via PXE.
 %endif
 
+%package -n dracut-kiwi-lib
+Summary:        KIWI - Dracut kiwi Library
+BuildRequires:  dracut
+Requires:       bc
+Requires:       cryptsetup
+Requires:       btrfsprogs
+Requires:       coreutils
+Requires:       e2fsprogs
+Requires:       fbiterm
+Requires:       gptfdisk
+Requires:       grep
+Requires:       lvm2
+Requires:       mdadm
+Requires:       parted
+Requires:       util-linux
+Requires:       xfsprogs
+Requires:       dialog
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n dracut-kiwi-lib
+This package contains a collection of methods to provide a library
+for tasks done in other kiwi dracut modules
+
+%package -n dracut-kiwi-oem-repart
+Summary:        KIWI - Dracut module for oem(repart) image type
+BuildRequires:  dracut
+Requires:       dracut-kiwi-lib
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n dracut-kiwi-oem-repart
+This package contains the kiwi-repart dracut module which is
+used to repartition the oem disk image to the current disk
+geometry according to the setup in the kiwi image configuration
+
 %package -n dracut-kiwi-live
 Summary:        KIWI - Dracut module for iso(live) image type
 BuildRequires:  dracut
@@ -532,6 +568,14 @@ fi
 %exclude %{_bindir}/kiwi-ng*
 %exclude %{_bindir}/kiwicompat-*
 %{_bindir}/*
+
+%files -n dracut-kiwi-lib
+%defattr(-, root, root)
+%{_usr}/lib/dracut/modules.d/99kiwi-lib
+
+%files -n dracut-kiwi-oem-repart
+%defattr(-, root, root)
+%{_usr}/lib/dracut/modules.d/90kiwi-repart
 
 %files -n dracut-kiwi-live
 %defattr(-, root, root)

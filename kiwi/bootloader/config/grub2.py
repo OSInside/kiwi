@@ -253,7 +253,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def setup_disk_image_config(
         self, boot_uuid, root_uuid, hypervisor='xen.gz', kernel='linux.vmx',
-        initrd='initrd.vmx'
+        initrd='initrd.vmx', boot_options=''
     ):
         """
         Create the grub.cfg in memory from a template suitable to boot
@@ -266,9 +266,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 config file from template')
-        self.cmdline = self.get_boot_cmdline(root_uuid)
+        self.cmdline = ' '.join(
+            [self.get_boot_cmdline(root_uuid), boot_options]
+        )
         self.cmdline_failsafe = ' '.join(
-            [self.cmdline, Defaults.get_failsafe_kernel_options()]
+            [self.cmdline, Defaults.get_failsafe_kernel_options(), boot_options]
         )
         parameters = {
             'search_params': ' '.join(['--fs-uuid', '--set=root', boot_uuid]),

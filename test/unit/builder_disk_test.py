@@ -162,6 +162,9 @@ class TestDiskBuilder(object):
             return_value=self.install_image
         )
         self.raid_root = mock.Mock()
+        self.raid_root.get_device.return_value = MappedDevice(
+            '/dev/md0', mock.Mock()
+        )
         kiwi.builder.disk.RaidDevice = mock.Mock(
             return_value=self.raid_root
         )
@@ -291,7 +294,7 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd.vmx', kernel='linux.vmx',
+            boot_options='', initrd='initrd.vmx', kernel='linux.vmx',
             boot_uuid='0815', root_uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
@@ -403,8 +406,8 @@ class TestDiskBuilder(object):
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initramfs-1.2.3.img', kernel='vmlinuz-1.2.3-default',
-            boot_uuid='0815', root_uuid='0815'
+            boot_options='', initrd='initramfs-1.2.3.img',
+            kernel='vmlinuz-1.2.3-default', boot_uuid='0815', root_uuid='0815'
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -441,12 +444,19 @@ class TestDiskBuilder(object):
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
         assert mock_open.call_args_list == [
+            call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
+            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
             call('/dev/some-loop', 'wb'),
             call('boot_dir_kiwi/config.partids', 'w')
         ]
         assert self.file_mock.write.call_args_list == [
+            call('kiwi_BootPart="1"\n'),
+            call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
+            call('hostonly="no"\n'),
+            call('dracut_rescue_image="no"\n'),
+            call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f')),
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n')
@@ -462,6 +472,10 @@ class TestDiskBuilder(object):
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
+        assert self.boot_image_task.include_file.call_args_list == [
+            call('/config.partids'),
+            call('/recovery.partition.size')
+        ]
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
@@ -483,7 +497,7 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initrd-1.2.3', kernel=kernel.name,
+            boot_options='', initrd='initrd-1.2.3', kernel=kernel.name,
             boot_uuid='0815', root_uuid='0815'
         )
 
@@ -502,7 +516,7 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initramfs-1.2.3.img', kernel=kernel.name,
+            boot_options='', initrd='initramfs-1.2.3.img', kernel=kernel.name,
             boot_uuid='0815', root_uuid='0815'
         )
 
@@ -530,7 +544,10 @@ class TestDiskBuilder(object):
         tempfile.name = 'tempname'
         mock_temp.return_value = tempfile
         mock_exists.return_value = True
+        self.disk_builder.initrd_system = 'dracut'
+
         self.disk_builder.create_disk()
+
         assert mock_squashfs.call_args_list == [
             call(device_provider=None, root_dir='root_dir'),
             call(device_provider=None, root_dir='root_dir')
@@ -543,17 +560,19 @@ class TestDiskBuilder(object):
             ], filename='tempname')
         ]
         self.disk.create_root_readonly_partition.assert_called_once_with(51)
-        assert mock_command.call_args_list.pop() == call(
+        assert mock_command.call_args_list[2] == call(
             ['dd', 'if=tempname', 'of=/dev/readonly-root-device']
         )
         assert self.file_mock.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
-            call('add_dracutmodules+=" kiwi-overlay "\n'),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
-            call(b'\x0f\x0f\x0f\x0f')
+            call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
+            call(b'\x0f\x0f\x0f\x0f'),
+            call('kiwi_BootPart="1"\n'),
+            call('kiwi_RootPart="1"\n')
         ]
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -572,7 +591,7 @@ class TestDiskBuilder(object):
         self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            initrd='initramfs-1.2.3.img', kernel=kernel.name,
+            boot_options='', initrd='initramfs-1.2.3.img', kernel=kernel.name,
             boot_uuid='0815', root_uuid='0815'
         )
 
@@ -664,6 +683,7 @@ class TestDiskBuilder(object):
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.mdraid = 'mirroring'
+        self.disk.public_partition_id_map = self.id_map
         self.disk_builder.create_disk()
         self.disk.create_root_raid_partition.assert_called_once_with(
             'all_free'
@@ -674,6 +694,10 @@ class TestDiskBuilder(object):
         self.raid_root.create_raid_config.assert_called_once_with(
             'boot_dir/etc/mdadm.conf'
         )
+        assert self.disk.public_partition_id_map == {
+            'kiwi_RaidPart': 1, 'kiwi_RootPart': 1, 'kiwi_BootPart': 1,
+            'kiwi_RaidDev': '/dev/md0'
+        }
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
@@ -693,6 +717,9 @@ class TestDiskBuilder(object):
         self.luks_root.create_crypttab.assert_called_once_with(
             'root_dir/etc/crypttab'
         )
+        assert self.boot_image_task.include_file.call_args_list == [
+            call('/config.partids'), call('/etc/crypttab')
+        ]
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch('kiwi.builder.disk.VolumeManager')
@@ -719,9 +746,7 @@ class TestDiskBuilder(object):
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = 'lvm'
         self.disk_builder.create_disk()
-        self.disk.create_root_lvm_partition.assert_called_once_with(
-            'all_free'
-        )
+        self.disk.create_root_lvm_partition.assert_called_once_with('all_free')
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
         volume_manager.mount_volumes.call_args_list[0].assert_called_once_with()

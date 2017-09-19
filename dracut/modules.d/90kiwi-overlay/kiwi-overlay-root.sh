@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 #======================================
@@ -24,11 +24,11 @@ function initGlobalDevices {
     fi
     write_partition="$1"
     root_disk=/dev/$(
-        lsblk -n -r -s -o NAME,TYPE ${write_partition} |\
+        lsblk -n -r -s -o NAME,TYPE "${write_partition}" |\
         grep disk | cut -f1 -d ' '
     )
     read_only_partition=/dev/$(
-        lsblk -r --fs -o NAME,FSTYPE ${root_disk} |\
+        lsblk -r --fs -o NAME,FSTYPE "${root_disk}" |\
         grep squashfs | cut -f1 -d ' '
     )
 }
@@ -36,16 +36,16 @@ function initGlobalDevices {
 function mountReadOnlyRootImage {
     local root_mount_point=/run/rootfsbase
     mkdir -m 0755 -p ${root_mount_point}
-    if ! mount -n ${read_only_partition} ${root_mount_point}; then
+    if ! mount -n "${read_only_partition}" "${root_mount_point}"; then
         die "Failed to mount overlay(ro) root filesystem"
     fi
-    echo ${root_mount_point}
+    echo "${root_mount_point}"
 }
 
 function preparePersistentOverlay {
     local overlay_mount_point=/run/overlayfs
     mkdir -m 0755 -p ${overlay_mount_point}
-    if ! mount ${write_partition}  ${overlay_mount_point}; then
+    if ! mount "${write_partition}" "${overlay_mount_point}"; then
         die "Failed to mount overlay(rw) filesystem"
     fi
     mkdir -m 0755 -p ${overlay_mount_point}/rw
@@ -61,7 +61,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 setupDebugMode
 
 # device nodes and types
-initGlobalDevices $1
+initGlobalDevices "$1"
 
 # load required kernel modules
 loadKernelModules

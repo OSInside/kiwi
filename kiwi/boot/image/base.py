@@ -91,6 +91,14 @@ class BootImageBase(object):
         """
         pass
 
+    def include_file(self, filename):
+        """
+        Include file to boot image
+
+        Implementation in specialized boot image class
+        """
+        pass
+
     def dump(self, filename):
         """
         Pickle dump this instance to a file. If the object dump

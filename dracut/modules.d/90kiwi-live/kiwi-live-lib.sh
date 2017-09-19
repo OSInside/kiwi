@@ -7,11 +7,11 @@ function lookupIsoDiskDevice {
     for disk in $(lsblk -n -r -o NAME,TYPE | grep disk | cut -f1 -d' ');do
         disk_device="/dev/${disk}"
         application_id=$(
-            isoinfo -d -i ${disk_device} 2>/dev/null |\
+            isoinfo -d -i "${disk_device}" 2>/dev/null |\
                 grep "Application id:"|cut -f2 -d:
         )
         if [ ! -z "${application_id}" ];then
-            echo ${disk_device}
+            echo "${disk_device}"
             return
         fi
     done
@@ -37,11 +37,15 @@ function initGlobalDevices {
     fi
     isodev="$1"
     isodiskdev=$(lookupIsoDiskDevice)
-    isofs_type=$(blkid -s TYPE -o value ${isodev})
+    isofs_type=$(blkid -s TYPE -o value "${isodev}")
     media_check_device=${isodev}
     if [ ! -z "${isodiskdev}" ]; then
         media_check_device=${isodiskdev}
     fi
+    export media_check_device
+    export isodev
+    export isodiskdev
+    export isofs_type
 }
 
 function initGlobalOptions {
@@ -56,35 +60,35 @@ function initGlobalOptions {
 }
 
 function mountIso {
-    ln -s ${isodev} /run/initramfs/isodev
+    ln -s "${isodev}" /run/initramfs/isodev
     local iso_mount_point=/run/initramfs/live
-    mkdir -m 0755 -p ${iso_mount_point}
-    if ! mount -n -t ${isofs_type} ${isodev} ${iso_mount_point}; then
+    mkdir -m 0755 -p "${iso_mount_point}"
+    if ! mount -n -t "${isofs_type}" "${isodev}" "${iso_mount_point}"; then
         die "Failed to mount live ISO device"
     fi
-    echo ${iso_mount_point}
+    echo "${iso_mount_point}"
 }
 
 function mountCompressedContainerFromIso {
     local iso_mount_point=$1
     local container_mount_point=/run/initramfs/squashfs_container
     squashfs_container="${iso_mount_point}/${live_dir}/${squash_image}"
-    mkdir -m 0755 -p ${container_mount_point}
-    if ! mount -n ${squashfs_container} ${container_mount_point};then
+    mkdir -m 0755 -p "${container_mount_point}"
+    if ! mount -n "${squashfs_container}" "${container_mount_point}";then
         die "Failed to mount live ISO squashfs container"
     fi
-    echo ${container_mount_point}
+    echo "${container_mount_point}"
 }
 
 function mountReadOnlyRootImageFromContainer {
     local container_mount_point=$1
     local rootfs_image="${container_mount_point}/LiveOS/rootfs.img"
     local root_mount_point=/run/rootfsbase
-    mkdir -m 0755 -p ${root_mount_point}
-    if ! mount -n ${rootfs_image} ${root_mount_point}; then
+    mkdir -m 0755 -p "${root_mount_point}"
+    if ! mount -n "${rootfs_image}" "${root_mount_point}"; then
         die "Failed to mount live ISO root filesystem"
     fi
-    echo ${root_mount_point}
+    echo "${root_mount_point}"
 }
 
 function prepareTemporaryOverlay {
@@ -97,14 +101,15 @@ function preparePersistentOverlay {
         return 1
     fi
     local overlay_mount_point=/run/overlayfs
-    mkdir -m 0755 -p ${overlay_mount_point}
-    if ! mount -L cow ${overlay_mount_point}; then
-        echo -e "n\np\n\n\n\nw\nq" | fdisk ${isodiskdev}
-        if ! partprobe ${isodiskdev}; then
+    mkdir -m 0755 -p "${overlay_mount_point}"
+    if ! mount -L cow "${overlay_mount_point}"; then
+        echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
+        if ! partprobe "${isodiskdev}"; then
             return 1
         fi
-        local write_partition=$(lsblk ${isodiskdev} -r -n -o NAME | tail -n1)
-        if ! mkfs.${cow_filesystem} -L cow /dev/${write_partition}; then
+        local write_partition
+        write_partition=$(lsblk "${isodiskdev}" -r -n -o NAME | tail -n1)
+        if ! mkfs."${cow_filesystem}" -L cow /dev/"${write_partition}"; then
             return 1
         fi
         if ! mount -L cow ${overlay_mount_point}; then
@@ -125,8 +130,9 @@ function runMediaCheck {
         return
     fi
     local timeout=20
-    local check_result=/run/initramfs/checkmedia.result
-    checkmedia ${media_check_device} &>${check_result}
+    local check_result
+    check_result=/run/initramfs/checkmedia.result
+    checkmedia "${media_check_device}" &>${check_result}
     local check_status=$?
     if [ ${check_status} != 0 ];then
         echo "ISO check failed" >> ${check_result}
@@ -176,6 +182,6 @@ function _run_interactive {
 }
 
 function _run_dialog {
-    echo "dialog $@" >/bin/dracut-interactive
+    echo "dialog $*" >/bin/dracut-interactive
     _run_interactive
 }

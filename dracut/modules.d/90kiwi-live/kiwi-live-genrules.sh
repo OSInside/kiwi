@@ -1,6 +1,8 @@
 #!/bin/bash
 
-case "$root" in
+declare root=${root}
+
+case "${root}" in
     live:/dev/*)
     {
         printf 'KERNEL=="%s", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/kiwi-live-root %s"\n' \

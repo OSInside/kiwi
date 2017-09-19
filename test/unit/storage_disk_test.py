@@ -84,7 +84,6 @@ class TestDisk(object):
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_RaidPart'] == 1
-        assert self.disk.public_partition_id_map['kiwi_RaidDev'] == '/dev/md0'
 
     def test_create_root_readonly_partition(self):
         self.disk.create_root_readonly_partition(100)

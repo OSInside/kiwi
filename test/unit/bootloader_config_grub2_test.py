@@ -382,6 +382,35 @@ class TestBootLoaderConfigGrub2(object):
             True, True, 'gfxterm'
         )
 
+    def test_setup_disk_image_config_custom_boot_options(self):
+        self.bootloader.multiboot = False
+        template = mock.Mock()
+        template.substitute = mock.Mock()
+        self.grub2.get_disk_template = mock.Mock(
+            return_value=template
+        )
+        self.bootloader.setup_disk_image_config(
+            boot_uuid='boot_uuid', root_uuid='root_uuid', boot_options='foo'
+        )
+        template.substitute.assert_called_once_with(
+            {
+                'title': 'Bob',
+                'boot_directory_name': 'grub2',
+                'kernel_file': 'linux.vmx',
+                'failsafe_boot_options': 'splash foo ide=nodma apm=off '
+                'noresume edd=off powersaved=off nohz=off highres=off '
+                'processor.max+cstate=1 nomodeset x11failsafe foo',
+                'default_boot': '0',
+                'boot_options': 'splash foo',
+                'boot_timeout': 10,
+                'gfxmode': '800x600',
+                'bootpath': '/',
+                'search_params': '--fs-uuid --set=root boot_uuid',
+                'initrd_file': 'initrd.vmx',
+                'theme': None
+            }
+        )
+
     def test_setup_install_image_config_standard(self):
         self.bootloader.multiboot = False
         self.bootloader.setup_install_image_config(self.mbrid)
