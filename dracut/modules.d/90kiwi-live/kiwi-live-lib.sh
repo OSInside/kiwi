@@ -120,11 +120,20 @@ function runMediaCheck {
     # as part of the pre-mount hook via the dracut-pre-mount.service
     # which only shows messages on stderr to the console and we want
     # to see the check results during boot
+    type plymouth &>/dev/null && \
+        plymouth --hide-splash
     if ! command -v checkmedia &>/dev/null; then
         echo "No mediacheck program installed, mediacheck skipped" 1>&2
     elif ! checkmedia ${media_check_device} 1>&2;then
-        die "ISO check failed"
+        echo "ISO check failed" 1>&2
+        echo "Stop booting after 20sec..." 1>&2
+        sleep 20
+        die "Failed to verify system integrity"
     else
         echo "ISO check passed" 1>&2
+        echo "Continue booting after 5sec..." 1>&2
+        sleep 5
     fi
+    type plymouth &>/dev/null && \
+        plymouth --show-splash
 }
