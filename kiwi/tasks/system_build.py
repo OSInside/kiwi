@@ -221,6 +221,7 @@ class SystemBuildTask(CliTask):
         setup.setup_users()
         setup.setup_keyboard_map()
         setup.setup_locale()
+        setup.setup_plymouth_splash()
         setup.setup_timezone()
 
         system.pinch_system(
