@@ -316,7 +316,7 @@ Requires:       e2fsprogs
 Requires:       util-linux
 Requires:       dracut
 %if 0%{?fedora} || 0%{?rhel}
-Requires:       cdrkit
+Requires:       genisoimage
 %else
 Requires:       cdrkit-cdrtools-compat
 %endif
