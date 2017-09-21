@@ -23,7 +23,7 @@ install() {
     inst_multiple \
         umount dmsetup blockdev blkid lsblk dd losetup \
         isoinfo grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
-        checkmedia
+        checkmedia dialog
     inst_hook cmdline 30 "$moddir/parse-kiwi-live.sh"
     inst_hook pre-udev 30 "$moddir/kiwi-live-genrules.sh"
     inst_hook pre-mount 30 "$moddir/kiwi-live-checkmedia.sh"
