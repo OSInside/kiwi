@@ -311,6 +311,7 @@ needed to serve kiwi built images via PXE.
 %package -n dracut-kiwi-live
 Summary:        KIWI - Dracut module for iso(live) image type
 BuildRequires:  dracut
+Requires:       dialog
 Requires:       xfsprogs
 Requires:       e2fsprogs
 Requires:       util-linux

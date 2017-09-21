@@ -122,9 +122,60 @@ function runMediaCheck {
     # to see the check results during boot
     if ! command -v checkmedia &>/dev/null; then
         echo "No mediacheck program installed, mediacheck skipped" 1>&2
-    elif ! checkmedia ${media_check_device} 1>&2;then
-        die "ISO check failed"
-    else
-        echo "ISO check passed" 1>&2
+        return
     fi
+    local timeout=20
+    local check_result=/run/initramfs/checkmedia.result
+    checkmedia ${media_check_device} &>${check_result}
+    local check_status=$?
+    if [ ${check_status} != 0 ];then
+        echo "ISO check failed" >> ${check_result}
+    else
+        echo "ISO check passed" >> ${check_result}
+    fi
+    echo "Press key to continue (waiting ${timeout}sec...)" >> ${check_result}
+    _run_dialog --timeout ${timeout} --textbox ${check_result} 20 70
+    if [ ${check_status} != 0 ];then
+        die "Failed to verify system integrity"
+    fi
+}
+
+#=========================================
+# Methods considered private
+#-----------------------------------------
+function _setup_interactive_service {
+    local service=/usr/lib/systemd/system/dracut-run-interactive.service
+    [ -e ${service} ] && return
+    {
+        echo "[Unit]"
+        echo "Description=Dracut Run Interactive"
+        echo "DefaultDependencies=no"
+        echo "After=systemd-vconsole-setup.service"
+        echo "Wants=systemd-vconsole-setup.service"
+        echo "Conflicts=emergency.service emergency.target"
+        echo "[Service]"
+        echo "Environment=HOME=/"
+        echo "Environment=DRACUT_SYSTEMD=1"
+        echo "Environment=NEWROOT=/sysroot"
+        echo "WorkingDirectory=/"
+        echo "ExecStart=/bin/bash /bin/dracut-interactive"
+        echo "Type=oneshot"
+        echo "StandardInput=tty-force"
+        echo "StandardOutput=inherit"
+        echo "StandardError=inherit"
+        echo "KillMode=process"
+        echo "IgnoreSIGPIPE=no"
+        echo "TaskMax=infinity"
+        echo "KillSignal=SIGHUP"
+    } > ${service}
+}
+
+function _run_interactive {
+    _setup_interactive_service
+    systemctl start dracut-run-interactive.service
+}
+
+function _run_dialog {
+    echo "dialog $@" >/bin/dracut-interactive
+    _run_interactive
 }

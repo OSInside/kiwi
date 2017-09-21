@@ -237,7 +237,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 ${boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -249,7 +249,7 @@ class BootLoaderTemplateGrub2(object):
                 echo Loading hypervisor...
                 multiboot ${bootpath}/${hypervisor} dummy
                 echo Loading kernel...
-                module ${bootpath}/${kernel_file} dummy mediacheck=1 ${failsafe_boot_options}
+                module ${bootpath}/${kernel_file} dummy mediacheck=1 plymouth.enable=0 ${failsafe_boot_options}
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
@@ -259,7 +259,7 @@ class BootLoaderTemplateGrub2(object):
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} mediacheck=1 ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }

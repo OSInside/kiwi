@@ -123,6 +123,7 @@ class TestSystemBuildTask(object):
         self.setup.setup_users.assert_called_once_with()
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
+        self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
         self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
