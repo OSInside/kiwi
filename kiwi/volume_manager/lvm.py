@@ -159,6 +159,19 @@ class VolumeManagerLVM(VolumeManagerBase):
                 full_size_volume.name, full_size_volume.realpath
             )
 
+        # re-order mount_list by mountpoint hierarchy
+        # This is needed because the handling of the fullsize volume and
+        # all other volumes is outside of the canonical order. If the
+        # fullsize volume forms a nested structure together with another
+        # volume the volume mount list must be re-ordered to avoid
+        # mounting the volumes in the wrong order
+        volume_paths = {}
+        for volume_mount in self.mount_list:
+            volume_paths[volume_mount.mountpoint] = volume_mount
+        self.mount_list = []
+        for mount_path in Path.sort_by_hierarchy(sorted(volume_paths.keys())):
+            self.mount_list.append(volume_paths[mount_path])
+
     def get_fstab(self, persistency_type, filesystem_name):
         """
         Implements creation of the fstab entries. The method
