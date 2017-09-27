@@ -22,6 +22,7 @@ class TestPxeBuilder(object):
         )
         self.boot_image_task = mock.MagicMock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
+        self.boot_image_task.initrd_filename = 'initrd_file_name'
         mock_boot.return_value = self.boot_image_task
         self.filesystem = mock.MagicMock()
         self.filesystem.filename = 'myimage.fs'
@@ -89,6 +90,18 @@ class TestPxeBuilder(object):
         )
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
+        )
+        mock_command.assert_called_once_with(
+            [
+                'bash', '-c',
+                'tar -C target_dir -c --to-stdout ' +
+                'myimage-42.kernel ' +
+                'initrd_file_name ' +
+                'compressed-file-name ' +
+                'compressed-file-name.md5 ' +
+                '| xz -f --threads=0 > ' +
+                'target_dir/some-image.x86_64-1.2.3.tar.xz'
+            ]
         )
         # warning for not implemented pxedeploy handling
         assert mock_log_warn.called
