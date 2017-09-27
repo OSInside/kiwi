@@ -19,6 +19,7 @@ import os
 import platform
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.boot.image import BootImage
 from kiwi.builder.filesystem import FileSystemBuilder
@@ -172,15 +173,21 @@ class PxeBuilder(object):
         self.boot_image_task.create_initrd()
 
         # put results into a tarball
-        Command.run(
-            [
-                'tar', '-C', self.target_dir, '-cJf', self.archive_name,
-                self.kernel_filename,
-                os.path.basename(self.boot_image_task.initrd_filename),
-                os.path.basename(self.image),
-                os.path.basename(self.filesystem_checksum)
-            ]
-        )
+        if not self.xz_options:
+            self.xz_options = Defaults.get_xz_compression_options()
+        bash_command = [
+            'tar', '-C', self.target_dir, '-c', '--to-stdout'
+        ] + [
+            self.kernel_filename,
+            os.path.basename(self.boot_image_task.initrd_filename),
+            os.path.basename(self.image),
+            os.path.basename(self.filesystem_checksum)
+        ] + [
+            '|', 'xz', '-f'
+        ] + self.xz_options + [
+            '>', self.archive_name
+        ]
+        Command.run(['bash', '-c', ' '.join(bash_command)])
 
         # store results
         self.result.add(
