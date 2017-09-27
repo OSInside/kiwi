@@ -1135,6 +1135,21 @@ function baseFixupKernelModuleDependencies {
 }
 
 #======================================
+# baseUpdateModuleDependencies
+#--------------------------------------
+function baseUpdateModuleDependencies {
+    local kernel_dir
+    for kernel_dir in /lib/modules/*;do
+        [ -d "${kernel_dir}" ] || continue
+        local kernel_version=$(/usr/bin/basename ${kernel_dir})
+        if [ -f /boot/System.map-${kernel_version} ];then
+            /sbin/depmod -F \
+                /boot/System.map-${kernel_version} ${kernel_version}
+        fi
+    done
+}
+
+#======================================
 # baseCreateCommonKernelFile
 #--------------------------------------
 function baseCreateCommonKernelFile {
@@ -1177,15 +1192,6 @@ function baseCreateCommonKernelFile {
                 continue
             fi
             kernel_version=$(/usr/bin/basename $kernel_dir)
-            #==========================================
-            # run depmod, deps should be up to date
-            #------------------------------------------
-            if [ ! -f /boot/System.map-$kernel_version ];then
-                # no system map for this kernel
-                echo "no system map for kernel: $kernel_name found... skip it"
-                continue
-            fi
-            /sbin/depmod -F /boot/System.map-$kernel_version $kernel_version
             #==========================================
             # create common kernel files, last wins !
             #------------------------------------------
@@ -1272,6 +1278,7 @@ function baseStripKernel {
         baseSyncKernelTree
         baseStripModules
         baseStripFirmware
+        baseUpdateModuleDependencies
     fi
 }
 
