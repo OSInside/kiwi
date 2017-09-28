@@ -99,6 +99,11 @@ class Iso(object):
         :param string mbrid: boot record id
         :param string isofile: path to the ISO file
         """
+        ignore_errors = [
+            # we ignore this error message, for details see:
+            # http://www.syslinux.org/archives/2015-March/023306.html
+            'Warning: more than 1024 cylinders'
+        ]
         isohybrid_parameters = [
             '--offset', format(offset),
             '--id', mbrid.get_id(),
@@ -110,12 +115,15 @@ class Iso(object):
             ['isohybrid'] + isohybrid_parameters + [isofile]
         )
         # isohybrid warning messages on stderr should be treated
-        # as fatal errors because unexpected after effects might
-        # happen if e.g a gpt partition should be embedded but
-        # only a warning appears if isohybrid can't find an efi
-        # loader. Thus we are more strict and fail on any message
-        # on stderr
+        # as fatal errors except for the ones we want to ignore
+        # because unexpected after effects might happen if e.g a
+        # gpt partition should be embedded but only a warning
+        # appears if isohybrid can't find an efi loader. Thus we
+        # are more strict and fail
         if isohybrid_call.error:
+            for ignore_error in ignore_errors:
+                if ignore_error in isohybrid_call.error:
+                    return
             raise KiwiCommandError(
                 'isohybrid: {0}'.format(isohybrid_call.error)
             )

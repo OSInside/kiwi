@@ -265,6 +265,24 @@ class TestIso(object):
         Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
 
     @patch('kiwi.iso.Command.run')
+    def test_create_hybrid_with_cylinders_warning(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        command = mock.Mock()
+        command.error = 'isohybrid: Warning: more than 1024 cylinders: 1817'
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+        mock_command.assert_called_once_with(
+            [
+                'isohybrid', '--offset', '42',
+                '--id', '0x0815', '--type', '0x83',
+                '--uefi', 'some-iso'
+            ]
+        )
+
+    @patch('kiwi.iso.Command.run')
     def test_set_media_tag(self, mock_command):
         Iso.set_media_tag('foo')
         mock_command.assert_called_once_with(
