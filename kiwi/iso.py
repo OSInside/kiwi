@@ -121,12 +121,15 @@ class Iso(object):
         # appears if isohybrid can't find an efi loader. Thus we
         # are more strict and fail
         if isohybrid_call.error:
-            for ignore_error in ignore_errors:
-                if ignore_error in isohybrid_call.error:
-                    return
-            raise KiwiCommandError(
-                'isohybrid: {0}'.format(isohybrid_call.error)
-            )
+            error_list = isohybrid_call.error.split(os.linesep)
+            for error in error_list:
+                for ignore_error in ignore_errors:
+                    if ignore_error in error:
+                        error_list.remove(error)
+            if error_list:
+                raise KiwiCommandError(
+                    'isohybrid: {0}'.format(isohybrid_call.error)
+                )
 
     @classmethod
     def set_media_tag(self, isofile):

@@ -264,6 +264,20 @@ class TestIso(object):
         mock_command.return_value = command
         Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
 
+    @raises(KiwiCommandError)
+    @patch('kiwi.iso.Command.run')
+    def test_create_hybrid_with_multiple_errors(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        command = mock.Mock()
+        command.error = \
+            'isohybrid: Warning: more than 1024 cylinders: 1817\n' + \
+            'isohybrid: Not all BIOSes will be able to boot this device\n'
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+
     @patch('kiwi.iso.Command.run')
     def test_create_hybrid_with_cylinders_warning(self, mock_command):
         mbrid = mock.Mock()
