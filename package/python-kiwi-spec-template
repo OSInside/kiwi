@@ -406,7 +406,7 @@ fi
 %ifarch %ix86 x86_64
 %files -n kiwi-pxeboot
 %defattr(-, root, root)
-%dir %attr(0750,tftp,tftp) /srv/tftpboot
+%dir %attr(0755,tftp,tftp) /srv/tftpboot
 %dir /srv/tftpboot/KIWI
 %dir /srv/tftpboot/pxelinux.cfg
 %dir /srv/tftpboot/image
