@@ -436,13 +436,26 @@ class TestXMLState(object):
         )
         assert self.boot_state.build_type.get_firmware() == 'efi'
 
-    def test_copy_bootincluded_packages(self):
+    def test_copy_bootincluded_packages_with_no_image_packages(self):
         self.state.copy_bootincluded_packages(self.boot_state)
         bootstrap_packages = self.boot_state.get_bootstrap_packages()
         assert 'plymouth-branding-openSUSE' in bootstrap_packages
         assert 'grub2-branding-openSUSE' in bootstrap_packages
         assert 'gfxboot-branding-openSUSE' in bootstrap_packages
         to_delete_packages = self.boot_state.get_to_become_deleted_packages()
+        assert 'gfxboot-branding-openSUSE' not in to_delete_packages
+
+    def test_copy_bootincluded_packages_with_image_packages(self):
+        boot_description = XMLDescription(
+            '../data/isoboot/example-distribution/config.xml'
+        )
+        boot_state = XMLState(boot_description.load(), ['std'])
+        self.state.copy_bootincluded_packages(boot_state)
+        image_packages = boot_state.get_system_packages()
+        assert 'plymouth-branding-openSUSE' in image_packages
+        assert 'grub2-branding-openSUSE' in image_packages
+        assert 'gfxboot-branding-openSUSE' in image_packages
+        to_delete_packages = boot_state.get_to_become_deleted_packages()
         assert 'gfxboot-branding-openSUSE' not in to_delete_packages
 
     def test_copy_bootincluded_archives(self):
