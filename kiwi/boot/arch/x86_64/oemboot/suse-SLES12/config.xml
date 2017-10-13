@@ -45,6 +45,8 @@
         <file name="drivers/md/*"/>
         <file name="drivers/message/fusion/*"/>
         <file name="drivers/net/*"/>
+        <file name="drivers/nvme/*"/>
+        <file name="drivers/nvmem/*"/>
         <file name="drivers/parport/*"/>
         <file name="drivers/scsi/*"/>
         <file name="drivers/staging/hv/*"/>
