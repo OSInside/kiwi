@@ -3,34 +3,22 @@
 <image schemaversion="6.7" name="initrd-netboot-suse-tumbleweed">
     <description type="boot">
         <author>Marcus Schaefer</author>
-        <contact>ms@novell.com</contact>
+        <contact>ms@suse.de</contact>
         <specification>boot/initrd image used for PXE</specification>
     </description>
     <preferences>
         <type image="cpio" bootprofile="default" bootkernel="std"/>
-        <version>2.1.1</version>
+        <version>3.42.3</version>
         <packagemanager>zypper</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <profiles>
         <profile name="default" description="Booting default profile"/>
         <profile name="diskless" description="Booting diskless thin clients"/>
-        <profile name="xen" description="Booting with xen mboot.c32 setup"/>
         <profile name="std" description="KERNEL: Default"/>
-        <profile name="xenk" description="KERNEL: Xen kernel/mboot.c32"/>
-        <profile name="pae" description="KERNEL: pae"/>
-        <profile name="desktop" description="KERNEL: Desktop kernel"/>
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
     </profiles>
-    <drivers profiles="xen">
-        <file name="drivers/xen/*"/>
-        <file name="drivers/block/xen-blkfront.ko"/>
-        <file name="drivers/net/xen-netfront.ko"/>
-        <file name="drivers/scsi/xen-scsifront.ko"/>
-        <file name="drivers/input/misc/xen-kbdfront.ko"/>
-        <file name="drivers/pci/xen-pcifront.ko"/>
-    </drivers>
-    <drivers profiles="default,xen">
+    <drivers profiles="default">
         <file name="crypto/*"/>
         <file name="drivers/virtio/*"/>
         <file name="drivers/acpi/dock.ko"/>
@@ -119,89 +107,62 @@
         <file name="net/sunrpc/*"/>
     </drivers>
     <repository type="yast2">
-        <source path="obs://factory/repo/oss/"/>
+        <source path="obs://inherited_from_system_image_description"/>
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
     </packages>
-    <packages type="image" profiles="pae">
-        <package name="kernel-pae" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
-    </packages>
-    <packages type="image" profiles="xenk">
-<!-- xen kernel only supported on x86_64 -->
-        <package name="kernel-xen" arch="x86_64"/>
-    </packages>
-    <packages type="image" profiles="desktop">
-        <package name="kernel-desktop" arch="x86_64"/>
-        <package name="kernel-desktop" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
-    </packages>
-    <packages type="image" profiles="xen">
-<!-- xen dom0 support only on x86_64 -->
-        <package name="xen" arch="x86_64"/>
-    </packages>
-    <packages type="image" profiles="default,xen">
+    <packages type="image" profiles="default">
         <package name="adaptec-firmware"/>
+        <package name="btrfsprogs"/>
+        <package name="e2fsprogs"/>
+        <package name="lvm2"/>
+        <package name="parted"/>
+        <package name="xfsprogs"/>
+    </packages>
+    <packages type="image">
         <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
         <package name="bind-utils"/>
-        <package name="btrfsprogs"/>
         <package name="busybox"/>
         <package name="cryptsetup"/>
         <package name="curl"/>
+        <package name="dialog"/>
         <package name="dmraid"/>
+        <package name="fbiterm"/>
+        <package name="gettext-runtime"/>
         <package name="hwinfo"/>
+        <package name="ifplugd"/>
+        <package name="iproute2"/>
         <package name="iputils"/>
+        <package name="kbd"/>
         <package name="kernel-firmware"/>
         <package name="kiwi-tools"/>
-        <package name="lvm2"/>
         <package name="make"/>
         <package name="mdadm"/>
         <package name="nbd"/>
         <package name="netcfg"/>
         <package name="nfs-client"/>
-        <package name="parted"/>
         <package name="plymouth"/>
         <package name="plymouth-scripts"/>
+        <package name="psmisc"/>
+        <package name="rsync"/>
         <package name="tar"/>
-        <package name="xfsprogs"/>
+        <package name="timezone"/>
+        <package name="which"/>
+        <package name="wicked"/>
     </packages>
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
-        <package name="kbd"/>
-        <package name="atftp"/>
-        <package name="bc"/>
-        <package name="busybox"/>
-        <package name="hwinfo"/>
-        <package name="iputils"/>
-        <package name="kiwi-tools"/>
-        <package name="nbd"/>
-        <package name="netcfg"/>
-        <package name="nfs-client"/>
-        <package name="plymouth"/>
-        <package name="plymouth-scripts"/>
-        <package name="tar"/>
-        <package name="dialog"/>
-        <package name="fbiterm"/>
-        <package name="filesystem"/>
-        <package name="gettext-runtime"/>
-        <package name="glibc"/>
-        <package name="glibc-locale"/>
-        <package name="rsync"/>
-        <package name="timezone"/>
-        <package name="kmod-compat"/>
-        <package name="which"/>
         <package name="udev"/>
-        <package name="wicked"/>
-        <package name="iproute2"/>
-        <package name="psmisc"/>
-        <package name="sysvinit-tools"/>
-        <package name="e2fsprogs"/>
-        <package name="ifplugd"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="openSUSE-release"/>
     </packages>
-    <packages type="delete" profiles="default,diskless,xen">
+    <packages type="delete">
         <package name="dracut"/>
         <package name="cracklib-dict-full"/>
         <package name="diffutils"/>

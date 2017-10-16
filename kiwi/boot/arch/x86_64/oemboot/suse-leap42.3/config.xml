@@ -3,7 +3,7 @@
 <image schemaversion="6.7" name="initrd-oemboot-suse-leap-42.3">
     <description type="boot">
         <author>Marcus Schaefer</author>
-        <contact>ms@suse.com</contact>
+        <contact>ms@suse.de</contact>
         <specification>boot/initrd image used on OEM VMX disk</specification>
     </description>
     <preferences>
@@ -15,8 +15,7 @@
     <profiles>
         <profile name="default" description="Booting default setup"/>
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
-        <profile name="xen" description="Boot with xen mboot.c32 setup"/>
-        <profile name="ec2" description="Boot using EC2 system"/>
+        <profile name="xen" description="Xen drivers and grub2 modules"/>
         <profile name="std" description="KERNEL: Default"/>
         <profile name="desktop" description="KERNEL: Desktop kernel"/>
     </profiles>
@@ -81,20 +80,38 @@
         <file name="lib/zlib_deflate/zlib_deflate.ko"/>
         <file name="net/packet/*"/>
     </drivers>
+    <drivers profiles="xen">
+        <file name="drivers/xen/*"/>
+        <file name="drivers/block/xen-blkfront.ko"/>
+        <file name="drivers/net/xen-netfront.ko"/>
+        <file name="drivers/scsi/xen-scsifront.ko"/>
+        <file name="drivers/input/misc/xen-kbdfront.ko"/>
+        <file name="drivers/pci/xen-pcifront.ko"/>
+    </drivers>
     <repository type="yast2">
-        <source path="obs://leap/42.3/repo/oss"/>
+        <source path="obs://inherited_from_system_image_description"/>
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
     </packages>
     <packages type="image" profiles="desktop">
-        <package name="kernel-desktop"/>
+        <package name="kernel-desktop" arch="x86_64"/>
+        <package name="kernel-desktop" arch="i686"/>
+        <package name="kernel-default" arch="i586"/>
     </packages>
-    <packages type="image" profiles="xen,ec2">
-        <package name="grub2-x86_64-xen"/>
+    <packages type="image" profiles="xen">
+        <package name="grub2-x86_64-xen" arch="x86_64"/>
     </packages>
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="openSUSE-release"/>
+    </packages>
+    <packages type="image">
         <package name="kbd"/>
         <package name="gptfdisk"/>
         <package name="adaptec-firmware"/>
@@ -117,9 +134,11 @@
         <package name="genisoimage"/>
         <package name="gettext-runtime"/>
         <package name="grub2"/>
-        <package name="grub2-x86_64-efi"/>
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
+        <package name="grub2-i386-efi" arch="i686"/>
+        <package name="grub2-i386-efi" arch="i586"/>
         <package name="grub2-i386-pc"/>
-        <package name="shim"/>
+        <package name="shim" arch="x86_64"/>
         <package name="hwinfo"/>
         <package name="iputils"/>
         <package name="kernel-firmware"/>
@@ -144,14 +163,11 @@
         <package name="util-linux"/>
         <package name="xfsprogs"/>
         <package name="diffutils"/>
-        <package name="filesystem"/>
         <package name="glibc"/>
-        <package name="glibc-locale"/>
         <package name="procps"/>
         <package name="rsync"/>
         <package name="timezone"/>
         <package name="which"/>
-        <package name="udev"/>
         <package name="wicked"/>
         <package name="iproute2"/>
         <package name="psmisc"/>
@@ -162,6 +178,7 @@
     </packages>
     <packages type="delete">
         <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
         <package name="fillup"/>
         <package name="gdbm"/>
         <package name="info"/>

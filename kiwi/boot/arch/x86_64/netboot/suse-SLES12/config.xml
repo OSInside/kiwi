@@ -3,33 +3,22 @@
 <image schemaversion="6.7" name="initrd-netboot-suse-SLES12">
     <description type="boot">
         <author>Marcus Schaefer</author>
-        <contact>ms@novell.com</contact>
+        <contact>ms@suse.de</contact>
         <specification>boot/initrd image used for PXE</specification>
     </description>
     <preferences>
         <type image="cpio" bootprofile="default" bootkernel="std"/>
-        <version>2.1.1</version>
+        <version>2.12.2</version>
         <packagemanager>zypper</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <profiles>
         <profile name="default" description="Booting default profile"/>
         <profile name="diskless" description="Booting diskless thin clients"/>
-        <profile name="xen" description="Booting with xen mboot.c32 setup"/>
         <profile name="std" description="KERNEL: Default"/>
-        <profile name="xenk" description="KERNEL: Xen kernel/mboot.c32"/>
-        <profile name="pae" description="KERNEL: pae"/>
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
     </profiles>
-    <drivers profiles="xen">
-        <file name="drivers/xen/*"/>
-        <file name="drivers/block/xen-blkfront.ko"/>
-        <file name="drivers/net/xen-netfront.ko"/>
-        <file name="drivers/scsi/xen-scsifront.ko"/>
-        <file name="drivers/input/misc/xen-kbdfront.ko"/>
-        <file name="drivers/pci/xen-pcifront.ko"/>
-    </drivers>
-    <drivers profiles="default,xen">
+    <drivers profiles="default">
         <file name="crypto/*"/>
         <file name="drivers/virtio/*"/>
         <file name="drivers/acpi/dock.ko"/>
@@ -94,46 +83,13 @@
         <file name="drivers/ide/*"/>
         <file name="drivers/md/*"/>
         <file name="drivers/message/fusion/*"/>
-        <file name="drivers/net/3c59x.ko"/>
-        <file name="drivers/net/8139cp.ko"/>
-        <file name="drivers/net/8139too.ko"/>
-        <file name="drivers/net/8390.ko"/>
-        <file name="drivers/net/atlx/atl2.ko"/>
-        <file name="drivers/net/b44.ko"/>
-        <file name="drivers/net/bnx2.ko"/>
-        <file name="drivers/net/defxx.ko"/>
-        <file name="drivers/net/dl2k.ko"/>
-        <file name="drivers/net/e100.ko"/>
-        <file name="drivers/net/e1000/*"/>
-        <file name="drivers/net/epic100.ko"/>
-        <file name="drivers/net/eql.ko"/>
-        <file name="drivers/net/fealnx.ko"/>
-        <file name="drivers/net/forcedeth.ko"/>
-        <file name="drivers/net/hp100.ko"/>
-        <file name="drivers/net/mii.ko"/>
-        <file name="drivers/net/myri10ge"/>
-        <file name="drivers/net/natsemi.ko"/>
-        <file name="drivers/net/ne2k-pci.ko"/>
-        <file name="drivers/net/netconsole.ko"/>
-        <file name="drivers/net/ns83820.ko"/>
-        <file name="drivers/net/pcnet32.ko"/>
-        <file name="drivers/net/qla3xxx.ko"/>
-        <file name="drivers/net/r8169.ko"/>
-        <file name="drivers/net/s2io.ko"/>
-        <file name="drivers/net/sis900.ko"/>
-        <file name="drivers/net/skge.ko"/>
-        <file name="drivers/net/slhc.ko"/>
-        <file name="drivers/net/starfire.ko"/>
-        <file name="drivers/net/sundance.ko"/>
-        <file name="drivers/net/sungem.ko"/>
-        <file name="drivers/net/sungem_phy.ko"/>
-        <file name="drivers/net/sunhme.ko"/>
-        <file name="drivers/net/tg3.ko"/>
-        <file name="drivers/net/tlan.ko"/>
-        <file name="drivers/net/tulip/*"/>
-        <file name="drivers/net/via-rhine.ko"/>
-        <file name="drivers/net/via-velocity.ko"/>
-        <file name="drivers/net/yellowfin.ko"/>
+        <file name="drivers/net/ethernet/3com/*"/>
+        <file name="drivers/net/ethernet/realtek/*"/>
+        <file name="drivers/net/ethernet/atheros/*"/>
+        <file name="drivers/net/ethernet/broadcom/*"/>
+        <file name="drivers/net/ethernet/intel/*"/>
+        <file name="drivers/net/ethernet/hp/*"/>
+        <file name="drivers/net/ethernet/via/*"/>
         <file name="drivers/staging/hv/*"/>
         <file name="fs/exportfs/*"/>
         <file name="fs/ext2/*"/>
@@ -151,81 +107,62 @@
         <file name="net/sunrpc/*"/>
     </drivers>
     <repository type="yast2">
-        <source path="obs://SUSE:SLE-12:GA/standard"/>
+        <source path="obs://inherited_from_system_image_description"/>
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
     </packages>
-    <packages type="image" profiles="pae">
-        <package name="kernel-pae" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
-    </packages>
-    <packages type="image" profiles="xenk">
-<!-- xen kernel only supported on x86_64 -->
-        <package name="kernel-xen" arch="x86_64"/>
-    </packages>
-    <packages type="image" profiles="xen">
-<!-- xen dom0 support only on x86_64 -->
-        <package name="xen" arch="x86_64"/>
-    </packages>
-    <packages type="image" profiles="default,xen">
+    <packages type="image" profiles="default">
         <package name="adaptec-firmware"/>
+        <package name="btrfsprogs"/>
+        <package name="e2fsprogs"/>
+        <package name="lvm2"/>
+        <package name="parted"/>
+        <package name="xfsprogs"/>
+    </packages>
+    <packages type="image">
         <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
         <package name="bind-utils"/>
-        <package name="btrfsprogs"/>
         <package name="busybox"/>
         <package name="cryptsetup"/>
         <package name="curl"/>
+        <package name="dialog"/>
         <package name="dmraid"/>
+        <package name="fbiterm"/>
+        <package name="gettext-runtime"/>
         <package name="hwinfo"/>
+        <package name="ifplugd"/>
+        <package name="iproute2"/>
         <package name="iputils"/>
+        <package name="kbd"/>
         <package name="kernel-firmware"/>
         <package name="kiwi-tools"/>
-        <package name="lvm2"/>
         <package name="make"/>
         <package name="mdadm"/>
+        <package name="nbd"/>
         <package name="netcfg"/>
         <package name="nfs-client"/>
-        <package name="parted"/>
         <package name="plymouth"/>
         <package name="plymouth-scripts"/>
+        <package name="psmisc"/>
+        <package name="rsync"/>
         <package name="tar"/>
-        <package name="xfsprogs"/>
+        <package name="timezone"/>
+        <package name="which"/>
+        <package name="wicked"/>
     </packages>
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
-        <package name="kbd"/>
-        <package name="atftp"/>
-        <package name="bc"/>
-        <package name="busybox"/>
-        <package name="hwinfo"/>
-        <package name="iputils"/>
-        <package name="kiwi-tools"/>
-        <package name="netcfg"/>
-        <package name="nfs-client"/>
-        <package name="plymouth"/>
-        <package name="plymouth-scripts"/>
-        <package name="tar"/>
-        <package name="dialog"/>
-        <package name="fbiterm"/>
-        <package name="filesystem"/>
-        <package name="gettext-runtime"/>
-        <package name="glibc"/>
-        <package name="glibc-locale"/>
-        <package name="rsync"/>
-        <package name="timezone"/>
-        <package name="module-init-tools"/>
-        <package name="which"/>
         <package name="udev"/>
-        <package name="wicked"/>
-        <package name="iproute2"/>
-        <package name="psmisc"/>
-        <package name="sysvinit-tools"/>
-        <package name="e2fsprogs"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="openSUSE-release"/>
     </packages>
-    <packages type="delete" profiles="default,diskless,xen">
+    <packages type="delete">
         <package name="dracut"/>
         <package name="cracklib-dict-full"/>
         <package name="diffutils"/>
@@ -237,7 +174,7 @@
         <package name="make"/>
         <package name="mingetty"/>
         <package name="Mesa"/>
-        <package name="sles-release"/>
+        <package name="openSUSE-release"/>
         <package name="pam"/>
         <package name="pam-modules"/>
         <package name="perl"/>
