@@ -102,7 +102,8 @@ class Iso(object):
         ignore_errors = [
             # we ignore this error message, for details see:
             # http://www.syslinux.org/archives/2015-March/023306.html
-            'Warning: more than 1024 cylinders'
+            'Warning: more than 1024 cylinders',
+            'Not all BIOSes will be able to boot this device'
         ]
         isohybrid_parameters = [
             '--offset', format(offset),
@@ -122,13 +123,20 @@ class Iso(object):
         # are more strict and fail
         if isohybrid_call.error:
             error_list = isohybrid_call.error.split(os.linesep)
+            error_fatal_list = []
             for error in error_list:
+                ignore = False
                 for ignore_error in ignore_errors:
                     if ignore_error in error:
-                        error_list.remove(error)
-            if error_list:
+                        ignore = True
+                        break
+                if not ignore:
+                    error_fatal_list.append(error)
+            if error_fatal_list:
                 raise KiwiCommandError(
-                    'isohybrid: {0}'.format(isohybrid_call.error)
+                    'isohybrid issue not ignored by kiwi: {0}'.format(
+                        error_fatal_list
+                    )
                 )
 
     @classmethod
