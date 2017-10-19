@@ -1,0 +1,7 @@
+This is the Leap 42.1 JeOS SuSE Linux System.
+To upgrade your system call:
+
+        zypper refresh
+        zypper up
+
+Have a lot of fun...

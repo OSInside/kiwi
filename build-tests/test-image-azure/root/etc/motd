@@ -1,0 +1,21 @@
+SUSE Linux Enterprise Server 12 SP3 x86_64 (64-bit)
+
+Please register this image using your existing SUSE entitlement.
+
+As "root" (sudo or sudo -i) use either one of the following commands:
+ - SUSEConnect --url=https://scc.suse.com  -e company@example.com -r YOUR_CODE
+ - yast scc
+
+to register the instance with SCC
+
+Without registration this instance does not have access to updates and
+security fixes.
+
+If you are using extensions consider to enable the auto-update feature
+of the extension agent and restarting the service. As root execute:
+  - sed -i s/AutoUpdate.Enabled=n/AutoUpdate.Enabled=y/ /etc/waagent.conf
+  - rcwaagent restart
+
+Forum: https://forums.suse.com/forumdisplay.php?93-SUSE-Public-Cloud
+
+Have a lot of fun...

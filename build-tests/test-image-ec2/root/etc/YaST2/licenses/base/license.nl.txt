@@ -1,0 +1,134 @@
+LICENTIEOVEREENKOMST
+openSUSE® Leap 42.2
+
+Dit is een niet-officiële vertaling van de licentie van openSUSE Leap 42.2
+in het Nederlands. Het heeft geen rechtskracht als bepalingen voor het
+gebruik van openSUSE Leap 42.2 - alleen de originele Engelse tekst van de
+licentie van openSUSE Leap 42.2 heeft die. We hopen echter dat deze
+vertaling de Nederlands sprekenden helpen bij het beter begrijpen van de
+licentie.
+
+Deze overeenkomst dekt wat u van openSUSE Leap 42.2 hebt gedownload, 
+geïnstalleerd en gebruikt en later hebt bijgewerkt, ongeacht de methode
+van verkrijging. openSUSE Leap 42.2 is een gezamenlijk werk onder de "US 
+Copyright Law". Onder de volgende bepalingen, geeft Het openSUSE Project
+u een licentie voor dit gezamenlijke werk volgens de "GNU General
+Public License version 2". Met downloaden, installeren of gebruik van
+openSUSE Leap 42.2, gaat u akkoord met de bepalingen van deze overeenkomst.
+
+openSUSE Leap 42.2 is een modulair Linux besturingssysteem bestaande uit
+honderden softwarecomponenten. De licentieovereenkomst voor elke
+component is in het algemeen gelokaliseerd in de broncode van de component. 
+Met uitzondering van bepaalde bestanden die het handelsmerk “openSUSE”
+bevatten, zoals hieronder besproken, geven de bepalingen voor de componenten
+u het recht om de component te kopiëren en te distribueren. Met de
+potentiële uitzondering van bepaalde bestanden met firmware, geven de 
+licentiebepalingen voor de componenten u het recht om de componenten te 
+kopiëren, te wijzigen en opnieuw te distribueren, zowel in de vorm van
+broncode als binaire code. Deze overeenkomst beperkt niet uw rechten onder
+of geeft u rechten die uitstijgen boven de licentiebepalingen van elke 
+specifieke component.
+
+openSUSE Leap 42.2 en elk van zijn componenten, inclusief de broncode, 
+documentatie, uiterlijk, structuur en organisatie, vallen onder het 
+copyright van Het openSUSE Project en anderen en worden beschermd onder
+copyright- en andere wetten. Het eigendom van openSUSE Leap 42.2 en elke
+component of van elke kopie, blijft bij de hiervoor genoemden of zijn
+licentienemers, onderworpen aan de van toepassing zijnde licentie. Het
+handelsmerk "openSUSE" is een handelsmerk van SUSE, LLC. in de VS en andere 
+landen en mag met toestemming gebruikt worden. Deze overeenkomst geeft u 
+toestemming om ongewijzigde of gewijzigde kopieën van openSUSE Leap 42.2 te
+distribueren met het handelsmerk “openSUSE” onder de voorwaarde dat u de 
+richtlijnen voor het handelsmerk van Het openSUSE Project volgt, te vinden
+op http://en.opensuse.org/Legal. U moet deze richtlijnen voor het handelsmerk
+volgen bij het distribueren van openSUSE Leap 42.2, ongeacht of openSUSE 
+Leap 42.2 is gewijzigd.
+
+Behalve zoals specifiek aangegeven in deze overeenkomst of een licentie voor
+een specifieke component, TOT HET MAXIMUM OPGEREKT TOEGESTAAN ONDER
+VAN TOEPASSING ZIJNDE WETTEN, WORDEN OPENSUSE Leap 42.2 EN DE COMPONENTEN 
+GELEVERD EN IN LICENTIE GEGEVEN "AS IS (zoals ze zijn)" ZONDER GARANTIE VAN 
+WELKE DAN OOK, BESCHREVEN OF IMPLICIET, INCLUSIEF DE IMPLICIETE GARANTIES 
+VAN VERKOOPBAARHEID, EIGENDOM, GEEN INBREUK MAKEND OF GESCHIKTHEID VOOR EEN 
+BEPAALD DOEL. Het openSUSE Project geeft geen garantie dat de functies gevat 
+in openSUSELeap 42.2 overeenkomen met uw vereisten of dat het werken van 
+openSUSE Leap 42.2 volledig zonder fouten is of precies overeenkomst zoals is 
+beschreven in de bijgeleverde documentatie. GEBRUIK VAN OPENSUSE Leap 42.2 IS 
+OP EIGEN RISICO.
+
+TOT HET MAXIMUM OPGEREKT ONDER VAN TOEPASSING ZIJNDE WETTEN, ZULLEN HET 
+OPENSUSE PROJECT (EN ZIJN LICENTIENEMERS, ONDERAANNEMERS EN MEDEWERKERS) NIET
+VOOR U AANSPRAKELIJK ZIJN VOOR ELKE SCHADE, INCLUSIEF DIRECTE, INCIDENTELE,
+OF GEVOLGSCHADE, GEDERFDE INKOMSTEN OF VERLOREN BESPARINGEN VOLGEND UIT HET
+GEBRUIK OF ONMOGELIJKHEID VAN GEBRUIK VAN OPENSUSE Leap 42.2, ZELFS ALS HET 
+OPENSUSE PROJECT IS GEWAARSCHUWD VOOR DE MOGELIJKHEID VAN ZULKE SCHADE.  IN 
+EEN JURISDICTIE DIE DE UITSLUITING OF BEPERKING VAN SCHADES BEPERKT, WORDT
+DE AANSPRAKELIJKHEID VAN HET OPENSUSE PROJECT (EN ZIJN LICENTIENEMERS, 
+ONDERAANNEMERS EN MEDEWERKERS) BEPERKT TOT EEN GEZAMENLIJKE AANSPRAKELIJKHEID
+VAN $50US OF, ALS ZO'N BEPERKING NIET IS TOEGESTAAN, WORDT DEZE BEPERKT TOT 
+HET MAXIMAAL TOEGESTANE.
+
+U erkent dat openSUSE Leap 42.2 is onderworpen aan de U.S. Export
+Administration Regulations (de “EAR”) en u gaat ermee akkoord om te
+voldoen aan de bepalingen in EAR.  U zult openSUSE Leap 42.2 niet
+direct of indirect exporteren of opnieuw exporteren, naar: (1) elk land dat
+onderworpen is aan US exportbeperkingen; (2) elke eindgebruiker die u
+kent of een reden hebt te kennen om openSUSE Leap 42.2 te gebruiken
+in het ontwerpen, ontwikkelen of produceren van nucleaire, chemische of
+biologische wapens of raketsystemen, lanceringssystemen van ruimtevaar-
+tuigen en "sounding rockets", of onbemande luchtvaartuigen, behalve
+wanneer geautoriseerd door de van toepassing zijn "government agency"
+via regelingen of specifieke licentie; of (3) elke eindgebruiker die het verboden
+is om deel te nemen in de US exporttransacties door elke federale agency
+van de US regering. Door openSUSE Leap 42.2 te downloaden of te
+gebruiken, gaat u akkoord met het vorige en u verklaart en garandeert dat
+U niet bent in, of onder de controle van of een inwoner of of iemand die de
+nationaliteit heeft van elk zo'n land of op elk zo'n lijst. Bovendien bent u
+verantwoordelijk voor het voldoen aan alle lokale wetten in uw jurisdictie 
+die invloed kunnen hebben op uw recht te importeren, te exporteren of 
+openSUSE Leap 42.2 te gebruiken.  Consulteer de webpagina van het
+Bureau of Industry and Security www.bis.doc.gov alvorens items 
+onderworpen aan de EAR te exporteren. Het is uw verantwoordelijkheid
+om elke noodzakelijke exportvergunning te verkrijgen.
+
+Als het voldoen aan een deel van deze overeenkomst niet is af te dwingen, 
+dan heeft dat geen gevolg voor het afdwingen van de overige bepalingen. 
+Deze overeenkomst gaat gepaard met de wetten van de State of Utah en
+van de VS, zonder rekening te houden met enig conflict in wettelijke 
+bepalingen, behalve dan dat de United Nations Convention on the International
+Sale of Goods niet van toepassing is. Deze overeenkomst laat het gehele
+begrip en de overeenkomst tussen u en Het openSUSE Project zien met 
+betrekking tot zijn onderwerp en kan alleen schriftelijk aangepast worden
+getekend door beide partijen. Geen afwijking van welk recht ook onder deze 
+overeenkomst zal van kracht zijn tenzij schriftelijk, getekend door een 
+rechtmatig geautoriseerde vertegenwoordiger van de bindende partij. Geen 
+afwijking in een recht in het verleden of heden voortkomend uit een gebrek 
+of niet voldoen aan, zal beschouwd worden als een afwijking van welk 
+toekomstig recht dan ook, voortkomend uit deze overeenkomst. Gebruik, 
+duplicering of openbaarmaking door de U.S. Government is onderworpen aan
+de beperkingen in FAR 52.227-14 (Dec 2007) Alternate III (Dec 2007), FAR
+ 52.227-19 (Dec 2007), or DFARS 252.227-7013(b)(3) (Nov 1995) of van 
+toepassing zijnde vervolgbepalingen.
+
+Copyright © 2008-2016 Het openSUSE Project. Alle rechten voorbehouden.
+"SUSE" en "openSUSE" zijn geregistreerde handelsmerken van SUSE LLC, of 
+aanverwanten, die Het openSUSE Project hebben opgericht, gesponsord en naam 
+gegeven. "Linux" is een geregistreerd handelsmerk van Linus Torvalds. Alle 
+andere handelsmerken zijn het eigendom van hun respectievelijke eigenaars.
+
+As required by US law, you represent and warrant that you: (a)
+understand that openSUSE Leap 42.2 is subject to export controls under
+the Export Administration Regulations ("EAR") which are implemented
+and enforced by the US Department of Commerce, Bureau of Industry and
+Security; (b) are not located in a prohibited destination country or  are
+specifically prohibited under the EAR or US sanctions regulations; (c) will not export,
+re-export, or transfer openSUSE Leap 42.2 to any prohibited destination,
+entity, or individual without the necessary export license(s)
+or authorizations(s) from the US Government; (d) will not use or
+transfer openSUSE Leap 42.2 for use in any sensitive nuclear, chemical,
+or biological weapons or missile technology end-uses unless
+authorized by the US Government by regulation or specific license;
+(e) understand that countries other than the US may restrict the
+import, use, or export of encryption products and that you will be
+solely responsible for compliance with any such import, use, or export
+restrictions.

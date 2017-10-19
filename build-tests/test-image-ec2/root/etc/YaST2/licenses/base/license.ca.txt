@@ -1,0 +1,108 @@
+ACORD DE LLICÈNCIA
+openSUSE® Leap 42.2
+
+Aquesta és una traducció no oficial de la llicència d'openSUSE Leap 42.2 al 
+$LANGUAGE. No fa constar legalment els termes de la distribució per a openSUSE 
+Leap 42.2, només ho fa el text original en anglès de la llicència d'openSUSE 
+lLeap 42.2. Tanmateix, esperem que aquestra traducció ajudi als parlants de
+$LANGUAGE a entendre-la millor.
+
+Aquest acord regula la descàrrega, instal·lació o ús d'openSUSE 
+Leap 42.2 i les seves actualitzacions, independentment del 
+mecanisme de lliurament. L'openSUSE Leap 42.2 és un treball col·lectiu 
+subjecte a la llei de Dret de còpia d'EUA. D'acord amb els termes següents,
+el projecte openSUSE us concedeix una llicència d'aquesta obra col·lectiva de
+conformitat amb la Llicència Pública General GNU, versió 2. En descarregar, 
+instal·lar o usar l'openSUSE Leap 42.2 accepteu els termes d'aquest acord.
+
+L'openSUSE Leap 42.2 és un sistema operatiu Linux modular que consisteix
+en centenars de components de programari. L'acord de llicència per a cada
+component generalment es troba al codi font del component. Amb
+l'excepció de certs fitxers que contenen la marca comercial d"openSUSE",
+abordats a continuació, els termes de la llicència per als components
+us permeten copiar i redistribuir el component. Amb l'excepció
+potencial de certs fitxers de microprogramari, els termes de llicència
+per als components us permeten copiar, modificar i redistribuir el
+component, tant en forma de codi font i com de codi binari. Aquest acord
+no limita els vostres drets segons –o us concedeix drets que els reemplacin–
+els termes de la llicència de qualsevol component concret.
+
+L'openSUSE Leap 42.2 i cadascun dels seus components, incloent-hi el
+codi font, la documentació, l'aparença, l'estructura i l'organització, tenen
+drets d'autor del Projecte openSUSE i d'altres, i estan protegits per drets
+d'autor i altres lleis. Títol d'openSUSE Leap 42.2 i qualsevol
+component, o qualsevol còpia, romandrà amb la ja esmentada o els seus
+llicenciants, subjecte a la llicència aplicable. La marca comercial "openSUSE"
+és una marca registrada de SUSE, LLC., als EUA i a altres països, i és
+usat amb permís. Aquest acord us permet distribuir còpies no modificades
+o modificades de l'openSUSE Leap 42.2 utilitzant la marca comercial
+"openSUSE" amb la condició que seguiu les directrius del projecte openSUSE
+publicades a http://en.opensuse.org/Legal. Heu de complir les directrius de la 
+marca comercial quan distribuïu l'openSUSE Leap 42.2, independentment
+de si l'openSUSE Leap 42.2 ha estat modificat.
+
+Llevat que s'indiqui específicament en aquest acord o en una llicència per a
+un component concret, EN LA MESURA MÀXIMA PERMESA PER LA LLEI,
+L'OPENSUSE Leap 42.2 I ELS COMPONENTS S'OFEREIXEN
+I LLICENCIEN "TAL COM SÓN", SENSE GARANTIA DE CAP TIPUS, EXPRESSADA
+O IMPLÍCITA, INCLOENT-HI LES GARANTIES IMPLÍCITES DE COMERCIALITZACIÓ
+PROPIETAT, NO INFRACCIÓ O ADEQUACIÓ A UN FI CONCRET. El projecte 
+openSUSE no garanteix que les funcions contingudes a l'openSUSE Leap 42.2
+s'adaptin a les vostres necessitats o que el funcionament de l'openSUSE Leap 42.2
+serà completament lliure d'errors o que aparegui precisament com es descriu
+a la documentació que l'acompanya. USEU L'OPENSUSE Leap 42.2 SEGONS
+LA VOSTRA RESPONSABILITAT.
+
+FINS AL MÀXIM PERMÈS PER LA LLEI APLICABLE, EL PROJECTE OPENSUSE
+(I ELS SEUS LLICENCIANTS, FILIALS I EMPLEATS) NO SERÀ RESPONSABLE
+PER A VOSALTRES PER CAP DANY, DIRECTE, INCIDENTAL O CONSEQÜENT,
+PÈRDUA DE GUANYS O D'ESTALVIS DERIVATS DE L'ÚS O DE LA INCAPACITAT 
+D'UTILITZAR L'OPENSUSE Leap 42.2, ENCARA QUE EL PROJECTE OPENSUSE
+HAGI ESTAT ADVERTIT DE LA POSSIBILITAT D'AQUESTS DANYS. EN UNA
+JURISDICCIÓ QUE LIMITA L'EXCLUSIÓ O LIMITACIÓ DE DANYS, LA RESPONSABILITAT
+TOTAL DEL PROJECTE OPENSUSE (I ELS SEUS LLICENCIANTS, FILIALS I
+EMPLEATS) ES LIMITA A 50 $, O SI TAL LIMITACIÓ NO ESTÀ PERMESA, ES
+LIMITA A LA MESURA MÀXIMA PERMESA.
+
+Vós reconeixeu que l'openSUSE Leap 42.2 està subjecte a la U.S. Export
+Administration Regulations (EAR) i us comprometeu a complir l'EAR. No exportareu
+o reexportareu l'openSUSE Leap 42.2 directament o indirectament, a 
+(1) qualsevol país que estigui subjecte a les resticcions d'exportació dels EUA;
+(2) a qualsevol usuari final que vós sapigueu o tingueu raons per saber que tingui la
+voluntat d'utilitzar l'openSUSE Leap 42.2 en el disseny, desenvolupament o producció
+d'armes nuclears, químiques o biològiques, o sistemes de coet, llançament de vehicles
+a l'espai, coets de sondeig, o sistemes de vehicles aeris no tripulats, excepte
+segons el que autoritzi l'agència governamental pertinent per regulació o llicència
+específica, o (3) a qualsevol usuari final que tingui prohibit participar en les
+transaccions d'exportació dels Estats Units per qualsevol agència federal del govern
+dels Estats Units. En descarregar o utilitzar l'openSUSE Leap 42.2, esteu d'acord en
+l'anterior, i representeu i garantiu que no us es trobeu en tal llista, o sota control
+d'un nacional o resident d'un país d'aquests. A més, sou responsable
+de complir les lleis locals de la vostra jurisdicció que puguin afectar el vostre dret
+a la importació, exportació o ús de l'openSUSE Leap 42.2. Si us plau, consulteu
+la pàgina de l'Oficina d'Indústria i Seguretat Web www.bis.doc.gov abans d'exportar ítems
+subjectes a EAR. És responsabilitat vostra obtenir els permisos d'exportació necessaris.
+
+Si alguna disposició d'aquest acord es considera inaplicable, això
+no afectarà l'aplicabilitat de les disposicions restants. Aquest
+acord es regeix per les lleis de l'Estat de Utah i dels EUA,
+sense tenir en compte qualsevol conflicte de disposicions legals,
+excepte que la Convenció de les Nacions Unides sobre la
+Venda Internacional de Béns no s'aplicarà. Aquest acord estableix 
+l'enteniment i acord total entre l'usuari i el Projecte openSUSE
+en relació amb aquest assumpte, i només podrà ser modificat en
+un escrit signat per les dues parts. Cap renúncia a qualsevol dret
+d'aquest acord serà efectiva si no és per escrit, signat per un 
+representant de la part obligada degudament autoritzat. Cap renúncia a un
+dret passat o present que sorgeixi de qualsevol violació o incompliment
+es considerarà com una renúncia de qualsevol dret futur derivat d'aquest
+acord. L'ús, la duplicació o la divulgació pel Govern dels EUA
+està subjecte a les restriccions establertes a FAR 52.227-14 (des. 2007)
+Versió III (des. 2007), FAR 52.227-19 (des. 2007), o DFARS
+252.227-7013 (b) (3) (nov. 1995), o les clàusules posteriors aplicables.
+
+Copyright © 2008-2016 The openSUSE Project. Tots els drets
+reservats. "SUSE" i "openSUSE" són marques registrades de SUSE LLC,
+o les seves filials, que el van fundar, el patrocinen i el van designar The openSUSE
+Project. "Linux" és una marca registrada de Linus Torvalds. Totes les
+altres marques són propietat dels seus propietaris respectius.

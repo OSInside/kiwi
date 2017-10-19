@@ -1,0 +1,111 @@
+PERJANJIAN LISENSI
+openSUSE® Leap 42.2
+
+Ini merupakan terjemahan tidak resmi dari lisensi openSUSE Leap 42.2 ke dalam
+Bahasa Indonesia. Terjemahan ini tidak secara hukum menyatakan ketentuan distribusi
+openSUSE Leap 42.2 - hanya versi asli lisensi openSUSE Leap 42.2
+dalam bahasa Inggris yang memiliki kekuatan hukum. Namun, kami harapkan bahwa terjemahan ini
+akan membantu penutur Bahasa Indonesia memahami lisensi ini secara lebih baik.
+
+Perjanjian ini mengatur tentang unduhan, pemasangan, atau penggunaan
+openSUSE Leap 42.2 dan pembaruannya, tanpa memperhatikan mekanisme penyaluran.
+openSUSE Leap 42.2 adalah karya kolektif dibawah Undang-Undang Hak Cipta
+Amerika Serikat. Tunduk pada ketentuan berikut, openSUSE Project
+memberikan hak lisensi kepada Anda untuk karya kolektif ini sesuai dengan
+Lisensi Publik Umum GNU versi 2. Dengan mengunduh, memasang, atau menggunakan
+openSUSE Leap 42.2, Anda menyetujui ketentuan dari perjanjian ini.
+
+openSUSE Leap 42.2 adalah sistem operasi Linux modular yang terdiri dari
+ratusan komponen perangkat lunak. Perjanjian lisensi untuk masing-masing
+komponen biasanya terdapat di komponen kode sumber. Dengan pengecualian
+pada berkas-berkas tertentu yang berisi merek dagang “openSUSE” yang dibahas
+di bawah, ketentuan lisensi untuk komponen-komponen tersebut mengizinkan Anda
+untuk menyalin dan mendistribusikan ulang komponen. Dengan potensi pengecualian
+pada berkas firmware tertentu, ketentuan lisensi untuk komponen-komponen
+tersebut mengizinkan Anda untuk menyalin, memodifikasi, dan mendistribusikan
+komponen, baik dalam bentuk kode sumber dan kode binari. Perjanjian ini tidak
+membatasi hak Anda, atau memberikan hak anda untuk menggantikan 
+persyaratan lisensi untuk masing-masing komponen tertentu.
+
+openSUSE Leap 42.2 dan masing-masing komponennya, termasuk kode sumber,
+dokumentasi, tampilan, struktur dan organisasi adalah hak cipta milik
+Proyek openSUSE dan lainnya dibawah undang-undang hak cipta dan
+undang-undang lainnya. Kepemilikan openSUSE Leap 42.2 dan masing-masing
+komponennya atau semua salinannya, akan tetap seperti yang disebutkan atau
+pemberi lisensinya, tunduk pada lisensi yang berlaku. Merek dagang "openSUSE"
+adalah merek dagang dari SUSE, LLC. di Amerika Serikat dan di negara lain
+dan digunakan dengan izin. Perjanjian ini mengizinkan Anda untuk mendistribusikan
+salinan openSUSE Leap 42.2 asli atau yang sudah dimodifikasi menggunakan
+merek dagang “openSUSE” dengan syarat bahwa Anda mengikuti pedoman merek dagang
+Proyek openSUSE yang terdapat di http://en.opensuse.org/Legal. Anda harus
+mematuhi pedoman merek dagang ini ketika mendistribusikan openSUSE Leap 42.2,
+terlepas dari apakah openSUSE Leap 42.2 sudah dimodifikasi.
+
+Kecuali secara khusus diatur dalam perjanjian ini atau dalam lisensi
+untuk komponen tertentu, SEJAUH DIIZINKAN BERDASARKAN HUKUM YANG BERLAKU,
+OPENSUSE Leap 42.2 DAN KOMPONEN-KOMPONENNYA DISEDIAKAN DAN DILISENSIKAN
+"SEBAGAIMANA ADANYA" TANPA JAMINAN APAPUN, TERSURAT ATAU TERSIRAT, TERMASUK
+JAMINAN TERSURAT YANG DAPAT DIPERDAGANGKAN, KEPEMILIKAN, 
+BUKAN PELANGGARAN, ATAU KESESUAIAN UNTUK TUJUAN TERTENTU. Proyek openSUSE
+tidak menjamin bahwa fungsi yang terdapat di openSUSE Leap 42.2 akan memenuhi kebutuhan Anda
+atau bahwa pengoperasian openSUSE Leap 42.2 akan sepenuhnya bebas dari
+kesalahan atau tampak persis seperti yang dijelaskan dalam dokumentasi
+yang menyertainya. PENGGUNAAN OPENSUSE Leap 42.2 ADALAH RESIKO ANDA
+SENDIRI.
+
+SEJAUH DIIZINKAN OLEH HUKUM YANG BERLAKU, PROYEK OPENSUSE (DAN 
+PEMBERI LISENSI, ANAK PERUSAHAAN, DAN KARYAWAN) TIDAK BERTANGGUNG JAWAB
+KEPADA ANDA ATAS KERUSAKAN, TERMASUK KERUSAKAN LANGSUNG, TIDAK DISENGAJA, 
+ATAU AKIBAT DARI KERUSAKAN, KERUGIAN, ATAU KEHILANGAN TABUNGAN YANG
+TIMBUL AKIBAT PENGGUNAAN ATAU KETIDAKMAMPUAN MENGGUNAKAN OPENSUSE Leap 42.2,
+BAHKAN JIKA PROYEK OPENSUSE TELAH DIBERITAHU TENTANG KEMUNGKINAN KERUSAKAN
+TERSEBUT. DI WILAYAH HUKUM YANG MEMBATASI PENGECUALIAN ATAU PEMBATASAN KERUSAKAN,
+KESELURUHAN KEWAJIBAN PROYEK OPENSUSE (DAN PEMBERI LISENSI, ANAK PERUSAHAAN,
+DAN KARYAWAN) TERBATAS PADA $50US, ATAU JIKA PEMBATASAN INI TIDAK DIIZINKAN,
+MAKA BERLAKU PEMBATASAN MAKSIMAL YANG DIIZINKAN.
+
+Anda mengakui bahwa openSUSE Leap 42.2 tunduk pada U.S. Export Administration
+Regulations (“EAR”) dan Anda setuju untuk mematuhi EAR. Anda tidak akan
+mengekspor atau mengekspor ulang openSUSE Leap 42.2 secara langsung atau
+tidak langsung, ke: (1) setiap negara yang tunduk pada pembatasan ekspor
+Amerika Serikat; (2) setiap pengguna akhir yang Anda tahu atau memiliki
+alasan untuk mengetahui akan memanfaatkan openSUSE Leap 42.2 dalam desain
+pengembangan atau produksi senjata nuklir, kimia atau biologis, atau sistem roket,
+peluncuran pesawat luar angkasa dan uji coba roket, atau sistem pesawat tanpa awak,
+kecuali sebagaimana diizinkan oleh instansi pemerintah terkait dengan peraturan
+atau lisensi tertentu; atau (3) setiap pengguna akhir yang telah dilarang
+berpartisipasi dalam transaksi ekspor Amerika Serikat oleh lembaga federal
+pemerintah Amerika Serikat. Dengan mengunduh atau menggunakan openSUSE Leap 42.2,
+Anda setuju dengan hal tersebut, dan menyatakan dan menjamin bahwa Anda tidak berada dalam, 
+di bawah kendali dari, atau merupakan penduduk atau bertempat tinggal di negara dalam daftar tersebut.
+Selain itu, Anda bertanggung jawab untuk mematuhi hukum setempat
+di wilayah hukum Anda yang mungkin berdampak pada hak Anda untuk mengimpor,
+mengekspor, atau menggunakan openSUSE Leap 42.2. Silakan membaca laman web
+Bureau of Industry and Security www.bis.doc.gov sebelum mengekspor item
+yang tunduk pada EAR. Hal ini adalah tanggung jawab Anda untuk memperoleh
+persetujuan ekspor yang diperlukan.
+
+Jika ada ketentuan dari perjanjian ini tidak dapat dilaksanakan, itu
+tidak akan mempengaruhi keberlakuan ketentuan lainnya. Perjanjian ini
+akan diatur oleh hukum Negara Bagian Utah dan AS, tanpa memperhatikan
+konflik ketentuan hukum, kecuali Konvensi PBB tentang Perdagangan
+Barang Internasional menyatakan tidak berlaku. Perjanjian ini menetapkan
+seluruh pemahaman dan kesepakatan antara Anda dan Proyek openSUSE
+mengenai materi pokok dan hanya dapat diubah secara tertulis dan
+ditandatangani oleh kedua belah pihak. Tidak ada pengabaian hak
+yang akan berlaku berdasarkan perjanjian ini kecuali secara tertulis,
+ditandatangani oleh perwakilan resmi secara hukum dari pihak yang mengikat.
+Tidak ada pengabaian hak pada masa lalu atau sekarang yang disebabkan oleh
+pelanggaran atau kegagalan untuk melakukan, akan dianggap sebagai
+pelanggaran dari hukum di masa depan yang timbul berdasarkan perjanjian ini.
+Penggunaan, penggandaan, atau pengungkapan oleh Pemerintah AS tunduk pada
+pembatasan FAR 52.227-14 (Dec 2007) Alternate III (Dec 2007),
+FAR  52.227-19 (Dec 2007), atau DFARS 252.227-7013(b)(3) (Nov 1995), atau
+klausa pengganti yang berlaku.
+
+Hak cipta © 2008-2016 Proyek openSUSE. Hak cipta dilindungi.
+"SUSE" dan "openSUSE" adalah merek dagang terdaftar milik SUSE LLC,
+atau afiliasinya, yang didirikan, disponsori dan ditunjuk oleh,
+Proyek openSUSE. "Linux" adalah merek dagang terdaftar milik
+Linus Torvalds. Semua merek dagang lainnya adalah properti dari
+masing-masing pemiliknya.
