@@ -817,9 +817,8 @@ execution, and the applicable boot image.
   one active console.
 
 ``init``
-  This hook is called before udev is started. It exists only for the *PXE*
-  image type.
-
+  This hook is called before udev is started.
+  
 ``preconfig`` | ``postconfig``
   The hooks are called before and after the client configuration files (CONF
   contents) are setup, respectively. The hooks only exist for the *PXE* image
@@ -853,15 +852,14 @@ execution, and the applicable boot image.
 
 ``preprobe`` | ``postprobe``
   The hooks are called before and after the loading of modules not handled by
-  udev, respectively. The hooks only exist for the *PXE* image type.
+  udev, respectively.
 
 ``preswap`` | ``postswap``
   The hooks are called before and after the creation of the swap space,
   respectively. The hooks only exist for the *PXE* image type.
 
 ``preactivate``
-  This hook is called before the root file system is moved to :file:`/`. The
-  hook only exists for the *PXE* image type.
+  This hook is called before the root file system is moved to :file:`/`.
 
 ``preCallInit``
    This hook is called before the initialization process, init or systemd, is
