@@ -27,16 +27,6 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# SuSEconfig
-#--------------------------------------
-suseConfig
-
-#==========================================
-# setup gfxboot
-#------------------------------------------
-suseGFXBoot SLES grub2
-
-#======================================
 # Keep UTF-8 locale
 #--------------------------------------
 baseStripLocales \

@@ -20,6 +20,7 @@ import yaml
 
 # project
 from .logger import log
+from .defaults import Defaults
 from .exceptions import (
     KiwiRuntimeConfigFormatError
 )
@@ -46,13 +47,62 @@ class RuntimeConfig(object):
             with open(config_file, 'r') as config:
                 self.config_data = yaml.load(config)
 
-    def get_xz_options(self):
-        return self._get_attribute_list(element='xz', attribute='options')
+    def get_obs_download_server_url(self):
+        """
+        Return URL of buildservice download server in:
 
-    def _get_attribute_list(self, element, attribute):
-        if self.config_data and element in self.config_data:
+        obs:
+          - download_url: ...
+
+        if no configuration exists the downloadserver from
+        the Defaults class is returned
+
+        :rtype: string
+        """
+        obs_download_server_url = self._get_attribute(
+            element='obs', attribute='download_url'
+        )
+        return obs_download_server_url if obs_download_server_url else \
+            Defaults.get_obs_download_server_url()
+
+    def is_obs_public(self):
+        """
+        Check if the buildservice configuration is public or private in:
+
+        obs:
+          - public: true|false
+
+        if no configuration exists we assume to be public
+
+        :rtype: bool
+        """
+        obs_public = self._get_attribute(element='obs', attribute='public')
+        if obs_public is None:
+            # if the privacy attribute is not set we assume to be public
+            obs_public = True
+        return bool(obs_public)
+
+    def get_xz_options(self):
+        """
+        Return list of XZ compression options in:
+
+        xz:
+          - options: ...
+
+        if no configuration exists None is returned
+
+        :rtype: list
+        """
+        xz_options = self._get_attribute(element='xz', attribute='options')
+        return xz_options.split() if xz_options else None
+
+    def _get_attribute(self, element, attribute):
+        if self.config_data:
             try:
-                return self.config_data[element][0][attribute].split()
+                if element in self.config_data:
+                    for attribute_dict in self.config_data[element]:
+                        if attribute in attribute_dict:
+                            return attribute_dict[attribute]
             except Exception as e:
                 raise KiwiRuntimeConfigFormatError(
                     '{error_type}: {error_text}'.format(

@@ -45,10 +45,10 @@ class Profile(object):
         self._profile_names_to_profile()
         self._packages_marked_for_deletion_to_profile()
         self._type_to_profile()
+        self._type_complex_to_profile()
         self._preferences_to_profile()
         self._systemdisk_to_profile()
         self._strip_to_profile()
-        self._machine_to_profile()
         self._oemconfig_to_profile()
         self._drivers_to_profile()
 
@@ -72,6 +72,8 @@ class Profile(object):
         :return: profile dump for bash
         :rtype: string
         """
+        Defaults.set_python_default_encoding_to_utf8()
+
         sorted_profile = collections.OrderedDict(
             sorted(self.dot_profile.items())
         )
@@ -172,11 +174,10 @@ class Profile(object):
             self.xml_state.get_drivers_list()
         )
 
-    def _machine_to_profile(self):
+    def _type_complex_to_profile(self):
         # kiwi_xendomain
-        machine = self.xml_state.get_build_type_machine_section()
-        if machine:
-            self.dot_profile['kiwi_xendomain'] = machine.get_domain()
+        if self.xml_state.is_xen_server():
+            self.dot_profile['kiwi_xendomain'] = 'dom0'
 
     def _strip_to_profile(self):
         # kiwi_strip_delete
@@ -207,7 +208,8 @@ class Profile(object):
 
             volume_count = 1
             for volume in self.xml_state.get_volumes():
-                self.dot_profile['kiwi_Volume_' + format(volume_count)] = '|'.join(
+                volume_id_name = 'kiwi_Volume_{id}'.format(id=volume_count)
+                self.dot_profile[volume_id_name] = '|'.join(
                     [
                         volume.name,
                         'size:all' if volume.fullsize else volume.size,
@@ -290,7 +292,7 @@ class Profile(object):
         self.dot_profile['kiwi_hybridpersistent_filesystem'] = \
             type_section.get_hybridpersistent_filesystem()
         self.dot_profile['kiwi_initrd_system'] = \
-            type_section.get_initrd_system()
+            self.xml_state.get_initrd_system()
         self.dot_profile['kiwi_ramonly'] = \
             type_section.get_ramonly()
         self.dot_profile['kiwi_target_blocksize'] = \

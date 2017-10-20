@@ -33,10 +33,10 @@ class Help(object):
         """
         Call man to show the command specific manual page
 
-        All kiwi commands store their manual page in the section '2'
+        All kiwi commands store their manual page in the section '8'
         of the man system. The calling process is replaced by the
         man process
         """
         if not command:
             raise KiwiHelpNoCommandGiven("No help context specified")
-        subprocess.call('man 2 ' + command, shell=True)
+        subprocess.call('man 8 ' + command, shell=True)

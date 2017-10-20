@@ -20,9 +20,10 @@ class TestRootImportOCI(object):
             return tmpdirs.pop()
 
         mock_mkdtemp.side_effect = call_mkdtemp
-        self.oci_import = RootImportOCI(
-            'root_dir', Uri('file:///image.tar.xz#tag')
-        )
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            self.oci_import = RootImportOCI(
+                'root_dir', Uri('file:///image.tar.xz#tag')
+            )
         assert self.oci_import.image_file == '/image.tar.xz'
 
     @patch('os.path.exists')
@@ -103,9 +104,10 @@ class TestRootImportOCI(object):
             return tmpdirs.pop()
 
         mock_mkdtemp.side_effect = call_mkdtemp
-        oci_import = RootImportOCI(
-            'root_dir', Uri('file:///image.tar.xz')
-        )
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            oci_import = RootImportOCI(
+                'root_dir', Uri('file:///image.tar.xz')
+            )
         oci_import.extract_oci_image()
         mock_run.assert_called_once_with([
             'skopeo', 'copy', 'oci:kiwi_uncompressed',

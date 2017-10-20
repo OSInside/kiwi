@@ -19,7 +19,6 @@ import re
 import copy
 import platform
 from collections import namedtuple
-from six.moves.urllib.parse import urlparse
 from textwrap import dedent
 
 # project
@@ -109,6 +108,23 @@ class XMLState(object):
             version = preferences.get_version()
             if version:
                 return version[0]
+
+    def get_initrd_system(self):
+        """
+        Name of initrd system to use
+
+        Depending on the image type a specific initrd system is
+        either pre selected or free of choice according to the
+        XML type setup
+
+        :return: dracut|kiwi|None
+        :rtype: string
+        """
+        initrd_system = self.build_type.get_initrd_system() or 'kiwi'
+        if self.get_build_type_name() == 'vmx':
+            # vmx image type always uses dracut as initrd system
+            initrd_system = 'dracut'
+        return initrd_system
 
     def get_rpm_excludedocs(self):
         """
@@ -245,6 +261,15 @@ class XMLState(object):
         :rtype: list
         """
         return self.get_packages_sections(['bootstrap'])
+
+    def get_image_packages_sections(self):
+        """
+        List of packages sections matching type="image"
+
+        :return: <packages>
+        :rtype: list
+        """
+        return self.get_packages_sections(['image'])
 
     def get_bootstrap_packages(self):
         """
@@ -453,6 +478,19 @@ class XMLState(object):
         """
         return self.get_products('image')
 
+    def is_xen_server(self):
+        return self.build_type.get_xen_server()
+
+    def is_xen_guest(self):
+        firmware = self.build_type.get_firmware()
+        machine_section = self.get_build_type_machine_section()
+        if firmware and firmware in Defaults.get_ec2_capable_firmware_names():
+            # the image is targeted to run in Amazon EC2 which is a Xen system
+            return True
+        elif machine_section and machine_section.get_xen_loader():
+            # the image provides a machine section with a guest loader setup
+            return True
+
     def get_build_type_system_disk_section(self):
         """
         First system disk section from the build type section
@@ -610,6 +648,24 @@ class XMLState(object):
         spare_part_size = self.build_type.get_spare_part()
         if spare_part_size:
             return self._to_mega_byte(spare_part_size)
+
+    def get_build_type_format_options(self):
+        """
+        Disk format options returned as a dictionary
+
+        :return: format options
+        :rtype: dict
+        """
+        result = {}
+        format_options = self.build_type.get_formatoptions()
+        if format_options:
+            for option in format_options.split(','):
+                key_value_list = option.split('=')
+                if len(key_value_list) == 2:
+                    result[key_value_list[0]] = key_value_list[1]
+                else:
+                    result[key_value_list[0]] = None
+        return result
 
     def get_volume_group_name(self):
         """
@@ -1183,37 +1239,21 @@ class XMLState(object):
         """
         self.xml_data.set_repository([])
 
-    def translate_obs_to_ibs_repositories(self):
+    def delete_repository_sections_used_for_build(self):
         """
-        Change obs repotype to ibs type
-
-        This will result in pointing to build.suse.de instead of
-        build.opensuse.org
+        Delete all repository sections used to build the image matching
+        configured profiles
         """
-        for repository in self.get_repository_sections():
-            source_path = repository.get_source()
-            source_uri = urlparse(source_path.get_path())
-            if source_uri.scheme == 'obs':
-                source_path.set_path(
-                    source_path.get_path().replace('obs:', 'ibs:')
-                )
+        used_for_build = self.get_repository_sections_used_for_build()
+        all_repos = self.get_repository_sections()
+        self.xml_data.set_repository([
+            repo for repo in all_repos if repo not in used_for_build
+        ])
 
-    def translate_obs_to_suse_repositories(self):
-        """
-        Change obs: repotype to suse: type
-
-        This will result in a local repo path suitable for a
-        buildservice worker instance
-        """
-        for repository in self.get_repository_sections():
-            source_path = repository.get_source()
-            source_uri = urlparse(source_path.get_path())
-            if source_uri.scheme == 'obs':
-                source_path.set_path(
-                    source_path.get_path().replace('obs:', 'suse:')
-                )
-
-    def set_repository(self, repo_source, repo_type, repo_alias, repo_prio):
+    def set_repository(
+        self, repo_source, repo_type, repo_alias, repo_prio,
+        repo_imageinclude=False
+    ):
         """
         Overwrite repository data of the first repository
 
@@ -1221,6 +1261,7 @@ class XMLState(object):
         :param string repo_type: type name defined by schema
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
+        :param boolean imageinclude: setup repository inside of the image
         """
         repository_sections = self.get_repository_sections()
         if repository_sections:
@@ -1233,8 +1274,13 @@ class XMLState(object):
                 repository.get_source().set_path(repo_source)
             if repo_prio:
                 repository.set_priority(int(repo_prio))
+            if repo_imageinclude:
+                repository.set_imageinclude(repo_imageinclude)
 
-    def add_repository(self, repo_source, repo_type, repo_alias, repo_prio):
+    def add_repository(
+        self, repo_source, repo_type, repo_alias, repo_prio,
+        repo_imageinclude=False
+    ):
         """
         Add a new repository section at the end of the list
 
@@ -1242,13 +1288,19 @@ class XMLState(object):
         :param string repo_type: type name defined by schema
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
+        :param boolean imageinclude: setup repository inside of the image
         """
+        try:
+            repo_prio = int(repo_prio)
+        except:
+            repo_prio = None
         self.xml_data.add_repository(
             xml_parse.repository(
                 type_=repo_type,
                 alias=repo_alias,
                 priority=repo_prio,
-                source=xml_parse.source(path=repo_source)
+                source=xml_parse.source(path=repo_source),
+                imageinclude=repo_imageinclude
             )
         )
 
@@ -1398,18 +1450,23 @@ class XMLState(object):
 
     def copy_bootincluded_packages(self, target_state):
         """
-        Copy packages marked as bootinclude to the packages type=bootstrap
-        section in the target xml state. The package will also be removed
-        from the packages type=delete section in the target xml state
-        if present there
+        Copy packages marked as bootinclude to the packages type=image
+        (or type=bootstrap if no type=image was found) section in the
+        target xml state. The package will also be removed from the
+        packages type=delete section in the target xml state if
+        present there
 
         :param object target_state: XMLState instance
         """
-        target_bootstrap_packages_sections = \
-            target_state.get_bootstrap_packages_sections()
-        if target_bootstrap_packages_sections:
-            target_bootstrap_packages_section = \
-                target_bootstrap_packages_sections[0]
+        target_packages_sections = \
+            target_state.get_image_packages_sections()
+        if not target_packages_sections:
+            # no packages type=image section was found, add to bootstrap
+            target_packages_sections = \
+                target_state.get_bootstrap_packages_sections()
+        if target_packages_sections:
+            target_packages_section = \
+                target_packages_sections[0]
             package_names_added = []
             packages_sections = self.get_packages_sections(
                 ['image', 'bootstrap', self.get_build_type_name()]
@@ -1420,7 +1477,7 @@ class XMLState(object):
             if package_list:
                 for package in package_list:
                     if package.package_section.get_bootinclude():
-                        target_bootstrap_packages_section.add_package(
+                        target_packages_section.add_package(
                             xml_parse.package(
                                 name=package.package_section.get_name()
                             )

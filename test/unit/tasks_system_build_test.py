@@ -78,12 +78,12 @@ class TestSystemBuildTask(object):
         self.task.command_args['--allow-existing-root'] = True
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
-        self.task.command_args['--obs-repo-internal'] = None
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--add-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
+        self.task.command_args['--ignore-repos-used-for-build'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
         self.task.command_args['--clear-cache'] = False
@@ -94,10 +94,16 @@ class TestSystemBuildTask(object):
         self._init_command_args()
         self.task.command_args['build'] = True
         self.task.process()
+        self.runtime_checker.check_consistent_kernel_in_boot_and_system_image.assert_called_once_with()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
-        self.runtime_checker.check_image_include_repos_http_resolvable.assert_called_once_with()
+        self.runtime_checker.check_volume_setup_has_no_root_definition.assert_called_once_with()
+        self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(self.abs_target_dir)
+        self.runtime_checker.check_mediacheck_only_for_x86_arch.assert_called_once_with()
+        self.runtime_checker.check_dracut_module_for_live_iso_in_package_list.assert_called_once_with()
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
+        self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list.assert_called_once_with()
+        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager
@@ -117,6 +123,7 @@ class TestSystemBuildTask(object):
         self.setup.setup_users.assert_called_once_with()
         self.setup.setup_keyboard_map.assert_called_once_with()
         self.setup.setup_locale.assert_called_once_with()
+        self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
         self.system_prepare.pinch_system.assert_called_once_with(
             manager=self.manager, force=True
@@ -181,7 +188,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_set_repo.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', None, None
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
@@ -191,33 +198,12 @@ class TestSystemBuildTask(object):
     ):
         self._init_command_args()
         self.task.command_args['--add-repo'] = [
-            'http://example.com,yast2,alias'
+            'http://example.com,yast2,alias,99,false'
         ]
         self.task.process()
         mock_add_repo.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', '99', False
         )
-
-    @patch('kiwi.logger.Logger.set_logfile')
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_ibs_repositories')
-    def test_process_system_prepare_use_ibs_repos(
-        self, mock_ibs_repo, mock_log
-    ):
-        self._init_command_args()
-        self.task.command_args['--obs-repo-internal'] = True
-        self.task.process()
-        mock_ibs_repo.assert_called_once_with()
-
-    @patch('kiwi.logger.Logger.set_logfile')
-    @patch('kiwi.xml_state.XMLState.translate_obs_to_suse_repositories')
-    @patch('os.path.exists')
-    def test_process_system_prepare_use_suse_repos(
-        self, mock_exists, mock_suse_repos, mock_log
-    ):
-        self._init_command_args()
-        mock_exists.return_value = True
-        self.task.process()
-        mock_suse_repos.assert_called_once_with()
 
     def test_process_system_build_help(self):
         self._init_command_args()
@@ -235,5 +221,15 @@ class TestSystemBuildTask(object):
     ):
         self._init_command_args()
         self.task.command_args['--ignore-repos'] = True
+        self.task.process()
+        mock_delete_repos.assert_called_once_with()
+
+    @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_prepare_ignore_repos_used_for_build(
+        self, mock_log, mock_delete_repos
+    ):
+        self._init_command_args()
+        self.task.command_args['--ignore-repos-used-for-build'] = True
         self.task.process()
         mock_delete_repos.assert_called_once_with()

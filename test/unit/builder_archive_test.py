@@ -62,7 +62,9 @@ class TestArchiveBuilder(object):
             'target_dir/myimage.x86_64-1.2.3.tar'
         )
         archive.create_xz_compressed.assert_called_once_with(
-            'root_dir', xz_options=None
+            'root_dir', exclude=[
+                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi'
+            ], xz_options=None
         )
         mock_checksum.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.tar.xz'
@@ -70,9 +72,9 @@ class TestArchiveBuilder(object):
         checksum.md5.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.md5'
         )
-        self.setup.export_rpm_package_verification.assert_called_once_with(
+        self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_rpm_package_list.assert_called_once_with(
+        self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )

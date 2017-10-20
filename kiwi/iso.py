@@ -35,7 +35,8 @@ from .command import Command
 from .exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError,
-    KiwiIsoToolError
+    KiwiIsoToolError,
+    KiwiCommandError
 )
 
 
@@ -86,7 +87,7 @@ class Iso(object):
         self.iso_loaders = []
 
     @classmethod
-    def create_hybrid(self, offset, mbrid, isofile):
+    def create_hybrid(self, offset, mbrid, isofile, efi_mode=False):
         """
         Create hybrid ISO
 
@@ -98,13 +99,61 @@ class Iso(object):
         :param string mbrid: boot record id
         :param string isofile: path to the ISO file
         """
+        ignore_errors = [
+            # we ignore this error message, for details see:
+            # http://www.syslinux.org/archives/2015-March/023306.html
+            'Warning: more than 1024 cylinders',
+            'Not all BIOSes will be able to boot this device'
+        ]
+        isohybrid_parameters = [
+            '--offset', format(offset),
+            '--id', mbrid.get_id(),
+            '--type', '0x83',
+        ]
+        if efi_mode:
+            isohybrid_parameters.append('--uefi')
+        isohybrid_call = Command.run(
+            ['isohybrid'] + isohybrid_parameters + [isofile]
+        )
+        # isohybrid warning messages on stderr should be treated
+        # as fatal errors except for the ones we want to ignore
+        # because unexpected after effects might happen if e.g a
+        # gpt partition should be embedded but only a warning
+        # appears if isohybrid can't find an efi loader. Thus we
+        # are more strict and fail
+        if isohybrid_call.error:
+            error_list = isohybrid_call.error.split(os.linesep)
+            error_fatal_list = []
+            for error in error_list:
+                ignore = False
+                for ignore_error in ignore_errors:
+                    if ignore_error in error:
+                        ignore = True
+                        break
+                if not ignore:
+                    error_fatal_list.append(error)
+            if error_fatal_list:
+                raise KiwiCommandError(
+                    'isohybrid issue not ignored by kiwi: {0}'.format(
+                        error_fatal_list
+                    )
+                )
+
+    @classmethod
+    def set_media_tag(self, isofile):
+        """
+        Include checksum tag in the ISO so it can be verified with
+        the mediacheck program.
+
+        :param string isofile: path to the ISO file
+        """
         Command.run(
             [
-                'isohybrid',
-                '--offset', format(offset),
-                '--id', mbrid.get_id(),
-                '--type', '0x83',
-                '--uefi', isofile
+                'tagmedia',
+                '--md5',
+                '--check',
+                '--pad', '150',
+                isofile
             ]
         )
 

@@ -208,8 +208,12 @@ class RepositoryZypper(RepositoryBase):
             if user and secret:
                 uri = ''.join([uri, '?credentials=', credentials_file])
                 with open(repo_secret, 'w') as credentials:
-                    credentials.write('username={0}'.format(user))
-                    credentials.write('password={0}'.format(secret))
+                    credentials.write('username={0}{1}'.format(
+                        user, os.linesep)
+                    )
+                    credentials.write('password={0}{1}'.format(
+                        secret, os.linesep)
+                    )
 
         repo_file = ''.join(
             [self.shared_zypper_dir['reposd-dir'], '/', name, '.repo']

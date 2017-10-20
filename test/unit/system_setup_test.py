@@ -29,6 +29,9 @@ class TestSystemSetup(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.xml_state = mock.MagicMock()
+        self.xml_state.get_package_manager = mock.Mock(
+            return_value='zypper'
+        )
         self.xml_state.build_type.get_filesystem = mock.Mock(
             return_value='ext3'
         )
@@ -662,39 +665,80 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.system.setup.Command.run')
-    @patch('os.path.exists')
     @patch_open
-    def test_export_rpm_package_list(
-        self, mock_open, mock_exists, mock_command
+    def test_export_package_list_rpm(
+        self, mock_open, mock_command
     ):
         command = mock.Mock()
         command.output = 'packages_data'
-        mock_exists.return_value = True
         mock_command.return_value = command
-        result = self.setup.export_rpm_package_list('target_dir')
+        result = self.setup.export_package_list('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
             'rpm', '--root', 'root_dir', '-qa', '--qf',
-            '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}|\\n'
+            '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n'
         ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
         )
 
     @patch('kiwi.system.setup.Command.run')
-    @patch('os.path.exists')
     @patch_open
-    def test_export_rpm_package_verification(
-        self, mock_open, mock_exists, mock_command
+    def test_export_package_list_dpkg(
+        self, mock_open, mock_command
+    ):
+        command = mock.Mock()
+        command.output = 'packages_data'
+        mock_command.return_value = command
+        self.xml_state.get_package_manager = mock.Mock(
+            return_value='apt-get'
+        )
+        result = self.setup.export_package_list('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
+        mock_command.assert_called_once_with([
+            'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg', '-W',
+            '-f', '${Package}|None|${Version}|None|${Architecture}|None\\n'
+        ])
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+        )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch_open
+    def test_export_package_verification(
+        self, mock_open, mock_command
     ):
         command = mock.Mock()
         command.output = 'verification_data'
-        mock_exists.return_value = True
         mock_command.return_value = command
-        result = self.setup.export_rpm_package_verification('target_dir')
+        result = self.setup.export_package_verification('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=['rpm', '--root', 'root_dir', '-Va'],
+            raise_on_error=False
+        )
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.verified', 'w'
+        )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch_open
+    def test_export_package_verification_dpkg(
+        self, mock_open, mock_command
+    ):
+        command = mock.Mock()
+        command.output = 'verification_data'
+        mock_command.return_value = command
+        self.xml_state.get_package_manager = mock.Mock(
+            return_value='apt-get'
+        )
+        result = self.setup.export_package_verification('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
+        mock_command.assert_called_once_with(
+            command=[
+                'dpkg', '--root', 'root_dir', '-V',
+                '--verify-format', 'rpm'
+            ],
             raise_on_error=False
         )
         mock_open.assert_called_once_with(
@@ -712,20 +756,26 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.system.setup.Repository')
-    def test_import_repositories_marked_as_imageinclude(self, mock_repo):
+    @patch('kiwi.system.setup.Uri')
+    def test_import_repositories_marked_as_imageinclude(
+        self, mock_uri, mock_repo
+    ):
+        uri = mock.Mock()
+        mock_uri.return_value = uri
+        uri.translate = mock.Mock(
+            return_value="uri"
+        )
+        uri.alias = mock.Mock(
+            return_value="uri-alias"
+        )
+        uri.credentials_file_name = mock.Mock(
+            return_value='kiwiRepoCredentials'
+        )
+        mock_uri.return_value = uri
         repo = mock.Mock()
         mock_repo.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
-        repo.add_repo.assert_called_once_with(
-            '95811799a6d1889c5b2363d3886986de',
-            'http://download.opensuse.org/repositories/Devel:PubCloud:AmazonEC2/SLE_12_GA',
-            'rpm-md',
-            None,
-            None,
-            None,
-            None,
-            None,
-            'kiwiRepoCredentials',
-            None,
-            None
+        assert repo.add_repo.call_args_list[0] == call(
+            'uri-alias', 'uri', 'rpm-md', None, None, None, None, None,
+            'kiwiRepoCredentials', None, None
         )

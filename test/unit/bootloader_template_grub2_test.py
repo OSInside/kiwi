@@ -246,6 +246,40 @@ class TestBootLoaderTemplateGrub2(object):
             bootpath='/boot'
         )
 
+    def test_get_iso_template_checkiso_no_hybrid(self):
+        assert self.grub2.get_iso_template(
+            hybrid=False, checkiso=True
+        ).substitute(
+            search_params='--file --set=root /boot/0xd305fb7d',
+            default_boot='0',
+            kernel_file='boot/linux.vmx',
+            initrd_file='boot/initrd.vmx',
+            boot_options='splash',
+            failsafe_boot_options='splash',
+            gfxmode='800x600',
+            theme='SLE',
+            boot_timeout='10',
+            title='LimeJeOS-SLE12-Community',
+            bootpath='/boot',
+            boot_directory_name='grub2'
+        )
+
+    def test_get_iso_template_checkiso(self):
+        assert self.grub2.get_iso_template(checkiso=True).substitute(
+            search_params='--file --set=root /boot/0xd305fb7d',
+            default_boot='0',
+            kernel_file='boot/linux.vmx',
+            initrd_file='boot/initrd.vmx',
+            boot_options='splash',
+            failsafe_boot_options='splash',
+            gfxmode='800x600',
+            theme='SLE',
+            boot_timeout='10',
+            title='LimeJeOS-SLE12-Community',
+            bootpath='/boot',
+            boot_directory_name='grub2'
+        )
+
     def test_get_multiboot_iso_template(self):
         assert self.grub2.get_multiboot_iso_template().substitute(
             search_params='--fs-uuid --set=root 0815',
@@ -292,5 +326,22 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
+            hypervisor='xen.gz'
+        )
+
+    def test_get_multiboot_iso_template_checkiso(self):
+        assert self.grub2.get_multiboot_iso_template(checkiso=True).substitute(
+            search_params='--fs-uuid --set=root 0815',
+            default_boot='0',
+            kernel_file='linux.vmx',
+            initrd_file='initrd.vmx',
+            boot_options='splash',
+            failsafe_boot_options='splash',
+            gfxmode='800x600',
+            theme='SLE',
+            boot_timeout='10',
+            title='LimeJeOS-SLE12-Community',
+            bootpath='/boot',
+            boot_directory_name='grub2',
             hypervisor='xen.gz'
         )

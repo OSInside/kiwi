@@ -13,7 +13,6 @@ SYNOPSIS
        [--resolve-package-list]
        [--ignore-repos]
        [--add-repo=<source,type,alias,priority>...]
-       [--obs-repo-internal]
    kiwi image info help
 
 DESCRIPTION
@@ -43,13 +42,11 @@ OPTIONS
 
 --ignore-repos
 
-  Ignore all repos from the XML configuration.
-
---obs-repo-internal
-
-  When using obs repos resolve them using the SUSE internal
-  buildservice. This only works if access to SUSE's internal
-  buildservice is granted.
+  Ignore all repository configurations from the XML description.
+  Using that option is usally done with a sequence of --add-repo
+  options otherwise there are no repositories available for the
+  processing the requested image information which could lead
+  to an error.
 
 --resolve-package-list
 

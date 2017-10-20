@@ -26,10 +26,9 @@ from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 class TestBootLoaderConfigGrub2(object):
     @patch('kiwi.bootloader.config.grub2.FirmWare')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
-    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
     @patch('platform.machine')
     def setup(
-        self, mock_machine, mock_domain, mock_theme, mock_firmware
+        self, mock_machine, mock_theme, mock_firmware
     ):
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()
@@ -62,7 +61,6 @@ class TestBootLoaderConfigGrub2(object):
         ]
         mock_machine.return_value = 'x86_64'
         mock_theme.return_value = None
-        mock_domain.return_value = None
         kiwi.bootloader.config.grub2.Path = mock.Mock()
         kiwi.bootloader.config.base.Path = mock.Mock()
 
@@ -87,6 +85,12 @@ class TestBootLoaderConfigGrub2(object):
 
         self.state = XMLState(
             XMLDescription('../data/example_config.xml').load()
+        )
+        self.state.is_xen_server = mock.Mock(
+            return_value=False
+        )
+        self.state.is_xen_guest = mock.Mock(
+            return_value=False
         )
         self.bootloader = BootLoaderConfigGrub2(
             self.state, 'root_dir', {'grub_directory_name': 'grub2'}
@@ -200,10 +204,14 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('os.path.exists')
     @patch('platform.machine')
-    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
-    def test_post_init_dom0(self, mock_domain, mock_machine, mock_exists):
+    def test_post_init_dom0(self, mock_machine, mock_exists):
+        self.state.is_xen_server = mock.Mock(
+            return_value=True
+        )
+        self.state.is_xen_guest = mock.Mock(
+            return_value=False
+        )
         mock_machine.return_value = 'x86_64'
-        mock_domain.return_value = 'dom0'
         mock_exists.return_value = True
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
@@ -212,23 +220,18 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('os.path.exists')
     @patch('platform.machine')
-    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_hypervisor_domain')
-    def test_post_init_domU(self, mock_domain, mock_machine, mock_exists):
+    def test_post_init_domU(self, mock_machine, mock_exists):
+        self.state.is_xen_server = mock.Mock(
+            return_value=False
+        )
+        self.state.is_xen_guest = mock.Mock(
+            return_value=True
+        )
         mock_machine.return_value = 'x86_64'
-        mock_domain.return_value = 'domU'
         mock_exists.return_value = True
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is False
         assert self.bootloader.hybrid_boot is False
-        assert self.bootloader.xen_guest is True
-
-    @patch('os.path.exists')
-    @patch('platform.machine')
-    def test_post_init_ec2(self, mock_machine, mock_exists):
-        mock_machine.return_value = 'x86_64'
-        mock_exists.return_value = True
-        self.bootloader.firmware.ec2_mode.return_value = 'ec2hvm'
-        self.bootloader.post_init(None)
         assert self.bootloader.xen_guest is True
 
     @patch_open
@@ -348,14 +351,14 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.multiboot = True
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_multiboot_iso_template.assert_called_once_with(
-            True, 'gfxterm'
+            True, 'gfxterm', None
         )
 
     def test_setup_live_image_config_standard(self):
         self.bootloader.multiboot = False
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_iso_template.assert_called_once_with(
-            True, True, 'gfxterm'
+            True, True, 'gfxterm', None
         )
 
     def test_setup_disk_image_config_multiboot(self):

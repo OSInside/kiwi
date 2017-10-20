@@ -25,6 +25,7 @@ from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.sync import DataSync
 from kiwi.archive.tar import ArchiveTar
+from kiwi.logger import log
 
 
 class ContainerImageOCI(object):
@@ -57,7 +58,7 @@ class ContainerImageOCI(object):
         self.oci_root_dir = None
 
         self.xz_options = None
-        self.container_name = ''
+        self.container_name = 'kiwi-container'
         self.container_tag = 'latest'
         self.entry_command = []
         self.entry_subcommand = []
@@ -106,6 +107,18 @@ class ContainerImageOCI(object):
             if 'xz_options' in custom_args:
                 self.xz_options = custom_args['xz_options']
 
+        # for builds inside the buildservice we include a reference to the
+        # specific build. Thus disturl label only exists inside the
+        # buildservice.
+        if Defaults.is_buildservice_worker():
+            self._append_buildservice_disturl_label()
+
+        if not custom_args or 'container_name' not in custom_args:
+            log.info(
+                'No container configuration provided, '
+                'using default container name "kiwi-container:latest"'
+            )
+
         if not self.entry_command and not self.entry_subcommand:
             self.entry_subcommand = ['--config.cmd=/bin/bash']
 
@@ -117,10 +130,11 @@ class ContainerImageOCI(object):
 
         :param string base_image: archive used as a base image
         """
-        exclude_list = [
-            'image', '.profile', '.kconfig', 'boot', 'dev', 'sys', 'proc',
-            Defaults.get_shared_cache_location()
-        ]
+        exclude_list = Defaults.get_exclude_list_for_root_data_sync()
+        exclude_list.append('boot')
+        exclude_list.append('dev')
+        exclude_list.append('sys')
+        exclude_list.append('proc')
 
         self.oci_dir = mkdtemp(prefix='kiwi_oci_dir.')
         self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
@@ -198,6 +212,21 @@ class ContainerImageOCI(object):
         oci_tarfile.create_xz_compressed(
             image_dir, xz_options=self.xz_options
         )
+
+    def _append_buildservice_disturl_label(self):
+        with open(os.sep + Defaults.get_buildservice_env_name()) as env:
+            for line in env:
+                if line.startswith('BUILD_DISTURL') and '=' in line:
+                    disturl = line.split('=')[1].strip()
+                    if disturl:
+                        self.labels.append(
+                            ''.join([
+                                '--config.label='
+                                'org.openbuildservice.disturl=',
+                                line.split('=')[1].strip()
+                            ])
+                        )
+            log.warning('Could not find BUILD_DISTURL inside .buildenv')
 
     def __del__(self):
         if self.oci_dir:

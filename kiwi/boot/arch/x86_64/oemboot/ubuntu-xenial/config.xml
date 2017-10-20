@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.5" name="initrd-oemboot-ubuntu-xenial">
+<image schemaversion="6.7" name="initrd-oemboot-ubuntu-xenial">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -76,7 +76,7 @@
         <file name="lib/zlib_deflate/zlib_deflate.ko"/>
         <file name="net/packet/*"/>
     </drivers>
-    <repository type="apt-deb" status="replaceable">
+    <repository type="apt-deb">
         <source path="http://ftp.halifax.rwth-aachen.de/ubuntu"/>
     </repository>
     <packages type="bootstrap" profiles="std">

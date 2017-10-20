@@ -341,9 +341,8 @@ class Disk(DeviceProvider):
         if self.storage_provider.is_loop() and self.is_mapped:
             log.info('Cleaning up %s instance', type(self).__name__)
             try:
-                Command.run(
-                    ['kpartx', '-s', '-d', self.storage_provider.get_device()]
-                )
+                for device_node in self.partition_map.values():
+                    Command.run(['dmsetup', 'remove', device_node])
             except Exception:
                 log.warning(
                     'cleanup of partition device maps failed, %s still busy',

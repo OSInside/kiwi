@@ -1,3 +1,4 @@
+# vim: set fileencoding=utf-8
 from mock import patch
 
 import mock
@@ -40,7 +41,7 @@ class TestProfile(object):
             'kiwi_delete': '',
             'kiwi_devicepersistency': None,
             'kiwi_bootloader_console': None,
-            'kiwi_displayname': 'LimeJeOS-openSUSE-13.2',
+            'kiwi_displayname': 'schäfer',
             'kiwi_drivers': '',
             'kiwi_firmware': 'efi',
             'kiwi_fsmountoptions': None,
@@ -78,13 +79,13 @@ class TestProfile(object):
             'kiwi_oemskipverify': None,
             'kiwi_oemswapMB': None,
             'kiwi_oemswap': 'true',
-            'kiwi_oemtitle': None,
+            'kiwi_oemtitle': 'schäfer',
             'kiwi_oemunattended_id': None,
             'kiwi_oemunattended': None,
             'kiwi_oemvmcp_parmfile': None,
             'kiwi_profiles': '',
             'kiwi_ramonly': True,
-            'kiwi_initrd_system': None,
+            'kiwi_initrd_system': 'kiwi',
             'kiwi_btrfs_root_is_snapshot': None,
             'kiwi_gpt_hybrid_mbr': None,
             'kiwi_showlicense': None,
@@ -97,7 +98,7 @@ class TestProfile(object):
             'kiwi_type': 'oem',
             'kiwi_vga': None,
             'kiwi_wwid_wait_timeout': None,
-            'kiwi_xendomain': None
+            'kiwi_xendomain': 'dom0'
         }
         assert result == [
             "kiwi_Volume_1='usr_lib|size:1024|usr/lib'",
@@ -107,10 +108,11 @@ class TestProfile(object):
             "kiwi_Volume_5='usr_bin|size:all|usr/bin'",
             "kiwi_bootloader='grub2'",
             "kiwi_cmdline='splash'",
-            "kiwi_displayname='LimeJeOS-openSUSE-13.2'",
+            "kiwi_displayname='schäfer'",
             "kiwi_firmware='efi'",
             "kiwi_hwclock='utc'",
             "kiwi_iname='LimeJeOS-openSUSE-13.2'",
+            "kiwi_initrd_system='kiwi'",
             "kiwi_iversion='1.13.2'",
             "kiwi_keytable='us.map.gz'",
             "kiwi_language='en_US'",
@@ -119,11 +121,26 @@ class TestProfile(object):
             "kiwi_lvmgroup='systemVG'",
             "kiwi_oemrootMB='2048'",
             "kiwi_oemswap='true'",
+            "kiwi_oemtitle='schäfer'",
             "kiwi_ramonly='true'",
             "kiwi_splash_theme='openSUSE'",
             "kiwi_timezone='Europe/Berlin'",
-            "kiwi_type='oem'"
+            "kiwi_type='oem'",
+            "kiwi_xendomain='dom0'"
         ]
+
+    @patch('kiwi.system.profile.NamedTemporaryFile')
+    @patch('kiwi.path.Path.which')
+    def test_create_displayname_is_image_name(self, mock_which, mock_temp):
+        mock_which.return_value = 'cp'
+        mock_temp.return_value = self.tmpfile
+        description = XMLDescription('../data/example_pxe_config.xml')
+        profile = Profile(
+            XMLState(description.load())
+        )
+        profile.create()
+        os.remove(self.tmpfile.name)
+        assert profile.dot_profile['kiwi_displayname'] == 'LimeJeOS-openSUSE-13.2'
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')

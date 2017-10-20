@@ -23,3 +23,6 @@ xattr
 # Python 2 compatibility
 future
 six
+
+# Network request/response library
+requests

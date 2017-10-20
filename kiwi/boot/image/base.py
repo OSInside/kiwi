@@ -52,8 +52,7 @@ class BootImageBase(object):
         list of package signing keys
 
     * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
-        * xz_options: string of XZ compression parameters
+        Custom processing arguments defined as hash keys
     """
     def __init__(
         self, xml_state, target_dir, root_dir=None,
@@ -68,9 +67,6 @@ class BootImageBase(object):
         self.call_destructor = True
         self.signing_keys = signing_keys
         self.boot_root_directory = root_dir
-
-        self.xz_options = custom_args['xz_options'] if custom_args \
-            and 'xz_options' in custom_args else None
 
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
@@ -209,6 +205,9 @@ class BootImageBase(object):
         )
         strip_xml_state = XMLState(strip_description.load())
         strip_xml_state.copy_strip_sections(
+            self.boot_xml_state
+        )
+        self.xml_state.copy_strip_sections(
             self.boot_xml_state
         )
         preferences_subsection_names = [

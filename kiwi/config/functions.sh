@@ -878,13 +878,6 @@ function baseStripInitrd {
         return
     fi
     #==========================================
-    # Remove unneeded files
-    #------------------------------------------
-    for delete in $kiwi_strip_delete;do
-        echo "Removing file/directory: $delete"
-        rm -rf $delete
-    done
-    #==========================================
     # remove unneeded tools
     #------------------------------------------
     local tools="$kiwi_strip_tools"
@@ -926,103 +919,6 @@ function debianStripInitrd {
 }
 
 #======================================
-# rhelGFXBoot
-#--------------------------------------
-function rhelGFXBoot {
-    suseGFXBoot $@
-}
-
-#======================================
-# debianGFXBoot
-#--------------------------------------
-function debianGFXBoot {
-    local theme=$1
-    local loader=$2
-    local loader_theme=$theme
-    local splash_theme=$theme
-    export PATH=$PATH:/usr/sbin
-    if [ ! -z "$kiwi_splash_theme" ];then
-        splash_theme=$kiwi_splash_theme
-    fi
-    if [ ! -z "$kiwi_loader_theme"  ];then
-        loader_theme=$kiwi_loader_theme
-    fi
-    if [ ! -z "$kiwi_bootloader" ];then
-        loader=$kiwi_bootloader
-    fi
-    test -d /image/loader || mkdir /image/loader
-    #======================================
-    # copy isolinux loader data
-    #--------------------------------------
-    # isolinux boot code...
-    if [ -f /usr/lib/ISOLINUX/isolinux.bin ];then
-        mv /usr/lib/ISOLINUX/isolinux.bin /image/loader
-        mv /usr/lib/syslinux/modules/bios/* /image/loader
-    fi
-    if [ -f /boot/memtest* ];then
-        mv /boot/memtest* /image/loader/memtest
-    fi
-    #======================================
-    # setup splash screen
-    #--------------------------------------
-    if [ -d /usr/share/plymouth/themes/$splash_theme ];then
-        echo "plymouth splash system is used"
-        touch "/plymouth.splash.active"
-    fi
-    #======================================
-    # setup isolinux boot screen
-    #--------------------------------------
-    if [ ! -f /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
-        # Fallback to upstream gfxboot theme if the distribution
-        # does not provide a common theme for all loaders
-        loader_theme=upstream
-    fi
-    if [ -f /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
-        #======================================
-        # use boot theme from gfxboot-themes
-        #--------------------------------------
-        echo "using $loader_theme gfxboot theme data"
-        if [ -e "/etc/bootsplash/themes/$loader_theme/cdrom/gfxboot.cfg" ];then
-            # isolinux boot graphics file (bootlogo)...
-            mv /etc/bootsplash/themes/$loader_theme/cdrom/* /image/loader
-            local gfxcfg=/image/loader/gfxboot.cfg
-            # tell the bootloader about live CD setup
-            gfxboot --config-file $gfxcfg \
-                --change-config install::livecd=1
-            # tell the bootloader to hand over keytable to cmdline
-            gfxboot --config-file $gfxcfg \
-                --change-config live::addopt.keytable=1
-            # tell the bootloader to hand over lang to cmdline
-            gfxboot --config-file $gfxcfg \
-                --change-config live::addopt.lang=1
-        fi
-        if [ -e /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
-            # boot loader graphics image file (message)...
-            mv /etc/bootsplash/themes/$loader_theme/bootloader/message \
-                /image/loader
-            local archive=/image/loader/message
-            # tell the bootloader to hand over keytable to cmdline
-            gfxboot --archive $archive \
-                --change-config boot::addopt.keytable=1
-            # tell the bootloader to hand over lang to cmdline
-            gfxboot --archive $archive \
-                --change-config boot::addopt.lang=1
-            # add selected languages to the bootloader menu
-            if [ ! -z "$kiwi_language" ];then
-                gfxboot --archive $archive --add-language \
-                    $(echo $kiwi_language | tr "," " ") --default-language en_US
-            fi
-        fi
-    else
-        #======================================
-        # no gfxboot based graphics boot data
-        #--------------------------------------
-        echo "gfxboot branding not found for $loader_theme theme"
-        echo "gfxboot graphics boot skipped !"
-    fi
-}
-
-#======================================
 # rhelSplashToGrub
 #--------------------------------------
 function rhelSplashToGrub {
@@ -1035,303 +931,6 @@ function rhelSplashToGrub {
         mkdir -p $grub_stage
     fi
     mv $rhel_logos $grub_stage
-}
-
-#======================================
-# suseGFXBoot
-#--------------------------------------
-function suseGFXBoot {
-    local theme=$1
-    local loader=$2
-    local loader_theme=$theme
-    local splash_theme=$theme
-    export PATH=$PATH:/usr/sbin
-    if [ ! -z "$kiwi_splash_theme" ];then
-        splash_theme=$kiwi_splash_theme
-    fi
-    if [ ! -z "$kiwi_loader_theme"  ];then
-        loader_theme=$kiwi_loader_theme
-    fi
-    if [ ! -z "$kiwi_bootloader" ];then
-        loader=$kiwi_bootloader
-    fi
-    if [ "$loader" = "extlinux" ] || [ "$loader" = "syslinux" ];then
-        # need the same data for sys|extlinux and for isolinux
-        loader="isolinux"
-    fi
-    if [ "$loader" = "zipl" ];then
-        # thanks god, no graphics on s390 :-)
-        return
-    fi
-    #======================================
-    # setup gfxboot bootloader data
-    #--------------------------------------
-    if [ -d /usr/share/gfxboot ];then
-        #======================================
-        # create boot theme with gfxboot-devel
-        #--------------------------------------
-        cd /usr/share/gfxboot
-        # check for new source layout
-        local newlayout=
-        [ -f themes/$loader_theme/config ] && newlayout=1
-        # create the archive [1]
-        [ "$newlayout" ] || make -C themes/$loader_theme prep
-        make -C themes/$loader_theme
-        # find gfxboot.cfg file
-        local gfxcfg=
-        if [ "$newlayout" ];then
-            if [ $loader = "isolinux" ];then
-                gfxcfg=themes/$loader_theme/data-install/gfxboot.cfg
-            else
-                gfxcfg=themes/$loader_theme/data-boot/gfxboot.cfg
-            fi
-            if [ ! -f $gfxcfg ];then
-                gfxcfg=themes/$loader_theme/src/gfxboot.cfg
-            fi
-            if [ ! -f $gfxcfg ];then
-                echo "gfxboot.cfg not found !"
-                echo "install::livecd will be skipped"
-                echo "live || boot:addopt.keytable will be skipped"
-                echo "live || boot:addopt.lang will be skipped"
-                unset gfxcfg
-            fi
-        fi
-        # update configuration for new layout only
-        if [ "$newlayout" ] && [ ! -z "$gfxcfg" ];then
-            if [ $loader = "isolinux" ];then
-                # tell the bootloader about live CD setup
-                gfxboot --config-file $gfxcfg \
-                    --change-config install::livecd=1
-                # tell the bootloader to hand over keytable to cmdline 
-                gfxboot --config-file $gfxcfg \
-                    --change-config live::addopt.keytable=1
-                # tell the bootloader to hand over lang to cmdline
-                gfxboot --config-file $gfxcfg \
-                    --change-config live::addopt.lang=1
-            else
-                # tell the bootloader to hand over keytable to cmdline 
-                gfxboot --config-file $gfxcfg \
-                    --change-config boot::addopt.keytable=1
-                # tell the bootloader to hand over lang to cmdline
-                gfxboot --config-file $gfxcfg \
-                    --change-config boot::addopt.lang=1
-                # add selected languages to the bootloader menu
-                if [ ! -z "$kiwi_language" ];then
-                    for l in `echo $kiwi_language | tr "," " "`;do
-                        echo "Adding language: $l"
-                        echo $l >> themes/$loader_theme/data-boot/languages
-                    done
-                fi
-            fi
-        fi
-        # create the archive [2]
-        [ "$newlayout" ] || make -C themes/$loader_theme prep
-        make -C themes/$loader_theme
-        # copy result files
-        test -d /image/loader || mkdir /image/loader
-        local gfximage=themes/$loader_theme/install/bootlogo
-        local bootimage=themes/$loader_theme/boot/message
-        if [ "$newlayout" ] ; then
-            gfximage=themes/$loader_theme/bootlogo
-            bootimage=themes/$loader_theme/message
-        fi
-        cp $gfximage /image/loader
-        bin/unpack_bootlogo /image/loader
-        if [ ! -z "$kiwi_language" ];then
-            msgdir=/image/loader/message.dir
-            mkdir $msgdir && mv $bootimage $msgdir
-            (cd $msgdir && cat message | cpio -i && rm -f message)
-            if [ "$newlayout" ];then
-                for l in `echo $kiwi_language | tr "," " "`;do
-                    l=$(echo $l | cut -f1 -d_)
-                    cp themes/$loader_theme/po/$l*.tr $msgdir
-                    cp themes/$loader_theme/help-boot/$l*.hlp $msgdir
-                done
-            else
-                for l in `echo $kiwi_language | tr "," " "`;do
-                    l=$(echo $l | cut -f1 -d_)
-                    cp themes/$loader_theme/boot/$l*.tr  $msgdir
-                    cp themes/$loader_theme/boot/$l*.hlp $msgdir
-                    echo $l >> $msgdir/languages
-                done
-            fi
-            (cd $msgdir && find | cpio --quiet -o > ../message)
-            rm -rf $msgdir
-        else
-            mv $bootimage /image/loader
-        fi
-        make -C themes/$loader_theme clean
-    elif [ -f /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
-        #======================================
-        # use boot theme from gfxboot-branding
-        #--------------------------------------
-        echo "gfxboot devel not installed, custom branding skipped !"
-        echo "using gfxboot branding package"
-        test -d /image/loader || mkdir /image/loader
-        if [ -e "/etc/bootsplash/themes/$loader_theme/cdrom/gfxboot.cfg" ];then
-            # isolinux boot graphics file (bootlogo)...
-            mv /etc/bootsplash/themes/$loader_theme/cdrom/* /image/loader
-            local gfxcfg=/image/loader/gfxboot.cfg
-            # tell the bootloader about live CD setup
-            gfxboot --config-file $gfxcfg \
-                --change-config install::livecd=1
-            # tell the bootloader to hand over keytable to cmdline 
-            gfxboot --config-file $gfxcfg \
-                --change-config live::addopt.keytable=1
-            # tell the bootloader to hand over lang to cmdline
-            gfxboot --config-file $gfxcfg \
-                --change-config live::addopt.lang=1
-        fi
-        if [ -e /etc/bootsplash/themes/$loader_theme/bootloader/message ];then
-            # boot loader graphics image file (message)...
-            mv /etc/bootsplash/themes/$loader_theme/bootloader/message \
-                /image/loader
-            local archive=/image/loader/message
-            # tell the bootloader to hand over keytable to cmdline 
-            gfxboot --archive $archive \
-                --change-config boot::addopt.keytable=1
-            # tell the bootloader to hand over lang to cmdline
-            gfxboot --archive $archive \
-                --change-config boot::addopt.lang=1
-            # add selected languages to the bootloader menu
-            if [ ! -z "$kiwi_language" ];then
-                gfxboot --archive $archive --add-language \
-                    $(echo $kiwi_language | tr "," " ") --default-language en_US
-            fi
-        fi
-    else
-        #======================================
-        # no gfxboot based graphics boot data
-        #--------------------------------------
-        echo "gfxboot devel not installed"
-        echo "gfxboot branding not installed"
-        echo "gfxboot graphics boot skipped !"
-        test -d /image/loader || mkdir /image/loader
-    fi
-    #======================================
-    # setup grub2 bootloader data
-    #--------------------------------------
-    test -d /image/loader || mkdir /image/loader
-    #======================================
-    # copy bootloader binaries if required
-    #--------------------------------------
-    if [ "$loader" = "uboot" ] || [ "$loader" = "berryboot" ];then
-        # uboot loaders
-        if [ -f /boot/MLO ];then
-            mv /boot/MLO /image/loader
-        fi
-        if [ -d /boot/vc ];then
-            mv /boot/vc /image/loader
-        fi
-        mv /boot/*.dat /image/loader &>/dev/null
-        mv /boot/*.bin /image/loader &>/dev/null
-        mv /boot/*.img /image/loader &>/dev/null
-        mv /boot/*.imx /image/loader &>/dev/null
-        mv /boot/*.dtb /image/loader &>/dev/null
-        mv /boot/dtb*  /image/loader &>/dev/null
-        mv /boot/*.elf /image/loader &>/dev/null
-    else
-        # boot loader binaries
-        :
-    fi
-    #======================================
-    # copy isolinux loader data
-    #--------------------------------------
-    # isolinux boot code...
-    if [ -f /usr/share/syslinux/isolinux.bin ];then
-        mv /usr/share/syslinux/isolinux.bin /image/loader
-    elif [ -f /usr/lib/syslinux/isolinux.bin ];then
-        mv /usr/lib/syslinux/isolinux.bin  /image/loader
-    fi
-    # syslinux libraries...
-    if [ -f /usr/share/syslinux/ldlinux.c32 ];then
-        mv /usr/share/syslinux/ldlinux.c32 /image/loader
-    fi
-    if [ -f /usr/share/syslinux/libcom32.c32 ];then
-        mv /usr/share/syslinux/libcom32.c32 /image/loader
-    fi
-    if [ -f /usr/share/syslinux/libutil.c32 ];then
-        mv /usr/share/syslinux/libutil.c32 /image/loader
-    fi
-    # use either gfxboot.com or gfxboot.c32
-    if [ -f /usr/share/syslinux/gfxboot.com ];then
-        mv /usr/share/syslinux/gfxboot.com /image/loader
-    elif [ -f /usr/share/syslinux/gfxboot.c32 ];then
-        mv /usr/share/syslinux/gfxboot.c32 /image/loader
-    fi
-    # add menu capabilities for non graphics boot
-    if [ -f /usr/share/syslinux/menu.c32 ];then
-        mv /usr/share/syslinux/menu.c32 /image/loader
-    fi
-    if [ -f /usr/share/syslinux/chain.c32 ];then
-        mv /usr/share/syslinux/chain.c32 /image/loader
-    fi
-    if [ -f /usr/share/syslinux/mboot.c32 ];then
-        mv /usr/share/syslinux/mboot.c32 /image/loader
-    fi
-    if [ -f /boot/memtest* ];then
-        mv /boot/memtest* /image/loader/memtest
-    fi
-    #======================================
-    # create splash screen
-    #--------------------------------------
-    if [ -d /usr/share/plymouth/themes/$splash_theme ];then
-        echo "plymouth splash system is used"
-        touch "/plymouth.splash.active"
-        return
-    fi
-    if [ ! -f /sbin/splash ];then
-        echo "bootsplash not installed... skipped"
-        return
-    fi
-    sname[0]="08000600.spl"
-    sname[1]="10240768.spl"
-    sname[2]="12801024.spl"
-    index=0
-    if [ ! -d /etc/bootsplash/themes/$splash_theme ];then
-        theme="SuSE-$splash_theme"
-    fi
-    if [ ! -d /etc/bootsplash/themes/$splash_theme ];then
-        echo "bootsplash branding not installed... skipped"
-        return
-    fi
-    mkdir -p /image/loader/branding
-    cp /etc/bootsplash/themes/$splash_theme/images/logo.mng \
-        /image/loader/branding
-    cp /etc/bootsplash/themes/$splash_theme/images/logov.mng \
-        /image/loader/branding
-    for cfg in 800x600 1024x768 1280x1024;do
-        cp /etc/bootsplash/themes/$splash_theme/images/bootsplash-$cfg.jpg \
-        /image/loader/branding
-        cp /etc/bootsplash/themes/$splash_theme/images/silent-$cfg.jpg \
-        /image/loader/branding
-        cp /etc/bootsplash/themes/$splash_theme/config/bootsplash-$cfg.cfg \
-        /image/loader/branding
-    done
-    mkdir -p /image/loader/animations
-    cp /etc/bootsplash/themes/$splash_theme/animations/* \
-        /image/loader/animations &>/dev/null
-    for cfg in 800x600 1024x768 1280x1024;do
-        /sbin/splash -s -c -f \
-            /etc/bootsplash/themes/$splash_theme/config/bootsplash-$cfg.cfg |\
-            gzip -9c \
-        > /image/loader/${sname[$index]}
-        tdir=/image/loader/xxx
-        mkdir $tdir
-        cp -a --parents /etc/bootsplash/themes/$splash_theme/config/*-$cfg.* \
-            $tdir
-        cp -a --parents /etc/bootsplash/themes/$splash_theme/images/*-$cfg.* \
-            $tdir
-        ln -s /etc/bootsplash/themes/$splash_theme/config/bootsplash-$cfg.cfg \
-                $tdir/etc/splash.cfg
-        pushd $tdir
-        chmod -R a+rX .
-        find | cpio --quiet -o -H newc |\
-            gzip -9 >> /image/loader/${sname[$index]}
-        popd
-        rm -rf $tdir
-        index=`expr $index + 1`
-    done
 }
 
 #======================================
@@ -1536,6 +1135,21 @@ function baseFixupKernelModuleDependencies {
 }
 
 #======================================
+# baseUpdateModuleDependencies
+#--------------------------------------
+function baseUpdateModuleDependencies {
+    local kernel_dir
+    for kernel_dir in /lib/modules/*;do
+        [ -d "${kernel_dir}" ] || continue
+        local kernel_version=$(/usr/bin/basename ${kernel_dir})
+        if [ -f /boot/System.map-${kernel_version} ];then
+            /sbin/depmod -F \
+                /boot/System.map-${kernel_version} ${kernel_version}
+        fi
+    done
+}
+
+#======================================
 # baseCreateCommonKernelFile
 #--------------------------------------
 function baseCreateCommonKernelFile {
@@ -1578,15 +1192,6 @@ function baseCreateCommonKernelFile {
                 continue
             fi
             kernel_version=$(/usr/bin/basename $kernel_dir)
-            #==========================================
-            # run depmod, deps should be up to date
-            #------------------------------------------
-            if [ ! -f /boot/System.map-$kernel_version ];then
-                # no system map for this kernel
-                echo "no system map for kernel: $kernel_name found... skip it"
-                continue
-            fi
-            /sbin/depmod -F /boot/System.map-$kernel_version $kernel_version
             #==========================================
             # create common kernel files, last wins !
             #------------------------------------------
@@ -1634,21 +1239,46 @@ function baseCreateCommonKernelFile {
 #--------------------------------------
 function baseStripKernel {
     # /.../
-    # this function will strip the kernel according to the drivers
-    # information in the xml description. It also creates the
-    # vmlinux.gz and vmlinuz files which are required for the
-    # kernel extraction in case of kiwi boot images
+    # this function will strip the kernel
+    #
+    # 1. create the vmlinux.gz and vmlinuz commonly named files
+    #    which are used as fallback for the kernel extraction in
+    #    case of kiwi boot images
+    #
+    # 2. handle <strip type="delete"> requests. Because this
+    #    information is generic not only files of the kernel
+    #    are affected but also other data which is unwanted
+    #    gets deleted here
+    #
+    # 3. only keep kernel modules matching the <drivers>
+    #    patterns from the kiwi boot image description
+    #
+    # 4. lookup kernel module dependencies and bring back
+    #    modules which were removed but still required by
+    #    other modules kept in the system to stay consistent
+    #
+    # 5. lookup for duplicate kernel modules due to kernel
+    #    module updates and keep only the latest version
+    #
+    # 6. lookup for kernel firmware files and keep only those
+    #    for which a kernel driver is still present in the
+    #    system
     # ----
     baseCreateCommonKernelFile
     if [ "$kiwi_initrd_system" = "dracut" ]; then
         echo "dracut initrd system requested, kernel strip skipped"
     else
+        for delete in $kiwi_strip_delete;do
+            echo "Removing file/directory: $delete"
+            rm -rf $delete
+        done
         baseCreateKernelTree
         baseStripKernelModules
         baseFixupKernelModuleDependencies
         baseSyncKernelTree
         baseStripModules
         baseStripFirmware
+        baseUpdateModuleDependencies
     fi
 }
 

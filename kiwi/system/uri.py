@@ -18,15 +18,20 @@
 import os
 from tempfile import mkdtemp
 from six.moves.urllib.parse import urlparse
+import requests
 import hashlib
 
 # project
 from kiwi.mount_manager import MountManager
 from kiwi.path import Path
+from kiwi.defaults import Defaults
+from kiwi.runtime_config import RuntimeConfig
+from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
+    KiwiUriTypeUnknown,
+    KiwiUriOpenError
 )
 
 
@@ -58,6 +63,7 @@ class Uri(object):
         dictionary of local uri type names
     """
     def __init__(self, uri, repo_type=None):
+        self.runtime_config = RuntimeConfig()
         self.repo_type = repo_type
         self.uri = uri
         self.mount_stack = []
@@ -66,18 +72,16 @@ class Uri(object):
             'http': True,
             'https': True,
             'ftp': True,
-            'obs': True,
-            'ibs': True
+            'obs': True
         }
         self.local_uri_type = {
             'iso': True,
             'dir': True,
             'file': True,
-            'suse': True,
             'obsrepositories': True
         }
 
-    def translate(self):
+    def translate(self, check_build_environment=True):
         """
         Translate repository location according to their URI type
 
@@ -85,30 +89,43 @@ class Uri(object):
         be adapted e.g loop mounted in case of an ISO or updated
         by the service URL in case of an open buildservice project
         name
+
+        :param bool check_build_environment:
+
+            specify if the uri translation should depend on the
+            environment the build is called in. As of today this only
+            effects the translation result if the image build happens
+            inside of the Open Build Service
+
+        :rtype: string
         """
         uri = urlparse(self.uri)
         if not uri.scheme:
             raise KiwiUriStyleUnknown(
                 'URI scheme not detected {uri}'.format(uri=self.uri)
             )
-
-        if uri.scheme == 'obs' and self.repo_type == 'yast2':
-            return self._obs_distribution(
-                ''.join([uri.netloc, uri.path])
-            )
         elif uri.scheme == 'obs':
-            return self._obs_project(
-                ''.join([uri.netloc, uri.path])
-            )
+            if check_build_environment and Defaults.is_buildservice_worker():
+                return self._buildservice_path(
+                    name=''.join([uri.netloc, uri.path]).replace(':/', ':'),
+                    fragment=uri.fragment,
+                    urischeme=uri.scheme
+                )
+            else:
+                return self._obs_project_download_link(
+                    ''.join([uri.netloc, uri.path]).replace(':/', ':')
+                )
         elif uri.scheme == 'obsrepositories':
-            return self._suse_buildservice_path(
-                name=''.join([uri.netloc, uri.path]),
+            if not Defaults.is_buildservice_worker():
+                raise KiwiUriStyleUnknown(
+                    'Only the buildservice can use the {0} schema'.format(
+                        uri.scheme
+                    )
+                )
+            return self._buildservice_path(
+                name=''.join([uri.netloc, uri.path]).replace(':/', ':'),
                 fragment=uri.fragment,
                 urischeme=uri.scheme
-            )
-        elif uri.scheme == 'ibs':
-            return self._ibs_project(
-                ''.join([uri.netloc, uri.path])
             )
         elif uri.scheme == 'dir':
             return self._local_path(uri.path)
@@ -116,13 +133,7 @@ class Uri(object):
             return self._local_path(uri.path)
         elif uri.scheme == 'iso':
             return self._iso_mount_path(uri.path)
-        elif uri.scheme == 'suse':
-            return self._suse_buildservice_path(
-                name=''.join([uri.netloc, uri.path]),
-                fragment=uri.fragment,
-                urischeme=uri.scheme
-            )
-        elif uri.scheme == 'http' or uri.scheme == 'https' or uri.scheme == 'ftp':
+        elif uri.scheme.startswith('http') or uri.scheme == 'ftp':
             return ''.join([uri.scheme, '://', uri.netloc, uri.path])
         else:
             raise KiwiUriStyleUnknown(
@@ -169,15 +180,36 @@ class Uri(object):
             raise KiwiUriStyleUnknown(
                 'URI scheme not detected %s' % self.uri
             )
-        if uri.scheme in self.remote_uri_types:
+        if uri.scheme == 'obs' and Defaults.is_buildservice_worker():
+            return False
+        elif uri.scheme in self.remote_uri_types:
+            return True
+        elif uri.scheme in self.local_uri_type:
+            return False
+        else:
+            raise KiwiUriTypeUnknown(
+                'URI type %s unknown' % uri.scheme
+            )
+
+    def is_public(self):
+        """
+        Check if URI is considered to be publicly reachable
+
+        :rtype: bool
+        """
+        uri = urlparse(self.uri)
+        if not uri.scheme:
+            # unknown uri schema is considered not public
+            return False
+        elif uri.scheme == 'obs':
+            # obs is public but only if the configured download_server is public
+            return self.runtime_config.is_obs_public()
+        elif uri.scheme in self.remote_uri_types:
+            # listed in remote uri types, thus public
             return True
         else:
-            if uri.scheme in self.local_uri_type:
-                return False
-            else:
-                raise KiwiUriTypeUnknown(
-                    'URI type %s unknown' % uri.scheme
-                )
+            # unknown uri type considered not public
+            return False
 
     def get_fragment(self):
         """
@@ -201,25 +233,33 @@ class Uri(object):
     def _local_path(self, path):
         return os.path.normpath(path)
 
-    def _obs_project(self, name):
-        return ''.join(['http://download.opensuse.org/repositories/', name])
-
-    def _ibs_project(self, name):
-        ibs_project = 'http://download.suse.de/ibs/'
-        return ibs_project + name.replace(':', ':/')
-
-    def _obs_distribution(self, name):
-        if name == 'openSUSE:Factory/standard':
-            # special handling for SUSE factory repo
-            obs_distribution = \
-                'http://download.opensuse.org/tumbleweed/repo/oss'
-        else:
-            obs_distribution = ''.join(
-                ['http://download.opensuse.org/distribution/', name]
+    def _obs_project_download_link(self, name):
+        name_parts = name.split(os.sep)
+        repository = name_parts.pop()
+        project = os.sep.join(name_parts)
+        try:
+            download_link = os.sep.join(
+                [
+                    self.runtime_config.get_obs_download_server_url(),
+                    project.replace(':', ':/'), repository
+                ]
             )
-        return obs_distribution
+            if not Defaults.is_buildservice_worker():
+                request = requests.get(download_link)
+                request.raise_for_status()
+                return request.url
+            else:
+                log.warning(
+                    'Using {0} without location verification due to build '
+                    'in isolated environment'.format(download_link)
+                )
+                return download_link
+        except Exception as e:
+            raise KiwiUriOpenError(
+                '{0}: {1}'.format(type(e).__name__, format(e))
+            )
 
-    def _suse_buildservice_path(self, name, urischeme, fragment=None):
+    def _buildservice_path(self, name, urischeme, fragment=None):
         """
         Special to openSUSE buildservice. If the buildservice builds
         the image it arranges the repos for each build in a special

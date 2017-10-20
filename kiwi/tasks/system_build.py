@@ -21,9 +21,9 @@ usage: kiwi system build -h | --help
            [--allow-existing-root]
            [--clear-cache]
            [--ignore-repos]
-           [--set-repo=<source,type,alias,priority>]
-           [--add-repo=<source,type,alias,priority>...]
-           [--obs-repo-internal]
+           [--ignore-repos-used-for-build]
+           [--set-repo=<source,type,alias,priority,imageinclude>]
+           [--add-repo=<source,type,alias,priority,imageinclude>...]
            [--add-package=<name>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
@@ -41,8 +41,11 @@ commands:
 options:
     --add-package=<name>
         install the given package name
-    --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority
+    --add-repo=<source,type,alias,priority,imageinclude>
+        add repository with given source, type, alias, priority
+        and the imageinclude flag set to true|false which indicates
+        if this repository should be part of the system image
+        repository setup or not
     --allow-existing-root
         allow to use an existing root directory from an earlier
         build attempt. Use with caution this could cause an inconsistent
@@ -58,10 +61,9 @@ options:
         description and optional metadata files
     --ignore-repos
         ignore all repos from the XML configuration
-    --obs-repo-internal
-        when using obs:// repos resolve them using the SUSE internal
-        buildservice. This only works if access to SUSE's internal
-        buildservice is granted
+    --ignore-repos-used-for-build
+        ignore all repos from the XML configuration except the
+        ones marked as imageonly
     --set-container-derived-from=<uri>
         overwrite the source location of the base container
         for the selected image type. The setting is only effective
@@ -71,9 +73,11 @@ options:
         overwrite the container tag in the container configuration.
         The setting is only effective if the container configuraiton
         provides an initial tag value
-    --set-repo=<source,type,alias,priority>
-        overwrite the repo source, type, alias or priority for the first
-        repository in the XML description
+    --set-repo=<source,type,alias,priority,imageinclude>
+        overwrite the first XML listed repository source, type, alias,
+        priority and the imageinclude flag set to true|false which
+        indicates if this repository should be part of the system
+        image repository setup or not
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
     --target-dir=<directory>
@@ -129,34 +133,33 @@ class SystemBuildTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
+        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
-        self.runtime_checker.check_boot_image_reference_correctly_setup()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
-        self.runtime_checker.check_image_include_repos_http_resolvable()
+        self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
         self.runtime_checker.check_target_directory_not_in_shared_cache(
             abs_target_dir_path
         )
+        self.runtime_checker.check_mediacheck_only_for_x86_arch()
+        self.runtime_checker.check_dracut_module_for_live_iso_in_package_list()
+        self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()
+        elif self.command_args['--ignore-repos-used-for-build']:
+            self.xml_state.delete_repository_sections_used_for_build()
 
         if self.command_args['--set-repo']:
-            (repo_source, repo_type, repo_alias, repo_prio) = \
-                self.quadruple_token(self.command_args['--set-repo'])
             self.xml_state.set_repository(
-                repo_source, repo_type, repo_alias, repo_prio
+                *self.quintuple_token(self.command_args['--set-repo'])
             )
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
-                (repo_source, repo_type, repo_alias, repo_prio) = \
-                    self.quadruple_token(add_repo)
                 self.xml_state.add_repository(
-                    repo_source, repo_type, repo_alias, repo_prio
+                    *self.quintuple_token(add_repo)
                 )
-
-                Path.create(abs_target_dir_path)
 
         if self.command_args['--set-container-tag']:
             self.xml_state.set_container_config_tag(
@@ -169,16 +172,7 @@ class SystemBuildTask(CliTask):
             )
 
         self.runtime_checker.check_repositories_configured()
-
-        if Defaults.is_obs_worker():
-            # This build runs inside of a buildservice worker. Therefore
-            # the repo defintions is adapted accordingly
-            self.xml_state.translate_obs_to_suse_repositories()
-
-        elif self.command_args['--obs-repo-internal']:
-            # This build should use the internal SUSE buildservice
-            # Be aware that the buildhost has to provide access
-            self.xml_state.translate_obs_to_ibs_repositories()
+        self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
         package_requests = False
         if self.command_args['--add-package']:
@@ -227,6 +221,7 @@ class SystemBuildTask(CliTask):
         setup.setup_users()
         setup.setup_keyboard_map()
         setup.setup_locale()
+        setup.setup_plymouth_splash()
         setup.setup_timezone()
 
         system.pinch_system(

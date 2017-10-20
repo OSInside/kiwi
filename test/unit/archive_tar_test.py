@@ -125,8 +125,8 @@ class TestArchiveTar(object):
                 ' '.join([
                     'tar', '-C', 'source-dir', '--xattrs',
                     '--xattrs-include=*', '-c', '--to-stdout',
-                    'foo', 'bar', '|', 'xz', '-f', '--check=crc32',
-                    '--lzma2=dict=512KiB', '>', 'foo.tar.xz'
+                    'foo', 'bar', '|', 'xz', '-f', '--threads=0',
+                    '>', 'foo.tar.xz'
                 ])
             ]
         )

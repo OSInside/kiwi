@@ -21,13 +21,7 @@
   ****************
 -->
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-  <db:info>
-    <db:releaseinfo>$Id: $</db:releaseinfo>
-    <db:releaseinfo>RNC Schema Version 6.4</db:releaseinfo>
-    <db:pubdate>START</db:pubdate>
-    <db:pubdate>2016-03-18</db:pubdate>
-  </db:info>
-  <define name="image-name">
+  <define name="safe-posix-name">
     <data type="token">
       <param name="pattern">[a-zA-Z0-9_\-\.]+</param>
     </data>
@@ -111,15 +105,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.5</value>
-      </attribute>
-    </define>
-    <define name="k.image.kiwirevision.attribute">
-      <attribute name="kiwirevision">
-        <a:documentation>A kiwi git revision number which is known to build
-a working image from this description. If the kiwi git
-revision doesn't match the installed kiwi revision the
-process will exit.</a:documentation>
+        <value>6.7</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -136,9 +122,6 @@ named /etc/ImageID</a:documentation>
         <ref name="k.image.name.attribute"/>
         <optional>
           <ref name="k.image.displayname.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.image.kiwirevision.attribute"/>
         </optional>
         <optional>
           <ref name="k.image.id"/>
@@ -159,8 +142,6 @@ named /etc/ImageID</a:documentation>
     <define name="k.image">
       <element name="image">
         <a:documentation>The root element of the configuration file   </a:documentation>
-        <db:para>Each KIWI configuration file consists of a root element
-image.</db:para>
         <interleave>
           <ref name="k.image.attlist"/>
           <ref name="k.description"/>
@@ -206,11 +187,6 @@ image.</db:para>
   <define name="k.name.attribute">
     <attribute name="name">
       <a:documentation>A name</a:documentation>
-    </attribute>
-  </define>
-  <define name="k.replaces.attribute">
-    <attribute name="replaces">
-      <a:documentation>Replace package with some other package</a:documentation>
     </attribute>
   </define>
   <define name="k.bootinclude.attribute">
@@ -296,7 +272,7 @@ file was fetched</a:documentation>
   <define name="k.imagename.attribute">
     <attribute name="name">
       <a:documentation>An image name without / and spaces</a:documentation>
-      <ref name="image-name"/>
+      <ref name="safe-posix-name"/>
     </attribute>
   </define>
   <define name="k.clear.attribute">
@@ -406,7 +382,6 @@ file was fetched</a:documentation>
     <define name="k.bootloader-theme">
       <element name="bootloader-theme">
         <a:documentation>Image bootloader theme setup.</a:documentation>
-        <db:para>The value will be used in KIWIConfig.sh::suseGFXBoot</db:para>
         <ref name="k.bootloader-theme.attlist"/>
         <text/>
       </element>
@@ -424,7 +399,6 @@ file was fetched</a:documentation>
     <define name="k.bootsplash-theme">
       <element name="bootsplash-theme">
         <a:documentation>Image bootsplash theme setup.</a:documentation>
-        <db:para>The value will be used in KIWIConfig.sh::suseGFXBoot</db:para>
         <ref name="k.bootsplash-theme.attlist"/>
         <text/>
       </element>
@@ -456,10 +430,9 @@ file was fetched</a:documentation>
     </define>
     <define name="k.configuration">
       <element name="configuration">
-        <a:documentation>Specifies Configuration files</a:documentation>
-        <db:para>As part of the network deploy configuration this section
+        <a:documentation>As part of the network deploy configuration this section
 specifies the configuration files which should be included
-into the image after deployment.</db:para>
+into the image after deployment</a:documentation>
         <ref name="k.configuration.attlist"/>
         <empty/>
       </element>
@@ -478,58 +451,6 @@ into the image after deployment.</db:para>
       <element name="contact">
         <a:documentation>Contact Information from the Author, like Email etc.</a:documentation>
         <ref name="k.contact.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <defaultdestination>
-    
-  -->
-  <div>
-    <define name="k.defaultdestination.attlist">
-      <empty/>
-    </define>
-    <define name="k.defaultdestination">
-      <element name="defaultdestination">
-        <a:documentation>Default Path if destdir Otion is Not Specified</a:documentation>
-        <ref name="k.defaultdestination.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <defaultprebuilt>
-    
-  -->
-  <div>
-    <define name="k.defaultprebuilt.attlist">
-      <empty/>
-    </define>
-    <define name="k.defaultprebuilt">
-      <element name="defaultprebuilt">
-        <a:documentation>Default directory name for pre-built boot images, used if
-the directory is not specified on the command line</a:documentation>
-        <ref name="k.defaultroot.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <defaultroot>
-    
-  -->
-  <div>
-    <define name="k.defaultroot.attlist">
-      <empty/>
-    </define>
-    <define name="k.defaultroot">
-      <element name="defaultroot">
-        <a:documentation>Default Root Directory Name if root Option is Not Specified</a:documentation>
-        <ref name="k.defaultroot.attlist"/>
         <text/>
       </element>
     </define>
@@ -580,8 +501,6 @@ the directory is not specified on the command line</a:documentation>
     <define name="k.hwclock">
       <element name="hwclock">
         <a:documentation>Setup Image harware clock setup, either utc or localtime</a:documentation>
-        <db:para>Image hardware clock setup. The value can be either
-set to utc or localtime.</db:para>
         <ref name="k.hwclock.attlist"/>
         <ref name="k.hwclock.content"/>
       </element>
@@ -626,9 +545,8 @@ set to utc or localtime.</db:para>
     </define>
     <define name="k.initrd">
       <element name="initrd">
-        <a:documentation>Specifies where the Boot Image can be Found</a:documentation>
-        <db:para>As part of the network deploy configuration this element
-specifies where the boot image (initrd) can be found.</db:para>
+        <a:documentation>As part of the network deploy configuration this element
+specifies where the boot image (initrd) can be found</a:documentation>
         <ref name="k.initrd.attlist"/>
         <text/>
       </element>
@@ -645,9 +563,8 @@ specifies where the boot image (initrd) can be found.</db:para>
     </define>
     <define name="k.kernel">
       <element name="kernel">
-        <a:documentation>Specifies Where to Find the Boot Kernel</a:documentation>
-        <db:para>As part of the network deploy configuration this section
-specifies the where to find the boot kernel.</db:para>
+        <a:documentation>As part of the network deploy configuration this section
+specifies the where to find the boot kernel</a:documentation>
         <ref name="k.kernel.attlist"/>
         <text/>
       </element>
@@ -665,7 +582,6 @@ specifies the where to find the boot kernel.</db:para>
     <define name="k.keytable">
       <element name="keytable">
         <a:documentation>Image keytable setup.</a:documentation>
-        <db:para>The value will be part of /etc/sysconfig/keyboard</db:para>
         <ref name="k.keytable.attlist"/>
         <text/>
       </element>
@@ -684,7 +600,6 @@ specifies the where to find the boot kernel.</db:para>
     <define name="k.locale">
       <element name="locale">
         <a:documentation>Image locale setup.</a:documentation>
-        <db:para>The value will be part of /etc/sysconfig/keyboard</db:para>
         <ref name="k.locale.attlist"/>
         <ref name="locale-name"/>
       </element>
@@ -732,9 +647,6 @@ specifies the where to find the boot kernel.</db:para>
         <a:documentation>For oemboot driven images: setup of the boot menu text
 displayed within the square brackets after first reboot
 of the OEM image</a:documentation>
-        <db:para>For oemboot driven images: setup of the boot menu text
-displayed within the square brackets after first reboot
-of the OEM image.</db:para>
         <ref name="k.oem-boot-title.attlist"/>
         <text/>
       </element>
@@ -755,7 +667,6 @@ of the OEM image.</db:para>
     <define name="k.oem-bootwait">
       <element name="oem-bootwait">
         <a:documentation>For oemboot driven images: halt system after image dump true/false</a:documentation>
-        <db:para>For oemboot driven images: wait for user acknowledgement after first deployment true/false. A message to be acknowledged by the user is posted after the image has been dumped (installed) on the target disk. After user interaction the system reboots (softboot).</db:para>
         <ref name="k.oem-bootwait.attlist"/>
         <ref name="k.oem-bootwait.content"/>
       </element>
@@ -778,7 +689,6 @@ of the OEM image.</db:para>
         <a:documentation>For oemboot driven images: filter install devices by given
 regular expression. The expression is handled by the bash regexp
 operator</a:documentation>
-        <db:para>For oemboot driven images: filter install devices by givenregular expression. The expression is handled by the bashregexp operator</db:para>
         <ref name="k.oem-device-filter.attlist"/>
         <ref name="k.oem-device-filter.content"/>
       </element>
@@ -804,7 +714,6 @@ operator. Interface names matching the rule will be skipped. All
 other interface names stay in the list. It is also possible to
 pass the variable kiwi_oemnicfilter as kernel command
 line in a PXE deployment</a:documentation>
-        <db:para>For oemboot driven images: filter network interface names by givenregular expression. The expression is handled by the bash regexpoperator. Interface names matching the rule will be skipped. Allother interface names stay in the list. It is also possible topass the variable kiwi_oemnicfilter as kernel commandline in a PXE deployment</db:para>
         <ref name="k.oem-nic-filter.attlist"/>
         <ref name="k.oem-nic-filter.content"/>
       </element>
@@ -828,10 +737,6 @@ line in a PXE deployment</a:documentation>
 recovery archive should be stored as part of the image
 or not. If it's not stored it's created during install
 of the oem image</a:documentation>
-        <db:para>For oemboot driven images: Specify whether the
-recovery archive should be stored as part of the image
-or not. If it's not stored it's created during install
-of the oem image</db:para>
         <ref name="k.oem-inplace-recovery.attlist"/>
         <ref name="k.oem-inplace-recovery.content"/>
       </element>
@@ -853,8 +758,6 @@ of the oem image</db:para>
       <element name="oem-kiwi-initrd">
         <a:documentation>For oemboot driven images: use kiwi initrd in any case
 and don't replace it with mkinitrd created initrd</a:documentation>
-        <db:para>For oemboot driven images: use kiwi initrd in any case
-and don't replace it with mkinitrd created initrd</db:para>
         <ref name="k.oem-kiwi-initrd.attlist"/>
         <ref name="k.oem-kiwi-initrd.content"/>
       </element>
@@ -878,10 +781,6 @@ and don't replace it with mkinitrd created initrd</db:para>
 disk but into a free partition. If this option is set
 all other oem-* options concerning the partition table
 will not have any effect</a:documentation>
-        <db:para>For oemboot driven images: install the system not as
-disk but into a free partition. If this option is set
-all other oem-* options concerning the partition table
-will not have any effect</db:para>
         <ref name="k.oem-partition-install.attlist"/>
         <ref name="k.oem-partition-install.content"/>
       </element>
@@ -902,7 +801,6 @@ will not have any effect</db:para>
     <define name="k.oem-reboot">
       <element name="oem-reboot">
         <a:documentation>For oemboot driven images: reboot after first deployment true/false</a:documentation>
-        <db:para>For oemboot driven images: reboot after first deployment true/false. The system is rebooted in similar fashion to shutdown -r after the image has been dumped (installed) and expanded on the target disk.</db:para>
         <ref name="k.oem-reboot.attlist"/>
         <ref name="k.oem-reboot.content"/>
       </element>
@@ -922,8 +820,8 @@ will not have any effect</db:para>
     </define>
     <define name="k.oem-reboot-interactive">
       <element name="oem-reboot-interactive">
-        <a:documentation>For oemboot driven images: reboot after first deployment true/false</a:documentation>
-        <db:para>For oemboot driven images: reboot after first deployment true/false. A message to be acknowledged by the user is posted after the image has been dumped (installed) and expanded on the target disk. After user interaction the system is rebooted in similar fashion to shutdown -r.</db:para>
+        <a:documentation>For oemboot driven images: reboot after first deployment
+with an interactive dialog true/false</a:documentation>
         <ref name="k.oem-reboot-interactive.attlist"/>
         <ref name="k.oem-reboot-interactive.content"/>
       </element>
@@ -944,7 +842,6 @@ will not have any effect</db:para>
     <define name="k.oem-recovery">
       <element name="oem-recovery">
         <a:documentation>For oemboot driven images: create a recovery archive yes/no</a:documentation>
-        <db:para>For oemboot driven images: create a recovery archive yes/no</db:para>
         <ref name="k.oem-recovery.attlist"/>
         <ref name="k.oem-recovery.content"/>
       </element>
@@ -963,8 +860,6 @@ will not have any effect</db:para>
       <element name="oem-recoveryID">
         <a:documentation>For oemboot driven images: Set the partition ID of
 recovery partition. Default value is 83 (Linux)</a:documentation>
-        <db:para>For oemboot driven images: Set the partition ID of
-recovery partition. Default value is 83 (Linux)</db:para>
         <ref name="k.oem-recoveryID.attlist"/>
         <data type="nonNegativeInteger"/>
       </element>
@@ -983,8 +878,6 @@ recovery partition. Default value is 83 (Linux)</db:para>
       <element name="oem-recovery-part-size">
         <a:documentation>For oemboot driven images: Set the size of the
 recovery partition. Value is interpreted as MB</a:documentation>
-        <db:para>For oemboot driven images: Set the size of
-the recovery partition in MBytes.</db:para>
         <ref name="k.oem-recovery-part-size.attlist"/>
         <data type="nonNegativeInteger"/>
       </element>
@@ -1006,7 +899,6 @@ the recovery partition in MBytes.</db:para>
       <element name="oem-shutdown">
         <a:documentation>For oemboot driven images: shutdown after first deployment 
 true/false</a:documentation>
-        <db:para>For oemboot driven images: shutdown after first deployment true/false. The system is powered down after the image has been dumped (installed) and expanded on the target disk. </db:para>
         <ref name="k.oem-shutdown.attlist"/>
         <ref name="k.oem-shutdown.content"/>
       </element>
@@ -1028,7 +920,6 @@ true/false</a:documentation>
       <element name="oem-shutdown-interactive">
         <a:documentation>For oemboot driven images: shutdown after first deployment 
 true/false</a:documentation>
-        <db:para>For oemboot driven images: shutdown after first deployment true/false. A message to be acknowledged by the user is posted after the image has been dumped (installed) and expanded on the target disk. After user interaction the system is shutdown.</db:para>
         <ref name="k.oem-shutdown-interactive.attlist"/>
         <ref name="k.oem-shutdown-interactive.content"/>
       </element>
@@ -1050,7 +941,6 @@ true/false</a:documentation>
       <element name="oem-silent-boot">
         <a:documentation>For oemboot driven images: boot silently during the initial boot
 true/false</a:documentation>
-        <db:para>For oemboot driven images: complete the initial boot of the system in silent mode, true/false. </db:para>
         <ref name="k.oem-silent-boot.attlist"/>
         <ref name="k.oem-silent-boot.content"/>
       </element>
@@ -1072,7 +962,6 @@ true/false</a:documentation>
       <element name="oem-silent-install">
         <a:documentation>For oemboot driven images: do not show progress of the image
 dump process, true/false</a:documentation>
-        <db:para>For oemboot driven images: do not show progress of the image dump process, true/false (default is false.) </db:para>
         <ref name="k.oem-silent-install.attlist"/>
         <ref name="k.oem-silent-install.content"/>
       </element>
@@ -1094,7 +983,6 @@ dump process, true/false</a:documentation>
       <element name="oem-skip-verify">
         <a:documentation>For oemboot driven images: do not perform the md5
 verification process, true/false</a:documentation>
-        <db:para>For oemboot driven images: do not perform the md5 verification process, true/false (default is false.) </db:para>
         <ref name="k.oem-skip-verify.attlist"/>
         <ref name="k.oem-skip-verify.content"/>
       </element>
@@ -1117,7 +1005,6 @@ verification process, true/false</a:documentation>
         <a:documentation>For oemboot driven images: turn on or off the search
 for ata raid devices (aka fake raid controllers)
 true/false (default is true)</a:documentation>
-        <db:para>For oemboot driven images: turn on or off the search for ata raid devices (aka fake raid controllers) true/false (default is true) </db:para>
         <ref name="k.oem-ataraid-scan.attlist"/>
         <ref name="k.oem-ataraid-scan.content"/>
       </element>
@@ -1140,7 +1027,6 @@ true/false (default is true)</a:documentation>
         <a:documentation>For oemboot driven images: provide the name of a parmfile
 which is loaded via cmsfscat on s390 systems. Default value
 is set to: PARM-S11</a:documentation>
-        <db:para>For oemboot driven images: provide the name of a parmfile which is loaded via cmsfscat on s390 systems. Default value is set to: PARM-S11</db:para>
         <ref name="k.oem-vmcp-parmfile.attlist"/>
         <ref name="k.oem-vmcp-parmfile.content"/>
       </element>
@@ -1162,7 +1048,6 @@ is set to: PARM-S11</a:documentation>
       <element name="oem-multipath-scan">
         <a:documentation>For oemboot driven images: turn on or off the search
 for multipath devices: true/false (default is true)</a:documentation>
-        <db:para>For oemboot driven images: turn on or off the search for multipath devices: true/false (default is true) </db:para>
         <ref name="k.oem-multipath-scan.attlist"/>
         <ref name="k.oem-multipath-scan.content"/>
       </element>
@@ -1184,7 +1069,6 @@ for multipath devices: true/false (default is true)</a:documentation>
       <element name="oem-silent-verify">
         <a:documentation>For oemboot driven images: do not show progress of the image
 verification process, true/false</a:documentation>
-        <db:para>For oemboot driven images: do not show progress of the image verification process, true/false (default is false.) </db:para>
         <ref name="k.oem-silent-verify.attlist"/>
         <ref name="k.oem-silent-verify.content"/>
       </element>
@@ -1205,7 +1089,6 @@ verification process, true/false</a:documentation>
     <define name="k.oem-swap">
       <element name="oem-swap">
         <a:documentation>For oemboot driven images: use a swap partition yes/no</a:documentation>
-        <db:para>For oemboot driven images: use a swap partition yes/no.</db:para>
         <ref name="k.oem-swap.attlist"/>
         <ref name="k.oem-swap.content"/>
       </element>
@@ -1224,8 +1107,6 @@ verification process, true/false</a:documentation>
       <element name="oem-swapsize">
         <a:documentation>For oemboot driven images: Set the size of the swap
 partition in MB</a:documentation>
-        <db:para>For oemboot driven images: Set the size of the swap
-partition in MB. No swapspace with oem-swap set to false.</db:para>
         <ref name="k.oem-swapsize.attlist"/>
         <data type="nonNegativeInteger"/>
       </element>
@@ -1242,10 +1123,9 @@ partition in MB. No swapspace with oem-swap set to false.</db:para>
     </define>
     <define name="k.oem-systemsize">
       <element name="oem-systemsize">
-        <a:documentation>For oemboot driven images: Set the size of the system
-(root) partition in MB</a:documentation>
-        <db:para>For oemboot driven images: Set the size of the system
-(root) partition in MB.</db:para>
+        <a:documentation>For oemboot driven images: Set the size of the system (root)
+partition or LVM partition in MB. If not provided the partition
+will grow to the maximum available free space on the disk</a:documentation>
         <ref name="k.oem-systemsize.attlist"/>
         <data type="nonNegativeInteger"/>
       </element>
@@ -1267,7 +1147,6 @@ partition in MB. No swapspace with oem-swap set to false.</db:para>
       <element name="oem-unattended">
         <a:documentation>For oemboot driven images: don't ask questions if possible
 true/false</a:documentation>
-        <db:para>For oemboot driven images: don't ask questions ifpossible true/false</db:para>
         <ref name="k.oem-unattended.attlist"/>
         <ref name="k.oem-unattended.content"/>
       </element>
@@ -1286,7 +1165,6 @@ true/false</a:documentation>
       <element name="oem-unattended-id">
         <a:documentation>For oemboot driven images: use the specified disk id
 the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
-        <db:para>For oemboot driven images: use the specified disk idthe device is looked up in /dev/disk/by-* and /dev/mapper/*</db:para>
         <ref name="k.oem-unattended-id.attlist"/>
         <text/>
       </element>
@@ -1332,9 +1210,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
     <define name="k.package.arch.attribute">
       <ref name="k.arch.attribute"/>
     </define>
-    <define name="k.package.replaces.attribute">
-      <ref name="k.replaces.attribute"/>
-    </define>
     <define name="k.package.bootinclude.attribute">
       <ref name="k.bootinclude.attribute"/>
     </define>
@@ -1346,9 +1221,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <ref name="k.package.name.attribute"/>
         <optional>
           <ref name="k.package.arch.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.replaces.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootdelete.attribute"/>
@@ -1386,35 +1258,8 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
     <define name="k.packagemanager">
       <element name="packagemanager">
         <a:documentation>Name of the Package Manager</a:documentation>
-        <db:para>The package manager used for package installation
-could be either zypper or smart</db:para>
         <ref name="k.packagemanager.attlist"/>
         <ref name="k.packagemanager.content"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <partitioner>
-    
-  -->
-  <div>
-    <define name="k.partitioner.content">
-      <choice>
-        <value>parted</value>
-        <value>fdasd</value>
-      </choice>
-    </define>
-    <define name="k.partitioner.attlist">
-      <empty/>
-    </define>
-    <define name="k.partitioner">
-      <element name="partitioner">
-        <a:documentation>Name of the Partitioner used for any disk partition tasks</a:documentation>
-        <db:para>The partitioner used for creating disk partitions
-could be either parted or fdasd</db:para>
-        <ref name="k.partitioner.attlist"/>
-        <ref name="k.partitioner.content"/>
       </element>
     </define>
   </div>
@@ -1531,11 +1376,10 @@ the command line</a:documentation>
     </define>
     <define name="k.profile">
       <element name="profile">
-        <a:documentation>Creates Profiles</a:documentation>
-        <db:para>Profiles creates a namespace on an image description and
+        <a:documentation>Profiles creates a namespace on an image description and
 thus can be used to have one description with different
 profiles for example KDE and GNOME including different
-packages.</db:para>
+packages.</a:documentation>
         <ref name="k.profile.attlist"/>
         <empty/>
       </element>
@@ -1565,16 +1409,6 @@ packages.</db:para>
           <value>up2date-mirrors</value>
           <value>urpmi</value>
           <value>yast2</value>
-        </choice>
-      </attribute>
-    </define>
-    <define name="k.repository.status.attribute">
-      <attribute name="status">
-        <a:documentation>Specifies the status of the repository. This can be
-replaceable or if not specified it's a must have repository</a:documentation>
-        <choice>
-          <value>fixed</value>
-          <value>replaceable</value>
         </choice>
       </attribute>
     </define>
@@ -1630,13 +1464,6 @@ appended into the repository configuration file.</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
-    <define name="k.repository.prefer-license.attribute">
-      <attribute name="prefer-license">
-        <a:documentation>Use the license found in this repository, if any, as the
-license installed in the image</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-    </define>
     <define name="k.repository.priority.attribute">
       <attribute name="priority">
         <a:documentation>Channel priority assigned to all packages available in
@@ -1667,9 +1494,6 @@ whether and how this information is passed</a:documentation>
           <ref name="k.repository.profiles.attribute"/>
         </optional>
         <optional>
-          <ref name="k.repository.status.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.repository.alias.attribute"/>
         </optional>
         <optional>
@@ -1689,9 +1513,6 @@ whether and how this information is passed</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.package_gpgcheck.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repository.prefer-license.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.priority.attribute"/>
@@ -1772,35 +1593,11 @@ The default value is false.</a:documentation>
     </define>
     <define name="k.rpm-excludedocs">
       <element name="rpm-excludedocs">
-        <a:documentation>Do not install files marked as documentation in the package</a:documentation>
-        <db:para>Setup if the package manager should exclude docs files
+        <a:documentation>Setup if the package manager should exclude docs files
 during package installation. This option could be ignored
-according to the used package manager.</db:para>
+according to the used package manager.</a:documentation>
         <ref name="k.rpm-excludedocs.attlist"/>
         <ref name="k.rpm-excludedocs.content"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <rpm-force>
-    
-  -->
-  <div>
-    <define name="k.rpm-force.content">
-      <data type="boolean"/>
-    </define>
-    <define name="k.rpm-force.attlist">
-      <empty/>
-    </define>
-    <define name="k.rpm-force">
-      <element name="rpm-force">
-        <a:documentation>Force the Installation of a Package</a:documentation>
-        <db:para>Setup if the package manager should force the install
-of the package or not. This option could be ignored
-according to the used package manager.</db:para>
-        <ref name="k.rpm-force.attlist"/>
-        <ref name="k.rpm-force.content"/>
       </element>
     </define>
   </div>
@@ -1815,9 +1612,8 @@ according to the used package manager.</db:para>
     </define>
     <define name="k.showlicense">
       <element name="showlicense">
-        <a:documentation>Setup showlicense</a:documentation>
-        <db:para>Image license setup. The specfied license name
-will be displayed in a dialog window on boot.</db:para>
+        <a:documentation>Image license setup. The specfied license name
+will be displayed in a dialog window on boot.</a:documentation>
         <ref name="k.showlicense.attlist"/>
         <text/>
       </element>
@@ -1876,9 +1672,8 @@ to the required size of the image</a:documentation>
     </define>
     <define name="k.specification">
       <element name="specification">
-        <a:documentation>A Detailed Description</a:documentation>
-        <db:para>A detailed description of this image and what it can be
-used for.</db:para>
+        <a:documentation>A detailed description of this image and what it
+can be used for.</a:documentation>
         <ref name="k.specification.attlist"/>
         <text/>
       </element>
@@ -1917,7 +1712,6 @@ volume management system</a:documentation>
     <define name="k.systemdisk">
       <element name="systemdisk">
         <a:documentation>Specify volumes and size attributes</a:documentation>
-        <db:para>Specify volumes and size attributes</db:para>
         <interleave>
           <ref name="k.systemdisk.attlist"/>
           <zeroOrMore>
@@ -1939,8 +1733,6 @@ volume management system</a:documentation>
     <define name="k.timeout">
       <element name="timeout">
         <a:documentation>Specifies an ATFTP Download Timeout</a:documentation>
-        <db:para>As part of the network deploy configuration this section
-specifies an ATFTP download timeout</db:para>
         <ref name="k.timeout.attlist"/>
         <text/>
       </element>
@@ -1958,8 +1750,6 @@ specifies an ATFTP download timeout</db:para>
     <define name="k.timezone">
       <element name="timezone">
         <a:documentation>Setup Image Timezone setup</a:documentation>
-        <db:para>Image timezone setup. The value will be used to search
-the correct timezone and copy it to /etc/localtime.</db:para>
         <ref name="k.timezone.attlist"/>
         <text/>
       </element>
@@ -1976,14 +1766,19 @@ the correct timezone and copy it to /etc/localtime.</db:para>
         <sch:assert test="contains('$types', @image)">$attr attribute is only available for the following image types: $types</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="image_type_requirement">
+      <sch:rule context="type[contains('$types', @image)]">
+        <sch:assert test="@$attr">$attr attribute must be set for the following image types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.type.boot.attribute">
       <attribute name="boot">
-        <a:documentation>Specifies the path of the boot image (initrd), relative
-to /usr/share/kiwi/image</a:documentation>
+        <a:documentation>Specifies the path of the boot image (initrd) description
+provided with KIWI</a:documentation>
       </attribute>
       <sch:pattern id="boot" is-a="image_type">
         <sch:param name="attr" value="boot"/>
-        <sch:param name="types" value="oem iso pxe vmx"/>
+        <sch:param name="types" value="oem pxe"/>
       </sch:pattern>
     </define>
     <define name="k.type.bootkernel.attribute">
@@ -2029,7 +1824,20 @@ By default a graphics console setup is used</a:documentation>
         <sch:param name="types" value="oem vmx iso"/>
       </sch:pattern>
     </define>
-    <define name="k.type.btrfs_root_is_snapshot">
+    <define name="k.type.xen_server.attribute">
+      <attribute name="xen_server">
+        <a:documentation>Specify the image is a Xen dom0 (Xen Server) image
+The information is used to create a correct bootloader
+configuration with regards to the required loading of
+the Xen Hypervisor</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="xen_server" is-a="image_type">
+        <sch:param name="attr" value="xen_server"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.btrfs_root_is_snapshot.attribute">
       <attribute name="btrfs_root_is_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
 The snapshot layout is compatible with the snapper management
@@ -2041,7 +1849,7 @@ toolkit. By default no snapshots are used</a:documentation>
         <sch:param name="types" value="oem vmx docker"/>
       </sch:pattern>
     </define>
-    <define name="k.type.btrfs_root_is_readonly_snapshot">
+    <define name="k.type.btrfs_root_is_readonly_snapshot.attribute">
       <attribute name="btrfs_root_is_readonly_snapshot">
         <a:documentation>Tell kiwi to set the btrfs root filesystem snapshot read-only
 Once all data has been placed to the root filesystem snapshot
@@ -2056,7 +1864,7 @@ is writable</a:documentation>
         <sch:param name="types" value="oem vmx docker"/>
       </sch:pattern>
     </define>
-    <define name="k.type.target_blocksize">
+    <define name="k.type.target_blocksize.attribute">
       <attribute name="target_blocksize">
         <a:documentation>Specifies the image blocksize in bytes which has to match
 the logical (SSZ) blocksize of the target storage device.
@@ -2070,7 +1878,7 @@ desired target by calling: blockdev --report device</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.target_removable">
+    <define name="k.type.target_removable.attribute">
       <attribute name="target_removable">
         <a:documentation>Indicate if the target disk for oem images is deployed
 to a removable device e.g a USB stick or not. This only
@@ -2085,7 +1893,7 @@ expected to be non-removable</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.spare_part">
+    <define name="k.type.spare_part.attribute">
       <attribute name="spare_part">
         <a:documentation>Request a spare partition right before the root partition
 of the requested size. The attribute takes a size value
@@ -2164,13 +1972,6 @@ seconds if syslinux is used</a:documentation>
         <sch:param name="types" value="oem vmx iso pxe"/>
       </sch:pattern>
     </define>
-    <define name="k.type.checkprebuilt.attribute">
-      <attribute name="checkprebuilt">
-        <a:documentation>Activates whether KIWI should search for a prebuild boot
-image or not. Obsolete attribute since KIWI v8</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-    </define>
     <define name="k.type.compressed.attribute">
       <attribute name="compressed">
         <a:documentation>Specifies whether the image output file should be
@@ -2231,6 +2032,10 @@ structure</a:documentation>
         </choice>
       </attribute>
       <sch:pattern id="filesystem" is-a="image_type">
+        <sch:param name="attr" value="filesystem"/>
+        <sch:param name="types" value="vmx oem pxe"/>
+      </sch:pattern>
+      <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>
         <sch:param name="types" value="vmx oem pxe"/>
       </sch:pattern>
@@ -2304,20 +2109,10 @@ e.g for the syslinux loader fat is required</a:documentation>
     </define>
     <define name="k.type.flags.attribute">
       <attribute name="flags">
-        <a:documentation>Specifies overlay filesystem flags for the iso image type.
-`clic` uses the fuse based clicfs as root overlay filesystem.
-When using clicfs make sure it is installed on your build host
-system and also put as bootincluded package in your XML
-description: `&lt;package name="clicfs" bootinclude="true"/&gt;`,
-`clic_udf` same as clicfs but allows creation if live images
-which exceeds the 4G boundary, `overlay` uses the kernel
-overlayfs as root overlay filesystem. This is the most stable
-and preferred method.</a:documentation>
-        <choice>
-          <value>clic</value>
-          <value>clic_udf</value>
-          <value>overlay</value>
-        </choice>
+        <a:documentation>Specifies overlay filesystem flags for the iso image type
+as they are supported by the kiwi-live dracut module.
+`overlay` uses squashfs and the kernel overlayfs filesystem</a:documentation>
+        <value>overlay</value>
       </attribute>
       <sch:pattern id="flags" is-a="image_type">
         <sch:param name="attr" value="flags"/>
@@ -2336,6 +2131,7 @@ and preferred method.</a:documentation>
           <value>vmdk</value>
           <value>vdi</value>
           <value>vhd</value>
+          <value>vhdx</value>
           <value>vhd-fixed</value>
         </choice>
       </attribute>
@@ -2373,13 +2169,6 @@ partitions</a:documentation>
         <sch:param name="types" value="vmx oem"/>
       </sch:pattern>
     </define>
-    <define name="k.type.fsnocheck.attribute">
-      <attribute name="fsnocheck">
-        <a:documentation>Turn off periodic filesystem checks on ext2/3/4. Obsolete attribute
-since KIWI v8</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-    </define>
     <define name="k.type.fsmountoptions.attribute">
       <attribute name="fsmountoptions">
         <a:documentation>Specifies the filesystem mount options which also ends up in fstab
@@ -2414,11 +2203,8 @@ to keep data persistent over a reboot</a:documentation>
       <attribute name="hybridpersistent_filesystem">
         <a:documentation>Set the filesystem to use for persistent writing if a
 hybrid image is used as disk on e.g a USB Stick. By default
-the btrfs filesystem is used</a:documentation>
+the ext4 filesystem is used</a:documentation>
         <choice>
-          <value>btrfs</value>
-          <value>fat</value>
-          <value>exfat</value>
           <value>ext4</value>
           <value>xfs</value>
         </choice>
@@ -2451,7 +2237,7 @@ system does not support all features of the kiwi initrd</a:documentation>
       </attribute>
       <sch:pattern id="initrd_system" is-a="image_type">
         <sch:param name="attr" value="initrd_system"/>
-        <sch:param name="types" value="vmx oem"/>
+        <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
     <define name="k.type.image.attribute">
@@ -2532,6 +2318,18 @@ be created (oem only)</a:documentation>
       <sch:pattern id="installpxe" is-a="image_type">
         <sch:param name="attr" value="installpxe"/>
         <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.mediacheck.attribute">
+      <attribute name="mediacheck">
+        <a:documentation>Specifies if the bootloader menu should provide an"
+mediacheck entry to verify ISO integrity or not.
+Disabled by default and only available for x86 arch family."</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="mediacheck" is-a="image_type">
+        <sch:param name="attr" value="mediacheck"/>
+        <sch:param name="types" value="iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.kernelcmdline.attribute">
@@ -2644,6 +2442,7 @@ hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documen
         <a:documentation>for the iso type only:
 Specifies the volume ID (volume name or label) to be written
 into the master block. There is space for 32 characters.</a:documentation>
+        <ref name="safe-posix-name"/>
       </attribute>
       <sch:pattern id="volid" is-a="image_type">
         <sch:param name="attr" value="volid"/>
@@ -2714,13 +2513,10 @@ to work on.</a:documentation>
           <ref name="k.type.boottimeout.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.btrfs_root_is_snapshot"/>
+          <ref name="k.type.btrfs_root_is_snapshot.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.btrfs_root_is_readonly_snapshot"/>
-        </optional>
-        <optional>
-          <ref name="k.type.checkprebuilt.attribute"/>
+          <ref name="k.type.btrfs_root_is_readonly_snapshot.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.compressed.attribute"/>
@@ -2745,9 +2541,6 @@ to work on.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.formatoptions.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.fsnocheck.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.fsmountoptions.attribute"/>
@@ -2790,6 +2583,9 @@ to work on.</a:documentation>
           <ref name="k.type.installpxe.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.mediacheck.attribute"/>
+        </optional>
+        <optional>
           <ref name="k.type.kernelcmdline.attribute"/>
         </optional>
         <optional>
@@ -2814,13 +2610,13 @@ to work on.</a:documentation>
           <ref name="k.type.rootfs_label.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.spare_part"/>
+          <ref name="k.type.spare_part.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.target_blocksize"/>
+          <ref name="k.type.target_blocksize.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.target_removable"/>
+          <ref name="k.type.target_removable.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>
@@ -2836,6 +2632,9 @@ to work on.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.derived_from.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.xen_server.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -2900,12 +2699,11 @@ to work on.</a:documentation>
     </define>
     <define name="k.union">
       <element name="union">
-        <a:documentation>Specifies the Overlay Filesystem</a:documentation>
-        <db:para>As part of the network deploy configuration this section
+        <a:documentation>As part of the network deploy configuration this section
 specifies the overlay filesystem setup if required by the
 filesystem type of the system image.An overlay setup is
 only required if the system image uses a squashfs
-compressed filesystem.</db:para>
+compressed filesystem.</a:documentation>
         <ref name="k.union.attlist"/>
         <empty/>
       </element>
@@ -3263,8 +3061,6 @@ add "M" and/or "G" as postfix</a:documentation>
       <element name="volume">
         <a:documentation>Specify which parts of the filesystem should be
 on an extra volume.</a:documentation>
-        <db:para>Specify which parts of the filesystem should be on
-an extra volume.</db:para>
         <ref name="k.volume.attlist"/>
         <empty/>
       </element>
@@ -3300,9 +3096,6 @@ an extra volume.</db:para>
     <define name="k.pxedeploy">
       <element name="pxedeploy">
         <a:documentation>Controls the Image Deploy Process</a:documentation>
-        <db:para>The deploy section is used to allow kiwi to create the
-config.&lt;MAC&gt; file required by PXE based network images.
-the contents of this file controls the image deploy process.</db:para>
         <interleave>
           <ref name="k.pxedeploy.attlist"/>
           <optional>
@@ -3511,8 +3304,11 @@ image is imported via the docker load command</a:documentation>
     </define>
     <define name="k.containerconfig">
       <element name="containerconfig">
-        <a:documentation>Provides metadata information for containers</a:documentation>
-        <db:para>The containerconfig element provides metadata informationto setup a container in order to be prepared for use withthe container engine tool chain. container specific datashould be provided in an additional subsection whereas thissection provides globally useful container information</db:para>
+        <a:documentation>The containerconfig element provides metadata information
+to setup a container in order to be prepared for use with
+the container engine tool chain. container specific data
+should be provided in an additional subsection whereas this
+section provides globally useful container information.</a:documentation>
         <interleave>
           <ref name="k.containerconfig.attlist"/>
           <optional>
@@ -3816,10 +3612,9 @@ At least one label must be configured</a:documentation>
     </define>
     <define name="k.oemconfig">
       <element name="oemconfig">
-        <a:documentation>Specifies the OEM configuration section</a:documentation>
-        <db:para>The oemconfig element specifies the OEM image
+        <a:documentation>The oemconfig element specifies the OEM image
 configuration options which are used to repartition
-and setup the system disk</db:para>
+and setup the system disk.</a:documentation>
         <interleave>
           <ref name="k.oemconfig.attlist"/>
           <optional>
@@ -3918,8 +3713,11 @@ and setup the system disk</db:para>
     </define>
     <define name="k.vagrantconfig.virtualsize.attribute">
       <attribute name="virtualsize">
-        <a:documentation>The vagrant virtual image size in GB</a:documentation>
-        <db:para>virtualsize provides the value of the virtual_size keywhich is embedded in the metadata.json hash inside the.box file, as described here:http://docs.vagrantup.com/v2/boxes/format.htmlThis tells the Vagrant provider how big to make thevirtual disk when it creates the VM.</db:para>
+        <a:documentation>virtualsize provides the value of the virtual_size key which
+is embedded in the metadata.json hash inside the box file, as
+described in http://docs.vagrantup.com/v2/boxes/format.html
+This tells the Vagrant provider how big to make the
+virtual disk when it creates the VM.</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
@@ -3927,7 +3725,6 @@ and setup the system disk</db:para>
       <attribute name="boxname">
         <a:documentation>The boxname as it's written into the json file
 If not specified the image name is used</a:documentation>
-        <db:para>The boxname as it's written into the json file.If not specified the image name is used.</db:para>
       </attribute>
     </define>
     <define name="k.vagrantconfig.attlist">
@@ -3941,8 +3738,8 @@ If not specified the image name is used</a:documentation>
     </define>
     <define name="k.vagrantconfig">
       <element name="vagrantconfig">
-        <a:documentation>Specifies the Vagrant configuration section</a:documentation>
-        <db:para>The vagrantconfig element specifies the Vagrant metaconfiguration options which are used inside a vagrant box</db:para>
+        <a:documentation>The vagrantconfig element specifies the Vagrant meta
+configuration options which are used inside a vagrant box</a:documentation>
         <ref name="k.vagrantconfig.attlist"/>
       </element>
     </define>
@@ -3980,12 +3777,13 @@ If not specified the image name is used</a:documentation>
         </choice>
       </attribute>
     </define>
-    <define name="k.machine.domain.attribute">
-      <attribute name="domain">
-        <a:documentation>The domain setup for the VM (xen only)</a:documentation>
+    <define name="k.machine.xen_loader.attribute">
+      <attribute name="xen_loader">
+        <a:documentation>the Xen target loader which is expected to load this guest</a:documentation>
         <choice>
-          <value>dom0</value>
-          <value>domU</value>
+          <value>hvmloader</value>
+          <value>pygrub</value>
+          <value>pvgrub</value>
         </choice>
       </attribute>
     </define>
@@ -4056,7 +3854,7 @@ formats)</a:documentation>
           <ref name="k.machine.arch.attribute"/>
         </optional>
         <optional>
-          <ref name="k.machine.domain.attribute"/>
+          <ref name="k.machine.xen_loader.attribute"/>
         </optional>
         <optional>
           <ref name="k.machine.guestOS.attribute"/>
@@ -4071,16 +3869,17 @@ formats)</a:documentation>
     </define>
     <define name="k.machine">
       <element name="machine">
-        <a:documentation>specifies the VM configuration sections</a:documentation>
-        <db:para>The machine element specifies the VM guest
-configuration options which are used by the
-virtual machine when running the image.</db:para>
+        <a:documentation>The machine element specifies VM guest configuration
+options which are used by the virtual machine when
+running the image.</a:documentation>
         <interleave>
           <ref name="k.machine.attlist"/>
           <zeroOrMore>
             <ref name="k.vmconfig-entry"/>
           </zeroOrMore>
-          <ref name="k.vmdisk"/>
+          <optional>
+            <ref name="k.vmdisk"/>
+          </optional>
           <optional>
             <ref name="k.vmdvd"/>
           </optional>
@@ -4146,10 +3945,6 @@ or plusRecommended</a:documentation>
     <define name="k.packages">
       <element name="packages">
         <a:documentation>Specifies Packages/Patterns Used in Different Stages</a:documentation>
-        <db:para>The packages elements specifies a set of packages
-and/or patterns which are used in different stages of the
-image building process
-and also depends of the selected image output type.</db:para>
         <interleave>
           <ref name="k.packages.attlist"/>
           <zeroOrMore>
@@ -4200,15 +3995,6 @@ definition</a:documentation>
             <ref name="k.bootloader-theme"/>
           </optional>
           <optional>
-            <ref name="k.defaultdestination"/>
-          </optional>
-          <optional>
-            <ref name="k.defaultprebuilt"/>
-          </optional>
-          <optional>
-            <ref name="k.defaultroot"/>
-          </optional>
-          <optional>
             <ref name="k.hwclock"/>
           </optional>
           <optional>
@@ -4221,16 +4007,10 @@ definition</a:documentation>
             <ref name="k.packagemanager"/>
           </optional>
           <optional>
-            <ref name="k.partitioner"/>
-          </optional>
-          <optional>
             <ref name="k.rpm-check-signatures"/>
           </optional>
           <optional>
             <ref name="k.rpm-excludedocs"/>
-          </optional>
-          <optional>
-            <ref name="k.rpm-force"/>
           </optional>
           <zeroOrMore>
             <ref name="k.showlicense"/>
@@ -4259,9 +4039,8 @@ definition</a:documentation>
     </define>
     <define name="k.profiles">
       <element name="profiles">
-        <a:documentation>Creates Namespace Section for Drivers</a:documentation>
-        <db:para>Namespace section which creates a namespace and the
-drivers can bind itself to one of the listed namespaces.</db:para>
+        <a:documentation>Namespace section which creates a namespace and the
+drivers can bind itself to one of the listed namespaces.</a:documentation>
         <interleave>
           <ref name="k.profiles.attlist"/>
           <oneOrMore>

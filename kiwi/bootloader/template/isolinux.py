@@ -77,49 +77,61 @@ class BootLoaderTemplateIsoLinux(object):
         self.menu_install_entry_multiboot = dedent('''
             label Install_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${boot_options} cdinst=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_install_entry_failsafe_multiboot = dedent('''
             label Failsafe_--_Install_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${failsafe_boot_options} cdinst=1 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_entry_multiboot = dedent('''
             label ${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} ${boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${boot_options} showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_entry_failsafe_multiboot = dedent('''
             label Failsafe_--_${title}
                 kernel mboot.c32
-                append ${hypervisor} --- ${kernel_file} ${failsafe_boot_options} kiwi_hybrid=1 showopts --- ${initrd_file} showopts
+                append ${hypervisor} --- ${kernel_file} ${failsafe_boot_options} showopts --- ${initrd_file} showopts
+        ''').strip() + self.cr
+
+        self.menu_mediacheck_entry_multiboot = dedent('''
+            label Mediacheck
+                kernel mboot.c32
+                append ${hypervisor} --- ${kernel_file} ${boot_options} mediacheck=1 plymouth.enable=0 showopts --- ${initrd_file} showopts
         ''').strip() + self.cr
 
         self.menu_install_entry = dedent('''
             label Install_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} ${boot_options} cdinst=1 kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${boot_options} cdinst=1 showopts
         ''').strip() + self.cr
 
         self.menu_install_entry_failsafe = dedent('''
             label Failsafe_--_Install_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} ${failsafe_boot_options} cdinst=1 kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${failsafe_boot_options} cdinst=1 showopts
         ''').strip() + self.cr
 
         self.menu_entry = dedent('''
             label ${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} ${boot_options} kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${boot_options} showopts
         ''').strip() + self.cr
 
         self.menu_entry_failsafe = dedent('''
             label Failsafe_--_${title}
                 kernel ${kernel_file}
-                append initrd=${initrd_file} ${failsafe_boot_options} kiwi_hybrid=1 showopts
+                append initrd=${initrd_file} ${failsafe_boot_options} showopts
+        ''').strip() + self.cr
+
+        self.menu_mediacheck_entry = dedent('''
+            label Mediacheck
+                kernel ${kernel_file}
+                append initrd=${initrd_file} ${boot_options} mediacheck=1 plymouth.enable=0 showopts
         ''').strip() + self.cr
 
     def get_install_message_template(self):
@@ -141,7 +153,9 @@ class BootLoaderTemplateIsoLinux(object):
         """
         return Template(self.message)
 
-    def get_template(self, failsafe=True, with_theme=True, terminal=None):
+    def get_template(
+        self, failsafe=True, with_theme=True, terminal=None, checkiso=False
+    ):
         """
         Bootloader configuration template for live media
 
@@ -162,10 +176,12 @@ class BootLoaderTemplateIsoLinux(object):
         if failsafe:
             template_data += self.menu_entry_failsafe
         template_data += self.menu_harddisk_entry
+        if checkiso:
+            template_data += self.menu_mediacheck_entry
         return Template(template_data)
 
     def get_multiboot_template(
-        self, failsafe=True, with_theme=True, terminal=None
+        self, failsafe=True, with_theme=True, terminal=None, checkiso=False
     ):
         """
         Bootloader configuration template for live media with
@@ -188,6 +204,8 @@ class BootLoaderTemplateIsoLinux(object):
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
         template_data += self.menu_harddisk_entry
+        if checkiso:
+            template_data += self.menu_mediacheck_entry_multiboot
         return Template(template_data)
 
     def get_install_template(

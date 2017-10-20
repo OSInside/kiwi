@@ -272,10 +272,12 @@ class TestBootLoaderInstallGrub2(object):
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.glob.glob')
     @patch('os.path.exists')
+    @patch('os.access')
     def test_install_secure_boot(
-        self, mock_exists, mock_glob, mock_grub_path, mock_mount_manager,
-        mock_command, mock_which, mock_wipe
+        self, mock_access, mock_exists, mock_glob, mock_grub_path,
+        mock_mount_manager, mock_command, mock_which, mock_wipe
     ):
+        mock_access.return_value = True
         mock_exists.return_value = True
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \

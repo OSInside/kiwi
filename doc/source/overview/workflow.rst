@@ -216,7 +216,7 @@ KIWI:
 
    #. **Container Image**: Base images for the Docker engine.
 
-.. _decription_components:
+.. _description_components:
 
 Components of an Image Description
 ----------------------------------
@@ -708,7 +708,7 @@ modes like *oem install*, *pxe install*, *live images*, *network clients*, etc.
 However this KIWI version also provides support for :command:`dracut`
 generated images which is used when fast boot or small *initrd* images are
 important requirements. This is possible by setting the ``initrd_system``
-attribute withint the ``type`` section of the configuration file. For example:
+attribute within the ``type`` section of the configuration file. For example:
 
 .. code-block:: xml
 
@@ -817,9 +817,8 @@ execution, and the applicable boot image.
   one active console.
 
 ``init``
-  This hook is called before udev is started. It exists only for the *PXE*
-  image type.
-
+  This hook is called before udev is started.
+  
 ``preconfig`` | ``postconfig``
   The hooks are called before and after the client configuration files (CONF
   contents) are setup, respectively. The hooks only exist for the *PXE* image
@@ -853,15 +852,14 @@ execution, and the applicable boot image.
 
 ``preprobe`` | ``postprobe``
   The hooks are called before and after the loading of modules not handled by
-  udev, respectively. The hooks only exist for the *PXE* image type.
+  udev, respectively.
 
 ``preswap`` | ``postswap``
   The hooks are called before and after the creation of the swap space,
   respectively. The hooks only exist for the *PXE* image type.
 
 ``preactivate``
-  This hook is called before the root file system is moved to :file:`/`. The
-  hook only exists for the *PXE* image type.
+  This hook is called before the root file system is moved to :file:`/`.
 
 ``preCallInit``
    This hook is called before the initialization process, init or systemd, is
@@ -1075,7 +1073,7 @@ added to the system image configuration:
 
 .. code-block:: xml
 
-   <packages type="image"/>
+   <packages type="image">
      <package name="dropbear" bootinclude="true"/>
    </packages>
 
@@ -1159,7 +1157,7 @@ solutions to the most common scenarios that require a customized boot image.
 
   .. code-block:: xml
 
-     <packages type="image"/>
+     <packages type="image">
        <package name="PACKAGE" bootinclude="true"/>
      </packages>
 
@@ -1177,9 +1175,9 @@ solutions to the most common scenarios that require a customized boot image.
   ``strip`` section to the system image :file:`config.xml` file, with the type
   attribute set to tools, as follows:
 
-  .. code-block: xml
+  .. code-block:: xml
 
-     <strip type="tools"/>
+     <strip type="tools">
        <file name="FILENAME"/>
      </strip>
 

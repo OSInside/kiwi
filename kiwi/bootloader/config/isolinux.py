@@ -17,6 +17,7 @@
 #
 import os
 import platform
+import shutil
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
@@ -25,6 +26,7 @@ from kiwi.utils.sync import DataSync
 from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.defaults import Defaults
+from kiwi.command import Command
 
 from kiwi.exceptions import (
     KiwiTemplateError,
@@ -85,6 +87,23 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
                 'host architecture %s not supported for isolinux setup' % arch
             )
 
+        self.volume_id = self.xml_state.build_type.get_volid() or \
+            Defaults.get_volume_id()
+
+        self.live_type = self.xml_state.build_type.get_flags()
+        if not self.live_type:
+            self.live_type = Defaults.get_default_live_iso_type()
+
+        self.live_boot_options = [
+            'root=live:CDLABEL={0}'.format(self.volume_id),
+            'rd.live.image'
+        ]
+        if self.xml_state.build_type.get_hybridpersistent():
+            self.live_boot_options += \
+                Defaults.get_live_iso_persistent_boot_options(
+                    self.xml_state.build_type.get_hybridpersistent_filesystem()
+                )
+
         self.terminal = self.xml_state.build_type.get_bootloader_console()
         self.gfxmode = self.get_gfxmode('isolinux')
         # isolinux counts the timeout in units of 1/10 sec
@@ -94,14 +113,11 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             [self.cmdline, Defaults.get_failsafe_kernel_options()]
         )
         self.failsafe_boot = self.failsafe_boot_entry_requested()
-        self.hypervisor_domain = self.get_hypervisor_domain()
+        self.mediacheck_boot = self.xml_state.build_type.get_mediacheck()
 
         self.multiboot = False
-        if self.hypervisor_domain:
-            if self.hypervisor_domain == 'dom0':
-                self.multiboot = True
-            elif self.hypervisor_domain == 'domU':
-                self.multiboot = False
+        if self.xml_state.is_xen_server():
+            self.multiboot = True
 
         self.isolinux = BootLoaderTemplateIsoLinux()
         self.config = None
@@ -190,8 +206,12 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             'default_boot': self.get_menu_entry_title(plain=True),
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe,
+            'boot_options': ' '.join(
+                [self.cmdline] + self.live_boot_options
+            ),
+            'failsafe_boot_options': ' '.join(
+                [self.cmdline_failsafe] + self.live_boot_options
+            ),
             'gfxmode': self.gfxmode,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(plain=True)
@@ -200,12 +220,14 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             log.info('--> Using multiboot standard ISO template')
             parameters['hypervisor'] = hypervisor
             template = self.isolinux.get_multiboot_template(
-                self.failsafe_boot, self._have_theme(), self.terminal
+                self.failsafe_boot, self._have_theme(),
+                self.terminal, self.mediacheck_boot
             )
         else:
             log.info('--> Using standard ISO template')
             template = self.isolinux.get_template(
-                self.failsafe_boot, self._have_theme(), self.terminal
+                self.failsafe_boot, self._have_theme(),
+                self.terminal, self.mediacheck_boot
             )
         try:
             self.config = template.substitute(parameters)
@@ -240,6 +262,56 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         if not lookup_path:
             lookup_path = self.root_dir
         loader_data = lookup_path + '/image/loader/'
+        Path.wipe(loader_data)
+        Path.create(loader_data)
+
+        syslinux_file_names = [
+            'isolinux.bin',
+            'ldlinux.c32',
+            'libcom32.c32',
+            'libutil.c32',
+            'gfxboot.c32',
+            'gfxboot.com',
+            'menu.c32',
+            'chain.c32',
+            'mboot.c32'
+        ]
+        syslinux_dirs = [
+            '/usr/share/syslinux/',
+            '/usr/lib/syslinux/modules/bios/'
+        ]
+        for syslinux_file_name in syslinux_file_names:
+            for syslinux_dir in syslinux_dirs:
+                syslinux_file = ''.join(
+                    [lookup_path, syslinux_dir, syslinux_file_name]
+                )
+                if os.path.exists(syslinux_file):
+                    shutil.copy(syslinux_file, loader_data)
+
+        bash_command = ' '.join(
+            ['cp', lookup_path + '/boot/memtest*', loader_data + '/memtest']
+        )
+        Command.run(
+            command=['bash', '-c', bash_command], raise_on_error=False
+        )
+
+        if self.get_boot_theme():
+            theme_path = ''.join(
+                [lookup_path, '/etc/bootsplash/themes/', self.get_boot_theme()]
+            )
+            if os.path.exists(theme_path + '/cdrom/gfxboot.cfg'):
+                bash_command = ' '.join(
+                    ['cp', theme_path + '/cdrom/*', loader_data]
+                )
+                Command.run(
+                    ['bash', '-c', bash_command]
+                )
+
+            if os.path.exists(theme_path + '/bootloader/message'):
+                Command.run(
+                    ['cp', theme_path + '/bootloader/message', loader_data]
+                )
+
         Path.create(self._get_iso_boot_path())
         data = DataSync(
             loader_data, self._get_iso_boot_path()

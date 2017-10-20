@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.5" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="6.7" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -15,7 +15,7 @@
         <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
-            <machine memory="512" domain="domU">
+            <machine memory="512" xen_loader="pvgrub">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
                 <vmdvd id="0" controller="scsi"/>

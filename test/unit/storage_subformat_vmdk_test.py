@@ -155,7 +155,7 @@ class TestDiskFormatVmdk(object):
 
     def test_post_init(self):
         self.disk_format.post_init({'option': 'value'})
-        assert self.disk_format.options == ['-o', 'option', 'value']
+        assert self.disk_format.options == ['-o', 'option=value']
 
     def test_store_to_result(self):
         result = mock.Mock()
@@ -262,7 +262,7 @@ class TestDiskFormatVmdk(object):
         self.disk_format.create_image_format()
 
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'ab'),
+            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'r+b'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
         ]
         assert self.file_mock.write.call_args_list[0] == call(
@@ -302,7 +302,7 @@ class TestDiskFormatVmdk(object):
         self.disk_format.create_image_format()
 
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'ab'),
+            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'r+b'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
         ]
         assert self.file_mock.write.call_args_list[0] == call(

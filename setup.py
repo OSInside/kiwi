@@ -167,7 +167,9 @@ config = {
         'lxml',
         'xattr',
         'future',
-        'six'
+        'six',
+        'requests',
+        'PyYAML'
     ],
     'packages': ['kiwi'],
     'cmdclass': {

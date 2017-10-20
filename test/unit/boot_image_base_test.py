@@ -93,6 +93,7 @@ class TestBootImageBase(object):
         assert self.xml_state.copy_repository_sections.called
         assert self.xml_state.copy_drivers_sections.called
         assert mock_strip.called
+        assert self.xml_state.copy_strip_sections.called
         assert self.xml_state.copy_preferences_subsections.called
         assert self.xml_state.copy_bootincluded_packages.called
         assert self.xml_state.copy_bootincluded_archives.called

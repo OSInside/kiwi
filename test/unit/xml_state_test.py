@@ -143,33 +143,32 @@ class TestXMLState(object):
     def test_get_bootstrap_collection_type(self):
         assert self.state.get_bootstrap_collection_type() == 'onlyRequired'
 
-    def test_translate_obs_to_ibs_repositories(self):
-        self.state.translate_obs_to_ibs_repositories()
-        source_path = self.state.xml_data.get_repository()[1].get_source()
-        assert source_path.get_path() == \
-            'ibs://Devel:PubCloud:AmazonEC2/SLE_12_GA'
-
-    def test_translate_obs_to_suse_repositories(self):
-        self.state.translate_obs_to_suse_repositories()
-        source_path = self.state.xml_data.get_repository()[1].get_source()
-        assert source_path.get_path() == \
-            'suse://Devel:PubCloud:AmazonEC2/SLE_12_GA'
-
     def test_set_repository(self):
-        self.state.set_repository('repo', 'type', 'alias', 1)
+        self.state.set_repository('repo', 'type', 'alias', 1, True)
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \
             == 'repo'
         assert self.state.xml_data.get_repository()[0].get_type() == 'type'
         assert self.state.xml_data.get_repository()[0].get_alias() == 'alias'
         assert self.state.xml_data.get_repository()[0].get_priority() == 1
+        assert self.state.xml_data.get_repository()[0].get_imageinclude() is True
 
     def test_add_repository(self):
-        self.state.add_repository('repo', 'type', 'alias', 1)
-        assert self.state.xml_data.get_repository()[2].get_source().get_path() \
+        self.state.add_repository('repo', 'type', 'alias', 1, True)
+        assert self.state.xml_data.get_repository()[3].get_source().get_path() \
             == 'repo'
-        assert self.state.xml_data.get_repository()[2].get_type() == 'type'
-        assert self.state.xml_data.get_repository()[2].get_alias() == 'alias'
-        assert self.state.xml_data.get_repository()[2].get_priority() == 1
+        assert self.state.xml_data.get_repository()[3].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[3].get_alias() == 'alias'
+        assert self.state.xml_data.get_repository()[3].get_priority() == 1
+        assert self.state.xml_data.get_repository()[3].get_imageinclude() is True
+
+    def test_add_repository_with_empty_values(self):
+        self.state.add_repository('repo', 'type', '', '', True)
+        assert self.state.xml_data.get_repository()[3].get_source().get_path() \
+            == 'repo'
+        assert self.state.xml_data.get_repository()[3].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[3].get_alias() == ''
+        assert self.state.xml_data.get_repository()[3].get_priority() is None
+        assert self.state.xml_data.get_repository()[3].get_imageinclude() is True
 
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == [
@@ -437,13 +436,26 @@ class TestXMLState(object):
         )
         assert self.boot_state.build_type.get_firmware() == 'efi'
 
-    def test_copy_bootincluded_packages(self):
+    def test_copy_bootincluded_packages_with_no_image_packages(self):
         self.state.copy_bootincluded_packages(self.boot_state)
         bootstrap_packages = self.boot_state.get_bootstrap_packages()
         assert 'plymouth-branding-openSUSE' in bootstrap_packages
         assert 'grub2-branding-openSUSE' in bootstrap_packages
         assert 'gfxboot-branding-openSUSE' in bootstrap_packages
         to_delete_packages = self.boot_state.get_to_become_deleted_packages()
+        assert 'gfxboot-branding-openSUSE' not in to_delete_packages
+
+    def test_copy_bootincluded_packages_with_image_packages(self):
+        boot_description = XMLDescription(
+            '../data/isoboot/example-distribution/config.xml'
+        )
+        boot_state = XMLState(boot_description.load(), ['std'])
+        self.state.copy_bootincluded_packages(boot_state)
+        image_packages = boot_state.get_system_packages()
+        assert 'plymouth-branding-openSUSE' in image_packages
+        assert 'grub2-branding-openSUSE' in image_packages
+        assert 'gfxboot-branding-openSUSE' in image_packages
+        to_delete_packages = boot_state.get_to_become_deleted_packages()
         assert 'gfxboot-branding-openSUSE' not in to_delete_packages
 
     def test_copy_bootincluded_archives(self):
@@ -502,6 +514,10 @@ class TestXMLState(object):
     def test_delete_repository_sections(self):
         self.state.delete_repository_sections()
         assert self.state.get_repository_sections() == []
+
+    def test_delete_repository_sections_used_for_build(self):
+        self.state.delete_repository_sections_used_for_build()
+        assert self.state.get_repository_sections()[0].get_imageonly()
 
     def test_get_build_type_vmconfig_entries(self):
         assert self.state.get_build_type_vmconfig_entries() == []
@@ -604,11 +620,18 @@ class TestXMLState(object):
     def test_get_spare_part(self):
         assert self.state.get_build_type_spare_part_size() == 200
 
+    def test_get_build_type_format_options(self):
+        assert self.state.get_build_type_format_options() == {
+            'super': 'man',
+            'force_size': None
+        }
+
     def test_get_derived_from_image_uri(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data, ['derivedContainer'], 'docker')
-        assert state.get_derived_from_image_uri().translate() == '/image.tar.xz'
+        assert state.get_derived_from_image_uri().uri == \
+            'obs://project/repo/image#mytag'
 
     def test_set_derived_from_image_uri(self):
         description = XMLDescription('../data/example_config.xml')
@@ -621,3 +644,21 @@ class TestXMLState(object):
     def test_set_derived_from_image_uri_not_applied(self, mock_log_warn):
         self.state.set_derived_from_image_uri('file:///new_uri')
         assert mock_log_warn.called
+
+    def test_is_xen_server(self):
+        assert self.state.is_xen_server() is True
+
+    def test_is_xen_guest_by_machine_setup(self):
+        assert self.state.is_xen_guest() is True
+
+    def test_is_xen_guest_by_firmware_setup(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['ec2Flavour'], 'vmx')
+        assert state.is_xen_guest() is True
+
+    def test_get_initrd_system(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
+        assert state.get_initrd_system() == 'dracut'

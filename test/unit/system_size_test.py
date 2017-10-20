@@ -23,9 +23,12 @@ class TestSystemSize(object):
 
     @patch('kiwi.system.size.Command.run')
     def test_accumulate_mbyte_file_sizes(self, mock_command):
-        self.size.accumulate_mbyte_file_sizes()
+        self.size.accumulate_mbyte_file_sizes(['/foo'])
         mock_command.assert_called_once_with(
-            ['du', '-s', '--apparent-size', '--block-size', '1', 'directory']
+            [
+                'du', '-s', '--apparent-size', '--block-size', '1',
+                '--exclude', '/foo', 'directory'
+            ]
         )
 
     @patch('kiwi.system.size.Command.run')

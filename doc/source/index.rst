@@ -11,7 +11,9 @@ build linux system appliances.
    * `GitHub Sources <https://github.com/SUSE/kiwi>`__
    * `GitHub Releases <https://github.com/SUSE/kiwi/releases>`__
    * `RPM Packages <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
-   * `Build Tests <https://ci.opensuse.org/view/kiwi/>`__
+   * `Build Tests(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86>`__
+   * `Build Tests(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm>`__
+   * `Build Tests(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390>`__
 
 .. toctree::
    :maxdepth: 1

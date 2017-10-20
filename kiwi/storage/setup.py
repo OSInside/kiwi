@@ -120,18 +120,19 @@ class DiskSetup(object):
             root_filesystem_mbytes
         )
         if self.volume_manager and self.volume_manager == 'lvm':
-            if self.build_type_name == 'vmx':
-                # only for vmx types we need to add the configured volume
-                # sizes. oem disks are self expandable and will resize to
-                # the configured sizes on first boot of the disk image
-                volume_mbytes = self._accumulate_volume_size(
-                    root_filesystem_mbytes
+            lvm_overhead_mbytes = Defaults.get_lvm_overhead_mbytes()
+            log.info(
+                '--> LVM overhead adding %s MB', lvm_overhead_mbytes
+            )
+            calculated_disk_mbytes += lvm_overhead_mbytes
+            volume_mbytes = self._accumulate_volume_size(
+                root_filesystem_mbytes
+            )
+            if volume_mbytes:
+                calculated_disk_mbytes += volume_mbytes
+                log.info(
+                    '--> volume(s) size setup adding %s MB', volume_mbytes
                 )
-                if volume_mbytes:
-                    calculated_disk_mbytes += volume_mbytes
-                    log.info(
-                        '--> volume(s) size setup adding %s MB', volume_mbytes
-                    )
 
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
@@ -306,6 +307,17 @@ class DiskSetup(object):
         data_volume_mbytes = self._calculate_volume_mbytes()
         root_volume = self._get_root_volume_configuration()
 
+        # For oem types we only add the default min volume size
+        # because their target size request is handled on first boot
+        # of the disk image in oemboot/repart
+        if self.build_type_name == 'oem':
+            for volume in self.volumes:
+                disk_volume_mbytes += Defaults.get_min_volume_mbytes()
+            return disk_volume_mbytes
+
+        # For vmx types we need to add the configured volume
+        # sizes because the image is used directly as it is without
+        # being deployed and resized on a target disk
         for volume in self.volumes:
             if volume.realpath and not volume.realpath == '/' and volume.size:
                 [size_type, req_size] = volume.size.split(':')

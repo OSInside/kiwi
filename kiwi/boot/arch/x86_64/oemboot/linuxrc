@@ -177,6 +177,7 @@ fi
 #--------------------------------------
 touch /etc/modules.conf
 touch /lib/modules/*/modules.dep
+runHook init
 
 #======================================
 # 3) run udevd
@@ -205,7 +206,9 @@ startShell
 #======================================
 # 6) Including required kernel modules
 #--------------------------------------
+runHook preprobe
 probeDevices
+runHook postprobe
 
 #======================================
 # 7) Select language if not in cmdline
@@ -679,6 +682,7 @@ killShell
 #======================================
 # 25) Activate new root
 #--------------------------------------
+runHook preactivate
 activateImage
 
 #======================================

@@ -5,6 +5,7 @@ completion/kiwi-ng.sh
 kiwi/schema/kiwi.xsd
 kiwi/schema/xsi.xsd
 kiwi/schema/kiwi.revision
+doc/source/development/schema/xsdDocHtml.css
 
 # C tool binaries
 tools/dcounter

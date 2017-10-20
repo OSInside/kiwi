@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
+import platform
 from textwrap import dedent
 
 # project
@@ -24,6 +26,7 @@ from .xml_state import XMLState
 from .system.uri import Uri
 from .defaults import Defaults
 from .path import Path
+from .command import Command
 from .exceptions import (
     KiwiRuntimeError
 )
@@ -53,7 +56,7 @@ class RuntimeChecker(object):
                 'No repositories configured'
             )
 
-    def check_image_include_repos_http_resolvable(self):
+    def check_image_include_repos_publicly_resolvable(self):
         """
         Verify that all repos marked with the imageinclude attribute
         can be resolved into a http based web URL
@@ -74,7 +77,7 @@ class RuntimeChecker(object):
                 repo_source = xml_repo.get_source().get_path()
                 repo_type = xml_repo.get_type()
                 uri = Uri(repo_source, repo_type)
-                if not uri.is_remote() or Defaults.is_obs_worker():
+                if not uri.is_public():
                     raise KiwiRuntimeError(message % repo_source)
 
     def check_target_directory_not_in_shared_cache(self, target_dir):
@@ -133,8 +136,8 @@ class RuntimeChecker(object):
         for those tools to be installed in the build system and fails if
         it can't find them
         """
-        message = dedent('''\n
-            Required tool {0} not found in caller environment
+        message_tool_not_found = dedent('''\n
+            Required tool {name} not found in caller environment
 
             Creation of docker images requires the tools umoci and skopeo
             to be installed on the build system. For SUSE based systems
@@ -142,10 +145,42 @@ class RuntimeChecker(object):
 
             http://download.opensuse.org/repositories/Virtualization:/containers
         ''')
+        message_version_unsupported = dedent('''\n
+            {name} tool found in unsupported version
+
+            Expected version: v{want_version}.x.x but got: v{got_version}.x.x
+        ''')
+
+        expected_version = 1
+
         if self.xml_state.get_build_type_name() == 'docker':
             for tool in ['umoci', 'skopeo']:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
-                    raise KiwiRuntimeError(message.format(tool))
+                    raise KiwiRuntimeError(
+                        message_tool_not_found.format(name=tool)
+                    )
+                else:
+                    tool_version_call = Command.run([tool, '--version'])
+                    tool_version_format = re.match(
+                        ''.join(
+                            [
+                                '^', tool, ' version ',
+                                '(\d+)', '\.', '(\d+)', '\.', '(\d+)$'
+                            ]
+                        ), tool_version_call.output
+                    )
+                    version = None
+                    if tool_version_format:
+                        version = tool_version_format.group(1)
+
+                    if not version or int(version) > expected_version:
+                        raise KiwiRuntimeError(
+                            message_version_unsupported.format(
+                                name=tool,
+                                want_version=expected_version,
+                                got_version=version or '[unknown]'
+                            )
+                        )
 
     def check_consistent_kernel_in_boot_and_system_image(self):
         """
@@ -226,34 +261,142 @@ class RuntimeChecker(object):
                     )
                 )
 
-    def check_boot_image_reference_correctly_setup(self):
+    def check_dracut_module_for_live_iso_in_package_list(self):
         """
-        If an initrd_system different from "kiwi" is selected for a
-        vmx (simple disk) image build, it does not make sense to setup
-        a reference to a kiwi boot image description, because no kiwi
-        boot image will be built.
+        Live ISO images uses a dracut initrd to boot and requires
+        the KIWI provided kiwi-live dracut module to be installed
+        at the time dracut is called. Thus this runtime check
+        examines if the required package is part of the package
+        list in the image description.
         """
         message = dedent('''\n
-            Selected initrd_system is: {0}
+            Required dracut module package missing in package list
 
-            The boot attribute selected: '{1}' which is an initrd image
-            used for the 'kiwi' initrd system. This boot image will not be
-            used according to the selected initrd system. Please cleanup
-            your image description:
+            The package '{0}' is required for the selected
+            live iso image type. Please add the following in your
+            <packages type="image"> section to your system XML
+            description:
 
-            1) If the selected initrd system is correct, delete the
-               obsolete boot attribute from the selected '{2}' build type
-
-            2) If the kiwi initrd image should be used, make sure to
-               set initrd_system="kiwi"
+            <package name="{0}"/>
         ''')
-        build_type_name = self.xml_state.get_build_type_name()
-        boot_image_reference = self.xml_state.build_type.get_boot()
-        if build_type_name == 'vmx' and boot_image_reference:
-            initrd_system = self.xml_state.build_type.get_initrd_system()
-            if initrd_system and initrd_system == 'dracut':
+        required_dracut_package = 'dracut-kiwi-live'
+        if self.xml_state.get_build_type_name() == 'iso':
+            package_names = \
+                self.xml_state.get_bootstrap_packages() + \
+                self.xml_state.get_system_packages()
+            if required_dracut_package not in package_names:
                 raise KiwiRuntimeError(
-                    message.format(
-                        initrd_system, boot_image_reference, build_type_name
-                    )
+                    message.format(required_dracut_package)
                 )
+
+    def check_dracut_module_for_disk_overlay_in_package_list(self):
+        """
+        Disk images configured to use a root filesystem overlay
+        requires the KIWI provided kiwi-overlay dracut module to
+        be installed at the time dracut is called. Thus this
+        runtime check examines if the required package is part of
+        the package list in the image description.
+        """
+        message = dedent('''\n
+            Required dracut module package missing in package list
+
+            The package '{0}' is required for the selected
+            overlayroot activated image type. Please add the
+            following in your <packages type="image"> section to
+            your system XML description:
+
+            <package name="{0}"/>
+        ''')
+        required_dracut_package = 'dracut-kiwi-overlay'
+        if self.xml_state.build_type.get_overlayroot():
+            package_names = \
+                self.xml_state.get_bootstrap_packages() + \
+                self.xml_state.get_system_packages()
+            if required_dracut_package not in package_names:
+                raise KiwiRuntimeError(
+                    message.format(required_dracut_package)
+                )
+
+    def check_efi_mode_for_disk_overlay_correctly_setup(self):
+        """
+        Disk images configured to use a root filesystem overlay
+        only supports the standard EFI mode and not secure boot.
+        That's because the shim setup performs changes to the
+        root filesystem which can not be applied during the
+        bootloader setup at build time because at that point
+        the root filesystem is a read-only squashfs source.
+        """
+        message = dedent('''\n
+            Secure Boot not supported with overlay disk image
+
+            Disk images configured to use a root filesystem overlay
+            only supports the standard EFI mode and not secure boot.
+            That's because the shim setup performs changes to the
+            root filesystem which can not be applied during the
+            bootloader setup at build time because at that point
+            the root filesystem is a read-only squashfs source
+
+            Thus please change the firmware attribute in the <type>
+            section of the system XML description as follows:
+
+            <type ... firmware="efi"/>
+        ''')
+        overlayroot = self.xml_state.build_type.get_overlayroot()
+        firmware = self.xml_state.build_type.get_firmware()
+        if overlayroot and firmware == 'uefi':
+            raise KiwiRuntimeError(message)
+
+    def check_xen_uniquely_setup_as_server_or_guest(self):
+        """
+        If the image is classified to be used as Xen image, it can
+        be either a Xen Server(dom0) or a Xen guest. The image
+        configuration is checked if the information uniquely identifies
+        the image as such
+        """
+        xen_message = dedent('''\n
+            Inconsistent Xen setup found:
+
+            The use of the 'xen_server' or 'xen_loader' attributes indicates
+            the target system for this image is Xen. However the image
+            specifies both attributes at the same time which classifies
+            the image to be both, a Xen Server(dom0) and a Xen guest at
+            the same time, which is not supported.
+
+            Please cleanup your image description. Setup only one
+            of 'xen_server' or 'xen_loader'.
+        ''')
+        ec2_message = dedent('''\n
+            Inconsistent Amazon EC2 setup found:
+
+            The firmware setup indicates the target system for this image
+            is Amazon EC2, which uses a Xen based virtualisation technology.
+            Therefore the image must be classified as a Xen guest and can
+            not be a Xen server as indicated by the 'xen_server' attribute
+
+            Please cleanup your image description. Delete the 'xen_server'
+            attribute for images used with Amazon EC2.
+        ''')
+        if self.xml_state.is_xen_server() and self.xml_state.is_xen_guest():
+            firmware = self.xml_state.build_type.get_firmware()
+            ec2_firmware_names = Defaults.get_ec2_capable_firmware_names()
+            if firmware and firmware in ec2_firmware_names:
+                raise KiwiRuntimeError(ec2_message)
+            else:
+                raise KiwiRuntimeError(xen_message)
+
+    def check_mediacheck_only_for_x86_arch(self):
+        """
+        If the current architecture is not from the x86 family the
+        'mediacheck' feature available for iso images is not supported.
+        Checkmedia tool and its related boot code are only available
+        for x86 platforms.
+        """
+        arch = platform.machine()
+        message = dedent('''\n
+            The attribute 'mediacheck' is only supported for
+            x86 platforms, thus it can't be set to 'true'
+            for the current ({0}) architecture.
+        ''')
+        if self.xml_state.build_type.get_mediacheck() is True and \
+                arch not in ['x86_64', 'i586', 'i686']:
+            raise KiwiRuntimeError(message.format(arch))

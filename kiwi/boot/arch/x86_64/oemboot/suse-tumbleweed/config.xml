@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.5" name="initrd-oemboot-suse-tumbleweed">
+<image schemaversion="6.7" name="initrd-oemboot-suse-tumbleweed">
     <description type="boot">
         <author>Marcus Schaefer</author>
-        <contact>ms@novell.com</contact>
+        <contact>ms@suse.de</contact>
         <specification>boot/initrd image used on OEM VMX disk</specification>
     </description>
     <preferences>
         <type image="cpio" bootprofile="default" bootkernel="std"/>
-        <version>2.7.1</version>
+        <version>3.42.3</version>
         <packagemanager>zypper</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <profiles>
         <profile name="default" description="Booting default setup"/>
         <profile name="custom" description="KERNEL: specified by bootinclude in system XML"/>
-        <profile name="xen" description="Boot with xen mboot.c32 setup"/>
-        <profile name="ec2" description="Boot using EC2 system"/>
+        <profile name="xen" description="Xen drivers and grub2 modules"/>
         <profile name="std" description="KERNEL: Default"/>
-        <profile name="xenk" description="KERNEL: Xen kernel/mboot.c32"/>
-        <profile name="pae" description="KERNEL: pae kernel"/>
-        <profile name="ec2k" description="KERNEL: EC2 kernel"/>
         <profile name="desktop" description="KERNEL: Desktop kernel"/>
     </profiles>
     <drivers>
@@ -46,6 +42,8 @@
         <file name="drivers/md/*"/>
         <file name="drivers/message/fusion/*"/>
         <file name="drivers/net/*"/>
+        <file name="drivers/nvme/*"/>
+        <file name="drivers/nvmem/*"/>
         <file name="drivers/parport/*"/>
         <file name="drivers/scsi/*"/>
         <file name="drivers/staging/hv/*"/>
@@ -82,7 +80,7 @@
         <file name="lib/zlib_deflate/zlib_deflate.ko"/>
         <file name="net/packet/*"/>
     </drivers>
-    <drivers profiles="xen,ec2">
+    <drivers profiles="xen">
         <file name="drivers/xen/*"/>
         <file name="drivers/block/xen-blkfront.ko"/>
         <file name="drivers/net/xen-netfront.ko"/>
@@ -90,35 +88,30 @@
         <file name="drivers/input/misc/xen-kbdfront.ko"/>
         <file name="drivers/pci/xen-pcifront.ko"/>
     </drivers>
-    <repository type="yast2" status="replaceable">
-        <source path="obs://factory/repo/oss/"/>
+    <repository type="yast2">
+        <source path="obs://inherited_from_system_image_description"/>
     </repository>
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
-    </packages>
-    <packages type="image" profiles="pae">
-        <package name="kernel-pae" arch="i686"/>
-        <package name="kernel-default" arch="i586"/>
-    </packages>
-    <packages type="image" profiles="xenk">
-<!-- xen kernel only supported on x86_64 -->
-        <package name="kernel-xen" arch="x86_64"/>
-<!-- xen dom0 support only on x86_64 -->
-        <package name="xen" arch="x86_64"/>
-    </packages>
-    <packages type="image" profiles="ec2k">
-        <package name="kernel-ec2"/>
     </packages>
     <packages type="image" profiles="desktop">
         <package name="kernel-desktop" arch="x86_64"/>
         <package name="kernel-desktop" arch="i686"/>
         <package name="kernel-default" arch="i586"/>
     </packages>
-    <packages type="image" profiles="xen,ec2">
+    <packages type="image" profiles="xen">
         <package name="grub2-x86_64-xen" arch="x86_64"/>
     </packages>
     <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
     <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="openSUSE-release"/>
+    </packages>
+    <packages type="image">
         <package name="kbd"/>
         <package name="gptfdisk"/>
         <package name="adaptec-firmware"/>
@@ -170,14 +163,11 @@
         <package name="util-linux"/>
         <package name="xfsprogs"/>
         <package name="diffutils"/>
-        <package name="filesystem"/>
         <package name="glibc"/>
-        <package name="glibc-locale"/>
         <package name="procps"/>
         <package name="rsync"/>
         <package name="timezone"/>
         <package name="which"/>
-        <package name="udev"/>
         <package name="wicked"/>
         <package name="iproute2"/>
         <package name="psmisc"/>
@@ -188,6 +178,7 @@
     </packages>
     <packages type="delete">
         <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
         <package name="fillup"/>
         <package name="gdbm"/>
         <package name="info"/>

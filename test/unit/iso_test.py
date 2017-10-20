@@ -8,7 +8,8 @@ from builtins import bytes
 from kiwi.exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoToolError,
-    KiwiIsoMetaDataError
+    KiwiIsoMetaDataError,
+    KiwiCommandError
 )
 
 from kiwi.iso import Iso
@@ -239,13 +240,70 @@ class TestIso(object):
         mbrid.get_id = mock.Mock(
             return_value='0x0815'
         )
-        Iso.create_hybrid(42, mbrid, 'some-iso')
+        command = mock.Mock()
+        command.error = None
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
         mock_command.assert_called_once_with(
             [
                 'isohybrid', '--offset', '42',
                 '--id', '0x0815', '--type', '0x83',
                 '--uefi', 'some-iso'
             ]
+        )
+
+    @raises(KiwiCommandError)
+    @patch('kiwi.iso.Command.run')
+    def test_create_hybrid_with_error(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        command = mock.Mock()
+        command.error = 'some error message'
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+
+    @raises(KiwiCommandError)
+    @patch('kiwi.iso.Command.run')
+    def test_create_hybrid_with_multiple_errors(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        command = mock.Mock()
+        command.error = \
+            'isohybrid: Warning: more than 1024 cylinders: 1817\n' + \
+            'isohybrid: Not all BIOSes will be able to boot this device\n' + \
+            'isohybrid: some other error we do not ignore'
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+
+    @patch('kiwi.iso.Command.run')
+    def test_create_hybrid_with_cylinders_warning(self, mock_command):
+        mbrid = mock.Mock()
+        mbrid.get_id = mock.Mock(
+            return_value='0x0815'
+        )
+        command = mock.Mock()
+        command.error = \
+            'isohybrid: Warning: more than 1024 cylinders: 1817\n' + \
+            'isohybrid: Not all BIOSes will be able to boot this device'
+        mock_command.return_value = command
+        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+        mock_command.assert_called_once_with(
+            [
+                'isohybrid', '--offset', '42',
+                '--id', '0x0815', '--type', '0x83',
+                '--uefi', 'some-iso'
+            ]
+        )
+
+    @patch('kiwi.iso.Command.run')
+    def test_set_media_tag(self, mock_command):
+        Iso.set_media_tag('foo')
+        mock_command.assert_called_once_with(
+            ['tagmedia', '--md5', '--check', '--pad', '150', 'foo']
         )
 
     @patch_open
@@ -295,7 +353,8 @@ class TestIso(object):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+            bytes(b'EL TORITO SPECIFICATION') + \
+            bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
         read_results = [eltorito_descriptor, volume_descriptor]
 
         def side_effect(arg):
@@ -310,7 +369,8 @@ class TestIso(object):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+            bytes(b'EL TORITO SPECIFICATION') + \
+            bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
         new_volume_descriptor = \
             bytes(b'bogus')
         next_new_volume_descriptor = \
@@ -345,8 +405,10 @@ class TestIso(object):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
-            bytes(b'EL TORITO SPECIFICATION') + bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
-        boot_catalog = bytes(b'_') * 64 + struct.pack('B', 0x88) + bytes(b'_') * 32
+            bytes(b'EL TORITO SPECIFICATION') + \
+            bytes(b'_') * (0x47 - 0x17) + bytes(b'0x1d5f23a')
+        boot_catalog = bytes(b'_') * 64 + struct.pack('B', 0x88) + \
+            bytes(b'_') * 32
         read_results = [
             boot_catalog,
             eltorito_descriptor,

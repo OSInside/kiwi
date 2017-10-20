@@ -57,6 +57,7 @@ def remove_module_docstring(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect("autodoc-process-docstring", remove_module_docstring)
+    app.add_stylesheet('css/custom.css')
 
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
@@ -157,6 +158,8 @@ html_theme = "sphinx_rtd_theme"
 
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
+html_static_path = ['.static']
+
 html_theme_options = {
     'collapse_navigation': False,
     'display_version': False
@@ -182,63 +185,63 @@ man_pages = [
         kiwi_doc,
         'kiwi', u'Creating Operating System Images',
         [author],
-        2
+        8
     ),
     (
         result_list_doc,
         'kiwi::result::list',
         u'List build results',
         [author],
-        2
+        8
     ),
     (
         result_bundle_doc,
         'kiwi::result::bundle',
         u'Bundle build results',
         [author],
-        2
+        8
     ),
     (
         system_prepare_doc,
         'kiwi::system::prepare',
         u'Prepare image root system',
         [author],
-        2
+        8
     ),
     (
         system_create_doc,
         'kiwi::system::create',
         u'Create image from prepared root system',
         [author],
-        2
+        8
     ),
     (
         system_update_doc,
         'kiwi::system::update',
         u'Update/Upgrade image root system',
         [author],
-        2
+        8
     ),
     (
         system_build_doc,
         'kiwi::system::build',
         u'Build image in combined prepare and create step',
         [author],
-        2
+        8
     ),
     (
         image_resize_doc,
         'kiwi::image::resize',
         u'Resize disk images to new geometry',
         [author],
-        2
+        8
     ),
     (
         image_info_doc,
         'kiwi::image::info',
         u'Provide detailed information about an image description',
         [author],
-        2
+        8
     )
 ]
 

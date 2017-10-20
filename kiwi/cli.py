@@ -33,6 +33,7 @@ usage: kiwi -h | --help
             [--debug]
             [--color-output]
            system <command> [<args>...]
+       kiwi compat <legacy_args>...
        kiwi --compat <legacy_args>...
        kiwi -v | --version
        kiwi help
@@ -40,9 +41,6 @@ usage: kiwi -h | --help
 global options:
     --color-output
         use colors for warning and error messages
-    --compat
-        support legacy kiwi commandline, e.g
-        kiwi --compat -- --build /my/description --type vmx -d /my/dest
     --debug
         print debug information
     -v --version
@@ -78,10 +76,12 @@ from docopt import docopt
 # project
 from .exceptions import (
     KiwiUnknownServiceName,
+    KiwiCommandNotFound,
     KiwiCommandNotLoaded,
     KiwiLoadCommandUndefined,
     KiwiCompatError
 )
+from .path import Path
 from .defaults import Defaults
 from .version import __version__
 from .help import Help
@@ -139,6 +139,8 @@ class Cli(object):
             return 'result'
         elif self.all_args.get('--compat') is True:
             return 'compat'
+        elif self.all_args.get('compat') is True:
+            return 'compat'
         else:
             raise KiwiUnknownServiceName(
                 'Unknown/Invalid Servicename'
@@ -150,8 +152,9 @@ class Cli(object):
 
         :param list compat_args: raw arguments
         """
+        kiwicompat = self._lookup_kiwicompat()
         try:
-            os.execvp('kiwicompat', ['kiwicompat'] + compat_args)
+            os.execvp(kiwicompat, ['kiwicompat'] + compat_args)
         except Exception as e:
             raise KiwiCompatError(
                 '%s: %s' % (type(e).__name__, format(e))
@@ -195,9 +198,10 @@ class Cli(object):
         command = self.get_command()
         service = self.get_servicename()
         if service == 'compat':
-            return self.invoke_kiwicompat(
-                self.all_args['<legacy_args>'][1:]
-            )
+            compat_arguments = self.all_args['<legacy_args>']
+            if '--' in compat_arguments:
+                compat_arguments.remove('--')
+            return self.invoke_kiwicompat(compat_arguments)
         if not command:
             raise KiwiLoadCommandUndefined(
                 'No command specified for %s service' % service
@@ -243,3 +247,10 @@ class Cli(object):
             raise KiwiCommandNotLoaded(
                 '%s command not loaded' % self.get_command()
             )
+
+    def _lookup_kiwicompat(self):
+        for kiwicompat_name in ['kiwicompat-3', 'kiwicompat-2']:
+            kiwicompat = Path.which(kiwicompat_name, access_mode=os.X_OK)
+            if kiwicompat:
+                return kiwicompat
+        raise KiwiCommandNotFound('kiwicompat not found')

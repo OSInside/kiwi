@@ -118,12 +118,8 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         canonical_volume_list = self.get_canonical_volume_list()
         for volume in canonical_volume_list.volumes:
-            [size_type, volume_mbsize] = volume.size.split(':')
             volume_mbsize = self.get_volume_mbsize(
-                volume_mbsize,
-                size_type,
-                volume.realpath,
-                filesystem_name,
+                volume, self.volumes, filesystem_name,
                 self.custom_args['image_type']
             )
             log.info(
@@ -162,6 +158,19 @@ class VolumeManagerLVM(VolumeManagerBase):
             self._add_to_mount_list(
                 full_size_volume.name, full_size_volume.realpath
             )
+
+        # re-order mount_list by mountpoint hierarchy
+        # This is needed because the handling of the fullsize volume and
+        # all other volumes is outside of the canonical order. If the
+        # fullsize volume forms a nested structure together with another
+        # volume the volume mount list must be re-ordered to avoid
+        # mounting the volumes in the wrong order
+        volume_paths = {}
+        for volume_mount in self.mount_list:
+            volume_paths[volume_mount.mountpoint] = volume_mount
+        self.mount_list = []
+        for mount_path in Path.sort_by_hierarchy(sorted(volume_paths.keys())):
+            self.mount_list.append(volume_paths[mount_path])
 
     def get_fstab(self, persistency_type, filesystem_name):
         """

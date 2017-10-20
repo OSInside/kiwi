@@ -13,9 +13,9 @@ SYNOPSIS
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
-       [--set-repo=<source,type,alias,priority>]
-       [--add-repo=<source,type,alias,priority>...]
-       [--obs-repo-internal]
+       [--ignore-repos-used-for-build]
+       [--set-repo=<source,type,alias,priority,imageinclude>]
+       [--add-repo=<source,type,alias,priority,imageinclude>...]
        [--add-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
@@ -39,10 +39,12 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority>
+--add-repo=<source,type,alias,priority,imageinclude>
 
   Add a new repository to the existing repository setup in the XML
-  description. This option can be specified multiple times
+  description. This option can be specified multiple times.
+  For details about the provided option values see the **--set-repo**
+  information below
 
 --allow-existing-root
 
@@ -62,14 +64,6 @@ OPTIONS
   is shared between multiple image builds on that host for performance
   reasons.
 
---signing-key=<key-file>
-
-  set the key file to be trusted and imported into the package
-  manager database before performing any opertaion. This is useful
-  if an image build should take and validate repository and package
-  signatures during build time. This option can be specified multiple
-  times
-
 --delete-package=<name>
 
   specify package to delete. The option can be specified
@@ -80,17 +74,20 @@ OPTIONS
   Path to the XML description. This is a directory containing at least
   one _config.xml_ or _*.kiwi_ XML file.
 
---obs-repo-internal
+--ignore-repos
 
-  The repository source type **obs://** by default points to the
-  `Open Build Service <http://download.opensuse.org>`_. With the
-  *--obs-repo-internal* option the source type is changed to the
-  **ibs://** type, pointing to the **Internal Build Service**.
-  This allows to build images with repositories pointing to the SUSE
-  internal build service. Please note this requires access permissions
-  to the SUSE internal build service on the machine building the image.
+  Ignore all repository configurations from the XML description.
+  Using that option is usally done with a sequence of --add-repo
+  options otherwise there are no repositories available for the
+  image build which would lead to an error.
 
---set-repo=<source,type,alias,priority>
+--ignore-repos-used-for-build
+
+  Works the same way as --ignore-repos except that repository
+  configurations which has the imageonly attribute set to true
+  will not be ignored.
+
+--set-repo=<source,type,alias,priority,imageinclude>
 
   Overwrite the first repository entry in the XML description with the
   provided information:
@@ -118,6 +115,19 @@ OPTIONS
     depends on the selected package manager. Please refer to the package
     manager documentation for details about the supported priority ranges
     and their meaning.
+
+  - **imageinclude**
+
+    Set to either **true** or **false** to specify if this repository
+    should be part of the system image repository setup or not
+
+--signing-key=<key-file>
+
+  set the key file to be trusted and imported into the package
+  manager database before performing any opertaion. This is useful
+  if an image build should take and validate repository and package
+  signatures during build time. This option can be specified multiple
+  times
 
 --target-dir=<directory>
 

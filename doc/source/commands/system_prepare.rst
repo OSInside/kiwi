@@ -13,9 +13,9 @@ SYNOPSIS
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
-       [--set-repo=<source,type,alias,priority>]
-       [--add-repo=<source,type,alias,priority>...]
-       [--obs-repo-internal]
+       [--ignore-repos-used-for-build]
+       [--set-repo=<source,type,alias,priority,imageinclude>]
+       [--add-repo=<source,type,alias,priority,imageinclude>...]
        [--add-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
@@ -41,7 +41,7 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority>
+--add-repo=<source,type,alias,priority,imageinclude>
 
   See the kiwi::system::build manual page for further details
 
@@ -60,14 +60,6 @@ OPTIONS
   is shared between multiple image builds on that host for performance
   reasons.
 
---signing-key=<key-file>
-
-  set the key file to be trusted and imported into the package
-  manager database before performing any opertaion. This is useful
-  if an image build should take and validate repository and package
-  signatures during build time. This option can be specified multiple
-  times
-
 --delete-package=<name>
 
   specify package to delete. The option can be specified
@@ -78,14 +70,31 @@ OPTIONS
   Path to the kiwi XML description. Inside of that directory there
   must be at least a config.xml of \*.kiwi XML description.
 
---obs-repo-internal
+--ignore-repos
 
-  See the kiwi::system::build manual page for further details
+  Ignore all repository configurations from the XML description.
+  Using that option is usally done with a sequence of --add-repo
+  options otherwise there are no repositories available for the
+  image build which would lead to an error.
+
+--ignore-repos-used-for-build
+
+  Works the same way as --ignore-repos except that repository
+  configurations which has the imageonly attribute set to true
+  will not be ignored.
 
 --root=<directory>
 
   Path to create the new root system.
 
---set-repo=<source,type,alias,priority>
+--set-repo=<source,type,alias,priority,imageinclude>
 
   See the kiwi::system::build manual page for further details
+
+--signing-key=<key-file>
+
+  set the key file to be trusted and imported into the package
+  manager database before performing any opertaion. This is useful
+  if an image build should take and validate repository and package
+  signatures during build time. This option can be specified multiple
+  times.

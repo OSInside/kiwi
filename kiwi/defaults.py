@@ -17,6 +17,8 @@
 #
 import os
 import glob
+import sys
+from six.moves import reload_module
 from collections import namedtuple
 import platform
 from pkg_resources import resource_filename
@@ -65,15 +67,31 @@ class Defaults(object):
     @classmethod
     def get_xz_compression_options(self):
         return [
-            '--check=crc32',
-            '--lzma2=dict=512KiB'
+            '--threads=0'
         ]
 
     @classmethod
-    def is_obs_worker(self):
+    def is_buildservice_worker(self):
         # the presence of /.buildenv on the build host indicates
         # we are building inside of the open buildservice
-        return os.path.exists('/.buildenv')
+        return os.path.exists(
+            os.sep + Defaults.get_buildservice_env_name()
+        )
+
+    @classmethod
+    def get_buildservice_env_name(self):
+        """
+        The base name of the environment file in a buildservice worker
+        """
+        return '.buildenv'
+
+    @classmethod
+    def get_obs_download_server_url(self):
+        """
+        The default download server url hosting the public open
+        buildservice repositories
+        """
+        return 'http://download.opensuse.org/repositories'
 
     @classmethod
     def get_s390_disk_block_size(self):
@@ -112,6 +130,20 @@ class Defaults(object):
         return os.path.abspath(os.path.normpath(
             Cli().get_global_args().get('--shared-cache-dir')
         )).lstrip(os.sep)
+
+    @classmethod
+    def get_exclude_list_for_root_data_sync(self):
+        """
+        Returns the list of files or folders that are created
+        by KIWI for its own purposes. Those files should be not
+        be included in the resulting image.
+        """
+        exclude_list = [
+            'image', '.profile', '.kconfig',
+            Defaults.get_buildservice_env_name(),
+            Defaults.get_shared_cache_location()
+        ]
+        return exclude_list
 
     @classmethod
     def get_failsafe_kernel_options(self):
@@ -168,6 +200,13 @@ class Defaults(object):
             '0x31a': video_type(grub2='1280x1024', isolinux='1280 1024'),
             '0x31b': video_type(grub2='1280x1024', isolinux='1280 1024'),
         }
+
+    @classmethod
+    def get_volume_id(self):
+        """
+        Implements default value for ISO volume ID
+        """
+        return 'CDROM'
 
     @classmethod
     def get_default_video_mode(self):
@@ -404,6 +443,16 @@ class Defaults(object):
         return 30
 
     @classmethod
+    def get_lvm_overhead_mbytes(self):
+        """
+        Implements empiric LVM overhead size in mbytes
+
+        :return: mbsize
+        :rtype: int
+        """
+        return 80
+
+    @classmethod
     def get_default_boot_mbytes(self):
         """
         Implements default boot partition size in mbytes
@@ -462,7 +511,7 @@ class Defaults(object):
         :rtype: list
         """
         return [
-            'gce', 'qcow2', 'vmdk', 'vmx', 'vhd',
+            'gce', 'qcow2', 'vmdk', 'vmx', 'vhd', 'vhdx',
             'vhdfixed', 'vdi', 'vagrant.libvirt.box'
         ]
 
@@ -543,7 +592,7 @@ class Defaults(object):
         :return: firmware names
         :rtype: list
         """
-        return ['ec2', 'ec2hvm']
+        return ['ec2']
 
     @classmethod
     def get_efi_module_directory_name(self, arch):
@@ -651,36 +700,6 @@ class Defaults(object):
         ]
 
     @classmethod
-    def get_live_iso_types(self):
-        """
-        Implements list of supported live ISO image types
-
-        :return: live iso names
-        :rtype: list
-        """
-        return {
-            'overlay': 'squashfs',
-            'clic': 'clicfs'
-        }
-
-    @classmethod
-    def get_live_iso_client_parameters(self):
-        """
-        Implements parameters to setup the overlay filesystem used
-        for the live ISO image. Each supported overlay filesystem
-        needs the information about the target block device, the
-        copy on write device and the used kernel union filesystem
-        name
-
-        :return: union client parameters
-        :rtype: dict
-        """
-        return {
-            'overlay': ['loop', 'tmpfs', 'overlay'],
-            'clic': ['/dev/ram1', '/dev/ram1', 'clicfs']
-        }
-
-    @classmethod
     def get_default_live_iso_type(self):
         """
         Implements default live iso union type
@@ -689,6 +708,34 @@ class Defaults(object):
         :rtype: string
         """
         return 'overlay'
+
+    @classmethod
+    def get_default_live_iso_root_filesystem(self):
+        """
+        Implements default live iso root filesystem type
+
+        :return: filesystem name
+        :rtype: string
+        """
+        return 'ext4'
+
+    @classmethod
+    def get_live_iso_persistent_boot_options(self, persistent_filesystem=None):
+        """
+        Implements list of boot options passed to the dracut
+        kiwi-live module to setup persistent writing
+
+        :return: boot options
+        :rtype: list
+        """
+        live_iso_persistent_boot_options = [
+            'rd.live.overlay.persistent',
+        ]
+        if persistent_filesystem:
+            live_iso_persistent_boot_options.append(
+                'rd.live.overlay.cowfs={0}'.format(persistent_filesystem)
+            )
+        return live_iso_persistent_boot_options
 
     @classmethod
     def get_disk_image_types(self):
@@ -802,6 +849,39 @@ class Defaults(object):
         :rtype: string
         """
         return os.sep.join([root_dir, 'image', 'imported_root'])
+
+    @classmethod
+    def set_python_default_encoding_to_utf8(self):
+        """
+        Set python default encoding to utf-8 if not already done
+
+        This is not a safe operation since sys.setdefaultencoding()
+        was removed from sys on purpose when Python starts. Reenabling
+        it and changing the default encoding can break code that relies
+        on ascii being the default. Within the scope of kiwi the
+        operation is safe because all data is expected to be utf-8
+        everywhere and considered a bug if this is not the case
+        """
+        if sys.version_info.major < 3:
+            reload_module(sys)  # Reload required to get setdefaultencoding back
+            sys.setdefaultencoding('utf-8')
+
+    @classmethod
+    def get_default_packager_tool(self, package_manager):
+        """
+        Returns the packager tool according to the package manager
+
+        :param string package_manager: is the package_manger set in XML
+
+        :return: packager tool
+        :rtype: string
+        """
+        rpm_based = ['zypper', 'yum', 'dnf']
+        deb_based = ['apt-get']
+        if package_manager in rpm_based:
+            return 'rpm'
+        elif package_manager in deb_based:
+            return 'dpkg'
 
     def get(self, key):
         """

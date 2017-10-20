@@ -2,7 +2,7 @@ import sys
 import mock
 import os
 
-from mock import patch
+from mock import patch, call
 
 import kiwi
 
@@ -56,6 +56,7 @@ class TestResultBundleTask(object):
         self.task.command_args['--target-dir'] = 'target_dir'
         self.task.command_args['--bundle-dir'] = 'bundle_dir'
         self.task.command_args['--id'] = 'Build_42'
+        self.task.command_args['--zsync-source'] = None
 
     @raises(KiwiBundleError)
     def test_process_invalid_bundle_directory(self):
@@ -68,16 +69,18 @@ class TestResultBundleTask(object):
     @patch('kiwi.tasks.result_bundle.Result.load')
     @patch('kiwi.tasks.result_bundle.Command.run')
     @patch('kiwi.tasks.result_bundle.Path.create')
+    @patch('kiwi.tasks.result_bundle.Path.which')
     @patch('kiwi.tasks.result_bundle.Compress')
     @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     @patch_open
     def test_process_result_bundle(
         self, mock_open, mock_exists, mock_checksum, mock_compress,
-        mock_path, mock_command, mock_load
+        mock_path_which, mock_path_create, mock_command, mock_load
     ):
         checksum = mock.Mock()
         compress = mock.Mock()
+        mock_path_which.return_value = 'zsyncmake'
         compress.compressed_filename = 'compressed_filename'
         mock_compress.return_value = compress
         mock_checksum.return_value = checksum
@@ -86,17 +89,26 @@ class TestResultBundleTask(object):
         mock_load.return_value = self.result
         self._init_command_args()
         self.task.command_args['bundle'] = True
+        self.task.command_args['--zsync-source'] = 'http://example.com/zsync'
 
         self.task.process()
 
-        mock_load.assert_called_once_with(os.sep.join([self.abs_target_dir, 'kiwi.result']))
-        mock_path.assert_called_once_with(self.abs_bundle_dir)
-        mock_command.assert_called_once_with(
-            [
+        mock_load.assert_called_once_with(
+            os.sep.join([self.abs_target_dir, 'kiwi.result'])
+        )
+        mock_path_create.assert_called_once_with(self.abs_bundle_dir)
+        assert mock_command.call_args_list == [
+            call([
                 'cp', 'filename-1.2.3',
                 os.sep.join([self.abs_bundle_dir, 'filename-1.2.3-Build_42'])
-            ]
-        )
+            ]),
+            call([
+                'zsyncmake', '-e',
+                '-u', 'http://example.com/zsync/compressed_filename',
+                '-o', 'compressed_filename.zsync',
+                'compressed_filename'
+            ])
+        ]
         mock_compress.assert_called_once_with(
             os.sep.join([self.abs_bundle_dir, 'filename-1.2.3-Build_42'])
         )
@@ -104,6 +116,37 @@ class TestResultBundleTask(object):
             compress.compressed_filename
         )
         checksum.sha256.assert_called_once_with()
+
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.tasks.result_bundle.Result.load')
+    @patch('kiwi.tasks.result_bundle.Command.run')
+    @patch('kiwi.tasks.result_bundle.Path.create')
+    @patch('kiwi.tasks.result_bundle.Path.which')
+    @patch('kiwi.tasks.result_bundle.Compress')
+    @patch('kiwi.tasks.result_bundle.Checksum')
+    @patch('os.path.exists')
+    @patch_open
+    def test_process_result_bundle_zsyncmake_missing(
+        self, mock_open, mock_exists, mock_checksum, mock_compress,
+        mock_path_which, mock_path_create, mock_command, mock_load, mock_log
+    ):
+        checksum = mock.Mock()
+        compress = mock.Mock()
+        mock_path_which.return_value = None
+        compress.compressed_filename = 'compressed_filename'
+        mock_compress.return_value = compress
+        mock_checksum.return_value = checksum
+        mock_exists.return_value = False
+        mock_open.return_value = self.context_manager_mock
+        mock_load.return_value = self.result
+        self._init_command_args()
+        self.task.command_args['bundle'] = True
+        self.task.command_args['--zsync-source'] = 'http://example.com/zsync'
+
+        self.task.process()
+        mock_log.assert_called_once_with(
+            '--> zsyncmake missing, zsync setup skipped'
+        )
 
     def test_process_result_bundle_help(self):
         self._init_command_args()

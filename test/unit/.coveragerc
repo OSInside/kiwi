@@ -2,5 +2,4 @@
 omit =
     */app.py
     */kiwi.py
-    */kiwi_compat.py
     */xml_parse.py

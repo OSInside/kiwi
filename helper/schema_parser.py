@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Usage: schema_parser.py SCHEMA [--output=ARG]
 

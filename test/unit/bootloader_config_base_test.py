@@ -85,9 +85,6 @@ class TestBootLoaderConfigBase(object):
         mock_installprovidefailsafe.return_value = False
         assert self.bootloader.failsafe_boot_entry_requested() is False
 
-    def test_get_hypervisor_domain(self):
-        assert self.bootloader.get_hypervisor_domain() == 'domU'
-
     def test_get_boot_cmdline(self):
         assert self.bootloader.get_boot_cmdline() == 'splash'
 
@@ -107,6 +104,17 @@ class TestBootLoaderConfigBase(object):
         mock_initrd.return_value = 'dracut'
         assert self.bootloader.get_boot_cmdline('uuid') == \
             'splash root=UUID=uuid rw'
+
+    @patch('kiwi.xml_parse.type_.get_initrd_system')
+    def test_get_boot_cmdline_initrd_system_is_dracut_with_overlay(
+        self, mock_initrd
+    ):
+        mock_initrd.return_value = 'dracut'
+        self.state.build_type.get_overlayroot = mock.Mock(
+            return_value=True
+        )
+        assert self.bootloader.get_boot_cmdline('uuid') == \
+            'splash root=overlay:UUID=uuid'
 
     @patch('kiwi.xml_parse.type_.get_firmware')
     @patch('kiwi.logger.log.warning')

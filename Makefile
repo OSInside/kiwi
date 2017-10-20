@@ -1,10 +1,13 @@
 buildroot = /
 python_version = 3
+python_lookup_name = python
+python = $(shell which $(python_lookup_name))
 
 LC = LC_MESSAGES
 
 version := $(shell \
-    python3 -c 'from kiwi.version import __version__; print(__version__)'\
+    $(python) -c \
+    'from kiwi.version import __version__; print(__version__)'\
 )
 
 .PHONY: test
@@ -26,13 +29,16 @@ install:
 	# the C tools, the manual pages and the completion
 	# see setup.py for details when this target is called
 	${MAKE} -C tools buildroot=${buildroot} install
+	# dracut modules
+	install -d -m 755 ${buildroot}usr/lib/dracut/modules.d
+	cp -a dracut/modules.d/* ${buildroot}usr/lib/dracut/modules.d
 	# manual pages
-	install -d -m 755 ${buildroot}usr/share/man/man2
-	for man in doc/build/man/*.2; do \
+	install -d -m 755 ${buildroot}usr/share/man/man8
+	for man in doc/build/man/*.8; do \
 		test -e $$man && gzip -f $$man || true ;\
 	done
-	for man in doc/build/man/*.2.gz; do \
-		install -m 644 $$man ${buildroot}usr/share/man/man2 ;\
+	for man in doc/build/man/*.8.gz; do \
+		install -m 644 $$man ${buildroot}usr/share/man/man8 ;\
 	done
 	# completion
 	install -d -m 755 ${buildroot}etc/bash_completion.d
@@ -94,6 +100,9 @@ po:
 po_status:
 	./.fuzzy
 
+obs_test_status:
+	./.obs_test_status
+
 valid:
 	for i in `find test kiwi -name *.xml`; do \
 		if [ ! -L $$i ];then \
@@ -124,7 +133,7 @@ build: clean po tox sdist_prepare
 	# managed in the spec file
 	sed -ie "s@>=[0-9.]*'@'@g" setup.py
 	# build the sdist source tarball
-	python3 setup.py sdist
+	$(python) setup.py sdist
 	# cleanup sdist_prepare actions
 	rm -f boot_arch.tgz && \
 		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
@@ -146,7 +155,7 @@ build: clean po tox sdist_prepare
 	helper/kiwi-boot-packages > dist/python-kiwi-boot-packages
 
 pypi: clean po tox sdist_prepare
-	python3 setup.py sdist upload
+	$(python) setup.py sdist upload
 	rm -f boot_arch.tgz && \
 		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 

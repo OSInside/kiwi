@@ -23,6 +23,7 @@ from kiwi.command import Command
 from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
+from kiwi.firmware import FirmWare
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.path import Path
 from kiwi.defaults import Defaults
@@ -69,9 +70,9 @@ class InstallImageBuilder(object):
             self.arch = 'ix86'
         self.root_dir = root_dir
         self.target_dir = target_dir
-        self.machine = xml_state.get_build_type_machine_section()
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
+        self.firmware = FirmWare(xml_state)
         self.diskname = ''.join(
             [
                 target_dir, '/',
@@ -213,7 +214,8 @@ class InstallImageBuilder(object):
 
         # make it hybrid
         Iso.create_hybrid(
-            iso_header_offset, self.mbrid, self.isoname
+            iso_header_offset, self.mbrid, self.isoname,
+            self.firmware.efi_mode()
         )
 
     def create_install_pxe_archive(self):
@@ -301,7 +303,7 @@ class InstallImageBuilder(object):
                 'No kernel in boot image tree %s found' %
                 self.boot_image_task.boot_root_directory
             )
-        if self.machine and self.machine.get_domain() == 'dom0':
+        if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
                 kernel.copy_xen_hypervisor(self.pxe_dir, '/pxeboot.xen.gz')
             else:
@@ -328,7 +330,7 @@ class InstallImageBuilder(object):
                 'No kernel in boot image tree %s found' %
                 self.boot_image_task.boot_root_directory
             )
-        if self.machine and self.machine.get_domain() == 'dom0':
+        if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
                 kernel.copy_xen_hypervisor(boot_path, '/xen.gz')
             else:
