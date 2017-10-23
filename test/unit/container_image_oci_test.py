@@ -207,7 +207,7 @@ class TestContainerImageOCI(object):
         assert mock_command.call_args_list == [
             call([
                 'umoci', 'config', '--image',
-                'kiwi_oci_dir/umoci_layout', '--tag', 'latest'
+                'kiwi_oci_dir/umoci_layout:base_layer', '--tag', 'latest'
             ]),
             call([
                 'umoci', 'unpack', '--image',

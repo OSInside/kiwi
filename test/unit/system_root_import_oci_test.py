@@ -59,11 +59,11 @@ class TestRootImportOCI(object):
         assert mock_run.call_args_list == [
             call([
                 'skopeo', 'copy', 'oci:kiwi_uncompressed:tag',
-                'oci:kiwi_layout_dir'
+                'oci:kiwi_layout_dir:base_layer'
             ]),
             call([
                 'umoci', 'unpack', '--image',
-                'kiwi_layout_dir', 'kiwi_unpack_dir'
+                'kiwi_layout_dir:base_layer', 'kiwi_unpack_dir'
             ])
         ]
 
@@ -86,7 +86,7 @@ class TestRootImportOCI(object):
         self.oci_import.extract_oci_image()
         mock_run.assert_called_once_with([
             'skopeo', 'copy', 'oci://some_image',
-            'oci:kiwi_layout_dir'
+            'oci:kiwi_layout_dir:base_layer'
         ])
         assert mock_warn.called
 
@@ -111,7 +111,7 @@ class TestRootImportOCI(object):
         oci_import.extract_oci_image()
         mock_run.assert_called_once_with([
             'skopeo', 'copy', 'oci:kiwi_uncompressed',
-            'oci:kiwi_layout_dir'
+            'oci:kiwi_layout_dir:base_layer'
         ])
         mock_tar.assert_called_once_with('/image.tar.xz')
 

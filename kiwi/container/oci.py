@@ -152,7 +152,8 @@ class ContainerImageOCI(object):
             image_tar.extract(container_dir)
             Command.run([
                 'umoci', 'config', '--image',
-                container_dir, '--tag', self.container_tag
+                '{0}:base_layer'.format(container_dir),
+                '--tag', self.container_tag
             ])
         else:
             Command.run(

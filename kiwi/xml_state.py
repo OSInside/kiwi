@@ -1292,7 +1292,7 @@ class XMLState(object):
         """
         try:
             repo_prio = int(repo_prio)
-        except:
+        except Exception:
             repo_prio = None
         self.xml_data.add_repository(
             xml_parse.repository(

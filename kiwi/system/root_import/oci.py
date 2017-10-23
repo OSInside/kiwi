@@ -52,7 +52,7 @@ class RootImportOCI(RootImportBase):
         self.extract_oci_image()
         Command.run([
             'umoci', 'unpack', '--image',
-            self.oci_layout_dir, self.oci_unpack_dir
+            '{0}:base_layer'.format(self.oci_layout_dir), self.oci_unpack_dir
         ])
 
         synchronizer = DataSync(
@@ -91,7 +91,8 @@ class RootImportOCI(RootImportBase):
             skopeo_uri = self.unknown_uri
 
         Command.run([
-            'skopeo', 'copy', skopeo_uri, 'oci:{0}'.format(self.oci_layout_dir)
+            'skopeo', 'copy', skopeo_uri,
+            'oci:{0}:base_layer'.format(self.oci_layout_dir)
         ])
 
     def __del__(self):
