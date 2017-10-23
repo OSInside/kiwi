@@ -42,5 +42,6 @@ class RootImportDocker(RootImportOCI):
             skopeo_uri = self.unknown_uri
 
         Command.run([
-            'skopeo', 'copy', skopeo_uri, 'oci:{0}'.format(self.oci_layout_dir)
+            'skopeo', 'copy', skopeo_uri,
+            'oci:{0}:base_layer'.format(self.oci_layout_dir)
         ])

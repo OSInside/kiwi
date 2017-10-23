@@ -37,7 +37,7 @@ class TestRootImportDocker(object):
         uncompress.uncompress.assert_called_once_with(True)
         mock_run.assert_called_once_with([
             'skopeo', 'copy', 'docker-archive:tmp_uncompressed',
-            'oci:kiwi_layout_dir'
+            'oci:kiwi_layout_dir:base_layer'
         ])
 
     @patch('os.path.exists')
@@ -64,6 +64,6 @@ class TestRootImportDocker(object):
         docker_import.extract_oci_image()
         mock_run.assert_called_once_with([
             'skopeo', 'copy', 'docker://opensuse',
-            'oci:kiwi_layout_dir'
+            'oci:kiwi_layout_dir:base_layer'
         ])
         assert mock_warn.called
