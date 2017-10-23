@@ -181,7 +181,7 @@ class ArchiveTar(object):
             version_line = command.output.splitlines()[0]
             version_string = version_line.split()[-1]
             version_info = tuple(int(elt) for elt in version_string.split('.'))
-        except:
+        except Exception:
             raise KiwiArchiveTarError(
                 "Unable to parse tar version string")
         return version_info >= (1, 27)
