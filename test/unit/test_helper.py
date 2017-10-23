@@ -38,7 +38,7 @@ class raises(object):
                 func(*args, **kw)
             except self.exceptions:
                 pass
-            except:
+            except Exception:
                 raise
             else:
                 message = "%s() did not raise %s" % (name, self.valid)
