@@ -103,7 +103,6 @@
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
-        <package name="openSUSE-release"/>
     </packages>
     <packages type="image">
         <package name="kbd"/>
@@ -142,7 +141,8 @@
         <package name="lvm2"/>
         <package name="make"/>
         <package name="mdadm"/>
-        <package name="kmod-compat"/>
+        <package name="module-init-tools"/>
+        <package name="multipath-tools"/>
         <package name="net-tools"/>
         <package name="netcfg"/>
         <package name="parted"/>
@@ -168,7 +168,6 @@
         <package name="sysvinit-tools"/>
         <package name="xz"/>
         <package name="gawk"/>
-        <package name="ifplugd"/>
     </packages>
     <packages type="delete">
         <package name="cracklib-dict-full"/>
@@ -180,7 +179,6 @@
         <package name="make"/>
         <package name="mingetty"/>
         <package name="Mesa"/>
-        <package name="openSUSE-release"/>
         <package name="pam"/>
         <package name="pam-modules"/>
         <package name="perl"/>
@@ -188,5 +186,6 @@
         <package name="permissions"/>
         <package name="python"/>
         <package name="python-base"/>
+        <package name="sles-release"/>
     </packages>
 </image>
