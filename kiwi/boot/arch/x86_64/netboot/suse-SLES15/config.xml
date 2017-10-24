@@ -133,7 +133,6 @@
         <package name="fbiterm"/>
         <package name="gettext-runtime"/>
         <package name="hwinfo"/>
-        <package name="ifplugd"/>
         <package name="iproute2"/>
         <package name="iputils"/>
         <package name="kbd"/>
@@ -160,7 +159,6 @@
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
-        <package name="openSUSE-release"/>
     </packages>
     <packages type="delete">
         <package name="dracut"/>
@@ -174,7 +172,6 @@
         <package name="make"/>
         <package name="mingetty"/>
         <package name="Mesa"/>
-        <package name="openSUSE-release"/>
         <package name="pam"/>
         <package name="pam-modules"/>
         <package name="perl"/>
@@ -182,5 +179,6 @@
         <package name="permissions"/>
         <package name="python"/>
         <package name="python-base"/>
+        <package name="sles-release"/>
     </packages>
 </image>
