@@ -140,13 +140,14 @@
         <package name="kiwi-tools"/>
         <package name="make"/>
         <package name="mdadm"/>
-        <package name="nbd"/>
+        <package name="module-init-tools"/>
         <package name="netcfg"/>
         <package name="nfs-client"/>
         <package name="plymouth"/>
         <package name="plymouth-scripts"/>
         <package name="psmisc"/>
         <package name="rsync"/>
+        <package name="sysvinit-tools"/>
         <package name="tar"/>
         <package name="timezone"/>
         <package name="which"/>

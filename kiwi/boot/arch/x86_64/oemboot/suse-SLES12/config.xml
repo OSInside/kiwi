@@ -141,7 +141,8 @@
         <package name="lvm2"/>
         <package name="make"/>
         <package name="mdadm"/>
-        <package name="kmod-compat"/>
+        <package name="module-init-tools"/>
+        <package name="multipath-tools"/>
         <package name="net-tools"/>
         <package name="netcfg"/>
         <package name="parted"/>
