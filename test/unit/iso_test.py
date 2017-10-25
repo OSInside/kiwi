@@ -288,7 +288,7 @@ class TestIso(object):
         command = mock.Mock()
         command.error = \
             'isohybrid: Warning: more than 1024 cylinders: 1817\n' + \
-            'isohybrid: Not all BIOSes will be able to boot this device'
+            'isohybrid: Not all BIOSes will be able to boot this device\n'
         mock_command.return_value = command
         Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
         mock_command.assert_called_once_with(
