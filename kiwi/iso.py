@@ -130,7 +130,7 @@ class Iso(object):
                     if ignore_error in error:
                         ignore = True
                         break
-                if not ignore:
+                if not ignore and error:
                     error_fatal_list.append(error)
             if error_fatal_list:
                 raise KiwiCommandError(
