@@ -157,7 +157,6 @@
         <package name="udev"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
-        <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
     </packages>
     <packages type="delete">
