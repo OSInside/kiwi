@@ -24,7 +24,7 @@ KIWI command in order to build it
 .. code:: bash
 
     $ sudo kiwi-ng --type vmx system build \
-        --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+        --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
         --target-dir /tmp/myimage
 
 Find the image with the suffix :file:`.raw` below :file:`/tmp/myimage`.
@@ -40,5 +40,5 @@ is used, and boot it as follows:
 
     $ qemu \
         -boot c
-        -drive file=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw,format=raw,if=virtio \
+        -drive file=LimeJeOS-Leap-42.3.x86_64-1.42.3.raw,format=raw,if=virtio \
         -m 4096

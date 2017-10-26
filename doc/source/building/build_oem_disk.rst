@@ -26,7 +26,7 @@ system:
     .. code:: bash
 
         $ sudo kiwi-ng --type oem system build \
-            --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+            --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
             --target-dir /tmp/myimage
 
     Find the following result images below :file:`/tmp/myimage`.
@@ -87,7 +87,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ dd if=LimeJeOS-Leap-42.1.x86_64-1.42.1.raw of=target_disk conv=notrunc
+       $ dd if=LimeJeOS-Leap-42.3.x86_64-1.42.3.raw of=target_disk conv=notrunc
 
 3. Boot the target disk
 
@@ -118,7 +118,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ qemu -cdrom LimeJeOS-Leap-42.1.x86_64-1.42.1.install.iso -hda target_disk -boot d -m 4096
+       $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.install.iso -hda target_disk -boot d -m 4096
 
    .. note:: USB Stick Deployment
 
@@ -142,7 +142,7 @@ deployment target system:
 
 1. Make sure to create an installation PXE TAR archive along with your
    OEM image by replacing the following setup in
-   kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS/config.xml
+   kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS/config.xml
 
    .. code:: xml
 
@@ -156,13 +156,13 @@ deployment target system:
 
 
 2. Rebuild the image, unpack the resulting
-   LimeJeOS-Leap-42.1.x86_64-1.42.1.install.tar.xz file to a temporary
+   LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz file to a temporary
    directory and copy the initrd and kernel images to the PXE server:
 
    .. code:: bash
 
        mkdir /tmp/pxe && cd /tmp/pxe
-       tar -xf LimeJeOS-Leap-42.1.x86_64-1.42.1.install.tar.xz
+       tar -xf LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz
        scp initrd-oemboot-*.install.* PXE_SERVER_IP:/srv/tftpboot/boot/initrd
        scp initrd-oemboot-*.kernel.* PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
@@ -170,11 +170,11 @@ deployment target system:
 
    .. code:: bash
 
-       scp LimeJeOS-Leap-42.1.x86_64-1.42.1.xz PXE_SERVER_IP:/srv/tftpboot/image/
-       scp LimeJeOS-Leap-42.1.x86_64-1.42.1.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.x86_64-1.42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.x86_64-1.42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
 
 3. Copy the kernel command line parameters from
-   LimeJeOS-Leap-42.1.x86_64-1.42.1.append. Edit your PXE configuration
+   LimeJeOS-Leap-42.3.x86_64-1.42.3.append. Edit your PXE configuration
    (for example pxelinux.cfg/default) on the PXE server and add these
    parameters to the append line
 

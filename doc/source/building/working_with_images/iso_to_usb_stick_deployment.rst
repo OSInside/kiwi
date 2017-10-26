@@ -39,7 +39,7 @@ bootable disk. The following procedure shows how to do this:
 
    .. code:: bash
 
-      $ dd if=LimeJeOS-Leap-42.1.x86_64-1.42.1.iso of=/dev/<stickdevice>
+      $ dd if=LimeJeOS-Leap-42.3.x86_64-1.42.3.iso of=/dev/<stickdevice>
 
 3. Boot from your USB Stick
 
