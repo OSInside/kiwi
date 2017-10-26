@@ -7,7 +7,7 @@ KIWI - Next Generation
    :target: https://landscape.io/github/SUSE/kiwi/master
 .. |Doc| replace:: `Documentation <https://suse.github.io/kiwi>`__
 .. |Installation| replace:: `Installation <https://suse.github.io/kiwi/quickstart.html>`__
-.. |Contributing| replace:: `Contributing <https://suse.github.io/kiwi/contributing.html>`__
+.. |Contributing| replace:: `Contributing <https://suse.github.io/kiwi/development.html>`__
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
    :target: https://www.paypal.me/SchaeferMarcus
 
