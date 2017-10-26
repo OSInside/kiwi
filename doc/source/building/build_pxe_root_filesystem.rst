@@ -68,7 +68,7 @@ system. As diskless client, a QEMU virtual machine is used.
     .. code:: bash
 
         $ sudo kiwi-ng --profile netboot --type pxe system build \
-            --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+            --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
             --target-dir /tmp/mypxe-result
 
 3. Change into the build directory:
@@ -88,8 +88,8 @@ system. As diskless client, a QEMU virtual machine is used.
 
     .. code:: bash
 
-        $ cp LimeJeOS-Leap-42.1.x86_64-1.42.1 /srv/tftpboot/image
-        $ cp LimeJeOS-Leap-42.1.x86_64-1.42.1.md5 /srv/tftpboot/image
+        $ cp LimeJeOS-Leap-42.3.x86_64-1.42.3 /srv/tftpboot/image
+        $ cp LimeJeOS-Leap-42.3.x86_64-1.42.3.md5 /srv/tftpboot/image
 
 6. Adjust the PXE configuration file.
    The configuration file controls which kernel and initrd is
@@ -115,7 +115,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
         $ vi /srv/tftpboot/KIWI/config.default
 
-        IMAGE=/dev/ram1;LimeJeOS-Leap-42.1.x86_64;1.42.1;192.168.100.2;4096
+        IMAGE=/dev/ram1;LimeJeOS-Leap-42.3.x86_64;1.42.3;192.168.100.2;4096
         UNIONFS_CONFIG=/dev/ram2,/dev/ram1,overlay
 
    All PXE boot based deployment methods are controlled by a client

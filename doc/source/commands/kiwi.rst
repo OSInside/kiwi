@@ -117,7 +117,7 @@ EXAMPLE
    $ git clone https://github.com/SUSE/kiwi-descriptions
 
    $ kiwi --type vmx system build \
-       --description kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+       --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
        --target-dir /tmp/myimage
 
 RUNTIME CONFIG FILE
@@ -160,5 +160,5 @@ to use a legacy KIWI commandline as follows:
 .. code-block:: bash
 
    $ kiwi compat \
-       --build kiwi-descriptions/suse/x86_64/suse-leap-42.1-JeOS \
+       --build kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
        --type vmx -d /tmp/myimage

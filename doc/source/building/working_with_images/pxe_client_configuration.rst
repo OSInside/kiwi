@@ -96,17 +96,17 @@ is required:
 
 .. note::
 
-   In the referenced :file:`suse-leap-42.1-JeOS` XML description the ``pxe``
+   In the referenced :file:`suse-leap-42.3-JeOS` XML description the ``pxe``
    type must be changed as follows and the image needs to be
    rebuild:
 
    .. code:: xml
 
-       <type image="pxe" filesystem="ext3" boot="netboot/suse-leap42.1"/>
+       <type image="pxe" filesystem="ext3" boot="netboot/suse-leap42.3"/>
 
 .. code:: bash
 
-   IMAGE="/dev/sda2;LimeJeOS-Leap-42.1.x86_64;1.42.1;192.168.100.2;4096"
+   IMAGE="/dev/sda2;LimeJeOS-Leap-42.3.x86_64;1.42.3;192.168.100.2;4096"
    DISK="/dev/sda"
    PART="5;S;X,X;L;/"
 
@@ -123,18 +123,18 @@ configuration, the following setup is required:
 
 .. note::
 
-   In the referenced :file:`suse-leap-42.1-JeOS` XML description the ``pxe``
+   In the referenced :file:`suse-leap-42.3-JeOS` XML description the ``pxe``
    type must be changed as follows and the image needs to be
    rebuild:
 
    .. code:: xml
 
-       <type image="pxe" filesystem="ext3" boot="netboot/suse-leap42.1"/>
+       <type image="pxe" filesystem="ext3" boot="netboot/suse-leap42.3"/>
 
 .. code:: bash
 
    RAID='1;/dev/sda;/dev/sdb'
-   IMAGE="/dev/md1;LimeJeOS-Leap-42.1.x86_64;1.42.1;192.168.100.2;4096"
+   IMAGE="/dev/md1;LimeJeOS-Leap-42.3.x86_64;1.42.3;192.168.100.2;4096"
    PART="5;S;x,x;L;/"
 
 The first parameter of the RAID line is the RAID level. So far only raid1

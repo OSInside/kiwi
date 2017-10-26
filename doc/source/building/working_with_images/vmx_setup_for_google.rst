@@ -53,7 +53,7 @@ description as follows:
    .. code:: xml
 
       <type image="oem"
-            boot="oemboot/suse-leap42.1"
+            boot="oemboot/suse-leap42.3"
             filesystem="ext4" boottimeout="1"
             kernelcmdline="console=ttyS0,38400n8 net.ifnames=0 NON_PERSISTENT_DEVICE_NAMES=1"
             format="gce"
