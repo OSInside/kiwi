@@ -854,6 +854,15 @@ execution, and the applicable boot image.
   The hooks are called before and after the loading of modules not handled by
   udev, respectively.
 
+``preinstall`` | ``postinstall``
+  The hooks are called before and after the OEM imaging of the target disk. The hooks only exist for the *OEM* image type.
+
+``prerepart`` | ``postrepart``
+  The hooks are called before and after the OEM repartition of the target disk. The hooks only exist for the *OEM* image type.
+
+``preresize`` | ``postresize``
+  The hooks are called before and after the OEM resize of filesystem to full space. The hooks only exist for the *OEM* image type.
+
 ``preswap`` | ``postswap``
   The hooks are called before and after the creation of the swap space,
   respectively. The hooks only exist for the *PXE* image type.
