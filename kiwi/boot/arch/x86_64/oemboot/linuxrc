@@ -246,7 +246,9 @@ fi
 # 9) Check for installation mode...
 #--------------------------------------
 if [ "$LOCAL_BOOT" = "no" ];then
+    runHook preinstall
     OEMInstall
+    runHook postinstall
 fi
 
 #======================================
@@ -265,12 +267,15 @@ fi
 # 12) repartition the disk device
 #--------------------------------------
 if [ "$LOCAL_BOOT" = "no" ];then
+    runHook prerepart
     OEMRepart
+    runHook postrepart
 fi
 
 #======================================
 # 13) Resize filesystem to full space
 #--------------------------------------
+runHook preresize
 fstypeRootFS=$(probeFileSystem $imageRootDevice)
 Echo "Filesystem of OEM system is: $fstypeRootFS -> $imageRootDevice"
 if [ "$LOCAL_BOOT" = "no" ];then
@@ -311,6 +316,7 @@ if [ "$LOCAL_BOOT" = "no" ];then
         fi
     fi
 fi
+runHook postresize
 
 #======================================
 # 14) Mount system
