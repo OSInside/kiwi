@@ -2056,8 +2056,8 @@ div {
     k.strip.type.attribute =
         ## Specifies the strip data type. `delete` references
         ## a list of custom files and directories to delete, `tools`
-        ## references file names in linux bin/sbin directories, `libs`
-        ## references file names in linux lib directories.
+        ## references file names in linux bin/sbin directories to keep, `libs`
+        ## references file names in linux lib directories to keep.
         attribute type { "delete" | "tools" | "libs" }
     k.strip.profiles.attribute = k.profiles.attribute
     k.strip.attlist =
