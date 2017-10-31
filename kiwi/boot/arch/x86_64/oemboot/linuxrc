@@ -322,10 +322,12 @@ runHook postresize
 # 14) Mount system
 #--------------------------------------
 if [ -z "$RESTORE" ];then
+    runHook premount
     if ! mountSystem $imageRootDevice;then
         systemException "Failed to mount root filesystem" "reboot"
     fi
     validateRootTree
+    runHook postmount
 fi
 
 #======================================
