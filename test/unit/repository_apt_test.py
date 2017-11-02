@@ -85,6 +85,42 @@ class TestRepositoryApt(object):
 
     @patch('os.path.exists')
     @patch_open
+    def test_add_repo_with_priority(self, mock_open, mock_exists):
+        mock_open.return_value = self.context_manager_mock
+        mock_exists.return_value = True
+        self.repo.add_repo(
+            'foo', '/srv/my-repo', 'deb', '42', 'xenial', 'a b'
+        )
+        assert mock_open.call_args_list == [
+            call('/shared-dir/apt-get/sources.list.d/foo.list', 'w'),
+            call('/shared-dir/apt-get/preferences.d/foo.pref', 'w')
+        ]
+        print(self.file_mock.write.call_args_list)
+        assert self.file_mock.write.call_args_list == [
+            call('deb file://srv/my-repo xenial a b\n'),
+            call('Package: *\n'),
+            call('Pin: origin ""\n'),
+            call('Pin-Priority: 42\n')
+        ]
+        self.file_mock.reset_mock()
+        mock_exists.return_value = False
+        self.repo.add_repo(
+            'foo',
+            'http://download.opensuse.org/repositories/V:/A:/C/Debian_9.0/',
+            'deb', '99', 'xenial', 'a b'
+        )
+        assert self.file_mock.write.call_args_list == [
+            call(
+                'deb http://download.opensuse.org/repositories/' +
+                'V:/A:/C/Debian_9.0/ xenial a b\n'
+            ),
+            call('Package: *\n'),
+            call('Pin: origin "download.opensuse.org"\n'),
+            call('Pin-Priority: 99\n')
+        ]
+
+    @patch('os.path.exists')
+    @patch_open
     def test_add_repo_distribution(self, mock_open, mock_exists):
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True

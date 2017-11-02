@@ -17,6 +17,7 @@
 #
 import os
 from tempfile import NamedTemporaryFile
+from six.moves.urllib.parse import urlparse
 
 # project
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
@@ -148,6 +149,9 @@ class RepositoryApt(RepositoryBase):
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
         )
+        pref_file = '/'.join(
+            [self.shared_apt_get_dir['preferences-dir'], name + '.pref']
+        )
         self.repo_names.append(name + '.list')
         if os.path.exists(uri):
             # apt-get requires local paths to take the file: type
@@ -176,6 +180,23 @@ class RepositoryApt(RepositoryBase):
                 self.distribution_path = uri
                 repo_line += ' {0} {1}\n'.format(dist, components)
             repo.write(repo_line)
+        if prio:
+            uri_parsed = urlparse(uri.replace('file://', 'file:/'))
+            with open(pref_file, 'w') as pref:
+                pref.write('Package: *{0}'.format(os.linesep))
+                if not uri_parsed.hostname:
+                    pref.write(
+                        'Pin: origin ""{0}'.format(os.linesep)
+                    )
+                else:
+                    pref.write(
+                        'Pin: origin "{0}"{1}'.format(
+                            uri_parsed.hostname, os.linesep
+                        )
+                    )
+                pref.write(
+                    'Pin-Priority: {0}{1}'.format(prio, os.linesep)
+                )
 
     def import_trusted_keys(self, signing_keys):
         """
