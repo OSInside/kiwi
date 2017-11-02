@@ -863,6 +863,9 @@ execution, and the applicable boot image.
 ``preresize`` | ``postresize``
   The hooks are called before and after the OEM resize of filesystem to full space. The hooks only exist for the *OEM* image type.
 
+``premount`` | ``postmount``
+  The hooks are called before and after the mounting of the system image into /mnt. The hooks only exist for the *OEM* image type.
+
 ``preswap`` | ``postswap``
   The hooks are called before and after the creation of the swap space,
   respectively. The hooks only exist for the *PXE* image type.
