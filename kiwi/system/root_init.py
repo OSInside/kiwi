@@ -98,11 +98,8 @@ class RootInit(object):
             rmtree(root, ignore_errors=True)
 
     def _setup_config_templates(self, root):
-        group_template = '/var/adm/fillup-templates/group.aaa_base'
         passwd_template = '/var/adm/fillup-templates/passwd.aaa_base'
         proxy_template = '/var/adm/fillup-templates/sysconfig.proxy'
-        if os.path.exists(group_template):
-            Command.run(['cp', group_template, root + '/etc/group'])
         if os.path.exists(passwd_template):
             Command.run(['cp', passwd_template, root + '/etc/passwd'])
         if os.path.exists(proxy_template):

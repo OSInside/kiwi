@@ -114,11 +114,6 @@ class TestRootInit(object):
             call(['mkdir', '-p', 'root_dir']),
             call([
                 'cp',
-                '/var/adm/fillup-templates/group.aaa_base',
-                'tmpdir/etc/group'
-            ]),
-            call([
-                'cp',
                 '/var/adm/fillup-templates/passwd.aaa_base',
                 'tmpdir/etc/passwd'
             ]),
