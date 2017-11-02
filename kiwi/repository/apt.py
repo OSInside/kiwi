@@ -148,6 +148,9 @@ class RepositoryApt(RepositoryBase):
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
         )
+        pref_file = '/'.join(
+            [self.shared_apt_get_dir['preferences-dir'], name + '.pref']
+        )
         self.repo_names.append(name + '.list')
         if os.path.exists(uri):
             # apt-get requires local paths to take the file: type
@@ -176,6 +179,21 @@ class RepositoryApt(RepositoryBase):
                 self.distribution_path = uri
                 repo_line += ' {0} {1}\n'.format(dist, components)
             repo.write(repo_line)
+        if prio is not None:
+            with open(pref_file, 'w') as pref:
+                if uri.startswith('file:/'):
+                    origin = ''
+                else:
+                    start = uri.find('://')
+                    start = start + 3 if start >= 0 else 0
+                    end1 = uri.find('/', start)
+                    end2 = uri.find(':', start)
+                    end1 = end1 if end1 >= 0 else len(uri)
+                    end2 = end2 if end2 >= 0 else len(uri)
+                    origin = uri[start:min(end1, end2)]
+                pref.write('Package: *\n')
+                pref.write('Pin: origin "%s"\n' % origin)
+                pref.write('Pin-Priority: %s\n' % prio)
 
     def import_trusted_keys(self, signing_keys):
         """
