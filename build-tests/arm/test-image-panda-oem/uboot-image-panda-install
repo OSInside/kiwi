@@ -1,0 +1,251 @@
+#!/bin/bash
+
+set -x
+
+diskname=$1
+flavor=panda
+
+(
+
+if [ -d EFI ]; then
+	# We're on an EFI build, so kiwi doesn't copy u-boot over.
+	# This is a hack to chdir into the obs-build dir to find
+	# our u-boot binaries nevertheless.
+	cd /usr/src/packages/KIWIROOT-oem/
+fi
+
+#==========================================
+# adjust Raspberry Pi partition table
+#------------------------------------------
+if [ -f "boot/vc/bootcode.bin" ]; then
+	# change first partition's name
+	# mark second partition bootable (checked by U-Boot)
+	# convert GPT to hybrid GPT
+	echo "c
+1
+vcboot
+x
+a
+2
+2
+64
+r
+h
+1 2 3
+n
+c
+n
+82
+y
+83
+n
+w
+y" > gdisk.tmp
+	/usr/src/packages/KIWIROOT-oem/usr/sbin/gdisk /dev/loop0 < gdisk.tmp
+	rm -f gdisk.tmp
+fi
+
+#==========================================
+# install MLO as raw
+#------------------------------------------
+if [ -f "boot/MLO" ];then
+	echo "Installing MLO (SPL)..."
+	opt="count=1 seek=1 conv=notrunc"
+	if ! dd if=boot/MLO of=$diskname bs=128k $opt; then
+		echo "Couldn't install MLO on $diskname"
+		exit 1
+	fi
+
+	echo "Installing U-Boot..."
+	opt="seek=1 conv=notrunc"
+	if ! dd if=boot/u-boot.img of=$diskname bs=384k $opt; then
+		echo "Couldn't install U-Boot on $diskname"
+		exit 1
+	fi
+
+	# /.../
+	# To avoid any issues when parted leaves x86 boot code
+	# in the MBR we better clear that part of the image
+	# ----
+	dd if=/dev/zero of=$diskname bs=440 count=1 conv=notrunc
+fi
+
+#==========================================
+# install Origen SPL & u-boot as raw
+#------------------------------------------
+if [ -f "boot/origen-spl.bin" ];then
+	echo "Installing SPL..."
+	if ! dd if=boot/origen-spl.bin of=$diskname seek=1 conv=notrunc; then
+		echo "Couldn't install SPL on $diskname"
+		exit 1
+	fi
+	echo "Installing U-Boot..."
+	if ! dd if=boot/u-boot.bin of=$diskname seek=65 conv=notrunc; then
+		echo "Couldn't install u-boot on $diskname"
+		exit 1
+	fi
+fi
+
+#==========================================
+# install Odroid (exynos4) BL* & u-boot as raw
+#------------------------------------------
+if [ -f "boot/E4412_S.bl1.HardKernel.bin" ];then
+        echo "Installing BL1..."
+        if ! dd if=boot/E4412_S.bl1.HardKernel.bin of=$diskname seek=1 conv=notrunc; then
+                echo "Couldn't install BL1 on $diskname"
+                exit 1
+        fi
+        echo "Installing BL2..."
+        if ! dd if=boot/bl2.signed.bin of=$diskname seek=31 conv=notrunc; then
+                echo "Couldn't install BL2 on $diskname"
+                exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.bin of=$diskname seek=63 conv=notrunc; then
+                echo "Couldn't install u-boot on $diskname"
+                exit 1
+        fi
+        if ! dd if=boot/E4412_S.tzsw.signed.bin of=$diskname seek=2111 conv=notrunc; then
+                echo "Couldn't install TrustZone S/W on $diskname"
+                exit 1
+        fi
+fi
+
+#==========================================
+# install Odroid X3 (exynos5) BL* & u-boot as raw
+#------------------------------------------
+if [ -f "boot/bl1.bin.hardkernel" ];then
+        echo "Installing BL1..."
+        if ! dd if=boot/bl1.bin.hardkernel of=$diskname seek=1 conv=notrunc; then
+                echo "Couldn't install BL1 on $diskname"
+                exit 1
+        fi
+        echo "Installing BL2..."
+        if ! dd if=boot/bl2.bin.hardkernel of=$diskname seek=31 conv=notrunc; then
+                echo "Couldn't install BL2 on $diskname"
+                exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.bin of=$diskname seek=63 conv=notrunc; then
+                echo "Couldn't install u-boot on $diskname"
+                exit 1
+        fi
+        if ! dd if=boot/tzsw.bin.hardkernel of=$diskname seek=719 conv=notrunc; then
+                echo "Couldn't install TrustZone S/W on $diskname"
+                exit 1
+        fi
+fi
+
+#==========================================
+# install Arndale SPL & u-boot as raw
+#------------------------------------------
+if [[ -f "boot/smdk5250-spl.bin" || -f "boot/arndale-spl.bin" ]];then
+        echo "Installing BL1..."
+        if ! dd if=boot/arndale-bl1.img of=$diskname seek=1 conv=notrunc; then
+                echo "Couldn't install BL1 on $diskname"
+                exit 1
+        fi
+        echo "Installing SPL..."
+        # Get SPL name (depends on u-boot version)
+        SPL_FILE=$(ls boot/*-spl.bin);
+        if ! dd if=$SPL_FILE of=$diskname seek=17 conv=notrunc; then
+                echo "Couldn't install SPL ($SPL_FILE) on $diskname"
+                exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.bin of=$diskname seek=49 conv=notrunc; then
+                echo "Couldn't install u-boot on $diskname"
+                exit 1
+        fi
+fi
+
+#==========================================
+# install Cubieboard/Cubietruck SPL & u-boot as raw
+#------------------------------------------
+if [[ -f "boot/sunxi-spl.bin" || -f "boot/u-boot-sunxi-with-spl.bin" ]];then
+	if [ -f "boot/u-boot-sunxi-with-spl.bin" ]; then
+		echo "Installing All-in-one U-Boot/SPL..."
+		if ! dd if=boot/u-boot-sunxi-with-spl.bin of=$diskname bs=1024 seek=8 conv=notrunc; then
+			echo "Couldn't install SPL on $diskname"
+			exit 1
+		fi
+	else
+		echo "Installing SPL..."
+		if ! dd if=boot/sunxi-spl.bin of=$diskname bs=1024 seek=8 conv=notrunc; then
+			echo "Couldn't install SPL on $diskname"
+			exit 1
+		fi
+		echo "Installing U-Boot..."
+		if ! dd if=boot/u-boot.img of=$diskname bs=1024 seek=40 conv=notrunc; then
+			echo "Couldn't install u-boot on $diskname"
+			exit 1
+		fi
+	fi
+fi
+
+#==========================================
+# install Chromebook u-boot as boot kernel
+#------------------------------------------
+if [ "$flavor" = "chromebook" ]; then
+	pushd /usr/src/packages/KIWIROOT-oem/
+	echo "console=tty1 debug verbose" > /tmp/config
+	./usr/bin/vbutil_kernel --pack /tmp/newkern \
+		--keyblock ./usr/share/vboot/devkeys/kernel.keyblock \
+		--version 1 \
+		--signprivate ./usr/share/vboot/devkeys/kernel_data_key.vbprivk \
+		--config=/tmp/config --vmlinuz boot/u-boot.img --arch arm
+	PART=$(kpartx -asv $diskname | cut -d ' ' -f 3 | head -n1)
+	dd if=/tmp/newkern of=/dev/mapper/$PART
+	kpartx -dv $diskname
+	# Enable bootflag on partition 2 (u-boot now looks for bootscripts on bootable partitions only)
+	parted $diskname set 2 boot on
+	# CGPT magic
+	./usr/bin/cgpt add -t kernel -i 1 -S 1 -T 5 -P 10 -l U-BOOT $diskname
+	popd
+fi
+
+#==========================================
+# install i.MX u-boot as raw
+#------------------------------------------
+if [ -f "boot/u-boot.imx" ];then
+	pushd /usr/src/packages/KIWIROOT-oem/
+	echo "Installing U-Boot..."
+	if ! dd if=boot/u-boot.imx of=$diskname bs=512 seek=2 conv=notrunc; then
+		echo "Couldn't install u-boot on $diskname"
+		exit 1
+	fi
+	popd
+fi
+
+#==========================================
+# install Cubox-i SPL & u-boot as raw
+#------------------------------------------
+if [ -f "boot/cuboxi-spl.bin" ];then
+        echo "Installing SPL..."
+        if ! dd if=boot/cuboxi-spl.bin of=$diskname bs=1024 seek=1 conv=notrunc; then
+                echo "Couldn't install SPL on $diskname"
+                exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.img of=$diskname bs=1024 seek=69 conv=notrunc; then
+                echo "Couldn't install u-boot on $diskname"
+                exit 1
+        fi
+fi
+
+)
+
+if [ -f boot/grub2/*efi/grub.efi -o -f ./EFI/BOOT/boot*.efi ];then
+	echo "EFI system, installing startup.nsh"
+	PART=$(kpartx -asv $diskname | cut -d ' ' -f 3 | head -n1)
+	mkdir ./mnt
+	mount /dev/mapper/$PART ./mnt
+        if [ -f boot/grub2/arm-efi/grub.efi ]; then
+		echo "bootarm" > mnt/startup.nsh
+	else
+		echo "bootaa64" > mnt/startup.nsh
+	fi
+	umount ./mnt
+	rmdir ./mnt
+	kpartx -dv $diskname
+fi
