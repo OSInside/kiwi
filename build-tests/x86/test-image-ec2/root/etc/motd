@@ -1,0 +1,7 @@
+KIWI Test Image
+
+As "root" use the:
+  - zypper command for package management
+  - yast command for configuration management
+
+Have a lot of fun... 

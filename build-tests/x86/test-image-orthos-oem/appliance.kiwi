@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<image schemaversion="6.2" name="factory-kiwi">
+    <description type="system">
+        <author>Julian Wolf</author>
+        <contact>juwolf@suse.de</contact>
+        <specification>Factory image for Orthos</specification>
+    </description>
+    <preferences>
+        <version>1.13.1</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <hwclock>utc</hwclock>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <type image="oem" boot="oemboot/suse-tumbleweed" filesystem="btrfs" kernelcmdline="root=/dev/vda4 console=ttyS0,115200 sysrq_always_enabled linemode=1 panic=100 ignore_loglevel unknown_nmi_panici crashkernel=512M-2G:128M,2G-64G:256M,64G-:512M" format="qcow2" bootloader="grub2" firmware="efi" installiso="true">
+            <size unit="G">10</size>
+        </type>
+    </preferences>
+    <users group="root">
+        <user name="root" password="linux" pwdformat="plain" home="/root"/>
+    </users>
+    <repository type="rpm-md" alias="DockerTools" priority="1">
+        <source path="obs://Virtualization:containers/openSUSE_Tumbleweed"/>
+    </repository>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
+    </repository>
+    <repository type="rpm-md" alias="factory" status="replaceable">
+        <source path="obs://openSUSE:Factory/snapshot"/>
+    </repository>
+    <packages type="image" patternType="plusRecommended">
+        <package name="patterns-openSUSE-base"/>
+        <package name="libyui-ncurses-pkg8"/>
+        <package name="grub2-branding-openSUSE"/>
+        <package name="filesystem"/>
+        <package name="kernel-default"/>
+        <package name="iputils"/>
+        <package name="grub2"/>
+        <package name="grub2-i386-pc"/>
+        <package name="grub2-x86_64-efi"/>
+        <package name="syslinux"/>
+        <package name="lvm2"/>
+        <package name="tar"/>
+        <package name="parted"/>
+        <package name="systemd"/>
+        <package name="yast2-metapackage-handler"/>
+        <package name="dracut"/>
+        <package name="wicked"/>
+        <package name="iproute2"/>
+        <package name="python3-kiwi"/>
+        <package name="openssh"/>
+        <package name="xdg-utils"/>
+        <package name="ypbind"/>
+        <package name="wget"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="openSUSE-release-ftp"/>
+        <package name="openSUSE-release"/>
+        <package name="yast2-metapackage-handler"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="pkg-config"/>
+        <package name="acl"/>
+        <package name="sg3_utils"/>
+        <package name="elfutils"/>
+        <package name="fipscheck"/>
+        <package name="ncurses-utils"/>
+        <package name="filesystem"/>
+        <package name="udev"/>
+    </packages>
+</image>

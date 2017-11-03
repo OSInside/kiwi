@@ -1,0 +1,137 @@
+CONTRATO DE LICENÇA
+openSUSE® Leap 42.2
+
+Esta é uma tradução não oficial da licença do openSUSE Leap 42.2 para
+o português (Brasil). Ela não declara legalmente os termos de
+distribuição do openSUSE Leap 42.2 - apenas o texto original em inglês
+da licença do openSUSE Leap 42.2 faz isso. Entretanto, o objetivo
+desta tradução é ajudar as pessoas que falam o português (Brasil) a
+compreender melhor a licença.
+
+Este contrato rege o download, a instalação ou o uso, por você, do
+openSUSE
+Leap 42.2 e de suas atualizações, independentemente do mecanismo de
+fornecimento. O openSUSE Leap 42.2 é um trabalho coletivo, regido pelas leis de
+direitos autorais dos Estados Unidos. Sujeito aos termos a seguir, o The
+openSUSE Project concede a você uma licença para esse trabalho coletivo em
+conformidade com a Licença Pública Geral GNU versão 2. Ao baixar,
+instalar ou usar o openSUSE Leap 42.2, você concorda com os termos deste
+contrato.
+
+O openSUSE Leap 42.2 é um sistema operacional Linux modular que
+consiste em centenas de componentes de software. O contrato de licença
+de cada componente geralmente está localizado no código-fonte do
+componente. Com exceção de certos arquivos que contêm a marca
+registrada “openSUSE” discutida a seguir, os termos de licença dos
+componentes permitem que você copie e redistribua o componente. Com a
+potencial exceção de determinados arquivos de firmware, os termos de
+licença dos componentes permitem que você copie, modifique e
+redistribua o componente, tanto na forma de código-fonte quanto na
+forma de código binário. Este contrato não limita seus direitos sob,
+nem lhe concede direitos que substituem, os termos de licença de
+nenhum componente em particular.
+
+Os direitos autorais sobre o openSUSE Leap 42.2 e cada um de seus
+componentes, incluindo o código-fonte, a documentação, a aparência, a
+estrutura e a organização, são de propriedade do The openSUSE Project
+e de outras partes, e estão protegidos por leis de direitos autorais,
+entre outras. A titularidade ao openSUSE Leap 42.2 e a qualquer
+componente, ou a qualquer cópia, permanecerá conforme disposto acima,
+ou com os respectivos licenciadores, sujeita à licença aplicável. A
+marca registrada “openSUSE” é de propriedade da SUSE, LLC. nos EUA e
+em outros países e é usada mediante permissão. Este contrato permite
+que você distribua cópias não modificadas ou modificadas do openSUSE
+Leap 42.2 usando a marca registrada “openSUSE” mediante a condição de
+que você siga as diretrizes da marca registrada do The openSUSE
+Project, localizadas em http://en.opensuse.org/Legal. Você deve seguir
+essas diretrizes ao distribuir o openSUSE Leap 42.2, independentemente
+de o openSUSE Leap 42.2 ter sido modificado.
+
+Exceto se especificamente indicado neste contrato ou em uma licença de
+um componente em particular, NA EXTENSÃO MÁXIMA PERMITIDA PELA
+LEGISLAÇÃO APLICÁVEL, O OPENSUSE Leap 42.2 E OS COMPONENTES SÃO
+FORNECIDOS E LICENCIADOS "NO ESTADO EM QUE SE ENCONTRAM", SEM
+GARANTIAS DE NENHUM TIPO, EXPRESSAS OU IMPLÍCITAS, INCLUINDO AS
+GARANTIAS IMPLÍCITAS DE COMERCIALIZAÇÃO, TITULARIDADE, NÃO VIOLAÇÃO OU
+ADEQUAÇÃO A UM PROPÓSITO ESPECÍFICO. O The openSUSE Project não
+garante que as funções contidas no openSUSE Leap 42.2 atenderão a seus
+requisitos ou que a operação do openSUSE Leap 42.2 será totalmente
+isenta de erros ou terá a aparência precisamente igual à descrita na
+documentação que o acompanha. O USO DO OPENSUSE Leap 42.2 É DE SUA
+INTEIRA RESPONSABILIDADE.
+
+NA EXTENSÃO MÁXIMA PERMITIDA PELA LEGISLAÇÃO APLICÁVEL, O THE OPENSUSE
+PROJECT (E SEUS AGENTES, SUBSIDIÁRIAS E FUNCIONÁRIOS) NÃO SERÃO
+RESPONSABILIZADOS POR NENHUM DANO, INCLUINDO DANOS DIRETOS,
+CIRCUNSTANCIAIS OU CONSEQUENCIAIS, PERDA DE LUCROS OU PERDA DE
+ECONOMIAS DECORRENTES DO USO OU DA INCAPACIDADE DE USAR O OPENSUSE
+Leap 42.2, MESMO QUE O THE OPENSUSE PROJECT TENHA SIDO AVISADO SOBRE A
+POSSIBILIDADE DESSES DANOS.  EM UMA JURISDIÇÃO QUE LIMITE A EXCLUSÃO
+OU LIMITAÇÃO DE DANOS, A RESPONSABILIDADE AGREGADA DO THE OPENSUSE
+PROJECT (E DE SEUS AGENTES, SUBSIDIÁRIAS E FUNCIONÁRIOS) LIMITA-SE A
+US$ 50 OU, SE TAL LIMITAÇÃO NÃO FOR PERMITIDA, LIMITA-SE AO MÁXIMO
+PERMITIDO.
+
+Você reconhece que o openSUSE Leap 42.2 está sujeito ao Regulamento
+da Administração de Exportação dos EUA (a sigla “EAR” no original em inglês)
+e você concorda em cumprir o "EAR". Você não irá exportar ou reexportar o
+openSUSE Leap 42.2 diretamente ou indiretamente para: (1) qualquer país
+que está sujeito a restrições de exportações dos EUA; (2) qualquer usuário
+final que você conheça ou tem motivo para conhecer a vontade de utilizar o
+openSUSE Leap 42.2 no design, desenvolvimento ou produção de armas
+nucleares, quimicais ou biológicas, ou de sistemas de foguetes, lançamento
+de veículos espaciais, foguetes-sonda, sistema de veículos aéreos não tripulados,
+exceto conforme autorização pela agência governamental dos EUA relevante
+por regulação ou licença específica; ou (3) qualquer usuário final que foi
+proibido de participar nas transações de exportações dos EUA por qualquer
+agência federal do governo dos EUA. Baixando ou usando o openSUSE Leap 42.2,
+você concorda com o acima exposto e você está representando e garantindo que você
+não está localizado em, sob controle de, ou um cidadão ou residente de qualquer país,
+ou em qualquer destas listas. Adicionalmente, você é responsável por cumprir com
+quaisquer leis locais em sua jurisdição que podem impactar no seu direito de exportar
+ou usar o openSUSE Leap 42.2.  Consulte a página do Gabinete de Indústria e
+Segurança dos EUA em www.bis.doc.gov antes de exportar itens sujeitos ao EAR. É sua responsabilidade
+obter qualquer aprovação necessária a exportação.
+
+Se alguma cláusula deste contrato não puder ser cumprida, isso não
+afetará a validade das cláusulas restantes. Este contrato será regido
+pelas leis do Estado de Utah e dos EUA, sem levar em consideração
+qualquer conflito entre cláusulas legais, com exceção de que a
+Convenção das Nações Unidas sobre a Venda Internacional de Produtos
+não se aplicará. Este contrato estabelece o completo entendimento e
+acordo entre você e o The openSUSE Project em relação a seu objeto e
+só pode ser modificado por escrito e assinado pelas duas
+partes. Nenhuma renúncia a nenhum direito deste contrato estará em
+vigor, a menos que seja registrada por escrito e assinada por um
+representante devidamente autorizado da parte legalmente
+obrigada. Nenhuma renúncia a nenhum direito, passado ou presente,
+decorrente de qualquer violação ou falha na execução deverá ser
+considerada como uma renúncia a qualquer direito futuro procedente
+deste contrato. O uso, a reprodução ou a divulgação pelo Governo dos
+EUA estão sujeitos às restrições estabelecidas no FAR 52.227-14 (dezembro
+de 2007) Alternate III (dezembro de 2007), FAR 52.227-19 (dezembro de
+2007) ou DFARS 252.227-7013 (b)(3) (novembro de 1995) ou às cláusulas
+substitutas aplicáveis.
+
+Copyright © 2008-2016 The openSUSE Project. Todos os direitos
+reservados. "SUSE" e "openSUSE" são marcas registradas da SUSE LLC 
+ou suas afiliadas, que fundou, patrocina e é designada pelo The openSUSE
+Project. "Linux" é marca comercial registrada de Linus Torvalds. Todas
+as outras marcas registradas são de seus respectivos proprietários.
+
+As required by US law, you represent and warrant that you: (a)
+understand that openSUSE Leap 42.2 is subject to export controls under
+the Export Administration Regulations ("EAR") which are implemented
+and enforced by the US Department of Commerce, Bureau of Industry and
+Security; (b) are not located in a prohibited destination country or  are
+specifically prohibited under the EAR or US sanctions regulations; (c) will not export,
+re-export, or transfer openSUSE Leap 42.2 to any prohibited destination,
+entity, or individual without the necessary export license(s)
+or authorizations(s) from the US Government; (d) will not use or
+transfer openSUSE Leap 42.2 for use in any sensitive nuclear, chemical,
+or biological weapons or missile technology end-uses unless
+authorized by the US Government by regulation or specific license;
+(e) understand that countries other than the US may restrict the
+import, use, or export of encryption products and that you will be
+solely responsible for compliance with any such import, use, or export
+restrictions.

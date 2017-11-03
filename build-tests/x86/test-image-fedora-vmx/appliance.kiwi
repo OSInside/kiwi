@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.7" name="VMX-Fedora-25.0">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>ms@suse.com</contact>
+        <specification>vmx disk test build for Fedora</specification>
+    </description>
+    <preferences>
+        <version>1.25.1</version>
+        <packagemanager>dnf</packagemanager>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <bootloader-theme>starfield</bootloader-theme>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>UTC</timezone>
+        <hwclock>utc</hwclock>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="splash"/>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_25"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora25Update">
+      <source path="obs://Fedora:25/update"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora25">
+      <source path="obs://Fedora:25/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="grub2-starfield-theme"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="grub2-efi-modules"/>
+        <package name="grub2-efi"/>
+        <package name="shim" arch="x86_64"/>
+    </packages>
+</image>

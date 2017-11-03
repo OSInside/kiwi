@@ -1,0 +1,123 @@
+LICENČNÍ UJEDNÁNÍ
+openSUSE® Leap 42.2
+
+Toto je neoficiální překlad licence openSUSE Leap 42.2 do češtiny.
+Není to právní stav distribučních podmínek openSUSE Leap 42.2 - 
+právně závazný je pouze původní anglický text licence openSUSE Leap 42.2.
+Přesto věříme, že tento překlad pomůže česky mluvícím lidem tuto licenci
+lépe pochopit.
+
+Toto ujednání řídí stahování, instalaci nebo používání openSUSE Leap 42.2
+a jeho aktualizací, a to nezávisle na mechanismech doručení. openSUSE Leap 42.2
+je kolektivní práce pod Copyrightovým zákonem Spojených států amerických.
+Kromě následujících podmínek vám Projekt openSUSE propůjčuje licenci k této
+kolektivní práci v souladu s GNU General Public License verze 2. Stažením, 
+instalací nebo používáním openSUSE Leap 42.2 souhlasíte s podmínkami tohoto
+ujednání.
+
+openSUSE Leap 42.2 je modulární operační systém Linux, který se skládá ze
+stovek softwarových součástí. Licenční ujednání pro každou součást se 
+za normálních okolností nachází ve zdrojovém kódu dané součásti.
+S výjimkou některých souborů obsahujících ochrannou známku „openSUSE“,
+o kterých se hovoří níže, licenční podmínky součástí vám umožňují tyto
+součásti kopírovat a znovu distribuovat. S možnou výjimkou některých
+firmwarových souborů vám licenční podmínky součástí umožňují tyto
+součásti kopírovat, upravovat a znovu distribuovat, jak ve formě zdrojového
+a binárního kódu. Toto ujednání neomezuje ani nenahrazuje práva licenčních
+podmínek ani jedné součásti.
+
+openSUSE Leap 42.2 a všechny jeho součásti, včetně zdrojového kódu,
+dokumentace, vzhledu, struktury a uspořádání, jsou licencovány Projektem
+openSUSE a dalšími a jsou chráněny autorským i jinými zákony. Právní
+nárok k openSUSE Leap 42.2 a všem součástem, nebo k jakékoliv kopii, zůstává
+výše uvedeným nebo poskytovatelům licence, s výhradou příslušné licence.
+Ochranná známka „openSUSE“ je ochrannou známkou SUSE, LLC. ve Spojených
+státech amerických a dalších zemích a je používána se svolením. Toto ujednání
+vám umožňuje distribuovat nezměněné nebo změněné kopie openSUSE Leap 42.2
+s použitím ochranné známky „openSUSE“ za podmínek, že budete dodržovat pravidla
+ochranné známky Projektu openSUSE, která se nachází na stránce
+http://en.opensuse.org/Legal. Musíte při distribuci openSUSE Leap 42.2
+dodržovat tato pravidla ochranné známky, bez ohledu na to, že bylo
+openSUSE Leap 42.2 upraveno.
+
+Vyjma případů výslovně uvedeným v tomto ujednání nebo licenci pro
+každou komponentu, K MAXIMÁLNÍMU ROZSAHU UMOŽNĚNÉM PŘÍSLUŠNÝM ZÁKONEM,
+OPENSUSE Leap 42.2 A SOUČÁSTI JSOU POSKYTOVÁNY A LICENOVÁNY „JAK JSOU“
+BEZ JAKÉKOLIV ZÁRUKY, VÝSLOVNÉ NEBO PŘEDPOKLÁDANÉ, VČETNĚ PŘEDPOKLÁDANÉ
+ZÁRUKY PRODEJNOSTI, VLASTNICTVÍ, NEPORUŠENÍ NEBO VHODNOSTI PRO DANÝ ÚČEL.
+Projekt openSUSE nezaručuje, že funkce obsažené v openSUSE Leap 42.2
+budou odpovídat vašim požadavkům nebo že provoz openSUSE Leap 42.2
+bude zcela bezchybný nebo přesně takový, jak je popsáno v průvodní
+dokumentaci. POUŽÍVÁNÍ OPENSUSE Leap 42.2 JE NA VAŠE VLASTNÍ RIZIKO.
+
+K MAXIMÁLNÍMU ROZSAHU UMOŽNĚNÉM PŘÍSLUŠNÝM ZÁKONEM, PROJEKT OPENSUSE
+(A JEHO POSKYTOVATELÉ LICENCÍ, FILIÁLKY A ZAMĚSTNANCI) NENÍ ZODPOVĚDNÝ
+ZA VÁM ZPŮSOBENÉ ŠKODY, VČETNĚ PŘÍMÉ, NÁHODNÉ NEBO NÁSLEDNÉ ŠKODY,
+UŠLÝ ZISK NEBO ZE ZTRÁTY ÚSPOR VYPLÝVAJÍCÍCH Z POUŽÍVÁNÍ NEBO
+NEMOŽNOSTI POUŽÍVÁNÍ OPENSUSE Leap 42.2, VČETNĚ TOHO, POKUD
+BYL PROJEKT OPENSUSE OZNAČEN JAKO PŘÍČINA TĚCHTO ŠKOD. V SOUDNÍM ŘÍZENÍ
+TOTO OMEZUJE VYLOUČENÍ NEBO OMEZENÍ ŠKOD PROJEKTU OPENSUSE (A JEHO
+POSKYTOVATELŮM LICENCE, FILIÁLKÁM A ZAMĚSTNANCŮM) NA CELKOVOU ODPOVĚDNOST
+V LIMITU DO $50 AMERICKÝCH DOLARŮ, NEBO POKUD LIMITOVÁNÍ NENÍ MOŽNÉ, JE
+LIMITOVÁNO V MAXIMÁLNÍ MOŽNÉ MÍŘE.
+
+Potvrzujete, že openSUSE Leap 42.2 je předmětem Exportních správních zákonů
+Spojených států („EAR“) a přijímáte, že EAR dodržíte. Nebudete exportovat nebo
+znovuexportovat openSUSE Leap 42.2 přímo nebo nepřímo: (1) do žádné země,
+která je předmětem exportních omezení Spojených států; (2) žádnému koncovému
+uživateli, o kterém víte nebo máte důvod vědět, že použije openSUSE Leap 42.2
+při návrhu, vývoji nebo produkci jaderných, chemických nebo biologických zbraní,
+raketových systémů, vesmírných dopravních prostředků a sondážních raket,
+nebo bezpilotních létajících systémů, vyjma ověřených odpovídajícím vládním úřadem
+předpisem či zvláštní licencí; nebo (3) žádnému koncovému uživateli, kterému bylo
+federálním úřadem vlády Spojených států zakázáno podílet se na exportních
+transakcích Spojených států. Stažením a používáním openSUSE Leap 42.2
+přijímáte předešlé, vyjadřujete a zaručujete se, že se v takové zemi
+nenacházíte, ani nejste pod jejím vlivem, nebo nejste jejím občanem či obyvatelem,
+ani na žádném takovém seznamu. Dále jste odpovědní za vyhovění jakýmkoliv
+místním zákonům ve vaší soudní působnosti, která může mít vliv na práva
+importu, exportu nebo používání openSUSE Leap 42.2. Informujte se na
+webové stránce Úřadu pro průmysl a bezpečnost (Bureau of Industry and Security)
+www.bis.doc.gov před exportem věcí, které jsou předmětem EAR. Je na vaši
+zodpovědnost obdržet jakýkoliv potřebný exportní souhlas.
+
+Je-li některé ustanovení tohoto ujednání považováno na nevymahatelné,
+pak neovlivní vynutitelnost zbývajících ustanovení. Toto ujednání
+se řídí zákony Státu Utah a Spojených států amerických, bez ohledu
+na jakýkoliv konflikt ustanovení zákona, vyjma toho, že neplatí pro
+Meznárodní prodej zboží podle Konvencí Organizace spojených
+národů. Toto ujednání stanovuje celé pochopení a ujednání mezi vámi
+a Projektem openSUSE v jeho záležitostech a může být změněno pouze
+písemně s podpisem obou stran. Žádné vzdání se práva pod tímto ujednáním
+nebude závazné, dokud nebude písemně, podepsané náležitým pověřeným
+představitelem strany. Žádné vzdání se kteréhokoliv minulého nebo současného
+práva vyplývajícího z porušení nebo neplnění ujednání nebude považováno
+jako vzdání se budoucího práva vyplývajícího z tohoto ujednání.
+Používání, duplikace nebo popis vládou Spojených států amerických
+je s předmětem omezení ve směrnicích FAR 52.227-14 (prosinec 2007)
+Alternate III (prosinec 2007), FAR 52.227-19 (prosinec 2007), nebo DFARS
+252.227-7013(b)(3) (listopad 1995) nebo v příslušných následných
+odstavcích.
+
+Copyright © 2008-2016 Projekt openSUSE. Všechna práva vyhrazena.
+"SUSE" a "openSUSE" jsou registrované ochranné známky SUSE LLC,
+nebo jeho poboček, který založil, sponzoruje a označuje Projekt
+openSUSE. "Linux" je registrovaná ochranná známka Linuse Torvaldse.
+Všechny ostatní ochranné známky náleží jejich odpovídajícím vlastníkům.
+
+As required by US law, you represent and warrant that you: (a)
+understand that openSUSE Leap 42.2 is subject to export controls under
+the Export Administration Regulations ("EAR") which are implemented
+and enforced by the US Department of Commerce, Bureau of Industry and
+Security; (b) are not located in a prohibited destination country or  are
+specifically prohibited under the EAR or US sanctions regulations; (c) will not export,
+re-export, or transfer openSUSE Leap 42.2 to any prohibited destination,
+entity, or individual without the necessary export license(s)
+or authorizations(s) from the US Government; (d) will not use or
+transfer openSUSE Leap 42.2 for use in any sensitive nuclear, chemical,
+or biological weapons or missile technology end-uses unless
+authorized by the US Government by regulation or specific license;
+(e) understand that countries other than the US may restrict the
+import, use, or export of encryption products and that you will be
+solely responsible for compliance with any such import, use, or export
+restrictions.

@@ -1,0 +1,108 @@
+使用許諾契約書
+openSUSE(r) Leap 42.2
+
+これは openSUSE Leap 42.2 ライセンスの非公式な 日本語訳です。 openSUSE Leap 42.2 の配布
+条件を法的に有効な形で述べたものではありません。配布条件としては原本の英語版
+openSUSE Leap 42.2 使用許諾書で規定されているもののみが有効です。この翻訳が、
+日本語を使用するユーザーにとってライセンスをよりよく理解する手助けになることを
+期待しています。
+
+この契約書は、配布の形式に関わらず、openSUSE Leap 42.2 とその更新ファイルの
+ダウンロード、インストール、および使用について規定します。openSUSE Leap 42.2 は、
+米国著作権法に基づく集合著作物です。以下の条件に従って、 The openSUSE Project
+は、 GNU 一般公有使用許諾バージョン2に基づき、この集合著作物に関する使用権を
+お客様に認めます。 openSUSE Leap 42.2 をダウンロード、インストール、または使用する
+ことにより、お客様はこの契約書の条項に同意したものと見なされます。
+
+openSUSE Leap 42.2 は、モジュール式の Linux オペレーティングシステムで、数百の
+ソフトウェアコンポーネントを含みます。各コンポーネントの使用許諾契約書は、
+一般的にそのコンポーネントのソースコード内に含まれています。以下で説明する
+"openSUSE" 商標を含むファイルを除き、コンポーネントの許諾条項は、
+コンポーネントのコピーと再配布をお客様に許可します。一部のファームウェア
+ファイルを除き、コンポーネントの許諾条項は、ソースコード形式またはバイナリ
+コード形式に関わらず、コンポーネントのコピー、変更、再配布をお客様に許可
+します。この契約書は、特定のコンポーネントの使用許諾条件を超えて、お客様の
+権利を制限したり、お客様に権利を付与したりすることはありません。
+
+openSUSE Leap 42.2 と、ソースコード、マニュアル、外観、構造、および組織などを含む
+それぞれのコンポーネントは、 The openSUSE Project などが著作権を所有しており、
+著作権法やその他の法律で保護されています。openSUSE Leap 42.2 とそのコンポーネント
+や、そのコピー、改変物、またはマージ部分に対する権利は、該当する使用許諾に
+基づき、上記の組織が保持するものとします。 "openSUSE "商標は、米国および
+その他の国における SUSE, LLC の商標であり、許可を得て使用されます。この契約書
+では、 http://en.opensuse.org/Legal にある The openSUSE Project の商標
+ガイドラインに沿って "openSUSE" 商標を使用した、未修正または修正された
+openSUSE Leap 42.2 のコピーを配布することをお客様に認めます。 openSUSE Leap 42.2 を修正
+したかどうかに関わらず、openSUSE Leap 42.2 を配布する際にはこれらの商標ガイドライン
+を遵守する必要があります。
+
+特定のコンポーネントの使用許諾契約書または使用許諾に明示的に記載されていない
+限り、該当する法が認める最大範囲まで、明示的か黙示的に関わらず、商品性、権限、
+不侵害、および特定用途への適合性に関する黙示的な保証を含むいかなる種類の保証も
+なく、 openSUSE Leap 42.2 とそのコンポーネントは現状有姿の状態で提供および使用許諾
+されるものとします。 The openSUSE Project は、 openSUSE Leap 42.2 に含まれる機能が
+お客様の必要性を満たすこと、openSUSE Leap 42.2 の動作にまったくエラーがないこと、
+または付属のマニュアルの記載どおりに動作することについて保証しません。お客様
+自身の責任で openSUSE Leap 42.2 を使用してください。
+
+該当する法が認める最大範囲まで、 The openSUSE Project (およびその
+ライセンサー、関連会社、および従業員) は、 openSUSE Leap 42.2 の使用または使用不能に
+起因する直接的損害、間接的損害、派生的損害、逸失利益、または貯蓄の喪失などを
+含む一切の損害に対し、当該損害発生の可能性が告知されていた場合でも、責任を負う
+ことはありません。損害の除外や制限について制限がある法域においては、
+The openSUSE Project (およびそのライセンサー、関連会社、および従業員) の賠償
+総額は 50 米ドルを上限とするものとし、こうした制限が認められない場合は、認め
+られる最大限度に限られるものとします。
+
+また、 openSUSE Leap 42.2 はアメリカ合衆国の輸出管理規制 ("EAR") の対象と
+なるものとし、お客様は EAR に従うことに同意したことになります。そのため、
+openSUSE Leap 42.2 を直接的または間接的に、下記に該当する宛先に対して輸出
+または再輸出しないものとします: (1) アメリカ合衆国の輸出規制の対象国;
+(2) 法律に関連する政府機関からの認定もしくはライセンスがある場合を除き、
+核兵器や化学兵器、生物兵器やロケットシステム、宇宙打ち上げ用ロケットや
+観測ロケット、無人航空機の設計や開発、生産に対して、 openSUSE Leap 42.2 を
+利用することをお客様が知っているか、利用する理由があることを知っている
+エンドユーザ; (3) アメリカ合衆国のいずれかの連邦機関によって、輸出取引への
+参加が禁止されているエンドユーザ。 openSUSE Leap 42.2 をダウンロードもしくは
+利用することによって前述の内容に同意したことになるほか、そのような国家の
+制御下にないこと、およびそのような国家に滞在していないことを表明および
+保証するものとします。またこれに加えて、 openSUSE Leap 42.2 の輸出入や
+利用にあたっては、お客様の地域を管轄する法律全てに従う責任があるものと
+します。 EAR に従って製品を輸出する際は、アメリカ合衆国商務省産業安全保障局
+の Web ページ (www.bis.doc.gov) をご覧ください。必要な輸出許可を得る作業は、
+お客様自身で行なっていただきます。
+
+この契約書の条項の一部が強制力がないと判断された場合でも、残りの部分の法的強制
+力には影響を及ぼしません。この契約書は、国際物品販売契約に関する国際連合条約が
+適用されないことを除き、抵触法に関わらず、アメリカ合衆国ユタ州の法律に準拠
+します。この契約書は、お客様とThe openSUSE Project の間の完全なる理解と同意を
+記載したものであり、両者が記名捺印するか署名した書面によってのみ変更できます。
+本契約に基づく権利の放棄は、当事者の代表者が記名捺印するか署名した書面によって
+のみ有効となります。過去または現在の違反または不履行に基づく権利の放棄は、
+本契約に基づいて生じる将来の権利の放棄と見なされることはありません。お客様が
+米国政府の場合には、本ソフトウェアの使用、複製、開示は FAR 52.227-14 (Dec 2007)
+Alternate III (Dec 2007)、FAR 52.227-19 (Dec 2007) もしくは
+DFARS 252.227-7013 (b)(3) (Nov 1995) またはこれらの修正条項に定める制限
+事項に従うことを条件とします。
+
+Copyright (C) 2008-2016 The openSUSE Project. All rights reserved. "SUSE" と
+"openSUSE"は、The openSUSE Project の設立者、出資者であり、同プロジェクトに
+指名された SUSE LLC の商標です。 Linux は Linus Torvalds の登録商標です。
+その他すべての商標は、それぞれの所有者の所有物です。
+
+As required by US law, you represent and warrant that you: (a)
+understand that openSUSE Leap 42.2 is subject to export controls under
+the Export Administration Regulations ("EAR") which are implemented
+and enforced by the US Department of Commerce, Bureau of Industry and
+Security; (b) are not located in a prohibited destination country or  are
+specifically prohibited under the EAR or US sanctions regulations; (c) will not export,
+re-export, or transfer openSUSE Leap 42.2 to any prohibited destination,
+entity, or individual without the necessary export license(s)
+or authorizations(s) from the US Government; (d) will not use or
+transfer openSUSE Leap 42.2 for use in any sensitive nuclear, chemical,
+or biological weapons or missile technology end-uses unless
+authorized by the US Government by regulation or specific license;
+(e) understand that countries other than the US may restrict the
+import, use, or export of encryption products and that you will be
+solely responsible for compliance with any such import, use, or export
+restrictions.

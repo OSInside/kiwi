@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.6" name="EC2-openSUSE-Tumbleweed">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.de</contact>
+        <specification>ec2 test build</specification>
+    </description>
+    <preferences>
+        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 multipath=off net.ifnames=0" boottimeout="1" devicepersistency="by-label" firmware="ec2">
+            <size unit="M">10240</size>
+            <machine xen_loader="pvgrub"/>
+        </type>
+        <version>0.9.10</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>utc</timezone>
+        <hwclock>utc</hwclock>
+        <rpm-excludedocs>true</rpm-excludedocs>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
+    </repository>
+    <repository type="rpm-md" alias="python-modules" priority="2">
+        <source path="obs://devel:languages:python/openSUSE_Tumbleweed"/>
+    </repository>
+    <repository type="rpm-md" alias="Tumbleweed" priority="2">
+        <source path="obs://openSUSE:Factory/snapshot"/>
+    </repository>
+    <packages type="image" patternType="plusRecommended">
+<!-- jeos server -->
+        <package name="patterns-openSUSE-minimal_base"/>
+        <package name="dhcp-client"/>
+        <package name="fontconfig"/>
+        <package name="fonts-config"/>
+        <package name="grub2"/>
+        <package name="grub2-x86_64-xen"/>
+        <package name="iproute2"/>
+        <package name="iputils"/>
+        <package name="lvm2"/>
+        <package name="openssh"/>
+        <package name="parted"/>
+        <package name="psmisc"/>
+        <package name="rsync"/>
+        <package name="syslinux"/>
+        <package name="systemd"/>
+        <package name="systemd-sysvinit"/>
+        <package name="sudo"/>
+        <package name="tar"/>
+        <package name="vim"/>
+        <package name="which"/>
+        <package name="udev"/>
+<!-- end jeos server -->
+<!-- basic functionality -->
+        <package name="at"/>
+        <package name="at-spi2-core"/>
+<!--Accessibility-->
+        <package name="attr"/>
+        <package name="audit"/>
+        <package name="autofs"/>
+        <package name="bc"/>
+        <package name="binutils"/>
+        <package name="blktrace"/>
+        <package name="cifs-utils"/>
+        <package name="command-not-found"/>
+        <package name="crash"/>
+        <package name="cryptconfig"/>
+        <package name="curl"/>
+<!-- Authentication functionality -->
+        <package name="cyrus-sasl"/>
+        <package name="cyrus-sasl-digestmd5"/>
+        <package name="cyrus-sasl-gssapi"/>
+        <package name="cyrus-sasl-plain"/>
+        <package name="cyrus-sasl-saslauthd"/>
+<!-- Authentication functionality end -->
+        <package name="deltarpm"/>
+        <package name="dos2unix"/>
+        <package name="dosfstools"/>
+        <package name="ethtool"/>
+        <package name="expect"/>
+        <package name="fping"/>
+        <package name="glibc-i18ndata"/>
+        <package name="haveged"/>
+        <package name="icmpinfo"/>
+        <package name="irqbalance"/>
+        <package name="kernel-default"/>
+        <package name="klogd"/>
+        <package name="krb5-client"/>
+        <package name="ksh"/>
+<!-- used by gpg -->
+        <package name="lockdev"/>
+        <package name="man"/>
+        <package name="man-pages"/>
+        <package name="mozilla-nss-certs"/>
+        <package name="netcat-openbsd"/>
+        <package name="nfsidmap"/>
+        <package name="nfs-client"/>
+        <package name="nfs-kernel-server"/>
+        <package name="nscd"/>
+        <package name="ntp"/>
+        <package name="openldap2-client"/>
+        <package name="opie"/>
+        <package name="pam-modules"/>
+        <package name="polkit-default-privs"/>
+        <package name="prctl"/>
+        <package name="procinfo"/>
+        <package name="quota"/>
+        <package name="recode"/>
+        <package name="release-notes-openSUSE"/>
+        <package name="rsh"/>
+        <package name="rsyslog"/>
+        <package name="screen"/>
+        <package name="strace"/>
+        <package name="SuSEfirewall2"/>
+        <package name="openSUSE-build-key"/>
+        <package name="tcpd"/>
+        <package name="tcpdump"/>
+        <package name="tcsh"/>
+        <package name="telnet"/>
+        <package name="terminfo"/>
+        <package name="vlock"/>
+        <package name="wget"/>
+        <package name="x86info"/>
+        <package name="xfsprogs"/>
+        <package name="xinetd"/>
+        <package name="yp-tools"/>
+        <package name="zip"/>
+        <package name="zsh"/>
+<!-- packages needed for resolution in OBS -->
+        <package name="acl"/>
+        <package name="fipscheck"/>
+        <package name="ncurses-utils"/>
+        <package name="sg3_utils"/>
+        <package name="pkg-config"/>
+        <package name="elfutils"/>
+<!-- end packages needed for resolution in OBS -->
+<!-- end basic functionality -->
+<!-- user configuration tools -->
+        <package name="libyui-ncurses-pkg8"/>
+        <package name="yast2"/>
+        <package name="yast2-add-on"/>
+        <package name="yast2-audit-laf"/>
+        <package name="yast2-bootloader"/>
+        <package name="yast2-ca-management"/>
+        <package name="yast2-core"/>
+        <package name="yast2-country"/>
+        <package name="yast2-country-data"/>
+        <package name="yast2-dbus-server"/>
+        <package name="yast2-dhcp-server"/>
+        <package name="yast2-dns-server"/>
+        <package name="yast2-firewall"/>
+        <package name="yast2-ftp-server"/>
+        <package name="yast2-hardware-detection"/>
+        <package name="yast2-http-server"/>
+        <package name="yast2-inetd"/>
+        <package name="yast2-iscsi-client"/>
+        <package name="yast2-iscsi-lio-server"/>
+        <package name="yast2-isns"/>
+        <package name="yast2-kdump"/>
+        <package name="yast2-ldap"/>
+        <package name="yast2-mail"/>
+        <package name="yast2-network"/>
+        <package name="yast2-nfs-client"/>
+        <package name="yast2-nfs-common"/>
+        <package name="yast2-nfs-server"/>
+        <package name="yast2-nis-client"/>
+        <package name="yast2-nis-server"/>
+        <package name="yast2-ntp-client"/>
+        <package name="yast2-online-update"/>
+        <package name="yast2-online-update-frontend"/>
+        <package name="yast2-packager"/>
+        <package name="yast2-pam"/>
+        <package name="yast2-perl-bindings"/>
+        <package name="yast2-pkg-bindings"/>
+        <package name="yast2-printer"/>
+        <package name="yast2-samba-client"/>
+        <package name="yast2-samba-server"/>
+        <package name="yast2-schema"/>
+        <package name="yast2-security"/>
+        <package name="yast2-slp"/>
+        <package name="yast2-slp-server"/>
+        <package name="yast2-squid"/>
+        <package name="yast2-storage"/>
+        <package name="yast2-sudo"/>
+        <package name="yast2-support"/>
+        <package name="yast2-sysconfig"/>
+        <package name="yast2-tftp-server"/>
+        <package name="yast2-trans-en_US"/>
+        <package name="yast2-transfer"/>
+        <package name="yast2-trans-stats"/>
+        <package name="yast2-tune"/>
+        <package name="yast2-update"/>
+        <package name="yast2-users"/>
+        <package name="yast2-xml"/>
+        <package name="yast2-ycp-ui-bindings"/>
+<!-- end user configuration tools -->
+
+<!-- framework specific packages -->
+        <package name="xen-libs"/>
+        <package name="xen-tools-domU"/>
+<!-- instance initialization -->
+        <package name="cloud-init"/>
+        <package name="cloud-init-config-suse"/>
+<!-- end framework specific packages -->
+    </packages>
+    <packages type="bootstrap">
+        <package name="openSUSE-release"/>
+        <package name="openSUSE-release-dvd"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>
