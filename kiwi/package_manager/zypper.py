@@ -251,18 +251,26 @@ class PackageManagerZypper(PackageManagerBase):
             45: 'db45_load',
             48: 'db48_load'
         }
+
+        cmd = Command.run(['chroot', self.root_dir, 'rpm', '-E', '%_dbpath'])
+        rpmdb = os.sep.join([self.root_dir, cmd.output.strip()])
+        if not os.path.exists(rpmdb):
+            raise KiwiRpmDatabaseReloadError(
+                'Unable to get the rpmdb location {0}'.format(rpmdb)
+            )
+
         if version not in db_load_for_version:
             raise KiwiRpmDatabaseReloadError(
                 'Dump reload for rpm DB version: %s not supported' % version
             )
         if not self.database_consistent():
             reload_db_files = [
-                '/var/lib/rpm/Name',
-                '/var/lib/rpm/Packages'
+                os.path.normpath(os.sep.join([cmd.output, 'Name'])),
+                os.path.normpath(os.sep.join([cmd.output, 'Packages']))
             ]
             for db_file in reload_db_files:
-                root_db_file = self.root_dir + db_file
-                root_db_file_backup = root_db_file + '.bak'
+                root_db_file = os.sep.join([self.root_dir, db_file])
+                root_db_file_backup = '{0}.bak'.format(root_db_file)
                 Command.run([
                     'db_dump', '-f', root_db_file_backup, root_db_file
                 ])
