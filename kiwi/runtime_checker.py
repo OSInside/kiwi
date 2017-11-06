@@ -391,12 +391,25 @@ class RuntimeChecker(object):
         Checkmedia tool and its related boot code are only available
         for x86 platforms.
         """
-        arch = platform.machine()
-        message = dedent('''\n
+        message_arch_unsupported = dedent('''\n
             The attribute 'mediacheck' is only supported for
             x86 platforms, thus it can't be set to 'true'
             for the current ({0}) architecture.
         ''')
-        if self.xml_state.build_type.get_mediacheck() is True and \
-                arch not in ['x86_64', 'i586', 'i686']:
-            raise KiwiRuntimeError(message.format(arch))
+        message_tool_not_found = dedent('''\n
+            Required tool {name} not found in caller environment
+
+            The attribute 'mediacheck' is set to 'true' which requires
+            the above tool to be installed on the build system
+        ''')
+        if self.xml_state.build_type.get_mediacheck() is True:
+            arch = platform.machine()
+            tool = 'tagmedia'
+            if arch not in ['x86_64', 'i586', 'i686']:
+                raise KiwiRuntimeError(
+                    message_arch_unsupported.format(arch)
+                )
+            elif not Path.which(filename=tool, access_mode=os.X_OK):
+                raise KiwiRuntimeError(
+                    message_tool_not_found.format(name=tool)
+                )
