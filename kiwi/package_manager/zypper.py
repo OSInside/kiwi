@@ -251,27 +251,38 @@ class PackageManagerZypper(PackageManagerBase):
             45: 'db45_load',
             48: 'db48_load'
         }
+
+        rpmdb_path_request = Command.run(
+            ['chroot', self.root_dir, 'rpm', '-E', '%_dbpath']
+        )
+        rpmdb_path = os.path.normpath(os.sep.join(
+            [self.root_dir, rpmdb_path_request.output.strip()]
+        ))
+        if not os.path.exists(rpmdb_path):
+            raise KiwiRpmDatabaseReloadError(
+                'Unable to get the rpmdb location {0}'.format(rpmdb_path)
+            )
+
         if version not in db_load_for_version:
             raise KiwiRpmDatabaseReloadError(
                 'Dump reload for rpm DB version: %s not supported' % version
             )
         if not self.database_consistent():
             reload_db_files = [
-                '/var/lib/rpm/Name',
-                '/var/lib/rpm/Packages'
+                os.sep.join([rpmdb_path, 'Name']),
+                os.sep.join([rpmdb_path, 'Packages'])
             ]
             for db_file in reload_db_files:
-                root_db_file = self.root_dir + db_file
-                root_db_file_backup = root_db_file + '.bak'
+                db_file_backup = '{0}.bak'.format(db_file)
                 Command.run([
-                    'db_dump', '-f', root_db_file_backup, root_db_file
+                    'db_dump', '-f', db_file_backup, db_file
                 ])
-                Command.run(['rm', '-f', root_db_file])
+                Command.run(['rm', '-f', db_file])
                 Command.run([
                     db_load_for_version[version],
-                    '-f', root_db_file_backup, root_db_file
+                    '-f', db_file_backup, db_file
                 ])
-                Command.run(['rm', '-f', root_db_file_backup])
+                Command.run(['rm', '-f', db_file_backup])
             Command.run([
                 'chroot', self.root_dir, 'rpm', '--rebuilddb'
             ])

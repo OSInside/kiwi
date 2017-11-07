@@ -1,4 +1,6 @@
 from mock import patch
+from mock import call
+from collections import namedtuple
 
 import mock
 
@@ -160,61 +162,75 @@ class TestPackageManagerZypper(object):
         mock_command.side_effect = Exception
         assert self.manager.database_consistent() is False
 
+    @patch('os.path.exists')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.package_manager.zypper.PackageManagerZypper.database_consistent')
-    def test_reload_package_database(self, mock_consistent, mock_command):
+    def test_reload_package_database(
+        self, mock_consistent, mock_command, mock_exists
+    ):
+        command_type = namedtuple('command', ['output'])
+        cmd = command_type(output='var/lib/rpm')
+        mock_command.return_value = cmd
+        mock_exists.return_value = True
         mock_consistent.return_value = False
         self.manager.dump_reload_package_database()
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
+        assert mock_command.call_args_list == [
+            call([
+                'chroot', 'root-dir', 'rpm', '-E', '%_dbpath'
+            ]),
             call([
                 'db_dump', '-f', 'root-dir/var/lib/rpm/Name.bak',
                 'root-dir/var/lib/rpm/Name'
-            ])
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
+            ]),
             call([
                 'rm', '-f', 'root-dir/var/lib/rpm/Name'
-            ])
-        call = mock_command.call_args_list[2]
-        assert mock_command.call_args_list[2] == \
+            ]),
             call([
                 'db45_load', '-f', 'root-dir/var/lib/rpm/Name.bak',
                 'root-dir/var/lib/rpm/Name'
-            ])
-        call = mock_command.call_args_list[3]
-        assert mock_command.call_args_list[3] == \
+            ]),
             call([
                 'rm', '-f', 'root-dir/var/lib/rpm/Name.bak'
-            ])
-        call = mock_command.call_args_list[4]
-        assert mock_command.call_args_list[4] == \
+            ]),
             call([
                 'db_dump', '-f', 'root-dir/var/lib/rpm/Packages.bak',
                 'root-dir/var/lib/rpm/Packages'
-            ])
-        call = mock_command.call_args_list[5]
-        assert mock_command.call_args_list[5] == \
+            ]),
             call([
                 'rm', '-f', 'root-dir/var/lib/rpm/Packages'
-            ])
-        call = mock_command.call_args_list[6]
-        assert mock_command.call_args_list[6] == \
+            ]),
             call([
                 'db45_load', '-f', 'root-dir/var/lib/rpm/Packages.bak',
                 'root-dir/var/lib/rpm/Packages'
-            ])
-        call = mock_command.call_args_list[7]
-        assert mock_command.call_args_list[7] == \
+            ]),
             call([
                 'rm', '-f', 'root-dir/var/lib/rpm/Packages.bak'
-            ])
-        call = mock_command.call_args_list[8]
-        assert mock_command.call_args_list[8] == \
+            ]),
             call([
                 'chroot', 'root-dir', 'rpm', '--rebuilddb'
             ])
+        ]
 
+    @patch('os.path.exists')
+    @patch('kiwi.command.Command.run')
     @raises(KiwiRpmDatabaseReloadError)
-    def test_reload_package_database_wrong_db_version(self):
+    def test_reload_package_database_wrong_db_path(
+        self, mock_command, mock_exists
+    ):
+        command_type = namedtuple('command', ['output'])
+        cmd = command_type(output='var/lib/rpm')
+        mock_command.return_value = cmd
+        mock_exists.return_value = False
+        self.manager.dump_reload_package_database()
+
+    @patch('os.path.exists')
+    @patch('kiwi.command.Command.run')
+    @raises(KiwiRpmDatabaseReloadError)
+    def test_reload_package_database_wrong_db_version(
+        self, mock_command, mock_exists
+    ):
+        command_type = namedtuple('command', ['output'])
+        cmd = command_type(output='var/lib/rpm')
+        mock_command.return_value = cmd
+        mock_exists.return_value = True
         self.manager.dump_reload_package_database(42)

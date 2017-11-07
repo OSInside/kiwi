@@ -417,8 +417,12 @@ if [ ! -z "$KIWI_RECOVERY" ];then
                 Echo "Failed to backup zypp database"
                 exit 1
             fi
-            if ! cp -a var/lib/rpm var/lib/rpm.backup;then
-                rm -rf var/lib/rpm.backup; cd / ; umountSystem
+            rpmdb=usr/lib/rpm
+            if [ ! -d "$rpm" ]; then
+                rpmdb=var/lib/rpm
+            fi
+            if ! cp -a $rpmdb ${rpmdb}.backup;then
+                rm -rf ${rpmdb}.backup; cd / ; umountSystem
                 Echo "Failed to backup RPM database"
                 exit 1
             fi
