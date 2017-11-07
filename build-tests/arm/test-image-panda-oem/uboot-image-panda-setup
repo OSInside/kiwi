@@ -1,0 +1,508 @@
+#!/bin/bash
+
+set -x
+
+flavor=panda
+target=firstboot
+kerneladdr=
+ramdiskaddr=
+bootkernel=default
+
+case $target in
+  firstboot)
+    conf=boot/boot.script
+    binconf=boot/boot.scr
+    kernel=boot/linux.vmx
+    initrd=boot/initrd.uboot
+    # the kernel command line is already prepopulated by KIWI
+    bootargs=
+    ;;
+  boot)
+    hookName=$1     # name of hook script calling this code
+    mountPrefix=$2  # mount path of the image
+    destsPrefix=$3  # base dir for the config files
+    unum=$4         # boot partition ID
+    rdev=$5         # root partition
+    ufix=$6         # title postfix
+    swap=$7         # optional swap partition
+    conf=$destsPrefix/boot/boot.script
+    binconf=$destsPrefix/boot/boot.script
+
+    #======================================
+    # make sure conf dir exists
+    #--------------------------------------
+    mkdir -p $destsPrefix/boot
+    #======================================
+    # check for device by ID
+    #--------------------------------------
+    local diskByID=`getDiskID $rdev`
+    local swapByID=`getDiskID $swap swap`
+    #======================================
+    # check for system image .profile
+    #--------------------------------------
+    if [ -f $mountPrefix/image/.profile ];then
+    	importFile < $mountPrefix/image/.profile
+    fi
+    #======================================
+    # check for kernel options
+    #--------------------------------------
+    if [ ! -z "$kiwi_cmdline" ];then
+    	KIWI_KERNEL_OPTIONS="$KIWI_KERNEL_OPTIONS $kiwi_cmdline"
+    fi
+
+    # /.../
+    # On other systems which supports a boot menu we add
+    # the linux kernel and initrd with its file names
+    # like this:
+    #
+    #   kernel=`echo $i | cut -f1 -d:`
+    #   initrd=`echo $i | cut -f2 -d:`
+    #
+    # But on arm systems there can only be one kernel because
+    # uboot doesn't support a menu. Thus perl-bootloader also
+    # doesn't support updating the uboot configuration and
+    # that's the reason why we use the links created by
+    # mkinitrd to point to the kernel and initrd in order
+    # to support kernel updates
+    # ----
+    kernel=uImage
+    initrd=initrd
+
+    # gather kernel command line
+    bootargs="root=$diskByID loader=$loader"
+    if [ "$imageDiskDevice" ];then
+    	bootargs="$bootargs disk=$(getDiskID $imageDiskDevice)"
+    fi
+    if [ "$swap" ];then
+    	bootargs="$bootargs resume=$swapByID"
+    fi
+    if [ "$haveLVM" = "yes" ];then
+    	bootargs="$bootargs VGROUP=$VGROUP"
+    fi
+    bootargs="$bootargs $KIWI_INITRD_PARAMS"
+    bootargs="$bootargs $KIWI_KERNEL_OPTIONS"
+
+    # start with a fresh config
+    true > $conf
+    ;;
+  *)
+    echo "Unknown target $target" >&2
+    exit 1
+    ;;
+esac
+
+bootdevs=mmc
+units="0"
+bootparts='${unit}:1'
+boottype=bootz
+setdev='mmc dev ${unit}'
+sizeprefix=0x
+fdtfolder=dtb
+fs=ext2
+initrd_high=0xffffffff
+fdt_high=0xffffffff
+# To display a splash file, we need a working display, an uncompressed BMP file and 'bmp' commands
+should_use_splashfile=0
+splashfile=opensuse.bmp
+
+case $flavor in
+  beaglebone)
+    units="0 1" # 0: is SD card - 1: is internal eMMC
+    kerneladdr=0x82000000
+    ramdiskaddr=0x88080000
+    fdtaddr=0x88000000
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=call_findfdt
+    ;;
+  beagle|panda)
+    kerneladdr=0x82000000
+    ramdiskaddr=0x88080000
+    fdtaddr=0x88000000
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=call_findfdt
+    ;;
+  highbank|midway)
+    bootdevs=scsi
+    should_use_fdt=1
+    setdev=1
+    # Highbank's u-boot already prepends 0x to the file size
+    sizeprefix=
+    # And calls the variable $fdt_addr rather than $fdtaddr
+    use_fdt_addr=1
+    ;;
+  cubox)
+    kerneladdr=0x2000000
+    ramdiskaddr=0x5000000
+    ;;
+  cubieboard)
+    kerneladdr=0x46000000
+    ramdiskaddr=0x4a000000
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=sun4i-a10-cubieboard.dtb
+    fdtaddr=0x49000000
+    ;;
+  cubieboard2)
+    kerneladdr=0x46000000
+    ramdiskaddr=0x4a000000
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=sun7i-a20-cubieboard2.dtb
+    fdtaddr=0x49000000
+    ;;
+  cubietruck)
+    kerneladdr=0x46000000
+    ramdiskaddr=0x4a000000
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=sun7i-a20-cubietruck.dtb
+    fdtaddr=0x49000000
+    ;;
+  bananapi)
+    kerneladdr=0x46000000
+    ramdiskaddr=0x4a000000
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=sun7i-a20-bananapi.dtb
+    fdtaddr=0x49000000
+    ;;
+  loco)
+    kerneladdr=0x70800000
+    ramdiskaddr=0x7e000000
+    fdtaddr=0x7d800000
+    should_use_fdt=1
+    should_load_fdt=1
+    units="0 1"
+    fdtfile=imx53-qsb.dtb
+    ;;
+  arndale)
+    kerneladdr=0x44000000
+    ramdiskaddr=0x45000000
+    fdtaddr=0x4c000000
+    units="0 1" # 0: is internal eMMC or USB stick - 1: is SD card
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=exynos5250-arndale.dtb
+    ;;
+  chromebook)
+    fs="" # No ext2load by default on u-boot-snow. Just use 'load' command.
+    kerneladdr=0x40007000
+    ramdiskaddr=0x44000000
+    fdtaddr=0x42000000
+    bootdevs="mmc usb"
+    units="0 1" # 0: is internal eMMC or USB stick - 1: is SD card
+    bootparts='${unit}:2'
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=exynos5250-snow.dtb
+    ;;
+  sabrelite)
+    kerneladdr=0x10008000
+    ramdiskaddr=0x14000000
+    fdtaddr=0x12000000
+    bootdevs="mmc usb"
+    units="0 1" # 0: is SD3 (bottom) slot - 1: is uSD4 (top) slot
+    should_use_fdt=1
+    should_load_fdt=1
+    fdtfile=imx6q-sabrelite.dtb
+    should_use_splashfile=1
+    ;;
+  raspberrypi)
+    fs=""
+    bootparts='${unit}:2'
+    should_use_fdt=1
+    should_load_fdt=1
+    use_fdt_addr_r=1
+    #fdtfile is set by u-boot, do not overwrite
+    # kernel-raspberrypi (downstream kernel) does not use the same DT
+    if [ $bootkernel = raspberrypi ]; then
+      fdtfile=bcm2708-rpi-b.dtb # TODO: Support all RPi1 DTB included in Linux kernel, not only RPi 1 B
+    fi
+    # bootargs for dracut shouldn't override rootfstype
+    bootargs=$(echo "$bootargs" | sed 's/ rootfstype=ramfs//')
+    if [ $bootkernel = raspberrypi ]; then
+      # Pass Mac address to Linux (works only on downstream kernel). Should be removed with new u-boot which will auto-update device-tree with it.
+      if [ $target = boot ]; then
+	# Bootargs is defined upper in this script, so it is available/editable
+        bootargs=$(echo "$bootargs smsc95xx.macaddr=\${usbethaddr} ")
+      else # $target = firstboot
+	# Bootargs is already defined by kiwi but not available/editable here
+	bootargs=$(echo "\${bootargs} smsc95xx.macaddr=\${usbethaddr} ")
+      fi
+    fi
+    # initrd needs to be relocated as it is too big
+    initrd_high=
+    ;;
+  raspberrypi2)
+    fs=""
+    bootparts='${unit}:2'
+    should_use_fdt=1
+    should_load_fdt=1
+    use_fdt_addr_r=1
+    if [ $bootkernel = rpi2 ]; then
+      fdtfile=bcm2709-rpi-2-b.dtb
+    fi
+    # bootargs for dracut shouldn't override rootfstype
+    bootargs=$(echo "$bootargs" | sed 's/ rootfstype=ramfs//')
+    if [ $bootkernel = rpi2 ]; then
+      # Pass Mac address to Linux (works only on downstream kernel) Should be removed with new u-boot which will auto-update device-tree with it.
+      if [ $target = boot ]; then
+	# Bootargs is defined upper in this script, so it is available/editable
+        bootargs=$(echo "$bootargs smsc95xx.macaddr=\${usbethaddr} ")
+      else # $target = firstboot
+	# Bootargs is already defined by kiwi but not available/editable here
+	bootargs=$(echo "\${bootargs} smsc95xx.macaddr=\${usbethaddr} ")
+      fi
+    fi
+    # initrd needs to be relocated as it is too big
+    initrd_high=
+    ;;
+  raspberrypi3)
+    fs=""
+    bootparts='${unit}:2'
+    should_use_fdt=1
+    should_load_fdt=1
+    use_fdt_addr_r=1
+    fdtfile=bcm2710-rpi-3-b.dtb
+    # bootargs for dracut shouldn't override rootfstype
+    bootargs=$(echo "$bootargs" | sed 's/ rootfstype=ramfs//')
+    if [ $bootkernel = rpi2 ]; then
+      # Pass Mac address to Linux (works only on downstream kernel) Should be removed with new u-boot which will auto-update device-tree with it.
+      if [ $target = boot ]; then
+	# Bootargs is defined upper in this script, so it is available/editable
+        bootargs=$(echo "$bootargs smsc95xx.macaddr=\${usbethaddr} ")
+      else # $target = firstboot
+	# Bootargs is already defined by kiwi but not available/editable here
+	bootargs=$(echo "\${bootargs} smsc95xx.macaddr=\${usbethaddr} ")
+      fi
+    fi
+    # initrd needs to be relocated as it is too big
+    initrd_high=
+    ;;
+  cuboxi)
+    kerneladdr=0x10800100
+    fdtaddr=calculate
+    ramdiskaddr=calculate
+    should_load_fdt=1
+    should_use_fdt=1
+    fdtfile=call_findfdt
+    fs="" # u-boot does not know ext2load on cubox-i, 'load' does the job fine
+    ;;
+  mustang)
+    boottype=bootm
+    bootdevs=scsi
+    setdev="true"
+    kerneladdr=0x4002000000
+    fdtaddr=calculate
+    ramdiskaddr=calculate
+    use_fdt_addr_r=1
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    initrd_high=0x43e0000000
+    fdtfile=apm-mustang.dtb
+    [ "$target" = "boot" ] && initrd=uInitrd
+    fdt_high=
+    ;;
+  m400)
+    fs="" # Just use "load" command
+    boottype=bootm
+    bootdevs=scsi
+    setdev="true"
+    kerneladdr=0x4002000000
+    fdtaddr=calculate
+    ramdiskaddr=calculate
+    use_fdt_addr_r=1
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    initrd_high=0x43e0000000
+    fdtfile=apm/apm-m400.dtb
+    fdt_high=
+    ;;
+  paz00)
+    kerneladdr=0x1000000
+    ramdiskaddr=0x2200000
+    fdtaddr=0x2000000
+    should_use_fdt=1
+    should_load_fdt=1
+    units="1 0"
+    bootdevs="mmc usb"
+    fdtfile=tegra20-paz00.dtb
+    ;;
+  olinuxinolime)
+    kerneladdr=0x41000000
+    ramdiskaddr=calculate
+    fdtaddr=calculate
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    fdtfile=sun4i-a10-olinuxino-lime.dtb
+    fdt_high=
+    initrd_high=
+    ;;
+  olinuxinolime2)
+    kerneladdr=0x41000000
+    ramdiskaddr=calculate
+    fdtaddr=calculate
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    fdtfile=sun7i-a20-olinuxino-lime2.dtb
+    fdt_high=
+    initrd_high=
+    ;;
+  a13olinuxino)
+    kerneladdr=0x41000000
+    ramdiskaddr=calculate
+    fdtaddr=calculate
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    fdtfile=sun5i-a13-olinuxino.dtb
+    fdt_high=
+    initrd_high=
+    ;;
+  a20olinuxinolime)
+    kerneladdr=0x41000000
+    ramdiskaddr=calculate
+    fdtaddr=calculate
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    fdtfile=sun7i-a20-olinuxino-lime.dtb
+    fdt_high=
+    initrd_high=
+    ;;
+  a20olinuxinomicro)
+    kerneladdr=0x41000000
+    ramdiskaddr=calculate
+    fdtaddr=calculate
+    should_load_fdt=1
+    should_use_fdt=1
+    remove_fdt_high=1
+    fdtfile=sun7i-a20-olinuxino-micro.dtb
+    fdt_high=
+    initrd_high=
+    ;;
+  odroid|odroidxu3)
+    fs="" # u-boot does not know ext2load on odroid, only fatload, ext4load and load,
+    kerneladdr=0x40007FC0
+    ramdiskaddr=0x42000000
+    fdtaddr=0x40800000
+    should_load_fdt=1
+    should_use_fdt=1
+    ;;
+esac
+
+# override zImage file names
+if [ $boottype = bootz -a $target = boot ]; then
+    kernel=zImage
+fi
+
+# calculate fdt- and ramdiskaddr from kerneladdr
+# kernel needs maximum 63MB
+# fdt maximum 1MB
+# ramdisk can be placed anywhere after that
+if [ "x$fdtaddr" = "xcalculate" ]; then
+	fdtaddr=$(( $kerneladdr + 0x03F00000 )) # kernel + 63M
+	fdtaddr=`printf '0x%X' $fdtaddr` # convert back to hexadecimal
+fi
+if [ "x$ramdiskaddr" = "xcalculate" ]; then
+	ramdiskaddr=$(( $fdtaddr + 0x00100000 )) # fdt + 1M
+	ramdiskaddr=`printf '0x%X' $ramdiskaddr` # convert back to hexadecimal
+fi
+
+# copy bash variables into boot script (except 'target' which is not used in u-boot and may overlap u-boot variables (e.g. cubox-i))
+for variable in kernel initrd fdtfile fdtfolder flavor bootdevs bootparts \
+                initrd_high fdt_high boottype kerneladdr ramdiskaddr should_use_fdt \
+                should_load_fdt fdtaddr setdev units sizeprefix use_fdt_addr \
+                use_fdt_addr_r fs remove_fdt_high should_use_splashfile splashfile; do
+    value=$(eval "echo $(echo \$$variable)")
+    # only set variables that contain data, leave the others alone
+    if [ "$value" ]; then
+        echo "setenv $variable '$value'" >> $conf
+    fi
+done
+
+# follow KIWI modules/KIWIBoot.pm and append $append variable to the end of bootargs
+# this allows user to consistently add extra parameters to kernel as simply as possible:
+# > setenv append extraopt
+# > boot
+if [ "x$bootargs" != "x" ]; then
+    echo "setenv bootargs \"$bootargs \${append}\"" >> $conf
+fi
+
+cat >> $conf <<-"EOF"
+	test -n "$kerneladdr" || setenv kerneladdr ${kernel_addr_r}
+	test -n "$ramdiskaddr" || setenv ramdiskaddr ${ramdisk_addr_r}
+	if test 1${should_use_splashfile} = 11; then
+		setenv load_splashfile 'if ${fs}load ${bootdev} ${bootpart} ${kerneladdr} ${splashfile}; then; bmp display ${kerneladdr}; fi;'
+	else
+		setenv load_splashfile ''
+	fi
+	setenv load_kernel '${fs}load ${bootdev} ${bootpart} ${kerneladdr} ${kernel}'
+	setenv load_initrd '${fs}load ${bootdev} ${bootpart} ${ramdiskaddr} ${initrd}; setenv rd_filesize ${sizeprefix}${filesize}'
+	if test 1${should_load_fdt} = 11; then
+		if test 0${fdtfile} = 0call_findfdt; then
+			run findfdt
+		fi
+		if test 0${fdtfile} = 0call_autodetectfdt; then
+			run autodetectfdt
+		fi
+		if test -n "$validatefdt"; then
+			# Beagleboard xM needs to run validatefdt with latest u-boot, but bootpart is 0:2 by default and prefix file with $bootdir.
+			setenv bootpart 0:1
+			setenv bootdir ${fdtfolder}
+			run validatefdt
+		fi
+		setenv loadfdt '${fs}load ${bootdev} ${bootpart} ${fdtaddr} ${fdtfolder}/${fdtfile}'
+	else
+		setenv loadfdt ''
+	fi
+	if test 1${use_fdt_addr} = 11; then
+		# Calxeda systems use $fdt_addr rather than $fdtaddr
+		setenv fdtaddr $fdt_addr
+	fi
+	if test 1${use_fdt_addr_r} = 11; then
+		# At least upstream rpi_b uses $fdt_addr_r rather than $fdtaddr
+		setenv fdtaddr ${fdt_addr_r}
+	fi
+	if test 1${should_use_fdt} = 11; then
+		setenv boot_kernel '${boottype} ${kerneladdr} ${ramdiskaddr}:${rd_filesize} ${fdtaddr}'
+	else
+		setenv boot_kernel '${boottype} ${kerneladdr} ${ramdiskaddr}:${rd_filesize}'
+	fi
+	if test 1${remove_fdt_high} = 11; then
+		setenv fdt_high
+	fi
+	setenv doit 'run load_splashfile; if run load_kernel; then; run load_initrd; run loadfdt; run boot_kernel; fi'
+	setenv bootcmd 'for bootdev in ${bootdevs}; do for unit in ${units}; do setenv bootpart; for bootpart in ${bootparts}; do setenv fix_bootpart "setenv bootpart $bootpart"; run fix_bootpart; run setdev; run doit; done; done; done'
+	boot
+EOF
+
+#==========================================
+# Create machine readable uboot format
+# (only during image creation)
+#------------------------------------------
+if [ -x /usr/bin/mkimage -a "$target" = firstboot ];then
+    mkopts="-A arm -O linux -a 0 -e 0 -T script -C none";
+    if ! mkimage $mkopts -n 'Boot-Script' -d $conf $binconf;then
+        echo "Failed to create uboot script image"
+        exit 1
+    fi
+fi
+
+#==========================================
+# create a uImage for one-off x-gene
+#------------------------------------------
+if [ "$flavor" = "mustang" -o "$flavor" = "m400" ]; then
+    if [ "$target" = "firstboot" ]; then
+        mkimage -A arm -O linux -C none -T kernel -a 0x00080000 -e 0x00080000 -n Linux -d $kernel boot/uImage
+        mv boot/uImage $kernel
+    fi
+fi
+
+set +x
