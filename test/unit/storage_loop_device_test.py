@@ -36,7 +36,8 @@ class TestLoopDevice(object):
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call([
-                'losetup', '-L', '4096', '-f', '--show', 'loop-file'
+                'losetup', '--logical-blocksize', '4096',
+                '-f', '--show', 'loop-file'
             ])
         self.loop.node_name = None
 
