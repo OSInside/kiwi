@@ -121,7 +121,6 @@
         <package name="xfsprogs"/>
     </packages>
     <packages type="image">
-        <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
         <package name="bind-utils"/>
