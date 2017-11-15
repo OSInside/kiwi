@@ -103,6 +103,7 @@ class TestSystemBuildTask(object):
         self.runtime_checker.check_dracut_module_for_live_iso_in_package_list.assert_called_once_with()
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list.assert_called_once_with()
+        self.runtime_checker.check_dracut_module_for_disk_oem_in_package_list.assert_called_once_with()
         self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup.assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(False, None)
         self.system_prepare.install_bootstrap.assert_called_once_with(

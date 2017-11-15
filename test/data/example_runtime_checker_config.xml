@@ -35,21 +35,6 @@
         <locale>de_DE</locale>
     </preferences>
     <preferences>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="ext4">
-            <size unit="G" additive="true">1</size>
-            <systemdisk name="mydisk">
-                <volume name="root" size="6G" mountpoint="/"/>
-            </systemdisk>
-            <machine memory="512" xen_loader="pvgrub">
-                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
-                <vmnic interface=""/>
-            </machine>
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-                <oem-recovery>false</oem-recovery>
-            </oemconfig>
-        </type>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
@@ -88,15 +73,20 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" bootloader="grub2" kernelcmdline="splash">
+        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="ext4" initrd_system="dracut">
+            <size unit="G" additive="true">1</size>
+            <systemdisk name="mydisk">
+                <volume name="root" size="6G" mountpoint="/"/>
+            </systemdisk>
+            <machine memory="512" xen_loader="pvgrub">
+                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
+                <vmnic interface=""/>
+            </machine>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
+                <oem-recovery>false</oem-recovery>
             </oemconfig>
-            <machine memory="512" guestOS="suse" HWversion="4">
-                <vmdisk id="0" controller="ide"/>
-                <vmnic driver="e1000" interface="0" mode="bridged"/>
-            </machine>
         </type>
         <type image="iso" mediacheck="true"/>
     </preferences>

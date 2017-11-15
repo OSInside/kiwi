@@ -261,6 +261,36 @@ class RuntimeChecker(object):
                     )
                 )
 
+    def check_dracut_module_for_disk_oem_in_package_list(self):
+        """
+        OEM images if configured to use dracut as initrd system
+        requires the KIWI provided dracut-kiwi-oem-repart module
+        to be installed at the time dracut is called. Thus this
+        runtime check examines if the required package is part of
+        the package list in the image description.
+        """
+        message = dedent('''\n
+            Required dracut module package missing in package list
+
+            The package '{0}' is required for the selected
+            oem image type. Please add the following in your
+            <packages type="image"> section to your system XML
+            description:
+
+            <package name="{0}"/>
+        ''')
+        required_dracut_package = 'dracut-kiwi-oem-repart'
+        initrd_system = self.xml_state.get_initrd_system()
+        build_type = self.xml_state.get_build_type_name()
+        if build_type == 'oem' and initrd_system == 'dracut':
+            package_names = \
+                self.xml_state.get_bootstrap_packages() + \
+                self.xml_state.get_system_packages()
+            if required_dracut_package not in package_names:
+                raise KiwiRuntimeError(
+                    message.format(required_dracut_package)
+                )
+
     def check_dracut_module_for_live_iso_in_package_list(self):
         """
         Live ISO images uses a dracut initrd to boot and requires
