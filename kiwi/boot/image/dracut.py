@@ -22,19 +22,40 @@ from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.system.kernel import Kernel
 from kiwi.boot.image.base import BootImageBase
+from kiwi.defaults import Defaults
+from kiwi.system.profile import Profile
+from kiwi.system.setup import SystemSetup
 
 
 class BootImageDracut(BootImageBase):
     """
     Implements creation of dracut boot(initrd) images.
     """
+    def post_init(self):
+        """
+        Post initialization method
+
+        Initialize empty list of dracut caller options
+        """
+        self.dracut_options = []
+
+    def include_file(self, filename):
+        self.dracut_options.append('--install')
+        self.dracut_options.append(filename)
+
     def prepare(self):
         """
-        For dracut no further preparation steps are required.
-        dracut is called as chroot operation in the system tree.
-        No extra caller environment will be created in this case
+        Prepare kiwi profile environment to be included in dracut initrd
         """
-        pass
+        profile = Profile(self.xml_state)
+        defaults = Defaults()
+        defaults.to_profile(profile)
+        setup = SystemSetup(
+            self.xml_state, self.boot_root_directory
+        )
+        setup.import_shell_environment(profile)
+        self.dracut_options.append('--install')
+        self.dracut_options.append('/.profile')
 
     def create_initrd(self, mbrid=None):
         """
@@ -54,7 +75,8 @@ class BootImageDracut(BootImageBase):
                     'dracut', '--force',
                     '--no-hostonly',
                     '--no-hostonly-cmdline',
-                    '--xz',
+                    '--xz'
+                ] + self.dracut_options + [
                     dracut_initrd_basename,
                     kernel_details.version
                 ]

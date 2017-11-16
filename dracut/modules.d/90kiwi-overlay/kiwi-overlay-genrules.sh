@@ -1,6 +1,8 @@
 #!/bin/bash
 
-case "$root" in
+declare root=${root}
+
+case "${root}" in
     overlay:/dev/*)
     {
         printf 'KERNEL=="%s", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/kiwi-overlay-root %s"\n' \

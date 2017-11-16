@@ -2,23 +2,23 @@
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
-[ -z "$root" ] && root=$(getarg root=)
+[ -z "${root}" ] && root=$(getarg root=)
 
 if [ "${root%%:*}" = "overlay" ] ; then
-    overlayroot=$root
+    overlayroot=${root}
 fi
 
 [ "${overlayroot%%:*}" = "overlay" ] || exit 0
 
-case "$overlayroot" in
+case "${overlayroot}" in
     overlay:UUID=*|UUID=*) \
         root="${root#overlay:}"
-        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
         root="overlay:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
 esac
 
-[ "$rootok" != "1" ] && exit 0
+[ "${rootok}" != "1" ] && exit 0
 
 GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1

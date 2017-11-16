@@ -2,23 +2,23 @@
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
-[ -z "$root" ] && root=$(getarg root=)
+[ -z "${root}" ] && root=$(getarg root=)
 
 if [ "${root%%:*}" = "live" ] ; then
-    liveroot=$root
+    liveroot="${root}"
 fi
 
 [ "${liveroot%%:*}" = "live" ] || exit 0
 
-case "$liveroot" in
+case "${liveroot}" in
     live:CDLABEL=*|CDLABEL=*) \
         root="${root#live:}"
-        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
         root="live:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
 esac
 
-[ "$rootok" != "1" ] && exit 0
+[ "${rootok}" != "1" ] && exit 0
 
 GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1

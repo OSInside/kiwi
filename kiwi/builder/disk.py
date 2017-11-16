@@ -240,6 +240,10 @@ class DiskBuilder(object):
             self.raid_root = RaidDevice(device_map['root'])
             self.raid_root.create_degraded_raid(raid_level=self.mdraid)
             device_map['root'] = self.raid_root.get_device()
+            self.disk.public_partition_id_map['kiwi_RaidPart'] = \
+                self.disk.public_partition_id_map['kiwi_RootPart']
+            self.disk.public_partition_id_map['kiwi_RaidDev'] = \
+                device_map['root'].get_device()
 
         # create luks on current root device if requested
         if self.luks:
@@ -326,8 +330,8 @@ class DiskBuilder(object):
 
         self._write_generic_fstab_to_system_image(device_map)
 
-        if self.root_filesystem_is_overlay:
-            self._create_dracut_overlay_config()
+        if self.initrd_system == 'dracut':
+            self._create_dracut_config()
 
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
@@ -658,44 +662,62 @@ class DiskBuilder(object):
 
         return self.disk.get_device()
 
-    def _create_dracut_overlay_config(self):
-        overlay_config_file = ''.join(
-            [self.root_dir, '/etc/dracut.conf.d/02-overlay.conf']
+    def _create_dracut_config(self):
+        dracut_config_file = ''.join(
+            [self.root_dir, '/etc/dracut.conf.d/02-kiwi.conf']
         )
-        overlay_config = [
-            'add_dracutmodules+=" kiwi-overlay "',
+        dracut_config = [
             'hostonly="no"',
             'dracut_rescue_image="no"'
         ]
-        with open(overlay_config_file, 'w') as config:
-            for entry in overlay_config:
+        dracut_modules = []
+        if self.root_filesystem_is_overlay:
+            dracut_modules.append('kiwi-overlay')
+        if self.build_type_name == 'oem':
+            dracut_modules.append('kiwi-lib')
+            dracut_modules.append('kiwi-repart')
+        dracut_config.append(
+            'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
+        )
+        with open(dracut_config_file, 'w') as config:
+            for entry in dracut_config:
                 config.write(entry + os.linesep)
 
     def _write_partition_id_config_to_boot_image(self):
-        if self.initrd_system == 'kiwi':
-            log.info('Creating config.partids in boot system')
-            filename = ''.join(
-                [self.boot_image.boot_root_directory, '/config.partids']
-            )
-            partition_id_map = self.disk.get_public_partition_id_map()
-            with open(filename, 'w') as partids:
-                for id_name, id_value in list(partition_id_map.items()):
-                    partids.write('{0}="{1}"{2}'.format(
-                        id_name, id_value, os.linesep)
-                    )
+        log.info('Creating config.partids in boot system')
+        filename = ''.join(
+            [self.boot_image.boot_root_directory, '/config.partids']
+        )
+        partition_id_map = self.disk.get_public_partition_id_map()
+        with open(filename, 'w') as partids:
+            for id_name, id_value in list(partition_id_map.items()):
+                partids.write('{0}="{1}"{2}'.format(
+                    id_name, id_value, os.linesep)
+                )
+        self.boot_image.include_file(
+            os.sep + os.path.basename(filename)
+        )
 
     def _write_raid_config_to_boot_image(self):
         if self.mdraid:
             log.info('Creating etc/mdadm.conf in boot system')
-            self.raid_root.create_raid_config(
-                self.boot_image.boot_root_directory + '/etc/mdadm.conf'
+            filename = ''.join(
+                [self.boot_image.boot_root_directory, '/etc/mdadm.conf']
+            )
+            self.raid_root.create_raid_config(filename)
+            self.boot_image.include_file(
+                os.sep + os.sep.join(['etc', os.path.basename(filename)])
             )
 
     def _write_crypttab_to_system_image(self):
         if self.luks:
             log.info('Creating etc/crypttab')
-            self.luks_root.create_crypttab(
-                self.root_dir + '/etc/crypttab'
+            filename = ''.join(
+                [self.root_dir, '/etc/crypttab']
+            )
+            self.luks_root.create_crypttab(filename)
+            self.boot_image.include_file(
+                os.sep + os.sep.join(['etc', os.path.basename(filename)])
             )
 
     def _write_generic_fstab_to_system_image(self, device_map):
@@ -767,16 +789,22 @@ class DiskBuilder(object):
     def _write_recovery_metadata_to_boot_image(self):
         if os.path.exists(self.root_dir + '/recovery.partition.size'):
             log.info('Copying recovery metadata to boot image')
+            recovery_metadata = ''.join(
+                [self.root_dir, '/recovery.partition.size']
+            )
             Command.run(
-                [
-                    'cp', self.root_dir + '/recovery.partition.size',
-                    self.boot_image.boot_root_directory
-                ]
+                ['cp', recovery_metadata, self.boot_image.boot_root_directory]
+            )
+            self.boot_image.include_file(
+                os.sep + os.path.basename(recovery_metadata)
             )
 
     def _write_bootloader_config_to_system_image(self, device_map):
         if self.bootloader is not 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
+            boot_options = []
+            if self.mdraid:
+                boot_options.append('rd.auto')
             boot_names = self._get_boot_names()
             boot_device = device_map['root']
             if 'boot' in device_map:
@@ -793,7 +821,8 @@ class DiskBuilder(object):
                 boot_uuid=boot_uuid,
                 root_uuid=root_uuid,
                 kernel=boot_names.kernel_name,
-                initrd=boot_names.initrd_name
+                initrd=boot_names.initrd_name,
+                boot_options=' '.join(boot_options)
             )
             self.bootloader_config.write()
 

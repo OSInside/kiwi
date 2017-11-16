@@ -132,7 +132,7 @@ class Disk(DeviceProvider):
 
         Populates kiwi_RootPart(id) and kiwi_RaidPart(id) as well
         as the default raid device node at boot time which is
-        configured to be kiwi_RaidDev(/dev/md0)
+        configured to be kiwi_RaidDev(/dev/mdX)
 
         :param int mbsize: partition size
         """
@@ -140,7 +140,6 @@ class Disk(DeviceProvider):
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         self._add_to_public_id_map('kiwi_RaidPart')
-        self._add_to_public_id_map('kiwi_RaidDev', '/dev/md0')
 
     def create_root_readonly_partition(self, mbsize):
         """

@@ -151,7 +151,10 @@ class TestBootLoaderConfigZipl(object):
         self.bootloader.target_table_type = 'msdos'
         command_results = [
             self.command_type(output='bogus data\n'),
-            self.command_type(output='/dev/sda: 242251 cylinders, 256 heads, 63 sectors/track\n')
+            self.command_type(
+                output='/dev/sda: 242251 cylinders, 256 heads, '
+                '63 sectors/track\n'
+            )
         ]
 
         def side_effect(arg):
@@ -202,7 +205,7 @@ class TestBootLoaderConfigZipl(object):
 
         mock_command.side_effect = side_effect
 
-        self.bootloader.setup_disk_image_config()
+        self.bootloader.setup_disk_image_config(boot_options='foo')
 
         self.zipl.get_template.assert_called_once_with(True)
         self.template.substitute.assert_called_once_with(
@@ -214,10 +217,12 @@ class TestBootLoaderConfigZipl(object):
                 'kernel_file': 'linux.vmx',
                 'title': 'image-name_(_OEM_)',
                 'geometry': '10017,15,12',
-                'boot_options': 'cmdline',
+                'boot_options': 'cmdline foo',
                 'target_type': 'CDL',
                 'boot_timeout': '200',
-                'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume edd=off powersaved=off nohz=off highres=off processor.max+cstate=1 nomodeset x11failsafe',
+                'failsafe_boot_options': 'cmdline ide=nodma apm=off '
+                'noresume edd=off powersaved=off nohz=off highres=off '
+                'processor.max+cstate=1 nomodeset x11failsafe foo',
                 'default_boot': '1',
                 'bootpath': '.'
             }
@@ -227,14 +232,27 @@ class TestBootLoaderConfigZipl(object):
     def test_setup_disk_image_config_fcp(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
         command_results = [
-            self.command_type(output='/dev/sda: 242251 cylinders, 256 heads, 63 sectors/track\n'),
-            self.command_type(output='/dev/sda: 242251 cylinders, 256 heads, 63 sectors/track\n'),
-            self.command_type(output='/dev/sda: 242251 cylinders, 256 heads, 63 sectors/track\n'),
-            self.command_type(output='''BYT;
-/dev/sda:312500000s:scsi:512:512:msdos:ATA WDC WD1600HLFS-7;
-1:2048s:251660287s:251658240s:ext4::type=83;
-2:251660288s:312499999s:60839712s:linux-swap(v1)::type=82;'''),
-            self.command_type(output='/dev/sda: 242251 cylinders, 256 heads, 63 sectors/track\n')
+            self.command_type(
+                output='/dev/sda: 242251 cylinders, 256 heads, '
+                '63 sectors/track\n'
+            ),
+            self.command_type(
+                output='/dev/sda: 242251 cylinders, 256 heads, '
+                '63 sectors/track\n'
+            ),
+            self.command_type(
+                output='/dev/sda: 242251 cylinders, 256 heads, '
+                '63 sectors/track\n'
+            ),
+            self.command_type(
+                output='BYT; /dev/sda:312500000s:scsi:512:512:msdos:ATA '
+                'WDC WD1600HLFS-7; 1:2048s:251660287s:251658240s:ext4::type=83;'
+                ' 2:251660288s:312499999s:60839712s:linux-swap(v1)::type=82;'
+            ),
+            self.command_type(
+                output='/dev/sda: 242251 cylinders, 256 heads, '
+                '63 sectors/track\n'
+            )
         ]
 
         def side_effect(arg):
@@ -254,10 +272,12 @@ class TestBootLoaderConfigZipl(object):
                 'kernel_file': 'linux.vmx',
                 'title': 'image-name_(_OEM_)',
                 'geometry': '242251,256,63',
-                'boot_options': 'cmdline',
+                'boot_options': 'cmdline ',
                 'target_type': 'CDL',
                 'boot_timeout': '200',
-                'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume edd=off powersaved=off nohz=off highres=off processor.max+cstate=1 nomodeset x11failsafe',
+                'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume '
+                'edd=off powersaved=off nohz=off highres=off '
+                'processor.max+cstate=1 nomodeset x11failsafe ',
                 'default_boot': '1',
                 'bootpath': '.'
             }

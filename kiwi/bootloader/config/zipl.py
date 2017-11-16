@@ -147,7 +147,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
 
     def setup_disk_image_config(
         self, boot_uuid=None, root_uuid=None, hypervisor=None,
-        kernel='linux.vmx', initrd='initrd.vmx'
+        kernel='linux.vmx', initrd='initrd.vmx', boot_options=''
     ):
         """
         Create the zipl config in memory from a template suitable to
@@ -172,8 +172,10 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             'title': self.quote_title(self.get_menu_entry_title()),
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe
+            'boot_options': ' '.join([self.cmdline, boot_options]),
+            'failsafe_boot_options': ' '.join(
+                [self.cmdline_failsafe, boot_options]
+            )
         }
         log.info('--> Using standard disk boot template')
         template = self.zipl.get_template(self.failsafe_boot)
