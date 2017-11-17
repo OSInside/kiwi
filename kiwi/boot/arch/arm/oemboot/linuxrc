@@ -418,7 +418,7 @@ if [ ! -z "$KIWI_RECOVERY" ];then
                 Echo "Failed to backup zypp database"
                 exit 1
             fi
-            rpmdb=$(chroot /mnt rpm -E %_dbpath)
+            rpmdb=$(chroot /mnt rpm -E '%_dbpath')
             if [ ! $? = 0 ] || [ -z "$rpmdb" ]; then
                 Echo "Failed to backup RPM database"
                 exit 1
