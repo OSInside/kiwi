@@ -67,7 +67,6 @@
         <package name="blktrace"/>
         <package name="cifs-utils"/>
         <package name="command-not-found"/>
-        <package name="crash"/>
         <package name="cryptconfig"/>
         <package name="curl"/>
 <!-- Authentication functionality -->
