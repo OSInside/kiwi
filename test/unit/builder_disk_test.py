@@ -27,7 +27,14 @@ class TestDiskBuilder(object):
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
-        mock_exists.return_value = True
+
+        def side_effect(filename):
+            if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            else:
+                return True
+
+        mock_exists.side_effect = side_effect
         description = XMLDescription(
             '../data/example_disk_config.xml'
         )
@@ -177,9 +184,8 @@ class TestDiskBuilder(object):
         self.disk_builder.build_type_name = 'oem'
         self.disk_builder.image_format = None
 
-    @patch('os.path.exists')
     @patch('platform.machine')
-    def test_setup_ix86(self, mock_machine, mock_exists):
+    def test_setup_ix86(self, mock_machine):
         mock_machine.return_value = 'i686'
         description = XMLDescription(
             '../data/example_disk_config.xml'

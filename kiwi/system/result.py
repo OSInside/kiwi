@@ -21,6 +21,9 @@ import os
 
 # project
 from kiwi.logger import log
+from kiwi.runtime_config import RuntimeConfig
+from kiwi.utils.size import StringToSize
+
 
 from kiwi.exceptions import (
     KiwiResultError
@@ -56,6 +59,7 @@ class Result(object):
         self.class_version = 1
 
         self.xml_state = xml_state
+        self.runtime_config = RuntimeConfig()
 
     def add(
         self, key, filename, use_for_bundle=True, compress=False, shasum=True
@@ -70,6 +74,7 @@ class Result(object):
         :param bool shasum: create shasum when bundling true|false
         """
         if key and filename:
+            self._verify_build_constraints(filename, key)
             self.result_files[key] = result_file_type(
                 filename=filename,
                 use_for_bundle=use_for_bundle,
@@ -124,3 +129,13 @@ class Result(object):
             raise KiwiResultError(
                 'Failed to pickle load results: %s' % type(e).__name__
             )
+
+    def _verify_build_constraints(self, filename, key):
+        max_size = self.runtime_config.get_max_size_constraint()
+        if max_size:
+            max_size_bytes = StringToSize.to_bytes(max_size)
+            if os.path.getsize(filename) > max_size_bytes:
+                raise KiwiResultError(
+                    'Build constraint failed: {0} {1} is bigger than {2}'
+                    .format(key, filename, max_size)
+                )

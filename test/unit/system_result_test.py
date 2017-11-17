@@ -86,3 +86,22 @@ class TestResult(object):
         mock_exists.return_value = True
         mock_pickle_load.side_effect = Exception
         Result.load('kiwi.result')
+
+    @patch('os.path.getsize')
+    @patch('kiwi.runtime_config.RuntimeConfig.get_max_size_constraint')
+    def test_build_constraint(self, mock_size_constraint, mock_getsize):
+        mock_size_constraint.return_value = '500m'
+        mock_getsize.return_value = 524288000
+        self.result.add('foo', 'bar')
+        result = self.result.get_results()
+        assert result['foo'].filename == 'bar'
+        assert result['foo'].use_for_bundle is True
+        assert result['foo'].compress is False
+
+    @patch('os.path.getsize')
+    @patch('kiwi.runtime_config.RuntimeConfig.get_max_size_constraint')
+    @raises(KiwiResultError)
+    def test_build_constraint_failure(self, mock_size_constraint, mock_getsize):
+        mock_size_constraint.return_value = '499m'
+        mock_getsize.return_value = 524288000
+        self.result.add('foo', 'bar')

@@ -766,3 +766,10 @@ class KiwiContainerBuilderError(KiwiError):
     Exception is raised when something fails during a container image
     build procedure.
     """
+
+
+class KiwiSizeError(KiwiError):
+    """
+    Exception is raised when the convertion from a given size in string
+    format to a number.
+    """

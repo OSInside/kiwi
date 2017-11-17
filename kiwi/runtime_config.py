@@ -96,6 +96,23 @@ class RuntimeConfig(object):
         xz_options = self._get_attribute(element='xz', attribute='options')
         return xz_options.split() if xz_options else None
 
+    def get_max_size_constraint(self):
+        """
+        Returns the maximum allowed size of the built image. The value is
+        a size in bytes or it can be specified with m=MB or g=GB.
+
+        build_constraints:
+          - max_size: ...
+
+        if no configuration exists None is returned
+
+        :rtype: list
+        """
+        max_size = self._get_attribute(
+            element='build_constraints', attribute='max_size'
+        )
+        return max_size if max_size else None
+
     def _get_attribute(self, element, attribute):
         if self.config_data:
             try:

@@ -14,7 +14,6 @@ class TestContainerBuilder(object):
     @patch('platform.machine')
     @patch('os.path.exists')
     def setup(self, mock_exists, mock_machine):
-        mock_exists.return_value = True
         mock_machine.return_value = 'x86_64'
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.uri = Uri('file:///image_file.tar.xz')
@@ -40,18 +39,22 @@ class TestContainerBuilder(object):
         kiwi.builder.container.SystemSetup = mock.Mock(
             return_value=self.setup
         )
+
+        def side_effect(filename):
+            if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            else:
+                return True
+
+        mock_exists.side_effect = side_effect
+
         self.container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
         self.container.result = mock.Mock()
 
-    @patch('os.path.exists')
-    def test_init_derived(self, mock_exists):
-        mock_exists.return_value = True
-        builder = ContainerBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
-        assert builder.base_image == 'root_dir/image/imported_root'
+    def test_init_derived(self):
+        assert self.container.base_image == 'root_dir/image/imported_root'
 
     @patch('os.path.exists')
     @raises(KiwiContainerBuilderError)
@@ -64,7 +67,7 @@ class TestContainerBuilder(object):
     @patch('os.path.exists')
     @raises(KiwiContainerBuilderError)
     def test_init_derived_base_image_md5_not_existing(self, mock_exists):
-        exists_results = [False, True]
+        exists_results = [False, False, True]
 
         def side_effect(self):
             return exists_results.pop()
@@ -81,7 +84,14 @@ class TestContainerBuilder(object):
     def test_create_derived_checksum_match_failed(
         self, mock_exists, mock_image, mock_checksum
     ):
-        mock_exists.return_value = True
+        def side_effect(filename):
+            if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            else:
+                return True
+
+        mock_exists.side_effect = side_effect
+
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
@@ -149,7 +159,14 @@ class TestContainerBuilder(object):
     @patch('kiwi.builder.container.ContainerImage')
     @patch('os.path.exists')
     def test_create_derived(self, mock_exists, mock_image, mock_checksum):
-        mock_exists.return_value = True
+        def side_effect(filename):
+            if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            else:
+                return True
+
+        mock_exists.side_effect = side_effect
+
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
