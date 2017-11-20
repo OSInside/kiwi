@@ -279,6 +279,13 @@ class TestBootLoaderConfigIsoLinux(object):
             ),
             call(
                 [
+                    'gfxboot',
+                    '--config-file', 'root_dir/image/loader//gfxboot.cfg',
+                    '--change-config', 'install::autodown=0'
+                ]
+            ),
+            call(
+                [
                     'cp',
                     'root_dir/etc/bootsplash/themes/openSUSE/' +
                     'bootloader/message', 'root_dir/image/loader/'

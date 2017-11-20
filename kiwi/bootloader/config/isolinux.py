@@ -306,6 +306,14 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
                 Command.run(
                     ['bash', '-c', bash_command]
                 )
+                # don't move down one menu entry the first time a F-key is used
+                Command.run(
+                    [
+                        'gfxboot',
+                        '--config-file', loader_data + '/gfxboot.cfg',
+                        '--change-config', 'install::autodown=0'
+                    ]
+                )
 
             if os.path.exists(theme_path + '/bootloader/message'):
                 Command.run(
