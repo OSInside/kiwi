@@ -422,10 +422,12 @@ if [ ! -z "$KIWI_RECOVERY" ];then
                 Echo "Failed to backup zypp database"
                 exit 1
             fi
-            rpmdb=usr/lib/rpm
-            if [ ! -d "$rpm" ]; then
-                rpmdb=var/lib/rpm
+            rpmdb=$(chroot /mnt rpm -E '%_dbpath')
+            if [ ! $? = 0 ] || [ -z "$rpmdb" ]; then
+                Echo "Failed to backup RPM database"
+                exit 1
             fi
+            rpmdb=${rpmdb##\/}
             if ! cp -a $rpmdb ${rpmdb}.backup;then
                 rm -rf ${rpmdb}.backup; cd / ; umountSystem
                 Echo "Failed to backup RPM database"
