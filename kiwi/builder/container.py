@@ -27,6 +27,7 @@ from kiwi.system.result import Result
 from kiwi.utils.checksum import Checksum
 from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiContainerBuilderError
+from kiwi.runtime_config import RuntimeConfig
 
 
 class ContainerBuilder(object):
@@ -94,6 +95,7 @@ class ContainerBuilder(object):
             ]
         )
         self.result = Result(xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def create(self):
         """
@@ -130,6 +132,10 @@ class ContainerBuilder(object):
         )
         container_image.create(
             self.filename, self.base_image
+        )
+        self.result.verify_image_size(
+            self.runtime_config.get_max_size_constraint(),
+            self.filename
         )
         self.result.add(
             key='container',

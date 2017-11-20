@@ -26,6 +26,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
 from kiwi.logger import log
 from kiwi.system.result import Result
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiFileSystemSetupError
@@ -110,6 +111,7 @@ class FileSystemBuilder(object):
             'squashfs'
         ]
         self.result = Result(xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def create(self):
         """
@@ -135,6 +137,10 @@ class FileSystemBuilder(object):
             self._operate_on_loop()
         else:
             self._operate_on_file()
+        self.result.verify_image_size(
+            self.runtime_config.get_max_size_constraint(),
+            self.filename
+        )
         self.result.add(
             key='filesystem_image',
             filename=self.filename,

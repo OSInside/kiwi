@@ -24,6 +24,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.utils.checksum import Checksum
 from kiwi.logger import log
 from kiwi.system.result import Result
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiArchiveSetupError
@@ -63,6 +64,8 @@ class ArchiveBuilder(object):
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
+        self.runtime_config = RuntimeConfig()
+
     def create(self):
         """
         Create a root archive tarball
@@ -91,6 +94,10 @@ class ArchiveBuilder(object):
             checksum = Checksum(self.filename)
             log.info('--> Creating archive checksum')
             checksum.md5(self.checksum)
+            self.result.verify_image_size(
+                self.runtime_config.get_max_size_constraint(),
+                self.filename
+            )
             self.result.add(
                 key='root_archive',
                 filename=self.filename,

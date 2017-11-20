@@ -47,6 +47,7 @@ from kiwi.storage.subformat import DiskFormat
 from kiwi.system.result import Result
 from kiwi.utils.block import BlockID
 from kiwi.path import Path
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiDiskBootImageError,
@@ -154,6 +155,7 @@ class DiskBuilder(object):
 
         # result store
         self.result = Result(xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def create(self):
         """
@@ -416,6 +418,10 @@ class DiskBuilder(object):
                 self.target_dir + '/boot_image.pickledump'
             )
 
+        self.result.verify_image_size(
+            self.runtime_config.get_max_size_constraint(),
+            self.diskname
+        )
         # store image file name in result
         self.result.add(
             key='disk_image',
