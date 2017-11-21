@@ -124,3 +124,19 @@ class Result(object):
             raise KiwiResultError(
                 'Failed to pickle load results: %s' % type(e).__name__
             )
+
+    def verify_image_size(self, size_limit, filename):
+        """
+        Verifies the given image file does not exceed the size limit.
+        Throws an exception if the limit is exceeded. If the size limit
+        is set to None no verification is done.
+
+        :param int size_limit: The size limit for filename in bytes.
+        :param string filename: File to verify.
+        """
+        if size_limit is not None:
+            if os.path.getsize(filename) > size_limit:
+                raise KiwiResultError(
+                    'Build constraint failed: {0} is bigger than {1}'
+                    .format(filename, size_limit)
+                )

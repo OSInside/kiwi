@@ -29,6 +29,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.system.kernel import Kernel
 from kiwi.logger import log
 from kiwi.system.result import Result
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiPxeBootImageError
@@ -89,6 +90,7 @@ class PxeBuilder(object):
         self.kernel_filename = None
         self.hypervisor_filename = None
         self.result = Result(xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def create(self):
         """
@@ -189,6 +191,10 @@ class PxeBuilder(object):
         ]
         Command.run(['bash', '-c', ' '.join(bash_command)])
 
+        self.result.verify_image_size(
+            self.runtime_config.get_max_size_constraint(),
+            self.archive_name
+        )
         # store results
         self.result.add(
             key='pxe_archive',

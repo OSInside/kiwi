@@ -43,8 +43,6 @@ options:
     --target-dir=<directory>
         the target directory to expect image build results
 """
-import re
-import math
 import os
 
 # project
@@ -52,6 +50,7 @@ from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.logger import log
 from kiwi.storage.subformat import DiskFormat
+from kiwi.utils.size import StringToSize
 
 from kiwi.exceptions import (
     KiwiImageResizeError
@@ -106,7 +105,7 @@ class ImageResizeTask(CliTask):
                 )
             )
 
-        new_disk_size = self._to_bytes(self.command_args['--size'])
+        new_disk_size = StringToSize.to_bytes(self.command_args['--size'])
 
         log.info(
             'Resizing raw disk to {0} bytes'.format(new_disk_size)
@@ -123,16 +122,3 @@ class ImageResizeTask(CliTask):
             log.info(
                 'Raw disk is already at {0} bytes'.format(new_disk_size)
             )
-
-    def _to_bytes(self, size_value):
-        size_format = '^(\d+)([gGmM]{0,1})$'
-        size = re.search(size_format, size_value)
-        if not size:
-            raise KiwiImageResizeError(
-                'unsupported size format {0}, must match {1}'.format(
-                    size_value, size_format
-                )
-            )
-        size_base = int(size.group(1))
-        size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())
-        return size_unit and size_base * math.pow(0x400, size_unit) or size_base

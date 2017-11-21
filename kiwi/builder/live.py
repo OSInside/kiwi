@@ -38,6 +38,7 @@ from kiwi.iso import Iso
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.system.kernel import Kernel
 from kiwi.logger import log
+from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiLiveBootImageError
@@ -105,6 +106,7 @@ class LiveImageBuilder(object):
             ]
         )
         self.result = Result(xml_state)
+        self.runtime_config = RuntimeConfig()
 
     def create(self):
         """
@@ -262,6 +264,10 @@ class LiveImageBuilder(object):
         if self.xml_state.build_type.get_mediacheck() is True:
             Iso.set_media_tag(self.isoname)
 
+        self.result.verify_image_size(
+            self.runtime_config.get_max_size_constraint(),
+            self.isoname
+        )
         self.result.add(
             key='live_image',
             filename=self.isoname,

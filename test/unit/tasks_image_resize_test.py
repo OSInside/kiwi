@@ -7,7 +7,11 @@ import kiwi
 
 from .test_helper import raises, patch, argv_kiwi_tests
 
-from kiwi.exceptions import KiwiImageResizeError, KiwiConfigFileNotFound
+from kiwi.exceptions import (
+    KiwiImageResizeError,
+    KiwiSizeError,
+    KiwiConfigFileNotFound
+)
 
 from kiwi.tasks.image_resize import ImageResizeTask
 
@@ -57,7 +61,7 @@ class TestImageResizeTask(object):
         self.task.command_args['resize'] = True
         self.task.process()
 
-    @raises(KiwiImageResizeError)
+    @raises(KiwiSizeError)
     def test_process_unsupported_size_format(self):
         self._init_command_args()
         self.task.command_args['--size'] = '20x'

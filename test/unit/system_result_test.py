@@ -86,3 +86,14 @@ class TestResult(object):
         mock_exists.return_value = True
         mock_pickle_load.side_effect = Exception
         Result.load('kiwi.result')
+
+    @patch('os.path.getsize')
+    def test_build_constraint(self, mock_getsize):
+        mock_getsize.return_value = 524288000
+        self.result.verify_image_size(524288000, 'foo')
+
+    @patch('os.path.getsize')
+    @raises(KiwiResultError)
+    def test_build_constraint_failure(self, mock_getsize):
+        mock_getsize.return_value = 524288000
+        self.result.verify_image_size(524287999, 'foo')
