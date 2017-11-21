@@ -28,6 +28,12 @@ class TestXMLState(object):
         self.boot_state = XMLState(
             boot_description.load()
         )
+        no_image_packages_description = XMLDescription(
+            '../data/example_no_image_packages_config.xml'
+        )
+        self.no_image_packages_boot_state = XMLState(
+            no_image_packages_description.load()
+        )
 
     def test_build_type_primary_selected(self):
         assert self.state.get_build_type_name() == 'oem'
@@ -62,7 +68,10 @@ class TestXMLState(object):
 
     def test_get_bootstrap_packages(self):
         assert self.state.get_bootstrap_packages() == [
-            'filesystem'
+            'filesystem', 'zypper'
+        ]
+        assert self.no_image_packages_boot_state.get_bootstrap_packages() == [
+            'patterns-openSUSE-base'
         ]
 
     def test_get_system_packages(self):

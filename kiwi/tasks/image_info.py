@@ -89,8 +89,7 @@ class ImageInfoTask(CliTask):
 
         if self.command_args['--resolve-package-list']:
             solver = self._setup_solver()
-            boostrap_package_list = self.xml_state.get_bootstrap_packages() + \
-                [self.xml_state.get_package_manager()]
+            boostrap_package_list = self.xml_state.get_bootstrap_packages()
             package_list = boostrap_package_list + \
                 self.xml_state.get_system_packages()
             bootstrap_packages = solver.solve(
