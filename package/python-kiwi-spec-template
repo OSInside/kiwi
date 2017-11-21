@@ -351,6 +351,7 @@ Requires:       dialog
 Requires:       xfsprogs
 Requires:       e2fsprogs
 Requires:       util-linux
+Requires:       device-mapper
 Requires:       dracut
 %if 0%{?fedora} || 0%{?rhel}
 Requires:       genisoimage
