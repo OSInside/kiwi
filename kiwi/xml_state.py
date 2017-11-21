@@ -275,6 +275,10 @@ class XMLState(object):
         """
         List of packages from the type="bootstrap" packages section(s)
 
+        The list gets the selected package manager appended
+        if there is a request to install packages inside of
+        the image via a chroot operation
+
         :return: package names
         :rtype: list
         """
@@ -286,6 +290,8 @@ class XMLState(object):
         if package_list:
             for package in package_list:
                 result.append(package.package_section.get_name())
+            if self.get_system_packages():
+                result.append(self.get_package_manager())
         return sorted(list(set(result)))
 
     def get_system_packages(self):

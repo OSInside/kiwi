@@ -172,9 +172,6 @@ class SystemPrepare(object):
 
         log.info('Installing bootstrap packages')
         bootstrap_packages = self.xml_state.get_bootstrap_packages()
-        bootstrap_packages.append(
-            self.xml_state.get_package_manager()
-        )
         collection_type = self.xml_state.get_bootstrap_collection_type()
         log.info('--> collection type: %s', collection_type)
         bootstrap_collections = self.xml_state.get_bootstrap_collections()
