@@ -71,7 +71,7 @@
 
 # Tumbleweed:
 # Current Tumbleweed version, moving target
-%if 0%{?suse_version} == 1330
+%if 0%{?suse_version} >= 1330 && !0{?sle_version}
 %define distro suse-tumbleweed
 %endif
 
