@@ -202,7 +202,6 @@
 <!-- framework specific packages -->
         <package name="azuremetadata"/>
         <package name="hyper-v"/>
-        <package name="python-azurectl"/>
 <!-- instance initialization -->
         <package name="python-azure-agent"/>
 <!-- instance registration -->
