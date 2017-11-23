@@ -260,7 +260,7 @@ To prepare Git to sign commits, follow these one-time instructions:
 Raising Versions
 ~~~~~~~~~~~~~~~~
 
-The KIWI project follows the `Semantic Versioning <http://semver.org>`__
+The KIWI project follows the `Semantic Versioning <https://semver.org>`__
 method. To make it easier to follow this method, :command:`bumpversion` is
 used as a tool.
 
