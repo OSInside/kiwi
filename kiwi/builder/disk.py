@@ -28,7 +28,6 @@ from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.bootloader.install import BootLoaderInstall
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.boot.image import BootImage
-from kiwi.boot.image import BootImageKiwi
 from kiwi.storage.setup import DiskSetup
 from kiwi.storage.loop_device import LoopDevice
 from kiwi.firmware import FirmWare
@@ -392,31 +391,6 @@ class DiskBuilder(object):
 
         # prepare for install media if requested
         if self.install_media:
-            if self.initrd_system == 'dracut':
-                # for the installation process we need a kiwi initrd
-                # Therefore an extra install boot root system needs to
-                # be prepared if dracut was set as the initrd system
-                # to boot the system image
-                log.info('Preparing extra install boot system')
-
-                self.xml_state.build_type.set_initrd_system('kiwi')
-                self.initrd_system = self.xml_state.get_initrd_system()
-
-                self.boot_image = BootImageKiwi(
-                    self.xml_state, self.target_dir,
-                    signing_keys=self.signing_keys
-                )
-
-                self.boot_image.prepare()
-
-                # apply disk builder metadata also needed in the install initrd
-                self._write_partition_id_config_to_boot_image()
-                self._write_recovery_metadata_to_boot_image()
-                self._write_raid_config_to_boot_image()
-                self.system_setup.export_modprobe_setup(
-                    self.boot_image.boot_root_directory
-                )
-
             log.info('Saving boot image instance to file')
             self.boot_image.dump(
                 self.target_dir + '/boot_image.pickledump'
@@ -677,6 +651,7 @@ class DiskBuilder(object):
             'dracut_rescue_image="no"'
         ]
         dracut_modules = []
+        dracut_modules_omit = ['kiwi-dump']
         if self.root_filesystem_is_overlay:
             dracut_modules.append('kiwi-overlay')
         if self.build_type_name == 'oem':
@@ -684,6 +659,9 @@ class DiskBuilder(object):
             dracut_modules.append('kiwi-repart')
         dracut_config.append(
             'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
+        )
+        dracut_config.append(
+            'omit_dracutmodules+=" {0} "'.format(' '.join(dracut_modules_omit))
         )
         with open(dracut_config_file, 'w') as config:
             for entry in dracut_config:
@@ -831,6 +809,20 @@ class DiskBuilder(object):
                 boot_options=' '.join(boot_options)
             )
             self.bootloader_config.write()
+
+            log.info('Creating config.bootoptions')
+            filename = ''.join(
+                [self.boot_image.boot_root_directory, '/config.bootoptions']
+            )
+            kexec_boot_options = ' '.join(
+                [
+                    self.bootloader_config.get_boot_cmdline(root_uuid)
+                ] + boot_options
+            )
+            with open(filename, 'w') as boot_options:
+                boot_options.write(
+                    '{0}{1}'.format(kexec_boot_options, os.linesep)
+                )
 
         partition_id_map = self.disk.get_public_partition_id_map()
         boot_partition_id = partition_id_map['kiwi_RootPart']

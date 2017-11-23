@@ -134,6 +134,9 @@ class TestDiskBuilder(object):
             return_value=self.bootloader_install
         )
         self.bootloader_config = mock.Mock()
+        self.bootloader_config.get_boot_cmdline = mock.Mock(
+            return_value='boot_cmdline'
+        )
         kiwi.builder.disk.BootLoaderConfig = mock.MagicMock(
             return_value=self.bootloader_config
         )
@@ -158,11 +161,6 @@ class TestDiskBuilder(object):
         self.setup = mock.Mock()
         kiwi.builder.disk.SystemSetup = mock.Mock(
             return_value=self.setup
-        )
-        self.boot_image_kiwi = mock.Mock()
-        self.boot_image_kiwi.boot_root_directory = 'boot_dir_kiwi'
-        kiwi.builder.disk.BootImageKiwi = mock.Mock(
-            return_value=self.boot_image_kiwi
         )
         self.install_image = mock.Mock()
         kiwi.builder.disk.InstallImageBuilder = mock.Mock(
@@ -336,15 +334,17 @@ class TestDiskBuilder(object):
                 'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ])
-        assert mock_open.call_args_list[0:3] == [
+        assert mock_open.call_args_list[0:4] == [
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
+            call('boot_dir/config.bootoptions', 'w'),
             call('/dev/some-loop', 'wb')
         ]
         assert self.file_mock.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
+            call('boot_cmdline\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f')),
         ]
         assert mock_command.call_args_list == [
@@ -379,13 +379,6 @@ class TestDiskBuilder(object):
         self.disk_builder.create_disk()
 
         self.setup.create_recovery_archive.assert_called_once_with()
-        call = self.setup.export_modprobe_setup.call_args_list[0]
-        assert self.setup.export_modprobe_setup.call_args_list[0] == \
-            call('boot_dir')
-        call = self.setup.export_modprobe_setup.call_args_list[1]
-        assert self.setup.export_modprobe_setup.call_args_list[1] == \
-            call('boot_dir_kiwi')
-
         self.setup.set_selinux_file_contexts.assert_called_once_with(
             '/etc/selinux/targeted/contexts/files/file_contexts'
         )
@@ -423,10 +416,7 @@ class TestDiskBuilder(object):
             'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
             '/dev/boot-device'
         )
-
-        self.boot_image_kiwi.prepare.assert_called_once_with()
         self.boot_image_task.prepare.assert_called_once_with()
-
         call = filesystem.create_on_device.call_args_list[0]
         assert filesystem.create_on_device.call_args_list[0] == \
             call(label='EFI')
@@ -453,8 +443,8 @@ class TestDiskBuilder(object):
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
             call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
-            call('/dev/some-loop', 'wb'),
-            call('boot_dir_kiwi/config.partids', 'w')
+            call('boot_dir/config.bootoptions', 'w'),
+            call('/dev/some-loop', 'wb')
         ]
         assert self.file_mock.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),
@@ -463,14 +453,13 @@ class TestDiskBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
-            call(bytes(b'\x0f\x0f\x0f\x0f')),
-            call('kiwi_BootPart="1"\n'),
-            call('kiwi_RootPart="1"\n')
+            call('omit_dracutmodules+=" kiwi-dump "\n'),
+            call('boot_cmdline\n'),
+            call(bytes(b'\x0f\x0f\x0f\x0f'))
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
-            call(['cp', 'root_dir/recovery.partition.size', 'boot_dir_kiwi'])
+            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img'])
         ]
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
@@ -478,6 +467,7 @@ class TestDiskBuilder(object):
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
+        print(self.boot_image_task.include_file.call_args_list)
         assert self.boot_image_task.include_file.call_args_list == [
             call('/config.partids'),
             call('/recovery.partition.size')
@@ -576,9 +566,9 @@ class TestDiskBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
-            call(b'\x0f\x0f\x0f\x0f'),
-            call('kiwi_BootPart="1"\n'),
-            call('kiwi_RootPart="1"\n')
+            call('omit_dracutmodules+=" kiwi-dump "\n'),
+            call('boot_cmdline\n'),
+            call(b'\x0f\x0f\x0f\x0f')
         ]
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -724,7 +714,8 @@ class TestDiskBuilder(object):
             'root_dir/etc/crypttab'
         )
         assert self.boot_image_task.include_file.call_args_list == [
-            call('/config.partids'), call('/etc/crypttab')
+            call('/config.partids'),
+            call('/etc/crypttab')
         ]
 
     @patch('kiwi.builder.disk.FileSystem')

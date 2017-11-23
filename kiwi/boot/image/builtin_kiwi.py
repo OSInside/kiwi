@@ -104,11 +104,12 @@ class BootImageKiwi(BootImageBase):
         self.setup.call_image_script()
         self.setup.create_init_link_from_linuxrc()
 
-    def create_initrd(self, mbrid=None):
+    def create_initrd(self, mbrid=None, basename=None):
         """
         Create initrd from prepared boot system tree and compress the result
 
         :param object mbrid: instance of ImageIdentifier
+        :param string basename: base initrd file name
         """
         if self.is_prepared():
             log.info('Creating initrd cpio archive')
@@ -119,6 +120,10 @@ class BootImageKiwi(BootImageBase):
             # boot directory should not be changed because we rely
             # on other data in boot/ e.g the kernel to be available
             # for the entire image building process
+            if basename:
+                kiwi_initrd_basename = basename
+            else:
+                kiwi_initrd_basename = self.initrd_base_name
             temp_boot_root_directory = mkdtemp(
                 prefix='kiwi_boot_root_copy.'
             )
@@ -143,7 +148,7 @@ class BootImageKiwi(BootImageBase):
                 mbrid.write(image_identifier)
 
             cpio = ArchiveCpio(
-                os.sep.join([self.target_dir, self.initrd_base_name])
+                os.sep.join([self.target_dir, kiwi_initrd_basename])
             )
             # the following is a list of directories which were needed
             # during the process of creating an image but not when the
@@ -165,7 +170,7 @@ class BootImageKiwi(BootImageBase):
                 '--> xz compressing archive'
             )
             compress = Compress(
-                os.sep.join([self.target_dir, self.initrd_base_name])
+                os.sep.join([self.target_dir, kiwi_initrd_basename])
             )
             compress.xz(
                 ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']

@@ -57,18 +57,23 @@ class BootImageDracut(BootImageBase):
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 
-    def create_initrd(self, mbrid=None):
+    def create_initrd(self, mbrid=None, basename=None):
         """
         Call dracut as chroot operation to create the initrd and move
         the result into the image build target directory
 
         :param object mbrid: unused
+        :param string basename: base initrd file name
         """
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')
             kernel_info = Kernel(self.boot_root_directory)
             kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
-            dracut_initrd_basename = self.initrd_base_name + '.xz'
+            if basename:
+                dracut_initrd_basename = basename
+            else:
+                dracut_initrd_basename = self.initrd_base_name
+            dracut_initrd_basename += '.xz'
             Command.run(
                 [
                     'chroot', self.boot_root_directory,

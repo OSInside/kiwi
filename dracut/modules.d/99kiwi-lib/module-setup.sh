@@ -20,7 +20,7 @@ install() {
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
-        mdadm cryptsetup
+        mdadm cryptsetup dialog
     if [[ "$(uname -m)" =~ s390 ]];then
         inst_multiple fdasd
     fi
