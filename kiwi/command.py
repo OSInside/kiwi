@@ -113,7 +113,7 @@ class Command(object):
         )
 
     @classmethod
-    def call(self, command, custom_env=None):
+    def call(self, command, custom_env=None, return_code_handler=None):
         """
         Execute a program and return an io file handle pair back.
         stdout and stderr are both on different channels. The caller
@@ -179,7 +179,7 @@ class Command(object):
             'command', [
                 'output', 'output_available',
                 'error', 'error_available',
-                'process'
+                'process', 'return_code_handler'
             ]
         )
         return command(
@@ -187,5 +187,6 @@ class Command(object):
             output_available=output_available(),
             error=process.stderr,
             error_available=error_available(),
-            process=process
+            process=process,
+            return_code_handler=return_code_handler
         )

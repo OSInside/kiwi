@@ -29,6 +29,7 @@ usage: kiwi system prepare -h | --help
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
            [--signing-key=<key-file>...]
+           [--ignore-rpm-postscript-errors]
        kiwi system prepare help
 
 commands:
@@ -78,8 +79,10 @@ options:
         priority and the imageinclude flag set to true|false which
         indicates if this repository should be part of the system
         image repository setup or not
-     --signing-key=<key-file>
+    --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
+    --ignore-rpm-postscript-errors
+        ignore postscript failures of packages installed with zypper 
 """
 import os
 
@@ -177,9 +180,11 @@ class SystemPrepareTask(CliTask):
             self.command_args['--clear-cache'],
             self.command_args['--signing-key']
         )
-        system.install_bootstrap(manager)
+        system.install_bootstrap(
+            manager, self.command_args['--ignore-rpm-postscript-errors']
+        )
         system.install_system(
-            manager
+            manager, self.command_args['--ignore-rpm-postscript-errors']
         )
         if package_requests:
             if self.command_args['--add-package']:

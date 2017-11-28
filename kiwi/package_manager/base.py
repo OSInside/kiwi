@@ -203,6 +203,17 @@ class PackageManagerBase(object):
         """
         raise NotImplementedError
 
+    def ignore_postscript_errors(self):
+        """
+        Ignores the %post install script errors of rpm packages.
+
+        Implementation in specialized package manager class
+        """
+        raise NotImplementedError(
+            'Flag --ingore-rpm-postscript-error is currently only supported '
+            'for zypper package manager'
+        )
+
     def cleanup_requests(self):
         """
         Cleanup request queues
