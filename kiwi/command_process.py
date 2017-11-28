@@ -195,6 +195,10 @@ class CommandIterator(six.Iterator):
         :return: errorcode
         :rtype: int
         """
+        if self.command.return_code_handler:
+            return self.command.return_code_handler(
+                self.command.process.returncode
+            )
         return self.command.process.returncode
 
     def get_pid(self):

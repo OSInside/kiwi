@@ -52,7 +52,7 @@ class PackageManagerZypper(PackageManagerBase):
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
-
+        
         runtime_config = self.repository.runtime_config()
 
         self.zypper_args = runtime_config['zypper_args']
@@ -66,6 +66,8 @@ class PackageManagerZypper(PackageManagerBase):
             self.chroot_command_env['ZYPP_CONF'] = self.root_bind.move_to_root(
                 [self.command_env['ZYPP_CONF']]
             )[0]
+
+        self.return_code_handler = None
 
     def request_package(self, name):
         """
@@ -136,7 +138,7 @@ class PackageManagerZypper(PackageManagerBase):
             ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
             ] + self.custom_args + self._install_items(),
-            self.chroot_command_env
+            self.chroot_command_env, self.return_code_handler
         )
 
     def process_delete_requests(self, force=False):
@@ -172,7 +174,7 @@ class PackageManagerZypper(PackageManagerBase):
                 ] + self.chroot_zypper_args + [
                     'remove', '-u', '--force-resolution'
                 ] + delete_items,
-                self.chroot_command_env
+                self.chroot_command_env, self.return_code_handler
             )
 
     def update(self):
@@ -183,7 +185,7 @@ class PackageManagerZypper(PackageManagerBase):
             ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
                 'update', '--auto-agree-with-licenses'
             ] + self.custom_args,
-            self.chroot_command_env
+            self.chroot_command_env, self.return_code_handler
         )
 
     def process_only_required(self):
@@ -286,6 +288,17 @@ class PackageManagerZypper(PackageManagerBase):
             Command.run([
                 'chroot', self.root_dir, 'rpm', '--rebuilddb'
             ])
+
+    def ignore_postscript_errors(self):
+        """
+        Ignores the %post install script errors of rpm packages.
+        """
+        # Zypper version 1.13.33 does not return a 0 exit code if a
+        # %post install script fails. Currently it returns a 107
+        # error code, in order to not treat this failures as errors
+        # as in previous zypper versions this lambda is defined to translate
+        # 107 back to 0.
+        self.return_code_handler = lambda x: x if x not in [107] else 0
 
     def _install_items(self):
         items = self.package_requests + self.collection_requests \

@@ -160,7 +160,7 @@ class SystemPrepare(object):
             repo, package_manager
         )
 
-    def install_bootstrap(self, manager):
+    def install_bootstrap(self, manager, ignore_postscript_errors=False):
         """
         Install system software using the package manager
         from the host, also known as bootstrapping
@@ -182,6 +182,8 @@ class SystemPrepare(object):
             manager.process_only_required()
         else:
             manager.process_plus_recommended()
+        if ignore_postscript_errors:
+            manager.ignore_postscript_errors()
         all_install_items = self._setup_requests(
             manager,
             bootstrap_packages,
@@ -213,7 +215,7 @@ class SystemPrepare(object):
                     'Bootstrap archive installation failed: %s' % format(e)
                 )
 
-    def install_system(self, manager):
+    def install_system(self, manager, ignore_postscript_errors=False):
         """
         Install system software using the package manager inside
         of the new root directory. This is done via a chroot operation
@@ -238,6 +240,8 @@ class SystemPrepare(object):
             manager.process_only_required()
         else:
             manager.process_plus_recommended()
+        if ignore_postscript_errors:
+            manager.ignore_postscript_errors()
         all_install_items = self._setup_requests(
             manager,
             system_packages,
