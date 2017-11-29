@@ -111,14 +111,15 @@ consider to use the legacy KIWI version.
 
 *  OEM Recovery/Restore
 
-   Recovery/Restore in the world of images has been moved from the OS
-   layer into higher layers. For example in Cloud and Public Cloud
-   environments disk and image recovery as well as backup strategies
-   are part of cloud services. Pure OS recovery and snapshots for consumer
-   machines are developed as build in solutions of the distribution.
-   SUSE as an example provides this via ReaR (Relax-and-Recover) and
-   snapshot based filesystems (btrfs+snapper). Therefore the recovery
-   solution offered in the legacy KIWI version will not be continued.
+   Recovery/Restore in the world of images has been moved from the
+   operating system layer into higher layers. For example, in private and
+   public Cloud environments disk and image recovery as well as backup
+   strategies are part of Cloud services. Pure operating system recovery
+   and snapshots for consumer machines are provided as features of the
+   distribution. SUSE as an example provides this via Rear
+   (Relax-and-Recover) and snapshot based filesystems (btrfs+snapper).
+   Therefore the recovery feature offered in the legacy KIWI version
+   will not be continued.
 
 Compatibility
 -------------
