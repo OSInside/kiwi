@@ -109,6 +109,17 @@ consider to use the legacy KIWI version.
    Many distributions also dropped the lxc tools from the distribution
    in favour of docker.
 
+*  OEM Recovery/Restore
+
+   Recovery/Restore in the world of images has been moved from the OS
+   layer into higher layers. For example in Cloud and Public Cloud
+   environments disk and image recovery as well as backup strategies
+   are part of cloud services. Pure OS recovery and snapshots for consumer
+   machines are developed as build in solutions of the distribution.
+   SUSE as an example provides this via ReaR (Relax-and-Recover) and
+   snapshot based filesystems (btrfs+snapper). Therefore the recovery
+   solution offered in the legacy KIWI version will not be continued.
+
 Compatibility
 -------------
 
