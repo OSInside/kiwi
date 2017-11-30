@@ -5,9 +5,9 @@ branches:
 matrix:
   include:
   - python: 3.4
-    env: TOXENV=3.4,check,doc_travis
+    env: TOXENV=unit_py3,check,doc_travis
   - python: 2.7
-    env: TOXENV=2.7,check,doc_travis
+    env: TOXENV=unit_py2,check,doc_travis
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -y git

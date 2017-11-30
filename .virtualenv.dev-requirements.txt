@@ -17,12 +17,6 @@ setuptools
 tox
 
 # python unit testing framework
-
-# py 1.5 was released but pytest-cov requires py<1.5
-# Thus we also install py in a lower version to temporarily
-# fix the version conflict
-py==1.4.34
-
 pytest
 pytest-cov
 
