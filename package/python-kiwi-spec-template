@@ -129,12 +129,6 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          Development/Languages/Python
 Provides:       python-kiwi = %{version}-%{release}
-Provides:       kiwi-image:tbz
-Provides:       kiwi-image:docker
-Provides:       kiwi-image:iso
-Provides:       kiwi-image:vmx
-Provides:       kiwi-image:pxe
-Provides:       kiwi-image:oem
 %if 0%{?fedora} || 0%{?suse_version}
 Recommends:     jing
 %endif
@@ -206,12 +200,6 @@ virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 %package -n python3-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          Development/Languages/Python
-Provides:       kiwi-image:tbz
-Provides:       kiwi-image:docker
-Provides:       kiwi-image:iso
-Provides:       kiwi-image:vmx
-Provides:       kiwi-image:pxe
-Provides:       kiwi-image:oem
 Recommends:     jing
 Requires:       python3-PyYAML
 Requires:       python3-docopt
@@ -390,6 +378,12 @@ overlay root filesystem
 Summary:        KIWI - buildservice package requirements for boot images
 Provides:       kiwi-boot:netboot
 Provides:       kiwi-boot:oemboot
+Provides:       kiwi-image:docker
+Provides:       kiwi-image:tbz
+Provides:       kiwi-image:iso
+Provides:       kiwi-image:vmx
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:oem
 Provides:       kiwi-filesystem:btrfs
 Provides:       kiwi-filesystem:xfs
 Provides:       kiwi-filesystem:ext3
@@ -397,6 +391,8 @@ Provides:       kiwi-filesystem:ext4
 Provides:       kiwi-filesystem:squashfs
 Requires:       e2fsprogs
 Requires:       xfsprogs
+Requires:       umoci
+Requires:       skopeo
 %if 0%{?fedora} || 0%{?rhel}
 Requires:       btrfs-progs
 %else
