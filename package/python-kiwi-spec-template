@@ -313,11 +313,15 @@ Summary:        KIWI - Dracut kiwi Library
 BuildRequires:  dracut
 Requires:       bc
 Requires:       cryptsetup
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       btrfs-progs
+Requires:       gdisk
+%else
 Requires:       btrfsprogs
+Requires:       gptfdisk
+%endif
 Requires:       coreutils
 Requires:       e2fsprogs
-Requires:       fbiterm
-Requires:       gptfdisk
 Requires:       grep
 Requires:       lvm2
 Requires:       mdadm
@@ -325,6 +329,9 @@ Requires:       parted
 Requires:       util-linux
 Requires:       xfsprogs
 Requires:       dialog
+%ifarch s390 s390x
+Requires:       s390-tools
+%endif
 License:        GPL-3.0+
 Group:          System/Management
 
