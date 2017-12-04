@@ -112,13 +112,16 @@ class TestContainerSetupBase(object):
         ]
 
     @patch('kiwi.container.setup.base.Command.run')
-    def test_setup_static_device_nodes(self, mock_command):
+    @patch('kiwi.container.setup.base.DataSync')
+    def test_setup_static_device_nodes(self, mock_DataSync, mock_command):
+        data = mock.Mock()
+        mock_DataSync.return_value = data
         self.container.setup_static_device_nodes()
-        mock_command.assert_called_once_with(
-            [
-                'rsync', '-z', '-a', '-x', '--devices', '--specials',
-                '/dev/', 'root_dir/dev/'
-            ]
+        mock_DataSync.assert_called_once_with(
+            '/dev/', 'root_dir/dev/'
+        )
+        data.sync_data.assert_called_once_with(
+            options=['-z', '-a', '-x', '--devices', '--specials']
         )
 
     @patch('kiwi.container.setup.base.Command.run')

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+from stat import ST_MODE
 import xattr
 
 # project
@@ -69,11 +71,21 @@ class DataSync(object):
                 exclude_options.append(
                     '/' + item
                 )
+        target_entry_permissions = oct(os.stat(self.target_dir)[ST_MODE])
         Command.run(
             ['rsync'] + rsync_options + exclude_options + [
                 self.source_dir, self.target_dir
             ]
         )
+        # rsync applies the permissions of the source directory
+        # also to the target directory which is unwanted because
+        # only permissions of the files and directories from the
+        # source directory and its contents should be transfered
+        # but not from the source directory itself. Therefore
+        # the permission bits of the target directory before the
+        # sync are applied back after sync to ensure they have
+        # not changed
+        os.chmod(self.target_dir, target_entry_permissions)
 
     def target_supports_extended_attributes(self):
         """
