@@ -183,32 +183,46 @@ class TestSystemSetup(object):
         self.file_mock.write.assert_called_once_with('a\n')
 
     @patch('kiwi.command.Command.run')
+    @patch('kiwi.system.setup.DataSync')
     @patch('os.path.exists')
-    def test_import_overlay_files_copy_links(self, mock_os_path, mock_command):
+    def test_import_overlay_files_copy_links(
+        self, mock_os_path, mock_DataSync, mock_command
+    ):
+        data = mock.Mock()
+        mock_DataSync.return_value = data
         mock_os_path.return_value = True
         self.setup.import_overlay_files(
             follow_links=True, preserve_owner_group=True
         )
-        mock_command.assert_called_once_with(
-            [
-                'rsync', '-r', '-p', '-t', '-D', '-H', '-X', '-A',
-                '--one-file-system', '--copy-links', '-o', '-g',
-                'description_dir/root/', 'root_dir'
+        mock_DataSync.assert_called_once_with(
+            'description_dir/root/', 'root_dir'
+        )
+        data.sync_data.assert_called_once_with(
+            options=[
+                '-r', '-p', '-t', '-D', '-H', '-X', '-A',
+                '--one-file-system', '--copy-links', '-o', '-g'
             ]
         )
 
     @patch('kiwi.command.Command.run')
+    @patch('kiwi.system.setup.DataSync')
     @patch('os.path.exists')
-    def test_import_overlay_files_links(self, mock_os_path, mock_command):
+    def test_import_overlay_files_links(
+        self, mock_os_path, mock_DataSync, mock_command
+    ):
+        data = mock.Mock()
+        mock_DataSync.return_value = data
         mock_os_path.return_value = True
         self.setup.import_overlay_files(
             follow_links=False, preserve_owner_group=True
         )
-        mock_command.assert_called_once_with(
-            [
-                'rsync', '-r', '-p', '-t', '-D', '-H', '-X', '-A',
-                '--one-file-system', '--links', '-o', '-g',
-                'description_dir/root/', 'root_dir'
+        mock_DataSync.assert_called_once_with(
+            'description_dir/root/', 'root_dir'
+        )
+        data.sync_data.assert_called_once_with(
+            options=[
+                '-r', '-p', '-t', '-D', '-H', '-X', '-A',
+                '--one-file-system', '--links', '-o', '-g'
             ]
         )
 
@@ -652,16 +666,21 @@ class TestSystemSetup(object):
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.Path.create')
+    @patch('kiwi.system.setup.DataSync')
     @patch('os.path.exists')
-    def test_export_modprobe_setup(self, mock_exists, mock_path, mock_command):
+    def test_export_modprobe_setup(
+        self, mock_exists, mock_DataSync, mock_path, mock_command
+    ):
+        data = mock.Mock()
+        mock_DataSync.return_value = data
         mock_exists.return_value = True
         self.setup.export_modprobe_setup('target_root_dir')
         mock_path.assert_called_once_with('target_root_dir/etc')
-        mock_command.assert_called_once_with(
-            [
-                'rsync', '-z', '-a',
-                'root_dir/etc/modprobe.d', 'target_root_dir/etc/'
-            ]
+        mock_DataSync.assert_called_once_with(
+            'root_dir/etc/modprobe.d', 'target_root_dir/etc/'
+        )
+        data.sync_data.assert_called_once_with(
+            options=['-z', '-a']
         )
 
     @patch('kiwi.system.setup.Command.run')

@@ -645,8 +645,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')
+    @patch('os.chmod')
+    @patch('os.stat')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot(
-        self, mock_log, mock_machine, mock_exists, mock_command
+        self, mock_stat, mock_chmod, mock_log, mock_machine,
+        mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
@@ -677,9 +680,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')
     @patch('glob.iglob')
+    @patch('os.chmod')
+    @patch('os.stat')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot_no_shim_install(
-        self, mock_glob, mock_log, mock_machine, mock_exists,
-        mock_command, mock_which
+        self, mock_stat, mock_chmod, mock_glob, mock_log, mock_machine,
+        mock_exists, mock_command, mock_which
     ):
         # we expect the copy of shim.efi and grub.efi from the fallback
         # code if no shim_install was found for building the disk image
@@ -797,8 +802,11 @@ class TestBootLoaderConfigGrub2(object):
     @patch('platform.machine')
     @patch('kiwi.logger.log.info')
     @patch('glob.iglob')
+    @patch('os.chmod')
+    @patch('os.stat')
     def test_setup_install_boot_images_efi_secure_boot(
-        self, mock_glob, mock_log, mock_machine, mock_exists, mock_command
+        self, mock_stat, mock_chmod, mock_glob, mock_log,
+        mock_machine, mock_exists, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
