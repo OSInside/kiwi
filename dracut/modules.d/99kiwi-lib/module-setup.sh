@@ -15,12 +15,15 @@ depends() {
 install() {
     declare moddir=${moddir}
     inst_multiple \
-        blkid blockdev parted dd mkdir grep fdasd cut tail head tr bc \
+        blkid blockdev parted dd mkdir grep cut tail head tr bc \
         basename partprobe gdisk sgdisk mkswap readlink lsblk \
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
-        fbiterm mdadm cryptsetup
+        mdadm cryptsetup
+    if [[ "$(uname -m)" =~ s390 ]];then
+        inst_multiple fdasd
+    fi
     inst_simple \
         "${moddir}/kiwi-lib.sh" "/lib/kiwi-lib.sh"
     inst_simple \
@@ -35,6 +38,4 @@ install() {
         "${moddir}/kiwi-lvm-lib.sh" "/lib/kiwi-lvm-lib.sh"
     inst_simple \
         "${moddir}/kiwi-luks-lib.sh" "/lib/kiwi-luks-lib.sh"
-    inst_simple \
-        "/usr/share/fbiterm/fonts/b16.pcf.gz" "/lib/b16.pcf.gz"
 }
