@@ -10,7 +10,7 @@
 <xsl:strip-space elements="type"/>
 
 <!-- default rule conv48to49 -->
-<xsl:template match="*|processing-instruction()|comment()" mode="conv48to49">
+<xsl:template match="*" mode="conv48to49">
     <xsl:copy>
         <xsl:copy-of select="@*"/>
         <xsl:apply-templates mode="conv48to49"/>

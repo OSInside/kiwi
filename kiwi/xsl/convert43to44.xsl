@@ -6,7 +6,7 @@
 <xsl:strip-space elements="type"/>
 
 <!-- default rule -->
-<xsl:template match="*|processing-instruction()|comment()" mode="conv43to44">
+<xsl:template match="*" mode="conv43to44">
     <xsl:copy>
         <xsl:copy-of select="@*"/>
         <xsl:apply-templates mode="conv43to44"/>

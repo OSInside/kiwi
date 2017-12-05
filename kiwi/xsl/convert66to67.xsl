@@ -4,7 +4,7 @@
         indent="yes" omit-xml-declaration="no" encoding="utf-8"/>
 
 <!-- default rule -->
-<xsl:template match="*|processing-instruction()|comment()" mode="conv66to67">
+<xsl:template match="*" mode="conv66to67">
     <xsl:copy>
         <xsl:copy-of select="@*"/>
         <xsl:apply-templates mode="conv66to67"/>
@@ -72,7 +72,7 @@
     Delete defaultprebuilt section
 </para>
 <xsl:template match="defaultprebuilt" mode="conv66to67">
-    <xsl:apply-templates select="*|processing-instruction()" mode="conv66to67"/>
+    <xsl:apply-templates select="*" mode="conv66to67"/>
 </xsl:template>
 
 <!-- Delete defaultdestination section -->
@@ -80,7 +80,7 @@
     Delete defaultdestination section
 </para>
 <xsl:template match="defaultdestination" mode="conv66to67">
-    <xsl:apply-templates select="*|processing-instruction()" mode="conv66to67"/>
+    <xsl:apply-templates select="*" mode="conv66to67"/>
 </xsl:template>
 
 <!-- Delete defaultroot section -->
@@ -88,7 +88,7 @@
     Delete defaultroot section
 </para>
 <xsl:template match="defaultroot" mode="conv66to67">
-    <xsl:apply-templates select="*|processing-instruction()" mode="conv66to67"/>
+    <xsl:apply-templates select="*" mode="conv66to67"/>
 </xsl:template>
 
 <!-- Delete partitioner section -->
@@ -96,7 +96,7 @@
     Delete partitioner section
 </para>
 <xsl:template match="partitioner" mode="conv66to67">
-    <xsl:apply-templates select="*|processing-instruction()" mode="conv66to67"/>
+    <xsl:apply-templates select="*" mode="conv66to67"/>
 </xsl:template>
 
 <!-- Delete rpm-force section -->
@@ -104,7 +104,7 @@
     Delete rpm-force section
 </para>
 <xsl:template match="rpm-force" mode="conv66to67">
-    <xsl:apply-templates select="*|processing-instruction()" mode="conv66to67"/>
+    <xsl:apply-templates select="*" mode="conv66to67"/>
 </xsl:template>
 
 </xsl:stylesheet>
