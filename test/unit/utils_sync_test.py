@@ -1,3 +1,4 @@
+import os
 from mock import patch
 
 from kiwi.utils.sync import DataSync
@@ -10,7 +11,12 @@ class TestDataSync(object):
     @patch('kiwi.utils.sync.Command.run')
     @patch('kiwi.utils.sync.DataSync.target_supports_extended_attributes')
     @patch('kiwi.logger.log.warning')
-    def test_sync_data(self, mock_warn, mock_xattr_support, mock_command):
+    @patch('os.chmod')
+    @patch('os.stat')
+    def test_sync_data(
+        self, mock_stat, mock_chmod, mock_warn, mock_xattr_support, mock_command
+    ):
+        mock_stat.return_value = os.stat('.')
         mock_xattr_support.return_value = False
         self.sync.sync_data(
             options=['-a', '-H', '-X', '-A', '--one-file-system'],
@@ -21,6 +27,9 @@ class TestDataSync(object):
                 'rsync', '-a', '-H', '--one-file-system',
                 '--exclude', '/exclude_me', 'source_dir', 'target_dir'
             ]
+        )
+        mock_chmod.assert_called_once_with(
+            'target_dir', oct(mock_stat.return_value)
         )
         assert mock_warn.called
 
