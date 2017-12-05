@@ -4,7 +4,7 @@
     indent="yes" omit-xml-declaration="no" encoding="utf-8"/>
 
 <!-- default rule -->
-<xsl:template match="*|processing-instruction()|comment()" mode="conv56to57">
+<xsl:template match="*" mode="conv56to57">
     <xsl:copy>
         <xsl:copy-of select="@*"/>
         <xsl:apply-templates mode="conv56to57"/>

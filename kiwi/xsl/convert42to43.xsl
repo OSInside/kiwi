@@ -5,7 +5,7 @@
 
 
 <!-- default rule -->
-<xsl:template match="*|processing-instruction()|comment()" mode="conv42to43">
+<xsl:template match="*" mode="conv42to43">
         <xsl:copy>
                 <xsl:copy-of select="@*"/>
                      <xsl:apply-templates mode="conv42to43"/>
