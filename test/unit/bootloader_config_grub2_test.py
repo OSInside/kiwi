@@ -398,8 +398,7 @@ class TestBootLoaderConfigGrub2(object):
                 'boot_directory_name': 'grub2',
                 'kernel_file': 'linux.vmx',
                 'failsafe_boot_options': 'splash foo ide=nodma apm=off '
-                'noresume edd=off powersaved=off nohz=off highres=off '
-                'processor.max+cstate=1 nomodeset x11failsafe foo',
+                'noresume edd=off nomodeset 3 foo',
                 'default_boot': '0',
                 'boot_options': 'splash foo',
                 'boot_timeout': 10,
