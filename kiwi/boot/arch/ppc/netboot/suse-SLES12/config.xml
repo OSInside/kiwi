@@ -79,7 +79,7 @@
     <packages type="image" profiles="std">
         <package name="kernel-default"/>
     </packages>
-    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="image" profiles="custom"/>
     <packages type="image" profiles="default">
         <package name="adaptec-firmware"/>
         <package name="atftp"/>

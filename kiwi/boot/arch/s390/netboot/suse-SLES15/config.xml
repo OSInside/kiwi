@@ -103,7 +103,7 @@
         <package name="s390-tools"/>
         <package name="e2fsprogs"/>
     </packages>
-    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="image" profiles="custom"/>
     <packages type="bootstrap">
         <package name="kbd"/>
         <package name="bc"/>

@@ -82,7 +82,7 @@
     <packages type="bootstrap" profiles="std">
         <package name="linux-generic"/>
     </packages>
-    <packages type="bootstrap" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="bootstrap" profiles="custom"/>
     <packages type="image">
         <package name="dialog"/>
         <package name="plymouth"/>

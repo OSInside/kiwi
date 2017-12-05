@@ -82,7 +82,7 @@
     <packages type="image" profiles="std">
         <package name="kernel"/>
     </packages>
-    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="image" profiles="custom"/>
     <packages type="bootstrap">
         <package name="kbd"/>
         <package name="filesystem"/>

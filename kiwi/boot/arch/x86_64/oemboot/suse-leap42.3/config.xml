@@ -102,7 +102,7 @@
     <packages type="image" profiles="xen">
         <package name="grub2-x86_64-xen" arch="x86_64"/>
     </packages>
-    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="image" profiles="custom"/>
     <packages type="bootstrap">
         <package name="udev"/>
         <package name="filesystem"/>
