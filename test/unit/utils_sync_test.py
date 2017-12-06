@@ -1,4 +1,5 @@
 import os
+from stat import ST_MODE
 from mock import patch
 
 from kiwi.utils.sync import DataSync
@@ -29,7 +30,7 @@ class TestDataSync(object):
             ]
         )
         mock_chmod.assert_called_once_with(
-            'target_dir', oct(mock_stat.return_value)
+            'target_dir', mock_stat.return_value[ST_MODE]
         )
         assert mock_warn.called
 
