@@ -159,12 +159,8 @@ class Defaults(object):
                 'apm=off',
                 'noresume',
                 'edd=off',
-                'powersaved=off',
-                'nohz=off',
-                'highres=off',
-                'processor.max+cstate=1',
                 'nomodeset',
-                'x11failsafe'
+                '3'
             ]
         )
 

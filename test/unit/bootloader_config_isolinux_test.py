@@ -324,8 +324,7 @@ class TestBootLoaderConfigIsoLinux(object):
             ' rd.live.image rd.live.overlay.persistent',
             'boot_timeout': 100,
             'failsafe_boot_options': 'splash ide=nodma apm=off' +
-            ' noresume edd=off powersaved=off nohz=off highres=off' +
-            ' processor.max+cstate=1 nomodeset x11failsafe' +
+            ' noresume edd=off nomodeset 3' +
             ' root=live:CDLABEL=CDROM rd.live.image' +
             ' rd.live.overlay.persistent',
             'kernel_file': 'linux'

@@ -221,8 +221,7 @@ class TestBootLoaderConfigZipl(object):
                 'target_type': 'CDL',
                 'boot_timeout': '200',
                 'failsafe_boot_options': 'cmdline ide=nodma apm=off '
-                'noresume edd=off powersaved=off nohz=off highres=off '
-                'processor.max+cstate=1 nomodeset x11failsafe foo',
+                'noresume edd=off nomodeset 3 foo',
                 'default_boot': '1',
                 'bootpath': '.'
             }
@@ -276,8 +275,7 @@ class TestBootLoaderConfigZipl(object):
                 'target_type': 'CDL',
                 'boot_timeout': '200',
                 'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume '
-                'edd=off powersaved=off nohz=off highres=off '
-                'processor.max+cstate=1 nomodeset x11failsafe ',
+                'edd=off nomodeset 3 ',
                 'default_boot': '1',
                 'bootpath': '.'
             }
