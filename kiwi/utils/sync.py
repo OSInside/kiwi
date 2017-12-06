@@ -71,7 +71,7 @@ class DataSync(object):
                 exclude_options.append(
                     '/' + item
                 )
-        target_entry_permissions = oct(os.stat(self.target_dir)[ST_MODE])
+        target_entry_permissions = os.stat(self.target_dir)[ST_MODE]
         Command.run(
             ['rsync'] + rsync_options + exclude_options + [
                 self.source_dir, self.target_dir
