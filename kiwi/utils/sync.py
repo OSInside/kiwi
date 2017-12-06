@@ -48,6 +48,7 @@ class DataSync(object):
         :param list options: rsync options
         :param list exclude: file patterns to exclude
         """
+        target_entry_permissions = None
         exclude_options = []
         rsync_options = []
         if options:
@@ -71,21 +72,23 @@ class DataSync(object):
                 exclude_options.append(
                     '/' + item
                 )
-        target_entry_permissions = os.stat(self.target_dir)[ST_MODE]
+        if os.path.exists(self.target_dir):
+            target_entry_permissions = os.stat(self.target_dir)[ST_MODE]
         Command.run(
             ['rsync'] + rsync_options + exclude_options + [
                 self.source_dir, self.target_dir
             ]
         )
-        # rsync applies the permissions of the source directory
-        # also to the target directory which is unwanted because
-        # only permissions of the files and directories from the
-        # source directory and its contents should be transfered
-        # but not from the source directory itself. Therefore
-        # the permission bits of the target directory before the
-        # sync are applied back after sync to ensure they have
-        # not changed
-        os.chmod(self.target_dir, target_entry_permissions)
+        if target_entry_permissions:
+            # rsync applies the permissions of the source directory
+            # also to the target directory which is unwanted because
+            # only permissions of the files and directories from the
+            # source directory and its contents should be transfered
+            # but not from the source directory itself. Therefore
+            # the permission bits of the target directory before the
+            # sync are applied back after sync to ensure they have
+            # not changed
+            os.chmod(self.target_dir, target_entry_permissions)
 
     def target_supports_extended_attributes(self):
         """

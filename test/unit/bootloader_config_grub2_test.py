@@ -836,6 +836,7 @@ class TestBootLoaderConfigGrub2(object):
         self, mock_stat, mock_chmod, mock_glob, mock_log,
         mock_machine, mock_exists, mock_command
     ):
+        self.os_exists['root_dir'] = True
         mock_machine.return_value = 'x86_64'
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
