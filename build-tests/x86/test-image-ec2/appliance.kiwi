@@ -66,8 +66,6 @@
         <package name="binutils"/>
         <package name="blktrace"/>
         <package name="cifs-utils"/>
-        <package name="command-not-found"/>
-        <package name="cryptconfig"/>
         <package name="curl"/>
 <!-- Authentication functionality -->
         <package name="cyrus-sasl"/>
