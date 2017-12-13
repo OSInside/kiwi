@@ -706,6 +706,20 @@ class Defaults(object):
         return 'overlay'
 
     @classmethod
+    def get_live_dracut_module_from_flag(self, flag_name):
+        """
+        Implements flag_name to dracut module name map
+        """
+        live_modules = {
+            'overlay': 'kiwi-live',
+            'dmsquash': 'dmsquash-live'
+        }
+        if flag_name in live_modules:
+            return live_modules[flag_name]
+        else:
+            return 'kiwi-live'
+
+    @classmethod
     def get_default_live_iso_root_filesystem(self):
         """
         Implements default live iso root filesystem type

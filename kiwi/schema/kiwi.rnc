@@ -1413,11 +1413,15 @@ div {
             sch:param [ name = "types" value = "vmx oem" ]
         ]
     k.type.flags.attribute =
-        ## Specifies overlay filesystem flags for the iso image type
-        ## as they are supported by the kiwi-live dracut module.
-        ## `overlay` uses squashfs and the kernel overlayfs filesystem
+        ## Specifies live iso technology and dracut module to use.
+        ## If set to overlay the kiwi-live dracut module will be
+        ## used to support a live iso system based on squashfs+overlayfs.
+        ## If set to dmsquash the dracut standard dmsquash-live module
+        ## will be used to support a live iso system based on squashfs
+        ## and the device mapper. Please note both modules supports
+        ## a different set of live features.
         attribute flags {
-            "overlay"
+            "overlay" | "dmsquash"
         }
         >> sch:pattern [ id = "flags" is-a = "image_type"
             sch:param [ name = "attr" value = "flags" ]
