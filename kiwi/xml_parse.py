@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.28a.
+# Generated  by generateDS.py version 2.28.2.
+# Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -15,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2424,7 +2425,7 @@ class size(GeneratedsSuper):
     def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
     def hasContent_(self):
         if (
-            1 if type(self.valueOf_) in [int,float] else self.valueOf_
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
         ):
             return True
         else:

@@ -297,8 +297,14 @@ class LiveImageBuilder(object):
 
     def _create_dracut_live_iso_config(self):
         live_config_file = self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+        omit_modules = [
+            'kiwi-dump', 'kiwi-overlay', 'kiwi-repart', 'kiwi-lib'
+        ]
         live_config = [
-            'add_dracutmodules+=" kiwi-live pollcdrom "',
+            'add_dracutmodules+=" {0} pollcdrom "'.format(
+                Defaults.get_live_dracut_module_from_flag(self.live_type)
+            ),
+            'omit_dracutmodules+=" {0} "'.format(' '.join(omit_modules)),
             'hostonly="no"',
             'dracut_rescue_image="no"'
         ]

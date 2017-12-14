@@ -158,7 +158,7 @@ class TestLiveImageBuilder(object):
 
         mock_open.return_value = self.context_manager_mock
 
-        self.live_image.live_type = 'dmsquash'
+        self.live_image.live_type = 'overlay'
 
         iso_image = mock.Mock()
         iso_image.create_on_file.return_value = 'offset'
@@ -209,6 +209,10 @@ class TestLiveImageBuilder(object):
 
         assert self.file_mock.write.call_args_list == [
             call('add_dracutmodules+=" kiwi-live pollcdrom "\n'),
+            call(
+                'omit_dracutmodules+=" '
+                'kiwi-dump kiwi-overlay kiwi-repart kiwi-lib "\n'
+            ),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n')
         ]

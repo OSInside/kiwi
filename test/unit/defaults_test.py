@@ -71,3 +71,11 @@ class TestDefaults(object):
         Defaults.set_python_default_encoding_to_utf8()
         mock_reload.assert_called_once_with(mock_sys)
         mock_sys.setdefaultencoding.assert_called_once_with('utf-8')
+
+    def test_get_live_dracut_module_from_flag(self):
+        assert Defaults.get_live_dracut_module_from_flag('foo') == \
+            'kiwi-live'
+        assert Defaults.get_live_dracut_module_from_flag('overlay') == \
+            'kiwi-live'
+        assert Defaults.get_live_dracut_module_from_flag('dmsquash') == \
+            'dmsquash-live'
