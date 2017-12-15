@@ -812,9 +812,9 @@ class Defaults(object):
     @classmethod
     def get_common_functions_file(self):
         """
-        Implements file path to bootloader functions metadata.
-        This file contains bash functions used in the boot code
-        from the kiwi initrd
+        Implements file path to config functions metadata.
+        This file contains bash functions used for system
+        configuration or in the boot code from the kiwi initrd
 
         :return: file path
         :rtype: string
