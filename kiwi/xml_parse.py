@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.28.2.
+# Generated  by generateDS.py version 2.29.3.
 # Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
 #
 # Command line options:
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -4282,13 +4282,13 @@ class pxedeploy(GeneratedsSuper):
             eol_ = ''
         for timeout_ in self.timeout:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%stimeout>%s</%stimeout>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(timeout_), input_name='timeout')), namespace_, eol_))
+            outfile.write('<timeout>%s</timeout>%s' % (self.gds_encode(self.gds_format_string(quote_xml(timeout_), input_name='timeout')), eol_))
         for kernel_ in self.kernel:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%skernel>%s</%skernel>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(kernel_), input_name='kernel')), namespace_, eol_))
+            outfile.write('<kernel>%s</kernel>%s' % (self.gds_encode(self.gds_format_string(quote_xml(kernel_), input_name='kernel')), eol_))
         for initrd_ in self.initrd:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sinitrd>%s</%sinitrd>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(initrd_), input_name='initrd')), namespace_, eol_))
+            outfile.write('<initrd>%s</initrd>%s' % (self.gds_encode(self.gds_format_string(quote_xml(initrd_), input_name='initrd')), eol_))
         for partitions_ in self.partitions:
             partitions_.export(outfile, level, namespace_, name_='partitions', pretty_print=pretty_print)
         for union_ in self.union:
@@ -4435,13 +4435,13 @@ class description(GeneratedsSuper):
             eol_ = ''
         for author_ in self.author:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sauthor>%s</%sauthor>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(author_), input_name='author')), namespace_, eol_))
+            outfile.write('<author>%s</author>%s' % (self.gds_encode(self.gds_format_string(quote_xml(author_), input_name='author')), eol_))
         for contact_ in self.contact:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%scontact>%s</%scontact>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(contact_), input_name='contact')), namespace_, eol_))
+            outfile.write('<contact>%s</contact>%s' % (self.gds_encode(self.gds_format_string(quote_xml(contact_), input_name='contact')), eol_))
         for specification_ in self.specification:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sspecification>%s</%sspecification>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(specification_), input_name='specification')), namespace_, eol_))
+            outfile.write('<specification>%s</specification>%s' % (self.gds_encode(self.gds_format_string(quote_xml(specification_), input_name='specification')), eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6040,82 +6040,82 @@ class oemconfig(GeneratedsSuper):
             eol_ = ''
         for oem_ataraid_scan_ in self.oem_ataraid_scan:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-ataraid-scan>%s</%soem-ataraid-scan>%s' % (namespace_, self.gds_format_boolean(oem_ataraid_scan_, input_name='oem-ataraid-scan'), namespace_, eol_))
+            outfile.write('<oem-ataraid-scan>%s</oem-ataraid-scan>%s' % (self.gds_format_boolean(oem_ataraid_scan_, input_name='oem-ataraid-scan'), eol_))
         for oem_boot_title_ in self.oem_boot_title:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-boot-title>%s</%soem-boot-title>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_boot_title_), input_name='oem-boot-title')), namespace_, eol_))
+            outfile.write('<oem-boot-title>%s</oem-boot-title>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_boot_title_), input_name='oem-boot-title')), eol_))
         for oem_bootwait_ in self.oem_bootwait:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-bootwait>%s</%soem-bootwait>%s' % (namespace_, self.gds_format_boolean(oem_bootwait_, input_name='oem-bootwait'), namespace_, eol_))
+            outfile.write('<oem-bootwait>%s</oem-bootwait>%s' % (self.gds_format_boolean(oem_bootwait_, input_name='oem-bootwait'), eol_))
         for oem_device_filter_ in self.oem_device_filter:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-device-filter>%s</%soem-device-filter>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), namespace_, eol_))
+            outfile.write('<oem-device-filter>%s</oem-device-filter>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), eol_))
         for oem_nic_filter_ in self.oem_nic_filter:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-nic-filter>%s</%soem-nic-filter>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_nic_filter_), input_name='oem-nic-filter')), namespace_, eol_))
+            outfile.write('<oem-nic-filter>%s</oem-nic-filter>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_nic_filter_), input_name='oem-nic-filter')), eol_))
         for oem_inplace_recovery_ in self.oem_inplace_recovery:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-inplace-recovery>%s</%soem-inplace-recovery>%s' % (namespace_, self.gds_format_boolean(oem_inplace_recovery_, input_name='oem-inplace-recovery'), namespace_, eol_))
+            outfile.write('<oem-inplace-recovery>%s</oem-inplace-recovery>%s' % (self.gds_format_boolean(oem_inplace_recovery_, input_name='oem-inplace-recovery'), eol_))
         for oem_kiwi_initrd_ in self.oem_kiwi_initrd:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-kiwi-initrd>%s</%soem-kiwi-initrd>%s' % (namespace_, self.gds_format_boolean(oem_kiwi_initrd_, input_name='oem-kiwi-initrd'), namespace_, eol_))
+            outfile.write('<oem-kiwi-initrd>%s</oem-kiwi-initrd>%s' % (self.gds_format_boolean(oem_kiwi_initrd_, input_name='oem-kiwi-initrd'), eol_))
         for oem_multipath_scan_ in self.oem_multipath_scan:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-multipath-scan>%s</%soem-multipath-scan>%s' % (namespace_, self.gds_format_boolean(oem_multipath_scan_, input_name='oem-multipath-scan'), namespace_, eol_))
+            outfile.write('<oem-multipath-scan>%s</oem-multipath-scan>%s' % (self.gds_format_boolean(oem_multipath_scan_, input_name='oem-multipath-scan'), eol_))
         for oem_vmcp_parmfile_ in self.oem_vmcp_parmfile:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-vmcp-parmfile>%s</%soem-vmcp-parmfile>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_vmcp_parmfile_), input_name='oem-vmcp-parmfile')), namespace_, eol_))
+            outfile.write('<oem-vmcp-parmfile>%s</oem-vmcp-parmfile>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_vmcp_parmfile_), input_name='oem-vmcp-parmfile')), eol_))
         for oem_partition_install_ in self.oem_partition_install:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-partition-install>%s</%soem-partition-install>%s' % (namespace_, self.gds_format_boolean(oem_partition_install_, input_name='oem-partition-install'), namespace_, eol_))
+            outfile.write('<oem-partition-install>%s</oem-partition-install>%s' % (self.gds_format_boolean(oem_partition_install_, input_name='oem-partition-install'), eol_))
         for oem_reboot_ in self.oem_reboot:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-reboot>%s</%soem-reboot>%s' % (namespace_, self.gds_format_boolean(oem_reboot_, input_name='oem-reboot'), namespace_, eol_))
+            outfile.write('<oem-reboot>%s</oem-reboot>%s' % (self.gds_format_boolean(oem_reboot_, input_name='oem-reboot'), eol_))
         for oem_reboot_interactive_ in self.oem_reboot_interactive:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-reboot-interactive>%s</%soem-reboot-interactive>%s' % (namespace_, self.gds_format_boolean(oem_reboot_interactive_, input_name='oem-reboot-interactive'), namespace_, eol_))
+            outfile.write('<oem-reboot-interactive>%s</oem-reboot-interactive>%s' % (self.gds_format_boolean(oem_reboot_interactive_, input_name='oem-reboot-interactive'), eol_))
         for oem_recovery_ in self.oem_recovery:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-recovery>%s</%soem-recovery>%s' % (namespace_, self.gds_format_boolean(oem_recovery_, input_name='oem-recovery'), namespace_, eol_))
+            outfile.write('<oem-recovery>%s</oem-recovery>%s' % (self.gds_format_boolean(oem_recovery_, input_name='oem-recovery'), eol_))
         for oem_recoveryID_ in self.oem_recoveryID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-recoveryID>%s</%soem-recoveryID>%s' % (namespace_, self.gds_format_integer(oem_recoveryID_, input_name='oem-recoveryID'), namespace_, eol_))
+            outfile.write('<oem-recoveryID>%s</oem-recoveryID>%s' % (self.gds_format_integer(oem_recoveryID_, input_name='oem-recoveryID'), eol_))
         for oem_recovery_part_size_ in self.oem_recovery_part_size:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-recovery-part-size>%s</%soem-recovery-part-size>%s' % (namespace_, self.gds_format_integer(oem_recovery_part_size_, input_name='oem-recovery-part-size'), namespace_, eol_))
+            outfile.write('<oem-recovery-part-size>%s</oem-recovery-part-size>%s' % (self.gds_format_integer(oem_recovery_part_size_, input_name='oem-recovery-part-size'), eol_))
         for oem_shutdown_ in self.oem_shutdown:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-shutdown>%s</%soem-shutdown>%s' % (namespace_, self.gds_format_boolean(oem_shutdown_, input_name='oem-shutdown'), namespace_, eol_))
+            outfile.write('<oem-shutdown>%s</oem-shutdown>%s' % (self.gds_format_boolean(oem_shutdown_, input_name='oem-shutdown'), eol_))
         for oem_shutdown_interactive_ in self.oem_shutdown_interactive:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-shutdown-interactive>%s</%soem-shutdown-interactive>%s' % (namespace_, self.gds_format_boolean(oem_shutdown_interactive_, input_name='oem-shutdown-interactive'), namespace_, eol_))
+            outfile.write('<oem-shutdown-interactive>%s</oem-shutdown-interactive>%s' % (self.gds_format_boolean(oem_shutdown_interactive_, input_name='oem-shutdown-interactive'), eol_))
         for oem_silent_boot_ in self.oem_silent_boot:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-silent-boot>%s</%soem-silent-boot>%s' % (namespace_, self.gds_format_boolean(oem_silent_boot_, input_name='oem-silent-boot'), namespace_, eol_))
+            outfile.write('<oem-silent-boot>%s</oem-silent-boot>%s' % (self.gds_format_boolean(oem_silent_boot_, input_name='oem-silent-boot'), eol_))
         for oem_silent_install_ in self.oem_silent_install:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-silent-install>%s</%soem-silent-install>%s' % (namespace_, self.gds_format_boolean(oem_silent_install_, input_name='oem-silent-install'), namespace_, eol_))
+            outfile.write('<oem-silent-install>%s</oem-silent-install>%s' % (self.gds_format_boolean(oem_silent_install_, input_name='oem-silent-install'), eol_))
         for oem_silent_verify_ in self.oem_silent_verify:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-silent-verify>%s</%soem-silent-verify>%s' % (namespace_, self.gds_format_boolean(oem_silent_verify_, input_name='oem-silent-verify'), namespace_, eol_))
+            outfile.write('<oem-silent-verify>%s</oem-silent-verify>%s' % (self.gds_format_boolean(oem_silent_verify_, input_name='oem-silent-verify'), eol_))
         for oem_skip_verify_ in self.oem_skip_verify:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-skip-verify>%s</%soem-skip-verify>%s' % (namespace_, self.gds_format_boolean(oem_skip_verify_, input_name='oem-skip-verify'), namespace_, eol_))
+            outfile.write('<oem-skip-verify>%s</oem-skip-verify>%s' % (self.gds_format_boolean(oem_skip_verify_, input_name='oem-skip-verify'), eol_))
         for oem_swap_ in self.oem_swap:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-swap>%s</%soem-swap>%s' % (namespace_, self.gds_format_boolean(oem_swap_, input_name='oem-swap'), namespace_, eol_))
+            outfile.write('<oem-swap>%s</oem-swap>%s' % (self.gds_format_boolean(oem_swap_, input_name='oem-swap'), eol_))
         for oem_swapsize_ in self.oem_swapsize:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-swapsize>%s</%soem-swapsize>%s' % (namespace_, self.gds_format_integer(oem_swapsize_, input_name='oem-swapsize'), namespace_, eol_))
+            outfile.write('<oem-swapsize>%s</oem-swapsize>%s' % (self.gds_format_integer(oem_swapsize_, input_name='oem-swapsize'), eol_))
         for oem_systemsize_ in self.oem_systemsize:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-systemsize>%s</%soem-systemsize>%s' % (namespace_, self.gds_format_integer(oem_systemsize_, input_name='oem-systemsize'), namespace_, eol_))
+            outfile.write('<oem-systemsize>%s</oem-systemsize>%s' % (self.gds_format_integer(oem_systemsize_, input_name='oem-systemsize'), eol_))
         for oem_unattended_ in self.oem_unattended:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-unattended>%s</%soem-unattended>%s' % (namespace_, self.gds_format_boolean(oem_unattended_, input_name='oem-unattended'), namespace_, eol_))
+            outfile.write('<oem-unattended>%s</oem-unattended>%s' % (self.gds_format_boolean(oem_unattended_, input_name='oem-unattended'), eol_))
         for oem_unattended_id_ in self.oem_unattended_id:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%soem-unattended-id>%s</%soem-unattended-id>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(oem_unattended_id_), input_name='oem-unattended-id')), namespace_, eol_))
+            outfile.write('<oem-unattended-id>%s</oem-unattended-id>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_unattended_id_), input_name='oem-unattended-id')), eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6615,7 +6615,7 @@ class machine(GeneratedsSuper):
             eol_ = ''
         for vmconfig_entry_ in self.vmconfig_entry:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%svmconfig-entry>%s</%svmconfig-entry>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(vmconfig_entry_), input_name='vmconfig-entry')), namespace_, eol_))
+            outfile.write('<vmconfig-entry>%s</vmconfig-entry>%s' % (self.gds_encode(self.gds_format_string(quote_xml(vmconfig_entry_), input_name='vmconfig-entry')), eol_))
         for vmdisk_ in self.vmdisk:
             vmdisk_.export(outfile, level, namespace_, name_='vmdisk', pretty_print=pretty_print)
         for vmdvd_ in self.vmdvd:
@@ -7092,39 +7092,39 @@ class preferences(GeneratedsSuper):
             eol_ = ''
         for bootsplash_theme_ in self.bootsplash_theme:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sbootsplash-theme>%s</%sbootsplash-theme>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(bootsplash_theme_), input_name='bootsplash-theme')), namespace_, eol_))
+            outfile.write('<bootsplash-theme>%s</bootsplash-theme>%s' % (self.gds_encode(self.gds_format_string(quote_xml(bootsplash_theme_), input_name='bootsplash-theme')), eol_))
         for bootloader_theme_ in self.bootloader_theme:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sbootloader-theme>%s</%sbootloader-theme>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(bootloader_theme_), input_name='bootloader-theme')), namespace_, eol_))
+            outfile.write('<bootloader-theme>%s</bootloader-theme>%s' % (self.gds_encode(self.gds_format_string(quote_xml(bootloader_theme_), input_name='bootloader-theme')), eol_))
         for hwclock_ in self.hwclock:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%shwclock>%s</%shwclock>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(hwclock_), input_name='hwclock')), namespace_, eol_))
+            outfile.write('<hwclock>%s</hwclock>%s' % (self.gds_encode(self.gds_format_string(quote_xml(hwclock_), input_name='hwclock')), eol_))
         for keytable_ in self.keytable:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%skeytable>%s</%skeytable>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(keytable_), input_name='keytable')), namespace_, eol_))
+            outfile.write('<keytable>%s</keytable>%s' % (self.gds_encode(self.gds_format_string(quote_xml(keytable_), input_name='keytable')), eol_))
         for locale_ in self.locale:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%slocale>%s</%slocale>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(locale_), input_name='locale')), namespace_, eol_))
+            outfile.write('<locale>%s</locale>%s' % (self.gds_encode(self.gds_format_string(quote_xml(locale_), input_name='locale')), eol_))
         for packagemanager_ in self.packagemanager:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%spackagemanager>%s</%spackagemanager>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), namespace_, eol_))
+            outfile.write('<packagemanager>%s</packagemanager>%s' % (self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), eol_))
         for rpm_check_signatures_ in self.rpm_check_signatures:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%srpm-check-signatures>%s</%srpm-check-signatures>%s' % (namespace_, self.gds_format_boolean(rpm_check_signatures_, input_name='rpm-check-signatures'), namespace_, eol_))
+            outfile.write('<rpm-check-signatures>%s</rpm-check-signatures>%s' % (self.gds_format_boolean(rpm_check_signatures_, input_name='rpm-check-signatures'), eol_))
         for rpm_excludedocs_ in self.rpm_excludedocs:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%srpm-excludedocs>%s</%srpm-excludedocs>%s' % (namespace_, self.gds_format_boolean(rpm_excludedocs_, input_name='rpm-excludedocs'), namespace_, eol_))
+            outfile.write('<rpm-excludedocs>%s</rpm-excludedocs>%s' % (self.gds_format_boolean(rpm_excludedocs_, input_name='rpm-excludedocs'), eol_))
         for showlicense_ in self.showlicense:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sshowlicense>%s</%sshowlicense>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(showlicense_), input_name='showlicense')), namespace_, eol_))
+            outfile.write('<showlicense>%s</showlicense>%s' % (self.gds_encode(self.gds_format_string(quote_xml(showlicense_), input_name='showlicense')), eol_))
         for timezone_ in self.timezone:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%stimezone>%s</%stimezone>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(timezone_), input_name='timezone')), namespace_, eol_))
+            outfile.write('<timezone>%s</timezone>%s' % (self.gds_encode(self.gds_format_string(quote_xml(timezone_), input_name='timezone')), eol_))
         for type_ in self.type_:
             type_.export(outfile, level, namespace_, name_='type', pretty_print=pretty_print)
         for version_ in self.version:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sversion>%s</%sversion>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(version_), input_name='version')), namespace_, eol_))
+            outfile.write('<version>%s</version>%s' % (self.gds_encode(self.gds_format_string(quote_xml(version_), input_name='version')), eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)

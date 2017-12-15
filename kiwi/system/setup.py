@@ -248,11 +248,14 @@ class SystemSetup(object):
                 log.info(
                     'Setting up locale: %s', self.preferences['locale']
                 )
+                if 'POSIX' in self.preferences['locale'].split(','):
+                    locale = 'POSIX'
+                else:
+                    locale = '{0}.UTF-8'.format(
+                        self.preferences['locale'].split(',')[0]
+                    )
                 Shell.run_common_function(
-                    'baseUpdateSysConfig', [
-                        lang_config, 'RC_LANG',
-                        self.preferences['locale'].split(',')[0] + '.UTF-8'
-                    ]
+                    'baseUpdateSysConfig', [lang_config, 'RC_LANG', locale]
                 )
             else:
                 log.warning(

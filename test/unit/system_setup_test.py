@@ -292,6 +292,18 @@ class TestSystemSetup(object):
             ]
         )
 
+    @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('os.path.exists')
+    def test_setup_locale_POSIX(self, mock_path, mock_shell):
+        mock_path.return_value = True
+        self.setup.preferences['locale'] = 'POSIX,locale2'
+        self.setup.setup_locale()
+        mock_shell.assert_called_once_with(
+            'baseUpdateSysConfig', [
+                'root_dir/etc/sysconfig/language', 'RC_LANG', 'POSIX'
+            ]
+        )
+
     @patch('kiwi.logger.log.warning')
     @patch('os.path.exists')
     def test_setup_locale_skipped(self, mock_exists, mock_log_warn):

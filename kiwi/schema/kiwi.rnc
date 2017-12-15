@@ -25,7 +25,7 @@ namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace nul = ""
 
 safe-posix-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
-locale-name = xsd:token {pattern = "[a-z]{2}_[A-Z]{2}(,[a-z]{2}_[A-Z]{2})*"}
+locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
 volume-size-type = xsd:token {pattern = "\d+|\d+M|\d+G|all"}

@@ -66,7 +66,7 @@ class Shell(object):
     @classmethod
     def run_common_function(self, name, parameters):
         """
-        Run a function implemented in boot/functions.sh
+        Run a function implemented in config/functions.sh
 
         :param string name: function name
         :param list parameters: function arguments
