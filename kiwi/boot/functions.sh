@@ -1418,7 +1418,7 @@ function setupInitrd {
         # Call initrd creation tool
         #--------------------------------------
         if [ -x "$dracutExec" ]; then
-            params=" --force"
+            params=" --force -o kiwi-repart"
             Echo "Creating dracut based initrd"
             if ! $dracutExec $params;then
                 Echo "Can't create initrd with dracut"
