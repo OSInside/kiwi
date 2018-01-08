@@ -122,7 +122,6 @@
         <package name="squashfs"/>
         <package name="sysconfig"/>
         <package name="sysfsutils"/>
-        <package name="syslinux"/>
         <package name="tar"/>
         <package name="util-linux"/>
         <package name="xfsprogs"/>
