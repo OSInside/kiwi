@@ -224,7 +224,6 @@ class SystemBuildTask(CliTask):
         setup.setup_locale()
         setup.setup_plymouth_splash()
         setup.setup_timezone()
-        setup.setup_hardware_clock()
 
         system.pinch_system(
             manager=manager, force=True
