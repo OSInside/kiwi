@@ -36,6 +36,7 @@ from kiwi.system.shell import Shell
 from kiwi.path import Path
 from kiwi.archive.tar import ArchiveTar
 from kiwi.utils.compress import Compress
+from kiwi.utils.command_capabilities import CommandCapabilities
 
 from kiwi.exceptions import (
     KiwiImportDescriptionError,
@@ -225,7 +226,9 @@ class SystemSetup(object):
             log.info(
                 'Setting up keytable: %s', self.preferences['keytable']
             )
-            if self._systemd_firstboot_has_option('--keymap'):
+            if CommandCapabilities.has_option_in_help(
+                'systemd-firstboot', '--keymap', root=self.root_dir
+            ):
                 Path.wipe(self.root_dir + '/etc/vconsole.conf')
                 Command.run([
                     'chroot', self.root_dir, 'systemd-firstboot',
@@ -256,7 +259,9 @@ class SystemSetup(object):
                     self.preferences['locale'].split(',')[0]
                 )
             log.info('Setting up locale: %s', self.preferences['locale'])
-            if self._systemd_firstboot_has_option('--locale'):
+            if CommandCapabilities.has_option_in_help(
+                'systemd-firstboot', '--locale', root=self.root_dir
+            ):
                 Path.wipe(self.root_dir + '/etc/locale.conf')
                 Command.run([
                     'chroot', self.root_dir, 'systemd-firstboot',
@@ -283,7 +288,9 @@ class SystemSetup(object):
             log.info(
                 'Setting up timezone: %s', self.preferences['timezone']
             )
-            if self._systemd_firstboot_has_option('--timezone'):
+            if CommandCapabilities.has_option_in_help(
+                'systemd-firstboot', '--timezone', root=self.root_dir
+            ):
                 Path.wipe(self.root_dir + '/etc/localtime')
                 Command.run([
                     'chroot', self.root_dir, 'systemd-firstboot',
@@ -910,15 +917,3 @@ class SystemSetup(object):
         )
         with open(filename, 'w') as verified:
             verified.write(query_call.output)
-
-    def _systemd_firstboot_has_option(self, flag):
-        try:
-            command = Command.run([
-                'chroot', self.root_dir, 'systemd-firstboot', '--help'
-            ])
-            for line in command.output.splitlines():
-                if flag in line:
-                    return True
-        except Exception:
-            log.warning('Could not parse systemd-firstboot help')
-        return False

@@ -273,19 +273,18 @@ class TestSystemSetup(object):
             ]
         )
 
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
     def test_setup_keyboard_map_with_systemd(
-        self, mock_path, mock_run, mock_shell
+        self, mock_path, mock_run, mock_shell, mock_caps
     ):
+        mock_caps.return_value = True
         mock_path.return_value = True
-        command_type = namedtuple('command', ['output'])
-        mock_run.return_value = command_type(output='--keymap')
         self.setup.preferences['keytable'] = 'keytable'
         self.setup.setup_keyboard_map()
         mock_run.assert_has_calls([
-            call(['chroot', 'root_dir', 'systemd-firstboot', '--help']),
             call(['rm', '-r', '-f', 'root_dir/etc/vconsole.conf']),
             call([
                 'chroot', 'root_dir', 'systemd-firstboot',
@@ -314,17 +313,18 @@ class TestSystemSetup(object):
             ]
         )
 
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_locale_with_systemd(self, mock_path, mock_run, mock_shell):
+    def test_setup_locale_with_systemd(
+        self, mock_path, mock_run, mock_shell, mock_caps
+    ):
+        mock_caps.return_valure = True
         mock_path.return_value = True
-        command_type = namedtuple('command', ['output'])
-        mock_run.return_value = command_type(output='--locale')
         self.setup.preferences['locale'] = 'locale1,locale2'
         self.setup.setup_locale()
         mock_run.assert_has_calls([
-            call(['chroot', 'root_dir', 'systemd-firstboot', '--help']),
             call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
             call([
                 'chroot', 'root_dir', 'systemd-firstboot',
@@ -364,14 +364,13 @@ class TestSystemSetup(object):
             ])
         ])
 
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
-    def test_setup_timezone_with_systemd(self, mock_command):
-        command_type = namedtuple('command', ['output'])
-        mock_command.return_value = command_type(output='--timezone')
+    def test_setup_timezone_with_systemd(self, mock_command, mock_caps):
+        mock_caps.return_value = True
         self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
         mock_command.assert_has_calls([
-            call(['chroot', 'root_dir', 'systemd-firstboot', '--help']),
             call(['rm', '-r', '-f', 'root_dir/etc/localtime']),
             call([
                 'chroot', 'root_dir', 'systemd-firstboot',
