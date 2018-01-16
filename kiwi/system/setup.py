@@ -205,19 +205,6 @@ class SystemSetup(object):
             archive = ArchiveTar(overlay_archive)
             archive.extract(self.root_dir)
 
-    def setup_hardware_clock(self):
-        """
-        Setup etc/adjtime by running hwclock
-        """
-        if 'hwclock' in self.preferences:
-            log.info(
-                'Setting up hardware clock: %s', self.preferences['hwclock']
-            )
-            Command.run([
-                'chroot', self.root_dir,
-                'hwclock', '--adjust', '--' + self.preferences['hwclock']
-            ])
-
     def setup_keyboard_map(self):
         """
         Setup console keyboard

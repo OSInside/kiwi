@@ -273,42 +273,9 @@ function baseSetupBoot {
 #--------------------------------------
 function suseConfig {
     # /.../
-    # Setup very basic SUSE system configuration
+    # This configuration method is currently deprecated
     # ----
-    #======================================
-    # keytable
-    #--------------------------------------
-    if [ ! -z "$kiwi_keytable" ];then
-        keytable_config=/etc/sysconfig/keyboard
-        baseUpdateSysConfig $keytable_config KEYTABLE $kiwi_keytable
-    fi
-    #======================================
-    # locale
-    #--------------------------------------
-    if [ ! -z "$kiwi_language" ];then
-        language=$(echo $kiwi_language | cut -f1 -d,).UTF-8
-        lang_config=/etc/sysconfig/language
-        baseUpdateSysConfig $lang_config RC_LANG $language
-    fi
-    #======================================
-    # timezone
-    #--------------------------------------
-    if [ ! -z "$kiwi_timezone" ];then
-        if [ -f /usr/share/zoneinfo/$kiwi_timezone ];then
-            ln -sf /usr/share/zoneinfo/$kiwi_timezone /etc/localtime
-            time_config=/etc/sysconfig/clock
-            baseUpdateSysConfig $time_config TIMEZONE $kiwi_timezone
-        else
-            echo "timezone: $kiwi_timezone not found"
-        fi
-    fi
-    #======================================
-    # hwclock
-    #--------------------------------------
-    if [ ! -z "$kiwi_hwclock" ];then
-        time_config=/etc/sysconfig/clock
-        baseUpdateSysConfig $time_config HWCLOCK "--$kiwi_hwclock"
-    fi
+    Echo "suseConfig method is deprecated, currently does nothing" 
 }
 
 #======================================
