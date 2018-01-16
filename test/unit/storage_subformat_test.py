@@ -94,6 +94,24 @@ class TestDiskFormat(object):
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )
 
+    @patch('kiwi.storage.subformat.DiskFormatOva')
+    def test_disk_format_ova(self, mock_ova):
+        vmdisk = mock.Mock()
+        vmdisk.get_controller = mock.Mock(
+            return_value='controller'
+        )
+        vmdisk.get_diskmode = mock.Mock(
+            return_value='disk-mode'
+        )
+        self.xml_state.get_build_type_vmdisk_section = mock.Mock(
+            return_value=vmdisk
+        )
+        DiskFormat('ova', self.xml_state, 'root_dir', 'target_dir')
+        mock_ova.assert_called_once_with(
+            self.xml_state, 'root_dir', 'target_dir',
+            {'adapter_type=controller': None, 'subformat=disk-mode': None}
+        )
+
     @patch('kiwi.storage.subformat.DiskFormatVagrantLibVirt')
     def test_disk_format_vagrant_libvirt(self, mock_vagrant):
         vagrant_config = mock.Mock()

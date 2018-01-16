@@ -21,6 +21,7 @@ from kiwi.storage.subformat.vhd import DiskFormatVhd
 from kiwi.storage.subformat.vhdx import DiskFormatVhdx
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
+from kiwi.storage.subformat.ova import DiskFormatOva
 from kiwi.storage.subformat.gce import DiskFormatGce
 from kiwi.storage.subformat.vdi import DiskFormatVdi
 from kiwi.storage.subformat.base import DiskFormatBase
@@ -85,7 +86,7 @@ class DiskFormat(object):
             return DiskFormatGce(
                 xml_state, root_dir, target_dir, custom_args
             )
-        elif name == 'vmdk':
+        elif name == 'vmdk' or name == 'ova' or name == 'ovf':
             vmdisk_section = xml_state.get_build_type_vmdisk_section()
             if vmdisk_section:
                 disk_mode = vmdisk_section.get_diskmode()
@@ -98,9 +99,14 @@ class DiskFormat(object):
                     custom_args.update(
                         {'adapter_type={0}'.format(disk_controller): None}
                     )
-            return DiskFormatVmdk(
-                xml_state, root_dir, target_dir, custom_args
-            )
+            if name == 'vmdk':
+                return DiskFormatVmdk(
+                    xml_state, root_dir, target_dir, custom_args
+                )
+            else:
+                return DiskFormatOva(
+                    xml_state, root_dir, target_dir, custom_args
+                )
         elif name == 'vagrant':
             vagrant_config = xml_state.get_build_type_vagrant_config_section()
             if vagrant_config:
