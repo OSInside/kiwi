@@ -36,6 +36,7 @@ from kiwi.system.shell import Shell
 from kiwi.path import Path
 from kiwi.archive.tar import ArchiveTar
 from kiwi.utils.compress import Compress
+from kiwi.utils.command_capabilities import CommandCapabilities
 
 from kiwi.exceptions import (
     KiwiImportDescriptionError,
@@ -219,47 +220,64 @@ class SystemSetup(object):
 
     def setup_keyboard_map(self):
         """
-        Setup etc/sysconfig/keyboard console keyboard
+        Setup console keyboard
         """
         if 'keytable' in self.preferences:
-            keyboard_config = self.root_dir + '/etc/sysconfig/keyboard'
-            if os.path.exists(keyboard_config):
-                log.info(
-                    'Setting up keytable: %s', self.preferences['keytable']
-                )
+            log.info(
+                'Setting up keytable: %s', self.preferences['keytable']
+            )
+            if CommandCapabilities.has_option_in_help(
+                'systemd-firstboot', '--keymap', root=self.root_dir
+            ):
+                Path.wipe(self.root_dir + '/etc/vconsole.conf')
+                Command.run([
+                    'chroot', self.root_dir, 'systemd-firstboot',
+                    '--keymap=' + self.preferences['keytable']
+                ])
+            elif os.path.exists(self.root_dir + '/etc/sysconfig/keyboard'):
                 Shell.run_common_function(
                     'baseUpdateSysConfig', [
-                        keyboard_config, 'KEYTABLE',
+                        self.root_dir + '/etc/sysconfig/keyboard', 'KEYTABLE',
                         '"' + self.preferences['keytable'] + '"'
                     ]
                 )
             else:
                 log.warning(
-                    'keyboard setup skipped etc/sysconfig/keyboard not found'
+                    'keyboard setup skipped no capable '
+                    'systemd-firstboot or etc/sysconfig/keyboard found'
                 )
 
     def setup_locale(self):
         """
-        Setup etc/sysconfig/language UTF8 locale
+        Setup UTF8 system wide locale
         """
         if 'locale' in self.preferences:
-            lang_config = self.root_dir + '/etc/sysconfig/language'
-            if os.path.exists(lang_config):
-                log.info(
-                    'Setting up locale: %s', self.preferences['locale']
+            if 'POSIX' in self.preferences['locale'].split(','):
+                locale = 'POSIX'
+            else:
+                locale = '{0}.UTF-8'.format(
+                    self.preferences['locale'].split(',')[0]
                 )
-                if 'POSIX' in self.preferences['locale'].split(','):
-                    locale = 'POSIX'
-                else:
-                    locale = '{0}.UTF-8'.format(
-                        self.preferences['locale'].split(',')[0]
-                    )
+            log.info('Setting up locale: %s', self.preferences['locale'])
+            if CommandCapabilities.has_option_in_help(
+                'systemd-firstboot', '--locale', root=self.root_dir
+            ):
+                Path.wipe(self.root_dir + '/etc/locale.conf')
+                Command.run([
+                    'chroot', self.root_dir, 'systemd-firstboot',
+                    '--locale=' + locale
+                ])
+            elif os.path.exists(self.root_dir + '/etc/sysconfig/language'):
                 Shell.run_common_function(
-                    'baseUpdateSysConfig', [lang_config, 'RC_LANG', locale]
+                    'baseUpdateSysConfig', [
+                        self.root_dir + '/etc/sysconfig/language',
+                        'RC_LANG', locale
+                    ]
                 )
             else:
                 log.warning(
-                    'locale setup skipped etc/sysconfig/language not found'
+                    'locale setup skipped no capable '
+                    'systemd-firstboot or etc/sysconfig/language not found'
                 )
 
     def setup_timezone(self):
@@ -270,11 +288,20 @@ class SystemSetup(object):
             log.info(
                 'Setting up timezone: %s', self.preferences['timezone']
             )
-            zoneinfo = '/usr/share/zoneinfo/' + self.preferences['timezone']
-            Command.run([
-                'chroot', self.root_dir,
-                'ln', '-s', '-f', zoneinfo, '/etc/localtime'
-            ])
+            if CommandCapabilities.has_option_in_help(
+                'systemd-firstboot', '--timezone', root=self.root_dir
+            ):
+                Path.wipe(self.root_dir + '/etc/localtime')
+                Command.run([
+                    'chroot', self.root_dir, 'systemd-firstboot',
+                    '--timezone=' + self.preferences['timezone']
+                ])
+            else:
+                zoneinfo = '/usr/share/zoneinfo/' + self.preferences['timezone']
+                Command.run([
+                    'chroot', self.root_dir,
+                    'ln', '-s', '-f', zoneinfo, '/etc/localtime'
+                ])
 
     def setup_groups(self):
         """

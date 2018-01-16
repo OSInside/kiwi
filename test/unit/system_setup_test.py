@@ -261,8 +261,9 @@ class TestSystemSetup(object):
         )
 
     @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_keyboard_map(self, mock_path, mock_shell):
+    def test_setup_keyboard_map(self, mock_path, mock_run, mock_shell):
         mock_path.return_value = True
         self.setup.preferences['keytable'] = 'keytable'
         self.setup.setup_keyboard_map()
@@ -271,6 +272,25 @@ class TestSystemSetup(object):
                 'root_dir/etc/sysconfig/keyboard', 'KEYTABLE', '"keytable"'
             ]
         )
+
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.path.exists')
+    def test_setup_keyboard_map_with_systemd(
+        self, mock_path, mock_run, mock_shell, mock_caps
+    ):
+        mock_caps.return_value = True
+        mock_path.return_value = True
+        self.setup.preferences['keytable'] = 'keytable'
+        self.setup.setup_keyboard_map()
+        mock_run.assert_has_calls([
+            call(['rm', '-r', '-f', 'root_dir/etc/vconsole.conf']),
+            call([
+                'chroot', 'root_dir', 'systemd-firstboot',
+                '--keymap=keytable'
+            ])
+        ])
 
     @patch('kiwi.logger.log.warning')
     @patch('os.path.exists')
@@ -281,8 +301,9 @@ class TestSystemSetup(object):
         assert mock_log_warn.called
 
     @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_locale(self, mock_path, mock_shell):
+    def test_setup_locale(self, mock_path, mock_run, mock_shell):
         mock_path.return_value = True
         self.setup.preferences['locale'] = 'locale1,locale2'
         self.setup.setup_locale()
@@ -292,9 +313,29 @@ class TestSystemSetup(object):
             ]
         )
 
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_locale_POSIX(self, mock_path, mock_shell):
+    def test_setup_locale_with_systemd(
+        self, mock_path, mock_run, mock_shell, mock_caps
+    ):
+        mock_caps.return_valure = True
+        mock_path.return_value = True
+        self.setup.preferences['locale'] = 'locale1,locale2'
+        self.setup.setup_locale()
+        mock_run.assert_has_calls([
+            call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
+            call([
+                'chroot', 'root_dir', 'systemd-firstboot',
+                '--locale=locale1.UTF-8'
+            ])
+        ])
+
+    @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.path.exists')
+    def test_setup_locale_POSIX(self, mock_path, mock_run, mock_shell):
         mock_path.return_value = True
         self.setup.preferences['locale'] = 'POSIX,locale2'
         self.setup.setup_locale()
@@ -316,9 +357,25 @@ class TestSystemSetup(object):
     def test_setup_timezone(self, mock_command):
         self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
-        mock_command.assert_called_once_with([
-            'chroot', 'root_dir', 'ln', '-s', '-f',
-            '/usr/share/zoneinfo/timezone', '/etc/localtime'
+        mock_command.assert_has_calls([
+            call([
+                'chroot', 'root_dir', 'ln', '-s', '-f',
+                '/usr/share/zoneinfo/timezone', '/etc/localtime'
+            ])
+        ])
+
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.system.setup.Command.run')
+    def test_setup_timezone_with_systemd(self, mock_command, mock_caps):
+        mock_caps.return_value = True
+        self.setup.preferences['timezone'] = 'timezone'
+        self.setup.setup_timezone()
+        mock_command.assert_has_calls([
+            call(['rm', '-r', '-f', 'root_dir/etc/localtime']),
+            call([
+                'chroot', 'root_dir', 'systemd-firstboot',
+                '--timezone=timezone'
+            ])
         ])
 
     @patch('kiwi.system.setup.Users')
