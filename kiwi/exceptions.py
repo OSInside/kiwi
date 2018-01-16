@@ -773,3 +773,10 @@ class KiwiSizeError(KiwiError):
     Exception is raised when the convertion from a given size in string
     format to a number.
     """
+
+
+class KiwiCommandCapabilitiesError(KiwiError):
+    """
+    Exception is raised when some the CommandCapabilities methods fails,
+    usually meaning there is some issue trying to parse some command output.
+    """
