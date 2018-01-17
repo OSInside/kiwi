@@ -227,7 +227,8 @@ class SystemSetup(object):
                 'Setting up keytable: %s', self.preferences['keytable']
             )
             if CommandCapabilities.has_option_in_help(
-                'systemd-firstboot', '--keymap', root=self.root_dir
+                'systemd-firstboot', '--keymap',
+                root=self.root_dir, raise_on_error=False
             ):
                 Path.wipe(self.root_dir + '/etc/vconsole.conf')
                 Command.run([
@@ -260,7 +261,8 @@ class SystemSetup(object):
                 )
             log.info('Setting up locale: %s', self.preferences['locale'])
             if CommandCapabilities.has_option_in_help(
-                'systemd-firstboot', '--locale', root=self.root_dir
+                'systemd-firstboot', '--locale',
+                root=self.root_dir, raise_on_error=False
             ):
                 Path.wipe(self.root_dir + '/etc/locale.conf')
                 Command.run([
@@ -289,7 +291,8 @@ class SystemSetup(object):
                 'Setting up timezone: %s', self.preferences['timezone']
             )
             if CommandCapabilities.has_option_in_help(
-                'systemd-firstboot', '--timezone', root=self.root_dir
+                'systemd-firstboot', '--timezone',
+                root=self.root_dir, raise_on_error=False
             ):
                 Path.wipe(self.root_dir + '/etc/localtime')
                 Command.run([

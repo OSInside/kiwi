@@ -19,8 +19,8 @@ import os
 
 # project
 from kiwi.command import Command
-from kiwi.exceptions import KiwiArchiveTarError
 from kiwi.defaults import Defaults
+from kiwi.utils.command_capabilities import CommandCapabilities
 
 
 class ArchiveTar(object):
@@ -49,7 +49,7 @@ class ArchiveTar(object):
         self.create_from_file_list = create_from_file_list
         self.file_list = file_list
 
-        if self._does_tar_command_support_xattrs():
+        if CommandCapabilities.check_version('tar', (1, 27)):
             self.xattrs_options = [
                 '--xattrs', '--xattrs-include=*'
             ]
@@ -173,15 +173,3 @@ class ArchiveTar(object):
             archive_items.append('--exclude')
             archive_items.append('./' + exclude)
         return archive_items
-
-    def _does_tar_command_support_xattrs(self):
-        command = Command.run(['tar', '--version'])
-
-        try:
-            version_line = command.output.splitlines()[0]
-            version_string = version_line.split()[-1]
-            version_info = tuple(int(elt) for elt in version_string.split('.'))
-        except Exception:
-            raise KiwiArchiveTarError(
-                "Unable to parse tar version string")
-        return version_info >= (1, 27)

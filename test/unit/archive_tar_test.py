@@ -6,7 +6,7 @@ from .test_helper import raises
 
 from kiwi.archive.tar import ArchiveTar
 
-from kiwi.exceptions import KiwiArchiveTarError
+from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 
 class TestArchiveTar(object):
@@ -17,7 +17,7 @@ class TestArchiveTar(object):
         mock_command.return_value = command
         self.archive = ArchiveTar('foo.tar')
 
-    @raises(KiwiArchiveTarError)
+    @raises(KiwiCommandCapabilitiesError)
     @patch('kiwi.archive.tar.Command.run')
     def test_invalid_tar_command_version(self, mock_command):
         command = mock.Mock()
