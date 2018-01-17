@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.7" name="initrd-oemboot-suse-13.2">
+<image schemaversion="6.8" name="initrd-oemboot-suse-13.2">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -96,9 +96,7 @@
         <package name="kernel-default" arch="i586"/>
     </packages>
     <packages type="image" profiles="xenk">
-<!-- xen kernel only supported on x86_64 -->
         <package name="kernel-xen" arch="x86_64"/>
-<!-- xen dom0 support only on x86_64 -->
         <package name="xen" arch="x86_64"/>
     </packages>
     <packages type="image" profiles="ec2k">
@@ -112,7 +110,7 @@
     <packages type="image" profiles="xen,ec2">
         <package name="grub2-x86_64-xen" arch="x86_64"/>
     </packages>
-    <packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
+    <packages type="image" profiles="custom"/>
     <packages type="bootstrap">
         <package name="kbd"/>
         <package name="gptfdisk"/>
