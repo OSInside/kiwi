@@ -57,7 +57,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.7" }
+        attribute schemaversion { "6.8" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -278,20 +278,6 @@ div {
         element file {
             k.file.attlist,
             empty
-        }
-}
-
-#==========================================
-# common element <hwclock>
-#
-div {
-    k.hwclock.content = "utc" | "localtime"
-    k.hwclock.attlist = empty
-    k.hwclock =
-        ## Setup Image harware clock setup, either utc or localtime
-        element hwclock {
-            k.hwclock.attlist,
-            k.hwclock.content
         }
 }
 
@@ -2533,7 +2519,6 @@ div {
             k.preferences.attlist &
             k.bootsplash-theme? &
             k.bootloader-theme? &
-            k.hwclock? &
             k.keytable? &
             k.locale? &
             k.packagemanager? &
