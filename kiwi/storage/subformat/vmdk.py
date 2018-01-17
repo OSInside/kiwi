@@ -65,9 +65,9 @@ class DiskFormatVmdk(DiskFormatBase):
         Command.run(
             [
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', self.image_format
+                '-O', 'vmdk'
             ] + self.options + [
-                self.get_target_name_for_format(self.image_format)
+                self.get_target_name_for_format('vmdk')
             ]
         )
         self._update_vmdk_descriptor()
@@ -83,18 +83,14 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_name_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_name_for_format('vmdk'),
             use_for_bundle=True,
             compress=False,
             shasum=True
         )
         result.add(
             key='disk_format_machine_settings',
-            filename=self.get_target_name_for_format(
-                'vmx'
-            ),
+            filename=self.get_target_name_for_format('vmx'),
             use_for_bundle=True,
             compress=False,
             shasum=False
@@ -111,7 +107,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_name_for_format(self.image_format),
+                self.get_target_name_for_format('vmdk'),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
             'disk_id': '0'

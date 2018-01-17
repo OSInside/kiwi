@@ -507,7 +507,7 @@ class Defaults(object):
         :rtype: list
         """
         return [
-            'gce', 'qcow2', 'vmdk', 'vmx', 'vhd', 'vhdx',
+            'gce', 'qcow2', 'vmdk', 'ova', 'vmx', 'vhd', 'vhdx',
             'vhdfixed', 'vdi', 'vagrant.libvirt.box'
         ]
 
