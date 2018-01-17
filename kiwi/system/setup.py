@@ -205,19 +205,6 @@ class SystemSetup(object):
             archive = ArchiveTar(overlay_archive)
             archive.extract(self.root_dir)
 
-    def setup_hardware_clock(self):
-        """
-        Setup etc/adjtime by running hwclock
-        """
-        if 'hwclock' in self.preferences:
-            log.info(
-                'Setting up hardware clock: %s', self.preferences['hwclock']
-            )
-            Command.run([
-                'chroot', self.root_dir,
-                'hwclock', '--adjust', '--' + self.preferences['hwclock']
-            ])
-
     def setup_keyboard_map(self):
         """
         Setup console keyboard
@@ -836,14 +823,11 @@ class SystemSetup(object):
         for preferences in self.xml_state.get_preferences_sections():
             timezone_section = preferences.get_timezone()
             locale_section = preferences.get_locale()
-            hwclock_section = preferences.get_hwclock()
             keytable_section = preferences.get_keytable()
             if timezone_section:
                 self.preferences['timezone'] = timezone_section[0]
             if locale_section:
                 self.preferences['locale'] = locale_section[0]
-            if hwclock_section:
-                self.preferences['hwclock'] = hwclock_section[0]
             if keytable_section:
                 self.preferences['keytable'] = keytable_section[0]
 

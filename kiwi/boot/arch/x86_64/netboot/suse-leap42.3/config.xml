@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.7" name="initrd-netboot-suse-leap-42.3">
+<image schemaversion="6.8" name="initrd-netboot-suse-leap-42.3">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.de</contact>

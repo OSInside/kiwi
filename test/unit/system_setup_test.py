@@ -250,16 +250,6 @@ class TestSystemSetup(object):
             'root_dir'
         )
 
-    @patch('kiwi.system.setup.Command.run')
-    def test_setup_hardware_clock(self, mock_command):
-        self.setup.preferences['hwclock'] = 'clock'
-        self.setup.setup_hardware_clock()
-        mock_command.assert_called_once_with(
-            [
-                'chroot', 'root_dir', 'hwclock', '--adjust', '--clock'
-            ]
-        )
-
     @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')

@@ -223,7 +223,6 @@ class Profile(object):
         # kiwi_showlicense
         # kiwi_keytable
         # kiwi_timezone
-        # kiwi_hwclock
         # kiwi_language
         # kiwi_splash_theme
         # kiwi_loader_theme
@@ -240,9 +239,6 @@ class Profile(object):
             if 'kiwi_timezone' not in self.dot_profile:
                 self.dot_profile['kiwi_timezone'] = \
                     self._text(preferences.get_timezone())
-            if 'kiwi_hwclock' not in self.dot_profile:
-                self.dot_profile['kiwi_hwclock'] = \
-                    self._text(preferences.get_hwclock())
             if 'kiwi_language' not in self.dot_profile:
                 self.dot_profile['kiwi_language'] = \
                     self._text(preferences.get_locale())

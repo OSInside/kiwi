@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -6918,7 +6918,7 @@ class preferences(GeneratedsSuper):
     sections based on profiles combine to create on vaild definition"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, hwclock=None, keytable=None, locale=None, packagemanager=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
+    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         if bootsplash_theme is None:
@@ -6929,10 +6929,6 @@ class preferences(GeneratedsSuper):
             self.bootloader_theme = []
         else:
             self.bootloader_theme = bootloader_theme
-        if hwclock is None:
-            self.hwclock = []
-        else:
-            self.hwclock = hwclock
         if keytable is None:
             self.keytable = []
         else:
@@ -6990,11 +6986,6 @@ class preferences(GeneratedsSuper):
     def add_bootloader_theme(self, value): self.bootloader_theme.append(value)
     def insert_bootloader_theme_at(self, index, value): self.bootloader_theme.insert(index, value)
     def replace_bootloader_theme_at(self, index, value): self.bootloader_theme[index] = value
-    def get_hwclock(self): return self.hwclock
-    def set_hwclock(self, hwclock): self.hwclock = hwclock
-    def add_hwclock(self, value): self.hwclock.append(value)
-    def insert_hwclock_at(self, index, value): self.hwclock.insert(index, value)
-    def replace_hwclock_at(self, index, value): self.hwclock[index] = value
     def get_keytable(self): return self.keytable
     def set_keytable(self, keytable): self.keytable = keytable
     def add_keytable(self, value): self.keytable.append(value)
@@ -7046,7 +7037,6 @@ class preferences(GeneratedsSuper):
         if (
             self.bootsplash_theme or
             self.bootloader_theme or
-            self.hwclock or
             self.keytable or
             self.locale or
             self.packagemanager or
@@ -7096,9 +7086,6 @@ class preferences(GeneratedsSuper):
         for bootloader_theme_ in self.bootloader_theme:
             showIndent(outfile, level, pretty_print)
             outfile.write('<bootloader-theme>%s</bootloader-theme>%s' % (self.gds_encode(self.gds_format_string(quote_xml(bootloader_theme_), input_name='bootloader-theme')), eol_))
-        for hwclock_ in self.hwclock:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<hwclock>%s</hwclock>%s' % (self.gds_encode(self.gds_format_string(quote_xml(hwclock_), input_name='hwclock')), eol_))
         for keytable_ in self.keytable:
             showIndent(outfile, level, pretty_print)
             outfile.write('<keytable>%s</keytable>%s' % (self.gds_encode(self.gds_format_string(quote_xml(keytable_), input_name='keytable')), eol_))
@@ -7146,14 +7133,6 @@ class preferences(GeneratedsSuper):
             bootloader_theme_ = child_.text
             bootloader_theme_ = self.gds_validate_string(bootloader_theme_, node, 'bootloader_theme')
             self.bootloader_theme.append(bootloader_theme_)
-        elif nodeName_ == 'hwclock':
-            hwclock_ = child_.text
-            if hwclock_:
-                hwclock_ = re_.sub(String_cleanup_pat_, " ", hwclock_).strip()
-            else:
-                hwclock_ = ""
-            hwclock_ = self.gds_validate_string(hwclock_, node, 'hwclock')
-            self.hwclock.append(hwclock_)
         elif nodeName_ == 'keytable':
             keytable_ = child_.text
             keytable_ = self.gds_validate_string(keytable_, node, 'keytable')
