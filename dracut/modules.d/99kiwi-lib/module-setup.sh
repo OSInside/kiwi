@@ -20,7 +20,8 @@ install() {
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
-        mdadm cryptsetup dialog
+        mdadm cryptsetup dialog \
+        pv curl xz
     if [[ "$(uname -m)" =~ s390 ]];then
         inst_multiple fdasd
     fi
@@ -38,4 +39,6 @@ install() {
         "${moddir}/kiwi-lvm-lib.sh" "/lib/kiwi-lvm-lib.sh"
     inst_simple \
         "${moddir}/kiwi-luks-lib.sh" "/lib/kiwi-luks-lib.sh"
+    inst_simple \
+        "${moddir}/kiwi-net-lib.sh" "/lib/kiwi-net-lib.sh"
 }

@@ -3,6 +3,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type setup_debug >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
 type get_block_device_kbsize >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
+type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 
 #======================================
 # Functions
@@ -153,11 +154,12 @@ function check_image_fits_target {
     fi
 }
 
-function dump_local_image {
+function dump_image {
     declare kiwi_oemsilentinstall=${kiwi_oemsilentinstall}
     declare kiwi_oemunattended=${kiwi_oemunattended}
     local image_source_files=$1
     local image_target=$2
+    local image_from_remote=$3
     local image_source
     local image_basename
     image_source="$(echo "${image_source_files}" | cut -f1 -d\|)"
@@ -165,8 +167,13 @@ function dump_local_image {
     local progress=/dev/install_progress
     local load_text="Loading ${image_basename}..."
     local title_text="Installation..."
+    local dump
 
-    read_local_image_metadata "${image_source}"
+    if [ ! -z "${image_from_remote}" ];then
+        dump=dump_remote_image
+    else
+        dump=dump_local_image
+    fi
 
     check_image_fits_target "${image_target}"
 
@@ -183,24 +190,44 @@ function dump_local_image {
     if command -v pv &>/dev/null && [ -z "${kiwi_oemsilentinstall}" ];then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
-        #run_progress_dialog "${load_text}" "${title_text}" &
-        (
-            pv -n "${image_source}" | dd bs=32k of="${image_target}" &>/dev/null
-        ) 2>${progress} &
+        eval "${dump}" "${image_source}" "${image_target}" "${progress}" &
         run_progress_dialog "${load_text}" "${title_text}"
-        #stop_dialog
     else
         # dump with silently blocked console
-        if ! dd if="${image_source}" bs=32k of="${image_target}" &>/dev/null
-        then
+        if ! eval "${dump}" "${image_source}" "${image_target}"; then
             die "Failed to install image"
         fi
     fi
 }
 
+function dump_local_image {
+    local image_source=$1
+    local image_target=$2
+    local progress=$3
+    if [ -e "${progress}" ];then
+        (
+            pv -n "${image_source}" | dd bs=32k of="${image_target}" &>/dev/null
+        ) 2>"${progress}"
+    else
+        dd if="${image_source}" bs=32k of="${image_target}" &>/dev/null
+    fi
+}
+
 function dump_remote_image {
-    # TODO
-    :
+    local image_source=$1
+    local image_target=$2
+    local progress=$3
+    local image_size
+    image_size=$((blocks * blocksize))
+    if [ -e "${progress}" ];then
+        (
+            fetch_file "${image_source}" "${image_size}" |\
+                dd bs=32k of="${image_target}" &>/dev/null
+        ) 2>"${progress}"
+    else
+        fetch_file "${image_source}" |\
+            dd bs=32k of="${image_target}" &>/dev/null
+    fi
 }
 
 function check_image_integrity {
@@ -259,8 +286,42 @@ function get_local_image_source_files {
 }
 
 function get_remote_image_source_files {
-    # TODO:
-    :
+    local image_uri
+    local install_dir=/run/install
+    local image_md5="${install_dir}/image.md5"
+    local metadata_dir="${install_dir}/boot/remote/loader"
+
+    mkdir -p "${metadata_dir}"
+
+    image_uri=$(getarg rd.kiwi.install.image=)
+    image_md5_uri=$(
+        echo "${image_uri}" | awk '{ gsub("\\.xz",".md5", $1); print $1 }'
+    )
+    image_initrd_uri=$(
+        echo "${image_uri}" | awk '{ gsub("\\.xz",".initrd", $1); print $1 }'
+    )
+    image_kernel_uri=$(
+        echo "${image_uri}" | awk '{ gsub("\\.xz",".kernel", $1); print $1 }'
+    )
+
+    if ! ifup lan0 &>/tmp/net.info;then
+        die "Network setup failed, see /tmp/net.info"
+    fi
+
+    if ! fetch_file "${image_md5_uri}" > "${image_md5}";then
+        die "Failed to fetch ${image_md5_uri}, see /tmp/fetch.info"
+    fi
+
+    if ! fetch_file "${image_kernel_uri}" > "${metadata_dir}/linux";then
+        die "Failed to fetch ${image_kernel_uri}, see /tmp/fetch.info"
+    fi
+
+    if ! fetch_file "${image_initrd_uri}" > "${install_dir}/initrd.system_image"
+    then
+        die "Failed to fetch ${image_initrd_uri}, see /tmp/fetch.info"
+    fi
+
+    echo "${image_uri}|${image_md5}"
 }
 
 function boot_installed_system {
@@ -297,15 +358,13 @@ fi
 export_image_metadata "${image_source_files}"
 
 if getargbool 0 rd.kiwi.install.pxe; then
-    dump_remote_image "${image_source_files}" "${image_target}"
+    dump_image "${image_source_files}" "${image_target}" "remote_image"
 else
-    dump_local_image "${image_source_files}" "${image_target}"
+    dump_image "${image_source_files}" "${image_target}"
 fi
 
 check_image_integrity "${image_target}"
 
 boot_installed_system
-
-emergency_shell
 
 exit 0

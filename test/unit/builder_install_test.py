@@ -238,9 +238,11 @@ class TestInstallImageBuilder(object):
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
+    @patch('kiwi.builder.install.os.symlink')
     @raises(KiwiInstallBootImageError)
     def test_create_install_pxe_no_hypervisor_found(
-        self, mock_compress, mock_md5, mock_command, mock_open, mock_dtemp
+        self, mock_symlink, mock_compress, mock_md5, mock_command,
+        mock_open, mock_dtemp
     ):
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
@@ -252,8 +254,12 @@ class TestInstallImageBuilder(object):
     @patch('kiwi.builder.install.ArchiveTar')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
+    @patch('kiwi.builder.install.shutil.copy')
+    @patch('kiwi.builder.install.os.symlink')
+    @patch('kiwi.builder.install.os.chmod')
     def test_create_install_pxe_archive(
-        self, mock_compress, mock_md5, mock_archive,
+        self, mock_chmod, mock_symlink, mock_copy,
+        mock_compress, mock_md5, mock_archive,
         mock_command, mock_open, mock_dtemp
     ):
         context_manager_mock = mock.Mock()
@@ -303,6 +309,9 @@ class TestInstallImageBuilder(object):
         self.kernel.copy_kernel.assert_called_once_with(
             'tmpdir', '/pxeboot.kernel'
         )
+        mock_symlink.assert_called_once_with(
+            'pxeboot.kernel', 'tmpdir/result-image.kernel'
+        )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
             'tmpdir', '/pxeboot.xen.gz'
         )
@@ -312,6 +321,9 @@ class TestInstallImageBuilder(object):
         assert mock_command.call_args_list[1] == call(
             ['mv', 'initrd', 'tmpdir/pxeboot.initrd.xz']
         )
+        mock_chmod.assert_called_once_with(
+            'tmpdir/pxeboot.initrd.xz', 420
+        )
         mock_archive.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.install.tar'
         )
@@ -320,17 +332,34 @@ class TestInstallImageBuilder(object):
         )
 
         file_mock.write.reset_mock()
+        mock_chmod.reset_mock()
         mock_open.reset_mock()
         self.install_image.initrd_system = 'dracut'
 
         self.install_image.create_install_pxe_archive()
 
+        self.boot_image_task.include_file.assert_called_once_with(
+            '/config.bootoptions'
+        )
+        mock_copy.assert_called_once_with(
+            'root_dir/boot/initrd', 'tmpdir/result-image.initrd'
+        )
+        assert mock_chmod.call_args_list == [
+            call('tmpdir/result-image.initrd', 420),
+            call('tmpdir/pxeboot.initrd.xz', 420)
+        ]
         assert mock_open.call_args_list == [
             call('tmpdir/result-image.append', 'w'),
             call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w')
         ]
         assert file_mock.write.call_args_list == [
-            call('pxe=1 custom_kernel_options\n'),
+            call(
+                ' '.join([
+                    'rd.kiwi.install.pxe',
+                    'rd.kiwi.install.image=http://example.com/image.xz',
+                    'custom_kernel_options\n'
+                ])
+            ),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),

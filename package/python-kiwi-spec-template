@@ -317,6 +317,9 @@ Requires:       parted
 Requires:       util-linux
 Requires:       xfsprogs
 Requires:       dialog
+Requires:       pv
+Requires:       curl
+Requires:       xz
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
@@ -344,7 +347,7 @@ Summary:        KIWI - Dracut module for oem(install) image type
 BuildRequires:  dracut
 Requires:       dracut-kiwi-lib
 Requires:       kexec-tools
-Requires:       pv
+Requires:       gawk
 License:        GPL-3.0+
 Group:          System/Management
 

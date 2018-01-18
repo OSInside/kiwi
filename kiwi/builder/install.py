@@ -233,11 +233,14 @@ class InstallImageBuilder(object):
         """
         Create an oem install tar archive suitable for installing a
         disk image via the network using the PXE boot protocol.
-        The archive contains the raw disk image and its checksum
-        as well as an install initrd and kernel plus the required
-        kernel commandline information which needs to be added
-        as append line in the pxelinux config file on the boot
-        server
+        The archive contains:
+
+        * The raw system image xz compressed
+        * The raw system image checksum metadata file
+        * The append file template for the boot server
+        * The system image initrd for kexec
+        * The install initrd
+        * The kernel
 
         Image types which triggers this builder are:
 
@@ -278,6 +281,17 @@ class InstallImageBuilder(object):
         if self.initrd_system == 'kiwi':
             self._write_install_image_info_to_boot_image()
 
+        # the kexec required system image initrd is stored for dracut kiwi-dump
+        if self.initrd_system == 'dracut':
+            system_image_initrd = self.root_dir + '/boot/initrd'
+            target_initrd_name = '{0}/{1}.initrd'.format(
+                self.pxe_dir, self.xml_state.xml_data.get_name()
+            )
+            shutil.copy(
+                system_image_initrd, target_initrd_name
+            )
+            os.chmod(target_initrd_name, 420)
+
         # create pxe config append information
         # this information helps to configure the boot server correctly
         append_filename = ''.join(
@@ -286,7 +300,15 @@ class InstallImageBuilder(object):
                 self.xml_state.xml_data.get_name(), '.append'
             ]
         )
-        cmdline = 'pxe=1'
+        if self.initrd_system == 'kiwi':
+            cmdline = 'pxe=1'
+        else:
+            cmdline = ' '.join(
+                [
+                    'rd.kiwi.install.pxe',
+                    'rd.kiwi.install.image=http://example.com/image.xz'
+                ]
+            )
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
@@ -310,6 +332,14 @@ class InstallImageBuilder(object):
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():
             kernel.copy_kernel(self.pxe_dir, '/pxeboot.kernel')
+            os.symlink(
+                'pxeboot.kernel', ''.join(
+                    [
+                        self.pxe_dir, '/',
+                        self.xml_state.xml_data.get_name(), '.kernel'
+                    ]
+                )
+            )
         else:
             raise KiwiInstallBootImageError(
                 'No kernel in boot image tree %s found' %
@@ -325,6 +355,7 @@ class InstallImageBuilder(object):
                 )
         if self.initrd_system == 'dracut':
             self._create_dracut_install_config()
+            self._add_system_image_boot_options_to_boot_image()
         self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
@@ -332,6 +363,7 @@ class InstallImageBuilder(object):
                 self.pxe_dir + '/pxeboot.initrd.xz'
             ]
         )
+        os.chmod(self.pxe_dir + '/pxeboot.initrd.xz', 420)
 
     def _create_iso_install_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/' + self.arch + '/loader'

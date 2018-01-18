@@ -5,6 +5,10 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 [ -z "${root}" ] && root=$(getarg root=)
 
+if getargbool 0 rd.kiwi.install.pxe; then
+    root="install:REMOTE"
+fi
+
 if [ "${root%%:*}" = "install" ] ; then
     installroot=${root}
 fi
@@ -18,6 +22,9 @@ case "${installroot}" in
         root="${root#install:}"
         root="$(echo "${root}" | sed 's,/,\\x2f,g')"
         root="install:/dev/disk/by-label/${root#CDLABEL=}"
+        rootok=1 ;;
+
+    install:REMOTE) \
         rootok=1 ;;
 esac
 
