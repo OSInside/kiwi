@@ -25,39 +25,39 @@ function fetch_file {
 }
 
 function uri_scheme {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[2]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[2]}"
 }
 
 function uri_authority {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[4]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[4]}"
 }
 
 function uri_user {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[6]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[6]}"
 }
 
 function uri_host {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[7]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[7]}"
 }
 
 function uri_port {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[9]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[9]}"
 }
 
 function uri_path {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[10]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[10]}"
 }
 
 function uri_relative_path {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[11]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[11]}"
 }
 
 function uri_query {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[13]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[13]}"
 }
 
 function uri_fragment {
-    [[ "$@" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[15]}"
+    [[ "$*" =~ ${URI_REGEX} ]] && echo "${BASH_REMATCH[15]}"
 }
 
 #======================================
