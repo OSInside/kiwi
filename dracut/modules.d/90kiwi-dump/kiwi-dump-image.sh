@@ -9,13 +9,17 @@ type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 # Functions
 #--------------------------------------
 function scan_softraid_devices {
-    # TODO: run ataraid scan so that they appear in lsblk
-    :
+    # """
+    # calls dmraid_scan from dmraid module
+    # """
+    dmraid_scan
 }
 
 function scan_multipath_devices {
-    # TODO: run multipath scan/daemon so that they appear in lsblk
-    :
+    # """
+    # starts multipath daemon from multipath module
+    # """
+    systemctl start multipathd
 }
 
 function get_disk_list {
