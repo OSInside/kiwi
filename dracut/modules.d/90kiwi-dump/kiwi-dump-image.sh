@@ -44,9 +44,9 @@ function get_disk_list {
         scan_multipath_devices
     fi
     for disk_meta in $(
-        lsblk -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
+        lsblk -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
     );do
-        disk_device="/dev/$(echo "${disk_meta}" | cut -f1 -d:)"
+        disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         disk_device_by_id=$(
             get_persistent_device_from_unix_node "${disk_device}" "${disk_id}"

@@ -320,6 +320,7 @@ Requires:       dialog
 Requires:       pv
 Requires:       curl
 Requires:       xz
+Requires:       device-mapper
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif

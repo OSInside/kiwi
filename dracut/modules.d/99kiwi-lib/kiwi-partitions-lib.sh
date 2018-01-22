@@ -194,10 +194,10 @@ function get_partition_node_name {
     local index=1
     local part
     for partnode in $(
-        lsblk -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
+        lsblk -p -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
     );do
         if [ "${index}" = "${partid}" ];then
-            echo "/dev/${partnode}"
+            echo "${partnode}"
             return 0
         fi
         index=$((index + 1))
@@ -268,9 +268,9 @@ function get_free_disk_bytes {
     rest_bytes=${disk_bytes}
     local part_bytes=0
     for part in $(
-        lsblk -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
+        lsblk -p -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
     );do
-        part_bytes=$((part_bytes + $(blockdev --getsize64 /dev/"${part}")))
+        part_bytes=$((part_bytes + $(blockdev --getsize64 "${part}")))
     done
     rest_bytes=$((rest_bytes - part_bytes))
     echo ${rest_bytes}

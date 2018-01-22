@@ -38,10 +38,8 @@ function lookup_disk_device_from_root {
     if [ -L "${root_device}" ];then
         root_device=/dev/$(basename "$(readlink "${root_device}")")
     fi
-    echo /dev/"$(
-        lsblk -n -r -s -o NAME,TYPE "${root_device}" |\
+    lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
         grep disk | cut -f1 -d ' '
-    )"
 }
 
 function udev_pending {
@@ -66,6 +64,10 @@ function get_persistent_device_from_unix_node {
             return
         fi
     done
+}
+
+function deactivate_all_device_maps {
+    dmsetup remove_all
 }
 
 function import_file {

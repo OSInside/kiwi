@@ -3,15 +3,13 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 function lookupIsoDiskDevice {
     local disk
-    local disk_device
-    for disk in $(lsblk -n -r -o NAME,TYPE | grep disk | cut -f1 -d' ');do
-        disk_device="/dev/${disk}"
+    for disk in $(lsblk -p -n -r -o NAME,TYPE | grep disk | cut -f1 -d' ');do
         application_id=$(
-            isoinfo -d -i "${disk_device}" 2>/dev/null |\
+            isoinfo -d -i "${disk}" 2>/dev/null |\
                 grep "Application id:"|cut -f2 -d:
         )
         if [ ! -z "${application_id}" ];then
-            echo "${disk_device}"
+            echo "${disk}"
             return
         fi
     done
@@ -108,8 +106,8 @@ function preparePersistentOverlay {
             return 1
         fi
         local write_partition
-        write_partition=$(lsblk "${isodiskdev}" -r -n -o NAME | tail -n1)
-        if ! mkfs."${cow_filesystem}" -L cow /dev/"${write_partition}"; then
+        write_partition=$(lsblk "${isodiskdev}" -p -r -n -o NAME | tail -n1)
+        if ! mkfs."${cow_filesystem}" -L cow "${write_partition}"; then
             return 1
         fi
         if ! mount -L cow ${overlay_mount_point}; then

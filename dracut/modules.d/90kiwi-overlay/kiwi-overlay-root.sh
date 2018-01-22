@@ -23,12 +23,12 @@ function initGlobalDevices {
         die "No root device for operation given"
     fi
     write_partition="$1"
-    root_disk=/dev/$(
-        lsblk -n -r -s -o NAME,TYPE "${write_partition}" |\
+    root_disk=$(
+        lsblk -p -n -r -s -o NAME,TYPE "${write_partition}" |\
         grep disk | cut -f1 -d ' '
     )
-    read_only_partition=/dev/$(
-        lsblk -r --fs -o NAME,FSTYPE "${root_disk}" |\
+    read_only_partition=$(
+        lsblk -p -r --fs -o NAME,FSTYPE "${root_disk}" |\
         grep squashfs | cut -f1 -d ' '
     )
 }
