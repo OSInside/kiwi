@@ -131,6 +131,7 @@ class SystemPrepareTask(CliTask):
         self.runtime_checker.check_dracut_module_for_live_iso_in_package_list()
         self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
         self.runtime_checker.check_dracut_module_for_disk_oem_in_package_list()
+        self.runtime_checker.check_dracut_module_for_oem_install_in_package_list()
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()
