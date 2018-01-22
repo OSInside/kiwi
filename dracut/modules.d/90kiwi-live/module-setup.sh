@@ -23,10 +23,21 @@ installkernel() {
 install() {
     declare moddir=${moddir}
     declare systemdutildir=${systemdutildir}
+    declare dracutbasedir=${dracutbasedir}
+    local dmsquashdir=
     inst_multiple \
         umount dmsetup blockdev blkid lsblk dd losetup \
         isoinfo grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
         checkmedia dialog
+
+    dmsquashdir=$(find "${dracutbasedir}/modules.d" -name "*dmsquash-live")
+    if [ -n "${dmsquashdir}" ] && \
+        [ -f "${dmsquashdir}/parse-iso-scan.sh" ] && \
+        [ -f "${dmsquashdir}/iso-scan.sh" ]; then
+        inst_hook cmdline 31 "${dmsquashdir}/parse-iso-scan.sh"
+        inst_script "${dmsquashdir}/iso-scan.sh" "/sbin/iso-scan"
+    fi
+
     inst_hook cmdline 30 "${moddir}/parse-kiwi-live.sh"
     inst_hook pre-udev 30 "${moddir}/kiwi-live-genrules.sh"
     inst_hook pre-mount 30 "${moddir}/kiwi-live-checkmedia.sh"
