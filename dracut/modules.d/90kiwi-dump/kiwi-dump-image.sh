@@ -254,7 +254,6 @@ function check_image_integrity {
             pv --size $((blocks * blocksize)) --stop-at-size \
             -n "${image_target}" | md5sum - > ${verify_result}
         ) 2>${progress}
-        stop_dialog
     else
         # verify with silently blocked console
         head --bytes=$((blocks * blocksize)) "${image_target}" |\
