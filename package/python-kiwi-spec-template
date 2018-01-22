@@ -347,6 +347,8 @@ Summary:        KIWI - Dracut module for oem(install) image type
 BuildRequires:  dracut
 Requires:       dracut-kiwi-lib
 Requires:       kexec-tools
+Requires:       dmraid
+Requires:       multipath-tools
 Requires:       gawk
 License:        GPL-3.0+
 Group:          System/Management
