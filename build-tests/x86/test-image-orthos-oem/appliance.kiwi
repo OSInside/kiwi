@@ -53,6 +53,7 @@
         <package name="xdg-utils"/>
         <package name="ypbind"/>
         <package name="wget"/>
+        <package name="timezone"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>

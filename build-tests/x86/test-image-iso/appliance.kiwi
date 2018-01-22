@@ -55,6 +55,7 @@
         <package name="kernel-default"/>
         <package name="shim"/>
         <package name="gfxboot-branding-openSUSE"/>
+        <package name="timezone"/>
         <package name="dracut-kiwi-live"/>
     </packages>
     <packages type="bootstrap">

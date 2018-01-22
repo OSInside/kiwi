@@ -64,6 +64,7 @@
         <package name="less"/>
         <package name="patch"/>
         <package name="util-linux"/>
+        <package name="timezone"/>
         <package name="dracut-kiwi-oem-repart"/>
     </packages>
     <packages type="bootstrap">

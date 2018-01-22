@@ -57,6 +57,7 @@
         <package name="which"/>
         <package name="kernel-default"/>
         <package name="shim"/>
+        <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>

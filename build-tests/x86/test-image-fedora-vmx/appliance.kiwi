@@ -39,6 +39,7 @@
         <package name="dhclient"/>
         <package name="glibc-all-langpacks"/>
         <package name="vim"/>
+        <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

@@ -130,6 +130,7 @@
         <package name="azuremetadata"/>
         <package name="hyper-v"/>
         <package name="python-azure-agent"/>
+        <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
         <package name="openSUSE-release"/>
