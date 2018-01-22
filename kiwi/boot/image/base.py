@@ -129,11 +129,12 @@ class BootImageBase(object):
         """
         raise NotImplementedError
 
-    def create_initrd(self, mbrid=None):
+    def create_initrd(self, mbrid=None, basename=None):
         """
         Implements creation of the initrd
 
         :param object mbrid: instance of ImageIdentifier
+        :param string basename: base initrd file name
         """
         raise NotImplementedError
 

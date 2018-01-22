@@ -73,6 +73,8 @@ function deactivate_device_mappings {
     if luks_system "${disk}";then
         deactivate_luks
     fi
+    # delete all remaining device maps
+    deactivate_all_device_maps
 }
 
 function finalize_disk_repart {

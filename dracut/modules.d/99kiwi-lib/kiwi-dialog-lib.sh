@@ -13,15 +13,49 @@ function run_dialog {
     local dialog_exit_code=/tmp/dialog_code
     {
         echo "dialog $* 2>$dialog_result"
-        echo -n \$? >$dialog_exit_code
+        echo "echo -n \$? >$dialog_exit_code"
     } >/bin/dracut-interactive
     _run_interactive
     return "$(cat $dialog_exit_code)"
 }
 
+function setup_progress_fifo {
+    local fifo=$1
+    export current_progress_fifo="${fifo}"
+    [ -e "${fifo}" ] || mkfifo "${fifo}"
+}
+
+function stop_dialog {
+    _stop_interactive
+}
+
+function run_progress_dialog {
+    # """
+    # Run the gauge dialog via systemd reading progress
+    # status information from stdin
+    # """
+    declare fifo=${current_progress_fifo}
+    local title=$1
+    local backtitle=$2
+    local progress_at="${fifo}"
+    if [ ! -e "${progress_at}" ];then
+        return
+    fi
+    {
+        echo -n "cat ${fifo} | dialog --backtitle \"${backtitle}\" "
+        echo -n "--gauge \"${title}\"" 7 65 0
+        echo
+    } >/bin/dracut-interactive
+    _run_interactive
+}
+
 function get_dialog_result {
     local dialog_result=/tmp/dialog_result
     [ -e "${dialog_result}" ] && cat ${dialog_result}; rm -f ${dialog_result}
+}
+
+function stop_plymouth {
+    plymouth --quit --wait
 }
 
 #=========================================
@@ -30,7 +64,6 @@ function get_dialog_result {
 function _setup_interactive_service {
     local service=/usr/lib/systemd/system/dracut-run-interactive.service
     local script=/bin/dracut-interactive
-    local unicode_font=/lib/b16.pcf.gz
     [ -e ${service} ] && return
     {
         echo "[Unit]"
@@ -45,7 +78,7 @@ function _setup_interactive_service {
         echo "Environment=NEWROOT=/sysroot"
         echo "WorkingDirectory=/"
         if _fbiterm_ok; then
-            echo "ExecStart=fbiterm -m ${unicode_font} -- /bin/bash ${script}"
+            echo "ExecStart=fbiterm -- /bin/bash ${script} "
         else
             echo "ExecStart=/bin/bash ${script}"
         fi
@@ -55,7 +88,6 @@ function _setup_interactive_service {
         echo "StandardError=inherit"
         echo "KillMode=process"
         echo "IgnoreSIGPIPE=no"
-        echo "TaskMax=infinity"
         echo "KillSignal=SIGHUP"
     } > ${service}
 }
@@ -63,6 +95,10 @@ function _setup_interactive_service {
 function _run_interactive {
     _setup_interactive_service
     systemctl start dracut-run-interactive.service
+}
+
+function _stop_interactive {
+    systemctl stop dracut-run-interactive.service
 }
 
 function _fbiterm_ok {

@@ -317,6 +317,10 @@ Requires:       parted
 Requires:       util-linux
 Requires:       xfsprogs
 Requires:       dialog
+Requires:       pv
+Requires:       curl
+Requires:       xz
+Requires:       device-mapper
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
@@ -338,6 +342,25 @@ Group:          System/Management
 This package contains the kiwi-repart dracut module which is
 used to repartition the oem disk image to the current disk
 geometry according to the setup in the kiwi image configuration
+
+%package -n dracut-kiwi-oem-dump
+Summary:        KIWI - Dracut module for oem(install) image type
+BuildRequires:  dracut
+Requires:       dracut-kiwi-lib
+Requires:       kexec-tools
+Requires:       dmraid
+Requires:       multipath-tools
+Requires:       gawk
+License:        GPL-3.0+
+Group:          System/Management
+
+%description -n dracut-kiwi-oem-dump
+This package contains the kiwi-dump dracut module which is
+used to install an oem image onto a target disk. It implements
+a simple installer which allows for user selected target disk
+or unattended installation to target. The source of the image
+to install could be either from media(CD/DVD/USB) or from
+remote
 
 %package -n dracut-kiwi-live
 Summary:        KIWI - Dracut module for iso(live) image type
@@ -580,6 +603,10 @@ fi
 %files -n dracut-kiwi-oem-repart
 %defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-repart
+
+%files -n dracut-kiwi-oem-dump
+%defattr(-, root, root)
+%{_usr}/lib/dracut/modules.d/90kiwi-dump
 
 %files -n dracut-kiwi-live
 %defattr(-, root, root)

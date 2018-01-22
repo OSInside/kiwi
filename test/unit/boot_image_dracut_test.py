@@ -70,3 +70,20 @@ class TestBootImageKiwi(object):
                 'some-target-dir'
             ])
         ]
+        mock_command.reset_mock()
+        self.boot_image.create_initrd(basename='foo')
+        assert mock_command.call_args_list == [
+            call([
+                'chroot', 'system-directory',
+                'dracut', '--force', '--no-hostonly',
+                '--no-hostonly-cmdline', '--xz',
+                '--install', 'system-directory/etc/foo',
+                '--install', '/system-directory/var/lib/bar',
+                'foo.xz', '1.2.3'
+            ]),
+            call([
+                'mv',
+                'system-directory/foo.xz',
+                'some-target-dir'
+            ])
+        ]

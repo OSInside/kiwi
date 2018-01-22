@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from tempfile import mkdtemp
 import platform
+import shutil
 
 # project
 from kiwi.command import Command
@@ -72,6 +74,7 @@ class InstallImageBuilder(object):
         self.target_dir = target_dir
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
+        self.initrd_system = xml_state.get_initrd_system()
         self.firmware = FirmWare(xml_state)
         self.diskname = ''.join(
             [
@@ -99,6 +102,9 @@ class InstallImageBuilder(object):
                 '-' + xml_state.get_image_version(),
                 '.install.tar.xz'
             ]
+        )
+        self.dracut_config_file = ''.join(
+            [self.root_dir, '/etc/dracut.conf.d/02-kiwi.conf']
         )
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
@@ -133,7 +139,7 @@ class InstallImageBuilder(object):
         # custom iso metadata
         self.custom_iso_args = {
             'create_options': [
-                '-V', '"KIWI Installation System"',
+                '-V', Defaults.get_install_volume_id(),
                 '-A', self.mbrid.get_id()
             ]
         }
@@ -146,8 +152,10 @@ class InstallImageBuilder(object):
         checksum = Checksum(self.diskname)
         checksum.md5(self.squashed_contents + '/' + self.md5name)
 
-        # the kiwi initrd code triggers the install by trigger files
-        self._create_iso_install_trigger_files()
+        # the system image name is stored in a config file
+        self._write_install_image_info_to_iso_image()
+        if self.initrd_system == 'kiwi':
+            self._write_install_image_info_to_boot_image()
 
         # the system image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
@@ -203,6 +211,9 @@ class InstallImageBuilder(object):
         log.info('Creating install image boot image')
         self._create_iso_install_kernel_and_initrd()
 
+        # the system image initrd is stored to allow kexec
+        self._copy_system_image_initrd_to_iso_image()
+
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
         iso_image = FileSystemIsoFs(
@@ -222,11 +233,14 @@ class InstallImageBuilder(object):
         """
         Create an oem install tar archive suitable for installing a
         disk image via the network using the PXE boot protocol.
-        The archive contains the raw disk image and its checksum
-        as well as an install initrd and kernel plus the required
-        kernel commandline information which needs to be added
-        as append line in the pxelinux config file on the boot
-        server
+        The archive contains:
+
+        * The raw system image xz compressed
+        * The raw system image checksum metadata file
+        * The append file template for the boot server
+        * The system image initrd for kexec
+        * The install initrd
+        * The kernel
 
         Image types which triggers this builder are:
 
@@ -263,8 +277,20 @@ class InstallImageBuilder(object):
         checksum = Checksum(self.diskname)
         checksum.md5(pxe_md5_filename)
 
-        # the kiwi initrd code triggers the install by trigger files
-        self._create_pxe_install_trigger_files()
+        # the install image name is stored in a config file
+        if self.initrd_system == 'kiwi':
+            self._write_install_image_info_to_boot_image()
+
+        # the kexec required system image initrd is stored for dracut kiwi-dump
+        if self.initrd_system == 'dracut':
+            system_image_initrd = self.root_dir + '/boot/initrd'
+            target_initrd_name = '{0}/{1}.initrd'.format(
+                self.pxe_dir, self.xml_state.xml_data.get_name()
+            )
+            shutil.copy(
+                system_image_initrd, target_initrd_name
+            )
+            os.chmod(target_initrd_name, 420)
 
         # create pxe config append information
         # this information helps to configure the boot server correctly
@@ -274,7 +300,15 @@ class InstallImageBuilder(object):
                 self.xml_state.xml_data.get_name(), '.append'
             ]
         )
-        cmdline = 'pxe=1'
+        if self.initrd_system == 'kiwi':
+            cmdline = 'pxe=1'
+        else:
+            cmdline = ' '.join(
+                [
+                    'rd.kiwi.install.pxe',
+                    'rd.kiwi.install.image=http://example.com/image.xz'
+                ]
+            )
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
@@ -298,6 +332,14 @@ class InstallImageBuilder(object):
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():
             kernel.copy_kernel(self.pxe_dir, '/pxeboot.kernel')
+            os.symlink(
+                'pxeboot.kernel', ''.join(
+                    [
+                        self.pxe_dir, '/',
+                        self.xml_state.xml_data.get_name(), '.kernel'
+                    ]
+                )
+            )
         else:
             raise KiwiInstallBootImageError(
                 'No kernel in boot image tree %s found' %
@@ -311,13 +353,17 @@ class InstallImageBuilder(object):
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
-        self.boot_image_task.create_initrd(self.mbrid)
+        if self.initrd_system == 'dracut':
+            self._create_dracut_install_config()
+            self._add_system_image_boot_options_to_boot_image()
+        self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
                 self.pxe_dir + '/pxeboot.initrd.xz'
             ]
         )
+        os.chmod(self.pxe_dir + '/pxeboot.initrd.xz', 420)
 
     def _create_iso_install_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/' + self.arch + '/loader'
@@ -338,7 +384,10 @@ class InstallImageBuilder(object):
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
-        self.boot_image_task.create_initrd(self.mbrid)
+        if self.initrd_system == 'dracut':
+            self._create_dracut_install_config()
+            self._add_system_image_boot_options_to_boot_image()
+        self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
@@ -346,23 +395,56 @@ class InstallImageBuilder(object):
             ]
         )
 
-    def _create_iso_install_trigger_files(self):
-        initrd_trigger = \
-            self.boot_image_task.boot_root_directory + '/config.vmxsystem'
+    def _add_system_image_boot_options_to_boot_image(self):
+        filename = ''.join(
+            [self.boot_image_task.boot_root_directory, '/config.bootoptions']
+        )
+        self.boot_image_task.include_file(
+            os.sep + os.path.basename(filename)
+        )
+
+    def _copy_system_image_initrd_to_iso_image(self):
+        system_image_initrd = self.root_dir + '/boot/initrd'
+        shutil.copy(
+            system_image_initrd, self.media_dir + '/initrd.system_image'
+        )
+
+    def _write_install_image_info_to_iso_image(self):
         iso_trigger = self.media_dir + '/config.isoclient'
-        with open(initrd_trigger, 'w') as vmx_system:
-            vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
         with open(iso_trigger, 'w') as iso_system:
             iso_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
-    def _create_pxe_install_trigger_files(self):
+    def _write_install_image_info_to_boot_image(self):
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         with open(initrd_trigger, 'w') as vmx_system:
             vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
+    def _create_dracut_install_config(self):
+        dracut_config = [
+            'hostonly="no"',
+            'dracut_rescue_image="no"'
+        ]
+        dracut_modules = ['kiwi-lib', 'kiwi-dump']
+        dracut_modules_omit = ['kiwi-overlay', 'kiwi-repart']
+        dracut_config.append(
+            'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
+        )
+        dracut_config.append(
+            'omit_dracutmodules+=" {0} "'.format(' '.join(dracut_modules_omit))
+        )
+        with open(self.dracut_config_file, 'w') as config:
+            for entry in dracut_config:
+                config.write(entry + os.linesep)
+
+    def _delete_dracut_install_config(self):
+        if os.path.exists(self.dracut_config_file):
+            os.remove(self.dracut_config_file)
+
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
+        if self.initrd_system == 'dracut':
+            self._delete_dracut_install_config()
         if self.media_dir:
             Path.wipe(self.media_dir)
         if self.pxe_dir:
