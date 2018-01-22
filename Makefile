@@ -104,7 +104,7 @@ obs_test_status:
 	./.obs_test_status
 
 valid:
-	for i in `find test kiwi -name *.xml`; do \
+	for i in `find build-tests test kiwi -name *.xml -o -name *.kiwi`; do \
 		if [ ! -L $$i ];then \
 			xsltproc -o $$i.converted kiwi/xsl/master.xsl $$i && \
 			mv $$i.converted $$i ;\

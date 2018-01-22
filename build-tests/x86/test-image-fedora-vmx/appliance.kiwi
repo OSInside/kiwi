@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.7" name="VMX-Fedora-25.0">
+<image schemaversion="6.8" name="VMX-Fedora-25.0">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -14,7 +14,6 @@
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
         <timezone>UTC</timezone>
-        <hwclock>utc</hwclock>
         <rpm-check-signatures>false</rpm-check-signatures>
         <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="splash"/>
     </preferences>
@@ -25,10 +24,10 @@
         <source path="obs://Virtualization:Appliances:Staging/Fedora_25"/>
     </repository>
     <repository type="rpm-md" alias="Fedora25Update">
-      <source path="obs://Fedora:25/update"/>
+        <source path="obs://Fedora:25/update"/>
     </repository>
     <repository type="rpm-md" alias="Fedora25">
-      <source path="obs://Fedora:25/standard"/>
+        <source path="obs://Fedora:25/standard"/>
     </repository>
     <packages type="image">
         <package name="grub2"/>

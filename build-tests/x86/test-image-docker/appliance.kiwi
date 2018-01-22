@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.3" name="Docker-openSUSE-Tumbleweed">
+<image schemaversion="6.8" name="Docker-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -11,16 +11,17 @@
         <packagemanager>zypper</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <rpm-force>true</rpm-force>
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
-        <type image="docker" container="buildsystem"/>
+        <type image="docker">
+            <containerconfig name="buildsystem"/>
+        </type>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <users group='vagrant'>
-        <user name='vagrant' password='vh4vw1N4alxKQ' home='/home/vagrant'/>
+    <users>
+        <user name="vagrant" password="vh4vw1N4alxKQ" home="/home/vagrant" groups="vagrant"/>
     </users>
     <repository type="rpm-md" alias="DockerTools" priority="1">
         <source path="obs://Virtualization:containers/openSUSE_Tumbleweed"/>

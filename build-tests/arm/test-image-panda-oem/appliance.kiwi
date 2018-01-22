@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.3" name="openSUSE-Tumbleweed-ARM-JeOS-panda">
+<image schemaversion="6.8" name="openSUSE-Tumbleweed-ARM-JeOS-panda">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -9,7 +9,7 @@
         </specification>
     </description>
     <preferences>
-        <type image="oem" boot="oemboot/suse-tumbleweed" bootkernel="custom" filesystem="ext4" fsmountoptions="noatime,nobarrier" bootloader="grub2" firmware="efi" editbootconfig="uboot-image-panda-setup" editbootinstall="uboot-image-panda-install" kernelcmdline="quiet splash=silent plymouth.enable=0 rootflags=size=100% console=ttyS2,115200n8 vram=16M">
+        <type image="oem" initrd_system="dracut" filesystem="ext4" fsmountoptions="noatime,nobarrier" bootloader="grub2" firmware="efi" editbootconfig="uboot-image-panda-setup" editbootinstall="uboot-image-panda-install" kernelcmdline="quiet splash=silent plymouth.enable=0 rootflags=size=100% console=ttyS2,115200n8 vram=16M">
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>500</oem-swapsize>
@@ -21,13 +21,12 @@
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
         <timezone>Europe/Berlin</timezone>
-        <hwclock>utc</hwclock>
         <rpm-excludedocs>true</rpm-excludedocs>
         <bootloader-theme>openSUSE</bootloader-theme>
         <bootsplash-theme>openSUSE</bootsplash-theme>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="kiwi-next-generation">
         <source path="obs://Virtualization:Appliances:Staging/openSUSE_Factory_ARM"/>
@@ -35,83 +34,10 @@
     <repository type="rpm-md">
         <source path="obs://openSUSE:Factory:ARM/standard"/>
     </repository>
-<!-- strip excessive bloat from the initrd -->
-    <strip type="delete">
-        <file name="/etc/udev/hwdb.bin"/>
-        <file name="/etc/services"/>
-        <file name="/lib/firmware/brcm"/>
-        <file name="/lib/modules/*/kernel/drivers/net/wireless"/>
-        <file name="/usr/bin/host"/>
-        <file name="/usr/bin/busybox"/>
-        <file name="/usr/bin/curl"/>
-        <file name="/usr/bin/diff"/>
-        <file name="/usr/bin/fbiterm"/>
-        <file name="/usr/bin/gawk"/>
-        <file name="/usr/bin/journalctl"/>
-        <file name="/usr/bin/rsync"/>
-        <file name="/usr/sbin/wicked"/>
-        <file name="/usr/lib/ldscripts"/>
-        <file name="/usr/lib/genisoimage"/>
-        <file name="/usr/lib/perl5"/>
-        <file name="/usr/lib/wicked"/>
-        <file name="/usr/lib/udev/hwdb.d"/>
-        <file name="/usr/lib/systemd/user"/>
-        <file name="/usr/lib/systemd/user-generators"/>
-        <file name="/usr/lib/systemd/catalog"/>
-        <file name="/usr/lib/systemd/system/busnames.target.wants"/>
-        <file name="/usr/lib/systemd/system/local-fs.target.wants"/>
-        <file name="/usr/lib/systemd/system/poweroff.target.wants"/>
-        <file name="/usr/lib/systemd/system/multi-user.target.wants"/>
-        <file name="/usr/lib/systemd/systemd-backlight"/>
-        <file name="/usr/lib/systemd/systemd-bus-proxyd"/>
-        <file name="/usr/lib/systemd/systemd-coredump"/>
-        <file name="/usr/lib/systemd/systemd-localed"/>
-        <file name="/usr/lib/systemd/systemd-logind"/>
-        <file name="/usr/lib/systemd/systemd-machined"/>
-        <file name="/usr/lib/systemd/systemd-networkd"/>
-        <file name="/usr/lib/systemd/systemd-timesyncd"/>
-        <file name="/usr/share/misc/magic"/>
-        <file name="/usr/share/pci.ids"/>
-        <file name="/usr/share/pci.ids.d"/>
-        <file name="/var/adm"/>
-        <file name="/var/cache/zypp"/>
-        <file name="/usr/share/tc"/>
-        <file name="/usr/share/kbd/consolefonts"/>
-        <file name="/usr/share/fbiterm"/>
-        <file name="/usr/share/fonts"/>
-        <file name="/usr/share/help"/>
-        <file name="/usr/share/icu"/>
-        <file name="/usr/share/locale"/>
-        <file name="/usr/share/wicked"/>
-    </strip>
-<!-- dont remove qemu binfmt helpers from initrd -->
-    <strip type="tools">
-        <file name="qemu-arm-binfmt"/>
-        <file name="qemu-arm"/>
-        <file name="qemu-cputype-armv6.sh"/>
-    </strip>
-    <drivers>
-        <file name="drivers/ata/*"/>
-<!-- For SATA -->
-        <file name="drivers/dma/*"/>
-<!-- For DMA -->
-        <file name="drivers/gpio/*"/>
-<!-- Needed for TWL6040 GPO for MMC boot on pandaboard -->
-        <file name="drivers/gpu/*"/>
-<!-- For display -->
-        <file name="drivers/mmc/card/*"/>
-<!-- For SD/MMC -->
-        <file name="drivers/mmc/host/*"/>
-<!-- For SD/MMC -->
-        <file name="drivers/phy/*"/>
-<!-- Various phy: sata, usb, video, ... -->
-        <file name="drivers/regulator/*"/>
-    </drivers>
     <packages type="bootstrap">
-        <package name="kernel-default" bootinclude="true"/>
-        <package name="u-boot-omap4panda" bootinclude="true"/>
-        <package name="dtb-omap4" bootinclude="true"/>
-<!-- Base packages -->
+        <package name="kernel-default"/>
+        <package name="u-boot-omap4panda"/>
+        <package name="dtb-omap4"/>
         <package name="aaa_base-extras"/>
         <package name="acl"/>
         <package name="alsa"/>
@@ -128,8 +54,8 @@
         <package name="gettext-runtime"/>
         <package name="glibc-locale"/>
         <package name="gpg2"/>
-        <package name="grub2" bootinclude="true"/>
-        <package name="grub2-arm-efi" bootinclude="true"/>
+        <package name="grub2"/>
+        <package name="grub2-arm-efi"/>
         <package name="ifplugd"/>
         <package name="insserv-compat"/>
         <package name="iproute2"/>
@@ -144,7 +70,6 @@
         <package name="kmod-compat"/>
         <package name="ncurses-utils"/>
         <package name="net-tools"/>
-<!-- we need to keep our time in sync, because there is no RTC -->
         <package name="ntp"/>
         <package name="openssh"/>
         <package name="openSUSE-build-key"/>
@@ -174,12 +99,10 @@
         <package name="unzip"/>
         <package name="curl"/>
         <package name="systemd-presets-branding-openSUSE"/>
-<!-- Base: multiple choices -->
+        <package name="dracut-kiwi-oem-repart"/>
         <package name="libgcc_s1"/>
         <package name="libgomp1"/>
         <package name="libsystemd0"/>
         <package name="systemd-presets-branding-openSUSE"/>
-<!-- custom hook scripts for uboot -->
-        <archive name="uboot-setup-panda.tgz" bootinclude="true"/>
     </packages>
 </image>

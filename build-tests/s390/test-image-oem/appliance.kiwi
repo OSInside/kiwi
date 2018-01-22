@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.3" name="LimeJeOS-DASD-ECKD-SLE12-Community">
+<image schemaversion="6.8" name="LimeJeOS-DASD-ECKD-SLE12-Community">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -14,8 +14,7 @@
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
         <timezone>Europe/Berlin</timezone>
-        <hwclock>utc</hwclock>
-        <type image="oem" filesystem="btrfs" boot="oemboot/suse-tumbleweed" bootloader="grub2_s390x_emu" target_blocksize="4096" zipl_targettype="CDL" kernelcmdline="cio_ignore=all,!ipldev,!condev">
+        <type image="oem" filesystem="btrfs" initrd_system="dracut" bootloader="grub2_s390x_emu" target_blocksize="4096" zipl_targettype="CDL" kernelcmdline="cio_ignore=all,!ipldev,!condev">
             <size unit="G">20</size>
             <systemdisk>
                 <volume name="home"/>
@@ -26,8 +25,8 @@
             </oemconfig>
         </type>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
         <source path="obs://Virtualization:Appliances:Staging/openSUSE_Factory_zSystems"/>
@@ -65,6 +64,7 @@
         <package name="less"/>
         <package name="patch"/>
         <package name="util-linux"/>
+        <package name="dracut-kiwi-oem-repart"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

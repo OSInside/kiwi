@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.7" name="Azure-openSUSE-Tumbleweed">
+<image schemaversion="6.8" name="Azure-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
@@ -8,7 +8,6 @@
     </description>
     <preferences>
         <type image="vmx" filesystem="ext4" boottimeout="1" kernelcmdline="console=ttyS0 rootdelay=300 net.ifnames=0" devicepersistency="by-uuid" format="vhd-fixed" formatoptions="force_size" bootloader="grub2" bootpartition="true" bootpartsize="1024">
-<!-- Microsoft wants 30GB images -->
             <size unit="M">30720</size>
         </type>
         <version>1.0.5</version>
@@ -16,7 +15,6 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
-        <hwclock>utc</hwclock>
         <timezone>utc</timezone>
     </preferences>
     <users>
@@ -35,7 +33,6 @@
         <source path="obs://openSUSE:Factory/snapshot"/>
     </repository>
     <packages type="image">
-<!-- jeos server -->
         <package name="patterns-openSUSE-minimal_base"/>
         <package name="blog"/>
         <package name="dhcp-client"/>
@@ -56,11 +53,8 @@
         <package name="tar"/>
         <package name="vim"/>
         <package name="which"/>
-<!-- end jeos server -->
-<!-- basic functionality -->
         <package name="at"/>
         <package name="at-spi2-core"/>
-<!--Accessibility-->
         <package name="attr"/>
         <package name="audit"/>
         <package name="autofs"/>
@@ -71,13 +65,11 @@
         <package name="command-not-found"/>
         <package name="crash"/>
         <package name="curl"/>
-<!-- Authentication functionality -->
         <package name="cyrus-sasl"/>
         <package name="cyrus-sasl-digestmd5"/>
         <package name="cyrus-sasl-gssapi"/>
         <package name="cyrus-sasl-plain"/>
         <package name="cyrus-sasl-saslauthd"/>
-<!-- Authentication functionality end -->
         <package name="deltarpm"/>
         <package name="dos2unix"/>
         <package name="dosfstools"/>
@@ -128,7 +120,6 @@
         <package name="yp-tools"/>
         <package name="zip"/>
         <package name="zsh"/>
-<!-- packages needed for resolution in OBS -->
         <package name="acl"/>
         <package name="fipscheck"/>
         <package name="ncurses-utils"/>
@@ -136,9 +127,6 @@
         <package name="pkg-config"/>
         <package name="elfutils"/>
         <package name="udev"/>
-<!-- end packages needed for resolution in OBS -->
-<!-- end basic functionality -->
-<!-- user configuration tools -->
         <package name="libyui-ncurses-pkg8"/>
         <package name="yast2"/>
         <package name="yast2-add-on"/>
@@ -197,15 +185,9 @@
         <package name="yast2-users"/>
         <package name="yast2-xml"/>
         <package name="yast2-ycp-ui-bindings"/>
-<!-- end user configuration tools -->
-<!-- framework specific packages -->
         <package name="azuremetadata"/>
         <package name="hyper-v"/>
-<!-- instance initialization -->
         <package name="python-azure-agent"/>
-<!-- instance registration -->
-<!-- BYOS needs to be registered by customer with SUSEConnect -->
-<!-- end framework specific packages -->
     </packages>
     <packages type="bootstrap">
         <package name="openSUSE-release"/>

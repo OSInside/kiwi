@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.3" name="PXE-openSUSE-Tumbleweed">
+<image schemaversion="6.8" name="PXE-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -12,15 +12,14 @@
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
         <timezone>Europe/Berlin</timezone>
-        <hwclock>utc</hwclock>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="pxe" filesystem="ext3" boot="netboot/suse-tumbleweed"/>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="DockerTools" priority="1">
         <source path="obs://Virtualization:containers/openSUSE_Tumbleweed"/>
@@ -34,8 +33,8 @@
     <packages type="image">
         <package name="patterns-openSUSE-base"/>
         <package name="systemd"/>
-        <package name="plymouth-branding-openSUSE" bootinclude="true"/>
-        <package name="grub2-branding-openSUSE" bootinclude="true"/>
+        <package name="plymouth-branding-openSUSE"/>
+        <package name="grub2-branding-openSUSE"/>
         <package name="ifplugd"/>
         <package name="iputils"/>
         <package name="vim"/>

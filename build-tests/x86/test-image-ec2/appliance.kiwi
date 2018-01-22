@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.6" name="EC2-openSUSE-Tumbleweed">
+<image schemaversion="6.8" name="EC2-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
@@ -16,7 +16,6 @@
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
         <timezone>utc</timezone>
-        <hwclock>utc</hwclock>
         <rpm-excludedocs>true</rpm-excludedocs>
     </preferences>
     <users>
@@ -32,7 +31,6 @@
         <source path="obs://openSUSE:Factory/snapshot"/>
     </repository>
     <packages type="image" patternType="plusRecommended">
-<!-- jeos server -->
         <package name="patterns-openSUSE-minimal_base"/>
         <package name="dhcp-client"/>
         <package name="fontconfig"/>
@@ -54,11 +52,8 @@
         <package name="vim"/>
         <package name="which"/>
         <package name="udev"/>
-<!-- end jeos server -->
-<!-- basic functionality -->
         <package name="at"/>
         <package name="at-spi2-core"/>
-<!--Accessibility-->
         <package name="attr"/>
         <package name="audit"/>
         <package name="autofs"/>
@@ -67,13 +62,11 @@
         <package name="blktrace"/>
         <package name="cifs-utils"/>
         <package name="curl"/>
-<!-- Authentication functionality -->
         <package name="cyrus-sasl"/>
         <package name="cyrus-sasl-digestmd5"/>
         <package name="cyrus-sasl-gssapi"/>
         <package name="cyrus-sasl-plain"/>
         <package name="cyrus-sasl-saslauthd"/>
-<!-- Authentication functionality end -->
         <package name="deltarpm"/>
         <package name="dos2unix"/>
         <package name="dosfstools"/>
@@ -88,7 +81,6 @@
         <package name="klogd"/>
         <package name="krb5-client"/>
         <package name="ksh"/>
-<!-- used by gpg -->
         <package name="lockdev"/>
         <package name="man"/>
         <package name="man-pages"/>
@@ -126,16 +118,12 @@
         <package name="yp-tools"/>
         <package name="zip"/>
         <package name="zsh"/>
-<!-- packages needed for resolution in OBS -->
         <package name="acl"/>
         <package name="fipscheck"/>
         <package name="ncurses-utils"/>
         <package name="sg3_utils"/>
         <package name="pkg-config"/>
         <package name="elfutils"/>
-<!-- end packages needed for resolution in OBS -->
-<!-- end basic functionality -->
-<!-- user configuration tools -->
         <package name="libyui-ncurses-pkg8"/>
         <package name="yast2"/>
         <package name="yast2-add-on"/>
@@ -193,15 +181,10 @@
         <package name="yast2-users"/>
         <package name="yast2-xml"/>
         <package name="yast2-ycp-ui-bindings"/>
-<!-- end user configuration tools -->
-
-<!-- framework specific packages -->
         <package name="xen-libs"/>
         <package name="xen-tools-domU"/>
-<!-- instance initialization -->
         <package name="cloud-init"/>
         <package name="cloud-init-config-suse"/>
-<!-- end framework specific packages -->
     </packages>
     <packages type="bootstrap">
         <package name="openSUSE-release"/>

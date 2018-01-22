@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<image schemaversion="6.2" name="factory-kiwi">
+
+<image schemaversion="6.8" name="factory-kiwi">
     <description type="system">
         <author>Julian Wolf</author>
         <contact>juwolf@suse.de</contact>
@@ -11,14 +12,13 @@
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
         <timezone>Europe/Berlin</timezone>
-        <hwclock>utc</hwclock>
         <rpm-excludedocs>true</rpm-excludedocs>
-        <type image="oem" boot="oemboot/suse-tumbleweed" filesystem="btrfs" kernelcmdline="root=/dev/vda4 console=ttyS0,115200 sysrq_always_enabled linemode=1 panic=100 ignore_loglevel unknown_nmi_panici crashkernel=512M-2G:128M,2G-64G:256M,64G-:512M" format="qcow2" bootloader="grub2" firmware="efi" installiso="true">
+        <type image="oem" initrd_system="dracut" filesystem="btrfs" kernelcmdline="root=/dev/vda4 console=ttyS0,115200 sysrq_always_enabled linemode=1 panic=100 ignore_loglevel unknown_nmi_panici crashkernel=512M-2G:128M,2G-64G:256M,64G-:512M" format="qcow2" bootloader="grub2" firmware="efi" installpxe="true">
             <size unit="G">10</size>
         </type>
     </preferences>
-    <users group="root">
-        <user name="root" password="linux" pwdformat="plain" home="/root"/>
+    <users>
+        <user name="root" password="linux" pwdformat="plain" home="/root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="DockerTools" priority="1">
         <source path="obs://Virtualization:containers/openSUSE_Tumbleweed"/>
@@ -26,7 +26,7 @@
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
         <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
     </repository>
-    <repository type="rpm-md" alias="factory" status="replaceable">
+    <repository type="rpm-md" alias="factory">
         <source path="obs://openSUSE:Factory/snapshot"/>
     </repository>
     <packages type="image" patternType="plusRecommended">
@@ -53,6 +53,8 @@
         <package name="xdg-utils"/>
         <package name="ypbind"/>
         <package name="wget"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
         <package name="openSUSE-release-ftp"/>
