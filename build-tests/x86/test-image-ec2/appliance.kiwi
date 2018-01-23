@@ -14,8 +14,8 @@
         <version>0.9.10</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
-        <keytable>us.map.gz</keytable>
-        <timezone>utc</timezone>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
     </preferences>
     <users>

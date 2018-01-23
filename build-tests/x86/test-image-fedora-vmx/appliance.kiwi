@@ -12,7 +12,7 @@
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>starfield</bootloader-theme>
         <locale>en_US</locale>
-        <keytable>us.map.gz</keytable>
+        <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
         <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="splash"/>
@@ -39,7 +39,7 @@
         <package name="dhclient"/>
         <package name="glibc-all-langpacks"/>
         <package name="vim"/>
-        <package name="timezone"/>
+        <package name="tzdata"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
