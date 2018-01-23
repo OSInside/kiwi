@@ -160,9 +160,9 @@ class CliTask(object):
             )
         ]
 
-    def quintuple_token(self, option):
+    def sextuple_token(self, option):
         """
-        Helper method for commandline options of the form --option a,b,c,d,e
+        Helper method for commandline options of the form --option a,b,c,d,e,f
 
         Make sure to provide a common result for option values which
         separates the information in a comma separated list of values
@@ -170,10 +170,10 @@ class CliTask(object):
         :return: common option value representation
         :rtype: string
         """
-        tokens = option.split(',', 4)
+        tokens = option.split(',', 5)
         return [
             self._pop_token(tokens) if len(tokens) else None for _ in range(
-                0, 5
+                0, 6
             )
         ]
 

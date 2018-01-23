@@ -153,13 +153,14 @@ class TestXMLState(object):
         assert self.state.get_bootstrap_collection_type() == 'onlyRequired'
 
     def test_set_repository(self):
-        self.state.set_repository('repo', 'type', 'alias', 1, True)
+        self.state.set_repository('repo', 'type', 'alias', 1, True, False)
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \
             == 'repo'
         assert self.state.xml_data.get_repository()[0].get_type() == 'type'
         assert self.state.xml_data.get_repository()[0].get_alias() == 'alias'
         assert self.state.xml_data.get_repository()[0].get_priority() == 1
         assert self.state.xml_data.get_repository()[0].get_imageinclude() is True
+        assert self.state.xml_data.get_repository()[0].get_package_gpgcheck() is False
 
     def test_add_repository(self):
         self.state.add_repository('repo', 'type', 'alias', 1, True)
