@@ -19,7 +19,7 @@
         <version>2016.03.09</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
-        <keytable>us.map.gz</keytable>
+        <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <bootloader-theme>openSUSE</bootloader-theme>
