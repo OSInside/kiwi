@@ -349,7 +349,12 @@ BuildRequires:  dracut
 Requires:       dracut-kiwi-lib
 Requires:       kexec-tools
 Requires:       dmraid
+%if 0%{?suse_version}
 Requires:       multipath-tools
+%endif
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       device-mapper-multipath
+%endif
 Requires:       gawk
 License:        GPL-3.0+
 Group:          System/Management
