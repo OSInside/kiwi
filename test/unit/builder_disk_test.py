@@ -7,6 +7,7 @@ import kiwi
 from .test_helper import raises, patch_open
 
 from collections import OrderedDict
+from collections import namedtuple
 
 from kiwi.exceptions import (
     KiwiDiskBootImageError,
@@ -58,6 +59,9 @@ class TestDiskBuilder(object):
         }
         self.id_map_sorted = OrderedDict(
             sorted(self.id_map.items())
+        )
+        self.boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
         )
         self.block_operation = mock.Mock()
         self.block_operation.get_blkid = mock.Mock(
@@ -148,6 +152,10 @@ class TestDiskBuilder(object):
         self.boot_image_task.kernel_filename = 'kernel'
         self.boot_image_task.initrd_filename = 'initrd'
         self.boot_image_task.xen_hypervisor_filename = 'xen_hypervisor'
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='linux.vmx',
+            initrd_name='initrd.vmx'
+        )
         kiwi.builder.disk.BootImage = mock.Mock(
             return_value=self.boot_image_task
         )
@@ -368,6 +376,10 @@ class TestDiskBuilder(object):
         self, mock_path, mock_grub_dir, mock_command, mock_rand,
         mock_open, mock_fs
     ):
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='vmlinuz-1.2.3-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
         mock_path.return_value = True
         mock_rand.return_value = 15
         mock_open.return_value = self.context_manager_mock
@@ -474,49 +486,6 @@ class TestDiskBuilder(object):
         ]
 
     @patch('kiwi.builder.disk.FileSystem')
-    @patch_open
-    @patch('kiwi.builder.disk.Command.run')
-    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
-    @patch('kiwi.builder.disk.Path.which')
-    @patch('kiwi.builder.disk.re.findall')
-    def test_create_disk_standard_root_dracut_initrd_system(
-        self, mock_re_findall, mock_which, mock_grub_dir, mock_command,
-        mock_open, mock_fs
-    ):
-        mock_re_findall.return_value = ['initrd-$kernel']
-        mock_which.return_value = 'dracut_found'
-        self.disk_builder.initrd_system = 'dracut'
-        self.disk_builder.volume_manager_name = None
-        kernel = mock.Mock()
-        kernel.version = '1.2.3'
-        kernel.name = 'vmlinuz-1.2.3'
-        self.kernel.get_kernel.return_value = kernel
-        self.disk_builder.create_disk()
-        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            boot_options='', initrd='initrd-1.2.3', kernel=kernel.name,
-            boot_uuid='0815', root_uuid='0815'
-        )
-
-    @patch('kiwi.builder.disk.FileSystem')
-    @patch_open
-    @patch('kiwi.builder.disk.Command.run')
-    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
-    def test_create_disk_standard_root_dracut_initramfs_system(
-        self, mock_grub_dir, mock_command, mock_open, mock_fs
-    ):
-        self.disk_builder.initrd_system = 'dracut'
-        self.disk_builder.volume_manager_name = None
-        kernel = mock.Mock()
-        kernel.version = '1.2.3'
-        kernel.name = 'vmlinuz-1.2.3'
-        self.kernel.get_kernel.return_value = kernel
-        self.disk_builder.create_disk()
-        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            boot_options='', initrd='initramfs-1.2.3.img', kernel=kernel.name,
-            boot_uuid='0815', root_uuid='0815'
-        )
-
-    @patch('kiwi.builder.disk.FileSystem')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
@@ -578,29 +547,19 @@ class TestDiskBuilder(object):
     def test_create_disk_standard_root_dracut_initrd_system_on_arm(
         self, mock_grub_dir, mock_command, mock_open, mock_fs
     ):
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='zImage-4.14.14-1-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
         self.disk_builder.initrd_system = 'dracut'
         self.disk_builder.arch = 'aarch64'
         self.disk_builder.volume_manager_name = None
-        kernel = mock.Mock()
-        kernel.version = '1.2.3'
-        kernel.name = 'Image-1.2.3-default'
-        self.kernel.get_kernel.return_value = kernel
         self.disk_builder.create_disk()
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            boot_options='', initrd='initramfs-1.2.3.img', kernel=kernel.name,
+            boot_options='', initrd='initramfs-1.2.3.img',
+            kernel='zImage-4.14.14-1-default',
             boot_uuid='0815', root_uuid='0815'
         )
-
-    @patch('kiwi.builder.disk.FileSystem')
-    @patch_open
-    @patch('kiwi.builder.disk.Command.run')
-    @raises(KiwiDiskBootImageError)
-    def test_create_disk_standard_root_no_kernel_found(
-        self, mock_command, mock_open, mock_fs
-    ):
-        self.kernel.get_kernel.return_value = False
-        self.disk_builder.volume_manager_name = None
-        self.disk_builder.create_disk()
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

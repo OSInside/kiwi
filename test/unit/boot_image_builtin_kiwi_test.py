@@ -2,6 +2,7 @@ import mock
 
 from mock import patch
 from mock import call
+from collections import namedtuple
 
 import kiwi
 
@@ -154,3 +155,11 @@ class TestBootImageKiwi(object):
         mock_path.return_value = True
         self.boot_image.__del__()
         mock_wipe.assert_called_once_with('boot-root-directory')
+
+    def test_boot_names(self):
+        boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
+        )
+        assert self.boot_image.get_boot_names() == boot_names_type(
+            kernel_name='linux.vmx', initrd_name='initrd.vmx'
+        )

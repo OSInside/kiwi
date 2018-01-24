@@ -114,3 +114,7 @@ class TestBootImageBase(object):
     def test_load_boot_xml_description(self, mock_boot_dir):
         mock_boot_dir.return_value = None
         self.boot_image.load_boot_xml_description()
+
+    @raises(NotImplementedError)
+    def test_get_boot_names(self):
+        self.boot_image.get_boot_names()
