@@ -22,8 +22,8 @@ usage: kiwi system build -h | --help
            [--clear-cache]
            [--ignore-repos]
            [--ignore-repos-used-for-build]
-           [--set-repo=<source,type,alias,priority,imageinclude>]
-           [--add-repo=<source,type,alias,priority,imageinclude>...]
+           [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
+           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
            [--add-package=<name>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
@@ -41,11 +41,9 @@ commands:
 options:
     --add-package=<name>
         install the given package name
-    --add-repo=<source,type,alias,priority,imageinclude>
-        add repository with given source, type, alias, priority
-        and the imageinclude flag set to true|false which indicates
-        if this repository should be part of the system image
-        repository setup or not
+    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
+        add repository with given source, type, alias, priority,
+        the imageinclude flag and the package_gpgcheck flag
     --allow-existing-root
         allow to use an existing root directory from an earlier
         build attempt. Use with caution this could cause an inconsistent
@@ -73,11 +71,9 @@ options:
         overwrite the container tag in the container configuration.
         The setting is only effective if the container configuraiton
         provides an initial tag value
-    --set-repo=<source,type,alias,priority,imageinclude>
+    --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
         overwrite the first XML listed repository source, type, alias,
-        priority and the imageinclude flag set to true|false which
-        indicates if this repository should be part of the system
-        image repository setup or not
+        priority, the imageinclude flag and the package_gpgcheck flag
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
     --target-dir=<directory>
@@ -154,13 +150,13 @@ class SystemBuildTask(CliTask):
 
         if self.command_args['--set-repo']:
             self.xml_state.set_repository(
-                *self.quintuple_token(self.command_args['--set-repo'])
+                *self.sextuple_token(self.command_args['--set-repo'])
             )
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
                 self.xml_state.add_repository(
-                    *self.quintuple_token(add_repo)
+                    *self.sextuple_token(add_repo)
                 )
 
         if self.command_args['--set-container-tag']:

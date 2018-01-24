@@ -1258,7 +1258,7 @@ class XMLState(object):
 
     def set_repository(
         self, repo_source, repo_type, repo_alias, repo_prio,
-        repo_imageinclude=False
+        repo_imageinclude=False, repo_package_gpgcheck=None
     ):
         """
         Overwrite repository data of the first repository
@@ -1267,7 +1267,9 @@ class XMLState(object):
         :param string repo_type: type name defined by schema
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
-        :param boolean imageinclude: setup repository inside of the image
+        :param boolean repo_imageinclude: setup repository inside of the image
+        :param boolean repo_package_gpgcheck: enable or disable package gpg
+        checks
         """
         repository_sections = self.get_repository_sections()
         if repository_sections:
@@ -1282,10 +1284,12 @@ class XMLState(object):
                 repository.set_priority(int(repo_prio))
             if repo_imageinclude:
                 repository.set_imageinclude(repo_imageinclude)
+            if repo_package_gpgcheck is not None:
+                repository.set_package_gpgcheck(repo_package_gpgcheck)
 
     def add_repository(
         self, repo_source, repo_type, repo_alias, repo_prio,
-        repo_imageinclude=False
+        repo_imageinclude=False, repo_package_gpgcheck=None
     ):
         """
         Add a new repository section at the end of the list
@@ -1294,7 +1298,9 @@ class XMLState(object):
         :param string repo_type: type name defined by schema
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
-        :param boolean imageinclude: setup repository inside of the image
+        :param boolean repo_imageinclude: setup repository inside of the image
+        :param boolean repo_package_gpgcheck: enable or disable package gpg
+        checks
         """
         try:
             repo_prio = int(repo_prio)
@@ -1306,7 +1312,8 @@ class XMLState(object):
                 alias=repo_alias,
                 priority=repo_prio,
                 source=xml_parse.source(path=repo_source),
-                imageinclude=repo_imageinclude
+                imageinclude=repo_imageinclude,
+                package_gpgcheck=repo_package_gpgcheck
             )
         )
 

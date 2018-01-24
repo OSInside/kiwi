@@ -14,8 +14,8 @@ SYNOPSIS
        [--clear-cache]
        [--ignore-repos]
        [--ignore-repos-used-for-build]
-       [--set-repo=<source,type,alias,priority,imageinclude>]
-       [--add-repo=<source,type,alias,priority,imageinclude>...]
+       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
+       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
        [--add-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
@@ -41,7 +41,7 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority,imageinclude>
+--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
 
   See the kiwi::system::build manual page for further details
 
@@ -87,7 +87,7 @@ OPTIONS
 
   Path to create the new root system.
 
---set-repo=<source,type,alias,priority,imageinclude>
+--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
 
   See the kiwi::system::build manual page for further details
 
