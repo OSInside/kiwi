@@ -4,6 +4,8 @@ from mock import call
 import mock
 import kiwi
 
+from collections import namedtuple
+
 from .test_helper import raises, patch_open
 
 from kiwi.exceptions import KiwiInstallBootImageError
@@ -14,6 +16,9 @@ from kiwi.builder.install import InstallImageBuilder
 class TestInstallImageBuilder(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
+        boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
+        )
         mock_machine.return_value = 'x86_64'
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
@@ -71,6 +76,13 @@ class TestInstallImageBuilder(object):
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
+        self.boot_image_task.get_boot_names = mock.Mock(
+            return_value=boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initrd-kernel_version'
+            )
+        )
+
         self.install_image = InstallImageBuilder(
             self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
         )
@@ -124,7 +136,8 @@ class TestInstallImageBuilder(object):
             'temp-squashfs/result-image.md5'
         )
         mock_copy.assert_called_once_with(
-            'root_dir/boot/initrd', 'temp_media_dir/initrd.system_image'
+            'root_dir/boot/initrd-kernel_version',
+            'temp_media_dir/initrd.system_image'
         )
         assert mock_open.call_args_list == [
             call('temp_media_dir/config.isoclient', 'w'),
@@ -342,7 +355,7 @@ class TestInstallImageBuilder(object):
             '/config.bootoptions'
         )
         mock_copy.assert_called_once_with(
-            'root_dir/boot/initrd', 'tmpdir/result-image.initrd'
+            'root_dir/boot/initrd-kernel_version', 'tmpdir/result-image.initrd'
         )
         assert mock_chmod.call_args_list == [
             call('tmpdir/result-image.initrd', 420),
