@@ -14,8 +14,8 @@ SYNOPSIS
        [--clear-cache]
        [--ignore-repos]
        [--ignore-repos-used-for-build]
-       [--set-repo=<source,type,alias,priority,imageinclude>]
-       [--add-repo=<source,type,alias,priority,imageinclude>...]
+       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
+       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
        [--add-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
@@ -39,7 +39,7 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority,imageinclude>
+--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
 
   Add a new repository to the existing repository setup in the XML
   description. This option can be specified multiple times.
@@ -87,7 +87,7 @@ OPTIONS
   configurations which has the imageonly attribute set to true
   will not be ignored.
 
---set-repo=<source,type,alias,priority,imageinclude>
+--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
 
   Overwrite the first repository entry in the XML description with the
   provided information:
@@ -119,7 +119,12 @@ OPTIONS
   - **imageinclude**
 
     Set to either **true** or **false** to specify if this repository
-    should be part of the system image repository setup or not
+    should be part of the system image repository setup or not.
+
+  - **package_gpgcheck**
+
+    Set to either **true** or **false** to specify if this repository
+    should validate the package signatures.
 
 --signing-key=<key-file>
 
