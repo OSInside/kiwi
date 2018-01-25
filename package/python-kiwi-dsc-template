@@ -1,0 +1,11 @@
+Format: 1.0
+Source: python-kiwi
+Binary: python-kiwi
+Architecture: any
+Version: %%VERSION-0
+Maintainer: Marcus Schaefer <ms@suse.de>
+Standards-Version: 3.8.2
+Homepage: https://github.com/SUSE/kiwi
+Build-Depends: debhelper (>= 5)
+Debtransform-Tar: python-kiwi.tar.gz
+Debtransform-Files-Tar: debian.tar.gz
