@@ -53,8 +53,21 @@ class Kernel(object):
         for kernel_name in self.kernel_names:
             kernel_file = self.root_dir + '/boot/' + kernel_name
             if os.path.exists(kernel_file):
+                kernel_file_to_check = kernel_file
+                if 'zImage' in kernel_file_to_check:
+                    # kernels build as zImage contains the decompressor code
+                    # as part of the kernel image and could be therefore
+                    # compressed by any possible compression algorithm.
+                    # In this case we assume/hope that there is also a
+                    # standard gz compressed vmlinux version of the kernel
+                    # available and check this one instead of the zImage
+                    # variant
+                    kernel_file_to_check = kernel_file_to_check.replace(
+                        'zImage', 'vmlinux'
+                    ) + '.gz'
                 version = Command.run(
-                    command=['kversion', kernel_file], raise_on_error=False
+                    command=['kversion', kernel_file_to_check],
+                    raise_on_error=False
                 ).output
                 if not version:
                     version = 'no-version-found'
