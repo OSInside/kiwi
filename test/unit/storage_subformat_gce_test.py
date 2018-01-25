@@ -15,9 +15,6 @@ class TestDiskFormatGce(object):
         )
         self.xml_state = mock.Mock()
         self.xml_state.xml_data = xml_data
-        self.xml_state.get_distribution_name_from_boot_attribute = mock.Mock(
-            return_value='distribution'
-        )
         self.xml_state.get_image_version = mock.Mock(
             return_value='0.8.15'
         )
@@ -64,11 +61,11 @@ class TestDiskFormatGce(object):
             call('{"licenses": ["gce-license"]}')
         ]
         mock_archive.assert_called_once_with(
-            filename='target_dir/distribution-guest-gce-0.8.15.tar',
+            filename='target_dir/some-disk-image-guest-gce-0.8.15.tar',
             file_list=['manifest.json', 'disk.raw']
         )
         archive.create_gnu_gzip_compressed.assert_called_once_with(
             'tmpdir'
         )
         assert self.disk_format.get_target_name_for_format('gce') == \
-            'distribution-guest-gce-0.8.15.tar.gz'
+            'some-disk-image-guest-gce-0.8.15.tar.gz'

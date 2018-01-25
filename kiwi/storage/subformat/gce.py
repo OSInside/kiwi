@@ -106,7 +106,7 @@ class DiskFormatGce(DiskFormatBase):
             format_name = 'tar.gz'
         return ''.join(
             [
-                self.xml_state.get_distribution_name_from_boot_attribute(),
+                self.xml_state.xml_data.get_name(),
                 '-guest-gce-',
                 self.xml_state.get_image_version(),
                 '.' + format_name
