@@ -283,7 +283,10 @@ class InstallImageBuilder(object):
 
         # the kexec required system image initrd is stored for dracut kiwi-dump
         if self.initrd_system == 'dracut':
-            system_image_initrd = self.root_dir + '/boot/initrd'
+            boot_names = self.boot_image_task.get_boot_names()
+            system_image_initrd = os.sep.join(
+                [self.root_dir, 'boot', boot_names.initrd_name]
+            )
             target_initrd_name = '{0}/{1}.initrd'.format(
                 self.pxe_dir, self.xml_state.xml_data.get_name()
             )
@@ -404,7 +407,10 @@ class InstallImageBuilder(object):
         )
 
     def _copy_system_image_initrd_to_iso_image(self):
-        system_image_initrd = self.root_dir + '/boot/initrd'
+        boot_names = self.boot_image_task.get_boot_names()
+        system_image_initrd = os.sep.join(
+            [self.root_dir, 'boot', boot_names.initrd_name]
+        )
         shutil.copy(
             system_image_initrd, self.media_dir + '/initrd.system_image'
         )

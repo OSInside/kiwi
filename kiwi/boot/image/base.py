@@ -122,6 +122,9 @@ class BootImageBase(object):
     def enable_cleanup(self):
         self.call_destructor = True
 
+    def get_boot_names(self):
+        raise NotImplementedError
+
     def prepare(self):
         """
         Prepare new root system to create initrd from. Implementation
