@@ -19,7 +19,6 @@ class TestKernel(object):
         assert self.kernel.kernel_names == [
             'vmlinux',
             'vmlinuz',
-            'zImage',
             'uImage-1.2.3-default',
             'Image-1.2.3-default',
             'zImage-1.2.3-default',

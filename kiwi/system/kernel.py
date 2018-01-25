@@ -154,9 +154,8 @@ class Kernel(object):
         :return: list of kernel image names
         """
         kernel_names = [
-            # lookup for the symlink or functions.sh::suseStripKernel()
-            # generated names first
-            'vmlinux', 'vmlinuz', 'zImage'
+            # lookup for the symlink first
+            'vmlinux', 'vmlinuz'
         ]
         kernel_dirs = os.listdir(''.join([self.root_dir, '/lib/modules']))
         if kernel_dirs:
