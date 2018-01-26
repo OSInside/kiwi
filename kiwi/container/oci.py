@@ -52,7 +52,7 @@ class ContainerImageOCI(object):
         * labels: container labels
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, root_dir, custom_args=None):
+    def __init__(self, root_dir, custom_args=None):         # noqa: C901
         self.root_dir = root_dir
         self.oci_dir = None
         self.oci_root_dir = None

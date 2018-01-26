@@ -39,7 +39,7 @@ class Partitioner(object):
     * :attr:`storage_provider`
         Instance of class based on DeviceProvider
     """
-    def __new__(self, table_type, storage_provider):
+    def __new__(self, table_type, storage_provider):        # noqa: C901
         host_architecture = platform.machine()
         if host_architecture == 'x86_64':
             if table_type == 'gpt':

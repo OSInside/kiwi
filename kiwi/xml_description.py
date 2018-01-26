@@ -80,7 +80,7 @@ class XMLDescription(object):
         self.xml_content = xml_content
         self.extension_data = {}
 
-    def load(self):
+    def load(self):                                         # noqa: C901
         """
         Read XML description, pass it along to the XSLT processor,
         validate it against the schema and finally pass it to the
