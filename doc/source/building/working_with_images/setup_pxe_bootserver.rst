@@ -30,6 +30,7 @@ Installing and Configuring atftp
 
    .. code:: bash
 
+       $ systemctl start atftpd.socket
        $ systemctl start atftpd
 
 Installing and Configuring DHCP
@@ -40,9 +41,10 @@ serve as an example. Depending on your network structure, the IP addresses,
 ranges and domain settings need to be adapted to allow the DHCP server to
 work within your network. If you already have a DHCP server running in your
 network, make sure that the filename and next-server are correctly set
-in :file:`/etc/dhcpd.conf` on this server.
+on this server.
 
-The following steps describe how to set up a new DHCP server instance:
+The following steps describe how to set up a new DHCP server instance
+using the dnsmasq utility:
 
 1. Install the package dnsmasq
 
@@ -53,22 +55,36 @@ The following steps describe how to set up a new DHCP server instance:
 
    .. code:: bash
 
+       # Don't function as a DNS server:
+       port=0
+
+       # Log lots of extra information about DHCP transactions.
        log-dhcp
 
-       expand-hosts
-       domain=linux.local
-       dhcp-range=192.168.100.5,192.168.100.30,12h
-       dhcp-option=3,192.168.100.2
-       # nis-domain
-       dhcp-option=40,linux.local
-       # next-server
-       dhcp-option=pxe,66,192.168.100.2
-       dhcp-option=option:root-path,"/srv/tftpboot"
-       dhcp-option=option:Bootfile-name,"/srv/tftpboot/pxelinux.0"
+       # Set the root directory for files available via FTP.
+       tftp-root=/srv/tftpboot
 
-       # no-dhcp-interface=tun0
+       # The boot filename, Server name, Server Ip Address
+       dhcp-boot=pxelinux.0,,192.168.100.16
 
-       bind-interfaces
+       # Disable re-use of the DHCP servername and filename fields as extra
+       # option space. That's to avoid confusing some old or broken
+       # DHCP clients.
+       dhcp-no-override
+
+       # PXE menu.  The first part is the text displayed to the user.
+       # The second is the timeout, in seconds.
+       pxe-prompt="Booting FOG Client", 1
+
+       # The known types are x86PC, PC98, IA64_EFI, Alpha, Arc_x86,
+       # Intel_Lean_Client, IA32_EFI, BC_EFI, Xscale_EFI and X86-64_EFI
+       # This option is first and will be the default if there is no input
+       # from the user.
+       pxe-service=X86PC, "Boot to FOG", pxelinux.0
+       pxe-service=X86-64_EFI, "Boot to FOG UEFI", ipxe
+       pxe-service=BC_EFI, "Boot to FOG UEFI PXE-BC", ipxe
+
+       dhcp-range=192.168.100.16,proxy
 
 3. Run the dnsmasq server by calling:
 

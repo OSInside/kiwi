@@ -44,7 +44,6 @@ description as follows:
    .. code:: xml
 
       <type image="vmx"
-            initrd_system="dracut"
             filesystem="ext4"
             boottimeout="1"
             kernelcmdline="console=ttyS0 rootdelay=300 net.ifnames=0"

@@ -163,30 +163,42 @@ deployment target system:
 
        mkdir /tmp/pxe && cd /tmp/pxe
        tar -xf LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz
-       scp initrd-oemboot-*.install.* PXE_SERVER_IP:/srv/tftpboot/boot/initrd
-       scp initrd-oemboot-*.kernel.* PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
-   Also copy the OEM disk image and the md5 sum to the PXE boot server
+       scp pxeboot.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+       scp pxeboot.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
+
+   Also copy the OEM disk image, md5 file, system kernel and initrd to
+   the PXE boot server. Activation of the deployed system is done via
+   kexec of the kernel and initrd provided here
 
    .. code:: bash
 
-       scp LimeJeOS-Leap-42.3.x86_64-1.42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
-       scp LimeJeOS-Leap-42.3.x86_64-1.42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.initrd PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.kernel PXE_SERVER_IP:/srv/tftpboot/image/
 
 3. Copy the kernel command line parameters from
-   LimeJeOS-Leap-42.3.x86_64-1.42.3.append. Edit your PXE configuration
+   LimeJeOS-Leap-42.3.append. Edit your PXE configuration
    (for example pxelinux.cfg/default) on the PXE server and add these
    parameters to the append line
 
-   Optionally the image and its md5sum can be stored on an FTP or HTTP
-   server specified via the parameters kiwiserver=IP_ADRESS and
-   kiwiservertype=HTTP_HTTPS_OR_FTP. In this case make sure to copy the
-   system image and md5 file to the correct location on the server.
-   KIWI searches the image below SERVER_ROOT/image/
+   A typical PXE append line looks like the following example
+
+   .. code:: bash
+
+       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/LimeJeOS-Leap-42.3.xz
+
+   The location of the image is specified as a source URI which can point
+   to any location supported by the `curl` utility. KIWI calls `curl` to fetch
+   the data from this URI. This also means your image, md5 file, system kernel
+   and initrd could be fetched from any server and doesn't have to be stored
+   on the PXE_SERVER.
 
    .. note::
 
-      The initrd and Linux Kernel are always loaded via tftp from the PXE_SERVER.
+      The initrd and Linux Kernel for pxe boot are always loaded via tftp
+      from the PXE_SERVER.
 
 4. Create a target disk
 

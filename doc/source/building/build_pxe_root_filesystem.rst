@@ -59,6 +59,11 @@ system. As diskless client, a QEMU virtual machine is used.
      to it via a custom :file:`/etc/qemu-ifup`. For details, see
      https://en.wikibooks.org/wiki/QEMU/Networking
 
+   * The PXE root filesystem image approach is considered to be a
+     legacy setup. The required netboot initrd code will be maintained
+     outside of the KIWI appliance builder code base. If possible
+     we recommend to switch to the oem disk image deployment via
+     PXE.
 
 1. Make sure you have checked out the example image descriptions,
    see :ref:`example-descriptions`.
@@ -67,7 +72,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
     .. code:: bash
 
-        $ sudo kiwi-ng --profile netboot --type pxe system build \
+        $ sudo kiwi-ng --type pxe system build \
             --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
             --target-dir /tmp/mypxe-result
 
