@@ -104,7 +104,7 @@ class InstallImageBuilder(object):
             ]
         )
         self.dracut_config_file = ''.join(
-            [self.root_dir, '/etc/dracut.conf.d/02-kiwi.conf']
+            [self.root_dir, Defaults.get_dracut_conf_name()]
         )
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
@@ -432,7 +432,7 @@ class InstallImageBuilder(object):
             'dracut_rescue_image="no"'
         ]
         dracut_modules = ['kiwi-lib', 'kiwi-dump']
-        dracut_modules_omit = ['kiwi-overlay', 'kiwi-repart']
+        dracut_modules_omit = ['kiwi-overlay', 'kiwi-live', 'kiwi-repart']
         dracut_config.append(
             'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
         )

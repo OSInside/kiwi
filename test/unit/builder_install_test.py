@@ -210,7 +210,7 @@ class TestInstallImageBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call('omit_dracutmodules+=" kiwi-overlay kiwi-repart "\n')
+            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart "\n')
         ]
 
     @patch('kiwi.builder.install.mkdtemp')
@@ -376,7 +376,7 @@ class TestInstallImageBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call('omit_dracutmodules+=" kiwi-overlay kiwi-repart "\n')
+            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart "\n')
         ]
 
     @patch('kiwi.builder.install.Path.wipe')

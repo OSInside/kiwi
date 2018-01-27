@@ -455,6 +455,7 @@ class TestDiskBuilder(object):
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
             call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
+            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
             call('boot_dir/config.bootoptions', 'w'),
             call('/dev/some-loop', 'wb')
         ]
@@ -464,8 +465,11 @@ class TestDiskBuilder(object):
             call('0x0f0f0f0f\n'),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
+            # before dracut is called, image dracut setup
             call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
-            call('omit_dracutmodules+=" kiwi-dump "\n'),
+            call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-overlay "\n'),
+            # after dracut was called, system dracut setup
+            call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-repart kiwi-overlay "\n'),
             call('boot_cmdline\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f'))
         ]
@@ -479,7 +483,6 @@ class TestDiskBuilder(object):
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        print(self.boot_image_task.include_file.call_args_list)
         assert self.boot_image_task.include_file.call_args_list == [
             call('/config.partids'),
             call('/recovery.partition.size')
@@ -534,8 +537,12 @@ class TestDiskBuilder(object):
             call('0x0f0f0f0f\n'),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
+            # before dracut is called, image dracut setup
             call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
-            call('omit_dracutmodules+=" kiwi-dump "\n'),
+            call('omit_dracutmodules+=" kiwi-live kiwi-dump "\n'),
+            # after dracut was called, system dracut setup
+            call('add_dracutmodules+=" kiwi-overlay "\n'),
+            call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-repart "\n'),
             call('boot_cmdline\n'),
             call(b'\x0f\x0f\x0f\x0f')
         ]
