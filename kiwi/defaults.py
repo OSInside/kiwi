@@ -713,6 +713,10 @@ class Defaults(object):
         return 'overlay'
 
     @classmethod
+    def get_dracut_conf_name(self):
+        return '/etc/dracut.conf.d/02-kiwi.conf'
+
+    @classmethod
     def get_live_dracut_module_from_flag(self, flag_name):
         """
         Implements flag_name to dracut module name map
