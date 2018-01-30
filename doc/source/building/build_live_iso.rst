@@ -38,4 +38,5 @@ openSUSE Leap:
       $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.iso -m 4096
 
 After the test was successful, the image is complete and ready to use.
-See :ref:`iso_to_usb_stick` for further information.
+See :ref:`iso_to_usb_stick` and :ref:`iso_as_file_to_usb_stick`
+for further information.

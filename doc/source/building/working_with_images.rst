@@ -8,6 +8,7 @@ different image types.
    :maxdepth: 1
 
    working_with_images/iso_to_usb_stick_deployment
+   working_with_images/iso_to_usb_stick_file_based_deployment.rst
    working_with_images/vmx_setup_for_ec2
    working_with_images/vmx_setup_for_azure
    working_with_images/vmx_setup_for_google
