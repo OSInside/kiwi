@@ -44,7 +44,7 @@ network, make sure that the `filename` and `next-server` directives are
 correctly set on this server.
 
 The following steps describe how to set up a new DHCP server instance
-using the dnsmasq utility:
+using dnsmasq:
 
 1. Install the `dnsmasq` package.
 

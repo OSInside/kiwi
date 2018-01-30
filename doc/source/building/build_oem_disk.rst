@@ -138,7 +138,7 @@ as explained in :ref:`pxe-boot-server`
 
 If the PXE server is running the following steps shows how to test the
 deployment process over the network using a QEMU virtual machine as
-deployment target system:
+target system:
 
 1. Make sure to create an installation PXE TAR archive along with your
    OEM image by replacing the following setup in
