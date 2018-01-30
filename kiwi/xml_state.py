@@ -1268,8 +1268,7 @@ class XMLState(object):
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
         :param boolean repo_imageinclude: setup repository inside of the image
-        :param boolean repo_package_gpgcheck: enable or disable package gpg
-        checks
+        :param boolean repo_package_gpgcheck: enable/disable package gpg checks
         """
         repository_sections = self.get_repository_sections()
         if repository_sections:
@@ -1299,8 +1298,7 @@ class XMLState(object):
         :param string repo_alias: alias name
         :param string repo_prio: priority number, package manager specific
         :param boolean repo_imageinclude: setup repository inside of the image
-        :param boolean repo_package_gpgcheck: enable or disable package gpg
-        checks
+        :param boolean repo_package_gpgcheck: enable/disable package gpg checks
         """
         try:
             repo_prio = int(repo_prio)
