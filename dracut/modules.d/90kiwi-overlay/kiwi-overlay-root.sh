@@ -5,7 +5,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 # functions
 #--------------------------------------
 function setupDebugMode {
-    if getargbool 0 rd.overlay.debug; then
+    if getargbool 0 rd.kiwi.debug; then
         local log=/run/initramfs/log
         mkdir -p ${log}
         exec > ${log}/boot.kiwi
