@@ -5,16 +5,11 @@ import os
 
 from .test_helper import raises, patch_open
 
-from textwrap import dedent
-
 from kiwi.exceptions import (
-    KiwiVmdkToolsError,
     KiwiTemplateError
 )
 
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
-
-from builtins import bytes
 
 
 class TestDiskFormatVmdk(object):
@@ -104,54 +99,6 @@ class TestDiskFormatVmdk(object):
         self.disk_format = DiskFormatVmdk(
             self.xml_state, 'root_dir', 'target_dir'
         )
-        self.vmdk_header_update = dedent('''
-            encoding="UTF-8"
-            dd-out
-            ddb.toolsInstallType = "4"
-            ddb.toolsVersion = "9350"
-        ''').strip()
-        self.vmdk_header_update = bytes(self.vmdk_header_update, 'utf-8')
-
-        self.vmdk_settings_formatted = dedent('''
-            #!/usr/bin/env vmware
-            # kiwi generated VMware settings file
-            config.version = "8"
-            tools.syncTime = "true"
-            uuid.action = "create"
-            virtualHW.version = "42"
-            displayName = "some-disk-image"
-            guestOS = "suse"
-            priority.grabbed = "normal"
-            priority.ungrabbed = "normal"
-            powerType.powerOff = "soft"
-            powerType.powerOn  = "soft"
-            powerType.suspend  = "soft"
-            powerType.reset    = "soft"
-            memsize = "4096"
-            numvcpus = "2"
-            scsi0.present = "true"
-            scsi0.sharedBus = "none"
-            scsi0.virtualDev = "lsilogic"
-            scsi0:0.present = "true"
-            scsi0:0.fileName = "target_dir/some-disk-image.x86_64-1.2.3.vmdk"
-            scsi0:0.deviceType = "scsi-hardDisk"
-            ethernet0.present = "true"
-            ethernet0.allow64bitVmxnet = "true"
-            ethernet0.addressType = "static"
-            ethernet0.address = "98:90:96:a0:3c:58"
-            ethernet0.virtualDev = "e1000"
-            ethernet0.connectionType = "bridged"
-            ide0:0.present = "true"
-            ide0:0.deviceType = "cdrom-raw"
-            ide0:0.autodetect = "true"
-            ide0:0.startConnected = "true"
-            usb.present = "true"
-        ''').strip() + '\n'
-
-        self.vmdk_settings = ''
-        for entry in self.vmdk_settings_formatted.split('\n'):
-            if entry:
-                self.vmdk_settings += entry.strip() + '\n'
 
     def test_post_init(self):
         self.disk_format.post_init({'option': 'value'})
@@ -177,36 +124,6 @@ class TestDiskFormatVmdk(object):
             )
         ]
 
-    @patch('kiwi.storage.subformat.vmdk.Command.run')
-    @patch('os.path.exists')
-    @patch('kiwi.logger.log.warning')
-    @patch_open
-    def test_create_image_format_skip_descriptor_update(
-        self, mock_open, mock_log_warn, mock_exists, mock_command
-    ):
-        mock_exists.return_value = False
-        self.disk_format.create_image_format()
-        mock_command.assert_called_once_with(
-            [
-                'qemu-img', 'convert', '-f', 'raw',
-                'target_dir/some-disk-image.x86_64-1.2.3.raw', '-O', 'vmdk',
-                'target_dir/some-disk-image.x86_64-1.2.3.vmdk'
-            ]
-        )
-        assert mock_log_warn.called
-
-    @raises(KiwiVmdkToolsError)
-    @patch('kiwi.storage.subformat.vmdk.Command.run')
-    @patch('os.path.exists')
-    def test_create_image_format_invalid_tools_version(
-        self, mock_exists, mock_command
-    ):
-        command = mock.Mock()
-        command.output = 'bogus-version'
-        mock_command.return_value = command
-        mock_exists.return_value = True
-        self.disk_format.create_image_format()
-
     @raises(KiwiTemplateError)
     @patch('kiwi.storage.subformat.vmdk.VmwareSettingsTemplate.get_template')
     @patch('kiwi.storage.subformat.vmdk.Command.run')
@@ -215,21 +132,6 @@ class TestDiskFormatVmdk(object):
     def test_create_image_format_template_error(
         self, mock_open, mock_exists, mock_command, mock_get_template
     ):
-        qemu_img_result = mock.Mock()
-        vmtoolsd_result = mock.Mock()
-        vmtoolsd_result.output = \
-            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
-        dd_result = mock.Mock()
-        dd_result.output = 'dd-out\0\0\0\0\0'
-
-        command_results = [
-            dd_result, vmtoolsd_result, qemu_img_result
-        ]
-
-        def side_effect(arg):
-            return command_results.pop()
-
-        mock_command.side_effect = side_effect
         template = mock.Mock()
         mock_get_template.return_value = template
         template.substitute.side_effect = Exception
@@ -241,38 +143,13 @@ class TestDiskFormatVmdk(object):
     def test_create_image_format(
         self, mock_open, mock_exists, mock_command
     ):
-        qemu_img_result = mock.Mock()
-        vmtoolsd_result = mock.Mock()
-        vmtoolsd_result.output = \
-            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
-        dd_result = mock.Mock()
-        dd_result.output = 'dd-out\0\0\0\0\0'
-
-        command_results = [
-            dd_result, vmtoolsd_result, qemu_img_result
-        ]
-
-        def side_effect(arg):
-            return command_results.pop()
-
-        mock_command.side_effect = side_effect
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
 
         self.disk_format.create_image_format()
 
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'r+b'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
-        ]
-        assert self.file_mock.write.call_args_list[0] == call(
-            self.vmdk_header_update
-        )
-        assert self.file_mock.write.call_args_list[1] == call(
-            self.vmdk_settings
-        )
-        assert self.file_mock.seek.call_args_list == [
-            call(512, 0), call(0, 2)
         ]
 
     @patch('kiwi.storage.subformat.vmdk.Command.run')
@@ -281,42 +158,14 @@ class TestDiskFormatVmdk(object):
     def test_create_image_format_encoding_exists(
         self, mock_open, mock_exists, mock_command
     ):
-        qemu_img_result = mock.Mock()
-        vmtoolsd_result = mock.Mock()
-        vmtoolsd_result.output = \
-            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
-        dd_result = mock.Mock()
-        dd_result.output = 'encoding="UTF-8"\ndd-out\0\0\0\0\0'
-
-        command_results = [
-            dd_result, vmtoolsd_result, qemu_img_result
-        ]
-
-        def side_effect(arg):
-            return command_results.pop()
-
-        mock_command.side_effect = side_effect
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
 
         self.disk_format.create_image_format()
 
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'r+b'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
         ]
-        assert self.file_mock.write.call_args_list[0] == call(
-            self.vmdk_header_update
-        )
-        assert self.file_mock.write.call_args_list[1] == call(
-            self.vmdk_settings
-        )
         assert self.file_mock.write.call_args_list[2] == call(
-            'custom entry 1' + os.linesep
-        )
-        assert self.file_mock.write.call_args_list[3] == call(
             'custom entry 2' + os.linesep
         )
-        assert self.file_mock.seek.call_args_list == [
-            call(512, 0), call(0, 2)
-        ]
