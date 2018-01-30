@@ -6,7 +6,7 @@ PXE Client Setup Configuration
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images built with KIWI and references the following
+   PXE images built with KIWI and references the following
    articles:
 
    * :ref:`build_pxe`

@@ -16,7 +16,7 @@ function lookupIsoDiskDevice {
 }
 
 function setupDebugMode {
-    if getargbool 0 rd.live.debug; then
+    if getargbool 0 rd.kiwi.debug; then
         local log=/run/initramfs/log
         mkdir -p ${log}
         exec > ${log}/boot.kiwi
