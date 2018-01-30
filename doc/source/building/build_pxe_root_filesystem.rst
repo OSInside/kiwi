@@ -61,8 +61,8 @@ system. As diskless client, a QEMU virtual machine is used.
 
    * The PXE root filesystem image approach is considered to be a
      legacy setup. The required netboot initrd code will be maintained
-     outside of the KIWI appliance builder code base. If possible
-     we recommend to switch to the oem disk image deployment via
+     outside of the KIWI appliance builder code base. If possible,
+     we recommend to switch to the OEM disk image deployment via
      PXE.
 
 1. Make sure you have checked out the example image descriptions,
