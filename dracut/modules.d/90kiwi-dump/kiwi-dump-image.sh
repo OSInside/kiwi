@@ -8,6 +8,15 @@ type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 #======================================
 # Functions
 #--------------------------------------
+function initialize {
+    local profile=/.profile
+
+    test -f ${profile} || \
+        die "No profile setup found"
+
+    import_file ${profile}
+}
+
 function scan_softraid_devices {
     # """
     # calls dmraid_scan from dmraid module
@@ -345,6 +354,8 @@ function boot_installed_system {
 # Perform image dump/install operations
 #--------------------------------------
 setup_debug
+
+initialize
 
 udev_pending
 
