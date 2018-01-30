@@ -161,9 +161,11 @@ target system:
 
    .. code:: bash
 
+       # Unpack installation tarball
        mkdir /tmp/pxe && cd /tmp/pxe
        tar -xf LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz
 
+       # Copy kernel and initrd used for pxe boot
        scp pxeboot.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
        scp pxeboot.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
@@ -175,8 +177,11 @@ target system:
 
    .. code:: bash
 
+       # Copy system image and MD5 checksum
        scp LimeJeOS-Leap-42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
        scp LimeJeOS-Leap-42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+
+       # Copy kernel and initrd used for booting the system via kexec
        scp LimeJeOS-Leap-42.3.initrd PXE_SERVER_IP:/srv/tftpboot/image/
        scp LimeJeOS-Leap-42.3.kernel PXE_SERVER_IP:/srv/tftpboot/image/
 

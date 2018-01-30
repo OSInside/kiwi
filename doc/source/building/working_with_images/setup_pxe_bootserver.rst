@@ -48,7 +48,8 @@ using dnsmasq:
 
 1. Install the `dnsmasq` package.
 
-2. Create the file :file:`/etc/dnsmasq.conf` and insert the following content.
+2. Create the file :file:`/etc/dnsmasq.conf` and insert
+   the following content:
 
    .. note:: Placeholders
 
