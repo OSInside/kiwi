@@ -64,29 +64,29 @@ to setup the USB stick with `live-fat-stick`:
    By default, the SYSLINUX configuration does not use the "iso-scan"
    feature. Thus this information needs to be added as follows:
 
-   * Mount the FAT32 partition of the USB Stick. This must be the
-     same device as used in the `live-fat-stick` command call:
+   1. Mount the FAT32 partition of the USB Stick. This must be the
+      same device as used in the `live-fat-stick` command call:
 
-     .. code:: bash
+      .. code:: bash
 
-         $ sudo mount /dev/sdz1 /mnt
+          $ sudo mount /dev/sdz1 /mnt
 
-   * Edit the :file:`/mnt/boot/syslinux/syslinux.cfg` and include the
-     following parameters to the existing **append** line:
+   #. Edit the file :file:`/mnt/boot/syslinux/syslinux.cfg` and include the
+      following parameters to the existing **append** line:
 
-     .. code:: bash
+      .. code:: bash
 
-         iso-scan/filename=/LimeJeOS-Leap-42.3.x86_64-1.42.3.iso root=live:CDLABEL=CDROM
+          iso-scan/filename=/LimeJeOS-Leap-42.3.x86_64-1.42.3.iso root=live:CDLABEL=CDROM
 
-   * Unmount the FAT32 partition:
+   #. Unmount the FAT32 partition:
 
-     .. code:: bash
+      .. code:: bash
 
-         $ sudo umount /mnt
+          $ sudo umount /mnt
 
 5. Boot from your USB Stick
 
    Activate booting from USB in your BIOS/UEFI. As many firmware has different
    procedures on how to do it, look into your user manual.
    Many firmware offers a boot menu which can be activated at boot time.
-   Usually this can be reached by :kbd:`Esc` or :kbd:`F12`.
+   Usually this can be reached by pressing the :kbd:`Esc` or :kbd:`F12` keys.
