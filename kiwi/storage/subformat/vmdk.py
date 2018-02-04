@@ -59,7 +59,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', self.image_format
             ] + self.options + [
-                self.get_target_name_for_format(self.image_format)
+                self.get_target_file_path_for_format(self.image_format)
             ]
         )
         self._create_vmware_settings_file()
@@ -74,7 +74,7 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_name_for_format(
+            filename=self.get_target_file_path_for_format(
                 self.image_format
             ),
             use_for_bundle=True,
@@ -83,7 +83,7 @@ class DiskFormatVmdk(DiskFormatBase):
         )
         result.add(
             key='disk_format_machine_settings',
-            filename=self.get_target_name_for_format(
+            filename=self.get_target_file_path_for_format(
                 'vmx'
             ),
             use_for_bundle=True,
@@ -102,7 +102,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_name_for_format(self.image_format),
+                self.get_target_file_path_for_format(self.image_format),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
             'disk_id': '0'
@@ -177,7 +177,7 @@ class DiskFormatVmdk(DiskFormatBase):
             network_connection_type
         )
         try:
-            settings_file = self.get_target_name_for_format('vmx')
+            settings_file = self.get_target_file_path_for_format('vmx')
             with open(settings_file, 'w') as config:
                 config.write(settings_template.substitute(template_record))
                 for custom_entry in custom_entries:

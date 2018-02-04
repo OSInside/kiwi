@@ -69,7 +69,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vpc'
             ] + self.options + [
-                self.get_target_name_for_format(self.image_format)
+                self.get_target_file_path_for_format(self.image_format)
             ]
         )
         if self.tag:
@@ -85,7 +85,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_name_for_format(
+            filename=self.get_target_file_path_for_format(
                 self.image_format
             ),
             use_for_bundle=True,
@@ -153,7 +153,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         +------------+-----------------+
         """
         binary_tag = self._pack_net_guid_tag(tag)
-        vhd_fixed_image = self.get_target_name_for_format('vhdfixed')
+        vhd_fixed_image = self.get_target_file_path_for_format('vhdfixed')
         # seek to 64k offset and zero out 512 byte
         with open(vhd_fixed_image, 'wb') as vhd_fixed:
             with open('/dev/null', 'rb') as null:

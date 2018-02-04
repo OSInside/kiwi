@@ -50,6 +50,6 @@ class DiskFormatVhd(DiskFormatBase):
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vpc'
             ] + self.options + [
-                self.get_target_name_for_format(self.image_format)
+                self.get_target_file_path_for_format(self.image_format)
             ]
         )

@@ -34,8 +34,8 @@ class TestDiskFormatBase(object):
         self.disk_format.create_image_format()
 
     @raises(KiwiFormatSetupError)
-    def test_get_target_name_for_format_invalid_format(self):
-        self.disk_format.get_target_name_for_format('foo')
+    def test_get_target_file_path_for_format_invalid_format(self):
+        self.disk_format.get_target_file_path_for_format('foo')
 
     def test_post_init(self):
         self.disk_format.post_init({'option': 'unhandled'})
@@ -50,8 +50,8 @@ class TestDiskFormatBase(object):
             '-o', 'adapter_type=type', '-o', 'subformat=format'
         ]
 
-    def test_get_target_name_for_format(self):
-        assert self.disk_format.get_target_name_for_format('vhd') == \
+    def test_get_target_file_path_for_format(self):
+        assert self.disk_format.get_target_file_path_for_format('vhd') == \
             'target_dir/some-disk-image.x86_64-1.2.3.vhd'
 
     def test_store_to_result(self):

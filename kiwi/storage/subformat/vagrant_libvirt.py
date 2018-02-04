@@ -80,7 +80,7 @@ class DiskFormatVagrantLibVirt(DiskFormatBase):
         box_img = os.sep.join([self.temp_image_dir, 'box.img'])
         Command.run(
             [
-                'mv', self.get_target_name_for_format(qcow.image_format),
+                'mv', self.get_target_file_path_for_format(qcow.image_format),
                 box_img
             ]
         )
@@ -96,7 +96,7 @@ class DiskFormatVagrantLibVirt(DiskFormatBase):
         Command.run(
             [
                 'tar', '-C', self.temp_image_dir,
-                '-czf', self.get_target_name_for_format(self.image_format),
+                '-czf', self.get_target_file_path_for_format(self.image_format),
                 os.path.basename(box_img),
                 os.path.basename(metadata_json),
                 os.path.basename(vagrantfile)

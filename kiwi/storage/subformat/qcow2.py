@@ -51,6 +51,6 @@ class DiskFormatQcow2(DiskFormatBase):
                 'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
                 '-O', self.image_format
             ] + self.options + [
-                self.get_target_name_for_format(self.image_format)
+                self.get_target_file_path_for_format(self.image_format)
             ]
         )
