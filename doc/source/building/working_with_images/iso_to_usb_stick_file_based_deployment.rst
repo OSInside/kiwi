@@ -32,13 +32,13 @@ live ISO images supports this deployment mode.
 
 For copying the ISO file on the USB stick and the setup of the
 SYSLINUX bootloader to make use of the "iso-scan" feature an extra tool
-named `live-fat-stick` exists. The following procedure shows how
-to setup the USB stick with `live-fat-stick`:
+named `live-grub-stick` exists. The following procedure shows how
+to setup the USB stick with `live-grub-stick`:
 
-1. Install the `live-fat-stick` package:
+1. Install the `live-grub-stick` package:
 
    The package is available for openSUSE at:
-   https://software.opensuse.org/package/live-fat-stick
+   https://software.opensuse.org/package/live-grub-stick
 
 2. Plug in a USB stick
 
@@ -50,43 +50,21 @@ to setup the USB stick with `live-fat-stick`:
 
       $ sudo lsblk --fs
 
-3. Call the `live-fat-stick` command as follows:
+3. Call the `live-grub-stick` command as follows:
 
    Assuming "/dev/sdz1" was the FAT32 partition selected from the
    output of the `lsblk` command:
 
    .. code:: bash
 
-      $ sudo live-fat-stick LimeJeOS-Leap-42.3.x86_64-1.42.3.iso /dev/sdz1
+      $ sudo live-grub-stick LimeJeOS-Leap-42.3.x86_64-1.42.3.iso /dev/sdz1
 
-4. Update the SYSLINUX configuration on the USB Stick
-
-   By default, the SYSLINUX configuration does not use the "iso-scan"
-   feature. Thus this information needs to be added as follows:
-
-   1. Mount the FAT32 partition of the USB Stick. This must be the
-      same device as used in the `live-fat-stick` command call:
-
-      .. code:: bash
-
-          $ sudo mount /dev/sdz1 /mnt
-
-   #. Edit the file :file:`/mnt/boot/syslinux/syslinux.cfg` and include the
-      following parameters to the existing **append** line:
-
-      .. code:: bash
-
-          iso-scan/filename=/LimeJeOS-Leap-42.3.x86_64-1.42.3.iso root=live:CDLABEL=CDROM
-
-   #. Unmount the FAT32 partition:
-
-      .. code:: bash
-
-          $ sudo umount /mnt
-
-5. Boot from your USB Stick
+4. Boot from your USB Stick
 
    Activate booting from USB in your BIOS/UEFI. As many firmware has different
    procedures on how to do it, look into your user manual.
+   EFI booting from iso image is not supported at the moment, for EFI booting
+   use --isohybrid option with live-grub-stick, however note that all the data
+   on the stick will be lost.
    Many firmware offers a boot menu which can be activated at boot time.
    Usually this can be reached by pressing the :kbd:`Esc` or :kbd:`F12` keys.
