@@ -112,3 +112,21 @@ class DiskFormatGce(DiskFormatBase):
                 '.' + format_name
             ]
         )
+
+    def store_to_result(self, result):
+        """
+        Store the GCE image tarball into the provided result instance.
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=(
+                self.target_dir +
+                '/' +
+                self.get_target_name_for_format(self.image_format)
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
+        )
