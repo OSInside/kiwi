@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from collections import OrderedDict
 from tempfile import mkdtemp
 
@@ -77,7 +78,9 @@ class DiskFormatGce(DiskFormatBase):
         )
         gce_tar_ball_file_list.append('disk.raw')
 
-        archive_name = self.get_target_name_for_format(self.image_format)
+        archive_name = os.path.basename(
+            self.get_target_name_for_format(self.image_format)
+        )
 
         # delete the '.gz' suffix from the name. The suffix is appended by
         # the archive creation method depending on the creation type.
@@ -106,6 +109,7 @@ class DiskFormatGce(DiskFormatBase):
             format_name = 'tar.gz'
         return ''.join(
             [
+                self.target_dir, '/',
                 self.xml_state.xml_data.get_name(),
                 '-guest-gce-',
                 self.xml_state.get_image_version(),
