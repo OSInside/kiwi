@@ -3,3 +3,9 @@ omit =
     */app.py
     */kiwi.py
     */xml_parse.py
+
+[report]
+omit =
+    */app.py
+    */kiwi.py
+    */xml_parse.py

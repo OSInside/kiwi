@@ -45,6 +45,3 @@ pyenchant
 # for travis deployment tasks
 travis-sphinx
 ghp-import
-
-# for test coverage
-coverage
