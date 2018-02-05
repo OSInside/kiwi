@@ -68,4 +68,4 @@ class TestDiskFormatGce(object):
             'tmpdir'
         )
         assert self.disk_format.get_target_name_for_format('gce') == \
-            'some-disk-image-guest-gce-0.8.15.tar.gz'
+            'target_dir/some-disk-image-guest-gce-0.8.15.tar.gz'
