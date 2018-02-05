@@ -245,7 +245,9 @@ class RuntimeChecker(object):
                             kernel_package_sections.append(package)
 
                 for package in kernel_package_sections:
-                    if boot_xml_state.package_matches_host_architecture(package):
+                    if boot_xml_state.package_matches_host_architecture(
+                            package
+                    ):
                         boot_kernel_package_name = package.get_name()
 
         if boot_kernel_package_name:
@@ -411,6 +413,23 @@ class RuntimeChecker(object):
         firmware = self.xml_state.build_type.get_firmware()
         if overlayroot and firmware == 'uefi':
             raise KiwiRuntimeError(message)
+
+    def check_grub_efi_installed_for_efi_firmware(self):
+        """
+        If the image is being built with efi or uefi firmware setting
+        we need the grub2-x86_64-efi package installed
+        """
+        message = dedent('''\n
+            Firmware set to efi or uefi but the grub2-x86_64-efi is not
+            part of the image build.
+        ''')
+        firmware = self.xml_state.build_type.get_firmware()
+        if firmware in ('efi', 'uefi'):
+            package_names = \
+                    self.xml_state.get_bootstrap_packages() + \
+                    self.xml_state.get_system_packages()
+            if 'grub2-x86_64-efi' not in package_names:
+                raise KiwiRuntimeError(message)
 
     def check_xen_uniquely_setup_as_server_or_guest(self):
         """

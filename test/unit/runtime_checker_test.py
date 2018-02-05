@@ -108,6 +108,40 @@ class TestRuntimeChecker(object):
         runtime_checker.check_consistent_kernel_in_boot_and_system_image()
 
     @raises(KiwiRuntimeError)
+    def test_check_grub_efi_installed_for_efi_firmware_is_efi(self):
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value='efi'
+        )
+        self.xml_state.get_bootstrap_packages = mock.Mock(
+            return_value=['foo']
+        )
+        self.xml_state.get_system_packages = mock.Mock(
+            return_value=['bar']
+        )
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'oem'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_grub_efi_installed_for_efi_firmware()
+
+    @raises(KiwiRuntimeError)
+    def test_check_grub_efi_installed_for_efi_firmware_is_uefi(self):
+        self.xml_state.build_type.get_firmware = mock.Mock(
+            return_value='efi'
+        )
+        self.xml_state.get_bootstrap_packages = mock.Mock(
+            return_value=['foo']
+        )
+        self.xml_state.get_system_packages = mock.Mock(
+            return_value=['bar']
+        )
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'oem'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_grub_efi_installed_for_efi_firmware()
+
+    @raises(KiwiRuntimeError)
     def test_check_xen_uniquely_setup_as_server_or_guest_for_ec2(self):
         self.xml_state.build_type.get_firmware = mock.Mock(
             return_value='ec2'
