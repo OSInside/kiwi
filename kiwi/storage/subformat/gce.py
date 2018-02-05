@@ -79,7 +79,7 @@ class DiskFormatGce(DiskFormatBase):
         gce_tar_ball_file_list.append('disk.raw')
 
         archive_name = os.path.basename(
-            self.get_target_name_for_format(self.image_format)
+            self.get_target_file_path_for_format(self.image_format)
         )
 
         # delete the '.gz' suffix from the name. The suffix is appended by
@@ -94,7 +94,7 @@ class DiskFormatGce(DiskFormatBase):
             self.temp_image_dir
         )
 
-    def get_target_name_for_format(self, format_name):
+    def get_target_file_path_for_format(self, format_name):
         """
         Google requires the image name to follow their naming
         convetion. Therefore it's required to provide a suitable
