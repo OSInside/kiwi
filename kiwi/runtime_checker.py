@@ -426,8 +426,8 @@ class RuntimeChecker(object):
         firmware = self.xml_state.build_type.get_firmware()
         if firmware in ('efi', 'uefi'):
             package_names = \
-                    self.xml_state.get_bootstrap_packages() + \
-                    self.xml_state.get_system_packages()
+                self.xml_state.get_bootstrap_packages() + \
+                self.xml_state.get_system_packages()
             if 'grub2-x86_64-efi' not in package_names:
                 raise KiwiRuntimeError(message)
 
