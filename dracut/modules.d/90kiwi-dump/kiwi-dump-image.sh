@@ -56,6 +56,10 @@ function get_disk_list {
         lsblk -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
+        if [ "$(blkid "${disk_device}" -s LABEL -o value)" = "INSTALL" ];then
+            # ignore install source device
+            continue
+        fi
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         disk_device_by_id=$(
             get_persistent_device_from_unix_node "${disk_device}" "${disk_id}"
