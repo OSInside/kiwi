@@ -192,7 +192,7 @@ function dump_image {
 
     if [ -z "${kiwi_oemunattended}" ];then
         local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
-        if ! run_dialog --yesno "\"${ack_dump_text}\"" 5 80; then
+        if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
             local install_cancel_text="System installation canceled"
             run_dialog --msgbox "\"${install_cancel_text}\"" 5 60
             die "${install_cancel_text}"
