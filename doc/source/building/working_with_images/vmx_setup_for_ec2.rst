@@ -51,13 +51,13 @@ description as follows:
 
       <type image="vmx"
             filesystem="ext4"
-            initrd_system="dracut"
             bootloader="grub2"
             kernelcmdline="console=xvc0 multipath=off net.ifnames=0"
             boottimeout="1"
             devicepersistency="by-label"
             firmware="ec2">
         <size unit="M">10240</size>
+        <machine xen_loader="hvmloader"/>
       </type>
 
 3. Cloud Init setup

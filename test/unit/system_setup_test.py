@@ -12,7 +12,8 @@ from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import (
     KiwiScriptFailed,
-    KiwiImportDescriptionError
+    KiwiImportDescriptionError,
+    KiwiCommandError
 )
 from kiwi.defaults import Defaults
 
@@ -752,9 +753,41 @@ class TestSystemSetup(object):
         mock_command.return_value = command
         result = self.setup.export_package_list('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
-        mock_command.assert_called_once_with([
-            'rpm', '--root', 'root_dir', '-qa', '--qf',
-            '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n'
+        mock_command.assert_has_calls([
+            call(['chroot', 'root_dir', 'rpm', '-E', '%_dbpath']),
+            call([
+                'rpm', '--root', 'root_dir', '-qa', '--qf',
+                '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n',
+                '--dbpath', 'packages_data'
+            ])
+        ])
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+        )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch_open
+    def test_export_package_list_rpm_no_dbpath(
+        self, mock_open, mock_command
+    ):
+        cmd = mock.Mock()
+        cmd.output = 'packages_data'
+
+        def dbpath_check_fails(command):
+            if '%_dbpath' in command:
+                raise KiwiCommandError()
+            else:
+                return cmd
+
+        mock_command.side_effect = dbpath_check_fails
+        result = self.setup.export_package_list('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
+        mock_command.assert_has_calls([
+            call(['chroot', 'root_dir', 'rpm', '-E', '%_dbpath']),
+            call([
+                'rpm', '--root', 'root_dir', '-qa', '--qf',
+                '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n'
+            ])
         ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
@@ -791,10 +824,41 @@ class TestSystemSetup(object):
         mock_command.return_value = command
         result = self.setup.export_package_verification('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
-        mock_command.assert_called_once_with(
-            command=['rpm', '--root', 'root_dir', '-Va'],
-            raise_on_error=False
+        mock_command.assert_has_calls([
+            call(['chroot', 'root_dir', 'rpm', '-E', '%_dbpath']),
+            call(command=[
+                'rpm', '--root', 'root_dir', '-Va',
+                '--dbpath', 'verification_data'
+            ], raise_on_error=False)
+        ])
+        mock_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.verified', 'w'
         )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch_open
+    def test_export_package_verification_no_dbpath(
+        self, mock_open, mock_command
+    ):
+        cmd = mock.Mock()
+        cmd.output = 'verification_data'
+
+        def dbpath_check_fails(command, raise_on_error):
+            if '%_dbpath' in command:
+                raise KiwiCommandError()
+            else:
+                return cmd
+
+        mock_command.side_effect = dbpath_check_fails
+        result = self.setup.export_package_verification('target_dir')
+        assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
+        mock_command.assert_has_calls([
+            call(['chroot', 'root_dir', 'rpm', '-E', '%_dbpath']),
+            call(
+                command=['rpm', '--root', 'root_dir', '-Va'],
+                raise_on_error=False
+            )
+        ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.verified', 'w'
         )

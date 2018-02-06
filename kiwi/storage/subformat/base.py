@@ -69,7 +69,7 @@ class DiskFormatBase(object):
         self.custom_args = {}
         self.temp_image_dir = None
         self.image_format = None
-        self.diskname = self.get_target_name_for_format('raw')
+        self.diskname = self.get_target_file_path_for_format('raw')
 
         self.post_init(custom_args)
 
@@ -145,7 +145,7 @@ class DiskFormatBase(object):
                     options.append(key)
         return options
 
-    def get_target_name_for_format(self, format_name):
+    def get_target_file_path_for_format(self, format_name):
         """
         Create target file path name for specified format
 
@@ -182,7 +182,7 @@ class DiskFormatBase(object):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_name_for_format(
+            filename=self.get_target_file_path_for_format(
                 self.image_format
             ),
             use_for_bundle=True,

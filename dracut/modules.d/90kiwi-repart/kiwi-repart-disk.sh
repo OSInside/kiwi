@@ -113,14 +113,14 @@ function repart_standard_disk {
     if [ "${kiwi_oemswap}" = "true" ];then
         new_parts=$((new_parts + 1))
     fi
+    # deactivate all active device mappings
+    deactivate_device_mappings
     # check if we can repart this disk
     if ! check_repart_possible \
         ${disk_root_mbytes} ${disk_free_mbytes} ${min_additional_mbytes}
     then
         return 1
     fi
-    # deactivate all active device mappings
-    deactivate_device_mappings
     # repart root partition
     local command_query
     local root_part_size=+${disk_have_root_system_mbytes}M
@@ -167,14 +167,14 @@ function repart_lvm_disk {
     if [ "${min_additional_mbytes}" -lt 5 ];then
         min_additional_mbytes=5
     fi
+    # deactivate all active device mappings
+    deactivate_device_mappings
     # check if we can repart this disk
     if ! check_repart_possible \
         ${disk_root_mbytes} ${disk_free_mbytes} ${min_additional_mbytes}
     then
         return 1
     fi
-    # deactivate all active device mappings
-    deactivate_device_mappings
     # create lvm.conf appropriate for resize
     setup_lvm_config
     # repart lvm partition

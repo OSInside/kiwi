@@ -58,8 +58,8 @@ class DiskFormatOva(DiskFormatVmdk):
         # Creates the vmdk disk image and vmx config
         super(DiskFormatOva, self).create_image_format()
         # Converts to ova using ovftool
-        vmx = self.get_target_name_for_format('vmx')
-        ova = self.get_target_name_for_format('ova')
+        vmx = self.get_target_file_path_for_format('vmx')
+        ova = self.get_target_file_path_for_format('ova')
         try:
             os.unlink(ova)
         except OSError:
@@ -86,7 +86,7 @@ class DiskFormatOva(DiskFormatVmdk):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_name_for_format('ova'),
+            filename=self.get_target_file_path_for_format('ova'),
             use_for_bundle=True,
             compress=False,
             shasum=True

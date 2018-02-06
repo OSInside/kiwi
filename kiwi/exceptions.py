@@ -724,13 +724,6 @@ class KiwiVhdTagError(KiwiError):
     """
 
 
-class KiwiVmdkToolsError(KiwiError):
-    """
-    Exception raised if the version information from vmtoolsd does
-    not match the expected output format.
-    """
-
-
 class KiwiVolumeGroupConflict(KiwiError):
     """
     Exception raised if the requested LVM volume group already is

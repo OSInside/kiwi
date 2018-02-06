@@ -90,11 +90,6 @@ class TestDiskFormatOva(object):
         self, mock_open, mock_chmod, mock_stat, mock_command
     ):
         qemu_img_result = mock.Mock()
-        vmtoolsd_result = mock.Mock()
-        vmtoolsd_result.output = \
-            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
-        dd_result = mock.Mock()
-        dd_result.output = 'dd-out\0\0\0\0\0'
         ovftool_help_result = mock.Mock()
         ovftool_help_result.output = """This is a new ovftool
                 it knows options such as --shaAlgorithm and others
@@ -102,7 +97,7 @@ class TestDiskFormatOva(object):
         ovftool_result = mock.Mock()
 
         command_results = [
-            ovftool_result, ovftool_help_result, dd_result, vmtoolsd_result, qemu_img_result
+            ovftool_result, ovftool_help_result, qemu_img_result
         ]
 
         def side_effect(arg):
@@ -120,23 +115,17 @@ class TestDiskFormatOva(object):
         ])
 
     @patch('kiwi.storage.subformat.ova.Command.run')
-    @patch('os.path.exists')
     @patch_open
     @raises(KiwiCommandNotFound)
     def test_create_image_format_no_ovftool(
-        self, mock_open, mock_exists, mock_command
+        self, mock_open, mock_command
     ):
         qemu_img_result = mock.Mock()
-        vmtoolsd_result = mock.Mock()
-        vmtoolsd_result.output = \
-            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
-        dd_result = mock.Mock()
-        dd_result.output = 'dd-out\0\0\0\0\0'
         ovftool_help_result = mock.Mock()
         ovftool_help_result.output = ""
 
         command_results = [
-            ovftool_help_result, dd_result, vmtoolsd_result, qemu_img_result
+            ovftool_help_result, qemu_img_result
         ]
 
         def side_effect(arg):
@@ -146,5 +135,4 @@ class TestDiskFormatOva(object):
 
         mock_command.side_effect = side_effect
         mock_open.return_value = self.context_manager_mock
-        mock_exists.return_value = True
         self.disk_format.create_image_format()

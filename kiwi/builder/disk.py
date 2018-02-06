@@ -335,6 +335,10 @@ class DiskBuilder(object):
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
 
+        # create dracut config omitting one time kiwi dracut modules
+        if self.initrd_system == 'dracut':
+            self._create_system_dracut_config()
+
         # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
 
@@ -641,29 +645,51 @@ class DiskBuilder(object):
         return self.disk.get_device()
 
     def _create_dracut_config(self):
-        dracut_config_file = ''.join(
-            [self.root_dir, '/etc/dracut.conf.d/02-kiwi.conf']
-        )
         dracut_config = [
             'hostonly="no"',
             'dracut_rescue_image="no"'
         ]
         dracut_modules = []
-        dracut_modules_omit = ['kiwi-dump']
+        dracut_modules_omit = ['kiwi-live', 'kiwi-dump']
         if self.root_filesystem_is_overlay:
             dracut_modules.append('kiwi-overlay')
+        else:
+            dracut_modules_omit.append('kiwi-overlay')
         if self.build_type_name == 'oem':
             dracut_modules.append('kiwi-lib')
             dracut_modules.append('kiwi-repart')
-        dracut_config.append(
-            'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
+        self._write_dracut_config(
+            config=dracut_config,
+            modules=dracut_modules,
+            omit_modules=dracut_modules_omit
         )
-        dracut_config.append(
-            'omit_dracutmodules+=" {0} "'.format(' '.join(dracut_modules_omit))
+
+    def _create_system_dracut_config(self):
+        dracut_modules = []
+        dracut_modules_omit = ['kiwi-live', 'kiwi-dump', 'kiwi-repart']
+        if self.root_filesystem_is_overlay:
+            dracut_modules.append('kiwi-overlay')
+        else:
+            dracut_modules_omit.append('kiwi-overlay')
+        self._write_dracut_config(
+            config=[], modules=dracut_modules, omit_modules=dracut_modules_omit
         )
-        with open(dracut_config_file, 'w') as config:
-            for entry in dracut_config:
-                config.write(entry + os.linesep)
+
+    def _write_dracut_config(self, config, modules, omit_modules):
+        dracut_config_file = ''.join(
+            [self.root_dir, Defaults.get_dracut_conf_name()]
+        )
+        if modules:
+            config.append(
+                'add_dracutmodules+=" {0} "'.format(' '.join(modules))
+            )
+        if omit_modules:
+            config.append(
+                'omit_dracutmodules+=" {0} "'.format(' '.join(omit_modules))
+            )
+        with open(dracut_config_file, 'w') as dracut_config:
+            for entry in config:
+                dracut_config.write(entry + os.linesep)
 
     def _write_partition_id_config_to_boot_image(self):
         log.info('Creating config.partids in boot system')

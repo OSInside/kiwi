@@ -121,6 +121,19 @@ consider to use the legacy KIWI version.
    Therefore the recovery feature offered in the legacy KIWI version
    will not be continued.
 
+* OEM Partition Install
+
+  The feature allows to install an image partition based.
+  Instead of selecting a target disk the user selects target partitions.
+  Target partitions could be on several disks. Each partition of an image
+  had to be mapped on a selectable target partition. In the end it has
+  turned out that a lot of user experience in a very sensitive area of
+  the operating system is required. Combined with a high risk to do the
+  wrong thing and more user interaction to install the system. This is
+  contrary to the idea of images which should allow to give the user a
+  functional entity at hand, dump it and be happy. Thus the partition
+  based install method will not be continued.
+
 Compatibility
 -------------
 

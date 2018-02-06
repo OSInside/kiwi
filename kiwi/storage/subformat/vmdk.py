@@ -16,23 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import re
-
-# In python2 bytes is string which is different from
-# the bytes type in python3. The bytes type from the
-# builtins generalizes this type to be bytes always
-from builtins import bytes
 
 # project
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.storage.subformat.template.vmware_settings import (
     VmwareSettingsTemplate
 )
 
 from ...exceptions import (
-    KiwiVmdkToolsError,
     KiwiTemplateError
 )
 
@@ -67,10 +59,9 @@ class DiskFormatVmdk(DiskFormatBase):
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', 'vmdk'
             ] + self.options + [
-                self.get_target_name_for_format('vmdk')
+                self.get_target_file_path_for_format('vmdk')
             ]
         )
-        self._update_vmdk_descriptor()
         self._create_vmware_settings_file()
 
     def store_to_result(self, result):
@@ -83,14 +74,16 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_name_for_format('vmdk'),
+            filename=self.get_target_file_path_for_format('vmdk'),
             use_for_bundle=True,
             compress=False,
             shasum=True
         )
         result.add(
             key='disk_format_machine_settings',
-            filename=self.get_target_name_for_format('vmx'),
+            filename=self.get_target_file_path_for_format(
+                'vmx'
+            ),
             use_for_bundle=True,
             compress=False,
             shasum=False
@@ -107,7 +100,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_name_for_format('vmdk'),
+                self.get_target_file_path_for_format('vmdk'),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
             'disk_id': '0'
@@ -182,7 +175,7 @@ class DiskFormatVmdk(DiskFormatBase):
             network_connection_type
         )
         try:
-            settings_file = self.get_target_name_for_format('vmx')
+            settings_file = self.get_target_file_path_for_format('vmx')
             with open(settings_file, 'w') as config:
                 config.write(settings_template.substitute(template_record))
                 for custom_entry in custom_entries:
@@ -190,82 +183,4 @@ class DiskFormatVmdk(DiskFormatBase):
         except Exception as e:
             raise KiwiTemplateError(
                 '%s: %s' % (type(e).__name__, format(e))
-            )
-
-    def _update_vmdk_descriptor(self):
-        """
-        Update the VMDK descriptor with the VMware tools version
-        and type information. This is done to let VMware's virtualization
-        infrastructure know about the installed VMware tools at boot
-        time of the image within a VMware virtual environment
-        e.g VCloud Air. It's required to have vmtoolsd installed as
-        part of the image. If not found a warning is provided to the
-        user and the VMDK descriptor stays untouched
-        """
-        vmdk_vmtoolsd = self.root_dir + '/usr/bin/vmtoolsd'
-        if not os.path.exists(vmdk_vmtoolsd):
-            log.warning(
-                'Could not find vmtoolsd in image root %s', self.root_dir
-            )
-            log.warning(
-                'Update of VMDK metadata skipped'
-            )
-            return
-        log.info('Updating VMDK metadata')
-        vmdk_tools_install_type = 4
-        vmdk_tools_version = self._get_vmdk_tools_version()
-        vmdk_image_name = self.get_target_name_for_format('vmdk')
-        log.info(
-            '--> Setting tools version: %d', vmdk_tools_version
-        )
-        log.info(
-            '--> Setting tools install type: %d', vmdk_tools_install_type
-        )
-        vmdk_descriptor_call = Command.run(
-            ['dd', 'if=' + vmdk_image_name, 'bs=1', 'count=1024', 'skip=512']
-        )
-        vmdk_descriptor_lines = \
-            vmdk_descriptor_call.output.strip('\0').split('\n')
-        if (vmdk_descriptor_lines[0] != 'encoding="UTF-8"'):
-            vmdk_descriptor_lines.insert(0, 'encoding="UTF-8"')
-        vmdk_descriptor_lines.append(
-            'ddb.toolsInstallType = "%s"' % vmdk_tools_install_type
-        )
-        vmdk_descriptor_lines.append(
-            'ddb.toolsVersion = "%s"' % vmdk_tools_version
-        )
-        with open(vmdk_image_name, 'r+b') as vmdk:
-            vmdk.seek(512, 0)
-            vmdk.write(bytes('\n'.join(vmdk_descriptor_lines), 'utf-8'))
-            vmdk.seek(0, 2)
-
-    def _get_vmdk_tools_version(self):
-        vmdk_tools_version_call = Command.run(
-            ['chroot', self.root_dir, 'vmtoolsd', '--version']
-        )
-        vmdk_tools_version = vmdk_tools_version_call.output
-        vmdk_tools_version_format = re.match(
-            ''.join(
-                [
-                    '^VMware Tools daemon, version ',
-                    '(.*)',
-                    '\.',
-                    '(.*)',
-                    '\.',
-                    '(.*)',
-                    '\.',
-                    '(.*?)',
-                    ' \(.*\)',
-                    '$'
-                ]
-            ), vmdk_tools_version
-        )
-        if vmdk_tools_version_format:
-            return \
-                (int(vmdk_tools_version_format.group(1)) * 1024) + \
-                (int(vmdk_tools_version_format.group(2)) * 32) + \
-                int(vmdk_tools_version_format.group(3))
-        else:
-            raise KiwiVmdkToolsError(
-                'vmtools version %s does not match format' % vmdk_tools_version
             )

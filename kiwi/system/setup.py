@@ -853,6 +853,11 @@ class SystemSetup(object):
 
     def _export_rpm_package_list(self, filename):
         log.info('Export rpm packages metadata')
+        dbpath = self._get_rpm_database_location()
+        if dbpath:
+            dbpath_option = ['--dbpath', dbpath]
+        else:
+            dbpath_option = []
         query_call = Command.run(
             [
                 'rpm', '--root', self.root_dir, '-qa', '--qf',
@@ -862,7 +867,7 @@ class SystemSetup(object):
                         '%{RELEASE}', '%{ARCH}', '%{DISTURL}'
                     ]
                 ) + '\\n'
-            ]
+            ] + dbpath_option
         )
         with open(filename, 'w') as packages:
             packages.write(query_call.output)
@@ -886,8 +891,13 @@ class SystemSetup(object):
 
     def _export_rpm_package_verification(self, filename):
         log.info('Export rpm verification metadata')
+        dbpath = self._get_rpm_database_location()
+        if dbpath:
+            dbpath_option = ['--dbpath', dbpath]
+        else:
+            dbpath_option = []
         query_call = Command.run(
-            command=['rpm', '--root', self.root_dir, '-Va'],
+            command=['rpm', '--root', self.root_dir, '-Va'] + dbpath_option,
             raise_on_error=False
         )
         with open(filename, 'w') as verified:
@@ -904,3 +914,11 @@ class SystemSetup(object):
         )
         with open(filename, 'w') as verified:
             verified.write(query_call.output)
+
+    def _get_rpm_database_location(self):
+        try:
+            return Command.run(
+                ['chroot', self.root_dir, 'rpm', '-E', '%_dbpath']
+            ).output.rstrip('\r\n')
+        except Exception:
+            return None

@@ -8,6 +8,15 @@ type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 #======================================
 # Functions
 #--------------------------------------
+function initialize {
+    local profile=/.profile
+
+    test -f ${profile} || \
+        die "No profile setup found"
+
+    import_file ${profile}
+}
+
 function scan_softraid_devices {
     # """
     # calls dmraid_scan from dmraid module
@@ -47,6 +56,10 @@ function get_disk_list {
         lsblk -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
+        if [ "$(blkid "${disk_device}" -s LABEL -o value)" = "INSTALL" ];then
+            # ignore install source device
+            continue
+        fi
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         disk_device_by_id=$(
             get_persistent_device_from_unix_node "${disk_device}" "${disk_id}"
@@ -183,7 +196,7 @@ function dump_image {
 
     if [ -z "${kiwi_oemunattended}" ];then
         local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
-        if ! run_dialog --yesno "\"${ack_dump_text}\"" 5 80; then
+        if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
             local install_cancel_text="System installation canceled"
             run_dialog --msgbox "\"${install_cancel_text}\"" 5 60
             die "${install_cancel_text}"
@@ -345,6 +358,8 @@ function boot_installed_system {
 # Perform image dump/install operations
 #--------------------------------------
 setup_debug
+
+initialize
 
 udev_pending
 

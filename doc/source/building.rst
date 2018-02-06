@@ -1,3 +1,5 @@
+.. _building_types:
+
 Building Images
 ===============
 
@@ -18,7 +20,6 @@ Building Images
    building/build_containerized
    building/build_in_buildservice
    building/working_with_images
-
 
 * ISO Hybrid Live Image
 

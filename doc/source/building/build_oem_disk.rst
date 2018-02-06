@@ -138,7 +138,7 @@ as explained in :ref:`pxe-boot-server`
 
 If the PXE server is running the following steps shows how to test the
 deployment process over the network using a QEMU virtual machine as
-deployment target system:
+target system:
 
 1. Make sure to create an installation PXE TAR archive along with your
    OEM image by replacing the following setup in
@@ -156,37 +156,55 @@ deployment target system:
 
 
 2. Rebuild the image, unpack the resulting
-   LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz file to a temporary
+   :file:`LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz` file to a temporary
    directory and copy the initrd and kernel images to the PXE server:
 
    .. code:: bash
 
+       # Unpack installation tarball
        mkdir /tmp/pxe && cd /tmp/pxe
        tar -xf LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz
-       scp initrd-oemboot-*.install.* PXE_SERVER_IP:/srv/tftpboot/boot/initrd
-       scp initrd-oemboot-*.kernel.* PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
-   Also copy the OEM disk image and the md5 sum to the PXE boot server
+       # Copy kernel and initrd used for pxe boot
+       scp pxeboot.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+       scp pxeboot.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
+
+3. Copy the OEM disk image, MD5 file, system kernel and initrd to
+   the PXE boot server:
+
+   Activation of the deployed system is done via `kexec` of the kernel
+   and initrd provided here.
 
    .. code:: bash
 
-       scp LimeJeOS-Leap-42.3.x86_64-1.42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
-       scp LimeJeOS-Leap-42.3.x86_64-1.42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+       # Copy system image and MD5 checksum
+       scp LimeJeOS-Leap-42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
 
-3. Copy the kernel command line parameters from
-   LimeJeOS-Leap-42.3.x86_64-1.42.3.append. Edit your PXE configuration
-   (for example pxelinux.cfg/default) on the PXE server and add these
-   parameters to the append line
+       # Copy kernel and initrd used for booting the system via kexec
+       scp LimeJeOS-Leap-42.3.initrd PXE_SERVER_IP:/srv/tftpboot/image/
+       scp LimeJeOS-Leap-42.3.kernel PXE_SERVER_IP:/srv/tftpboot/image/
 
-   Optionally the image and its md5sum can be stored on an FTP or HTTP
-   server specified via the parameters kiwiserver=IP_ADRESS and
-   kiwiservertype=HTTP_HTTPS_OR_FTP. In this case make sure to copy the
-   system image and md5 file to the correct location on the server.
-   KIWI searches the image below SERVER_ROOT/image/
+4. Add/Update the kernel command line parameters
+
+   Edit your PXE configuration (for example :file:`pxelinux.cfg/default`) on
+   the PXE server and add these parameters to the append line, typically
+   looking like this:
+
+   .. code:: bash
+
+       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/LimeJeOS-Leap-42.3.xz
+
+   The location of the image is specified as a source URI which can point
+   to any location supported by the `curl` command. KIWI calls `curl` to fetch
+   the data from this URI. This also means your image, MD5 file, system kernel
+   and initrd could be fetched from any server and doesn't have to be stored
+   on the `PXE_SERVER`.
 
    .. note::
 
-      The initrd and Linux Kernel are always loaded via tftp from the PXE_SERVER.
+      The initrd and Linux Kernel for pxe boot are always loaded via tftp
+      from the `PXE_SERVER`.
 
 4. Create a target disk
 
