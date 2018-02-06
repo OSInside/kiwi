@@ -21,10 +21,12 @@ import stat
 # project
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 from kiwi.command import Command
+from kiwi.logger import log
 from kiwi.utils.command_capabilities import CommandCapabilities
 
 from kiwi.exceptions import (
-    KiwiFormatSetupError
+    KiwiFormatSetupError,
+    KiwiCommandNotFound
 )
 
 
@@ -67,7 +69,11 @@ class DiskFormatOva(DiskFormatVmdk):
                 'ovftool', '--shaAlgorithm', raise_on_error=False):
             ovftool_cmd.append('--shaAlgorithm=SHA1')
         ovftool_cmd.extend([vmx, ova])
-        Command.run(ovftool_cmd)
+        try:
+            Command.run(ovftool_cmd)
+        except KiwiCommandNotFound as e:
+            log.info('Building OVA images requires VMware\'s ovftool, get it from https://www.vmware.com/support/developer/ovf/')
+            raise e
         # ovftool ignores the umask and creates files with 0600 for some reason
         st = os.stat(vmx)
         os.chmod(ova, stat.S_IMODE(st.st_mode))

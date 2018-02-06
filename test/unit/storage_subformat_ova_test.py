@@ -5,6 +5,7 @@ import mock
 from .test_helper import raises, patch_open
 
 from kiwi.exceptions import (
+    KiwiCommandNotFound,
     KiwiFormatSetupError
 )
 
@@ -117,3 +118,33 @@ class TestDiskFormatOva(object):
             'target_dir/some-disk-image.x86_64-1.2.3.vmx',
             'target_dir/some-disk-image.x86_64-1.2.3.ova'
         ])
+
+    @patch('kiwi.storage.subformat.ova.Command.run')
+    @patch('os.path.exists')
+    @patch_open
+    @raises(KiwiCommandNotFound)
+    def test_create_image_format_no_ovftool(
+        self, mock_open, mock_exists, mock_command
+    ):
+        qemu_img_result = mock.Mock()
+        vmtoolsd_result = mock.Mock()
+        vmtoolsd_result.output = \
+            'VMware Tools daemon, version 9.4.6.33107 (build-0815)'
+        dd_result = mock.Mock()
+        dd_result.output = 'dd-out\0\0\0\0\0'
+        ovftool_help_result = mock.Mock()
+        ovftool_help_result.output = ""
+
+        command_results = [
+            ovftool_help_result, dd_result, vmtoolsd_result, qemu_img_result
+        ]
+
+        def side_effect(arg):
+            if len(command_results) == 0:
+                raise KiwiCommandNotFound('ovftool not found')
+            return command_results.pop()
+
+        mock_command.side_effect = side_effect
+        mock_open.return_value = self.context_manager_mock
+        mock_exists.return_value = True
+        self.disk_format.create_image_format()
