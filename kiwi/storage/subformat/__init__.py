@@ -86,7 +86,7 @@ class DiskFormat(object):
             return DiskFormatGce(
                 xml_state, root_dir, target_dir, custom_args
             )
-        elif name == 'vmdk' or name == 'ova' or name == 'ovf':
+        elif name == 'vmdk' or name == 'ova':
             vmdisk_section = xml_state.get_build_type_vmdisk_section()
             if vmdisk_section:
                 disk_mode = vmdisk_section.get_diskmode()

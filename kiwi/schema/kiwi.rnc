@@ -1416,7 +1416,7 @@ div {
     k.type.format.attribute =
         ## Specifies the format of the virtual disk.
         attribute format {
-            "gce" | "ovf" | "ova" | "qcow2" | "vagrant" | "vmdk" |
+            "gce" | "ova" | "qcow2" | "vagrant" | "vmdk" |
             "vdi" | "vhd" | "vhdx" | "vhd-fixed"
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
@@ -1840,7 +1840,7 @@ div {
 div {
     k.vmdisk.disktype.attribute =
         ## The type of the disk as it is internally handled
-        ## by the VM (ovf only)
+        ## by the VM (ova only)
         attribute disktype { text }
     k.vmdisk.controller.attribute =
         ## The disk controller used for the VM guest (vmdk only)
@@ -2404,11 +2404,17 @@ div {
 #
 div {
     k.machine.ovftype.attribute =
-        ## The OVF configuration type
+        ## The OVF configuration type.
+        ## The Open Virtualization Format is a standard for describing
+        ## virtual appliances and distribute them in an archive also
+        ## called Open Virtual Appliance(OVA). The standard describes
+        ## major components associated with a disk image. The exact
+        ## specification depends on the product using the format
+        ## and is specified in KIWI as the OVF type.
         attribute ovftype { "zvm" | "powervm" | "xen" | "vmware" }
     k.machine.HWversion.attribute =
         ## The virtual HW version number for the VM configuration
-        ## (vmdk and ovf)
+        ## (vmdk and ova)
         attribute HWversion { xsd:integer }
     k.machine.arch.attribute =
         ## the VM architecture type (vmdk only)
@@ -2418,20 +2424,20 @@ div {
         attribute xen_loader { "hvmloader" | "pygrub" | "pvgrub" }
     k.machine.guestOS.attribute =
         ## The virtual guestOS identification string for the VM
-        ## (vmdk and ovf, note the name designation is different for the two
+        ## (vmdk and ova, note the name designation is different for the two
         ## formats)
         attribute guestOS { text }
     k.machine.min_memory.attribute =
-        ## The virtual machine min memory in MB (ovf only)
+        ## The virtual machine min memory in MB (ova only)
         attribute min_memory { xsd:nonNegativeInteger }
     k.machine.max_memory.attribute =
-        ## The virtual machine max memory in MB (ovf only)
+        ## The virtual machine max memory in MB (ova only)
         attribute max_memory { xsd:nonNegativeInteger }
     k.machine.min_cpu.attribute =
-        ## The virtual machine min CPU count (ovf only)
+        ## The virtual machine min CPU count (ova only)
         attribute min_cpu { xsd:nonNegativeInteger }
     k.machine.max_cpu.attribute =
-        ## The virtual machine max CPU count (ovf only)
+        ## The virtual machine max CPU count (ova only)
         attribute max_cpu { xsd:nonNegativeInteger }
     k.machine.memory.attribute =
         ## The memory, in MB, setup for the guest VM (all formats)
