@@ -74,65 +74,58 @@ Dropped Features
 The following features have been dropped. If you make use of them
 consider to use the legacy KIWI version.
 
-*  Split systems
+Split systems
+  The legacy KIWI version supports building of split systems
+  which uses a static definition of files and directories marked
+  as read-only or read-write. Evolving technologies like overlayfs
+  makes this feature obsolete.
 
-   The legacy KIWI version supports building of split systems
-   which uses a static definition of files and directories marked
-   as read-only or read-write. Evolving technologies like overlayfs
-   makes this feature obsolete.
+ZFS filesystem
+  The successor for ZFS is Btrfs in the opensource world. All major
+  distributions put on Btrfs. This and the proprietary attitude of
+  ZFS obsoletes the feature.
 
-*  ZFS filesystem
+Reiserfs filesystem
+  The number of people using this filesystem is decreasing. For image
+  building reiserfs was an interesting filesystem however with Btrfs and
+  XFS there are good non inode based alternatives out there. Therefore we
+  don't continue supporting Reiserfs.
 
-   The successor for ZFS is Btrfs in the opensource world. All major
-   distributions put on Btrfs. This and the proprietary attitude of
-   ZFS obsoletes the feature.
+Btrfs seed based live systems
+  A Btrfs seed device is an alternative for other copy on write
+  filesystems like overlayfs. Unfortunately the stability of the seed
+  device when used as cow part in a live system was not as good as we
+  provide with overlayfs and clicfs. Therefore this variant is no longer
+  supported. We might think of adding this feature back if people demand
+  it.
 
-*  Reiserfs filesystem
+lxc container format
+  lxc has a successor in docker based on the former lxc technology.
+  Many distributions also dropped the lxc tools from the distribution
+  in favour of docker.
 
-   The number of people using this filesystem is decreasing. For image
-   building reiserfs was an interesting filesystem however with Btrfs and
-   XFS there are good non inode based alternatives out there. Therefore we
-   don't continue supporting Reiserfs.
+OEM Recovery/Restore
+  Recovery/Restore in the world of images has been moved from the
+  operating system layer into higher layers. For example, in private and
+  public Cloud environments disk and image recovery as well as backup
+  strategies are part of Cloud services. Pure operating system recovery
+  and snapshots for consumer machines are provided as features of the
+  distribution. SUSE as an example provides this via Rear
+  (Relax-and-Recover) and snapshot based filesystems (btrfs+snapper).
+  Therefore the recovery feature offered in the legacy KIWI version
+  will not be continued.
 
-*  Btrfs seed based live systems
-
-   A Btrfs seed device is an alternative for other copy on write
-   filesystems like overlayfs. Unfortunately the stability of the seed
-   device when used as cow part in a live system was not as good as we
-   provide with overlayfs and clicfs. Therefore this variant is no longer
-   supported. We might think of adding this feature back if people demand
-   it.
-
-*  lxc container format
-
-   lxc has a successor in docker based on the former lxc technology.
-   Many distributions also dropped the lxc tools from the distribution
-   in favour of docker.
-
-*  OEM Recovery/Restore
-
-   Recovery/Restore in the world of images has been moved from the
-   operating system layer into higher layers. For example, in private and
-   public Cloud environments disk and image recovery as well as backup
-   strategies are part of Cloud services. Pure operating system recovery
-   and snapshots for consumer machines are provided as features of the
-   distribution. SUSE as an example provides this via Rear
-   (Relax-and-Recover) and snapshot based filesystems (btrfs+snapper).
-   Therefore the recovery feature offered in the legacy KIWI version
-   will not be continued.
-
-* OEM Partition Install
-
-  The feature allows to install an image partition based.
-  Instead of selecting a target disk the user selects target partitions.
-  Target partitions could be on several disks. Each partition of an image
-  had to be mapped on a selectable target partition. In the end it has
-  turned out that a lot of user experience in a very sensitive area of
-  the operating system is required. Combined with a high risk to do the
-  wrong thing and more user interaction to install the system. This is
-  contrary to the idea of images which should allow to give the user a
-  functional entity at hand, dump it and be happy. Thus the partition
-  based install method will not be continued.
+Partition based install method in OEM install image
+  The section :ref:`deployment_methods` describes the supported OEM
+  installation procedures. The legacy KIWI version also provided a method
+  to install an image based on the partitions of the OEM disk image.
+  Instead of selecting one target disk to dump the entire image file to,
+  the user selects target partitions. Target partitions could be located
+  on several disks. Each partition of the OEM disk image must be mapped
+  on a selectable target partition. It turned out, users needed a lot of
+  experience in a very sensitive area of the operating system. This is
+  contrary to the idea of images to be dumped and be happy. Thus the
+  partition based install method will not be continued.
 
 Compatibility
 -------------
