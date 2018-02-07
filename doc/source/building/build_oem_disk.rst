@@ -38,6 +38,8 @@ system:
       hybrid installation system which contains the OEM disk image and is
       capable to install this image on any target disk.
 
+.. _deployment_methods:
+
 Deployment Methods
 ------------------
 
