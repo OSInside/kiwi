@@ -121,7 +121,7 @@ consider to use the legacy KIWI version.
    Therefore the recovery feature offered in the legacy KIWI version
    will not be continued.
 
-* OEM Partition Install
+* OEM Partition Install (**not** :ref:`deploy_from_iso`)
 
   The feature allows to install an image partition based.
   Instead of selecting a target disk the user selects target partitions.
