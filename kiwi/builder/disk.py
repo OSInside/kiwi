@@ -563,7 +563,7 @@ class DiskBuilder(object):
             )
             self.system_boot = filesystem
 
-    def _build_and_map_disk_partitions(self):
+    def _build_and_map_disk_partitions(self):               # noqa: C901
         self.disk.wipe()
         if self.firmware.legacy_bios_mode():
             log.info('--> creating EFI CSM(legacy bios) partition')

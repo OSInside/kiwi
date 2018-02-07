@@ -103,7 +103,7 @@ class SystemBuildTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
-    def process(self):
+    def process(self):                                      # noqa: C901
         """
         Build a system image from the specified description. The
         build command combines the prepare and create commands

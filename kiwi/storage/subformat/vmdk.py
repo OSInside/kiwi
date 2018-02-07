@@ -57,9 +57,9 @@ class DiskFormatVmdk(DiskFormatBase):
         Command.run(
             [
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', self.image_format
+                '-O', 'vmdk'
             ] + self.options + [
-                self.get_target_file_path_for_format(self.image_format)
+                self.get_target_file_path_for_format('vmdk')
             ]
         )
         self._create_vmware_settings_file()
@@ -74,9 +74,7 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_file_path_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_file_path_for_format('vmdk'),
             use_for_bundle=True,
             compress=False,
             shasum=True
@@ -91,7 +89,7 @@ class DiskFormatVmdk(DiskFormatBase):
             shasum=False
         )
 
-    def _create_vmware_settings_file(self):
+    def _create_vmware_settings_file(self):                 # noqa: C901
         """
         In order to run a vmdk image in VMware products a settings file is
         needed or the possibility to convert machine settings into an ovf
@@ -102,7 +100,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_file_path_for_format(self.image_format),
+                self.get_target_file_path_for_format('vmdk'),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
             'disk_id': '0'

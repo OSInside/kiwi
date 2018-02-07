@@ -99,7 +99,7 @@ class SystemPrepareTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
-    def process(self):
+    def process(self):                                      # noqa: C901
         """
         Prepare and install a new system for chroot access
         """
