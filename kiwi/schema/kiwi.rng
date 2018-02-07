@@ -2108,7 +2108,6 @@ a different set of live features.</a:documentation>
         <a:documentation>Specifies the format of the virtual disk.</a:documentation>
         <choice>
           <value>gce</value>
-          <value>ovf</value>
           <value>ova</value>
           <value>qcow2</value>
           <value>vagrant</value>
@@ -2825,7 +2824,7 @@ to the user according to he specifing toolchain behaviour.</a:documentation>
     <define name="k.vmdisk.disktype.attribute">
       <attribute name="disktype">
         <a:documentation>The type of the disk as it is internally handled
-by the VM (ovf only)</a:documentation>
+by the VM (ova only)</a:documentation>
       </attribute>
     </define>
     <define name="k.vmdisk.controller.attribute">
@@ -3736,7 +3735,13 @@ configuration options which are used inside a vagrant box</a:documentation>
   <div>
     <define name="k.machine.ovftype.attribute">
       <attribute name="ovftype">
-        <a:documentation>The OVF configuration type</a:documentation>
+        <a:documentation>The OVF configuration type.
+The Open Virtualization Format is a standard for describing
+virtual appliances and distribute them in an archive also
+called Open Virtual Appliance(OVA). The standard describes
+major components associated with a disk image. The exact
+specification depends on the product using the format
+and is specified in KIWI as the OVF type.</a:documentation>
         <choice>
           <value>zvm</value>
           <value>powervm</value>
@@ -3748,7 +3753,7 @@ configuration options which are used inside a vagrant box</a:documentation>
     <define name="k.machine.HWversion.attribute">
       <attribute name="HWversion">
         <a:documentation>The virtual HW version number for the VM configuration
-(vmdk and ovf)</a:documentation>
+(vmdk and ova)</a:documentation>
         <data type="integer"/>
       </attribute>
     </define>
@@ -3774,31 +3779,31 @@ configuration options which are used inside a vagrant box</a:documentation>
     <define name="k.machine.guestOS.attribute">
       <attribute name="guestOS">
         <a:documentation>The virtual guestOS identification string for the VM
-(vmdk and ovf, note the name designation is different for the two
+(vmdk and ova, note the name designation is different for the two
 formats)</a:documentation>
       </attribute>
     </define>
     <define name="k.machine.min_memory.attribute">
       <attribute name="min_memory">
-        <a:documentation>The virtual machine min memory in MB (ovf only)</a:documentation>
+        <a:documentation>The virtual machine min memory in MB (ova only)</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
     <define name="k.machine.max_memory.attribute">
       <attribute name="max_memory">
-        <a:documentation>The virtual machine max memory in MB (ovf only)</a:documentation>
+        <a:documentation>The virtual machine max memory in MB (ova only)</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
     <define name="k.machine.min_cpu.attribute">
       <attribute name="min_cpu">
-        <a:documentation>The virtual machine min CPU count (ovf only)</a:documentation>
+        <a:documentation>The virtual machine min CPU count (ova only)</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
     <define name="k.machine.max_cpu.attribute">
       <attribute name="max_cpu">
-        <a:documentation>The virtual machine max CPU count (ovf only)</a:documentation>
+        <a:documentation>The virtual machine max CPU count (ova only)</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
     </define>
