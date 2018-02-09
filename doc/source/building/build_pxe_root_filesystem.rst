@@ -86,8 +86,8 @@ system. As diskless client, a QEMU virtual machine is used.
 
     .. code:: bash
 
-        $ cp initrd-netboot-suse-*.gz /srv/tftpboot/boot/initrd
-        $ cp initrd-netboot-suse-*.kernel /srv/tftpboot/boot/linux
+        $ cp *.initrd.xz /srv/tftpboot/boot/initrd
+        $ cp *.kernel /srv/tftpboot/boot/linux
 
 5. Copy the system image and its MD5 sum to :file:`/srv/tftpboot/image`:
 
