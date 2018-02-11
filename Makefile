@@ -147,6 +147,11 @@ build: clean po tox sdist_prepare
 	# update package version in spec file
 	cat package/python-kiwi-spec-template | sed -e s'@%%VERSION@${version}@' \
 		> dist/python-kiwi.spec
+	# update package version in dsc file
+	cat package/python-kiwi-dsc-template | sed -e s'@%%VERSION@${version}@' \
+        > dist/python-kiwi.dsc
+	# create debian control tarball
+	tar -C package -czf dist/debian.tar.gz debian
 	# provide rpm rpmlintrc
 	cp package/python-kiwi-rpmlintrc dist
 	# provide rpm boot packages source
