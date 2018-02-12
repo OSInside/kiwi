@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, call
 
 import os
 
@@ -34,10 +34,15 @@ class TestPath(object):
         )
 
     @patch('kiwi.command.Command.run')
-    def test_remove_hierarchy(self, mock_command):
-        Path.remove_hierarchy('foo')
-        mock_command.assert_called_once_with(
-            ['rmdir', '-p', '--ignore-fail-on-non-empty', 'foo']
+    @patch('kiwi.logger.log.warning')
+    def test_remove_hierarchy(self, mock_log_warn, mock_command):
+        Path.remove_hierarchy('/my_root/tmp/foo/bar')
+        assert mock_command.call_args_list == [
+            call(['rmdir', '--ignore-fail-on-non-empty', '/my_root/tmp/foo/bar']),
+            call(['rmdir', '--ignore-fail-on-non-empty', '/my_root/tmp/foo'])
+        ]
+        mock_log_warn.assert_called_once_with(
+            'remove_hierarchy: path /my_root/tmp is protected'
         )
 
     @patch('os.access')
