@@ -37,7 +37,12 @@ flake8
 generateDS
 
 # for building documentation
-sphinx
+
+# sphinx 1.7.0 is not compatible with travis-sphinx
+# thus we stick with 1.6.7 until travis-sphinx followed
+# the sphinx changes
+sphinx==1.6.7
+
 sphinx_rtd_theme
 sphinxcontrib-spelling
 pyenchant
