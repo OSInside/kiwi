@@ -16,7 +16,15 @@
 #
 #       https://github.com/SUSE/kiwi/issues
 #
-%{!?python2_sitelib:%global python2_sitelib %{python_sitelib}}
+
+# If they aren't provided by a system installed macro, define them
+%{!?_defaultdocdir: %global _defaultdocdir %{_datadir}/doc}
+%{!?__python2: %global __python2 /usr/bin/python2}
+
+# Expanded form required for debbuild's simpler engine
+%if %{undefined python2_sitelib}
+%global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+%endif
 
 # translate version id to distribution name as it is used in kiwi
 # generic approach
@@ -92,6 +100,29 @@
 %define distro fedora-25.0
 %endif
 
+# Ubuntu
+# Use xenial templates for 16.04 and newer
+%if 0%{?ubuntu} >= 1604
+%define distro ubuntu-xenial
+%endif
+
+# Debian
+# Use the stretch templates for 9 and newer
+%if 0%{?debian} >= 9
+%define distro debian-stretch
+%endif
+
+%if 0%{?debian} || 0%{?ubuntu}
+%global is_deb 1
+%global pygroup python
+%global sysgroup admin
+%global develsuffix dev
+%else
+%global pygroup Development/Languages/Python
+%global sysgroup System/Management
+%global develsuffix devel
+%endif
+
 Name:           python-kiwi
 Version:        %%VERSION
 Provides:       kiwi-schema = 6.6
@@ -99,7 +130,11 @@ Release:        0
 Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0+
-Group:          Development/Languages/Python
+%if %{_vendor} == "debbuild"
+# Needed to set Maintainer in output debs
+Packager:       Marcus Schäfer <ms@suse.de>
+%endif
+Group:          %{pygroup}
 Source:         %{name}.tar.gz
 Source1:        %{name}-boot-packages
 Source2:        %{name}-rpmlintrc
@@ -109,11 +144,14 @@ BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
 BuildRequires:  fdupes
 %endif
-BuildRequires:  python-devel
+BuildRequires:  python-%{develsuffix}
 BuildRequires:  python-setuptools
 %if 0%{?suse_version}
 BuildRequires:  shadow
 BuildRequires:  update-alternatives
+%endif
+%if 0%{?debian} || 0%{?ubuntu}
+BuildRequires:  passwd
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 BuildRequires:  chkconfig
@@ -127,12 +165,16 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 # python2-kiwi
 %package -n python2-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
-Group:          Development/Languages/Python
+Group:          %{pygroup}
 Provides:       python-kiwi = %{version}-%{release}
 %if 0%{?fedora} || 0%{?suse_version}
 Recommends:     jing
 %endif
+%if 0%{?debian} || 0%{?ubuntu}
+Requires:       python-yaml
+%else
 Requires:       python-PyYAML
+%endif
 Requires:       python-docopt
 Requires:       python-future
 Requires:       python-lxml
@@ -172,6 +214,13 @@ Provides:       kiwi-packagemanager:dnf
 Requires:       zypper
 Provides:       kiwi-packagemanager:zypper
 %endif
+%if 0%{?debian} || 0%{?ubuntu}
+Requires:       debootstrap
+Requires:       qemu-utils
+Requires:       squashfs-tools
+Requires:       multipath-tools
+Requires:       gdisk
+%endif
 Requires:       dosfstools
 Requires:       e2fsprogs
 Requires:       genisoimage
@@ -183,11 +232,14 @@ Requires:       mtools
 Requires:       parted
 Requires:       rsync
 Requires:       tar >= 1.2.7
+%if %{_vendor} != "debbuild"
+# Not supported with debbuild yet
 %ifarch %arm aarch64
 Requires:       u-boot-tools
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
+%endif
 %endif
 
 %description -n python2-kiwi
@@ -271,7 +323,7 @@ virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 %package -n kiwi-tools
 Summary:        KIWI - Collection of Boot Helper Tools
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n kiwi-tools
 This package contains a small set of helper tools used for the
@@ -279,6 +331,7 @@ kiwi created initial ramdisk which is used to control the very
 first boot of an appliance. The tools are not meant to be used
 outside of the scope of kiwi appliance building.
 
+%if %{_vendor} != "debbuild"
 %ifarch %ix86 x86_64
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
@@ -289,19 +342,25 @@ Requires(pre):  shadow-utils
 Requires(pre):  shadow
 %endif
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n kiwi-pxeboot
 This package contains the basic PXE directory structure which is
 needed to serve kiwi built images via PXE.
 %endif
+%endif
 
 %package -n dracut-kiwi-lib
 Summary:        KIWI - Dracut kiwi Library
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} || 0%{?debian}
+# Ubuntu 16.04 OBS environments refuse to set up due to
+# initramfs-tools / dracut conflict and initramfs-tools is required
+# to set up the build environment...
 BuildRequires:  dracut
+%endif
 Requires:       bc
 Requires:       cryptsetup
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu}
 Requires:       btrfs-progs
 Requires:       gdisk
 %else
@@ -319,13 +378,18 @@ Requires:       xfsprogs
 Requires:       dialog
 Requires:       pv
 Requires:       curl
+%if 0%{?debian} || 0%{?ubuntu}
+Requires:       xz-utils
+Requires:       dmsetup
+%else
 Requires:       xz
 Requires:       device-mapper
+%endif
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n dracut-kiwi-lib
 This package contains a collection of methods to provide a library
@@ -333,10 +397,15 @@ for tasks done in other kiwi dracut modules
 
 %package -n dracut-kiwi-oem-repart
 Summary:        KIWI - Dracut module for oem(repart) image type
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} || 0%{?debian}
+# Ubuntu 16.04 OBS environments refuse to set up due to
+# initramfs-tools / dracut conflict and initramfs-tools is required
+# to set up the build environment...
 BuildRequires:  dracut
+%endif
 Requires:       dracut-kiwi-lib
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n dracut-kiwi-oem-repart
 This package contains the kiwi-repart dracut module which is
@@ -345,11 +414,16 @@ geometry according to the setup in the kiwi image configuration
 
 %package -n dracut-kiwi-oem-dump
 Summary:        KIWI - Dracut module for oem(install) image type
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} || 0%{?debian}
+# Ubuntu 16.04 OBS environments refuse to set up due to
+# initramfs-tools / dracut conflict and initramfs-tools is required
+# to set up the build environment...
 BuildRequires:  dracut
+%endif
 Requires:       dracut-kiwi-lib
 Requires:       kexec-tools
 Requires:       dmraid
-%if 0%{?suse_version}
+%if 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
 Requires:       multipath-tools
 %endif
 %if 0%{?fedora} || 0%{?rhel}
@@ -357,7 +431,7 @@ Requires:       device-mapper-multipath
 %endif
 Requires:       gawk
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n dracut-kiwi-oem-dump
 This package contains the kiwi-dump dracut module which is
@@ -369,20 +443,29 @@ remote
 
 %package -n dracut-kiwi-live
 Summary:        KIWI - Dracut module for iso(live) image type
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} || 0%{?debian}
+# Ubuntu 16.04 OBS environments refuse to set up due to
+# initramfs-tools / dracut conflict and initramfs-tools is required
+# to set up the build environment...
 BuildRequires:  dracut
+%endif
 Requires:       dialog
 Requires:       xfsprogs
 Requires:       e2fsprogs
 Requires:       util-linux
+%if 0%{?debian} || 0%{?ubuntu}
+Requires:       dmsetup
+%else
 Requires:       device-mapper
+%endif
 Requires:       dracut
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu}
 Requires:       genisoimage
 %else
 Requires:       cdrkit-cdrtools-compat
 %endif
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n dracut-kiwi-live
 This package contains the kiwi-live dracut module which is used
@@ -390,11 +473,16 @@ for booting iso(live) images built with KIWI
 
 %package -n dracut-kiwi-overlay
 Summary:        KIWI - Dracut module for vmx(+overlay) image type
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} || 0%{?debian}
+# Ubuntu 16.04 OBS environments refuse to set up due to
+# initramfs-tools / dracut conflict and initramfs-tools is required
+# to set up the build environment...
 BuildRequires:  dracut
+%endif
 Requires:       util-linux
 Requires:       dracut
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n dracut-kiwi-overlay
 This package contains the kiwi-overlay dracut module which is used
@@ -421,7 +509,7 @@ Requires:       e2fsprogs
 Requires:       xfsprogs
 Requires:       umoci
 Requires:       skopeo
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu}
 Requires:       btrfs-progs
 %else
 Requires:       btrfsprogs
@@ -433,7 +521,7 @@ Requires:       python2-kiwi = %{version}
 %endif
 Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n kiwi-boot-requires
 Meta package for the buildservice to pull in all required packages in
@@ -446,7 +534,7 @@ of the kiwi - buildservice integration exclusively
 %package -n kiwi-man-pages
 Summary:        KIWI - manual pages
 License:        GPL-3.0+
-Group:          System/Management
+Group:          %{sysgroup}
 
 %description -n kiwi-man-pages
 Provides manual pages to describe the kiwi commands
@@ -465,13 +553,14 @@ python3 setup.py build --cflags="${RPM_OPT_FLAGS}"
 
 %install
 # Install Python 2 version
-python2 setup.py install --prefix=%{_prefix} --root=%{buildroot}
+python2 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
 
 %if 0%{?fedora} || 0%{?suse_version}
 # Install Python 3 version
-python3 setup.py install --prefix=%{_prefix} --root=%{buildroot}
+python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
 %endif
 
+%if %{_vendor} != "debbuild"
 # init alternatives setup
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
 
@@ -495,6 +584,7 @@ ln -s %{_sysconfdir}/alternatives/kiwicompat \
 for i in KIWI pxelinux.cfg image upload boot; do \
     mkdir -p %{buildroot}/srv/tftpboot/$i ;\
 done
+%endif
 %endif
 
 %if  0%{?fedora} || 0%{?rhel}
@@ -545,6 +635,7 @@ rm -rf %{buildroot}/%{_defaultdocdir}/packages
     --remove kiwicompat %_bindir/kiwicompat
 %endif
 
+%if %{_vendor} != "debbuild"
 %ifarch %ix86 x86_64
 %pre -n kiwi-pxeboot
 #============================================================
@@ -556,6 +647,7 @@ if ! /usr/bin/getent passwd tftp >/dev/null; then
     %{_sbindir}/useradd -c "TFTP account" -d /srv/tftpboot -G tftp -g tftp \
         -r -s /bin/false tftp
 fi
+%endif
 %endif
 
 %files -n python2-kiwi
@@ -595,11 +687,10 @@ fi
 
 %files -n kiwi-tools
 %defattr(-, root, root)
-%exclude %{_bindir}/kiwi
-%exclude %{_bindir}/kiwicompat
-%exclude %{_bindir}/kiwi-ng*
-%exclude %{_bindir}/kiwicompat-*
-%{_bindir}/*
+%{_bindir}/dcounter
+%{_bindir}/isconsole
+%{_bindir}/kversion
+%{_bindir}/utimer
 
 %files -n dracut-kiwi-lib
 %defattr(-, root, root)
@@ -621,6 +712,7 @@ fi
 %defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-overlay
 
+%if %{_vendor} != "debbuild"
 %ifarch %ix86 x86_64
 %files -n kiwi-pxeboot
 %defattr(-, root, root)
@@ -630,6 +722,7 @@ fi
 %dir /srv/tftpboot/image
 %dir /srv/tftpboot/upload
 %dir /srv/tftpboot/boot
+%endif
 %endif
 
 %if 0%{?suse_version}
