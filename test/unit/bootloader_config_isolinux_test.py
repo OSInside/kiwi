@@ -44,6 +44,9 @@ class TestBootLoaderConfigIsoLinux(object):
         self.state.build_type.get_boottimeout = mock.Mock(
             return_value=None
         )
+        self.state.get_initrd_system = mock.Mock(
+            return_value='dracut'
+        )
         self.state.build_type.get_kernelcmdline = mock.Mock(
             return_value='splash'
         )
