@@ -182,6 +182,55 @@ class RuntimeChecker(object):
                             )
                         )
 
+    def check_boot_description_exists(self):
+        """
+        If a kiwi initrd is used, a lookup to the specified boot
+        description is done and fails early if it does not exist
+        """
+        message_no_boot_reference = dedent('''\n
+            Boot description missing for '{0}' type
+
+            The selected '{1}' initrd_system requires a boot description
+            reference. Please update your type setup as follows
+
+            <type image="{0}" boot="{0}boot/..."/>
+
+            A collection of custom boot descriptions can be found
+            in the kiwi-boot-descriptions package
+        ''')
+        message_boot_description_not_found = dedent('''\n
+            Boot description '{0}' not found
+
+            The selected boot description could not be found on
+            the build host. A collection of custom boot descriptions
+            can be found in the kiwi-boot-descriptions package
+        ''')
+        image_types_supporting_custom_boot_description = ['oem', 'pxe']
+        build_type = self.xml_state.get_build_type_name()
+        initrd_system = self.xml_state.get_initrd_system()
+        if (initrd_system == 'kiwi' and
+                build_type in image_types_supporting_custom_boot_description):
+
+            boot_image_reference = self.xml_state.build_type.get_boot()
+            if not boot_image_reference:
+                raise KiwiRuntimeError(
+                    message_no_boot_reference.format(build_type, initrd_system)
+                )
+
+            if not boot_image_reference[0] == os.sep:
+                boot_image_reference = os.sep.join(
+                    [
+                        Defaults.get_boot_image_description_path(),
+                        boot_image_reference
+                    ]
+                )
+            if not os.path.exists(boot_image_reference):
+                raise KiwiRuntimeError(
+                    message_boot_description_not_found.format(
+                        boot_image_reference
+                    )
+                )
+
     def check_consistent_kernel_in_boot_and_system_image(self):
         """
         If a kiwi initrd is used, the kernel used to build the kiwi

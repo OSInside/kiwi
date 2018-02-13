@@ -103,11 +103,9 @@ class TestBootImageBase(object):
         assert self.xml_state.copy_machine_section.called
         assert self.xml_state.copy_oemconfig_section.called
 
-    @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
-    def test_get_boot_description_directory(self, boot_path):
-        boot_path.return_value = 'boot_path'
+    def test_get_boot_description_directory(self):
         assert self.boot_image.get_boot_description_directory() == \
-            'boot_path/oemboot/suse-13.2'
+            '/usr/share/kiwi/custom_boot/oemboot/suse-13.2'
 
     @raises(KiwiConfigFileNotFound)
     @patch('kiwi.boot.image.base.BootImageBase.get_boot_description_directory')
