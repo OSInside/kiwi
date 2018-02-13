@@ -175,6 +175,9 @@ class TestBootLoaderConfigGrub2(object):
     @patch('platform.machine')
     def test_post_init_ix86_platform(self, mock_machine):
         xml_state = mock.MagicMock()
+        xml_state.get_initrd_system = mock.Mock(
+            return_value='dracut'
+        )
         xml_state.build_type.get_firmware = mock.Mock(
             return_value=None
         )

@@ -99,9 +99,14 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             'rd.live.image'
         ]
         self.install_boot_options = [
-            'root=install:CDLABEL={0}'.format(Defaults.get_install_volume_id()),
             'loglevel=0'
         ]
+        if self.xml_state.get_initrd_system() == 'dracut':
+            self.install_boot_options.append(
+                'root=install:CDLABEL={0}'.format(
+                    Defaults.get_install_volume_id()
+                )
+            )
 
         if self.xml_state.build_type.get_hybridpersistent():
             self.live_boot_options += \
