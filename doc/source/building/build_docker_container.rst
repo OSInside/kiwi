@@ -79,7 +79,7 @@ openSUSE Leap:
    .. code:: bash
 
       $ sudo kiwi-ng --type docker system build \
-          --description kiwi-descriptions/suse/x86_64/suse-leap-42.2-docker \
+          --description kiwi-descriptions/suse/x86_64/suse-tumbleweed-docker \
           --target-dir /tmp/myimage
 
 #. Test the Docker image.
@@ -88,7 +88,7 @@ openSUSE Leap:
 
    .. code:: bash
 
-      $ docker load -i Docker-Leap-42.2.x86_64-1.0.0.docker.tar.xz
+      $ docker load -i openSUSE-Tumbleweed-container-image.x86_64-1.0.4.docker.tar.xz
 
    then run the loaded image:
 
