@@ -117,6 +117,7 @@ class SystemPrepareTask(CliTask):
 
         self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
         self.runtime_checker.check_grub_efi_installed_for_efi_firmware()
+        self.runtime_checker.check_boot_description_exists()
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()

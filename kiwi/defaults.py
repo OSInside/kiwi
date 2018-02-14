@@ -791,12 +791,12 @@ class Defaults(object):
     @classmethod
     def get_boot_image_description_path(self):
         """
-        Implements bootloader path for ISO images
+        Implements path to find custom kiwi boot descriptions
 
         :return: directory path
         :rtype: string
         """
-        return Defaults.project_file('boot/arch/' + platform.machine())
+        return '/usr/share/kiwi/custom_boot'
 
     @classmethod
     def get_boot_image_strip_file(self):

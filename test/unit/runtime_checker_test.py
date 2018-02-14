@@ -108,6 +108,24 @@ class TestRuntimeChecker(object):
         runtime_checker.check_consistent_kernel_in_boot_and_system_image()
 
     @raises(KiwiRuntimeError)
+    def test_check_boot_description_exists_no_boot_ref(self):
+        description = XMLDescription(
+            '../data/example_runtime_checker_no_boot_reference.xml'
+        )
+        xml_state = XMLState(description.load())
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_boot_description_exists()
+
+    @raises(KiwiRuntimeError)
+    def test_check_boot_description_exists_does_not_exist(self):
+        description = XMLDescription(
+            '../data/example_runtime_checker_boot_desc_not_found.xml'
+        )
+        xml_state = XMLState(description.load())
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_boot_description_exists()
+
+    @raises(KiwiRuntimeError)
     def test_check_grub_efi_installed_for_efi_firmware_is_efi(self):
         self.xml_state.build_type.get_firmware = mock.Mock(
             return_value='efi'
