@@ -26,92 +26,6 @@
 %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 %endif
 
-# translate version id to distribution name as it is used in kiwi
-# generic approach
-%if 0%{?suse_version}
-%define distro %(echo `export VER=%{suse_version}; echo "suse-${VER:0:2}.${VER:2:1}"`)
-%endif
-
-# SLE12:
-%if 0%{?suse_version} == 1315 && !0%{?is_opensuse}
-%define distro suse-SLES12
-%endif
-
-# SLE15:
-%if 0%{?sle_version} == 150000 && !0%{?is_opensuse}
-%define distro suse-SLES15
-%endif
-
-# Leap 42.1(openSUSE product based on SLE 12SP1):
-%if 0%{?is_opensuse} && 0%{?sle_version} == 120100
-%define distro suse-leap42.1
-%endif
-
-# Leap 42.2:
-%if 0%{?is_opensuse} && 0%{?sle_version} == 120200
-%define distro suse-leap42.2
-%endif
-
-# Leap 42.3:
-%if 0%{?is_opensuse} && 0%{?sle_version} == 120300
-%define distro suse-leap42.3
-%endif
-
-# Leap 15.0:
-%if 0%{?is_opensuse} && 0%{?sle_version} == 150000
-%define distro suse-leap15.0
-%endif
-
-# Leap 15.1:
-%if 0%{?is_opensuse} && 0%{?sle_version} == 150100
-%define distro suse-leap15.1
-%endif
-
-# Leap 15.2:
-%if 0%{?is_opensuse} && 0%{?sle_version} == 150200
-%define distro suse-leap15.2
-%endif
-
-# Leap 15.3:
-%if 0%{?is_opensuse} && 0%{?sle_version} == 150300
-%define distro suse-leap15.3
-%endif
-
-# Tumbleweed:
-# Current Tumbleweed version, moving target
-%if 0%{?suse_version} >= 1330 && !0%{?sle_version}
-%define distro suse-tumbleweed
-%endif
-
-# SLES with sles_version macro
-%if 0%{?sles_version}
-%define distro suse-SLES%{sles_version}
-%endif
-
-# RHEL // CentOS
-# use the rhel templates for CentOS, too
-%if 0%{?rhel} == 7
-%define distro rhel-07.0
-%endif
-
-# Fedora
-# use the rhel templates for CentOS, too
-%if 0%{?fedora} >= 25
-%define distro fedora-25.0
-%endif
-
-# Ubuntu
-# Use xenial templates for 16.04 and newer
-%if 0%{?ubuntu} >= 1604
-%define distro ubuntu-xenial
-%endif
-
-# Debian
-# Use the stretch templates for 9 and newer
-%if 0%{?debian} >= 9
-%define distro debian-stretch
-%endif
-
 %if 0%{?debian} || 0%{?ubuntu}
 %global is_deb 1
 %global pygroup python
@@ -132,12 +46,11 @@ Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0+
 %if %{_vendor} == "debbuild"
 # Needed to set Maintainer in output debs
-Packager:       Marcus Schäfer <ms@suse.de>
+Packager:       Marcus Schaefer <ms@suse.de>
 %endif
 Group:          %{pygroup}
 Source:         %{name}.tar.gz
-Source1:        %{name}-boot-packages
-Source2:        %{name}-rpmlintrc
+Source1:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  python3-devel
@@ -489,48 +402,6 @@ This package contains the kiwi-overlay dracut module which is used
 for booting vmx images built with KIWI and configured to use an
 overlay root filesystem
 
-%if 0%{?suse_version}
-%package -n kiwi-boot-requires
-Summary:        KIWI - buildservice package requirements for boot images
-Provides:       kiwi-boot:netboot
-Provides:       kiwi-boot:oemboot
-Provides:       kiwi-image:docker
-Provides:       kiwi-image:tbz
-Provides:       kiwi-image:iso
-Provides:       kiwi-image:vmx
-Provides:       kiwi-image:pxe
-Provides:       kiwi-image:oem
-Provides:       kiwi-filesystem:btrfs
-Provides:       kiwi-filesystem:xfs
-Provides:       kiwi-filesystem:ext3
-Provides:       kiwi-filesystem:ext4
-Provides:       kiwi-filesystem:squashfs
-Requires:       e2fsprogs
-Requires:       xfsprogs
-Requires:       umoci
-Requires:       skopeo
-%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu}
-Requires:       btrfs-progs
-%else
-Requires:       btrfsprogs
-%endif
-%if 0%{?fedora} || 0%{?suse_version}
-Requires:       python3-kiwi = %{version}
-%else
-Requires:       python2-kiwi = %{version}
-%endif
-Requires:       %(echo `cat %{S:1}|grep %{_target_cpu}:%{distro}:|cut -f3- -d:`)
-License:        GPL-3.0+
-Group:          %{sysgroup}
-
-%description -n kiwi-boot-requires
-Meta package for the buildservice to pull in all required packages in
-order to have them in the buildservice created repositories to allow
-kiwi to build the boot image. This package must never be published
-nor installed by anybody else except for the buildservice, it is part
-of the kiwi - buildservice integration exclusively
-%endif
-
 %package -n kiwi-man-pages
 Summary:        KIWI - manual pages
 License:        GPL-3.0+
@@ -595,8 +466,6 @@ rm -rf %{buildroot}/%{_defaultdocdir}/packages
 
 %if 0%{?fedora} || 0%{?suse_version}
 %fdupes %{buildroot}/srv/tftpboot
-%fdupes %{buildroot}/%{python3_sitelib}/kiwi/boot
-%fdupes %{buildroot}/%{python2_sitelib}/kiwi/boot
 %endif
 
 %post -n python2-kiwi
@@ -723,11 +592,6 @@ fi
 %dir /srv/tftpboot/upload
 %dir /srv/tftpboot/boot
 %endif
-%endif
-
-%if 0%{?suse_version}
-%files -n kiwi-boot-requires
-%defattr(-, root, root)
 %endif
 
 %changelog

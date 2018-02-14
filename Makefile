@@ -77,29 +77,6 @@ kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 	rm kiwi/schema/kiwi_for_generateDS.xsd
 	rm kiwi/schema/kiwi_modified_for_generateDS.rnc
 
-po:
-	./.locale
-	for i in `ls -1 kiwi/boot/locale`; do \
-		if [ -d ./kiwi/boot/locale/$$i ];then \
-			if [ ! "$$i" = "kiwi-help" ] && [ ! "$$i" = "kiwi-template" ];then \
-				(cd ./kiwi/boot/locale/$$i/${LC} && msgfmt -o kiwi.mo kiwi.po);\
-			fi \
-		fi \
-	done
-	for boot_arch in kiwi/boot/arch/*; do \
-		if [ ! -L $$boot_arch ];then \
-			for boot_image in $$boot_arch/*/*/root; do \
-				mkdir -p $$boot_image/usr/share/locale ;\
-				cp -a kiwi/boot/locale/* $$boot_image/usr/share/locale/ ;\
-				rm -rf $$boot_image/usr/share/locale/kiwi-template ;\
-				rm -rf $$boot_image/usr/share/locale/*/LC_MESSAGES/kiwi.po ;\
-			done \
-		fi \
-	done
-
-po_status:
-	./.fuzzy
-
 obs_test_status:
 	./.obs_test_status
 
@@ -121,12 +98,7 @@ clean_git_attributes:
 	# for details on when this target is called see setup.py
 	git checkout kiwi/version.py
 
-sdist_prepare:
-	# build the architecture specific boot image structure
-	tar --dereference -czf boot_arch.tgz kiwi/boot/arch && \
-		mv kiwi/boot/arch boot_arch && mkdir kiwi/boot/arch
-
-build: clean po tox sdist_prepare
+build: clean tox
 	# create setup.py variant for rpm build.
 	# delete module versions from setup.py for building an rpm
 	# the dependencies to the python module rpm packages is
@@ -134,9 +106,6 @@ build: clean po tox sdist_prepare
 	sed -ie "s@>=[0-9.]*'@'@g" setup.py
 	# build the sdist source tarball
 	$(python) setup.py sdist
-	# cleanup sdist_prepare actions
-	rm -f boot_arch.tgz && \
-		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 	# restore original setup.py backed up from sed
 	mv setup.pye setup.py
 	# provide rpm source tarball
@@ -149,15 +118,9 @@ build: clean po tox sdist_prepare
 		> dist/python-kiwi.spec
 	# provide rpm rpmlintrc
 	cp package/python-kiwi-rpmlintrc dist
-	# provide rpm boot packages source
-	# metadata for the buildservice when kiwi is used in the
-	# buildservice this data is needed
-	helper/kiwi-boot-packages > dist/python-kiwi-boot-packages
 
-pypi: clean po tox sdist_prepare
+pypi: clean tox
 	$(python) setup.py sdist upload
-	rm -f boot_arch.tgz && \
-		rmdir kiwi/boot/arch && mv boot_arch kiwi/boot/arch
 
 clean: clean_git_attributes
 	rm -rf dist

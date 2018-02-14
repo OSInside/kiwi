@@ -29,9 +29,6 @@ include Makefile
 include README.rst
 include LICENSE
 include tox.ini
-include .fuzzy
-include .locale
-include boot_arch.tgz
 
 recursive-include doc *.py *.rst Makefile
 recursive-include test *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz

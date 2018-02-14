@@ -123,17 +123,6 @@ class install(distutils_install.install):
         Run first the related KIWI installation tasks and after
         that the usual Python installation
         """
-        # kiwi boot_arch structure
-        command = ['tar', '-xvf', 'boot_arch.tgz']
-        self.announce(
-            'Running unpacking of boot_arch.tgz',
-            level=distutils.log.INFO
-        )
-        self.announce(
-            subprocess.check_output(command).decode(),
-            level=distutils.log.INFO
-        )
-
         # kiwi tools, completion and manual pages
         command = ['make']
         if self.root:
