@@ -554,8 +554,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.theme
             )
         if self.firmware.efi_mode():
-            grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
-            grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
+            # linuxefi/initrdefi only exist on x86, others always use efi
+            if self.arch == 'ix86' or self.arch == 'x86_64':
+                grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
+                grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
 
