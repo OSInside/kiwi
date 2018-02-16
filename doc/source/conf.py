@@ -93,7 +93,7 @@ author = u'Marcus Schäfer'
 # built documents.
 #
 # The short X.Y version.
-version = u'9.12.9'
+version = u'9.13.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 
