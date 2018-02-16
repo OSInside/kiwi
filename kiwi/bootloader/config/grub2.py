@@ -548,11 +548,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 ''.join(['/boot/', self.boot_directory_name, '/themes']),
                 self.theme
             )
-            theme_background = '{0}/{1}/background.png'
-            grub_default_entries['GRUB_BACKGROUND'] = theme_background.format(
+            theme_background = '{0}/{1}/background.png'.format(
                 ''.join(['/boot/', self.boot_directory_name, '/themes']),
                 self.theme
             )
+            if os.path.exists(os.sep.join([self.root_dir, theme_background])):
+                grub_default_entries['GRUB_BACKGROUND'] = theme_background
         if self.firmware.efi_mode():
             grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
             grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
@@ -731,23 +732,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.theme:
             theme_dir = self._find_grub_data(lookup_path + '/usr/share') + \
                 '/themes/' + self.theme
-            # lookup theme background, it is expected that the
-            # installation of the theme package provided an appropriate
-            # background file
             boot_theme_background_file = self._find_theme_background_file(
                 lookup_path
             )
-            if os.path.exists(theme_dir) and boot_theme_background_file:
-                # store a backup of the background file
-                boot_theme_background_backup_file = os.sep.join(
-                    [self.root_dir, 'background.png']
-                )
-                Command.run(
-                    [
-                        'cp', boot_theme_background_file,
-                        boot_theme_background_backup_file
-                    ]
-                )
+            if os.path.exists(theme_dir):
+                if boot_theme_background_file:
+                    # A background file was found. Preserve a copy of the
+                    # file which was created at install time of the theme
+                    # package by the activate-theme script
+                    boot_theme_background_backup_file = os.sep.join(
+                        [self.root_dir, 'background.png']
+                    )
+                    Command.run(
+                        [
+                            'cp', boot_theme_background_file,
+                            boot_theme_background_backup_file
+                        ]
+                    )
                 # sync theme data from install path to boot path
                 data = DataSync(
                     theme_dir, boot_theme_dir
@@ -755,13 +756,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 data.sync_data(
                     options=['-z', '-a']
                 )
-                # restore background file
-                Command.run(
-                    [
-                        'mv', boot_theme_background_backup_file,
-                        os.sep.join([boot_theme_dir, self.theme])
-                    ]
-                )
+                if boot_theme_background_file:
+                    # Install preserved background file to the theme
+                    Command.run(
+                        [
+                            'mv', boot_theme_background_backup_file,
+                            os.sep.join([boot_theme_dir, self.theme])
+                        ]
+                    )
             elif boot_theme_background_file:
                 # assume all theme data is in the directory of the
                 # background file and just sync that directory to the
