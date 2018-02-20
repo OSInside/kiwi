@@ -101,8 +101,8 @@ class TestPackageManagerApt(object):
         assert mock_run.call_args_list == [
             call(command=['mountpoint', 'root-dir/dev'], raise_on_error=False),
             call([
-                'debootstrap', '--no-check-gpg', 'xenial',
-                'root-dir.debootstrap', 'xenial_path'],
+                'debootstrap', '--no-check-gpg', '--variant=minbase',
+                'xenial', 'root-dir.debootstrap', 'xenial_path'],
                 ['env']),
             call([
                 'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'

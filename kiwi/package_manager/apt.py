@@ -141,8 +141,8 @@ class PackageManagerApt(PackageManagerBase):
                 )
             Command.run(
                 [
-                    'debootstrap', '--no-check-gpg', self.distribution,
-                    bootstrap_dir, self.distribution_path
+                    'debootstrap', '--no-check-gpg', '--variant=minbase',
+                    self.distribution, bootstrap_dir, self.distribution_path
                 ], self.command_env
             )
             data = DataSync(
