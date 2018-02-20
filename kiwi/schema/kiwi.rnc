@@ -1664,6 +1664,13 @@ div {
             sch:param [ name = "attr" value = "derived_from" ]
             sch:param [ name = "types" value = "docker oci" ]
         ]
+    k.type.publisher.attribute =
+        ## Specifies the publisher name of the ISO.
+        attribute publisher { text }
+        >> sch:pattern [ id = "publisher" is-a = "image_type"
+            sch:param [ name = "attr" value = "publisher" ]
+            sch:param [ name = "types" value = "iso" ]
+        ]
     k.type.attlist =
         ## Specifies the image type
         k.type.boot.attribute? &
@@ -1719,7 +1726,8 @@ div {
         k.type.volid.attribute? &
         k.type.wwid_wait_timeout.attribute? &
         k.type.derived_from.attribute? &
-        k.type.xen_server.attribute?
+        k.type.xen_server.attribute? &
+        k.type.publisher.attribute?
     k.type =
         ## The Image Type of the Logical Extend
         element type { 

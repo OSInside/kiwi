@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.29.3.
+# Generated  by generateDS.py version 2.29.5.
 # Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
 #
 # Command line options:
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -51,6 +51,18 @@ def parsexml_(infile, parser=None, **kwargs):
             parser = etree_.XMLParser()
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
+
+def parsexmlstring_(instring, parser=None, **kwargs):
+    if parser is None:
+        # Use the lxml ElementTree compatible parser so that, e.g.,
+        #   we ignore comments.
+        try:
+            parser = etree_.ETCompatXMLParser()
+        except AttributeError:
+            # fallback to xml.etree
+            parser = etree_.XMLParser()
+    element = etree_.fromstring(instring, parser=parser, **kwargs)
+    return element
 
 #
 # Namespace prefix definition table (and other attributes, too)
@@ -2596,7 +2608,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2652,6 +2664,7 @@ class type_(GeneratedsSuper):
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
         self.derived_from = _cast(None, derived_from)
         self.xen_server = _cast(bool, xen_server)
+        self.publisher = _cast(None, publisher)
         if containerconfig is None:
             self.containerconfig = []
         else:
@@ -2834,6 +2847,8 @@ class type_(GeneratedsSuper):
     def set_derived_from(self, derived_from): self.derived_from = derived_from
     def get_xen_server(self): return self.xen_server
     def set_xen_server(self, xen_server): self.xen_server = xen_server
+    def get_publisher(self): return self.publisher
+    def set_publisher(self, publisher): self.publisher = publisher
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3052,6 +3067,9 @@ class type_(GeneratedsSuper):
         if self.xen_server is not None and 'xen_server' not in already_processed:
             already_processed.add('xen_server')
             outfile.write(' xen_server="%s"' % self.gds_format_boolean(self.xen_server, input_name='xen_server'))
+        if self.publisher is not None and 'publisher' not in already_processed:
+            already_processed.add('publisher')
+            outfile.write(' publisher=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.publisher), input_name='publisher')), ))
     def exportChildren(self, outfile, level, namespace_='', name_='type', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3431,6 +3449,10 @@ class type_(GeneratedsSuper):
                 self.xen_server = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('publisher', node)
+        if value is not None and 'publisher' not in already_processed:
+            already_processed.add('publisher')
+            self.publisher = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'containerconfig':
             obj_ = containerconfig.factory()
@@ -7432,13 +7454,16 @@ def parseEtree(inFileName, silence=False):
 
 
 def parseString(inString, silence=False):
-    if sys.version_info.major == 2:
-        from StringIO import StringIO as IOBuffer
-    else:
-        from io import BytesIO as IOBuffer
+    '''Parse a string, create the object tree, and export it.
+
+    Arguments:
+    - inString -- A string.  This XML fragment should not start
+      with an XML declaration containing an encoding.
+    - silence -- A boolean.  If False, export the object.
+    Returns -- The root object in the tree.
+    '''
     parser = None
-    doc = parsexml_(IOBuffer(inString), parser)
-    rootNode = doc.getroot()
+    rootNode= parsexmlstring_(inString, parser)
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
         rootTag = 'k_source'
@@ -7446,7 +7471,6 @@ def parseString(inString, silence=False):
     rootObj = rootClass.factory()
     rootObj.build(rootNode)
     # Enable Python to collect the space used by the DOM.
-    doc = None
     if not silence:
         sys.stdout.write('<?xml version="1.0" ?>\n')
         rootObj.export(

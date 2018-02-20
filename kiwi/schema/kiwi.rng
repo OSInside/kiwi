@@ -2455,6 +2455,15 @@ to work on.</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
+    <define name="k.type.publisher.attribute">
+      <attribute name="publisher">
+        <a:documentation>Specifies the publisher name of the ISO.</a:documentation>
+      </attribute>
+      <sch:pattern id="publisher" is-a="image_type">
+        <sch:param name="attr" value="publisher"/>
+        <sch:param name="types" value="iso"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -2618,6 +2627,9 @@ to work on.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.xen_server.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.publisher.attribute"/>
         </optional>
       </interleave>
     </define>

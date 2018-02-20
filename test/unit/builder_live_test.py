@@ -96,6 +96,9 @@ class TestLiveImageBuilder(object):
         self.xml_state.build_type.get_mediacheck = mock.Mock(
             return_value=True
         )
+        self.xml_state.build_type.get_publisher = mock.Mock(
+            return_value='Custom publisher'
+        )
 
         self.live_image = LiveImageBuilder(
             self.xml_state, 'target_dir', 'root_dir',
@@ -260,7 +263,7 @@ class TestLiveImageBuilder(object):
                 'create_options': [
                     '-A', '0xffffffff',
                     '-p', 'KIWI - http://suse.github.com/kiwi',
-                    '-publisher', 'SUSE LINUX GmbH',
+                    '-publisher', 'Custom publisher',
                     '-V', 'volid',
                     '-iso-level', '3', '-udf'
                 ]

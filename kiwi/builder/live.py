@@ -83,6 +83,8 @@ class LiveImageBuilder(object):
         self.filesystem_custom_parameters = {
             'mount_options': xml_state.get_fs_mount_option_list()
         }
+        self.publisher = xml_state.build_type.get_publisher() or \
+            Defaults.get_publisher()
 
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
@@ -131,7 +133,7 @@ class LiveImageBuilder(object):
             'create_options': [
                 '-A', self.mbrid.get_id(),
                 '-p', Defaults.get_preparer(),
-                '-publisher', Defaults.get_publisher(),
+                '-publisher', self.publisher,
                 '-V', self.volume_id
             ]
         }
