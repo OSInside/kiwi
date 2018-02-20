@@ -90,14 +90,24 @@ class PackageManagerYum(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def _get_yum_binary_name(self):
+    def _get_yum_binary_name(self, root=None):
         """
         Identify whether yum is 'yum' or 'yum-deprecated'
+
+        :param string root: lookup binary name below this root directory
 
         :return: name of yum command
         """
         yum_binary = 'yum'
-        if Path.which(filename='yum-deprecated', access_mode=os.X_OK):
+        yum_search_env = {
+            'PATH': os.sep.join([root, 'usr', 'bin'])
+        } if root else None
+
+        if Path.which(
+            filename='yum-deprecated',
+            custom_env=yum_search_env,
+            access_mode=os.X_OK
+        ):
             yum_binary = 'yum-deprecated'
         return yum_binary
 
@@ -129,7 +139,7 @@ class PackageManagerYum(PackageManagerBase):
         """
         Process package install requests for image phase (chroot)
         """
-        yum = self._get_yum_binary_name()
+        yum = self._get_yum_binary_name(root=self.root_dir)
         if self.exclude_requests:
             # For Yum, excluding a package means removing it from
             # the solver operation. This is done by adding --exclude
@@ -190,7 +200,7 @@ class PackageManagerYum(PackageManagerBase):
         """
         Process package update requests (chroot)
         """
-        yum = self._get_yum_binary_name()
+        yum = self._get_yum_binary_name(root=self.root_dir)
         chroot_yum_args = self.root_bind.move_to_root(
             self.yum_args
         )
