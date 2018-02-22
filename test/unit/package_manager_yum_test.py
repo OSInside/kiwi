@@ -45,11 +45,20 @@ class TestPackageManagerYum(object):
         assert self.manager.exclude_requests == ['name']
 
     @patch('kiwi.path.Path.which')
-    def test_get_yum_binary_name(self, mock_exists):
-        mock_exists.return_value = '/usr/bin/yum-deprecated'
+    def test_get_yum_binary_name(self, mock_which):
+        mock_which.return_value = '/usr/bin/yum-deprecated'
         assert self.manager._get_yum_binary_name() == 'yum-deprecated'
-        mock_exists.return_value = None
-        assert self.manager._get_yum_binary_name() == 'yum'
+        mock_which.assert_called_once_with(
+            access_mode=1, custom_env=None,
+            filename='yum-deprecated'
+        )
+        mock_which.return_value = None
+        mock_which.reset_mock()
+        assert self.manager._get_yum_binary_name(root='/some/root') == 'yum'
+        mock_which.assert_called_once_with(
+            access_mode=1, custom_env={'PATH': '/some/root/usr/bin'},
+            filename='yum-deprecated'
+        )
 
     @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
