@@ -1330,6 +1330,9 @@ specifies the disk device name</a:documentation>
     <define name="k.profile.name.attribute">
       <ref name="k.name.attribute"/>
     </define>
+    <define name="k.profile.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.profile.description.attribute">
       <attribute name="description">
         <a:documentation>Description of how this profiles influences the image</a:documentation>
@@ -1348,6 +1351,9 @@ the command line</a:documentation>
         <ref name="k.profile.description.attribute"/>
         <optional>
           <ref name="k.profile.import.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.profile.arch.attribute"/>
         </optional>
       </interleave>
     </define>

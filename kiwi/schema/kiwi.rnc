@@ -869,6 +869,7 @@ div {
 #
 div {
     k.profile.name.attribute = k.name.attribute
+    k.profile.arch.attribute = k.arch.attribute
     k.profile.description.attribute =
         ## Description of how this profiles influences the image
         attribute description { text }
@@ -879,7 +880,8 @@ div {
     k.profile.attlist =
         k.profile.name.attribute &
         k.profile.description.attribute &
-        k.profile.import.attribute?
+        k.profile.import.attribute? &
+        k.profile.arch.attribute?
     k.profile =
         ## Profiles creates a namespace on an image description and
         ## thus can be used to have one description with different

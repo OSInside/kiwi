@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2036,11 +2036,12 @@ class profile(GeneratedsSuper):
     KDE and GNOME including different packages."""
     subclass = None
     superclass = None
-    def __init__(self, name=None, description=None, import_=None):
+    def __init__(self, name=None, description=None, import_=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.description = _cast(None, description)
         self.import_ = _cast(bool, import_)
+        self.arch = _cast(None, arch)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2058,6 +2059,15 @@ class profile(GeneratedsSuper):
     def set_description(self, description): self.description = description
     def get_import(self): return self.import_
     def set_import(self, import_): self.import_ = import_
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -2095,6 +2105,9 @@ class profile(GeneratedsSuper):
         if self.import_ is not None and 'import_' not in already_processed:
             already_processed.add('import_')
             outfile.write(' import="%s"' % self.gds_format_boolean(self.import_, input_name='import'))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='profile', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -2122,6 +2135,12 @@ class profile(GeneratedsSuper):
                 self.import_ = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class profile
