@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" initrd_system="dracut" bootloader="grub2" kernelcmdline="splash" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true">
+        <type image="oem" filesystem="btrfs" initrd_system="dracut" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true">
             <systemdisk>
                 <volume name="home"/>
             </systemdisk>

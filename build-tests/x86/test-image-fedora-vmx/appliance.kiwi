@@ -15,7 +15,7 @@
         <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="splash"/>
+        <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="console=ttyS0 splash"/>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
