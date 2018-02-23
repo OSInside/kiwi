@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="splash" firmware="uefi" format="vmdk"/>
+        <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="uefi" format="vmdk"/>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
