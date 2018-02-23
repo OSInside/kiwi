@@ -136,7 +136,11 @@ Requires:       gdisk
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
+%if 0%{?suse_version} >= 1500
+Requires:       mkisofs
+%else
 Requires:       genisoimage
+%endif
 Requires:       grub2
 Requires:       kiwi-man-pages
 Requires:       kiwi-tools
@@ -210,7 +214,11 @@ Provides:       kiwi-packagemanager:zypper
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
+%if 0%{?suse_version} >= 1500
+Requires:       mkisofs
+%else
 Requires:       genisoimage
+%endif
 Requires:       grub2
 Requires:       kiwi-man-pages
 Requires:       kiwi-tools
@@ -372,10 +380,14 @@ Requires:       dmsetup
 Requires:       device-mapper
 %endif
 Requires:       dracut
+%if 0%{?suse_version} >= 1500
+Requires:       mkisofs
+%else
 %if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu}
 Requires:       genisoimage
 %else
 Requires:       cdrkit-cdrtools-compat
+%endif
 %endif
 License:        GPL-3.0+
 Group:          %{sysgroup}
