@@ -185,22 +185,29 @@ class XMLState(object):
                 result.append(packages)
         return result
 
-    def package_matches_host_architecture(self, package):
+    def _section_matches_host_architecture(self, section):
         """
-        Tests if the given package is applicable for the current host
-        architecture. If no architecture is specified within the package
+        Tests if the given section is applicable for the current host
+        architecture. If no architecture is specified within the section
         it is considered as a match.
 
-        :param package: <package>
-        :return: True if there is a match or if the package has no architecture.
+        :param section: XML section object
+        :return: True if there is a match or if the section has no architecture.
         :rtype: bool
-        """
 
-        architectures = package.get_arch()
+        Note: The XML section pointer must provide an arch attribute
+        """
+        architectures = section.get_arch()
         if architectures:
             if self.host_architecture not in architectures.split(','):
                 return False
         return True
+
+    def package_matches_host_architecture(self, package):
+        return self._section_matches_host_architecture(package)
+
+    def profile_matches_host_architecture(self, profile):
+        return self._section_matches_host_architecture(profile)
 
     def get_package_sections(self, packages_sections):
         """
@@ -1655,12 +1662,18 @@ class XMLState(object):
 
     def _used_profiles(self, profiles=None):
         """
-            return list of profiles to use. The method looks up the
-            profiles section in the XML description and searches for
-            profiles marked with import=true. Profiles specified in
-            the argument list of this method will take the highest
-            priority and causes to skip the lookup of import profiles
-            in the XML description
+        return list of profiles to use. The method looks up the
+        profiles section in the XML description and searches for
+        profiles matching the architecture. If no arch specifier
+        is set the profile is considered to be valid for any arch
+
+        If the profiles argument is not set only profiles
+        marked with the attribute import=true will be selected.
+        Profiles specified in the argument will take the highest
+        priority and causes to skip the lookup of import profiles
+        in the XML description
+
+        :param list profiles: selected profile names
         """
         profile_names = []
         import_profiles = []
@@ -1668,16 +1681,19 @@ class XMLState(object):
         if profiles_section:
             for profile in profiles_section[0].get_profile():
                 name = profile.get_name()
-                profile_names.append(name)
-                if profile.get_import():
-                    import_profiles.append(name)
+                if self.profile_matches_host_architecture(profile):
+                    profile_names.append(name)
+                    if profile.get_import():
+                        import_profiles.append(name)
         if not profiles:
             return import_profiles
         else:
             for profile in profiles:
                 if profile not in profile_names:
                     raise KiwiProfileNotFound(
-                        'profile %s not found' % profile
+                        'profile {0} not found for host arch {1}'.format(
+                            profile, self.host_architecture
+                        )
                     )
             return profiles
 
