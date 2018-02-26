@@ -1,3 +1,4 @@
+#!/bin/bash
 #================
 # FILE          : functions.sh
 #----------------
@@ -23,13 +24,13 @@ export LC_ALL=C
 # check base tools
 #--------------------------------------
 for tool in basename dirname;do
-    if [ -x /bin/$tool ] && [ ! -e /usr/bin/$tool ];then
-        ln -s /bin/$tool /usr/bin/$tool
+    if [ -x "/bin/${tool}" ] && [ ! -e "/usr/bin/${tool}" ];then
+        ln -s "/bin/${tool}" "/usr/bin/${tool}"
     fi
 done
 for tool in setctsid klogconsole;do
-    if [ -x /usr/bin/$tool ] && [ ! -e /usr/sbin/$tool ];then
-        ln -s /usr/bin/$tool /usr/sbin/$tool
+    if [ -x "/usr/bin/${tool}" ] && [ ! -e "/usr/sbin/${tool}" ];then
+        ln -s "/usr/bin/${tool}" "/usr/sbin/${tool}"
     fi
 done
 
@@ -46,11 +47,11 @@ function baseSystemdServiceInstalled {
     local dir
     for dir in ${sd_dirs} ; do
         if [ -f "${dir}/${service}.service" ];then
-            echo ${dir}/${service}.service
+            echo "${dir}/${service}.service"
             return
         fi
         if [ -f "${dir}/${service}.mount" ];then
-            echo ${dir}/${service}.mount
+            echo "${dir}/${service}.mount"
             return
         fi
     done
@@ -71,15 +72,17 @@ function baseSysVServiceInstalled {
 #--------------------------------------
 function baseSystemdCall {
     local service_name=$1; shift
-    local service=$(baseSystemdServiceInstalled "$service_name")
-    if [ ! -z "$service" ];then
-        systemctl "$@" "$service_name"
+    local service
+    local legacy_service
+    service=$(baseSystemdServiceInstalled "${service_name}")
+    if [ ! -z "${service}" ];then
+        systemctl "$@" "${service_name}"
     else
-        local legacy_service=$(baseSysVServiceInstalled "$service_name")
-        if [ ! -z "$legacy_service" ];then
+        legacy_service=$(baseSysVServiceInstalled "${service_name}")
+        if [ ! -z "${legacy_service}" ];then
             # systemd is sysV init compatible and still allows
             # to enable those type of services
-            systemctl "$@" "$legacy_service"
+            systemctl "$@" "${legacy_service}"
         fi
     fi
 }
@@ -97,7 +100,7 @@ function baseInsertService {
     #
     # ----
     local service=$1
-    baseSystemdCall "$service" "enable"
+    baseSystemdCall "${service}" "enable"
 }
 
 #======================================
@@ -112,7 +115,7 @@ function baseRemoveService {
     #   --> disable sshd service
     # ----
     local service=$1
-    baseSystemdCall "$service" "disable"
+    baseSystemdCall "${service}" "disable"
 }
 
 #======================================
@@ -132,18 +135,18 @@ function baseService {
     # ----
     local service=$1
     local target=$2
-    if [ -z "$target" ];then
+    if [ -z "${target}" ];then
         echo "baseService: no target specified"
         return
     fi
-    if [ -z "$service" ];then
+    if [ -z "${service}" ];then
         echo "baseService: no service name specified"
         return
     fi
-    if [ $target = off ];then
-        baseRemoveService $service
+    if [ "${target}" = off ];then
+        baseRemoveService "${service}"
     else
-        baseInsertService $service
+        baseInsertService "${service}"
     fi
 }
 
@@ -170,10 +173,10 @@ function suseService {
     # function kept for compatibility
     service_name=$1
     service_state=$2
-    if [ "$service_state" = "off" ];then
-        baseRemoveService "$service_name"
+    if [ "${service_state}" = off ];then
+        baseRemoveService "${service_name}"
     else
-        baseInsertService "$service_name"
+        baseInsertService "${service_name}"
     fi
 }
 
@@ -188,9 +191,9 @@ function suseActivateDefaultServices {
         network
         cron
     )
-    for i in "${services[@]}";do
-        echo "Activating service: $i"
-        baseInsertService $i
+    for service in "${services[@]}";do
+        echo "Activating service: ${service}"
+        baseInsertService "${service}"
     done
 }
 
@@ -202,22 +205,24 @@ function suseImportBuildKey {
     # Add missing gpg keys to rpm database
     # ----
     local KEY
-    local TDIR=$(mktemp -d)
+    local TDIR
+    local KFN
     local dumpsigs=/usr/lib/rpm/gnupg/dumpsigs
-    if [ ! -d "$TDIR" ]; then
+    TDIR=$(mktemp -d)
+    if [ ! -d "${TDIR}" ]; then
         echo "suseImportBuildKey: Failed to create temp dir"
         return
     fi
     if [ -d "/usr/lib/rpm/gnupg/keys" ];then
         pushd "/usr/lib/rpm/gnupg/keys"
     else
-        pushd "$TDIR"
-        if [ -x $dumpsigs ];then
-            $dumpsigs /usr/lib/rpm/gnupg/suse-build-key.gpg
+        pushd "${TDIR}"
+        if [ -x "${dumpsigs}" ];then
+            ${dumpsigs} /usr/lib/rpm/gnupg/suse-build-key.gpg
         fi
     fi
     for KFN in gpg-pubkey-*.asc; do
-        if [ ! -e "$KFN" ];then
+        if [ ! -e "${KFN}" ];then
             #
             # check if file exists because if the glob match did
             # not find files bash will use the glob string as
@@ -225,81 +230,71 @@ function suseImportBuildKey {
             #
             continue
         fi
-        KEY=$(basename "$KFN" .asc)
-        rpm -q "$KEY" >/dev/null
-        [ $? -eq 0 ] && continue
-        echo "Importing $KEY to rpm database"
-        rpm --import "$KFN"
+        KEY=$(basename "${KFN}" .asc)
+        if rpm -q "${KEY}" >/dev/null; then
+            continue
+        fi
+        echo "Importing ${KEY} to rpm database"
+        rpm --import "${KFN}"
     done
     popd
-    rm -rf "$TDIR"
+    rm -rf "${TDIR}"
 }
 
 #======================================
 # baseSetupUserPermissions
 #--------------------------------------
 function baseSetupUserPermissions {
-    while read line;do
-        dir=$(echo $line | cut -f6 -d:)
-        uid=$(echo $line | cut -f3 -d:)
-        usern=$(echo $line | cut -f1 -d:)
-        group=$(echo $line | cut -f4 -d:)
-        shell=$(echo $line | cut -f7 -d:)
-        if [ ! -d "$dir" ];then
+    while read -r line;do
+        dir=$(echo "${line}" | cut -f6 -d:)
+        uid=$(echo "${line}" | cut -f3 -d:)
+        usern=$(echo "${line}" | cut -f1 -d:)
+        group=$(echo "${line}" | cut -f4 -d:)
+        shell=$(echo "${line}" | cut -f7 -d:)
+        if [ ! -d "${dir}" ];then
             continue
         fi
-        if [ $uid -lt 1000 ];then
+        if [ "${uid}" -lt 1000 ];then
             continue
         fi
-        if [[ ! $shell =~ nologin|true|false ]];then
-            group=$(cat /etc/group | grep "$group" | cut -f1 -d:)
-            chown -c -R $usern:$group $dir/*
+        if [[ ! "${shell}" =~ nologin|true|false ]];then
+            group=$(grep "${group}" /etc/group | cut -f1 -d:)
+            chown -c -R "${usern}:${group} ${dir}/*"
         fi
     done < /etc/passwd
-}
-
-#======================================
-# baseSetupBoot
-#--------------------------------------
-function baseSetupBoot {
-    if [ -f /linuxrc ];then
-        cp linuxrc init
-        exit 0
-    fi
 }
 
 #======================================
 # suseConfig
 #--------------------------------------
 function suseConfig {
-    # /.../
-    # This configuration method is currently deprecated
-    # ----
-    Echo "suseConfig method is deprecated, currently does nothing" 
+    # function kept for compatibility
+    return
 }
 
 #======================================
 # baseGetPackagesForDeletion
 #--------------------------------------
 function baseGetPackagesForDeletion {
-    echo $kiwi_delete
+    declare kiwi_delete=${kiwi_delete}
+    echo "${kiwi_delete}"
 }
 
 #======================================
 # baseGetProfilesUsed
 #--------------------------------------
 function baseGetProfilesUsed {
-    echo $kiwi_profiles
+    declare kiwi_profiles=${kiwi_profiles}
+    echo "${kiwi_profiles}"
 }
 
 #======================================
 # baseCleanMount
 #--------------------------------------
 function baseCleanMount {
-    umount /proc/sys/fs/binfmt_misc &>/dev/null
-    umount /proc    &>/dev/null
-    umount /dev/pts &>/dev/null
-    umount /sys     &>/dev/null
+    for path in /proc/sys/fs/binfmt_misc /proc /dev/pts /sys;do
+        [ -d "${path}" ] && umount "${path}" &>/dev/null
+    done
 }
 
 #======================================
@@ -331,15 +326,15 @@ function baseStripMans {
     # params - name of keep man pages
     # example baseStripMans less
     # ----
-    local keepMans="$@"
+    local keepMans="$*"
     local directories="
         /opt/gnome/share/man
         /usr/local/man
         /usr/share/man
         /opt/kde3/share/man/packages
     "
-    find $directories -mindepth 1 -maxdepth 2 -type f 2>/dev/null |\
-        baseStripAndKeep ${keepMans}
+    find "${directories}" -mindepth 1 -maxdepth 2 -type f 2>/dev/null |\
+        baseStripAndKeep "${keepMans}"
 }
 
 #======================================
@@ -351,36 +346,37 @@ function baseStripDocs {
     # copying license copyright
     # ----
     local docfiles
+    local dir
     local directories="
         /opt/gnome/share/doc/packages
         /usr/share/doc/packages
         /opt/kde3/share/doc/packages
     "
-    for dir in $directories; do
-        docfiles=$(find $dir -type f |grep -iv "copying\|license\|copyright")
-        rm -f $docfiles
+    for dir in ${directories}; do
+        docfiles=$(find "${dir}" -type f |\
+            grep -iv "copying\|license\|copyright")
+        rm -f "${docfiles}"
     done
     rm -rf /usr/share/info
     rm -rf /usr/share/man
 }
+
 #======================================
 # baseStripLocales
 #--------------------------------------
 function baseStripLocales {
-    local keepLocales="$@"
-    local directories="
-        /usr/lib/locale
-    "
-    find $directories -mindepth 1 -maxdepth 1 -type d 2>/dev/null |\
-        baseStripAndKeep ${keepLocales}
+    local keepLocales="$*"
+    find /usr/lib/locale -mindepth 1 -maxdepth 1 -type d 2>/dev/null |\
+        baseStripAndKeep "${keepLocales}"
 }
 
 #======================================
 # baseStripTranslations
 #--------------------------------------
 function baseStripTranslations {
-    local keepMatching="$@"
-    find /usr/share/locale -name "*.mo" | grep -v $keepMatching | xargs rm -f
+    local keepMatching="$*"
+    find /usr/share/locale -name "*.mo" |\
+        grep -v "${keepMatching}" | xargs rm -f
 }
 
 #======================================
@@ -393,13 +389,11 @@ function baseStripInfos {
     #
     # params - name of keep info files
     # ----
-    local keepInfos="$@"
-    local directories="
-        /usr/share/info
-    "
-    find $directories -mindepth 1 -maxdepth 1 -type f 2>/dev/null |\
+    local keepInfos="$*"
+    find /usr/share/info -mindepth 1 -maxdepth 1 -type f 2>/dev/null |\
         baseStripAndKeep "${keepInfos}"
 }
+
 #======================================
 # baseStripAndKeep
 #--------------------------------------
@@ -410,19 +404,22 @@ function baseStripAndKeep {
     # for removing
     # - params - files which should be keep
     # ----
-    local keepFiles="$@"
+    local keepFiles="$*"
     local found
-    while read file; do
-        local baseFile=$(/usr/bin/basename $file)
+    local baseFile
+    local keep
+    local file
+    while read -r file; do
+        baseFile=$(/usr/bin/basename "${file}")
         found=0
-        for keep in $keepFiles;do
-            if echo $baseFile | grep -q $keep; then
+        for keep in ${keepFiles};do
+            if echo "${baseFile}" | grep -q "${keep}"; then
                 found=1
                 break
             fi
         done
-        if [ "$found" = 0 ]; then
-             Rm -rf "$file"
+        if [ "${found}" = 0 ]; then
+             Rm -rf "${file}"
         fi
     done
 }
@@ -433,193 +430,21 @@ function baseStripTools {
     local tpath=$1
     local tools=$2
     local found
-    for file in `find $tpath`;do
+    local file
+    local IFS
+    while IFS= read -r -d '' file; do
         found=0
-        base=$(/usr/bin/basename $file)
-        for need in $tools;do
-            if [ "$base" = "$need" ];then
+        base=$(/usr/bin/basename "${file}")
+        for need in ${tools};do
+            if [ "${base}" = "$need" ];then
                 found=1
                 break
             fi
         done
-        if [ "$found" = 0 ] && [ ! -d "$file" ];then
-            Rm -fv "$file"
+        if [ "${found}" = 0 ] && [ ! -d "${file}" ];then
+            Rm -fv "${file}"
         fi
-    done
-}
-#======================================
-# baseStripRPM
-#--------------------------------------
-function baseStripRPM {
-    # /.../
-    # remove rpms defined in config.xml 
-    # under image=delete section
-    #
-    # Method is a noop and only exists for compatibility
-    # kiwi handles this now in the core python code
-    # ----
-    return
-}
-#======================================
-# baseSetupInPlaceSVNRepository
-#--------------------------------------
-function baseSetupInPlaceSVNRepository {
-    # /.../
-    # create an in place subversion repository for the
-    # specified directories. A standard call could look like this
-    # baseSetupInPlaceSVNRepository /etc /srv /var/log
-    # ----
-    local paths=$1
-    local repo=/var/adm/sys-repo
-    if [ ! -x /usr/bin/svn ];then
-        echo "subversion not installed... skipped"
-        return
-    fi
-    svnadmin create $repo
-    chmod 700 $repo
-    svn mkdir -m created file:///$repo/trunk
-    local subp=""
-    for dir in $paths;do
-        subp=""
-        for n in $(echo $dir | tr '/' ' ');do
-            if [ -z $n ];then
-                continue
-            fi
-            subp="$subp/$n"
-            svn mkdir -m created file:///$repo/trunk/$subp
-        done
-    done
-    for dir in $paths;do
-        chmod 700 $dir/.svn
-        svn add $dir/*
-        find $dir -name .svn | xargs chmod 700
-        svn ci -m initial $dir
-    done
-}
-
-#======================================
-# baseSetupPlainTextGITRepository
-#--------------------------------------
-function baseSetupPlainTextGITRepository {
-    # /.../
-    # create an in place git repository of the root
-    # directory containing all plain/text files.
-    # ----
-    if [ ! -x /usr/bin/git ];then
-        echo "git not installed... skipped"
-        return
-    fi
-    pushd /
-    local ignore=""
-    #======================================
-    # directories to ignore
-    #--------------------------------------
-    local dirs="
-        /sys /dev /var/log /home /media /var/run /var/tmp /tmp /var/lock
-        /image /var/spool /var/cache /var/lib /boot /root /var/adm
-        /usr/share/doc /base-system /usr/lib /usr/lib64 /usr/bin /usr/sbin
-        /usr/share/man /proc /bin /sbin /lib /lib64 /opt
-        /usr/share/X11 /.git
-    "
-    #======================================
-    # files to ignore
-    #--------------------------------------
-    local files="
-        ./etc/Image* *.lock ./etc/resolv.conf *.gif *.png
-        *.jpg *.eps *.ps *.la *.so */lib */lib64 */doc */zoneinfo
-    "
-    #======================================
-    # creae .gitignore and find list
-    #--------------------------------------
-    for entry in $files;do
-        echo $entry >> .gitignore
-        if [ -z "$ignore" ];then
-            ignore="-wholename $entry"
-        else
-            ignore="$ignore -or -wholename $entry"
-        fi
-    done
-    for entry in $dirs;do
-        echo $entry >> .gitignore
-        if [ -z "$ignore" ];then
-            ignore="-path .$entry"
-        else
-            ignore="$ignore -or -path .$entry"
-        fi
-    done
-    #======================================
-    # init git base
-    #--------------------------------------
-    git init
-    #======================================
-    # find all text/plain files except ign
-    #--------------------------------------
-    for i in `find . \( $ignore \) -prune -o -print`;do
-        file=`echo $i | cut -f2 -d.`
-        if file -i $i | grep -q "text/*";then
-            git add $i
-        fi
-        if file -i $i | grep -q "application/x-shellscript";then
-            git add $i
-        fi
-        if file -i $i | grep -q "application/x-awk";then
-            git add $i
-        fi
-        if file -i $i | grep -q "application/x-c";then
-            git add $i
-        fi
-        if file -i $i | grep -q "application/x-c++";then
-            git add $i
-        fi
-        if file -i $i | grep -q "application/x-not-regular-file";then
-            echo $file >> .gitignore
-        fi
-        if file -i $i | grep -q "application/x-gzip";then
-            echo $file >> .gitignore
-        fi
-        if file -i $i | grep -q "application/x-empty";then
-            echo $file >> .gitignore
-        fi
-    done
-    #======================================
-    # commit the git
-    #--------------------------------------
-    git commit -m "deployed"
-    popd
-}
-
-#======================================
-# baseSetupInPlaceGITRepository
-#--------------------------------------
-function baseSetupInPlaceGITRepository {
-    # /.../
-    # create an in place git repository of the root
-    # directory. This process may take some time and you
-    # may expect problems with binary data handling
-    # ----
-    if [ ! -x /usr/bin/git ];then
-        echo "git not installed... skipped"
-        return
-    fi
-    pushd /
-    rm -rf .git
-    cat > .gitignore < /dev/null
-    local files="
-        /bin/ /boot/ /dev/ /image/ /lib/ /lib64/ /lost+found/ /media/ /mnt/
-        /opt/ /proc/ /sbin/ /sys/ /tmp/ /var/ /usr/ *.lock /etc/Image*
-        /base-system/ /.broken /.buildenv .bash_history /.kconfig /.profile
-        /etc/mtab
-    "
-    # disable globbing
-    set -o noglob
-    for entry in $files;do
-        echo $entry >> .gitignore
-    done
-    # enable globbing
-    set +o noglob
-    git init && git add -A && \
-    git commit -m "deployed"
-    popd
+    done < <(find "${tpath}" -print0)
 }
 #======================================
 # Rm  
@@ -628,8 +453,8 @@ function Rm {
     # /.../
     # delete files & anounce it to log
     # ----
-    Debug "rm $@"
-    rm $@
+    Debug "rm $*"
+    rm "$*"
 }
 
 #======================================
@@ -639,8 +464,8 @@ function Rpm {
     # /.../
     # all rpm function & anounce it to log
     # ----
-    Debug "rpm $@"
-    rpm $@
+    Debug "rpm $*"
+    rpm "$*"
 }
 #======================================
 # Echo
@@ -654,15 +479,15 @@ function Echo {
     local optn=""
     local opte=""
     while getopts "bne" option;do
-        case $option in
+        case ${option} in
             b) prefix="      " ;;
             n) optn="-n" ;;
             e) opte="-e" ;;
-            *) echo "Invalid argument: $option" ;;
+            *) echo "Invalid argument: ${option}" ;;
         esac
     done
-    shift $(($OPTIND - 1))
-    echo $optn $opte "$prefix $1"
+    shift $((OPTIND - 1))
+    echo "${optn}" "${opte}" "${prefix} $1"
     OPTIND=1
 }
 #======================================
@@ -672,49 +497,10 @@ function Debug {
     # /.../
     # print message if variable DEBUG is set to 1
     # -----
-    if test "$DEBUG" = 1;then
-        echo "+++++> (caller:${FUNCNAME[1]}:${FUNCNAME[2]} )  $@"
+    if test "${DEBUG}" = 1;then
+        echo "+++++> (caller:${FUNCNAME[1]}:${FUNCNAME[2]} )  $*"
     fi
 }
-#======================================
-# baseSetupBusyBox
-#--------------------------------------
-function baseSetupBusyBox {
-    # /.../
-    # activates busybox if installed for all links from
-    # the busybox/busybox.links file - you can choose custom apps to
-    # be forced into busybox with the "-f" option as first parameter
-    # ---
-    # example: baseSetupBusyBox -f /bin/zcat /bin/vi
-    # ---
-    local applets=""
-    local force=no
-    local busyboxlinks=/usr/share/busybox/busybox.links
-    if ! rpm -q --quiet busybox; then
-        echo "Busybox not installed... skipped"
-        return 0
-    fi
-    if [ $# -gt 0 ] && [ "$1" = "-f" ]; then
-        force=yes
-        shift
-    fi
-    if [ $# -gt 0 ]; then
-        for i in "$@"; do
-            if grep -q "^$i$" "$busyboxlinks"; then 
-                applets="${applets} $i"
-            fi
-        done
-    else
-        applets=`cat "$busyboxlinks"`
-    fi
-    for applet in $applets; do
-        if [ ! -f "$applet" ] || [ "$force" = "yes" ]; then
-            echo "Busybox Link: ln -sf /usr/bin/busybox $applet"
-            ln -sf /usr/bin/busybox "$applet"
-        fi
-    done
-}
-
 #======================================
 # stripUnusedLibs
 #--------------------------------------
@@ -726,8 +512,6 @@ function baseStripUnusedLibs {
     local needlibs
     local found
     local dir
-    local lnk
-    local new
     local lib
     local lddref
     # /.../
@@ -737,32 +521,31 @@ function baseStripUnusedLibs {
     ldconfig
     rm -f /tmp/needlibs
     for i in /usr/bin/* /bin/* /sbin/* /usr/sbin/* /lib/systemd/systemd-*;do
-        for n in $(ldd $i 2>/dev/null | cut -f2- -d\/ | cut -f1 -d " ");do
-            if [ ! -e /$n ];then
+        for n in $(ldd "$i" 2>/dev/null | cut -f2- -d "/" | cut -f1 -d " ");do
+            if [ ! -e "/$n" ];then
                 continue
             fi
-            lddref=/$n
+            lddref="/$n"
             while true;do
-                lib=$(readlink $lddref)
-                if [ $? -eq 0 ];then
-                    lddref=$lib
+                if lib=$(readlink "${lddref}"); then
+                    lddref="${lib}"
                     continue
                 fi
                 break
             done
-            lddref=$(basename $lddref)
-            echo $lddref >> /tmp/needlibs
+            lddref=$(basename "${lddref}")
+            echo "${lddref}" >> /tmp/needlibs
         done
     done
     count=0
-    for i in $(cat /tmp/needlibs | sort | uniq);do
+    for i in $(sort /tmp/needlibs | uniq);do
         for d in \
             /lib /lib64 /usr/lib /usr/lib64 \
             /usr/X11R6/lib /usr/X11R6/lib64 \
             /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
         do
             if [ -e "$d/$i" ];then
-                needlibs[$count]=$d/$i
+                needlibs[${count}]="$d/$i"
                 count=$((count + 1))
             fi
         done
@@ -770,15 +553,15 @@ function baseStripUnusedLibs {
     # /.../
     # add exceptions
     # ----
-    while [ ! -z $1 ];do
+    while [ ! -z "$1" ];do
         for i in \
             /lib*/$1* /usr/lib*/$1* \
             /lib/x86_64-linux-gnu/$1* /usr/lib/x86_64-linux-gnu/$1* \
             /usr/X11R6/lib*/$1*
         do
-            if [ -e $i ];then
+            if [ -e "$i" ];then
                 needlibs[$count]=$i
-                count=`expr $count + 1`
+                count=$((count + 1))
             fi
         done
         shift
@@ -794,23 +577,23 @@ function baseStripUnusedLibs {
         /lib/x86_64-linux-gnu/lib* /usr/lib/x86_64-linux-gnu/lib*
     do
         found=0
-        if [ ! -e $i ];then
+        if [ ! -e "$i" ];then
             continue
         fi
-        if [ -d $i ];then
+        if [ -d "$i" ];then
             continue
         fi
-        if [ -L $i ];then
+        if [ -L "$i" ];then
             continue
         fi
         for n in ${needlibs[*]};do
-            if [ $i = $n ];then
+            if [ "$i" = "$n" ];then
                 found=1; break
             fi
         done
-        if [ $found -eq 0 ];then
+        if [ "${found}" -eq 0 ];then
             echo "Removing library: $i"
-            rm $i
+            rm "$i"
         fi
     done
 }
@@ -823,11 +606,12 @@ function baseUpdateSysConfig {
     # Update sysconfig variable contents
     # ----
     local FILE=$1
-    if [ -f "$FILE" ];then
-        local VAR=$2
-        local VAL=$3
-        local args=$(echo "s'@^\($VAR=\).*\$@\1\\\"$VAL\\\"@'")
-        eval sed -i $args $FILE
+    local VAR
+    local VAL
+    if [ -f "${FILE}" ];then
+        VAR=$2
+        VAL=$3
+        eval sed -i "s'@^\($VAR=\).*\$@\1\\\"$VAL\\\"@'" "${FILE}"
     else
         echo "warning: config file $FILE not found"
     fi
@@ -837,30 +621,33 @@ function baseUpdateSysConfig {
 # baseStripInitrd
 #--------------------------------------
 function baseStripInitrd {
+    declare kiwi_initrd_system=${kiwi_initrd_system}
+    declare kiwi_strip_tools=${kiwi_strip_tools}
+    declare kiwi_strip_libs=${kiwi_strip_libs}
     #==========================================
     # Check for initrd system
     #------------------------------------------
-    if [ "$kiwi_initrd_system" = "dracut" ]; then
+    if [ "${kiwi_initrd_system}" = "dracut" ]; then
         echo "dracut initrd system requested, initrd strip skipped"
         return
     fi
     #==========================================
     # remove unneeded tools
     #------------------------------------------
-    local tools="$kiwi_strip_tools"
-    tools="$tools $@"
+    local tools="${kiwi_strip_tools}"
+    tools="${tools} $*"
     for path in /sbin /usr/sbin /usr/bin /bin;do
-        baseStripTools "$path" "$tools"
+        baseStripTools "${path}" "${tools}"
     done
     #==========================================
     # remove unused libs
     #------------------------------------------
-    baseStripUnusedLibs $kiwi_strip_libs
+    baseStripUnusedLibs "${kiwi_strip_libs}"
     #==========================================
     # remove package manager meta data
     #------------------------------------------
     for p in dpkg rpm yum;do
-        rm -rf /var/lib/$p
+        rm -rf "/var/lib/$p"
     done
 }
 
@@ -868,21 +655,21 @@ function baseStripInitrd {
 # suseStripInitrd
 #--------------------------------------
 function suseStripInitrd {
-    baseStripInitrd $@
+    baseStripInitrd "$@"
 }
 
 #======================================
 # rhelStripInitrd
 #--------------------------------------
 function rhelStripInitrd {
-    baseStripInitrd $@
+    baseStripInitrd "$@"
 }
 
 #======================================
 # debianStripInitrd
 #--------------------------------------
 function debianStripInitrd {
-    baseStripInitrd $@
+    baseStripInitrd "$@"
 }
 
 #======================================
@@ -891,13 +678,13 @@ function debianStripInitrd {
 function rhelSplashToGrub {
     local grub_stage=/usr/lib/grub
     local rhel_logos=/boot/grub/splash.xpm.gz
-    if [ ! -e $rhel_logos ];then
+    if [ ! -e "${rhel_logos}" ];then
         return
     fi
-    if [ ! -d $grub_stage ];then
-        mkdir -p $grub_stage
+    if [ ! -d "${grub_stage}" ];then
+        mkdir -p "${grub_stage}"
     fi
-    mv $rhel_logos $grub_stage
+    mv "${rhel_logos}" "${grub_stage}"
 }
 
 #======================================
@@ -909,18 +696,22 @@ function suseSetupProductInformation {
     # product and prepare the product specific information
     # for YaST
     # ----
+    local zypper
+    local product
+    local p_alias
+    local p_name
     if [ ! -x /usr/bin/zypper ];then
         echo "zypper not installed... skipped"
         return
     fi
-    local zypper="zypper --non-interactive --no-gpg-checks"
-    local product=$($zypper search -t product | grep product | head -n 1)
-    local p_alias=$(echo $product | cut -f4 -d'|')
-    local p_name=$(echo $product | cut -f 4-5 -d'|' | tr '|' '-' | tr -d " ")
-    p_alias=$(echo $p_alias)
-    p_name=$(echo $p_name)
+    zypper="zypper --non-interactive --no-gpg-checks"
+    product=$("${zypper}" search -t product | grep product | head -n 1)
+
+    p_alias=$(echo "${product}" | cut -f4 -d'|')
+    p_name=$(echo "${product}" | cut -f 4-5 -d'|' | tr '|' '-' | tr -d " ")
+
     echo "Installing product information for $p_name"
-    $zypper install -t product $p_alias
+    $zypper install -t product "${p_alias}"
 }
 
 #======================================
@@ -932,26 +723,33 @@ function baseStripFirmware {
     # strip out all firmware files which are not referenced
     # by a kernel module
     # ----
+    local IFS
     local base=/lib/modules
     local name
     local bmdir
+    local kernel_module
+    local firmware
     mkdir -p /lib/firmware-required
-    find $base -name "*.ko" | xargs modinfo | grep ^firmware | while read i;do
-        name=$(echo $(echo $i | cut -f2 -d:))
-        if [ -z "$name" ];then
+    while IFS= read -r -d '' kernel_module; do
+        firmware=$(modinfo "${kernel_module}" | grep ^firmware)
+        if [ -z "${firmware}" ];then
             continue
         fi
-        for match in /lib/firmware/$name /lib/firmware/*/$name;do
-            if [ -e $match ];then
-                match=$(echo $match | sed -e 's@\/lib\/firmware\/@@')
-                bmdir=$(dirname $match)
-                mkdir -p /lib/firmware-required/$bmdir
-                mv /lib/firmware/$match /lib/firmware-required/$bmdir
+        name=$(echo "$firmware" | cut -f2 -d:)
+        if [ -z "${name}" ];then
+            continue
+        fi
+        for match in /lib/firmware/${name} /lib/firmware/*/${name};do
+            if [ -e "${match}" ];then
+                match=$(echo "${match}" | sed -e 's@\/lib\/firmware\/@@')
+                bmdir=$(dirname "${match}")
+                mkdir -p "/lib/firmware-required/${bmdir}"
+                mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
             else
                 echo "Deleting unwanted firmware: $match"
             fi
         done
-    done
+    done < <(find "${base}" -name "*.ko" -print0)
     rm -rf /lib/firmware
     mv /lib/firmware-required /lib/firmware
 }
@@ -965,30 +763,32 @@ function baseStripModules {
     # which might be provided by the standard kernel
     # ----
     local kernel=/lib/modules
-    local files=$(find $kernel -type f -name "*.ko")
-    local mlist=$(for i in $files;do echo $i;done | sed -e s@.*\/@@g | sort)
+    local files
+    local mlist
     local count=1
     local mosum=1
     local modup
+    files=$(find ${kernel} -type f -name "*.ko")
+    mlist=$(for i in ${files};do echo "$i";done | sed -e "s@.*/@@g" | sort)
     #======================================
     # create sorted module array
     #--------------------------------------
-    for mod in $mlist;do
-        name_list[$count]=$mod
+    for mod in ${mlist};do
+        name_list[$count]=${mod}
         count=$((count + 1))
     done
     count=1
     #======================================
     # find duplicate modules by their name
     #--------------------------------------
-    while [ $count -lt ${#name_list[*]} ];do
-        mod=${name_list[$count]}
+    while [ ${count} -lt ${#name_list[*]} ];do
+        mod=${name_list[${count}]}
         mod_next=${name_list[$((count + 1))]}
-        if [ "$mod" = "$mod_next" ];then
+        if [ "${mod}" = "$mod_next" ];then
             mosum=$((mosum + 1))
         else
-            if [ $mosum -gt 1 ];then
-                modup="$modup $mod"
+            if [ ${mosum} -gt 1 ];then
+                modup="${modup} ${mod}"
             fi
             mosum=1
         fi
@@ -997,16 +797,16 @@ function baseStripModules {
     #======================================
     # sort out duplicates prefer updates
     #--------------------------------------
-    if [ -z "$modup" ];then
+    if [ -z "${modup}" ];then
         echo "baseStripModules: No old versions for update drivers found"
         return
     fi
-    for file in $files;do
+    for file in ${files};do
         for mod in $modup;do
-            if [[ $file =~ $mod ]] && [[ ! $file =~ "updates" ]];then
-                echo "baseStripModules: Update driver found for $mod"
-                echo "baseStripModules: Removing old version: $file"
-                rm -f $file
+            if [[ ${file} =~ ${mod} ]] && [[ ! ${file} =~ "updates" ]];then
+                echo "baseStripModules: Update driver found for ${mod}"
+                echo "baseStripModules: Removing old version: ${file}"
+                rm -f "${file}"
             fi
         done
     done
@@ -1035,9 +835,10 @@ function baseSyncKernelTree {
 # baseKernelDriverMatches
 #--------------------------------------
 function baseKernelDriverMatches {
+    declare kiwi_drivers=${kiwi_drivers}
     module=$1
-    for pattern in $(echo $kiwi_drivers | tr , ' '); do
-        if [[ $module =~ $pattern ]];then
+    for pattern in $(echo "${kiwi_drivers}" | tr , ' '); do
+        if [[ ${module} =~ ${pattern} ]];then
             return 0
         fi
     done
@@ -1049,17 +850,17 @@ function baseKernelDriverMatches {
 #--------------------------------------
 function baseStripKernelModules {
     for kernel_dir in /kernel-tree/*;do
-        kernel_version=$(/usr/bin/basename $kernel_dir)
-        if [ ! -d /kernel-tree/$kernel_version/kernel ]; then
+        kernel_version=$(/usr/bin/basename "${kernel_dir}")
+        if [ ! -d "/kernel-tree/${kernel_version}/kernel" ]; then
             continue
         fi
-        echo "Downsizing kernel modules for $kernel_dir"
+        echo "Downsizing kernel modules for ${kernel_dir}"
         for module in $(
-            find /kernel-tree/$kernel_version/kernel -name "*.ko" | sort
+            find "/kernel-tree/${kernel_version}/kernel" -name "*.ko" | sort
         ); do
-            if ! baseKernelDriverMatches $module; then
-                echo "Deleting unwanted module: $module"
-                rm -f $module
+            if ! baseKernelDriverMatches "${module}"; then
+                echo "Deleting unwanted module: ${module}"
+                rm -f "${module}"
             fi
         done
     done
@@ -1075,26 +876,29 @@ function baseFixupKernelModuleDependencies {
     local module_name
     local module_info
     local dependency
+    local module_files
     for kernel_dir in /kernel-tree/*;do
-        echo "Checking kernel dependencies for $kernel_dir"
-        kernel_version=$(/usr/bin/basename $kernel_dir)
+        echo "Checking kernel dependencies for ${kernel_dir}"
+        kernel_version=$(/usr/bin/basename "${kernel_dir}")
+        module_files=$(find "/kernel-tree/${kernel_version}" -name "*.ko")
 
-        for module in $(find /kernel-tree/$kernel_version -name "*.ko");do
-            module_name=$(/usr/bin/basename $module)
+        for module in ${module_files};do
+            module_name=$(/usr/bin/basename "${module}")
             module_info=$(/sbin/modprobe \
-                --set-version $kernel_version --ignore-install --show-depends \
-                ${module_name%.ko} | sed -ne 's:.*insmod /\?::p'
+                --set-version "${kernel_version}" --ignore-install \
+                --show-depends "${module_name%.ko}" |\
+                sed -ne 's:.*insmod /\?::p'
             )
 
-            for dependency in $module_info; do
-                if [ ! -f /$dependency ]; then
+            for dependency in ${module_info}; do
+                if [ ! -f "/${dependency}" ]; then
                     continue
                 fi
-                dependency_module=$(echo ${dependency/lib\/modules/kernel-tree})
-                if [ ! -f $dependency_module ];then
-                    echo -e "Fix $module:\n  --> needs: $dependency_module"
-                    mkdir -p $(/usr/bin/dirname $dependency_module)
-                    cp -a $dependency $dependency_module
+                dependency_module=${dependency/lib\/modules/kernel-tree}
+                if [ ! -f "${dependency_module}" ];then
+                    echo -e "Fix ${module}:\n  --> needs: ${dependency_module}"
+                    mkdir -p "$(/usr/bin/dirname "${dependency_module}")"
+                    cp -a "${dependency}" "${dependency_module}"
                 fi
             done
         done
@@ -1106,12 +910,13 @@ function baseFixupKernelModuleDependencies {
 #--------------------------------------
 function baseUpdateModuleDependencies {
     local kernel_dir
+    local kernel_version
     for kernel_dir in /lib/modules/*;do
         [ -d "${kernel_dir}" ] || continue
-        local kernel_version=$(/usr/bin/basename ${kernel_dir})
-        if [ -f /boot/System.map-${kernel_version} ];then
+        kernel_version=$(/usr/bin/basename "${kernel_dir}")
+        if [ -f "/boot/System.map-${kernel_version}" ];then
             /sbin/depmod -F \
-                /boot/System.map-${kernel_version} ${kernel_version}
+                "/boot/System.map-${kernel_version}" "${kernel_version}"
         fi
     done
 }
@@ -1128,73 +933,76 @@ function baseCreateCommonKernelFile {
     local kernel_names
     local kernel_name
     local kernel_version
+    local have_kernel_package=0
     for kernel_dir in /lib/modules/*;do
-        if [ ! -d "$kernel_dir" ];then
+        if [ ! -d "${kernel_dir}" ];then
             continue
         fi
         if [ -x /bin/rpm ];then
             # if we have a package database take the kernel name from
             # the package name. This could result in multiple kernel
             # names
-            kernel_names=$(rpm -qf $kernel_dir)
+            if kernel_names=$(rpm -qf "${kernel_dir}"); then
+                have_kernel_package=1
+            fi
         else
             # without a package database take the installed kernel
             # directory name as the kernel name
-            kernel_names=$kernel_dir
+            kernel_names="${kernel_dir}"
         fi
-        for kernel_name in $kernel_names;do
+        for kernel_name in ${kernel_names};do
             #==========================================
             # get kernel VERSION information
             #------------------------------------------
-            if [ ! $? = 0 ];then
+            if [ "${have_kernel_package}" -eq 0 ];then
                 # not in a package...
                 continue
             fi
-            if echo $kernel_name | grep -q "\-kmp\-";then
+            if echo "${kernel_name}" | grep -q "\-kmp\-";then
                 # a kernel module package...
                 continue
             fi
-            if echo $kernel_name | grep -q "\-source\-";then
+            if echo "${kernel_name}" | grep -q "\-source\-";then
                 # a kernel source package...
                 continue
             fi
-            kernel_version=$(/usr/bin/basename $kernel_dir)
+            kernel_version=$(/usr/bin/basename "${kernel_dir}")
             #==========================================
             # create common kernel files, last wins !
             #------------------------------------------
             pushd /boot
-            if [ -f uImage-$kernel_version ];then
+            if [ -f "uImage-${kernel_version}" ];then
                 # dedicated to kernels on arm
-                mv uImage-$kernel_version vmlinuz
-            elif [ -f Image-$kernel_version ];then
+                mv "uImage-${kernel_version}" vmlinuz
+            elif [ -f "Image-${kernel_version}" ];then
                 # dedicated to kernels on arm
-                mv Image-$kernel_version vmlinuz
-            elif [ -f zImage-$kernel_version ];then
+                mv "Image-${kernel_version}" vmlinuz
+            elif [ -f "zImage-${kernel_version}" ];then
                 # dedicated to kernels on arm
-                mv zImage-$kernel_version vmlinuz
-            elif [ -f vmlinuz-${kernel_version}.gz ];then
+                mv "zImage-${kernel_version}" vmlinuz
+            elif [ -f "vmlinuz-${kernel_version}.gz" ];then
                 # dedicated to kernels on x86
-                mv vmlinuz-$kernel_version vmlinuz
-            elif [ -f vmlinuz-${kernel_version}.el5 ];then
+                mv "vmlinuz-${kernel_version}" vmlinuz
+            elif [ -f "vmlinuz-${kernel_version}.el5" ];then
                 # dedicated to kernels on ppc
-                mv vmlinux-${kernel_version}.el5 vmlinuz
-            elif [ -f vmlinux-$kernel_version ];then
+                mv "vmlinux-${kernel_version}.el5" vmlinuz
+            elif [ -f "vmlinux-${kernel_version}" ];then
                 # dedicated to kernels on ppc
-                mv vmlinux-$kernel_version vmlinux
-            elif [ -f image-$kernel_version ];then
+                mv "vmlinux-${kernel_version}" vmlinux
+            elif [ -f "image-${kernel_version}" ];then
                 # dedicated to kernels on s390
-                mv image-$kernel_version vmlinuz
-            elif [ -f vmlinuz-$kernel_version ];then
+                mv "image-${kernel_version}" vmlinuz
+            elif [ -f "vmlinuz-${kernel_version}" ];then
                 # dedicated to xz kernels
-                mv vmlinuz-$kernel_version vmlinuz
+                mv "vmlinuz-${kernel_version}" vmlinuz
             elif [ -f vmlinuz ];then
                 # nothing to map, vmlinuz already there
                 :
             else
                 echo "Failed to find a mapping kernel"
             fi
-            if [ -f vmlinux-${kernel_version}.gz ];then
-                mv vmlinux-${kernel_version}.gz vmlinux.gz
+            if [ -f "vmlinux-${kernel_version}.gz" ];then
+                mv "vmlinux-${kernel_version}.gz" vmlinux.gz
             fi
             popd
         done
@@ -1231,13 +1039,15 @@ function baseStripKernel {
     #    for which a kernel driver is still present in the
     #    system
     # ----
+    declare kiwi_initrd_system=${kiwi_initrd_system}
+    declare kiwi_strip_delete=${kiwi_strip_delete}
     baseCreateCommonKernelFile
-    if [ "$kiwi_initrd_system" = "dracut" ]; then
+    if [ "${kiwi_initrd_system}" = "dracut" ]; then
         echo "dracut initrd system requested, kernel strip skipped"
     else
-        for delete in $kiwi_strip_delete;do
-            echo "Removing file/directory: $delete"
-            rm -rf $delete
+        for delete in ${kiwi_strip_delete};do
+            echo "Removing file/directory: ${delete}"
+            rm -rf "${delete}"
         done
         baseCreateKernelTree
         baseStripKernelModules
@@ -1293,9 +1103,9 @@ function suseSetupProduct {
         elif [ -f "SUSE_${prod}.prod" ];then
             ln -sf "SUSE_${prod}.prod" baseproduct
         else
-            prod=$(ls -1t *.prod 2>/dev/null | tail -n 1)
-            if [ -f "$prod" ];then
-                ln -sf "$prod" baseproduct
+            prod=$(find . -maxdepth 1 -name "*.prod" 2>/dev/null | tail -n 1)
+            if [ -f "${prod}" ];then
+                ln -sf "${prod}" baseproduct
             fi
         fi
         popd
@@ -1322,16 +1132,16 @@ function baseSetRunlevel {
     local systemd_default=/etc/systemd/system/default.target
     local systemd_consoles=$systemd_system/multi-user.target
     local systemd_graphics=$systemd_system/graphical.target
-    case "$target" in
+    case "${target}" in
         1|2|3|5)
             # /.../
             # Given target is a number, map the number to a service
             # We only allow console or graphics mode
             # ----
-            if [ $target -lt 5 ];then
-                ln -sf $systemd_consoles $systemd_default
+            if [ "${target}" -lt 5 ];then
+                ln -sf "${systemd_consoles}" "${systemd_default}"
             else
-                ln -sf $systemd_graphics $systemd_default
+                ln -sf "${systemd_graphics}" "${systemd_default}"
             fi
         ;;
         *)
@@ -1339,10 +1149,10 @@ function baseSetRunlevel {
             # Given target is a raw name; use this as systemd target
             # name and setup this target name as the default target
             # ----
-            if [ -e $systemd_system/$target ]; then
-                ln -sf $systemd_system/$target $systemd_default
+            if [ -e "${systemd_system}/${target}" ]; then
+                ln -sf "${systemd_system}/${target}" "${systemd_default}"
             else
-                echo "Can't find systemd target: $target"
+                echo "Can't find systemd target: ${target}"
             fi
         ;;
     esac
@@ -1356,10 +1166,12 @@ function suseRemovePackagesMarkedForDeletion {
     # This function removes all packages which are
     # added into the <packages type="delete"> section
     # ----
-    local packs=$(baseGetPackagesForDeletion)
-    local final=$(rpm -q $packs | grep -v 'is not installed')
-    echo "suseRemovePackagesMarkedForDeletion: $final"
-    Rpm -e --nodeps --noscripts $final
+    local packs
+    local final
+    packs=$(baseGetPackagesForDeletion)
+    final=$(rpm -q "${packs}" | grep -v "is not installed")
+    echo "suseRemovePackagesMarkedForDeletion: ${final}"
+    Rpm -e --nodeps --noscripts "${final}"
 }
 
 #======================================
@@ -1376,23 +1188,12 @@ function suseRemoveYaST {
 }
 
 #======================================
-# baseDisableCtrlAltDel
+# baseSetupBuildDay
 #--------------------------------------
-function baseDisableCtrlAltDel {
-    # /.../
-    # This function disables the Ctrl-Alt-Del key sequence
-    # ---
-    sed -i "s/ca::ctrlaltdel/#ca::ctrlaltdel/" /etc/inittab
-}
-
-#======================================
-# baseSetupBootLoaderCompatLinks
-#--------------------------------------
-function baseSetupBootLoaderCompatLinks {
-    if [ ! -d /usr/lib/grub ];then
-        mkdir -p /usr/lib/grub
-        cp -l /usr/share/grub/*/* /usr/lib/grub
-    fi
+function baseSetupBuildDay {
+    local buildDay
+    buildDay="$(LC_ALL=C date -u '+%Y%m%d')"
+    echo "build_day=${buildDay}" > /build_day
 }
 
 #======================================
@@ -1402,71 +1203,16 @@ function baseQuoteFile {
     local file=$1
     local conf=$file.quoted
     # create clean input, no empty lines and comments
-    cat $file | grep -v '^$' | grep -v '^[ \t]*#' > $conf
+    grep -v '^$' "${file}" | grep -v '^[ \t]*#' > "${conf}"
     # remove start/stop quoting from values
-    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=[\"']\(.*\)[\"']#\1=\2#" $conf
+    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=[\"']\(.*\)[\"']#\1=\2#" "${conf}"
     # remove backslash quotes if any
-    sed -i -e s"#\\\\\(.\)#\1#g" $conf
+    sed -i -e s"#\\\\\(.\)#\1#g" "${conf}"
     # quote simple quotation marks
-    sed -i -e s"#'#'\\\\''#g" $conf
+    sed -i -e s"#'\+#'\\\\''#g" "${conf}"
     # add '...' quoting to values
-    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=\(.*\)#\1='\2'#" $conf
-    mv $conf $file
-}
-
-#======================================
-# baseSetupBuildDay
-#--------------------------------------
-function baseSetupBuildDay {
-    local buildDay="$(LC_ALL=C date -u '+%Y%m%d')"
-    echo "build_day=$buildDay" > /build_day
-}
-
-#======================================
-# importDatabases
-#--------------------------------------
-function importDatabases {
-    # /.../
-    # This function allows the import of databases
-    # whose export is stored in /var/cache/dbs/
-    # ----
-    local dir="/var/cache/dbs"
-    local db_type=""
-    if [ ! -d $dir ];then
-        return
-    fi
-    for file in $dir/*; do
-        if [ -f $file ]; then
-            db_type=$(basename "$file" | cut -d. -f1)
-        else
-            echo "No database found!"
-            break
-        fi
-        echo "Trying to import $db_type database..."
-        case "$db_type" in
-        'mysql')
-            # bring up db
-            mysql_install_db --user=mysql
-            mysqld_safe --nowatch --user=mysql --skip-networking
-            local i
-            for((i=0; i<150; i++)); do
-                sleep 0.2
-                mysqladmin ping 2>/dev/null && break
-            done
-            # import content
-            if zcat $file | mysql -u root; then
-                echo "Import of $db_type successfull!"
-                rm -f $file
-            else
-                echo "Import of $db_type failed!"
-            fi
-            mysqladmin shutdown
-        ;;
-        *)
-            echo "Ignoring unknown database type $db_type!"
-        ;;
-        esac
-    done
+    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=\(.*\)#\1='\2'#" "${conf}"
+    mv "${conf}" "${file}"
 }
 
 # vim: set noexpandtab:
