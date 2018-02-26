@@ -103,14 +103,17 @@ class Path(object):
         ]
         for path_index in reversed(range(0, len(path_elements))):
             sub_path = os.sep.join(path_elements[0:path_index])
-            if path_elements[path_index - 1] in protected_elements:
-                log.warning(
-                    'remove_hierarchy: path {0} is protected'.format(sub_path)
+            if sub_path:
+                if path_elements[path_index - 1] in protected_elements:
+                    log.warning(
+                        'remove_hierarchy: path {0} is protected'.format(
+                            sub_path
+                        )
+                    )
+                    return
+                Command.run(
+                    ['rmdir', '--ignore-fail-on-non-empty', sub_path]
                 )
-                return
-            Command.run(
-                ['rmdir', '--ignore-fail-on-non-empty', sub_path]
-            )
 
     @classmethod
     def which(
