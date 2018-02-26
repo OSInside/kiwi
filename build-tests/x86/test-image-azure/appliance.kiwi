@@ -33,9 +33,8 @@
         <source path="obs://openSUSE:Factory/snapshot"/>
     </repository>
     <packages type="image">
-        <package name="patterns-openSUSE-minimal_base"/>
+        <package name="patterns-base-minimal_base"/>
         <package name="blog"/>
-        <package name="dhcp-client"/>
         <package name="fontconfig"/>
         <package name="fonts-config"/>
         <package name="grub2"/>
@@ -100,7 +99,6 @@
         <package name="procinfo"/>
         <package name="quota"/>
         <package name="release-notes-openSUSE"/>
-        <package name="rsh"/>
         <package name="rsyslog"/>
         <package name="screen"/>
         <package name="strace"/>
@@ -111,7 +109,6 @@
         <package name="tcsh"/>
         <package name="telnet"/>
         <package name="terminfo"/>
-        <package name="vlock"/>
         <package name="wget"/>
         <package name="x86info"/>
         <package name="xfsprogs"/>
