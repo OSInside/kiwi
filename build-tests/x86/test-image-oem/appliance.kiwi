@@ -53,6 +53,7 @@
         <package name="iproute2"/>
         <package name="less"/>
         <package name="bash-completion"/>
+        <package name="bind-utils"/>
         <package name="dhcp-client"/>
         <package name="which"/>
         <package name="kernel-default"/>
