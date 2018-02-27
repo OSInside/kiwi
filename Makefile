@@ -12,7 +12,8 @@ version := $(shell \
 
 .PHONY: test
 test:
-	tox -e unit_py3
+	tox -e unit_py3_4
+	tox -e unit_py3_6
 
 flake:
 	tox -e check
