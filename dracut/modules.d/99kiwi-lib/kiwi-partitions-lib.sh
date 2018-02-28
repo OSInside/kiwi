@@ -267,10 +267,26 @@ function get_free_disk_bytes {
     local rest_bytes
     rest_bytes=${disk_bytes}
     local part_bytes=0
+    local part_count=0
+    local part_uuids
     for part in $(
         lsblk -p -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
     );do
-        part_bytes=$((part_bytes + $(blockdev --getsize64 "${part}")))
+        current_part_uuid=$(get_partition_uuid "${part}")
+        for part_uuid in ${part_uuids[*]};do
+            if [ "${current_part_uuid}" = "${part_uuid}" ];then
+                # this partition uuid was already handled. The device
+                # node is pointing to the same physical device and
+                # should only be taken into account once
+                unset part
+                break
+            fi
+        done
+        if [ ! -z "${part}" ]; then
+            part_bytes=$((part_bytes + $(blockdev --getsize64 "${part}")))
+            part_uuids[${part_count}]=${current_part_uuid}
+            part_count=$((part_count + 1))
+        fi
     done
     rest_bytes=$((rest_bytes - part_bytes))
     echo ${rest_bytes}
@@ -278,6 +294,10 @@ function get_free_disk_bytes {
 
 function get_partition_table_type {
     blkid -s PTTYPE -o value "$1"
+}
+
+function get_partition_uuid {
+    blkid -s PARTUUID -o value "$1"
 }
 
 function relocate_gpt_at_end_of_disk {
