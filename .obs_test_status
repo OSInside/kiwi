@@ -8,30 +8,24 @@ function kiwi_build_version {
     echo -n "$1" | grep python3-kiwi- | head -n 1 | cut -f 3 -d -
 }
 
-function have_build_result {
-    echo -n "$1" | grep -q 'extracting built packages'
-}
-
-function have_failed_build_result {
-    echo -n "$1" | grep -q 'failed "build appliance.kiwi"'
-}
-
 kiwi_local_version=$(kiwi_version)
 
-while read test; do
-    status=$(osc rbuildlog --last $test)
-    kiwi_obs_version=$(kiwi_build_version "$status")
-    if [ "$kiwi_obs_version" = "$kiwi_local_version" ];then
-        if have_build_result "$status"; then
-            result="success"
-        elif have_failed_build_result "$status"; then
-            result="failed"
+while read -r project arch; do
+    echo $project
+    while read -r result; do
+        test -z "${result}" && continue
+        package=$(echo "${result}" | cut -f2 -d \")
+        build_log=$(osc rbuildlog --last ${project} ${package} images ${arch})
+        kiwi_obs_version=$(kiwi_build_version "${build_log}")
+        if [ "$kiwi_obs_version" = "$kiwi_local_version" ];then
+            result="${result} kiwi=\"${kiwi_obs_version}\""
         else
-            result="no_build_results"
+            result="${result} kiwi=\"want: ${kiwi_local_version} "
+            result="${result} got: ${kiwi_obs_version}\""
         fi
-    else
-        result="pending_build: want: $kiwi_local_version got: $kiwi_obs_version"
-    fi
-    echo "$test:"
-    echo "--> $result"
+        echo "  ${result}"
+    done < <(
+        osc results "${project}" --xml |\
+            grep status | cut -f2 -d \< | cut -f1 -d \/
+    )
 done < .obs_test
