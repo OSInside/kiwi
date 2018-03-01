@@ -29,6 +29,7 @@ from collections import namedtuple
 from builtins import bytes
 
 # project
+from .utils.command_capabilities import CommandCapabilities
 from .logger import log
 from .path import Path
 from .command import Command
@@ -272,6 +273,39 @@ class Iso(object):
                 )
             log.debug('Fixed iso catalog contents')
 
+    @classmethod
+    def get_iso_creation_tool(self):
+        """
+        There are tools by J.Schilling and tools from the community
+        Depending on what is installed a decision needs to be made
+        """
+        iso_creation_tools = ['mkisofs', 'genisoimage']
+        for tool in iso_creation_tools:
+            tool_found = Path.which(tool)
+            if tool_found:
+                return tool_found
+
+        raise KiwiIsoToolError(
+            'No iso creation tool found, searched for: %s' %
+            iso_creation_tools
+        )
+
+    @classmethod
+    def get_isoinfo_tool(self):
+        """
+        There are tools by J.Schilling and tools from the community
+        Depending on what is installed a decision needs to be done
+        """
+        alternative_lookup_paths = ['/usr/lib/genisoimage']
+        isoinfo = Path.which('isoinfo', alternative_lookup_paths)
+        if isoinfo:
+            return isoinfo
+
+        raise KiwiIsoToolError(
+            'No isoinfo tool found, searched in PATH: %s and %s' %
+            (os.environ.get('PATH'), alternative_lookup_paths)
+        )
+
     def init_iso_creation_parameters(self, custom_args=None):
         """
         Create a set of standard parameters for the main isolinux loader
@@ -323,10 +357,14 @@ class Iso(object):
         loader_file = self.boot_path + '/efi'
         if os.path.exists(os.sep.join([self.source_dir, loader_file])):
             self.iso_loaders += [
-                '-eltorito-alt-boot', '-eltorito-platform', 'efi',
-                '-b', loader_file,
+                '-eltorito-alt-boot', '-b', loader_file,
                 '-no-emul-boot', '-joliet-long'
             ]
+            iso_tool = self.get_iso_creation_tool()
+            if iso_tool and CommandCapabilities.has_option_in_help(
+                iso_tool, '-eltorito-platform', raise_on_error=False
+            ):
+                self.iso_loaders += ['-eltorito-platform', 'efi']
             loader_file_512_byte_blocks = os.path.getsize(
                 os.sep.join([self.source_dir, loader_file])
             ) / 512
@@ -407,7 +445,7 @@ class Iso(object):
             'listing_type', ['name', 'filetype', 'start']
         )
         listing = Command.run(
-            [self._find_isoinfo_tool(), '-R', '-l', '-i', isofile]
+            [self.get_isoinfo_tool(), '-R', '-l', '-i', isofile]
         )
         listing_result = {}
         for line in listing.output.split('\n'):
@@ -458,20 +496,6 @@ class Iso(object):
             Command.run(
                 ['bash', '-c', bash_command]
             )
-
-    def _find_isoinfo_tool(self):
-        """
-        There are tools by J.Schilling and tools from the community
-        Depending on what is installed a decision needs to be done
-        """
-        alternative_lookup_paths = ['/usr/lib/genisoimage']
-        isoinfo = Path.which('isoinfo', alternative_lookup_paths)
-        if isoinfo:
-            return isoinfo
-        raise KiwiIsoToolError(
-            'No isoinfo tool found, searched in PATH: %s and %s' %
-            (os.environ.get('PATH'), alternative_lookup_paths)
-        )
 
     def _create_sortfile(self):
         catalog_file = \
