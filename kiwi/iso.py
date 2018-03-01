@@ -323,7 +323,8 @@ class Iso(object):
         loader_file = self.boot_path + '/efi'
         if os.path.exists(os.sep.join([self.source_dir, loader_file])):
             self.iso_loaders += [
-                '-eltorito-alt-boot', '-b', loader_file,
+                '-eltorito-alt-boot', '-eltorito-platform', 'efi',
+                '-b', loader_file,
                 '-no-emul-boot', '-joliet-long'
             ]
             loader_file_512_byte_blocks = os.path.getsize(
