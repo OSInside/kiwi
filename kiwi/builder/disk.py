@@ -650,7 +650,7 @@ class DiskBuilder(object):
             'dracut_rescue_image="no"'
         ]
         dracut_modules = []
-        dracut_modules_omit = ['kiwi-live', 'kiwi-dump']
+        dracut_modules_omit = ['kiwi-live', 'kiwi-dump', 'multipath']
         if self.root_filesystem_is_overlay:
             dracut_modules.append('kiwi-overlay')
         else:
