@@ -31,3 +31,7 @@ class TestPartitionerBase(object):
     @raises(NotImplementedError)
     def test_set_mbr(self):
         self.partitioner.set_mbr()
+
+    @raises(NotImplementedError)
+    def test_resize_table(self):
+        self.partitioner.resize_table()

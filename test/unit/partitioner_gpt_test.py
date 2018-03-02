@@ -77,3 +77,10 @@ class TestPartitionerGpt(object):
             call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0']),
             call(['sgdisk', '-t', '4:8300', '/dev/loop0'])
         ]
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    def test_resize_table(self, mock_command):
+        self.partitioner.resize_table(42)
+        mock_command.assert_called_once_with(
+            ['sgdisk', '--resize-table', '42', '/dev/loop0']
+        )

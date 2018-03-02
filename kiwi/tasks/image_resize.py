@@ -46,6 +46,9 @@ options:
 import os
 
 # project
+from kiwi.firmware import FirmWare
+from kiwi.storage.loop_device import LoopDevice
+from kiwi.partitioner import Partitioner
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.logger import log
@@ -107,10 +110,23 @@ class ImageResizeTask(CliTask):
 
         new_disk_size = StringToSize.to_bytes(self.command_args['--size'])
 
+        # resize raw disk
         log.info(
             'Resizing raw disk to {0} bytes'.format(new_disk_size)
         )
         resize_result = image_format.resize_raw_disk(new_disk_size)
+
+        # resize raw disk partition table
+        firmware = FirmWare(self.xml_state)
+        loop_provider = LoopDevice(image_format.diskname)
+        loop_provider.create(overwrite=False)
+        partitioner = Partitioner(
+            firmware.get_partition_table_type(), loop_provider
+        )
+        partitioner.resize_table()
+        del loop_provider
+
+        # resize disk format from resized raw disk
         if disk_format and resize_result is True:
             log.info(
                 'Creating {0} disk format from resized raw disk'.format(

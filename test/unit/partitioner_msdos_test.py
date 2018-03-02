@@ -106,3 +106,6 @@ class TestPartitionerMsDos(object):
     def test_set_flag_ignored(self, mock_warn):
         self.partitioner.set_flag(1, 't.csm')
         assert mock_warn.called
+
+    def test_resize_table(self):
+        self.partitioner.resize_table()

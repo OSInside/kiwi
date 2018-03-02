@@ -120,3 +120,11 @@ class PartitionerMsDos(PartitionerBase):
                 )
         else:
             log.warning('Flag %s ignored on msdos', flag_name)
+
+    def resize_table(self, entries=None):
+        """
+        Resize partition table
+
+        Nothing to be done here for msdos table
+        """
+        pass
