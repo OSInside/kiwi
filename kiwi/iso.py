@@ -356,15 +356,15 @@ class Iso(object):
         """
         loader_file = self.boot_path + '/efi'
         if os.path.exists(os.sep.join([self.source_dir, loader_file])):
-            self.iso_loaders += [
-                '-eltorito-alt-boot', '-b', loader_file,
-                '-no-emul-boot', '-joliet-long'
-            ]
+            self.iso_loaders.append('-eltorito-alt-boot')
             iso_tool = self.get_iso_creation_tool()
             if iso_tool and CommandCapabilities.has_option_in_help(
                 iso_tool, '-eltorito-platform', raise_on_error=False
             ):
                 self.iso_loaders += ['-eltorito-platform', 'efi']
+            self.iso_loaders += [
+                '-b', loader_file, '-no-emul-boot', '-joliet-long'
+            ]
             loader_file_512_byte_blocks = os.path.getsize(
                 os.sep.join([self.source_dir, loader_file])
             ) / 512
