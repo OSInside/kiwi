@@ -82,13 +82,15 @@ class TestDiskFormatOva(object):
             )
         ]
 
+    @patch('kiwi.storage.subformat.ova.Path.which')
     @patch('kiwi.storage.subformat.ova.Command.run')
     @patch('os.stat')
     @patch('os.chmod')
     @patch_open
     def test_create_image_format(
-        self, mock_open, mock_chmod, mock_stat, mock_command
+        self, mock_open, mock_chmod, mock_stat, mock_command, mock_which
     ):
+        mock_which.return_value = 'ovftool'
         qemu_img_result = mock.Mock()
         ovftool_help_result = mock.Mock()
         ovftool_help_result.output = """This is a new ovftool
@@ -114,25 +116,8 @@ class TestDiskFormatOva(object):
             'target_dir/some-disk-image.x86_64-1.2.3.ova'
         ])
 
-    @patch('kiwi.storage.subformat.ova.Command.run')
-    @patch_open
+    @patch('kiwi.storage.subformat.ova.Path.which')
     @raises(KiwiCommandNotFound)
-    def test_create_image_format_no_ovftool(
-        self, mock_open, mock_command
-    ):
-        qemu_img_result = mock.Mock()
-        ovftool_help_result = mock.Mock()
-        ovftool_help_result.output = ""
-
-        command_results = [
-            ovftool_help_result, qemu_img_result
-        ]
-
-        def side_effect(arg):
-            if len(command_results) == 0:
-                raise KiwiCommandNotFound('ovftool not found')
-            return command_results.pop()
-
-        mock_command.side_effect = side_effect
-        mock_open.return_value = self.context_manager_mock
+    def test_create_image_format_no_ovftool(self, mock_which):
+        mock_which.return_value = None
         self.disk_format.create_image_format()

@@ -17,12 +17,13 @@
 #
 import os
 import stat
+from textwrap import dedent
 
 # project
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.path import Path
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
@@ -55,26 +56,42 @@ class DiskFormatOva(DiskFormatVmdk):
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
-        # Creates the vmdk disk image and vmx config
+        # Check for required ovftool
+        ovftool = Path.which(filename='ovftool', access_mode=os.X_OK)
+        if not ovftool:
+            tool_not_found_message = dedent('''\n
+                Required tool {0} not found in PATH on the build host
+
+                Building OVA images requires VMware's {0} tool which
+                can be installed from the following location
+
+                https://www.vmware.com/support/developer/ovf
+            ''')
+            raise KiwiCommandNotFound(
+                tool_not_found_message.format(ovftool)
+            )
+
+        # Create the vmdk disk image and vmx config
         super(DiskFormatOva, self).create_image_format()
-        # Converts to ova using ovftool
+
+        # Convert to ova using ovftool
         vmx = self.get_target_file_path_for_format('vmx')
         ova = self.get_target_file_path_for_format('ova')
         try:
             os.unlink(ova)
         except OSError:
             pass
-        ovftool_cmd = ['ovftool']
+        ovftool_options = []
         if CommandCapabilities.has_option_in_help(
-                'ovftool', '--shaAlgorithm', raise_on_error=False):
-            ovftool_cmd.append('--shaAlgorithm=SHA1')
-        ovftool_cmd.extend([vmx, ova])
-        try:
-            Command.run(ovftool_cmd)
-        except KiwiCommandNotFound as e:
-            log.info('Building OVA images requires VMware\'s ovftool, get it from https://www.vmware.com/support/developer/ovf/')
-            raise e
-        # ovftool ignores the umask and creates files with 0600 for some reason
+            ovftool, '--shaAlgorithm', raise_on_error=False
+        ):
+            ovftool_options.append('--shaAlgorithm=SHA1')
+        Command.run(
+            [ovftool] + ovftool_options + [vmx, ova]
+        )
+        # ovftool ignores the umask and creates files with 0600
+        # apply file permission bits set in the vmx file to the
+        # ova file
         st = os.stat(vmx)
         os.chmod(ova, stat.S_IMODE(st.st_mode))
 
