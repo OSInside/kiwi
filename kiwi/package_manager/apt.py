@@ -54,6 +54,7 @@ class PackageManagerApt(PackageManagerBase):
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
+        self.deboostrap_minbase = True
 
         runtime_config = self.repository.runtime_config()
         self.apt_get_args = runtime_config['apt_get_args']
@@ -139,12 +140,13 @@ class PackageManagerApt(PackageManagerBase):
                     'provided key will only be used inside the chroot '
                     'environment'
                 )
-            Command.run(
-                [
-                    'debootstrap', '--no-check-gpg', self.distribution,
-                    bootstrap_dir, self.distribution_path
-                ], self.command_env
-            )
+            cmd = ['debootstrap', '--no-check-gpg']
+            if self.deboostrap_minbase:
+                cmd.append('--variant=minbase')
+            cmd.extend([
+                self.distribution, bootstrap_dir, self.distribution_path
+            ])
+            Command.run(cmd, self.command_env)
             data = DataSync(
                 bootstrap_dir + '/', self.root_dir
             )
@@ -223,6 +225,7 @@ class PackageManagerApt(PackageManagerBase):
         """
         if '--no-install-recommends' not in self.custom_args:
             self.custom_args.append('--no-install-recommends')
+        self.deboostrap_minbase = True
 
     def process_plus_recommended(self):
         """
@@ -230,6 +233,7 @@ class PackageManagerApt(PackageManagerBase):
         """
         if '--no-install-recommends' in self.custom_args:
             self.custom_args.remove('--no-install-recommends')
+        self.deboostrap_minbase = False
 
     def match_package_installed(self, package_name, apt_get_output):
         """
