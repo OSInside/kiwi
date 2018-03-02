@@ -145,8 +145,9 @@ class TestIso(object):
         mock_exists.return_value = True
         self.iso.add_efi_loader_parameters()
         assert self.iso.iso_loaders == [
-            '-eltorito-alt-boot', '-b', 'boot/x86_64/efi',
-            '-no-emul-boot', '-joliet-long', '-eltorito-platform', 'efi',
+            '-eltorito-alt-boot', '-eltorito-platform', 'efi',
+            '-b', 'boot/x86_64/efi',
+            '-no-emul-boot', '-joliet-long',
             '-boot-load-size', '8'
         ]
 
