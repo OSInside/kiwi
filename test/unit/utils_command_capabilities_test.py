@@ -11,11 +11,13 @@ from kiwi.exceptions import KiwiCommandCapabilitiesError
 class TestCommandCapabilities(object):
     @patch('kiwi.command.Command.run')
     def test_has_option_in_help(self, mock_run):
-        command_type = namedtuple('command', ['output'])
+        command_type = namedtuple('command', ['output', 'error'])
         mock_run.return_value = command_type(
-            output="Dummy line\n\t--some-flag\n\t--some-other-flag"
+            output="Dummy line\n\t--some-flag\n\t--some-other-flag",
+            error="Dummy line\n\t--error-flag\n\t--some-other-flag"
         )
         assert CommandCapabilities.has_option_in_help('command', '--some-flag')
+        assert CommandCapabilities.has_option_in_help('command', '--error-flag')
         assert CommandCapabilities.has_option_in_help(
             'command', '--some-flag', help_flags=['subcommand', '-h']
         )
@@ -27,6 +29,7 @@ class TestCommandCapabilities(object):
             'command', '--non-existing-flag'
         )
         mock_run.assert_has_calls([
+            call(['command', '--help']),
             call(['command', '--help']),
             call(['command', 'subcommand', '-h']),
             call(['chroot', 'root_dir', 'command', 'subcommand', '-h']),

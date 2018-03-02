@@ -55,6 +55,9 @@ class CommandCapabilities(object):
             for line in command.output.splitlines():
                 if flag in line:
                     return True
+            for line in command.error.splitlines():
+                if flag in line:
+                    return True
         except Exception:
             message = 'Could not parse {} output'.format(call)
             if raise_on_error:
