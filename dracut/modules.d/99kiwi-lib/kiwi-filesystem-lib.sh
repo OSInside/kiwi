@@ -86,11 +86,12 @@ function create_swap {
     # hook to update the system fstab
     # """
     local device=$1
+    local swap_label="SWAP"
     test -n "${device}" || return
-    if ! mkswap "${device}" 1>&2;then
+    if ! mkswap "${device}" --label "${swap_label}" 1>&2;then
         die "Failed to create swap signature"
     fi
-    echo "${device} swap swap defaults 0 0" > /fstab.swap
+    echo "LABEL=${swap_label} swap swap defaults 0 0" > /fstab.swap
 }
 
 function merge_swap_to_fstab {
