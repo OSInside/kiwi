@@ -574,6 +574,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/efi/EFI/BOOT/earlyboot.cfg', 'w'
         )
         assert file_mock.write.call_args_list == [
+            call('set btrfs_relative_path="yes"\n'),
             call('search --fs-uuid --set=root 0815\n'),
             call('set prefix=($root)//grub2\n')
         ]
@@ -791,6 +792,7 @@ class TestBootLoaderConfigGrub2(object):
             call('root_dir//EFI/BOOT/earlyboot.cfg', 'w')
         ]
         assert file_mock.write.call_args_list == [
+            call('set btrfs_relative_path="yes"\n'),
             call('search --file --set=root /boot/0xffffffff\n'),
             call('set prefix=($root)/boot/grub2\n')
         ]
