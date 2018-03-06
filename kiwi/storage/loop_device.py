@@ -72,14 +72,19 @@ class LoopDevice(DeviceProvider):
         """
         return True
 
-    def create(self):
+    def create(self, overwrite=True):
         """
-        Setup a loop device of the specified size and blocksize
+        Setup a loop device of the blocksize given in the constructor
+        The file to loop is created with the size specified in the
+        constructor unless an existing one should not be overwritten
+
+        :param bool overwrite: overwrite existing file to loop
         """
-        qemu_img_size = format(self.filesize_mbytes) + 'M'
-        Command.run(
-            ['qemu-img', 'create', self.filename, qemu_img_size]
-        )
+        if overwrite:
+            qemu_img_size = format(self.filesize_mbytes) + 'M'
+            Command.run(
+                ['qemu-img', 'create', self.filename, qemu_img_size]
+            )
         loop_options = []
         if self.blocksize_bytes and self.blocksize_bytes != 512:
             loop_options.append('--logical-blocksize')

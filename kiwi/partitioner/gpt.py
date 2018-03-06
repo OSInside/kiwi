@@ -136,3 +136,16 @@ class PartitionerGpt(PartitionerBase):
         if efi_partition_number:
             # turn former EFI partition into standard linux partition
             self.set_flag(efi_partition_number, 't.linux')
+
+    def resize_table(self, entries=128):
+        """
+        Resize partition table
+
+        :param int entries: default entries
+        """
+        Command.run(
+            [
+                'sgdisk', '--resize-table', '{0}'.format(entries),
+                self.disk_device
+            ]
+        )

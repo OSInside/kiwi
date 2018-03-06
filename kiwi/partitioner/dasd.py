@@ -76,3 +76,11 @@ class PartitionerDasd(PartitionerBase):
             # are not able to detect real errors with the fdasd operation at
             # that point.
             log.debug('potential fdasd errors were ignored')
+
+    def resize_table(self, entries=None):
+        """
+        Resize partition table
+
+        Nothing to be done here for DASD devices
+        """
+        pass

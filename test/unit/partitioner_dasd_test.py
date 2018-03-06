@@ -65,3 +65,6 @@ class TestPartitionerDasd(object):
         self.file_mock.write.assert_called_once_with(
             'n\np\n\n\nw\nq\n'
         )
+
+    def test_resize_table(self):
+        self.partitioner.resize_table()

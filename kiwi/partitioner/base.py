@@ -98,3 +98,11 @@ class PartitionerBase(object):
         Implementation in specialized partitioner class
         """
         raise NotImplementedError
+
+    def resize_table(self, entries=None):
+        """
+        Resize partition table
+
+        :param int entries: unused
+        """
+        raise NotImplementedError
