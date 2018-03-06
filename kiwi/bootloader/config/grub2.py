@@ -652,21 +652,31 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
             early_boot.write(
-                'search --fs-uuid --set=root %s\n' % uuid
+                'set btrfs_relative_path="yes"{0}'.format(os.linesep)
             )
             early_boot.write(
-                'set prefix=($root)%s/%s\n' % (
-                    self.get_boot_path(), self.boot_directory_name
+                'search --fs-uuid --set=root {0}{1}'.format(uuid, os.linesep)
+            )
+            early_boot.write(
+                'set prefix=($root){0}/{1}{2}'.format(
+                    self.get_boot_path(), self.boot_directory_name, os.linesep
                 )
             )
 
     def _create_early_boot_script_for_mbrid_search(self, filename, mbrid):
         with open(filename, 'w') as early_boot:
             early_boot.write(
-                'search --file --set=root /boot/%s\n' % mbrid.get_id()
+                'set btrfs_relative_path="yes"{0}'.format(os.linesep)
             )
             early_boot.write(
-                'set prefix=($root)/boot/%s\n' % self.boot_directory_name
+                'search --file --set=root /boot/{0}{1}'.format(
+                    mbrid.get_id(), os.linesep
+                )
+            )
+            early_boot.write(
+                'set prefix=($root)/boot/{0}{1}'.format(
+                    self.boot_directory_name, os.linesep
+                )
             )
 
     def _get_grub2_boot_path(self):
