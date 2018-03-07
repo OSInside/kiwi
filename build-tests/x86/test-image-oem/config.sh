@@ -45,6 +45,8 @@ suseImportBuildKey
 # Activate services
 #--------------------------------------
 suseInsertService sshd
+suseInsertService grub_config
+suseInsertService dracut_hostonly
 
 #======================================
 # Setup default target, multi-user

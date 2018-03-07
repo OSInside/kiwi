@@ -1,0 +1,11 @@
+[Unit]
+Description=Rebuild grub config from distro toolkit
+ConditionPathExists=/.kiwi_grub_config.trigger
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'grub2-mkconfig -o /boot/grub2/grub.cfg'
+ExecStartPost=/bin/bash -c 'rm -f /.kiwi_grub_config.trigger'
+
+[Install]
+WantedBy=multi-user.target
