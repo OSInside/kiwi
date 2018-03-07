@@ -1,8 +1,0 @@
-This is the Lime-JeOS SLE12 SuSE Linux System.
-To upgrade your system call:
-
-        zypper addrepo <SLE-Source> suse-SLE12
-        zypper refresh
-        zypper install -t product <product-name>
-
-Have a lot of fun...
