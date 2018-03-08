@@ -105,6 +105,13 @@ class DiskBuilder(object):
         self.bootloader = xml_state.build_type.get_bootloader()
         self.initrd_system = xml_state.get_initrd_system()
         self.target_removable = xml_state.build_type.get_target_removable()
+
+        self.root_filesystem_is_multipath = False
+        self.oemconfig = self.xml_state.get_build_type_oemconfig_section()
+        if self.oemconfig and self.oemconfig.get_oem_multipath_scan():
+            self.root_filesystem_is_multipath = \
+                self.oemconfig.get_oem_multipath_scan()[0]
+
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
@@ -651,6 +658,8 @@ class DiskBuilder(object):
         ]
         dracut_modules = []
         dracut_modules_omit = ['kiwi-live', 'kiwi-dump']
+        if not self.root_filesystem_is_multipath:
+            dracut_modules_omit.append('multipath')
         if self.root_filesystem_is_overlay:
             dracut_modules.append('kiwi-overlay')
         else:

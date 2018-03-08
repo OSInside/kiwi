@@ -73,6 +73,13 @@ class TestInstallImageBuilder(object):
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='custom_kernel_options'
         )
+        oemconfig = mock.Mock()
+        oemconfig.get_oem_multipath_scan = mock.Mock(
+            return_value=[False]
+        )
+        self.xml_state.get_build_type_oemconfig_section = mock.Mock(
+            return_value=oemconfig
+        )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -99,6 +106,9 @@ class TestInstallImageBuilder(object):
         )
         xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='custom_kernel_options'
+        )
+        xml_state.get_build_type_oemconfig_section = mock.Mock(
+            return_value=None
         )
         install_image = InstallImageBuilder(
             xml_state, 'root_dir', 'target_dir', mock.Mock()
@@ -210,7 +220,7 @@ class TestInstallImageBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart "\n')
+            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart multipath "\n')
         ]
 
     @patch('kiwi.builder.install.mkdtemp')
@@ -376,7 +386,7 @@ class TestInstallImageBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart "\n')
+            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart multipath "\n')
         ]
 
     @patch('kiwi.builder.install.Path.wipe')
