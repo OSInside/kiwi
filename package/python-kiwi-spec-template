@@ -104,7 +104,6 @@ Requires(postun): update-alternatives
 Requires:       grub2-x86_64-efi
 %endif
 Requires:       qemu-tools
-Requires:       multipath-tools
 Requires:       squashfs
 Requires:       gptfdisk
 %endif
@@ -114,7 +113,6 @@ Requires(post):   chkconfig
 Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
-Requires:       device-mapper-multipath
 Requires:       gdisk
 Requires:       yum
 Provides:       kiwi-packagemanager:yum
@@ -131,7 +129,6 @@ Provides:       kiwi-packagemanager:zypper
 Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
-Requires:       multipath-tools
 Requires:       gdisk
 %endif
 Requires:       dosfstools
@@ -187,7 +184,6 @@ Requires(postun): update-alternatives
 Requires:       grub2-x86_64-efi
 %endif
 Requires:       qemu-tools
-Requires:       multipath-tools
 Requires:       squashfs
 Requires:       gptfdisk
 %endif
@@ -197,7 +193,6 @@ Requires(post):   chkconfig
 Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
-Requires:       device-mapper-multipath
 Requires:       gdisk
 %endif
 %if 0%{?rhel} && 0%{?rhel} < 8
