@@ -73,12 +73,8 @@ class TestInstallImageBuilder(object):
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(
             return_value='custom_kernel_options'
         )
-        oemconfig = mock.Mock()
-        oemconfig.get_oem_multipath_scan = mock.Mock(
-            return_value=[False]
-        )
-        self.xml_state.get_build_type_oemconfig_section = mock.Mock(
-            return_value=oemconfig
+        self.xml_state.get_oemconfig_oem_multipath_scan = mock.Mock(
+            return_value=False
         )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
