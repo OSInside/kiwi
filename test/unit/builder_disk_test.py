@@ -467,7 +467,7 @@ class TestDiskBuilder(object):
             call('dracut_rescue_image="no"\n'),
             # before dracut is called, image dracut setup
             call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
-            call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-overlay "\n'),
+            call('omit_dracutmodules+=" kiwi-live kiwi-dump multipath kiwi-overlay "\n'),
             # after dracut was called, system dracut setup
             call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-repart kiwi-overlay "\n'),
             call('boot_cmdline\n'),
@@ -539,7 +539,7 @@ class TestDiskBuilder(object):
             call('dracut_rescue_image="no"\n'),
             # before dracut is called, image dracut setup
             call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
-            call('omit_dracutmodules+=" kiwi-live kiwi-dump "\n'),
+            call('omit_dracutmodules+=" kiwi-live kiwi-dump multipath "\n'),
             # after dracut was called, system dracut setup
             call('add_dracutmodules+=" kiwi-overlay "\n'),
             call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-repart "\n'),

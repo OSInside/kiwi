@@ -617,6 +617,18 @@ class XMLState(object):
         if oemconfig_sections:
             return oemconfig_sections[0]
 
+    def get_oemconfig_oem_multipath_scan(self):
+        """
+        State value to activate multipath maps. Returns a boolean
+        value if specified or None
+
+        :return: oem-multipath-scan value
+        :rtype: bool or None
+        """
+        oemconfig = self.get_build_type_oemconfig_section()
+        if oemconfig and oemconfig.get_oem_multipath_scan():
+            return oemconfig.get_oem_multipath_scan()[0]
+
     def get_build_type_containerconfig_section(self):
         """
         First containerconfig section from the build type section

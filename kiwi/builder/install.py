@@ -74,6 +74,8 @@ class InstallImageBuilder(object):
         self.target_dir = target_dir
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
+        self.root_filesystem_is_multipath = \
+            xml_state.get_oemconfig_oem_multipath_scan()
         self.initrd_system = xml_state.get_initrd_system()
         self.firmware = FirmWare(xml_state)
         self.diskname = ''.join(
@@ -433,6 +435,8 @@ class InstallImageBuilder(object):
         ]
         dracut_modules = ['kiwi-lib', 'kiwi-dump']
         dracut_modules_omit = ['kiwi-overlay', 'kiwi-live', 'kiwi-repart']
+        if self.root_filesystem_is_multipath is False:
+            dracut_modules_omit.append('multipath')
         dracut_config.append(
             'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
         )

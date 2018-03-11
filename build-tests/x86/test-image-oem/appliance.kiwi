@@ -20,6 +20,7 @@
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
                 <oem-swapsize>1024</oem-swapsize>
+                <oem-multipath-scan>false</oem-multipath-scan>
             </oemconfig>
             <systemdisk>
                 <volume name="home"/>
