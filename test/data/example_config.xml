@@ -30,6 +30,10 @@
         <profile name="ec2Flavour" description="VMX with EC2/Xen kernel"/>
         <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
         <profile name="derivedContainer" description="Container built on top of a base issue"/>
+        <profile name="composedProfile" description="Composed profile">
+            <requires profile="vmxFlavour"/>
+            <requires profile="xenFlavour"/>
+        </profile>
     </profiles>
     <preferences>
         <locale>de_DE</locale>

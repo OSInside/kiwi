@@ -244,6 +244,14 @@ class TestXMLState(object):
         xml_data = description.load()
         XMLState(xml_data, ['foo'])
 
+    def test_profile_requires(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        xml_state = XMLState(xml_data, ['composedProfile'])
+        assert xml_state.profiles == [
+            'composedProfile', 'vmxFlavour', 'xenFlavour'
+        ]
+
     def test_get_volumes(self):
         description = XMLDescription('../data/example_lvm_default_config.xml')
         xml_data = description.load()

@@ -55,9 +55,7 @@ class XMLState(object):
     def __init__(self, xml_data, profiles=None, build_type=None):
         self.host_architecture = platform.machine()
         self.xml_data = xml_data
-        self.profiles = self._used_profiles(
-            profiles
-        )
+        self.profiles = self._used_profiles(profiles)
         self.build_type = self._build_type_section(
             build_type
         )
@@ -1675,27 +1673,45 @@ class XMLState(object):
 
         :param list profiles: selected profile names
         """
-        profile_names = []
+        available_profiles = dict()
         import_profiles = []
         profiles_section = self.xml_data.get_profiles()
         if profiles_section:
             for profile in profiles_section[0].get_profile():
-                name = profile.get_name()
                 if self.profile_matches_host_architecture(profile):
-                    profile_names.append(name)
+                    name = profile.get_name()
+                    available_profiles[name] = profile
                     if profile.get_import():
                         import_profiles.append(name)
         if not profiles:
             return import_profiles
         else:
+            resolved_profiles = []
             for profile in profiles:
-                if profile not in profile_names:
-                    raise KiwiProfileNotFound(
-                        'profile {0} not found for host arch {1}'.format(
-                            profile, self.host_architecture
-                        )
+                resolved_profiles += self._solve_profile_dependencies(
+                    profile, available_profiles, resolved_profiles
+                )
+            return resolved_profiles
+
+    def _solve_profile_dependencies(
+        self, profile, available_profiles, current_profiles
+    ):
+        if profile not in available_profiles:
+            raise KiwiProfileNotFound(
+                'profile {0} not found for host arch {1}'.format(
+                    profile, self.host_architecture
+                )
+            )
+        profiles_to_add = []
+        if profile not in current_profiles:
+            profiles_to_add.append(profile)
+            for required in available_profiles[profile].get_requires():
+                if required.get_profile() not in current_profiles:
+                    profiles_to_add += self._solve_profile_dependencies(
+                        required.get_profile(), available_profiles,
+                        current_profiles + profiles_to_add
                     )
-            return profiles
+        return profiles_to_add
 
     def _build_type_section(self, build_type=None):
         """
