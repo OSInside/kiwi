@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.29.5.
+# Generated  by generateDS.py version 2.29.9.
 # Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
 #
 # Command line options:
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2036,12 +2036,16 @@ class profile(GeneratedsSuper):
     KDE and GNOME including different packages."""
     subclass = None
     superclass = None
-    def __init__(self, name=None, description=None, import_=None, arch=None):
+    def __init__(self, name=None, description=None, import_=None, arch=None, requires=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.description = _cast(None, description)
         self.import_ = _cast(bool, import_)
         self.arch = _cast(None, arch)
+        if requires is None:
+            self.requires = []
+        else:
+            self.requires = requires
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2053,6 +2057,11 @@ class profile(GeneratedsSuper):
         else:
             return profile(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_requires(self): return self.requires
+    def set_requires(self, requires): self.requires = requires
+    def add_requires(self, value): self.requires.append(value)
+    def insert_requires_at(self, index, value): self.requires.insert(index, value)
+    def replace_requires_at(self, index, value): self.requires[index] = value
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_description(self): return self.description
@@ -2070,7 +2079,7 @@ class profile(GeneratedsSuper):
     validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
-
+            self.requires
         ):
             return True
         else:
@@ -2092,6 +2101,7 @@ class profile(GeneratedsSuper):
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
             self.exportChildren(outfile, level + 1, namespace_='', name_='profile', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
@@ -2109,7 +2119,12 @@ class profile(GeneratedsSuper):
             already_processed.add('arch')
             outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespace_='', name_='profile', fromsubclass_=False, pretty_print=True):
-        pass
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for requires_ in self.requires:
+            requires_.export(outfile, level, namespace_, name_='requires', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2142,8 +2157,83 @@ class profile(GeneratedsSuper):
             self.arch = ' '.join(self.arch.split())
             self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
+        if nodeName_ == 'requires':
+            obj_ = requires.factory()
+            obj_.build(child_)
+            self.requires.append(obj_)
+            obj_.original_tagname_ = 'requires'
 # end class profile
+
+
+class requires(GeneratedsSuper):
+    """Requires is used to set profiles dependencies, with it a profile
+    definition can be composed by other existing profiles."""
+    subclass = None
+    superclass = None
+    def __init__(self, profile=None):
+        self.original_tagname_ = None
+        self.profile = _cast(None, profile)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, requires)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if requires.subclass:
+            return requires.subclass(*args_, **kwargs_)
+        else:
+            return requires(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_profile(self): return self.profile
+    def set_profile(self, profile): self.profile = profile
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='requires', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('requires')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='requires')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='requires', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='requires'):
+        if self.profile is not None and 'profile' not in already_processed:
+            already_processed.add('profile')
+            outfile.write(' profile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profile), input_name='profile')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='requires', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('profile', node)
+        if value is not None and 'profile' not in already_processed:
+            already_processed.add('profile')
+            self.profile = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class requires
 
 
 class repository(k_source):
@@ -7564,6 +7654,7 @@ __all__ = [
     "profiles",
     "pxedeploy",
     "repository",
+    "requires",
     "size",
     "source",
     "strip",

@@ -1364,6 +1364,32 @@ thus can be used to have one description with different
 profiles for example KDE and GNOME including different
 packages.</a:documentation>
         <ref name="k.profile.attlist"/>
+        <zeroOrMore>
+          <ref name="k.requires"/>
+        </zeroOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <requires>
+    
+  -->
+  <div>
+    <define name="k.requires.profile.attribute">
+      <attribute name="profile">
+        <a:documentation>The profile name required as part of the current profile
+definition.</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.requires.attlist">
+      <ref name="k.requires.profile.attribute"/>
+    </define>
+    <define name="k.requires">
+      <element name="requires">
+        <a:documentation>Requires is used to set profiles dependencies, with it a profile
+definition can be composed by other existing profiles.</a:documentation>
+        <ref name="k.requires.attlist"/>
         <empty/>
       </element>
     </define>
