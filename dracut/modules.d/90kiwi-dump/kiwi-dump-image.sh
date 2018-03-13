@@ -363,8 +363,6 @@ initialize
 
 udev_pending
 
-stop_plymouth
-
 image_target=$(get_selected_disk)
 
 if getargbool 0 rd.kiwi.install.pxe; then

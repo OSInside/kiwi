@@ -9,6 +9,7 @@ function run_dialog {
     # output of the dialog call is stored in a file and can be
     # one time read via the get_dialog_result function
     # """
+    stop_plymouth
     local dialog_result=/tmp/dialog_result
     local dialog_exit_code=/tmp/dialog_code
     {
@@ -55,7 +56,9 @@ function get_dialog_result {
 }
 
 function stop_plymouth {
-    plymouth --quit --wait
+    if command -v plymouth &>/dev/null;then
+        plymouth --quit --wait
+    fi
 }
 
 #=========================================
