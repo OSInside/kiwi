@@ -660,6 +660,15 @@ class XMLState(object):
                 mbytes=value, additive=additive
             )
 
+    def get_disk_start_sector(self):
+        """
+        First disk sector number to be used by the first disk partition.
+        """
+        disk_start_sector = self.build_type.get_disk_start_sector()
+        if disk_start_sector is None:
+            disk_start_sector = Defaults.get_default_disk_start_sector()
+        return disk_start_sector
+
     def get_build_type_spare_part_size(self):
         """
         Size information for the spare_part size from the build

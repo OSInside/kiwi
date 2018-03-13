@@ -2717,7 +2717,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2774,6 +2774,7 @@ class type_(GeneratedsSuper):
         self.derived_from = _cast(None, derived_from)
         self.xen_server = _cast(bool, xen_server)
         self.publisher = _cast(None, publisher)
+        self.disk_start_sector = _cast(int, disk_start_sector)
         if containerconfig is None:
             self.containerconfig = []
         else:
@@ -2958,6 +2959,8 @@ class type_(GeneratedsSuper):
     def set_xen_server(self, xen_server): self.xen_server = xen_server
     def get_publisher(self): return self.publisher
     def set_publisher(self, publisher): self.publisher = publisher
+    def get_disk_start_sector(self): return self.disk_start_sector
+    def set_disk_start_sector(self, disk_start_sector): self.disk_start_sector = disk_start_sector
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3179,6 +3182,9 @@ class type_(GeneratedsSuper):
         if self.publisher is not None and 'publisher' not in already_processed:
             already_processed.add('publisher')
             outfile.write(' publisher=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.publisher), input_name='publisher')), ))
+        if self.disk_start_sector is not None and 'disk_start_sector' not in already_processed:
+            already_processed.add('disk_start_sector')
+            outfile.write(' disk_start_sector="%s"' % self.gds_format_integer(self.disk_start_sector, input_name='disk_start_sector'))
     def exportChildren(self, outfile, level, namespace_='', name_='type', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3562,6 +3568,13 @@ class type_(GeneratedsSuper):
         if value is not None and 'publisher' not in already_processed:
             already_processed.add('publisher')
             self.publisher = value
+        value = find_attr_value_('disk_start_sector', node)
+        if value is not None and 'disk_start_sector' not in already_processed:
+            already_processed.add('disk_start_sector')
+            try:
+                self.disk_start_sector = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'containerconfig':
             obj_ = containerconfig.factory()

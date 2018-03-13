@@ -59,7 +59,7 @@ class PartitionerBase(object):
         """
         return self.partition_id
 
-    def create(self, name, mbsize, type_name, flags=None):
+    def create(self, name, mbsize, type_name, flags=None, start_sector=None):
         """
         Create partition
 
@@ -69,6 +69,7 @@ class PartitionerBase(object):
         :param int mbsize: unused
         :param string type_name: unused
         :param list flags: unused
+        :param int start_sector: unused
         """
         raise NotImplementedError
 

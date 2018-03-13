@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, call
 
 import mock
 
@@ -54,6 +54,46 @@ class TestPartitionerMsDos(object):
         call = mock_flag.call_args_list[1]
         assert mock_flag.call_args_list[1] == \
             call(1, 'f.active')
+
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
+    @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
+    @patch_open
+    def test_create_custom_start_sector(
+        self, mock_open, mock_temp, mock_flag, mock_command
+    ):
+        mock_command.side_effect = Exception
+        temp_type = namedtuple(
+            'temp_type', ['name']
+        )
+        mock_temp.return_value = temp_type(
+            name='tempfile'
+        )
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+
+        self.partitioner.create('name', 100, 't.linux', ['f.active'], 4096)
+        self.partitioner.create('name', 100, 't.linux', ['f.active'], 4096)
+
+        mock_command.assert_has_calls([
+            call(['bash', '-c', 'cat tempfile | fdisk /dev/loop0']),
+            call(['bash', '-c', 'cat tempfile | fdisk /dev/loop0'])
+        ])
+        assert mock_flag.call_args_list[0] == \
+            call(1, 't.linux')
+        assert mock_flag.call_args_list[1] == \
+            call(1, 'f.active')
+
+        file_mock.write.assert_has_calls([
+            call('n\np\n1\n4096\n+100M\nw\nq\n'),
+            call('n\np\n2\n\n+100M\nw\nq\n')
+        ])
 
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')

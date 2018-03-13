@@ -42,7 +42,7 @@ class PartitionerDasd(PartitionerBase):
             't.csm': None
         }
 
-    def create(self, name, mbsize, type_name, flags=None):
+    def create(self, name, mbsize, type_name, flags=None, start_sector=None):
         """
         Create DASD partition
 
@@ -50,18 +50,23 @@ class PartitionerDasd(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: unused
         :param list flags: unused
+        :param int start_sector: first sector in case it is the first partition
         """
         self.partition_id += 1
         fdasd_input = NamedTemporaryFile()
+        if self.partition_id > 1:
+            start_sector = None
         with open(fdasd_input.name, 'w') as partition:
             log.debug(
                 '%s: fdasd: n p cur_position +%sM w q',
                 name, format(mbsize)
             )
-            if mbsize == 'all_free':
-                partition.write('n\np\n\n\nw\nq\n')
-            else:
-                partition.write('n\np\n\n+%dM\nw\nq\n' % mbsize)
+            partition.write(
+                'n\np\n{0}\n{1}\nw\nq\n'.format(
+                    '' if not start_sector else start_sector,
+                    '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
+                )
+            )
         bash_command = ' '.join(
             ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
         )

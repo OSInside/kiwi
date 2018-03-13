@@ -2496,6 +2496,20 @@ to work on.</a:documentation>
         <sch:param name="types" value="iso"/>
       </sch:pattern>
     </define>
+    <define name="k.type.disk_start_sector.attribute">
+      <attribute name="disk_start_sector">
+        <a:documentation>Specifies the first disk sector for the first partition.
+Default value is 2048 and it can't be set to any number below the
+default.</a:documentation>
+        <data type="integer">
+          <param name="minInclusive">2048</param>
+        </data>
+      </attribute>
+      <sch:pattern id="disk_start_sector" is-a="image_type">
+        <sch:param name="attr" value="disk_start_sector"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -2662,6 +2676,9 @@ to work on.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.publisher.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.disk_start_sector.attribute"/>
         </optional>
       </interleave>
     </define>

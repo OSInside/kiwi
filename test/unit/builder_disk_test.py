@@ -287,19 +287,24 @@ class TestDiskBuilder(object):
         self.loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()
         self.disk.create_efi_csm_partition.assert_called_once_with(
-            self.firmware.get_legacy_bios_partition_size()
+            self.firmware.get_legacy_bios_partition_size(),
+            2048
         )
         self.disk.create_efi_partition.assert_called_once_with(
-            self.firmware.get_efi_partition_size()
+            self.firmware.get_efi_partition_size(),
+            2048
         )
         self.disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size()
+            self.disk_setup.boot_partition_size(),
+            2048
         )
         self.disk.create_prep_partition.assert_called_once_with(
-            self.firmware.get_prep_partition_size()
+            self.firmware.get_prep_partition_size(),
+            2048
         )
         self.disk.create_root_partition.assert_called_once_with(
-            'all_free'
+            'all_free',
+            2048
         )
         self.disk.map_partitions.assert_called_once_with()
         self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
@@ -398,19 +403,23 @@ class TestDiskBuilder(object):
         self.loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()
         self.disk.create_efi_csm_partition.assert_called_once_with(
-            self.firmware.get_legacy_bios_partition_size()
+            self.firmware.get_legacy_bios_partition_size(),
+            2048
         )
         self.disk.create_efi_partition.assert_called_once_with(
-            self.firmware.get_efi_partition_size()
+            self.firmware.get_efi_partition_size(),
+            2048
         )
         self.disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size()
+            self.disk_setup.boot_partition_size(),
+            2048
         )
         self.disk.create_prep_partition.assert_called_once_with(
-            self.firmware.get_prep_partition_size()
+            self.firmware.get_prep_partition_size(),
+            2048
         )
         self.disk.create_root_partition.assert_called_once_with(
-            'all_free'
+            'all_free', 2048
         )
         self.disk.map_partitions.assert_called_once_with()
         self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
@@ -527,7 +536,9 @@ class TestDiskBuilder(object):
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ], filename='tempname')
         ]
-        self.disk.create_root_readonly_partition.assert_called_once_with(51)
+        self.disk.create_root_readonly_partition.assert_called_once_with(
+            51, 2048
+        )
         assert mock_command.call_args_list[2] == call(
             ['dd', 'if=tempname', 'of=/dev/readonly-root-device']
         )
@@ -648,7 +659,7 @@ class TestDiskBuilder(object):
         self.disk.public_partition_id_map = self.id_map
         self.disk_builder.create_disk()
         self.disk.create_root_raid_partition.assert_called_once_with(
-            'all_free'
+            'all_free', 2048
         )
         self.raid_root.create_degraded_raid.assert_called_once_with(
             raid_level='mirroring'
@@ -709,7 +720,9 @@ class TestDiskBuilder(object):
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = 'lvm'
         self.disk_builder.create_disk()
-        self.disk.create_root_lvm_partition.assert_called_once_with('all_free')
+        self.disk.create_root_lvm_partition.assert_called_once_with(
+            'all_free', 2048
+        )
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
         volume_manager.mount_volumes.call_args_list[0].assert_called_once_with()
@@ -795,7 +808,7 @@ class TestDiskBuilder(object):
         self.disk_builder.install_media = False
         self.disk_builder.spare_part_mbsize = 42
         self.disk_builder.create_disk()
-        self.disk.create_spare_partition.assert_called_once_with(42)
+        self.disk.create_spare_partition.assert_called_once_with(42, 2048)
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

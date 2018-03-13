@@ -272,6 +272,7 @@ class Profile(object):
         # kiwi_bootprofile
         # kiwi_vga
         # kiwi_btrfs_root_is_snapshot
+        # kiwi_startsector
         type_section = self.xml_state.build_type
         self.dot_profile['kiwi_type'] = \
             type_section.get_image()
@@ -319,6 +320,8 @@ class Profile(object):
             type_section.get_bootprofile()
         self.dot_profile['kiwi_vga'] = \
             type_section.get_vga()
+        self.dot_profile['kiwi_startsector'] = \
+            self.xml_state.get_disk_start_sector()
 
     def _profile_names_to_profile(self):
         # kiwi_profiles

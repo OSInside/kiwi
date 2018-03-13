@@ -96,6 +96,7 @@ class TestProfile(object):
             'kiwi_timezone': 'Europe/Berlin',
             'kiwi_type': 'oem',
             'kiwi_vga': None,
+            'kiwi_startsector': 2048,
             'kiwi_wwid_wait_timeout': None,
             'kiwi_xendomain': 'dom0'
         }
@@ -122,6 +123,7 @@ class TestProfile(object):
             "kiwi_oemtitle='schäfer'",
             "kiwi_ramonly='true'",
             "kiwi_splash_theme='openSUSE'",
+            "kiwi_startsector='2048'",
             "kiwi_timezone='Europe/Berlin'",
             "kiwi_type='oem'",
             "kiwi_xendomain='dom0'"
