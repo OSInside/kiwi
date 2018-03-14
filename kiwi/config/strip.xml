@@ -7,6 +7,7 @@
         <specification>default items to keep or delete from the kiwi initrd</specification>
     </description>
     <preferences>
+        <type image="cpio"/>
         <version>2.7.1</version>
     </preferences>
     <repository>

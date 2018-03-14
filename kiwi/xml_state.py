@@ -1760,6 +1760,9 @@ class XMLState(object):
         # build type is first type section in XML sequence
         if image_type_sections:
             return image_type_sections[0]
+        raise KiwiTypeNotFound(
+            'No build type defined. At least one type section is mandatory'
+        )
 
     def _profiled(self, xml_abstract):
         """

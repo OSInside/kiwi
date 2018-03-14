@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.8" name="LimeJeOS-openSUSE-13.2">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            openSUSE 13.2 JeOS, is a small text based image
+        </specification>
+    </description>
+    <profiles>
+        <profile name="minimal" description="Basic rootfs"/>
+        <profile name="vmxFlavour" description="VMX with default kernel" import="true">
+            <requires profile="minimal"/>
+        </profile>
+    </profiles>
+    <preferences>
+        <version>1.13.2</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="vmxFlavor">
+        <type image="vmx" filesystem="btrfs" bootloader="grub2" kernelcmdline="splash" firmware="efi"/>
+    </preferences>
+    <users>
+        <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
+    </users>
+    <repository type="yast2">
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="image" profiles="minimal">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap" profiles="minimal">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>

@@ -238,6 +238,12 @@ class TestXMLState(object):
         xml_data = description.load()
         XMLState(xml_data, ['vmxFlavour'], 'foo')
 
+    @raises(KiwiTypeNotFound)
+    def test_build_type_not_found_no_default_type(self):
+        description = XMLDescription('../data/example_no_default_type.xml')
+        xml_data = description.load()
+        XMLState(xml_data, ['minimal'])
+
     @raises(KiwiProfileNotFound)
     def test_profile_not_found(self):
         description = XMLDescription('../data/example_config.xml')
