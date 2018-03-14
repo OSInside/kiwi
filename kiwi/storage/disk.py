@@ -54,7 +54,7 @@ class Disk(DeviceProvider):
     * :attr:`table_type`
         Partition table type
     """
-    def __init__(self, table_type, storage_provider):
+    def __init__(self, table_type, storage_provider, start_sector=None):
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
@@ -66,7 +66,7 @@ class Disk(DeviceProvider):
         self.is_mapped = False
 
         self.partitioner = Partitioner(
-            table_type, storage_provider
+            table_type, storage_provider, start_sector
         )
 
         self.table_type = table_type

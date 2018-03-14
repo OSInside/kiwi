@@ -49,6 +49,7 @@ class TestSystemPrepareTask(object):
         )
 
         self.profile = mock.Mock()
+        self.profile.dot_profile = dict()
         kiwi.tasks.system_prepare.Profile = mock.Mock(
             return_value=self.profile
         )

@@ -53,6 +53,7 @@ class TestSystemBuildTask(object):
         )
 
         self.profile = mock.Mock()
+        self.profile.dot_profile = dict()
         kiwi.tasks.system_build.Profile = mock.Mock(
             return_value=self.profile
         )

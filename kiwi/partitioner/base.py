@@ -32,9 +32,10 @@ class PartitionerBase(object):
     * :attr:`flag_map`
         initial partition type/flag map
     """
-    def __init__(self, disk_provider):
+    def __init__(self, disk_provider, start_sector=None):
         self.disk_device = disk_provider.get_device()
         self.partition_id = 0
+        self.start_sector = start_sector
 
         self.flag_map = None
 

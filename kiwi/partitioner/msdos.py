@@ -58,20 +58,22 @@ class PartitionerMsDos(PartitionerBase):
         """
         self.partition_id += 1
         fdisk_input = NamedTemporaryFile()
+        if self.partition_id > 1:
+            # Undefined start sector value skips this for fdisk and
+            # use its default value
+            self.start_sector = None
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n p %d cur_position +%sM w q',
                 name, self.partition_id, format(mbsize)
             )
-            if mbsize == 'all_free':
-                partition.write(
-                    'n\np\n%d\n\n\nw\nq\n' % self.partition_id
+            partition.write(
+                'n\np\n{0}\n{1}\n{2}\nw\nq\n'.format(
+                    self.partition_id,
+                    '' if not self.start_sector else self.start_sector,
+                    '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
                 )
-            else:
-                partition.write(
-                    'n\np\n%d\n\n+%dM\nw\nq\n' %
-                    (self.partition_id, mbsize)
-                )
+            )
         bash_command = ' '.join(
             ['cat', fdisk_input.name, '|', 'fdisk', self.disk_device]
         )

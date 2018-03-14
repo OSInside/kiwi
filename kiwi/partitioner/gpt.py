@@ -58,11 +58,16 @@ class PartitionerGpt(PartitionerBase):
             partition_end = '0'
         else:
             partition_end = '+' + format(mbsize) + 'M'
+        if self.partition_id > 1 or not self.start_sector:
+            # A start  sector value of 0 specifies the default value
+            # defined in sgdisk
+            self.start_sector = 0
         Command.run(
             [
                 'sgdisk', '-n',
-                ':'.join([format(self.partition_id), '0', partition_end]),
-                '-c', ':'.join([format(self.partition_id), name]),
+                ':'.join(
+                    [format(self.partition_id), format(self.start_sector), partition_end]
+                ), '-c', ':'.join([format(self.partition_id), name]),
                 self.disk_device
             ]
         )

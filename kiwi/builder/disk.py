@@ -220,7 +220,8 @@ class DiskBuilder(object):
         loop_provider.create()
 
         self.disk = Disk(
-            self.firmware.get_partition_table_type(), loop_provider
+            self.firmware.get_partition_table_type(), loop_provider,
+            self.xml_state.get_disk_start_sector()
         )
 
         # create the bootloader instance
