@@ -40,6 +40,7 @@ class TestBootImageKiwi(object):
     def test_prepare(self, mock_profile, mock_setup):
         setup = mock.Mock()
         profile = mock.Mock()
+        profile.dot_profile = dict()
         mock_profile.return_value = profile
         mock_setup.return_value = setup
         self.boot_image.prepare()

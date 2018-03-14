@@ -59,6 +59,8 @@ class PartitionerGpt(PartitionerBase):
         else:
             partition_end = '+' + format(mbsize) + 'M'
         if self.partition_id > 1 or not self.start_sector:
+            # A start  sector value of 0 specifies the default value
+            # defined in sgdisk
             self.start_sector = 0
         Command.run(
             [

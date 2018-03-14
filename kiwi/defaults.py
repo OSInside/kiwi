@@ -44,6 +44,8 @@ class Defaults(object):
         self.defaults = {
             # alignment in bytes
             'kiwi_align': 1048576,
+            # start sector number
+            'kiwi_startsector': 2048,
             # sectorsize in bytes
             'kiwi_sectorsize': 512,
             # inode size in bytes for inode based filesystems
@@ -57,6 +59,7 @@ class Defaults(object):
         }
         self.profile_key_list = [
             'kiwi_align',
+            'kiwi_startsector',
             'kiwi_sectorsize',
             'kiwi_revision'
         ]
@@ -664,7 +667,7 @@ class Defaults(object):
         :return: sector
         :rtype: int
         """
-        return 2048
+        return Defaults().defaults['kiwi_startsector']
 
     @classmethod
     def get_default_inode_size(self):
@@ -932,4 +935,8 @@ class Defaults(object):
         :param object profile: Profile instance
         """
         for key in sorted(self.profile_key_list):
-            profile.add(key, self.get(key))
+            # Do not apply default values to any variable that was
+            # already defined in the profile instance.
+            if (key not in profile.dot_profile or
+                    profile.dot_profile[key] is None):
+                profile.add(key, self.get(key))

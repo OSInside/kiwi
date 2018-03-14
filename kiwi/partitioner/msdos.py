@@ -59,6 +59,8 @@ class PartitionerMsDos(PartitionerBase):
         self.partition_id += 1
         fdisk_input = NamedTemporaryFile()
         if self.partition_id > 1:
+            # Undefined start sector value skips this for fdisk and
+            # use its default value
             self.start_sector = None
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
