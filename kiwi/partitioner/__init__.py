@@ -21,6 +21,7 @@ import platform
 from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.partitioner.msdos import PartitionerMsDos
 from kiwi.partitioner.dasd import PartitionerDasd
+from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiPartitionerSetupError
@@ -59,6 +60,11 @@ class Partitioner(object):
 
         elif 's390' in host_architecture:
             if table_type == 'dasd':
+                if start_sector:
+                    log.warning(
+                        'disk_start_sector value is ignored '
+                        'for dasd partitions'
+                    )
                 return PartitionerDasd(storage_provider)
             elif table_type == 'msdos':
                 return PartitionerMsDos(storage_provider, start_sector)

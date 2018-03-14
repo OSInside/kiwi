@@ -62,6 +62,18 @@ class TestPartitioner(object):
         Partitioner('dasd', storage_provider)
         mock_dasd.assert_called_once_with(storage_provider)
 
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.partitioner.PartitionerDasd')
+    @patch('platform.machine')
+    def test_partitioner_s390_dasd_with_custom_start_sector(
+        self, mock_machine, mock_dasd, mock_warning
+    ):
+        mock_machine.return_value = 's390'
+        storage_provider = mock.Mock()
+        Partitioner('dasd', storage_provider, 4096)
+        mock_dasd.assert_called_once_with(storage_provider)
+        assert mock_warning.called
+
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')
     def test_partitioner_s390_msdos(self, mock_machine, mock_dos):
