@@ -678,7 +678,7 @@ class Defaults(object):
         :return: bytesize
         :rtype: int
         """
-        return 256
+        return Defaults().defaults['kiwi_inode_size']
 
     @classmethod
     def get_archive_image_types(self):
