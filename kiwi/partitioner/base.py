@@ -32,9 +32,10 @@ class PartitionerBase(object):
     * :attr:`flag_map`
         initial partition type/flag map
     """
-    def __init__(self, disk_provider):
+    def __init__(self, disk_provider, start_sector=None):
         self.disk_device = disk_provider.get_device()
         self.partition_id = 0
+        self.start_sector = start_sector
 
         self.flag_map = None
 
@@ -59,7 +60,7 @@ class PartitionerBase(object):
         """
         return self.partition_id
 
-    def create(self, name, mbsize, type_name, flags=None, start_sector=None):
+    def create(self, name, mbsize, type_name, flags=None):
         """
         Create partition
 
@@ -69,7 +70,6 @@ class PartitionerBase(object):
         :param int mbsize: unused
         :param string type_name: unused
         :param list flags: unused
-        :param int start_sector: unused
         """
         raise NotImplementedError
 

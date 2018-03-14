@@ -47,7 +47,7 @@ class PartitionerMsDos(PartitionerBase):
             't.prep': '41'
         }
 
-    def create(self, name, mbsize, type_name, flags=None, start_sector=None):
+    def create(self, name, mbsize, type_name, flags=None):
         """
         Create msdos partition
 
@@ -55,12 +55,11 @@ class PartitionerMsDos(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
-        :param int start_sector: first sector in case it is the first partition
         """
         self.partition_id += 1
         fdisk_input = NamedTemporaryFile()
         if self.partition_id > 1:
-            start_sector = None
+            self.start_sector = None
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n p %d cur_position +%sM w q',
@@ -69,7 +68,7 @@ class PartitionerMsDos(PartitionerBase):
             partition.write(
                 'n\np\n{0}\n{1}\n{2}\nw\nq\n'.format(
                     self.partition_id,
-                    '' if not start_sector else start_sector,
+                    '' if not self.start_sector else self.start_sector,
                     '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
                 )
             )

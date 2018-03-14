@@ -28,7 +28,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'x86_64'
         storage_provider = mock.Mock()
         Partitioner('gpt', storage_provider)
-        mock_gpt.assert_called_once_with(storage_provider)
+        mock_gpt.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')
@@ -36,7 +36,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'x86_64'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider)
+        mock_dos.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')
@@ -44,7 +44,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'i686'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider)
+        mock_dos.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')
@@ -52,7 +52,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'i586'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider)
+        mock_dos.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerDasd')
     @patch('platform.machine')
@@ -68,7 +68,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 's390'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider)
+        mock_dos.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')
@@ -76,7 +76,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'ppc64'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider)
+        mock_dos.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerGpt')
     @patch('platform.machine')
@@ -84,7 +84,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'ppc64'
         storage_provider = mock.Mock()
         Partitioner('gpt', storage_provider)
-        mock_gpt.assert_called_once_with(storage_provider)
+        mock_gpt.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerGpt')
     @patch('platform.machine')
@@ -92,7 +92,7 @@ class TestPartitioner(object):
         mock_machine.return_value = 'aarch64'
         storage_provider = mock.Mock()
         Partitioner('gpt', storage_provider)
-        mock_gpt.assert_called_once_with(storage_provider)
+        mock_gpt.assert_called_once_with(storage_provider, None)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')
@@ -100,4 +100,4 @@ class TestPartitioner(object):
         mock_machine.return_value = 'armv7l'
         storage_provider = mock.Mock()
         Partitioner('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider)
+        mock_dos.assert_called_once_with(storage_provider, None)

@@ -39,35 +39,35 @@ class Partitioner(object):
     * :attr:`storage_provider`
         Instance of class based on DeviceProvider
     """
-    def __new__(self, table_type, storage_provider):        # noqa: C901
+    def __new__(self, table_type, storage_provider, start_sector=None):        # noqa: C901
         host_architecture = platform.machine()
         if host_architecture == 'x86_64':
             if table_type == 'gpt':
-                return PartitionerGpt(storage_provider)
+                return PartitionerGpt(storage_provider, start_sector)
             elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider)
+                return PartitionerMsDos(storage_provider, start_sector)
 
         elif host_architecture == 'i686' or host_architecture == 'i586':
             if table_type == 'msdos':
-                return PartitionerMsDos(storage_provider)
+                return PartitionerMsDos(storage_provider, start_sector)
 
         elif 'ppc64' in host_architecture:
             if table_type == 'gpt':
-                return PartitionerGpt(storage_provider)
+                return PartitionerGpt(storage_provider, start_sector)
             elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider)
+                return PartitionerMsDos(storage_provider, start_sector)
 
         elif 's390' in host_architecture:
             if table_type == 'dasd':
                 return PartitionerDasd(storage_provider)
             elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider)
+                return PartitionerMsDos(storage_provider, start_sector)
 
         elif 'arm' in host_architecture or host_architecture == 'aarch64':
             if table_type == 'gpt':
-                return PartitionerGpt(storage_provider)
+                return PartitionerGpt(storage_provider, start_sector)
             elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider)
+                return PartitionerMsDos(storage_provider, start_sector)
 
         raise KiwiPartitionerSetupError(
             'Support for partitioner on %s architecture not implemented' %

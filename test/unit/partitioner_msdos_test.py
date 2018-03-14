@@ -62,6 +62,11 @@ class TestPartitionerMsDos(object):
     def test_create_custom_start_sector(
         self, mock_open, mock_temp, mock_flag, mock_command
     ):
+        disk_provider = mock.Mock()
+        disk_provider.get_device = mock.Mock(
+            return_value='/dev/loop0'
+        )
+        partitioner = PartitionerMsDos(disk_provider, 4096)
         mock_command.side_effect = Exception
         temp_type = namedtuple(
             'temp_type', ['name']
@@ -78,8 +83,8 @@ class TestPartitionerMsDos(object):
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
 
-        self.partitioner.create('name', 100, 't.linux', ['f.active'], 4096)
-        self.partitioner.create('name', 100, 't.linux', ['f.active'], 4096)
+        partitioner.create('name', 100, 't.linux', ['f.active'])
+        partitioner.create('name', 100, 't.linux', ['f.active'])
 
         mock_command.assert_has_calls([
             call(['bash', '-c', 'cat tempfile | fdisk /dev/loop0']),

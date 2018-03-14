@@ -111,7 +111,6 @@ class DiskBuilder(object):
             xml_state, root_dir
         )
         self.custom_args = custom_args
-        self.start_sector = xml_state.get_disk_start_sector()
 
         self.signing_keys = None
         if custom_args and 'signing_keys' in custom_args:
@@ -221,7 +220,8 @@ class DiskBuilder(object):
         loop_provider.create()
 
         self.disk = Disk(
-            self.firmware.get_partition_table_type(), loop_provider
+            self.firmware.get_partition_table_type(), loop_provider,
+            self.xml_state.get_disk_start_sector()
         )
 
         # create the bootloader instance
@@ -571,36 +571,31 @@ class DiskBuilder(object):
         if self.firmware.legacy_bios_mode():
             log.info('--> creating EFI CSM(legacy bios) partition')
             self.disk.create_efi_csm_partition(
-                self.firmware.get_legacy_bios_partition_size(),
-                self.start_sector
+                self.firmware.get_legacy_bios_partition_size()
             )
 
         if self.firmware.efi_mode():
             log.info('--> creating EFI partition')
             self.disk.create_efi_partition(
-                self.firmware.get_efi_partition_size(),
-                self.start_sector
+                self.firmware.get_efi_partition_size()
             )
 
         if self.firmware.ofw_mode():
             log.info('--> creating PReP partition')
             self.disk.create_prep_partition(
-                self.firmware.get_prep_partition_size(),
-                self.start_sector
+                self.firmware.get_prep_partition_size()
             )
 
         if self.disk_setup.need_boot_partition():
             log.info('--> creating boot partition')
             self.disk.create_boot_partition(
-                self.disk_setup.boot_partition_size(),
-                self.start_sector
+                self.disk_setup.boot_partition_size()
             )
 
         if self.spare_part_mbsize:
             log.info('--> creating spare partition')
             self.disk.create_spare_partition(
-                self.spare_part_mbsize,
-                self.start_sector
+                self.spare_part_mbsize
             )
 
         if self.root_filesystem_is_overlay:
@@ -617,27 +612,20 @@ class DiskBuilder(object):
                 squashed_root_file.name
             ) / 1048576
             self.disk.create_root_readonly_partition(
-                int(squashed_rootfs_mbsize + 50),
-                self.start_sector
+                int(squashed_rootfs_mbsize + 50)
             )
 
         if self.volume_manager_name and self.volume_manager_name == 'lvm':
             log.info('--> creating LVM root partition')
-            self.disk.create_root_lvm_partition(
-                'all_free', self.start_sector
-            )
+            self.disk.create_root_lvm_partition('all_free')
 
         elif self.mdraid:
             log.info('--> creating mdraid root partition')
-            self.disk.create_root_raid_partition(
-                'all_free', self.start_sector
-            )
+            self.disk.create_root_raid_partition('all_free')
 
         else:
             log.info('--> creating root partition')
-            self.disk.create_root_partition(
-                'all_free', self.start_sector
-            )
+            self.disk.create_root_partition('all_free')
 
         if self.firmware.bios_mode():
             log.info('--> setting active flag to primary boot partition')

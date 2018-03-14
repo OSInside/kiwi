@@ -33,8 +33,13 @@ class TestPartitionerGpt(object):
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create_custom_start_sector(self, mock_flag, mock_command):
-        self.partitioner.create('name', 100, 't.linux', ['t.csm'], 4096)
-        self.partitioner.create('name', 100, 't.linux', ['t.csm'], 4096)
+        disk_provider = mock.Mock()
+        disk_provider.get_device = mock.Mock(
+            return_value='/dev/loop0'
+        )
+        partitioner = PartitionerGpt(disk_provider, 4096)
+        partitioner.create('name', 100, 't.linux', ['t.csm'])
+        partitioner.create('name', 100, 't.linux', ['t.csm'])
         mock_command.assert_has_calls([
             call([
                 'sgdisk', '-n', '1:4096:+100M', '-c', '1:name', '/dev/loop0'

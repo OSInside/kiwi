@@ -44,7 +44,7 @@ class PartitionerGpt(PartitionerBase):
             't.efi': 'EF00'
         }
 
-    def create(self, name, mbsize, type_name, flags=None, start_sector=None):
+    def create(self, name, mbsize, type_name, flags=None):
         """
         Create GPT partition
 
@@ -52,20 +52,19 @@ class PartitionerGpt(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
-        :param int start_sector: first sector in case it is the first partition
         """
         self.partition_id += 1
         if mbsize == 'all_free':
             partition_end = '0'
         else:
             partition_end = '+' + format(mbsize) + 'M'
-        if self.partition_id > 1 or not start_sector:
-            start_sector = 0
+        if self.partition_id > 1 or not self.start_sector:
+            self.start_sector = 0
         Command.run(
             [
                 'sgdisk', '-n',
                 ':'.join(
-                    [format(self.partition_id), format(start_sector), partition_end]
+                    [format(self.partition_id), format(self.start_sector), partition_end]
                 ), '-c', ':'.join([format(self.partition_id), name]),
                 self.disk_device
             ]

@@ -1,4 +1,4 @@
-from mock import patch, call
+from mock import patch
 
 import mock
 
@@ -50,27 +50,6 @@ class TestPartitionerDasd(object):
             ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
         )
         assert mock_debug.called
-
-    @patch('kiwi.partitioner.dasd.Command.run')
-    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
-    @patch_open
-    def test_create_custom_start_sector(
-        self, mock_open, mock_temp, mock_command
-    ):
-        mock_command.side_effect = Exception
-        mock_temp.return_value = self.tempfile
-        mock_open.return_value = self.context_manager_mock
-
-        self.partitioner.create('name', 100, 't.linux', ['f.active'], 4096)
-        self.partitioner.create('name', 100, 't.linux', ['f.active'], 4069)
-
-        self.file_mock.write.assert_has_calls([
-            call('n\np\n4096\n+100M\nw\nq\n'),
-            call('n\np\n\n+100M\nw\nq\n')
-        ])
-        mock_command.assert_has_calls([
-            call(['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0'])
-        ])
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
