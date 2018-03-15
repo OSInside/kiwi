@@ -883,6 +883,16 @@ class Defaults(object):
         return os.sep.join([root_dir, 'image', 'imported_root'])
 
     @classmethod
+    def get_iso_boot_path(self):
+        """
+        Returns relative path to boot files on kiwi iso filesystems
+        """
+        arch = platform.machine()
+        if arch == 'i686' or arch == 'i586':
+            arch = 'ix86'
+        return os.sep.join(['boot', arch])
+
+    @classmethod
     def set_python_default_encoding_to_utf8(self):
         """
         Set python default encoding to utf-8 if not already done
