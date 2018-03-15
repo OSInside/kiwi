@@ -29,11 +29,11 @@ from collections import namedtuple
 from builtins import bytes
 
 # project
-from .utils.command_capabilities import CommandCapabilities
-from .logger import log
-from .path import Path
-from .command import Command
-from .exceptions import (
+from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.logger import log
+from kiwi.path import Path
+from kiwi.command import Command
+from kiwi.exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError,
     KiwiIsoToolError,

@@ -18,7 +18,7 @@
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
-from kiwi.iso import Iso
+from kiwi.iso_tools.iso import Iso
 
 
 class FileSystemIsoFs(FileSystemBase):

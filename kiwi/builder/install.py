@@ -32,7 +32,7 @@ from kiwi.defaults import Defaults
 from kiwi.utils.checksum import Checksum
 from kiwi.logger import log
 from kiwi.system.kernel import Kernel
-from kiwi.iso import Iso
+from kiwi.iso_tools.iso import Iso
 from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
 

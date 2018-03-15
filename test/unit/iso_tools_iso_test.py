@@ -12,13 +12,13 @@ from kiwi.exceptions import (
     KiwiCommandError
 )
 
-from kiwi.iso import Iso
+from kiwi.iso_tools.iso import Iso
 from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 
 class TestIso(object):
-    @patch('kiwi.iso.NamedTemporaryFile')
+    @patch('kiwi.iso_tools.iso.NamedTemporaryFile')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_tempfile):
         temp_type = namedtuple(
@@ -47,7 +47,7 @@ class TestIso(object):
         mock_exists.return_value = False
         self.iso.init_iso_creation_parameters()
 
-    @patch('kiwi.iso.NamedTemporaryFile')
+    @patch('kiwi.iso_tools.iso.NamedTemporaryFile')
     @patch('platform.machine')
     def test_init_for_ix86_platform(self, mock_machine, mock_tempfile):
         mock_machine.return_value = 'i686'
@@ -55,7 +55,7 @@ class TestIso(object):
         assert iso.arch == 'ix86'
 
     @patch_open
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     @patch('os.path.exists')
     @patch('os.walk')
     def test_init_iso_creation_parameters(
@@ -107,8 +107,8 @@ class TestIso(object):
         )
 
     @patch_open
-    @patch('kiwi.iso.Command.run')
-    @patch('kiwi.iso.Path.create')
+    @patch('kiwi.iso_tools.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Path.create')
     @patch('os.path.exists')
     @patch('os.walk')
     def test_init_iso_creation_parameters_failed_isolinux_config(
@@ -136,7 +136,7 @@ class TestIso(object):
 
     @patch('os.path.exists')
     @patch('os.path.getsize')
-    @patch('kiwi.iso.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.iso_tools.iso.CommandCapabilities.has_option_in_help')
     def test_add_efi_loader_parameters(
         self, mock_has_option_in_help, mock_getsize, mock_exists
     ):
@@ -153,7 +153,7 @@ class TestIso(object):
 
     @patch('os.path.exists')
     @patch('os.path.getsize')
-    @patch('kiwi.iso.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.iso_tools.iso.CommandCapabilities.has_option_in_help')
     def test_add_efi_loader_parameters_big_loader(
         self, mock_has_option_in_help, mock_getsize, mock_exists
     ):
@@ -184,8 +184,8 @@ class TestIso(object):
         self.iso.isols('some-iso')
 
     @patch('os.path.exists')
-    @patch('kiwi.iso.Command.run')
-    @patch('kiwi.iso.Path.which')
+    @patch('kiwi.iso_tools.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Path.which')
     @patch_open
     def test_isols_usr_bin_isoinfo_used(
         self, mock_open, mock_which, mock_command, mock_exists
@@ -203,8 +203,8 @@ class TestIso(object):
         )
 
     @patch('os.path.exists')
-    @patch('kiwi.iso.Command.run')
-    @patch('kiwi.iso.Path.which')
+    @patch('kiwi.iso_tools.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Path.which')
     @patch_open
     def test_isols_usr_lib_genisoimage_isoinfo_used(
         self, mock_open, mock_which, mock_command, mock_exists
@@ -221,7 +221,7 @@ class TestIso(object):
             ['/usr/lib/genisoimage/isoinfo', '-R', '-l', '-i', 'some-iso']
         )
 
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     @patch('os.path.exists')
     def test_isols(self, mock_exists, mock_command):
         mock_exists.return_value = True
@@ -248,7 +248,7 @@ class TestIso(object):
             '../data/iso_no_marker.iso'
         )
 
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid(self, mock_command):
         mbrid = mock.Mock()
         mbrid.get_id = mock.Mock(
@@ -267,7 +267,7 @@ class TestIso(object):
         )
 
     @raises(KiwiCommandError)
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_error(self, mock_command):
         mbrid = mock.Mock()
         mbrid.get_id = mock.Mock(
@@ -279,7 +279,7 @@ class TestIso(object):
         Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
 
     @raises(KiwiCommandError)
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_multiple_errors(self, mock_command):
         mbrid = mock.Mock()
         mbrid.get_id = mock.Mock(
@@ -293,7 +293,7 @@ class TestIso(object):
         mock_command.return_value = command
         Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
 
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_cylinders_warning(self, mock_command):
         mbrid = mock.Mock()
         mbrid.get_id = mock.Mock(
@@ -313,7 +313,7 @@ class TestIso(object):
             ]
         )
 
-    @patch('kiwi.iso.Command.run')
+    @patch('kiwi.iso_tools.iso.Command.run')
     def test_set_media_tag(self, mock_command):
         Iso.set_media_tag('foo')
         mock_command.assert_called_once_with(
