@@ -16,6 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
+from collections import (
+    namedtuple,
+    OrderedDict
+)
 
 # project
 from kiwi.iso_tools.base import IsoToolsBase
@@ -121,4 +126,53 @@ class IsoToolsCdrTools(IsoToolsBase):
             self.iso_parameters + self.iso_loaders + [
                 '-o', filename, self.source_dir
             ]
+        )
+
+    def list_iso(self, isofile):
+        """
+        List contents of an ISO image
+
+        :param string isofile: path to the ISO file
+
+        :return: formatted isoinfo result
+        :rtype: dict
+        """
+        listing_type = namedtuple(
+            'listing_type', ['name', 'filetype', 'start']
+        )
+        listing = Command.run(
+            [self._get_isoinfo_tool(), '-R', '-l', '-i', isofile]
+        )
+        listing_result = {}
+        for line in listing.output.split(os.linesep):
+            iso_entry = re.search(
+                '.*(-[-rwx]{9}).*\s\[\s*(\d+)(\s+\d+)?\]\s+(.*?)\s*$', line
+            )
+            if iso_entry:
+                entry_type = iso_entry.group(1)
+                entry_name = iso_entry.group(4)
+                entry_addr = int(iso_entry.group(2))
+                listing_result[entry_addr] = listing_type(
+                    name=entry_name,
+                    filetype=entry_type,
+                    start=entry_addr
+                )
+        return OrderedDict(
+            sorted(listing_result.items())
+        )
+
+    def _get_isoinfo_tool(self):
+        """
+        There are tools by J.Schilling and tools from the community
+        This method searches in all paths which could provide an
+        isoinfo tool. The first match makes the decision
+        """
+        alternative_lookup_paths = ['/usr/lib/genisoimage']
+        isoinfo = Path.which('isoinfo', alternative_lookup_paths)
+        if isoinfo:
+            return isoinfo
+
+        raise KiwiIsoToolError(
+            'No isoinfo tool found, searched in PATH: %s and %s' %
+            (os.environ.get('PATH'), alternative_lookup_paths)
         )

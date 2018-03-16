@@ -15,6 +15,10 @@ class TestIsoToolsBase(object):
         self.iso_tool.create_iso('filename')
 
     @raises(NotImplementedError)
+    def test_list_iso(self):
+        self.iso_tool.list_iso('isofile')
+
+    @raises(NotImplementedError)
     def test_get_tool_name(self):
         self.iso_tool.get_tool_name()
 

@@ -1,4 +1,5 @@
 from mock import patch, call
+from collections import namedtuple
 from .test_helper import raises
 
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
@@ -86,3 +87,21 @@ class TestIsoToolsCdrTools(object):
                 '-o', 'myiso', 'source-dir'
             ]
         )
+
+    @patch('kiwi.iso_tools.cdrtools.Command.run')
+    @patch('os.path.exists')
+    def test_list_iso(self, mock_exists, mock_command):
+        mock_exists.return_value = True
+        output_type = namedtuple('output_type', ['output'])
+        output_data = ''
+        with open('../data/iso_listing.txt') as iso:
+            output_data = iso.read()
+        mock_command.return_value = output_type(output=output_data)
+        result = self.iso_tool.list_iso('some-iso')
+        assert result[2158].name == 'header_end'
+
+    @raises(KiwiIsoToolError)
+    @patch('os.path.exists')
+    def test_list_iso_no_tool_found(self, mock_exists):
+        mock_exists.return_value = False
+        self.iso_tool.list_iso('some-iso')

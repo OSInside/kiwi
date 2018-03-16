@@ -7,7 +7,6 @@ from builtins import bytes
 
 from kiwi.exceptions import (
     KiwiIsoLoaderError,
-    KiwiIsoToolError,
     KiwiIsoMetaDataError,
     KiwiCommandError
 )
@@ -113,62 +112,6 @@ class TestIso(object):
             call('source-dir/EFI 1\n'),
             call('source-dir/header_end 1000000\n')
         ]
-
-    @raises(KiwiIsoToolError)
-    @patch('os.path.exists')
-    def test_isols_no_tool_found(self, mock_exists):
-        mock_exists.return_value = False
-        self.iso.isols('some-iso')
-
-    @patch('os.path.exists')
-    @patch('kiwi.iso_tools.iso.Command.run')
-    @patch('kiwi.iso_tools.iso.Path.which')
-    @patch_open
-    def test_isols_usr_bin_isoinfo_used(
-        self, mock_open, mock_which, mock_command, mock_exists
-    ):
-        mock_which.return_value = '/usr/bin/isoinfo'
-        exists_results = [False, True]
-
-        def side_effect(self):
-            return exists_results.pop()
-
-        mock_exists.side_effect = side_effect
-        self.iso.isols('some-iso')
-        mock_command.assert_called_once_with(
-            ['/usr/bin/isoinfo', '-R', '-l', '-i', 'some-iso']
-        )
-
-    @patch('os.path.exists')
-    @patch('kiwi.iso_tools.iso.Command.run')
-    @patch('kiwi.iso_tools.iso.Path.which')
-    @patch_open
-    def test_isols_usr_lib_genisoimage_isoinfo_used(
-        self, mock_open, mock_which, mock_command, mock_exists
-    ):
-        mock_which.return_value = '/usr/lib/genisoimage/isoinfo'
-        exists_results = [True, False]
-
-        def side_effect(self):
-            return exists_results.pop()
-
-        mock_exists.side_effect = side_effect
-        self.iso.isols('some-iso')
-        mock_command.assert_called_once_with(
-            ['/usr/lib/genisoimage/isoinfo', '-R', '-l', '-i', 'some-iso']
-        )
-
-    @patch('kiwi.iso_tools.iso.Command.run')
-    @patch('os.path.exists')
-    def test_isols(self, mock_exists, mock_command):
-        mock_exists.return_value = True
-        output_type = namedtuple('output_type', ['output'])
-        output_data = ''
-        with open('../data/iso_listing.txt') as iso:
-            output_data = iso.read()
-        mock_command.return_value = output_type(output=output_data)
-        result = self.iso.isols('some-iso')
-        assert result[2158].name == 'header_end'
 
     def test_create_header_end_block(self):
         temp_file = NamedTemporaryFile()

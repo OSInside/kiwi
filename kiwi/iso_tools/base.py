@@ -84,3 +84,11 @@ class IsoToolsBase(object):
         :param string filename: unused
         """
         raise NotImplementedError
+
+    def list_iso(self, isofile):
+        """
+        List contents of an ISO image
+
+        :param string isofile: unused
+        """
+        raise NotImplementedError
