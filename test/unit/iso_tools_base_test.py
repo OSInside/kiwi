@@ -10,8 +10,9 @@ class TestIsoToolsBase(object):
         mock_machine.return_value = 'x86_64'
         self.iso_tool = IsoToolsBase('source-dir')
 
-    def test_get_iso_creation_parameters(self):
-        assert self.iso_tool.get_iso_creation_parameters() == []
+    @raises(NotImplementedError)
+    def test_create_iso(self):
+        self.iso_tool.create_iso('filename')
 
     @raises(NotImplementedError)
     def test_get_tool_name(self):

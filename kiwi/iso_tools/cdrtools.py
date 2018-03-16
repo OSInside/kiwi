@@ -21,6 +21,7 @@ import os
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.path import Path
+from kiwi.command import Command
 from kiwi.exceptions import KiwiIsoToolError
 
 
@@ -104,3 +105,20 @@ class IsoToolsCdrTools(IsoToolsBase):
                 self.iso_loaders.append(
                     format(int(loader_file_512_byte_blocks))
                 )
+
+    def create_iso(self, filename, hidden_files=None):
+        hidden_files_parameters = []
+        if hidden_files:
+            for hidden_file in hidden_files:
+                hidden_files_parameters.append('-hide')
+                hidden_files_parameters.append(hidden_file)
+                hidden_files_parameters.append('-hide-joliet')
+                hidden_files_parameters.append(hidden_file)
+        Command.run(
+            [
+                self.get_tool_name()
+            ] + hidden_files_parameters +
+            self.iso_parameters + self.iso_loaders + [
+                '-o', filename, self.source_dir
+            ]
+        )

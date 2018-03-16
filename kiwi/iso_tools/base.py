@@ -75,11 +75,12 @@ class IsoToolsBase(object):
         """
         raise NotImplementedError
 
-    def get_iso_creation_parameters(self):
+    def create_iso(self, filename, hidden_files=None):
         """
-        Return current list of ISO creation parameters
+        Create iso file
 
-        :return: tool specific parameters
-        :rtype: list
+        Implementation in specialized tool class
+
+        :param string filename: unused
         """
-        return self.iso_parameters + self.iso_loaders
+        raise NotImplementedError
