@@ -466,7 +466,7 @@ class RuntimeChecker(object):
     def check_grub_efi_installed_for_efi_firmware(self):
         """
         If the image is being built with efi or uefi firmware setting
-        we need a grub(2)-*-efi package installed. The check is not 100%
+        we need a grub(2)-...-efi package installed. The check is not 100%
         as every distribution has different names and different requirement
         but it is a reasonable approximation on the safe side meaning the
         user may still get an error but should not receive a false positive

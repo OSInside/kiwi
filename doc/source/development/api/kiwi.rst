@@ -14,6 +14,7 @@ Subpackages
     kiwi.builder
     kiwi.container
     kiwi.filesystem
+    kiwi.iso_tools
     kiwi.package_manager
     kiwi.partitioner
     kiwi.repository
@@ -91,14 +92,6 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.iso` Module
------------------
-
-.. automodule:: kiwi.iso
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 `kiwi.kiwi` Module
 ------------------
 
@@ -135,6 +128,22 @@ Submodules
 ------------------------
 
 .. automodule:: kiwi.privileges
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+`kiwi.runtime_checker` Module
+-----------------------------
+
+.. automodule:: kiwi.runtime_checker
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+`kiwi.runtime_config` Module
+----------------------------
+
+.. automodule:: kiwi.runtime_config
     :members:
     :undoc-members:
     :show-inheritance:
