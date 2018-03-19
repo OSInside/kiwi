@@ -23,6 +23,7 @@ graft kiwi/schema
 graft kiwi/config
 graft kiwi/tasks
 graft kiwi/solver
+graft kiwi/iso_tools
 graft package
 
 include Makefile
