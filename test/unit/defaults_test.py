@@ -79,3 +79,10 @@ class TestDefaults(object):
             'kiwi-live'
         assert Defaults.get_live_dracut_module_from_flag('dmsquash') == \
             'dmsquash-live'
+
+    @patch('platform.machine')
+    def test_get_iso_boot_path(self, mock_machine):
+        mock_machine.return_value = 'i686'
+        assert Defaults.get_iso_boot_path() == 'boot/ix86'
+        mock_machine.return_value = 'x86_64'
+        assert Defaults.get_iso_boot_path() == 'boot/x86_64'

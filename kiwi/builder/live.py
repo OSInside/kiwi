@@ -34,7 +34,7 @@ from kiwi.firmware import FirmWare
 from kiwi.defaults import Defaults
 from kiwi.path import Path
 from kiwi.system.result import Result
-from kiwi.iso import Iso
+from kiwi.iso_tools.iso import Iso
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.system.kernel import Kernel
 from kiwi.logger import log

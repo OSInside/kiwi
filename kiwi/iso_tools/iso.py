@@ -16,10 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import re
 import struct
-import collections
-import platform
 from tempfile import NamedTemporaryFile
 from collections import namedtuple
 
@@ -29,14 +26,14 @@ from collections import namedtuple
 from builtins import bytes
 
 # project
-from .utils.command_capabilities import CommandCapabilities
-from .logger import log
-from .path import Path
-from .command import Command
-from .exceptions import (
+from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
+from kiwi.logger import log
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.command import Command
+from kiwi.exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError,
-    KiwiIsoToolError,
     KiwiCommandError
 )
 
@@ -46,9 +43,6 @@ class Iso(object):
     Implements helper methods around the creation of ISO filesystems
 
     Attributes
-
-    * :attr:`arch`
-        system architecture
 
     * :attr:`header_id`
         static identifier string for self written headers
@@ -67,25 +61,14 @@ class Iso(object):
 
     * :attr:`iso_sortfile`
         named temporary file used as ISO sortfile
-
-    * :attr:`iso_parameters`
-        list of ISO creation parameters
-
-    * :attr:`iso_loaders`
-        list of ISO loaders to embed
     """
     def __init__(self, source_dir):
-        self.arch = platform.machine()
-        if self.arch == 'i686' or self.arch == 'i586':
-            self.arch = 'ix86'
         self.source_dir = source_dir
         self.header_id = '7984fc91-a43f-4e45-bf27-6d3aa08b24cf'
         self.header_end_name = 'header_end'
         self.header_end_file = self.source_dir + '/' + self.header_end_name
-        self.boot_path = 'boot/' + self.arch
+        self.boot_path = Defaults.get_iso_boot_path()
         self.iso_sortfile = NamedTemporaryFile()
-        self.iso_parameters = []
-        self.iso_loaders = []
 
     @classmethod
     def create_hybrid(self, offset, mbrid, isofile, efi_mode=False):
@@ -186,9 +169,11 @@ class Iso(object):
                     new_volume_id = Iso._sub_string(
                         data=new_volume_descriptor, length=7
                     )
-                    if bytes(b'TEA01') in new_volume_id or sector + 1 == ref_sector:
+                    if (bytes(b'TEA01') in new_volume_id or
+                            sector + 1 == ref_sector):
                         new_boot_catalog_sector = sector + 1
                         break
+
             if iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
                 new_boot_catalog = Iso._read_iso_sector(
                     new_boot_catalog_sector, iso
@@ -273,119 +258,17 @@ class Iso(object):
                 )
             log.debug('Fixed iso catalog contents')
 
-    @classmethod
-    def get_iso_creation_tool(self):
+    def create_header_end_marker(self):
         """
-        There are tools by J.Schilling and tools from the community
-        Depending on what is installed a decision needs to be made
+        Prepare iso file to become a hybrid iso image.
+
+        To do this the offest address of the end of the first iso
+        block is required. To lookup this address a reference(marker)
+        file named 'header_end' is created and will show up as last
+        file in the block.
         """
-        iso_creation_tools = ['mkisofs', 'genisoimage']
-        for tool in iso_creation_tools:
-            tool_found = Path.which(tool)
-            if tool_found:
-                return tool_found
-
-        raise KiwiIsoToolError(
-            'No iso creation tool found, searched for: %s' %
-            iso_creation_tools
-        )
-
-    @classmethod
-    def get_isoinfo_tool(self):
-        """
-        There are tools by J.Schilling and tools from the community
-        Depending on what is installed a decision needs to be done
-        """
-        alternative_lookup_paths = ['/usr/lib/genisoimage']
-        isoinfo = Path.which('isoinfo', alternative_lookup_paths)
-        if isoinfo:
-            return isoinfo
-
-        raise KiwiIsoToolError(
-            'No isoinfo tool found, searched in PATH: %s and %s' %
-            (os.environ.get('PATH'), alternative_lookup_paths)
-        )
-
-    def init_iso_creation_parameters(self, custom_args=None):
-        """
-        Create a set of standard parameters for the main isolinux loader
-
-        In addition a sort file with the contents of the iso is created.
-        The kiwi iso file is also prepared to become a hybrid iso image.
-        In order to do this the offest address of the end of the first iso
-        block is required. In order to lookup the address a reference file
-        named 'header_end' is created and will show up as last file in
-        the block.
-
-        :param list custom_args: custom ISO creation args
-        """
-        loader_file = self.boot_path + '/loader/isolinux.bin'
-        catalog_file = self.boot_path + '/boot.catalog'
         with open(self.header_end_file, 'w') as marker:
             marker.write('%s\n' % self.header_id)
-        if not os.path.exists(self.source_dir + '/' + loader_file):
-            raise KiwiIsoLoaderError(
-                'No isolinux loader found in %s' %
-                self.source_dir + '/loader'
-            )
-        if custom_args:
-            self.iso_parameters = custom_args
-        self.iso_parameters += [
-            '-R', '-J', '-f', '-pad', '-joliet-long',
-            '-sort', self.iso_sortfile.name,
-            '-no-emul-boot', '-boot-load-size', '4', '-boot-info-table',
-            '-hide', catalog_file,
-            '-hide-joliet', catalog_file,
-        ]
-        self.iso_loaders += [
-            '-b', loader_file, '-c', catalog_file
-        ]
-        self._setup_isolinux_boot_path()
-        self._create_sortfile()
-
-    def add_efi_loader_parameters(self):
-        """
-        Add ISO creation parameters to embed the EFI loader
-
-        In order to boot the ISO from EFI, the EFI binary is added as
-        alternative loader to the ISO creation parameter list. The
-        EFI binary must be included into a fat filesystem in order
-        to become recognized by the firmware. For details about this
-        file refer to _create_embedded_fat_efi_image() from
-        bootloader/config/grub2.py
-        """
-        loader_file = self.boot_path + '/efi'
-        if os.path.exists(os.sep.join([self.source_dir, loader_file])):
-            self.iso_loaders.append('-eltorito-alt-boot')
-            iso_tool = self.get_iso_creation_tool()
-            if iso_tool and CommandCapabilities.has_option_in_help(
-                iso_tool, '-eltorito-platform', raise_on_error=False
-            ):
-                self.iso_loaders += ['-eltorito-platform', 'efi']
-            self.iso_loaders += [
-                '-b', loader_file, '-no-emul-boot', '-joliet-long'
-            ]
-            loader_file_512_byte_blocks = os.path.getsize(
-                os.sep.join([self.source_dir, loader_file])
-            ) / 512
-            # boot-load-size is stored in a 16bit range, thus we only
-            # set the value if it fits into that range
-            if loader_file_512_byte_blocks <= 0xffff:
-                self.iso_loaders.append(
-                    '-boot-load-size'
-                )
-                self.iso_loaders.append(
-                    format(int(loader_file_512_byte_blocks))
-                )
-
-    def get_iso_creation_parameters(self):
-        """
-        Return current list of ISO creation parameters
-
-        :return: genisoimage args
-        :rtype: list
-        """
-        return self.iso_parameters + self.iso_loaders
 
     def create_header_end_block(self, isofile):
         """
@@ -402,8 +285,9 @@ class Iso(object):
         file_count = 0
         offset = 0
         found_id = False
+        iso_tool = IsoToolsCdrTools(self.source_dir)
         with open(isofile, 'rb') as iso:
-            for start in self.isols(isofile):
+            for start in iso_tool.list_iso(isofile):
                 if file_count >= 8:  # check only the first 8 files
                     break
                 file_count += 1
@@ -432,47 +316,18 @@ class Iso(object):
                 )
             return offset * 4
 
-    def isols(self, isofile):
+    def setup_isolinux_boot_path(self):
         """
-        List contents of an ISO image
-
-        :param string isofile: path to the ISO file
-
-        :return: formatted isoinfo result
-        :rtype: dict
-        """
-        listing_type = namedtuple(
-            'listing_type', ['name', 'filetype', 'start']
-        )
-        listing = Command.run(
-            [self.get_isoinfo_tool(), '-R', '-l', '-i', isofile]
-        )
-        listing_result = {}
-        for line in listing.output.split('\n'):
-            iso_entry = re.search(
-                '.*(-[-rwx]{9}).*\s\[\s*(\d+)(\s+\d+)?\]\s+(.*?)\s*$', line
-            )
-            if iso_entry:
-                entry_type = iso_entry.group(1)
-                entry_name = iso_entry.group(4)
-                entry_addr = int(iso_entry.group(2))
-                listing_result[entry_addr] = listing_type(
-                    name=entry_name,
-                    filetype=entry_type,
-                    start=entry_addr
-                )
-        return collections.OrderedDict(
-            sorted(listing_result.items())
-        )
-
-    def _setup_isolinux_boot_path(self):
-        """
-        Write the isolinux base boot path into the loader
+        Write the base boot path into the isolinux loader binary
         """
         loader_base_directory = self.boot_path + '/loader'
         loader_file = '/'.join(
             [self.source_dir, self.boot_path, 'loader/isolinux.bin']
         )
+        if not os.path.exists(loader_file):
+            raise KiwiIsoLoaderError(
+                'No isolinux loader %s found'.format(loader_file)
+            )
         try:
             Command.run(
                 [
@@ -497,7 +352,10 @@ class Iso(object):
                 ['bash', '-c', bash_command]
             )
 
-    def _create_sortfile(self):
+    def create_sortfile(self):
+        """
+        Create isolinux sort file
+        """
         catalog_file = \
             self.source_dir + '/' + self.boot_path + '/boot.catalog'
         loader_file = \
@@ -520,6 +378,7 @@ class Iso(object):
             sortfile.write(
                 '%s/%s 1000000\n' % (self.source_dir, self.header_end_name)
             )
+        return self.iso_sortfile.name
 
     @staticmethod
     def _read_iso_metadata(isofile):

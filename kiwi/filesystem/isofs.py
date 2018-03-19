@@ -17,8 +17,8 @@
 #
 # project
 from kiwi.filesystem.base import FileSystemBase
-from kiwi.command import Command
-from kiwi.iso import Iso
+from kiwi.iso_tools.iso import Iso
+from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
 
 
 class FileSystemIsoFs(FileSystemBase):
@@ -36,28 +36,26 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param string exclude: unused
         """
+        iso_tool = IsoToolsCdrTools(self.root_dir)
+
         iso = Iso(self.root_dir)
-        iso.init_iso_creation_parameters(
-            self.custom_args['create_options']
+        iso.setup_isolinux_boot_path()
+
+        iso.create_header_end_marker()
+
+        iso_tool.init_iso_creation_parameters(
+            iso.create_sortfile(), self.custom_args['create_options']
         )
-        iso.add_efi_loader_parameters()
-        Command.run(
-            [
-                Iso.get_iso_creation_tool()
-            ] + iso.get_iso_creation_parameters() + [
-                '-o', filename, self.root_dir
-            ]
-        )
+        iso_tool.add_efi_loader_parameters()
+
+        iso_tool.create_iso(filename)
+
         hybrid_offset = iso.create_header_end_block(filename)
-        Command.run(
-            [
-                Iso.get_iso_creation_tool(),
-                '-hide', iso.header_end_name,
-                '-hide-joliet', iso.header_end_name
-            ] + iso.get_iso_creation_parameters() + [
-                '-o', filename, self.root_dir
-            ]
+
+        iso_tool.create_iso(
+            filename, hidden_files=[iso.header_end_name]
         )
+
         iso.relocate_boot_catalog(filename)
         iso.fix_boot_catalog(filename)
         return hybrid_offset
