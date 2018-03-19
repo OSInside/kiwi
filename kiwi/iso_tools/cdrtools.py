@@ -36,6 +36,14 @@ class IsoToolsCdrTools(IsoToolsBase):
     the cdrkit/cdrtools projects. Addressed here are the option
     compatible tools mkisofs and genisoimage
     """
+    def has_iso_hybrid_capability(self):
+        """
+        Indicate if the iso tool has the capability to embed a
+        partition table into the iso such that it can be
+        used as both; an iso and a disk
+        """
+        return False
+
     def get_tool_name(self):
         """
         There are tools by J.Schilling and tools from the community

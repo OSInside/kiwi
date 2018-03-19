@@ -50,12 +50,11 @@ class FileSystemIsoFs(FileSystemBase):
 
         iso_tool.create_iso(filename)
 
-        hybrid_offset = iso.create_header_end_block(filename)
-
-        iso_tool.create_iso(
-            filename, hidden_files=[iso.header_end_name]
-        )
-
-        iso.relocate_boot_catalog(filename)
-        iso.fix_boot_catalog(filename)
-        return hybrid_offset
+        if not iso_tool.has_iso_hybrid_capability():
+            hybrid_offset = iso.create_header_end_block(filename)
+            iso_tool.create_iso(
+                filename, hidden_files=[iso.header_end_name]
+            )
+            iso.relocate_boot_catalog(filename)
+            iso.fix_boot_catalog(filename)
+            return hybrid_offset
