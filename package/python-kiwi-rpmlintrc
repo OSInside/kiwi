@@ -12,9 +12,6 @@ addFilter("explicit-lib-dependency .*")
 # don't blame on auto generated code
 addFilter("non-executable-script .*/xml_parse.py.*")
 
-# don't blame on dracut scripts
-addFilter("non-executable-script .*/dracut/modules.d.*")
-
 # don't check uid for tftpboot
 addFilter("non-standard-uid .*")
 
