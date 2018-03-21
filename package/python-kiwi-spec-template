@@ -422,6 +422,10 @@ Provides manual pages to describe the kiwi commands
 %prep
 %setup -q -n kiwi-%{version}
 
+# Drop shebang for kiwi/xml_parse.py, as we don't intend to use it
+# as an independent script
+sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
+
 %build
 # Build Python 2 version
 python2 setup.py build --cflags="${RPM_OPT_FLAGS}"
