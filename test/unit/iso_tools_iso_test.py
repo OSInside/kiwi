@@ -12,21 +12,13 @@ from kiwi.exceptions import (
 )
 
 from kiwi.iso_tools.iso import Iso
-from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 
 class TestIso(object):
-    @patch('kiwi.iso_tools.iso.NamedTemporaryFile')
     @patch('platform.machine')
-    def setup(self, mock_machine, mock_tempfile):
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
+    def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        mock_tempfile.return_value = temp_type(
-            name='sortfile'
-        )
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()
         self.enter_mock = mock.Mock()
@@ -86,33 +78,6 @@ class TestIso(object):
             ]
         )
 
-    @patch_open
-    @patch('os.walk')
-    def test_create_sortfile(self, mock_walk, mock_open):
-        mock_walk_results = [
-            [('source-dir', ('EFI',), ())],
-            [('source-dir', ('bar', 'baz'), ('efi', 'eggs'))]
-        ]
-
-        def side_effect(arg):
-            return mock_walk_results.pop()
-
-        mock_walk.side_effect = side_effect
-        mock_open.return_value = self.context_manager_mock
-
-        self.iso.create_sortfile()
-
-        assert self.file_mock.write.call_args_list == [
-            call('source-dir/boot/x86_64/boot.catalog 3\n'),
-            call('source-dir/boot/x86_64/loader/isolinux.bin 2\n'),
-            call('source-dir/efi 1000001\n'),
-            call('source-dir/eggs 1\n'),
-            call('source-dir/bar 1\n'),
-            call('source-dir/baz 1\n'),
-            call('source-dir/EFI 1\n'),
-            call('source-dir/header_end 1000000\n')
-        ]
-
     def test_create_header_end_block(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
@@ -130,14 +95,10 @@ class TestIso(object):
 
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid(self, mock_command):
-        mbrid = mock.Mock()
-        mbrid.get_id = mock.Mock(
-            return_value='0x0815'
-        )
         command = mock.Mock()
         command.error = None
         mock_command.return_value = command
-        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+        Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
         mock_command.assert_called_once_with(
             [
                 'isohybrid', '--offset', '42',
@@ -149,42 +110,30 @@ class TestIso(object):
     @raises(KiwiCommandError)
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_error(self, mock_command):
-        mbrid = mock.Mock()
-        mbrid.get_id = mock.Mock(
-            return_value='0x0815'
-        )
         command = mock.Mock()
         command.error = 'some error message'
         mock_command.return_value = command
-        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+        Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
 
     @raises(KiwiCommandError)
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_multiple_errors(self, mock_command):
-        mbrid = mock.Mock()
-        mbrid.get_id = mock.Mock(
-            return_value='0x0815'
-        )
         command = mock.Mock()
         command.error = \
             'isohybrid: Warning: more than 1024 cylinders: 1817\n' + \
             'isohybrid: Not all BIOSes will be able to boot this device\n' + \
             'isohybrid: some other error we do not ignore'
         mock_command.return_value = command
-        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+        Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
 
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_cylinders_warning(self, mock_command):
-        mbrid = mock.Mock()
-        mbrid.get_id = mock.Mock(
-            return_value='0x0815'
-        )
         command = mock.Mock()
         command.error = \
             'isohybrid: Warning: more than 1024 cylinders: 1817\n' + \
             'isohybrid: Not all BIOSes will be able to boot this device\n'
         mock_command.return_value = command
-        Iso.create_hybrid(42, mbrid, 'some-iso', 'efi')
+        Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
         mock_command.assert_called_once_with(
             [
                 'isohybrid', '--offset', '42',

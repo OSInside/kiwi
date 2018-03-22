@@ -115,10 +115,9 @@ class TestInstallImageBuilder(object):
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open
     @patch('kiwi.builder.install.Command.run')
-    @patch('kiwi.builder.install.Iso.create_hybrid')
     @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
     def test_create_install_iso(
-        self, mock_grub_dir, mock_hybrid, mock_command, mock_open,
+        self, mock_grub_dir, mock_command, mock_open,
         mock_dtemp, mock_copy
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
@@ -191,10 +190,6 @@ class TestInstallImageBuilder(object):
         ]
         self.iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.install.iso'
-        )
-        mock_hybrid.assert_called_once_with(
-            42, self.mbrid, 'target_dir/result-image.x86_64-1.2.3.install.iso',
-            'uefi'
         )
 
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']

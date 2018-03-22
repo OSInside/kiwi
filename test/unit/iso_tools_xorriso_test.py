@@ -32,10 +32,16 @@ class TestIsoToolsXorrIso(object):
     def test_init_iso_creation_parameters(self, mock_which):
         mock_which.return_value = '/usr/share/syslinux/isohdpfx.bin'
         self.iso_tool.init_iso_creation_parameters(
-            'sortfile', ['-A', 'app_id', '-p', 'preparer', '-V', 'vol_id']
+            {
+                'mbr_id': 'app_id',
+                'publisher': 'org',
+                'preparer': 'preparer',
+                'volume_id': 'vol_id'
+            }
         )
         assert self.iso_tool.iso_parameters == [
             '-application_id', 'app_id',
+            '-publisher', 'org',
             '-preparer_id', 'preparer',
             '-volid', 'vol_id',
             '-joliet', 'on',

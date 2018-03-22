@@ -1,6 +1,7 @@
 from mock import patch, call
+import mock
 from collections import namedtuple
-from .test_helper import raises
+from .test_helper import raises, patch_open
 
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
 from kiwi.exceptions import KiwiIsoToolError
@@ -10,6 +11,14 @@ class TestIsoToolsCdrTools(object):
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
+        self.context_manager_mock = mock.Mock()
+        self.file_mock = mock.Mock()
+        self.enter_mock = mock.Mock()
+        self.exit_mock = mock.Mock()
+        self.enter_mock.return_value = self.file_mock
+        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
+        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
+
         self.iso_tool = IsoToolsCdrTools('source-dir')
 
     @patch('kiwi.iso_tools.cdrtools.Path.which')
@@ -31,10 +40,51 @@ class TestIsoToolsCdrTools(object):
         mock_exists.return_value = False
         self.iso_tool.get_tool_name()
 
-    def test_init_iso_creation_parameters(self):
-        self.iso_tool.init_iso_creation_parameters('sortfile', ['custom_arg'])
+    @patch_open
+    @patch('os.walk')
+    @patch('kiwi.iso_tools.cdrtools.NamedTemporaryFile')
+    def test_init_iso_creation_parameters(
+        self, mock_tempfile, mock_walk, mock_open
+    ):
+        temp_type = namedtuple(
+            'temp_type', ['name']
+        )
+        mock_tempfile.return_value = temp_type(
+            name='sortfile'
+        )
+        mock_walk_results = [
+            [('source-dir', ('EFI',), ())],
+            [('source-dir', ('bar', 'baz'), ('efi', 'eggs'))]
+        ]
+
+        def side_effect(arg):
+            return mock_walk_results.pop()
+
+        mock_walk.side_effect = side_effect
+        mock_open.return_value = self.context_manager_mock
+        self.iso_tool.init_iso_creation_parameters(
+            {
+                'mbr_id': 'app_id',
+                'publisher': 'org',
+                'preparer': 'name',
+                'volume_id': 'vol_id',
+                'udf': True
+            }
+        )
+        assert self.file_mock.write.call_args_list == [
+            call('source-dir/boot/x86_64/boot.catalog 3\n'),
+            call('source-dir/boot/x86_64/loader/isolinux.bin 2\n'),
+            call('source-dir/efi 1000001\n'),
+            call('source-dir/eggs 1\n'),
+            call('source-dir/bar 1\n'),
+            call('source-dir/baz 1\n'),
+            call('source-dir/EFI 1\n'),
+            call('source-dir/header_end 1000000\n')
+        ]
         assert self.iso_tool.iso_parameters == [
-            'custom_arg', '-R', '-J', '-f', '-pad', '-joliet-long',
+            '-A', 'app_id', '-publisher', 'org', '-p', 'name', '-V', 'vol_id',
+            '-iso-level', '3', '-udf',
+            '-R', '-J', '-f', '-pad', '-joliet-long',
             '-sort', 'sortfile', '-no-emul-boot', '-boot-load-size', '4',
             '-boot-info-table',
             '-hide', 'boot/x86_64/boot.catalog',

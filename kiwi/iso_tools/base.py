@@ -56,13 +56,12 @@ class IsoToolsBase(object):
         """
         raise NotImplementedError
 
-    def init_iso_creation_parameters(self, sortfile, custom_args=None):
+    def init_iso_creation_parameters(self, custom_args=None):
         """
         Create a set of standard parameters for the main isolinux loader
 
         Implementation in specialized tool class
 
-        :param string sortfile: unused
         :param list custom_args: unused
         """
         raise NotImplementedError

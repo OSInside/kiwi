@@ -47,26 +47,28 @@ class IsoToolsXorrIso(IsoToolsBase):
 
         raise KiwiIsoToolError('xorriso tool not found')
 
-    def init_iso_creation_parameters(self, sortfile, custom_args=None):
+    def init_iso_creation_parameters(self, custom_args=None):
         """
         Create a set of standard parameters
 
-        :param string sortfile: unused
-        :param list custom_args: custom ISO creation args
+        :param list custom_args: custom ISO meta data
         """
         if custom_args:
-            custom_args_dict = dict(zip(custom_args[0::2], custom_args[1::2]))
-            if '-A' in custom_args_dict:
+            if 'mbr_id' in custom_args:
                 self.iso_parameters += [
-                    '-application_id', custom_args_dict['-A']
+                    '-application_id', custom_args['mbr_id']
                 ]
-            if '-p' in custom_args_dict:
+            if 'publisher' in custom_args:
                 self.iso_parameters += [
-                    '-preparer_id', custom_args_dict['-p']
+                    '-publisher', custom_args['publisher']
                 ]
-            if '-V' in custom_args_dict:
+            if 'preparer' in custom_args:
                 self.iso_parameters += [
-                    '-volid', custom_args_dict['-V']
+                    '-preparer_id', custom_args['preparer']
+                ]
+            if 'volume_id' in custom_args:
+                self.iso_parameters += [
+                    '-volid', custom_args['volume_id']
                 ]
         catalog_file = self.boot_path + '/boot.catalog'
         self.iso_parameters += [

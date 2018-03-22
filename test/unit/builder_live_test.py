@@ -116,8 +116,6 @@ class TestLiveImageBuilder(object):
         self.result = mock.Mock()
         self.live_image.result = self.result
 
-        self.live_image.hybrid = True
-
     @patch('platform.machine')
     def test_init_for_ix86_platform(self, mock_machine):
         xml_state = mock.Mock()
@@ -136,7 +134,6 @@ class TestLiveImageBuilder(object):
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.NamedTemporaryFile')
     @patch('kiwi.builder.live.shutil')
-    @patch('kiwi.builder.live.Iso.create_hybrid')
     @patch('kiwi.builder.live.Iso.set_media_tag')
     @patch('kiwi.builder.live.FileSystemIsoFs')
     @patch('kiwi.builder.live.SystemSize')
@@ -145,7 +142,7 @@ class TestLiveImageBuilder(object):
     @patch_open
     def test_create_overlay_structure(
         self, mock_open, mock_exists, mock_grub_dir, mock_size,
-        mock_isofs, mock_tag, mock_hybrid, mock_shutil, mock_tmpfile, mock_dtemp
+        mock_isofs, mock_tag, mock_shutil, mock_tmpfile, mock_dtemp
     ):
         tempfile = mock.Mock()
         tempfile.name = 'tmpfile'
@@ -260,21 +257,18 @@ class TestLiveImageBuilder(object):
         rootsize.accumulate_mbyte_file_sizes.assert_called_once_with()
         mock_isofs.assert_called_once_with(
             custom_args={
-                'create_options': [
-                    '-A', '0xffffffff',
-                    '-p', 'KIWI - http://suse.github.com/kiwi',
-                    '-publisher', 'Custom publisher',
-                    '-V', 'volid',
-                    '-iso-level', '3', '-udf'
-                ]
+                'meta_data': {
+                    'mbr_id': '0xffffffff',
+                    'preparer': 'KIWI - http://suse.github.com/kiwi',
+                    'publisher': 'Custom publisher',
+                    'volume_id': 'volid',
+                    'efi_mode': 'uefi',
+                    'udf': True
+                }
             }, device_provider=None, root_dir='temp_media_dir'
         )
         iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.iso'
-        )
-        mock_hybrid.assert_called_once_with(
-            'offset', self.mbrid, 'target_dir/result-image.x86_64-1.2.3.iso',
-            'uefi'
         )
         assert self.result.add.call_args_list == [
             call(

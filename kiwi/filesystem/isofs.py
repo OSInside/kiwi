@@ -36,16 +36,17 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param string exclude: unused
         """
+        meta_data = self.custom_args['meta_data']
         iso_tool = IsoTools(self.root_dir)
 
         iso = Iso(self.root_dir)
         iso.setup_isolinux_boot_path()
 
-        iso.create_header_end_marker()
+        if not iso_tool.has_iso_hybrid_capability():
+            iso.create_header_end_marker()
 
-        iso_tool.init_iso_creation_parameters(
-            iso.create_sortfile(), self.custom_args['create_options']
-        )
+        iso_tool.init_iso_creation_parameters(meta_data)
+
         iso_tool.add_efi_loader_parameters()
 
         iso_tool.create_iso(filename)
@@ -57,4 +58,10 @@ class FileSystemIsoFs(FileSystemBase):
             )
             iso.relocate_boot_catalog(filename)
             iso.fix_boot_catalog(filename)
-            return hybrid_offset
+            efi_mode = meta_data['efi_mode'] if 'efi_mode' in meta_data else \
+                False
+            mbr_id = meta_data['mbr_id'] if 'mbr_id' in meta_data else \
+                '0xffffffff'
+            iso.create_hybrid(
+                hybrid_offset, mbr_id, filename, efi_mode
+            )
