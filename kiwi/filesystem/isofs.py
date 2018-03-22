@@ -18,7 +18,7 @@
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.iso_tools.iso import Iso
-from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
+from kiwi.iso_tools import IsoTools
 
 
 class FileSystemIsoFs(FileSystemBase):
@@ -36,7 +36,7 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param string exclude: unused
         """
-        iso_tool = IsoToolsCdrTools(self.root_dir)
+        iso_tool = IsoTools(self.root_dir)
 
         iso = Iso(self.root_dir)
         iso.setup_isolinux_boot_path()

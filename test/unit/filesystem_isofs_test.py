@@ -18,7 +18,7 @@ class TestFileSystemIsoFs(object):
         assert self.isofs.custom_args['mount_options'] == []
         assert self.isofs.custom_args['some_args'] == 'data'
 
-    @patch('kiwi.filesystem.isofs.IsoToolsCdrTools')
+    @patch('kiwi.filesystem.isofs.IsoTools')
     @patch('kiwi.filesystem.isofs.Iso')
     def test_create_on_file(self, mock_iso, mock_cdrtools):
         iso_tool = mock.Mock()

@@ -37,3 +37,22 @@ class TestRuntimeConfig(object):
             runtime_config = RuntimeConfig()
             assert runtime_config.get_obs_download_server_url() == \
                 Defaults.get_obs_download_server_url()
+
+    def test_get_iso_tool_category(self):
+        assert self.runtime_config.get_iso_tool_category() == 'cdrtools'
+
+    def test_get_iso_tool_category_default(self):
+        with patch.dict('os.environ', {'HOME': './'}):
+            runtime_config = RuntimeConfig()
+            assert runtime_config.get_iso_tool_category() == 'xorriso'
+
+    @patch.object(RuntimeConfig, '_get_attribute')
+    @patch('kiwi.logger.log.warning')
+    def test_get_iso_tool_category_invalid(
+        self, mock_warning, mock_get_attribute
+    ):
+        mock_get_attribute.return_value = 'foo'
+        assert self.runtime_config.get_iso_tool_category() == 'xorriso'
+        mock_warning.assert_called_once_with(
+            'Skipping invalid iso tool category: foo'
+        )

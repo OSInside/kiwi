@@ -4,3 +4,6 @@ xz:
 obs:
   - download_url: http://example.com
   - public: true
+
+iso:
+  - tool_category: cdrtools

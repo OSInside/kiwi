@@ -97,6 +97,33 @@ class RuntimeConfig(object):
         xz_options = self._get_attribute(element='xz', attribute='options')
         return xz_options.split() if xz_options else None
 
+    def get_iso_tool_category(self):
+        """
+        Return tool category which should be used to build iso images
+
+        iso:
+          - tool_category: cdrtools|xorriso
+
+        if no or invalid configuration exists the default tool category
+        from the Defaults class is returned
+
+        :rtype: string
+        """
+        iso_tool_category = self._get_attribute(
+            element='iso', attribute='tool_category'
+        )
+        if not iso_tool_category:
+            return Defaults.get_iso_tool_category()
+        elif 'cdrtools' in iso_tool_category or 'xorriso' in iso_tool_category:
+            return iso_tool_category
+        else:
+            log.warning(
+                'Skipping invalid iso tool category: {0}'.format(
+                    iso_tool_category
+                )
+            )
+            return Defaults.get_iso_tool_category()
+
     def get_max_size_constraint(self):
         """
         Returns the maximum allowed size of the built image. The value is
