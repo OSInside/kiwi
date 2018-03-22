@@ -174,7 +174,10 @@ class Iso(object):
                         new_boot_catalog_sector = sector + 1
                         break
 
-            if iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
+            if (
+                new_boot_catalog_sector and
+                iso_metadata.boot_catalog_sector != new_boot_catalog_sector
+            ):
                 new_boot_catalog = Iso._read_iso_sector(
                     new_boot_catalog_sector, iso
                 )

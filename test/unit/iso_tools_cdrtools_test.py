@@ -105,3 +105,6 @@ class TestIsoToolsCdrTools(object):
     def test_list_iso_no_tool_found(self, mock_exists):
         mock_exists.return_value = False
         self.iso_tool.list_iso('some-iso')
+
+    def test_has_iso_hybrid_capability(self):
+        assert self.iso_tool.has_iso_hybrid_capability() is False

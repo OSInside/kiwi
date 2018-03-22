@@ -893,6 +893,13 @@ class Defaults(object):
         return os.sep.join(['boot', arch])
 
     @classmethod
+    def get_iso_tool_category(self):
+        """
+        Returns default iso tool category
+        """
+        return 'xorriso'
+
+    @classmethod
     def set_python_default_encoding_to_utf8(self):
         """
         Set python default encoding to utf-8 if not already done

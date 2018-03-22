@@ -18,7 +18,7 @@
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.iso_tools.iso import Iso
-from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
+from kiwi.iso_tools import IsoTools
 
 
 class FileSystemIsoFs(FileSystemBase):
@@ -36,7 +36,7 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param string exclude: unused
         """
-        iso_tool = IsoToolsCdrTools(self.root_dir)
+        iso_tool = IsoTools(self.root_dir)
 
         iso = Iso(self.root_dir)
         iso.setup_isolinux_boot_path()
@@ -50,12 +50,11 @@ class FileSystemIsoFs(FileSystemBase):
 
         iso_tool.create_iso(filename)
 
-        hybrid_offset = iso.create_header_end_block(filename)
-
-        iso_tool.create_iso(
-            filename, hidden_files=[iso.header_end_name]
-        )
-
-        iso.relocate_boot_catalog(filename)
-        iso.fix_boot_catalog(filename)
-        return hybrid_offset
+        if not iso_tool.has_iso_hybrid_capability():
+            hybrid_offset = iso.create_header_end_block(filename)
+            iso_tool.create_iso(
+                filename, hidden_files=[iso.header_end_name]
+            )
+            iso.relocate_boot_catalog(filename)
+            iso.fix_boot_catalog(filename)
+            return hybrid_offset

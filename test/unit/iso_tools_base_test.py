@@ -29,3 +29,7 @@ class TestIsoToolsBase(object):
     @raises(NotImplementedError)
     def test_add_efi_loader_parameters(self):
         self.iso_tool.add_efi_loader_parameters()
+
+    @raises(NotImplementedError)
+    def test_has_iso_hybrid_capability(self):
+        self.iso_tool.has_iso_hybrid_capability()

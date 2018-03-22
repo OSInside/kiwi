@@ -92,3 +92,13 @@ class IsoToolsBase(object):
         :param string isofile: unused
         """
         raise NotImplementedError
+
+    def has_iso_hybrid_capability(self):
+        """
+        Indicate if the iso tool has the capability to embed
+        a partition table into the iso such that it can be
+        used as both; an iso and a disk
+
+        Implementation in specialized tool class
+        """
+        raise NotImplementedError

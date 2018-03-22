@@ -255,8 +255,8 @@ class LiveImageBuilder(object):
         )
         iso_header_offset = iso_image.create_on_file(self.isoname)
 
-        # make it hybrid
-        if self.hybrid:
+        # make it hybrid if not already done by iso tool
+        if self.hybrid and iso_header_offset:
             Iso.create_hybrid(
                 iso_header_offset, self.mbrid, self.isoname,
                 self.firmware.efi_mode()
