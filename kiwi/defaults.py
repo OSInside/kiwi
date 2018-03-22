@@ -670,6 +670,16 @@ class Defaults(object):
         return Defaults().defaults['kiwi_startsector']
 
     @classmethod
+    def get_default_efi_partition_table_type(self):
+        """
+        Implements the default partition table type for efi firmwares.
+
+        :return: partition table type
+        :rtype: string
+        """
+        return 'gpt'
+
+    @classmethod
     def get_default_inode_size(self):
         """
         Implements default size of inodes in bytes. This is only

@@ -17,9 +17,15 @@ class TestFirmWare(object):
         xml_state.build_type.get_firmware.return_value = 'bios'
         self.firmware_bios = FirmWare(xml_state)
 
+        xml_state.build_type.get_efiparttable.return_value = None
         xml_state.build_type.get_efipartsize.return_value = None
         xml_state.build_type.get_firmware.return_value = 'efi'
         self.firmware_efi = FirmWare(xml_state)
+
+        xml_state.build_type.get_efiparttable.return_value = 'msdos'
+        xml_state.build_type.get_efipartsize.return_value = None
+        xml_state.build_type.get_firmware.return_value = 'efi'
+        self.firmware_efi_mbr = FirmWare(xml_state)
 
         xml_state.build_type.get_efipartsize.return_value = 42
         self.firmware_efi_custom_efi_part = FirmWare(xml_state)
@@ -59,6 +65,7 @@ class TestFirmWare(object):
     def test_get_partition_table_type(self):
         assert self.firmware_bios.get_partition_table_type() == 'msdos'
         assert self.firmware_efi.get_partition_table_type() == 'gpt'
+        assert self.firmware_efi_mbr.get_partition_table_type() == 'msdos'
         assert self.firmware_s390_ldl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_cdl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'

@@ -1307,6 +1307,15 @@ div {
             sch:param [ name = "attr" value = "efipartsize" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
+    k.type.efiparttable.attribute =
+        ## For images with an EFI firmware specifies the partition
+        ## table type to use. If not set defaults to gpt partition 
+        ## table type.
+        attribute efiparttable { "msdos" | "gpt" }
+        >> sch:pattern [ id = "efiparttable" is-a = "image_type"
+            sch:param [ name = "attr" value = "efiparttable" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
     k.type.bootprofile.attribute =
         ## Specifies the boot profile defined in the boot image
         ## description. When kiwi builds the boot image the
@@ -1713,6 +1722,7 @@ div {
         k.type.bootpartition.attribute? &
         k.type.bootpartsize.attribute? &
         k.type.efipartsize.attribute? &
+        k.type.efiparttable.attribute? &
         k.type.bootprofile.attribute? &
         k.type.boottimeout.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &

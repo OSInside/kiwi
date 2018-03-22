@@ -1957,6 +1957,21 @@ size is set to 20 MB</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
+    <define name="k.type.efiparttable.attribute">
+      <attribute name="efiparttable">
+        <a:documentation>For images with an EFI firmware specifies the partition
+table type to use. If not set defaults to gpt partition 
+table type.</a:documentation>
+        <choice>
+          <value>msdos</value>
+          <value>gpt</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="efiparttable" is-a="image_type">
+        <sch:param name="attr" value="efiparttable"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
         <a:documentation>Specifies the boot profile defined in the boot image
@@ -2543,6 +2558,9 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.efipartsize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.efiparttable.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.bootprofile.attribute"/>
