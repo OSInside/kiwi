@@ -9,9 +9,6 @@ addFilter("no-manual-page-for-binary kiwi-ng")
 addFilter("suse-filelist-empty .*")
 addFilter("explicit-lib-dependency .*")
 
-# don't blame on auto generated code
-addFilter("non-executable-script .*/xml_parse.py.*")
-
 # don't check uid for tftpboot
 addFilter("non-standard-uid .*")
 
