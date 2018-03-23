@@ -57,7 +57,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.8" }
+        attribute schemaversion { "6.9" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -1481,16 +1481,6 @@ div {
         ## Specifies the filesystem mount options which also ends up in fstab
         ## The string given here is passed as value to the -o option of mount
         attribute fsmountoptions { text }
-    k.type.hybrid.attribute =
-        ## Specifies that the ISO file will be turned into a hybrid image.
-        ## hybrid means the ISO image can be used as CD/DVD image and as a
-        ## disk image if the iso is e.g dumped on a USB stick. In both cases
-        ## the result is a bootable system.
-        attribute hybrid { xsd:boolean }
-        >> sch:pattern [ id = "hybrid" is-a = "image_type"
-            sch:param [ name = "attr" value = "hybrid" ]
-            sch:param [ name = "types" value = "iso pxe" ]
-        ]
     k.type.hybridpersistent.attribute =
         ## Will trigger the creation of a partition for a COW file
         ## to keep data persistent over a reboot
@@ -1737,7 +1727,6 @@ div {
         k.type.formatoptions.attribute? &
         k.type.fsmountoptions.attribute? &
         k.type.gcelicense.attribute? &
-        k.type.hybrid.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &
         k.type.gpt_hybrid_mbr.attribute? &

@@ -45,7 +45,6 @@ class TestProfile(object):
             'kiwi_drivers': '',
             'kiwi_firmware': 'efi',
             'kiwi_fsmountoptions': None,
-            'kiwi_hybrid': None,
             'kiwi_hybridpersistent_filesystem': None,
             'kiwi_hybridpersistent': None,
             'kiwi_iname': 'LimeJeOS-openSUSE-13.2',

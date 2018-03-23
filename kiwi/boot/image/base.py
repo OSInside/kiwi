@@ -255,7 +255,6 @@ class BootImageBase(object):
             'filesystem',
             'firmware',
             'fsmountoptions',
-            'hybrid',
             'hybridpersistent',
             'hybridpersistent_filesystem',
             'initrd_system',

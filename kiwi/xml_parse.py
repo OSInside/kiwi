@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.29.9.
+# Generated  by generateDS.py version 2.29.11.
 # Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
 #
 # Command line options:
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2717,7 +2717,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybrid=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2744,7 +2744,6 @@ class type_(GeneratedsSuper):
         self.formatoptions = _cast(None, formatoptions)
         self.fsmountoptions = _cast(None, fsmountoptions)
         self.gcelicense = _cast(None, gcelicense)
-        self.hybrid = _cast(bool, hybrid)
         self.hybridpersistent = _cast(bool, hybridpersistent)
         self.hybridpersistent_filesystem = _cast(None, hybridpersistent_filesystem)
         self.gpt_hybrid_mbr = _cast(bool, gpt_hybrid_mbr)
@@ -2900,8 +2899,6 @@ class type_(GeneratedsSuper):
     def set_fsmountoptions(self, fsmountoptions): self.fsmountoptions = fsmountoptions
     def get_gcelicense(self): return self.gcelicense
     def set_gcelicense(self, gcelicense): self.gcelicense = gcelicense
-    def get_hybrid(self): return self.hybrid
-    def set_hybrid(self, hybrid): self.hybrid = hybrid
     def get_hybridpersistent(self): return self.hybridpersistent
     def set_hybridpersistent(self, hybridpersistent): self.hybridpersistent = hybridpersistent
     def get_hybridpersistent_filesystem(self): return self.hybridpersistent_filesystem
@@ -3095,9 +3092,6 @@ class type_(GeneratedsSuper):
         if self.gcelicense is not None and 'gcelicense' not in already_processed:
             already_processed.add('gcelicense')
             outfile.write(' gcelicense=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.gcelicense), input_name='gcelicense')), ))
-        if self.hybrid is not None and 'hybrid' not in already_processed:
-            already_processed.add('hybrid')
-            outfile.write(' hybrid="%s"' % self.gds_format_boolean(self.hybrid, input_name='hybrid'))
         if self.hybridpersistent is not None and 'hybridpersistent' not in already_processed:
             already_processed.add('hybridpersistent')
             outfile.write(' hybridpersistent="%s"' % self.gds_format_boolean(self.hybridpersistent, input_name='hybridpersistent'))
@@ -3363,15 +3357,6 @@ class type_(GeneratedsSuper):
         if value is not None and 'gcelicense' not in already_processed:
             already_processed.add('gcelicense')
             self.gcelicense = value
-        value = find_attr_value_('hybrid', node)
-        if value is not None and 'hybrid' not in already_processed:
-            already_processed.add('hybrid')
-            if value in ('true', '1'):
-                self.hybrid = True
-            elif value in ('false', '0'):
-                self.hybrid = False
-            else:
-                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('hybridpersistent', node)
         if value is not None and 'hybridpersistent' not in already_processed:
             already_processed.add('hybridpersistent')
