@@ -17,6 +17,7 @@
 #
 import os
 import re
+from tempfile import NamedTemporaryFile
 from collections import (
     namedtuple,
     OrderedDict
@@ -62,19 +63,37 @@ class IsoToolsCdrTools(IsoToolsBase):
             )
         )
 
-    def init_iso_creation_parameters(self, sortfile, custom_args=None):
+    def init_iso_creation_parameters(self, custom_args=None):
         """
         Create a set of standard parameters
 
-        :param string sortfile: file path name
         :param list custom_args: custom ISO creation args
         """
         if custom_args:
-            self.iso_parameters = custom_args
+            if 'mbr_id' in custom_args:
+                self.iso_parameters += [
+                    '-A', custom_args['mbr_id']
+                ]
+            if 'publisher' in custom_args:
+                self.iso_parameters += [
+                    '-publisher', custom_args['publisher']
+                ]
+            if 'preparer' in custom_args:
+                self.iso_parameters += [
+                    '-p', custom_args['preparer']
+                ]
+            if 'volume_id' in custom_args:
+                self.iso_parameters += [
+                    '-V', custom_args['volume_id']
+                ]
+            if 'udf' in custom_args:
+                self.iso_parameters += [
+                    '-iso-level', '3', '-udf'
+                ]
         catalog_file = self.boot_path + '/boot.catalog'
         self.iso_parameters += [
             '-R', '-J', '-f', '-pad', '-joliet-long',
-            '-sort', sortfile,
+            '-sort', self._create_sortfile(),
             '-no-emul-boot', '-boot-load-size', '4', '-boot-info-table',
             '-hide', catalog_file,
             '-hide-joliet', catalog_file,
@@ -184,3 +203,32 @@ class IsoToolsCdrTools(IsoToolsBase):
             'No isoinfo tool found, searched in PATH: %s and %s' %
             (os.environ.get('PATH'), alternative_lookup_paths)
         )
+
+    def _create_sortfile(self):
+        """
+        Create isolinux sort file
+        """
+        self.iso_sortfile = NamedTemporaryFile()
+        catalog_file = \
+            self.source_dir + '/' + self.boot_path + '/boot.catalog'
+        loader_file = \
+            self.source_dir + '/' + self.boot_path + '/loader/isolinux.bin'
+        with open(self.iso_sortfile.name, 'w') as sortfile:
+            sortfile.write('%s 3\n' % catalog_file)
+            sortfile.write('%s 2\n' % loader_file)
+
+            boot_files = list(os.walk(self.source_dir + '/' + self.boot_path))
+            boot_files += list(os.walk(self.source_dir + '/EFI'))
+            for basedir, dirnames, filenames in boot_files:
+                for filename in filenames:
+                    if filename == 'efi':
+                        sortfile.write('%s/%s 1000001\n' % (basedir, filename))
+                    else:
+                        sortfile.write('%s/%s 1\n' % (basedir, filename))
+                for dirname in dirnames:
+                    sortfile.write('%s/%s 1\n' % (basedir, dirname))
+
+            sortfile.write(
+                '%s/%s 1000000\n' % (self.source_dir, 'header_end')
+            )
+        return self.iso_sortfile.name

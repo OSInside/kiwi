@@ -24,7 +24,7 @@ class TestIsoToolsBase(object):
 
     @raises(NotImplementedError)
     def test_init_iso_creation_parameters(self):
-        self.iso_tool.init_iso_creation_parameters('sortfile')
+        self.iso_tool.init_iso_creation_parameters()
 
     @raises(NotImplementedError)
     def test_add_efi_loader_parameters(self):

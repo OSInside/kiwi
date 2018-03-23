@@ -75,7 +75,6 @@ class LiveImageBuilder(object):
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.live_type = xml_state.build_type.get_flags()
-        self.hybrid = xml_state.build_type.get_hybrid()
         self.volume_id = xml_state.build_type.get_volid() or \
             Defaults.get_volume_id()
         self.mbrid = SystemIdentifier()
@@ -130,12 +129,13 @@ class LiveImageBuilder(object):
         log.info('--> Publisher: {0}'.format(Defaults.get_publisher()))
         log.info('--> Volume id: {0}'.format(self.volume_id))
         custom_iso_args = {
-            'create_options': [
-                '-A', self.mbrid.get_id(),
-                '-p', Defaults.get_preparer(),
-                '-publisher', self.publisher,
-                '-V', self.volume_id
-            ]
+            'meta_data': {
+                'publisher': self.publisher,
+                'preparer': Defaults.get_preparer(),
+                'volume_id': self.volume_id,
+                'mbr_id': self.mbrid.get_id(),
+                'efi_mode': self.firmware.efi_mode()
+            }
         }
 
         # pack system into live boot structure as expected by dracut
@@ -242,25 +242,15 @@ class LiveImageBuilder(object):
         # calculate size and decide if we need UDF
         if rootsize.accumulate_mbyte_file_sizes() > 4096:
             log.info('ISO exceeds 4G size, using UDF filesystem')
-            custom_iso_args['create_options'].append('-iso-level')
-            custom_iso_args['create_options'].append('3')
-            custom_iso_args['create_options'].append('-udf')
+            custom_iso_args['meta_data']['udf'] = True
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
         iso_image = FileSystemIsoFs(
-            device_provider=None,
-            root_dir=self.media_dir,
+            device_provider=None, root_dir=self.media_dir,
             custom_args=custom_iso_args
         )
-        iso_header_offset = iso_image.create_on_file(self.isoname)
-
-        # make it hybrid if not already done by iso tool
-        if self.hybrid and iso_header_offset:
-            Iso.create_hybrid(
-                iso_header_offset, self.mbrid, self.isoname,
-                self.firmware.efi_mode()
-            )
+        iso_image.create_on_file(self.isoname)
 
         # include metadata for checkmedia tool
         if self.xml_state.build_type.get_mediacheck() is True:

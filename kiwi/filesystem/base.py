@@ -88,6 +88,9 @@ class FileSystemBase(object):
         if 'create_options' not in self.custom_args:
             self.custom_args['create_options'] = []
 
+        if 'meta_data' not in self.custom_args:
+            self.custom_args['meta_data'] = {}
+
         if 'mount_options' not in self.custom_args:
             self.custom_args['mount_options'] = []
 

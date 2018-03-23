@@ -17,7 +17,6 @@
 #
 import os
 import struct
-from tempfile import NamedTemporaryFile
 from collections import namedtuple
 
 # In python2 bytes is string which is different from
@@ -50,17 +49,11 @@ class Iso(object):
     * :attr:`header_end_name`
         file name to store the header_id to
 
-    * :attr:`header_end_name`
-        file name to store the header_id to
-
     * :attr:`header_end_file`
         full file path for the header_end_name file
 
     * :attr:`boot_path`
         architecture specific boot path on the ISO
-
-    * :attr:`iso_sortfile`
-        named temporary file used as ISO sortfile
     """
     def __init__(self, source_dir):
         self.source_dir = source_dir
@@ -68,7 +61,6 @@ class Iso(object):
         self.header_end_name = 'header_end'
         self.header_end_file = self.source_dir + '/' + self.header_end_name
         self.boot_path = Defaults.get_iso_boot_path()
-        self.iso_sortfile = NamedTemporaryFile()
 
     @classmethod
     def create_hybrid(self, offset, mbrid, isofile, efi_mode=False):
@@ -91,7 +83,7 @@ class Iso(object):
         ]
         isohybrid_parameters = [
             '--offset', format(offset),
-            '--id', mbrid.get_id(),
+            '--id', mbrid,
             '--type', '0x83',
         ]
         if efi_mode:
@@ -354,34 +346,6 @@ class Iso(object):
             Command.run(
                 ['bash', '-c', bash_command]
             )
-
-    def create_sortfile(self):
-        """
-        Create isolinux sort file
-        """
-        catalog_file = \
-            self.source_dir + '/' + self.boot_path + '/boot.catalog'
-        loader_file = \
-            self.source_dir + '/' + self.boot_path + '/loader/isolinux.bin'
-        with open(self.iso_sortfile.name, 'w') as sortfile:
-            sortfile.write('%s 3\n' % catalog_file)
-            sortfile.write('%s 2\n' % loader_file)
-
-            boot_files = list(os.walk(self.source_dir + '/' + self.boot_path))
-            boot_files += list(os.walk(self.source_dir + '/EFI'))
-            for basedir, dirnames, filenames in boot_files:
-                for filename in filenames:
-                    if filename == 'efi':
-                        sortfile.write('%s/%s 1000001\n' % (basedir, filename))
-                    else:
-                        sortfile.write('%s/%s 1\n' % (basedir, filename))
-                for dirname in dirnames:
-                    sortfile.write('%s/%s 1\n' % (basedir, dirname))
-
-            sortfile.write(
-                '%s/%s 1000000\n' % (self.source_dir, self.header_end_name)
-            )
-        return self.iso_sortfile.name
 
     @staticmethod
     def _read_iso_metadata(isofile):

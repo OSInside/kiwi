@@ -14,7 +14,7 @@ class TestFileSystemIsoFs(object):
 
     def test_post_init(self):
         self.isofs.post_init({'some_args': 'data'})
-        assert self.isofs.custom_args['create_options'] == []
+        assert self.isofs.custom_args['meta_data'] == {}
         assert self.isofs.custom_args['mount_options'] == []
         assert self.isofs.custom_args['some_args'] == 'data'
 
@@ -37,9 +37,7 @@ class TestFileSystemIsoFs(object):
         iso.setup_isolinux_boot_path.assert_called_once_with()
         iso.create_header_end_marker.assert_called_once_with()
 
-        iso_tool.init_iso_creation_parameters.assert_called_once_with(
-            iso.create_sortfile.return_value, []
-        )
+        iso_tool.init_iso_creation_parameters.assert_called_once_with({})
         iso_tool.add_efi_loader_parameters.assert_called_once_with()
 
         iso.create_header_end_block.assert_called_once_with('myimage')
@@ -53,4 +51,8 @@ class TestFileSystemIsoFs(object):
         )
         iso.fix_boot_catalog.assert_called_once_with(
             'myimage'
+        )
+        iso.create_hybrid.assert_called_once_with(
+            iso.create_header_end_block.return_value,
+            '0xffffffff', 'myimage', False
         )

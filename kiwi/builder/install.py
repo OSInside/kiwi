@@ -32,7 +32,6 @@ from kiwi.defaults import Defaults
 from kiwi.utils.checksum import Checksum
 from kiwi.logger import log
 from kiwi.system.kernel import Kernel
-from kiwi.iso_tools.iso import Iso
 from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
 
@@ -140,10 +139,11 @@ class InstallImageBuilder(object):
         )
         # custom iso metadata
         self.custom_iso_args = {
-            'create_options': [
-                '-V', Defaults.get_install_volume_id(),
-                '-A', self.mbrid.get_id()
-            ]
+            'meta_data': {
+                'volume_id': Defaults.get_install_volume_id(),
+                'mbr_id': self.mbrid.get_id(),
+                'efi_mode': self.firmware.efi_mode()
+            }
         }
 
         # the system image transfer is checked against a checksum
@@ -219,18 +219,10 @@ class InstallImageBuilder(object):
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
         iso_image = FileSystemIsoFs(
-            device_provider=None,
-            root_dir=self.media_dir,
+            device_provider=None, root_dir=self.media_dir,
             custom_args=self.custom_iso_args
         )
-        iso_header_offset = iso_image.create_on_file(self.isoname)
-
-        # make it hybrid if not already done by iso tool
-        if iso_header_offset:
-            Iso.create_hybrid(
-                iso_header_offset, self.mbrid, self.isoname,
-                self.firmware.efi_mode()
-            )
+        iso_image.create_on_file(self.isoname)
 
     def create_install_pxe_archive(self):
         """
