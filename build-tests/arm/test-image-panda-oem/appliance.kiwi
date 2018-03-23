@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.8" name="openSUSE-Tumbleweed-ARM-JeOS-panda">
+<image schemaversion="6.9" name="openSUSE-Tumbleweed-ARM-JeOS-panda">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>

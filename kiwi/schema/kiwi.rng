@@ -105,7 +105,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.8</value>
+        <value>6.9</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -2205,19 +2205,6 @@ partitions</a:documentation>
 The string given here is passed as value to the -o option of mount</a:documentation>
       </attribute>
     </define>
-    <define name="k.type.hybrid.attribute">
-      <attribute name="hybrid">
-        <a:documentation>Specifies that the ISO file will be turned into a hybrid image.
-hybrid means the ISO image can be used as CD/DVD image and as a
-disk image if the iso is e.g dumped on a USB stick. In both cases
-the result is a bootable system.</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-      <sch:pattern id="hybrid" is-a="image_type">
-        <sch:param name="attr" value="hybrid"/>
-        <sch:param name="types" value="iso pxe"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.hybridpersistent.attribute">
       <attribute name="hybridpersistent">
         <a:documentation>Will trigger the creation of a partition for a COW file
@@ -2603,9 +2590,6 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.gcelicense.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.hybrid.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.hybridpersistent.attribute"/>

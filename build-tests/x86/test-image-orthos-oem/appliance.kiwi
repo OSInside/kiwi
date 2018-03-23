@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.8" name="factory-kiwi">
+<image schemaversion="6.9" name="factory-kiwi">
     <description type="system">
         <author>Julian Wolf</author>
         <contact>juwolf@suse.de</contact>

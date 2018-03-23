@@ -282,8 +282,6 @@ class Profile(object):
             type_section.get_boottimeout()
         self.dot_profile['kiwi_wwid_wait_timeout'] = \
             type_section.get_wwid_wait_timeout()
-        self.dot_profile['kiwi_hybrid'] = \
-            type_section.get_hybrid()
         self.dot_profile['kiwi_hybridpersistent'] = \
             type_section.get_hybridpersistent()
         self.dot_profile['kiwi_hybridpersistent_filesystem'] = \

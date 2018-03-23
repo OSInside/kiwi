@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.8" name="ISO-openSUSE-Tumbleweed">
+<image schemaversion="6.9" name="ISO-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="iso" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="console=ttyS0 splash" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true"/>
+        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0 splash" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true"/>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
