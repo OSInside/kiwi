@@ -50,6 +50,7 @@ class FirmWare(object):
         self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
         self.firmware = xml_state.build_type.get_firmware()
         self.efipart_mbytes = xml_state.build_type.get_efipartsize()
+        self.efi_partition_table = xml_state.build_type.get_efiparttable()
 
         if not self.firmware:
             self.firmware = Defaults.get_default_firmware(self.arch)
@@ -82,7 +83,10 @@ class FirmWare(object):
             else:
                 return 'msdos'
         elif self.efi_mode():
-            return 'gpt'
+            return (
+                self.efi_partition_table or
+                Defaults.get_default_efi_partition_table_type()
+            )
         else:
             return 'msdos'
 
