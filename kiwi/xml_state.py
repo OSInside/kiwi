@@ -239,16 +239,17 @@ class XMLState(object):
                             )
         return result
 
-    def get_to_become_deleted_packages(self):
+    def get_to_become_deleted_packages(self, force=True):
         """
         List of packages from the type="delete" packages section(s)
 
         :return: package names
         :rtype: list
         """
+        delete_section = 'delete' if force else 'delete_clean_dependencies'
         result = []
         to_become_deleted_packages_sections = self.get_packages_sections(
-            ['delete']
+            [delete_section]
         )
         package_list = self.get_package_sections(
             to_become_deleted_packages_sections

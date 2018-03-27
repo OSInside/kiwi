@@ -287,6 +287,31 @@ class SystemPrepare(object):
                     '%s: %s' % (type(e).__name__, format(e))
                 )
 
+    def delete_packages_and_dependencies(self):
+        """
+        Delete packages marked for deletion in the XML description
+        """
+        to_become_deleted_packages = \
+            self.xml_state.get_to_become_deleted_packages(force=False)
+        if to_become_deleted_packages:
+            log.info('Deleting packages and its dependencies')
+            try:
+                # PackageManager instace without repositories is created
+                # here because packages removal does not require zypper
+                # to have repositories included and it allows to delete
+                # packages even after buildtime repositories are cleaned
+                package_manager = self.xml_state.get_package_manager()
+                self.delete_packages(
+                    PackageManager(
+                        Repository(self.root_bind, package_manager),
+                        package_manager
+                    ), to_become_deleted_packages
+                )
+            except Exception as e:
+                raise KiwiInstallPhaseFailed(
+                    '%s: %s' % (type(e).__name__, format(e))
+                )
+
     def install_packages(self, manager, packages):
         """
         Install one or more packages using the package manager inside

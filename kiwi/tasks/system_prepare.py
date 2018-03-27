@@ -214,6 +214,7 @@ class SystemPrepareTask(CliTask):
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
+        system.delete_packages_and_dependencies()
 
         # make sure system instance is cleaned up now
         del system
