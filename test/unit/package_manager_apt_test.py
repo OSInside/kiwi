@@ -5,7 +5,10 @@ import mock
 from .test_helper import raises
 
 from kiwi.package_manager.apt import PackageManagerApt
-from kiwi.exceptions import KiwiDebootstrapError
+from kiwi.exceptions import (
+    KiwiDebootstrapError,
+    KiwiRequestError
+)
 
 
 class TestPackageManagerApt(object):
@@ -139,11 +142,29 @@ class TestPackageManagerApt(object):
     def test_process_delete_requests(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
-        mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            'root-moved-arguments', 'remove', 'vim'],
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'apt-get', 'root-moved-arguments',
+                '--auto-remove', 'remove', 'vim'
+            ], ['env']
+        )
+
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command.Command.run')
+    def test_process_delete_requests_force(self, mock_run, mock_call):
+        self.manager.request_package('vim')
+        self.manager.process_delete_requests(True)
+        mock_call.assert_called_once_with(
+            ['chroot', 'root-dir', 'dpkg', '--force-all', '-r', 'vim'],
             ['env']
         )
+
+    @patch('kiwi.command.Command.run')
+    @raises(KiwiRequestError)
+    def test_process_delete_requests_package_missing(self, mock_run):
+        mock_run.side_effect = Exception
+        self.manager.request_package('vim')
+        self.manager.process_delete_requests()
 
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
