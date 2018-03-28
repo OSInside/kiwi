@@ -100,7 +100,7 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.xml_state.xml_data.get_displayname() or
                 self.xml_state.xml_data.get_name(),
             'vmdk_file':
-                self.get_target_file_path_for_format('vmdk'),
+                os.path.basename(self.get_target_file_path_for_format('vmdk')),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
             'disk_id': '0'
