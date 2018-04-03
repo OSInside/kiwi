@@ -108,7 +108,7 @@ class TestPackageManagerYum(object):
     @patch('kiwi.command.Command.run')
     def test_process_delete_requests_force(self, mock_run, mock_call):
         self.manager.request_package('vim')
-        self.manager.process_delete_requests()
+        self.manager.process_delete_requests(True)
         mock_call.assert_called_once_with(
             [
                 'chroot', 'root-dir', 'rpm', '-e',
@@ -117,6 +117,18 @@ class TestPackageManagerYum(object):
             [
                 'env'
             ]
+        )
+
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command.Command.run')
+    def test_process_delete_requests_no_force(self, mock_run, mock_call):
+        self.manager.request_package('vim')
+        self.manager.process_delete_requests()
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'yum', 'root-moved-arguments',
+                'autoremove', 'vim'
+            ], ['env']
         )
 
     @patch('kiwi.command.Command.run')

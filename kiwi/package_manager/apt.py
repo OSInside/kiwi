@@ -26,7 +26,8 @@ from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.exceptions import (
-    KiwiDebootstrapError
+    KiwiDebootstrapError,
+    KiwiRequestError
 )
 
 
@@ -190,17 +191,35 @@ class PackageManagerApt(PackageManagerBase):
         """
         Process package delete requests (chroot)
 
-        Note: force deletion of packages is not required for apt-get
-        because the apt-get configuration template already enforces
-        to process the request as we want it
-
-        :param bool force: unused
+        :param bool force: force deletion: true|false
         """
-        apt_get_command = ['chroot', self.root_dir, 'apt-get']
-        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
-        apt_get_command.extend(self.custom_args)
-        apt_get_command.append('remove')
-        apt_get_command.extend(self._package_requests())
+        delete_items = []
+        for delete_item in self._package_requests():
+            try:
+                Command.run(
+                    ['chroot', self.root_dir, 'dpkg', '-l', delete_item]
+                )
+                delete_items.append(delete_item)
+            except Exception:
+                # ignore packages which are not installed
+                pass
+        if not delete_items:
+            raise KiwiRequestError(
+                'None of the requested packages to delete are installed'
+            )
+
+        if force:
+            apt_get_command = ['chroot', self.root_dir, 'dpkg']
+            apt_get_command.extend(['--force-all', '-r'])
+            apt_get_command.extend(delete_items)
+        else:
+            apt_get_command = ['chroot', self.root_dir, 'apt-get']
+            apt_get_command.extend(
+                self.root_bind.move_to_root(self.apt_get_args)
+            )
+            apt_get_command.extend(self.custom_args)
+            apt_get_command.extend(['--auto-remove', 'remove'])
+            apt_get_command.extend(delete_items)
 
         return Command.call(
             apt_get_command, self.command_env

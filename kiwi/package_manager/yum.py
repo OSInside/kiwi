@@ -187,14 +187,25 @@ class PackageManagerYum(PackageManagerBase):
             raise KiwiRequestError(
                 'None of the requested packages to delete are installed'
             )
-        delete_options = ['--nodeps', '--allmatches', '--noscripts']
         self.cleanup_requests()
-        return Command.call(
-            [
-                'chroot', self.root_dir, 'rpm', '-e'
-            ] + delete_options + delete_items,
-            self.command_env
-        )
+        if force:
+            delete_options = ['--nodeps', '--allmatches', '--noscripts']
+            return Command.call(
+                [
+                    'chroot', self.root_dir, 'rpm', '-e'
+                ] + delete_options + delete_items,
+                self.command_env
+            )
+        else:
+            chroot_yum_args = self.root_bind.move_to_root(self.yum_args)
+            return Command.call(
+                [
+                    'chroot', self.root_dir, self._get_yum_binary_name()
+                ] + chroot_yum_args + self.custom_args + [
+                    'autoremove'
+                ] + delete_items,
+                self.command_env
+            )
 
     def update(self):
         """

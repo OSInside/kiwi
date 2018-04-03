@@ -164,14 +164,22 @@ class PackageManagerDnf(PackageManagerBase):
             raise KiwiRequestError(
                 'None of the requested packages to delete are installed'
             )
-        delete_options = ['--nodeps', '--allmatches', '--noscripts']
         self.cleanup_requests()
-        return Command.call(
-            [
-                'chroot', self.root_dir, 'rpm', '-e'
-            ] + delete_options + delete_items,
-            self.command_env
-        )
+        if force:
+            delete_options = ['--nodeps', '--allmatches', '--noscripts']
+            return Command.call(
+                [
+                    'chroot', self.root_dir, 'rpm', '-e'
+                ] + delete_options + delete_items,
+                self.command_env
+            )
+        else:
+            chroot_dnf_args = self.root_bind.move_to_root(self.dnf_args)
+            return Command.call(
+                ['chroot', self.root_dir, 'dnf'] + chroot_dnf_args +
+                self.custom_args + ['autoremove'] + delete_items,
+                self.command_env
+            )
 
     def update(self):
         """

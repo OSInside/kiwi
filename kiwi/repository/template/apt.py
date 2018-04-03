@@ -51,18 +51,11 @@ class PackageManagerTemplateAptGet(object):
             };
         ''').strip() + os.linesep
 
-        self.dpkg = dedent('''
-            DPkg::Options {
-                "--force-all";
-            };
-        ''').strip() + os.linesep
-
         self.dpkg_exclude_docs = dedent('''
             DPkg::Options {
                 "--path-exclude=/usr/share/man/*";
                 "--path-exclude=/usr/share/doc/*";
                 "--path-include=/usr/share/doc/*/copyright";
-                "--force-all";
             };
         ''').strip() + os.linesep
 
@@ -76,8 +69,6 @@ class PackageManagerTemplateAptGet(object):
         template_data = self.host_header + self.apt
         if exclude_docs:
             template_data += self.dpkg_exclude_docs
-        else:
-            template_data += self.dpkg
 
         return Template(template_data)
 
@@ -91,7 +82,5 @@ class PackageManagerTemplateAptGet(object):
         template_data = self.image_header + self.apt
         if exclude_docs:
             template_data += self.dpkg_exclude_docs
-        else:
-            template_data += self.dpkg
 
         return Template(template_data)
