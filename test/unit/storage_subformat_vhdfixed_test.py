@@ -69,9 +69,9 @@ class TestDiskFormatVhdFixed(object):
             ]
         )
         assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'wb'),
+            call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'r+b'),
             call('/dev/null', 'rb'),
-            call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'wb')
+            call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'r+b')
         ]
         assert file_mock.write.call_args_list[0] == call(
             'dev_null_data'
