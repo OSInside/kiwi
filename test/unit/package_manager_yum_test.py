@@ -127,7 +127,7 @@ class TestPackageManagerYum(object):
         mock_call.assert_called_once_with(
             [
                 'chroot', 'root-dir', 'yum', 'root-moved-arguments',
-                'erase', 'vim'
+                'autoremove', 'vim'
             ], ['env']
         )
 

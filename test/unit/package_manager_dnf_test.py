@@ -106,7 +106,7 @@ class TestPackageManagerDnf(object):
         mock_call.assert_called_once_with(
             [
                 'chroot', 'root-dir', 'dnf',
-                'root-moved-arguments', 'remove', 'vim'
+                'root-moved-arguments', 'autoremove', 'vim'
             ],
             ['env']
         )

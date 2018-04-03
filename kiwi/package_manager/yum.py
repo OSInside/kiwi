@@ -173,9 +173,6 @@ class PackageManagerYum(PackageManagerBase):
         """
         Process package delete requests (chroot)
 
-        Note: yum erase does not delete unneeded dependencies it only
-        makes sure no dependencies are broken.
-
         :param bool force: force deletion: true|false
         """
         delete_items = []
@@ -205,7 +202,7 @@ class PackageManagerYum(PackageManagerBase):
                 [
                     'chroot', self.root_dir, self._get_yum_binary_name()
                 ] + chroot_yum_args + self.custom_args + [
-                    'erase'
+                    'autoremove'
                 ] + delete_items,
                 self.command_env
             )

@@ -177,7 +177,7 @@ class PackageManagerDnf(PackageManagerBase):
             chroot_dnf_args = self.root_bind.move_to_root(self.dnf_args)
             return Command.call(
                 ['chroot', self.root_dir, 'dnf'] + chroot_dnf_args +
-                self.custom_args + ['remove'] + delete_items,
+                self.custom_args + ['autoremove'] + delete_items,
                 self.command_env
             )
 
