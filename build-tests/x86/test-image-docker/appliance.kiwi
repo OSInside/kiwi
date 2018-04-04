@@ -60,7 +60,6 @@
         <package name="sg3_utils"/>
         <package name="pkg-config"/>
         <package name="btrfsprogs"/>
-        <package name="genisoimage"/>
         <package name="squashfs"/>
         <package name="kernel-default"/>
         <package name="fipscheck"/>
