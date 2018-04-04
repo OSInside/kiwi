@@ -321,7 +321,7 @@ class TestBootLoaderConfigGrub2(object):
         grub_default.write.assert_called_once_with()
         assert grub_default.__setitem__.call_args_list == [
             call('GRUB_BACKGROUND', '/boot/grub2/themes/openSUSE/background.png'),
-            call('GRUB_CMDLINE_LINUX', '"some-cmdline"'),
+            call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
             call('GRUB_SERIAL_COMMAND', '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'),
             call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
             call('GRUB_TIMEOUT', 10),
