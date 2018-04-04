@@ -524,13 +524,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_USE_LINUXEFI
         * GRUB_USE_INITRDEFI
         * GRUB_SERIAL_COMMAND
-        * GRUB_CMDLINE_LINUX
+        * GRUB_CMDLINE_LINUX_DEFAULT
         """
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout
         }
         if self.cmdline:
-            grub_default_entries['GRUB_CMDLINE_LINUX'] = '"{0}"'.format(
+            grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
                 self.cmdline
             )
         if self.terminal and self.terminal == 'serial':
