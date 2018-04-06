@@ -27,7 +27,7 @@ install() {
     local dmsquashdir=
     inst_multiple \
         umount dmsetup blockdev blkid lsblk dd losetup \
-        isoinfo grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
+        grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
         checkmedia dialog
 
     dmsquashdir=$(find "${dracutbasedir}/modules.d" -name "*dmsquash-live")

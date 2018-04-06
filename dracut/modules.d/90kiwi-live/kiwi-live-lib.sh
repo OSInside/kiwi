@@ -2,13 +2,16 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 function lookupIsoDiskDevice {
+    local root=$1
+    local iso_label=${root#/dev/disk/by-label/}
     local disk
     for disk in $(lsblk -p -n -r -o NAME,TYPE | grep disk | cut -f1 -d' ');do
-        application_id=$(
-            isoinfo -d -i "${disk}" 2>/dev/null |\
-                grep "Application id:"|cut -f2 -d:
-        )
-        if [ ! -z "${application_id}" ];then
+        if [[ ${disk} =~ ^/dev/fd ]];then
+            # ignore floppy disk devices
+            continue
+        fi
+        iso_volid=$(blkid -s LABEL -o value "${disk}")
+        if [ "${iso_volid}" = "${iso_label}" ];then
             echo "${disk}"
             return
         fi
@@ -34,7 +37,7 @@ function initGlobalDevices {
         die "No root device for operation given"
     fi
     isodev="$1"
-    isodiskdev=$(lookupIsoDiskDevice)
+    isodiskdev=$(lookupIsoDiskDevice "${isodev}")
     isofs_type=$(blkid -s TYPE -o value "${isodev}")
     media_check_device=${isodev}
     if [ ! -z "${isodiskdev}" ]; then
@@ -99,10 +102,15 @@ function preparePersistentOverlay {
         return 1
     fi
     local overlay_mount_point=/run/overlayfs
+    local partitions_before_cow_part
     mkdir -m 0755 -p "${overlay_mount_point}"
     if ! mount -L cow "${overlay_mount_point}"; then
+        partitions_before_cow_part=$(_partition_count)
         echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
         if ! partprobe "${isodiskdev}"; then
+            return 1
+        fi
+        if [ "$(_partition_count)" -le "${partitions_before_cow_part}" ];then
             return 1
         fi
         local write_partition
@@ -182,4 +190,12 @@ function _run_interactive {
 function _run_dialog {
     echo "dialog $*" >/bin/dracut-interactive
     _run_interactive
+}
+
+function _partition_count {
+    if [ -z "${isodiskdev}" ]; then
+        echo 0
+    else
+        lsblk "${isodiskdev}" -p -r -n -o TYPE | grep -c part
+    fi
 }
