@@ -102,10 +102,15 @@ function preparePersistentOverlay {
         return 1
     fi
     local overlay_mount_point=/run/overlayfs
+    local partitions_before_cow_part
     mkdir -m 0755 -p "${overlay_mount_point}"
     if ! mount -L cow "${overlay_mount_point}"; then
+        partitions_before_cow_part=$(_partition_count)
         echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
         if ! partprobe "${isodiskdev}"; then
+            return 1
+        fi
+        if [ "$(_partition_count)" -le "${partitions_before_cow_part}" ];then
             return 1
         fi
         local write_partition
@@ -185,4 +190,12 @@ function _run_interactive {
 function _run_dialog {
     echo "dialog $*" >/bin/dracut-interactive
     _run_interactive
+}
+
+function _partition_count {
+    if [ -z "${isodiskdev}" ]; then
+        echo 0
+    else
+        lsblk "${isodiskdev}" -p -r -n -o TYPE | grep -c part
+    fi
 }
