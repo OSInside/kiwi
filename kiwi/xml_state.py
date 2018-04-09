@@ -118,10 +118,14 @@ class XMLState(object):
         :return: dracut|kiwi|None
         :rtype: string
         """
-        initrd_system = self.build_type.get_initrd_system() or 'kiwi'
-        if self.get_build_type_name() == 'vmx':
-            # vmx image type always uses dracut as initrd system
+        if self.get_build_type_name() in ['vmx', 'iso']:
+            # vmx and iso image types always use dracut as initrd system
             initrd_system = 'dracut'
+        elif self.get_build_type_name() in ['oem', 'pxe']:
+            # pxe and oem image types default to kiwi if unset
+            initrd_system = self.build_type.get_initrd_system() or 'kiwi'
+        else:
+            initrd_system = self.build_type.get_initrd_system()
         return initrd_system
 
     def get_rpm_excludedocs(self):
