@@ -453,7 +453,7 @@ function Rm {
     # delete files & anounce it to log
     # ----
     Debug "rm $*"
-    rm "$*"
+    rm "$@"
 }
 
 #======================================
@@ -464,7 +464,7 @@ function Rpm {
     # all rpm function & anounce it to log
     # ----
     Debug "rpm $*"
-    rpm "$*"
+    rpm "$@"
 }
 #======================================
 # Echo
