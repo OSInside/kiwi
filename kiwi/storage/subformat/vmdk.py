@@ -132,21 +132,14 @@ class DiskFormatVmdk(DiskFormatBase):
             template_record['iso_id'] = iso_setup.get_id()
 
         # Network setup
-        network_setup = self.xml_state.get_build_type_vmnic_section()
-        network_driver = None
-        network_connection_type = None
-        network_mac = 'generated'
-        if network_setup:
-            network_driver = network_setup.get_driver()
-            network_connection_type = network_setup.get_mode()
-            network_mac = network_setup.get_mac() or network_mac
-            template_record['nic_id'] = network_setup.get_interface() or '0'
-            template_record['mac_address'] = \
-                network_mac
-            template_record['network_connection_type'] = \
-                network_connection_type
-            template_record['network_driver'] = \
-                network_driver
+        network_entries = self.xml_state.get_build_type_vmnic_entries()
+        network_setup = {}
+        for network_entry in network_entries:
+            network_setup[network_entry.get_interface() or '0'] = {
+                'driver': network_entry.get_driver(),
+                'connection_type': network_entry.get_mode(),
+                'mac': network_entry.get_mac() or 'generated',
+            }
 
         # Disk setup
         disk_setup = self.xml_state.get_build_type_vmdisk_section()
@@ -169,10 +162,7 @@ class DiskFormatVmdk(DiskFormatBase):
             network_setup,
             iso_setup,
             disk_controller,
-            iso_controller,
-            network_mac,
-            network_driver,
-            network_connection_type
+            iso_controller
         )
         try:
             settings_file = self.get_target_file_path_for_format('vmx')

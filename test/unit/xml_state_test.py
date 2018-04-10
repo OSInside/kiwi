@@ -196,8 +196,9 @@ class TestXMLState(object):
     def test_get_build_type_vmdisk_section(self):
         assert self.state.get_build_type_vmdisk_section().get_id() == 0
 
-    def test_get_build_type_vmnic_section(self):
-        assert self.state.get_build_type_vmnic_section().get_interface() == ''
+    def test_get_build_type_vmnic_entries(self):
+        assert self.state.get_build_type_vmnic_entries()[0].get_interface() \
+            == ''
 
     def test_get_build_type_vmdvd_section(self):
         assert self.state.get_build_type_vmdvd_section().get_id() == 0

@@ -564,19 +564,17 @@ class XMLState(object):
             if vmdisk_sections:
                 return vmdisk_sections[0]
 
-    def get_build_type_vmnic_section(self):
+    def get_build_type_vmnic_entries(self):
         """
-        First vmnic section from the first machine section in the
+        vmnic section(s) from the first machine section in the
         build type section
 
-        :return: <vmnic>
-        :rtype: xml_parse::vmnic instance
+        :return: xml_parse::vmnic instances
+        :rtype: list
         """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
-            vmnic_sections = machine_section.get_vmnic()
-            if vmnic_sections:
-                return vmnic_sections[0]
+            return machine_section.get_vmnic()
 
     def get_build_type_vmdvd_section(self):
         """
