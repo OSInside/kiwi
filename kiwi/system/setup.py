@@ -545,11 +545,21 @@ class SystemSetup(object):
     def create_fstab(self, entries):
         """
         Create etc/fstab from given list of entries
+
+        Also lookup for an optional fstab.append file which allows
+        to append custom fstab entries to the final fstab. Once
+        embedded the fstab.append file will be deleted
         """
         fstab_file = self.root_dir + '/etc/fstab'
+        fstab_append_file = self.root_dir + '/etc/fstab.append'
+
         with open(fstab_file, 'w') as fstab:
             for entry in entries:
                 fstab.write(entry + os.linesep)
+            if os.path.exists(fstab_append_file):
+                with open(fstab_append_file, 'r') as append:
+                    fstab.write(append.read())
+                Path.wipe(fstab_append_file)
 
     def create_init_link_from_linuxrc(self):
         """
