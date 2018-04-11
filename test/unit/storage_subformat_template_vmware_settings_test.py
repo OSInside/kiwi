@@ -18,15 +18,13 @@ class TestVmwareSettingsTempla(object):
 
     def test_get_template_with_periphery(self):
         assert self.vmware.get_template(
-            memory_setup=True, cpu_setup=True, network_setup=True,
-            iso_setup=True
+            memory_setup=True, cpu_setup=True, iso_setup=True
         ).substitute(
             virtual_hardware_version='8',
             display_name='some-display-name',
             guest_os='suse',
             disk_id='0',
             vmdk_file='myimage.vmdk',
-            nic_id='0',
             memory_size='4096',
             number_of_cpus='2',
             iso_id='0'
@@ -58,16 +56,22 @@ class TestVmwareSettingsTempla(object):
 
     def test_get_template_custom_network(self):
         assert self.vmware.get_template(
-            network_setup=True, network_mac='custom',
-            network_connection_type='link', network_driver='foo'
+            network_setup={
+                '0': {
+                    'driver': 'foo',
+                    'connection_type': 'link',
+                    'mac': '98:90:96:a0:3c:58'
+                },
+                '1': {
+                    'driver': 'foo',
+                    'connection_type': 'link',
+                    'mac': 'generated'
+                }
+            }
         ).substitute(
             virtual_hardware_version='8',
             display_name='some-display-name',
             guest_os='suse',
             disk_id='0',
-            vmdk_file='myimage.vmdk',
-            nic_id='0',
-            mac_address='98:90:96:a0:3c:58',
-            network_connection_type='link',
-            network_driver='foo'
+            vmdk_file='myimage.vmdk'
         )

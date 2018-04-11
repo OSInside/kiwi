@@ -68,20 +68,20 @@ class TestDiskFormatVmdk(object):
             return_value='0'
         )
 
-        self.network_setup = mock.Mock()
-        self.xml_state.get_build_type_vmnic_section = mock.Mock(
+        self.network_setup = [mock.Mock()]
+        self.xml_state.get_build_type_vmnic_entries = mock.Mock(
             return_value=self.network_setup
         )
-        self.network_setup.get_interface = mock.Mock(
+        self.network_setup[0].get_interface = mock.Mock(
             return_value='0'
         )
-        self.network_setup.get_mac = mock.Mock(
+        self.network_setup[0].get_mac = mock.Mock(
             return_value='98:90:96:a0:3c:58'
         )
-        self.network_setup.get_mode = mock.Mock(
+        self.network_setup[0].get_mode = mock.Mock(
             return_value='bridged'
         )
-        self.network_setup.get_driver = mock.Mock(
+        self.network_setup[0].get_driver = mock.Mock(
             return_value='e1000'
         )
 

@@ -53,25 +53,25 @@ class VmwareSettingsTemplate(object):
         ''').strip() + self.cr
 
         self.network = dedent('''
-            ethernet${nic_id}.present = "true"
-            ethernet${nic_id}.allow64bitVmxnet = "true"
+            ethernet{nic_id}.present = "true"
+            ethernet{nic_id}.allow64bitVmxnet = "true"
         ''').strip() + self.cr
 
         self.network_mac_static = dedent('''
-            ethernet${nic_id}.addressType = "static"
-            ethernet${nic_id}.address = "${mac_address}"
+            ethernet{nic_id}.addressType = "static"
+            ethernet{nic_id}.address = "{mac_address}"
         ''').strip() + self.cr
 
         self.network_mac_generated = dedent('''
-            ethernet${nic_id}.addressType = "generated"
+            ethernet{nic_id}.addressType = "generated"
         ''').strip() + self.cr
 
         self.network_driver = dedent('''
-            ethernet${nic_id}.virtualDev = "${network_driver}"
+            ethernet{nic_id}.virtualDev = "{network_driver}"
         ''').strip() + self.cr
 
         self.network_connection_type = dedent('''
-            ethernet${nic_id}.connectionType = "${network_connection_type}"
+            ethernet{nic_id}.connectionType = "{mode}"
         ''').strip() + self.cr
 
         self.memory = dedent('''
@@ -111,9 +111,7 @@ class VmwareSettingsTemplate(object):
 
     def get_template(
         self, memory_setup=False, cpu_setup=False, network_setup=False,
-        iso_setup=False, disk_controller='ide', iso_controller='ide',
-        network_mac='generated', network_driver=None,
-        network_connection_type=None
+        iso_setup=False, disk_controller='ide', iso_controller='ide'
     ):
         """
         VMware machine configuration template
@@ -145,15 +143,24 @@ class VmwareSettingsTemplate(object):
             template_data += self.scsi_disk
 
         if network_setup:
-            template_data += self.network
-            if network_mac == 'generated':
-                template_data += self.network_mac_generated
-            else:
-                template_data += self.network_mac_static
-            if network_driver:
-                template_data += self.network_driver
-            if network_connection_type:
-                template_data += self.network_connection_type
+            for nic_id, nic_setup in list(network_setup.items()):
+                template_data += self.network.format(nic_id=nic_id)
+                if nic_setup['mac'] == 'generated':
+                    template_data += self.network_mac_generated.format(
+                        nic_id=nic_id
+                    )
+                else:
+                    template_data += self.network_mac_static.format(
+                        nic_id=nic_id, mac_address=nic_setup['mac']
+                    )
+                if nic_setup['driver']:
+                    template_data += self.network_driver.format(
+                        nic_id=nic_id, network_driver=nic_setup['driver']
+                    )
+                if nic_setup['connection_type']:
+                    template_data += self.network_connection_type.format(
+                        nic_id=nic_id, mode=nic_setup['connection_type']
+                    )
 
         if iso_setup:
             if iso_controller == 'ide':

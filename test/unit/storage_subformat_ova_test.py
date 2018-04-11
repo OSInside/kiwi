@@ -2,7 +2,7 @@ from mock import patch
 from mock import call
 import mock
 
-from .test_helper import raises, patch_open
+from .test_helper import raises
 
 from kiwi.exceptions import (
     KiwiCommandNotFound,
@@ -84,37 +84,25 @@ class TestDiskFormatOva(object):
 
     @patch('kiwi.storage.subformat.ova.Path.which')
     @patch('kiwi.storage.subformat.ova.Command.run')
+    @patch('kiwi.storage.subformat.vmdk.DiskFormatVmdk.create_image_format')
+    @patch('kiwi.storage.subformat.ova.CommandCapabilities.has_option_in_help')
     @patch('os.stat')
     @patch('os.chmod')
-    @patch_open
     def test_create_image_format(
-        self, mock_open, mock_chmod, mock_stat, mock_command, mock_which
+        self, mock_chmod, mock_stat, mock_has_option_in_help,
+        mock_create_image_format, mock_command, mock_which
     ):
+        mock_has_option_in_help.return_value = True
         mock_which.return_value = 'ovftool'
-        qemu_img_result = mock.Mock()
-        ovftool_help_result = mock.Mock()
-        ovftool_help_result.output = """This is a new ovftool
-                it knows options such as --shaAlgorithm and others
-                enjoy"""
-        ovftool_result = mock.Mock()
-
-        command_results = [
-            ovftool_result, ovftool_help_result, qemu_img_result
-        ]
-
-        def side_effect(arg):
-            return command_results.pop()
-
-        mock_command.side_effect = side_effect
-        mock_open.return_value = self.context_manager_mock
         mock_stat.return_value = mock.Mock(st_mode=0o644)
         self.disk_format.create_image_format()
-        assert mock_command.call_args_list[-1] == call([
-            'ovftool',
-            '--shaAlgorithm=SHA1',
-            'target_dir/some-disk-image.x86_64-1.2.3.vmx',
-            'target_dir/some-disk-image.x86_64-1.2.3.ova'
-        ])
+        mock_command.assert_called_once_with(
+            [
+                'ovftool', '--shaAlgorithm=SHA1',
+                'target_dir/some-disk-image.x86_64-1.2.3.vmx',
+                'target_dir/some-disk-image.x86_64-1.2.3.ova'
+            ]
+        )
 
     @patch('kiwi.storage.subformat.ova.Path.which')
     @raises(KiwiCommandNotFound)
