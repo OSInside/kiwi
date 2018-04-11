@@ -34,15 +34,14 @@ from .exceptions import (
 
 class RuntimeChecker(object):
     """
-    Implements build consistency checks at runtime
+    **Implements build consistency checks at runtime**
 
     The schema of an image description covers structure and syntax of
     the provided data. The RuntimeChecker provides methods to perform
     further semantic checks which allows to recognize potential build
     or boot problems early.
 
-    * :attr:`xml_state`
-        Instance of XMLState
+    * :param object xml_state: Instance of XMLState
     """
     def __init__(self, xml_state):
         self.xml_state = xml_state
@@ -61,7 +60,6 @@ class RuntimeChecker(object):
         Verify that all repos marked with the imageinclude attribute
         can be resolved into a http based web URL
         """
-
         message = dedent('''\n
             Repository: %s is not publicly available.
             Therefore it can't be included into the system image
@@ -89,7 +87,6 @@ class RuntimeChecker(object):
 
         :param string target_dir: path name
         """
-
         message = dedent('''\n
             Target directory %s conflicts with kiwi's shared cache
             directory %s. This is going to create a busy loop mount.

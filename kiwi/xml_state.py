@@ -36,21 +36,11 @@ from .exceptions import (
 
 class XMLState(object):
     """
-    Implements methods to get stateful information from the XML data
+    **Implements methods to get stateful information from the XML data**
 
-    Attributes
-
-    * :attr:`host_architecture`
-        system architecture, result from platform.machine
-
-    * :attr:`xml_data`
-        instance of XMLDescription
-
-    * :attr:`profiles`
-        list of used profiles
-
-    * :attr:`build_type`
-        build type section reference
+    :param object xml_data: instance of XMLDescription
+    :param list profiles: list of used profiles
+    :param object build_type: build <type> section reference
     """
     def __init__(self, xml_data, profiles=None, build_type=None):
         self.host_architecture = platform.machine()
@@ -64,7 +54,8 @@ class XMLState(object):
         """
         All preferences sections for the selected profiles
 
-        :return: <preferences>
+        :return: list of <preferences> section reference(s)
+
         :rtype: list
         """
         return self._profiled(
@@ -75,7 +66,8 @@ class XMLState(object):
         """
         All users sections for the selected profiles
 
-        :return: <users>
+        :return: list of <users> section reference(s)
+
         :rtype: list
         """
         return self._profiled(
@@ -86,7 +78,8 @@ class XMLState(object):
         """
         Default build type name
 
-        :return: image attribute from build type
+        :return: Content of image attribute from build type
+
         :rtype: string
         """
         return self.build_type.get_image()
@@ -99,7 +92,8 @@ class XMLState(object):
         forbidden, however only the first version found defines the
         final image version
 
-        :return: <version>
+        :return: Content of <version> section
+
         :rtype: string
         """
         for preferences in self.get_preferences_sections():
@@ -115,7 +109,8 @@ class XMLState(object):
         either pre selected or free of choice according to the
         XML type setup
 
-        :return: dracut|kiwi|None
+        :return: dracut, kiwi or None
+
         :rtype: string
         """
         if self.get_build_type_name() in ['vmx', 'iso']:
@@ -133,7 +128,8 @@ class XMLState(object):
         Gets the rpm-excludedocs configuration flag. Returns
         False if not present.
 
-        :return: excludedocs flag
+        :return: True or False
+
         :rtype: bool
         """
         for preferences in self.get_preferences_sections():
@@ -147,7 +143,8 @@ class XMLState(object):
         Gets the rpm-check-signatures configuration flag. Returns
         False if not present.
 
-        :return: check-signatures flag
+        :return: True or False
+
         :rtype: bool
         """
         for preferences in self.get_preferences_sections():
@@ -158,9 +155,10 @@ class XMLState(object):
 
     def get_package_manager(self):
         """
-        Configured package manager
+        Get configured package manager from selected preferences section
 
-        :return: <packagemanager>
+        :return: Content of the <packagemanager> section
+
         :rtype: string
         """
         for preferences in self.get_preferences_sections():
@@ -174,7 +172,8 @@ class XMLState(object):
 
         :param list section_types: type name(s) from packages sections
 
-        :return: <packages>
+        :return: list of <packages> section reference(s)
+
         :rtype: list
         """
         result = []
@@ -187,28 +186,36 @@ class XMLState(object):
                 result.append(packages)
         return result
 
-    def _section_matches_host_architecture(self, section):
+    def package_matches_host_architecture(self, package):
         """
-        Tests if the given section is applicable for the current host
+        Tests if the given package section is applicable for the current host
         architecture. If no architecture is specified within the section
-        it is considered as a match.
-
-        :param section: XML section object
-        :return: True if there is a match or if the section has no architecture.
-        :rtype: bool
+        it is considered as a match returning True.
 
         Note: The XML section pointer must provide an arch attribute
-        """
-        architectures = section.get_arch()
-        if architectures:
-            if self.host_architecture not in architectures.split(','):
-                return False
-        return True
 
-    def package_matches_host_architecture(self, package):
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
         return self._section_matches_host_architecture(package)
 
     def profile_matches_host_architecture(self, profile):
+        """
+        Tests if the given profile section is applicable for the current host
+        architecture. If no architecture is specified within the section
+        it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
         return self._section_matches_host_architecture(profile)
 
     def get_package_sections(self, packages_sections):
@@ -222,7 +229,13 @@ class XMLState(object):
 
         :param list packages_sections: <packages>
 
-        :return: package_type tuple list
+        :return:
+            Contains list of package_type tuples
+
+            .. code:: python
+
+                [package_type(packages_section=object, package_section=object)]
+
         :rtype: list
         """
         package_type = namedtuple(
@@ -245,9 +258,10 @@ class XMLState(object):
 
     def get_to_become_deleted_packages(self):
         """
-        List of packages from the type="delete" packages section(s)
+        List of package names from the type="delete" packages section(s)
 
         :return: package names
+
         :rtype: list
         """
         result = []
@@ -266,7 +280,8 @@ class XMLState(object):
         """
         List of packages sections matching type="bootstrap"
 
-        :return: <packages>
+        :return: list of <packages> section reference(s)
+
         :rtype: list
         """
         return self.get_packages_sections(['bootstrap'])
@@ -275,20 +290,22 @@ class XMLState(object):
         """
         List of packages sections matching type="image"
 
-        :return: <packages>
+        :return: list of <packages> section reference(s)
+
         :rtype: list
         """
         return self.get_packages_sections(['image'])
 
     def get_bootstrap_packages(self):
         """
-        List of packages from the type="bootstrap" packages section(s)
+        List of package names from the type="bootstrap" packages section(s)
 
         The list gets the selected package manager appended
         if there is a request to install packages inside of
         the image via a chroot operation
 
         :return: package names
+
         :rtype: list
         """
         result = []
@@ -305,10 +322,11 @@ class XMLState(object):
 
     def get_system_packages(self):
         """
-        List of packages from the packages sections matching
+        List of package names from the packages sections matching
         type="image" and type=build_type
 
         :return: package names
+
         :rtype: list
         """
         result = []
@@ -325,9 +343,10 @@ class XMLState(object):
 
     def get_bootstrap_archives(self):
         """
-        List of archives from the type="bootstrap" packages section(s)
+        List of archive names from the type="bootstrap" packages section(s)
 
         :return: archive names
+
         :rtype: list
         """
         result = []
@@ -342,10 +361,11 @@ class XMLState(object):
 
     def get_system_archives(self):
         """
-        List of archives from the packages sections matching
+        List of archive names from the packages sections matching
         type="image" and type=build_type
 
         :return: archive names
+
         :rtype: list
         """
         result = []
@@ -359,10 +379,11 @@ class XMLState(object):
 
     def get_system_ignore_packages(self):
         """
-        List of ignore packages from the packages sections matching
+        List of ignore package names from the packages sections matching
         type="image" and type=build_type
 
         :return: package names
+
         :rtype: list
         """
         result = []
@@ -386,6 +407,7 @@ class XMLState(object):
         :param string section_type: type name from packages section
 
         :return: collection type name
+
         :rtype: string
         """
         typed_packages_sections = self.get_packages_sections(
@@ -404,6 +426,7 @@ class XMLState(object):
         Collection type for packages sections matching type="bootstrap"
 
         :return: collection type name
+
         :rtype: string
         """
         return self.get_collection_type('bootstrap')
@@ -413,6 +436,7 @@ class XMLState(object):
         Collection type for packages sections matching type="image"
 
         :return: collection type name
+
         :rtype: string
         """
         return self.get_collection_type('image')
@@ -423,6 +447,7 @@ class XMLState(object):
         type=section_type and type=build_type
 
         :return: collection names
+
         :rtype: list
         """
         result = []
@@ -440,6 +465,7 @@ class XMLState(object):
         matching type="bootstrap"
 
         :return: collection names
+
         :rtype: list
         """
         return self.get_collections('bootstrap')
@@ -450,6 +476,7 @@ class XMLState(object):
         matching type="image"
 
         :return: collection names
+
         :rtype: list
         """
         return self.get_collections('image')
@@ -462,6 +489,7 @@ class XMLState(object):
         :param string section_type: type name from packages section
 
         :return: product names
+
         :rtype: list
         """
         result = []
@@ -479,6 +507,7 @@ class XMLState(object):
         matching type="bootstrap"
 
         :return: product names
+
         :rtype: list
         """
         return self.get_products('bootstrap')
@@ -489,14 +518,37 @@ class XMLState(object):
         matching type="image"
 
         :return: product names
+
         :rtype: list
         """
         return self.get_products('image')
 
     def is_xen_server(self):
+        """
+        Check if build type domain setup specifies a Xen Server (dom0)
+
+        :return: True or False
+
+        :rtype: bool
+        """
         return self.build_type.get_xen_server()
 
     def is_xen_guest(self):
+        """
+        Check if build type setup specifies a Xen Guest (domX)
+        The check is based on the firmware and xen_loader configuration
+        values:
+
+        * Firmware pointing to ec2 means the image is targeted to run
+          in Amazon EC2 which is a Xen guest
+
+        * Machine setup with a xen_loader attribute also indicates a
+          Xen guest target
+
+        :return: True or False
+
+        :rtype: bool
+        """
         firmware = self.build_type.get_firmware()
         machine_section = self.get_build_type_machine_section()
         if firmware and firmware in Defaults.get_ec2_capable_firmware_names():
@@ -510,8 +562,9 @@ class XMLState(object):
         """
         First system disk section from the build type section
 
-        :return: <systemdisk>
-        :rtype: xml_parse::systemdisk instance
+        :return: <systemdisk> section reference
+
+        :rtype: xml_parse::systemdisk
         """
         systemdisk_sections = self.build_type.get_systemdisk()
         if systemdisk_sections:
@@ -521,8 +574,9 @@ class XMLState(object):
         """
         First pxedeploy section from the build type section
 
-        :return: <pxedeploy>
-        :rtype: xml_parse::pxedeploy instance
+        :return: <pxedeploy> section reference
+
+        :rtype: xml_parse::pxedeploy
         """
         pxedeploy_sections = self.build_type.get_pxedeploy()
         if pxedeploy_sections:
@@ -532,8 +586,9 @@ class XMLState(object):
         """
         First machine section from the build type section
 
-        :return: <machine>
-        :rtype: xml_parse::machine instance
+        :return: <machine> section reference
+
+        :rtype: xml_parse::machine
         """
         machine_sections = self.build_type.get_machine()
         if machine_sections:
@@ -543,8 +598,9 @@ class XMLState(object):
         """
         First vagrantconfig section from the build type section
 
-        :return: <vagrantconfig>
-        :rtype: xml_parse::vagrantconfig instance
+        :return: <vagrantconfig> section reference
+
+        :rtype: xml_parse::vagrantconfig
         """
         vagrant_config_sections = self.build_type.get_vagrantconfig()
         if vagrant_config_sections:
@@ -555,8 +611,9 @@ class XMLState(object):
         First vmdisk section from the first machine section in the
         build type section
 
-        :return: <vmdisk>
-        :rtype: xml_parse::vmdisk instance
+        :return: <vmdisk> section reference
+
+        :rtype: xml_parse::vmdisk
         """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
@@ -569,7 +626,8 @@ class XMLState(object):
         vmnic section(s) from the first machine section in the
         build type section
 
-        :return: xml_parse::vmnic instances
+        :return: list of <vmnic> section reference(s)
+
         :rtype: list
         """
         machine_section = self.get_build_type_machine_section()
@@ -581,8 +639,9 @@ class XMLState(object):
         First vmdvd section from the first machine section in the
         build type section
 
-        :return: <vmdvd>
-        :rtype: xml_parse::vmdvd instance
+        :return: <vmdvd> section reference
+
+        :rtype: xml_parse::vmdvd
         """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
@@ -595,7 +654,8 @@ class XMLState(object):
         List of vmconfig-entry section values from the first
         machine section in the build type section
 
-        :return: vmconfig_entry values
+        :return: <vmconfig_entry> section reference(s)
+
         :rtype: list
         """
         machine_section = self.get_build_type_machine_section()
@@ -610,8 +670,9 @@ class XMLState(object):
         """
         First oemconfig section from the build type section
 
-        :return: <oemconfig>
-        :rtype: xml_parse::oemconfig instance
+        :return: <oemconfig> section reference
+
+        :rtype: xml_parse::oemconfig
         """
         oemconfig_sections = self.build_type.get_oemconfig()
         if oemconfig_sections:
@@ -622,8 +683,9 @@ class XMLState(object):
         State value to activate multipath maps. Returns a boolean
         value if specified or None
 
-        :return: oem-multipath-scan value
-        :rtype: bool or None
+        :return: Content of <oem-multipath-scan> section value
+
+        :rtype: bool
         """
         oemconfig = self.get_build_type_oemconfig_section()
         if oemconfig and oemconfig.get_oem_multipath_scan():
@@ -633,8 +695,9 @@ class XMLState(object):
         """
         First containerconfig section from the build type section
 
-        :return: <containerconfig>
-        :rtype: xml_parse::containerconfig instance
+        :return: <containerconfig> section reference
+
+        :rtype: xml_parse::containerconfig
         """
         container_config_sections = self.build_type.get_containerconfig()
         if container_config_sections:
@@ -646,6 +709,7 @@ class XMLState(object):
         If no unit is set the value is treated as mbytes
 
         :return: mbytes
+
         :rtype: int
         """
         size_section = self.build_type.get_size()
@@ -665,6 +729,10 @@ class XMLState(object):
     def get_disk_start_sector(self):
         """
         First disk sector number to be used by the first disk partition.
+
+        :return: number
+
+        :rtype: int
         """
         disk_start_sector = self.build_type.get_disk_start_sector()
         if disk_start_sector is None:
@@ -677,6 +745,7 @@ class XMLState(object):
         type. If no unit is set the value is treated as mbytes
 
         :return: mbytes
+
         :rtype: int
         """
         spare_part_size = self.build_type.get_spare_part()
@@ -688,6 +757,7 @@ class XMLState(object):
         Disk format options returned as a dictionary
 
         :return: format options
+
         :rtype: dict
         """
         result = {}
@@ -703,9 +773,10 @@ class XMLState(object):
 
     def get_volume_group_name(self):
         """
-        Volume group name from systemdisk section
+        Volume group name from selected <systemdisk> section
 
         :return: volume group name
+
         :rtype: string
         """
         systemdisk_section = self.get_build_type_system_disk_section()
@@ -722,7 +793,8 @@ class XMLState(object):
 
         Each entry in the list is a single xml_parse::user instance.
 
-        :return: user data
+        :return: list of <user> section reference(s)
+
         :rtype: list
         """
         users_list = []
@@ -745,6 +817,7 @@ class XMLState(object):
         description file.
 
         :return: groups data for the given user
+
         :rtype: list
         """
         groups_list = []
@@ -764,215 +837,12 @@ class XMLState(object):
 
         return result_group_list
 
-    def _match_docker_base_data(self):
-        """
-        Dictionary of docker container basic data
-
-        * container name
-        * container tag
-        * maintainer
-        * user
-        * working directory
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_base = {}
-        if container_config_section:
-            name = container_config_section.get_name()
-            tag = container_config_section.get_tag()
-            maintainer = container_config_section.get_maintainer()
-            user = container_config_section.get_user()
-            workingdir = container_config_section.get_workingdir()
-            if name:
-                container_base['container_name'] = name
-
-            if tag:
-                container_base['container_tag'] = tag
-
-            if maintainer:
-                container_base['maintainer'] = [
-                    ''.join(
-                        ['--author=', maintainer]
-                    )
-                ]
-
-            if user:
-                container_base['user'] = [
-                    ''.join(
-                        ['--config.user=', user]
-                    )
-                ]
-
-            if workingdir:
-                container_base['workingdir'] = [
-                    ''.join(
-                        ['--config.workingdir=', workingdir]
-                    )
-                ]
-        return container_base
-
-    def _match_docker_entrypoint(self):
-        """
-        Dictionary of docker entrypoint command name and arguments
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_entry = {}
-        if container_config_section:
-            entrypoint = container_config_section.get_entrypoint()
-            if entrypoint and entrypoint[0].get_execute():
-                container_entry['entry_command'] = [
-                    ''.join(
-                        [
-                            '--config.entrypoint=',
-                            entrypoint[0].get_execute()
-                        ]
-                    )
-                ]
-                argument_list = entrypoint[0].get_argument()
-                if argument_list:
-                    for argument in argument_list:
-                        container_entry['entry_command'].append(
-                            ''.join(
-                                [
-                                    '--config.entrypoint=',
-                                    argument.get_name()
-                                ]
-                            )
-                        )
-            elif entrypoint and entrypoint[0].get_clear():
-                container_entry['entry_command'] = [
-                    ''.join(
-                        [
-                            '--clear=config.entrypoint'
-                        ]
-                    )
-                ]
-        return container_entry
-
-    def _match_docker_subcommand(self):
-        """
-        Dictionary of docker entry subcommand name and arguments
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_subcommand = {}
-        if container_config_section:
-            subcommand = container_config_section.get_subcommand()
-            if subcommand and subcommand[0].get_execute():
-                container_subcommand['entry_subcommand'] = [
-                    ''.join(
-                        [
-                            '--config.cmd=',
-                            subcommand[0].get_execute()
-                        ]
-                    )
-                ]
-                argument_list = subcommand[0].get_argument()
-                if argument_list:
-                    for argument in argument_list:
-                        container_subcommand['entry_subcommand'].append(
-                            ''.join(
-                                [
-                                    '--config.cmd=',
-                                    argument.get_name()
-                                ]
-                            )
-                        )
-            elif subcommand and subcommand[0].get_clear():
-                container_subcommand['entry_subcommand'] = [
-                    ''.join(
-                        [
-                            '--clear=config.cmd',
-                        ]
-                    )
-                ]
-        return container_subcommand
-
-    def _match_docker_expose_ports(self):
-        """
-        Dictionary of docker container exposed ports
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_expose = {}
-        if container_config_section:
-            expose = container_config_section.get_expose()
-            if expose and expose[0].get_port():
-                container_expose['expose_ports'] = []
-                for port in expose[0].get_port():
-                    container_expose['expose_ports'].append(
-                        ''.join(
-                            [
-                                '--config.exposedports=',
-                                format(port.get_number())
-                            ]
-                        )
-                    )
-        return container_expose
-
-    def _match_docker_volumes(self):
-        """
-        Dictionary of docker container attached volumes
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_volumes = {}
-        if container_config_section:
-            volumes = container_config_section.get_volumes()
-            if volumes and volumes[0].get_volume():
-                container_volumes['volumes'] = []
-                for volume in volumes[0].get_volume():
-                    container_volumes['volumes'].append(
-                        ''.join(
-                            [
-                                '--config.volume=',
-                                volume.get_name()
-                            ]
-                        )
-                    )
-        return container_volumes
-
-    def _match_docker_environment(self):
-        """
-        Dictionary of docker container shell environment
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_env = {}
-        if container_config_section:
-            environment = container_config_section.get_environment()
-            if environment and environment[0].get_env():
-                container_env['environment'] = []
-                for env in environment[0].get_env():
-                    container_env['environment'].append(
-                        ''.join(
-                            [
-                                '--config.env=',
-                                env.get_name(), '=', env.get_value()
-                            ]
-                        )
-                    )
-        return container_env
-
-    def _match_docker_labels(self):
-        """
-        Dictionary of docker container labels and their values
-        """
-        container_config_section = self.get_build_type_containerconfig_section()
-        container_labels = {}
-        if container_config_section:
-            labels = container_config_section.get_labels()
-            if labels and labels[0].get_label():
-                container_labels['labels'] = []
-                for label in labels[0].get_label():
-                    container_labels['labels'].append(
-                        ''.join(
-                            [
-                                '--config.label=',
-                                label.get_name(), '=', label.get_value()
-                            ]
-                        )
-                    )
-        return container_labels
-
     def get_container_config(self):
         """
         Dictionary of containerconfig information
+
+        Takes attributes and subsection data from the selected
+        <containerconfig> section and stores it in a dictionary
         """
         container_config = self._match_docker_base_data()
         container_config.update(
@@ -1028,10 +898,23 @@ class XMLState(object):
         * realpath: system path to lookup volume data. If no mountpoint
           is set the volume name is used as data path.
         * mountpoint: volume mount point and volume data path
-        * fullsize: takes all space true|false
-        * attributes: volume attributes handled via chattr
+        * fullsize: takes all space True|False
+        * attributes: list of volume attributes handled via chattr
 
-        :return: volume data
+        :return:
+            Contains list of volume_type tuples
+
+            .. code:: python
+
+                [
+                    volume_type(name=volume_name,
+                    size=volume_size,
+                    realpath=path,
+                    mountpoint=path,
+                    fullsize=True,
+                    attributes=['no-copy-on-write']
+                )
+
         :rtype: list
         """
         volume_type_list = []
@@ -1144,6 +1027,7 @@ class XMLState(object):
         Provides information which volume management system is used
 
         :return: name of volume manager
+
         :rtype: string
         """
         volume_filesystems = ['btrfs']
@@ -1169,6 +1053,7 @@ class XMLState(object):
         configured profiles
 
         :return: driver names
+
         :rtype: list
         """
         drivers_sections = self._profiled(
@@ -1189,6 +1074,7 @@ class XMLState(object):
         :param string section_type: type name from packages section
 
         :return: strip names
+
         :rtype: list
         """
         strip_sections = self._profiled(
@@ -1206,7 +1092,8 @@ class XMLState(object):
         """
         Items to delete from strip section
 
-        :return: items to delete
+        :return: item names
+
         :rtype: list
         """
         return self.get_strip_list('delete')
@@ -1215,7 +1102,8 @@ class XMLState(object):
         """
         Tools to keep from strip section
 
-        :return: tools to keep
+        :return: tool names
+
         :rtype: list
         """
         return self.get_strip_list('tools')
@@ -1224,7 +1112,8 @@ class XMLState(object):
         """
         Libraries to keep from strip section
 
-        :return: libraries to keep
+        :return: librarie names
+
         :rtype: list
         """
         return self.get_strip_list('libs')
@@ -1233,7 +1122,8 @@ class XMLState(object):
         """
         List of all repository sections matching configured profiles
 
-        :return: <repository>
+        :return: <repository> section reference(s)
+
         :rtype: list
         """
         return self._profiled(
@@ -1242,10 +1132,11 @@ class XMLState(object):
 
     def get_repository_sections_used_for_build(self):
         """
-        List the repositorys sections used to build the image matching
-        configured profiles.
+        List of all repositorys sections used to build the image and
+        matching configured profiles.
 
-        :return: <repository>
+        :return: <repository> section reference(s)
+
         :rtype: list
         """
         repos = self.get_repository_sections()
@@ -1255,10 +1146,11 @@ class XMLState(object):
 
     def get_repository_sections_used_in_image(self):
         """
-        List the repositorys sections to be configured in the resulting
+        List of all repositorys sections to be configured in the resulting
         image matching configured profiles.
 
-        :return: <repository>
+        :return: <repository> section reference(s)
+
         :rtype: list
         """
         repos = self.get_repository_sections()
@@ -1609,6 +1501,7 @@ class XMLState(object):
         an exception is thrown
 
         :return: lowercase distribution name
+
         :rtype: string
         """
         boot_attribute = self.build_type.get_boot()
@@ -1636,6 +1529,7 @@ class XMLState(object):
         the -o mount option
 
         :return: max one element list with mount option string
+
         :rtype: list
         """
         option_list = []
@@ -1654,6 +1548,7 @@ class XMLState(object):
         configured in the XML description
 
         :return: Instance of Uri
+
         :rtype: object
         """
         derived_image = self.build_type.get_derived_from()
@@ -1716,6 +1611,192 @@ class XMLState(object):
                 )
             return resolved_profiles
 
+    def _section_matches_host_architecture(self, section):
+        architectures = section.get_arch()
+        if architectures:
+            if self.host_architecture not in architectures.split(','):
+                return False
+        return True
+
+    def _match_docker_base_data(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_base = {}
+        if container_config_section:
+            name = container_config_section.get_name()
+            tag = container_config_section.get_tag()
+            maintainer = container_config_section.get_maintainer()
+            user = container_config_section.get_user()
+            workingdir = container_config_section.get_workingdir()
+            if name:
+                container_base['container_name'] = name
+
+            if tag:
+                container_base['container_tag'] = tag
+
+            if maintainer:
+                container_base['maintainer'] = [
+                    ''.join(
+                        ['--author=', maintainer]
+                    )
+                ]
+
+            if user:
+                container_base['user'] = [
+                    ''.join(
+                        ['--config.user=', user]
+                    )
+                ]
+
+            if workingdir:
+                container_base['workingdir'] = [
+                    ''.join(
+                        ['--config.workingdir=', workingdir]
+                    )
+                ]
+        return container_base
+
+    def _match_docker_entrypoint(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_entry = {}
+        if container_config_section:
+            entrypoint = container_config_section.get_entrypoint()
+            if entrypoint and entrypoint[0].get_execute():
+                container_entry['entry_command'] = [
+                    ''.join(
+                        [
+                            '--config.entrypoint=',
+                            entrypoint[0].get_execute()
+                        ]
+                    )
+                ]
+                argument_list = entrypoint[0].get_argument()
+                if argument_list:
+                    for argument in argument_list:
+                        container_entry['entry_command'].append(
+                            ''.join(
+                                [
+                                    '--config.entrypoint=',
+                                    argument.get_name()
+                                ]
+                            )
+                        )
+            elif entrypoint and entrypoint[0].get_clear():
+                container_entry['entry_command'] = [
+                    ''.join(
+                        [
+                            '--clear=config.entrypoint'
+                        ]
+                    )
+                ]
+        return container_entry
+
+    def _match_docker_subcommand(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_subcommand = {}
+        if container_config_section:
+            subcommand = container_config_section.get_subcommand()
+            if subcommand and subcommand[0].get_execute():
+                container_subcommand['entry_subcommand'] = [
+                    ''.join(
+                        [
+                            '--config.cmd=',
+                            subcommand[0].get_execute()
+                        ]
+                    )
+                ]
+                argument_list = subcommand[0].get_argument()
+                if argument_list:
+                    for argument in argument_list:
+                        container_subcommand['entry_subcommand'].append(
+                            ''.join(
+                                [
+                                    '--config.cmd=',
+                                    argument.get_name()
+                                ]
+                            )
+                        )
+            elif subcommand and subcommand[0].get_clear():
+                container_subcommand['entry_subcommand'] = [
+                    ''.join(
+                        [
+                            '--clear=config.cmd',
+                        ]
+                    )
+                ]
+        return container_subcommand
+
+    def _match_docker_expose_ports(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_expose = {}
+        if container_config_section:
+            expose = container_config_section.get_expose()
+            if expose and expose[0].get_port():
+                container_expose['expose_ports'] = []
+                for port in expose[0].get_port():
+                    container_expose['expose_ports'].append(
+                        ''.join(
+                            [
+                                '--config.exposedports=',
+                                format(port.get_number())
+                            ]
+                        )
+                    )
+        return container_expose
+
+    def _match_docker_volumes(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_volumes = {}
+        if container_config_section:
+            volumes = container_config_section.get_volumes()
+            if volumes and volumes[0].get_volume():
+                container_volumes['volumes'] = []
+                for volume in volumes[0].get_volume():
+                    container_volumes['volumes'].append(
+                        ''.join(
+                            [
+                                '--config.volume=',
+                                volume.get_name()
+                            ]
+                        )
+                    )
+        return container_volumes
+
+    def _match_docker_environment(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_env = {}
+        if container_config_section:
+            environment = container_config_section.get_environment()
+            if environment and environment[0].get_env():
+                container_env['environment'] = []
+                for env in environment[0].get_env():
+                    container_env['environment'].append(
+                        ''.join(
+                            [
+                                '--config.env=',
+                                env.get_name(), '=', env.get_value()
+                            ]
+                        )
+                    )
+        return container_env
+
+    def _match_docker_labels(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_labels = {}
+        if container_config_section:
+            labels = container_config_section.get_labels()
+            if labels and labels[0].get_label():
+                container_labels['labels'] = []
+                for label in labels[0].get_label():
+                    container_labels['labels'].append(
+                        ''.join(
+                            [
+                                '--config.label=',
+                                label.get_name(), '=', label.get_value()
+                            ]
+                        )
+                    )
+        return container_labels
+
     def _solve_profile_dependencies(
         self, profile, available_profiles, current_profiles
     ):
@@ -1738,7 +1819,7 @@ class XMLState(object):
 
     def _build_type_section(self, build_type=None):
         """
-            find type section matching build type and profiles or default
+        find type section matching build type and profiles or default
         """
         # lookup all preferences sections for selected profiles
         image_type_sections = []
@@ -1768,10 +1849,10 @@ class XMLState(object):
 
     def _profiled(self, xml_abstract):
         """
-            return only those sections matching the instance stored
-            profile list from the given XML abstract. Sections without
-            a profile are wildcard sections and will be used in any
-            case
+        return only those sections matching the instance stored
+        profile list from the given XML abstract. Sections without
+        a profile are wildcard sections and will be used in any
+        case
         """
         result = []
         for section in xml_abstract:
@@ -1786,9 +1867,6 @@ class XMLState(object):
         return result
 
     def _to_volume_name(self, name):
-        """
-            build a valid volume name
-        """
         name = name.strip()
         name = re.sub(r'^\/+', r'', name)
         name = name.replace('/', '_')

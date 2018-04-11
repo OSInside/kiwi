@@ -23,7 +23,7 @@ from .exceptions import KiwiHelpNoCommandGiven
 
 class Help(object):
     """
-    Implements man page help for kiwi commands
+    **Implements man page help for kiwi commands**
 
     Each kiwi command implements their own manual page, which is
     shown if the positional argument 'help' is passed to the
@@ -36,6 +36,8 @@ class Help(object):
         All kiwi commands store their manual page in the section '8'
         of the man system. The calling process is replaced by the
         man process
+
+        :param string command: man page name
         """
         if not command:
             raise KiwiHelpNoCommandGiven("No help context specified")

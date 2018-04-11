@@ -25,16 +25,23 @@ from .logger import log
 
 class Path(object):
     """
-    Directory path helpers
+    **Directory path helpers**
     """
     @classmethod
     def sort_by_hierarchy(self, path_list):
         """
         Sort given list of path names by their hierachy in the tree
 
+        Example:
+
+        .. code:: python
+
+            result = Path.sort_by_hierarchy(['/var/lib', '/var'])
+
         :param list path_list: list of path names
 
-        :return: sorted path_list
+        :return: hierachy sorted path_list
+
         :rtype: list
         """
         paths_at_depth = {}
@@ -126,9 +133,13 @@ class Path(object):
         :param string filename: file base name
         :param list alternative_lookup_paths: list of additional lookup paths
         :param list custom_env: a custom os.environ
-        :param int mode: one of the os access modes or a combination of
+        :param int access_mode: one of the os access modes or a combination of
          them (os.R_OK, os.W_OK and os.X_OK). If the provided access mode
          does not match the file is considered not existing
+
+        :return: absolute path to file or None
+
+        :rtype: string
         """
         lookup_paths = []
         multipart_message = [

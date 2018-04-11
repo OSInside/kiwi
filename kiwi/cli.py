@@ -89,22 +89,11 @@ from .help import Help
 
 class Cli(object):
     """
-    Implements the main command line interface
+    **Implements the main command line interface**
 
     An instance of the Cli class builds the entry point for the
     application and implements methods to load further command plugins
     which itself provides their own command line interface
-
-    Attributes
-
-    * :attr:`all_args`
-        docopt parse result, all arguments dict
-
-    * :attr:`command_args`
-        subset of docopt argument dict for selected command
-
-    * :attr:`command_loaded`
-        result of importlib command load operation
     """
     def __init__(self):
         self.all_args = docopt(
@@ -129,6 +118,7 @@ class Cli(object):
         Extract service name from argument parse result
 
         :return: service name
+
         :rtype: string
         """
         if self.all_args.get('image') is True:
@@ -148,9 +138,18 @@ class Cli(object):
 
     def invoke_kiwicompat(self, compat_args):
         """
-        Execute kiwicompat with provided command line arguments
+        Execute kiwicompat with provided legacy KIWI command line arguments
 
-        :param list compat_args: raw arguments
+        Example:
+
+        .. code:: python
+
+            invoke_kiwicompat(
+                '--build', 'description', '--type', 'vmx',
+                '-d', 'destination'
+            )
+
+        :param list compat_args: legacy kiwi command arguments
         """
         kiwicompat = self._lookup_kiwicompat()
         try:
@@ -173,7 +172,15 @@ class Cli(object):
         """
         Extract argument dict for selected command
 
-        :return: command arguments
+        :return:
+            Contains dictionary of command arguments
+
+            .. code:: python
+
+                {
+                    '--command-option': 'value'
+                }
+
         :rtype: dict
         """
         return self._load_command_args()
@@ -182,7 +189,15 @@ class Cli(object):
         """
         Extract argument dict for global arguments
 
-        :return: global arguments
+        :return:
+            Contains dictionary of global arguments
+
+            .. code:: python
+
+                {
+                    '--global-option': 'value'
+                }
+
         :rtype: dict
         """
         result = {}
@@ -194,6 +209,10 @@ class Cli(object):
     def load_command(self):
         """
         Loads task class plugin according to service and command name
+
+        :return: importlib loaded module
+
+        :rtype: object
         """
         command = self.get_command()
         service = self.get_servicename()

@@ -21,7 +21,7 @@ from .tasks.base import CliTask
 
 class App(object):
     """
-    Implements creation of task instances
+    **Implements creation of task instances**
 
     Each task class implements a process method which is called
     when constructing an instance of App
