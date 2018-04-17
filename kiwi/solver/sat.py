@@ -32,7 +32,7 @@ from kiwi.exceptions import (
 
 class Sat(object):
     """
-    Sat Solver class to run package solver operations
+    **Sat Solver class to run package solver operations**
 
     The class uses SUSE's libsolv sat plugin
     """
@@ -42,6 +42,8 @@ class Sat(object):
         python binding to the libsolv C library. An exception is raised
         if the module failed to load. On success a new solver pool is
         initialized for this instance
+
+        :raises KiwiSatSolverPluginError: if libsolv module can't be loaded
         """
         try:
             self.solv = importlib.import_module('solv')
@@ -59,7 +61,7 @@ class Sat(object):
         required repository metadata which is needed to run a solver
         operation later.
 
-        :param object solver_repository: Instance of SolverRepository
+        :param object solver_repository: Instance of :class:`SolverRepository`
         """
         solvable = solver_repository.create_repository_solvable()
         pool_repository = self.pool.add_repo(solver_repository.uri.uri)
@@ -89,8 +91,10 @@ class Sat(object):
         :param bool skip_missing: skip job if not found
         :param bool ignore_recommended: do not include recommended packages
 
-        :rtype: dict
+        :raises KiwiSatSolverJobProblems: if solver reports solving problems
         :return: Transaction result information
+
+        :rtype: dict
         """
         solver = self.pool.Solver()
         if ignore_recommended:
@@ -117,10 +121,11 @@ class Sat(object):
         The method creates a pretty print XML information
         and returns that as a UTF-8 encoded string
 
-        :param object solver_problems: result of Pool::Solver::solve()
+        :param object solver_problems: result of :class:`Pool::Solver::solve()`
 
-        :rtype: string
         :return: solver problem info and solutions
+
+        :rtype: str
         """
         if solver_problems:
             problems = ElementTree.Element('problems')
@@ -149,10 +154,11 @@ class Sat(object):
         """
         Iterate over solver result and return a data dictionary
 
-        :param object solver_transaction: result of Pool::Solver::transaction()
+        :param object solver_transaction: result of :class:`Pool::Solver::transaction()`
+
+        :return: dict of packages and their details
 
         :rtype: dict
-        :return: dict of packages and their details
         """
         result_type = namedtuple(
             'result_type', [
@@ -186,8 +192,9 @@ class Sat(object):
         :param list job_names: list of package,pattern,group names
         :param bool skip_missing: continue or raise if job selection failed
 
+        :return: list of :class:`Pool.selection()` objects
+
         :rtype: list
-        :return: list of Pool.selection() objects
         """
         jobs = []
         for job_name in job_names:

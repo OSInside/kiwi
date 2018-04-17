@@ -23,6 +23,9 @@ from kiwi.solver.repository.base import SolverRepositoryBase
 
 
 class SolverRepositoryRpmMd(SolverRepositoryBase):
+    """
+    **Class for SAT solvable creation for rpm-md type repositories.**
+    """
     def _setup_repository_metadata(self):
         """
         Download repo metadata for rpm-md specific repositories
@@ -66,7 +69,9 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
         """
         Get timestamp from the first primary metadata
 
-        :rtype: time value as text
+        :return: time value as text
+
+        :rtype: str
         """
         return self._get_repomd_xpath(
             self._get_repomd_xml(),
@@ -79,13 +84,13 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
         specified type list. Assign the found entries to the given
         tool
 
-        * :attr:`type_list`
+        :param list type_list:
             Value of type attribute in the repomd.xml definition
-
-        * :attr:`tool`
+        :param str tool:
             Tool to create a solvable from this data
 
-        :return: string:solv_tool, list:metadata_files
+        :return: str:solv_tool, list:metadata_files
+
         :rtype: tuple
         """
         result_type = namedtuple(
