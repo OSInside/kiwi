@@ -29,7 +29,7 @@ from .exceptions import (
 
 class RuntimeConfig(object):
     """
-    Implements reading of runtime configuration file:
+    **Implements reading of runtime configuration file:**
 
     * ~/.config/kiwi/config.yml
 
@@ -58,6 +58,8 @@ class RuntimeConfig(object):
         if no configuration exists the downloadserver from
         the Defaults class is returned
 
+        :return: URL type data
+
         :rtype: string
         """
         obs_download_server_url = self._get_attribute(
@@ -74,6 +76,8 @@ class RuntimeConfig(object):
           - public: true|false
 
         if no configuration exists we assume to be public
+
+        :return: True or False
 
         :rtype: bool
         """
@@ -92,6 +96,13 @@ class RuntimeConfig(object):
 
         if no configuration exists None is returned
 
+        :return:
+            Contains list of options
+
+            .. code:: python
+
+                ['--option=value']
+
         :rtype: list
         """
         xz_options = self._get_attribute(element='xz', attribute='options')
@@ -106,6 +117,8 @@ class RuntimeConfig(object):
 
         if no or invalid configuration exists the default tool category
         from the Defaults class is returned
+
+        :return: A name
 
         :rtype: string
         """
@@ -136,7 +149,9 @@ class RuntimeConfig(object):
 
         if no configuration exists None is returned
 
-        :rtype: list
+        :return: byte value or None
+
+        :rtype: int
         """
         max_size = self._get_attribute(
             element='build_constraints', attribute='max_size'

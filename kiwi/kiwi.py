@@ -29,7 +29,17 @@ def extras(help_, version, options, doc):
     """
     Overwritten method from docopt
 
-    We want to show our own usage for -h|--help
+    Shows our own usage message for -h|--help
+
+    :param bool help_: indicate to show help
+    :param string version: version string
+    :param list options:
+        list of option tuples
+
+        .. code:: python
+
+            [option(name='name', value='value')]
+    :param string doc: docopt doc string
     """
     if help_ and any((o.name in ('-h', '--help')) and o.value for o in options):
         usage(doc.strip("\n"))
@@ -85,6 +95,8 @@ def usage(command_usage):
        short form by default, long form with -h | --help
 
     3. the global options
+
+    :param string command_usage: usage data
     """
     with open(Defaults.project_file('cli.py'), 'r') as cli:
         program_code = cli.readlines()

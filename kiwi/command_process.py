@@ -33,10 +33,13 @@ from .exceptions import (
 
 class CommandProcess(object):
     """
-    Implements processing of non blocking Command calls
+    **Implements processing of non blocking Command calls**
 
     Provides methods to iterate over non blocking instances of
     the Command class with and without progress information
+
+    :param subprocess command: instance of subprocess
+    :param string log_topic: topic string for logging
     """
     def __init__(self, command, log_topic='system'):
         self.command = CommandIterator(command)
@@ -103,10 +106,13 @@ class CommandProcess(object):
 
     def create_match_method(self, method):
         """
-        create a matcher method with the following interface
-        f(item_to_match, data)
+        create a matcher function pointer which calls the given
+        method as method(item_to_match, data) on dereference
 
-        :param function method: f(item_to_match, data)
+        :param function method: function reference
+
+        :return: function pointer
+        :rtype: object
         """
         def create_method(item_to_match, data):
             return method(item_to_match, data)
@@ -145,7 +151,9 @@ class CommandProcess(object):
 
 class CommandIterator(six.Iterator):
     """
-    Implements Iterator for Instances of Command
+    **Implements an Iterator for Instances of Command**
+
+    :param subprocess command: instance of subprocess
     """
     def __init__(self, command):
         self.command = command
@@ -181,9 +189,10 @@ class CommandIterator(six.Iterator):
 
     def get_error_output(self):
         """
-        Provide data sent to stderr channel
+        Provide data which was sent to the stderr channel
 
         :return: stderr data
+
         :rtype: string
         """
         return self.command_error_output.decode()
@@ -193,6 +202,7 @@ class CommandIterator(six.Iterator):
         Provide return value from processed command
 
         :return: errorcode
+
         :rtype: int
         """
         return self.command.process.returncode
@@ -202,6 +212,7 @@ class CommandIterator(six.Iterator):
         Provide process ID of command while running
 
         :return: pid
+
         :rtype: int
         """
         return self.command.process.pid

@@ -25,20 +25,15 @@ from .path import Path
 
 class MountManager(object):
     """
-    Provide methods for mounting, umounting and mount checking
+    **Implements methods for mounting, umounting and mount checking**
 
     If a MountManager instance is used to mount a device the caller
     must care for the time when umount needs to be called. The class
     does not automatically release the mounted device, which is
     intentional
 
-    Attributes
-
-    * :attr:`device`
-        device node name
-
-    * :attr:`mountpoint`
-        mountpoint directory name
+    * :param string device: device node name
+    * :param string mountpoint: mountpoint directory name
     """
     def __init__(self, device, mountpoint=None):
         self.device = device
@@ -89,6 +84,8 @@ class MountManager(object):
 
         If the resource is busy the call will return False
 
+        :return: True or False
+
         :rtype: bool
         """
         from .logger import log
@@ -117,6 +114,8 @@ class MountManager(object):
     def is_mounted(self):
         """
         Check if mounted
+
+        :return: True or False
 
         :rtype: bool
         """

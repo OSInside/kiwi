@@ -26,7 +26,7 @@ from .exceptions import (
 
 class ColorMessage(object):
     """
-    Implements color messages for python logging facility
+    **Implements color messages for Python logging facility**
 
     Has to implement the format_message method to serve as
     message formatter
@@ -57,7 +57,7 @@ class ColorMessage(object):
 
     def format_message(self, level, message):
         """
-        Message formatter with support for embeded color sequences
+        Message formatter with support for embedded color sequences
 
         The Message is allowed to contain the following color metadata:
 
@@ -73,6 +73,7 @@ class ColorMessage(object):
         :param string message: text
 
         :return: color message with escape sequences
+
         :rtype: string
         """
         message = message.replace(
@@ -104,7 +105,15 @@ class ColorMessage(object):
 
 class ColorFormatter(logging.Formatter):
     """
-    Extended standard logging Formatter supporting text with color metadata
+    **Extended standard logging Formatter**
+
+    Extended format supporting text with color metadata
+
+    Example:
+
+    .. code:: python
+
+        ColorFormatter(message_format, '%H:%M:%S')
     """
     def __init__(self, *args, **kwargs):
         # can't do super(...) here because Formatter is an old school class
@@ -127,7 +136,7 @@ class ColorFormatter(logging.Formatter):
 
 class LoggerSchedulerFilter(logging.Filter):
     """
-    Extended standard logging Filter
+    **Extended standard logging Filter**
     """
     def filter(self, record):
         """
@@ -137,6 +146,7 @@ class LoggerSchedulerFilter(logging.Filter):
         :param tuple record: logging message record
 
         :return: record.name
+
         :rtype: string
         """
         ignorables = [
@@ -148,7 +158,7 @@ class LoggerSchedulerFilter(logging.Filter):
 
 class InfoFilter(logging.Filter):
     """
-    Extended standard logging Filter
+    **Extended standard logging Filter**
     """
     def filter(self, record):
         """
@@ -158,6 +168,7 @@ class InfoFilter(logging.Filter):
         :param tuple record: logging message record
 
         :return: record.name
+
         :rtype: string
         """
         if record.levelno == logging.INFO:
@@ -166,7 +177,7 @@ class InfoFilter(logging.Filter):
 
 class DebugFilter(logging.Filter):
     """
-    Extended standard logging Filter
+    **Extended standard debug logging Filter**
     """
     def filter(self, record):
         """
@@ -176,6 +187,7 @@ class DebugFilter(logging.Filter):
         :param tuple record: logging message record
 
         :return: record.name
+
         :rtype: string
         """
         if record.levelno == logging.DEBUG:
@@ -184,7 +196,7 @@ class DebugFilter(logging.Filter):
 
 class ErrorFilter(logging.Filter):
     """
-    Extended standard logging Filter
+    **Extended standard error logging Filter**
     """
     def filter(self, record):
         """
@@ -194,6 +206,7 @@ class ErrorFilter(logging.Filter):
         :param tuple record: logging message record
 
         :return: record.name
+
         :rtype: string
         """
         if record.levelno == logging.ERROR:
@@ -202,7 +215,7 @@ class ErrorFilter(logging.Filter):
 
 class WarningFilter(logging.Filter):
     """
-    Extended standard logging Filter
+    **Extended standard warning logging Filter**
     """
     def filter(self, record):
         """
@@ -212,6 +225,7 @@ class WarningFilter(logging.Filter):
         :param tuple record: logging message record
 
         :return: record.name
+
         :rtype: string
         """
         if record.levelno == logging.WARNING:
@@ -220,7 +234,9 @@ class WarningFilter(logging.Filter):
 
 class Logger(logging.Logger):
     """
-    Extended logging facility based on python logging
+    **Extended logging facility based on Python logging**
+
+    :param string name: name of the logger
     """
     def __init__(self, name):
         logging.Logger.__init__(self, name)
@@ -257,6 +273,7 @@ class Logger(logging.Logger):
         Return currently used log level
 
         :return: log level number
+
         :rtype: int
         """
         return self.log_level

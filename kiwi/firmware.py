@@ -28,22 +28,13 @@ from .exceptions import (
 
 class FirmWare(object):
     """
-    Implements firmware specific image information
+    **Implements firmware specific methods**
 
     According to the selected firmware some parameters in a disk
     image changes. This class provides methods to provide firmware
     dependant information
 
-    Attributes
-
-    * :attr:`arch`
-        machine architecture
-
-    * :attr:`zipl_target_type`
-        XML configured zipl target type
-
-    * :attr:`firmware`
-        XML configured firmware name
+    * :param object xml_state: instance of :class:`XMLState`
     """
     def __init__(self, xml_state):
         self.arch = platform.machine()
@@ -65,9 +56,10 @@ class FirmWare(object):
 
     def get_partition_table_type(self):
         """
-        Partition table type according to architecture and firmware
+        Provides partition table type according to architecture and firmware
 
         :return: partition table name
+
         :rtype: string
         """
         if 's390' in self.arch:
@@ -94,6 +86,8 @@ class FirmWare(object):
         """
         Check if the legacy boot from BIOS systems should be activated
 
+        :return: True or False
+
         :rtype: bool
         """
         if self.get_partition_table_type() == 'gpt':
@@ -108,6 +102,8 @@ class FirmWare(object):
         """
         Check if EFI mode is requested
 
+        :return: True or False
+
         :rtype: bool
         """
         if self.firmware in Defaults.get_efi_capable_firmware_names():
@@ -117,6 +113,8 @@ class FirmWare(object):
         """
         Check if EC2 mode is requested
 
+        :return: True or False
+
         :rtype: bool
         """
         if self.firmware in Defaults.get_ec2_capable_firmware_names():
@@ -125,6 +123,8 @@ class FirmWare(object):
     def bios_mode(self):
         """
         Check if BIOS mode is requested
+
+        :return: True or False
 
         :rtype: bool
         """
@@ -137,6 +137,8 @@ class FirmWare(object):
         """
         Check if OFW mode is requested
 
+        :return: True or False
+
         :rtype: bool
         """
         if self.firmware == 'ofw':
@@ -147,6 +149,8 @@ class FirmWare(object):
     def opal_mode(self):
         """
         Check if Opal mode is requested
+
+        :return: True or False
 
         :rtype: bool
         """
@@ -160,7 +164,8 @@ class FirmWare(object):
         Size of legacy bios_grub partition if legacy BIOS mode is
         required. Returns 0 if no such partition is needed
 
-        :return: mbsize
+        :return: mbsize value
+
         :rtype: int
         """
         if self.legacy_bios_mode():
@@ -173,7 +178,8 @@ class FirmWare(object):
         Size of EFI partition.
         Returns 0 if no such partition is needed
 
-        :return: mbsize
+        :return: mbsize value
+
         :rtype: int
         """
         if self.efi_mode():
@@ -189,7 +195,8 @@ class FirmWare(object):
         Size of Prep partition if OFW mode is requested.
         Returns 0 if no such partition is needed
 
-        :return: mbsize
+        :return: mbsize value
+
         :rtype: int
         """
         if self.ofw_mode():

@@ -34,7 +34,7 @@ from .exceptions import (
 
 class Command(object):
     """
-    Implements command invocation
+    **Implements command invocation**
 
     An instance of Command provides methods to invoke external
     commands in blocking and non blocking mode. Control of
@@ -49,14 +49,24 @@ class Command(object):
         exception is thrown if the command exits with an error
         code not equal to zero
 
+        Example:
+
+        .. code:: python
+
+            result = Command.run(['ls', '-l'])
+
         :param list command: command and arguments
         :param list custom_env: custom os.environ
         :param bool raise_on_error: control error behaviour
 
-        :return: (string).output
-        :return: (string).error
-        :return: (int).returncode
-        :rtype: tuple
+        :return:
+            Contains call results in command type
+
+            .. code:: python
+
+                command(output='string', error='string', returncode=int)
+
+        :rtype: namedtuple
         """
         from .logger import log
         from .path import Path
@@ -121,13 +131,27 @@ class Command(object):
         run the command. This can be done using the CommandIterator
         from command_process
 
+        Example:
+
+        .. code:: python
+
+            process = Command.call(['ls', '-l'])
+
         :param list command: command and arguments
         :param list custom_env: custom os.environ
 
-        :return: (string).output
-        :return: (string).error
-        :return: (subprocess).process
-        :rtype: tuple
+        :return:
+            Contains process results in command type
+
+            .. code:: python
+
+                command(
+                    output='string', output_available=bool,
+                    error='string', error_available=bool,
+                    process=subprocess
+                )
+
+        :rtype: namedtuple
         """
         from .logger import log
         from .path import Path
