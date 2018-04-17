@@ -29,30 +29,11 @@ from kiwi.logger import log
 
 class Disk(DeviceProvider):
     """
-    Implements storage disk and partition table setup
+    **Implements storage disk and partition table setup**
 
-    Attributes
-
-    * :attr:`storage_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`partition_map`
-        Dict of internal partition names to device node name
-
-    * :attr:`public_partition_id_map`
-        Dict of public partition names to partition number
-
-    * :attr:`partition_id_map`
-        Dict of internal partition names to partition number
-
-    * :attr:`is_mapped`
-        Indicate if partitions are kpartx mapped
-
-    * :attr:`partitioner`
-        Instance of Partitioner
-
-    * :attr:`table_type`
-        Partition table type
+    :param string table_type: Partition table type name
+    :param object storage_provider: Instance of class based on DeviceProvider
+    :param int start_sector: sector number
     """
     def __init__(self, table_type, storage_provider, start_sector=None):
         # bind the underlaying block device providing class instance
@@ -78,6 +59,7 @@ class Disk(DeviceProvider):
         Note that the mapping requires an explicit map() call
 
         :return: instances of MappedDevice
+
         :rtype: dict
         """
         device_map = {}
@@ -93,6 +75,10 @@ class Disk(DeviceProvider):
 
         The information is taken from the storage provider. If
         the storage provider is loop based the disk is it too
+
+        :return: True or False
+
+        :rtype: bool
         """
         return self.storage_provider.is_loop()
 

@@ -25,7 +25,7 @@ from kiwi.utils.command_capabilities import CommandCapabilities
 
 class ArchiveTar(object):
     """
-    Extraction/Creation of tar archives
+    **Extraction/Creation of tar archives**
 
     The tarfile python module is not used by that class,
     since it does not provide support for some relevant features
@@ -33,16 +33,12 @@ class ArchiveTar(object):
     Moreover tarfile lacks support for xz compression under
     Python v2.7.
 
-    Attributes
-
-    * :attr:`filename`
+    :param string filename:
         filename to use for archive extraction or creation
-
-    * :attr:`create_from_file_list`
+    :param bool create_from_file_list:
         use file list not entire directory to create the archive
-
-    * :attr:`file_list`
-        list of files and directories to pack
+    :param list file_list:
+        list of files and directorie names to archive
     """
     def __init__(self, filename, create_from_file_list=True, file_list=None):
         self.filename = filename

@@ -30,21 +30,9 @@ from kiwi.exceptions import (
 
 class LuksDevice(DeviceProvider):
     """
-    Implements luks setup on a storage device
+    **Implements luks setup on a storage device**
 
-    Attributes
-
-    * :attr:`storage_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`luks_device`
-        LUKS device node name
-
-    * :attr:`luks_name`
-        LUKS map name, set to: luksRoot
-
-    * :attr:`option_map`
-        dict of distribution specific luks options
+    :param object storage_provider: Instance of class based on DeviceProvider
     """
     def __init__(self, storage_provider):
         # bind the underlaying block device providing class instance
@@ -68,6 +56,7 @@ class LuksDevice(DeviceProvider):
         Instance of MappedDevice providing the luks device
 
         :return: mapped luks device
+
         :rtype: MappedDevice
         """
         if self.luks_device:
@@ -80,6 +69,12 @@ class LuksDevice(DeviceProvider):
         Create luks device. Please note the passphrase is readable
         at creation time of this image. Make sure your host system
         is secure while this process runs
+
+        :param string passphrase: credentials
+        :param string os:
+            distribution name to match distribution specific
+            options for cryptsetup
+        :param list options: further cryptsetup options
         """
         if not options:
             options = []
@@ -129,6 +124,8 @@ class LuksDevice(DeviceProvider):
     def create_crypttab(self, filename):
         """
         Create crypttab, setting the UUID of the storage device
+
+        :param string filename: file path name
         """
         storage_device = self.storage_provider.get_device()
         with open(filename, 'w') as crypttab:
@@ -143,6 +140,8 @@ class LuksDevice(DeviceProvider):
         Check if storage provider is loop based
 
         Return loop status from base storage provider
+
+        :return: True or False
 
         :rtype: bool
         """

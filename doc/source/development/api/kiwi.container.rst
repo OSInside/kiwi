@@ -20,6 +20,14 @@ Submodules
     :show-inheritance:
 
 
+`kiwi.container.oci` Module
+---------------------------
+
+.. automodule:: kiwi.container.oci
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module Contents
 ---------------
 

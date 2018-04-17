@@ -33,33 +33,13 @@ from kiwi.exceptions import (
 
 class DiskFormatBase(object):
     """
-    Base class to create disk formats from a raw disk image
+    **Base class to create disk formats from a raw disk image**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`arch`
-        platform.machine
-
-    * :attr:`target_dir`
-        target directory path name
-
-    * :attr:`custom_args`
-        list of custom format options
-
-    * :attr:`temp_image_dir`
-        temporary manifest directory
-
-    * :attr:`diskname`
-        raw disk file path name
-
-    * :attr:`image_format`
-        disk format name
+    :param object xml_state: Instance of XMLState
+    :param string root_dir: root directory path name
+    :param string arch: platform.machine
+    :param string target_dir: target directory path name
+    :param dict custom_args: custom format options dictionary
     """
     def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
@@ -87,6 +67,8 @@ class DiskFormatBase(object):
         """
         Check if the base raw disk image exists
 
+        :return: True or False
+
         :rtype: bool
         """
         return os.path.exists(self.diskname)
@@ -100,6 +82,9 @@ class DiskFormatBase(object):
         gets resized and the method returns False
 
         :param int size: new size in bytes
+
+        :return: True or False
+
         :rtype: bool
         """
         current_byte_size = os.path.getsize(self.diskname)
@@ -132,6 +117,7 @@ class DiskFormatBase(object):
         :param dict custom_args: arguments
 
         :return: qemu option list
+
         :rtype: list
         """
         options = []
@@ -152,6 +138,7 @@ class DiskFormatBase(object):
         :param string format_name: disk format name
 
         :return: file path name
+
         :rtype: string
         """
         if format_name != 'raw':

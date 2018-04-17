@@ -22,7 +22,7 @@ from kiwi.command import Command
 
 class DiskFormatVhdx(DiskFormatBase):
     """
-    Create vhdx image format in dynamic subformat
+    **Create vhdx image format in dynamic subformat**
     """
     def post_init(self, custom_args):
         """
@@ -30,13 +30,7 @@ class DiskFormatVhdx(DiskFormatBase):
 
         Store qemu options as list from custom args dict
 
-        Attributes
-
-        * :attr:`options`
-            qemu format conversion options
-
-        * :attr:`image_format`
-            disk format name: vhdx
+        :param dict custom_args: custom qemu arguments dictionary
         """
         self.image_format = 'vhdx'
         self.options = self.get_qemu_option_list(custom_args)

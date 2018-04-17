@@ -27,7 +27,7 @@ from kiwi.exceptions import (
 
 class PartitionerGpt(PartitionerBase):
     """
-    Implements GPT partition setup
+    **Implements GPT partition setup**
     """
     def post_init(self):
         """
@@ -64,9 +64,12 @@ class PartitionerGpt(PartitionerBase):
             self.start_sector = 0
         Command.run(
             [
-                'sgdisk', '-n',
-                ':'.join(
-                    [format(self.partition_id), format(self.start_sector), partition_end]
+                'sgdisk', '-n', ':'.join(
+                    [
+                        format(self.partition_id),
+                        format(self.start_sector),
+                        partition_end
+                    ]
                 ), '-c', ':'.join([format(self.partition_id), name]),
                 self.disk_device
             ]
@@ -146,7 +149,7 @@ class PartitionerGpt(PartitionerBase):
         """
         Resize partition table
 
-        :param int entries: default entries
+        :param int entries: number of default entries
         """
         Command.run(
             [

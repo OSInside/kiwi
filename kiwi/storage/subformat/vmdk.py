@@ -39,13 +39,7 @@ class DiskFormatVmdk(DiskFormatBase):
 
         Store qemu options as list from custom args dict
 
-        Attributes
-
-        * :attr:`options`
-            qemu format conversion options
-
-        * :attr:`image_format`
-            disk format name: vmdk
+        :param dict custom_args: custom qemu arguments dictionary
         """
         self.image_format = 'vmdk'
         self.options = self.get_qemu_option_list(custom_args)

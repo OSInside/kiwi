@@ -29,21 +29,11 @@ from kiwi.exceptions import (
 
 class LoopDevice(DeviceProvider):
     """
-    Create and manage loop device file for block operations
+    **Create and manage loop device file for block operations**
 
-    Attributes
-
-    * :attr:`node_name`
-        loop device node name
-
-    * :attr:`filename`
-        loop file name to create
-
-    * :attr:`filesize_mbytes`
-        size of the loop file
-
-    * :attr:`blocksize_bytes`
-        blocksize used in loop driver
+    :param string filename: loop file name to create
+    :param int filesize_mbytes: size of the loop file
+    :param int blocksize_bytes: blocksize used in loop driver
     """
     def __init__(self, filename, filesize_mbytes=None, blocksize_bytes=None):
         self.node_name = None
@@ -60,6 +50,7 @@ class LoopDevice(DeviceProvider):
         Device node name
 
         :return: device node name
+
         :rtype: string
         """
         return self.node_name
@@ -67,6 +58,8 @@ class LoopDevice(DeviceProvider):
     def is_loop(self):
         """
         Always True
+
+        :return: True
 
         :rtype: bool
         """

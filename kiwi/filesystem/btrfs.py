@@ -22,7 +22,7 @@ from kiwi.filesystem.base import FileSystemBase
 
 class FileSystemBtrfs(FileSystemBase):
     """
-    Implements creation of btrfs filesystem
+    **Implements creation of btrfs filesystem**
     """
     def create_on_device(self, label=None):
         """

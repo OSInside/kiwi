@@ -23,7 +23,7 @@ from kiwi.command import Command
 
 class FileSystemSquashFs(FileSystemBase):
     """
-    Implements creation of squashfs filesystem
+    **Implements creation of squashfs filesystem**
     """
     def create_on_file(self, filename, label=None, exclude=None):
         """

@@ -22,7 +22,7 @@ from kiwi.command import Command
 
 class FileSystemXfs(FileSystemBase):
     """
-    Implements creation of xfs filesystem
+    **Implements creation of xfs filesystem**
     """
     def create_on_device(self, label=None):
         """

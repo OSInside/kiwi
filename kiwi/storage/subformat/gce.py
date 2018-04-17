@@ -27,7 +27,7 @@ from kiwi.archive.tar import ArchiveTar
 
 class DiskFormatGce(DiskFormatBase):
     """
-    Create GCE - Google Compute Engine image format
+    **Create GCE - Google Compute Engine image format**
     """
     def post_init(self, custom_args):
         """
@@ -35,13 +35,12 @@ class DiskFormatGce(DiskFormatBase):
 
         Store disk tag from custom args
 
-        Attributes
+        :param dict custom_args:
+            custom gce argument dictionary
 
-        * :attr:`tag`
-            GCE disk tag, billing code
+            .. code:: python
 
-        * :attr:`image_format`
-            disk format name: gce
+                {'--tag': 'billing_code'}
         """
         self.image_format = 'gce'
         self.tag = None
@@ -103,6 +102,7 @@ class DiskFormatGce(DiskFormatBase):
         :param string format_name: gce
 
         :return: file path name
+
         :rtype: string
         """
         if format_name == 'gce':

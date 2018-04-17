@@ -24,7 +24,7 @@ from kiwi.exceptions import (
 
 class DeviceProvider(object):
     """
-    Base class for any class providing storage devices
+    **Base class for any class providing storage devices**
     """
     def get_device(self):
         """
@@ -42,6 +42,10 @@ class DeviceProvider(object):
         UUID of device
 
         :param string device: node name
+
+        :return: UUID from blkid
+
+        :rtype: string
         """
         uuid_call = Command.run(
             ['blkid', device, '-s', 'UUID', '-o', 'value']
@@ -53,6 +57,10 @@ class DeviceProvider(object):
         Size of device in bytes
 
         :param string device: node name
+
+        :return: byte value from blockdev
+
+        :rtype: int
         """
         blockdev_call = Command.run(
             ['blockdev', '--getsize64', device]
@@ -65,5 +73,9 @@ class DeviceProvider(object):
 
         By default this is always False and needs an implementation
         in the the specialized device provider class
+
+        :return: True or False
+
+        :rtype: bool
         """
         return False

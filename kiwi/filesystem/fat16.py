@@ -22,7 +22,7 @@ from kiwi.command import Command
 
 class FileSystemFat16(FileSystemBase):
     """
-    Implements creation of fat16 filesystem
+    **Implements creation of fat16 filesystem**
     """
     def create_on_device(self, label=None):
         """

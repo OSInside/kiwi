@@ -21,12 +21,9 @@ from kiwi.command import Command
 
 class ArchiveCpio(object):
     """
-    Extraction/Creation of cpio archives
+    **Extraction/Creation of cpio archives**
 
-    Attributes
-
-    * :attr:`filename`
-        filename to use for archive extraction or creation
+    :param string filename: filename to use for archive extraction or creation
     """
     def __init__(self, filename):
         self.filename = filename

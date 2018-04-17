@@ -26,11 +26,7 @@ from kiwi.utils.compress import Compress
 
 class ContainerImageDocker(ContainerImageOCI):
     """
-    Create docker container from a root directory
-
-    Attributes
-
-    Inherited from ContainerImageOCI
+    **Create docker container from a root directory**
     """
     def pack_image_to_file(self, filename):
         """

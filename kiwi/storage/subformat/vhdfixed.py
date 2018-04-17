@@ -30,7 +30,7 @@ from kiwi.exceptions import (
 
 class DiskFormatVhdFixed(DiskFormatBase):
     """
-    Create vhd image format in fixed subformat
+    **Create vhd image format in fixed subformat**
     """
     def post_init(self, custom_args):
         """
@@ -39,16 +39,12 @@ class DiskFormatVhdFixed(DiskFormatBase):
         Store qemu options as list from custom args dict
         Extract disk tag from custom args
 
-        Attributes
+        :param dict custom_args:
+            custom vhdfixed and qemu argument dictionary
 
-        * :attr:`options`
-            qemu format conversion options
+            .. code:: python
 
-        * :attr:`tag`
-            vhd disk tag, billing code
-
-        * :attr:`image_format`
-            disk format name: vhdfixed
+                {'--tag': 'billing_code', '--qemu-opt': 'value'}
         """
         self.image_format = 'vhdfixed'
         self.tag = None
@@ -97,6 +93,8 @@ class DiskFormatVhdFixed(DiskFormatBase):
         """
         Pack tag format into 16 byte binary representation. String format
         of the tag is: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+
+        :param string tag: tagname
         """
         tag_format = re.match(
             ''.join(

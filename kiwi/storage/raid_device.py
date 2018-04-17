@@ -30,15 +30,9 @@ from kiwi.exceptions import (
 
 class RaidDevice(DeviceProvider):
     """
-    Implement raid setup on a storage device
+    **Implement raid setup on a storage device**
 
-    Attributes
-
-    * :attr:`storage_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`raid_level_map`
-        dict mapping raid level name to number
+    :param object storage_provider: Instance of class based on DeviceProvider
     """
     def __init__(self, storage_provider):
         # bind the underlaying block device providing class instance
@@ -57,6 +51,7 @@ class RaidDevice(DeviceProvider):
         Instance of MappedDevice providing the raid device
 
         :return: mapped raid device
+
         :rtype: MappedDevice
         """
         if self.raid_device:
@@ -117,6 +112,8 @@ class RaidDevice(DeviceProvider):
         Check if storage provider is loop based
 
         Return loop status from base storage provider
+
+        :return: True or False
 
         :rtype: bool
         """

@@ -30,18 +30,14 @@ from kiwi.logger import log
 
 class FileSystemClicFs(FileSystemBase):
     """
-    Implements creation of clicfs filesystem
+    **Implements creation of clicfs filesystem**
     """
     def post_init(self, custom_args=None):
         """
         Post initialization method
 
-        Store custom arguments
-
-        Attributes
-
-        * :attr:`container_dir`
-            Temporary directory to store clicfs embeded filesystem
+        Initialize temporary container_dir directory to store
+        clicfs embeded filesystem
 
         :param dict custom_args: unused
         """

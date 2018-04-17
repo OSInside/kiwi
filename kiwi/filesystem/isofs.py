@@ -23,7 +23,7 @@ from kiwi.iso_tools import IsoTools
 
 class FileSystemIsoFs(FileSystemBase):
     """
-    Implements creation of iso filesystem
+    **Implements creation of iso filesystem**
     """
     def create_on_file(self, filename, label=None, exclude=None):
         """

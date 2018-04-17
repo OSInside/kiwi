@@ -30,15 +30,11 @@ from kiwi.exceptions import (
 
 class Partitioner(object):
     """
-    Partitioner factory
+    **Partitioner factory**
 
-    Attributes
-
-    * :attr:`table_type`
-        Table type name
-
-    * :attr:`storage_provider`
-        Instance of class based on DeviceProvider
+    :param string table_type: Table type name
+    :param object storage_provider: Instance of class based on DeviceProvider
+    :param int start_sector: sector number
     """
     def __new__(self, table_type, storage_provider, start_sector=None):        # noqa: C901
         host_architecture = platform.machine()
