@@ -30,23 +30,14 @@ from kiwi.exceptions import (
 
 class Compress(object):
     """
-    File compression / decompression
+    **File compression / decompression**
 
-    Attributes
-
-    * :attr:`keep_source`
-        Request to keep the uncompressed source
-
-    * :attr:`source_filename`
-        Source file name to compress
-
-    * :attr:`supported_zipper`
-        List of supported compression tools
-
-    * :attr:`compressed_filename`
-        Compressed file name path with compression suffix
-
-    * :attr:`uncompressed_filename`
+    :param bool keep_source: Request to keep the uncompressed source
+    :param str source_filename: Source file name to compress
+    :param list supported_zipper: List of supported compression tools
+    :param str compressed_filename: Compressed file name path with
+        compression suffix
+    :param str uncompressed_filename`
         Uncompressed file name path
     """
     def __init__(self, source_filename, keep_source_on_compress=False):
@@ -124,7 +115,8 @@ class Compress(object):
         Detect compression format
 
         :return: compression format name
-        :rtype: string
+
+        :rtype: str
         """
         for zipper in self.supported_zipper:
             try:

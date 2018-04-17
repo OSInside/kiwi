@@ -25,6 +25,8 @@ from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 class CommandCapabilities(object):
     """
+    **Validation of command version flags or version**
+
     Performs commands calls and parses the output
     so it can look specific flags on help message, check
     command version, etc.
@@ -38,13 +40,15 @@ class CommandCapabilities(object):
         Checks if the given flag is present in the help output
         of the given command.
 
-        :param string call: the command the check
-        :param string flag: the flag or substring to find in stdout
+        :param str call: the command the check
+        :param str flag: the flag or substring to find in stdout
         :param list help_flags: a list with the required command arguments.
-        :param string root: root directory of the env to validate
+        :param str root: root directory of the env to validate
 
+        :raises KiwiCommandCapabilitiesError: if command execution fails
         :return: True if the flag is found, False in any other case
-        :rtype: boolean
+
+        :rtype: bool
         """
         if root:
             arguments = ['chroot', root, call] + help_flags
@@ -74,14 +78,18 @@ class CommandCapabilities(object):
         Checks if the given command version is equal or higher than
         the given version tuple.
 
-        :param string call: the command the check
+        :param str call: the command the check
         :param tuple version_waterline: minimum desired version of the command
         :param list version_flags: a list with the required command arguments.
-        :param string root: root directory of the env to validate
+        :param str root: root directory of the env to validate
+        :param bool raise_on_error: control error behavior
 
+        :raises KiwiCommandCapabilitiesError: if raise_on_error is True and
+        command execution fails or version can't be parsed.
         :return: True if the current command version is equal or higher to
         version_waterline
-        :rtype: boolean
+
+        :rtype: bool
         """
         if root:
             arguments = ['chroot', root, call] + version_flags

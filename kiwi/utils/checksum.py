@@ -30,15 +30,10 @@ from kiwi.exceptions import (
 
 class Checksum(object):
     """
-    Manage checksum creation for files
+    **Manage checksum creation for files**
 
-    Attributes
-
-    * :attr:`source_filename`
-        source file name to build checksum for
-
-    * :attr:`checksum_filename`
-        target file with checksum information
+    :param str source_filename: source file name to build checksum for
+    :param str checksum_filename: target file with checksum information
     """
     def __init__(self, source_filename):
         if not os.path.exists(source_filename):
@@ -54,8 +49,12 @@ class Checksum(object):
         in the provided filename. If the checksum matches the
         method returns True, or False in case it does not match
 
-        :param string checksum: checksum string to compare
-        :param string filename: filename containing checksum
+        :param str checksum: checksum string to compare
+        :param str filename: filename containing checksum
+
+        :return: True or False
+
+        :rtype: bool
         """
         if not os.path.exists(filename):
             return False
@@ -73,7 +72,11 @@ class Checksum(object):
         """
         Create md5 checksum
 
-        :param string filename: filename for checksum
+        :param str filename: filename for checksum
+
+        :return: checksum
+
+        :rtype: str
         """
         md5_checksum = self._calculate_hash_hexdigest(
             hashlib.md5(), self.source_filename
@@ -88,7 +91,7 @@ class Checksum(object):
         """
         Create sha256 checksum
 
-        :param string filename: filename for checksum
+        :param str filename: filename for checksum
         """
         sha256_checksum = self._calculate_hash_hexdigest(
             hashlib.sha256(), self.source_filename
@@ -100,6 +103,12 @@ class Checksum(object):
         return sha256_checksum
 
     def _create_checksum_file(self, checksum, filename):
+        """
+        Creates the text file that contains the checksum
+
+        :param str checksum: checksum to include into the file
+        :param str filename: filename of the output file
+        """
         compressed_blocks = None
         compress = Compress(self.source_filename)
         if compress.get_format():
@@ -133,6 +142,13 @@ class Checksum(object):
                 )
 
     def _calculate_hash_hexdigest(self, digest, filename, digest_blocks=128):
+        """
+        Calculates the hash hexadecimal digest for a given file.
+
+        :param func digest: Digest function for hash calculation
+        :param str filename: File to compute
+        :param int digest_blocks: Number of blocks processed at a time
+        """
         chunk_size = digest_blocks * digest.block_size
         with open(filename, 'rb') as source:
             for chunk in iter(lambda: source.read(chunk_size), b''):
@@ -140,6 +156,16 @@ class Checksum(object):
         return digest.hexdigest()
 
     def _block_list(self, file_size):
+        """
+        Calculates the number of blocks and the block size for a given file
+        size in bytes.
+
+        :param int file_size: files size in bytes.
+
+        :return: int:blocksize, int:blocks
+
+        :rtype: tuple
+        """
         blocksize = 1
         for factor in self._prime_factors(file_size):
             if blocksize * factor > 8192:
@@ -155,6 +181,15 @@ class Checksum(object):
         )
 
     def _prime_factors(self, number):
+        """
+        Get prime factors for the given number
+
+        :param int number: number to factorize
+
+        :return: prime factors
+
+        :rtype: int generator
+        """
         factor_call = Command.run(['factor', format(number)])
         for factor in factor_call.output.split(':')[1].lstrip().split(' '):
             yield int(factor)
