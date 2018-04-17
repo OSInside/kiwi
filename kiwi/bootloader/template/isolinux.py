@@ -21,7 +21,7 @@ from textwrap import dedent
 
 class BootLoaderTemplateIsoLinux(object):
     """
-    isolinux configuraton file templates
+    **isolinux configuraton file templates**
     """
     def __init__(self):
         self.cr = '\n'
@@ -140,6 +140,8 @@ class BootLoaderTemplateIsoLinux(object):
         isolinux displays this as menu if no graphics mode can be
         initialized
 
+        :return: instance of :class:`Template`
+
         :rtype: Template
         """
         return Template(self.install_message)
@@ -148,6 +150,8 @@ class BootLoaderTemplateIsoLinux(object):
         """
         Bootloader template for text message file. isolinux
         displays this as menu if no graphics mode can be initialized
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """
@@ -161,6 +165,8 @@ class BootLoaderTemplateIsoLinux(object):
 
         :param bool failsafe: with failsafe true|false
         :param bool with_theme: with graphics theme true|false
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """
@@ -190,6 +196,8 @@ class BootLoaderTemplateIsoLinux(object):
         :param bool failsafe: with failsafe true|false
         :param bool with_theme: with graphics theme true|false
 
+        :return: instance of :class:`Template`
+
         :rtype: Template
         """
         template_data = self.header
@@ -217,6 +225,8 @@ class BootLoaderTemplateIsoLinux(object):
         :param bool failsafe: with failsafe true|false
         :param bool with_theme: with graphics theme true|false
 
+        :return: instance of :class:`Template`
+
         :rtype: Template
         """
         template_data = self.header
@@ -242,6 +252,8 @@ class BootLoaderTemplateIsoLinux(object):
 
         :param bool failsafe: with failsafe true|false
         :param bool with_theme: with graphics theme true|false
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """

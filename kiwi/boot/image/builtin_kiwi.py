@@ -33,14 +33,11 @@ from kiwi.boot.image.base import BootImageBase
 
 class BootImageKiwi(BootImageBase):
     """
-    Implements preparation and creation of kiwi boot(initrd) images
+    **Implements preparation and creation of kiwi boot(initrd) images**
+
     The kiwi initrd is a customized first boot initrd which allows
     to control the first boot an appliance. The kiwi initrd replaces
     itself after first boot by the result of dracut.
-
-    Attributes
-
-    Inherited from BootImageBase
     """
     def post_init(self):
         """
@@ -179,6 +176,21 @@ class BootImageKiwi(BootImageBase):
             self.initrd_filename = compress.compressed_filename
 
     def get_boot_names(self):
+        """
+        Provides kernel and initrd names for kiwi boot image
+
+        :return:
+            Contains boot_names_type tuple
+
+            .. code:: python
+
+                boot_names_type(
+                    kernel_name='linux.vmx',
+                    initrd_name='initrd.vmx'
+                )
+
+        :rtype: tuple
+        """
         boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
         )

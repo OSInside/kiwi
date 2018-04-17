@@ -36,45 +36,13 @@ from kiwi.exceptions import (
 
 class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
     """
-    isolinux bootloader configuration.
-
-    Attributes
-
-    * :attr:`terminal`
-        terminal mode set to graphics by default
-
-    * :attr:`gfxmode`
-        configured or default graphics mode
-
-    * :attr:`timeout`
-        configured or default boot timeout
-
-    * :attr:`cmdline`
-        kernel boot arguments
-
-    * :attr:`cmdline_failsafe`
-        kernel failsafe boot arguments
-
-    * :attr:`hypervisor_domain`
-        configured hypervisor domain name or none
-
-    * :attr:`multiboot`
-        multiboot requested true|false
-
-    * :attr:`isolinux`
-        Instance of config template: BootLoaderTemplateIsoLinux
-
-    * :attr:`config`
-        Configuration data from template substitution
-
-    * :attr:`config_message`
-        Configuration text message if graphics mode failed
+    **isolinux bootloader configuration.**
     """
     def post_init(self, custom_args):
         """
         isolinux post initialization method
 
-        Setup class attributes
+        :param dict custom_args: custom isolinux config arguments
         """
         self.custom_args = custom_args
         arch = platform.machine()

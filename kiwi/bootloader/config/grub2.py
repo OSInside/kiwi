@@ -43,60 +43,18 @@ from kiwi.exceptions import (
 
 class BootLoaderConfigGrub2(BootLoaderConfigBase):
     """
-    grub2 bootloader configuration.
-
-    Attributes
-
-    * :attr:`terminal`
-        terminal mode set to gfxterm
-
-    * :attr:`gfxmode`
-        configured or default graphics mode
-
-    * :attr:`bootpath`
-        boot path according to configuration
-
-    * :attr:`theme`
-        configured bootloader theme or none
-
-    * :attr:`timeout`
-        configured or default boot timeout
-
-    * :attr:`failsafe_boot`
-        failsafe mode requested true|false
-
-    * :attr:`hypervisor_domain`
-        configured hypervisor domain name or none
-
-    * :attr:`firmware`
-        Instance of FirmWare
-
-    * :attr:`hybrid_boot`
-        hybrid boot requested true|false
-
-    * :attr:`multiboot`
-        multiboot requested true|false
-
-    * :attr:`xen_guest`
-        Xen guest setup true|false
-
-    * :attr:`grub2`
-        Instance of config template: BootLoaderTemplateGrub2
-
-    * :attr:`config`
-        Configuration data from template substitution
-
-    * :attr:`efi_boot_path`
-        EFI boot path according to configuration
-
-    * :attr:`boot_directory_name`
-        grub2 boot directory below boot path set to: grub2
+    **grub2 bootloader configuration.**
     """
     def post_init(self, custom_args):
         """
         grub2 post initialization method
 
-        Setup class attributes
+        :param dict custom_args:
+            Contains grub config arguments
+
+            .. code:: python
+
+                {'grub_directory_name': 'grub|grub2'}
         """
         self.custom_args = custom_args
         arch = platform.machine()
@@ -273,6 +231,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string hypervisor: hypervisor name
         :param string kernel: kernel name
         :param string initrd: initrd name
+        :param string boot_options: kernel options as string
         """
         log.info('Creating grub2 config file from template')
         self.cmdline = ' '.join(

@@ -28,14 +28,20 @@ from kiwi.exceptions import (
 
 class BootLoaderInstallZipl(BootLoaderInstallBase):
     """
-    zipl bootloader installation
-
-    Attributes
-
-    * :attr:`boot_mount`
-        Instance of MountManager for boot device
+    **zipl bootloader installation**
     """
     def post_init(self, custom_args):
+        """
+        zipl post initialization method
+
+        :param dict custom_args:
+            Contains custom zipl bootloader arguments
+
+            .. code:: python
+
+                {'boot_device': string}
+
+        """
         self.custom_args = custom_args
         if not custom_args or 'boot_device' not in custom_args:
             raise KiwiBootLoaderZiplInstallError(
@@ -52,7 +58,9 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
 
         Always required
 
-        :rtype: True
+        :return: True
+
+        :rtype: bool
         """
         return True
 

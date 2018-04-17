@@ -30,18 +30,11 @@ from kiwi.exceptions import (
 
 class BootLoaderConfigBase(object):
     """
-    Base class for bootloader configuration
+    **Base class for bootloader configuration**
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`xml_state`
-        Instance of XMLState of the system image description
-
-    * :attr:`custom_args`
-        List of custom bootloader arguments
+    :param object xml_state: instance of :class:`XMLState`
+    :param string root_dir: root directory path name
+    :param dict custom_args: custom bootloader arguments dictionary
     """
     def __init__(self, xml_state, root_dir, custom_args=None):
         self.root_dir = root_dir
@@ -55,7 +48,7 @@ class BootLoaderConfigBase(object):
 
         Store custom arguments by default
 
-        :param list custom_args: custom bootloader arguments
+        :param dict custom_args: custom bootloader arguments
         """
         self.custom_args = custom_args
 
@@ -73,6 +66,13 @@ class BootLoaderConfigBase(object):
         """
         Create boot config file to boot from disk.
 
+        :param string boot_uuid: boot device UUID
+        :param string root_uuid: root device UUID
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
+        :param string boot_options: kernel options as string
+
         Implementation in specialized bootloader class required
         """
         raise NotImplementedError
@@ -83,6 +83,11 @@ class BootLoaderConfigBase(object):
         """
         Create boot config file to boot from install media in EFI mode.
 
+        :param string mbrid: mbrid file name on boot device
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
+
         Implementation in specialized bootloader class required
         """
         raise NotImplementedError
@@ -92,6 +97,11 @@ class BootLoaderConfigBase(object):
     ):
         """
         Create boot config file to boot live ISO image in EFI mode.
+
+        :param string mbrid: mbrid file name on boot device
+        :param string hypervisor: hypervisor name
+        :param string kernel: kernel name
+        :param string initrd: initrd name
 
         Implementation in specialized bootloader class required
         """
@@ -105,6 +115,9 @@ class BootLoaderConfigBase(object):
         can load from a specific offset address or from a standardized
         path on a filesystem.
 
+        :param string boot_uuid: boot device UUID
+        :param string lookup_path: custom module lookup path
+
         Implementation in specialized bootloader class required
         """
         raise NotImplementedError
@@ -113,6 +126,9 @@ class BootLoaderConfigBase(object):
         """
         Create bootloader images for ISO boot an install media
 
+        :param string mbrid: mbrid file name on boot device
+        :param string lookup_path: custom module lookup path
+
         Implementation in specialized bootloader class required
         """
         raise NotImplementedError
@@ -120,6 +136,9 @@ class BootLoaderConfigBase(object):
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
         Create bootloader images for ISO boot a live ISO image
+
+        :param string mbrid: mbrid file name on boot device
+        :param string lookup_path: custom module lookup path
 
         Implementation in specialized bootloader class required
         """
@@ -141,6 +160,7 @@ class BootLoaderConfigBase(object):
         :param string in_sub_dir: toplevel directory
 
         :return: Full qualified EFI boot path
+
         :rtype: string
         """
         efi_boot_path = self.root_dir + '/' + in_sub_dir + '/EFI/BOOT'
@@ -152,6 +172,7 @@ class BootLoaderConfigBase(object):
         Bootloader Theme name
 
         :return: theme name
+
         :rtype: string
         """
         theme = None
@@ -168,6 +189,7 @@ class BootLoaderConfigBase(object):
         If no timeout is specified the default timeout applies
 
         :return: timeout seconds
+
         :rtype: int
         """
         timeout_seconds = self.xml_state.build_type.get_boottimeout()
@@ -179,6 +201,8 @@ class BootLoaderConfigBase(object):
         """
         Check if a failsafe boot entry is requested
 
+        :return: True or False
+
         :rtype: bool
         """
         if self.xml_state.build_type.get_installprovidefailsafe() is False:
@@ -189,7 +213,10 @@ class BootLoaderConfigBase(object):
         """
         Boot commandline arguments passed to the kernel
 
+        :param string uuid: boot device UUID
+
         :return: kernel boot arguments
+
         :rtype: string
         """
         cmdline = ''
@@ -217,7 +244,10 @@ class BootLoaderConfigBase(object):
         will be the default. Depending on the specified loader type
         either an entry number or name will be returned.
 
+        :param string loader: bootloader name
+
         :return: menu name or id
+
         :rtype: string
         """
         menu_entry_title = self.get_menu_entry_title(plain=True)
@@ -264,7 +294,10 @@ class BootLoaderConfigBase(object):
         or based on a non standard filesystem like a btrfs snapshot,
         the path name varies
 
+        :param string target: target name: disk|iso
+
         :return: path name
+
         :rtype: string
         """
         if target != 'disk' and target != 'iso':
@@ -307,7 +340,10 @@ class BootLoaderConfigBase(object):
         Not all characters can be displayed correctly in the bootloader
         environment. Therefore a quoting is required
 
+        :param string name: title name
+
         :return: quoted text
+
         :rtype: string
         """
         name = name.replace(' ', '_')
@@ -323,14 +359,17 @@ class BootLoaderConfigBase(object):
         the menu title is constructed from the image name and
         build type
 
+        :param bool plain: indicate to add built type into title text
+
         :return: title text
+
         :rtype: string
         """
         title = self.xml_state.xml_data.get_displayname()
         if not title:
             title = self.xml_state.xml_data.get_name()
         else:
-            # if the is set via the displayname attribute no custom
+            # if the title is set via the displayname attribute no custom
             # kiwi prefix or other style changes to that text should
             # be made
             plain = True
@@ -347,6 +386,7 @@ class BootLoaderConfigBase(object):
         the menu title is constructed from the image name
 
         :return: title text
+
         :rtype: string
         """
         title = self.xml_state.xml_data.get_displayname()
@@ -367,6 +407,7 @@ class BootLoaderConfigBase(object):
         :param string target: bootloader name
 
         :return: boot graphics mode
+
         :rtype: string
         """
         gfxmode_map = Defaults.get_video_mode_map()

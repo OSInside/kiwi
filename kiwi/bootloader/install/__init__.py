@@ -26,21 +26,12 @@ from ...exceptions import (
 
 class BootLoaderInstall(object):
     """
-    BootLoaderInstall factory
+    **BootLoaderInstall Factory**
 
-    Attributes
-
-    * :attr:`name`
-        bootloader name
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`device_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`custom_args`
-        list of custom bootloader arguments
+    :param string name: bootloader name
+    :param string root_dir: root directory path name
+    :param object device_provider: instance of :class:`DeviceProvider`
+    :param dict custom_args: custom arguments dictionary
     """
     def __new__(self, name, root_dir, device_provider, custom_args=None):
         if name == 'grub2':

@@ -36,39 +36,26 @@ from kiwi.exceptions import (
 
 class BootLoaderInstallGrub2(BootLoaderInstallBase):
     """
-    grub2 bootloader installation
-
-    Attributes
-
-    * :attr:`arch`
-        platform.machine
-
-    * :attr:`firmware`
-        Instance of FirmWare
-
-    * :attr:`efi_mount`
-        Instance of MountManager for EFI device
-
-    * :attr:`root_mount`
-        Instance of MountManager for root device
-
-    * :attr:`boot_mount`
-        Instance of MountManager for boot device
-
-    * :attr:`device_mount`
-        Instance of MountManager for /dev tree
-
-    * :attr:`proc_mount`
-        Instance of MountManager for proc
-
-    * :attr:`sysfs_mount`
-        Instance of MountManager for sysfs
+    **grub2 bootloader installation**
     """
     def post_init(self, custom_args):
         """
         grub2 post initialization method
 
-        Setup class attributes
+        :param dict custom_args:
+            Contains custom grub2 bootloader arguments
+
+            .. code:: python
+
+                {
+                    'target_removable': bool,
+                    'system_volumes': list_of_volumes,
+                    'firmware': FirmWare_instance,
+                    'efi_device': string,
+                    'boot_device': string,
+                    'root_device': string
+                }
+
         """
         self.arch = platform.machine()
         self.custom_args = custom_args
@@ -110,6 +97,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
         Take architecture and firmware setup into account to check if
         bootloader code in a boot record is required
+
+        :return: True or False
 
         :rtype: bool
         """
