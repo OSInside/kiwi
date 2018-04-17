@@ -148,7 +148,7 @@ config = {
     'description': 'KIWI - Appliance Builder (next generation)',
     'author': 'Marcus Schaefer',
     'url': 'http://suse.github.io/kiwi',
-    'download_url': 'http://suse.github.io/kiwi',
+    'download_url': 'https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder',
     'author_email': 'ms@suse.com',
     'version': __version__,
     'install_requires': [
