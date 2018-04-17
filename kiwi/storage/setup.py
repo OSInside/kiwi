@@ -27,55 +27,13 @@ from kiwi.logger import log
 
 class DiskSetup(object):
     """
-    Implement disk setup methods providing information required
+    **Implements disk setup methods**
+
+    Methods from this class provides information required
     before building a disk image
 
-    Attributes
-
-    * :attr:`configured_size`
-        Configured size setup
-
-    * :attr:`build_type_name`
-        Configured build type name
-
-    * :attr:`filesystem`
-        Configured filesystem name
-
-    * :attr:`bootpart_requested`
-        Configured request for a boot partition
-
-    * :attr:`bootpart_mbytes`
-        Configured boot partition size
-
-    * :attr:`mdraid`
-        Configured raid setup
-
-    * :attr:`luks`
-        Configured LUKS credentials
-
-    * :attr:`volume_manager`
-        Configured volume manager name
-
-    * :attr:`bootloader`
-        Configured bootloader
-
-    * :attr:`oemconfig`
-        Configured oemconfig section
-
-    * :attr:`volumes`
-        Configured volumes
-
-    * :attr:`firmware`
-        Instance of FirmWare
-
-    * :attr:`rootsize`
-        Instance of SystemSize
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`xml_state`
-        Instance of XMLState
+    :param object xml_state: Instance of XMLState
+    :param string root_dir: root directory path name
     """
     def __init__(self, xml_state, root_dir):
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
@@ -107,6 +65,7 @@ class DiskSetup(object):
         Precalculate disk size requirements in mbytes
 
         :return: disk size mbytes
+
         :rtype: int
         """
         log.info('Precalculating required disk size')
@@ -212,6 +171,8 @@ class DiskSetup(object):
         set it depends on some other type configuration parameters if
         we need a boot partition or not
 
+        :return: True or False
+
         :rtype: bool
         """
         if self.bootpart_requested is True:
@@ -238,6 +199,7 @@ class DiskSetup(object):
         Filesystem Label to use for the boot partition
 
         :return: label name
+
         :rtype: string
         """
         label = 'BOOT'
@@ -253,6 +215,7 @@ class DiskSetup(object):
         root label is set to 'ROOT'
 
         :return: label name
+
         :rtype: string
         """
         root_label = self.xml_state.build_type.get_rootfs_label()
@@ -265,6 +228,7 @@ class DiskSetup(object):
         Filesystem Label to use for the EFI partition
 
         :return: label name
+
         :rtype: string
         """
         return 'EFI'
@@ -274,6 +238,7 @@ class DiskSetup(object):
         Size of the boot partition in mbytes
 
         :return: boot size mbytes
+
         :rtype: int
         """
         if self.need_boot_partition():

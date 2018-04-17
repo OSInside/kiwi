@@ -29,27 +29,14 @@ from kiwi.exceptions import (
 
 class FileSystemBase(object):
     """
-    Implements base class for filesystem interface
+    **Implements base class for filesystem interface**
 
-    Attributes
-
-    * :attr:`filesystem_mount`
-        mount point when the filesystem is mounted for data sync
-
-    * :attr:`device_provider`
+    :param object device_provider:
         Instance of a class based on DeviceProvider
         required for filesystems which needs a block device for
         creation. In most cases the DeviceProvider is a LoopDevice
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`filename`
-        filesystem file if no block device is needed to create
-        it, e.g squashfs
-
-    * :attr:`custom_args`
-        custom filesystem arguments
+    :param string root_dir: root directory path name
+    :param dict custom_args: custom filesystem arguments
     """
     def __init__(self, device_provider, root_dir=None, custom_args=None):
         # filesystems created with a block device stores the mountpoint
@@ -81,6 +68,16 @@ class FileSystemBase(object):
         overrides the default custom argument hash
 
         :param dict custom_args: custom arguments
+
+            .. code:: python
+
+                {
+                    'create_options': ['option'],
+                    'mount_options': ['option'],
+                    'meta_data': {
+                        'key': 'value'
+                    }
+                }
         """
         if custom_args:
             self.custom_args = custom_args

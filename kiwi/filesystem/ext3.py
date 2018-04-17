@@ -22,7 +22,7 @@ from kiwi.command import Command
 
 class FileSystemExt3(FileSystemBase):
     """
-    Implements creation of ext3 filesystem
+    **Implements creation of ext3 filesystem**
     """
     def create_on_device(self, label=None):
         """

@@ -25,7 +25,7 @@ from kiwi.partitioner.base import PartitionerBase
 
 class PartitionerDasd(PartitionerBase):
     """
-    Implements DASD partition setup
+    **Implements DASD partition setup**
     """
     def post_init(self):
         """
@@ -82,5 +82,7 @@ class PartitionerDasd(PartitionerBase):
         Resize partition table
 
         Nothing to be done here for DASD devices
+
+        :param int entries: unused
         """
         pass

@@ -33,21 +33,12 @@ from ..exceptions import (
 
 class FileSystem(object):
     """
-    FileSystem factory
+    **FileSystem factory**
 
-    Attributes
-
-    * :attr:`name`
-        filesystem name
-
-    * :attr:`device_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`custom_args`
-        dict of custom filesystem arguments
+    :param string name: filesystem name
+    :param object device_provider: Instance of DeviceProvider
+    :param string root_dir: root directory path name
+    :param dict custom_args: dict of custom filesystem arguments
     """
     def __new__(self, name, device_provider, root_dir=None, custom_args=None):
         if name == 'ext2':

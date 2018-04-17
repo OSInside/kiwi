@@ -26,10 +26,11 @@ from kiwi.exceptions import (
 
 class ContainerImage(object):
     """
-    Container Image factory
+    **Container Image factory**
 
     :param string name: container system name
     :param string root_dir: root directory path name
+    :param dict custom_args: custom arguments
     """
     def __new__(self, name, root_dir, custom_args=None):
         if name == 'docker':

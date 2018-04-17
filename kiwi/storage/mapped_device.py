@@ -26,15 +26,10 @@ from kiwi.exceptions import (
 
 class MappedDevice(DeviceProvider):
     """
-    Hold a reference on a single device
+    **Hold a reference on a single device**
 
-    Attributes
-
-    * :attr:`device_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`device`
-        Device node name
+    :param object device_provider: Instance of class based on DeviceProvider
+    :param string device: Device node name
     """
     def __init__(self, device, device_provider):
         if not os.path.exists(device):
@@ -49,6 +44,7 @@ class MappedDevice(DeviceProvider):
         Mapped device node name
 
         :return: device node name
+
         :rtype: string
         """
         return self.device
@@ -58,6 +54,8 @@ class MappedDevice(DeviceProvider):
         Check if storage provider is loop based
 
         Return loop status from base storage provider
+
+        :return: True or False
 
         :rtype: bool
         """

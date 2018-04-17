@@ -33,7 +33,7 @@ from kiwi.exceptions import (
 
 class DiskFormatVagrantLibVirt(DiskFormatBase):
     """
-    Create vagrant box for libvirt provider
+    **Create vagrant box for libvirt provider**
     """
     def post_init(self, custom_args):
         """
@@ -41,13 +41,12 @@ class DiskFormatVagrantLibVirt(DiskFormatBase):
 
         store vagrantconfig information provided via custom_args
 
-        Attributes
+        :param dict custom_args:
+            Contains instance of xml_parse::vagrantconfig
 
-        * :attr:`options`
-            qemu format conversion options
+            .. code:: python
 
-        * :attr:`image_format`
-            disk format name: vagrant
+                {'vagrantconfig': object}
         """
         if not custom_args or 'vagrantconfig' not in custom_args:
             raise KiwiFormatSetupError(

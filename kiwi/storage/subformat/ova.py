@@ -33,7 +33,7 @@ from kiwi.exceptions import (
 
 class DiskFormatOva(DiskFormatVmdk):
     """
-    Create ova disk format, based on vmdk
+    **Create ova disk format, based on vmdk**
     """
     def post_init(self, custom_args):
         """
@@ -41,13 +41,7 @@ class DiskFormatOva(DiskFormatVmdk):
 
         Store qemu options as list from custom args dict
 
-        Attributes
-
-        * :attr:`options`
-            qemu format conversion options
-
-        * :attr:`image_format`
-            disk format name: ova
+        :param dict custom_args: custom qemu arguments dictionary
         """
         ovftype = self.xml_state.get_build_type_machine_section().get_ovftype()
         if ovftype != 'vmware':
@@ -56,6 +50,10 @@ class DiskFormatOva(DiskFormatVmdk):
         self.options = self.get_qemu_option_list(custom_args)
 
     def create_image_format(self):
+        """
+        Create ova disk format using ovftool from
+        https://www.vmware.com/support/developer/ovf
+        """
         # Check for required ovftool
         ovftool = Path.which(filename='ovftool', access_mode=os.X_OK)
         if not ovftool:

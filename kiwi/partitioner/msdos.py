@@ -29,7 +29,7 @@ from kiwi.exceptions import (
 
 class PartitionerMsDos(PartitionerBase):
     """
-    Implement old style msdos partition setup
+    **Implement old style msdos partition setup**
     """
     def post_init(self):
         """
@@ -128,5 +128,7 @@ class PartitionerMsDos(PartitionerBase):
         Resize partition table
 
         Nothing to be done here for msdos table
+
+        :param int entries: unused
         """
         pass

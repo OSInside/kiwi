@@ -22,7 +22,7 @@ from kiwi.command import Command
 
 class DiskFormatVhd(DiskFormatBase):
     """
-    Create vhd disk format
+    **Create vhd disk format**
     """
     def post_init(self, custom_args):
         """
@@ -30,13 +30,7 @@ class DiskFormatVhd(DiskFormatBase):
 
         Store qemu options as list from custom args dict
 
-        Attributes
-
-        * :attr:`options`
-            qemu format conversion options
-
-        * :attr:`image_format`
-            disk format name: vhd
+        :param dict custom_args: custom qemu arguments dictionary
         """
         self.image_format = 'vhd'
         self.options = self.get_qemu_option_list(custom_args)

@@ -32,25 +32,40 @@ class ContainerImageOCI(object):
     """
     Create oci container from a root directory
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`custom_args`
+    :param string root_dir: root directory path name
+    :param dict custom_args:
         Custom processing arguments defined as hash keys:
-        * container_name: container name
-        * container_tag: container tag name
-        * entry_command: container entry command
-        * entry_subcommand: container subcommands
-        * maintainer: container maintainer
-        * user: container user
-        * workingdir: container working directory
-        * expose_ports: ports to expose from container
-        * volumes: storage volumes to attach to container
-        * environment: environment variables
-        * labels: container labels
-        * xz_options: string of XZ compression parameters
+
+        Example
+
+        .. code:: python
+
+            {
+                'container_name': 'name',
+                'container_tag': '1.0',
+                'entry_command': [
+                    '--config.entrypoint=/bin/bash',
+                    '--config.entrypoint=-x'
+                ],
+                'entry_subcommand': [
+                    '--config.cmd=ls',
+                    '--config.cmd=-l'
+                ],
+                'maintainer': ['--author=tux'],
+                'user': ['--config.user=root'],
+                'workingdir': ['--config.workingdir=/root'],
+                'expose_ports': [
+                    '--config.exposedports=80',
+                    '--config.exposedports=42'
+                ],
+                'volumes': [
+                    '--config.volume=/var/log',
+                    '--config.volume=/tmp'
+                ],
+                'environment': ['--config.env=PATH=/bin'],
+                'labels': ['--config.label=name=value'],
+                'xz_options': ['--threads=0']
+            }
     """
     def __init__(self, root_dir, custom_args=None):         # noqa: C901
         self.root_dir = root_dir
@@ -127,7 +142,6 @@ class ContainerImageOCI(object):
         Create compressed oci system container tar archive
 
         :param string filename: archive file name
-
         :param string base_image: archive used as a base image
         """
         exclude_list = Defaults.get_exclude_list_for_root_data_sync()

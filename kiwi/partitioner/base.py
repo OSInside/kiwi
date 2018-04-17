@@ -19,18 +19,10 @@
 
 class PartitionerBase(object):
     """
-    Base class for partitioners
+    **Base class for partitioners**
 
-    Attributes
-
-    * :attr:`disk_device`
-        disk device node
-
-    * :attr:`partition_id`
-        current partition number
-
-    * :attr:`flag_map`
-        initial partition type/flag map
+    :param object disk_provider: Instance of DeviceProvider
+    :param int start_sector: sector number
     """
     def __init__(self, disk_provider, start_sector=None):
         self.disk_device = disk_provider.get_device()
@@ -56,6 +48,7 @@ class PartitionerBase(object):
         Zero indicates no partition has been created so far
 
         :return: partition number
+
         :rtype: int
         """
         return self.partition_id

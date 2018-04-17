@@ -34,21 +34,12 @@ from kiwi.exceptions import (
 
 class DiskFormat(object):
     """
-    DiskFormat factory
+    **DiskFormat factory**
 
-    Attributes
-
-    * :attr:`name`
-        Format name
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`target_dir`
-        target directory path name
+    :param string name: Format name
+    :param object xml_state: Instance of XMLState
+    :param string root_dir: root directory path name
+    :param string target_dir: target directory path name
     """
     def __new__(self, name, xml_state, root_dir, target_dir):  # noqa: C901
         custom_args = xml_state.get_build_type_format_options()

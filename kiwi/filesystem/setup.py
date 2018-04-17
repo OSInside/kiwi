@@ -23,23 +23,14 @@ from kiwi.defaults import Defaults
 
 class FileSystemSetup(object):
     """
-    Implement filesystem setup methods providing information
+    **Implement filesystem setup methods**
+
+    Methods from this class provides information
     from the root directory required before building a
     filesystem image
 
-    Attributes
-
-    * :attr:`configured_size`
-        Configured size section from the build type section
-
-    * :attr:`size`
-        Instance of Size
-
-    * :attr:`requested_image_type`
-        Configured image type name
-
-    * :attr:`requested_filesystem`
-        Configured filesystem name
+    :param object xml_state: Instance of XMLState
+    :param string root_dir: root directory path
     """
     def __init__(self, xml_state, root_dir):
         self.configured_size = xml_state.get_build_type_size()
@@ -57,7 +48,10 @@ class FileSystemSetup(object):
         the configured value if present, if not return the calculated
         result
 
+        :param string filesystem: name
+
         :return: mbytes
+
         :rtype: int
         """
         root_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
