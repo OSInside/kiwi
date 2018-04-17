@@ -34,7 +34,7 @@ class FirmWare(object):
     image changes. This class provides methods to provide firmware
     dependant information
 
-    * :param object xml_state: instance of XMLState
+    * :param object xml_state: instance of :class:`XMLState`
     """
     def __init__(self, xml_state):
         self.arch = platform.machine()

@@ -151,7 +151,7 @@ class CommandProcess(object):
 
 class CommandIterator(six.Iterator):
     """
-    **Implements Iterator for Instances of Command**
+    **Implements an Iterator for Instances of Command**
 
     :param subprocess command: instance of subprocess
     """

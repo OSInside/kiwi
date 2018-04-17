@@ -26,7 +26,7 @@ from .exceptions import (
 
 class ColorMessage(object):
     """
-    **Implements color messages for python logging facility**
+    **Implements color messages for Python logging facility**
 
     Has to implement the format_message method to serve as
     message formatter
@@ -234,7 +234,7 @@ class WarningFilter(logging.Filter):
 
 class Logger(logging.Logger):
     """
-    **Extended logging facility based on python logging**
+    **Extended logging facility based on Python logging**
 
     :param string name: name of the logger
     """
