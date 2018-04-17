@@ -37,7 +37,7 @@ class Compress(object):
     :param list supported_zipper: List of supported compression tools
     :param str compressed_filename: Compressed file name path with
         compression suffix
-    :param str uncompressed_filename`
+    :param str uncompressed_filename:
         Uncompressed file name path
     """
     def __init__(self, source_filename, keep_source_on_compress=False):

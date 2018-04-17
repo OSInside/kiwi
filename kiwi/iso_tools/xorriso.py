@@ -26,6 +26,8 @@ from kiwi.exceptions import KiwiIsoToolError
 
 class IsoToolsXorrIso(IsoToolsBase):
     """
+    **xorriso wrapper class**
+
     Implementation of Parameter API for iso creation tools using
     the libburnia project. Addressed here is the tool xorriso
     """
@@ -34,12 +36,21 @@ class IsoToolsXorrIso(IsoToolsBase):
         Indicate if the iso tool has the capability to embed a
         partition table into the iso such that it can be
         used as both; an iso and a disk
+
+        :return: True or False
+
+        :rtype: bool
         """
         return True
 
     def get_tool_name(self):
         """
         Lookup xorriso in search path
+
+        :raises KiwiIsoToolError: if xorriso tool is not found
+        :return: xorriso tool path
+
+        :rtype: str
         """
         xorriso = Path.which('xorriso')
         if xorriso:
@@ -121,6 +132,12 @@ class IsoToolsXorrIso(IsoToolsBase):
             ]
 
     def create_iso(self, filename, hidden_files=None):
+        """
+        Creates the iso file with the given filename using xorriso
+
+        :param str filename: output filename
+        :param list hidden_files: list of hidden files
+        """
         hidden_files_parameters = []
         if hidden_files:
             for hidden_file in hidden_files:

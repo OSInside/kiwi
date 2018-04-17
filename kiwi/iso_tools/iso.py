@@ -39,21 +39,12 @@ from kiwi.exceptions import (
 
 class Iso(object):
     """
-    Implements helper methods around the creation of ISO filesystems
+    **Implements helper methods around the creation of ISO filesystems**
 
-    Attributes
-
-    * :attr:`header_id`
-        static identifier string for self written headers
-
-    * :attr:`header_end_name`
-        file name to store the header_id to
-
-    * :attr:`header_end_file`
-        full file path for the header_end_name file
-
-    * :attr:`boot_path`
-        architecture specific boot path on the ISO
+    :param str header_id: static identifier string for self written headers
+    :param str header_end_name: file name to store the header_id to
+    :param str header_end_file: full file path for the header_end_name file
+    :param str boot_path: architecture specific boot path on the ISO
     """
     def __init__(self, source_dir):
         self.source_dir = source_dir
@@ -71,9 +62,10 @@ class Iso(object):
         disk signature. kiwi always adds an msdos and a GPT table for
         the disk signatures
 
-        :param string offset: hex offset
-        :param string mbrid: boot record id
-        :param string isofile: path to the ISO file
+        :param str offset: hex offset
+        :param str mbrid: boot record id
+        :param str isofile: path to the ISO file
+        :param bool efi_mode: sets the iso to support efi firmware or not
         """
         ignore_errors = [
             # we ignore this error message, for details see:
@@ -121,7 +113,7 @@ class Iso(object):
         Include checksum tag in the ISO so it can be verified with
         the mediacheck program.
 
-        :param string isofile: path to the ISO file
+        :param str isofile: path to the ISO file
         """
         Command.run(
             [
@@ -141,7 +133,7 @@ class Iso(object):
         Check location of the boot catalog and move it to the place where
         all BIOS and firwmare implementations expects it
 
-        :param string isofile: path to the ISO file
+        :param str isofile: path to the ISO file
         """
         iso_metadata = Iso._read_iso_metadata(isofile)
         Iso._validate_iso_metadata(iso_metadata)
@@ -201,7 +193,7 @@ class Iso(object):
         Make sure all catalog entries are in correct order and provide
         complete metadata information e.g catalog name
 
-        :param string isofile: path to the ISO file
+        :param str isofile: path to the ISO file
         """
         iso_metadata = Iso._read_iso_metadata(isofile)
         Iso._validate_iso_metadata(iso_metadata)
@@ -274,7 +266,9 @@ class Iso(object):
 
         :param string isofile: path to the ISO file
 
+        :raises KiwiIsoLoaderError: if the header_id file is not found
         :return: 512 byte blocks offset address
+
         :rtype: int
         """
         file_count = 0
@@ -314,6 +308,8 @@ class Iso(object):
     def setup_isolinux_boot_path(self):
         """
         Write the base boot path into the isolinux loader binary
+
+        :raises KiwiIsoLoaderError: if loader/isolinux.bin is not found
         """
         loader_base_directory = self.boot_path + '/loader'
         loader_file = '/'.join(

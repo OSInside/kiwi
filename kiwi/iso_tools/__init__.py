@@ -23,7 +23,7 @@ from kiwi.runtime_config import RuntimeConfig
 
 class IsoTools(object):
     """
-    IsoTools factory
+    **IsoTools factory**
     """
     def __new__(self, source_dir):
         runtime_config = RuntimeConfig()

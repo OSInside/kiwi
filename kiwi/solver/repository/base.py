@@ -36,7 +36,7 @@ class SolverRepositoryBase(object):
     """
     **Base class interface for SAT solvable creation.**
 
-    * :param object uri: Instance of :class:`Uri` class
+    * :param object uri: Instance of :class:`Uri`
     """
     def __init__(self, uri, user=None, secret=None):
         self.uri = uri

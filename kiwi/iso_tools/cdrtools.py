@@ -33,6 +33,8 @@ from kiwi.exceptions import KiwiIsoToolError
 
 class IsoToolsCdrTools(IsoToolsBase):
     """
+    **cdrkit/cdrtools wrapper class**
+
     Implementation of Parameter API for iso creation tools using
     the cdrkit/cdrtools projects. Addressed here are the option
     compatible tools mkisofs and genisoimage
@@ -42,6 +44,10 @@ class IsoToolsCdrTools(IsoToolsBase):
         Indicate if the iso tool has the capability to embed a
         partition table into the iso such that it can be
         used as both; an iso and a disk
+
+        :return: True or False
+
+        :rtype: bool
         """
         return False
 
@@ -50,6 +56,11 @@ class IsoToolsCdrTools(IsoToolsBase):
         There are tools by J.Schilling and tools from the community
         Depending on what is installed a decision needs to be made.
         mkisofs is preferred over genisoimage
+
+        :raises KiwiIsoToolError: if no iso creation tool is found
+        :return: tool name
+
+        :rtype: str
         """
         iso_creation_tools = ['mkisofs', 'genisoimage']
         for tool in iso_creation_tools:
@@ -139,6 +150,12 @@ class IsoToolsCdrTools(IsoToolsBase):
                 )
 
     def create_iso(self, filename, hidden_files=None):
+        """
+        Creates the iso file with the given filename using cdrtools
+
+        :param str filename: output filename
+        :param list hidden_files: list of hidden files
+        """
         hidden_files_parameters = []
         if hidden_files:
             for hidden_file in hidden_files:
@@ -159,9 +176,10 @@ class IsoToolsCdrTools(IsoToolsBase):
         """
         List contents of an ISO image
 
-        :param string isofile: path to the ISO file
+        :param str isofile: path to the ISO file
 
         :return: formatted isoinfo result
+
         :rtype: dict
         """
         listing_type = namedtuple(
@@ -193,6 +211,11 @@ class IsoToolsCdrTools(IsoToolsBase):
         There are tools by J.Schilling and tools from the community
         This method searches in all paths which could provide an
         isoinfo tool. The first match makes the decision
+
+        :raises KiwiIsoToolError: if no isoinfo tool found
+        :return: the isoinfo tool to use
+
+        :rtype: str
         """
         alternative_lookup_paths = ['/usr/lib/genisoimage']
         isoinfo = Path.which('isoinfo', alternative_lookup_paths)
@@ -207,6 +230,10 @@ class IsoToolsCdrTools(IsoToolsBase):
     def _create_sortfile(self):
         """
         Create isolinux sort file
+
+        :return: iso sort file name
+
+        :rtype: str
         """
         self.iso_sortfile = NamedTemporaryFile()
         catalog_file = \

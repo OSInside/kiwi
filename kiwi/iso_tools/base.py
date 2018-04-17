@@ -21,25 +21,14 @@ from kiwi.defaults import Defaults
 
 class IsoToolsBase(object):
     """
-    Base Class for Parameter API for iso creation tools
+    **Base Class for Parameter API for iso creation tools**
 
-    Attributes
-
-    * :attr:`boot_path`
-        architecture specific boot path on the ISO
-
-    * :attr:`iso_parameters`
-        list of ISO creation parameters
-
-    * :attr:`iso_loaders`
-        list of ISO loaders to embed
+    :param string source_dir: data source dir, usually root_dir
+    :param str boot_path: architecture specific boot path on the ISO
+    :param str iso_parameters: list of ISO creation parameters
+    :param str iso_loaders: list of ISO loaders to embed
     """
     def __init__(self, source_dir):
-        """
-        Initialize setup data for later iso creation tool
-
-        :param string source_dir: data source dir, usually root_dir
-        """
         self.source_dir = source_dir
 
         self.boot_path = Defaults.get_iso_boot_path()
@@ -53,6 +42,8 @@ class IsoToolsBase(object):
         Implementation in specialized tool class
 
         :return: tool name
+
+        :rtype: str
         """
         raise NotImplementedError
 
@@ -80,7 +71,8 @@ class IsoToolsBase(object):
 
         Implementation in specialized tool class
 
-        :param string filename: unused
+        :param str filename: unused
+        :param list hidden_files: unused
         """
         raise NotImplementedError
 
@@ -88,7 +80,7 @@ class IsoToolsBase(object):
         """
         List contents of an ISO image
 
-        :param string isofile: unused
+        :param str isofile: unused
         """
         raise NotImplementedError
 
