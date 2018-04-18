@@ -29,22 +29,18 @@ from kiwi.exceptions import (
 
 class PackageManagerYum(PackageManagerBase):
     """
-    Implements base class for installation/deletion of
-    packages and collections using yum
+    **Implements base class for installation/deletion of
+    packages and collections using yum**
+
+    :param list yum_args: yum arguments from repository runtime configuration
+    :param dict command_env: yum command environment from repository runtime
+        configuration
     """
     def post_init(self, custom_args=None):
         """
         Post initialization method
 
         Store custom yum arguments
-
-        Attributes
-
-        * :attr:`yum_args`
-            yum arguments from repository runtime configuration
-
-        * :attr:`command_env`
-            yum command environment from repository runtime configuration
 
         :param list custom_args: custom yum arguments
         """
@@ -60,7 +56,7 @@ class PackageManagerYum(PackageManagerBase):
         """
         Queue a package request
 
-        :param string name: package name
+        :param str name: package name
         """
         self.package_requests.append(name)
 
@@ -68,7 +64,7 @@ class PackageManagerYum(PackageManagerBase):
         """
         Queue a collection request
 
-        :param string name: yum group name
+        :param str name: yum group name
         """
         self.collection_requests.append('"' + name + '"')
 
@@ -78,7 +74,7 @@ class PackageManagerYum(PackageManagerBase):
 
         There is no product definition in the rhel repo data
 
-        :param string name: unused
+        :param str name: unused
         """
         pass
 
@@ -86,7 +82,7 @@ class PackageManagerYum(PackageManagerBase):
         """
         Queue a package exclusion(skip) request
 
-        :param string name: package name
+        :param str name: package name
         """
         self.exclude_requests.append(name)
 
@@ -94,9 +90,11 @@ class PackageManagerYum(PackageManagerBase):
         """
         Identify whether yum is 'yum' or 'yum-deprecated'
 
-        :param string root: lookup binary name below this root directory
+        :param str root: lookup binary name below this root directory
 
         :return: name of yum command
+
+        :rtype: str
         """
         yum_binary = 'yum'
         yum_search_env = {
@@ -114,6 +112,10 @@ class PackageManagerYum(PackageManagerBase):
     def process_install_requests_bootstrap(self):
         """
         Process package install requests for bootstrap phase (no chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         yum = self._get_yum_binary_name()
         Command.run(
@@ -138,6 +140,10 @@ class PackageManagerYum(PackageManagerBase):
     def process_install_requests(self):
         """
         Process package install requests for image phase (chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         yum = self._get_yum_binary_name(root=self.root_dir)
         if self.exclude_requests:
@@ -174,6 +180,12 @@ class PackageManagerYum(PackageManagerBase):
         Process package delete requests (chroot)
 
         :param bool force: force deletion: true|false
+
+        :raises KiwiRequestError: if none of the packages to delete is
+            installed
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         delete_items = []
         for delete_item in self.package_requests:
@@ -210,6 +222,10 @@ class PackageManagerYum(PackageManagerBase):
     def update(self):
         """
         Process package update requests (chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         yum = self._get_yum_binary_name(root=self.root_dir)
         chroot_yum_args = self.root_bind.move_to_root(
@@ -248,7 +264,11 @@ class PackageManagerYum(PackageManagerBase):
         the same base package name
 
         :param list package_list: list of all packages
-        :param string log_line: yum status line
+        :param str log_line: yum status line
+
+        :returns: match or None if there isn't any match
+
+        :rtype: match object, None
         """
         return re.match(
             '.*Installing : ' + re.escape(package_name) + '.*', yum_output
@@ -259,7 +279,11 @@ class PackageManagerYum(PackageManagerBase):
         Match expression to indicate a package has been deleted
 
         :param list package_list: list of all packages
-        :param string log_line: yum status line
+        :param str log_line: yum status line
+
+        :returns: match or None if there isn't any match
+
+        :rtype: match object, None
         """
         return re.match(
             '.*Removing: ' + re.escape(package_name) + '.*', yum_output
@@ -268,6 +292,10 @@ class PackageManagerYum(PackageManagerBase):
     def database_consistent(self):
         """
         Check if rpm package database is consistent
+
+        :return: True or False
+
+        :rtype: bool
         """
         try:
             Command.run(['chroot', self.root_dir, 'rpmdb', '--initdb'])
@@ -281,6 +309,6 @@ class PackageManagerYum(PackageManagerBase):
 
         For the supported RHEL versions there is no dump/reload cycle required
 
-        :param string version: unused
+        :param str version: unused
         """
         pass

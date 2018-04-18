@@ -30,22 +30,19 @@ from kiwi.exceptions import (
 
 class PackageManagerZypper(PackageManagerBase):
     """
-    Implements base class for installation/deletion of
-    packages and collections using zypper
+    **Implements base class for installation/deletion of
+    packages and collections using zypper**
+
+    :param list zypper_args: zypper arguments from repository runtime
+        configuration
+    :param dict command_env: zypper command environment from repository
+        runtime configuration
     """
     def post_init(self, custom_args=None):
         """
         Post initialization method
 
         Store custom zypper arguments
-
-        Attributes
-
-        * :attr:`zypper_args`
-            zypper arguments from repository runtime configuration
-
-        * :attr:`command_env`
-            zypper command environment from repository runtime configuration
 
         :param list custom_args: custom zypper arguments
         """
@@ -71,7 +68,7 @@ class PackageManagerZypper(PackageManagerBase):
         """
         Queue a package request
 
-        :param string name: package name
+        :param str name: package name
         """
         self.package_requests.append(name)
 
@@ -79,7 +76,7 @@ class PackageManagerZypper(PackageManagerBase):
         """
         Queue a collection request
 
-        :param string name: zypper pattern name
+        :param str name: zypper pattern name
         """
         self.collection_requests.append('pattern:' + name)
 
@@ -87,7 +84,7 @@ class PackageManagerZypper(PackageManagerBase):
         """
         Queue a product request
 
-        :param string name: zypper product name
+        :param str name: zypper product name
         """
         self.product_requests.append('product:' + name)
 
@@ -95,13 +92,17 @@ class PackageManagerZypper(PackageManagerBase):
         """
         Queue a package exclusion(skip) request
 
-        :param string name: package name
+        :param str name: package name
         """
         self.exclude_requests.append(name)
 
     def process_install_requests_bootstrap(self):
         """
         Process package install requests for bootstrap phase (no chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         command = ['zypper'] + self.zypper_args + [
             '--root', self.root_dir,
@@ -114,6 +115,10 @@ class PackageManagerZypper(PackageManagerBase):
     def process_install_requests(self):
         """
         Process package install requests for image phase (chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         if self.exclude_requests:
             # For zypper excluding a package means, removing it from
@@ -144,6 +149,12 @@ class PackageManagerZypper(PackageManagerBase):
         Process package delete requests (chroot)
 
         :param bool force: force deletion: true|false
+
+        :raises KiwiRequestError: if none of the packages to delete is
+            installed
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         delete_items = []
         for delete_item in self._delete_items():
@@ -178,6 +189,10 @@ class PackageManagerZypper(PackageManagerBase):
     def update(self):
         """
         Process package update requests (chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
@@ -210,7 +225,11 @@ class PackageManagerZypper(PackageManagerBase):
         the same base package name
 
         :param list package_list: list of all packages
-        :param string log_line: zypper status line
+        :param str log_line: zypper status line
+
+        :returns: match or None if there isn't any match
+
+        :rtype: match object, None
         """
         return re.match(
             '.*Installing: ' + re.escape(package_name) + '.*', zypper_output
@@ -221,7 +240,11 @@ class PackageManagerZypper(PackageManagerBase):
         Match expression to indicate a package has been deleted
 
         :param list package_list: list of all packages
-        :param string log_line: zypper status line
+        :param str log_line: zypper status line
+
+        :returns: match or None if there isn't any match
+
+        :rtype: match object, None
         """
         return re.match(
             '.*Removing: ' + re.escape(package_name) + '.*', zypper_output
@@ -230,6 +253,10 @@ class PackageManagerZypper(PackageManagerBase):
     def database_consistent(self):
         """
         Check if rpm package database is consistent
+
+        :return: True or False
+
+        :rtype: bool
         """
         try:
             Command.run(['chroot', self.root_dir, 'rpmdb', '--initdb'])
@@ -245,7 +272,7 @@ class PackageManagerZypper(PackageManagerBase):
         * 45 (db45_load)
         * 48 (db48_load)
 
-        :param string version: target rpm db version
+        :param str version: target rpm db version
         """
         db_load_for_version = {
             45: 'db45_load',

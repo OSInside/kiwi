@@ -33,22 +33,19 @@ from kiwi.exceptions import (
 
 class PackageManagerApt(PackageManagerBase):
     """
-    Implements base class for installation/deletion of
-    packages and collections using apt-get
+    **Implements base class for installation/deletion of
+    packages and collections using apt-get**
+
+    :param list apt_get_args: apt-get arguments from repository runtime
+        configuration
+    :param dict command_env: apt-get command environment from repository
+        runtime configuration
     """
     def post_init(self, custom_args=None):
         """
         Post initialization method
 
         Store custom apt-get arguments
-
-        Attributes
-
-        * :attr:`apt_get_args`
-            apt-get arguments from repository runtime configuration
-
-        * :attr:`command_env`
-            apt-get command environment from repository runtime configuration
 
         :param list custom_args: custom apt-get arguments
         """
@@ -67,7 +64,7 @@ class PackageManagerApt(PackageManagerBase):
         """
         Queue a package request
 
-        :param string name: package name
+        :param str name: package name
         """
         self.package_requests.append(name)
 
@@ -77,7 +74,7 @@ class PackageManagerApt(PackageManagerBase):
 
         There is no collection definition in the deb repo data
 
-        :param string name: unused
+        :param str name: unused
         """
         log.warning(
             'Collection(%s) handling not supported for apt-get', name
@@ -89,7 +86,7 @@ class PackageManagerApt(PackageManagerBase):
 
         There is no product definition in the deb repo data
 
-        :param string name: unused
+        :param str name: unused
         """
         log.warning(
             'Product(%s) handling not supported for apt-get', name
@@ -101,7 +98,7 @@ class PackageManagerApt(PackageManagerBase):
 
         Package exclusion for apt package manager not yet implemented
 
-        :param string name: unused
+        :param str name: unused
         """
         log.warning(
             'Package exclusion for (%s) not supported for apt-get', name
@@ -113,6 +110,12 @@ class PackageManagerApt(PackageManagerBase):
         The debootstrap program is used to bootstrap a new system with
         a collection of predefined packages. The kiwi bootstrap section
         information is not used in this case
+
+        :raises KiwiDebootstrapError: if no main distribution repository
+            is configured, if the debootstrap script is not found or if the
+            debootstrap script execution fails
+        :return: process results in command type
+        :rtype: namedtuple
         """
         if not self.distribution:
             raise KiwiDebootstrapError(
@@ -170,6 +173,10 @@ class PackageManagerApt(PackageManagerBase):
     def process_install_requests(self):
         """
         Process package install requests for image phase (chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         update_command = ['chroot', self.root_dir, 'apt-get']
         update_command.extend(self.root_bind.move_to_root(self.apt_get_args))
@@ -192,6 +199,12 @@ class PackageManagerApt(PackageManagerBase):
         Process package delete requests (chroot)
 
         :param bool force: force deletion: true|false
+
+        :raises KiwiRequestError: if none of the packages to delete is
+            installed
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         delete_items = []
         for delete_item in self._package_requests():
@@ -228,6 +241,10 @@ class PackageManagerApt(PackageManagerBase):
     def update(self):
         """
         Process package update requests (chroot)
+
+        :return: process results in command type
+
+        :rtype: namedtuple
         """
         apt_get_command = ['chroot', self.root_dir, 'apt-get']
         apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
@@ -264,7 +281,11 @@ class PackageManagerApt(PackageManagerBase):
         the same base package name
 
         :param list package_list: list of all packages
-        :param string log_line: apt-get status line
+        :param str log_line: apt-get status line
+
+        :returns: match or None if there isn't any match
+
+        :rtype: match object, None
         """
         return re.match(
             '.*Unpacking ' + re.escape(package_name) + '.*', apt_get_output
@@ -275,7 +296,11 @@ class PackageManagerApt(PackageManagerBase):
         Match expression to indicate a package has been deleted
 
         :param list package_list: list of all packages
-        :param string log_line: apt-get status line
+        :param str log_line: apt-get status line
+
+        :returns: match or None if there isn't any match
+
+        :rtype: match object, None
         """
         return re.match(
             '.*Removing ' + re.escape(package_name) + '.*', apt_get_output
@@ -295,7 +320,7 @@ class PackageManagerApt(PackageManagerBase):
 
         There is no such reload cycle for apt-get
 
-        :param string version: unused
+        :param str version: unused
         """
         pass
 
