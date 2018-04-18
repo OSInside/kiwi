@@ -51,7 +51,7 @@ class LoopDevice(DeviceProvider):
 
         :return: device node name
 
-        :rtype: string
+        :rtype: str
         """
         return self.node_name
 

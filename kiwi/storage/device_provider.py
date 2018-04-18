@@ -45,7 +45,7 @@ class DeviceProvider(object):
 
         :return: UUID from blkid
 
-        :rtype: string
+        :rtype: str
         """
         uuid_call = Command.run(
             ['blkid', device, '-s', 'UUID', '-o', 'value']

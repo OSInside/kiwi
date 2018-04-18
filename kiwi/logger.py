@@ -74,7 +74,7 @@ class ColorMessage(object):
 
         :return: color message with escape sequences
 
-        :rtype: string
+        :rtype: str
         """
         message = message.replace(
             '$RESET',
@@ -126,7 +126,7 @@ class ColorFormatter(logging.Formatter):
         :param tuple record: logging message record
 
         :return: result from format_message
-        :rtype: string
+        :rtype: str
         """
         color = ColorMessage()
         levelname = record.levelname
@@ -147,7 +147,7 @@ class LoggerSchedulerFilter(logging.Filter):
 
         :return: record.name
 
-        :rtype: string
+        :rtype: str
         """
         ignorables = [
             'apscheduler.scheduler',
@@ -169,7 +169,7 @@ class InfoFilter(logging.Filter):
 
         :return: record.name
 
-        :rtype: string
+        :rtype: str
         """
         if record.levelno == logging.INFO:
             return True
@@ -188,7 +188,7 @@ class DebugFilter(logging.Filter):
 
         :return: record.name
 
-        :rtype: string
+        :rtype: str
         """
         if record.levelno == logging.DEBUG:
             return True
@@ -207,7 +207,7 @@ class ErrorFilter(logging.Filter):
 
         :return: record.name
 
-        :rtype: string
+        :rtype: str
         """
         if record.levelno == logging.ERROR:
             return True
@@ -226,7 +226,7 @@ class WarningFilter(logging.Filter):
 
         :return: record.name
 
-        :rtype: string
+        :rtype: str
         """
         if record.levelno == logging.WARNING:
             return True

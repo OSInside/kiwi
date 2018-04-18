@@ -103,7 +103,7 @@ class DiskFormatGce(DiskFormatBase):
 
         :return: file path name
 
-        :rtype: string
+        :rtype: str
         """
         if format_name == 'gce':
             format_name = 'tar.gz'

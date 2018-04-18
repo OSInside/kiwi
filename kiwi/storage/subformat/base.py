@@ -139,7 +139,7 @@ class DiskFormatBase(object):
 
         :return: file path name
 
-        :rtype: string
+        :rtype: str
         """
         if format_name != 'raw':
             if format_name not in Defaults.get_disk_format_types():

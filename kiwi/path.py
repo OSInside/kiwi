@@ -139,7 +139,7 @@ class Path(object):
 
         :return: absolute path to file or None
 
-        :rtype: string
+        :rtype: str
         """
         lookup_paths = []
         multipart_message = [

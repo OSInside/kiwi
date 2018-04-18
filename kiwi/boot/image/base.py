@@ -294,7 +294,7 @@ class BootImageBase(object):
 
         :return: path name
 
-        :rtype: string
+        :rtype: str
         """
         boot_description = self.xml_state.build_type.get_boot()
         if boot_description:

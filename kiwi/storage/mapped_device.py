@@ -45,7 +45,7 @@ class MappedDevice(DeviceProvider):
 
         :return: device node name
 
-        :rtype: string
+        :rtype: str
         """
         return self.device
 

@@ -70,7 +70,7 @@ class Profile(object):
         Create bash quoted profile
 
         :return: profile dump for bash
-        :rtype: string
+        :rtype: str
         """
         Defaults.set_python_default_encoding_to_utf8()
 

@@ -161,7 +161,7 @@ class BootLoaderConfigBase(object):
 
         :return: Full qualified EFI boot path
 
-        :rtype: string
+        :rtype: str
         """
         efi_boot_path = self.root_dir + '/' + in_sub_dir + '/EFI/BOOT'
         Path.create(efi_boot_path)
@@ -173,7 +173,7 @@ class BootLoaderConfigBase(object):
 
         :return: theme name
 
-        :rtype: string
+        :rtype: str
         """
         theme = None
         for preferences in self.xml_state.get_preferences_sections():
@@ -217,7 +217,7 @@ class BootLoaderConfigBase(object):
 
         :return: kernel boot arguments
 
-        :rtype: string
+        :rtype: str
         """
         cmdline = ''
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
@@ -248,7 +248,7 @@ class BootLoaderConfigBase(object):
 
         :return: menu name or id
 
-        :rtype: string
+        :rtype: str
         """
         menu_entry_title = self.get_menu_entry_title(plain=True)
         menu_type = namedtuple(
@@ -298,7 +298,7 @@ class BootLoaderConfigBase(object):
 
         :return: path name
 
-        :rtype: string
+        :rtype: str
         """
         if target != 'disk' and target != 'iso':
             raise KiwiBootLoaderTargetError(
@@ -344,7 +344,7 @@ class BootLoaderConfigBase(object):
 
         :return: quoted text
 
-        :rtype: string
+        :rtype: str
         """
         name = name.replace(' ', '_')
         name = name.replace('[', '(')
@@ -363,7 +363,7 @@ class BootLoaderConfigBase(object):
 
         :return: title text
 
-        :rtype: string
+        :rtype: str
         """
         title = self.xml_state.xml_data.get_displayname()
         if not title:
@@ -387,7 +387,7 @@ class BootLoaderConfigBase(object):
 
         :return: title text
 
-        :rtype: string
+        :rtype: str
         """
         title = self.xml_state.xml_data.get_displayname()
         if not title:
@@ -408,7 +408,7 @@ class BootLoaderConfigBase(object):
 
         :return: boot graphics mode
 
-        :rtype: string
+        :rtype: str
         """
         gfxmode_map = Defaults.get_video_mode_map()
 

@@ -182,7 +182,7 @@ class ContainerSetupBase(object):
         Container name
 
         :return: name
-        :rtype: string
+        :rtype: str
         """
         return self.custom_args['container_name']
 

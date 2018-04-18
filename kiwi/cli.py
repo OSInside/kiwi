@@ -119,7 +119,7 @@ class Cli(object):
 
         :return: service name
 
-        :rtype: string
+        :rtype: str
         """
         if self.all_args.get('image') is True:
             return 'image'
@@ -164,7 +164,7 @@ class Cli(object):
         Extract selected command name
 
         :return: command name
-        :rtype: string
+        :rtype: str
         """
         return self.all_args['<command>']
 

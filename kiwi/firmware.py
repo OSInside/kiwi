@@ -60,7 +60,7 @@ class FirmWare(object):
 
         :return: partition table name
 
-        :rtype: string
+        :rtype: str
         """
         if 's390' in self.arch:
             if self.zipl_target_type and 'LDL' in self.zipl_target_type:

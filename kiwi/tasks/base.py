@@ -151,7 +151,7 @@ class CliTask(object):
         separates the information in a comma separated list of values
 
         :return: common option value representation
-        :rtype: string
+        :rtype: str
         """
         tokens = option.split(',', 3)
         return [
@@ -168,7 +168,7 @@ class CliTask(object):
         separates the information in a comma separated list of values
 
         :return: common option value representation
-        :rtype: string
+        :rtype: str
         """
         tokens = option.split(',', 5)
         return [

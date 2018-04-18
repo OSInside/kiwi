@@ -193,7 +193,7 @@ class CommandIterator(six.Iterator):
 
         :return: stderr data
 
-        :rtype: string
+        :rtype: str
         """
         return self.command_error_output.decode()
 

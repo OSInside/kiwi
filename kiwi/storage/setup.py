@@ -200,7 +200,7 @@ class DiskSetup(object):
 
         :return: label name
 
-        :rtype: string
+        :rtype: str
         """
         label = 'BOOT'
         if self.bootloader == 'grub2_s390x_emu':
@@ -216,7 +216,7 @@ class DiskSetup(object):
 
         :return: label name
 
-        :rtype: string
+        :rtype: str
         """
         root_label = self.xml_state.build_type.get_rootfs_label()
         if not root_label:
@@ -229,7 +229,7 @@ class DiskSetup(object):
 
         :return: label name
 
-        :rtype: string
+        :rtype: str
         """
         return 'EFI'
 

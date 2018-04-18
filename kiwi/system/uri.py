@@ -97,7 +97,7 @@ class Uri(object):
             effects the translation result if the image build happens
             inside of the Open Build Service
 
-        :rtype: string
+        :rtype: str
         """
         uri = urlparse(self.uri)
         if not uri.scheme:
@@ -165,7 +165,7 @@ class Uri(object):
         configuration
 
         :return: alias name as hexdigest
-        :rtype: string
+        :rtype: str
         """
         return hashlib.md5(self.uri.encode()).hexdigest()
 

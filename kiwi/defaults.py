@@ -100,7 +100,7 @@ class Defaults(object):
 
         :return: file basename
 
-        :rtype: string
+        :rtype: str
         """
         return '.buildenv'
 
@@ -112,7 +112,7 @@ class Defaults(object):
 
         :return: url path
 
-        :rtype: string
+        :rtype: str
         """
         return 'http://download.opensuse.org/repositories'
 
@@ -134,7 +134,7 @@ class Defaults(object):
 
         :return: type name
 
-        :rtype: string
+        :rtype: str
         """
         return 'CDL'
 
@@ -147,7 +147,7 @@ class Defaults(object):
 
         :return: directory path
 
-        :rtype: string
+        :rtype: str
         """
         return '/var/tmp/kiwi/satsolver'
 
@@ -164,7 +164,7 @@ class Defaults(object):
 
         :return: directory path
 
-        :rtype: string
+        :rtype: str
         """
         from .cli import Cli
         return os.path.abspath(os.path.normpath(
@@ -260,7 +260,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         return 'CDROM'
 
@@ -271,7 +271,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         return 'INSTALL'
 
@@ -282,7 +282,7 @@ class Defaults(object):
 
         :return: vesa video kernel hex value
 
-        :rtype: string
+        :rtype: str
         """
         return '0x303'
 
@@ -298,7 +298,7 @@ class Defaults(object):
 
         :return: directory basename
 
-        :rtype: string
+        :rtype: str
         """
         chroot_env = {
             'PATH': os.sep.join([lookup_path, 'usr', 'sbin'])
@@ -429,7 +429,7 @@ class Defaults(object):
 
         :return: grub2 install directory path name
 
-        :rtype: string
+        :rtype: str
         """
         for grub_name in ['grub2', 'grub']:
             grub_path = lookup_path + '/' + grub_name
@@ -443,7 +443,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         return 'KIWI - http://suse.github.com/kiwi'
 
@@ -454,7 +454,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         return 'SUSE LINUX GmbH'
 
@@ -470,7 +470,7 @@ class Defaults(object):
 
         :return: file path or None
 
-        :rtype: string
+        :rtype: str
         """
         shim_file_patterns = [
             '/usr/lib64/efi/shim.efi',
@@ -492,7 +492,7 @@ class Defaults(object):
 
         :return: file path or None
 
-        :rtype: string
+        :rtype: str
         """
         signed_grub_file_patterns = [
             '/usr/lib64/efi/grub.efi',
@@ -515,7 +515,7 @@ class Defaults(object):
 
         :return: directory path or None
 
-        :rtype: string
+        :rtype: str
         """
         shim_vendor_patterns = [
             '/boot/efi/EFI/*/shim.efi',
@@ -532,7 +532,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         return 'systemVG'
 
@@ -664,7 +664,7 @@ class Defaults(object):
 
         :return: firmware name
 
-        :rtype: string
+        :rtype: str
         """
         default_firmware = {
             'x86_64': 'bios',
@@ -720,7 +720,7 @@ class Defaults(object):
 
         :return: directory name
 
-        :rtype: string
+        :rtype: str
         """
         default_module_directory_names = {
             'x86_64': 'x86_64-efi',
@@ -749,7 +749,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         default_efi_image_names = {
             'x86_64': 'bootx64.efi',
@@ -793,7 +793,7 @@ class Defaults(object):
 
         :return: partition table type name
 
-        :rtype: string
+        :rtype: str
         """
         return 'gpt'
 
@@ -852,7 +852,7 @@ class Defaults(object):
 
         :return: live iso type
 
-        :rtype: string
+        :rtype: str
         """
         return 'overlay'
 
@@ -863,7 +863,7 @@ class Defaults(object):
 
         :return: file path name
 
-        :rtype: string
+        :rtype: str
         """
         return '/etc/dracut.conf.d/02-kiwi.conf'
 
@@ -877,7 +877,7 @@ class Defaults(object):
 
         :return: dracut module name
 
-        :rtype: string
+        :rtype: str
         """
         live_modules = {
             'overlay': 'kiwi-live',
@@ -895,7 +895,7 @@ class Defaults(object):
 
         :return: filesystem name
 
-        :rtype: string
+        :rtype: str
         """
         return 'ext4'
 
@@ -958,7 +958,7 @@ class Defaults(object):
 
         :return: directory path
 
-        :rtype: string
+        :rtype: str
         """
         return '/usr/share/kiwi/custom_boot'
 
@@ -971,7 +971,7 @@ class Defaults(object):
 
         :return: file path
 
-        :rtype: string
+        :rtype: str
         """
         return Defaults.project_file('config/strip.xml')
 
@@ -982,7 +982,7 @@ class Defaults(object):
 
         :return: file path
 
-        :rtype: string
+        :rtype: str
         """
         return Defaults.project_file('schema/kiwi.rng')
 
@@ -996,7 +996,7 @@ class Defaults(object):
 
         :return: file path
 
-        :rtype: string
+        :rtype: str
         """
         return Defaults.project_file('config/functions.sh')
 
@@ -1007,7 +1007,7 @@ class Defaults(object):
 
         :return: file path
 
-        :rtype: string
+        :rtype: str
         """
         return Defaults.project_file('xsl/master.xsl')
 
@@ -1023,7 +1023,7 @@ class Defaults(object):
 
         :return: absolute file path name
 
-        :rtype: string
+        :rtype: str
         """
         return resource_filename('kiwi', filename)
 
@@ -1040,7 +1040,7 @@ class Defaults(object):
 
         :return: file path name
 
-        :rtype: string
+        :rtype: str
         """
         return os.sep.join([root_dir, 'image', 'imported_root'])
 
@@ -1052,7 +1052,7 @@ class Defaults(object):
 
         :return: relative path name
 
-        :rtype: string
+        :rtype: str
         """
         arch = platform.machine()
         if arch == 'i686' or arch == 'i586':
@@ -1066,7 +1066,7 @@ class Defaults(object):
 
         :return: name
 
-        :rtype: string
+        :rtype: str
         """
         return 'xorriso'
 
@@ -1095,7 +1095,7 @@ class Defaults(object):
 
         :return: packager tool binary name
 
-        :rtype: string
+        :rtype: str
         """
         rpm_based = ['zypper', 'yum', 'dnf']
         deb_based = ['apt-get']
@@ -1112,7 +1112,7 @@ class Defaults(object):
 
         :return: key value
 
-        :rtype: string
+        :rtype: str
         """
         if key in self.defaults:
             return self.defaults[key]

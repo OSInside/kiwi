@@ -38,7 +38,7 @@ class Shell(object):
         :param string message: message text
 
         :return: quoted text
-        :rtype: string
+        :rtype: str
         """
         # \\ quoting must be first in the list
         quote_characters = ['\\', '$', '"', '`', '!']
@@ -55,7 +55,7 @@ class Shell(object):
         :param string filename: file path name
 
         :return: quoted text
-        :rtype: string
+        :rtype: str
         """
         temp_copy = NamedTemporaryFile()
         Command.run(['cp', filename, temp_copy.name])

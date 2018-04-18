@@ -80,7 +80,7 @@ class XMLState(object):
 
         :return: Content of image attribute from build type
 
-        :rtype: string
+        :rtype: str
         """
         return self.build_type.get_image()
 
@@ -94,7 +94,7 @@ class XMLState(object):
 
         :return: Content of <version> section
 
-        :rtype: string
+        :rtype: str
         """
         for preferences in self.get_preferences_sections():
             version = preferences.get_version()
@@ -111,7 +111,7 @@ class XMLState(object):
 
         :return: dracut, kiwi or None
 
-        :rtype: string
+        :rtype: str
         """
         if self.get_build_type_name() in ['vmx', 'iso']:
             # vmx and iso image types always use dracut as initrd system
@@ -159,7 +159,7 @@ class XMLState(object):
 
         :return: Content of the <packagemanager> section
 
-        :rtype: string
+        :rtype: str
         """
         for preferences in self.get_preferences_sections():
             package_manager = preferences.get_packagemanager()
@@ -408,7 +408,7 @@ class XMLState(object):
 
         :return: collection type name
 
-        :rtype: string
+        :rtype: str
         """
         typed_packages_sections = self.get_packages_sections(
             [section_type, self.get_build_type_name()]
@@ -427,7 +427,7 @@ class XMLState(object):
 
         :return: collection type name
 
-        :rtype: string
+        :rtype: str
         """
         return self.get_collection_type('bootstrap')
 
@@ -437,7 +437,7 @@ class XMLState(object):
 
         :return: collection type name
 
-        :rtype: string
+        :rtype: str
         """
         return self.get_collection_type('image')
 
@@ -777,7 +777,7 @@ class XMLState(object):
 
         :return: volume group name
 
-        :rtype: string
+        :rtype: str
         """
         systemdisk_section = self.get_build_type_system_disk_section()
         volume_group_name = None
@@ -1028,7 +1028,7 @@ class XMLState(object):
 
         :return: name of volume manager
 
-        :rtype: string
+        :rtype: str
         """
         volume_filesystems = ['btrfs']
         selected_filesystem = self.build_type.get_filesystem()
@@ -1502,7 +1502,7 @@ class XMLState(object):
 
         :return: lowercase distribution name
 
-        :rtype: string
+        :rtype: str
         """
         boot_attribute = self.build_type.get_boot()
         if not boot_attribute:

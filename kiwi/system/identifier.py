@@ -37,7 +37,7 @@ class SystemIdentifier(object):
         Current hex identifier
 
         :return: hex id
-        :rtype: string
+        :rtype: str
         """
         return self.image_id
 

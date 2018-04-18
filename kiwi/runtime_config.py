@@ -60,7 +60,7 @@ class RuntimeConfig(object):
 
         :return: URL type data
 
-        :rtype: string
+        :rtype: str
         """
         obs_download_server_url = self._get_attribute(
             element='obs', attribute='download_url'
@@ -120,7 +120,7 @@ class RuntimeConfig(object):
 
         :return: A name
 
-        :rtype: string
+        :rtype: str
         """
         iso_tool_category = self._get_attribute(
             element='iso', attribute='tool_category'
