@@ -33,21 +33,12 @@ from kiwi.exceptions import (
 
 class ArchiveBuilder(object):
     """
-    Root archive image builder
+    **Root archive image builder**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`target_dir`
-        target directory path name
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
+    :param obsject xml_state: Instance of :class:`XMLState`
+    :param str target_dir: target directory path name
+    :param str root_dir: root directory path name
+    :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
@@ -75,6 +66,10 @@ class ArchiveBuilder(object):
         Image types which triggers this builder are:
 
         * image="tbz"
+
+        :return: result
+
+        :rtype: instance of :class:`Result`
         """
         supported_archives = Defaults.get_archive_image_types()
         if self.requested_archive_type not in supported_archives:
