@@ -26,16 +26,11 @@ from kiwi.command import Command
 
 class DataSync(object):
     """
-    Sync data from a source directory to a target directory
-    using the rsync protocol
+    **Sync data from a source directory to a target directory
+    using the rsync protocol**
 
-    Attributes
-
-    * :attr:`source_dir`
-        source directory path name
-
-    * :attr:`target_dir`
-        target directory path name
+    :param str source_dir: source directory path name
+    :param str target_dir: target directory path name
     """
     def __init__(self, source_dir, target_dir):
         self.source_dir = source_dir
@@ -94,6 +89,8 @@ class DataSync(object):
         """
         Check if the target directory supports extended filesystem
         attributes
+
+        :return: True or False
 
         :rtype: bool
         """

@@ -26,17 +26,15 @@ from kiwi.logger import log
 
 class DataOutput(object):
     """
+    **Converts dict or list variables to a print friendly json format**
+
     Output controller for data dictionary. The class expects a
     python dict or list to hold the data to become displayed. So
     far the output format is set to json
 
-    Attributes
-
-    * :attr:`data`
-        python dict or list which holds the data
-
-    * :attr:`style`
-        output style could be either standard or color
+    :param data: python dict or list which holds the data
+    :type data: dict, list
+    :param str style: output style could be either standard or color
     """
     def __init__(self, data, style='standard'):
         self.data = data
@@ -50,6 +48,9 @@ class DataOutput(object):
         self._json()
 
     def _json(self):
+        """
+        Show data in json output format and selected style
+        """
         if self.style == 'color':
             if self.color_json:
                 self._color_json()
@@ -61,6 +62,9 @@ class DataOutput(object):
             self._standard_json()
 
     def _standard_json(self):
+        """
+        Show data in plain json output format without any highlighting
+        """
         print(
             json.dumps(
                 self.data, sort_keys=True, indent=4, separators=(',', ': ')
@@ -68,6 +72,9 @@ class DataOutput(object):
         )
 
     def _color_json(self):
+        """
+        Show data in json output format with nice color highlighting
+        """
         out_file = NamedTemporaryFile()
         out_file.write(json.dumps(self.data, sort_keys=True))
         out_file.flush()

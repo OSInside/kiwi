@@ -23,7 +23,7 @@ from kiwi.exceptions import KiwiSizeError
 
 class StringToSize(object):
     """
-    Performs size convertions from strings to numbers
+    **Performs size convertions from strings to numbers**
     """
     @classmethod
     def to_bytes(self, size_value):
@@ -31,8 +31,7 @@ class StringToSize(object):
         Convert the given string representig a size into the appropriate
         number of bytes.
 
-        :param size_value: a size in bytes or specified with m=MB or g=GB
-        :type size_value: str
+        :param str size_value: a size in bytes or specified with m=MB or g=GB
 
         :return: the number of bytes represented by size_value string
         :rtype: int

@@ -23,6 +23,9 @@ from kiwi.solver.repository.base import SolverRepositoryBase
 
 
 class SolverRepositorySUSE(SolverRepositoryBase):
+    """
+    **Class for SAT solvable creation for SUSE type repositories.**
+    """
     def _setup_repository_metadata(self):
         """
         Download repo metadata for SUSE specific repositories and
@@ -47,6 +50,11 @@ class SolverRepositorySUSE(SolverRepositoryBase):
         like DVD there might be only the suse metadata. Depending
         on the result this also impacts which tool is required to
         create the solv data from the information
+
+
+        :return: str:solv_tool, list:primary_files
+
+        :rtype: tuple
         """
         result_type = namedtuple(
             'result_type', ['solv_tool', 'primary_files']

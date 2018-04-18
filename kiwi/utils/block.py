@@ -23,12 +23,9 @@ from kiwi.command import Command
 
 class BlockID(object):
     """
-    Get information from a block device
+    **Get information from a block device**
 
-    Attributes
-
-    * :attr:`device`
-        block device node name name
+    :param str device: block device node name name
 
     """
     def __init__(self, device):
@@ -38,7 +35,9 @@ class BlockID(object):
         """
         Retrieve filesystem label from block device
 
-        :rtype: string
+        :return: block device label
+
+        :rtype: str
         """
         return self.get_blkid('LABEL')
 
@@ -46,7 +45,9 @@ class BlockID(object):
         """
         Retrieve filesystem uuid from block device
 
-        :rtype: string
+        :return: uuid for the filesystem of the block device
+
+        :rtype: str
         """
         return self.get_blkid('UUID')
 
@@ -54,7 +55,9 @@ class BlockID(object):
         """
         Retrieve filesystem type from block device
 
-        :rtype: string
+        :return: filesystem type
+
+        :rtype: str
         """
         return self.get_blkid('TYPE')
 
@@ -64,7 +67,9 @@ class BlockID(object):
 
         :param string id_type: metadata ID, see man blkid for details
 
-        :rtype: string
+        :return: ID of the block device
+
+        :rtype: str
         """
         blkid_result = Command.run(
             ['blkid', self.device, '-s', id_type, '-o', 'value']

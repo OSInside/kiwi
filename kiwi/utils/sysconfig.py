@@ -20,13 +20,9 @@ import os
 
 class SysConfig(object):
     """
-    Read and Write sysconfig style files
+    **Read and Write sysconfig style files**
 
-    Attributes
-
-    * :attr:`source_file`
-        source file path
-
+    :param str source_file: source file path
     """
     def __init__(self, source_file):
         self.source_file = source_file

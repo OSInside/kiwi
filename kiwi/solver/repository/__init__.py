@@ -25,12 +25,9 @@ from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 class SolverRepository(object):
     """
-    Repository factory for creation of SAT solvables
+    **Repository factory for creation of SAT solvables**
 
-    Attributes
-
-    * :attr:`uri`
-        Instance of Uri
+    * :param object uri: Instance of :class:`Uri`
     """
     def __new__(self, uri, user=None, secret=None):
         if uri.repo_type == 'yast2':

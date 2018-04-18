@@ -34,12 +34,9 @@ from kiwi.defaults import Defaults
 
 class SolverRepositoryBase(object):
     """
-    Base class interface for SAT solvable creation.
+    **Base class interface for SAT solvable creation.**
 
-    Attributes
-
-    * :attr:`uri`
-        Instance of Uri class
+    * :param object uri: Instance of :class:`Uri`
     """
     def __init__(self, uri, user=None, secret=None):
         self.uri = uri
@@ -55,10 +52,11 @@ class SolverRepositoryBase(object):
         created intermediate solvables by merge and store the
         result solvable in the specified target_dir
 
-        :param string target_dir: path name
+        :param str target_dir: path name
 
         :return: file path to solvable
-        :rtype: string
+
+        :rtype: str
         """
         Path.create(target_dir)
         solvable = os.sep.join(
@@ -81,13 +79,15 @@ class SolverRepositoryBase(object):
         implementation exists the method returns the value 'static'
         to indicate there is no timestamp information available.
 
-        :rtype: string
+        :rtype: str
         """
         return 'static'
 
     def is_uptodate(self, target_dir=Defaults.get_solvable_location()):
         """
         Check if repository metadata is up to date
+
+        :return: True or False
 
         :rtype: bool
         """
@@ -109,10 +109,12 @@ class SolverRepositoryBase(object):
 
         The repo_source location is used relative to the repository
         location and will be part of a mime type source like:
-        file://repo_path/repo_source
+        `file://repo_path/repo_source`
 
-        :param string source: source file in the repo
-        :param string target: file path
+        :param str repo_source: source file in the repo
+        :param str target: file path
+
+        :raises KiwiUriOpenError: if the download fails
         """
         try:
             request = Request(
@@ -138,6 +140,10 @@ class SolverRepositoryBase(object):
         Parse repomd.xml file from lookup_path and return an etree
         This method only applies to rpm-md type repositories
 
+        :param str lookup_path: relative path used to find repomd.xml file
+
+        :return: Object with repomd.xml contents
+
         :rtype: XML etree
         """
         xml_download = NamedTemporaryFile()
@@ -154,6 +160,11 @@ class SolverRepositoryBase(object):
 
         * http://linux.duke.edu/metadata/repo
         * http://linux.duke.edu/metadata/rpm
+
+        :param object xml_data: An XML etree object of a parsed XML file.
+        :param str expression: An xpath expression to filder xml_data.
+
+        :return: Elements matching the xpath expression
 
         :rtype: list
         """
@@ -194,8 +205,8 @@ class SolverRepositoryBase(object):
         * rpms2solv
           solvable from rpm header files
 
-        :param string metadata_dir: path name
-        :param string tool: one of the above tools
+        :param str metadata_dir: path name
+        :param str tool: one of the above tools
         """
         if not self.repository_solvable_dir:
             self.repository_solvable_dir = mkdtemp(prefix='solvable_dir.')
@@ -224,7 +235,7 @@ class SolverRepositoryBase(object):
         info file containing the repo url and a timestamp file
         is created
 
-        :param string target_dir: path name
+        :param str target_dir: path name
         """
         if self.repository_solvable_dir:
             solvable = os.sep.join([target_dir, self.uri.alias()])
@@ -252,6 +263,13 @@ class SolverRepositoryBase(object):
         self._init_temporary_dir_names()
 
     def _get_mime_typed_uri(self):
+        """
+        Adds `file` scheme for local URIs
+
+        :return: A mime typed URI as string
+
+        :rtype: str
+        """
         return self.uri.translate() if self.uri.is_remote() else ''.join(
             ['file://', self.uri.translate()]
         )
@@ -268,6 +286,10 @@ class SolverRepositoryBase(object):
     def _create_temporary_metadata_dir(self):
         """
         Create and manage a temporary metadata directory
+
+        :return: the path of the temporary directory just created
+
+        :rtype: str
         """
         metadata_dir = mkdtemp(prefix='metadata_dir.')
         self.repository_metadata_dirs.append(metadata_dir)
