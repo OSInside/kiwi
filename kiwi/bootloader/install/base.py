@@ -19,18 +19,11 @@
 
 class BootLoaderInstallBase(object):
     """
-    Base class for bootloader installation on device
+    **Base class for bootloader installation on device**
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`device_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`device`
-        device node name
+    :param string root_dir: root directory path name
+    :param object device_provider: instance of :class:`DeviceProvider`
+    :param dict custom_args: custom arguments dictionary
     """
     def __init__(self, root_dir, device_provider, custom_args=None):
         self.root_dir = root_dir
@@ -46,7 +39,7 @@ class BootLoaderInstallBase(object):
 
         Store custom arguments by default
 
-        :param list custom_args: custom bootloader arguments
+        :param dict custom_args: custom bootloader arguments
         """
         self.custom_args = custom_args
 

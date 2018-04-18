@@ -21,7 +21,7 @@ from textwrap import dedent
 
 class BootLoaderTemplateZipl(object):
     """
-    zipl configuraton file templates
+    **zipl configuraton file templates**
     """
     def __init__(self):
         self.cr = '\n'
@@ -69,6 +69,8 @@ class BootLoaderTemplateZipl(object):
         Bootloader configuration template for disk boot
 
         :param bool failsafe: with failsafe true|false
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """

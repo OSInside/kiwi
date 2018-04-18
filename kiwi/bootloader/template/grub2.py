@@ -22,7 +22,7 @@ from textwrap import dedent
 
 class BootLoaderTemplateGrub2(object):
     """
-    grub2 configuraton file templates
+    **grub2 configuraton file templates**
     """
     def __init__(self):
         self.header = dedent('''
@@ -314,6 +314,8 @@ class BootLoaderTemplateGrub2(object):
         :param bool hybrid: with hybrid true|false
         :param string terminal: output terminal name
 
+        :return: instance of :class:`Template`
+
         :rtype: Template
         """
         template_data = self.header
@@ -349,6 +351,8 @@ class BootLoaderTemplateGrub2(object):
         :param bool failsafe: with failsafe true|false
         :param string terminal: output terminal name
 
+        :return: instance of :class:`Template`
+
         :rtype: Template
         """
         template_data = self.header
@@ -376,6 +380,8 @@ class BootLoaderTemplateGrub2(object):
         :param bool failsafe: with failsafe true|false
         :param bool hybrid: with hybrid true|false
         :param string terminal: output terminal name
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """
@@ -417,6 +423,8 @@ class BootLoaderTemplateGrub2(object):
         :param bool failsafe: with failsafe true|false
         :param string terminal: output terminal name
 
+        :return: instance of :class:`Template`
+
         :rtype: Template
         """
         template_data = self.header
@@ -447,6 +455,8 @@ class BootLoaderTemplateGrub2(object):
         :param bool failsafe: with failsafe true|false
         :param bool hybrid: with hybrid true|false
         :param string terminal: output terminal name
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """
@@ -483,6 +493,8 @@ class BootLoaderTemplateGrub2(object):
 
         :param bool failsafe: with failsafe true|false
         :param string terminal: output terminal name
+
+        :return: instance of :class:`Template`
 
         :rtype: Template
         """

@@ -35,24 +35,13 @@ from kiwi.exceptions import (
 
 class BootImageBase(object):
     """
-    Base class for boot image(initrd) task
+    **Base class for boot image(initrd) task**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState of the system image description
-
-    * :attr:`target_dir`
-        target dir to store the initrd
-
-    * :attr:`root_dir`
-        system image root directory
-
-    * :attr:`signing_keys`
-        list of package signing keys
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys
+    :param object xml_state: Instance of :class:`XMLState`
+    :param string target_dir: target dir to store the initrd
+    :param string root_dir: system image root directory
+    :param list signing_keys: list of package signing keys
+    :param dict custom_args: Custom processing arguments defined as hash keys
     """
     def __init__(
         self, xml_state, target_dir, root_dir=None,
@@ -95,7 +84,11 @@ class BootImageBase(object):
         """
         Include file to boot image
 
-        Implementation in specialized boot image class
+        For kiwi boot images this is done by adding package or
+        archive definitions with the bootinclude attribute. Thus
+        for kiwi boot images the method is a noop
+
+        :param string filename: file path name
         """
         pass
 
@@ -117,18 +110,31 @@ class BootImageBase(object):
             )
 
     def disable_cleanup(self):
+        """
+        Deactivate cleanup(deletion) of boot root directory
+        """
         self.call_destructor = False
 
     def enable_cleanup(self):
+        """
+        Activate cleanup(deletion) of boot root directory
+        """
         self.call_destructor = True
 
     def get_boot_names(self):
+        """
+        Provides kernel and initrd names for this boot image
+
+        Implementation in specialized boot image class
+        """
         raise NotImplementedError
 
     def prepare(self):
         """
         Prepare new root system to create initrd from. Implementation
         is only needed if there is no other root system available
+
+        Implementation in specialized boot image class
         """
         raise NotImplementedError
 
@@ -138,14 +144,17 @@ class BootImageBase(object):
 
         :param object mbrid: instance of ImageIdentifier
         :param string basename: base initrd file name
+
+        Implementation in specialized boot image class
         """
         raise NotImplementedError
 
     def is_prepared(self):
         """
-        Check if initrd system is prepared
+        Check if initrd system is prepared.
 
-        :return: initrd system preparation status
+        :return: True or False
+
         :rtype: bool
         """
         return os.listdir(self.boot_root_directory)
@@ -284,6 +293,7 @@ class BootImageBase(object):
         Provide path to the boot image XML description
 
         :return: path name
+
         :rtype: string
         """
         boot_description = self.xml_state.build_type.get_boot()

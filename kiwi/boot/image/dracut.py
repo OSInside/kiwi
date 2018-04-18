@@ -34,7 +34,7 @@ from kiwi.exceptions import KiwiDiskBootImageError
 
 class BootImageDracut(BootImageBase):
     """
-    Implements creation of dracut boot(initrd) images.
+    **Implements creation of dracut boot(initrd) images.**
     """
     def post_init(self):
         """
@@ -45,6 +45,11 @@ class BootImageDracut(BootImageBase):
         self.dracut_options = []
 
     def include_file(self, filename):
+        """
+        Include file to dracut boot image
+
+        :param string filename: file path name
+        """
         self.dracut_options.append('--install')
         self.dracut_options.append(filename)
 
@@ -105,6 +110,21 @@ class BootImageDracut(BootImageBase):
             )
 
     def get_boot_names(self):
+        """
+        Provides kernel and initrd names for kiwi boot image
+
+        :return:
+            Contains boot_names_type tuple
+
+            .. code:: python
+
+                boot_names_type(
+                    kernel_name='INSTALLED_KERNEL',
+                    initrd_name='DRACUT_OUTPUT_NAME'
+                )
+
+        :rtype: tuple
+        """
         boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
         )

@@ -26,7 +26,13 @@ from kiwi.exceptions import (
 
 class BootImage(object):
     """
-        BootImge factory
+    **BootImge Factory**
+
+    :param object xml_state: Instance of :class:`XMLState`
+    :param string target_dir: target dir to store the initrd
+    :param string root_dir: system image root directory
+    :param list signing_keys: list of package signing keys
+    :param dict custom_args: Custom processing arguments defined as hash keys
     """
     def __new__(
         self, xml_state, target_dir, root_dir=None,

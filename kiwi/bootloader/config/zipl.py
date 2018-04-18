@@ -38,54 +38,18 @@ from kiwi.exceptions import (
 
 class BootLoaderConfigZipl(BootLoaderConfigBase):
     """
-    zipl bootloader configuration.
-
-    Attributes
-
-    * :attr:`arch`
-        platform.machine
-
-    * :attr:`timeout`
-        configured or default boot timeout
-
-    * :attr:`bootpath`
-        boot path set to: '.'
-
-    * :attr:`cmdline`
-        kernel boot arguments
-
-    * :attr:`cmdline_failsafe`
-        kernel failsafe boot arguments
-
-    * :attr:`target_blocksize`
-        configured or default target blocksize
-
-    * :attr:`target_type`
-        configured or default zipl target type
-
-    * :attr:`failsafe_boot`
-        failsafe mode requested true|false
-
-    * :attr:`target_device`
-        device node of target device
-
-    * :attr:`firmware`
-        Instance of FirmWare
-
-    * :attr:`target_table_type`
-        disk table type according to target device
-
-    * :attr:`zipl`
-        Instance of config template: BootLoaderTemplateZipl
-
-    * :attr:`config`
-        Configuration data from template substitution
+    **zipl bootloader configuration.**
     """
     def post_init(self, custom_args):
         """
         zipl post initialization method
 
-        Setup class attributes
+        :param dict custom_args:
+            Contains zipl config arguments
+
+            .. code:: python
+
+                {'targetbase': 'device_name'}
         """
         self.custom_args = custom_args
         arch = platform.machine()
@@ -158,6 +122,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         :param string hypervisor: unused
         :param string kernel: kernel name
         :param string initrd: initrd name
+        :param string boot_options: kernel options as string
         """
         log.info('Creating zipl config file from template')
         parameters = {
@@ -189,6 +154,11 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
         On s390 no bootloader images needs to be created
+
+        Thus this method does nothing
+
+        :param string boot_uuid: boot device UUID
+        :param string lookup_path: custom module lookup path
         """
         pass
 
