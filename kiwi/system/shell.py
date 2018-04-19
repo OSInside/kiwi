@@ -24,7 +24,7 @@ from kiwi.defaults import Defaults
 
 class Shell(object):
     """
-    Special character handling for shell evaluated code
+    **Special character handling for shell evaluated code**
     """
     @classmethod
     def quote(self, message):
@@ -35,9 +35,10 @@ class Shell(object):
         had expected it. e.g 'name_wit_a_$' does not quote the $
         so we do it on our own for the scope of kiwi
 
-        :param string message: message text
+        :param str message: message text
 
         :return: quoted text
+
         :rtype: str
         """
         # \\ quoting must be first in the list
@@ -52,9 +53,10 @@ class Shell(object):
         Quote given input file which has to be of the form
         key=value to be able to become sourced by the shell
 
-        :param string filename: file path name
+        :param str filename: file path name
 
         :return: quoted text
+
         :rtype: str
         """
         temp_copy = NamedTemporaryFile()
@@ -68,7 +70,7 @@ class Shell(object):
         """
         Run a function implemented in config/functions.sh
 
-        :param string name: function name
+        :param str name: function name
         :param list parameters: function arguments
         """
         Command.run([

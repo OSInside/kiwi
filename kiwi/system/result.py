@@ -34,18 +34,11 @@ result_file_type = namedtuple(
 
 class Result(object):
     """
-    Collect image building results
+    **Collect image building results**
 
-    Attributes
-
-    * :attr:`result_files`
-        List of result files
-
-    * :attr:`class_version`
-        Result class version
-
-    * :attr:`xml_state`
-        Instance of XMLState
+    :param list result_files: list of result files
+    :param object class_version: :class:`Result` class version
+    :param object xml_state: instance of :class:`XMLState`
     """
     def __init__(self, xml_state):
         self.result_files = {}
@@ -63,9 +56,9 @@ class Result(object):
         """
         Add result tuple to result_files list
 
-        :param string key: name
-        :param string filename: file path name
-        :param boot use_for_bundle: use when bundling results true|false
+        :param str key: name
+        :param str filename: file path name
+        :param bool use_for_bundle: use when bundling results true|false
         :param bool compress: compress when bundling true|false
         :param bool shasum: create shasum when bundling true|false
         """
@@ -96,7 +89,10 @@ class Result(object):
         """
         Picke dump this instance to a file
 
-        :param string filename: file path name
+        :param str filename: file path name
+
+        :raises KiwiResultError: if pickle fails to dump :class:`Result`
+            instance
         """
         try:
             with open(filename, 'wb') as result:
@@ -111,7 +107,10 @@ class Result(object):
         """
         Load pickle dumped filename into a Result instance
 
-        :param string filename: file path name
+        :param str filename: file path name
+
+        :raises KiwiResultError: if filename does not exist or pickle fails
+            to load filename
         """
         if not os.path.exists(filename):
             raise KiwiResultError(
@@ -132,7 +131,9 @@ class Result(object):
         is set to None no verification is done.
 
         :param int size_limit: The size limit for filename in bytes.
-        :param string filename: File to verify.
+        :param str filename: File to verify.
+
+        :raises KiwiResultError: if filename exceeds the size limit
         """
         if size_limit is not None:
             if os.path.getsize(filename) > size_limit:

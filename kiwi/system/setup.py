@@ -46,33 +46,23 @@ from kiwi.exceptions import (
 
 class SystemSetup(object):
     """
-    Implementation of system setup steps supported by kiwi.
-    kiwi is not responsible for the system configuration, however
+    **Implementation of system setup steps supported by kiwi**
+
+    Kiwi is not responsible for the system configuration, however
     some setup steps needs to be performed in order to provide
     a minimal work environment inside of the image according to
     the desired image type.
 
-    Attributes
-
-    * :attr:`arch`
-        platform.machine
-        The 32bit x86 platform is handled as 'ix86'
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`description_dir`
-        path to image description directory
-
-    * :attr:`derived_description_dir`
-        path to derived_description_dir
+    :param str arch: platform.machine. The 32bit x86 platform is
+        handled as 'ix86'
+    :param object xml_state: instance of :class:`XMLState`
+    :param str description_dir: path to image description directory
+    :param derived_description_dir: path to derived_description_dir
         boot image descriptions inherits data from the system image
         description, thus they are derived from another image
         description directory which is needed to e.g find system
         image archives, overlay files
-
-    * :attr:`root_dir`
-        root directory path name
+    :param str root_dir: root directory path name
     """
     def __init__(self, xml_state, root_dir):
         self.arch = platform.machine()
@@ -158,7 +148,7 @@ class SystemSetup(object):
         Create profile environment to let scripts consume
         information from the XML description.
 
-        :param object profile: Instance of Profile
+        :param object profile: instance of :class:`Profile`
         """
         profile_file = self.root_dir + '/.profile'
         log.info('Creating .profile environment')
@@ -413,7 +403,7 @@ class SystemSetup(object):
         Initialize the security context fields (extended attributes)
         on the files matching the security_context_file
 
-        :param string security_context_file: path file name
+        :param str security_context_file: path file name
         """
         log.info('Processing SELinux file security contexts')
         Command.run(
@@ -427,7 +417,7 @@ class SystemSetup(object):
         """
         Export etc/modprobe.d to given root_dir
 
-        :param string target_root_dir: path name
+        :param str target_root_dir: path name
         """
         modprobe_config = self.root_dir + '/etc/modprobe.d'
         if os.path.exists(modprobe_config):
@@ -445,7 +435,7 @@ class SystemSetup(object):
         Export image package list as metadata reference
         used by the open buildservice
 
-        :param string target_dir: path name
+        :param str target_dir: path name
         """
         filename = ''.join(
             [
@@ -471,7 +461,7 @@ class SystemSetup(object):
         Export package verification result as metadata reference
         used by the open buildservice
 
-        :param string target_dir: path name
+        :param str target_dir: path name
         """
         filename = ''.join(
             [
@@ -513,9 +503,9 @@ class SystemSetup(object):
         Pass the boot filesystem name and the partition number of
         the boot partition as parameters to the call
 
-        :param string filesystem: boot filesystem name
+        :param str filesystem: boot filesystem name
         :param int boot_part_id: boot partition number
-        :param string working_directory: directory name
+        :param str working_directory: directory name
         """
         self._call_script_no_chroot(
             name='edit_boot_config.sh',
@@ -532,9 +522,9 @@ class SystemSetup(object):
         Pass the disk file name and the device node of the boot partition
         as parameters to the call
 
-        :param string diskname: file path name
-        :param string boot_device_node: boot device node name
-        :param string working_directory: directory name
+        :param str diskname: file path name
+        :param str boot_device_node: boot device node name
+        :param str working_directory: directory name
         """
         self._call_script_no_chroot(
             name='edit_boot_install.sh',
@@ -549,6 +539,8 @@ class SystemSetup(object):
         Also lookup for an optional fstab.append file which allows
         to append custom fstab entries to the final fstab. Once
         embedded the fstab.append file will be deleted
+
+        :param list entries: list of line entries for fstab
         """
         fstab_file = self.root_dir + '/etc/fstab'
         fstab_append_file = self.root_dir + '/etc/fstab.append'

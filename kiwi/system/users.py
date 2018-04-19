@@ -20,12 +20,9 @@ from kiwi.command import Command
 
 class Users(object):
     """
-    Operations on users and groups in a root directory
+    **Operations on users and groups in a root directory**
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
+    :param str root_dir: root directory path name
     """
     def __init__(self, root_dir):
         self.root_dir = root_dir
@@ -34,7 +31,7 @@ class Users(object):
         """
         Check if user exists
 
-        :param string user_name: user name
+        :param str user_name: user name
 
         :rtype: bool
         """
@@ -44,7 +41,9 @@ class Users(object):
         """
         Check if group exists
 
-        :param string group_name: group name
+        :param str group_name: group name
+
+        :return: True or False
 
         :rtype: bool
         """
@@ -54,7 +53,7 @@ class Users(object):
         """
         Add group with options
 
-        :param string group_name: group name
+        :param str group_name: group name
         :param list options: groupadd options
         """
         Command.run(
@@ -65,7 +64,7 @@ class Users(object):
         """
         Add user with options
 
-        :param string user_name: user name
+        :param str user_name: user name
         :param list options: useradd options
         """
         Command.run(
@@ -76,7 +75,7 @@ class Users(object):
         """
         Modify user with options
 
-        :param string user_name: user name
+        :param str user_name: user name
         :param list options: usermod options
         """
         Command.run(
@@ -87,9 +86,9 @@ class Users(object):
         """
         Setup user home directory
 
-        :param string user_name: user name
-        :param string group_name: group name
-        :param string home_path: path name
+        :param str user_name: user name
+        :param str group_name: group name
+        :param str home_path: path name
         """
         user_and_group = user_name + ':' + group_name
         Command.run(

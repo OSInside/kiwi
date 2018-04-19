@@ -22,12 +22,9 @@ from kiwi.defaults import Defaults
 
 class SystemSize(object):
     """
-    Provide source tree size information
+    **Provide source tree size information**
 
-    Attributes
-
-    * :attr:`source_dir`
-        source directory path name
+    :param str source_dir: source directory path name
     """
     def __init__(self, source_dir):
         self.source_dir = source_dir
@@ -44,9 +41,10 @@ class SystemSize(object):
         of the customized size
 
         :param int size: mbsize to update
-        :param string requested_filesystem: filesystem name
+        :param str requested_filesystem: filesystem name
 
         :return: mbytes
+
         :rtype: int
         """
         if requested_filesystem:
@@ -70,6 +68,7 @@ class SystemSize(object):
         :param list exclude: list of paths to exclude
 
         :return: mbytes
+
         :rtype: int
         """
         exclude_options = []
@@ -91,6 +90,7 @@ class SystemSize(object):
         Calculate sum of all files in the source tree
 
         :return: number of files
+
         :rtype: int
         """
         bash_comand = [

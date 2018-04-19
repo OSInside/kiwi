@@ -34,31 +34,17 @@ from kiwi.exceptions import (
 
 class RootBind(object):
     """
-    Implements binding/copying of host system paths
-    into the new root directory
+    **Implements binding/copying of host system paths
+    into the new root directory**
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`cleanup_files`
-        list of files to cleanup, delete
-
-    * :attr:`mount_stack`
-        list of mounted directories for cleanup
-
-    * :attr:`dir_stack`
-        list of directories for cleanup
-
-    * :attr:`config_files`
-        list of initial config files
-
-    * :attr:`bind_locations`
-        list of kernel filesystems to bind mount
-
-    * :attr:`shared_location`
-        shared directory between image root and build system root
+    :param str root_dir: root directory path name
+    :param list cleanup_files: list of files to cleanup, delete
+    :param list mount_stack: list of mounted directories for cleanup
+    :param list dir_stack: list of directories for cleanup
+    :param list config_files: list of initial config files
+    :param list bind_locations: list of kernel filesystems to bind mount
+    :param str shared_location: shared directory between image root and
+        build system root
     """
     def __init__(self, root_init):
         self.root_dir = root_init.root_dir
@@ -85,6 +71,9 @@ class RootBind(object):
     def mount_kernel_file_systems(self):
         """
         Bind mount kernel filesystems
+
+        :raises KiwiMountKernelFileSystemsError: if some kernel filesystem
+            fails to mount
         """
         try:
             for location in self.bind_locations:
@@ -114,6 +103,11 @@ class RootBind(object):
         is used for the repository setup and the package manager
         cache to allow chroot operations without being forced to
         duplicate this data
+
+        :param str host_dir: directory to share between image root and build
+            system root
+
+        :raises KiwiMountSharedDirectoryError: if mount fails
         """
         if not host_dir:
             host_dir = self.shared_location
@@ -141,6 +135,9 @@ class RootBind(object):
         allow e.g DNS resolution in the way as it is configured on the
         buildsystem host. These config files only exists during the image
         build process and are not part of the final image
+
+        :raises KiwiSetupIntermediateConfigError: if the management of
+            intermediate configuration files fails
         """
         try:
             for config in self.config_files:
@@ -166,6 +163,7 @@ class RootBind(object):
         :param list elements: list of path names
 
         :return: changed elements
+
         :rtype: list
         """
         result = []
