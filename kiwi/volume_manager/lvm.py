@@ -31,7 +31,7 @@ from kiwi.exceptions import (
 
 class VolumeManagerLVM(VolumeManagerBase):
     """
-    Implements LVM volume management
+    **Implements LVM volume management**
     """
     def post_init(self, custom_args):
         """
@@ -62,6 +62,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         Note: The mapping requires an explicit create_volumes() call
 
         :return: root plus volume device map
+
         :rtype: dict
         """
         device_map = {}
@@ -83,7 +84,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         In case of LVM a new volume group is created on a PV
         initialized storage device
 
-        :param string name: volume group name
+        :param str name: volume group name
         """
         self.setup_mountpoint()
 
@@ -109,7 +110,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         All volumes receive the same filesystem
 
-        :param string filesystem_name: volumes filesystem name
+        :param str filesystem_name: volumes filesystem name
         """
         log.info(
             'Creating volumes(%s)', filesystem_name
@@ -177,8 +178,10 @@ class VolumeManagerLVM(VolumeManagerBase):
         Implements creation of the fstab entries. The method
         returns a list of fstab compatible entries
 
-        :param string persistency_type: unused
-        :param string filesystem_name: volumes filesystem name
+        :param str persistency_type: unused
+        :param str filesystem_name: volumes filesystem name
+
+        :return: fstab entries
 
         :rtype: list
         """
@@ -201,6 +204,8 @@ class VolumeManagerLVM(VolumeManagerBase):
     def get_volumes(self):
         """
         Return dict of volumes
+
+        :return: volumes dictionary
 
         :rtype: dict
         """
@@ -228,6 +233,10 @@ class VolumeManagerLVM(VolumeManagerBase):
     def umount_volumes(self):
         """
         Umount lvm volumes
+
+        :return: True if all subvolumes are successfully unmounted
+
+        :rtype: bool
         """
         all_volumes_umounted = True
         for volume_mount in reversed(self.mount_list):

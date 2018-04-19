@@ -40,20 +40,15 @@ from kiwi.exceptions import (
 class VolumeManagerBtrfs(VolumeManagerBase):
     """
     Implements btrfs sub-volume management
+
+    :param list subvol_mount_list: list of mounted btrfs subvolumes
+    :param object toplevel_mount: :class:`MountManager` for root mountpoint
     """
     def post_init(self, custom_args):
         """
         Post initialization method
 
         Store custom btrfs initialization arguments
-
-        Attributes
-
-        * :attr:`subvol_mount_list`
-            list of mounted btrfs subvolumes
-
-        * :attr:`toplevel_mount`
-            MountManager for root mountpoint
 
         :param list custom_args: custom btrfs volume manager arguments
         """
@@ -183,6 +178,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         :param string persistency_type: by-label | by-uuid
         :param string filesystem_name: unused
 
+        :return: list of fstab entries
+
         :rtype: list
         """
         fstab_entries = []
@@ -215,6 +212,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
     def get_volumes(self):
         """
         Return dict of volumes
+
+        :return: volumes dictionary
 
         :rtype: dict
         """
@@ -263,6 +262,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
     def umount_volumes(self):
         """
         Umount btrfs subvolumes
+
+        :return: True if all subvolumes are successfully unmounted
+
+        :rtype: bool
         """
         all_volumes_umounted = True
         for volume_mount in reversed(self.subvol_mount_list):
@@ -283,6 +286,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         If snapshots are activated the root filesystem is synced
         into the first snapshot
+
+        :param list exclude: files to exclude from sync
         """
         if self.toplevel_mount:
             sync_target = self.mountpoint + '/@'
@@ -298,6 +303,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
 
     def set_property_readonly_root(self):
+        """
+        Sets the root volume to be a readonly filesystem
+        """
         root_is_snapshot = \
             self.custom_args['root_is_snapshot']
         root_is_readonly_snapshot = \
