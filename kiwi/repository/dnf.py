@@ -28,7 +28,13 @@ from kiwi.command import Command
 
 class RepositoryDnf(RepositoryBase):
     """
-    Implements repository handling for dnf package manager
+    **Implements repository handling for dnf package manager**
+
+    :param str shared_dnf_dir: shared directory between image root
+        and build system root
+    :param str runtime_dnf_config_file: dnf runtime config file name
+    :param dict command_env: customized os.environ for dnf
+    :param str runtime_dnf_config: instance of :class:`ConfigParser`
     """
     def post_init(self, custom_args=None):
         """
@@ -36,20 +42,6 @@ class RepositoryDnf(RepositoryBase):
 
         Store custom dnf arguments and create runtime configuration
         and environment
-
-        Attributes
-
-        * :attr:`shared_dnf_dir`
-            shared directory between image root and build system root
-
-        * :attr:`runtime_dnf_config_file`
-            dnf runtime config file name
-
-        * :attr:`command_env`
-            customized os.environ for dnf
-
-        * :attr:`runtime_dnf_config`
-            Instance of ConfigParser
 
         :param list custom_args: dnf arguments
         """
@@ -117,6 +109,10 @@ class RepositoryDnf(RepositoryBase):
     def runtime_config(self):
         """
         dnf runtime configuration and environment
+
+        :return: dnf_args:list, command_env:dict
+
+        :rtype: dict
         """
         return {
             'dnf_args': self.dnf_args,
@@ -132,8 +128,8 @@ class RepositoryDnf(RepositoryBase):
         """
         Add dnf repository
 
-        :param string name: repository base file name
-        :param string uri: repository URI
+        :param str name: repository base file name
+        :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: dnf repostory priority
         :param dist: unused
@@ -185,7 +181,7 @@ class RepositoryDnf(RepositoryBase):
         """
         Delete dnf repository
 
-        :param string name: repository base file name
+        :param str name: repository base file name
         """
         Path.wipe(
             self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
@@ -208,7 +204,7 @@ class RepositoryDnf(RepositoryBase):
         the repository name followed by any characters to cleanup
         the cache information
 
-        :param string name: repository name
+        :param str name: repository name
         """
         dnf_cache_glob_pattern = ''.join(
             [self.shared_dnf_dir['cache-dir'], os.sep, name, '*']

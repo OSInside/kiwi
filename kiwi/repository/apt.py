@@ -27,7 +27,14 @@ from kiwi.path import Path
 
 class RepositoryApt(RepositoryBase):
     """
-    Implements repository handling for apt-get package manager
+    **Implements repository handling for apt-get package manager**
+
+    :param str shared_apt_get_dir: shared directory between image root and build system root
+    :param str runtime_apt_get_config_file: apt-get runtime config file name
+    :param list apt_get_args: apt-get caller arguments
+    :param dict command_env: customized os.environ for apt-get
+    :param manager_base: shared location for apt-get repodata between
+        host and image
     """
     def post_init(self, custom_args=None):
         """
@@ -35,23 +42,6 @@ class RepositoryApt(RepositoryBase):
 
         Store custom apt-get arguments and create runtime configuration
         and environment
-
-        Attributes
-
-        * :attr:`shared_apt_get_dir`
-            shared directory between image root and build system root
-
-        * :attr:`runtime_apt_get_config_file`
-            apt-get runtime config file name
-
-        * :attr:`apt_get_args`
-            apt-get caller arguments
-
-        * :attr:`command_env`
-            customized os.environ for apt-get
-
-        * :attr:`manager_base`
-            shared location for apt-get repodata between host and image
 
         :param list custom_args: apt-get arguments
         """
@@ -134,8 +124,8 @@ class RepositoryApt(RepositoryBase):
         """
         Add apt_get repository
 
-        :param string name: repository base file name
-        :param string uri: repository URI
+        :param str name: repository base file name
+        :param str uri: repository URI
         :param repo_type: unused
         :param int prio: unused
         :param dist: distribution name for non flat deb repos
@@ -212,7 +202,7 @@ class RepositoryApt(RepositoryBase):
         """
         Delete apt-get repository
 
-        :param string name: repository base file name
+        :param str name: repository base file name
         """
         Path.wipe(
             self.shared_apt_get_dir['sources-dir'] + '/' + name + '.list'
@@ -235,7 +225,7 @@ class RepositoryApt(RepositoryBase):
         repository. Thus the repo cache cleanup affects all cache
         data
 
-        :param string name: unused
+        :param str name: unused
         """
         for cache_file in ['archives', 'pkgcache.bin', 'srcpkgcache.bin']:
             Path.wipe(os.sep.join([self.manager_base, cache_file]))

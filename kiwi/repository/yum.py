@@ -28,7 +28,13 @@ from kiwi.path import Path
 
 class RepositoryYum(RepositoryBase):
     """
-    Implements repository handling for yum package manager
+    **Implements repository handling for yum package manager**
+
+    :param str shared_yum_dir: shared directory between image root and
+        build system root
+    :param str runtime_yum_config_file: yum runtime config file name
+    :param dict command_env: customized os.environ for yum
+    :param object runtime_yum_config: instance of :class:`ConfigParser`
     """
     def post_init(self, custom_args=None):
         """
@@ -36,20 +42,6 @@ class RepositoryYum(RepositoryBase):
 
         Store custom yum arguments and create runtime configuration
         and environment
-
-        Attributes
-
-        * :attr:`shared_yum_dir`
-            shared directory between image root and build system root
-
-        * :attr:`runtime_yum_config_file`
-            yum runtime config file name
-
-        * :attr:`command_env`
-            customized os.environ for yum
-
-        * :attr:`runtime_yum_config`
-            Instance of ConfigParser
 
         :param list custom_args: yum arguments
         """
@@ -116,6 +108,10 @@ class RepositoryYum(RepositoryBase):
     def runtime_config(self):
         """
         yum runtime configuration and environment
+
+        :return: yum_args:list, command_env:dict
+
+        :rtype: dict
         """
         return {
             'yum_args': self.yum_args,
@@ -131,8 +127,8 @@ class RepositoryYum(RepositoryBase):
         """
         Add yum repository
 
-        :param string name: repository base file name
-        :param string uri: repository URI
+        :param str name: repository base file name
+        :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: yum repostory priority
         :param dist: unused
@@ -187,7 +183,7 @@ class RepositoryYum(RepositoryBase):
         """
         Delete yum repository
 
-        :param string name: repository base file name
+        :param str name: repository base file name
         """
         Path.wipe(
             self.shared_yum_dir['reposd-dir'] + '/' + name + '.repo'
@@ -208,7 +204,7 @@ class RepositoryYum(RepositoryBase):
         of the same name as the repository name. The method deletes
         this directory to cleanup the cache information
 
-        :param string name: repository name
+        :param str name: repository name
         """
         Path.wipe(
             os.sep.join([self.shared_yum_dir['cache-dir'], name])
