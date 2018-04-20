@@ -83,6 +83,7 @@
     </preferences>
     <preferences profiles="vmxFlavour">
         <type image="vmx" filesystem="ext3" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
+            <size unit="G" unpartitioned="1">4</size>
             <systemdisk name="systemVG"/>
             <machine memory="512" guestOS="suse" HWversion="4">
                 <vmdisk id="0" controller="ide"/>

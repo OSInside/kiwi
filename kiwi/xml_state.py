@@ -705,10 +705,13 @@ class XMLState(object):
         if container_config_sections:
             return container_config_sections[0]
 
-    def get_build_type_size(self):
+    def get_build_type_size(self, include_unpartitioned=False):
         """
         Size information from the build type section.
         If no unit is set the value is treated as mbytes
+
+        :param bool include_unpartitioned: sets if the unpartitioned area
+            should be included in the computed size or not
 
         :return: mbytes
 
@@ -718,7 +721,10 @@ class XMLState(object):
         if size_section:
             unit = size_section[0].get_unit()
             additive = size_section[0].get_additive()
+            unpartitioned = size_section[0].get_unpartitioned()
             value = int(size_section[0].get_valueOf_())
+            if not include_unpartitioned and unpartitioned is not None:
+                value -= unpartitioned
             if unit == 'G':
                 value *= 1024
             size_type = namedtuple(
@@ -727,6 +733,25 @@ class XMLState(object):
             return size_type(
                 mbytes=value, additive=additive
             )
+
+    def get_build_type_unpartitioned_mbytes(self):
+        """
+        Size of the unpartitioned area for image in megabytes
+
+        :return: mbytes
+
+        :rtype: int
+        """
+        size_section = self.build_type.get_size()
+        if size_section:
+            unit = size_section[0].get_unit()
+            unpartitioned = size_section[0].get_unpartitioned()
+            if unpartitioned is None:
+                unpartitioned = 0
+            if unit == 'G':
+                unpartitioned *= 1024
+            return unpartitioned
+        return 0
 
     def get_disk_start_sector(self):
         """

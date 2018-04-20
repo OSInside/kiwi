@@ -780,6 +780,7 @@ class TestDiskBuilder(object):
 
         builder.create_disk.assert_called_once_with()
         builder.create_install_media.assert_called_once_with(result)
+        builder.append_unpartitioned_space.assert_called_once_with()
         builder.create_disk_format.assert_called_once_with(result)
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -796,6 +797,26 @@ class TestDiskBuilder(object):
         self.disk_builder.spare_part_mbsize = 42
         self.disk_builder.create_disk()
         self.disk.create_spare_partition.assert_called_once_with(42)
+
+    @patch('kiwi.builder.disk.LoopDevice')
+    @patch('kiwi.builder.disk.Partitioner')
+    @patch('kiwi.builder.disk.DiskFormat')
+    def test_append_unpartitioned_space(
+        self, mock_diskformat, mock_partitioner, mock_loopdevice
+    ):
+        loopdevice = mock.Mock()
+        mock_loopdevice.return_value = loopdevice
+        partitioner = mock.Mock()
+        mock_partitioner.return_value = partitioner
+        disk_format = mock.Mock()
+        mock_diskformat.return_value = disk_format
+        self.disk_builder.unpartitioned_mbytes = 1024
+        self.disk_builder.append_unpartitioned_space()
+        disk_format.resize_raw_disk.assert_called_once_with(
+            1073741824, append=True
+        )
+        loopdevice.create.assert_called_once_with(overwrite=False)
+        assert partitioner.resize_table.called
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

@@ -33,7 +33,13 @@ class FileSystemSetup(object):
     :param string root_dir: root directory path
     """
     def __init__(self, xml_state, root_dir):
-        self.configured_size = xml_state.get_build_type_size()
+        self.configured_size = xml_state.get_build_type_size(
+            include_unpartitioned=True
+        )
+        if xml_state.get_build_type_unpartitioned_mbytes() > 0:
+            log.warning(
+                'Unpartitoned size attribute is ignored for filesystem images'
+            )
         self.size = SystemSize(root_dir)
         self.requested_image_type = xml_state.get_build_type_name()
         if self.requested_image_type in Defaults.get_filesystem_image_types():

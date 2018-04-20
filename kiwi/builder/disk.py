@@ -45,6 +45,7 @@ from kiwi.system.result import Result
 from kiwi.utils.block import BlockID
 from kiwi.path import Path
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.partitioner import Partitioner
 
 from kiwi.exceptions import (
     KiwiDiskBootImageError,
@@ -101,6 +102,8 @@ class DiskBuilder(object):
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
+        self.unpartitioned_mbytes = \
+            xml_state.get_build_type_unpartitioned_mbytes()
         self.custom_args = custom_args
 
         self.signing_keys = None
@@ -178,6 +181,8 @@ class DiskBuilder(object):
         disk_format = DiskBuilder(
             self.xml_state, self.target_dir, self.root_dir
         )
+
+        disk_format.append_unpartitioned_space()
         result = disk_format.create_disk_format(result)
 
         return result
@@ -460,6 +465,29 @@ class DiskBuilder(object):
             disk_format.store_to_result(result_instance)
 
         return result_instance
+
+    def append_unpartitioned_space(self):
+        """
+        Extends the raw disk if an unpartitioned area is specified
+        """
+        if self.unpartitioned_mbytes:
+            log.info(
+                'Expanding disk with %d MB of unpartitioned space',
+                self.unpartitioned_mbytes
+            )
+            disk_format = DiskFormat(
+                'raw', self.xml_state, self.root_dir, self.target_dir
+            )
+            disk_format.resize_raw_disk(
+                self.unpartitioned_mbytes * 1024 * 1024, append=True
+            )
+            firmware = FirmWare(self.xml_state)
+            loop_provider = LoopDevice(disk_format.diskname)
+            loop_provider.create(overwrite=False)
+            partitioner = Partitioner(
+                firmware.get_partition_table_type(), loop_provider
+            )
+            partitioner.resize_table()
 
     def create_install_media(self, result_instance):
         """

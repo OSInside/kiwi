@@ -20,9 +20,19 @@ class TestFileSystemSetup(object):
         self.xml_state.get_build_type_name = mock.Mock(
             return_value='ext4'
         )
+        self.xml_state.get_build_type_unpartitioned_mbytes = mock.Mock(
+            return_value=0
+        )
         self.setup = FileSystemSetup(
             self.xml_state, 'root_dir'
         )
+
+    @patch('kiwi.logger.log.warning')
+    def test_init_with_unpartitioned(self, mock_warn):
+        self.xml_state.get_build_type_unpartitioned_mbytes = mock.Mock(
+            return_value=1024
+        )
+        FileSystemSetup(self.xml_state, 'root_dir')
 
     def test_setup_with_pxe_type(self):
         self.xml_state.get_build_type_name = mock.Mock(

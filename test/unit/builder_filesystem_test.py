@@ -26,6 +26,9 @@ class TestFileSystemBuilder(object):
         self.filesystem.sync_data = mock.Mock()
 
         self.xml_state = mock.Mock()
+        self.xml_state.get_build_type_unpartitioned_mbytes = mock.Mock(
+            return_value=0
+        )
         self.xml_state.get_fs_mount_option_list = mock.Mock(
             return_value='async'
         )
