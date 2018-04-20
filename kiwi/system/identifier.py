@@ -21,13 +21,11 @@ import struct
 
 class SystemIdentifier(object):
     """
-    Create a random ID to identify the system. The information
-    is used to create the mbrid file as an example
+    **Create a random ID to identify the system**
 
-    Attributes
+    The information is used to create the mbrid file as an example
 
-    * :attr:`image_id`
-        Hex identifier string
+    :param str image_id: hex identifier string
     """
     def __init__(self):
         self.image_id = None
@@ -37,6 +35,7 @@ class SystemIdentifier(object):
         Current hex identifier
 
         :return: hex id
+
         :rtype: str
         """
         return self.image_id
@@ -55,7 +54,7 @@ class SystemIdentifier(object):
         """
         Write current hex identifier to file
 
-        :param string filename: file path name
+        :param str filename: file path name
         """
         with open(filename, 'w') as identifier:
             identifier.write('%s\n' % self.image_id)

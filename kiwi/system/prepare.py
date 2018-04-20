@@ -42,19 +42,10 @@ class SystemPrepare(object):
     """
     Implements preparation and installation of a new root system
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`profiles`
-        list of configured profiles
-
-    * :attr:`root_bind`
-        Instance of RootBind
-
-    * :attr:`uri_list`
-        A list of Uri references
+    :param object xml_state: instance of :class:`XMLState`
+    :param list profiles: list of configured profiles
+    :param object root_bind: instance of :class:`RootBind`
+    :param list uri_list: a list of Uri references
     """
     def __init__(
         self, xml_state, root_dir, allow_existing=False
@@ -95,7 +86,12 @@ class SystemPrepare(object):
         Set up repositories for software installation and return a
         package manager for performing software installation tasks
 
-        :return: Instance of PackageManager
+        :param bool clear_cache: flag the clear cache before configure
+            anything
+        :param list signing_keys: keys imported to the package manager
+
+        :return: instance of :class:`PackageManager`
+
         :rtype: PackageManager
         """
         repository_options = []
@@ -164,6 +160,11 @@ class SystemPrepare(object):
         """
         Install system software using the package manager
         from the host, also known as bootstrapping
+
+        :param object manager: instance of a :class:`PackageManager` subclass
+
+        :raises KiwiBootStrapPhaseFailed: if the bootstrapping process fails
+            either installing packages or including bootstrap archives
         """
         if not self.xml_state.get_bootstrap_packages_sections():
             log.warning('No <packages> sections marked as "bootstrap" found')
@@ -220,7 +221,10 @@ class SystemPrepare(object):
         and requires the desired package manager to became installed
         via the bootstrap phase
 
-        :param object manager: PackageManager
+        :param object manager: instance of a :class:`PackageManager` subclass
+
+        :raises KiwiInstallPhaseFailed: if the install process fails
+            either installing packages or including any archive
         """
         log.info(
             'Installing system (chroot) for build type: %s',
@@ -273,8 +277,10 @@ class SystemPrepare(object):
         """
         Delete packages marked for deletion in the XML description
 
-        :param object manager: PackageManager
+        :param object manager: instance of a :class:`PackageManager` subclass
         :param bool force: force deletion true|false
+
+        :raises KiwiInstallPhaseFailed: if the deletion packages process fails
         """
         to_become_deleted_packages = \
             self.xml_state.get_to_become_deleted_packages()
@@ -292,8 +298,10 @@ class SystemPrepare(object):
         Install one or more packages using the package manager inside
         of the new root directory
 
-        :param object manager: PackageManager
+        :param object manager: instance of a :class:`PackageManager` subclass
         :param list packages: package list
+
+        :raises KiwiSystemInstallPackagesFailed: if installation process fails
         """
         log.info('Installing system packages (chroot)')
         all_install_items = self._setup_requests(
@@ -320,9 +328,11 @@ class SystemPrepare(object):
         Delete one or more packages using the package manager inside
         of the new root directory
 
-        :param object manager: PackageManager
+        :param object manager: instance of a :class:`PackageManager` subclass
         :param list packages: package list
         :param bool force: force deletion true|false
+
+        :raises KiwiSystemDeletePackagesFailed: if installation process fails
         """
         log.info('Deleting system packages (chroot)')
         all_delete_items = self._setup_requests(
@@ -351,7 +361,9 @@ class SystemPrepare(object):
         the process uses the package manager from inside of the
         new root directory
 
-        :param object manager: PackageManager
+        :param object manager: instance of a :class:`PackageManager` subclass
+
+        :raises KiwiSystemUpdateFailed: if packages update fails
         """
         log.info('Update system (chroot)')
         process = CommandProcess(

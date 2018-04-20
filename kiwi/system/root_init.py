@@ -36,14 +36,12 @@ from kiwi.exceptions import (
 
 class RootInit(object):
     """
-    Implements creation of new root directory for a linux system.
+    **Implements creation of new root directory for a linux system**
+
     Host system independent static default files and device nodes
     are created to initialize a new base system
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
+    :param str root_dir: root directory path name
     """
     def __init__(self, root_dir, allow_existing=False):
         if not allow_existing and os.path.exists(root_dir):
@@ -73,6 +71,9 @@ class RootInit(object):
         synced to the specified root_dir and the temporary location
         will be deleted. That way we never work on an incomplete
         initial setup
+
+        :raises KiwiRootInitCreationError: if the init creation fails
+            at some point
         """
         root = mkdtemp(prefix='kiwi_root.')
         Path.create(self.root_dir)
@@ -111,6 +112,8 @@ class RootInit(object):
     def _create_device_nodes(self, root):
         """
         Create minimum set of device nodes for a new root system
+
+        :param str root: path to the new root
         """
         mknod_data = [
             (0o666, 'dev/null', stat.S_IFCHR, (1, 3)),
@@ -134,6 +137,8 @@ class RootInit(object):
         """
         Create minimum collection of directories in the new
         root system required for kiwi to operate
+
+        :param str root: path to the new root
         """
         base_system_paths = (
             Defaults.get_shared_cache_location(),
@@ -157,6 +162,8 @@ class RootInit(object):
         Create minimum collection of file handle and runtime
         links which needs to be present prior to any package
         installation
+
+        :param str root: path to the new root
         """
         base_system_links = (
             ('/proc/self/fd', '%s/dev/fd'),

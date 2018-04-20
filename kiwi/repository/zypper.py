@@ -31,7 +31,15 @@ from kiwi.exceptions import (
 
 class RepositoryZypper(RepositoryBase):
     """
-    Implements repo handling for zypper package manager
+    **Implements repo handling for zypper package manager**
+
+    :param str shared_zypper_dir: shared directory between image root
+        and build system root
+    :param str runtime_zypper_config_file: zypper runtime config file name
+    :param str runtime_zypp_config_file: libzypp runtime config file name
+    :param list zypper_args: zypper caller args plus additional custom args
+    :param dict command_env: customized os.environ for zypper
+    :param object runtime_zypper_config: instance of :class:`ConfigParser`
     """
     def post_init(self, custom_args=None):
         """
@@ -39,26 +47,6 @@ class RepositoryZypper(RepositoryBase):
 
         Store custom zypper arguments and create runtime configuration
         and environment
-
-        Attributes
-
-        * :attr:`shared_zypper_dir`
-            shared directory between image root and build system root
-
-        * :attr:`runtime_zypper_config_file`
-            zypper runtime config file name
-
-        * :attr:`runtime_zypp_config_file`
-            libzypp runtime config file name
-
-        * :attr:`zypper_args`
-            zypper caller args plus additional custom args
-
-        * :attr:`command_env`
-            customized os.environ for zypper
-
-        * :attr:`runtime_zypper_config`
-            Instance of ConfigParser
 
         :param list custom_args: zypper arguments
         """
@@ -186,8 +174,8 @@ class RepositoryZypper(RepositoryBase):
         """
         Add zypper repository
 
-        :param string name: repository name
-        :param string uri: repository URI
+        :param str name: repository name
+        :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: zypper repostory priority
         :param dist: unused
@@ -269,7 +257,7 @@ class RepositoryZypper(RepositoryBase):
         """
         Delete zypper repository
 
-        :param string name: repository name
+        :param str name: repository name
         """
         Command.run(
             ['zypper'] + self.zypper_args + [
@@ -293,7 +281,7 @@ class RepositoryZypper(RepositoryBase):
         directories of the same name as the repository name. The method
         deletes these directories to cleanup the cache information
 
-        :param string name: repository name
+        :param str name: repository name
         """
         Path.wipe(
             os.sep.join([self.shared_zypper_dir['pkg-cache-dir'], name])

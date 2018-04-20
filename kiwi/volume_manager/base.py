@@ -37,42 +37,24 @@ from kiwi.exceptions import (
 
 class VolumeManagerBase(DeviceProvider):
     """
-    Implements base class for volume management interface
+    **Implements base class for volume management interface**
 
-    Attributes
+    :param str mountpoint: root mountpoint for volumes
+    :param object device_provider: instance of a :class:`DeviceProvider`
+        subclass
+    :param str root_dir: root directory path name
+    :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
+    :param str volume_group: volume group name
+    :param map volume_map: map volume name to device node
+    :param list mount_list: list of volume MountManager's
+    :param str device: storage device node name
+    :param dict custom_args: custom volume manager arguments for all
+        volume manager and filesystem specific tasks
+    :param list custom_filesystem_args: custom filesystem creation and mount
+        arguments, subset of the custom_args information suitable to
+        be passed to a FileSystem instance
 
-    * :attr:`mountpoint`
-        root mountpoint for volumes
-
-    * :attr:`device_provider`
-        Instance of class based on DeviceProvider
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`volumes`
-        list of volumes from XMLState::get_volumes()
-
-    * :attr:`volume_group`
-        volume group name
-
-    * :attr:`volume_map`
-        map volume name to device node
-
-    * :attr:`mount_list`
-        list of volume MountManager's
-
-    * :attr:`device`
-        storage device node name
-
-    * :attr:`custom_args`
-        custom volume manager arguments for all volume manager
-        and filesystem specific tasks
-
-    * :attr:`custom_filesystem_args`
-        custom filesystem creation and mount arguments, subset
-        of the custom_args information suitable to be passed
-        to a FileSystem instance
+    :raises KiwiVolumeManagerSetupError: if the given root_dir doesn't exist
     """
     def __init__(self, device_provider, root_dir, volumes, custom_args=None):
         # all volumes are combined into one mountpoint. This is
@@ -134,7 +116,7 @@ class VolumeManagerBase(DeviceProvider):
 
         Implementation in specialized volume manager class required
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError
 
@@ -144,7 +126,7 @@ class VolumeManagerBase(DeviceProvider):
 
         Implementation in specialized volume manager class required
 
-        :param string filesystem_name: unused
+        :param str filesystem_name: unused
         """
         raise NotImplementedError
 
@@ -166,10 +148,8 @@ class VolumeManagerBase(DeviceProvider):
         Implements setup of the fstab entries. The method should
         return a list of fstab compatible entries
 
-        :param string persistency_type: unused
-        :param string filesystem_name: unused
-
-        :rtype: list
+        :param str persistency_type: unused
+        :param str filesystem_name: unused
         """
         raise NotImplementedError
 
@@ -177,8 +157,6 @@ class VolumeManagerBase(DeviceProvider):
         """
         Implements return of dictionary of volumes and
         their mount options
-
-        :rtype: dict
         """
         raise NotImplementedError
 
@@ -205,6 +183,8 @@ class VolumeManagerBase(DeviceProvider):
         The information is taken from the storage provider. If
         the storage provider is loop based the volume manager is it too
 
+        :return: True of False
+
         :rtype: bool
         """
         return self.device_provider.is_loop()
@@ -214,6 +194,7 @@ class VolumeManagerBase(DeviceProvider):
         Dictionary with instance of MappedDevice for the root device node
 
         :return: root device map
+
         :rtype: dict
         """
         return {
@@ -245,6 +226,7 @@ class VolumeManagerBase(DeviceProvider):
         the one eating all the rest space
 
         :return: list of canonical_volume_type tuples
+
         :rtype: list
         """
         canonical_volume_type = namedtuple(
@@ -276,10 +258,11 @@ class VolumeManagerBase(DeviceProvider):
 
         :param tuple volume: volume to check size for
         :param list all_volumes: list of all volume tuples
-        :param string filesystem_name: filesystem name
+        :param str filesystem_name: filesystem name
         :param image_type: build type name
 
         :return: mbsize
+
         :rtype: int
         """
         [size_type, mbsize] = volume.size.split(':')

@@ -42,24 +42,13 @@ from kiwi.exceptions import (
 
 class InstallImageBuilder(object):
     """
-    Installation image builder
+    **Installation image builder**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`root_dir`
-        systemi image root directory
-
-    * :attr:`target_dir`
-        target directory path name
-
-    * :attr:`boot_image_task`
-        Instance of BootImage
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
+    :param object xml_state: instance of :class:`XMLState`
+    :param str root_dir: system image root directory
+    :param str target_dir: target directory path name
+    :param object boot_image_task: instance of :class:`BootImage`
+    :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
     def __init__(

@@ -19,28 +19,15 @@
 
 class PackageManagerBase(object):
     """
-    Implements base class for installation/deletion of
-    packages and collections using a package manager
+    **Implements base class for installation/deletion of
+    packages and collections using a package manager**
 
-    Attributes
-
-    * :attr:`repository`
-        Instance of Repository
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`root_bind`
-        Instance of RootBind
-
-    * :attr:`package_requests`
-        list of packages to install or delete
-
-    * :attr:`collection_requests`
-        list of collections to install
-
-    * :attr:`product_requests`
-        list of products to install
+    :param object repository: instance of :class:`Repository`
+    :param str root_dir: root directory path name
+    :param object root_bind: instance of :class:`RootBind`
+    :param list package_requests: list of packages to install or delete
+    :param list collection_requests: list of collections to install
+    :param list product_requests: list of products to install
     """
     def __init__(self, repository, custom_args=None):
         self.repository = repository
@@ -69,7 +56,7 @@ class PackageManagerBase(object):
 
         Implementation in specialized package manager class
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError
 
@@ -79,7 +66,7 @@ class PackageManagerBase(object):
 
         Implementation in specialized package manager class
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError
 
@@ -89,7 +76,7 @@ class PackageManagerBase(object):
 
         Implementation in specialized package manager class
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError
 
@@ -108,7 +95,7 @@ class PackageManagerBase(object):
 
         Implementation in specialized package manager class
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError
 
@@ -169,7 +156,7 @@ class PackageManagerBase(object):
         Implementation in specialized package manager class
 
         :param list package_list: unused
-        :param string log_line: unused
+        :param str log_line: unused
         """
         raise NotImplementedError
 
@@ -180,7 +167,7 @@ class PackageManagerBase(object):
         Implementation in specialized package manager class
 
         :param list package_list: unused
-        :param string log_line: unused
+        :param str log_line: unused
         """
         raise NotImplementedError
 
@@ -199,7 +186,7 @@ class PackageManagerBase(object):
 
         Implementation in specialized package manager class
 
-        :param string version: unused
+        :param str version: unused
         """
         raise NotImplementedError
 

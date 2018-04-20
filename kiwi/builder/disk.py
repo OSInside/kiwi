@@ -55,21 +55,12 @@ from kiwi.exceptions import (
 
 class DiskBuilder(object):
     """
-    Disk image builder
+    **Disk image builder**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`target_dir`
-        Target directory path name
-
-    * :attr:`root_dir`
-        Root directory path name
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
+    :param object xml_state: Instance of :class:`XMLState`
+    :param str target_dir: Target directory path name
+    :param str root_dir: Root directory path name
+    :param dict custom_args: Custom processing arguments defined as hash keys:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
@@ -166,6 +157,10 @@ class DiskBuilder(object):
 
         * image="oem"
         * image="vmx"
+
+        :return: result
+
+        :rtype: instance of :class:`Result`
         """
         disk = DiskBuilder(
             self.xml_state, self.target_dir, self.root_dir, self.custom_args
@@ -190,6 +185,14 @@ class DiskBuilder(object):
     def create_disk(self):
         """
         Build a bootable raw disk image
+
+        :raises KiwiInstallMediaError: if install media is required and image
+        type is not oem
+        :raises KiwiVolumeManagerSetupError: root overlay at the same time
+        volumes are defined is not supported
+        :return: result
+
+        :rtype: instance of :class:`Result`
         """
         if self.install_media and self.build_type_name != 'oem':
             raise KiwiInstallMediaError(
@@ -440,6 +443,12 @@ class DiskBuilder(object):
         """
         Create a bootable disk format from a previously
         created raw disk image
+
+        :param object result_instance: instance of :class:`Result`
+
+        :return: updated result_instance
+
+        :rtype: instance of :class:`Result`
         """
         if self.image_format:
             log.info('Creating %s Disk Format', self.image_format)
@@ -457,6 +466,12 @@ class DiskBuilder(object):
         Build an installation image. The installation image is a
         bootable hybrid ISO image which embeds the raw disk image
         and an image installer
+
+        :param object result_instance: instance of :class:`Result`
+
+        :return: updated result_instance with installation media
+
+        :rtype: instance of :class:`Result`
         """
         if self.install_media:
             install_image = InstallImageBuilder(

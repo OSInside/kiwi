@@ -47,22 +47,12 @@ from kiwi.exceptions import (
 
 class LiveImageBuilder(object):
     """
-    Live image builder
+    **Live image builder**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`target_dir`
-        target directory path name
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
-        * signing_keys: list of package signing keys
+    :param object xml_state: instance of :class:`XMLState`
+    :param str target_dir: target directory path name
+    :param str root_dir: root directory path name
+    :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
@@ -116,6 +106,12 @@ class LiveImageBuilder(object):
         Image types which triggers this builder are:
 
         * image="iso"
+
+        :raises KiwiLiveBootImageError: if no kernel or hipervisor is found
+            in boot image tree
+        :return: result
+
+        :rtype: instance of :class:`Result`
         """
         # media dir to store CD contents
         self.media_dir = mkdtemp(

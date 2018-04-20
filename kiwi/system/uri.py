@@ -37,30 +37,16 @@ from kiwi.exceptions import (
 
 class Uri(object):
     """
-    Normalize url types available in a kiwi configuration into
-    standard mime types.
+    **Normalize url types available in a kiwi configuration into
+    standard mime types**
 
-    Attributes
-
-    * :attr:`repo_type`
-        Repository type name. Only needed if the uri
+    :param str repo_type: repository type name. Only needed if the uri
         is not enough to determine the repository type
         e.g for yast2 vs. rpm-md obs repositories
-
-    * :attr:`uri`
-        URI, repository location, file
-
-    * :attr:`repo_type`
-        repository type name, rpm-dir, rpm-md, yast2, container
-
-    * :attr:`mount_stack`
-        list of mounted locations
-
-    * :attr:`remote_uri_types`
-        dictionary of remote uri type names
-
-    * :attr:`local_uri_type`
-        dictionary of local uri type names
+    :param str uri: URI, repository location, file
+    :param list mount_stack: list of mounted locations
+    :param dict remote_uri_types: dictionary of remote uri type names
+    :param dict local_uri_type: dictionary of local uri type names
     """
     def __init__(self, uri, repo_type=None):
         self.runtime_config = RuntimeConfig()
@@ -90,12 +76,12 @@ class Uri(object):
         by the service URL in case of an open buildservice project
         name
 
-        :param bool check_build_environment:
-
-            specify if the uri translation should depend on the
-            environment the build is called in. As of today this only
-            effects the translation result if the image build happens
-            inside of the Open Build Service
+        :raises KiwiUriStyleUnknown: if the uri scheme can't be detected, is
+            unknown or it is inconsistent with the build environment
+        :param bool check_build_environment: specify if the uri translation
+            should depend on the environment the build is called in. As of
+            today this only effects the translation result if the image
+            build happens inside of the Open Build Service
 
         :rtype: str
         """
@@ -143,6 +129,10 @@ class Uri(object):
     def credentials_file_name(self):
         """
         Filename to store repository credentials
+
+        :return: credentials file name
+
+        :rtype: str
         """
         uri = urlparse(self.uri)
         # initialize query with default credentials file name.
@@ -165,6 +155,7 @@ class Uri(object):
         configuration
 
         :return: alias name as hexdigest
+
         :rtype: str
         """
         return hashlib.md5(self.uri.encode()).hexdigest()
@@ -172,6 +163,8 @@ class Uri(object):
     def is_remote(self):
         """
         Check if URI is a remote or local location
+
+        :return: True or False
 
         :rtype: bool
         """
@@ -195,6 +188,8 @@ class Uri(object):
         """
         Check if URI is considered to be publicly reachable
 
+        :return: True or False
+
         :rtype: bool
         """
         uri = urlparse(self.uri)
@@ -214,6 +209,10 @@ class Uri(object):
     def get_fragment(self):
         """
         Returns the fragment part of the URI.
+
+        :return: fragment part of the URI if any, None otherwise
+
+        :rtype: str, None
         """
         uri = urlparse(self.uri)
         return uri.fragment

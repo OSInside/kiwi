@@ -38,21 +38,12 @@ from kiwi.exceptions import (
 
 class PxeBuilder(object):
     """
-    Filesystem based PXE image builder.
+    **Filesystem based PXE image builder.**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`target_dir`
-        Target directory path name
-
-    * :attr:`root_dir`
-        System image root directory
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
+    :param object xml_state: instance of :class:`XMLState`
+    :param str target_dir: target directory path name
+    :param str root_dir: system image root directory
+    :param dict custom_args: Custom processing arguments defined as hash keys:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
@@ -102,6 +93,12 @@ class PxeBuilder(object):
         Image types which triggers this builder are:
 
         * image="pxe"
+
+        :raises KiwiPxeBootImageError: if no kernel or hipervisor is found
+            in boot image tree
+        :return: result
+
+        :rtype: instance of :class:`Result`
         """
         log.info('Creating PXE root filesystem image')
         self.filesystem.create()

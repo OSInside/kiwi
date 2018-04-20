@@ -26,15 +26,10 @@ from kiwi.exceptions import KiwiKernelLookupError
 
 class Kernel(object):
     """
-    Implementes kernel lookup and extraction from given root tree
+    **Implementes kernel lookup and extraction from given root tree**
 
-    Attributes
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`kernel_names`
-        list of kernel names to search for
+    :param str root_dir: root directory path name
+    :param list kernel_names: list of kernel names to search for
         functions.sh::suseStripKernel() provides a normalized
         file so that we do not have to search for many different
         names in this code
@@ -47,7 +42,13 @@ class Kernel(object):
         """
         Lookup kernel files and provide filename and version
 
+        :param bool raise_on_not_found: sets the method to raise an exception
+            if the kernel is not found
+
+        :raises KiwiKernelLookupError: if raise_on_not_found flag is active
+            and kernel is not found
         :return: tuple with filename, kernelname and version
+
         :rtype: namedtuple
         """
         for kernel_name in self.kernel_names:
@@ -94,6 +95,7 @@ class Kernel(object):
         Lookup xen hypervisor and provide filename and hypervisor name
 
         :return: tuple with filename and hypervisor name
+
         :rtype: namedtuple
         """
         xen_hypervisor = self.root_dir + '/boot/xen.gz'
@@ -113,8 +115,8 @@ class Kernel(object):
         If no file_name is given the target filename is set
         as kernel-<kernel.version>.kernel
 
-        :param string target_dir: target path name
-        :param string filename: base filename in target
+        :param str target_dir: target path name
+        :param str filename: base filename in target
         """
         kernel = self.get_kernel()
         if kernel:
@@ -132,8 +134,8 @@ class Kernel(object):
         If no file_name is given the target filename is set
         as hypervisor-<xen.name>
 
-        :param string target_dir: target path name
-        :param string filename: base filename in target
+        :param str target_dir: target path name
+        :param str filename: base filename in target
         """
         xen = self.get_xen_hypervisor()
         if xen:
@@ -150,8 +152,9 @@ class Kernel(object):
         This method returns a list of possible kernel image names in
         order to search and find one of them
 
-        :rtype: list
         :return: list of kernel image names
+
+        :rtype: list
         """
         kernel_names = [
             # lookup for the symlink first

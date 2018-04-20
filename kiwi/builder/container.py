@@ -32,21 +32,12 @@ from kiwi.runtime_config import RuntimeConfig
 
 class ContainerBuilder(object):
     """
-    Container image builder
+    **Container image builder**
 
-    Attributes
-
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`target_dir`
-        target directory path name
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`custom_args`
-        Custom processing arguments defined as hash keys:
+    :param object xml_state: Instance of :class:`XMLState`
+    :param str target_dir: target directory path name
+    :param str root_dir: root directory path name
+    :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
@@ -105,6 +96,10 @@ class ContainerBuilder(object):
         Image types which triggers this builder are:
 
         * image="docker"
+
+        :return: result
+
+        :rtype: instance of :class:`Result`
         """
         if not self.base_image:
             log.info(

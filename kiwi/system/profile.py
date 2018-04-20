@@ -25,17 +25,13 @@ from kiwi.defaults import Defaults
 
 class Profile(object):
     """
-    Create bash readable .profile environment from the XML
-    description. The information is used by the kiwi first
-    boot code.
+    **Create bash readable .profile environment from the XML
+    description**
 
-    Attributes
+    The information is used by the kiwi first boot code.
 
-    * :attr:`xml_state`
-        Instance of XMLState
-
-    * :attr:`dot_profile`
-        profile dictionary
+    :param object xml_state: instance of :class`XMLState`
+    :param dict dot_profile: profile dictionary
     """
     def __init__(self, xml_state):
         self.xml_state = xml_state
@@ -56,8 +52,8 @@ class Profile(object):
         """
         Add key/value pair to profile dictionary
 
-        :param string key: profile key
-        :param string value: profile value
+        :param str key: profile key
+        :param str value: profile value
         """
         self.dot_profile[key] = value
 
@@ -70,6 +66,7 @@ class Profile(object):
         Create bash quoted profile
 
         :return: profile dump for bash
+
         :rtype: str
         """
         Defaults.set_python_default_encoding_to_utf8()

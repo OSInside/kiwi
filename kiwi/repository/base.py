@@ -23,14 +23,10 @@ class RepositoryBase(object):
 
     Attributes
 
-    * :attr:`root_bind`
-        Instance of RootBind
-
-    * :attr:`root_dir`
-        root directory path name
-
-    * :attr:`shared_location`
-        shared directory between image root and build system root
+    :param object root_bind: instance of :class:`RootBind`
+    :param str root_dir: root directory path name
+    :param str shared_location: shared directory between image root
+        and build system root
     """
     def __init__(self, root_bind, custom_args=None):
         self.root_bind = root_bind
@@ -74,8 +70,8 @@ class RepositoryBase(object):
 
         Implementation in specialized repository class
 
-        :param string name: unused
-        :param string uri: unused
+        :param str name: unused
+        :param str uri: unused
         :param repo_type: unused
         :param int prio: unused
         :param dist: unused
@@ -115,7 +111,7 @@ class RepositoryBase(object):
 
         Implementation in specialized repository class
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError
 
@@ -133,6 +129,6 @@ class RepositoryBase(object):
 
         Implementation in specialized repository class
 
-        :param string name: unused
+        :param str name: unused
         """
         raise NotImplementedError

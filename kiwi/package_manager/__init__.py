@@ -28,18 +28,17 @@ from kiwi.exceptions import (
 
 class PackageManager(object):
     """
-    Package manager factory
+    **Package manager factory**
 
-    Attributes
+    :param object repository: instance of :class:`Repository`
+    :param str package_manager: package manager name
+    :param list custom_args: custom package manager arguments list
 
-    * :attr:`repository`
-        Instance of Repository
+    :raises KiwiPackageManagerSetupError: if the requested package manager
+        type is not supported
+    :return: package manager
 
-    * :attr:`package_manager`
-        package manager name
-
-    * :attr:`custom_args`
-        custom package manager arguments list
+    :rtype: PackageManagerBase subclass
     """
     def __new__(self, repository, package_manager, custom_args=None):
         from ..logger import log
