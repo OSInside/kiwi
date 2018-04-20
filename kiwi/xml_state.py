@@ -633,6 +633,8 @@ class XMLState(object):
         machine_section = self.get_build_type_machine_section()
         if machine_section:
             return machine_section.get_vmnic()
+        else:
+            return []
 
     def get_build_type_vmdvd_section(self):
         """
