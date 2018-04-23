@@ -73,7 +73,7 @@ class DiskFormatBase(object):
         """
         return os.path.exists(self.diskname)
 
-    def resize_raw_disk(self, size_bytes):
+    def resize_raw_disk(self, size_bytes, append=False):
         """
         Resize raw disk image to specified size. If the request
         would actually shrink the disk an exception is raised.
@@ -81,24 +81,28 @@ class DiskFormatBase(object):
         the new size is the same as the current size nothing
         gets resized and the method returns False
 
-        :param int size: new size in bytes
+        :param int size: size in bytes
 
         :return: True or False
 
         :rtype: bool
         """
-        current_byte_size = os.path.getsize(self.diskname)
-        size_bytes = int(size_bytes)
-        if size_bytes < current_byte_size:
-            raise KiwiResizeRawDiskError(
-                'shrinking {0} disk to {1} bytes corrupts the image'.format(
-                    self.diskname, size_bytes
+        if not append:
+            current_byte_size = os.path.getsize(self.diskname)
+            size_bytes = int(size_bytes)
+            if size_bytes < current_byte_size:
+                raise KiwiResizeRawDiskError(
+                    'shrinking {0} disk to {1} bytes corrupts the image'.format(
+                        self.diskname, size_bytes
+                    )
                 )
-            )
-        elif size_bytes == current_byte_size:
-            return False
+            elif size_bytes == current_byte_size:
+                return False
         Command.run(
-            ['qemu-img', 'resize', self.diskname, format(size_bytes)]
+            [
+                'qemu-img', 'resize', self.diskname,
+                '+{0}'.format(size_bytes) if append else format(size_bytes)
+            ]
         )
         return True
 

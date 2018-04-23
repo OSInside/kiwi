@@ -85,6 +85,18 @@ class TestDiskFormatBase(object):
         )
 
     @patch('os.path.getsize')
+    @patch('kiwi.storage.subformat.base.Command.run')
+    def test_resize_raw_disk_append(self, mock_command, mock_getsize):
+        mock_getsize.return_value = 42
+        assert self.disk_format.resize_raw_disk(1024, append=True) is True
+        mock_command.assert_called_once_with(
+            [
+                'qemu-img', 'resize',
+                'target_dir/some-disk-image.x86_64-1.2.3.raw', '+1024'
+            ]
+        )
+
+    @patch('os.path.getsize')
     def test_resize_raw_disk_same_size(self, mock_getsize):
         mock_getsize.return_value = 42
         assert self.disk_format.resize_raw_disk(42) is False

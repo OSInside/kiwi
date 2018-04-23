@@ -1643,6 +1643,17 @@ will be displayed in a dialog window on boot.</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.size.unpartitioned.attribute">
+      <attribute name="unpartitioned">
+        <a:documentation>Specifies the image empty space that will not be partitioned</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </define>
+    <sch:pattern id="unpartitioned_validation">
+      <sch:rule context="type/size[@unpartitioned]">
+        <sch:assert test="@unpartitioned &lt;= text()">unpartitioned size must be smaller or equal to the defined size</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.size.additive.attribute">
       <attribute name="additive">
         <a:documentation>Specifies if the size value is absolute or added on top
@@ -1654,6 +1665,9 @@ of the current data size</a:documentation>
       <interleave>
         <optional>
           <ref name="k.size.unit.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.size.unpartitioned.attribute"/>
         </optional>
         <optional>
           <ref name="k.size.additive.attribute"/>
