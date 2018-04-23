@@ -26,6 +26,7 @@ from . import xml_parse
 from .logger import log
 from .system.uri import Uri
 from .defaults import Defaults
+from .utils.size import StringToSize
 
 from .exceptions import (
     KiwiProfileNotFound,
@@ -734,7 +735,7 @@ class XMLState(object):
                 mbytes=value, additive=additive
             )
 
-    def get_build_type_unpartitioned_mbytes(self):
+    def get_build_type_unpartitioned_bytes(self):
         """
         Size of the unpartitioned area for image in megabytes
 
@@ -744,13 +745,9 @@ class XMLState(object):
         """
         size_section = self.build_type.get_size()
         if size_section:
-            unit = size_section[0].get_unit()
-            unpartitioned = size_section[0].get_unpartitioned()
-            if unpartitioned is None:
-                unpartitioned = 0
-            if unit == 'G':
-                unpartitioned *= 1024
-            return unpartitioned
+            unit = size_section[0].get_unit() or 'M'
+            unpartitioned = size_section[0].get_unpartitioned() or 0
+            return StringToSize.to_bytes('{0}{1}'.format(unpartitioned, unit))
         return 0
 
     def get_disk_start_sector(self):

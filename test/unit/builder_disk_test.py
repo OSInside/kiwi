@@ -810,10 +810,10 @@ class TestDiskBuilder(object):
         mock_partitioner.return_value = partitioner
         disk_format = mock.Mock()
         mock_diskformat.return_value = disk_format
-        self.disk_builder.unpartitioned_mbytes = 1024
+        self.disk_builder.unpartitioned_bytes = 1024
         self.disk_builder.append_unpartitioned_space()
         disk_format.resize_raw_disk.assert_called_once_with(
-            1073741824, append=True
+            1024, append=True
         )
         loopdevice.create.assert_called_once_with(overwrite=False)
         assert partitioner.resize_table.called

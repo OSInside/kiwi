@@ -510,12 +510,14 @@ class TestXMLState(object):
         assert result.mbytes == 4096
         assert not result.additive
 
-    def test_get_build_type_unpartitioned_mbytes(self):
-        assert self.state.get_build_type_unpartitioned_mbytes() == 0
+    def test_get_build_type_unpartitioned_bytes(self):
+        assert self.state.get_build_type_unpartitioned_bytes() == 0
         state = XMLState(self.description.load(), ['vmxFlavour'], 'vmx')
-        assert state.get_build_type_unpartitioned_mbytes() == 1024
+        assert state.get_build_type_unpartitioned_bytes() == 1073741824
         state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
-        assert state.get_build_type_unpartitioned_mbytes() == 0
+        assert state.get_build_type_unpartitioned_bytes() == 0
+        state = XMLState(self.description.load(), ['ec2Flavour'], 'vmx')
+        assert state.get_build_type_unpartitioned_bytes() == 0
 
     def test_get_volume_group_name(self):
         assert self.state.get_volume_group_name() == 'mydisk'

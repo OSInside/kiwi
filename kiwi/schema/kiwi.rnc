@@ -1075,7 +1075,7 @@ div {
             context = "type/size[@unpartitioned]"
             sch:assert [
                 test = "@unpartitioned <= text()"
-                "unpartitioned size must be smaller or equal to the defined "~
+                "unpartitioned size must be smaller or equal to the defined "
                 "size"
             ]
         ]
@@ -1173,7 +1173,7 @@ div {
             context = "type[@$attr]"
             sch:assert [
                 test = "contains('$types', @image)"
-                "$attr attribute is only available for the following "~
+                "$attr attribute is only available for the following "
                 "image types: $types"
             ]
         ]
@@ -1185,7 +1185,7 @@ div {
             context = "type[contains('$types', @image)]"
             sch:assert [
                 test = "@$attr"
-                "$attr attribute must be set for the following "~
+                "$attr attribute must be set for the following "
                 "image types: $types"
             ]
         ]

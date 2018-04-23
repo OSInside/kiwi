@@ -36,7 +36,7 @@ class FileSystemSetup(object):
         self.configured_size = xml_state.get_build_type_size(
             include_unpartitioned=True
         )
-        if xml_state.get_build_type_unpartitioned_mbytes() > 0:
+        if xml_state.get_build_type_unpartitioned_bytes() > 0:
             log.warning(
                 'Unpartitoned size attribute is ignored for filesystem images'
             )

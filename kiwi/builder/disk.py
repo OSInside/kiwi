@@ -102,8 +102,8 @@ class DiskBuilder(object):
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
-        self.unpartitioned_mbytes = \
-            xml_state.get_build_type_unpartitioned_mbytes()
+        self.unpartitioned_bytes = \
+            xml_state.get_build_type_unpartitioned_bytes()
         self.custom_args = custom_args
 
         self.signing_keys = None
@@ -470,17 +470,15 @@ class DiskBuilder(object):
         """
         Extends the raw disk if an unpartitioned area is specified
         """
-        if self.unpartitioned_mbytes:
+        if self.unpartitioned_bytes:
             log.info(
-                'Expanding disk with %d MB of unpartitioned space',
-                self.unpartitioned_mbytes
+                'Expanding disk with %d bytes of unpartitioned space',
+                self.unpartitioned_bytes
             )
             disk_format = DiskFormat(
                 'raw', self.xml_state, self.root_dir, self.target_dir
             )
-            disk_format.resize_raw_disk(
-                self.unpartitioned_mbytes * 1024 * 1024, append=True
-            )
+            disk_format.resize_raw_disk(self.unpartitioned_bytes, append=True)
             firmware = FirmWare(self.xml_state)
             loop_provider = LoopDevice(disk_format.diskname)
             loop_provider.create(overwrite=False)

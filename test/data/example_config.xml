@@ -73,6 +73,7 @@
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
+            <size>10</size>
         </type>
         <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash">
             <oemconfig>
