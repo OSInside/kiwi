@@ -5,16 +5,15 @@ branches:
   - gh-pages
 
 stages:
-- unittest
+- test
 - deploy
 
 jobs:
-  - stage: unittest
-      include:
-      - python: 3.6
-        env: TOXENV=unit_py3_6,check,doc_travis
-      - python: 2.7
-        env: TOXENV=unit_py2_7,check,doc_travis
+  include:
+  - python: 3.6
+    env: TOXENV=unit_py3_6,check,doc_travis
+  - python: 2.7
+    env: TOXENV=unit_py2_7,check,doc_travis
   - stage: deploy
       python: 3.6
       script: true
