@@ -66,4 +66,4 @@ description as follows:
 
 An image built with the above setup can be uploaded into the
 Google Compute Engine cloud and registered as image. For further information
-on how to upload to Google see: `google-cloud-sdk <https://software.opensuse.org/package/google-cloud-sdk>`_
+on how to upload to Google see: `google-cloud-sdk` on software.opensuse.org

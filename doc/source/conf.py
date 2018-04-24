@@ -15,9 +15,6 @@ import sphinx_rtd_theme
 _path = normpath(join(dirname(__file__), "../.."))
 sys.path.insert(0, _path)
 
-# autodoc imports all from kiwi, thus we need the global log
-from kiwi import logger
-
 
 # -- General configuration ------------------------------------------------
 

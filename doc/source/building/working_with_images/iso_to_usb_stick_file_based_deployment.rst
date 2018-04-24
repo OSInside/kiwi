@@ -35,10 +35,7 @@ SYSLINUX bootloader to make use of the "iso-scan" feature an extra tool
 named `live-grub-stick` exists. The following procedure shows how
 to setup the USB stick with `live-grub-stick`:
 
-1. Install the `live-grub-stick` package:
-
-   The package is available for openSUSE at:
-   https://software.opensuse.org/package/live-grub-stick
+1. Install the `live-grub-stick` package from software.opensuse.org:
 
 2. Plug in a USB stick
 
