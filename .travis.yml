@@ -11,24 +11,9 @@ jobs:
     env: TOXENV=unit_py3_6,check,doc_travis
   - python: 2.7
     env: TOXENV=unit_py2_7,check,doc_travis
-    before_install:
-    - sudo apt-get update -qq
-    - sudo apt-get install -y git
-    - sudo apt-get install -y xsltproc
-    - sudo apt-get install -y genisoimage
-    - sudo apt-get install -y enchant
-    - sudo apt-get install -y shellcheck
-    install:
-    - pip install --upgrade pip
-    - pip install tox
-    script:
-    - tox
   - stage: deploy
       python: 3.6
-      script:
-      - tox
-      after_success:
-      - tox -e doc_travis_deploy
+      script: true
       deploy:
         provider: pypi
         user: schaefi
@@ -37,3 +22,17 @@ jobs:
         distributions: sdist
         on:
           tags: true
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get install -y git
+- sudo apt-get install -y xsltproc
+- sudo apt-get install -y genisoimage
+- sudo apt-get install -y enchant
+- sudo apt-get install -y shellcheck
+install:
+- pip install --upgrade pip
+- pip install tox
+script:
+- tox
+after_success:
+- tox -e doc_travis_deploy
