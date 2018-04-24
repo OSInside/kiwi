@@ -6,7 +6,8 @@ branches:
 
 stages:
 - test
-- deploy
+- name: deploy
+  if: tag IS present
 
 jobs:
   include:
@@ -14,9 +15,13 @@ jobs:
     env: TOXENV=unit_py3_6,check,doc_travis
   - python: 2.7
     env: TOXENV=unit_py2_7,check,doc_travis
+  script:
+  - tox
   - stage: deploy
     python: 3.6
-    script: true
+    env: TOXENV=doc_travis,doc_travis_deploy
+    script:
+    - tox
     deploy:
       provider: pypi
       user: schaefi
@@ -37,9 +42,3 @@ before_install:
 install:
 - pip install --upgrade pip
 - pip install tox
-
-script:
-- tox
-
-after_success:
-- tox -e doc_travis_deploy
