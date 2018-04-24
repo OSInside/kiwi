@@ -1,13 +1,10 @@
 language: python
-
 branches:
   except:
   - gh-pages
-
 stages:
 - test
 - deploy
-
 jobs:
   include:
   - python: 3.6
@@ -25,7 +22,6 @@ jobs:
         distributions: sdist
         on:
           tags: true
-
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -y git
@@ -33,13 +29,10 @@ before_install:
 - sudo apt-get install -y genisoimage
 - sudo apt-get install -y enchant
 - sudo apt-get install -y shellcheck
-
 install:
 - pip install --upgrade pip
 - pip install tox
-
 script:
 - tox
-
 after_success:
 - tox -e doc_travis_deploy
