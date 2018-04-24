@@ -12,9 +12,9 @@ stages:
 jobs:
   include:
   - python: 3.6
-    env: TOXENV=unit_py3_6,check
+    env: TOXENV=unit_py3_6,check,doc
   - python: 2.7
-    env: TOXENV=unit_py2_7,check
+    env: TOXENV=unit_py2_7,check,doc
   - stage: deploy
     python: 3.6
     env: TOXENV=doc_travis,doc_travis_deploy
