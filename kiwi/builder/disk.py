@@ -191,10 +191,11 @@ class DiskBuilder(object):
         """
         Build a bootable raw disk image
 
-        :raises KiwiInstallMediaError: if install media is required and image
-        type is not oem
-        :raises KiwiVolumeManagerSetupError: root overlay at the same time
-        volumes are defined is not supported
+        :raises KiwiInstallMediaError:
+            if install media is required and image type is not oem
+        :raises KiwiVolumeManagerSetupError:
+            root overlay at the same time volumes are defined is not supported
+
         :return: result
 
         :rtype: instance of :class:`Result`
