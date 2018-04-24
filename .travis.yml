@@ -1,13 +1,32 @@
 language: python
+
 branches:
   except:
   - gh-pages
-matrix:
-  include:
-  - python: 3.6
-    env: TOXENV=unit_py3_6,check,doc_travis
-  - python: 2.7
-    env: TOXENV=unit_py2_7,check,doc_travis
+
+stages:
+- unittest
+- deploy
+
+jobs:
+  - stage: unittest
+      include:
+      - python: 3.6
+        env: TOXENV=unit_py3_6,check,doc_travis
+      - python: 2.7
+        env: TOXENV=unit_py2_7,check,doc_travis
+  - stage: deploy
+      python: 3.6
+      script: true
+      deploy:
+        provider: pypi
+        user: schaefi
+        password:
+          secure: oGf30REGDDqQIGntwx/sklLp/4mAsLNWM6+cPFOzk5Q3T6f1jzXjhi3jo6vMbeGzHxZ4XOHUn/pzuhNY6d2Qlpjvsvxphdx4c9j/VxKopbLlKqBO9aQtRA+SaHFLgVgPGezuflcbKvIOQsNaejTalIVGsPDao1f30dfSZZL6kFTh++nDLBQih7Blu7lXauNekWn6F3/835x9LQe+EEE3pT9nydbKLkFKoTIzCMSgakBm0vBSDXR9DtBUT78roP1KcubGgoMgsgTJr2SN11J0IdMY1RK2NXdPUfoDNIblh7jcfd7UVslK3BjdZ3fWgLY7WrI3jNvuAf/7bIDXr1TjIvMZUu2p4R5Vfyoia9R/z9SZ+yGaRZiDh39fuWWwU0YeCvAhGdLXJOSqBGGxfQcD47i07Xo5oSd+hmT1c0XMwKe+GphVyl2jX/24GsVRfvZeySqBzcQxVEVClq8aoF7LYkRCAksaJMz/aeVFApHJRBalb70ESp0W7+LbGzUC+fVnQVRZZfbM7DXq4TIuAgl0ReVJcb4D7KN7ZS/VPwPBB4BFenm/p+73X2vr+5f7Swykigmyx8gFGjuOqYBUtR1q27qSCShmxCZvVdAsuexCqq3IQ1/XHAbgYn6fQK+pAycQLyEMwCTy9CmazmPYMLZmW2+bbpUUjjIchI1Kp19V3Wk=
+        distributions: sdist
+        on:
+          tags: true
+
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -y git
@@ -15,18 +34,13 @@ before_install:
 - sudo apt-get install -y genisoimage
 - sudo apt-get install -y enchant
 - sudo apt-get install -y shellcheck
+
 install:
 - pip install --upgrade pip
 - pip install tox
+
 script:
 - tox
+
 after_success:
 - tox -e doc_travis_deploy
-deploy:
-  provider: pypi
-  user: schaefi
-  password:
-    secure: oGf30REGDDqQIGntwx/sklLp/4mAsLNWM6+cPFOzk5Q3T6f1jzXjhi3jo6vMbeGzHxZ4XOHUn/pzuhNY6d2Qlpjvsvxphdx4c9j/VxKopbLlKqBO9aQtRA+SaHFLgVgPGezuflcbKvIOQsNaejTalIVGsPDao1f30dfSZZL6kFTh++nDLBQih7Blu7lXauNekWn6F3/835x9LQe+EEE3pT9nydbKLkFKoTIzCMSgakBm0vBSDXR9DtBUT78roP1KcubGgoMgsgTJr2SN11J0IdMY1RK2NXdPUfoDNIblh7jcfd7UVslK3BjdZ3fWgLY7WrI3jNvuAf/7bIDXr1TjIvMZUu2p4R5Vfyoia9R/z9SZ+yGaRZiDh39fuWWwU0YeCvAhGdLXJOSqBGGxfQcD47i07Xo5oSd+hmT1c0XMwKe+GphVyl2jX/24GsVRfvZeySqBzcQxVEVClq8aoF7LYkRCAksaJMz/aeVFApHJRBalb70ESp0W7+LbGzUC+fVnQVRZZfbM7DXq4TIuAgl0ReVJcb4D7KN7ZS/VPwPBB4BFenm/p+73X2vr+5f7Swykigmyx8gFGjuOqYBUtR1q27qSCShmxCZvVdAsuexCqq3IQ1/XHAbgYn6fQK+pAycQLyEMwCTy9CmazmPYMLZmW2+bbpUUjjIchI1Kp19V3Wk=
-  distributions: sdist
-  on:
-    tags: true
