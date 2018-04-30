@@ -154,7 +154,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         vhd_fixed_image = self.get_target_file_path_for_format('vhdfixed')
         # seek to 64k offset and zero out 512 byte
         with open(vhd_fixed_image, 'r+b') as vhd_fixed:
-            with open('/dev/null', 'rb') as null:
+            with open('/dev/zero', 'rb') as null:
                 vhd_fixed.seek(65536, 0)
                 vhd_fixed.write(null.read(512))
                 vhd_fixed.seek(0, 2)

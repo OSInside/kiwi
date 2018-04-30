@@ -56,7 +56,7 @@ class TestDiskFormatVhdFixed(object):
         enter_mock.return_value = file_mock
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
-        file_mock.read.return_value = 'dev_null_data'
+        file_mock.read.return_value = 'dev_zero_data'
 
         self.disk_format.create_image_format()
 
@@ -70,11 +70,11 @@ class TestDiskFormatVhdFixed(object):
         )
         assert mock_open.call_args_list == [
             call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'r+b'),
-            call('/dev/null', 'rb'),
+            call('/dev/zero', 'rb'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'r+b')
         ]
         assert file_mock.write.call_args_list[0] == call(
-            'dev_null_data'
+            'dev_zero_data'
         )
         if sys.byteorder == 'little':
             # on little endian machines
