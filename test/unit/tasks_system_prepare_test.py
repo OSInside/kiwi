@@ -122,9 +122,7 @@ class TestSystemPrepareTask(object):
         self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
 
-        self.system_prepare.pinch_system.assert_called_once_with(
-            manager=self.manager, force=True
-        )
+        self.system_prepare.pinch_system.assert_called_once_with()
 
     def test_process_system_prepare_add_package(self):
         self._init_command_args()

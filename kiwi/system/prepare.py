@@ -34,7 +34,8 @@ from kiwi.exceptions import (
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
     KiwiSystemDeletePackagesFailed,
-    KiwiInstallPhaseFailed
+    KiwiInstallPhaseFailed,
+    KiwiPackagesDeletePhaseFailed
 )
 
 
@@ -273,25 +274,31 @@ class SystemPrepare(object):
                     'System archive installation failed: %s' % format(e)
                 )
 
-    def pinch_system(self, manager, force=False):
+    def pinch_system(self):
         """
-        Delete packages marked for deletion in the XML description
-
-        :param object manager: instance of a :class:`PackageManager` subclass
-        :param bool force: force deletion true|false
+        Delete packages marked for deletion in the XML description. First
+        uninstalls packages marked with `type="uninstall"` if any, then
+        proceeds with packages marked with `type="delete"` if any.
 
         :raises KiwiInstallPhaseFailed: if the deletion packages process fails
         """
         to_become_deleted_packages = \
             self.xml_state.get_to_become_deleted_packages()
-        if to_become_deleted_packages:
-            log.info('Pinch system')
-            try:
-                self.delete_packages(manager, to_become_deleted_packages, force)
-            except Exception as e:
-                raise KiwiInstallPhaseFailed(
-                    '%s: %s' % (type(e).__name__, format(e))
+        to_become_uninstalled_packages = \
+            self.xml_state.get_to_become_uninstalled_packages()
+        try:
+            if to_become_uninstalled_packages:
+                self.delete_packages_without_configured_repos(
+                    to_become_uninstalled_packages
                 )
+            if to_become_deleted_packages:
+                self.delete_packages_without_configured_repos(
+                    to_become_deleted_packages, force=True
+                )
+        except Exception as e:
+            raise KiwiPackagesDeletePhaseFailed(
+                '%s: %s' % (type(e).__name__, format(e))
+            )
 
     def install_packages(self, manager, packages):
         """
@@ -326,7 +333,9 @@ class SystemPrepare(object):
     def delete_packages(self, manager, packages, force=False):
         """
         Delete one or more packages using the package manager inside
-        of the new root directory
+        of the new root directory. If the removal is set with `force` flag
+        only listed packages are deleted and any dependency break or leftover
+        is ignored.
 
         :param object manager: instance of a :class:`PackageManager` subclass
         :param list packages: package list
@@ -334,7 +343,9 @@ class SystemPrepare(object):
 
         :raises KiwiSystemDeletePackagesFailed: if installation process fails
         """
-        log.info('Deleting system packages (chroot)')
+        log.info('{0} system packages (chroot)'.format(
+            'Force deleting' if force else 'Uninstall'
+        ))
         all_delete_items = self._setup_requests(
             manager, packages
         )
@@ -354,6 +365,27 @@ class SystemPrepare(object):
                 raise KiwiSystemDeletePackagesFailed(
                     'Package deletion failed: %s' % format(e)
                 )
+
+    def delete_packages_without_configured_repos(self, packages, force=False):
+        """
+        This is a wrapper of delete_packages that does not require a package
+        manager instance. It performs exactly the same code using a dummy
+        package manager instance created on the fly.
+
+        Repositories configuration is unneeded for packages removal, thus
+        using a dummy package manager instance allows to run the method even
+        after the build time repositories have been cleaned.
+
+        :param list packages: package list
+        :param bool force: force deletion true|false
+        """
+        package_manager = self.xml_state.get_package_manager()
+        self.delete_packages(
+            PackageManager(
+                Repository(self.root_bind, package_manager),
+                package_manager
+            ), packages, force
+        )
 
     def update_system(self, manager):
         """

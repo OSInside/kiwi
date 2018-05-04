@@ -360,6 +360,13 @@ class KiwiInstallPhaseFailed(KiwiError):
     """
 
 
+class KiwiPackagesDeletePhaseFailed(KiwiError):
+    """
+    Exception raised if the packages deletion phase in system prepare
+    fails.
+    """
+
+
 class KiwiIsoLoaderError(KiwiError):
     """
     Exception raised if no isolinux loader file could be found.

@@ -204,16 +204,13 @@ class SystemPrepareTask(CliTask):
         setup.setup_plymouth_splash()
         setup.setup_timezone()
 
-        system.pinch_system(
-            manager=manager, force=True
-        )
-
         # make sure manager instance is cleaned up now
         del manager
 
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
+        system.pinch_system()
 
         # make sure system instance is cleaned up now
         del system

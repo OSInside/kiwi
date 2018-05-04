@@ -277,6 +277,26 @@ class XMLState(object):
                 result.append(package.package_section.get_name())
         return sorted(list(set(result)))
 
+    def get_to_become_uninstalled_packages(self):
+        """
+        List of package names from the type="uninstall" packages section(s)
+
+        :return: package names
+
+        :rtype: list
+        """
+        result = []
+        to_become_uninstalled_packages_sections = self.get_packages_sections(
+            ['uninstall']
+        )
+        package_list = self.get_package_sections(
+            to_become_uninstalled_packages_sections
+        )
+        if package_list:
+            for package in package_list:
+                result.append(package.package_section.get_name())
+        return sorted(list(set(result)))
+
     def get_bootstrap_packages_sections(self):
         """
         List of packages sections matching type="bootstrap"
