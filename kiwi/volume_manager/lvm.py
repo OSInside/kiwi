@@ -286,12 +286,19 @@ class VolumeManagerLVM(VolumeManagerBase):
 
     def _volume_group_in_use_on_host_system(self, volume_group_name):
         vgs_call = Command.run(
-            ['vgs', '--noheadings', '-o', 'vg_name']
+            [
+                'vgs', '--noheadings',
+                '--select', 'vg_name={0}'.format(volume_group_name)
+            ]
         )
-        for host_volume_group_name in vgs_call.output.split('\n'):
-            if volume_group_name in host_volume_group_name:
-                return True
-        return False
+        if vgs_call.output:
+            # if vgs returned some information on the selected volume
+            # group name, this indicates the group is in use
+            return True
+        else:
+            # if vgs returned no information on the selected volume
+            # group name, it is considered to be not used
+            return False
 
     def __del__(self):
         if self.volume_group:
