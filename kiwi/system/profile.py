@@ -196,12 +196,13 @@ class Profile(object):
         # kiwi_Volume_X
         systemdisk = self.xml_state.get_build_type_system_disk_section()
         if systemdisk:
-            self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
-            if not self.dot_profile['kiwi_lvmgroup']:
-                self.dot_profile['kiwi_lvmgroup'] = \
-                    Defaults.get_default_volume_group_name()
-            if self.xml_state.get_volume_management():
+            volume_manager_name = self.xml_state.get_volume_management()
+            if volume_manager_name == 'lvm':
                 self.dot_profile['kiwi_lvm'] = 'true'
+                self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
+                if not self.dot_profile['kiwi_lvmgroup']:
+                    self.dot_profile['kiwi_lvmgroup'] = \
+                        Defaults.get_default_volume_group_name()
 
             volume_count = 1
             for volume in self.xml_state.get_volumes():
