@@ -2537,7 +2537,8 @@ div {
         ## packages are only installed if this build type is requested.
         attribute type {
             "bootstrap" | "delete" | "docker" | "image" |
-            "iso" | "oem" | "pxe" | "vmx" | "oci"
+            "iso" | "oem" | "pxe" | "vmx" | "oci" |
+            "delete_clean_dependencies"
         }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =

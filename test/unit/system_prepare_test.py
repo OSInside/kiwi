@@ -349,6 +349,26 @@ class TestSystemPrepare(object):
         self.system.delete_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
 
+    @patch('kiwi.package_manager.PackageManagerZypper.process_delete_requests')
+    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    def test_delete_packages_and_dependencies(
+        self, mock_poll, mock_repo, mock_deleterequests
+    ):
+        self.system.delete_packages_and_dependencies()
+        mock_deleterequests.assert_called_once_with(False)
+
+    @raises(KiwiInstallPhaseFailed)
+    @patch('kiwi.package_manager.PackageManagerZypper.process_delete_requests')
+    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    def test_delete_packages_and_dependencies_raises(
+        self, mock_poll, mock_repo, mock_deleterequests
+    ):
+        mock_poll.side_effect = Exception
+        self.system.delete_packages_and_dependencies()
+        mock_deleterequests.assert_called_once_with(False)
+
     @patch('kiwi.system.prepare.CommandProcess.poll')
     def test_update_system(self, mock_poll):
         self.system.update_system(self.manager)

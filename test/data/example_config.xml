@@ -196,4 +196,7 @@
     <packages type="delete">
         <package name="kernel-debug"/>
     </packages>
+    <packages type="delete_clean_dependencies">
+        <package name="shadow"/>
+    </packages>
 </image>

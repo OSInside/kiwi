@@ -173,12 +173,6 @@ class SystemBuildTask(CliTask):
         self.runtime_checker.check_repositories_configured()
         self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
-        package_requests = False
-        if self.command_args['--add-package']:
-            package_requests = True
-        if self.command_args['--delete-package']:
-            package_requests = True
-
         log.info('Preparing new root system')
         system = SystemPrepare(
             self.xml_state,
@@ -193,15 +187,14 @@ class SystemBuildTask(CliTask):
         system.install_system(
             manager
         )
-        if package_requests:
-            if self.command_args['--add-package']:
-                system.install_packages(
-                    manager, self.command_args['--add-package']
-                )
-            if self.command_args['--delete-package']:
-                system.delete_packages(
-                    manager, self.command_args['--delete-package']
-                )
+        if self.command_args['--add-package']:
+            system.install_packages(
+                manager, self.command_args['--add-package']
+            )
+        if self.command_args['--delete-package']:
+            system.delete_packages(
+                manager, self.command_args['--delete-package']
+            )
 
         profile = Profile(self.xml_state)
 
@@ -232,6 +225,7 @@ class SystemBuildTask(CliTask):
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
+        system.delete_packages_and_dependencies()
 
         # make sure system instance is cleaned up now
         del system

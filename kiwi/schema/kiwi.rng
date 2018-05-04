@@ -3981,6 +3981,7 @@ packages are only installed if this build type is requested.</a:documentation>
           <value>pxe</value>
           <value>vmx</value>
           <value>oci</value>
+          <value>delete_clean_dependencies</value>
         </choice>
       </attribute>
     </define>
