@@ -87,11 +87,16 @@ class TestVolumeManagerLVM(object):
     @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup(self, mock_mkdtemp, mock_command):
         mock_mkdtemp.return_value = 'tmpdir'
+        command = mock.Mock()
+        # no output for commands to mock empty information for
+        # vgs command, indicating the volume group is not in use
+        command.output = ''
+        mock_command.return_value = command
         self.volume_manager.setup('volume_group')
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
             call([
-                'vgs', '--noheadings', '-o', 'vg_name'
+                'vgs', '--noheadings', '--select', 'vg_name=volume_group'
             ])
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
@@ -115,7 +120,7 @@ class TestVolumeManagerLVM(object):
     @patch('kiwi.volume_manager.lvm.Command.run')
     def test_setup_volume_group_host_conflict(self, mock_command):
         command = mock.Mock()
-        command.output = 'volume_group'
+        command.output = 'some_data_about_volume_group'
         mock_command.return_value = command
         self.volume_manager.setup('volume_group')
 
