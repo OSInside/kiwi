@@ -222,8 +222,14 @@ class SystemBuildTask(CliTask):
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
-        system.pinch_system(manager=None, force=False)
-        system.pinch_system(manager=None, force=True)
+
+        # handle uninstall package requests, gracefully uninstall
+        # with dependency cleanup
+        system.pinch_system(force=False)
+
+        # handle delete package requests, forced uninstall without
+        # any dependency resolution
+        system.pinch_system(force=True)
 
         # make sure system instance is cleaned up now
         del system

@@ -123,7 +123,7 @@ class TestSystemPrepareTask(object):
         self.setup.setup_timezone.assert_called_once_with()
 
         self.system_prepare.pinch_system.assert_has_calls(
-            [call(manager=None, force=False), call(manager=None, force=True)]
+            [call(force=False), call(force=True)]
         )
 
     def test_process_system_prepare_add_package(self):
