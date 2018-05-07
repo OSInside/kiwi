@@ -274,26 +274,34 @@ class SystemPrepare(object):
                     'System archive installation failed: %s' % format(e)
                 )
 
-    def pinch_system(self):
+    def pinch_system(self, manager=None, force=False):
         """
-        Delete packages marked for deletion in the XML description. First
-        uninstalls packages marked with `type="uninstall"` if any, then
-        proceeds with packages marked with `type="delete"` if any.
+        Delete packages marked for deletion in the XML description. If force
+        param is set to False uninstalls packages marked with
+        `type="uninstall"` if any; if force is set to True deletes packages
+        marked with `type="delete"` if any.
 
-        :raises KiwiInstallPhaseFailed: if the deletion packages process fails
+        :param object manager: instance of :class:`PackageManager`
+        :param bool force: Forced deletion True|False
+
+        :raises KiwiPackagesDeletePhaseFailed: if the deletion packages
+            process fails
         """
         to_become_deleted_packages = \
-            self.xml_state.get_to_become_deleted_packages()
-        to_become_uninstalled_packages = \
-            self.xml_state.get_to_become_uninstalled_packages()
+            self.xml_state.get_to_become_deleted_packages(force)
         try:
-            if to_become_uninstalled_packages:
-                self.delete_packages_without_configured_repos(
-                    to_become_uninstalled_packages
-                )
             if to_become_deleted_packages:
-                self.delete_packages_without_configured_repos(
-                    to_become_deleted_packages, force=True
+                log.info('{0} system packages (chroot)'.format(
+                    'Force deleting' if force else 'Uninstalling')
+                )
+                if manager is None:
+                    package_manager = self.xml_state.get_package_manager()
+                    manager = PackageManager(
+                        Repository(self.root_bind, package_manager),
+                        package_manager
+                    )
+                self.delete_packages(
+                    manager, to_become_deleted_packages, force
                 )
         except Exception as e:
             raise KiwiPackagesDeletePhaseFailed(
@@ -365,27 +373,6 @@ class SystemPrepare(object):
                 raise KiwiSystemDeletePackagesFailed(
                     'Package deletion failed: %s' % format(e)
                 )
-
-    def delete_packages_without_configured_repos(self, packages, force=False):
-        """
-        This is a wrapper of delete_packages that does not require a package
-        manager instance. It performs exactly the same code using a dummy
-        package manager instance created on the fly.
-
-        Repositories configuration is unneeded for packages removal, thus
-        using a dummy package manager instance allows to run the method even
-        after the build time repositories have been cleaned.
-
-        :param list packages: package list
-        :param bool force: force deletion true|false
-        """
-        package_manager = self.xml_state.get_package_manager()
-        self.delete_packages(
-            PackageManager(
-                Repository(self.root_bind, package_manager),
-                package_manager
-            ), packages, force
-        )
 
     def update_system(self, manager):
         """

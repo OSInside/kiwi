@@ -336,25 +336,30 @@ class TestSystemPrepare(object):
         self.system.delete_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.package_manager.PackageManagerZypper.process_delete_requests')
-    @patch('kiwi.system.prepare.Repository')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
-    def test_pinch_system(
-        self, mock_poll, mock_repo, mock_deleterequests
-    ):
-        self.system.pinch_system()
-        mock_deleterequests.assert_has_calls([call(False), call(True)])
+    def test_pinch_system(self, mock_poll):
+        self.system.pinch_system(self.manager, force=False)
+        self.system.pinch_system(self.manager, force=True)
+        self.manager.process_delete_requests.assert_has_calls(
+            [call(False), call(True)]
+        )
 
     @raises(KiwiPackagesDeletePhaseFailed)
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    def test_pinch_system_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
+        self.system.pinch_system(self.manager)
+        self.manager.process_delete_requests.assert_called_once_with()
+
     @patch('kiwi.package_manager.PackageManagerZypper.process_delete_requests')
     @patch('kiwi.system.prepare.Repository')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
-    def test_pinch_system_raises(
-        self, mock_poll, mock_repo, mock_deleterequests
+    def test_pinch_system_without_manager(
+        self, mock_poll, mock_repo, mock_requests
     ):
-        mock_poll.side_effect = Exception
         self.system.pinch_system()
-        mock_deleterequests.assert_called_once_with()
+        mock_repo.assert_called_once_with(mock.ANY, 'zypper')
+        mock_requests.assert_called_once_with(False)
 
     @patch('kiwi.system.prepare.CommandProcess.poll')
     def test_update_system(self, mock_poll):
