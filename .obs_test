@@ -1,4 +1,4 @@
 Virtualization:Appliances:Images:Testing_x86 x86_64
-Virtualization:Appliances:Images:Testing_arm armv7l
+Virtualization:Appliances:Images:Testing_arm aarch64
 Virtualization:Appliances:Images:Testing_s390 s390x
 Virtualization:Appliances:Images x86_64
