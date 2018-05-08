@@ -21,7 +21,7 @@ some unpacked application sources.
 
 KIWI description file schema defines package requests of type `uninstall`
 and type `delete` in order to remove previously installed packages. The
-`uninstall` requests perform a clean packagei removal by removing any
+`uninstall` requests perform a clean packages removal by removing any
 package dependent on the requested ones and also removing orphan
 dependencies. The `delete` requests perform a hard removal without any
 dependency check, thus only listed packages are deleted even if it breaks
