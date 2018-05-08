@@ -257,9 +257,13 @@ class XMLState(object):
                             )
         return result
 
-    def get_to_become_deleted_packages(self):
+    def get_to_become_deleted_packages(self, force=True):
         """
-        List of package names from the type="delete" packages section(s)
+        List of package names from the type="delete" or type="uninstall"
+        packages section(s)
+
+        :param bool force: return "delete" type if True, "uninstall" type
+            otherwise
 
         :return: package names
 
@@ -267,7 +271,7 @@ class XMLState(object):
         """
         result = []
         to_become_deleted_packages_sections = self.get_packages_sections(
-            ['delete']
+            ['delete' if force else 'uninstall']
         )
         package_list = self.get_package_sections(
             to_become_deleted_packages_sections

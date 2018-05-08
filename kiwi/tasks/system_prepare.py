@@ -160,12 +160,6 @@ class SystemPrepareTask(CliTask):
         self.runtime_checker.check_repositories_configured()
         self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
-        package_requests = False
-        if self.command_args['--add-package']:
-            package_requests = True
-        if self.command_args['--delete-package']:
-            package_requests = True
-
         log.info('Preparing system')
         system = SystemPrepare(
             self.xml_state,
@@ -180,15 +174,15 @@ class SystemPrepareTask(CliTask):
         system.install_system(
             manager
         )
-        if package_requests:
-            if self.command_args['--add-package']:
-                system.install_packages(
-                    manager, self.command_args['--add-package']
-                )
-            if self.command_args['--delete-package']:
-                system.delete_packages(
-                    manager, self.command_args['--delete-package']
-                )
+
+        if self.command_args['--add-package']:
+            system.install_packages(
+                manager, self.command_args['--add-package']
+            )
+        if self.command_args['--delete-package']:
+            system.delete_packages(
+                manager, self.command_args['--delete-package']
+            )
 
         profile = Profile(self.xml_state)
 
@@ -210,16 +204,20 @@ class SystemPrepareTask(CliTask):
         setup.setup_plymouth_splash()
         setup.setup_timezone()
 
-        system.pinch_system(
-            manager=manager, force=True
-        )
-
         # make sure manager instance is cleaned up now
         del manager
 
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()
+
+        # handle uninstall package requests, gracefully uninstall
+        # with dependency cleanup
+        system.pinch_system(force=False)
+
+        # handle delete package requests, forced uninstall without
+        # any dependency resolution
+        system.pinch_system(force=True)
 
         # make sure system instance is cleaned up now
         del system

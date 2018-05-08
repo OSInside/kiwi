@@ -2,7 +2,7 @@ import sys
 import mock
 import os
 
-from mock import patch
+from mock import patch, call
 
 import kiwi
 
@@ -129,8 +129,8 @@ class TestSystemBuildTask(object):
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
-        self.system_prepare.pinch_system.assert_called_once_with(
-            manager=self.manager, force=True
+        self.system_prepare.pinch_system.assert_has_calls(
+            [call(force=False), call(force=True)]
         )
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()

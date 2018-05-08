@@ -2,7 +2,7 @@ import sys
 import mock
 import os
 
-from mock import patch
+from mock import patch, call
 
 import kiwi
 
@@ -122,8 +122,8 @@ class TestSystemPrepareTask(object):
         self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
 
-        self.system_prepare.pinch_system.assert_called_once_with(
-            manager=self.manager, force=True
+        self.system_prepare.pinch_system.assert_has_calls(
+            [call(force=False), call(force=True)]
         )
 
     def test_process_system_prepare_add_package(self):

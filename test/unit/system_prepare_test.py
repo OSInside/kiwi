@@ -9,7 +9,8 @@ from kiwi.exceptions import (
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
     KiwiSystemDeletePackagesFailed,
-    KiwiInstallPhaseFailed
+    KiwiInstallPhaseFailed,
+    KiwiPackagesDeletePhaseFailed
 )
 
 from kiwi.system.prepare import SystemPrepare
@@ -139,12 +140,6 @@ class TestSystemPrepare(object):
     def test_install_system_archives_raises(self, mock_tar, mock_poll):
         mock_tar.side_effect = KiwiInstallPhaseFailed
         self.system.install_system(self.manager)
-
-    @raises(KiwiInstallPhaseFailed)
-    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
-    def test_pinch_system_raises(self, mock_poll):
-        mock_poll.side_effect = Exception
-        self.system.pinch_system(self.manager)
 
     @raises(KiwiSystemDeletePackagesFailed)
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
@@ -332,14 +327,6 @@ class TestSystemPrepare(object):
         tar.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
-    def test_pinch_system(self, mock_poll):
-        self.system.pinch_system(self.manager)
-        self.manager.request_package.assert_any_call(
-            'kernel-debug'
-        )
-        self.manager.process_delete_requests.assert_called_once_with(False)
-
-    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_packages(self, mock_poll):
         self.system.install_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
@@ -348,6 +335,31 @@ class TestSystemPrepare(object):
     def test_delete_packages(self, mock_poll):
         self.system.delete_packages(self.manager, ['foo'])
         self.manager.request_package.assert_called_once_with('foo')
+
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    def test_pinch_system(self, mock_poll):
+        self.system.pinch_system(self.manager, force=False)
+        self.system.pinch_system(self.manager, force=True)
+        self.manager.process_delete_requests.assert_has_calls(
+            [call(False), call(True)]
+        )
+
+    @raises(KiwiPackagesDeletePhaseFailed)
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    def test_pinch_system_raises(self, mock_poll):
+        mock_poll.side_effect = Exception
+        self.system.pinch_system(self.manager)
+        self.manager.process_delete_requests.assert_called_once_with()
+
+    @patch('kiwi.package_manager.PackageManagerZypper.process_delete_requests')
+    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    def test_pinch_system_without_manager(
+        self, mock_poll, mock_repo, mock_requests
+    ):
+        self.system.pinch_system()
+        mock_repo.assert_called_once_with(mock.ANY, 'zypper')
+        mock_requests.assert_called_once_with(False)
 
     @patch('kiwi.system.prepare.CommandProcess.poll')
     def test_update_system(self, mock_poll):
