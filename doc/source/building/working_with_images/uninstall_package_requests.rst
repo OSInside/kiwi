@@ -41,8 +41,8 @@ tools and development tools:
 
     <image schemaversion="6.8" name="openSUSE-Tumbleweed-container-image">
       <description type="system">
-        <author>SUSE Containers Team</author>
-        <contact>containers@suse.com</contact>
+        <author>David Cassany</author>
+        <contact>dcassany@suse.com</contact>
         <specification>openSUSE Tumbleweed container</specification>
       </description>
       <preferences>
@@ -50,7 +50,7 @@ tools and development tools:
           <containerconfig
             name="opensuse"
             tag="tumbleweed"
-            maintainer="SUSE Containers Team &lt;containers@suse.com&gt;"/>
+            maintainer="David Cassany &lt;dcassany@suse.com&gt;"/>
         </type>
         <version>1.0.4</version>
         <packagemanager>zypper</packagemanager>
