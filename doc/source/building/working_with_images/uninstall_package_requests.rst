@@ -32,34 +32,11 @@ and type `delete`:
 
 This page focuses on `uninstall` package requests.
 
-This is an example description of a Container image that removes user related
-tools and development tools:
+This is an example of the package requests in a description of a Container
+image that removes user related tools and development tools:
 
 .. code:: xml
 
-    <?xml version="1.0" encoding="utf-8"?>
-
-    <image schemaversion="6.8" name="openSUSE-Tumbleweed-container-image">
-      <description type="system">
-        <author>David Cassany</author>
-        <contact>dcassany@suse.com</contact>
-        <specification>openSUSE Tumbleweed container</specification>
-      </description>
-      <preferences>
-        <type image="docker">
-          <containerconfig
-            name="opensuse"
-            tag="tumbleweed"
-            maintainer="David Cassany &lt;dcassany@suse.com&gt;"/>
-        </type>
-        <version>1.0.4</version>
-        <packagemanager>zypper</packagemanager>
-        <rpm-check-signatures>false</rpm-check-signatures>
-        <rpm-excludedocs>true</rpm-excludedocs>
-      </preferences>
-      <repository imageinclude="true" type="rpm-md" alias="OSS">
-        <source path="obs://openSUSE:Tumbleweed/standard"/>
-      </repository>
       <packages type="image">
         <package name="ca-certificates"/>
         <package name="ca-certificates-mozilla"/>
@@ -73,20 +50,13 @@ tools and development tools:
         <package name="llvm-clang"/>
         <archive name="foo_app_sources.tar.gz"/>
       </packages>
-      <packages type="bootstrap">
-        <package name="aaa_base"/>
-        <package name="cracklib-dict-small"/>
-        <package name="filesystem"/>
-        <package name="openSUSE-release"/>
-        <package name="shadow"/>
-      </packages>
       <!-- These packages will be uninstalled after running config.sh -->
       <packages type="uninstall">
         <package name="shadow"/>
         <package name="make"/>
         <package name="llvm-clang"/>
       </packages>
-    </image>
+    
 
 In the previous example after installing all the packages and archives, image
 repositories are configured and then the `config.sh` script is executed.
