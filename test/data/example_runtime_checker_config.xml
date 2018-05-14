@@ -45,7 +45,9 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="docker">
-        <type image="docker"/>
+        <type image="docker">
+            <containerconfig name="container_name" additionaltags="foo,bar"/>
+        </type>
     </preferences>
     <preferences profiles="ec2Flavour">
         <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>

@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import re
 import platform
 from textwrap import dedent
 
@@ -26,7 +25,7 @@ from .xml_state import XMLState
 from .system.uri import Uri
 from .defaults import Defaults
 from .path import Path
-from .command import Command
+from .utils.command_capabilities import CommandCapabilities
 from .exceptions import (
     KiwiRuntimeError
 )
@@ -143,12 +142,10 @@ class RuntimeChecker(object):
             http://download.opensuse.org/repositories/Virtualization:/containers
         ''')
         message_version_unsupported = dedent('''\n
-            {name} tool found in unsupported version
-
-            Expected version: v{want_version}.x.x but got: v{got_version}.x.x
+            {name} tool found with unknown version
         ''')
 
-        expected_version = 1
+        expected_version = (0, 1, 0)
 
         if self.xml_state.get_build_type_name() == 'docker':
             for tool in ['umoci', 'skopeo']:
@@ -156,28 +153,32 @@ class RuntimeChecker(object):
                     raise KiwiRuntimeError(
                         message_tool_not_found.format(name=tool)
                     )
-                else:
-                    tool_version_call = Command.run([tool, '--version'])
-                    tool_version_format = re.match(
-                        ''.join(
-                            [
-                                '^', tool, ' version ',
-                                '(\d+)', '\.', '(\d+)', '\.', '(\d+)$'
-                            ]
-                        ), tool_version_call.output
+                elif not CommandCapabilities.check_version(
+                    tool, expected_version, raise_on_error=False
+                ):
+                    raise KiwiRuntimeError(
+                        message_version_unsupported.format(name=tool)
                     )
-                    version = None
-                    if tool_version_format:
-                        version = tool_version_format.group(1)
+            self._check_multitag_support()
 
-                    if not version or int(version) > expected_version:
-                        raise KiwiRuntimeError(
-                            message_version_unsupported.format(
-                                name=tool,
-                                want_version=expected_version,
-                                got_version=version or '[unknown]'
-                            )
-                        )
+    def _check_multitag_support(self):
+
+        message = dedent('''\n
+            Using additionaltags attribute requires skopeo tool to be
+            capable to handle it, it must include the '--additional-tag'
+            option for copy subcommand (check it running 'skopeo copy
+            --help').\n
+            It is known to be present since v0.1.30
+        ''')
+
+        if (
+            'additional_tags' in self.xml_state.get_container_config() and not
+            CommandCapabilities.has_option_in_help(
+                'skopeo', '--additional-tag', ['copy', '--help'],
+                raise_on_error=False
+            )
+        ):
+            raise KiwiRuntimeError(message)
 
     def check_boot_description_exists(self):
         """

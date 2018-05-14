@@ -78,15 +78,29 @@ class TestRuntimeChecker(object):
         runtime_checker.check_docker_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.Path.which')
-    @patch('kiwi.runtime_checker.Command.run')
+    @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
     @raises(KiwiRuntimeError)
     def test_check_docker_tool_chain_installed_with_version(
-        self, mock_command, mock_which
+        self, mock_cmdver, mock_which
     ):
-        tool_version_call = mock.Mock()
-        tool_version_call.output = 'umoci version 2.2.3'
         mock_which.return_value = True
-        mock_command.return_value = tool_version_call
+        mock_cmdver.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_docker_tool_chain_installed()
+
+    @patch('kiwi.runtime_checker.Path.which')
+    @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
+    @patch('kiwi.runtime_checker.CommandCapabilities.has_option_in_help')
+    @raises(KiwiRuntimeError)
+    def test_check_docker_tool_chain_installed_with_multitags(
+        self, mock_cmdoptions, mock_cmdver, mock_which
+    ):
+        mock_which.return_value = True
+        mock_cmdver.return_value = True
+        mock_cmdoptions.return_value = False
         xml_state = XMLState(
             self.description.load(), ['docker'], 'docker'
         )

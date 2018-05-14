@@ -39,6 +39,12 @@ class ContainerImageDocker(ContainerImageOCI):
             self.oci_dir, ':'.join(['umoci_layout', self.container_tag])
         ])
 
+        additional_tags = []
+        for tag in self.additional_tags:
+            additional_tags.extend([
+                '--additional-tag', '{0}:{1}'.format(self.container_name, tag)
+            ])
+
         # make sure the target tar file does not exist
         # skopeo doesn't support force overwrite
         Path.wipe(docker_tarfile)
@@ -50,7 +56,7 @@ class ContainerImageDocker(ContainerImageOCI):
                 'docker-archive:{0}:{1}:{2}'.format(
                     docker_tarfile, self.container_name, self.container_tag
                 )
-            ]
+            ] + additional_tags
         )
         compressor = Compress(docker_tarfile)
         compressor.xz(self.xz_options)

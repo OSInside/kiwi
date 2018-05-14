@@ -12,7 +12,8 @@ class TestContainerImageOCI(object):
     def setup(self):
         self.oci = ContainerImageOCI(
             'root_dir', {
-                'container_name': 'foo/bar'
+                'container_name': 'foo/bar',
+                'additional_tags': ['current', 'foobar']
             }
         )
 
@@ -20,6 +21,7 @@ class TestContainerImageOCI(object):
         custom_args = {
             'container_name': 'foo',
             'container_tag': '1.0',
+            'additional_tags': ['current', 'foobar'],
             'entry_command': [
                 '--config.entrypoint=/bin/bash',
                 '--config.entrypoint=-x'
@@ -64,11 +66,13 @@ class TestContainerImageOCI(object):
         assert container.environment == custom_args['environment']
         assert container.labels == custom_args['labels']
         assert container.xz_options == custom_args['xz_options']
+        assert container.additional_tags == custom_args['additional_tags']
 
     def test_init_without_custom_args(self):
         container = ContainerImageOCI('root_dir')
         assert container.container_name == 'kiwi-container'
         assert container.container_tag == 'latest'
+        assert container.additional_tags == []
 
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
@@ -153,6 +157,14 @@ class TestContainerImageOCI(object):
                 'kiwi_oci_dir/umoci_layout:latest', 'kiwi_oci_root_dir'
             ]),
             call([
+                'umoci', 'config', '--image',
+                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'current'
+            ]),
+            call([
+                'umoci', 'config', '--image',
+                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'foobar'
+            ]),
+            call([
                 'umoci', 'config', '--config.cmd=/bin/bash', '--image',
                 'kiwi_oci_dir/umoci_layout:latest', '--created', 'current_date'
             ]),
@@ -216,6 +228,14 @@ class TestContainerImageOCI(object):
             call([
                 'umoci', 'repack', '--image',
                 'kiwi_oci_dir/umoci_layout:latest', 'kiwi_oci_root_dir'
+            ]),
+            call([
+                'umoci', 'config', '--image',
+                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'current'
+            ]),
+            call([
+                'umoci', 'config', '--image',
+                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'foobar'
             ]),
             call([
                 'umoci', 'config', '--config.cmd=/bin/bash', '--image',

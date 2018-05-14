@@ -4823,10 +4823,11 @@ class containerconfig(GeneratedsSuper):
     useful container information."""
     subclass = None
     superclass = None
-    def __init__(self, name=None, tag=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None):
+    def __init__(self, name=None, tag=None, additionaltags=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.tag = _cast(None, tag)
+        self.additionaltags = _cast(None, additionaltags)
         self.maintainer = _cast(None, maintainer)
         self.user = _cast(None, user)
         self.workingdir = _cast(None, workingdir)
@@ -4899,6 +4900,8 @@ class containerconfig(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_tag(self): return self.tag
     def set_tag(self, tag): self.tag = tag
+    def get_additionaltags(self): return self.additionaltags
+    def set_additionaltags(self, additionaltags): self.additionaltags = additionaltags
     def get_maintainer(self): return self.maintainer
     def set_maintainer(self, maintainer): self.maintainer = maintainer
     def get_user(self): return self.user
@@ -4945,6 +4948,9 @@ class containerconfig(GeneratedsSuper):
         if self.tag is not None and 'tag' not in already_processed:
             already_processed.add('tag')
             outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
+        if self.additionaltags is not None and 'additionaltags' not in already_processed:
+            already_processed.add('additionaltags')
+            outfile.write(' additionaltags=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.additionaltags), input_name='additionaltags')), ))
         if self.maintainer is not None and 'maintainer' not in already_processed:
             already_processed.add('maintainer')
             outfile.write(' maintainer=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.maintainer), input_name='maintainer')), ))
@@ -4987,6 +4993,10 @@ class containerconfig(GeneratedsSuper):
         if value is not None and 'tag' not in already_processed:
             already_processed.add('tag')
             self.tag = value
+        value = find_attr_value_('additionaltags', node)
+        if value is not None and 'additionaltags' not in already_processed:
+            already_processed.add('additionaltags')
+            self.additionaltags = value
         value = find_attr_value_('maintainer', node)
         if value is not None and 'maintainer' not in already_processed:
             already_processed.add('maintainer')

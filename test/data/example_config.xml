@@ -104,7 +104,7 @@
             </machine>
         </type>
         <type image="docker">
-            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
+            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag" additionaltags="current,foobar">
                 <entrypoint execute="/bin/bash">
                     <argument name="-x"/>
                 </entrypoint>

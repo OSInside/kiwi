@@ -606,6 +606,7 @@ class TestXMLState(object):
             ],
             'container_name': 'container_name',
             'container_tag': 'container_tag',
+            'additional_tags': ['current', 'foobar'],
             'workingdir': ['--config.workingdir=/root'],
             'environment': [
                 '--config.env=PATH=/bin:/usr/bin:/home/user/bin',
