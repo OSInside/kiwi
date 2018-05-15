@@ -9,7 +9,8 @@ from kiwi.container.oci import ContainerImageOCI
 
 
 class TestContainerImageOCI(object):
-    def setup(self):
+    @patch('kiwi.container.oci.RuntimeConfig')
+    def setup(self, mock_RuntimeConfig):
         self.oci = ContainerImageOCI(
             'root_dir', {
                 'container_name': 'foo/bar',
@@ -48,8 +49,7 @@ class TestContainerImageOCI(object):
             'labels': [
                 '--config.label=a=value',
                 '--config.label=b=value'
-            ],
-            'xz_options': ['-a', '-b']
+            ]
         }
         container = ContainerImageOCI(
             'root_dir', custom_args
@@ -65,7 +65,6 @@ class TestContainerImageOCI(object):
         assert container.volumes == custom_args['volumes']
         assert container.environment == custom_args['environment']
         assert container.labels == custom_args['labels']
-        assert container.xz_options == custom_args['xz_options']
         assert container.additional_tags == custom_args['additional_tags']
 
     def test_init_without_custom_args(self):
@@ -121,6 +120,8 @@ class TestContainerImageOCI(object):
         self, mock_cache, mock_mkdtemp,
         mock_sync, mock_command, mock_tar, mock_datetime
     ):
+        oci_tarfile = mock.Mock()
+        mock_tar.return_value = oci_tarfile
         strftime = mock.Mock()
         strftime.strftime = mock.Mock(return_value='current_date')
         mock_datetime.utcnow = mock.Mock(
@@ -137,7 +138,11 @@ class TestContainerImageOCI(object):
 
         mock_mkdtemp.side_effect = call_mkdtemp
 
-        self.oci.create('result.tar.xz', None)
+        self.oci.runtime_config.get_container_compression = mock.Mock(
+            return_value='xz'
+        )
+
+        self.oci.create('result.tar', None)
 
         assert mock_command.call_args_list == [
             call([
@@ -182,8 +187,22 @@ class TestContainerImageOCI(object):
             ],
             options=['-a', '-H', '-X', '-A', '--delete']
         )
+        mock_tar.assert_called_once_with('result.tar')
+        oci_tarfile.create_xz_compressed.assert_called_once_with(
+            'kiwi_oci_dir/umoci_layout',
+            xz_options=self.oci.runtime_config.get_xz_options.return_value
+        )
 
-        mock_tar.called_once_with('result.tar.xz')
+        tmpdirs = ['kiwi_oci_root_dir', 'kiwi_oci_dir']
+        self.oci.runtime_config.get_container_compression = mock.Mock(
+            return_value=None
+        )
+
+        self.oci.create('result.tar', None)
+
+        oci_tarfile.create.assert_called_once_with(
+            'kiwi_oci_dir/umoci_layout'
+        )
 
     @patch('kiwi.container.oci.datetime')
     @patch('kiwi.container.oci.ArchiveTar')
@@ -212,7 +231,7 @@ class TestContainerImageOCI(object):
 
         mock_mkdtemp.side_effect = call_mkdtemp
 
-        self.oci.create('result.tar.xz', 'root_dir/image/image_file')
+        self.oci.create('result.tar', 'root_dir/image/image_file')
 
         mock_create.assert_called_once_with('kiwi_oci_dir/umoci_layout')
 
@@ -255,6 +274,6 @@ class TestContainerImageOCI(object):
             ],
             options=['-a', '-H', '-X', '-A', '--delete']
         )
-        mock_tar.call_args_list == [
-            call('root_dir/image/image_file'), call('result.tar.xz')
+        assert mock_tar.call_args_list == [
+            call('root_dir/image/image_file'), call('result.tar')
         ]

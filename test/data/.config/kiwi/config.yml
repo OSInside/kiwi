@@ -7,3 +7,6 @@ obs:
 
 iso:
   - tool_category: cdrtools
+
+container:
+  - compress: none

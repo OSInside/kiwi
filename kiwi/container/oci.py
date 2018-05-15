@@ -26,6 +26,7 @@ from kiwi.command import Command
 from kiwi.utils.sync import DataSync
 from kiwi.archive.tar import ArchiveTar
 from kiwi.logger import log
+from kiwi.runtime_config import RuntimeConfig
 
 
 class ContainerImageOCI(object):
@@ -64,8 +65,7 @@ class ContainerImageOCI(object):
                     '--config.volume=/tmp'
                 ],
                 'environment': ['--config.env=PATH=/bin'],
-                'labels': ['--config.label=name=value'],
-                'xz_options': ['--threads=0']
+                'labels': ['--config.label=name=value']
             }
     """
     def __init__(self, root_dir, custom_args=None):         # noqa: C901
@@ -73,7 +73,6 @@ class ContainerImageOCI(object):
         self.oci_dir = None
         self.oci_root_dir = None
 
-        self.xz_options = None
         self.container_name = 'kiwi-container'
         self.container_tag = 'latest'
         self.additional_tags = []
@@ -86,6 +85,8 @@ class ContainerImageOCI(object):
         self.volumes = []
         self.environment = []
         self.labels = []
+
+        self.runtime_config = RuntimeConfig()
 
         if custom_args:
             if 'container_name' in custom_args:
@@ -123,9 +124,6 @@ class ContainerImageOCI(object):
 
             if 'labels' in custom_args:
                 self.labels = custom_args['labels']
-
-            if 'xz_options' in custom_args:
-                self.xz_options = custom_args['xz_options']
 
         # for builds inside the buildservice we include a reference to the
         # specific build. Thus disturl label only exists inside the
@@ -223,7 +221,7 @@ class ContainerImageOCI(object):
             ['umoci', 'gc', '--layout', container_dir]
         )
 
-        self.pack_image_to_file(filename)
+        return self.pack_image_to_file(filename)
 
     def pack_image_to_file(self, filename):
         """
@@ -232,10 +230,14 @@ class ContainerImageOCI(object):
         :param string filename: file name of the resulting packed image
         """
         image_dir = os.sep.join([self.oci_dir, 'umoci_layout'])
-        oci_tarfile = ArchiveTar(filename.replace('.xz', ''))
-        oci_tarfile.create_xz_compressed(
-            image_dir, xz_options=self.xz_options
-        )
+        oci_tarfile = ArchiveTar(filename)
+        container_compressor = self.runtime_config.get_container_compression()
+        if container_compressor:
+            return oci_tarfile.create_xz_compressed(
+                image_dir, xz_options=self.runtime_config.get_xz_options()
+            )
+        else:
+            return oci_tarfile.create(image_dir)
 
     def _append_buildservice_disturl_label(self):
         with open(os.sep + Defaults.get_buildservice_env_name()) as env:

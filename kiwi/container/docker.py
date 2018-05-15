@@ -34,7 +34,6 @@ class ContainerImageDocker(ContainerImageOCI):
 
         :param string filename: file name of the resulting packed image
         """
-        docker_tarfile = filename.replace('.xz', '')
         oci_image = os.sep.join([
             self.oci_dir, ':'.join(['umoci_layout', self.container_tag])
         ])
@@ -47,16 +46,20 @@ class ContainerImageDocker(ContainerImageOCI):
 
         # make sure the target tar file does not exist
         # skopeo doesn't support force overwrite
-        Path.wipe(docker_tarfile)
+        Path.wipe(filename)
         Command.run(
             [
                 'skopeo', 'copy', 'oci:{0}'.format(
                     oci_image
                 ),
                 'docker-archive:{0}:{1}:{2}'.format(
-                    docker_tarfile, self.container_name, self.container_tag
+                    filename, self.container_name, self.container_tag
                 )
             ] + additional_tags
         )
-        compressor = Compress(docker_tarfile)
-        compressor.xz(self.xz_options)
+        container_compressor = self.runtime_config.get_container_compression()
+        if container_compressor:
+            compressor = Compress(filename)
+            return compressor.xz(self.runtime_config.get_xz_options())
+        else:
+            return filename

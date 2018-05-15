@@ -82,7 +82,7 @@ class ContainerBuilder(object):
                 xml_state.xml_data.get_name(),
                 '.' + platform.machine(),
                 '-' + xml_state.get_image_version(),
-                '.', self.requested_container_type, '.tar.xz'
+                '.', self.requested_container_type, '.tar'
             ]
         )
         self.result = Result(xml_state)
@@ -125,7 +125,7 @@ class ContainerBuilder(object):
         container_image = ContainerImage(
             self.requested_container_type, self.root_dir, self.container_config
         )
-        container_image.create(
+        self.filename = container_image.create(
             self.filename, self.base_image
         )
         self.result.verify_image_size(

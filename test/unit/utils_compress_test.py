@@ -23,7 +23,7 @@ class TestCompress(object):
 
     @patch('kiwi.command.Command.run')
     def test_xz(self, mock_command):
-        self.compress.xz()
+        assert self.compress.xz() == 'some-file.xz'
         mock_command.assert_called_once_with(
             [
                 'xz', '-f', '--threads=0', '--keep',
@@ -34,7 +34,7 @@ class TestCompress(object):
 
     @patch('kiwi.command.Command.run')
     def test_xz_with_custom_options(self, mock_command):
-        self.compress.xz(options=['foo', 'bar'])
+        assert self.compress.xz(options=['foo', 'bar']) == 'some-file.xz'
         mock_command.assert_called_once_with(
             [
                 'xz', '-f', 'foo', 'bar', '--keep',
@@ -45,7 +45,7 @@ class TestCompress(object):
 
     @patch('kiwi.command.Command.run')
     def test_gzip(self, mock_command):
-        self.compress.gzip()
+        assert self.compress.gzip() == 'some-file.gz'
         mock_command.assert_called_once_with(
             ['gzip', '-f', '-9', '--keep', 'some-file']
         )
