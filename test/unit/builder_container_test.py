@@ -110,6 +110,9 @@ class TestContainerBuilder(object):
         container_setup = mock.Mock()
         mock_setup.return_value = container_setup
         container_image = mock.Mock()
+        container_image.create = mock.Mock(
+            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
+        )
         mock_image.return_value = container_image
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_list.return_value = '.packages'
@@ -123,7 +126,7 @@ class TestContainerBuilder(object):
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.x86_64-1.2.3.docker.tar.xz', None
+            'target_dir/image_name.x86_64-1.2.3.docker.tar', None
         )
         assert self.container.result.add.call_args_list == [
             call(
@@ -167,6 +170,12 @@ class TestContainerBuilder(object):
 
         mock_exists.side_effect = side_effect
 
+        container_image = mock.Mock()
+        container_image.create = mock.Mock(
+            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
+        )
+        mock_image.return_value = container_image
+
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
@@ -178,8 +187,6 @@ class TestContainerBuilder(object):
         )
         mock_checksum.return_value = checksum
 
-        container_image = mock.Mock()
-        mock_image.return_value = container_image
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_list.return_value = '.packages'
 
@@ -194,7 +201,7 @@ class TestContainerBuilder(object):
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
+            'target_dir/image_name.x86_64-1.2.3.docker.tar',
             'root_dir/image/imported_root'
         )
         assert container.result.add.call_args_list == [
