@@ -34,8 +34,11 @@ class RootImportDocker(RootImportOCI):
         """
         if not self.unknown_uri:
             compressor = Compress(self.image_file)
-            compressor.uncompress(True)
-            self.uncompressed_image = compressor.uncompressed_filename
+            if compressor.get_format():
+                compressor.uncompress(True)
+                self.uncompressed_image = compressor.uncompressed_filename
+            else:
+                self.uncompressed_image = self.image_file
             skopeo_uri = 'docker-archive:{0}'.format(self.uncompressed_image)
         else:
             log.warning('Bypassing base image URI to skopeo tool')

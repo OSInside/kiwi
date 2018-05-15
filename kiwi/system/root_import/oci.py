@@ -31,7 +31,7 @@ from kiwi.defaults import Defaults
 class RootImportOCI(RootImportBase):
     """
     Implements the base class for importing a root system from
-    a oci image compressed tarball file.
+    a oci image tarball file.
     """
     def post_init(self, image_uri):
         """
@@ -73,8 +73,8 @@ class RootImportOCI(RootImportBase):
 
     def extract_oci_image(self):
         """
-        Extract the image from the provided image file to a temporary
-        location to KIWI can work with it.
+        Extract the contents from the provided image file to a temporary
+        location KIWI can work with.
         """
         if not self.unknown_uri:
             tar = ArchiveTar(self.image_file)
