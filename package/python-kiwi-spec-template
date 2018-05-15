@@ -43,7 +43,7 @@ Provides:       kiwi-schema = 6.6
 Release:        0
 Url:            https://github.com/SUSE/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 %if %{_vendor} == "debbuild"
 # Needed to set Maintainer in output debs
 Packager:       Marcus Schaefer <ms@suse.de>
@@ -232,7 +232,7 @@ virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
 
 %package -n kiwi-tools
 Summary:        KIWI - Collection of Boot Helper Tools
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n kiwi-tools
@@ -251,7 +251,7 @@ Requires(pre):  shadow-utils
 %else
 Requires(pre):  shadow
 %endif
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n kiwi-pxeboot
@@ -298,7 +298,7 @@ Requires:       device-mapper
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n dracut-kiwi-lib
@@ -314,7 +314,7 @@ Summary:        KIWI - Dracut module for oem(repart) image type
 BuildRequires:  dracut
 %endif
 Requires:       dracut-kiwi-lib
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n dracut-kiwi-oem-repart
@@ -340,7 +340,7 @@ Requires:       multipath-tools
 Requires:       device-mapper-multipath
 %endif
 Requires:       gawk
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n dracut-kiwi-oem-dump
@@ -370,7 +370,7 @@ Requires:       device-mapper
 %endif
 Requires:       dracut
 Requires:       xorriso
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n dracut-kiwi-live
@@ -387,7 +387,7 @@ BuildRequires:  dracut
 %endif
 Requires:       util-linux
 Requires:       dracut
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n dracut-kiwi-overlay
@@ -397,7 +397,7 @@ overlay root filesystem
 
 %package -n kiwi-man-pages
 Summary:        KIWI - manual pages
-License:        GPL-3.0+
+License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
 %description -n kiwi-man-pages
