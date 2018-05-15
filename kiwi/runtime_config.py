@@ -108,6 +108,37 @@ class RuntimeConfig(object):
         xz_options = self._get_attribute(element='xz', attribute='options')
         return xz_options.split() if xz_options else None
 
+    def get_container_compression(self):
+        """
+        Return compression algorithm to use for compression of container images
+
+        container:
+          - compress: xz|none
+
+        if no or invalid configuration data is provided, the default
+        compression algorithm from the Defaults class is returned
+
+        :return: A name
+
+        :rtype: str
+        """
+        container_compression = self._get_attribute(
+            element='container', attribute='compress'
+        )
+        if not container_compression:
+            return Defaults.get_container_compression()
+        elif 'xz' in container_compression:
+            return container_compression
+        elif 'none' in container_compression:
+            return None
+        else:
+            log.warning(
+                'Skipping invalid container compression: {0}'.format(
+                    container_compression
+                )
+            )
+            return Defaults.get_container_compression()
+
     def get_iso_tool_category(self):
         """
         Return tool category which should be used to build iso images

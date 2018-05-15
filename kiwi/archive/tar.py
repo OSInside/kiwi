@@ -70,6 +70,7 @@ class ArchiveTar(object):
                 '-c', '-f', self.filename
             ] + self._get_archive_items(source_dir, exclude)
         )
+        return self.filename
 
     def append_files(self, source_dir, files_to_append, options=None):
         """
@@ -88,6 +89,7 @@ class ArchiveTar(object):
             ] + options +
             self.xattrs_options + files_to_append
         )
+        return self.filename
 
     def create_xz_compressed(
         self, source_dir, exclude=None, options=None, xz_options=None
@@ -114,6 +116,7 @@ class ArchiveTar(object):
             '>', self.filename + '.xz'
         ]
         Command.run(['bash', '-c', ' '.join(bash_command)])
+        return self.filename + '.xz'
 
     def create_gnu_gzip_compressed(self, source_dir, exclude=None):
         """
@@ -128,6 +131,7 @@ class ArchiveTar(object):
                 '--format=gnu', '-cSz', '-f', self.filename + '.gz'
             ] + self._get_archive_items(source_dir, exclude)
         )
+        return self.filename + '.gz'
 
     def extract(self, dest_dir):
         """

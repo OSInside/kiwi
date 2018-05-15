@@ -1071,6 +1071,17 @@ class Defaults(object):
         return 'xorriso'
 
     @classmethod
+    def get_container_compression(self):
+        """
+        Provides default container compression algorithm
+
+        :return: name
+
+        :rtype: str
+        """
+        return 'xz'
+
+    @classmethod
     def set_python_default_encoding_to_utf8(self):
         """
         Set python default encoding to utf-8 if not already done
