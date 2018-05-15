@@ -67,6 +67,7 @@ class Compress(object):
             ['xz', '-f'] + options + [self.source_filename]
         )
         self.compressed_filename = self.source_filename + '.xz'
+        return self.compressed_filename
 
     def gzip(self):
         """
@@ -81,6 +82,7 @@ class Compress(object):
             ['gzip', '-f'] + options + [self.source_filename]
         )
         self.compressed_filename = self.source_filename + '.gz'
+        return self.compressed_filename
 
     def uncompress(self, temporary=False):
         """
@@ -109,6 +111,7 @@ class Compress(object):
             ]
             Command.run(['bash', '-c', ' '.join(bash_command)])
             self.uncompressed_filename = self.temp_file.name
+        return self.uncompressed_filename
 
     def get_format(self):
         """
