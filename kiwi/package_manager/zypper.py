@@ -130,11 +130,8 @@ class PackageManagerZypper(PackageManagerBase):
                 Path.create(metadata_dir)
             for package in self.exclude_requests:
                 Command.run(
-                    [
-                        'chroot', self.root_dir, 'zypper'
-                    ] + self.chroot_zypper_args + [
-                        'al'
-                    ] + self.custom_args + [package],
+                    ['chroot', self.root_dir, 'zypper'] +
+                    self.chroot_zypper_args + ['al'] + [package],
                     self.chroot_command_env
                 )
         return Command.call(
