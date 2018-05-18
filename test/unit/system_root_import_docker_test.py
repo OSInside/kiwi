@@ -42,6 +42,8 @@ class TestRootImportDocker(object):
             'oci:kiwi_layout_dir:base_layer'
         ])
 
+    @patch('kiwi.system.root_import.docker.NamedTemporaryFile')
+    @patch('os.symlink')
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_import.docker.Compress')
@@ -49,8 +51,13 @@ class TestRootImportDocker(object):
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_extract_uncompressed_oci_image(
         self, mock_buildservice, mock_mkdtemp, mock_compress,
-        mock_run, mock_exists
+        mock_run, mock_exists, mock_symlink, mock_tempfile
     ):
+        tempfile = mock.Mock()
+        tempfile.__exit__ = mock.Mock(return_value=None)
+        tempfile.__enter__ = mock.Mock(return_value=tempfile)
+        tempfile.name = "/tmp/tempfile"
+        mock_tempfile.return_value = tempfile
         mock_buildservice.return_value = False
         mock_exists.return_value = True
         uncompress = mock.Mock()
@@ -72,7 +79,7 @@ class TestRootImportDocker(object):
         docker_import.extract_oci_image()
         mock_compress.assert_called_once_with('/image.tar')
         mock_run.assert_called_once_with([
-            'skopeo', 'copy', 'docker-archive:/image.tar',
+            'skopeo', 'copy', 'docker-archive:/tmp/tempfile',
             'oci:kiwi_layout_dir:base_layer'
         ])
 
