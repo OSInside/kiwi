@@ -2148,6 +2148,14 @@ div {
             sch:param [ name = "attr" value = "tag" ]
             sch:param [ name = "types" value = "docker oci" ]
         ]
+    k.containerconfig.additionaltags.attribute =
+        ## Specifies additional tags for the container using a comma
+        ## separated values string
+        attribute additionaltags { text }
+        >> sch:pattern [ id = "additionaltags" is-a = "container_type"
+            sch:param [ name = "attr" value = "additionaltags" ]
+            sch:param [ name = "types" value = "docker oci" ]
+        ]
     k.containerconfig.maintainer.attribute =
         ## Specifies a maintainer for the container.
         attribute maintainer { text }
@@ -2172,6 +2180,7 @@ div {
     k.containerconfig.attlist =
         k.containerconfig.name.attribute &
         k.containerconfig.tag.attribute? &
+        k.containerconfig.additionaltags.attribute? &
         k.containerconfig.maintainer.attribute? &
         k.containerconfig.user.attribute? &
         k.containerconfig.workingdir.attribute?

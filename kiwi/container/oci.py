@@ -44,6 +44,7 @@ class ContainerImageOCI(object):
             {
                 'container_name': 'name',
                 'container_tag': '1.0',
+                'additional_tags': ['current', 'foobar'],
                 'entry_command': [
                     '--config.entrypoint=/bin/bash',
                     '--config.entrypoint=-x'
@@ -74,6 +75,7 @@ class ContainerImageOCI(object):
 
         self.container_name = 'kiwi-container'
         self.container_tag = 'latest'
+        self.additional_tags = []
         self.entry_command = []
         self.entry_subcommand = []
         self.maintainer = []
@@ -92,6 +94,9 @@ class ContainerImageOCI(object):
 
             if 'container_tag' in custom_args:
                 self.container_tag = custom_args['container_tag']
+
+            if 'additional_tags' in custom_args:
+                self.additional_tags = custom_args['additional_tags']
 
             if 'entry_command' in custom_args:
                 self.entry_command = custom_args['entry_command']
@@ -188,6 +193,10 @@ class ContainerImageOCI(object):
         Command.run(
             ['umoci', 'repack', '--image', container_name, self.oci_root_dir]
         )
+        for tag in self.additional_tags:
+            Command.run(
+                ['umoci', 'config', '--image', container_name, '--tag', tag]
+            )
         Command.run(
             [
                 'umoci', 'config'

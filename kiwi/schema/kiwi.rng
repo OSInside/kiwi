@@ -3318,6 +3318,16 @@ image is imported via the docker load command</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
+    <define name="k.containerconfig.additionaltags.attribute">
+      <attribute name="additionaltags">
+        <a:documentation>Specifies additional tags for the container using a comma
+separated values string</a:documentation>
+      </attribute>
+      <sch:pattern id="additionaltags" is-a="container_type">
+        <sch:param name="attr" value="additionaltags"/>
+        <sch:param name="types" value="docker oci"/>
+      </sch:pattern>
+    </define>
     <define name="k.containerconfig.maintainer.attribute">
       <attribute name="maintainer">
         <a:documentation>Specifies a maintainer for the container.</a:documentation>
@@ -3350,6 +3360,9 @@ image is imported via the docker load command</a:documentation>
         <ref name="k.containerconfig.name.attribute"/>
         <optional>
           <ref name="k.containerconfig.tag.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.containerconfig.additionaltags.attribute"/>
         </optional>
         <optional>
           <ref name="k.containerconfig.maintainer.attribute"/>
