@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from tempfile import NamedTemporaryFile
+import os
+
 # project
 from kiwi.system.root_import.oci import RootImportOCI
 from kiwi.logger import log
@@ -38,7 +41,9 @@ class RootImportDocker(RootImportOCI):
                 compressor.uncompress(True)
                 self.uncompressed_image = compressor.uncompressed_filename
             else:
-                self.uncompressed_image = self.image_file
+                with NamedTemporaryFile() as tempfile:
+                    self.uncompressed_image = tempfile.name
+                os.symlink(self.image_file, self.uncompressed_image)
             skopeo_uri = 'docker-archive:{0}'.format(self.uncompressed_image)
         else:
             log.warning('Bypassing base image URI to skopeo tool')
