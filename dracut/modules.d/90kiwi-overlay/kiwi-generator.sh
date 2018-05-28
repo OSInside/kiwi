@@ -36,6 +36,12 @@ ROOTFLAGS="$(getarg rootflags)"
     _dev=OverlayOS_rootfs
 } > "$GENERATOR_DIR"/sysroot.mount
 
+if [ ! -e "$GENERATOR_DIR/initrd-root-fs.target.requires/sysroot.mount" ]; then
+    mkdir -p "$GENERATOR_DIR"/initrd-root-fs.target.requires
+    ln -s "$GENERATOR_DIR"/sysroot.mount \
+        "$GENERATOR_DIR"/initrd-root-fs.target.requires/sysroot.mount
+fi
+
 mkdir -p "$GENERATOR_DIR/$_dev.device.d"
 {
     echo "[Unit]"
