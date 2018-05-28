@@ -183,6 +183,17 @@ class TestSystemSetup(object):
         mock_open.assert_called_once_with('root_dir/.profile', 'w')
         self.file_mock.write.assert_called_once_with('a\n')
 
+    @patch('kiwi.system.setup.ArchiveTar')
+    @patch('kiwi.system.setup.glob.iglob')
+    def test_import_cdroot_files(self, mock_iglob, mock_ArchiveTar):
+        archive = mock.Mock()
+        mock_ArchiveTar.return_value = archive
+        mock_iglob.return_value = ['config-cdroot.tar.xz']
+        self.setup.import_cdroot_files('target_dir')
+        mock_iglob.assert_called_once_with('description_dir/config-cdroot.tar*')
+        mock_ArchiveTar.assert_called_once_with('config-cdroot.tar.xz')
+        archive.extract.assert_called_once_with('target_dir')
+
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.DataSync')
     @patch('os.path.exists')

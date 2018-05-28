@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import glob
 import os
 import platform
 from collections import OrderedDict
@@ -157,6 +158,25 @@ class SystemSetup(object):
             for line in profile_environment:
                 profile.write(line + '\n')
                 log.debug('--> %s', line)
+
+    def import_cdroot_files(self, target_dir):
+        """
+        Copy cdroot files from the image description to the
+        specified target directory. Supported is a tar
+        archive named config-cdroot.tar[.compression-postfix]
+
+        :param str target_dir: directory to unpack archive to
+        """
+        glob_match = self.description_dir + '/config-cdroot.tar*'
+        for cdroot_archive in glob.iglob(glob_match):
+            log.info(
+                'Extracting ISO user config archive: {0} to: {1}'.format(
+                    cdroot_archive, target_dir
+                )
+            )
+            archive = ArchiveTar(cdroot_archive)
+            archive.extract(target_dir)
+            break
 
     def import_overlay_files(
         self, follow_links=False, preserve_owner_group=False

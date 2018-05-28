@@ -175,6 +175,8 @@ class TestLiveImageBuilder(object):
 
         self.live_image.create()
 
+        self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
+
         assert kiwi.builder.live.FileSystem.call_args_list == [
             call(
                 custom_args={'mount_options': 'async'},

@@ -117,6 +117,10 @@ class LiveImageBuilder(object):
         self.media_dir = mkdtemp(
             prefix='live-media.', dir=self.target_dir
         )
+
+        # unpack cdroot user files to media dir
+        self.system_setup.import_cdroot_files(self.media_dir)
+
         rootsize = SystemSize(self.media_dir)
 
         # custom iso metadata
