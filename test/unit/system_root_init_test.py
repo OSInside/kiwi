@@ -23,7 +23,6 @@ class TestRootInit(object):
     @patch('os.path.exists')
     @patch('os.makedirs')
     @patch('os.chown')
-    @patch('os.mknod')
     @patch('os.symlink')
     @patch('shutil.rmtree')
     @patch('kiwi.system.root_init.DataSync')
@@ -31,7 +30,7 @@ class TestRootInit(object):
     @patch('kiwi.system.root_init.Command.run')
     def test_create_raises_error(
         self, mock_command, mock_temp, mock_data_sync, mock_rmtree,
-        mock_symlink, mock_mknod, mock_chwon, mock_makedirs, mock_path
+        mock_symlink, mock_chwon, mock_makedirs, mock_path
     ):
         mock_path.return_value = False
         mock_temp.return_value = 'tmpdir'
@@ -42,7 +41,6 @@ class TestRootInit(object):
     @patch('os.path.exists')
     @patch('os.makedirs')
     @patch('os.chown')
-    @patch('os.mknod')
     @patch('os.symlink')
     @patch('os.makedev')
     @patch('kiwi.system.root_init.copy')
@@ -52,7 +50,7 @@ class TestRootInit(object):
     @patch('kiwi.system.root_init.Command.run')
     def test_create(
         self, mock_command, mock_temp, mock_data_sync, mock_rmtree, mock_copy,
-        mock_makedev, mock_symlink, mock_mknod, mock_chwon, mock_makedirs,
+        mock_makedev, mock_symlink, mock_chwon, mock_makedirs,
         mock_path
     ):
         data_sync = mock.Mock()
@@ -88,20 +86,6 @@ class TestRootInit(object):
             call('tmpdir/run', 0, 0),
             call('tmpdir/sys', 0, 0),
             call('tmpdir/var', 0, 0)
-        ]
-        assert mock_mknod.call_args_list == [
-            call('tmpdir/dev/null', 8630, 'makedev'),
-            call('tmpdir/dev/zero', 8630, 'makedev'),
-            call('tmpdir/dev/full', 8594, 'makedev'),
-            call('tmpdir/dev/random', 8630, 'makedev'),
-            call('tmpdir/dev/urandom', 8612, 'makedev'),
-            call('tmpdir/dev/tty', 8630, 'makedev'),
-            call('tmpdir/dev/ptmx', 8630, 'makedev'),
-            call('tmpdir/dev/loop0', 24992, 'makedev'),
-            call('tmpdir/dev/loop1', 24992, 'makedev'),
-            call('tmpdir/dev/loop2', 24992, 'makedev'),
-            call('tmpdir/dev/loop3', 25014, 'makedev'),
-            call('tmpdir/dev/loop4', 25014, 'makedev')
         ]
         assert mock_symlink.call_args_list == [
             call('/proc/self/fd', 'tmpdir/dev/fd'),

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import stat
 from pwd import getpwnam
 from tempfile import mkdtemp
 from shutil import rmtree
@@ -79,7 +78,6 @@ class RootInit(object):
         Path.create(self.root_dir)
         try:
             self._create_base_directories(root)
-            self._create_device_nodes(root)
             self._create_base_links(root)
             self._setup_config_templates(root)
             data = DataSync(root + '/', self.root_dir)
@@ -108,30 +106,6 @@ class RootInit(object):
             Command.run(['cp', passwd_template, root + '/etc/passwd'])
         if os.path.exists(proxy_template):
             Command.run(['cp', proxy_template, root + '/etc/sysconfig/proxy'])
-
-    def _create_device_nodes(self, root):
-        """
-        Create minimum set of device nodes for a new root system
-
-        :param str root: path to the new root
-        """
-        mknod_data = [
-            (0o666, 'dev/null', stat.S_IFCHR, (1, 3)),
-            (0o666, 'dev/zero', stat.S_IFCHR, (1, 5)),
-            (0o622, 'dev/full', stat.S_IFCHR, (1, 7)),
-            (0o666, 'dev/random', stat.S_IFCHR, (1, 8)),
-            (0o644, 'dev/urandom', stat.S_IFCHR, (1, 9)),
-            (0o666, 'dev/tty', stat.S_IFCHR, (5, 0)),
-            (0o666, 'dev/ptmx', stat.S_IFCHR, (5, 2)),
-            (0o640, 'dev/loop0', stat.S_IFBLK, (7, 0)),
-            (0o640, 'dev/loop1', stat.S_IFBLK, (7, 1)),
-            (0o640, 'dev/loop2', stat.S_IFBLK, (7, 2)),
-            (0o666, 'dev/loop3', stat.S_IFBLK, (7, 3)),
-            (0o666, 'dev/loop4', stat.S_IFBLK, (7, 4))
-        ]
-        for d_mode, d_path, d_type, d_dev in mknod_data:
-            root_path = os.sep.join([root, d_path])
-            os.mknod(root_path, d_mode | d_type, os.makedev(*d_dev))
 
     def _create_base_directories(self, root):
         """
