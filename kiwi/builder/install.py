@@ -34,6 +34,7 @@ from kiwi.logger import log
 from kiwi.system.kernel import Kernel
 from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
+from kiwi.system.setup import SystemSetup
 
 from kiwi.exceptions import (
     KiwiInstallBootImageError
@@ -66,6 +67,9 @@ class InstallImageBuilder(object):
             xml_state.get_oemconfig_oem_multipath_scan()
         self.initrd_system = xml_state.get_initrd_system()
         self.firmware = FirmWare(xml_state)
+        self.setup = SystemSetup(
+            self.xml_state, self.root_dir
+        )
         self.diskname = ''.join(
             [
                 target_dir, '/',
@@ -126,6 +130,9 @@ class InstallImageBuilder(object):
         self.media_dir = mkdtemp(
             prefix='kiwi_install_media.', dir=self.target_dir
         )
+        # unpack cdroot user files to media dir
+        self.setup.import_cdroot_files(self.media_dir)
+
         # custom iso metadata
         self.custom_iso_args = {
             'meta_data': {

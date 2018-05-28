@@ -20,6 +20,10 @@ class TestInstallImageBuilder(object):
             'boot_names_type', ['kernel_name', 'initrd_name']
         )
         mock_machine.return_value = 'x86_64'
+        self.setup = mock.Mock()
+        kiwi.builder.install.SystemSetup = mock.Mock(
+            return_value=self.setup
+        )
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
@@ -136,6 +140,8 @@ class TestInstallImageBuilder(object):
         setattr(context_manager_mock, '__exit__', exit_mock)
 
         self.install_image.create_install_iso()
+
+        self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
 
         self.checksum.md5.assert_called_once_with(
             'temp-squashfs/result-image.md5'

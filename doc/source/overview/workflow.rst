@@ -235,6 +235,15 @@ These are the optional components of an image description:
    after all the packages included in the :file:`config.xml` file
    have been installed. Any already present file is overwritten.
 
+#. CD root user data
+
+   For live ISO images and install ISO images an optional cdroot archive
+   is supported. This is a tar archive matching the name
+   :file:`config-cdroot.tar[.compression_postfix]`. If present it will
+   be unpacked as user data on the ISO image. This is mostly useful to
+   add e.g license files or user documentation on the CD/DVD which
+   can be read directly without booting from the media.
+
 #. Archives included in the :file:`config.xml` file.
 
    The archives that are included in the `<packages>` using the `<archive>`
