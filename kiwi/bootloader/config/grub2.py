@@ -187,8 +187,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * FAILSAFE_APPEND
         """
         sysconfig_bootloader_entries = {
-            'LOADER_TYPE': self.boot_directory_name,
-            'LOADER_LOCATION': 'mbr'
+            'LOADER_TYPE':
+                'grub2-efi' if self.firmware.efi_mode() else 'grub2',
+            'LOADER_LOCATION':
+                'mbr'
         }
         if self.cmdline:
             sysconfig_bootloader_entries['DEFAULT_APPEND'] = '"{0}"'.format(
