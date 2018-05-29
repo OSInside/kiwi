@@ -213,7 +213,7 @@ class TestLiveImageBuilder(object):
             call('add_dracutmodules+=" kiwi-live pollcdrom "\n'),
             call(
                 'omit_dracutmodules+=" '
-                'kiwi-dump kiwi-overlay kiwi-repart kiwi-lib "\n'
+                'kiwi-dump kiwi-overlay kiwi-repart kiwi-lib multipath "\n'
             ),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n')
