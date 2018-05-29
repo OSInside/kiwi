@@ -357,7 +357,7 @@ class TestBootLoaderConfigGrub2(object):
         assert sysconfig_bootloader.__setitem__.call_args_list == [
             call('DEFAULT_APPEND', '"some-cmdline"'),
             call('FAILSAFE_APPEND', '"some-failsafe-cmdline"'),
-            call('LOADER_LOCATION', 'mbr'),
+            call('LOADER_LOCATION', 'none'),
             call('LOADER_TYPE', 'grub2-efi')
         ]
 

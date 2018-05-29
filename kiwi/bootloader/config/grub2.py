@@ -190,7 +190,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'LOADER_TYPE':
                 'grub2-efi' if self.firmware.efi_mode() else 'grub2',
             'LOADER_LOCATION':
-                'mbr'
+                'none' if self.firmware.efi_mode() else 'mbr'
         }
         if self.cmdline:
             sysconfig_bootloader_entries['DEFAULT_APPEND'] = '"{0}"'.format(
