@@ -349,6 +349,17 @@ class TestBootLoaderConfigGrub2(object):
             call('LOADER_LOCATION', 'mbr'),
             call('LOADER_TYPE', 'grub2')
         ]
+        self.firmware.efi_mode = mock.Mock(
+            return_value=True
+        )
+        sysconfig_bootloader.__setitem__.reset_mock()
+        self.bootloader.setup_sysconfig_bootloader()
+        assert sysconfig_bootloader.__setitem__.call_args_list == [
+            call('DEFAULT_APPEND', '"some-cmdline"'),
+            call('FAILSAFE_APPEND', '"some-failsafe-cmdline"'),
+            call('LOADER_LOCATION', 'mbr'),
+            call('LOADER_TYPE', 'grub2-efi')
+        ]
 
     def test_setup_live_image_config_multiboot(self):
         self.bootloader.multiboot = True
