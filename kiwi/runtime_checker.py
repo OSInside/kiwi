@@ -395,7 +395,8 @@ class RuntimeChecker(object):
             <package name="{0}"/>
         ''')
         required_dracut_package = 'dracut-kiwi-live'
-        if self.xml_state.get_build_type_name() == 'iso':
+        if (self.xml_state.get_build_type_name() == 'iso' and
+                self.xml_state.build_type.get_flags() != 'dmsquash'):
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()
