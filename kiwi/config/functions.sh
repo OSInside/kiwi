@@ -213,9 +213,9 @@ function suseImportBuildKey {
         return
     fi
     if [ -d "/usr/lib/rpm/gnupg/keys" ];then
-        pushd "/usr/lib/rpm/gnupg/keys"
+        pushd "/usr/lib/rpm/gnupg/keys" || return
     else
-        pushd "${TDIR}"
+        pushd "${TDIR}" || return
         if [ -x "${dumpsigs}" ];then
             ${dumpsigs} /usr/lib/rpm/gnupg/suse-build-key.gpg
         fi
@@ -236,7 +236,7 @@ function suseImportBuildKey {
         echo "Importing ${KEY} to rpm database"
         rpm --import "${KFN}"
     done
-    popd
+    popd || return
     rm -rf "${TDIR}"
 }
 
@@ -969,7 +969,7 @@ function baseCreateCommonKernelFile {
             #==========================================
             # create common kernel files, last wins !
             #------------------------------------------
-            pushd /boot
+            pushd /boot || return
             if [ -f "uImage-${kernel_version}" ];then
                 # dedicated to kernels on arm
                 mv "uImage-${kernel_version}" vmlinuz
@@ -1003,7 +1003,7 @@ function baseCreateCommonKernelFile {
             if [ -f "vmlinux-${kernel_version}.gz" ];then
                 mv "vmlinux-${kernel_version}.gz" vmlinux.gz
             fi
-            popd
+            popd || return
         done
     done
 }
@@ -1096,7 +1096,7 @@ function suseSetupProduct {
         prod=$(grep "^NAME" /etc/os-release | cut -d '=' -f 2 | cut -d '"' -f 2)
     fi
     if [ -d /etc/products.d ];then
-        pushd /etc/products.d
+        pushd /etc/products.d || return
         if [ -f "${prod}.prod" ];then
             ln -sf "${prod}.prod" baseproduct
         elif [ -f "SUSE_${prod}.prod" ];then
@@ -1107,7 +1107,7 @@ function suseSetupProduct {
                 ln -sf "${prod}" baseproduct
             fi
         fi
-        popd
+        popd || return
     fi
 }
 
