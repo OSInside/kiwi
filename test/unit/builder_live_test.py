@@ -241,6 +241,7 @@ class TestLiveImageBuilder(object):
             call(mbrid=self.mbrid)
         assert self.bootloader.write.call_args_list[1] == call()
 
+        self.boot_image_task.prepare.assert_called_once_with()
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid
         )
