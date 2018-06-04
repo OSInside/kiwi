@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated  by generateDS.py version 2.29.11.
-# Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
+# Generated  by generateDS.py version 2.29.14.
+# Python 3.6.5 (default, Mar 31 2018, 19:45:04) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/workspaces/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/work/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -4506,7 +4506,7 @@ class description(GeneratedsSuper):
     """A Short Description"""
     subclass = None
     superclass = None
-    def __init__(self, type_=None, author=None, contact=None, specification=None):
+    def __init__(self, type_=None, author=None, contact=None, specification=None, license=None):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
         if author is None:
@@ -4521,6 +4521,10 @@ class description(GeneratedsSuper):
             self.specification = []
         else:
             self.specification = specification
+        if license is None:
+            self.license = []
+        else:
+            self.license = license
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4547,13 +4551,19 @@ class description(GeneratedsSuper):
     def add_specification(self, value): self.specification.append(value)
     def insert_specification_at(self, index, value): self.specification.insert(index, value)
     def replace_specification_at(self, index, value): self.specification[index] = value
+    def get_license(self): return self.license
+    def set_license(self, license): self.license = license
+    def add_license(self, value): self.license.append(value)
+    def insert_license_at(self, index, value): self.license.insert(index, value)
+    def replace_license_at(self, index, value): self.license[index] = value
     def get_type(self): return self.type_
     def set_type(self, type_): self.type_ = type_
     def hasContent_(self):
         if (
             self.author or
             self.contact or
-            self.specification
+            self.specification or
+            self.license
         ):
             return True
         else:
@@ -4597,6 +4607,9 @@ class description(GeneratedsSuper):
         for specification_ in self.specification:
             showIndent(outfile, level, pretty_print)
             outfile.write('<specification>%s</specification>%s' % (self.gds_encode(self.gds_format_string(quote_xml(specification_), input_name='specification')), eol_))
+        for license_ in self.license:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<license>%s</license>%s' % (self.gds_encode(self.gds_format_string(quote_xml(license_), input_name='license')), eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4623,6 +4636,10 @@ class description(GeneratedsSuper):
             specification_ = child_.text
             specification_ = self.gds_validate_string(specification_, node, 'specification')
             self.specification.append(specification_)
+        elif nodeName_ == 'license':
+            license_ = child_.text
+            license_ = self.gds_validate_string(license_, node, 'license')
+            self.license.append(license_)
 # end class description
 
 

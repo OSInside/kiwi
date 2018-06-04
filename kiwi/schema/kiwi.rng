@@ -372,6 +372,23 @@ file was fetched</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <license>
+    
+  -->
+  <div>
+    <define name="k.license.attlist">
+      <empty/>
+    </define>
+    <define name="k.license">
+      <element name="license">
+        <a:documentation>License of the image</a:documentation>
+        <ref name="k.license.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <bootloader-theme>
     
   -->
@@ -3213,6 +3230,9 @@ a standard image description created by a kiwi user.</a:documentation>
             <ref name="k.contact"/>
           </oneOrMore>
           <ref name="k.specification"/>
+          <optional>
+            <ref name="k.license"/>
+          </optional>
         </interleave>
       </element>
     </define>

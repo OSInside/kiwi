@@ -204,6 +204,16 @@ div {
 }
 
 #==========================================
+# common element <license>
+#
+div {
+    k.license.attlist = empty
+    k.license =
+        ## License of the image
+        element license { k.license.attlist, text }
+}
+
+#==========================================
 # common element <bootloader-theme>
 #
 div {
@@ -2072,7 +2082,8 @@ div {
             k.description.attlist &
             k.author &
             k.contact+ &
-            k.specification
+            k.specification &
+            k.license?
         }
 }
 
