@@ -73,10 +73,17 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.run')
     @patch_open
     @patch('os.path.exists')
-    def test_import_description(self, mock_path, mock_open, mock_command):
+    @patch('kiwi.system.setup.glob.iglob')
+    def test_import_description(
+        self, mock_iglob, mock_path, mock_open, mock_command
+    ):
+        mock_iglob.return_value = ['config-cdroot.tar.xz']
         mock_path.return_value = True
         self.setup_with_real_xml.import_description()
 
+        mock_iglob.assert_called_once_with(
+            '../data/config-cdroot.tar*'
+        )
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
             call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
@@ -94,7 +101,9 @@ class TestSystemSetup(object):
                 'root_dir/.kconfig'
             ]),
             call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
-            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/'])]
+            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/']),
+            call(['cp', 'config-cdroot.tar.xz', 'root_dir/image/'])
+        ]
 
     @patch('kiwi.command.Command.run')
     @patch_open

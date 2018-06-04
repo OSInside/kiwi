@@ -93,6 +93,7 @@ class SystemSetup(object):
 
         self._import_custom_scripts()
         self._import_custom_archives()
+        self._import_cdroot_archive()
 
     def cleanup(self):
         """
@@ -684,6 +685,19 @@ class SystemSetup(object):
                 '--> Inplace recovery requested, deleting archive'
             )
             Path.wipe(metadata['archive_name'] + '.gz')
+
+    def _import_cdroot_archive(self):
+        glob_match = self.description_dir + '/config-cdroot.tar*'
+        for cdroot_archive in glob.iglob(glob_match):
+            log.info(
+                '--> Importing {0} archive as /image/{0}'.format(
+                    cdroot_archive
+                )
+            )
+            Command.run(
+                ['cp', cdroot_archive, self.root_dir + '/image/']
+            )
+            break
 
     def _import_custom_archives(self):
         """
