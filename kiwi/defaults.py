@@ -348,7 +348,8 @@ class Defaults(object):
             'xfs',
             'btrfs',
             'lvm',
-            'test'
+            'test',
+            'true'
         ]
         if multiboot:
             modules.append('multiboot')
