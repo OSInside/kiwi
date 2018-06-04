@@ -230,6 +230,9 @@ class LiveImageBuilder(object):
             working_directory=self.root_dir
         )
 
+        # prepare dracut initrd call
+        self.boot_image.prepare()
+
         # create dracut initrd for live image
         log.info('Creating live ISO boot image')
         self._create_dracut_live_iso_config()

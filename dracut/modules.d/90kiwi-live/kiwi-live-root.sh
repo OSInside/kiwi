@@ -8,6 +8,9 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 # init debug log file if wanted
 setupDebugMode
 
+# initialize profile environment
+initialize
+
 # device nodes and types
 initGlobalDevices "$1"
 

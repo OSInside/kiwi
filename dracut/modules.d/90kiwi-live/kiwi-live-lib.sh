@@ -28,6 +28,11 @@ function setupDebugMode {
     fi
 }
 
+function initialize {
+    local profile=/.profile
+    test -f ${profile} && cat ${profile}
+}
+
 function loadKernelModules {
     modprobe squashfs
 }
