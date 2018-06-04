@@ -118,17 +118,17 @@ class DiskFormatVhdFixed(DiskFormatBase):
                 'disk tag %s does not match format' % tag
             )
 
-        # pack first nibble into 4 byte long type
+        # pack first nibble into 4 byte unsigned long type
         binary_tag_part_1 = struct.pack(
-            'I', list(struct.unpack('>l', unhexlify(tag_format.group(1))))[0]
+            'I', list(struct.unpack('>L', unhexlify(tag_format.group(1))))[0]
         )
-        # pack second nibble into 2 byte short type
+        # pack second nibble into 2 byte unsigned short type
         binary_tag_part_2 = struct.pack(
-            'h', list(struct.unpack('>h', unhexlify(tag_format.group(2))))[0]
+            'h', list(struct.unpack('>H', unhexlify(tag_format.group(2))))[0]
         )
-        # pack third nibble into 2 byte short type
+        # pack third nibble into 2 byte unsigned short type
         binary_tag_part_3 = struct.pack(
-            'h', list(struct.unpack('>h', unhexlify(tag_format.group(3))))[0]
+            'h', list(struct.unpack('>H', unhexlify(tag_format.group(3))))[0]
         )
         # pack fourth nibble into hex
         binary_tag_part_4 = unhexlify(tag_format.group(4))
