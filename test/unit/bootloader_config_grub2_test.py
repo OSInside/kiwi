@@ -546,7 +546,7 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'test', 'multiboot', 'part_gpt',
+                'btrfs', 'lvm', 'test', 'true', 'multiboot', 'part_gpt',
                 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
             ])
         ]
@@ -604,8 +604,8 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'test', 'part_gpt', 'part_msdos', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'btrfs', 'lvm', 'test', 'true', 'part_gpt', 'part_msdos',
+                'efi_gop', 'efi_uga', 'linuxefi'
             ])
         ]
         assert mock_sync.call_args_list == [
@@ -822,8 +822,8 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
-                'btrfs', 'lvm', 'test', 'part_gpt', 'part_msdos', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'btrfs', 'lvm', 'test', 'true', 'part_gpt', 'part_msdos',
+                'efi_gop', 'efi_uga', 'linuxefi'
             ])
         ]
         assert mock_sync.call_args_list == [
