@@ -170,7 +170,9 @@ class RootBind(object):
         for element in elements:
             normalized_element = os.path.normpath(element)
             result.append(
-                normalized_element.replace(os.path.normpath(self.root_dir), '/')
+                normalized_element.replace(
+                    os.path.normpath(self.root_dir), os.sep
+                ).replace('{0}{0}'.format(os.sep), os.sep)
             )
         return result
 
