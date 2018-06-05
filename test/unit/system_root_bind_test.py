@@ -175,4 +175,4 @@ class TestRootBind(object):
     def test_move_to_root(self):
         assert self.bind_root.move_to_root(
             [self.bind_root.root_dir + '/argument']
-        ) == ['//argument']
+        ) == ['/argument']
