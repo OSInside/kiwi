@@ -1,6 +1,6 @@
 buildroot = /
 python_version = 3
-python_lookup_name = python
+python_lookup_name = python$(python_version)
 python = $(shell which $(python_lookup_name))
 
 LC = LC_MESSAGES
@@ -43,7 +43,7 @@ install:
 	done
 	# completion
 	install -d -m 755 ${buildroot}etc/bash_completion.d
-	helper/completion_generator \
+	$(python) helper/completion_generator \
 		> ${buildroot}etc/bash_completion.d/kiwi-ng-${python_version}.sh
 	# license
 	install -d -m 755 ${buildroot}/usr/share/doc/packages/python-kiwi
