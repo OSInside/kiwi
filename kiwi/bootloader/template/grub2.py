@@ -55,8 +55,6 @@ class BootLoaderTemplateGrub2(object):
                 echo "Please press 't' to show the boot menu on this console"
             fi
             set gfxmode=${gfxmode}
-            insmod all_video
-            insmod gfxterm
             terminal_output gfxterm
         ''').strip() + os.linesep
 

@@ -545,7 +545,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
-                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
+                'minicmd', 'gfxterm', 'gfxmenu', 'all_video', 'xfs',
                 'btrfs', 'lvm', 'test', 'true', 'multiboot', 'part_gpt',
                 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
             ])
@@ -603,7 +603,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
-                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
+                'minicmd', 'gfxterm', 'gfxmenu', 'all_video', 'xfs',
                 'btrfs', 'lvm', 'test', 'true', 'part_gpt', 'part_msdos',
                 'efi_gop', 'efi_uga', 'linuxefi'
             ])
@@ -821,7 +821,7 @@ class TestBootLoaderConfigGrub2(object):
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
-                'minicmd', 'gfxterm', 'gfxmenu', 'video', 'video_fb', 'xfs',
+                'minicmd', 'gfxterm', 'gfxmenu', 'all_video', 'xfs',
                 'btrfs', 'lvm', 'test', 'true', 'part_gpt', 'part_msdos',
                 'efi_gop', 'efi_uga', 'linuxefi'
             ])
