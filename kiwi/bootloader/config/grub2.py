@@ -417,11 +417,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._setup_EFI_path(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
-            log.info('--> Creating unsigned efi image')
-            self._create_efi_image(mbrid=mbrid, lookup_path=lookup_path)
+            self._setup_efi_image(mbrid=mbrid, lookup_path=lookup_path)
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
-            log.info('--> Setting up shim secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
             self._setup_secure_boot_efi_image(lookup_path)
 
@@ -455,11 +453,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
-            log.info('--> Creating unsigned efi image')
-            self._create_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
+            self._setup_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
-            log.info('--> Using signed secure boot efi image')
             self._copy_efi_modules_to_boot_directory(lookup_path)
             if not self._get_shim_install():
                 self.shim_fallback_setup = True
@@ -549,6 +545,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         to the target block device. In any other case this setup
         code should act as the fallback solution
         """
+        log.warning(
+            '--> Running fallback setup for shim secure boot efi image'
+        )
         if not lookup_path:
             lookup_path = self.root_dir
         shim_image = Defaults.get_shim_loader(lookup_path)
@@ -567,6 +566,29 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Command.run(
             ['cp', grub_image, self.efi_boot_path]
         )
+
+    def _setup_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
+        """
+        Provide the unsigned grub2 efi image in the required boot path
+        If a prebuilt efi image as provided by the distribution could
+        be found, this image will be used. If no such image could be
+        found we create a custom image with a pre defined set of
+        grub modules
+        """
+        if not lookup_path:
+            lookup_path = self.root_dir
+        grub_image = Defaults.get_unsigned_grub_loader(lookup_path)
+        if grub_image:
+            log.info('--> Using prebuilt unsigned efi image')
+            Command.run(
+                ['cp', grub_image, self._get_efi_image_name()]
+            )
+            self._create_efi_config_search(uuid, mbrid)
+        else:
+            log.info('--> Creating unsigned efi image')
+            self._create_efi_image(
+                uuid, mbrid, lookup_path
+            )
 
     def _create_embedded_fat_efi_image(self):
         Path.create(self.root_dir + '/boot/' + self.arch)
@@ -609,6 +631,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '-d', self._get_efi_modules_path(lookup_path)
             ] + Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
         )
+
+    def _create_efi_config_search(self, uuid=None, mbrid=None):
+        efi_boot_config = self.efi_boot_path + '/grub.cfg'
+        if uuid:
+            self._create_early_boot_script_for_uuid_search(
+                efi_boot_config, uuid
+            )
+        else:
+            self._create_early_boot_script_for_mbrid_search(
+                efi_boot_config, mbrid
+            )
+        with open(efi_boot_config, 'a') as config:
+            config.write(
+                'configfile ($root)/boot/{0}/grub.cfg{1}'.format(
+                    self.boot_directory_name, os.linesep
+                )
+            )
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
