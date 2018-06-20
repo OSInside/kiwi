@@ -643,11 +643,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 efi_boot_config, mbrid
             )
         with open(efi_boot_config, 'a') as config:
-            config.write(
-                'configfile ($root)/boot/{0}/grub.cfg{1}'.format(
-                    self.boot_directory_name, os.linesep
-                )
-            )
+            config.write('normal{0}'.format(os.linesep))
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:

@@ -649,7 +649,7 @@ class TestBootLoaderConfigGrub2(object):
             call('set btrfs_relative_path="yes"\n'),
             call('search --fs-uuid --set=root 0815\n'),
             call('set prefix=($root)//grub2\n'),
-            call('configfile ($root)/boot/grub2/grub.cfg\n')
+            call('normal\n')
         ]
         assert mock_open.call_args_list == [
             call('root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'),
@@ -896,7 +896,7 @@ class TestBootLoaderConfigGrub2(object):
             call('set btrfs_relative_path="yes"\n'),
             call('search --file --set=root /boot/0xffffffff\n'),
             call('set prefix=($root)/boot/grub2\n'),
-            call('configfile ($root)/boot/grub2/grub.cfg\n')
+            call('normal\n')
         ]
         assert mock_open.call_args_list == [
             call('root_dir//EFI/BOOT/grub.cfg', 'w'),
