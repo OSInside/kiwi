@@ -481,6 +481,29 @@ class Defaults(object):
                 return shim_file
 
     @classmethod
+    def get_unsigned_grub_loader(self, root_path):
+        """
+        Provides unsigned grub efi loader file path
+
+        Searches distribution specific locations to find grub.efi
+        below the given root path
+
+        :param string root_path: image root path
+
+        :return: file path or None
+
+        :rtype: str
+        """
+        unsigned_grub_file_patterns = [
+            '/usr/lib/grub*/*-efi/grub.efi'
+        ]
+        for unsigned_grub_file_pattern in unsigned_grub_file_patterns:
+            for unsigned_grub_file in glob.iglob(
+                root_path + unsigned_grub_file_pattern
+            ):
+                return unsigned_grub_file
+
+    @classmethod
     def get_signed_grub_loader(self, root_path):
         """
         Provides shim signed grub loader file path

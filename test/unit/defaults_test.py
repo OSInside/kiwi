@@ -86,3 +86,10 @@ class TestDefaults(object):
         assert Defaults.get_iso_boot_path() == 'boot/ix86'
         mock_machine.return_value = 'x86_64'
         assert Defaults.get_iso_boot_path() == 'boot/x86_64'
+
+    @patch('kiwi.defaults.glob.iglob')
+    def test_get_unsigned_grub_loader(self, mock_glob):
+        mock_glob.return_value = ['/usr/lib/grub2/x86_64-efi/grub.efi']
+        assert Defaults.get_unsigned_grub_loader('root') == \
+            mock_glob.return_value.pop()
+        mock_glob.assert_called_once_with('root/usr/lib/grub*/*-efi/grub.efi')
