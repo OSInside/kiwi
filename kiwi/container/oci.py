@@ -243,15 +243,16 @@ class ContainerImageOCI(object):
         with open(os.sep + Defaults.get_buildservice_env_name()) as env:
             for line in env:
                 if line.startswith('BUILD_DISTURL') and '=' in line:
-                    disturl = line.split('=')[1].strip()
+                    disturl = line.split('=')[1].lstrip('\'\"').rstrip('\n\'\"')
                     if disturl:
                         self.labels.append(
                             ''.join([
                                 '--config.label='
                                 'org.openbuildservice.disturl=',
-                                line.split('=')[1].strip()
+                                disturl
                             ])
                         )
+                        return
             log.warning('Could not find BUILD_DISTURL inside .buildenv')
 
     def __del__(self):
