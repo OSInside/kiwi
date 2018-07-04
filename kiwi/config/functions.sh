@@ -1158,6 +1158,33 @@ function baseSetRunlevel {
 }
 
 #======================================
+# baseCleanup
+#--------------------------------------
+function baseCleanup {
+    # /.../
+    # Delete files from the system which are considered
+    # one time initialization files to be re-created on
+    # the final target system
+    # ----
+    # systemd random seed
+    rm -f /var/lib/systemd/random-seed
+}
+
+#======================================
+# suseCleanup
+#--------------------------------------
+function suseCleanup {
+    # /.../
+    # Delete files from a SUSE system which are considered
+    # one time initialization files to be re-created on
+    # the final target system
+    # ----
+    baseCleanup
+    # zypper id
+    rm -f /var/lib/zypp/AnonymousUniqueId
+}
+
+#======================================
 # suseRemovePackagesMarkedForDeletion
 #--------------------------------------
 function suseRemovePackagesMarkedForDeletion {
