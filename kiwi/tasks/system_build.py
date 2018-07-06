@@ -28,6 +28,7 @@ usage: kiwi system build -h | --help
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
+           [--add-container-label=<label>...]
            [--signing-key=<key-file>...]
        kiwi system build help
 
@@ -71,6 +72,10 @@ options:
         overwrite the container tag in the container configuration.
         The setting is only effective if the container configuraiton
         provides an initial tag value
+    --add-container-label=<name=value>
+        add a container label in the container configuration metadata. It
+        overwrites the label with the provided key-value pair in case it was
+        already defined in the XML description
     --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
         overwrite the first XML listed repository source, type, alias,
         priority, the imageinclude flag and the package_gpgcheck flag
@@ -164,6 +169,14 @@ class SystemBuildTask(CliTask):
             self.xml_state.set_container_config_tag(
                 self.command_args['--set-container-tag']
             )
+
+        if self.command_args['--add-container-label']:
+            for add_label in self.command_args['--add-container-label']:
+                if '=' in add_label:
+                    label_value_pair = add_label.split('=', maxsplit=1)
+                    self.xml_state.add_container_config_label(
+                        label_value_pair[0], label_value_pair[1]
+                    )
 
         if self.command_args['--set-container-derived-from']:
             self.xml_state.set_derived_from_image_uri(

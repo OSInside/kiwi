@@ -1105,6 +1105,28 @@ class Defaults(object):
         return 'xz'
 
     @classmethod
+    def get_default_container_name(self):
+        """
+        Provides the default container name.
+
+        :return: name
+
+        :rtype: str
+        """
+        return 'kiwi-container'
+
+    @classmethod
+    def get_default_container_tag(self):
+        """
+        Provides the default container tag.
+
+        :return: tag
+
+        :rtype: str
+        """
+        return 'latest'
+
+    @classmethod
     def set_python_default_encoding_to_utf8(self):
         """
         Set python default encoding to utf-8 if not already done

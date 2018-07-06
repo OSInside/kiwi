@@ -87,6 +87,7 @@ class TestSystemBuildTask(object):
         self.task.command_args['--ignore-repos-used-for-build'] = False
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
+        self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = None
 
@@ -169,6 +170,18 @@ class TestSystemBuildTask(object):
         self.task.process()
         mock_set_container_tag.assert_called_once_with(
             'new_tag'
+        )
+
+    @patch('kiwi.xml_state.XMLState.add_container_config_label')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_build_add_container_label(
+        self, mock_log, mock_add_container_label
+    ):
+        self._init_command_args()
+        self.task.command_args['--add-container-label'] = ['newLabel=value']
+        self.task.process()
+        mock_add_container_label.assert_called_once_with(
+            'newLabel', 'value'
         )
 
     @patch('kiwi.xml_state.XMLState.set_derived_from_image_uri')
