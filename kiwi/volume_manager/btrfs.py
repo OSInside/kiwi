@@ -62,6 +62,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_is_snapshot'] = False
         if 'root_is_readonly_snapshot' not in self.custom_args:
             self.custom_args['root_is_readonly_snapshot'] = False
+        if 'quota_groups' not in self.custom_args:
+            self.custom_args['quota_groups'] = False
 
         self.subvol_mount_list = []
         self.toplevel_mount = None
@@ -97,6 +99,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         self.toplevel_mount.mount(
             self.custom_filesystem_args['mount_options']
         )
+        if self.custom_args['quota_groups']:
+            Command.run(
+                ['btrfs', 'quota', 'enable', self.mountpoint]
+            )
         root_volume = self.mountpoint + '/@'
         Command.run(
             ['btrfs', 'subvolume', 'create', root_volume]
@@ -235,7 +241,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         Mount btrfs subvolumes
         """
-
         self.toplevel_mount.mount(
             self.custom_filesystem_args['mount_options']
         )
@@ -301,6 +306,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 options=['-a', '-H', '-X', '-A', '--one-file-system'],
                 exclude=exclude
             )
+            if self.custom_args['quota_groups']:
+                self._create_quota_group_info()
 
     def set_property_readonly_root(self):
         """
@@ -345,6 +352,23 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         )
         xml_data_domtree = minidom.parseString(xml_data_unformatted)
         return xml_data_domtree.toprettyxml(indent="    ")
+
+    def _create_quota_group_info(self):
+        snapper_configs = ''.join([self.mountpoint, '/@/etc/snapper/configs/'])
+        if os.path.exists(snapper_configs):
+            with open(snapper_configs + 'root', 'w') as snapper_root:
+                snapper_root.write(
+                    '{0}{1}'.format(self._get_quota_group_id(), os.linesep)
+                )
+
+    def _get_quota_group_id(self):
+        qgroup_show_call = Command.run(
+            ['btrfs', 'qgroup', 'show', '-f', self.mountpoint]
+        )
+        for line in qgroup_show_call.output.split(os.linesep):
+            quota_group_id = re.search('^(\d+)/\d+', line)
+            if quota_group_id:
+                return quota_group_id.group(1)
 
     def _create_snapshot_info(self, filename):
         date_info = datetime.datetime.now()

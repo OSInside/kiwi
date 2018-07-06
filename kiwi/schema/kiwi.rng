@@ -1877,6 +1877,17 @@ the Xen Hypervisor</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
+    <define name="k.type.btrfs_quota_groups.attribute">
+      <attribute name="btrfs_quota_groups">
+        <a:documentation>activate the quota system if the filesystem is btrfs based.
+By default the quota system is inactive</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="btrfs_quota_groups" is-a="image_type">
+        <sch:param name="attr" value="btrfs_quota_groups"/>
+        <sch:param name="types" value="oem vmx docker"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.btrfs_root_is_snapshot.attribute">
       <attribute name="btrfs_root_is_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
@@ -2585,6 +2596,9 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.boottimeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_quota_groups.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_root_is_snapshot.attribute"/>

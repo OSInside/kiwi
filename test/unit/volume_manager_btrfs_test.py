@@ -122,6 +122,7 @@ class TestVolumeManagerBtrfs(object):
         mock_os_exists.return_value = False
         mock_command.return_value = command_call
         self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['quota_groups'] = True
 
         self.volume_manager.setup()
 
@@ -130,6 +131,7 @@ class TestVolumeManagerBtrfs(object):
         )
         toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
+            call(['btrfs', 'quota', 'enable', 'tmpdir']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots']),
             call(['mkdir', '-p', 'tmpdir/@/.snapshots/1']),
@@ -354,8 +356,17 @@ class TestVolumeManagerBtrfs(object):
 
     @patch_open
     @patch('kiwi.volume_manager.btrfs.DataSync')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('os.path.exists')
     @patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime))
-    def test_sync_data(self, mock_sync, mock_open):
+    def test_sync_data(
+        self, mock_exists, mock_command, mock_sync, mock_open
+    ):
+        self.volume_manager.custom_args['quota_groups'] = True
+        mock_exists.return_value = True
+        qgroup_show_call = mock.Mock()
+        qgroup_show_call.output = '0/5          16.00KiB     16.00KiB'
+        mock_command.return_value = qgroup_show_call
         xml_info = etree.tostring(etree.parse(
             '../data/info.xml', etree.XMLParser(remove_blank_text=True)
         ))
@@ -376,11 +387,16 @@ class TestVolumeManagerBtrfs(object):
             exclude=['exclude_me'],
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
-        mock_open.assert_called_once_with(
-            'tmpdir/@/.snapshots/1/info.xml', 'w'
-        )
-        self.file_mock.write.assert_called_once_with(
-            minidom.parseString(xml_info).toprettyxml(indent="    ")
+        assert mock_open.call_args_list == [
+            call('tmpdir/@/.snapshots/1/info.xml', 'w'),
+            call('tmpdir/@/etc/snapper/configs/root', 'w')
+        ]
+        assert self.file_mock.write.call_args_list == [
+            call(minidom.parseString(xml_info).toprettyxml(indent="    ")),
+            call('0\n')
+        ]
+        mock_command.assert_called_once_with(
+            ['btrfs', 'qgroup', 'show', '-f', 'tmpdir']
         )
 
     @patch('kiwi.volume_manager.btrfs.Command.run')

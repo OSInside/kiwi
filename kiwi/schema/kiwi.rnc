@@ -1248,6 +1248,14 @@ div {
             sch:param [ name = "attr" value = "xen_server" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
+    k.type.btrfs_quota_groups.attribute =
+        ## activate the quota system if the filesystem is btrfs based.
+        ## By default the quota system is inactive
+        attribute btrfs_quota_groups { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_quota_groups" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_quota_groups" ]
+            sch:param [ name = "types" value = "oem vmx docker" ]
+        ]
     k.type.btrfs_root_is_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
@@ -1740,6 +1748,7 @@ div {
         k.type.efiparttable.attribute? &
         k.type.bootprofile.attribute? &
         k.type.boottimeout.attribute? &
+        k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &
         k.type.compressed.attribute? &
