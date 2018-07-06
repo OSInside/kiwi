@@ -159,10 +159,13 @@ class SystemPrepareTask(CliTask):
 
         if self.command_args['--add-container-label']:
             for add_label in self.command_args['--add-container-label']:
-                if '=' in add_label:
-                    label_value_pair = add_label.split('=', maxsplit=1)
-                    self.xml_state.add_container_config_label(
-                        label_value_pair[0], label_value_pair[1]
+                try:
+                    (name, value) = add_label.split('=', 1)
+                    self.xml_state.add_container_config_label(name, value)
+                except Exception:
+                    log.warning(
+                        'Container label {0} ignored. Invalid format: '
+                        'expected labelname=value'.format(add_label)
                     )
 
         if self.command_args['--set-container-derived-from']:
@@ -220,7 +223,6 @@ class SystemPrepareTask(CliTask):
         # make sure manager instance is cleaned up now
         del manager
 
-        log.info('Preparing repos')
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
         setup.call_config_script()

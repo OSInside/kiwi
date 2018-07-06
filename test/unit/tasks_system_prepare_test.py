@@ -167,6 +167,15 @@ class TestSystemPrepareTask(object):
             'newLabel', 'value'
         )
 
+    @patch('kiwi.logger.log.warning')
+    def test_process_system_prepare_add_container_label_invalid_format(
+        self, mock_log_warn
+    ):
+        self._init_command_args()
+        self.task.command_args['--add-container-label'] = ['newLabel:value']
+        self.task.process()
+        assert mock_log_warn.called
+
     @patch('kiwi.xml_state.XMLState.set_derived_from_image_uri')
     def test_process_system_prepare_set_derived_from_uri(
         self, mock_set_derived_from_uri

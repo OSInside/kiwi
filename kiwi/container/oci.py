@@ -129,7 +129,7 @@ class ContainerImageOCI(object):
         # specific build. Thus disturl label only exists inside the
         # buildservice.
         if Defaults.is_buildservice_worker():
-            bs_label = 'org.openbuildservice'
+            bs_label = 'org.openbuildservice.disturl'
             # Do not label anything if any build service label is
             # already present
             if not [label for label in self.labels if bs_label in label]:

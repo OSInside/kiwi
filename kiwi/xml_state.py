@@ -966,7 +966,7 @@ class XMLState(object):
 
         * name: name of the volume
         * size: size of the volume
-        * realpath: system h to lookup volume data. If no mountpoint
+        * realpath: system path to lookup volume data. If no mountpoint
           is set the volume name is used as data path.
         * mountpoint: volume mount point and volume data path
         * fullsize: takes all space True|False
