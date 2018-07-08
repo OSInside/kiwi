@@ -588,6 +588,36 @@ class TestXMLState(object):
         config = state.get_container_config()
         assert config['container_tag'] == 'new_tag'
 
+    def test_add_container_label(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'docker')
+        state.add_container_config_label('somelabel', 'overwrittenvalue')
+        state.add_container_config_label('new_label', 'new value')
+        config = state.get_container_config()
+        assert config['labels'] == [
+            '--config.label=somelabel=overwrittenvalue',
+            '--config.label=someotherlabel=anotherlabelvalue',
+            '--config.label=new_label=new value'
+        ]
+
+    def test_add_container_label_without_contianerconfig(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['xenFlavour'], 'docker')
+        state.add_container_config_label('somelabel', 'newlabelvalue')
+        config = state.get_container_config()
+        assert config['labels'] == [
+            '--config.label=somelabel=newlabelvalue'
+        ]
+
+    @patch('kiwi.logger.log.warning')
+    def test_add_container_label_no_contianer_image_type(self, mock_log_warn):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
+        state.add_container_config_label('somelabel', 'newlabelvalue')
+        config = state.get_container_config()
+        assert not config
+        assert mock_log_warn.called
+
     @patch('kiwi.logger.log.warning')
     def test_set_container_tag_not_applied(self, mock_log_warn):
         self.state.set_container_config_tag('new_tag')

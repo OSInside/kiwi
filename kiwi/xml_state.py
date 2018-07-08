@@ -915,6 +915,49 @@ class XMLState(object):
             ''')
             log.warning(message.format(tag))
 
+    def add_container_config_label(self, label_name, value):
+        """
+        Adds a new label in the containerconfig section, if a label with the
+        same name is already defined in containerconfig it gets overwritten by
+        this method.
+
+        :param str label_name: the string representing the label name
+        :param str value: the value of the label
+        """
+        if self.get_build_type_name() not in ['docker', 'oci']:
+            message = dedent('''\n
+                Labels can only be configured for container image types
+                docker and oci.
+            ''')
+            log.warning(message)
+            return
+
+        container_config_section = self.get_build_type_containerconfig_section()
+        if not container_config_section:
+            container_config_section = xml_parse.containerconfig(
+                name=Defaults.get_default_container_name(),
+                tag=Defaults.get_default_container_tag()
+            )
+            self.build_type.set_containerconfig([container_config_section])
+
+        labels = container_config_section.get_labels()
+        if not labels:
+            labels = [xml_parse.labels()]
+
+        label_names = []
+        for label in labels[0].get_label():
+            label_names.append(label.get_name())
+
+        if label_name in label_names:
+            labels[0].replace_label_at(
+                label_names.index(label_name),
+                xml_parse.label(label_name, value)
+            )
+        else:
+            labels[0].add_label(xml_parse.label(label_name, value))
+
+        container_config_section.set_labels(labels)
+
     def get_volumes(self):
         """
         List of configured systemdisk volumes.

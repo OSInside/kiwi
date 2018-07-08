@@ -81,6 +81,7 @@
                 <oem-swap>true</oem-swap>
             </oemconfig>
         </type>
+        <type image="docker"/>
     </preferences>
     <preferences profiles="vmxFlavour">
         <type image="vmx" filesystem="ext3" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">

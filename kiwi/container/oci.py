@@ -73,8 +73,8 @@ class ContainerImageOCI(object):
         self.oci_dir = None
         self.oci_root_dir = None
 
-        self.container_name = 'kiwi-container'
-        self.container_tag = 'latest'
+        self.container_name = Defaults.get_default_container_name()
+        self.container_tag = Defaults.get_default_container_tag()
         self.additional_tags = []
         self.entry_command = []
         self.entry_subcommand = []
@@ -129,7 +129,11 @@ class ContainerImageOCI(object):
         # specific build. Thus disturl label only exists inside the
         # buildservice.
         if Defaults.is_buildservice_worker():
-            self._append_buildservice_disturl_label()
+            bs_label = 'org.openbuildservice.disturl'
+            # Do not label anything if any build service label is
+            # already present
+            if not [label for label in self.labels if bs_label in label]:
+                self._append_buildservice_disturl_label()
 
         if not custom_args or 'container_name' not in custom_args:
             log.info(
@@ -247,8 +251,7 @@ class ContainerImageOCI(object):
                     if disturl:
                         self.labels.append(
                             ''.join([
-                                '--config.label='
-                                'org.openbuildservice.disturl=',
+                                '--config.label=org.openbuildservice.disturl=',
                                 disturl
                             ])
                         )
