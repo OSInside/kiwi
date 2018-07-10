@@ -52,8 +52,7 @@ class LiveImageBuilder(object):
     :param object xml_state: instance of :class:`XMLState`
     :param str target_dir: target directory path name
     :param str root_dir: root directory path name
-    :param dict custom_args: Custom processing arguments defined as hash keys:
-        * xz_options: string of XZ compression parameters
+    :param dict custom_args: Custom processing arguments
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.media_dir = None
@@ -74,6 +73,7 @@ class LiveImageBuilder(object):
         }
         self.publisher = xml_state.build_type.get_publisher() or \
             Defaults.get_publisher()
+        self.custom_args = custom_args
 
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()

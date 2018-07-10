@@ -33,7 +33,7 @@ class CommandCapabilities(object):
     """
     @classmethod
     def has_option_in_help(
-        self, call, flag, help_flags=['--help'],
+        self, call, flag, help_flags=None,
         root=None, raise_on_error=True
     ):
         """
@@ -50,10 +50,11 @@ class CommandCapabilities(object):
 
         :rtype: bool
         """
+        help_args = help_flags or ['--help']
         if root:
-            arguments = ['chroot', root, call] + help_flags
+            arguments = ['chroot', root, call] + help_args
         else:
-            arguments = [call] + help_flags
+            arguments = [call] + help_args
         try:
             command = Command.run(arguments)
             for line in command.output.splitlines():
@@ -71,7 +72,7 @@ class CommandCapabilities(object):
 
     @classmethod
     def check_version(
-        self, call, version_waterline, version_flags=['--version'],
+        self, call, version_waterline, version_flags=None,
         root=None, raise_on_error=True
     ):
         """
@@ -85,16 +86,17 @@ class CommandCapabilities(object):
         :param bool raise_on_error: control error behavior
 
         :raises KiwiCommandCapabilitiesError: if raise_on_error is True and
-        command execution fails or version can't be parsed.
+            command execution fails or version can't be parsed.
         :return: True if the current command version is equal or higher to
-        version_waterline
+            version_waterline
 
         :rtype: bool
         """
+        version_args = version_flags or ['--version']
         if root:
-            arguments = ['chroot', root, call] + version_flags
+            arguments = ['chroot', root, call] + version_args
         else:
-            arguments = [call] + version_flags
+            arguments = [call] + version_args
         version_info = None
         try:
             command = Command.run(arguments)

@@ -1,2 +1,6 @@
 ignore-paths:
   - kiwi/xml_parse.py
+
+pylint:
+  disable:
+    - logging-format-interpolation
