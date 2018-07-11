@@ -618,12 +618,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_early_boot_script_for_mbrid_search(
                 early_boot_script, mbrid
             )
-        for grub_mkimage_tool in ['grub2-mkimage', 'grub-mkimage']:
-            if Path.which(grub_mkimage_tool):
-                break
         Command.run(
             [
-                grub_mkimage_tool,
+                self._get_grub2_mkimage_tool() or 'grub2-mkimage',
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
                 '-o', self._get_efi_image_name(),
                 '-c', early_boot_script,
@@ -674,6 +671,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     self.boot_directory_name, os.linesep
                 )
             )
+
+    def _get_grub2_mkimage_tool(self):
+        for grub_mkimage_tool in ['grub2-mkimage', 'grub-mkimage']:
+            if Path.which(grub_mkimage_tool):
+                return grub_mkimage_tool
 
     def _get_grub2_boot_path(self):
         return self.root_dir + '/boot/' + self.boot_directory_name
