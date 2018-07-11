@@ -1885,7 +1885,7 @@ By default the quota system is inactive</a:documentation>
       </attribute>
       <sch:pattern id="btrfs_quota_groups" is-a="image_type">
         <sch:param name="attr" value="btrfs_quota_groups"/>
-        <sch:param name="types" value="oem vmx docker"/>
+        <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_snapshot.attribute">
@@ -1897,7 +1897,7 @@ toolkit. By default no snapshots are used</a:documentation>
       </attribute>
       <sch:pattern id="btrfs_root_is_snapshot" is-a="image_type">
         <sch:param name="attr" value="btrfs_root_is_snapshot"/>
-        <sch:param name="types" value="oem vmx docker"/>
+        <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_readonly_snapshot.attribute">
@@ -1912,7 +1912,7 @@ is writable</a:documentation>
       </attribute>
       <sch:pattern id="btrfs_root_is_readonly_snapshot" is-a="image_type">
         <sch:param name="attr" value="btrfs_root_is_readonly_snapshot"/>
-        <sch:param name="types" value="oem vmx docker"/>
+        <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.target_blocksize.attribute">
