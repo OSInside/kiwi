@@ -278,6 +278,8 @@ class DiskBuilder(object):
                     self.xml_state.build_type.get_btrfs_root_is_snapshot(),
                 'root_is_readonly_snapshot':
                     self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot(),
+                'quota_groups':
+                    self.xml_state.build_type.get_btrfs_quota_groups(),
                 'image_type':
                     self.xml_state.get_build_type_name()
             }

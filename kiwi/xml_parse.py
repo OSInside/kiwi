@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.14.
-# Python 3.6.5 (default, Mar 31 2018, 19:45:04) [GCC]
+# Python 3.4.6 (default, Mar 22 2017, 12:26:13) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/work/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.4/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2732,7 +2732,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2747,6 +2747,7 @@ class type_(GeneratedsSuper):
         self.efiparttable = _cast(None, efiparttable)
         self.bootprofile = _cast(None, bootprofile)
         self.boottimeout = _cast(int, boottimeout)
+        self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
         self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
         self.compressed = _cast(bool, compressed)
@@ -2890,6 +2891,8 @@ class type_(GeneratedsSuper):
     def set_bootprofile(self, bootprofile): self.bootprofile = bootprofile
     def get_boottimeout(self): return self.boottimeout
     def set_boottimeout(self, boottimeout): self.boottimeout = boottimeout
+    def get_btrfs_quota_groups(self): return self.btrfs_quota_groups
+    def set_btrfs_quota_groups(self, btrfs_quota_groups): self.btrfs_quota_groups = btrfs_quota_groups
     def get_btrfs_root_is_snapshot(self): return self.btrfs_root_is_snapshot
     def set_btrfs_root_is_snapshot(self, btrfs_root_is_snapshot): self.btrfs_root_is_snapshot = btrfs_root_is_snapshot
     def get_btrfs_root_is_readonly_snapshot(self): return self.btrfs_root_is_readonly_snapshot
@@ -3071,6 +3074,9 @@ class type_(GeneratedsSuper):
         if self.boottimeout is not None and 'boottimeout' not in already_processed:
             already_processed.add('boottimeout')
             outfile.write(' boottimeout="%s"' % self.gds_format_integer(self.boottimeout, input_name='boottimeout'))
+        if self.btrfs_quota_groups is not None and 'btrfs_quota_groups' not in already_processed:
+            already_processed.add('btrfs_quota_groups')
+            outfile.write(' btrfs_quota_groups="%s"' % self.gds_format_boolean(self.btrfs_quota_groups, input_name='btrfs_quota_groups'))
         if self.btrfs_root_is_snapshot is not None and 'btrfs_root_is_snapshot' not in already_processed:
             already_processed.add('btrfs_root_is_snapshot')
             outfile.write(' btrfs_root_is_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapshot, input_name='btrfs_root_is_snapshot'))
@@ -3305,6 +3311,15 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.boottimeout < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('btrfs_quota_groups', node)
+        if value is not None and 'btrfs_quota_groups' not in already_processed:
+            already_processed.add('btrfs_quota_groups')
+            if value in ('true', '1'):
+                self.btrfs_quota_groups = True
+            elif value in ('false', '0'):
+                self.btrfs_quota_groups = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_root_is_snapshot', node)
         if value is not None and 'btrfs_root_is_snapshot' not in already_processed:
             already_processed.add('btrfs_root_is_snapshot')
