@@ -22,25 +22,26 @@ class TestVolumeManagerLVM(object):
                 'realpath',
                 'mountpoint',
                 'fullsize',
+                'label',
                 'attributes'
             ]
         )
         self.volumes = [
             self.volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False, attributes=[]
+                mountpoint=None, fullsize=False, label=None, attributes=[]
             ),
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False, attributes=[]
+                mountpoint='/etc', fullsize=False, label='etc', attributes=[]
             ),
             self.volume_type(
                 name='myvol', size='size:500', realpath='/data',
-                mountpoint='LVdata', fullsize=False, attributes=[]
+                mountpoint='LVdata', fullsize=False, label=None, attributes=[]
             ),
             self.volume_type(
                 name='LVhome', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True, attributes=[]
+                mountpoint='/home', fullsize=True, label=None, attributes=[]
             ),
         ]
         mock_path.return_value = True
@@ -135,6 +136,8 @@ class TestVolumeManagerLVM(object):
         self, mock_attrs, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_size, mock_os_exists
     ):
+        filesystem = mock.Mock()
+        mock_fs.return_value = filesystem
         self.volume_manager.mountpoint = 'tmpdir'
         mock_mapped_device.return_value = 'mapped_device'
         size = mock.Mock()
@@ -153,19 +156,22 @@ class TestVolumeManagerLVM(object):
             call(
                 'root_dir', self.volume_type(
                     name='LVRoot', size='freespace:100', realpath='/',
-                    mountpoint=None, fullsize=False, attributes=[]
+                    mountpoint=None, fullsize=False, label=None,
+                    attributes=[]
                 )
             ),
             call(
                 'root_dir', self.volume_type(
                     name='myvol', size='size:500', realpath='/data',
-                    mountpoint='LVdata', fullsize=False, attributes=[]
+                    mountpoint='LVdata', fullsize=False, label=None,
+                    attributes=[]
                 )
             ),
             call(
                 'root_dir', self.volume_type(
                     name='LVetc', size='freespace:200', realpath='/etc',
-                    mountpoint='/etc', fullsize=False, attributes=[]
+                    mountpoint='/etc', fullsize=False, label='etc',
+                    attributes=[]
                 )
             )
         ]
@@ -216,6 +222,12 @@ class TestVolumeManagerLVM(object):
                 device_provider='mapped_device',
                 name='ext3'
             )
+        ]
+        assert filesystem.create_on_device.call_args_list == [
+            call(label='ROOT'),
+            call(label=None),
+            call(label='etc'),
+            call(label=None)
         ]
         self.volume_manager.volume_group = None
 

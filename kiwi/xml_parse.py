@@ -4206,11 +4206,12 @@ class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, freespace=None, mountpoint=None, name=None, size=None):
+    def __init__(self, copy_on_write=None, freespace=None, mountpoint=None, label=None, name=None, size=None):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
         self.freespace = _cast(None, freespace)
         self.mountpoint = _cast(None, mountpoint)
+        self.label = _cast(None, label)
         self.name = _cast(None, name)
         self.size = _cast(None, size)
     def factory(*args_, **kwargs_):
@@ -4230,6 +4231,8 @@ class volume(GeneratedsSuper):
     def set_freespace(self, freespace): self.freespace = freespace
     def get_mountpoint(self): return self.mountpoint
     def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
+    def get_label(self): return self.label
+    def set_label(self, label): self.label = label
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_size(self): return self.size
@@ -4278,6 +4281,9 @@ class volume(GeneratedsSuper):
         if self.mountpoint is not None and 'mountpoint' not in already_processed:
             already_processed.add('mountpoint')
             outfile.write(' mountpoint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mountpoint), input_name='mountpoint')), ))
+        if self.label is not None and 'label' not in already_processed:
+            already_processed.add('label')
+            outfile.write(' label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.label), input_name='label')), ))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
@@ -4313,6 +4319,10 @@ class volume(GeneratedsSuper):
         if value is not None and 'mountpoint' not in already_processed:
             already_processed.add('mountpoint')
             self.mountpoint = value
+        value = find_attr_value_('label', node)
+        if value is not None and 'label' not in already_processed:
+            already_processed.add('label')
+            self.label = value
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')

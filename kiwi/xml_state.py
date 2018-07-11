@@ -978,13 +978,16 @@ class XMLState(object):
             .. code:: python
 
                 [
-                    volume_type(name=volume_name,
-                    size=volume_size,
-                    realpath=path,
-                    mountpoint=path,
-                    fullsize=True,
-                    attributes=['no-copy-on-write']
-                )
+                    volume_type(
+                        name=volume_name,
+                        size=volume_size,
+                        realpath=path,
+                        mountpoint=path,
+                        fullsize=True,
+                        label=volume_label,
+                        attributes=['no-copy-on-write']
+                    )
+                ]
 
         :rtype: list
         """
@@ -1000,6 +1003,7 @@ class XMLState(object):
                 'realpath',
                 'mountpoint',
                 'fullsize',
+                'label',
                 'attributes'
             ]
         )
@@ -1017,6 +1021,7 @@ class XMLState(object):
                 size = volume.get_size()
                 freespace = volume.get_freespace()
                 fullsize = False
+                label = volume.get_label()
                 attributes = []
 
                 if volume.get_copy_on_write() is False:
@@ -1065,6 +1070,7 @@ class XMLState(object):
                         fullsize=fullsize,
                         mountpoint=mountpoint,
                         realpath=realpath,
+                        label=label,
                         attributes=attributes
                     )
                 )
@@ -1087,6 +1093,7 @@ class XMLState(object):
                     fullsize=fullsize,
                     mountpoint=None,
                     realpath='/',
+                    label=None,
                     attributes=[]
                 )
             )

@@ -264,6 +264,7 @@ class TestXMLState(object):
                 'realpath',
                 'mountpoint',
                 'fullsize',
+                'label',
                 'attributes'
             ]
         )
@@ -272,24 +273,28 @@ class TestXMLState(object):
                 name='usr_lib', size='size:1024',
                 realpath='usr/lib',
                 mountpoint='usr/lib', fullsize=False,
+                label='library',
                 attributes=[]
             ),
             volume_type(
                 name='LVRoot', size='freespace:500',
                 realpath='/',
                 mountpoint=None, fullsize=False,
+                label=None,
                 attributes=[]
             ),
             volume_type(
                 name='etc_volume', size='freespace:30',
                 realpath='etc',
                 mountpoint='etc', fullsize=False,
+                label=None,
                 attributes=['no-copy-on-write']
             ),
             volume_type(
                 name='bin_volume', size=None,
                 realpath='/usr/bin',
                 mountpoint='/usr/bin', fullsize=True,
+                label=None,
                 attributes=[]
             )
         ]
@@ -305,6 +310,7 @@ class TestXMLState(object):
                 'realpath',
                 'mountpoint',
                 'fullsize',
+                'label',
                 'attributes'
             ]
         )
@@ -312,6 +318,7 @@ class TestXMLState(object):
             volume_type(
                 name='LVRoot', size=None, realpath='/',
                 mountpoint=None, fullsize=True,
+                label=None,
                 attributes=[]
             )
         ]
@@ -329,6 +336,7 @@ class TestXMLState(object):
                 'realpath',
                 'mountpoint',
                 'fullsize',
+                'label',
                 'attributes'
             ]
         )
@@ -336,11 +344,13 @@ class TestXMLState(object):
             volume_type(
                 name='usr', size=None, realpath='usr',
                 mountpoint='usr', fullsize=True,
+                label=None,
                 attributes=[]
             ),
             volume_type(
                 name='LVRoot', size='freespace:30', realpath='/',
                 mountpoint=None, fullsize=False,
+                label=None,
                 attributes=[]
             )
         ]
