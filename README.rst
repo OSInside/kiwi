@@ -3,8 +3,8 @@ KIWI - Next Generation
 
 .. |Build Status| image:: https://travis-ci.org/davidcassany/kiwi.svg?branch=master
    :target: https://travis-ci.org/davidcassany/kiwi
-.. |Health| image:: https://landscape.io/github/SUSE/kiwi/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/SUSE/kiwi/master
+.. |Health| image:: https://api.codacy.com/project/badge/Grade/901d7ab90bc6458f96aa22bcc5b8ebd5
+   :target: https://www.codacy.com/app/davidcassany/kiwi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=davidcassany/kiwi&amp;utm_campaign=Badge_Grade
 .. |Doc| replace:: `Documentation <https://suse.github.io/kiwi>`__
 .. |Installation| replace:: `Installation <https://suse.github.io/kiwi/quickstart.html>`__
 .. |Contributing| replace:: `Contributing <https://suse.github.io/kiwi/development.html>`__
