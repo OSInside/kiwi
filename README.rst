@@ -1,8 +1,8 @@
 KIWI - Next Generation
 ======================
 
-.. |Build Status| image:: https://travis-ci.org/SUSE/kiwi.svg?branch=master
-   :target: https://travis-ci.org/SUSE/kiwi
+.. |Build Status| image:: https://travis-ci.org/davidcassany/kiwi.svg?branch=master
+   :target: https://travis-ci.org/davidcassany/kiwi
 .. |Health| image:: https://landscape.io/github/SUSE/kiwi/master/landscape.svg?style=flat
    :target: https://landscape.io/github/SUSE/kiwi/master
 .. |Doc| replace:: `Documentation <https://suse.github.io/kiwi>`__
