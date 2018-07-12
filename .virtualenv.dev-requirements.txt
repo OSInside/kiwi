@@ -20,6 +20,9 @@ tox
 pytest
 pytest-cov
 
+# For code analytics
+bandit
+
 # Rolling backport of unittest.mock for all Pythons
 mock
 
