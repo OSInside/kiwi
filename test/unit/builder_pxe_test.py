@@ -79,7 +79,9 @@ class TestPxeBuilder(object):
             'myimage.fs', 'myimage'
         )
         compress.xz.assert_called_once_with(None)
-        checksum.md5.assert_called_once_with('compressed-file-name.md5')
+        checksum.md5.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.md5'
+        )
         self.boot_image_task.prepare.assert_called_once_with()
         self.setup.export_modprobe_setup.assert_called_once_with(
             'initrd_dir'
@@ -98,7 +100,7 @@ class TestPxeBuilder(object):
                 'myimage-42.kernel ' +
                 'initrd_file_name ' +
                 'compressed-file-name ' +
-                'compressed-file-name.md5 ' +
+                'some-image.x86_64-1.2.3.md5 ' +
                 '| xz -f --threads=0 > ' +
                 'target_dir/some-image.x86_64-1.2.3.tar.xz'
             ]
