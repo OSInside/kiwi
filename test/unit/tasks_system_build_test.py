@@ -100,6 +100,7 @@ class TestSystemBuildTask(object):
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image.assert_called_once_with()
         self.runtime_checker.check_docker_tool_chain_installed.assert_called_once_with()
         self.runtime_checker.check_volume_setup_has_no_root_definition.assert_called_once_with()
+        self.runtime_checker.check_volume_label_used_with_lvm.assert_called_once_with()
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(self.abs_target_dir)
         self.runtime_checker.check_mediacheck_only_for_x86_arch.assert_called_once_with()
