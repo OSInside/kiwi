@@ -111,8 +111,7 @@ class DiskBuilder(object):
             self.signing_keys = custom_args['signing_keys']
 
         self.boot_image = BootImage(
-            xml_state, target_dir, root_dir,
-            signing_keys=self.signing_keys, custom_args=self.custom_args
+            xml_state, target_dir, root_dir, signing_keys=self.signing_keys
         )
         self.firmware = FirmWare(
             xml_state
