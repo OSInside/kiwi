@@ -102,6 +102,39 @@ class RuntimeChecker(object):
                 message % (target_dir, shared_cache_location)
             )
 
+    def check_volume_label_used_with_lvm(self):
+        """
+        The optional volume label in a systemdisk setup is only
+        effective if the LVM, logical volume manager system is
+        used. In any other case where the filesystem itself offers
+        volume management capabilities there are no extra filesystem
+        labels which can be applied per volume
+        """
+        message = dedent('''\n
+            Custom volume label setup used without LVM
+
+            The optional volume label in a systemdisk setup is only
+            effective if the LVM, logical volume manager system is
+            used. Your setup uses the {0} filesystem which itself
+            offers volume management capabilities. Extra filesystem
+            labels cannot be applied in this case.
+
+            If you want to force LVM over the {0} volume management
+            system you can do so by specifying the following in
+            your KIWI XML description:
+
+            <systemdisk ... preferlvm="true">
+                <volume .../>
+            </systemdisk>
+        ''')
+        volume_management = self.xml_state.get_volume_management()
+        if volume_management != 'lvm':
+            for volume in self.xml_state.get_volumes():
+                if volume.label:
+                    raise KiwiRuntimeError(
+                        message.format(volume_management)
+                    )
+
     def check_volume_setup_has_no_root_definition(self):
         """
         The root volume in a systemdisk setup is handled in a special

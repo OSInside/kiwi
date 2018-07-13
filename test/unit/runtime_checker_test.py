@@ -347,3 +347,7 @@ class TestRuntimeChecker(object):
         )
         runtime_checker = RuntimeChecker(xml_state)
         runtime_checker.check_dracut_module_for_oem_install_in_package_list()
+
+    @raises(KiwiRuntimeError)
+    def test_check_volume_label_used_with_lvm(self):
+        self.runtime_checker.check_volume_label_used_with_lvm()

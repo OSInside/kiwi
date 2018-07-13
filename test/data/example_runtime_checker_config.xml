@@ -74,10 +74,10 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="ext4" initrd_system="dracut" installiso="true">
+        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="btrfs" initrd_system="dracut" installiso="true">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk">
-                <volume name="root" size="6G" mountpoint="/"/>
+                <volume name="root" size="6G" mountpoint="/" label="foo"/>
             </systemdisk>
             <machine memory="512" xen_loader="pvgrub">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>

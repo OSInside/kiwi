@@ -137,7 +137,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
             self._add_to_volume_map(volume.name)
             self._create_filesystem(
-                volume.name, filesystem_name
+                volume.name, volume.label, filesystem_name
             )
             self._add_to_mount_list(
                 volume.name, volume.realpath
@@ -154,7 +154,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
             self._add_to_volume_map(full_size_volume.name)
             self._create_filesystem(
-                full_size_volume.name, filesystem_name
+                full_size_volume.name, full_size_volume.label, filesystem_name
             )
             self._add_to_mount_list(
                 full_size_volume.name, full_size_volume.realpath
@@ -245,11 +245,13 @@ class VolumeManagerLVM(VolumeManagerBase):
                     all_volumes_umounted = False
         return all_volumes_umounted
 
-    def _create_filesystem(self, volume_name, filesystem_name):
+    def _create_filesystem(self, volume_name, volume_label, filesystem_name):
         device_node = self.volume_map[volume_name]
-        label = None
-        if volume_name == 'LVRoot':
-            label = self.custom_args['root_label']
+        if volume_name == 'LVRoot' and not volume_label:
+            # if there is no @root volume definition for the root volume,
+            # perform a second lookup of a label specified via the
+            # rootfs_label from the type setup
+            volume_label = self.custom_args['root_label']
         filesystem = FileSystem(
             name=filesystem_name,
             device_provider=MappedDevice(
@@ -258,7 +260,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             custom_args=self.custom_filesystem_args
         )
         filesystem.create_on_device(
-            label=label
+            label=volume_label
         )
 
     def _add_to_mount_list(self, volume_name, realpath):

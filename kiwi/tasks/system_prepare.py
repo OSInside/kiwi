@@ -126,6 +126,7 @@ class SystemPrepareTask(CliTask):
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
         self.runtime_checker.check_docker_tool_chain_installed()
         self.runtime_checker.check_volume_setup_has_no_root_definition()
+        self.runtime_checker.check_volume_label_used_with_lvm()
         self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
         self.runtime_checker.check_target_directory_not_in_shared_cache(
             abs_root_path

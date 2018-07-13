@@ -3131,6 +3131,11 @@ add "M" and/or "G" as postfix</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.volume.label.attribute">
+      <attribute name="label">
+        <a:documentation>filesystem label name of the volume.</a:documentation>
+      </attribute>
+    </define>
     <define name="k.volume.attlist">
       <interleave>
         <optional>
@@ -3141,6 +3146,9 @@ add "M" and/or "G" as postfix</a:documentation>
         </optional>
         <optional>
           <ref name="k.volume.mountpoint.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.volume.label.attribute"/>
         </optional>
         <ref name="k.volume.name.attribute"/>
         <optional>
