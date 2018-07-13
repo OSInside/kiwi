@@ -111,8 +111,8 @@ class DiskFormatGce(DiskFormatBase):
             [
                 self.target_dir, '/',
                 self.xml_state.xml_data.get_name(),
-                '-guest-gce-',
-                self.xml_state.get_image_version(),
+                '.' + self.arch,
+                '-' + self.xml_state.get_image_version(),
                 '.' + format_name
             ]
         )
