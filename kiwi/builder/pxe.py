@@ -77,6 +77,7 @@ class PxeBuilder(object):
             ]
         )
         self.archive_name = ''.join([self.image_name, '.tar.xz'])
+        self.checksum_name = ''.join([self.image_name, '.md5'])
         self.kernel_filename = None
         self.hypervisor_filename = None
         self.result = Result(xml_state)
@@ -112,9 +113,8 @@ class PxeBuilder(object):
             self.image = compress.compressed_filename
 
         log.info('Creating PXE root filesystem MD5 checksum')
-        self.filesystem_checksum = ''.join([self.image, '.md5'])
         checksum = Checksum(self.image)
-        checksum.md5(self.filesystem_checksum)
+        checksum.md5(self.checksum_name)
 
         # prepare boot(initrd) root system
         log.info('Creating PXE boot image')
@@ -179,7 +179,7 @@ class PxeBuilder(object):
             self.kernel_filename,
             os.path.basename(self.boot_image_task.initrd_filename),
             os.path.basename(self.image),
-            os.path.basename(self.filesystem_checksum)
+            os.path.basename(self.checksum_name)
         ] + [
             '|', 'xz', '-f'
         ] + self.xz_options + [
