@@ -31,6 +31,8 @@
     </repository>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
+        <package name="grub2-i386-pc"/>
         <package name="blog"/>
         <package name="dhcp-client"/>
         <package name="bind-utils"/>
