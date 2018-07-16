@@ -12,10 +12,10 @@
         </type>
         <version>1.0.17</version>
         <packagemanager>zypper</packagemanager>
-        <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
-        <keytable>us.map.gz</keytable>
-        <timezone>utc</timezone>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
@@ -130,6 +130,7 @@
         <package name="growpart-rootgrow"/>
         <package name="python3-gcemetadata"/>
         <package name="google-compute-engine-init"/>
+        <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
         <package name="openSUSE-release"/>
