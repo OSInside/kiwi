@@ -61,11 +61,11 @@ class TestDiskFormatGce(object):
             call('{"licenses": ["gce-license"]}')
         ]
         mock_archive.assert_called_once_with(
-            filename='target_dir/some-disk-image-guest-gce-0.8.15.tar',
+            filename='target_dir/some-disk-image.x86_64-0.8.15.tar',
             file_list=['manifest.json', 'disk.raw']
         )
         archive.create_gnu_gzip_compressed.assert_called_once_with(
             'tmpdir'
         )
         assert self.disk_format.get_target_file_path_for_format('gce') == \
-            'target_dir/some-disk-image-guest-gce-0.8.15.tar.gz'
+            'target_dir/some-disk-image.x86_64-0.8.15.tar.gz'
