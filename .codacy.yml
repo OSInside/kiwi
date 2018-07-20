@@ -1,4 +1,4 @@
 ---
 exclude_paths:
   - 'kiwi/xml_parse.py'
-  - 'test/*'
+  - 'test/**'
