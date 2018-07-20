@@ -128,6 +128,15 @@ class DiskFormatBase(object):
         if custom_args:
             ordered_args = OrderedDict(sorted(custom_args.items()))
             for key, value in list(ordered_args.items()):
+                if key == 'adapter_type=pvscsi':
+                    # qemu does not support the pvscsi type:
+                    # To build a vmdk image with ddb.adapterType set to
+                    # pvscsi we need to manually change the header but
+                    # have to create a vmdk with lsilogic as scsi adapter
+                    # first. I don't really like this hack but it seems
+                    # there is no way around. For details see
+                    # bsc#1099569
+                    key = 'adapter_type=lsilogic'
                 options.append('-o')
                 if value:
                     options.append('{0}={1}'.format(key, value))

@@ -21,6 +21,7 @@ from textwrap import dedent
 
 # project
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
+from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.path import Path
@@ -31,7 +32,7 @@ from kiwi.exceptions import (
 )
 
 
-class DiskFormatOva(DiskFormatVmdk):
+class DiskFormatOva(DiskFormatBase):
     """
     **Create ova disk format, based on vmdk**
     """
@@ -48,6 +49,9 @@ class DiskFormatOva(DiskFormatVmdk):
             raise KiwiFormatSetupError('Unsupported ovftype %s' % ovftype)
         self.image_format = 'ova'
         self.options = self.get_qemu_option_list(custom_args)
+        self.vmdk = DiskFormatVmdk(
+            self.xml_state, self.root_dir, self.target_dir, custom_args
+        )
 
     def create_image_format(self):
         """
@@ -70,7 +74,7 @@ class DiskFormatOva(DiskFormatVmdk):
             )
 
         # Create the vmdk disk image and vmx config
-        super(DiskFormatOva, self).create_image_format()
+        self.vmdk.create_image_format()
 
         # Convert to ova using ovftool
         vmx = self.get_target_file_path_for_format('vmx')
