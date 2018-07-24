@@ -83,7 +83,7 @@ Provides:       python-kiwi = %{version}-%{release}
 %if 0%{?fedora} || 0%{?suse_version}
 Recommends:     jing
 %endif
-%if 0%{?debian} || 0%{?ubuntu}
+%if 0%{?debian} || 0%{?ubuntu} || 0%{?fedora} || 0%{?rhel}
 Requires:       python-yaml
 %else
 Requires:       python-PyYAML
