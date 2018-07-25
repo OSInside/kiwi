@@ -241,6 +241,8 @@ class RootBind(object):
                 Path.remove_hierarchy(self.root_dir + location)
             except Exception as e:
                 log.warning(
-                    'Failed to remove directory %s: %s', location, format(e)
+                    'Failed to remove directory hierarchy {0}: {1}'.format(
+                        self.root_dir + location, e
+                    )
                 )
         del self.dir_stack[:]

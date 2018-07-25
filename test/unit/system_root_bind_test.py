@@ -142,7 +142,7 @@ class TestRootBind(object):
         self, mock_remove_hierarchy, mock_command, mock_warn, mock_islink
     ):
         mock_islink.return_value = True
-        mock_remove_hierarchy.side_effect = Exception
+        mock_remove_hierarchy.side_effect = Exception('rm')
         mock_command.side_effect = Exception
         self.mount_manager.umount_lazy.side_effect = Exception
         self.bind_root.cleanup()
@@ -152,7 +152,7 @@ class TestRootBind(object):
                 'root-dir', ''
             ),
             call(
-                'Failed to remove directory %s: %s', '/mountpoint', ''
+                'Failed to remove directory hierarchy root-dir/mountpoint: rm'
             ),
             call(
                 'Failed to remove intermediate config files: %s', ''
