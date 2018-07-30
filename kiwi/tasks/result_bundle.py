@@ -100,6 +100,7 @@ class ResultBundleTask(CliTask):
             result_directory + '/kiwi.result'
         )
         image_version = result.xml_state.get_image_version()
+        image_name = result.xml_state.get_image_name()
         ordered_results = OrderedDict(sorted(result.get_results().items()))
 
         # hard link bundle files, compress and build checksum
@@ -109,11 +110,15 @@ class ResultBundleTask(CliTask):
             if result_file.use_for_bundle:
                 bundle_file_basename = os.path.basename(result_file.filename)
                 # The bundle id is only taken into account for image results
-                # which contains the image version in its nane
-                bundle_file_basename = bundle_file_basename.replace(
-                    image_version,
-                    image_version + '-' + self.command_args['--id']
-                )
+                # which contains the image version appended in its file name
+                part_name = list(bundle_file_basename.partition(image_name))
+                bundle_file_basename = ''.join([
+                    part_name[0], part_name[1],
+                    part_name[2].replace(
+                        image_version,
+                        image_version + '-' + self.command_args['--id']
+                    )
+                ])
                 log.info('Creating %s', bundle_file_basename)
                 bundle_file = ''.join(
                     [bundle_directory, '/', bundle_file_basename]
