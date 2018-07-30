@@ -34,7 +34,7 @@ class TestResultBundleTask(object):
         self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
-        self.xml_state.get_image_name = mock.Mock(
+        self.xml_state.xml_data.get_name = mock.Mock(
             return_value='test-image'
         )
 
@@ -143,7 +143,7 @@ class TestResultBundleTask(object):
             use_for_bundle=True, compress=False, shasum=False
         )
 
-        self.xml_state.get_image_name = mock.Mock(
+        self.xml_state.xml_data.get_name = mock.Mock(
             return_value='test-1.2.3-image'
         )
 
