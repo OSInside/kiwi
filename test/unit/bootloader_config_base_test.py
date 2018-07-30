@@ -74,8 +74,13 @@ class TestBootLoaderConfigBase(object):
     def test_get_boot_theme(self):
         assert self.bootloader.get_boot_theme() == 'openSUSE'
 
-    def test_get_boot_timeout_seconds(self):
+    def test_get_boot_timeout_seconds_default_applies(self):
         assert self.bootloader.get_boot_timeout_seconds() == 10
+
+    @patch('kiwi.xml_parse.type_.get_boottimeout')
+    def test_get_boot_timeout_seconds(self, mock_get_boottimeout):
+        mock_get_boottimeout.return_value = 0
+        assert self.bootloader.get_boot_timeout_seconds() == 0
 
     @patch('kiwi.xml_parse.type_.get_installprovidefailsafe')
     def test_failsafe_boot_entry_requested(
