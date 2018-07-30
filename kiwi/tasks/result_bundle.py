@@ -100,7 +100,7 @@ class ResultBundleTask(CliTask):
             result_directory + '/kiwi.result'
         )
         image_version = result.xml_state.get_image_version()
-        image_name = result.xml_state.get_image_name()
+        image_name = result.xml_state.xml_data.get_name()
         ordered_results = OrderedDict(sorted(result.get_results().items()))
 
         # hard link bundle files, compress and build checksum
