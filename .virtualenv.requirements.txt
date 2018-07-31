@@ -18,7 +18,7 @@ lxml
 PyYAML
 
 # Python wrapper for extended filesystem attributes
-xattr
+xattr==0.9.3
 
 # Python 2 compatibility
 future

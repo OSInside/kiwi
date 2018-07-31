@@ -5,7 +5,7 @@ function kiwi_version {
 }
 
 function kiwi_build_version {
-    echo -n "$1" | grep python3-kiwi- | head -n 1 | cut -f 3 -d -
+    echo -n "$1" | grep python[32]-kiwi- | head -n 1 | cut -f 3 -d -
 }
 
 kiwi_local_version=$(kiwi_version)
@@ -14,8 +14,16 @@ while read -r project arch; do
     echo $project
     while read -r result; do
         test -z "${result}" && continue
+        opts=""
         package=$(echo "${result}" | cut -f2 -d \")
-        build_log=$(osc rbuildlog --last ${project} ${package} images ${arch})
+        multibuild=$(echo "${package}" | cut -f2 -d:)
+        if [ ! "${package}" = "${multibuild}" ];then
+            package=$(echo "${package}" | cut -f1 -d:)
+            opts="-M ${multibuild}"
+        fi
+        build_log=$(
+            osc rbuildlog --last ${opts} ${project} ${package} images ${arch}
+        )
         kiwi_obs_version=$(kiwi_build_version "${build_log}")
         if [ "$kiwi_obs_version" = "$kiwi_local_version" ];then
             result="${result} kiwi=\"${kiwi_obs_version}\""
@@ -25,7 +33,7 @@ while read -r project arch; do
         fi
         echo "  ${result}"
     done < <(
-        osc results "${project}" --xml |\
+        osc results "${project}" --xml | grep -v excluded |\
             grep status | cut -f2 -d \< | cut -f1 -d \/
     )
 done < .obs_test
