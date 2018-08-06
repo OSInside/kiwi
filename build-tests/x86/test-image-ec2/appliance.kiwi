@@ -120,7 +120,6 @@
         <package name="sg3_utils"/>
         <package name="pkg-config"/>
         <package name="elfutils"/>
-        <package name="libyui-ncurses-pkg8"/>
         <package name="xen-libs"/>
         <package name="xen-tools-domU"/>
         <package name="cloud-init"/>
