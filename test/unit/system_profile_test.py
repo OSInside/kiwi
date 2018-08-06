@@ -55,7 +55,6 @@ class TestProfile(object):
             'kiwi_loader_theme': 'openSUSE',
             'kiwi_lvm': 'true',
             'kiwi_lvmgroup': 'systemVG',
-            'kiwi_oemataraid_scan': None,
             'kiwi_oembootwait': None,
             'kiwi_oemdevicefilter': None,
             'kiwi_oemnicfilter': None,

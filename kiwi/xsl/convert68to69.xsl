@@ -45,4 +45,8 @@
     </type>
 </xsl:template>
 
+<!-- delete oem-ataraid-scan element from oemconfig -->
+<xsl:template match="oemconfig/oem-ataraid-scan" mode="conv68to69">
+</xsl:template>
+
 </xsl:stylesheet>

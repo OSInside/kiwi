@@ -114,7 +114,6 @@
         <file name="dirname"/>
         <file name="dmesg"/>
         <file name="dmevent_tool"/>
-        <file name="dmraid"/>
         <file name="dmsetup"/>
         <file name="dropbear"/>
         <file name="dropbearkey"/>
@@ -322,7 +321,6 @@
     no reference except for the ones listed here
     -->
     <strip type="libs">
-        <file name="libdmraid-events-isw"/>
         <file name="libfontenc"/>
         <file name="libfreetype"/>
         <file name="libgcc_s"/>

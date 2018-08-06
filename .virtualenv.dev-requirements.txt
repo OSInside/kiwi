@@ -34,7 +34,7 @@ flake8
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS
-generateDS
+generateDS==2.29.14
 
 # for building documentation
 sphinx

@@ -2,7 +2,7 @@
 
 # called by dracut
 depends() {
-    echo dmraid network rootfs-block dm kiwi-lib
+    echo network rootfs-block dm kiwi-lib
     return 0
 }
 

@@ -332,7 +332,6 @@ BuildRequires:  dracut
 %endif
 Requires:       dracut-kiwi-lib
 Requires:       kexec-tools
-Requires:       dmraid
 %if 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
 Requires:       multipath-tools
 %endif

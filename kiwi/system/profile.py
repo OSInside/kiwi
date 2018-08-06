@@ -84,7 +84,6 @@ class Profile(object):
         return Shell.quote_key_value_file(temp_profile.name)
 
     def _oemconfig_to_profile(self):
-        # kiwi_oemataraid_scan
         # kiwi_oemvmcp_parmfile
         # kiwi_oemmultipath_scan
         # kiwi_oemswapMB
@@ -112,8 +111,6 @@ class Profile(object):
         # kiwi_oemrecoveryInPlace
         oemconfig = self.xml_state.get_build_type_oemconfig_section()
         if oemconfig:
-            self.dot_profile['kiwi_oemataraid_scan'] = \
-                self._text(oemconfig.get_oem_ataraid_scan())
             self.dot_profile['kiwi_oemvmcp_parmfile'] = \
                 self._text(oemconfig.get_oem_vmcp_parmfile())
             self.dot_profile['kiwi_oemmultipath_scan'] = \
