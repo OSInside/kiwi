@@ -17,13 +17,6 @@ function initialize {
     import_file ${profile}
 }
 
-function scan_softraid_devices {
-    # """
-    # calls dmraid_scan from dmraid module
-    # """
-    dmraid_scan
-}
-
 function scan_multipath_devices {
     # """
     # starts multipath daemon from multipath module
@@ -33,7 +26,6 @@ function scan_multipath_devices {
 
 function get_disk_list {
     declare kiwi_oemdevicefilter=${kiwi_oemdevicefilter}
-    declare kiwi_oemataraid_scan=${kiwi_oemataraid_scan}
     declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
     declare kiwi_devicepersistency=${kiwi_devicepersistency}
     local disk_id="by-id"
@@ -45,9 +37,6 @@ function get_disk_list {
     local list_items
     if [ ! -z "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
-    fi
-    if [ ! -z "${kiwi_oemataraid_scan}" ];then
-        scan_softraid_devices
     fi
     if [ ! -z "${kiwi_oemmultipath_scan}" ];then
         scan_multipath_devices

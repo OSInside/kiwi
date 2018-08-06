@@ -125,7 +125,6 @@
         <package name="cryptsetup"/>
         <package name="curl"/>
         <package name="dialog"/>
-        <package name="dmraid"/>
         <package name="dosfstools"/>
         <package name="e2fsprogs"/>
         <package name="fbiterm"/>
