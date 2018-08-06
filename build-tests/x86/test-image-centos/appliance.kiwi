@@ -3,7 +3,7 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="6.8" name="LimeJeOS-CentOS-07.0">
+<image schemaversion="6.9" name="LimeJeOS-CentOS-07.0">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.de</contact>
@@ -12,7 +12,7 @@
     <profiles>
         <profile name="Live" description="Live image of CentOS 7"/>
         <profile name="Virtual" description="Virtual image of CentOS 7"/>
-        <profile name="Disk" description="OEM image of CentOS 7"/>   
+        <profile name="Disk" description="OEM image of CentOS 7"/>
     </profiles>
     <preferences>
         <version>1.3.0</version>
@@ -24,7 +24,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" hybrid="true" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
     </preferences>
     <preferences profiles="Virtual">
         <type image="vmx" primary="true" filesystem="ext4" kernelcmdline="rhgb" bootloader="grub2" firmware="uefi" format="qcow2"/>
@@ -62,7 +62,6 @@
         <package name="grub2"/>
         <package name="kernel"/>
         <package name="plymouth-theme-charge"/>
-        <!-- from core and console-internet collections-->
         <package name="audit"/>
         <package name="btrfs-progs"/>
         <package name="dhclient"/>
@@ -86,7 +85,6 @@
         <package name="tuned"/>
         <package name="xfsprogs"/>
         <package name="NetworkManager"/>
-        <!-- Not resolved by OBS -->
         <package name="iputils"/>
         <package name="fipscheck"/>
     </packages>
@@ -104,7 +102,6 @@
         <package name="grub2-efi-modules"/>
         <package name="grub2-efi"/>
         <package name="shim" arch="x86_64"/>
-        <!-- Not resolved by OBS -->
         <package name="libdb-utils"/>
     </packages>
 </image>
