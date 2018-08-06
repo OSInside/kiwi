@@ -16,6 +16,11 @@ case "${liveroot}" in
         root="$(echo "${root}" | sed 's,/,\\x2f,g')"
         root="live:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
+    live:AOEINTERFACE=*|AOEINTERFACE=*) \
+        root="${root#live:}"
+        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="live:aoe:/dev/etherd/${root#AOEINTERFACE=}"
+        rootok=1 ;;
 esac
 
 [ "${rootok}" != "1" ] && exit 0
