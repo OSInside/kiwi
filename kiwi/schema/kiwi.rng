@@ -984,28 +984,6 @@ verification process, true/false</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <oem-ataraid-scan>
-    
-  -->
-  <div>
-    <define name="k.oem-ataraid-scan.content">
-      <data type="boolean"/>
-    </define>
-    <define name="k.oem-ataraid-scan.attlist">
-      <empty/>
-    </define>
-    <define name="k.oem-ataraid-scan">
-      <element name="oem-ataraid-scan">
-        <a:documentation>For oemboot driven images: turn on or off the search
-for ata raid devices (aka fake raid controllers)
-true/false (default is true)</a:documentation>
-        <ref name="k.oem-ataraid-scan.attlist"/>
-        <ref name="k.oem-ataraid-scan.content"/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <oem-vmcp-parmfile>
     
   -->
@@ -3732,9 +3710,6 @@ configuration options which are used to repartition
 and setup the system disk.</a:documentation>
         <interleave>
           <ref name="k.oemconfig.attlist"/>
-          <optional>
-            <ref name="k.oem-ataraid-scan"/>
-          </optional>
           <optional>
             <ref name="k.oem-boot-title"/>
           </optional>

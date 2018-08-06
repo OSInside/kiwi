@@ -639,22 +639,6 @@ div {
 }
 
 #==========================================
-# common element <oem-ataraid-scan>
-#
-div {
-    k.oem-ataraid-scan.content = xsd:boolean
-    k.oem-ataraid-scan.attlist = empty
-    k.oem-ataraid-scan =
-        ## For oemboot driven images: turn on or off the search
-        ## for ata raid devices (aka fake raid controllers)
-        ## true/false (default is true)
-        element oem-ataraid-scan {
-            k.oem-ataraid-scan.attlist,
-            k.oem-ataraid-scan.content
-        }
-}
-
-#==========================================
 # common element <oem-vmcp-parmfile>
 #
 div {
@@ -2426,7 +2410,6 @@ div {
         ## and setup the system disk.
         element oemconfig {
             k.oemconfig.attlist &
-            k.oem-ataraid-scan? &
             k.oem-boot-title? &
             k.oem-bootwait? &
             k.oem-device-filter? &

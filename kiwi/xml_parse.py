@@ -5938,12 +5938,8 @@ class oemconfig(GeneratedsSuper):
     which are used to repartition and setup the system disk."""
     subclass = None
     superclass = None
-    def __init__(self, oem_ataraid_scan=None, oem_boot_title=None, oem_bootwait=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
+    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
         self.original_tagname_ = None
-        if oem_ataraid_scan is None:
-            self.oem_ataraid_scan = []
-        else:
-            self.oem_ataraid_scan = oem_ataraid_scan
         if oem_boot_title is None:
             self.oem_boot_title = []
         else:
@@ -6055,11 +6051,6 @@ class oemconfig(GeneratedsSuper):
         else:
             return oemconfig(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_oem_ataraid_scan(self): return self.oem_ataraid_scan
-    def set_oem_ataraid_scan(self, oem_ataraid_scan): self.oem_ataraid_scan = oem_ataraid_scan
-    def add_oem_ataraid_scan(self, value): self.oem_ataraid_scan.append(value)
-    def insert_oem_ataraid_scan_at(self, index, value): self.oem_ataraid_scan.insert(index, value)
-    def replace_oem_ataraid_scan_at(self, index, value): self.oem_ataraid_scan[index] = value
     def get_oem_boot_title(self): return self.oem_boot_title
     def set_oem_boot_title(self, oem_boot_title): self.oem_boot_title = oem_boot_title
     def add_oem_boot_title(self, value): self.oem_boot_title.append(value)
@@ -6187,7 +6178,6 @@ class oemconfig(GeneratedsSuper):
     def replace_oem_unattended_id_at(self, index, value): self.oem_unattended_id[index] = value
     def hasContent_(self):
         if (
-            self.oem_ataraid_scan or
             self.oem_boot_title or
             self.oem_bootwait or
             self.oem_device_filter or
@@ -6245,9 +6235,6 @@ class oemconfig(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
-        for oem_ataraid_scan_ in self.oem_ataraid_scan:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-ataraid-scan>%s</oem-ataraid-scan>%s' % (self.gds_format_boolean(oem_ataraid_scan_, input_name='oem-ataraid-scan'), eol_))
         for oem_boot_title_ in self.oem_boot_title:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-boot-title>%s</oem-boot-title>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_boot_title_), input_name='oem-boot-title')), eol_))
@@ -6333,17 +6320,7 @@ class oemconfig(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'oem-ataraid-scan':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'oem_ataraid_scan')
-            self.oem_ataraid_scan.append(ival_)
-        elif nodeName_ == 'oem-boot-title':
+        if nodeName_ == 'oem-boot-title':
             oem_boot_title_ = child_.text
             oem_boot_title_ = self.gds_validate_string(oem_boot_title_, node, 'oem_boot_title')
             self.oem_boot_title.append(oem_boot_title_)
