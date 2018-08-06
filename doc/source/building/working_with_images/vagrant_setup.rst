@@ -11,7 +11,7 @@ KIWI Image Description for Vagrant
 
    * :ref:`vmx`
 
-`Vagrant <http://vagrantup.com>`_ is a framework to
+`Vagrant <https://www.vagrantup.com>`_ is a framework to
 implement consistent processing/testing work environments based on
 Virtualization technologies. To run a system, Vagrant needs so-called
 **boxes**. A box is a TAR archive containing a virtual disk image and
@@ -19,7 +19,7 @@ some metadata.
 
 To build Vagrant boxes, use
 `veewee <https://github.com/jedi4ever/veewee>`_ which builds boxes
-based on AutoYaST. As an alternative, use `Packer <http://packer.io>`_,
+based on AutoYaST. As an alternative, use `Packer <https://www.packer.io>`_,
 which is providedby Vagrant itself.
 
 Both tools are based on the official installation media (DVDs) as shipped
@@ -30,12 +30,12 @@ not exist. For example, if the distribution is still under development or
 you want to use a collection of your own repositories.
 
 In addition, you can use the KIWI image description as source for the
-`Open Build Service <http://openbuildservice.org>`_ which allows
+`Open Build Service <https://openbuildservice.org>`_ which allows
 building and maintaining boxes.
 
 A Vagrant box which is able to work with Vagrant has to comply with the
 constraints documented in
-`Vagrant Box Constraints <http://docs.vagrantup.com/v2/boxes/base.html>`_.
+`Vagrant Box Constraints <https://www.vagrantup.com/docs/boxes/base.html>`_.
 Applied to the referenced KIWI image description from :ref:`vmx`,
 the following changes are required:
 
@@ -75,7 +75,7 @@ the following changes are required:
 4. Integrate public SSH key
 
    Reach out to
-   `Insecure Keys <https://github.com/mitchellh/vagrant/tree/master/keys>`_
+   `Insecure Keys <https://github.com/hashicorp/vagrant/tree/master/keys>`_
    for details on this keys. Add the public key to the
    box as overlay file in your image description at
    :file:`home/vagrant/.ssh/authorized_keys`
