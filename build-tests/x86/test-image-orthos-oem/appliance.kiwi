@@ -28,7 +28,6 @@
     </repository>
     <packages type="image" patternType="plusRecommended">
         <package name="patterns-openSUSE-base"/>
-        <package name="libyui-ncurses-pkg8"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="filesystem"/>
         <package name="kernel-default"/>

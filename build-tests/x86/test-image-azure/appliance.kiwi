@@ -123,7 +123,6 @@
         <package name="pkg-config"/>
         <package name="elfutils"/>
         <package name="udev"/>
-        <package name="libyui-ncurses-pkg8"/>
         <package name="azuremetadata"/>
         <package name="hyper-v"/>
         <package name="python-azure-agent"/>

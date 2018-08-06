@@ -72,5 +72,6 @@
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
         <package name="openSUSE-release"/>
+        <package name="openSUSE-release-dvd"/>
     </packages>
 </image>
