@@ -19,14 +19,7 @@ Installing and Configuring atftp
 
 1. Install the packages atftp and kiwi-pxeboot.
 
-2. Edit the file :file:`/etc/sysconfig/atftpd`. Set or modify the following variables:
-
-   .. code:: bash
-
-       ATFTPD_OPTIONS="--daemon --no-multicast"
-       ATFTPD_DIRECTORY="/srv/tftpboot"
-
-3. Start the atftpd service by calling:
+2. Start the atftpd service by calling:
 
    .. code:: bash
 
