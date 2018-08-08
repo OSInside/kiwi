@@ -43,6 +43,8 @@ class TestContainerBuilder(object):
         def side_effect(filename):
             if filename.endswith('.config/kiwi/config.yml'):
                 return False
+            elif filename.endswith('etc/kiwi.yml'):
+                return False
             else:
                 return True
 
@@ -86,6 +88,8 @@ class TestContainerBuilder(object):
     ):
         def side_effect(filename):
             if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            elif filename.endswith('etc/kiwi.yml'):
                 return False
             else:
                 return True
@@ -164,6 +168,8 @@ class TestContainerBuilder(object):
     def test_create_derived(self, mock_exists, mock_image, mock_checksum):
         def side_effect(filename):
             if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            elif filename.endswith('etc/kiwi.yml'):
                 return False
             else:
                 return True

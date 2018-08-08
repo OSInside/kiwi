@@ -32,6 +32,8 @@ class TestDiskBuilder(object):
         def side_effect(filename):
             if filename.endswith('.config/kiwi/config.yml'):
                 return False
+            elif filename.endswith('etc/kiwi.yml'):
+                return False
             else:
                 return True
 

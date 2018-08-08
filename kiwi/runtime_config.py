@@ -31,7 +31,8 @@ class RuntimeConfig(object):
     """
     **Implements reading of runtime configuration file:**
 
-    * ~/.config/kiwi/config.yml
+    1. ~/.config/kiwi/config.yml
+    2. /etc/kiwi.yml
 
     The KIWI runtime configuration file is a yaml formatted file
     containing information to control the behavior of the tools
@@ -43,6 +44,8 @@ class RuntimeConfig(object):
         config_file = os.sep.join(
             [self._home_path(), '.config', 'kiwi', 'config.yml']
         )
+        if not os.path.exists(config_file):
+            config_file = '/etc/kiwi.yml'
         if os.path.exists(config_file):
             log.info('Reading runtime config file: {0}'.format(config_file))
             with open(config_file, 'r') as config:
