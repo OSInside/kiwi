@@ -552,18 +552,17 @@ function baseStripUnusedLibs {
     # /.../
     # add exceptions
     # ----
-    while [ ! -z "$1" ];do
-        for i in \
-            /lib*/$1* /usr/lib*/$1* \
-            /lib/x86_64-linux-gnu/$1* /usr/lib/x86_64-linux-gnu/$1* \
-            /usr/X11R6/lib*/$1*
+    for libname in $1; do
+        for libfile in \
+            /lib*/$libname* /usr/lib*/$libname* \
+            /lib/x86_64-linux-gnu/$libname* /usr/lib/x86_64-linux-gnu/$libname* \
+            /usr/X11R6/lib*/$libname*
         do
-            if [ -e "$i" ];then
-                needlibs[$count]=$i
+            if [ -e "$libfile" ];then
+                needlibs[$count]=$libfile
                 count=$((count + 1))
             fi
         done
-        shift
     done
     # /.../
     # find unused libs and remove it, dl loaded libs
