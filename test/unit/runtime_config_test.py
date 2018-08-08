@@ -1,6 +1,8 @@
 from mock import patch
 
-from .test_helper import raises
+from .test_helper import (
+    raises, patch_open
+)
 
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.exceptions import KiwiRuntimeConfigFormatError
@@ -11,6 +13,19 @@ class TestRuntimeConfig(object):
     def setup(self):
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.runtime_config = RuntimeConfig()
+
+    @patch('os.path.exists')
+    @patch('yaml.load')
+    def test_reading_system_wide_config_file(self, mock_yaml, mock_exists):
+        exists_call_results = [True, False]
+
+        def os_path_exists(config):
+            return exists_call_results.pop()
+
+        mock_exists.side_effect = os_path_exists
+        with patch_open as mock_open:
+            self.runtime_config = RuntimeConfig()
+            mock_open.assert_called_once_with('/etc/kiwi.yml', 'r')
 
     @raises(KiwiRuntimeConfigFormatError)
     def test_invalid_yaml_format(self):

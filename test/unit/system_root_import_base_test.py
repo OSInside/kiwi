@@ -15,10 +15,7 @@ class TestRootImportBase(object):
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             RootImportBase('root_dir', Uri('file:///image.tar.xz'))
-        assert mock_path.call_args_list == [
-            call('../data/.config/kiwi/config.yml'),
-            call('/image.tar.xz')
-        ]
+        assert call('/image.tar.xz') in mock_path.call_args_list
 
     @raises(KiwiRootImportError)
     def test_init_remote_uri(self):
