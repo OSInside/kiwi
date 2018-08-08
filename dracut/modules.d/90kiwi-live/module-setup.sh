@@ -10,13 +10,13 @@ check() {
 
 # called by dracut
 depends() {
-    echo rootfs-block dm
+    echo network rootfs-block dm
     return 0
 }
 
 # called by dracut
 installkernel() {
-    instmods squashfs loop iso9660 overlay
+    instmods squashfs loop aoe iso9660 overlay
 }
 
 # called by dracut
@@ -40,6 +40,7 @@ install() {
 
     inst_hook cmdline 30 "${moddir}/parse-kiwi-live.sh"
     inst_hook pre-udev 30 "${moddir}/kiwi-live-genrules.sh"
+    inst_hook pre-udev 60 "${moddir}/kiwi-live-net-genrules.sh"
     inst_hook pre-mount 30 "${moddir}/kiwi-live-checkmedia.sh"
     inst_script "${moddir}/kiwi-live-root.sh" "/sbin/kiwi-live-root"
     inst_script "${moddir}/kiwi-generator.sh" \

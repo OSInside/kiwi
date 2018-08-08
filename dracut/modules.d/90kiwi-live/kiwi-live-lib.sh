@@ -41,7 +41,15 @@ function initGlobalDevices {
     if [ -z "$1" ]; then
         die "No root device for operation given"
     fi
-    isodev="$1"
+    if getargbool 0 rd.kiwi.live.pxe; then
+        if ! ifup lan0 &>/tmp/net.info;then
+            die "Network setup failed, see /tmp/net.info"
+        fi
+        modprobe aoe
+        isodev="${1#live:aoe:}"
+    else
+        isodev="$1"
+    fi
     isodiskdev=$(lookupIsoDiskDevice "${isodev}")
     isofs_type=$(blkid -s TYPE -o value "${isodev}")
     media_check_device=${isodev}
