@@ -19,6 +19,7 @@ jobs:
     python: 3.6
     env: TOXENV=doc_travis,doc_travis_deploy
     deploy:
+      skip_cleanup: true
       provider: pypi
       user: schaefi
       password:
