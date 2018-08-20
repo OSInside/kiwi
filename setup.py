@@ -40,17 +40,6 @@ class sdist(setuptools_sdist.sdist):
             level=distutils.log.INFO
         )
 
-        # manual pages
-        command = ['make', '-C', 'doc', 'man']
-        self.announce(
-            'Running make -C doc man target: %s' % str(command),
-            level=distutils.log.INFO
-        )
-        self.announce(
-            subprocess.check_output(command).decode(),
-            level=distutils.log.INFO
-        )
-
         # standard sdist process
         setuptools_sdist.sdist.run(self)
 
