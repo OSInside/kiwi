@@ -354,19 +354,41 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         return xml_data_domtree.toprettyxml(indent="    ")
 
     def _create_quota_group_info(self):
-        snapper_configs = ''.join([self.mountpoint, '/@/etc/snapper/configs/'])
+        if self.custom_args['root_is_snapshot']:
+            snapper_configs = ''.join([
+                self.mountpoint, '/@/.snapshots/1/snapshot/etc/snapper/configs/'
+            ])
+        else:
+            snapper_configs = ''.join([
+                self.mountpoint, '/@/etc/snapper/configs/'
+            ])
         if os.path.exists(snapper_configs):
-            with open(snapper_configs + 'root', 'w') as snapper_root:
-                snapper_root.write(
-                    '{0}{1}'.format(self._get_quota_group_id(), os.linesep)
-                )
+            snapper_config_file = snapper_configs + 'root'
+            log.debug('Setting QGROUP value in {0}'.format(snapper_config_file))
+            config_line = 'QGROUP="{0}"{1}'.format(
+                self._get_quota_group_id(), os.linesep
+            )
+            snapper_root_lines = []
+            found = False
+            if os.path.exists(snapper_config_file):
+                with open(snapper_configs + 'root', 'r') as snapper_root:
+                    snapper_root_lines = snapper_root.readlines()
+                found = False
+                for i, line in enumerate(snapper_root_lines):
+                    if line.startswith('QGROUP'):
+                        found = True
+                        snapper_root_lines[i] = config_line
+            if not found:
+                snapper_root_lines.append(config_line)
+            with open(snapper_config_file, 'w') as snapper_root:
+                snapper_root.writelines(snapper_root_lines)
 
     def _get_quota_group_id(self):
         qgroup_show_call = Command.run(
             ['btrfs', 'qgroup', 'show', '-f', self.mountpoint]
         )
         for line in qgroup_show_call.output.split(os.linesep):
-            quota_group_id = re.search('^(\d+)/\d+', line)
+            quota_group_id = re.search('^(\d+/\d+)', line)
             if quota_group_id:
                 return quota_group_id.group(1)
 
