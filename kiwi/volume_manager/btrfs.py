@@ -375,7 +375,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     snapper_root_lines = snapper_root.readlines()
                 found = False
                 for i, line in enumerate(snapper_root_lines):
-                    if line.startswith('QGROUP'):
+                    if line.startswith('QGROUP='):
                         found = True
                         snapper_root_lines[i] = config_line
             if not found:
