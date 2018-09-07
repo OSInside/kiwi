@@ -427,6 +427,9 @@ python2 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--ins
 python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
 %endif
 
+# Install dracut modules
+make buildroot=%{buildroot} install_dracut
+
 %if %{_vendor} != "debbuild"
 # init alternatives setup
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
