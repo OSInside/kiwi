@@ -164,11 +164,9 @@ class FileSystemBuilder(object):
         log.info(
             '--> Syncing data to filesystem on %s', loop_provider.get_device()
         )
-        exclude_list = [
-            'image', '.profile', '.kconfig',
-            Defaults.get_shared_cache_location()
-        ]
-        filesystem.sync_data(exclude_list)
+        filesystem.sync_data(
+            Defaults.get_exclude_list_for_root_data_sync()
+        )
 
     def _operate_on_file(self):
         default_provider = DeviceProvider()
@@ -177,5 +175,6 @@ class FileSystemBuilder(object):
             self.root_dir, self.filesystem_custom_parameters
         )
         filesystem.create_on_file(
-            self.filename, self.label
+            self.filename, self.label,
+            Defaults.get_exclude_list_for_root_data_sync()
         )
