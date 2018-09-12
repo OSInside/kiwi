@@ -121,8 +121,13 @@ class TestRootBind(object):
         self, mock_move, mock_exists, mock_islink, mock_remove_hierarchy,
         mock_command, mock_is_mounted
     ):
+        os_exists_return_values = [False, True]
+
+        def exists_side_effect(*args):
+            return os_exists_return_values.pop()
+
         mock_is_mounted.return_value = False
-        mock_exists.return_value = True
+        mock_exists.side_effect = exists_side_effect
         mock_islink.return_value = True
         self.bind_root.cleanup()
         self.mount_manager.umount_lazy.assert_called_once_with()
