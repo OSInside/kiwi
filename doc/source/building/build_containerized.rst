@@ -66,7 +66,7 @@ The Dice packages and sources are available at the following locations:
 
 .. code:: bash
 
-    $ sudo zypper in ruby2.1-rubygem-dice
+    $ sudo zypper in ruby[VERSION]-rubygem-dice
 
 Installing and Setting up Docker
 --------------------------------
@@ -153,7 +153,7 @@ calling :command:`dice` as follows:
 
     .. code:: bash
 
-        $ docker load -i Docker-Tumbleweed.XXXXXXX.docker.tar.xz
+        $ docker load -i Docker-Tumbleweed.XXXXXXX.docker.tar
 
     3. Tag the container and push back to the registry
 
