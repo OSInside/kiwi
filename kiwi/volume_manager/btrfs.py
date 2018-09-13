@@ -30,8 +30,10 @@ from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
 from kiwi.utils.sync import DataSync
 from kiwi.utils.block import BlockID
+from kiwi.utils.sysconfig import SysConfig
 from kiwi.path import Path
 from kiwi.logger import log
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiVolumeRootIDError,
@@ -358,9 +360,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
     def _create_quota_group_info(self):
         root_path = os.sep.join([self.mountpoint, '@/.snapshots/1/snapshot'])
-        snapper_default_conf = os.sep.join(
-            [root_path, 'etc/snapper/config-templates/default']
-        )
+        snapper_default_conf = os.path.normpath(os.sep.join(
+            [root_path, Defaults.get_snapper_config_template_file()]
+        ))
         if os.path.exists(snapper_default_conf):
             config_file = self._set_snapper_sysconfig_file(root_path)
             if not os.path.exists(config_file):
@@ -372,26 +374,25 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
     @classmethod
     def _set_snapper_sysconfig_file(self, root_path):
-        sysconf_file = os.sep.join([root_path, 'etc/sysconfig/snapper'])
-        config = 'root'
-        lines = []
-        with open(sysconf_file, 'r') as sysfile:
-            lines = sysfile.readlines()
-            for i, line in enumerate(lines):
-                match = re.match(r'^SNAPPER_CONFIGS="(.*)".*', line)
-                if match and len(match.group(1)) > 0:
-                    config = match.group(1)
-                    break
-                elif match:
-                    lines[i] = 'SNAPPER_CONFIGS="{0}"\n'.format(config)
-                    break
-        if len(config.split()) > 1:
+        sysconf_file = SysConfig(
+            os.sep.join([root_path, 'etc/sysconfig/snapper'])
+        )
+        if (
+            'SNAPPER_CONFIGS' not in sysconf_file or
+            len(sysconf_file['SNAPPER_CONFIGS'].strip('\"')) == 0
+        ):
+            sysconf_file['SNAPPER_CONFIGS'] = '"root"'
+            sysconf_file.write()
+        elif len(sysconf_file['SNAPPER_CONFIGS'].split()) > 1:
             raise KiwiVolumeManagerSetupError(
-                'Unsupported SNAPPER_CONFIGS value: {0}'.format(config)
+                'Unsupported SNAPPER_CONFIGS value: {0}'.format(
+                    sysconf_file['SNAPPER_CONFIGS']
+                )
             )
-        with open(sysconf_file, 'w') as sysfile:
-            sysfile.writelines(lines)
-        return os.sep.join([root_path, 'etc/snapper/configs', config])
+        return os.sep.join([
+            root_path, 'etc/snapper/configs',
+            sysconf_file['SNAPPER_CONFIGS'].strip('\"')]
+        )
 
     def _get_quota_group_id(self):
         qgroup_show_call = Command.run(

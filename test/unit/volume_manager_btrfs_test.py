@@ -358,87 +358,48 @@ class TestVolumeManagerBtrfs(object):
         assert self.volume_manager.umount_volumes() is False
 
     @patch_open
-    @patch('kiwi.volume_manager.btrfs.DataSync')
-    @patch('kiwi.volume_manager.btrfs.Command.run')
-    @patch('os.path.exists')
-    @patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime))
-    def test_sync_data(
-        self, mock_exists, mock_command, mock_sync, mock_open
-    ):
-        self.volume_manager.custom_args['quota_groups'] = True
-        mock_exists.return_value = True
-        qgroup_show_call = mock.Mock()
-        qgroup_show_call.output = '0/5          16.00KiB     16.00KiB'
-        mock_command.return_value = qgroup_show_call
-        xml_info = etree.tostring(etree.parse(
-            '../data/info.xml', etree.XMLParser(remove_blank_text=True)
-        ))
-        datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
-        self.file_mock.readlines = mock.Mock(
-            return_value=['SNAPPER_CONFIGS=""\n']
-        )
-        mock_open.return_value = self.context_manager_mock
-        self.volume_manager.toplevel_mount = mock.Mock()
-        self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = True
-        sync = mock.Mock()
-        mock_sync.return_value = sync
-
-        self.volume_manager.sync_data(['exclude_me'])
-
-        mock_sync.assert_called_once_with(
-            'root_dir', 'tmpdir/@/.snapshots/1/snapshot'
-        )
-        sync.sync_data.assert_called_once_with(
-            exclude=['exclude_me'],
-            options=['-a', '-H', '-X', '-A', '--one-file-system']
-        )
-        assert mock_open.call_args_list == [
-            call('tmpdir/@/.snapshots/1/info.xml', 'w'),
-            call('tmpdir/@/.snapshots/1/snapshot/etc/sysconfig/snapper', 'r'),
-            call('tmpdir/@/.snapshots/1/snapshot/etc/sysconfig/snapper', 'w')
-        ]
-        assert self.file_mock.write.call_args_list == [
-            call(minidom.parseString(xml_info).toprettyxml(indent="    "))
-        ]
-        assert self.file_mock.writelines.call_args_list == [
-            call(['SNAPPER_CONFIGS="root"\n'])
-        ]
-        assert mock_command.call_args_list == [
-            call(['btrfs', 'qgroup', 'show', '-f', 'tmpdir']),
-            call([
-                'chroot', 'tmpdir/@/.snapshots/1/snapshot',
-                'snapper', '--no-dbus', 'set-config', 'QGROUP=0/5'
-            ])
-        ]
-
-    @patch_open
+    @patch('kiwi.volume_manager.btrfs.SysConfig')
     @patch('kiwi.volume_manager.btrfs.DataSync')
     @patch('kiwi.volume_manager.btrfs.Command.run')
     @patch('os.path.exists')
     @patch('shutil.copyfile')
     @patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime))
-    def test_sync_data_existing_snapper_sysconfig(
-        self, mock_copy, mock_exists, mock_command, mock_sync, mock_open
+    def test_sync_data(
+        self, mock_copy, mock_exists, mock_command,
+        mock_sync, mock_sysconf, mock_open
     ):
-        self.volume_manager.custom_args['quota_groups'] = True
+        item = {'SNAPPER_CONFIGS': '""'}
 
-        def snapper_configs_doesnt_exist(file_exist):
-            if 'snapper/configs/root' in file_exist:
+        def getitem(key):
+            return item[key]
+
+        def setitem(key, value):
+            item[key] = value
+
+        def contains(key):
+            return key in item
+
+        def exists(name):
+            if 'snapper/configs/root' in name:
                 return False
             return True
 
-        mock_exists.side_effect = snapper_configs_doesnt_exist
+        self.volume_manager.custom_args['quota_groups'] = True
+        mock_exists.side_effect = exists
         qgroup_show_call = mock.Mock()
         qgroup_show_call.output = '0/5          16.00KiB     16.00KiB'
+
+        sysconf = mock.Mock()
+        sysconf.__contains__ = mock.Mock(side_effect=contains)
+        sysconf.__getitem__ = mock.Mock(side_effect=getitem)
+        sysconf.__setitem__ = mock.Mock(side_effect=setitem)
+        mock_sysconf.return_value = sysconf
+
         mock_command.return_value = qgroup_show_call
         xml_info = etree.tostring(etree.parse(
             '../data/info.xml', etree.XMLParser(remove_blank_text=True)
         ))
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
-        self.file_mock.readlines = mock.Mock(
-            return_value=['SNAPPER_CONFIGS="root"\n']
-        )
         mock_open.return_value = self.context_manager_mock
         self.volume_manager.toplevel_mount = mock.Mock()
         self.volume_manager.mountpoint = 'tmpdir'
@@ -449,19 +410,17 @@ class TestVolumeManagerBtrfs(object):
         self.volume_manager.sync_data(['exclude_me'])
 
         root_path = 'tmpdir/@/.snapshots/1/snapshot'
+        mock_sync.assert_called_once_with('root_dir', root_path)
         mock_copy.assert_called_once_with(
             root_path + '/etc/snapper/config-templates/default',
             root_path + '/etc/snapper/configs/root'
         )
-        mock_sync.assert_called_once_with('root_dir', root_path)
         sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
         assert mock_open.call_args_list == [
             call('tmpdir/@/.snapshots/1/info.xml', 'w'),
-            call(root_path + '/etc/sysconfig/snapper', 'r'),
-            call(root_path + '/etc/sysconfig/snapper', 'w')
         ]
         assert self.file_mock.write.call_args_list == [
             call(minidom.parseString(xml_info).toprettyxml(indent="    "))
@@ -469,29 +428,40 @@ class TestVolumeManagerBtrfs(object):
         assert mock_command.call_args_list == [
             call(['btrfs', 'qgroup', 'show', '-f', 'tmpdir']),
             call([
-                'chroot', root_path, 'snapper', '--no-dbus',
-                'set-config', 'QGROUP=0/5'
+                'chroot', 'tmpdir/@/.snapshots/1/snapshot',
+                'snapper', '--no-dbus', 'set-config', 'QGROUP=0/5'
             ])
         ]
 
     @raises(KiwiVolumeManagerSetupError)
     @patch_open
+    @patch('kiwi.volume_manager.btrfs.SysConfig')
     @patch('kiwi.volume_manager.btrfs.DataSync')
     @patch('kiwi.volume_manager.btrfs.Command.run')
     @patch('os.path.exists')
     @patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime))
     def test_sync_data_existing_bad_snapper_config(
-        self, mock_exists, mock_command, mock_sync, mock_open
+        self, mock_exists, mock_command, mock_sync, mock_sysconf, mock_open
     ):
+        item = {'SNAPPER_CONFIGS': '"root foo"'}
+
+        def getitem(key):
+            return item[key]
+
+        def contains(key):
+            return key in item
+
+        sysconf = mock.Mock()
+        sysconf.__contains__ = mock.Mock(side_effect=contains)
+        sysconf.__getitem__ = mock.Mock(side_effect=getitem)
+        mock_sysconf.return_value = sysconf
+
         self.volume_manager.custom_args['quota_groups'] = True
         mock_exists.return_value = True
         xml_info = etree.tostring(etree.parse(
             '../data/info.xml', etree.XMLParser(remove_blank_text=True)
         ))
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
-        self.file_mock.readlines = mock.Mock(
-            return_value=['SNAPPER_CONFIGS="root foo"\n']
-        )
         mock_open.return_value = self.context_manager_mock
         self.volume_manager.toplevel_mount = mock.Mock()
         self.volume_manager.mountpoint = 'tmpdir'
@@ -510,7 +480,6 @@ class TestVolumeManagerBtrfs(object):
         )
         assert mock_open.call_args_list == [
             call('tmpdir/@/.snapshots/1/info.xml', 'w'),
-            call('tmpdir/@/.snapshots/1/snapshot/etc/sysconfig/snapper', 'r')
         ]
         assert self.file_mock.write.call_args_list == [
             call(minidom.parseString(xml_info).toprettyxml(indent="    "))

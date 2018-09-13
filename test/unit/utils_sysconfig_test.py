@@ -31,6 +31,10 @@ class TestSysConfig(object):
         assert self.sysconfig['foo'] == '"bar"'
         assert self.sysconfig.data_list[-1] == 'foo'
 
+    def test_contains(self):
+        assert 'non_existing_key' not in self.sysconfig
+        assert 'name' in self.sysconfig
+
     @patch_open
     def test_write(self, mock_open):
         mock_open.return_value = self.context_manager_mock
