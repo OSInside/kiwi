@@ -17,6 +17,7 @@
 #
 import re
 import os
+import shutil
 import datetime
 from xml.etree import ElementTree
 from xml.dom import minidom
@@ -29,11 +30,14 @@ from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
 from kiwi.utils.sync import DataSync
 from kiwi.utils.block import BlockID
+from kiwi.utils.sysconfig import SysConfig
 from kiwi.path import Path
 from kiwi.logger import log
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
-    KiwiVolumeRootIDError
+    KiwiVolumeRootIDError,
+    KiwiVolumeManagerSetupError
 )
 
 
@@ -306,7 +310,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 options=['-a', '-H', '-X', '-A', '--one-file-system'],
                 exclude=exclude
             )
-            if self.custom_args['quota_groups']:
+            if self.custom_args['quota_groups'] and \
+                    self.custom_args['root_is_snapshot']:
                 self._create_quota_group_info()
 
     def set_property_readonly_root(self):
@@ -354,19 +359,47 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         return xml_data_domtree.toprettyxml(indent="    ")
 
     def _create_quota_group_info(self):
-        snapper_configs = ''.join([self.mountpoint, '/@/etc/snapper/configs/'])
-        if os.path.exists(snapper_configs):
-            with open(snapper_configs + 'root', 'w') as snapper_root:
-                snapper_root.write(
-                    '{0}{1}'.format(self._get_quota_group_id(), os.linesep)
+        root_path = os.sep.join([self.mountpoint, '@/.snapshots/1/snapshot'])
+        snapper_default_conf = os.path.normpath(os.sep.join(
+            [root_path, Defaults.get_snapper_config_template_file()]
+        ))
+        if os.path.exists(snapper_default_conf):
+            config_file = self._set_snapper_sysconfig_file(root_path)
+            if not os.path.exists(config_file):
+                shutil.copyfile(snapper_default_conf, config_file)
+            Command.run([
+                'chroot', root_path, 'snapper', '--no-dbus', 'set-config',
+                'QGROUP={0}'.format(self._get_quota_group_id())
+            ])
+
+    @classmethod
+    def _set_snapper_sysconfig_file(self, root_path):
+        sysconf_file = SysConfig(
+            os.sep.join([root_path, 'etc/sysconfig/snapper'])
+        )
+        if (
+            'SNAPPER_CONFIGS' not in sysconf_file or
+            len(sysconf_file['SNAPPER_CONFIGS'].strip('\"')) == 0
+        ):
+            sysconf_file['SNAPPER_CONFIGS'] = '"root"'
+            sysconf_file.write()
+        elif len(sysconf_file['SNAPPER_CONFIGS'].split()) > 1:
+            raise KiwiVolumeManagerSetupError(
+                'Unsupported SNAPPER_CONFIGS value: {0}'.format(
+                    sysconf_file['SNAPPER_CONFIGS']
                 )
+            )
+        return os.sep.join([
+            root_path, 'etc/snapper/configs',
+            sysconf_file['SNAPPER_CONFIGS'].strip('\"')]
+        )
 
     def _get_quota_group_id(self):
         qgroup_show_call = Command.run(
             ['btrfs', 'qgroup', 'show', '-f', self.mountpoint]
         )
         for line in qgroup_show_call.output.split(os.linesep):
-            quota_group_id = re.search('^(\d+)/\d+', line)
+            quota_group_id = re.search('^(\d+/\d+)', line)
             if quota_group_id:
                 return quota_group_id.group(1)
 

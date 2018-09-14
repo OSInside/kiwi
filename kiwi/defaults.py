@@ -276,6 +276,17 @@ class Defaults(object):
         return 'INSTALL'
 
     @classmethod
+    def get_snapper_config_template_file(self):
+        """
+        Provides the default configuration template file for snapper
+
+        :return: file
+
+        :rtype: str
+        """
+        return '/etc/snapper/config-templates/default'
+
+    @classmethod
     def get_default_video_mode(self):
         """
         Provides 800x600 default video mode as hex value for the kernel
