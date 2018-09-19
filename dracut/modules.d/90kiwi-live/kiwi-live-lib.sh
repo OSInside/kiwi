@@ -5,16 +5,30 @@ function lookupIsoDiskDevice {
     local root=$1
     local iso_label=${root#/dev/disk/by-label/}
     local disk
+    local mountpoint
     for disk in $(lsblk -p -n -r -o NAME,TYPE | grep disk | cut -f1 -d' ');do
         if [[ ${disk} =~ ^/dev/fd ]];then
             # ignore floppy disk devices
             continue
         fi
+        # 1. Mapping:
+        # If the ISO is bootet as disk in hybrid mode the exposed LABEL
+        # of the disk device matches the ISO label
         iso_volid=$(blkid -s LABEL -o value "${disk}")
         if [ "${iso_volid}" = "${iso_label}" ];then
             echo "${disk}"
             return
         fi
+        # 2. Mapping:
+        # If the ISO is booted via grub loopback the partition of the
+        # disk device which contains the ISO file and was loopbacked
+        # by grub is mounted to /run/initramfs/isoscan
+        for mountpoint in $(lsblk -p -n -r -o MOUNTPOINT "${disk}");do
+            if [ "${mountpoint}" = "/run/initramfs/isoscan" ];then
+                echo "${disk}"
+                return
+            fi
+        done
     done
 }
 
