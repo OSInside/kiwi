@@ -1,6 +1,5 @@
 # Manifest describing source package contents
 
-graft doc/build/man
 graft tools
 graft dracut
 graft helper
@@ -31,7 +30,9 @@ include README.rst
 include LICENSE
 include tox.ini
 
-recursive-include doc *.py *.rst Makefile
+recursive-include doc Makefile
+recursive-include doc/build/man *
+recursive-include doc/source *.py *.rst
 recursive-include test *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
 
 include .bumpversion.cfg

@@ -29,6 +29,11 @@ install_dracut:
 	install -d -m 755 ${buildroot}usr/lib/dracut/modules.d
 	cp -a dracut/modules.d/* ${buildroot}usr/lib/dracut/modules.d
 
+install_pdf_docs:
+	install -d -m 755 ${buildroot}/usr/share/doc/packages/python-kiwi
+	install -m 644 doc/build/latex/kiwi.pdf \
+		${buildroot}/usr/share/doc/packages/python-kiwi/kiwi.pdf
+
 install:
 	# apart from all python source we also need to install
 	# the C tools, the manual pages and the completion
@@ -112,6 +117,13 @@ build: clean tox
 	mv setup.pye setup.py
 	# provide rpm source tarball
 	mv dist/kiwi-${version}.tar.gz dist/python-kiwi.tar.gz
+	# append PDF documentation to tarball
+	gzip -d dist/python-kiwi.tar.gz
+	mkdir -p kiwi-${version}/doc/build/latex
+	mv doc/build/latex/kiwi.pdf kiwi-${version}/doc/build/latex
+	tar -uf dist/python-kiwi.tar kiwi-${version}/doc/build/latex/kiwi.pdf
+	gzip dist/python-kiwi.tar
+	rm -rf kiwi-${version}
 	# provide rpm changelog from git changelog
 	git log | helper/changelog_generator |\
 		helper/changelog_descending > dist/python-kiwi.changes
@@ -126,5 +138,6 @@ pypi: clean tox
 
 clean: clean_git_attributes
 	rm -rf dist
-	rm -rf build
+	rm -rf doc/build
+	rm -rf doc/dist
 	${MAKE} -C tools clean

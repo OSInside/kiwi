@@ -56,6 +56,14 @@ def setup(app):
     app.connect("autodoc-process-docstring", remove_module_docstring)
     app.add_stylesheet('css/custom.css')
 
+
+latex_documents = [
+    ('index', 'kiwi.tex', u'KIWI Documentation', u'Marcus Schäfer', 'manual')
+]
+latex_elements = {
+    'papersize': 'a4paper'
+}
+
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
 spelling_ignore_acronyms = True

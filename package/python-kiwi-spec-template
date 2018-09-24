@@ -430,6 +430,9 @@ python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--ins
 # Install dracut modules
 make buildroot=%{buildroot}/ install_dracut
 
+# Install documentation in PDF format
+make buildroot=%{buildroot}/ install_pdf_docs
+
 %if %{_vendor} != "debbuild"
 # init alternatives setup
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
@@ -549,6 +552,7 @@ fi
 %files -n kiwi-man-pages
 %defattr(-, root, root)
 %dir %{_defaultdocdir}/python-kiwi
+%{_defaultdocdir}/python-kiwi/kiwi.pdf
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
 %doc %{_mandir}/man8/*
