@@ -85,7 +85,7 @@ development environment:
 
    .. code:: bash
 
-    $ pip3.4 install -r .virtualenv.dev-requirements.txt
+    $ pip install -r .virtualenv.dev-requirements.txt
 
 4. Install KIWI in "development mode":
 
@@ -151,11 +151,11 @@ If you want to see the target, use the option `-l` to print a list:
     $ tox -l
 
 To only run a special target, use the `-e` option. The following
-example runs the test cases for the 3.4 interpreter only:
+example runs the test cases for the 3.6 interpreter only:
 
 .. code:: bash
 
-    $ tox -e 3.4
+    $ tox -e 3.6
 
 Create a branch for each feature or bugfix
 ------------------------------------------
