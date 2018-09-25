@@ -170,8 +170,13 @@ class Profile(object):
 
     def _type_complex_to_profile(self):
         # kiwi_xendomain
+        # kiwi_install_volid
         if self.xml_state.is_xen_server():
             self.dot_profile['kiwi_xendomain'] = 'dom0'
+        if 'oem' in self.xml_state.get_build_type_name():
+            install_volid = self.xml_state.build_type.get_volid() or \
+                Defaults.get_install_volume_id()
+            self.dot_profile['kiwi_install_volid'] = install_volid
 
     def _strip_to_profile(self):
         # kiwi_strip_delete

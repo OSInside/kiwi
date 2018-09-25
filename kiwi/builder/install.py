@@ -70,6 +70,8 @@ class InstallImageBuilder(object):
         self.setup = SystemSetup(
             self.xml_state, self.root_dir
         )
+        self.iso_volume_id = self.xml_state.build_type.get_volid() or \
+            Defaults.get_install_volume_id()
         self.diskname = ''.join(
             [
                 target_dir, '/',
@@ -136,7 +138,7 @@ class InstallImageBuilder(object):
         # custom iso metadata
         self.custom_iso_args = {
             'meta_data': {
-                'volume_id': Defaults.get_install_volume_id(),
+                'volume_id': self.iso_volume_id,
                 'mbr_id': self.mbrid.get_id(),
                 'efi_mode': self.firmware.efi_mode()
             }

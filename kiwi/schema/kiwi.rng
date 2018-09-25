@@ -26,6 +26,11 @@
       <param name="pattern">[a-zA-Z0-9_\-\.]+</param>
     </data>
   </define>
+  <define name="safe-posix-short-name">
+    <data type="token">
+      <param name="pattern">[a-zA-Z0-9_\-\.]{1,32}</param>
+    </data>
+  </define>
   <define name="locale-name">
     <data type="token">
       <param name="pattern">(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*</param>
@@ -2479,11 +2484,11 @@ hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documen
         <a:documentation>for the iso type only:
 Specifies the volume ID (volume name or label) to be written
 into the master block. There is space for 32 characters.</a:documentation>
-        <ref name="safe-posix-name"/>
+        <ref name="safe-posix-short-name"/>
       </attribute>
       <sch:pattern id="volid" is-a="image_type">
         <sch:param name="attr" value="volid"/>
-        <sch:param name="types" value="iso"/>
+        <sch:param name="types" value="iso oem"/>
       </sch:pattern>
     </define>
     <define name="k.type.wwid_wait_timeout.attribute">

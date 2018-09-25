@@ -99,6 +99,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self.volume_id = self.xml_state.build_type.get_volid() or \
             Defaults.get_volume_id()
+        self.install_volid = self.xml_state.build_type.get_volid() or \
+            Defaults.get_install_volume_id()
 
         self.live_boot_options = [
             'root=live:CDLABEL={0}'.format(self.volume_id),
@@ -109,9 +111,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         ]
         if self.xml_state.get_initrd_system() == 'dracut':
             self.install_boot_options.append(
-                'root=install:CDLABEL={0}'.format(
-                    Defaults.get_install_volume_id()
-                )
+                'root=install:CDLABEL={0}'.format(self.install_volid)
             )
         if self.xml_state.build_type.get_hybridpersistent():
             self.live_boot_options += \

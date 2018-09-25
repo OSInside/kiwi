@@ -28,6 +28,7 @@ function get_disk_list {
     declare kiwi_oemdevicefilter=${kiwi_oemdevicefilter}
     declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
     declare kiwi_devicepersistency=${kiwi_devicepersistency}
+    declare kiwi_install_volid=${kiwi_install_volid}
     local disk_id="by-id"
     local disk_size
     local disk_device
@@ -45,7 +46,9 @@ function get_disk_list {
         lsblk -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
-        if [ "$(blkid "${disk_device}" -s LABEL -o value)" = "INSTALL" ];then
+        if [ "$(blkid "${disk_device}" -s LABEL -o value)" = \
+            "${kiwi_install_volid}" ]
+        then
             # ignore install source device
             continue
         fi
