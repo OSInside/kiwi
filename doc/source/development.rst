@@ -45,7 +45,7 @@ for details). For Python 2.7 use :command:`virtualenv`, which is provided
 via pip or as an extra package in your favourite Linux distribution.
 
 However, for setting up a Python virtual development environment the
-following additional latex, include, header files and compilers are required
+following additional LaTeX, include, header files and compilers are required
 in order to allow for compiling the C parts of the runtime required
 Python modules:
 
@@ -63,8 +63,10 @@ Python modules:
 
 .. code:: bash
 
-    $ zypper in python3-devel libxml2-devel libxslt-devel libffi48-devel glibc-devel gcc
-    $ zypper in texlive-fncychap texlive-wrapfig texlive-capt-of trang
+    $ zypper install \
+        python3-devel libxml2-devel libxslt-devel libffi48-devel \
+        glibc-devel gcc texlive-fncychap texlive-wrapfig \
+        texlive-capt-of trang
 
 Once the basic python module requirements are installed on your system,
 the next step is to create the virtual development environment.
@@ -89,7 +91,7 @@ development environment:
 
     $ pip install -r .virtualenv.dev-requirements.txt
 
-4. Install KIWI in "development mode":
+4. Install KIWI in Development Mode:
 
    .. code:: bash
 
@@ -313,7 +315,7 @@ order to build the documentation just call:
 
     tox -e doc
 
-Whenever a change in the documentation is pushed to the git, it will be
+Whenever a change in the documentation is pushed to GitHub, it will be
 automatically updated via :command:`travis-sphinx` and is available at:
 
 https://opensource.suse.com/kiwi
