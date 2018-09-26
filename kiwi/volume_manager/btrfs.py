@@ -312,7 +312,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
             if self.custom_args['quota_groups'] and \
                     self.custom_args['root_is_snapshot']:
-                self._create_quota_group_info()
+                self._create_snapper_quota_configuration()
 
     def set_property_readonly_root(self):
         """
@@ -358,18 +358,22 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         xml_data_domtree = minidom.parseString(xml_data_unformatted)
         return xml_data_domtree.toprettyxml(indent="    ")
 
-    def _create_quota_group_info(self):
+    def _create_snapper_quota_configuration(self):
         root_path = os.sep.join([self.mountpoint, '@/.snapshots/1/snapshot'])
         snapper_default_conf = os.path.normpath(os.sep.join(
             [root_path, Defaults.get_snapper_config_template_file()]
         ))
         if os.path.exists(snapper_default_conf):
+            # snapper requires an extra parent qgroup to operate with quotas
+            Command.run(
+                ['btrfs', 'qgroup', 'create', '1/0', self.mountpoint]
+            )
             config_file = self._set_snapper_sysconfig_file(root_path)
             if not os.path.exists(config_file):
                 shutil.copyfile(snapper_default_conf, config_file)
             Command.run([
                 'chroot', root_path, 'snapper', '--no-dbus', 'set-config',
-                'QGROUP={0}'.format(self._get_quota_group_id())
+                'QGROUP=1/0'
             ])
 
     @classmethod
@@ -393,15 +397,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             root_path, 'etc/snapper/configs',
             sysconf_file['SNAPPER_CONFIGS'].strip('\"')]
         )
-
-    def _get_quota_group_id(self):
-        qgroup_show_call = Command.run(
-            ['btrfs', 'qgroup', 'show', '-f', self.mountpoint]
-        )
-        for line in qgroup_show_call.output.split(os.linesep):
-            quota_group_id = re.search('^(\d+/\d+)', line)
-            if quota_group_id:
-                return quota_group_id.group(1)
 
     def _create_snapshot_info(self, filename):
         date_info = datetime.datetime.now()

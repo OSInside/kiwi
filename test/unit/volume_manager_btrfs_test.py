@@ -386,8 +386,6 @@ class TestVolumeManagerBtrfs(object):
 
         self.volume_manager.custom_args['quota_groups'] = True
         mock_exists.side_effect = exists
-        qgroup_show_call = mock.Mock()
-        qgroup_show_call.output = '0/5          16.00KiB     16.00KiB'
 
         sysconf = mock.Mock()
         sysconf.__contains__ = mock.Mock(side_effect=contains)
@@ -395,7 +393,6 @@ class TestVolumeManagerBtrfs(object):
         sysconf.__setitem__ = mock.Mock(side_effect=setitem)
         mock_sysconf.return_value = sysconf
 
-        mock_command.return_value = qgroup_show_call
         xml_info = etree.tostring(etree.parse(
             '../data/info.xml', etree.XMLParser(remove_blank_text=True)
         ))
@@ -426,10 +423,10 @@ class TestVolumeManagerBtrfs(object):
             call(minidom.parseString(xml_info).toprettyxml(indent="    "))
         ]
         assert mock_command.call_args_list == [
-            call(['btrfs', 'qgroup', 'show', '-f', 'tmpdir']),
+            call(['btrfs', 'qgroup', 'create', '1/0', 'tmpdir']),
             call([
                 'chroot', 'tmpdir/@/.snapshots/1/snapshot',
-                'snapper', '--no-dbus', 'set-config', 'QGROUP=0/5'
+                'snapper', '--no-dbus', 'set-config', 'QGROUP=1/0'
             ])
         ]
 
@@ -494,9 +491,6 @@ class TestVolumeManagerBtrfs(object):
     ):
         self.volume_manager.custom_args['quota_groups'] = True
         mock_exists.return_value = True
-        qgroup_show_call = mock.Mock()
-        qgroup_show_call.output = '0/5          16.00KiB     16.00KiB'
-        mock_command.return_value = qgroup_show_call
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
         self.file_mock.readlines = mock.Mock(
             return_value=[]
