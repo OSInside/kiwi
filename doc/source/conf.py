@@ -56,6 +56,30 @@ def setup(app):
     app.connect("autodoc-process-docstring", remove_module_docstring)
     app.add_stylesheet('css/custom.css')
 
+
+latex_documents = [
+    ('index', 'kiwi.tex', u'KIWI Documentation', u'Marcus Schäfer', 'manual')
+]
+latex_elements = {
+    'papersize': 'a4paper',
+    'pointsize':'12pt',
+    'classoptions': ',openany',
+    'babel': '\\usepackage[english]{babel}',
+    'preamble': ur'''
+      \makeatletter
+      \fancypagestyle{normal}{
+        \fancyhf{}
+        \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
+        \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
+        \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
+        \fancyhead[LE,RO]{{\py@HeaderFamily \@title, \py@release}}
+        \renewcommand{\headrulewidth}{0.4pt}
+        \renewcommand{\footrulewidth}{0.4pt}
+      }
+      \makeatother
+    '''
+}
+
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
 spelling_ignore_acronyms = True

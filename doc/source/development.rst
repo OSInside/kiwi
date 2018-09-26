@@ -45,7 +45,7 @@ for details). For Python 2.7 use :command:`virtualenv`, which is provided
 via pip or as an extra package in your favourite Linux distribution.
 
 However, for setting up a Python virtual development environment the
-following additional include, header files and compilers are required
+following additional LaTeX, include, header files and compilers are required
 in order to allow for compiling the C parts of the runtime required
 Python modules:
 
@@ -53,6 +53,7 @@ Python modules:
 * Foreign function interface library (libffi48)
 * Python header files (for :mod:`xattr`)
 * GCC compiler and glibc-devel header files
+* LaTeX packages for building PDF documentation
 
 .. note::
 
@@ -62,7 +63,10 @@ Python modules:
 
 .. code:: bash
 
-    $ zypper in python3-devel libxml2-devel libxslt-devel libffi48-devel glibc-devel gcc
+    $ zypper install \
+        python3-devel libxml2-devel libxslt-devel libffi48-devel \
+        glibc-devel gcc texlive-fncychap texlive-wrapfig \
+        texlive-capt-of trang
 
 Once the basic python module requirements are installed on your system,
 the next step is to create the virtual development environment.
@@ -85,9 +89,9 @@ development environment:
 
    .. code:: bash
 
-    $ pip3.4 install -r .virtualenv.dev-requirements.txt
+    $ pip install -r .virtualenv.dev-requirements.txt
 
-4. Install KIWI in "development mode":
+4. Install KIWI in Development Mode:
 
    .. code:: bash
 
@@ -151,11 +155,11 @@ If you want to see the target, use the option `-l` to print a list:
     $ tox -l
 
 To only run a special target, use the `-e` option. The following
-example runs the test cases for the 3.4 interpreter only:
+example runs the test cases for the 3.6 interpreter only:
 
 .. code:: bash
 
-    $ tox -e 3.4
+    $ tox -e 3.6
 
 Create a branch for each feature or bugfix
 ------------------------------------------
@@ -311,7 +315,7 @@ order to build the documentation just call:
 
     tox -e doc
 
-Whenever a change in the documentation is pushed to the git, it will be
+Whenever a change in the documentation is pushed to GitHub, it will be
 automatically updated via :command:`travis-sphinx` and is available at:
 
-http://suse.github.io/kiwi
+https://opensource.suse.com/kiwi
