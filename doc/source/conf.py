@@ -61,7 +61,23 @@ latex_documents = [
     ('index', 'kiwi.tex', u'KIWI Documentation', u'Marcus Schäfer', 'manual')
 ]
 latex_elements = {
-    'papersize': 'a4paper'
+    'papersize': 'a4paper',
+    'pointsize':'12pt',
+    'classoptions': ',openany',
+    'babel': '\\usepackage[english]{babel}',
+    'preamble': ur'''
+      \makeatletter
+      \fancypagestyle{normal}{
+        \fancyhf{}
+        \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
+        \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
+        \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
+        \fancyhead[LE,RO]{{\py@HeaderFamily \@title, \py@release}}
+        \renewcommand{\headrulewidth}{0.4pt}
+        \renewcommand{\footrulewidth}{0.4pt}
+      }
+      \makeatother
+    '''
 }
 
 spelling_lang = 'en_US'
