@@ -1,5 +1,9 @@
 # Manifest describing source package contents
 
+# schema docs gets auto generated, don't include any data
+# existing there into the package tarball
+prune doc/source/development/schema
+
 graft tools
 graft dracut
 graft helper
@@ -30,17 +34,14 @@ include README.rst
 include LICENSE
 include tox.ini
 
-recursive-include doc Makefile
 recursive-include doc/build/man *
-recursive-include doc/source *.py *.rst
 recursive-include test *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
 
 include .bumpversion.cfg
 include .coverage*
-include .landscape.yml
 include .travis*
 
 include .virtualenv.requirements.txt
 include .virtualenv.dev-requirements.txt
 
-global-exclude *.py[cod] __pycache__ *.so *.dylib
+global-exclude *.py[cod] __pycache__
