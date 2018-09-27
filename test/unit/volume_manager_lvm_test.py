@@ -186,20 +186,24 @@ class TestVolumeManagerLVM(object):
             call(['mkdir', '-p', 'root_dir/data']),
             call(['mkdir', '-p', 'root_dir/home']),
             call([
-                'lvcreate', '-L', format(root_size), '-n', 'LVRoot',
+                'lvcreate', '-Zn', '-L', format(root_size), '-n', 'LVRoot',
                 'volume_group'
             ]),
+            call(['vgscan', '--mknodes']),
             call([
-                'lvcreate', '-L', format(myvol_size), '-n', 'myvol',
+                'lvcreate', '-Zn', '-L', format(myvol_size), '-n', 'myvol',
                 'volume_group'
             ]),
+            call(['vgscan', '--mknodes']),
             call([
-                'lvcreate', '-L', format(etc_size), '-n', 'LVetc',
+                'lvcreate', '-Zn', '-L', format(etc_size), '-n', 'LVetc',
                 'volume_group'
             ]),
+            call(['vgscan', '--mknodes']),
             call([
-                'lvcreate', '-l', '+100%FREE', '-n', 'LVhome', 'volume_group'
-            ])
+                'lvcreate', '-Zn', '-l', '+100%FREE', '-n', 'LVhome', 'volume_group'
+            ]),
+            call(['vgscan', '--mknodes'])
         ]
         assert mock_fs.call_args_list == [
             call(

@@ -128,8 +128,20 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
             Command.run(
                 [
-                    'lvcreate', '-L', format(volume_mbsize), '-n',
+                    # if working in a chroot'd environment there will be
+                    # no udev running to automatically create devices nodes
+                    # under /dev, so disable zeroing of newly created LV
+                    # headers to avoid failure due to missing device.
+                    'lvcreate', '-Zn', '-L', format(volume_mbsize), '-n',
                     volume.name, self.volume_group
+                ]
+            )
+            Command.run(
+                [
+                    # if working in a chroot'd environment there will be
+                    # no udev running to automatically create devices so
+                    # use vgscan --mknodes instead.
+                    'vgscan', '--mknodes'
                 ]
             )
             self.apply_attributes_on_volume(
@@ -148,8 +160,20 @@ class VolumeManagerLVM(VolumeManagerBase):
             log.info('--> fullsize volume %s', full_size_volume.name)
             Command.run(
                 [
-                    'lvcreate', '-l', '+100%FREE', '-n', full_size_volume.name,
-                    self.volume_group
+                    # if working in a chroot'd environment there will be
+                    # no udev running to automatically create devices nodes
+                    # under /dev, so disable zeroing of newly created LV
+                    # headers to avoid failure due to missing device.
+                    'lvcreate', '-Zn', '-l', '+100%FREE', '-n',
+                    full_size_volume.name, self.volume_group
+                ]
+            )
+            Command.run(
+                [
+                    # if working in a chroot'd environment there will be
+                    # no udev running to automatically create devices so
+                    # use vgscan --mknodes instead.
+                    'vgscan', '--mknodes'
                 ]
             )
             self._add_to_volume_map(full_size_volume.name)
