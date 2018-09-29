@@ -126,4 +126,4 @@ description as follows:
 
 An image built with the above setup can be uploaded into the
 Amazon EC2 cloud and registered as image. For further information
-on how to upload to EC2 see: `ec2uploadimg <https://github.com/SUSE/Enceladus/tree/master/ec2utils/ec2uploadimg>`_
+on how to upload to EC2 see: `ec2uploadimg <https://github.com/SUSE-Enceladus/ec2imgutils>`_
