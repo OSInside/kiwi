@@ -47,6 +47,9 @@ Contact
   `subscribe <mailto:kiwi-images+subscribe@googlegroups.com>`__,
   even if you do not have a Google account.
 
-* IRC:
+* `Matrix <https://matrix.org/blog/home/>`__
 
-  `#opensuse-kiwi` on irc.freenode.net
+  An open network for secure, decentralized communication. Please find
+  the `kiwi` room via `Riot <https://riot.im/app/>`__ on the web or by
+  using the `WeeChat <https://matrix.org/docs/projects/client/weechat.html>`__
+  client.
