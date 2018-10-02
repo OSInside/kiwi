@@ -104,6 +104,38 @@ class VolumeManagerLVM(VolumeManagerBase):
         Command.run(['vgcreate', volume_group_name, self.device])
         self.volume_group = volume_group_name
 
+    @staticmethod
+    def _create_volume_no_zero(lvcreate_args):
+        """
+        Create an LV using specified arguments to lvcreate
+
+        The LV will be created with the '-Zn' option prepended
+        to the arguments, which disables the zeroing of the new
+        device's header; this action will fail when running in
+        an environment where udev is not enabled, such as in a
+        chroot'd Open Build Service build. Since the backing
+        device for a kiwi LVM device is a zero filled qemu-img
+        created file, there should be no negative side effects
+        to skipping the zeroing of this header block.
+
+        Then we run 'vgscan --mknodes' to ensure that any /dev
+        nodes have been created for the new LV.
+
+        :param list lvcreate_args: list of lvcreate arguments.
+        """
+        log.debug(
+            '--> running "lvcreate -Zn %s"', " ".join(lvcreate_args)
+        )
+        Command.run(
+            ['lvcreate', '-Zn'] + lvcreate_args
+        )
+        log.debug(
+            '--> running "vgscan --mknodes" to create missing nodes'
+        )
+        Command.run(
+            ['vgscan', '--mknodes']
+        )
+
     def create_volumes(self, filesystem_name):
         """
         Create configured lvm volumes and filesystems
@@ -126,9 +158,9 @@ class VolumeManagerLVM(VolumeManagerBase):
             log.info(
                 '--> volume %s with %s MB', volume.name, volume_mbsize
             )
-            Command.run(
+            self._create_volume_no_zero(
                 [
-                    'lvcreate', '-L', format(volume_mbsize), '-n',
+                    '-L', format(volume_mbsize), '-n',
                     volume.name, self.volume_group
                 ]
             )
@@ -146,10 +178,10 @@ class VolumeManagerLVM(VolumeManagerBase):
         if canonical_volume_list.full_size_volume:
             full_size_volume = canonical_volume_list.full_size_volume
             log.info('--> fullsize volume %s', full_size_volume.name)
-            Command.run(
+            self._create_volume_no_zero(
                 [
-                    'lvcreate', '-l', '+100%FREE', '-n', full_size_volume.name,
-                    self.volume_group
+                    '-l', '+100%FREE', '-n',
+                    full_size_volume.name, self.volume_group
                 ]
             )
             self._add_to_volume_map(full_size_volume.name)
