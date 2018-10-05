@@ -120,7 +120,7 @@ class Uri(object):
         elif uri.scheme == 'iso':
             return self._iso_mount_path(uri.path)
         elif uri.scheme.startswith('http') or uri.scheme == 'ftp':
-            if self._has_credentials_query() or not uri.query:
+            if self._get_credentials_uri() or not uri.query:
                 return ''.join(
                     [uri.scheme, '://', uri.netloc, uri.path]
                 )
@@ -141,7 +141,7 @@ class Uri(object):
 
         :rtype: str
         """
-        uri = self._has_credentials_query()
+        uri = self._get_credentials_uri()
         # initialize query with default credentials file name.
         # The information will be overwritten if the uri contains
         # a parameter query with a credentials parameter
@@ -224,7 +224,7 @@ class Uri(object):
         uri = urlparse(self.uri)
         return uri.fragment
 
-    def _has_credentials_query(self):
+    def _get_credentials_uri(self):
         uri = urlparse(self.uri)
         if uri.query and uri.query.startswith('credentials='):
             return uri
