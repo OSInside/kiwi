@@ -30,6 +30,7 @@ from kiwi.logger import log
 from kiwi.defaults import Defaults
 from kiwi.path import Path
 from kiwi.command import Command
+from kiwi.utils.codec import Codec
 from kiwi.exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError,
@@ -405,12 +406,14 @@ class Iso(object):
 
     @staticmethod
     def _validate_iso_metadata(iso_header):
-        if 'CD001' not in iso_header.volume_id.decode():
+        if 'CD001' not in Codec.decode(iso_header.volume_id):
             raise KiwiIsoMetaDataError(
                 '%s: this is not an iso9660 filesystem' %
                 iso_header.isofile
             )
-        if 'EL TORITO SPECIFICATION' not in iso_header.eltorito_id.decode():
+        if 'EL TORITO SPECIFICATION' not in Codec.decode(
+            iso_header.eltorito_id
+        ):
             raise KiwiIsoMetaDataError(
                 '%s: this iso is not bootable' %
                 iso_header.isofile
