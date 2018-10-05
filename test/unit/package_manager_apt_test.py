@@ -102,7 +102,7 @@ class TestPackageManagerApt(object):
             options=['-a', '-H', '-X', '-A']
         )
         assert mock_run.call_args_list == [
-            call(command=['mountpoint', 'root-dir/dev'], raise_on_error=False),
+            call(command=['mountpoint', '-q', 'root-dir/dev'], raise_on_error=False),
             call([
                 'debootstrap', '--no-check-gpg', '--variant=minbase',
                 'xenial', 'root-dir.debootstrap', 'xenial_path'],

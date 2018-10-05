@@ -120,7 +120,7 @@ class MountManager(object):
         :rtype: bool
         """
         mountpoint_call = Command.run(
-            command=['mountpoint', self.mountpoint],
+            command=['mountpoint', '-q', self.mountpoint],
             raise_on_error=False
         )
         if mountpoint_call.returncode == 0:

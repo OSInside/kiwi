@@ -76,6 +76,10 @@ class TestMountManager(object):
         command.returncode = 0
         mock_command.return_value = command
         assert self.mount_manager.is_mounted() is True
+        mock_command.assert_called_once_with(
+            command=['mountpoint', '-q', '/some/mountpoint'],
+            raise_on_error=False
+        )
 
     @patch('kiwi.mount_manager.Command.run')
     def test_is_mounted_false(self, mock_command):
@@ -83,6 +87,10 @@ class TestMountManager(object):
         command.returncode = 1
         mock_command.return_value = command
         assert self.mount_manager.is_mounted() is False
+        mock_command.assert_called_once_with(
+            command=['mountpoint', '-q', '/some/mountpoint'],
+            raise_on_error=False
+        )
 
     @patch('kiwi.mount_manager.Path.wipe')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
