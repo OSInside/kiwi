@@ -120,6 +120,13 @@ class TestUri(object):
         )
         assert uri.credentials_file_name() == 'kiwiRepoCredentials'
 
+    def test_translate_http_path_with_token(self):
+        uri = Uri(
+            'http://foo.bar/baz?asdf',
+            'rpm-md'
+        )
+        assert uri.translate() == 'http://foo.bar/baz?asdf'
+
     def test_translate_http_path_with_credentials(self):
         uri = Uri(
             'http://example.com/foo?credentials=kiwiRepoCredentials',

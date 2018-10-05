@@ -120,7 +120,14 @@ class Uri(object):
         elif uri.scheme == 'iso':
             return self._iso_mount_path(uri.path)
         elif uri.scheme.startswith('http') or uri.scheme == 'ftp':
-            return ''.join([uri.scheme, '://', uri.netloc, uri.path])
+            if self._get_credentials_uri() or not uri.query:
+                return ''.join(
+                    [uri.scheme, '://', uri.netloc, uri.path]
+                )
+            else:
+                return ''.join(
+                    [uri.scheme, '://', uri.netloc, uri.path, '?', uri.query]
+                )
         else:
             raise KiwiUriStyleUnknown(
                 'URI schema %s not supported' % self.uri
@@ -134,13 +141,13 @@ class Uri(object):
 
         :rtype: str
         """
-        uri = urlparse(self.uri)
+        uri = self._get_credentials_uri()
         # initialize query with default credentials file name.
         # The information will be overwritten if the uri contains
         # a parameter query with a credentials parameter
         query = {'credentials': 'kiwiRepoCredentials'}
 
-        if uri.query:
+        if uri:
             query = dict(params.split('=') for params in uri.query.split('&'))
 
         return query['credentials']
@@ -216,6 +223,11 @@ class Uri(object):
         """
         uri = urlparse(self.uri)
         return uri.fragment
+
+    def _get_credentials_uri(self):
+        uri = urlparse(self.uri)
+        if uri.query and uri.query.startswith('credentials='):
+            return uri
 
     def _iso_mount_path(self, path):
         # The prefix name 'kiwi_iso_mount' has a meaning here because the
