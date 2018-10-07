@@ -78,7 +78,7 @@ class TestDefaults(object):
         assert Defaults.get_live_dracut_module_from_flag('overlay') == \
             'kiwi-live'
         assert Defaults.get_live_dracut_module_from_flag('dmsquash') == \
-            'dmsquash-live'
+            'dmsquash-live livenet'
 
     @patch('platform.machine')
     def test_get_iso_boot_path(self, mock_machine):
