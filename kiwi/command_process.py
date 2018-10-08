@@ -25,6 +25,7 @@ from collections import namedtuple
 
 # project
 from .logger import log
+from .utils.codec import Codec
 
 from .exceptions import (
     KiwiCommandError
@@ -173,7 +174,7 @@ class CommandIterator(six.Iterator):
             if not byte_read:
                 self.output_eof_reached = True
             elif byte_read == bytes(b'\n'):
-                line_read = self.command_output_line.decode()
+                line_read = Codec.decode(self.command_output_line)
                 self.command_output_line = bytes(b'')
             else:
                 self.command_output_line += byte_read
@@ -195,7 +196,7 @@ class CommandIterator(six.Iterator):
 
         :rtype: str
         """
-        return self.command_error_output.decode()
+        return Codec.decode(self.command_error_output)
 
     def get_error_code(self):
         """

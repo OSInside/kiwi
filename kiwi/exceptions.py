@@ -779,3 +779,9 @@ class KiwiCommandCapabilitiesError(KiwiError):
     Exception is raised when some the CommandCapabilities methods fails,
     usually meaning there is some issue trying to parse some command output.
     """
+
+
+class KiwiDecodingError(KiwiError):
+    """
+    Exception is raised on decoding literals failure
+    """

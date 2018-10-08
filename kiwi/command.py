@@ -26,6 +26,8 @@ from collections import namedtuple
 from builtins import bytes
 
 # project
+from .utils.codec import Codec
+
 from .exceptions import (
     KiwiCommandError,
     KiwiCommandNotFound
@@ -108,17 +110,18 @@ class Command(object):
             output = bytes(b'(no output on stdout)')
         if process.returncode != 0 and raise_on_error:
             log.debug(
-                'EXEC: Failed with stderr: %s, stdout: %s',
-                error.decode(), output.decode()
+                'EXEC: Failed with stderr: {0}, stdout: {1}'.format(
+                    Codec.decode(error), Codec.decode(output)
+                )
             )
             raise KiwiCommandError(
-                '%s: stderr: %s, stdout: %s' % (
-                    command[0], error.decode(), output.decode()
+                '{0}: stderr: {1}, stdout: {2}'.format(
+                    command[0], Codec.decode(error), Codec.decode(output)
                 )
             )
         return command_type(
-            output=output.decode(),
-            error=error.decode(),
+            output=Codec.decode(output),
+            error=Codec.decode(error),
             returncode=process.returncode
         )
 
