@@ -915,7 +915,7 @@ class Defaults(object):
         """
         live_modules = {
             'overlay': 'kiwi-live',
-            'dmsquash': 'dmsquash-live'
+            'dmsquash': 'dmsquash-live livenet'
         }
         if flag_name in live_modules:
             return live_modules[flag_name]
