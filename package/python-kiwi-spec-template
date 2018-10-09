@@ -106,6 +106,7 @@ Requires:       grub2-x86_64-efi
 Requires:       qemu-tools
 Requires:       squashfs
 Requires:       gptfdisk
+Requires:       gfxboot
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
@@ -130,6 +131,7 @@ Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
 Requires:       gdisk
+Requires:       gfxboot
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
@@ -183,6 +185,7 @@ Requires:       grub2-x86_64-efi
 Requires:       qemu-tools
 Requires:       squashfs
 Requires:       gptfdisk
+Requires:       gfxboot
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
