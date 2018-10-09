@@ -24,12 +24,12 @@ To install KIWI, do:
    copy the URL. In Firefox it is the menu :menuselection:`Copy link address`.
 
 3. Insert the copied URL from the last step in your shell. The ``DIST``
-   placeholder contains the respective distribution. Use :command:`zypper ar`
-   to add it to your list of repositories:
+   placeholder contains the respective distribution.
+   Use :command:`zypper addrepo` to add it to your list of repositories:
 
    .. code-block:: shell-session
 
-       $ sudo zypper ar -f http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>
+       $ sudo zypper addrepo http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST> appliance-builder
 
 4. Install KIWI:
 
