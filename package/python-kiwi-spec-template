@@ -115,7 +115,6 @@ Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
 Requires:       gdisk
-Requires:       gfxboot
 Requires:       yum
 Provides:       kiwi-packagemanager:yum
 %if 0%{?fedora} || 0%{?rhel} >= 8
@@ -195,7 +194,6 @@ Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
 Requires:       gdisk
-Requires:       gfxboot
 %endif
 %if 0%{?rhel} && 0%{?rhel} < 8
 Requires:       yum
