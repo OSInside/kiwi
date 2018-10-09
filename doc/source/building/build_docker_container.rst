@@ -60,11 +60,11 @@ openSUSE Leap:
 1. Make sure you have checked out the example image descriptions,
    see :ref:`example-descriptions`.
 
-#. Include the ``Virtualization`` repository to your list:
+#. Include the ``Virtualization/containers`` repository to your list:
 
    .. code:: bash
 
-      $ zypper ar -f http://download.opensuse.org/repositories/Virtualization:/containers/<DIST>
+      $ zypper addrepo http://download.opensuse.org/repositories/Virtualization:/containers/<DIST> container-tools
 
    where the placeholder `<DIST>` is the preferred distribution. 
 
