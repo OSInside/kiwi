@@ -201,11 +201,19 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/ISOLINUX/isolinux.bin',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/ldlinux.c32',
                 'root_dir/image/loader/'
             ),
             call(
                 'root_dir/usr/lib/syslinux/modules/bios/ldlinux.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/ISOLINUX/ldlinux.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -217,11 +225,19 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/ISOLINUX/libcom32.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/libutil.c32',
                 'root_dir/image/loader/'
             ),
             call(
                 'root_dir/usr/lib/syslinux/modules/bios/libutil.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/ISOLINUX/libutil.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -233,11 +249,19 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/ISOLINUX/gfxboot.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/gfxboot.com',
                 'root_dir/image/loader/'
             ),
             call(
                 'root_dir/usr/lib/syslinux/modules/bios/gfxboot.com',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/ISOLINUX/gfxboot.com',
                 'root_dir/image/loader/'
             ),
             call(
@@ -249,6 +273,10 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/ISOLINUX/menu.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/chain.c32',
                 'root_dir/image/loader/'
             ),
@@ -257,11 +285,19 @@ class TestBootLoaderConfigIsoLinux(object):
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/ISOLINUX/chain.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/share/syslinux/mboot.c32',
                 'root_dir/image/loader/'
             ),
             call(
                 'root_dir/usr/lib/syslinux/modules/bios/mboot.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/ISOLINUX/mboot.c32',
                 'root_dir/image/loader/'
             )
         ]
