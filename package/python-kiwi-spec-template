@@ -473,12 +473,6 @@ done
 %endif
 %endif
 
-%if  0%{?fedora} || 0%{?rhel}
-install -m 755 -d %{buildroot}/%{_defaultdocdir}/python-kiwi
-mv %{buildroot}/%{_defaultdocdir}/packages/python-kiwi/* %{buildroot}/%{_defaultdocdir}/python-kiwi
-rm -rf %{buildroot}/%{_defaultdocdir}/packages
-%endif
-
 %if 0%{?fedora} || 0%{?suse_version}
 %fdupes %{buildroot}/srv/tftpboot
 %endif
