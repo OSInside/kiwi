@@ -260,7 +260,8 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         ]
         syslinux_dirs = [
             '/usr/share/syslinux/',
-            '/usr/lib/syslinux/modules/bios/'
+            '/usr/lib/syslinux/modules/bios/',
+            '/usr/lib/ISOLINUX/'
         ]
         for syslinux_file_name in syslinux_file_names:
             for syslinux_dir in syslinux_dirs:
