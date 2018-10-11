@@ -276,6 +276,7 @@ Requires:       cryptsetup
 %if 0%{?fedora} || 0%{?rhel}
 Requires:       btrfs-progs
 Requires:       gdisk
+Requires:       dracut-network
 %else
 Requires:       btrfsprogs
 Requires:       gptfdisk
@@ -371,7 +372,12 @@ Requires:       util-linux
 %if 0%{?debian} || 0%{?ubuntu}
 Requires:       dmsetup
 Requires:       dracut-network
-%else
+%endif
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       device-mapper
+Requires:       dracut-network
+%endif
+%if 0%{?suse_version}
 Requires:       device-mapper
 %endif
 Requires:       dracut
