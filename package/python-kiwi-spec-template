@@ -444,7 +444,7 @@ python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--ins
 make buildroot=%{buildroot}/ install_dracut
 
 # Install documentation in PDF format
-make buildroot=%{buildroot}/ install_pdf_docs
+make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install_package_docs
 
 %if %{_vendor} != "debbuild"
 # init alternatives setup
