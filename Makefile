@@ -1,4 +1,5 @@
 buildroot = /
+docdir = /usr/share/doc/packages
 python_version = 3
 python_lookup_name = python$(python_version)
 python = $(shell which $(python_lookup_name))
@@ -29,10 +30,14 @@ install_dracut:
 	install -d -m 755 ${buildroot}usr/lib/dracut/modules.d
 	cp -a dracut/modules.d/* ${buildroot}usr/lib/dracut/modules.d
 
-install_pdf_docs:
-	install -d -m 755 ${buildroot}/usr/share/doc/packages/python-kiwi
+install_package_docs:
+	install -d -m 755 ${buildroot}${docdir}/python-kiwi
 	install -m 644 doc/build/latex/kiwi.pdf \
-		${buildroot}/usr/share/doc/packages/python-kiwi/kiwi.pdf
+		${buildroot}${docdir}/python-kiwi/kiwi.pdf
+	install -m 644 LICENSE \
+		${buildroot}${docdir}/python-kiwi/LICENSE
+	install -m 644 README.rst \
+		${buildroot}${docdir}/python-kiwi/README
 
 install:
 	# apart from all python source we also need to install
@@ -51,12 +56,6 @@ install:
 	install -d -m 755 ${buildroot}etc/bash_completion.d
 	$(python) helper/completion_generator \
 		> ${buildroot}etc/bash_completion.d/kiwi-ng-${python_version}.sh
-	# license
-	install -d -m 755 ${buildroot}/usr/share/doc/packages/python-kiwi
-	install -m 644 LICENSE \
-		${buildroot}/usr/share/doc/packages/python-kiwi/LICENSE
-	install -m 644 README.rst \
-		${buildroot}/usr/share/doc/packages/python-kiwi/README
 
 tox:
 	tox
