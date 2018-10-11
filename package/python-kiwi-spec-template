@@ -273,7 +273,7 @@ BuildRequires:  dracut
 %endif
 Requires:       bc
 Requires:       cryptsetup
-%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu}
+%if 0%{?fedora} || 0%{?rhel}
 Requires:       btrfs-progs
 Requires:       gdisk
 %else
@@ -294,6 +294,9 @@ Requires:       curl
 %if 0%{?debian} || 0%{?ubuntu}
 Requires:       xz-utils
 Requires:       dmsetup
+Requires:       btrfs-tools
+Requires:       gdisk
+Requires:       dracut-network
 %else
 Requires:       xz
 Requires:       device-mapper
@@ -367,6 +370,7 @@ Requires:       e2fsprogs
 Requires:       util-linux
 %if 0%{?debian} || 0%{?ubuntu}
 Requires:       dmsetup
+Requires:       dracut-network
 %else
 Requires:       device-mapper
 %endif
