@@ -97,7 +97,7 @@ class TestRepositoryApt(object):
         ]
         print(self.file_mock.write.call_args_list)
         assert self.file_mock.write.call_args_list == [
-            call('deb file://srv/my-repo xenial a b\n'),
+            call('deb file:/srv/my-repo xenial a b\n'),
             call('Package: *\n'),
             call('Pin: origin ""\n'),
             call('Pin-Priority: 42\n')
@@ -160,7 +160,7 @@ class TestRepositoryApt(object):
         mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
         self.repo.add_repo(
-            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial'
+            'foo', '/kiwi_iso_mount/uri', 'deb', None, 'xenial'
         )
         self.file_mock.write.assert_called_once_with(
             'deb file:/kiwi_iso_mount/uri xenial main\n'
