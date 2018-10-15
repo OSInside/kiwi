@@ -146,6 +146,7 @@ class RepositoryApt(RepositoryBase):
         if os.path.exists(uri):
             # apt-get requires local paths to take the file: type
             uri = 'file:/' + uri
+            uri = uri.replace('file://', 'file:/')
         if not components:
             components = 'main'
         with open(list_file, 'w') as repo:
