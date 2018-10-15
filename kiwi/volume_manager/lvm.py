@@ -27,6 +27,7 @@ from kiwi.logger import log
 from kiwi.exceptions import (
     KiwiVolumeGroupConflict
 )
+import os
 
 
 class VolumeManagerLVM(VolumeManagerBase):
@@ -87,6 +88,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         :param str name: volume group name
         """
         self.setup_mountpoint()
+        os.putenv('DM_DISABLE_UDEV', '1')
 
         if self._volume_group_in_use_on_host_system(volume_group_name):
             raise KiwiVolumeGroupConflict(
@@ -126,6 +128,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         log.debug(
             '--> running "lvcreate -Zn %s"', " ".join(lvcreate_args)
         )
+        os.putenv('DM_DISABLE_UDEV', '1')
         Command.run(
             ['lvcreate', '-Zn'] + lvcreate_args
         )
