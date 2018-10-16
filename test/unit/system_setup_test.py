@@ -795,6 +795,13 @@ class TestSystemSetup(object):
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
         )
 
+    @patch_open
+    def test_setup_machine_id(self, mock_open):
+        self.setup.setup_machine_id()
+        mock_open.assert_called_once_with(
+            'root_dir/etc/machine-id', 'w'
+        )
+
     @patch('kiwi.system.setup.Command.run')
     @patch_open
     def test_export_package_list_rpm_no_dbpath(

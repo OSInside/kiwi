@@ -55,7 +55,10 @@ class BootImageDracut(BootImageBase):
 
     def prepare(self):
         """
-        Prepare kiwi profile environment to be included in dracut initrd
+        Prepare dracut caller environment
+
+        * Create kiwi .profile environment to be included in dracut initrd
+        * Setup machine_id(s) to be generic and rebuild by dracut on boot
         """
         profile = Profile(self.xml_state)
         defaults = Defaults()
@@ -64,6 +67,7 @@ class BootImageDracut(BootImageBase):
             self.xml_state, self.boot_root_directory
         )
         setup.import_shell_environment(profile)
+        setup.setup_machine_id()
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 

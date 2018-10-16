@@ -216,6 +216,29 @@ class SystemSetup(object):
             archive = ArchiveTar(overlay_archive)
             archive.extract(self.root_dir)
 
+    def setup_machine_id(self):
+        """
+        Setup systemd machine id
+
+        Empty out the machine id which was provided by the package
+        installation process. This will instruct the dracut initrd
+        code to create a new machine id. This way a golden image
+        produces unique machine id's on first deployment and boot
+        of the image.
+
+        Note: Requires dracut connected image type
+
+        This method must only be called if the image is of
+        a type which gets booted via a dracut created initrd.
+        Deleting the machine-id without the dracut initrd
+        creating a new one produces an inconsistent system
+        """
+        machine_id = os.sep.join(
+            [self.root_dir, 'etc', 'machine-id']
+        )
+        with open(machine_id, 'w'):
+            pass
+
     def setup_keyboard_map(self):
         """
         Setup console keyboard

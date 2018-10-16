@@ -45,6 +45,7 @@ class TestBootImageKiwi(object):
         mock_setup.return_value = setup
         self.boot_image.prepare()
         setup.import_shell_environment.assert_called_once_with(profile)
+        setup.setup_machine_id.assert_called_once_with()
         assert self.boot_image.dracut_options == [
             '--install', '/.profile'
         ]
