@@ -929,7 +929,8 @@ class SystemSetup(object):
             ] + dbpath_option
         )
         with open(filename, 'w') as packages:
-            packages.write(query_call.output)
+            packages.write(os.linesep.join(sorted(query_call.output.splitlines())))
+            packages.write(os.linesep)
 
     def _export_deb_package_list(self, filename):
         log.info('Export deb packages metadata')
@@ -946,7 +947,8 @@ class SystemSetup(object):
             ]
         )
         with open(filename, 'w') as packages:
-            packages.write(query_call.output)
+            packages.write(os.linesep.join(sorted(query_call.output.splitlines())))
+            packages.write(os.linesep)
 
     def _export_rpm_package_verification(self, filename):
         log.info('Export rpm verification metadata')
