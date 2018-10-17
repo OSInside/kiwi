@@ -22,6 +22,7 @@ from tempfile import NamedTemporaryFile
 # project
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
+from kiwi.system.uri import Uri
 from kiwi.path import Path
 
 from kiwi.exceptions import (
@@ -218,7 +219,8 @@ class RepositoryZypper(RepositoryBase):
                 'addrepo',
                 '--refresh',
                 '--type', self._translate_repo_type(repo_type),
-                '--keep-packages',
+                '--keep-packages' if Uri(uri).is_remote() else
+                '--no-keep-packages',
                 '-C',
                 uri,
                 name
