@@ -103,10 +103,12 @@ Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
 %endif
+%ifarch %ix86 x86_64
+Requires:       gfxboot
+%endif
 Requires:       qemu-tools
 Requires:       squashfs
 Requires:       gptfdisk
-Requires:       gfxboot
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
@@ -131,7 +133,9 @@ Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
 Requires:       gdisk
+%ifarch %ix86 x86_64
 Requires:       gfxboot
+%endif
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
@@ -182,10 +186,12 @@ Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
 %endif
+%ifarch %ix86 x86_64
+Requires:       gfxboot
+%endif
 Requires:       qemu-tools
 Requires:       squashfs
 Requires:       gptfdisk
-Requires:       gfxboot
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
