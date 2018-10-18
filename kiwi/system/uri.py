@@ -51,7 +51,7 @@ class Uri(object):
     def __init__(self, uri, repo_type=None):
         self.runtime_config = RuntimeConfig()
         self.repo_type = repo_type
-        self.uri = uri
+        self.uri = uri if not uri.startswith(os.sep) else 'file:/' + uri
         self.mount_stack = []
 
         self.remote_uri_types = {
