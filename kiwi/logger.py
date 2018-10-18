@@ -317,7 +317,9 @@ class Logger(logging.Logger):
                 filename=filename, encoding='utf-8'
             )
             logfile.setFormatter(
-                logging.Formatter('%(levelname)s: %(message)s')
+                logging.Formatter(
+                    '%(levelname)s: %(asctime)-8s | %(message)s', '%H:%M:%S'
+                )
             )
             logfile.addFilter(LoggerSchedulerFilter())
             self.addHandler(logfile)
