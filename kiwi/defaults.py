@@ -1171,6 +1171,17 @@ class Defaults(object):
         elif package_manager in deb_based:
             return 'dpkg'
 
+    @classmethod
+    def get_default_rpmdb_path(self):
+        """
+        Returns the default path of the rpm database.
+
+        :return: rpmdb default path
+
+        :rtype: str
+        """
+        return '/var/lib/rpm'
+
     def get(self, key):
         """
         Implements get method for profile elements

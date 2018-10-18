@@ -24,6 +24,7 @@ from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
 from kiwi.system.uri import Uri
 from kiwi.path import Path
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiRepoTypeUnknown
@@ -253,7 +254,11 @@ class RepositoryZypper(RepositoryBase):
         :param list signing_keys: list of the key files to import
         """
         for key in signing_keys:
-            Command.run(['rpm', '--root', self.root_dir, '--import', key])
+            # Including --dbpath flag is a workaround for bsc#1112357
+            Command.run([
+                'rpm', '--root', self.root_dir, '--import',
+                key, '--dbpath', Defaults.get_default_rpmdb_path()
+            ])
 
     def delete_repo(self, name):
         """
