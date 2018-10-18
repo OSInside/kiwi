@@ -78,6 +78,8 @@ class TestUri(object):
         assert uri.is_remote() is True
         uri = Uri('dir:///path/to/repo', 'rpm-md')
         assert uri.is_remote() is False
+        uri = Uri('/path/to/repo')
+        assert uri.is_remote() is False
 
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_is_remote_in_buildservice(
