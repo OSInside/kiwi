@@ -253,7 +253,11 @@ class RepositoryZypper(RepositoryBase):
         :param list signing_keys: list of the key files to import
         """
         for key in signing_keys:
-            Command.run(['rpm', '--root', self.root_dir, '--import', key])
+            # Including --dbpath flag is a workaround for bsc#1112357
+            Command.run([
+                'rpm', '--root', self.root_dir, '--import',
+                key, '--dbpath', '/var/lib/rpm'
+            ])
 
     def delete_repo(self, name):
         """
