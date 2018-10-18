@@ -891,6 +891,20 @@ class Defaults(object):
         return 'overlay'
 
     @classmethod
+    def get_default_uri_type(self):
+        """
+        Provides default URI type
+
+        Absolute path specifications used in the context of an URI
+        will apply the specified default mime type
+
+        :return: URI mime type
+
+        :rtype: str
+        """
+        return 'dir:/'
+
+    @classmethod
     def get_dracut_conf_name(self):
         """
         Provides file path of dracut config file to be used with KIWI
