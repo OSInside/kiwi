@@ -103,10 +103,12 @@ Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
 %endif
+%ifarch %{ix86} x86_64
+Requires:       gfxboot
+%endif
 Requires:       qemu-tools
 Requires:       squashfs
 Requires:       gptfdisk
-Requires:       gfxboot
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
@@ -131,7 +133,9 @@ Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
 Requires:       gdisk
+%ifarch %{ix86} x86_64
 Requires:       gfxboot
+%endif
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
@@ -182,10 +186,12 @@ Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
 %endif
+%ifarch %{ix86} x86_64
+Requires:       gfxboot
+%endif
 Requires:       qemu-tools
 Requires:       squashfs
 Requires:       gptfdisk
-Requires:       gfxboot
 %endif
 %if 0%{?fedora} || 0%{?rhel}
 Requires:         chkconfig
@@ -245,7 +251,7 @@ first boot of an appliance. The tools are not meant to be used
 outside of the scope of kiwi appliance building.
 
 %if %{_vendor} != "debbuild"
-%ifarch %ix86 x86_64
+%ifarch %{ix86} x86_64
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
 Requires:       syslinux
@@ -466,7 +472,7 @@ ln -s %{_sysconfdir}/alternatives/kiwicompat \
     %{buildroot}%_bindir/kiwicompat
 
 # kiwi pxeboot directory structure to be packed in kiwi-pxeboot
-%ifarch %ix86 x86_64
+%ifarch %{ix86} x86_64
 for i in KIWI pxelinux.cfg image upload boot; do \
     mkdir -p %{buildroot}/srv/tftpboot/$i ;\
 done
@@ -514,7 +520,7 @@ done
 %endif
 
 %if %{_vendor} != "debbuild"
-%ifarch %ix86 x86_64
+%ifarch %{ix86} x86_64
 %pre -n kiwi-pxeboot
 #============================================================
 # create user and group tftp if they does not exist
@@ -592,7 +598,7 @@ fi
 %{_usr}/lib/dracut/modules.d/90kiwi-overlay
 
 %if %{_vendor} != "debbuild"
-%ifarch %ix86 x86_64
+%ifarch %{ix86} x86_64
 %files -n kiwi-pxeboot
 %defattr(-, root, root)
 %dir %attr(0755,tftp,tftp) /srv/tftpboot
