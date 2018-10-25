@@ -111,7 +111,7 @@ class TestRepositoryApt(object):
         )
         assert self.file_mock.write.call_args_list == [
             call(
-                'deb http://download.opensuse.org/repositories/' +
+                'deb http://download.opensuse.org/repositories/'
                 'V:/A:/C/Debian_9.0/ xenial a b\n'
             ),
             call('Package: *\n'),

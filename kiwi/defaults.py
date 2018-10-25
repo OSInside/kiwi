@@ -1219,6 +1219,6 @@ class Defaults(object):
         for key in sorted(self.profile_key_list):
             # Do not apply default values to any variable that was
             # already defined in the profile instance.
-            if (key not in profile.dot_profile or
-                    profile.dot_profile[key] is None):
+            cur_profile = profile.dot_profile
+            if key not in cur_profile or cur_profile[key] is None:
                 profile.add(key, self.get(key))

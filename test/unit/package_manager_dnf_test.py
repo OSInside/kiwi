@@ -55,8 +55,8 @@ class TestPackageManagerDnf(object):
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'dnf -c dnf.conf -y --installroot root-dir install vim && ' +
-                'dnf -c dnf.conf -y --installroot root-dir group install ' +
+                'dnf -c dnf.conf -y --installroot root-dir install vim && '
+                'dnf -c dnf.conf -y --installroot root-dir group install '
                 '"collection"'
             ], ['env']
         )
@@ -77,8 +77,10 @@ class TestPackageManagerDnf(object):
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'chroot root-dir dnf root-moved-arguments --exclude=skipme install vim && ' +
-                'chroot root-dir dnf root-moved-arguments --exclude=skipme group install ' +
+                'chroot root-dir dnf root-moved-arguments '
+                '--exclude=skipme install vim && '
+                'chroot root-dir dnf root-moved-arguments '
+                '--exclude=skipme group install '
                 '"collection"'
             ], ['env']
         )

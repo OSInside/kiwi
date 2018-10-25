@@ -305,14 +305,14 @@ class TestBootLoaderConfigIsoLinux(object):
             call(
                 command=[
                     'bash', '-c',
-                    'cp root_dir/boot/memtest* ' +
+                    'cp root_dir/boot/memtest* '
                     'root_dir/image/loader//memtest'
                 ], raise_on_error=False
             ),
             call(
                 [
                     'bash', '-c',
-                    'cp root_dir/etc/bootsplash/themes/openSUSE/' +
+                    'cp root_dir/etc/bootsplash/themes/openSUSE/'
                     'cdrom/* root_dir/image/loader/'
                 ]
             ),
@@ -326,7 +326,7 @@ class TestBootLoaderConfigIsoLinux(object):
             call(
                 [
                     'cp',
-                    'root_dir/etc/bootsplash/themes/openSUSE/' +
+                    'root_dir/etc/bootsplash/themes/openSUSE/'
                     'bootloader/message', 'root_dir/image/loader/'
                 ]
             )
@@ -359,12 +359,12 @@ class TestBootLoaderConfigIsoLinux(object):
             'default_boot': 'Bob',
             'title': 'Bob',
             'gfxmode': '800 600',
-            'boot_options': 'splash root=live:CDLABEL=CDROM' +
+            'boot_options': 'splash root=live:CDLABEL=CDROM'
             ' rd.live.image rd.live.overlay.persistent',
             'boot_timeout': 100,
-            'failsafe_boot_options': 'splash ide=nodma apm=off' +
-            ' noresume edd=off nomodeset 3' +
-            ' root=live:CDLABEL=CDROM rd.live.image' +
+            'failsafe_boot_options': 'splash ide=nodma apm=off'
+            ' noresume edd=off nomodeset 3'
+            ' root=live:CDLABEL=CDROM rd.live.image'
             ' rd.live.overlay.persistent',
             'kernel_file': 'linux'
         }

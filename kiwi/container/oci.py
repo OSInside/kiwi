@@ -201,20 +201,20 @@ class ContainerImageOCI(object):
             Command.run(
                 ['umoci', 'config', '--image', container_name, '--tag', tag]
             )
+        umoci_config = \
+            self.maintainer + \
+            self.user + \
+            self.workingdir + \
+            self.entry_command + \
+            self.entry_subcommand + \
+            self.expose_ports + \
+            self.volumes + \
+            self.environment + \
+            self.labels
         Command.run(
             [
                 'umoci', 'config'
-            ] +
-            self.maintainer +
-            self.user +
-            self.workingdir +
-            self.entry_command +
-            self.entry_subcommand +
-            self.expose_ports +
-            self.volumes +
-            self.environment +
-            self.labels +
-            [
+            ] + umoci_config + [
                 '--image', container_name,
                 '--created', datetime.utcnow().strftime(
                     '%Y-%m-%dT%H:%M:%S+00:00'

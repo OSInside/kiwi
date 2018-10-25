@@ -217,10 +217,9 @@ class RootBind(object):
         """
         for config in self.config_files:
             config_rpm_new = self.root_dir + config + '.rpmnew'
-            if (
-                os.path.exists(config_rpm_new) and
-                not os.path.exists(self.root_dir + config)
-            ):
+            if os.path.exists(config_rpm_new) and not \
+               os.path.exists(self.root_dir + config):
+
                 shutil.move(config_rpm_new, self.root_dir + config)
 
     def _cleanup_mount_stack(self):

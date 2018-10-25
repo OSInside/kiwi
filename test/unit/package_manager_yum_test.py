@@ -74,8 +74,8 @@ class TestPackageManagerYum(object):
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'yum -c yum.conf -y --installroot root-dir install vim && ' +
-                'yum -c yum.conf -y --installroot root-dir groupinstall ' +
+                'yum -c yum.conf -y --installroot root-dir install vim && '
+                'yum -c yum.conf -y --installroot root-dir groupinstall '
                 '"collection"'
             ], ['env']
         )
@@ -98,8 +98,10 @@ class TestPackageManagerYum(object):
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'chroot root-dir yum root-moved-arguments --exclude=skipme install vim && ' +
-                'chroot root-dir yum root-moved-arguments --exclude=skipme groupinstall ' +
+                'chroot root-dir yum root-moved-arguments '
+                '--exclude=skipme install vim && '
+                'chroot root-dir yum root-moved-arguments '
+                '--exclude=skipme groupinstall '
                 '"collection"'
             ], ['env']
         )

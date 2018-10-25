@@ -96,12 +96,12 @@ class TestPxeBuilder(object):
         mock_command.assert_called_once_with(
             [
                 'bash', '-c',
-                'tar -C target_dir -c --to-stdout ' +
-                'myimage-42.kernel ' +
-                'initrd_file_name ' +
-                'compressed-file-name ' +
-                'some-image.x86_64-1.2.3.md5 ' +
-                '| xz -f --threads=0 > ' +
+                'tar -C target_dir -c --to-stdout '
+                'myimage-42.kernel '
+                'initrd_file_name '
+                'compressed-file-name '
+                'some-image.x86_64-1.2.3.md5 '
+                '| xz -f --threads=0 > '
                 'target_dir/some-image.x86_64-1.2.3.tar.xz'
             ]
         )

@@ -100,10 +100,10 @@ class DiskFormatVmdk(DiskFormatBase):
         needed or the possibility to convert machine settings into an ovf
         via VMware's proprietary ovftool
         """
+        displayname = self.xml_state.xml_data.get_displayname()
         template_record = {
             'display_name':
-                self.xml_state.xml_data.get_displayname() or
-                self.xml_state.xml_data.get_name(),
+                displayname or self.xml_state.xml_data.get_name(),
             'vmdk_file':
                 os.path.basename(self.get_target_file_path_for_format('vmdk')),
             'virtual_hardware_version': '9',

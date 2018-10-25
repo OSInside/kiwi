@@ -237,8 +237,11 @@ class TestIso(object):
         assert self.file_mock.write.call_args_list == [
             call(bytes(b'catalog')),
             call(
-                bytes(b'EL TORITO SPECIFICATION') +
-                bytes(b'_') * (0x47 - 0x17) + bytes(b'\x13\x00\x00\x005f23a')
+                bytes(
+                    b'EL TORITO SPECIFICATION'
+                ) + bytes(
+                    b'_'
+                ) * (0x47 - 0x17) + bytes(b'\x13\x00\x00\x005f23a')
             )
         ]
 
@@ -268,20 +271,28 @@ class TestIso(object):
         if sys.byteorder == 'big':
             assert self.file_mock.write.call_args_list == [
                 call(
-                    bytes(b'_') * 44 +
-                    bytes(b'\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01') +
-                    bytes(b'\x00') * 28 +
-                    bytes(b'\x88___________\x01UEFI (grub)') +
-                    bytes(b'\x00') * 8
+                    bytes(
+                        b'_'
+                    ) * 44 + bytes(
+                        b'\x01Legacy (isolinux)\x00\x00\x91\xef\x00\x01'
+                    ) + bytes(
+                        b'\x00'
+                    ) * 28 + bytes(
+                        b'\x88___________\x01UEFI (grub)'
+                    ) + bytes(b'\x00') * 8
                 )
             ]
         else:
             assert self.file_mock.write.call_args_list == [
                 call(
-                    bytes(b'_') * 44 +
-                    bytes(b'\x01Legacy (isolinux)\x00\x00\x91\xef\x01') +
-                    bytes(b'\x00') * 29 +
-                    bytes(b'\x88___________\x01UEFI (grub)') +
-                    bytes(b'\x00') * 8
+                    bytes(
+                        b'_'
+                    ) * 44 + bytes(
+                        b'\x01Legacy (isolinux)\x00\x00\x91\xef\x01'
+                    ) + bytes(
+                        b'\x00'
+                    ) * 29 + bytes(
+                        b'\x88___________\x01UEFI (grub)'
+                    ) + bytes(b'\x00') * 8
                 )
             ]
