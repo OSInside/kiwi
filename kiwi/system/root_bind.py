@@ -17,6 +17,7 @@
 #
 import os
 import shutil
+from textwrap import dedent
 
 # project
 from kiwi.command import Command
@@ -24,6 +25,7 @@ from kiwi.defaults import Defaults
 from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.mount_manager import MountManager
+from kiwi.utils.checksum import Checksum
 
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -150,6 +152,9 @@ class RootBind(object):
                     Command.run(
                         ['ln', '-s', '-f', link_target, self.root_dir + config]
                     )
+                    checksum = Checksum(config)
+                    with open(self.root_dir + config + '.sha', 'w') as shasum:
+                        shasum.write(checksum.sha256())
         except Exception as e:
             self.cleanup()
             raise KiwiSetupIntermediateConfigError(
@@ -189,7 +194,35 @@ class RootBind(object):
         config_files_to_delete = []
 
         for config in self.cleanup_files:
-            config_files_to_delete.append(self.root_dir + config)
+            config_file = self.root_dir + config
+            shasum_file = config_file.replace('.kiwi', '.sha')
+
+            config_files_to_delete.append(config_file)
+            config_files_to_delete.append(shasum_file)
+
+            checksum = Checksum(config_file)
+            if not checksum.matches(checksum.sha256(), shasum_file):
+                message = dedent('''\n
+                    Modifications to intermediate config file detected
+
+                    The file: {0}
+
+                    is a copy from the host system and symlinked
+                    to its origin in the image root during build time.
+                    Modifications to this file by e.g script code will not
+                    have any effect because the file gets restored by one
+                    of the following actions:
+
+                    1. A package during installation provides it
+                    2. A custom version of the file is setup as overlay file
+                    3. The file is not provided by install or overlay and will
+                       be deleted at the end of the build process
+
+                    If you need a custom version of that file please
+                    provide it as an overlay file in your image
+                    description
+                ''')
+                log.warning(message.format(config_file))
 
         del self.cleanup_files[:]
 
