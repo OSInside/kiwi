@@ -65,8 +65,7 @@ class ArchiveTar(object):
         Command.run(
             [
                 'tar', '-C', source_dir
-            ] + options +
-            self.xattrs_options + [
+            ] + options + self.xattrs_options + [
                 '-c', '-f', self.filename
             ] + self._get_archive_items(source_dir, exclude)
         )
@@ -86,8 +85,7 @@ class ArchiveTar(object):
             [
                 'tar', '-C', source_dir, '-r',
                 '--file=' + self.filename
-            ] + options +
-            self.xattrs_options + files_to_append
+            ] + options + self.xattrs_options + files_to_append
         )
         return self.filename
 

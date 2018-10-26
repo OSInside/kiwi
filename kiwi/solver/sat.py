@@ -198,10 +198,10 @@ class Sat(object):
         """
         jobs = []
         for job_name in job_names:
+            selection_name = self.solv.Selection.SELECTION_NAME
+            selection_provides = self.solv.Selection.SELECTION_PROVIDES
             selection = self.pool.select(
-                job_name,
-                self.solv.Selection.SELECTION_NAME |
-                self.solv.Selection.SELECTION_PROVIDES
+                job_name, selection_name | selection_provides
             )
             if selection.flags() & self.solv.Selection.SELECTION_PROVIDES:
                 log.info('--> Using capability match for {0}'.format(job_name))

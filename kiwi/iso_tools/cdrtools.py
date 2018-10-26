@@ -163,11 +163,14 @@ class IsoToolsCdrTools(IsoToolsBase):
                 hidden_files_parameters.append(hidden_file)
                 hidden_files_parameters.append('-hide-joliet')
                 hidden_files_parameters.append(hidden_file)
+        iso_parameters = \
+            hidden_files_parameters + \
+            self.iso_parameters + \
+            self.iso_loaders
         Command.run(
             [
                 self.get_tool_name()
-            ] + hidden_files_parameters +
-            self.iso_parameters + self.iso_loaders + [
+            ] + iso_parameters + [
                 '-o', filename, self.source_dir
             ]
         )

@@ -15,8 +15,13 @@ class TestArchiveCpio(object):
         cpio_command = 'cpio --quiet -o -H newc'
         mock_command.assert_called_once_with(
             [
-                'bash', '-c', 'cd source-dir && ' +
-                find_command + ' | ' + cpio_command + ' > foo.cpio'
+                'bash', '-c',
+                ''.join(
+                    [
+                        'cd source-dir && ', find_command, ' | ',
+                        cpio_command, ' > foo.cpio'
+                    ]
+                )
             ]
         )
 

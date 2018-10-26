@@ -114,12 +114,20 @@ class TestBootImageKiwi(object):
         )
         data.sync_data.assert_called_once_with(options=['-z', '-a'])
         mock_cpio.assert_called_once_with(
-            self.boot_image.target_dir +
-            '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
+            ''.join(
+                [
+                    self.boot_image.target_dir,
+                    '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
+                ]
+            )
         )
         mock_compress.assert_called_once_with(
-            self.boot_image.target_dir +
-            '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
+            ''.join(
+                [
+                    self.boot_image.target_dir,
+                    '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
+                ]
+            )
         )
         mock_wipe.assert_called_once_with(
             'temp-boot-directory/boot'

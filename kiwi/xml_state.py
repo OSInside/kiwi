@@ -1233,8 +1233,8 @@ class XMLState(object):
         """
         repos = self.get_repository_sections()
         return list(
-            repo for repo in repos if repo.get_imageinclude() or
-            repo.get_imageonly()
+            repo for repo in repos
+            if repo.get_imageinclude() or repo.get_imageonly()
         )
 
     def delete_repository_sections(self):

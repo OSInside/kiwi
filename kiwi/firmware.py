@@ -75,10 +75,8 @@ class FirmWare(object):
             else:
                 return 'msdos'
         elif self.efi_mode():
-            return (
-                self.efi_partition_table or
-                Defaults.get_default_efi_partition_table_type()
-            )
+            default_efi_table = Defaults.get_default_efi_partition_table_type()
+            return self.efi_partition_table or default_efi_table
         else:
             return 'msdos'
 

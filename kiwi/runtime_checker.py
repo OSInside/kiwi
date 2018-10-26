@@ -195,7 +195,6 @@ class RuntimeChecker(object):
             self._check_multitag_support()
 
     def _check_multitag_support(self):
-
         message = dedent('''\n
             Using additionaltags attribute requires skopeo tool to be
             capable to handle it, it must include the '--additional-tag'
@@ -203,15 +202,12 @@ class RuntimeChecker(object):
             --help').\n
             It is known to be present since v0.1.30
         ''')
-
-        if (
-            'additional_tags' in self.xml_state.get_container_config() and not
-            CommandCapabilities.has_option_in_help(
+        if 'additional_tags' in self.xml_state.get_container_config():
+            if not CommandCapabilities.has_option_in_help(
                 'skopeo', '--additional-tag', ['copy', '--help'],
                 raise_on_error=False
-            )
-        ):
-            raise KiwiRuntimeError(message)
+            ):
+                raise KiwiRuntimeError(message)
 
     def check_boot_description_exists(self):
         """
@@ -239,8 +235,8 @@ class RuntimeChecker(object):
         image_types_supporting_custom_boot_description = ['oem', 'pxe']
         build_type = self.xml_state.get_build_type_name()
         initrd_system = self.xml_state.get_initrd_system()
-        if (initrd_system == 'kiwi' and
-                build_type in image_types_supporting_custom_boot_description):
+        if initrd_system == 'kiwi' and \
+           build_type in image_types_supporting_custom_boot_description:
 
             boot_image_reference = self.xml_state.build_type.get_boot()
             if not boot_image_reference:
@@ -428,8 +424,9 @@ class RuntimeChecker(object):
             <package name="{0}"/>
         ''')
         required_dracut_package = 'dracut-kiwi-live'
-        if (self.xml_state.get_build_type_name() == 'iso' and
-                self.xml_state.build_type.get_flags() != 'dmsquash'):
+        type_name = self.xml_state.get_build_type_name()
+        type_flag = self.xml_state.build_type.get_flags()
+        if type_name == 'iso' and type_flag != 'dmsquash':
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()

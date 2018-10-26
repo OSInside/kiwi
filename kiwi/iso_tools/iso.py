@@ -154,15 +154,15 @@ class Iso(object):
                     new_volume_id = Iso._sub_string(
                         data=new_volume_descriptor, length=7
                     )
-                    if (bytes(b'TEA01') in new_volume_id or
-                            sector + 1 == ref_sector):
+                    if bytes(b'TEA01') in new_volume_id or \
+                       sector + 1 == ref_sector:
+
                         new_boot_catalog_sector = sector + 1
                         break
 
-            if (
-                new_boot_catalog_sector and
-                iso_metadata.boot_catalog_sector != new_boot_catalog_sector
-            ):
+            if new_boot_catalog_sector and \
+               iso_metadata.boot_catalog_sector != new_boot_catalog_sector:
+
                 new_boot_catalog = Iso._read_iso_sector(
                     new_boot_catalog_sector, iso
                 )

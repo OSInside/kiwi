@@ -100,6 +100,6 @@ class RootImportOCI(RootImportBase):
             Path.wipe(self.oci_layout_dir)
         if self.oci_unpack_dir:
             Path.wipe(self.oci_unpack_dir)
-        if (self.uncompressed_image is not None and
-                self.uncompressed_image != self.image_file):
-            Path.wipe(self.uncompressed_image)
+        if self.uncompressed_image:
+            if self.uncompressed_image != self.image_file:
+                Path.wipe(self.uncompressed_image)

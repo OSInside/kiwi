@@ -73,8 +73,14 @@ class Shell(object):
         :param str name: function name
         :param list parameters: function arguments
         """
-        Command.run([
-            'bash', '-c',
-            'source ' + Defaults.get_common_functions_file() +
-            '; ' + name + ' ' + ' '.join(parameters)
-        ])
+        Command.run(
+            [
+                'bash', '-c',
+                'source ' + ''.join(
+                    [
+                        Defaults.get_common_functions_file(),
+                        '; ', name, ' ', ' '.join(parameters)
+                    ]
+                )
+            ]
+        )
