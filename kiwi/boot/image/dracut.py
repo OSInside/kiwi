@@ -43,15 +43,20 @@ class BootImageDracut(BootImageBase):
         Initialize empty list of dracut caller options
         """
         self.dracut_options = []
+        self.included_files = []
+        self.included_files_install = []
 
-    def include_file(self, filename):
+    def include_file(self, filename, install_media=False):
         """
         Include file to dracut boot image
 
         :param string filename: file path name
         """
-        self.dracut_options.append('--install')
-        self.dracut_options.append(filename)
+        self.included_files.append('--install')
+        self.included_files.append(filename)
+        if install_media:
+            self.included_files_install.append('--install')
+            self.included_files_install.append(filename)
 
     def prepare(self):
         """
@@ -71,13 +76,14 @@ class BootImageDracut(BootImageBase):
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 
-    def create_initrd(self, mbrid=None, basename=None):
+    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
         """
         Call dracut as chroot operation to create the initrd and move
         the result into the image build target directory
 
         :param object mbrid: unused
         :param string basename: base initrd file name
+        :param bool install_initrd: installation media initrd
         """
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')
@@ -87,6 +93,10 @@ class BootImageDracut(BootImageBase):
                 dracut_initrd_basename = basename
             else:
                 dracut_initrd_basename = self.initrd_base_name
+            if install_initrd:
+                included_files = self.included_files_install
+            else:
+                included_files = self.included_files
             dracut_initrd_basename += '.xz'
             Command.run(
                 [
@@ -95,7 +105,7 @@ class BootImageDracut(BootImageBase):
                     '--no-hostonly',
                     '--no-hostonly-cmdline',
                     '--xz'
-                ] + self.dracut_options + [
+                ] + self.dracut_options + included_files + [
                     dracut_initrd_basename,
                     kernel_details.version
                 ]

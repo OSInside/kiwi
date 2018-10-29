@@ -78,7 +78,7 @@ class BootImageBase(object):
         """
         pass
 
-    def include_file(self, filename):
+    def include_file(self, filename, install_media=False):
         """
         Include file to boot image
 
@@ -87,6 +87,8 @@ class BootImageBase(object):
         for kiwi boot images the method is a noop
 
         :param string filename: file path name
+
+        :param bool install_media: include also for installation media initrd
         """
         pass
 
@@ -136,12 +138,13 @@ class BootImageBase(object):
         """
         raise NotImplementedError
 
-    def create_initrd(self, mbrid=None, basename=None):
+    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
         """
         Implements creation of the initrd
 
         :param object mbrid: instance of ImageIdentifier
         :param string basename: base initrd file name
+        :param bool install_initrd: installation media initrd
 
         Implementation in specialized boot image class
         """

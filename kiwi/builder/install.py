@@ -352,7 +352,10 @@ class InstallImageBuilder(object):
         if self.initrd_system == 'dracut':
             self._create_dracut_install_config()
             self._add_system_image_boot_options_to_boot_image()
-        self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
+        self.boot_image_task.create_initrd(
+            self.mbrid, 'initrd_kiwi_install',
+            install_initrd=True
+        )
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
@@ -383,7 +386,10 @@ class InstallImageBuilder(object):
         if self.initrd_system == 'dracut':
             self._create_dracut_install_config()
             self._add_system_image_boot_options_to_boot_image()
-        self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
+        self.boot_image_task.create_initrd(
+            self.mbrid, 'initrd_kiwi_install',
+            install_initrd=True
+        )
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
@@ -396,7 +402,7 @@ class InstallImageBuilder(object):
             [self.boot_image_task.boot_root_directory, '/config.bootoptions']
         )
         self.boot_image_task.include_file(
-            os.sep + os.path.basename(filename)
+            os.sep + os.path.basename(filename), install_media=True
         )
 
     def _copy_system_image_initrd_to_iso_image(self):
