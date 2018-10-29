@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
-
 # project
 from kiwi.container.oci import ContainerImageOCI
 from kiwi.path import Path
@@ -34,10 +32,6 @@ class ContainerImageDocker(ContainerImageOCI):
 
         :param string filename: file name of the resulting packed image
         """
-        oci_image = os.sep.join([
-            self.oci_dir, ':'.join(['umoci_layout', self.container_tag])
-        ])
-
         additional_tags = []
         for tag in self.additional_tags:
             additional_tags.extend([
@@ -50,7 +44,7 @@ class ContainerImageDocker(ContainerImageOCI):
         Command.run(
             [
                 'skopeo', 'copy', 'oci:{0}'.format(
-                    oci_image
+                    self.oci.container_name
                 ),
                 'docker-archive:{0}:{1}:{2}'.format(
                     filename, self.container_name, self.container_tag

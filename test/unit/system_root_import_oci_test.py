@@ -40,10 +40,13 @@ class TestRootImportOCI(object):
     @patch('kiwi.system.root_import.oci.Command.run')
     @patch('kiwi.system.root_import.oci.DataSync')
     @patch('kiwi.system.root_import.oci.mkdtemp')
+    @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data(
-        self, mock_mkdtemp, mock_sync, mock_run,
+        self, mock_OCI, mock_mkdtemp, mock_sync, mock_run,
         mock_path, mock_md5, mock_tar
     ):
+        oci = mock.Mock()
+        mock_OCI.return_value = oci
         mock_mkdtemp.return_value = 'kiwi_uncompressed'
         extract = mock.Mock()
         mock_tar.extract = extract
@@ -56,16 +59,16 @@ class TestRootImportOCI(object):
 
         mock_tar.extract.called_once_with('kiwi_uncompressed')
 
-        assert mock_run.call_args_list == [
-            call([
+        mock_OCI.assert_called_once_with('base_layer', 'kiwi_layout_dir')
+
+        oci.unpack.assert_called_once_with('kiwi_unpack_dir')
+
+        mock_run.assert_called_once_with(
+            [
                 'skopeo', 'copy', 'oci:kiwi_uncompressed:tag',
                 'oci:kiwi_layout_dir:base_layer'
-            ]),
-            call([
-                'umoci', 'unpack', '--image',
-                'kiwi_layout_dir:base_layer', 'kiwi_unpack_dir'
-            ])
-        ]
+            ]
+        )
 
         mock_sync.assert_called_once_with(
             'kiwi_unpack_dir/rootfs/', 'root_dir/'
