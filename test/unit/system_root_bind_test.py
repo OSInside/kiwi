@@ -2,7 +2,10 @@ from mock import patch
 from mock import call
 import mock
 
-from .test_helper import raises
+from .test_helper import (
+    raises,
+    patch_open
+)
 
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -98,8 +101,14 @@ class TestRootBind(object):
         shared_mount.bind_mount.assert_called_once_with()
 
     @patch('kiwi.command.Command.run')
+    @patch('kiwi.system.root_bind.Checksum')
     @patch('os.path.exists')
-    def test_intermediate_config(self, mock_exists, mock_command):
+    @patch_open
+    def test_intermediate_config(
+        self, mock_open, mock_exists, mock_Checksum, mock_command
+    ):
+        checksum = mock.Mock()
+        mock_Checksum.return_value = checksum
         mock_exists.return_value = True
         self.bind_root.setup_intermediate_config()
         assert mock_command.call_args_list == [
@@ -110,17 +119,27 @@ class TestRootBind(object):
                 'ln', '-s', '-f', 'foo.kiwi', 'root-dir/foo'
             ])
         ]
+        checksum.sha256.assert_called_once_with()
+        mock_open.assert_called_once_with(
+            'root-dir/foo.sha', 'w'
+        )
 
+    @patch('kiwi.system.root_bind.Checksum')
     @patch('kiwi.system.root_bind.MountManager.is_mounted')
     @patch('kiwi.system.root_bind.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('os.path.islink')
     @patch('os.path.exists')
     @patch('shutil.move')
+    @patch('kiwi.logger.log.warning')
     def test_cleanup(
-        self, mock_move, mock_exists, mock_islink, mock_remove_hierarchy,
-        mock_command, mock_is_mounted
+        self, mock_log_warn, mock_move, mock_exists, mock_islink,
+        mock_remove_hierarchy, mock_command, mock_is_mounted,
+        mock_Checksum
     ):
+        checksum = mock.Mock()
+        checksum.matches.return_value = False
+        mock_Checksum.return_value = checksum
         os_exists_return_values = [False, True]
 
         def exists_side_effect(*args):
@@ -133,18 +152,24 @@ class TestRootBind(object):
         self.mount_manager.umount_lazy.assert_called_once_with()
         mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
         mock_command.assert_called_once_with(
-            ['rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo']
+            [
+                'rm', '-f', 'root-dir/foo.kiwi',
+                'root-dir/foo.sha', 'root-dir/foo'
+            ]
         )
         mock_move.assert_called_once_with(
             'root-dir/foo.rpmnew', 'root-dir/foo'
         )
+        assert mock_log_warn.called
 
     @patch('os.path.islink')
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
+    @patch('kiwi.system.root_bind.Checksum')
     def test_cleanup_continue_on_error(
-        self, mock_remove_hierarchy, mock_command, mock_warn, mock_islink
+        self, mock_Checksum, mock_remove_hierarchy,
+        mock_command, mock_warn, mock_islink
     ):
         mock_islink.return_value = True
         mock_remove_hierarchy.side_effect = Exception('rm')
@@ -167,8 +192,9 @@ class TestRootBind(object):
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
+    @patch('kiwi.system.root_bind.Checksum')
     def test_cleanup_nothing_mounted(
-        self, mock_remove_hierarchy, mock_command, mock_warn
+        self, mock_Checksum, mock_remove_hierarchy, mock_command, mock_warn
     ):
         self.mount_manager.is_mounted.return_value = False
         self.mount_manager.mountpoint = '/mountpoint'
