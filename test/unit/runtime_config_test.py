@@ -95,3 +95,11 @@ class TestRuntimeConfig(object):
         mock_warning.assert_called_once_with(
             'Skipping invalid iso tool category: foo'
         )
+
+    def test_get_oci_archive_tool(self):
+        assert self.runtime_config.get_oci_archive_tool() == 'umoci'
+
+    def test_get_oci_archive_tool_default(self):
+        with patch.dict('os.environ', {'HOME': './'}):
+            runtime_config = RuntimeConfig()
+            assert runtime_config.get_oci_archive_tool() == 'umoci'

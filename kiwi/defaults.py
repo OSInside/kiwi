@@ -1141,6 +1141,17 @@ class Defaults(object):
         return 'kiwi-container'
 
     @classmethod
+    def get_oci_archive_tool(self):
+        """
+        Provides the default OCI archive tool name.
+
+        :return: name
+
+        :rtype: str
+        """
+        return 'umoci'
+
+    @classmethod
     def get_default_container_tag(self):
         """
         Provides the default container tag.

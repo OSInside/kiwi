@@ -454,6 +454,12 @@ class KiwiNotImplementedError(KiwiError):
     """
 
 
+class KiwiOCIArchiveToolError(KiwiError):
+    """
+    Exception raised if the requested OCI archive tool is not supported
+    """
+
+
 class KiwiPackageManagerSetupError(KiwiError):
     """
     Exception raised if an attempt was made to create a package

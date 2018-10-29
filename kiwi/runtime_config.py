@@ -171,6 +171,26 @@ class RuntimeConfig(object):
             )
             return Defaults.get_iso_tool_category()
 
+    def get_oci_archive_tool(self):
+        """
+        Return OCI archive tool which should be used on creation of
+        container archives for OCI compliant images, e.g docker
+
+        oci:
+          - archive_tool: umoci
+
+        if no configuration exists the default tool from the
+        Defaults class is returned
+
+        :return: A name
+
+        :rtype: str
+        """
+        oci_archive_tool = self._get_attribute(
+            element='oci', attribute='archive_tool'
+        )
+        return oci_archive_tool or Defaults.get_oci_archive_tool()
+
     def get_max_size_constraint(self):
         """
         Returns the maximum allowed size of the built image. The value is
