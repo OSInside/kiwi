@@ -36,14 +36,29 @@ function get_disk_list {
     local disk_meta
     local item_status=on
     local list_items
+    local blk_opts
     if [ ! -z "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
-    if [ ! -z "${kiwi_oemmultipath_scan}" ];then
+    if getargbool 0 rd.kiwi.ramdisk; then
+        # target should be a ramdisk on request. Thus actively
+        # load the ramdisk block driver and support custom sizes
+        local rd_size
+        local modfile=/etc/modprobe.d/99-brd.conf
+        rd_size=$(getarg ramdisk_size=)
+        if [ ! -z "${rd_size}" ];then
+            echo "options brd rd_size=${rd_size}" > ${modfile}
+        fi
+        modprobe brd
+        udev_pending
+        # target should be a ramdisk on request. Thus instruct
+        # lsblk to list only ramdisk devices (Major=1)
+        blk_opts="-I 1"
+    elif [ ! -z "${kiwi_oemmultipath_scan}" ];then
         scan_multipath_devices
     fi
     for disk_meta in $(
-        lsblk -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
+        lsblk "${blk_opts}" -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         if [ "$(blkid "${disk_device}" -s LABEL -o value)" = \
@@ -373,6 +388,14 @@ fi
 
 check_image_integrity "${image_target}"
 
-boot_installed_system
-
-exit 0
+if getargbool 0 rd.kiwi.ramdisk; then
+    # For ramdisk deployment a kexec boot is not possible as it
+    # will wipe the contents of the ramdisk. Therefore we prepare
+    # the switch_root from this deployment initrd. Also see the
+    # unit generator: dracut-kiwi-ramdisk-generator
+    kpartx -s -a "${image_target}"
+else
+    # Standard deployment will use kexec to activate and boot the
+    # deployed system
+    boot_installed_system
+fi
