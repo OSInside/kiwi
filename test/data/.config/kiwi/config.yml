@@ -8,5 +8,8 @@ obs:
 iso:
   - tool_category: cdrtools
 
+oci:
+  - archive_tool: umoci
+
 container:
   - compress: none

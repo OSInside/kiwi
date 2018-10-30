@@ -17,16 +17,15 @@
 #
 import os
 from tempfile import mkdtemp
-from datetime import datetime
 
 # project
 from kiwi.defaults import Defaults
 from kiwi.path import Path
-from kiwi.command import Command
 from kiwi.utils.sync import DataSync
 from kiwi.archive.tar import ArchiveTar
 from kiwi.logger import log
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.oci_tools import OCI
 
 
 class ContainerImageOCI(object):
@@ -70,7 +69,6 @@ class ContainerImageOCI(object):
     """
     def __init__(self, root_dir, custom_args=None):         # noqa: C901
         self.root_dir = root_dir
-        self.oci_dir = None
         self.oci_root_dir = None
 
         self.container_name = Defaults.get_default_container_name()
@@ -144,6 +142,8 @@ class ContainerImageOCI(object):
         if not self.entry_command and not self.entry_subcommand:
             self.entry_subcommand = ['--config.cmd=/bin/bash']
 
+        self.oci = OCI(self.container_tag)
+
     def create(self, filename, base_image):
         """
         Create compressed oci system container tar archive
@@ -157,36 +157,16 @@ class ContainerImageOCI(object):
         exclude_list.append('sys')
         exclude_list.append('proc')
 
-        self.oci_dir = mkdtemp(prefix='kiwi_oci_dir.')
         self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
 
-        container_dir = os.sep.join(
-            [self.oci_dir, 'umoci_layout']
-        )
-        container_name = ':'.join(
-            [container_dir, self.container_tag]
-        )
-
         if base_image:
-            Path.create(container_dir)
+            Path.create(self.oci.container_dir)
             image_tar = ArchiveTar(base_image)
-            image_tar.extract(container_dir)
-            Command.run([
-                'umoci', 'config', '--image',
-                '{0}:base_layer'.format(container_dir),
-                '--tag', self.container_tag
-            ])
-        else:
-            Command.run(
-                ['umoci', 'init', '--layout', container_dir]
-            )
-            Command.run(
-                ['umoci', 'new', '--image', container_name]
-            )
+            image_tar.extract(self.oci.container_dir)
 
-        Command.run(
-            ['umoci', 'unpack', '--image', container_name, self.oci_root_dir]
-        )
+        self.oci.init_layout(base_image)
+
+        self.oci.unpack(self.oci_root_dir)
         oci_root = DataSync(
             ''.join([self.root_dir, os.sep]),
             os.sep.join([self.oci_root_dir, 'rootfs'])
@@ -194,14 +174,12 @@ class ContainerImageOCI(object):
         oci_root.sync_data(
             options=['-a', '-H', '-X', '-A', '--delete'], exclude=exclude_list
         )
-        Command.run(
-            ['umoci', 'repack', '--image', container_name, self.oci_root_dir]
-        )
+        self.oci.repack(self.oci_root_dir)
+
         for tag in self.additional_tags:
-            Command.run(
-                ['umoci', 'config', '--image', container_name, '--tag', tag]
-            )
-        umoci_config = \
+            self.oci.add_tag(tag)
+
+        container_config = \
             self.maintainer + \
             self.user + \
             self.workingdir + \
@@ -211,19 +189,9 @@ class ContainerImageOCI(object):
             self.volumes + \
             self.environment + \
             self.labels
-        Command.run(
-            [
-                'umoci', 'config'
-            ] + umoci_config + [
-                '--image', container_name,
-                '--created', datetime.utcnow().strftime(
-                    '%Y-%m-%dT%H:%M:%S+00:00'
-                )
-            ]
-        )
-        Command.run(
-            ['umoci', 'gc', '--layout', container_dir]
-        )
+        self.oci.set_config(container_config)
+
+        self.oci.garbage_collect()
 
         return self.pack_image_to_file(filename)
 
@@ -233,15 +201,17 @@ class ContainerImageOCI(object):
 
         :param string filename: file name of the resulting packed image
         """
-        image_dir = os.sep.join([self.oci_dir, 'umoci_layout'])
         oci_tarfile = ArchiveTar(filename)
         container_compressor = self.runtime_config.get_container_compression()
         if container_compressor:
             return oci_tarfile.create_xz_compressed(
-                image_dir, xz_options=self.runtime_config.get_xz_options()
+                self.oci.container_dir,
+                xz_options=self.runtime_config.get_xz_options()
             )
         else:
-            return oci_tarfile.create(image_dir)
+            return oci_tarfile.create(
+                self.oci.container_dir
+            )
 
     def _append_buildservice_disturl_label(self):
         with open(os.sep + Defaults.get_buildservice_env_name()) as env:
@@ -259,7 +229,5 @@ class ContainerImageOCI(object):
             log.warning('Could not find BUILD_DISTURL inside .buildenv')
 
     def __del__(self):
-        if self.oci_dir:
-            Path.wipe(self.oci_dir)
         if self.oci_root_dir:
             Path.wipe(self.oci_root_dir)

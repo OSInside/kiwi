@@ -26,6 +26,7 @@ from kiwi.utils.sync import DataSync
 from kiwi.command import Command
 from kiwi.archive.tar import ArchiveTar
 from kiwi.defaults import Defaults
+from kiwi.oci_tools import OCI
 
 
 class RootImportOCI(RootImportBase):
@@ -50,10 +51,9 @@ class RootImportOCI(RootImportBase):
         directory.
         """
         self.extract_oci_image()
-        Command.run([
-            'umoci', 'unpack', '--image',
-            '{0}:base_layer'.format(self.oci_layout_dir), self.oci_unpack_dir
-        ])
+
+        oci = OCI('base_layer', self.oci_layout_dir)
+        oci.unpack(self.oci_unpack_dir)
 
         synchronizer = DataSync(
             os.sep.join([self.oci_unpack_dir, 'rootfs', '']),

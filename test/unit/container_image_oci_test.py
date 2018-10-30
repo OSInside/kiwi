@@ -10,7 +10,11 @@ from kiwi.container.oci import ContainerImageOCI
 
 class TestContainerImageOCI(object):
     @patch('kiwi.container.oci.RuntimeConfig')
-    def setup(self, mock_RuntimeConfig):
+    @patch('kiwi.container.oci.OCI')
+    def setup(self, mock_OCI, mock_RuntimeConfig):
+        oci = mock.Mock()
+        oci.container_dir = 'kiwi_oci_dir.XXXX/oci_layout'
+        mock_OCI.return_value = oci
         self.oci = ContainerImageOCI(
             'root_dir', {
                 'container_name': 'foo/bar',
@@ -103,40 +107,25 @@ class TestContainerImageOCI(object):
 
     @patch('kiwi.container.oci.Path.wipe')
     def test_del(self, mock_wipe):
-        self.oci.oci_dir = 'dir_a'
-        self.oci.oci_root_dir = 'dir_b'
+        self.oci.oci_root_dir = 'kiwi_oci_root_dir'
         self.oci.__del__()
-        assert mock_wipe.call_args_list == [
-            call('dir_a'), call('dir_b')
-        ]
+        mock_wipe.assert_called_once_with('kiwi_oci_root_dir')
 
-    @patch('kiwi.container.oci.datetime')
     @patch('kiwi.container.oci.ArchiveTar')
-    @patch('kiwi.container.oci.Command.run')
     @patch('kiwi.container.oci.DataSync')
     @patch('kiwi.container.oci.mkdtemp')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
     def test_create(
-        self, mock_cache, mock_mkdtemp,
-        mock_sync, mock_command, mock_tar, mock_datetime
+        self, mock_cache, mock_mkdtemp, mock_sync, mock_tar
     ):
         oci_tarfile = mock.Mock()
         mock_tar.return_value = oci_tarfile
-        strftime = mock.Mock()
-        strftime.strftime = mock.Mock(return_value='current_date')
-        mock_datetime.utcnow = mock.Mock(
-            return_value=strftime
-        )
 
         mock_cache.return_value = 'var/cache/kiwi'
         oci_root = mock.Mock()
         mock_sync.return_value = oci_root
-        tmpdirs = ['kiwi_oci_root_dir', 'kiwi_oci_dir']
 
-        def call_mkdtemp(prefix):
-            return tmpdirs.pop()
-
-        mock_mkdtemp.side_effect = call_mkdtemp
+        mock_mkdtemp.return_value = 'kiwi_oci_root_dir'
 
         self.oci.runtime_config.get_container_compression = mock.Mock(
             return_value='xz'
@@ -144,39 +133,17 @@ class TestContainerImageOCI(object):
 
         self.oci.create('result.tar', None)
 
-        assert mock_command.call_args_list == [
-            call([
-                'umoci', 'init', '--layout',
-                'kiwi_oci_dir/umoci_layout'
-            ]),
-            call([
-                'umoci', 'new', '--image',
-                'kiwi_oci_dir/umoci_layout:latest'
-            ]),
-            call([
-                'umoci', 'unpack', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', 'kiwi_oci_root_dir'
-            ]),
-            call([
-                'umoci', 'repack', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', 'kiwi_oci_root_dir'
-            ]),
-            call([
-                'umoci', 'config', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'current'
-            ]),
-            call([
-                'umoci', 'config', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'foobar'
-            ]),
-            call([
-                'umoci', 'config', '--config.cmd=/bin/bash', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', '--created', 'current_date'
-            ]),
-            call([
-                'umoci', 'gc', '--layout', 'kiwi_oci_dir/umoci_layout'
-            ])
+        self.oci.oci.init_layout.assert_called_once_with(None)
+        self.oci.oci.unpack.assert_called_once_with('kiwi_oci_root_dir')
+        self.oci.oci.repack.assert_called_once_with('kiwi_oci_root_dir')
+        self.oci.oci.set_config.assert_called_once_with(
+            ['--config.cmd=/bin/bash']
+        )
+        assert self.oci.oci.add_tag.call_args_list == [
+            call('current'), call('foobar')
         ]
+        self.oci.oci.garbage_collect.assert_called_once_with()
+
         mock_sync.assert_called_once_with(
             'root_dir/', 'kiwi_oci_root_dir/rootfs'
         )
@@ -189,11 +156,10 @@ class TestContainerImageOCI(object):
         )
         mock_tar.assert_called_once_with('result.tar')
         oci_tarfile.create_xz_compressed.assert_called_once_with(
-            'kiwi_oci_dir/umoci_layout',
+            'kiwi_oci_dir.XXXX/oci_layout',
             xz_options=self.oci.runtime_config.get_xz_options.return_value
         )
 
-        tmpdirs = ['kiwi_oci_root_dir', 'kiwi_oci_dir']
         self.oci.runtime_config.get_container_compression = mock.Mock(
             return_value=None
         )
@@ -201,69 +167,40 @@ class TestContainerImageOCI(object):
         self.oci.create('result.tar', None)
 
         oci_tarfile.create.assert_called_once_with(
-            'kiwi_oci_dir/umoci_layout'
+            'kiwi_oci_dir.XXXX/oci_layout'
         )
 
-    @patch('kiwi.container.oci.datetime')
     @patch('kiwi.container.oci.ArchiveTar')
-    @patch('kiwi.container.oci.Command.run')
     @patch('kiwi.container.oci.DataSync')
     @patch('kiwi.container.oci.mkdtemp')
     @patch('kiwi.container.oci.Path.create')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
     def test_create_derived(
-        self, mock_cache, mock_create, mock_mkdtemp,
-        mock_sync, mock_command, mock_tar, mock_datetime
+        self, mock_cache, mock_create, mock_mkdtemp, mock_sync, mock_tar
     ):
-        strftime = mock.Mock()
-        strftime.strftime = mock.Mock(return_value='current_date')
-        mock_datetime.utcnow = mock.Mock(
-            return_value=strftime
-        )
-
         mock_cache.return_value = 'var/cache/kiwi'
         oci_root = mock.Mock()
         mock_sync.return_value = oci_root
-        tmpdirs = ['kiwi_oci_root_dir', 'kiwi_oci_dir']
 
-        def call_mkdtemp(prefix):
-            return tmpdirs.pop()
-
-        mock_mkdtemp.side_effect = call_mkdtemp
+        mock_mkdtemp.return_value = 'kiwi_oci_root_dir'
 
         self.oci.create('result.tar', 'root_dir/image/image_file')
 
-        mock_create.assert_called_once_with('kiwi_oci_dir/umoci_layout')
+        mock_create.assert_called_once_with('kiwi_oci_dir.XXXX/oci_layout')
 
-        assert mock_command.call_args_list == [
-            call([
-                'umoci', 'config', '--image',
-                'kiwi_oci_dir/umoci_layout:base_layer', '--tag', 'latest'
-            ]),
-            call([
-                'umoci', 'unpack', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', 'kiwi_oci_root_dir'
-            ]),
-            call([
-                'umoci', 'repack', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', 'kiwi_oci_root_dir'
-            ]),
-            call([
-                'umoci', 'config', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'current'
-            ]),
-            call([
-                'umoci', 'config', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', '--tag', 'foobar'
-            ]),
-            call([
-                'umoci', 'config', '--config.cmd=/bin/bash', '--image',
-                'kiwi_oci_dir/umoci_layout:latest', '--created', 'current_date'
-            ]),
-            call([
-                'umoci', 'gc', '--layout', 'kiwi_oci_dir/umoci_layout'
-            ])
+        self.oci.oci.init_layout.assert_called_once_with(
+            'root_dir/image/image_file'
+        )
+        self.oci.oci.unpack.assert_called_once_with('kiwi_oci_root_dir')
+        self.oci.oci.repack.assert_called_once_with('kiwi_oci_root_dir')
+        self.oci.oci.set_config.assert_called_once_with(
+            ['--config.cmd=/bin/bash']
+        )
+        assert self.oci.oci.add_tag.call_args_list == [
+            call('current'), call('foobar')
         ]
+        self.oci.oci.garbage_collect.assert_called_once_with()
+
         mock_sync.assert_called_once_with(
             'root_dir/', 'kiwi_oci_root_dir/rootfs'
         )
