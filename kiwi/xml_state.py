@@ -1716,25 +1716,14 @@ class XMLState(object):
                 container_base['additional_tags'] = additional_tags.split(',')
 
             if maintainer:
-                container_base['maintainer'] = [
-                    ''.join(
-                        ['--author=', maintainer]
-                    )
-                ]
+                container_base['maintainer'] = maintainer
 
             if user:
-                container_base['user'] = [
-                    ''.join(
-                        ['--config.user=', user]
-                    )
-                ]
+                container_base['user'] = user
 
             if workingdir:
-                container_base['workingdir'] = [
-                    ''.join(
-                        ['--config.workingdir=', workingdir]
-                    )
-                ]
+                container_base['workingdir'] = workingdir
+
         return container_base
 
     def _match_docker_entrypoint(self):
@@ -1744,32 +1733,16 @@ class XMLState(object):
             entrypoint = container_config_section.get_entrypoint()
             if entrypoint and entrypoint[0].get_execute():
                 container_entry['entry_command'] = [
-                    ''.join(
-                        [
-                            '--config.entrypoint=',
-                            entrypoint[0].get_execute()
-                        ]
-                    )
+                    entrypoint[0].get_execute()
                 ]
                 argument_list = entrypoint[0].get_argument()
                 if argument_list:
                     for argument in argument_list:
                         container_entry['entry_command'].append(
-                            ''.join(
-                                [
-                                    '--config.entrypoint=',
-                                    argument.get_name()
-                                ]
-                            )
+                            argument.get_name()
                         )
             elif entrypoint and entrypoint[0].get_clear():
-                container_entry['entry_command'] = [
-                    ''.join(
-                        [
-                            '--clear=config.entrypoint'
-                        ]
-                    )
-                ]
+                container_entry['entry_command'] = []
         return container_entry
 
     def _match_docker_subcommand(self):
@@ -1779,32 +1752,16 @@ class XMLState(object):
             subcommand = container_config_section.get_subcommand()
             if subcommand and subcommand[0].get_execute():
                 container_subcommand['entry_subcommand'] = [
-                    ''.join(
-                        [
-                            '--config.cmd=',
-                            subcommand[0].get_execute()
-                        ]
-                    )
+                    subcommand[0].get_execute()
                 ]
                 argument_list = subcommand[0].get_argument()
                 if argument_list:
                     for argument in argument_list:
                         container_subcommand['entry_subcommand'].append(
-                            ''.join(
-                                [
-                                    '--config.cmd=',
-                                    argument.get_name()
-                                ]
-                            )
+                            argument.get_name()
                         )
             elif subcommand and subcommand[0].get_clear():
-                container_subcommand['entry_subcommand'] = [
-                    ''.join(
-                        [
-                            '--clear=config.cmd',
-                        ]
-                    )
-                ]
+                container_subcommand['entry_subcommand'] = []
         return container_subcommand
 
     def _match_docker_expose_ports(self):
@@ -1816,12 +1773,7 @@ class XMLState(object):
                 container_expose['expose_ports'] = []
                 for port in expose[0].get_port():
                     container_expose['expose_ports'].append(
-                        ''.join(
-                            [
-                                '--config.exposedports=',
-                                format(port.get_number())
-                            ]
-                        )
+                        format(port.get_number())
                     )
         return container_expose
 
@@ -1833,14 +1785,7 @@ class XMLState(object):
             if volumes and volumes[0].get_volume():
                 container_volumes['volumes'] = []
                 for volume in volumes[0].get_volume():
-                    container_volumes['volumes'].append(
-                        ''.join(
-                            [
-                                '--config.volume=',
-                                volume.get_name()
-                            ]
-                        )
-                    )
+                    container_volumes['volumes'].append(volume.get_name())
         return container_volumes
 
     def _match_docker_environment(self):
@@ -1849,16 +1794,10 @@ class XMLState(object):
         if container_config_section:
             environment = container_config_section.get_environment()
             if environment and environment[0].get_env():
-                container_env['environment'] = []
+                container_env['environment'] = {}
                 for env in environment[0].get_env():
-                    container_env['environment'].append(
-                        ''.join(
-                            [
-                                '--config.env=',
-                                env.get_name(), '=', env.get_value()
-                            ]
-                        )
-                    )
+                    container_env['environment'][env.get_name()] = \
+                        env.get_value()
         return container_env
 
     def _match_docker_labels(self):
@@ -1867,16 +1806,10 @@ class XMLState(object):
         if container_config_section:
             labels = container_config_section.get_labels()
             if labels and labels[0].get_label():
-                container_labels['labels'] = []
+                container_labels['labels'] = {}
                 for label in labels[0].get_label():
-                    container_labels['labels'].append(
-                        ''.join(
-                            [
-                                '--config.label=',
-                                label.get_name(), '=', label.get_value()
-                            ]
-                        )
-                    )
+                    container_labels['labels'][label.get_name()] = \
+                        label.get_value()
         return container_labels
 
     def _solve_profile_dependencies(

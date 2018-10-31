@@ -1163,6 +1163,17 @@ class Defaults(object):
         return 'latest'
 
     @classmethod
+    def get_default_container_subcommand(self):
+        """
+        Provides the default container subcommand.
+
+        :return: command as a list of arguments
+
+        :rtype: list
+        """
+        return ['/bin/bash']
+
+    @classmethod
     def set_python_default_encoding_to_utf8(self):
         """
         Set python default encoding to utf-8 if not already done
