@@ -1,3 +1,5 @@
+.. _oem:
+
 Build an OEM Expandable Disk Image
 ==================================
 
