@@ -57,5 +57,6 @@ description as follows:
       </type>
 
 An image built with the above setup can be uploaded into the
-Microsoft Azure cloud and registered as image. For further information
-on how to upload to Azure see: `azurectl <https://github.com/SUSE/azurectl>`_
+Microsoft Azure cloud and registered as image. For further
+information on how to upload to Azure see:
+`azurectl <https://github.com/SUSE-Enceladus/azurectl>`_

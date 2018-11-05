@@ -17,16 +17,24 @@ jobs:
     env: TOXENV=unit_py2_7,check,doc
   - stage: deploy
     python: 3.6
-    env: TOXENV=doc_travis,doc_travis_deploy
+    env: TOXENV=doc_travis
     deploy:
-      skip_cleanup: true
-      provider: pypi
-      user: schaefi
-      password:
-        secure: oGf30REGDDqQIGntwx/sklLp/4mAsLNWM6+cPFOzk5Q3T6f1jzXjhi3jo6vMbeGzHxZ4XOHUn/pzuhNY6d2Qlpjvsvxphdx4c9j/VxKopbLlKqBO9aQtRA+SaHFLgVgPGezuflcbKvIOQsNaejTalIVGsPDao1f30dfSZZL6kFTh++nDLBQih7Blu7lXauNekWn6F3/835x9LQe+EEE3pT9nydbKLkFKoTIzCMSgakBm0vBSDXR9DtBUT78roP1KcubGgoMgsgTJr2SN11J0IdMY1RK2NXdPUfoDNIblh7jcfd7UVslK3BjdZ3fWgLY7WrI3jNvuAf/7bIDXr1TjIvMZUu2p4R5Vfyoia9R/z9SZ+yGaRZiDh39fuWWwU0YeCvAhGdLXJOSqBGGxfQcD47i07Xo5oSd+hmT1c0XMwKe+GphVyl2jX/24GsVRfvZeySqBzcQxVEVClq8aoF7LYkRCAksaJMz/aeVFApHJRBalb70ESp0W7+LbGzUC+fVnQVRZZfbM7DXq4TIuAgl0ReVJcb4D7KN7ZS/VPwPBB4BFenm/p+73X2vr+5f7Swykigmyx8gFGjuOqYBUtR1q27qSCShmxCZvVdAsuexCqq3IQ1/XHAbgYn6fQK+pAycQLyEMwCTy9CmazmPYMLZmW2+bbpUUjjIchI1Kp19V3Wk=
-      distributions: sdist
-      on:
-        tags: true
+      - provider: pypi
+        skip_cleanup: true
+        user: schaefi
+        password:
+          secure: oGf30REGDDqQIGntwx/sklLp/4mAsLNWM6+cPFOzk5Q3T6f1jzXjhi3jo6vMbeGzHxZ4XOHUn/pzuhNY6d2Qlpjvsvxphdx4c9j/VxKopbLlKqBO9aQtRA+SaHFLgVgPGezuflcbKvIOQsNaejTalIVGsPDao1f30dfSZZL6kFTh++nDLBQih7Blu7lXauNekWn6F3/835x9LQe+EEE3pT9nydbKLkFKoTIzCMSgakBm0vBSDXR9DtBUT78roP1KcubGgoMgsgTJr2SN11J0IdMY1RK2NXdPUfoDNIblh7jcfd7UVslK3BjdZ3fWgLY7WrI3jNvuAf/7bIDXr1TjIvMZUu2p4R5Vfyoia9R/z9SZ+yGaRZiDh39fuWWwU0YeCvAhGdLXJOSqBGGxfQcD47i07Xo5oSd+hmT1c0XMwKe+GphVyl2jX/24GsVRfvZeySqBzcQxVEVClq8aoF7LYkRCAksaJMz/aeVFApHJRBalb70ESp0W7+LbGzUC+fVnQVRZZfbM7DXq4TIuAgl0ReVJcb4D7KN7ZS/VPwPBB4BFenm/p+73X2vr+5f7Swykigmyx8gFGjuOqYBUtR1q27qSCShmxCZvVdAsuexCqq3IQ1/XHAbgYn6fQK+pAycQLyEMwCTy9CmazmPYMLZmW2+bbpUUjjIchI1Kp19V3Wk=
+        distributions: sdist
+        on:
+          tags: true
+      - provider: pages
+        skip_cleanup: true
+        local-dir: doc/build/html
+        github-token:
+          secure: H6gF9STlXtiCvmIkBgbuCLY0ovkjvRX69OfaliKdhvmysHfFTiHn6rx2keGmd0kdEhGj12YgNEVwAd9qEEZonFfmqEzNNSW5+nIEvVjGZ9b8FnnwSGX/y2XBldIDNu+imuhkxzzFlylbMABJSvJy8W6dwuic2DBdiVAsb8e9fUHnvbTTice76DyuHCDjM7EGt34K3xP8sjwMm3dPKvO2s+Ij3u+j5TE/aovxoaY5oRO8fp2j7lbTUXIQb4P4mysro22K4rgWng83/IVaIAT0nFlX24WltraUxIzW/MJe8SYXaDSbgyzMpOtUxlKs+5/wAAdEBoE8aMTBwOF0f5eQJHTguL2oCy+7VELtMVq8oUeHzyRh7JcBAE7Hd3WgWrWrZCfIxEZ8pAEwLb3SJUnegb7z0PRBnHDNbwLcsxzKKupMVJ1eCJmlowJUea5ODW3ruizhvg9S3pBQOUwmQqvj2TS2byXa4zToqOzxcrMMWK0v667eO9XKAFkhNdA6Vr7XuwTbIMt/+dSQUH3VwxNK2Hpbe7EEf9Kh8K2L1U2UnrfpHmcm+8Fd1aYA0UsvVNhFF/MvDBBoHguvmAbw/x5rrbbNYW1Q+pUkYj/UTvrI/GU7w1h421R4VMigIkI7u6Yq5cVBYT95SzNPb6Bt2rKTAr6RpcqRwZV5AB7oL2Flgak=
+        keep-history: true
+        on:
+          tags: true
 
 before_install:
 - sudo apt-get update -qq
