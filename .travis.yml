@@ -29,8 +29,7 @@ jobs:
       - provider: pypi
         skip_cleanup: true
         user: schaefi
-        password:
-          secure: UhNSSiqZ5ecVYW4wLibg6rsWySO+69mgQyYkvTQcIMwlBWMzfqsj48iRZBpWZJhJaPfGgsJ8HwC8ImexTa58ZRPep5pxTlVIVZ8gKldRzoQ/Wn+UTeEGgfXvYIbQel9jWIu5MLs13R3oUbTjO8ZXtYuWgjVDUCMGnI7ffvXf7HCvBydBdOIDSl82PZTJSSxUU1LQlSnMgbmWpf4ho2QhdQw7E3eRN/kFujGFTtbIVti6qpIMR2HvS2zI7z1KOe085s8570ytvSVCDApdHyIsPuP9gSZ5R807CrjnJqGOVckA+nheN2nMBRzlLOvZTMbPp5s/gIArFxd0UfFhmU2bxAvo/WCN9XdN9ZQZXJUx/fbZh/dmO7oU+KK9CdwfGZ4vJAzDPaccKvSxl/SWeWDpYcsrh2Q/t+xbq5nA+Rllecc1lavVi/MtKbLQIazGLGCEHNV18KSE24O8u1lyPjRCzq6G5D3Dda1vyWh/0gvw4HC9xoj944qWdGY/zxeYacXJHwB4PqgiQAX1zfSPPH/s0MMI9ZiQpHzTHrQx3lj+aERsu2VFPW93y7eNooA6+vny6JxO67krs9PhlBOoB8rrK9Yxu5LbHxLBYfbl/xhrs9ZxQRG1hzNQq4PZYYzdBjdbSf3dz24V2D86hkXUYOJqQh20fZ53s5qcpxNgnj9uZco=
+        password: $PYPI_PASS
         distributions: sdist
         on:
           tags: true
