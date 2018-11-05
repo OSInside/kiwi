@@ -69,7 +69,7 @@ class TestOCIBase(object):
             'workingdir': '/root',
             'expose_ports': ['80', '42'],
             'volumes': ['/var/log', '/tmp'],
-            'environment': {'PATH': '/bin', 'FOO': 'bar'},
+            'environment': {'FOO': 'bar', 'PATH': '/bin'},
             'labels': {'a': 'value', 'b': 'value'}
         }
         self.oci.set_config(oci_config)
@@ -80,7 +80,7 @@ class TestOCIBase(object):
                 '--config.entrypoint=-x', '--config.cmd=ls', '--config.cmd=-l',
                 '--config.volume=/var/log', '--config.volume=/tmp',
                 '--config.exposedports=80', '--config.exposedports=42',
-                '--config.env=PATH=/bin', '--config.env=FOO=bar',
+                '--config.env=FOO=bar', '--config.env=PATH=/bin',
                 '--config.label=a=value', '--config.label=b=value',
                 '--image', 'tmpdir/oci_layout:tag', '--created', 'current_date'
             ]

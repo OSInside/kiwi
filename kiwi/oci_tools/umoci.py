@@ -157,13 +157,13 @@ class OCIUmoci(OCIBase):
                 arguments.append('--config.exposedports={0}'.format(port))
 
         if 'environment' in oci_config:
-            for name in oci_config['environment']:
+            for name in sorted(oci_config['environment']):
                 arguments.append('--config.env={0}={1}'.format(
                     name, oci_config['environment'][name]
                 ))
 
         if 'labels' in oci_config:
-            for name in oci_config['labels']:
+            for name in sorted(oci_config['labels']):
                 arguments.append('--config.label={0}={1}'.format(
                     name, oci_config['labels'][name]
                 ))
