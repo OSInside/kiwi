@@ -94,16 +94,81 @@ class OCIUmoci(OCIBase):
 
         :param list oci_config: meta data list
         """
+        config_args = self._process_oci_config_to_arguments(oci_config)
         Command.run(
             [
                 'umoci', 'config'
-            ] + oci_config + [
+            ] + config_args + [
                 '--image', self.container_name,
                 '--created', datetime.utcnow().strftime(
                     '%Y-%m-%dT%H:%M:%S+00:00'
                 )
             ]
         )
+
+    @classmethod                                                # noqa:C091
+    def _process_oci_config_to_arguments(self, oci_config):
+        """
+        Process the oci configuration dictionary into a list of arguments
+        for the 'umoci config' command
+
+        :param list oci_config: meta data list
+
+        :return: List of umoci config arguments
+
+        :rtype: list
+        """
+        arguments = []
+        if 'maintainer' in oci_config:
+            arguments.append(
+                '--author={0}'.format(oci_config['maintainer'])
+            )
+
+        if 'user' in oci_config:
+            arguments.append(
+                '--config.user={0}'.format(oci_config['user'])
+            )
+
+        if 'workingdir' in oci_config:
+            arguments.append(
+                '--config.workingdir={0}'.format(oci_config['workingdir'])
+            )
+
+        if 'entry_command' in oci_config:
+            if len(oci_config['entry_command']) == 0:
+                arguments.append('--clear=config.entrypoint')
+            else:
+                for arg in oci_config['entry_command']:
+                    arguments.append('--config.entrypoint={0}'.format(arg))
+
+        if 'entry_subcommand' in oci_config:
+            if len(oci_config['entry_subcommand']) == 0:
+                arguments.append('--clear=config.cmd')
+            else:
+                for arg in oci_config['entry_subcommand']:
+                    arguments.append('--config.cmd={0}'.format(arg))
+
+        if 'volumes' in oci_config:
+            for vol in oci_config['volumes']:
+                arguments.append('--config.volume={0}'.format(vol))
+
+        if 'expose_ports' in oci_config:
+            for port in oci_config['expose_ports']:
+                arguments.append('--config.exposedports={0}'.format(port))
+
+        if 'environment' in oci_config:
+            for name in sorted(oci_config['environment']):
+                arguments.append('--config.env={0}={1}'.format(
+                    name, oci_config['environment'][name]
+                ))
+
+        if 'labels' in oci_config:
+            for name in sorted(oci_config['labels']):
+                arguments.append('--config.label={0}={1}'.format(
+                    name, oci_config['labels'][name]
+                ))
+
+        return arguments
 
     def garbage_collect(self):
         """

@@ -44,84 +44,26 @@ class ContainerImageOCI(object):
                 'container_name': 'name',
                 'container_tag': '1.0',
                 'additional_tags': ['current', 'foobar'],
-                'entry_command': [
-                    '--config.entrypoint=/bin/bash',
-                    '--config.entrypoint=-x'
-                ],
-                'entry_subcommand': [
-                    '--config.cmd=ls',
-                    '--config.cmd=-l'
-                ],
-                'maintainer': ['--author=tux'],
-                'user': ['--config.user=root'],
-                'workingdir': ['--config.workingdir=/root'],
-                'expose_ports': [
-                    '--config.exposedports=80',
-                    '--config.exposedports=42'
-                ],
-                'volumes': [
-                    '--config.volume=/var/log',
-                    '--config.volume=/tmp'
-                ],
-                'environment': ['--config.env=PATH=/bin'],
-                'labels': ['--config.label=name=value']
+                'entry_command': ['/bin/bash', '-x'],
+                'entry_subcommand': ['ls', '-l'],
+                'maintainer': 'tux',
+                'user': 'root',
+                'workingdir': '/root',
+                'expose_ports': ['80', '42'],
+                'volumes': ['/var/log', '/tmp'],
+                'environment': {'PATH': '/bin'},
+                'labels': {'name': 'value'}
             }
     """
-    def __init__(self, root_dir, custom_args=None):         # noqa: C901
+    def __init__(self, root_dir, custom_args=None):
         self.root_dir = root_dir
         self.oci_root_dir = None
-
-        self.container_name = Defaults.get_default_container_name()
-        self.container_tag = Defaults.get_default_container_tag()
-        self.additional_tags = []
-        self.entry_command = []
-        self.entry_subcommand = []
-        self.maintainer = []
-        self.user = []
-        self.workingdir = []
-        self.expose_ports = []
-        self.volumes = []
-        self.environment = []
-        self.labels = []
+        if custom_args:
+            self.oci_config = custom_args
+        else:
+            self.oci_config = {}
 
         self.runtime_config = RuntimeConfig()
-
-        if custom_args:
-            if 'container_name' in custom_args:
-                self.container_name = custom_args['container_name']
-
-            if 'container_tag' in custom_args:
-                self.container_tag = custom_args['container_tag']
-
-            if 'additional_tags' in custom_args:
-                self.additional_tags = custom_args['additional_tags']
-
-            if 'entry_command' in custom_args:
-                self.entry_command = custom_args['entry_command']
-
-            if 'entry_subcommand' in custom_args:
-                self.entry_subcommand = custom_args['entry_subcommand']
-
-            if 'maintainer' in custom_args:
-                self.maintainer = custom_args['maintainer']
-
-            if 'user' in custom_args:
-                self.user = custom_args['user']
-
-            if 'workingdir' in custom_args:
-                self.workingdir = custom_args['workingdir']
-
-            if 'expose_ports' in custom_args:
-                self.expose_ports = custom_args['expose_ports']
-
-            if 'volumes' in custom_args:
-                self.volumes = custom_args['volumes']
-
-            if 'environment' in custom_args:
-                self.environment = custom_args['environment']
-
-            if 'labels' in custom_args:
-                self.labels = custom_args['labels']
 
         # for builds inside the buildservice we include a reference to the
         # specific build. Thus disturl label only exists inside the
@@ -130,19 +72,30 @@ class ContainerImageOCI(object):
             bs_label = 'org.openbuildservice.disturl'
             # Do not label anything if any build service label is
             # already present
-            if not [label for label in self.labels if bs_label in label]:
+            if 'labels' not in self.oci_config or \
+                    bs_label not in self.oci_config['labels']:
                 self._append_buildservice_disturl_label()
 
-        if not custom_args or 'container_name' not in custom_args:
+        if 'container_name' not in self.oci_config:
             log.info(
                 'No container configuration provided, '
                 'using default container name "kiwi-container:latest"'
             )
+            self.oci_config['container_name'] = \
+                Defaults.get_default_container_name()
+            self.oci_config['container_tag'] = \
+                Defaults.get_default_container_tag()
 
-        if not self.entry_command and not self.entry_subcommand:
-            self.entry_subcommand = ['--config.cmd=/bin/bash']
+        if 'container_tag' not in self.oci_config:
+            self.oci_config['container_tag'] = \
+                Defaults.get_default_container_tag()
 
-        self.oci = OCI(self.container_tag)
+        if 'entry_command' not in self.oci_config and \
+                'entry_subcommand' not in self.oci_config:
+            self.oci_config['entry_subcommand'] = \
+                Defaults.get_default_container_subcommand()
+
+        self.oci = OCI(self.oci_config['container_tag'])
 
     def create(self, filename, base_image):
         """
@@ -176,20 +129,11 @@ class ContainerImageOCI(object):
         )
         self.oci.repack(self.oci_root_dir)
 
-        for tag in self.additional_tags:
-            self.oci.add_tag(tag)
+        if 'additional_tags' in self.oci_config:
+            for tag in self.oci_config['additional_tags']:
+                self.oci.add_tag(tag)
 
-        container_config = \
-            self.maintainer + \
-            self.user + \
-            self.workingdir + \
-            self.entry_command + \
-            self.entry_subcommand + \
-            self.expose_ports + \
-            self.volumes + \
-            self.environment + \
-            self.labels
-        self.oci.set_config(container_config)
+        self.oci.set_config(self.oci_config)
 
         self.oci.garbage_collect()
 
@@ -219,12 +163,9 @@ class ContainerImageOCI(object):
                 if line.startswith('BUILD_DISTURL') and '=' in line:
                     disturl = line.split('=')[1].lstrip('\'\"').rstrip('\n\'\"')
                     if disturl:
-                        self.labels.append(
-                            ''.join([
-                                '--config.label=org.openbuildservice.disturl=',
-                                disturl
-                            ])
-                        )
+                        self.oci_config['labels'] = {
+                            'org.openbuildservice.disturl': disturl
+                        }
                         return
             log.warning('Could not find BUILD_DISTURL inside .buildenv')
 

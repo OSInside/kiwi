@@ -61,10 +61,50 @@ class TestOCIBase(object):
         mock_datetime.utcnow = Mock(
             return_value=strftime
         )
-        self.oci.set_config(['data'])
+        oci_config = {
+            'entry_command': ['/bin/bash', '-x'],
+            'entry_subcommand': ['ls', '-l'],
+            'maintainer': 'tux',
+            'user': 'root',
+            'workingdir': '/root',
+            'expose_ports': ['80', '42'],
+            'volumes': ['/var/log', '/tmp'],
+            'environment': {'FOO': 'bar', 'PATH': '/bin'},
+            'labels': {'a': 'value', 'b': 'value'}
+        }
+        self.oci.set_config(oci_config)
         mock_Command_run.assert_called_once_with(
             [
-                'umoci', 'config', 'data', '--image', 'tmpdir/oci_layout:tag',
+                'umoci', 'config', '--author=tux', '--config.user=root',
+                '--config.workingdir=/root', '--config.entrypoint=/bin/bash',
+                '--config.entrypoint=-x', '--config.cmd=ls', '--config.cmd=-l',
+                '--config.volume=/var/log', '--config.volume=/tmp',
+                '--config.exposedports=80', '--config.exposedports=42',
+                '--config.env=FOO=bar', '--config.env=PATH=/bin',
+                '--config.label=a=value', '--config.label=b=value',
+                '--image', 'tmpdir/oci_layout:tag', '--created', 'current_date'
+            ]
+        )
+
+    @patch('kiwi.oci_tools.umoci.Command.run')
+    @patch('kiwi.oci_tools.umoci.datetime')
+    def test_set_config_clear_inherited_commands(
+        self, mock_datetime, mock_Command_run
+    ):
+        strftime = Mock()
+        strftime.strftime = Mock(return_value='current_date')
+        mock_datetime.utcnow = Mock(
+            return_value=strftime
+        )
+        oci_config = {
+            'entry_command': [],
+            'entry_subcommand': []
+        }
+        self.oci.set_config(oci_config)
+        mock_Command_run.assert_called_once_with(
+            [
+                'umoci', 'config', '--clear=config.entrypoint',
+                '--clear=config.cmd', '--image', 'tmpdir/oci_layout:tag',
                 '--created', 'current_date'
             ]
         )

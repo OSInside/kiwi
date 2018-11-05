@@ -27,55 +27,28 @@ class TestContainerImageOCI(object):
             'container_name': 'foo',
             'container_tag': '1.0',
             'additional_tags': ['current', 'foobar'],
-            'entry_command': [
-                '--config.entrypoint=/bin/bash',
-                '--config.entrypoint=-x'
-            ],
-            'entry_subcommand': [
-                '--config.cmd=ls',
-                '--config.cmd=-l'
-            ],
-            'maintainer': ['--author=tux'],
-            'user': ['--config.user=root'],
-            'workingdir': ['--config.workingdir=/root'],
-            'expose_ports': [
-                '--config.exposedports=80',
-                '--config.exposedports=42'
-            ],
-            'volumes': [
-                '--config.volume=/var/log',
-                '--config.volume=/tmp'
-            ],
-            'environment': [
-                '--config.env=PATH=/bin',
-                '--config.env=FOO=bar'
-            ],
-            'labels': [
-                '--config.label=a=value',
-                '--config.label=b=value'
-            ]
+            'entry_command': ['/bin/bash', '-x'],
+            'entry_subcommand': ['ls', '-l'],
+            'maintainer': 'tux',
+            'user': 'root',
+            'workingdir': '/root',
+            'expose_ports': ['80', '42'],
+            'volumes': ['/var/log', '/tmp'],
+            'environment': {'PATH': '/bin', 'FOO': 'bar'},
+            'labels': {'a': 'value', 'b': 'value'}
         }
         container = ContainerImageOCI(
             'root_dir', custom_args
         )
-        assert container.container_name == custom_args['container_name']
-        assert container.container_tag == custom_args['container_tag']
-        assert container.entry_command == custom_args['entry_command']
-        assert container.entry_subcommand == custom_args['entry_subcommand']
-        assert container.maintainer == custom_args['maintainer']
-        assert container.user == custom_args['user']
-        assert container.workingdir == custom_args['workingdir']
-        assert container.expose_ports == custom_args['expose_ports']
-        assert container.volumes == custom_args['volumes']
-        assert container.environment == custom_args['environment']
-        assert container.labels == custom_args['labels']
-        assert container.additional_tags == custom_args['additional_tags']
+        assert container.oci_config == custom_args
 
     def test_init_without_custom_args(self):
         container = ContainerImageOCI('root_dir')
-        assert container.container_name == 'kiwi-container'
-        assert container.container_tag == 'latest'
-        assert container.additional_tags == []
+        assert container.oci_config == {
+            'container_name': 'kiwi-container',
+            'container_tag': 'latest',
+            'entry_subcommand': ['/bin/bash']
+        }
 
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
@@ -86,10 +59,10 @@ class TestContainerImageOCI(object):
             iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
         container = ContainerImageOCI('root_dir')
         mock_open.assert_called_once_with('/.buildenv')
-        assert container.labels == [
-            '--config.label=org.openbuildservice.disturl='
+        assert container.oci_config['labels'] == {
+            'org.openbuildservice.disturl':
             'obs://build.opensuse.org/some:project'
-        ]
+        }
 
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
@@ -102,7 +75,7 @@ class TestContainerImageOCI(object):
         handle.__iter__.return_value = iter(['line content'])
         container = ContainerImageOCI('root_dir')
         mock_open.assert_called_once_with('/.buildenv')
-        assert container.labels == []
+        assert 'labels' not in container.oci_config
         assert mock_warn.called
 
     @patch('kiwi.container.oci.Path.wipe')
@@ -136,9 +109,12 @@ class TestContainerImageOCI(object):
         self.oci.oci.init_layout.assert_called_once_with(None)
         self.oci.oci.unpack.assert_called_once_with('kiwi_oci_root_dir')
         self.oci.oci.repack.assert_called_once_with('kiwi_oci_root_dir')
-        self.oci.oci.set_config.assert_called_once_with(
-            ['--config.cmd=/bin/bash']
-        )
+        self.oci.oci.set_config.assert_called_once_with({
+            'container_name': 'foo/bar',
+            'additional_tags': ['current', 'foobar'],
+            'container_tag': 'latest',
+            'entry_subcommand': ['/bin/bash']
+        })
         assert self.oci.oci.add_tag.call_args_list == [
             call('current'), call('foobar')
         ]
@@ -193,9 +169,12 @@ class TestContainerImageOCI(object):
         )
         self.oci.oci.unpack.assert_called_once_with('kiwi_oci_root_dir')
         self.oci.oci.repack.assert_called_once_with('kiwi_oci_root_dir')
-        self.oci.oci.set_config.assert_called_once_with(
-            ['--config.cmd=/bin/bash']
-        )
+        self.oci.oci.set_config.assert_called_once_with({
+            'container_name': 'foo/bar',
+            'additional_tags': ['current', 'foobar'],
+            'container_tag': 'latest',
+            'entry_subcommand': ['/bin/bash']
+        })
         assert self.oci.oci.add_tag.call_args_list == [
             call('current'), call('foobar')
         ]
