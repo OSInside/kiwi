@@ -22,8 +22,7 @@ jobs:
       - provider: pages
         skip_cleanup: true
         local-dir: doc/build/html
-        github-token:
-          secure: H6gF9STlXtiCvmIkBgbuCLY0ovkjvRX69OfaliKdhvmysHfFTiHn6rx2keGmd0kdEhGj12YgNEVwAd9qEEZonFfmqEzNNSW5+nIEvVjGZ9b8FnnwSGX/y2XBldIDNu+imuhkxzzFlylbMABJSvJy8W6dwuic2DBdiVAsb8e9fUHnvbTTice76DyuHCDjM7EGt34K3xP8sjwMm3dPKvO2s+Ij3u+j5TE/aovxoaY5oRO8fp2j7lbTUXIQb4P4mysro22K4rgWng83/IVaIAT0nFlX24WltraUxIzW/MJe8SYXaDSbgyzMpOtUxlKs+5/wAAdEBoE8aMTBwOF0f5eQJHTguL2oCy+7VELtMVq8oUeHzyRh7JcBAE7Hd3WgWrWrZCfIxEZ8pAEwLb3SJUnegb7z0PRBnHDNbwLcsxzKKupMVJ1eCJmlowJUea5ODW3ruizhvg9S3pBQOUwmQqvj2TS2byXa4zToqOzxcrMMWK0v667eO9XKAFkhNdA6Vr7XuwTbIMt/+dSQUH3VwxNK2Hpbe7EEf9Kh8K2L1U2UnrfpHmcm+8Fd1aYA0UsvVNhFF/MvDBBoHguvmAbw/x5rrbbNYW1Q+pUkYj/UTvrI/GU7w1h421R4VMigIkI7u6Yq5cVBYT95SzNPb6Bt2rKTAr6RpcqRwZV5AB7oL2Flgak=
+        github-token: $GH_TOKEN
         keep-history: true
         on:
           tags: true
