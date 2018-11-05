@@ -106,7 +106,8 @@ class OCIUmoci(OCIBase):
             ]
         )
 
-    def _process_oci_config_to_arguments(self, oci_config):     # noqa:C091
+    @classmethod                                                # noqa:C091
+    def _process_oci_config_to_arguments(self, oci_config):
         """
         Process the oci configuration dictionary into a list of arguments
         for the 'umoci config' command
