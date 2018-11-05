@@ -21,7 +21,7 @@ jobs:
     deploy:
       - provider: pages
         skip_cleanup: true
-        local-dir: doc/build/html
+        local-dir: doc/build_travis
         github-token: $GH_TOKEN
         keep-history: true
         on:
