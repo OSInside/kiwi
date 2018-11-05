@@ -173,7 +173,7 @@ class TestInstallImageBuilder(object):
             call(), call()
         ]
         self.boot_image_task.create_initrd.assert_called_once_with(
-            self.mbrid, 'initrd_kiwi_install'
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
         self.kernel.copy_kernel.assert_called_once_with(
             'temp_media_dir/boot/x86_64/loader', '/linux'
@@ -206,7 +206,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_iso()
 
         self.boot_image_task.include_file.assert_called_once_with(
-            '/config.bootoptions'
+            '/config.bootoptions', install_media=True
         )
         assert mock_open.call_args_list == [
             call('temp_media_dir/config.isoclient', 'w'),
@@ -336,7 +336,7 @@ class TestInstallImageBuilder(object):
             'tmpdir', '/pxeboot.xen.gz'
         )
         self.boot_image_task.create_initrd.assert_called_once_with(
-            self.mbrid, 'initrd_kiwi_install'
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
         assert mock_command.call_args_list[1] == call(
             ['mv', 'initrd', 'tmpdir/pxeboot.initrd.xz']
@@ -359,7 +359,7 @@ class TestInstallImageBuilder(object):
         self.install_image.create_install_pxe_archive()
 
         self.boot_image_task.include_file.assert_called_once_with(
-            '/config.bootoptions'
+            '/config.bootoptions', install_media=True
         )
         mock_copy.assert_called_once_with(
             'root_dir/boot/initrd-kernel_version', 'tmpdir/result-image.initrd'

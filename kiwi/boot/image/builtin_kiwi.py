@@ -102,12 +102,14 @@ class BootImageKiwi(BootImageBase):
         self.setup.call_image_script()
         self.setup.create_init_link_from_linuxrc()
 
-    def create_initrd(self, mbrid=None, basename=None):
+    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
         """
         Create initrd from prepared boot system tree and compress the result
 
         :param object mbrid: instance of ImageIdentifier
         :param string basename: base initrd file name
+        :param bool install_initrd: installation media initrd
+
         """
         if self.is_prepared():
             log.info('Creating initrd cpio archive')
