@@ -59,7 +59,7 @@ class TestDiskFormatBase(object):
         self.disk_format.image_format = 'qcow2'
         self.disk_format.store_to_result(result)
         result.add.assert_called_once_with(
-            compress=False,
+            compress=True,
             filename='target_dir/some-disk-image.x86_64-1.2.3.qcow2',
             key='disk_format_image',
             shasum=True,

@@ -37,6 +37,18 @@ class TestDiskFormatVagrantLibVirt(object):
     def test_post_init_missing_vagrantconfig(self):
         self.disk_format.post_init({'vagrantconfig': None})
 
+    def test_store_to_result(self):
+        result = mock.Mock()
+        self.disk_format.store_to_result(result)
+        result.add.assert_called_once_with(
+            compress=False,
+            filename='target_dir/'
+            'some-disk-image.x86_64-1.2.3.vagrant.libvirt.box',
+            key='disk_format_image',
+            shasum=True,
+            use_for_bundle=True
+        )
+
     @patch('kiwi.storage.subformat.vagrant_libvirt.Command.run')
     @patch('kiwi.storage.subformat.vagrant_libvirt.mkdtemp')
     @patch('kiwi.storage.subformat.vagrant_libvirt.DiskFormatQcow2')

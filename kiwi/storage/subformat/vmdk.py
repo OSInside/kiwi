@@ -81,7 +81,7 @@ class DiskFormatVmdk(DiskFormatBase):
             key='disk_format_image',
             filename=self.get_target_file_path_for_format('vmdk'),
             use_for_bundle=True,
-            compress=False,
+            compress=True,
             shasum=True
         )
         result.add(
