@@ -128,6 +128,7 @@
                     <label name="somelabel" value="labelvalue"/>
                     <label name="someotherlabel" value="anotherlabelvalue"/>
                 </labels>
+                <history author="history author" created_by="created by text">This is a comment</history>
             </containerconfig>
         </type>
         <type image="iso" mediacheck="true"/>

@@ -6,6 +6,7 @@ import mock
 from .test_helper import patch_open
 
 from kiwi.container.oci import ContainerImageOCI
+from kiwi.version import __version__
 
 
 class TestContainerImageOCI(object):
@@ -47,7 +48,8 @@ class TestContainerImageOCI(object):
         assert container.oci_config == {
             'container_name': 'kiwi-container',
             'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash']
+            'entry_subcommand': ['/bin/bash'],
+            'history': {'created_by': 'KIWI {0}'.format(__version__)}
         }
 
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
@@ -106,15 +108,16 @@ class TestContainerImageOCI(object):
 
         self.oci.create('result.tar', None)
 
-        self.oci.oci.init_layout.assert_called_once_with(None)
+        self.oci.oci.init_layout.assert_called_once_with(False)
         self.oci.oci.unpack.assert_called_once_with('kiwi_oci_root_dir')
         self.oci.oci.repack.assert_called_once_with('kiwi_oci_root_dir')
         self.oci.oci.set_config.assert_called_once_with({
             'container_name': 'foo/bar',
             'additional_tags': ['current', 'foobar'],
             'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash']
-        })
+            'entry_subcommand': ['/bin/bash'],
+            'history': {'created_by': 'KIWI {0}'.format(__version__)}
+        }, False)
         assert self.oci.oci.add_tag.call_args_list == [
             call('current'), call('foobar')
         ]
@@ -164,17 +167,16 @@ class TestContainerImageOCI(object):
 
         mock_create.assert_called_once_with('kiwi_oci_dir.XXXX/oci_layout')
 
-        self.oci.oci.init_layout.assert_called_once_with(
-            'root_dir/image/image_file'
-        )
+        self.oci.oci.init_layout.assert_called_once_with(True)
         self.oci.oci.unpack.assert_called_once_with('kiwi_oci_root_dir')
         self.oci.oci.repack.assert_called_once_with('kiwi_oci_root_dir')
         self.oci.oci.set_config.assert_called_once_with({
             'container_name': 'foo/bar',
             'additional_tags': ['current', 'foobar'],
             'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash']
-        })
+            'entry_subcommand': ['/bin/bash'],
+            'history': {'created_by': 'KIWI {0}'.format(__version__)}
+        }, True)
         assert self.oci.oci.add_tag.call_args_list == [
             call('current'), call('foobar')
         ]

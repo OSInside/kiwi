@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from datetime import datetime
 
 # project
 from kiwi.oci_tools.base import OCIBase
@@ -36,16 +35,10 @@ class OCIUmoci(OCIBase):
         The import and unpack of the base image is not a
         responsibility of this class and done beforehead
 
-        :param string base_image: True|False
+        :param bool base_image: True|False
         """
         if base_image:
-            Command.run(
-                [
-                    'umoci', 'config', '--image',
-                    '{0}:base_layer'.format(self.container_dir),
-                    '--tag', self.container_tag
-                ]
-            )
+            self.container_name = '{0}:base_layer'.format(self.container_dir)
         else:
             Command.run(
                 ['umoci', 'init', '--layout', self.container_dir]
@@ -87,24 +80,30 @@ class OCIUmoci(OCIBase):
             ]
         )
 
-    def set_config(self, oci_config):
+    def set_config(self, oci_config, base_image=False):
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container.
 
         :param list oci_config: meta data list
+        :param bool base_image: True|False
         """
         config_args = self._process_oci_config_to_arguments(oci_config)
         Command.run(
             [
                 'umoci', 'config'
             ] + config_args + [
+                '--history.created', self.creation_date,
                 '--image', self.container_name,
-                '--created', datetime.utcnow().strftime(
-                    '%Y-%m-%dT%H:%M:%S+00:00'
-                )
+                '--tag', self.container_tag,
+                '--created', self.creation_date
             ]
         )
+        if base_image:
+            Command.run(['umoci', 'rm', '--image', self.container_name])
+            self.container_name = self.container_name = ':'.join(
+                [self.container_dir, self.container_tag]
+            )
 
     @classmethod                                                # noqa:C091
     def _process_oci_config_to_arguments(self, oci_config):
@@ -168,7 +167,26 @@ class OCIUmoci(OCIBase):
                     name, oci_config['labels'][name]
                 ))
 
+        arguments.extend(self._process_oci_history_to_arguments(oci_config))
         return arguments
+
+    @classmethod
+    def _process_oci_history_to_arguments(self, oci_config):
+        history_args = []
+        if 'history' in oci_config:
+            if 'comment' in oci_config['history']:
+                history_args.append('--history.comment={0}'.format(
+                    oci_config['history']['comment']
+                ))
+            if 'created_by' in oci_config['history']:
+                history_args.append('--history.created_by={0}'.format(
+                    oci_config['history']['created_by']
+                ))
+            if 'author' in oci_config['history']:
+                history_args.append('--history.author={0}'.format(
+                    oci_config['history']['author']
+                ))
+        return history_args
 
     def garbage_collect(self):
         """

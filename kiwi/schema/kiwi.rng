@@ -3427,6 +3427,9 @@ section provides globally useful container information.</a:documentation>
           <optional>
             <ref name="k.labels"/>
           </optional>
+          <optional>
+            <ref name="k.history"/>
+          </optional>
         </interleave>
       </element>
     </define>
@@ -3696,6 +3699,42 @@ At least one label must be configured</a:documentation>
           <ref name="k.label.attlist"/>
           <empty/>
         </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <history>
+    
+  -->
+  <div>
+    <define name="k.history.created_by.attribute">
+      <attribute name="created_by">
+        <a:documentation>Specifies the 'created by' history record. By default set to 'KIWI'</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.history.author.attribute">
+      <attribute name="author">
+        <a:documentation>Specifies the 'author' history record.</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.history.attlist">
+      <interleave>
+        <optional>
+          <ref name="k.history.created_by.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.history.author.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.history">
+      <element name="history">
+        <a:documentation>Provides details about the container history. Includes the
+'created by', 'author' as attributes and its content represents
+the 'comment' entry.</a:documentation>
+        <ref name="k.history.attlist"/>
+        <text/>
       </element>
     </define>
   </div>

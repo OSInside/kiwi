@@ -25,7 +25,10 @@ from pkg_resources import resource_filename
 
 # project
 from .path import Path
-from .version import __githash__
+from .version import (
+    __githash__,
+    __version__
+)
 
 
 class Defaults(object):
@@ -1172,6 +1175,17 @@ class Defaults(object):
         :rtype: list
         """
         return ['/bin/bash']
+
+    @classmethod
+    def get_default_container_created_by(self):
+        """
+        Provides the default 'created by' history entry for containers.
+
+        :return: the specific kiwi version used for the build
+
+        :rtype: str
+        """
+        return 'KIWI {0}'.format(__version__)
 
     @classmethod
     def set_python_default_encoding_to_utf8(self):
