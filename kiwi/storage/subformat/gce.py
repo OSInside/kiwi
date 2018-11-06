@@ -93,6 +93,25 @@ class DiskFormatGce(DiskFormatBase):
             self.temp_image_dir
         )
 
+    def store_to_result(self, result):
+        """
+        Store result file of the gce format conversion into the
+        provided result instance. In this case compression is unwanted
+        because the gce tarball is already created as a compressed
+        archive
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=self.get_target_file_path_for_format(
+                self.image_format
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
+        )
+
     def get_target_file_path_for_format(self, format_name):
         """
         Google requires the image name to follow their naming

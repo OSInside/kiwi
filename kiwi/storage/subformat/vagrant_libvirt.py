@@ -102,6 +102,24 @@ class DiskFormatVagrantLibVirt(DiskFormatBase):
             ]
         )
 
+    def store_to_result(self, result):
+        """
+        Store result file of the vagrant format conversion into the
+        provided result instance. In this case compression is unwanted
+        because the box is already created as a compressed tarball
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=self.get_target_file_path_for_format(
+                self.image_format
+            ),
+            use_for_bundle=True,
+            compress=False,
+            shasum=True
+        )
+
     def _create_box_metadata(self):
         metadata = {
             'provider': 'libvirt',

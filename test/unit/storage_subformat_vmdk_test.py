@@ -114,7 +114,7 @@ class TestDiskFormatVmdk(object):
         self.disk_format.store_to_result(result)
         assert result.add.call_args_list == [
             call(
-                compress=False,
+                compress=True,
                 filename='target_dir/some-disk-image.x86_64-1.2.3.vmdk',
                 key='disk_format_image',
                 shasum=True,

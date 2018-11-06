@@ -26,6 +26,17 @@ class TestDiskFormatGce(object):
         self.disk_format.post_init({'option': 'value', '--tag': 'tag'})
         assert self.disk_format.tag == 'tag'
 
+    def test_store_to_result(self):
+        result = mock.Mock()
+        self.disk_format.store_to_result(result)
+        result.add.assert_called_once_with(
+            compress=False,
+            filename='target_dir/some-disk-image.x86_64-0.8.15.tar.gz',
+            key='disk_format_image',
+            shasum=True,
+            use_for_bundle=True
+        )
+
     @patch('kiwi.storage.subformat.gce.Command.run')
     @patch('kiwi.storage.subformat.gce.ArchiveTar')
     @patch_open

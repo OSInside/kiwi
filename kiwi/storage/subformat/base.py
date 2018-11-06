@@ -174,8 +174,9 @@ class DiskFormatBase(object):
         Store result file of the format conversion into the
         provided result instance.
 
-        By default only the converted image file will be stored.
-        Subformats which creates additional metadata files needs
+        By default only the converted image file will be stored
+        as compressed file. Subformats which creates additional
+        metadata files or want to use other result flags needs
         to overwrite this method
 
         :param object result: Instance of Result
@@ -186,7 +187,7 @@ class DiskFormatBase(object):
                 self.image_format
             ),
             use_for_bundle=True,
-            compress=False,
+            compress=True,
             shasum=True
         )
 
