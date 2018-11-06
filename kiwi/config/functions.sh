@@ -431,7 +431,8 @@ function baseStripTools {
     local found
     local file
     local IFS
-    while IFS= read -r -d '' file; do
+    find "${tpath}" -print0 | \
+    while IFS= read -r -d $'\0' file; do
         found=0
         base=$(/usr/bin/basename "${file}")
         for need in ${tools};do
@@ -443,7 +444,7 @@ function baseStripTools {
         if [ "${found}" = 0 ] && [ ! -d "${file}" ];then
             Rm -fv "${file}"
         fi
-    done < <(find "${tpath}" -print0)
+    done
 }
 #======================================
 # Rm  
@@ -728,7 +729,8 @@ function baseStripFirmware {
     local kernel_module
     local firmware
     mkdir -p /lib/firmware-required
-    while IFS= read -r -d '' kernel_module; do
+    find "${base}" -name "*.ko" -print0 | \
+    while IFS= read -r -d $'\0' kernel_module; do
         firmware=$(modinfo "${kernel_module}" | grep ^firmware)
         if [ -z "${firmware}" ];then
             continue
@@ -737,17 +739,18 @@ function baseStripFirmware {
         if [ -z "${name}" ];then
             continue
         fi
-        for match in /lib/firmware/${name} /lib/firmware/*/${name};do
-            if [ -e "${match}" ];then
-                match=$(echo "${match}" | sed -e 's@\/lib\/firmware\/@@')
-                bmdir=$(dirname "${match}")
-                mkdir -p "/lib/firmware-required/${bmdir}"
-                mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
-            else
-                echo "Deleting unwanted firmware: $match"
-            fi
+        # could be more than one, loop
+        for fname in $name ; do
+            for match in /lib/firmware/${fname} /lib/firmware/*/${fname};do
+                if [ -e "${match}" ];then
+                    match=$(echo "${match}" | sed -e 's@\/lib\/firmware\/@@')
+                    bmdir=$(dirname "${match}")
+                    mkdir -p "/lib/firmware-required/${bmdir}"
+                    mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
+                fi
+            done
         done
-    done < <(find "${base}" -name "*.ko" -print0)
+    done
     rm -rf /lib/firmware
     mv /lib/firmware-required /lib/firmware
 }
