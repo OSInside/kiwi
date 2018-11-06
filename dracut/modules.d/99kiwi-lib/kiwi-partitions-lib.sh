@@ -192,6 +192,7 @@ function get_partition_node_name {
     local partid=$2
     local index=1
     local part
+    udev_pending
     for partnode in $(
         lsblk -p -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
     );do
@@ -268,6 +269,7 @@ function get_free_disk_bytes {
     local part_bytes=0
     local part_count=0
     local part_uuids
+    udev_pending
     for part in $(
         lsblk -p -r -o NAME,TYPE "${disk}" | grep part | cut -f1 -d ' '
     );do
@@ -323,6 +325,7 @@ function activate_boot_partition {
 function create_hybrid_gpt {
     local disk_device=$1
     local partition_count
+    udev_pending
     partition_count=$(lsblk -r -o NAME,TYPE "${disk_device}" | grep -c part)
     if [ "${partition_count}" -gt 3 ]; then
         # The max number of partitions to embed is 3
