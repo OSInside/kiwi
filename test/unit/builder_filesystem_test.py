@@ -97,7 +97,7 @@ class TestFileSystemBuilder(object):
         )
         self.loop_provider.create.assert_called_once_with()
         mock_fs.assert_called_once_with(
-            'ext3', self.loop_provider, 'root_dir', {'mount_options': 'async'}
+            'ext3', self.loop_provider, 'root_dir/', {'mount_options': 'async'}
         )
         self.filesystem.create_on_device.assert_called_once_with(None)
         self.filesystem.sync_data.assert_called_once_with(
