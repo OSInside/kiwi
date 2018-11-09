@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import os
 
 # project
 from kiwi.filesystem import FileSystem
@@ -158,7 +159,7 @@ class FileSystemBuilder(object):
         loop_provider.create()
         filesystem = FileSystem(
             self.requested_filesystem, loop_provider,
-            self.root_dir, self.filesystem_custom_parameters
+            self.root_dir + os.sep, self.filesystem_custom_parameters
         )
         filesystem.create_on_device(self.label)
         log.info(
