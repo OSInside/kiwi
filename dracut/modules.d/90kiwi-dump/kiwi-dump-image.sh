@@ -36,7 +36,7 @@ function get_disk_list {
     local disk_meta
     local item_status=on
     local list_items
-    local blk_opts
+    local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
     if [ ! -z "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
@@ -53,12 +53,12 @@ function get_disk_list {
         udev_pending
         # target should be a ramdisk on request. Thus instruct
         # lsblk to list only ramdisk devices (Major=1)
-        blk_opts="-I 1"
+        blk_opts="-I 1 ${blk_opts}"
     elif [ ! -z "${kiwi_oemmultipath_scan}" ];then
         scan_multipath_devices
     fi
     for disk_meta in $(
-        lsblk "${blk_opts}" -p -n -r -o NAME,SIZE,TYPE | grep disk | tr ' ' ":"
+        eval lsblk "${blk_opts}" | grep disk | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         if [ "$(blkid "${disk_device}" -s LABEL -o value)" = \
