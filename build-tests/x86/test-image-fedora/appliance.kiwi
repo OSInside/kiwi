@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
 <image schemaversion="6.9" name="VMX-Fedora-28.0">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
-        <specification>vmx disk test build for Fedora</specification>
+        <specification>Fedora 28 JeOS</specification>
     </description>
+    <profiles>
+        <profile name="Live" description="Live image of Fedora 28"/>
+        <profile name="Virtual" description="Virtual image of Fedora 28"/>
+        <profile name="Disk" description="OEM image of Fedora 28"/>
+    </profiles>
     <preferences>
         <version>1.28.1</version>
         <packagemanager>dnf</packagemanager>
@@ -15,7 +23,22 @@
         <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Live">
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+    </preferences>
+    <preferences profiles="Virtual">
         <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash"/>
+    </preferences>
+    <preferences profiles="Disk">
+        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" bootloader="grub2" firmware="uefi">
+            <oemconfig>
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>200</oem-swapsize>
+                <oem-multipath-scan>false</oem-multipath-scan>
+            </oemconfig>
+        </type>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
@@ -40,6 +63,16 @@
         <package name="glibc-all-langpacks"/>
         <package name="vim"/>
         <package name="tzdata"/>
+    </packages>
+    <packages type="image" profiles="Live,Disk">
+        <package name="syslinux"/>
+    </packages>
+    <packages type="image" profiles="Live">
+        <package name="dracut-kiwi-live"/>
+    </packages>
+    <packages type="image" profiles="Disk">
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
