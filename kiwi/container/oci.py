@@ -128,7 +128,7 @@ class ContainerImageOCI(object):
             image_tar = ArchiveTar(base_image)
             image_tar.extract(self.oci.container_dir)
 
-        self.oci.init_layout(True if base_image else False)
+        self.oci.init_layout(bool(base_image))
 
         self.oci.unpack(self.oci_root_dir)
         oci_root = DataSync(
@@ -144,7 +144,7 @@ class ContainerImageOCI(object):
             for tag in self.oci_config['additional_tags']:
                 self.oci.add_tag(tag)
 
-        self.oci.set_config(self.oci_config, True if base_image else False)
+        self.oci.set_config(self.oci_config, bool(base_image))
 
         self.oci.garbage_collect()
 
