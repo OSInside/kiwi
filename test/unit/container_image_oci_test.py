@@ -10,10 +10,12 @@ from kiwi.version import __version__
 
 
 class TestContainerImageOCI(object):
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.container.oci.RuntimeConfig')
     @patch('kiwi.container.oci.OCI')
-    def setup(self, mock_OCI, mock_RuntimeConfig):
+    def setup(self, mock_OCI, mock_RuntimeConfig, mock_cmd_caps):
         oci = mock.Mock()
+        mock_cmd_caps.return_value = True
         oci.container_dir = 'kiwi_oci_dir.XXXX/oci_layout'
         mock_OCI.return_value = oci
         self.oci = ContainerImageOCI(
@@ -23,7 +25,9 @@ class TestContainerImageOCI(object):
             }
         )
 
-    def test_init_custom_args(self):
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    def test_init_custom_args(self, mock_cmd_caps):
+        mock_cmd_caps.return_value = True
         custom_args = {
             'container_name': 'foo',
             'container_tag': '1.0',
@@ -43,7 +47,9 @@ class TestContainerImageOCI(object):
         )
         assert container.oci_config == custom_args
 
-    def test_init_without_custom_args(self):
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    def test_init_without_custom_args(self, mock_cmd_caps):
+        mock_cmd_caps.return_value = True
         container = ContainerImageOCI('root_dir')
         assert container.oci_config == {
             'container_name': 'kiwi-container',
@@ -52,10 +58,14 @@ class TestContainerImageOCI(object):
             'history': {'created_by': 'KIWI {0}'.format(__version__)}
         }
 
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
-    def test_init_in_buildservice(self, mock_open, mock_buildservice):
+    def test_init_in_buildservice(
+        self, mock_open, mock_buildservice, mock_cmd_caps
+    ):
         mock_buildservice.return_value = True
+        mock_cmd_caps.return_value = True
         handle = mock_open.return_value.__enter__.return_value
         handle.__iter__.return_value =\
             iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
@@ -66,13 +76,15 @@ class TestContainerImageOCI(object):
             'obs://build.opensuse.org/some:project'
         }
 
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
     @patch('kiwi.logger.log.warning')
     def test_init_in_buildservice_without_disturl(
-        self, mock_warn, mock_open, mock_buildservice
+        self, mock_warn, mock_open, mock_buildservice, mock_cmd_caps
     ):
         mock_buildservice.return_value = True
+        mock_cmd_caps.return_value = True
         handle = mock_open.return_value.__enter__.return_value
         handle.__iter__.return_value = iter(['line content'])
         container = ContainerImageOCI('root_dir')

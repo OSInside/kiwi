@@ -6,10 +6,12 @@ from kiwi.oci_tools.umoci import OCIUmoci
 
 
 class TestOCIBase(object):
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.base.datetime')
     @patch('kiwi.oci_tools.base.mkdtemp')
-    def setup(self, mock_mkdtemp, mock_datetime):
+    def setup(self, mock_mkdtemp, mock_datetime, mock_cmd_caps):
         mock_mkdtemp.return_value = 'tmpdir'
+        mock_cmd_caps.return_value = True
         strftime = Mock()
         strftime.strftime = Mock(return_value='current_date')
         mock_datetime.utcnow = Mock(
@@ -37,11 +39,28 @@ class TestOCIBase(object):
             ['umoci', 'unpack', '--image', 'tmpdir/oci_layout:tag', 'dir']
         )
 
+    @patch('kiwi.oci_tools.base.mkdtemp')
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.oci_tools.umoci.Command.run')
+    def test_repack_with_history(
+        self, mock_Command_run, mock_cmd_caps, mock_mkdtemp
+    ):
+        mock_mkdtemp.return_value = 'tmpdir'
+        mock_cmd_caps.return_value = False
+        oci = OCIUmoci('tag')
+        oci.repack('dir')
+        mock_Command_run.assert_called_once_with(
+            ['umoci', 'repack', '--image', 'tmpdir/oci_layout:tag', 'dir']
+        )
+
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_repack(self, mock_Command_run):
         self.oci.repack('dir')
         mock_Command_run.assert_called_once_with(
-            ['umoci', 'repack', '--image', 'tmpdir/oci_layout:tag', 'dir']
+            [
+                'umoci', 'repack', '--no-history', '--image',
+                'tmpdir/oci_layout:tag', 'dir'
+            ]
         )
 
     @patch('kiwi.oci_tools.umoci.Command.run')
@@ -49,8 +68,8 @@ class TestOCIBase(object):
         self.oci.add_tag('other_tag')
         mock_Command_run.assert_called_once_with(
             [
-                'umoci', 'config', '--image', 'tmpdir/oci_layout:tag',
-                '--tag', 'other_tag'
+                'umoci', 'config', '--no-history', '--image',
+                'tmpdir/oci_layout:tag', '--tag', 'other_tag'
             ]
         )
 
