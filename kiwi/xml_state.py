@@ -891,6 +891,9 @@ class XMLState(object):
         container_config.update(
             self._match_docker_labels()
         )
+        container_config.update(
+            self._match_docker_history()
+        )
         return container_config
 
     def set_container_config_tag(self, tag):
@@ -1811,6 +1814,23 @@ class XMLState(object):
                     container_labels['labels'][label.get_name()] = \
                         label.get_value()
         return container_labels
+
+    def _match_docker_history(self):
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_history = {}
+        if container_config_section:
+            history = container_config_section.get_history()
+            if history:
+                container_history['history'] = {}
+                if history[0].get_created_by():
+                    container_history['history']['created_by'] = \
+                        history[0].get_created_by()
+                if history[0].get_author():
+                    container_history['history']['author'] = \
+                        history[0].get_author()
+                container_history['history']['comment'] = \
+                    history[0].get_valueOf_()
+        return container_history
 
     def _solve_profile_dependencies(
         self, profile, available_profiles, current_profiles

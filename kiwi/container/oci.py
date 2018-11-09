@@ -52,7 +52,12 @@ class ContainerImageOCI(object):
                 'expose_ports': ['80', '42'],
                 'volumes': ['/var/log', '/tmp'],
                 'environment': {'PATH': '/bin'},
-                'labels': {'name': 'value'}
+                'labels': {'name': 'value'},
+                'history': {
+                    'created_by': 'some explanation here',
+                    'comment': 'some comment here',
+                    'author': 'tux'
+                }
             }
     """
     def __init__(self, root_dir, custom_args=None):
@@ -95,6 +100,12 @@ class ContainerImageOCI(object):
             self.oci_config['entry_subcommand'] = \
                 Defaults.get_default_container_subcommand()
 
+        if 'history' not in self.oci_config:
+            self.oci_config['history'] = {}
+        if 'created_by' not in self.oci_config['history']:
+            self.oci_config['history']['created_by'] = \
+                Defaults.get_default_container_created_by()
+
         self.oci = OCI(self.oci_config['container_tag'])
 
     def create(self, filename, base_image):
@@ -117,7 +128,7 @@ class ContainerImageOCI(object):
             image_tar = ArchiveTar(base_image)
             image_tar.extract(self.oci.container_dir)
 
-        self.oci.init_layout(base_image)
+        self.oci.init_layout(bool(base_image))
 
         self.oci.unpack(self.oci_root_dir)
         oci_root = DataSync(
@@ -133,7 +144,7 @@ class ContainerImageOCI(object):
             for tag in self.oci_config['additional_tags']:
                 self.oci.add_tag(tag)
 
-        self.oci.set_config(self.oci_config)
+        self.oci.set_config(self.oci_config, bool(base_image))
 
         self.oci.garbage_collect()
 

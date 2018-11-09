@@ -17,6 +17,7 @@
 #
 import os
 from tempfile import mkdtemp
+from datetime import datetime
 
 # project
 from kiwi.path import Path
@@ -51,6 +52,9 @@ class OCIBase(object):
         self.container_name = ':'.join(
             [self.container_dir, self.container_tag]
         )
+        self.creation_date = datetime.utcnow().strftime(
+            '%Y-%m-%dT%H:%M:%S+00:00'
+        )
 
     def init_layout(self, base_image=False):
         """
@@ -81,7 +85,6 @@ class OCIBase(object):
         Implementation in specialized tool class
 
         :param string oci_root_dir: root data directory
-        :param string container_name: custom container_dir:tag specifier
         """
         raise NotImplementedError
 
@@ -96,7 +99,7 @@ class OCIBase(object):
         """
         raise NotImplementedError
 
-    def set_config(self, oci_config):
+    def set_config(self, oci_config, base_image=False):
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container. The validation of

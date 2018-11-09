@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/work/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -4865,7 +4865,7 @@ class containerconfig(GeneratedsSuper):
     useful container information."""
     subclass = None
     superclass = None
-    def __init__(self, name=None, tag=None, additionaltags=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None):
+    def __init__(self, name=None, tag=None, additionaltags=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None, history=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.tag = _cast(None, tag)
@@ -4897,6 +4897,10 @@ class containerconfig(GeneratedsSuper):
             self.labels = []
         else:
             self.labels = labels
+        if history is None:
+            self.history = []
+        else:
+            self.history = history
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4938,6 +4942,11 @@ class containerconfig(GeneratedsSuper):
     def add_labels(self, value): self.labels.append(value)
     def insert_labels_at(self, index, value): self.labels.insert(index, value)
     def replace_labels_at(self, index, value): self.labels[index] = value
+    def get_history(self): return self.history
+    def set_history(self, history): self.history = history
+    def add_history(self, value): self.history.append(value)
+    def insert_history_at(self, index, value): self.history.insert(index, value)
+    def replace_history_at(self, index, value): self.history[index] = value
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_tag(self): return self.tag
@@ -4957,7 +4966,8 @@ class containerconfig(GeneratedsSuper):
             self.expose or
             self.volumes or
             self.environment or
-            self.labels
+            self.labels or
+            self.history
         ):
             return True
         else:
@@ -5019,6 +5029,8 @@ class containerconfig(GeneratedsSuper):
             environment_.export(outfile, level, namespace_, name_='environment', pretty_print=pretty_print)
         for labels_ in self.labels:
             labels_.export(outfile, level, namespace_, name_='labels', pretty_print=pretty_print)
+        for history_ in self.history:
+            history_.export(outfile, level, namespace_, name_='history', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5082,6 +5094,11 @@ class containerconfig(GeneratedsSuper):
             obj_.build(child_)
             self.labels.append(obj_)
             obj_.original_tagname_ = 'labels'
+        elif nodeName_ == 'history':
+            obj_ = history.factory()
+            obj_.build(child_)
+            self.history.append(obj_)
+            obj_.original_tagname_ = 'history'
 # end class containerconfig
 
 
@@ -5931,6 +5948,107 @@ class label(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class label
+
+
+class history(GeneratedsSuper):
+    """Provides details about the container history. Includes the 'created
+    by', 'author' as attributes and its content represents the
+    'comment' entry."""
+    subclass = None
+    superclass = None
+    def __init__(self, created_by=None, author=None, valueOf_=None, mixedclass_=None, content_=None):
+        self.original_tagname_ = None
+        self.created_by = _cast(None, created_by)
+        self.author = _cast(None, author)
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, history)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if history.subclass:
+            return history.subclass(*args_, **kwargs_)
+        else:
+            return history(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_created_by(self): return self.created_by
+    def set_created_by(self, created_by): self.created_by = created_by
+    def get_author(self): return self.author
+    def set_author(self, author): self.author = author
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def hasContent_(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='history', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('history')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='history')
+        outfile.write('>')
+        self.exportChildren(outfile, level + 1, namespace_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='history'):
+        if self.created_by is not None and 'created_by' not in already_processed:
+            already_processed.add('created_by')
+            outfile.write(' created_by=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.created_by), input_name='created_by')), ))
+        if self.author is not None and 'author' not in already_processed:
+            already_processed.add('author')
+            outfile.write(' author=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.author), input_name='author')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='history', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('created_by', node)
+        if value is not None and 'created_by' not in already_processed:
+            already_processed.add('created_by')
+            self.created_by = value
+        value = find_attr_value_('author', node)
+        if value is not None and 'author' not in already_processed:
+            already_processed.add('author')
+            self.author = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+        pass
+# end class history
 
 
 class oemconfig(GeneratedsSuper):
@@ -7688,6 +7806,7 @@ __all__ = [
     "expose",
     "extension",
     "file",
+    "history",
     "ignore",
     "image",
     "k_source",

@@ -2207,7 +2207,8 @@ div {
             k.expose? &
             k.volumes? &
             k.environment? &
-            k.labels?
+            k.labels? &
+            k.history?
         }
 }
 
@@ -2397,6 +2398,32 @@ div {
         element label {
             k.label.attlist &
             empty
+        }
+}
+
+#==========================================
+# main block: <history>
+#
+div {
+    k.history.created_by.attribute =
+        ## Specifies the 'created by' history record. By default set to 'KIWI'
+        attribute created_by { text }
+
+	k.history.author.attribute =
+        ## Specifies the 'author' history record.
+        attribute author { text }
+
+    k.history.attlist =
+        k.history.created_by.attribute? &
+		k.history.author.attribute?
+
+    k.history =
+        ## Provides details about the container history. Includes the
+        ## 'created by', 'author' as attributes and its content represents
+        ## the 'comment' entry.
+        element history {
+            k.history.attlist,
+            text
         }
 }
 

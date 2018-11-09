@@ -620,7 +620,7 @@ class TestXMLState(object):
         }
 
     @patch('kiwi.logger.log.warning')
-    def test_add_container_label_no_contianer_image_type(self, mock_log_warn):
+    def test_add_container_label_no_container_image_type(self, mock_log_warn):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
         state.add_container_config_label('somelabel', 'newlabelvalue')
@@ -652,7 +652,12 @@ class TestXMLState(object):
             'user': 'root',
             'volumes': ['/tmp', '/var/log'],
             'entry_command': ['/bin/bash', '-x'],
-            'expose_ports': ['80', '8080']
+            'expose_ports': ['80', '8080'],
+            'history': {
+                'author': 'history author',
+                'comment': 'This is a comment',
+                'created_by': 'created by text'
+            }
         }
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'docker')
@@ -666,7 +671,7 @@ class TestXMLState(object):
             'container_tag': 'container_tag',
             'workingdir': '/root',
             'user': 'root',
-            'entry_command': []
+            'entry_command': [],
         }
         xml_data = self.description.load()
         state = XMLState(xml_data, ['derivedContainer'], 'docker')
