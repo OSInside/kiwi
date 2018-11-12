@@ -104,7 +104,7 @@ Requires(postun): update-alternatives
 Requires:       grub2-x86_64-efi
 %endif
 %ifarch %{ix86} x86_64
-Requires:       gfxboot
+Recommends:     gfxboot
 %endif
 Requires:       qemu-tools
 Requires:       squashfs
@@ -133,9 +133,6 @@ Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
 Requires:       gdisk
-%ifarch %{ix86} x86_64
-Requires:       gfxboot
-%endif
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
@@ -187,7 +184,7 @@ Requires(postun): update-alternatives
 Requires:       grub2-x86_64-efi
 %endif
 %ifarch %{ix86} x86_64
-Requires:       gfxboot
+Recommends:     gfxboot
 %endif
 Requires:       qemu-tools
 Requires:       squashfs
