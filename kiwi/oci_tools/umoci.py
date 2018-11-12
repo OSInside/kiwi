@@ -19,12 +19,24 @@
 # project
 from kiwi.oci_tools.base import OCIBase
 from kiwi.command import Command
+from kiwi.utils.command_capabilities import CommandCapabilities
 
 
 class OCIUmoci(OCIBase):
     """
     **Open Container Operations using umoci**
     """
+    def post_init(self):
+        """
+        Initializes some umoci parameters and options
+        """
+        if CommandCapabilities.has_option_in_help(
+            'umoci', '--no-history', ['repack', '--help']
+        ):
+            self.no_history_flag = ['--no-history']
+        else:
+            self.no_history_flag = []
+
     def init_layout(self, base_image=False):
         """
         Initialize a new container layout
@@ -64,7 +76,9 @@ class OCIUmoci(OCIBase):
         :param string oci_root_dir: root data directory
         """
         Command.run(
-            ['umoci', 'repack', '--image', self.container_name, oci_root_dir]
+            ['umoci', 'repack'] + self.no_history_flag + [
+                '--image', self.container_name, oci_root_dir
+            ]
         )
 
     def add_tag(self, tag_name):
@@ -74,9 +88,8 @@ class OCIUmoci(OCIBase):
         :param string tag_name: A name
         """
         Command.run(
-            [
-                'umoci', 'config', '--image', self.container_name,
-                '--tag', tag_name
+            ['umoci', 'config'] + self.no_history_flag + [
+                '--image', self.container_name, '--tag', tag_name
             ]
         )
 

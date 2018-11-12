@@ -56,6 +56,16 @@ class OCIBase(object):
             '%Y-%m-%dT%H:%M:%S+00:00'
         )
 
+        self.post_init()
+
+    def post_init(self):
+        """
+        Post initialization method
+
+        Implementation in specialized OCI tool class if required
+        """
+        pass
+
     def init_layout(self, base_image=False):
         """
         Initialize a new container layout
