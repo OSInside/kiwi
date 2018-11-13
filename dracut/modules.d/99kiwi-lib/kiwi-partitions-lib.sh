@@ -182,7 +182,7 @@ function create_fdasd_partitions {
     echo "w" >> ${partition_setup_file}
     echo "q" >> ${partition_setup_file}
     if ! fdasd "${disk_device}" < ${partition_setup_file} 1>&2;then
-        die "Failed to create partition table"
+        kiwi_die "Failed to create partition table"
     fi
     partprobe "${disk_device}"
 }
@@ -230,7 +230,7 @@ function wait_for_storage_device {
             sleep 1; return 0
         fi
         if [ "${check}" -eq "${limit}" ]; then
-            die "Storage device ${device} did not appear"
+            kiwi_die "Storage device ${device} did not appear"
         fi
         info "Waiting for storage device ${device} to settle..."
         check=$((check + 1))
@@ -308,7 +308,7 @@ function relocate_gpt_at_end_of_disk {
         echo $cmd >> ${cmd_file}
     done
     if ! gdisk "$1" < ${cmd_file} &>/dev/null; then
-        die "Failed to write backup GPT at end of disk"
+        kiwi_die "Failed to write backup GPT at end of disk"
     fi
 }
 
@@ -333,7 +333,7 @@ function create_hybrid_gpt {
         partition_count=3
     fi
     if ! sgdisk -h $(seq -s : 1 "${partition_count}") "${disk_device}";then
-        die "Failed to create hybrid GPT/MBR !"
+        kiwi_die "Failed to create hybrid GPT/MBR !"
     fi
 }
 
@@ -479,7 +479,7 @@ function _parted_write {
     local disk_device=$1
     local commands=$2
     if ! parted -a cyl -m -s "${disk_device}" unit cyl "${commands}";then
-        die "Failed to create partition table"
+        kiwi_die "Failed to create partition table"
     fi
     _parted_init "${disk_device}"
 }

@@ -16,9 +16,9 @@ function initialize {
     local partition_ids=/config.partids
 
     test -f ${profile} || \
-        die "No profile setup found"
+        kiwi_die "No profile setup found"
     test -f ${partition_ids} || \
-        die "No partition id setup found"
+        kiwi_die "No partition id setup found"
 
     import_file ${profile}
     import_file ${partition_ids}

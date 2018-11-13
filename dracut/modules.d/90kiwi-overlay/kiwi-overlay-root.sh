@@ -1,5 +1,6 @@
 #!/bin/bash
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type kiwi_die >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 
 #======================================
 # functions
@@ -20,7 +21,7 @@ function loadKernelModules {
 
 function initGlobalDevices {
     if [ -z "$1" ]; then
-        die "No root device for operation given"
+        kiwi_die "No root device for operation given"
     fi
     write_partition="$1"
     root_disk=$(
@@ -37,7 +38,7 @@ function mountReadOnlyRootImage {
     local root_mount_point=/run/rootfsbase
     mkdir -m 0755 -p ${root_mount_point}
     if ! mount -n "${read_only_partition}" "${root_mount_point}"; then
-        die "Failed to mount overlay(ro) root filesystem"
+        kiwi_die "Failed to mount overlay(ro) root filesystem"
     fi
     echo "${root_mount_point}"
 }
@@ -46,7 +47,7 @@ function preparePersistentOverlay {
     local overlay_mount_point=/run/overlayfs
     mkdir -m 0755 -p ${overlay_mount_point}
     if ! mount "${write_partition}" "${overlay_mount_point}"; then
-        die "Failed to mount overlay(rw) filesystem"
+        kiwi_die "Failed to mount overlay(rw) filesystem"
     fi
     mkdir -m 0755 -p ${overlay_mount_point}/rw
     mkdir -m 0755 -p ${overlay_mount_point}/work

@@ -1,5 +1,6 @@
 #!/bin/bash
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type kiwi_die >/dev/null 2>&1 || ./lib/kiwi-lib.sh
 
 function lookupIsoDiskDevice {
     local root=$1
@@ -53,11 +54,11 @@ function loadKernelModules {
 
 function initGlobalDevices {
     if [ -z "$1" ]; then
-        die "No root device for operation given"
+        kiwi_die "No root device for operation given"
     fi
     if getargbool 0 rd.kiwi.live.pxe; then
         if ! ifup lan0 &>/tmp/net.info;then
-            die "Network setup failed, see /tmp/net.info"
+            kiwi_die "Network setup failed, see /tmp/net.info"
         fi
         modprobe aoe
         isodev="${1#live:aoe:}"
@@ -92,7 +93,7 @@ function mountIso {
     local iso_mount_point=/run/initramfs/live
     mkdir -m 0755 -p "${iso_mount_point}"
     if ! mount -n -t "${isofs_type}" "${isodev}" "${iso_mount_point}"; then
-        die "Failed to mount live ISO device"
+        kiwi_die "Failed to mount live ISO device"
     fi
     echo "${iso_mount_point}"
 }
@@ -103,7 +104,7 @@ function mountCompressedContainerFromIso {
     squashfs_container="${iso_mount_point}/${live_dir}/${squash_image}"
     mkdir -m 0755 -p "${container_mount_point}"
     if ! mount -n "${squashfs_container}" "${container_mount_point}";then
-        die "Failed to mount live ISO squashfs container"
+        kiwi_die "Failed to mount live ISO squashfs container"
     fi
     echo "${container_mount_point}"
 }
@@ -114,7 +115,7 @@ function mountReadOnlyRootImageFromContainer {
     local root_mount_point=/run/rootfsbase
     mkdir -m 0755 -p "${root_mount_point}"
     if ! mount -n "${rootfs_image}" "${root_mount_point}"; then
-        die "Failed to mount live ISO root filesystem"
+        kiwi_die "Failed to mount live ISO root filesystem"
     fi
     echo "${root_mount_point}"
 }
@@ -175,7 +176,7 @@ function runMediaCheck {
     echo "Press key to continue (waiting ${timeout}sec...)" >> ${check_result}
     _run_dialog --timeout ${timeout} --textbox ${check_result} 20 70
     if [ ${check_status} != 0 ];then
-        die "Failed to verify system integrity"
+        kiwi_die "Failed to verify system integrity"
     fi
 }
 

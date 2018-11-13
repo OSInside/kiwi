@@ -10,6 +10,11 @@ function setup_debug {
     fi
 }
 
+function kiwi_die {
+    echo 7 > /proc/sys/kernel/printk
+    die $@
+}
+
 function set_root_map {
     root_map=$1
     export root_map
@@ -32,7 +37,7 @@ function lookup_disk_device_from_root {
     declare root=${root}
     local root_device=${root#block:}
     if [ -z "${root_device}" ];then
-        die "No root device found"
+        kiwi_die "No root device found"
     fi
     if [ -L "${root_device}" ];then
         root_device=/dev/$(basename "$(readlink "${root_device}")")

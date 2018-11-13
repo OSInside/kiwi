@@ -1,4 +1,5 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type kiwi_die >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 
 function resize_filesystem {
     local device=$1
@@ -32,7 +33,7 @@ function resize_filesystem {
     fi
     info "Resizing ${fstype} filesystem on ${device}..."
     if ! eval "${resize_fs}"; then
-        die "Failed to resize filesystem"
+        kiwi_die "Failed to resize filesystem"
     fi
 }
 
@@ -60,7 +61,7 @@ function check_filesystem {
     esac
     info "Checking ${fstype} filesystem on ${device}..."
     if ! eval "${check_fs}"; then
-        die "Failed to check filesystem"
+        kiwi_die "Failed to check filesystem"
     fi
 }
 
@@ -88,7 +89,7 @@ function create_swap {
     local swap_label="SWAP"
     test -n "${device}" || return
     if ! mkswap "${device}" --label "${swap_label}" 1>&2;then
-        die "Failed to create swap signature"
+        kiwi_die "Failed to create swap signature"
     fi
     echo "LABEL=${swap_label} swap swap defaults 0 0" > /fstab.swap
 }

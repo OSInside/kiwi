@@ -30,7 +30,7 @@ function activate_volume_group {
             fi
         done
         if [ ${vg_count} -gt 1 ];then
-            die "Duplicate VolumeGroup name ${kiwi_lvmgroup} found !"
+            kiwi_die "Duplicate VolumeGroup name ${kiwi_lvmgroup} found !"
         fi
         vgchange -a y "${kiwi_lvmgroup}"
         udev_pending

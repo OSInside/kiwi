@@ -12,7 +12,7 @@ function initialize {
     local profile=/.profile
 
     test -f ${profile} || \
-        die "No profile setup found"
+        kiwi_die "No profile setup found"
 
     import_file ${profile}
 }
@@ -92,7 +92,7 @@ function get_disk_list {
     if [ -z "${list_items}" ];then
         local no_device_text="No device(s) for installation found"
         run_dialog --msgbox "\"${no_device_text}\"" 5 60
-        die "${no_device_text}"
+        kiwi_die "${no_device_text}"
     fi
     echo "${list_items}"
 }
@@ -138,7 +138,7 @@ function get_selected_disk {
                 --radiolist "\"Select Installation Disk\"" 20 75 15 \
                 "$(get_disk_list)"
             then
-                die "System installation canceled"
+                kiwi_die "System installation canceled"
             fi
             get_dialog_result
         fi
@@ -156,7 +156,7 @@ function export_image_metadata {
     meta_file="$(echo "${image_source_files}" | cut -f2 -d\|)"
     if ! read -r checksum blocks blocksize zblocks zblocksize < "${meta_file}"
     then
-        die "Reading ${meta_file} failed"
+        kiwi_die "Reading ${meta_file} failed"
     fi
     echo "Image checksum: ${checksum}"
     echo "Image blocks: ${blocks} / blocksize: ${blocksize}"
@@ -174,7 +174,7 @@ function check_image_fits_target {
     echo "Have size: ${image_target} -> ${have_mbytes} MB"
     echo "Need size: ${image_source} -> ${need_mbytes} MB"
     if [ ${need_mbytes} -gt ${have_mbytes} ];then
-        die "Not enough space available for this image"
+        kiwi_die "Not enough space available for this image"
     fi
 }
 
@@ -206,7 +206,7 @@ function dump_image {
         if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
             local install_cancel_text="System installation canceled"
             run_dialog --msgbox "\"${install_cancel_text}\"" 5 60
-            die "${install_cancel_text}"
+            kiwi_die "${install_cancel_text}"
         fi
     fi
 
@@ -219,7 +219,7 @@ function dump_image {
     else
         # dump with silently blocked console
         if ! eval "${dump}" "${image_source}" "${image_target}"; then
-            die "Failed to install image"
+            kiwi_die "Failed to install image"
         fi
     fi
 }
@@ -284,7 +284,7 @@ function check_image_integrity {
     read -r checksum_dumped_image checksum_fileref < ${verify_result}
     echo "Dumped Image checksum: ${checksum_dumped_image}/${checksum_fileref}"
     if [ "${checksum}" != "${checksum_dumped_image}" ];then
-        die "Image checksum test failed"
+        kiwi_die "Image checksum test failed"
     fi
 }
 
@@ -297,11 +297,11 @@ function get_local_image_source_files {
     local image_md5
     mkdir -m 0755 -p "${iso_mount_point}"
     if ! mount -n "${iso_device}" "${iso_mount_point}"; then
-        die "Failed to mount install ISO device"
+        kiwi_die "Failed to mount install ISO device"
     fi
     mkdir -m 0755 -p "${image_mount_point}"
     if ! mount -n "${iso_mount_point}"/*.squashfs ${image_mount_point};then
-        die "Failed to mount install image squashfs filesystem"
+        kiwi_die "Failed to mount install image squashfs filesystem"
     fi
     image_source="$(echo "${image_mount_point}"/*.raw)"
     image_md5="$(echo "${image_mount_point}"/*.md5)"
@@ -328,20 +328,20 @@ function get_remote_image_source_files {
     )
 
     if ! ifup lan0 &>/tmp/net.info;then
-        die "Network setup failed, see /tmp/net.info"
+        kiwi_die "Network setup failed, see /tmp/net.info"
     fi
 
     if ! fetch_file "${image_md5_uri}" > "${image_md5}";then
-        die "Failed to fetch ${image_md5_uri}, see /tmp/fetch.info"
+        kiwi_die "Failed to fetch ${image_md5_uri}, see /tmp/fetch.info"
     fi
 
     if ! fetch_file "${image_kernel_uri}" > "${metadata_dir}/linux";then
-        die "Failed to fetch ${image_kernel_uri}, see /tmp/fetch.info"
+        kiwi_die "Failed to fetch ${image_kernel_uri}, see /tmp/fetch.info"
     fi
 
     if ! fetch_file "${image_initrd_uri}" > "${install_dir}/initrd.system_image"
     then
-        die "Failed to fetch ${image_initrd_uri}, see /tmp/fetch.info"
+        kiwi_die "Failed to fetch ${image_initrd_uri}, see /tmp/fetch.info"
     fi
 
     echo "${image_uri}|${image_md5}"
@@ -357,7 +357,7 @@ function boot_installed_system {
         --initrd /run/install/initrd.system_image \
         --command-line "${boot_options}"
     if ! kexec -e; then
-        die "Failed to boot system"
+        kiwi_die "Failed to boot system"
     fi
 }
 
