@@ -39,6 +39,13 @@ class TestIsoToolsXorrIso(object):
                 'volume_id': 'vol_id'
             }
         )
+        mock_which.assert_called_once_with(
+            'isohdpfx.bin', [
+                '/usr/share/syslinux',
+                '/usr/lib/syslinux/modules/bios',
+                '/usr/lib/ISOLINUX'
+            ]
+        )
         assert self.iso_tool.iso_parameters == [
             '-application_id', 'app_id',
             '-publisher', 'org',
