@@ -88,7 +88,8 @@ class IsoToolsXorrIso(IsoToolsBase):
         loader_file = self.boot_path + '/loader/isolinux.bin'
 
         syslinux_lookup_paths = [
-            '/usr/share/syslinux', '/usr/lib/syslinux/modules/bios'
+            '/usr/share/syslinux', '/usr/lib/syslinux/modules/bios',
+            '/usr/lib/ISOLINUX'
         ]
         mbr_file = Path.which('isohdpfx.bin', syslinux_lookup_paths)
         if not mbr_file:
