@@ -406,6 +406,7 @@ Requires:       device-mapper
 %endif
 Requires:       dracut
 Requires:       xorriso
+Requires:       parted
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
