@@ -34,7 +34,6 @@ function get_disk_list {
     local disk_device
     local disk_device_by_id
     local disk_meta
-    local item_status=on
     local list_items
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
     if [ ! -z "${kiwi_devicepersistency}" ];then
@@ -86,8 +85,7 @@ function get_disk_list {
                 continue
             fi
         fi
-        list_items="${list_items} ${disk_device} ${disk_size} ${item_status}"
-        item_status=off
+        list_items="${list_items} ${disk_device} ${disk_size}"
     done
     if [ -z "${list_items}" ];then
         local no_device_text="No device(s) for installation found"
@@ -135,7 +133,7 @@ function get_selected_disk {
         else
             # manually select from storage list
             if ! run_dialog \
-                --radiolist "\"Select Installation Disk\"" 20 75 15 \
+                --menu "\"Select Installation Disk\"" 20 75 15 \
                 "$(get_disk_list)"
             then
                 die "System installation canceled"
