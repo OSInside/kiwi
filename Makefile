@@ -136,7 +136,7 @@ pypi: clean tox
 	$(python) setup.py sdist upload
 
 clean: clean_git_attributes
-	rm -rf dist
+	$(python) setup.py clean
 	rm -rf doc/build
 	rm -rf doc/dist
 	${MAKE} -C tools clean
