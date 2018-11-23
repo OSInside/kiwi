@@ -6,6 +6,7 @@ from setuptools.command import sdist as setuptools_sdist
 
 from distutils.command import build as distutils_build
 from distutils.command import install as distutils_install
+from distutils.command import clean as distutils_clean
 
 import distutils
 import subprocess
@@ -92,6 +93,29 @@ class build(distutils_build.build):
         distutils_build.build.run(self)
 
 
+class clean(distutils_clean.clean):
+    """
+    Custom clean command to remove temporary files after `setup.py sdist` or
+    `setup.py develop`
+    """
+    def initialize_options(self):
+        distutils_clean.clean.initialize_options(self)
+        self.clean_directories = [
+            '{0}.egg-info'.format(self.distribution.get_name()), 'dist'
+        ]
+
+    def finalize_options(self):
+        distutils_clean.clean.finalize_options(self)
+
+    def run(self):
+        for directory in self.clean_directories:
+            if os.path.exists(directory):
+                distutils.dir_util.remove_tree(directory, dry_run=self.dry_run)
+
+        # standard cleaning
+        distutils_clean.clean.run(self)
+
+
 class install(distutils_install.install):
     """
     Custom install command
@@ -164,7 +188,8 @@ config = {
     'cmdclass': {
         'build': build,
         'install': install,
-        'sdist': sdist
+        'sdist': sdist,
+        'clean': clean
     },
     'entry_points': {
         'console_scripts': [
