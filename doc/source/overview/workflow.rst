@@ -873,6 +873,19 @@ the available kernel boot parameters for this modules:
   This variable tells a live iso image which filesystem should be
   used to store data on the persistent write partition.
 
+``rd.live.cowfile.mbsize``
+  This variable tells a live iso image the size of the cowfile in MB.
+  When using tools like `live-grub-stick` the live iso will be copied
+  as a file on the target device and a grub loopback setup is created
+  there to boot the live system from file. In such a case the
+  persistent write setup, which usually creates an extra write
+  partition on the target, will fail in almost all cases because
+  the target has no free and unpartitioned space available.
+  Because of that a cow file(live_system.cow) instead of a partition
+  is created. The cow file will be created in the same directory
+  the live iso image file was read from by grub and takes the
+  configured size or the default size of 500MB.
+
 ``rd.live.dir``
   This variable tells a live iso image the directory which contains
   the live OS root directory. Defaults to `LiveOS`
