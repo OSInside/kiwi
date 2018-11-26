@@ -5,7 +5,8 @@ function lookupIsoDiskDevice {
     local root=$1
     local iso_label=${root#/dev/disk/by-label/}
     local disk
-    local mountpoint
+    local mount_point
+    local iso_volid
     for disk in $(lsblk -p -n -r -o NAME,TYPE | grep disk | cut -f1 -d' ');do
         if [[ ${disk} =~ ^/dev/fd ]];then
             # ignore floppy disk devices
@@ -16,16 +17,16 @@ function lookupIsoDiskDevice {
         # of the disk device matches the ISO label
         iso_volid=$(blkid -s LABEL -o value "${disk}")
         if [ "${iso_volid}" = "${iso_label}" ];then
-            echo "${disk}"
+            echo "${disk}%disk_boot"
             return
         fi
         # 2. Mapping:
         # If the ISO is booted via grub loopback the partition of the
         # disk device which contains the ISO file and was loopbacked
         # by grub is mounted to /run/initramfs/isoscan
-        for mountpoint in $(lsblk -p -n -r -o MOUNTPOINT "${disk}");do
-            if [ "${mountpoint}" = "/run/initramfs/isoscan" ];then
-                echo "${disk}"
+        for mount_point in $(lsblk -p -n -r -o MOUNTPOINT "${disk}");do
+            if [ "${mount_point}" = "/run/initramfs/isoscan" ];then
+                echo "${disk}%loop_boot"
                 return
             fi
         done
@@ -64,7 +65,10 @@ function initGlobalDevices {
     else
         isodev="$1"
     fi
-    isodiskdev=$(lookupIsoDiskDevice "${isodev}")
+    local isodisk
+    isodisk=$(lookupIsoDiskDevice "${isodev}")
+    isodiskdev=$(echo "${isodisk}" | cut -f1 -d%)
+    isodiskmode=$(echo "${isodisk}" | cut -f2 -d%)
     isofs_type=$(blkid -s TYPE -o value "${isodev}")
     media_check_device=${isodev}
     if [ ! -z "${isodiskdev}" ]; then
@@ -73,6 +77,7 @@ function initGlobalDevices {
     export media_check_device
     export isodev
     export isodiskdev
+    export isodiskmode
     export isofs_type
 }
 
@@ -85,6 +90,9 @@ function initGlobalOptions {
 
     cow_filesystem=$(getarg rd.live.overlay.cowfs)
     [ -z "${cow_filesystem}" ] && cow_filesystem="ext4"
+
+    cow_file_mbsize=$(getarg rd.live.cowfile.mbsize)
+    [ -z "${cow_file_mbsize}" ] && cow_file_mbsize="500"
 }
 
 function mountIso {
@@ -125,10 +133,57 @@ function prepareTemporaryOverlay {
 }
 
 function preparePersistentOverlay {
-    if [ -z "${isodiskdev}" ]; then
+    if [ -z "${isodiskmode}" ] || [ -z "${isodiskdev}" ]; then
         return 1
     fi
     local overlay_mount_point=/run/overlayfs
+    mkdir -m 0755 -p "${overlay_mount_point}"
+    if [ "${isodiskmode}" = "disk_boot" ];then
+        if ! preparePersistentOverlayDiskBoot "${overlay_mount_point}"; then
+            return 1
+        fi
+    else
+        if ! preparePersistentOverlayLoopBoot "${overlay_mount_point}"; then
+            return 1
+        fi
+    fi
+    mkdir -m 0755 -p ${overlay_mount_point}/rw
+    mkdir -m 0755 -p ${overlay_mount_point}/work
+}
+
+function preparePersistentOverlayLoopBoot {
+    # Create or re-use a cow file on the filesystem the iso
+    # was loopback booted from. If the file already exists
+    # it will be used as presented. If not it will be created
+    # with the custom size configured in rd.live.cowfile.mbsize
+    # or the default size of 500MB
+    local overlay_mount_point=$1
+    local isoscan_loop_mount=/run/initramfs/isoscan
+    local cow_file_name="${isoscan_loop_mount}/live_system.cow"
+    mkdir -m 0755 -p "${overlay_mount_point}"
+    if ! mount -o "remount,rw" "${isoscan_loop_mount}"; then
+        return 1
+    fi
+    if ! mount "${cow_file_name}" "${overlay_mount_point}"; then
+        if ! dd if=/dev/zero of="${cow_file_name}" \
+            count=0 bs=1M seek="${cow_file_mbsize}"; then
+            return 1
+        fi
+        if ! mkfs."${cow_filesystem}" "${cow_file_name}"; then
+            return 1
+        fi
+        if ! mount "${cow_file_name}" "${overlay_mount_point}"; then
+            return 1
+        fi
+    fi
+}
+
+function preparePersistentOverlayDiskBoot {
+    # Create a write partition and filesystem on the iso
+    # disk device with the cow label and mount it. If the
+    # disk already populates a cow labeled partition it is
+    # used as presented
+    local overlay_mount_point=$1
     local partitions_before_cow_part
     mkdir -m 0755 -p "${overlay_mount_point}"
     if ! mount -L cow "${overlay_mount_point}"; then
@@ -145,12 +200,10 @@ function preparePersistentOverlay {
         if ! mkfs."${cow_filesystem}" -L cow "${write_partition}"; then
             return 1
         fi
-        if ! mount -L cow ${overlay_mount_point}; then
+        if ! mount -L cow "${overlay_mount_point}"; then
             return 1
         fi
     fi
-    mkdir -m 0755 -p ${overlay_mount_point}/rw
-    mkdir -m 0755 -p ${overlay_mount_point}/work
 }
 
 function runMediaCheck {
