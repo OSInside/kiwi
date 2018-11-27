@@ -1,0 +1,3 @@
+auto lan0
+allow-hotplug lan0
+iface lan0 inet dhcp
