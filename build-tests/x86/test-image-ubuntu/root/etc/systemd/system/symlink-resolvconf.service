@@ -1,0 +1,12 @@
+[Unit]
+Description=Make the resolv.conf symlink during first boot
+ConditionPathExists=!/etc/resolv.conf
+ConditionPathExists=/etc/firstboot
+
+[Service]
+Type=oneshot
+ExecStart=/bin/ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+ExecStartPost=/bin/rm /etc/firstboot
+
+[Install]
+WantedBy=multi-user.target
