@@ -9,8 +9,8 @@ class TestOCIBase(object):
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.base.datetime')
     @patch('kiwi.oci_tools.base.mkdtemp')
-    def setup(self, mock_mkdtemp, mock_datetime, mock_cmd_caps):
-        mock_mkdtemp.return_value = 'tmpdir'
+    def setup(self, mock_base_mkdtemp, mock_datetime, mock_cmd_caps):
+        mock_base_mkdtemp.return_value = 'tmpdir'
         mock_cmd_caps.return_value = True
         strftime = Mock()
         strftime.strftime = Mock(return_value='current_date')
@@ -32,36 +32,73 @@ class TestOCIBase(object):
         self.oci.init_layout(True)
         assert self.oci.container_name == 'tmpdir/oci_layout:base_layer'
 
+    @patch('kiwi.oci_tools.umoci.mkdtemp')
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_unpack(self, mock_Command_run):
-        self.oci.unpack('dir')
+    def test_unpack(self, mock_Command_run, mock_mkdtemp):
+        mock_mkdtemp.return_value = 'oci_root'
+        self.oci.unpack()
         mock_Command_run.assert_called_once_with(
-            ['umoci', 'unpack', '--image', 'tmpdir/oci_layout:tag', 'dir']
+            ['umoci', 'unpack', '--image', 'tmpdir/oci_layout:tag', 'oci_root']
         )
 
+    @patch('kiwi.oci_tools.umoci.mkdtemp')
     @patch('kiwi.oci_tools.base.mkdtemp')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_repack_with_history(
-        self, mock_Command_run, mock_cmd_caps, mock_mkdtemp
+        self, mock_Command_run, mock_cmd_caps,
+        mock_base_mkdtemp, mock_umoci_mkdtemp
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
+        mock_umoci_mkdtemp.return_value = 'oci_root'
+        mock_base_mkdtemp.return_value = 'tmpdir'
         mock_cmd_caps.return_value = False
         oci = OCIUmoci('tag')
-        oci.repack('dir')
-        mock_Command_run.assert_called_once_with(
-            ['umoci', 'repack', '--image', 'tmpdir/oci_layout:tag', 'dir']
+        oci.unpack()
+        oci.repack()
+        assert call(
+            ['umoci', 'repack', '--image', 'tmpdir/oci_layout:tag', 'oci_root']
+        ) in mock_Command_run.call_args_list
+
+    @patch('kiwi.oci_tools.base.DataSync')
+    def test_sync_rootfs(self, mock_sync):
+        sync = Mock()
+        mock_sync.return_value = sync
+        self.oci.oci_root_dir = 'oci_root'
+        self.oci.sync_rootfs('root_dir', exclude_list=['/dev', '/proc'])
+        mock_sync.assert_called_once_with(
+            'root_dir/', 'oci_root/rootfs'
+        )
+        sync.sync_data.assert_called_once_with(
+            exclude=['/dev', '/proc'],
+            options=['-a', '-H', '-X', '-A', '--delete']
         )
 
+    @patch('kiwi.oci_tools.base.DataSync')
+    def test_import_rootfs(self, mock_sync):
+        sync = Mock()
+        mock_sync.return_value = sync
+        self.oci.oci_root_dir = 'oci_root'
+        self.oci.import_rootfs('root_dir', exclude_list=['/dev', '/proc'])
+        mock_sync.assert_called_once_with(
+            'oci_root/rootfs/', 'root_dir'
+        )
+        sync.sync_data.assert_called_once_with(
+            exclude=['/dev', '/proc'],
+            options=['-a', '-H', '-X', '-A']
+        )
+
+    @patch('kiwi.oci_tools.umoci.mkdtemp')
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_repack(self, mock_Command_run):
-        self.oci.repack('dir')
-        mock_Command_run.assert_called_once_with(
+    def test_repack(self, mock_Command_run, mock_mkdtemp):
+        mock_mkdtemp.return_value = 'oci_root'
+        self.oci.unpack()
+        self.oci.repack()
+        assert call(
             [
                 'umoci', 'repack', '--no-history', '--image',
-                'tmpdir/oci_layout:tag', 'dir'
+                'tmpdir/oci_layout:tag', 'oci_root'
             ]
-        )
+        ) in mock_Command_run.call_args_list
 
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_add_tag(self, mock_Command_run):
@@ -149,3 +186,9 @@ class TestOCIBase(object):
         mock_Command_run.assert_called_once_with(
             ['umoci', 'gc', '--layout', 'tmpdir/oci_layout']
         )
+
+    @patch('kiwi.oci_tools.umoci.Path')
+    def test_destructor(self, mock_Path):
+        self.oci.oci_root_dir = 'oci_root'
+        self.oci.__del__()
+        mock_Path.wipe.assert_called_once_with('oci_root')

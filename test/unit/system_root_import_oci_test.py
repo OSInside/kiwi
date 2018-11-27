@@ -14,12 +14,7 @@ class TestRootImportOCI(object):
     @patch('kiwi.system.root_import.oci.mkdtemp')
     def setup(self, mock_mkdtemp, mock_path):
         mock_path.return_value = True
-        tmpdirs = ['kiwi_unpack_dir', 'kiwi_layout_dir']
-
-        def call_mkdtemp(prefix):
-            return tmpdirs.pop()
-
-        mock_mkdtemp.side_effect = call_mkdtemp
+        mock_mkdtemp.return_value = 'kiwi_layout_dir'
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.oci_import = RootImportOCI(
                 'root_dir', Uri('file:///image.tar.xz#tag')
@@ -38,11 +33,10 @@ class TestRootImportOCI(object):
     @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.Command.run')
-    @patch('kiwi.system.root_import.oci.DataSync')
     @patch('kiwi.system.root_import.oci.mkdtemp')
     @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data(
-        self, mock_OCI, mock_mkdtemp, mock_sync, mock_run,
+        self, mock_OCI, mock_mkdtemp, mock_run,
         mock_path, mock_md5, mock_tar
     ):
         oci = mock.Mock()
@@ -50,8 +44,6 @@ class TestRootImportOCI(object):
         mock_mkdtemp.return_value = 'kiwi_uncompressed'
         extract = mock.Mock()
         mock_tar.extract = extract
-        sync = mock.Mock()
-        mock_sync.return_value = sync
         md5 = mock.Mock()
         mock_md5.return_value = mock.Mock()
 
@@ -61,7 +53,7 @@ class TestRootImportOCI(object):
 
         mock_OCI.assert_called_once_with('base_layer', 'kiwi_layout_dir')
 
-        oci.unpack.assert_called_once_with('kiwi_unpack_dir')
+        oci.unpack.assert_called_once_with()
 
         mock_run.assert_called_once_with(
             [
@@ -70,11 +62,8 @@ class TestRootImportOCI(object):
             ]
         )
 
-        mock_sync.assert_called_once_with(
-            'kiwi_unpack_dir/rootfs/', 'root_dir/'
-        )
-        sync.sync_data.assert_called_once_with(
-            options=['-a', '-H', '-X', '-A']
+        oci.import_rootfs.assert_called_once_with(
+            'root_dir'
         )
         mock_md5.assert_called_once_with('root_dir/image/imported_root')
         md5.md5.called_once_with('root_dir/image/imported_root.md5')
@@ -101,7 +90,7 @@ class TestRootImportOCI(object):
         self, mock_run, mock_mkdtemp, mock_path, mock_tar
     ):
         mock_path.return_value = True
-        tmpdirs = ['kiwi_uncompressed', 'kiwi_unpack_dir', 'kiwi_layout_dir']
+        tmpdirs = ['kiwi_uncompressed', 'kiwi_layout_dir']
 
         def call_mkdtemp(prefix):
             return tmpdirs.pop()
@@ -121,10 +110,9 @@ class TestRootImportOCI(object):
     @patch('kiwi.system.root_import.oci.Path.wipe')
     def test_del(self, mock_path):
         self.oci_import.oci_layout_dir = 'layout_dir'
-        self.oci_import.oci_unpack_dir = 'unpack_dir'
         self.oci_import.uncompressed_image = 'uncompressed_file'
         self.oci_import.__del__()
 
         assert mock_path.call_args_list == [
-            call('layout_dir'), call('unpack_dir'), call('uncompressed_file')
+            call('layout_dir'), call('uncompressed_file')
         ]

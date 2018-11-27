@@ -16,12 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from tempfile import mkdtemp
 
 # project
 from kiwi.defaults import Defaults
 from kiwi.path import Path
-from kiwi.utils.sync import DataSync
 from kiwi.archive.tar import ArchiveTar
 from kiwi.logger import log
 from kiwi.runtime_config import RuntimeConfig
@@ -121,8 +119,6 @@ class ContainerImageOCI(object):
         exclude_list.append('sys')
         exclude_list.append('proc')
 
-        self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
-
         if base_image:
             Path.create(self.oci.container_dir)
             image_tar = ArchiveTar(base_image)
@@ -130,15 +126,9 @@ class ContainerImageOCI(object):
 
         self.oci.init_layout(bool(base_image))
 
-        self.oci.unpack(self.oci_root_dir)
-        oci_root = DataSync(
-            ''.join([self.root_dir, os.sep]),
-            os.sep.join([self.oci_root_dir, 'rootfs'])
-        )
-        oci_root.sync_data(
-            options=['-a', '-H', '-X', '-A', '--delete'], exclude=exclude_list
-        )
-        self.oci.repack(self.oci_root_dir)
+        self.oci.unpack()
+        self.oci.sync_rootfs(''.join([self.root_dir, os.sep]), exclude_list)
+        self.oci.repack()
 
         if 'additional_tags' in self.oci_config:
             for tag in self.oci_config['additional_tags']:
@@ -179,7 +169,3 @@ class ContainerImageOCI(object):
                         }
                         return
             log.warning('Could not find BUILD_DISTURL inside .buildenv')
-
-    def __del__(self):
-        if self.oci_root_dir:
-            Path.wipe(self.oci_root_dir)

@@ -21,6 +21,7 @@ from datetime import datetime
 
 # project
 from kiwi.path import Path
+from kiwi.utils.sync import DataSync
 
 
 class OCIBase(object):
@@ -39,7 +40,7 @@ class OCIBase(object):
     """
     def __init__(self, container_tag, container_dir=None):
         self.container_tag = container_tag
-
+        self.oci_root_dir = None
         if container_dir:
             self.oci_dir = None
             self.container_dir = container_dir
@@ -49,9 +50,6 @@ class OCIBase(object):
                 [self.oci_dir, 'oci_layout']
             )
 
-        self.container_name = ':'.join(
-            [self.container_dir, self.container_tag]
-        )
         self.creation_date = datetime.utcnow().strftime(
             '%Y-%m-%dT%H:%M:%S+00:00'
         )
@@ -78,23 +76,41 @@ class OCIBase(object):
         """
         raise NotImplementedError
 
-    def unpack(self, oci_root_dir):
+    def unpack(self):
         """
-        Unpack current container root data to given directory
+        Unpack current container root data
 
         Implementation in specialized tool class
-
-        :param string oci_root_dir: root data directory
         """
         raise NotImplementedError
 
-    def repack(self, oci_root_dir):
+    def sync_rootfs(self, root_dir, exclude_list=None):
         """
-        Pack given root data directory into container image
+        Synchronizes the image root with the rootfs of the container
 
         Implementation in specialized tool class
 
-        :param string oci_root_dir: root data directory
+        :param string root_dir: root directory of the prepare step
+        :param list exclude_list: list of paths to exclude
+        """
+        raise NotImplementedError
+
+    def import_rootfs(self, root_dir, exclude_list=None):
+        """
+        Synchronizes the container rootfs with the root tree of the build
+
+        Implementation in specialized tool class
+
+        :param string root_dir: root directory used in prepare step
+        :param list exclude_list: list of paths to exclude
+        """
+        raise NotImplementedError
+
+    def repack(self):
+        """
+        Pack root data directory into container image
+
+        Implementation in specialized tool class
         """
         raise NotImplementedError
 
@@ -129,6 +145,19 @@ class OCIBase(object):
         Implementation in specialized tool class
         """
         raise NotImplementedError
+
+    @classmethod
+    def _sync_data(self, origin, destination, exclude_list=None, options=None):
+        """
+        Synchronizes the origin and destination paths to be equivalent
+
+        :param string origin: the source path
+        :param string destination: the destination path
+        """
+        sync = DataSync(origin, destination)
+        sync.sync_data(
+            options=options, exclude=exclude_list
+        )
 
     def __del__(self):
         if self.oci_dir:

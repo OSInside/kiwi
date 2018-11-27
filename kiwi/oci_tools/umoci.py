@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from tempfile import mkdtemp
+import os
 
 # project
 from kiwi.oci_tools.base import OCIBase
 from kiwi.command import Command
+from kiwi.path import Path
 from kiwi.utils.command_capabilities import CommandCapabilities
 
 
@@ -30,6 +33,9 @@ class OCIUmoci(OCIBase):
         """
         Initializes some umoci parameters and options
         """
+        self.container_name = ':'.join(
+            [self.container_dir, self.container_tag]
+        )
         if CommandCapabilities.has_option_in_help(
             'umoci', '--no-history', ['repack', '--help']
         ):
@@ -59,25 +65,50 @@ class OCIUmoci(OCIBase):
                 ['umoci', 'new', '--image', self.container_name]
             )
 
-    def unpack(self, oci_root_dir):
+    def unpack(self):
         """
-        Unpack current container root data to given directory
+        Unpack current container root data
+        """
+        self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
+        Command.run([
+            'umoci', 'unpack', '--image',
+            self.container_name, self.oci_root_dir
+        ])
 
-        :param string oci_root_dir: root data directory
+    def sync_rootfs(self, root_dir, exclude_list=None):
         """
-        Command.run(
-            ['umoci', 'unpack', '--image', self.container_name, oci_root_dir]
+        Synchronizes the image root with the rootfs of the container
+
+        :param string root_dir: root directory of the prepare step
+        :param list exclude_list: list of paths to exclude
+        """
+        self._sync_data(
+            ''.join([root_dir, os.sep]),
+            os.sep.join([self.oci_root_dir, 'rootfs']),
+            exclude_list=exclude_list,
+            options=['-a', '-H', '-X', '-A', '--delete']
         )
 
-    def repack(self, oci_root_dir):
+    def import_rootfs(self, root_dir, exclude_list=None):
         """
-        Pack given root data directory into container image
+        Synchronizes the container rootfs with the root tree of the build
 
-        :param string oci_root_dir: root data directory
+        :param string root_dir: root directory used in prepare step
+        :param list exclude_list: list of paths to exclude
+        """
+        self._sync_data(
+            os.sep.join([self.oci_root_dir, 'rootfs', '']),
+            root_dir, exclude_list=exclude_list,
+            options=['-a', '-H', '-X', '-A']
+        )
+
+    def repack(self):
+        """
+        Pack root data directory into container image
         """
         Command.run(
             ['umoci', 'repack'] + self.no_history_flag + [
-                '--image', self.container_name, oci_root_dir
+                '--image', self.container_name, self.oci_root_dir
             ]
         )
 
@@ -208,3 +239,7 @@ class OCIUmoci(OCIBase):
         Command.run(
             ['umoci', 'gc', '--layout', self.container_dir]
         )
+
+    def __del__(self):
+        if self.oci_root_dir:
+            Path.wipe(self.oci_root_dir)
