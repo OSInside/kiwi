@@ -10,11 +10,11 @@ class TestOCIBase(object):
         mock_mkdtemp.return_value = 'kiwi_oci_dir.XXXX'
         self.oci = OCIBase('tag')
         mock_mkdtemp.assert_called_once_with(prefix='kiwi_oci_dir.')
-        assert self.oci.container_name == 'kiwi_oci_dir.XXXX/oci_layout:tag'
+        assert self.oci.container_tag == 'tag'
 
     def test_setup_existing_container_dir(self):
         oci = OCIBase('tag', 'layout_dir')
-        assert oci.container_name == 'layout_dir:tag'
+        assert oci.container_dir == 'layout_dir'
 
     def test_init_layout(self):
         with raises(NotImplementedError):
@@ -22,11 +22,19 @@ class TestOCIBase(object):
 
     def test_unpack(self):
         with raises(NotImplementedError):
-            self.oci.unpack('dir')
+            self.oci.unpack()
+
+    def test_sync_rootfs(self):
+        with raises(NotImplementedError):
+            self.oci.sync_rootfs('root_dir')
+
+    def test_import_rootfs(self):
+        with raises(NotImplementedError):
+            self.oci.import_rootfs('root_dir')
 
     def test_repack(self):
         with raises(NotImplementedError):
-            self.oci.repack('dir')
+            self.oci.repack()
 
     def test_add_tag(self):
         with raises(NotImplementedError):
