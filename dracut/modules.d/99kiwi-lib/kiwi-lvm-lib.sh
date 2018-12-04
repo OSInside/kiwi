@@ -87,7 +87,7 @@ function resize_lvm_volumes_and_filesystems {
         fi
     done
     all_free_volume=$(get_all_free_volume)
-    if [ ! -z "${all_free_volume}" ];then
+    if [ -n "${all_free_volume}" ];then
         if lvextend -l +100%FREE "/dev/${kiwi_lvmgroup}/${all_free_volume}";then
             resize_filesystem "/dev/${kiwi_lvmgroup}/${all_free_volume}"
         fi
@@ -117,7 +117,7 @@ function read_volume_setup {
             fi
             volume=$(echo "${volspec}" | cut -f2 -d= | tr -d \' | tr -d \")
             size=$(echo "${volume}" | cut -f2 -d\| | cut -f2 -d:)
-            if [ "${size}" = "all" ] && [ ! -z "${skip_all_free_volume}" ];then
+            if [ "${size}" = "all" ] && [ -n "${skip_all_free_volume}" ];then
                 continue
             fi
             mode=$(echo "${volume}" | cut -f2 -d\| | cut -f1 -d:)

@@ -74,11 +74,11 @@ function baseSystemdCall {
     local service
     local legacy_service
     service=$(baseSystemdServiceInstalled "${service_name}")
-    if [ ! -z "${service}" ];then
+    if [ -n "${service}" ];then
         systemctl "$@" "${service_name}"
     else
         legacy_service=$(baseSysVServiceInstalled "${service_name}")
-        if [ ! -z "${legacy_service}" ];then
+        if [ -n "${legacy_service}" ];then
             # systemd is sysV init compatible and still allows
             # to enable those type of services
             systemctl "$@" "${legacy_service}"
@@ -555,9 +555,9 @@ function baseStripUnusedLibs {
     # ----
     for libname in $1; do
         for libfile in \
-            /lib*/$libname* /usr/lib*/$libname* \
-            /lib/x86_64-linux-gnu/$libname* /usr/lib/x86_64-linux-gnu/$libname* \
-            /usr/X11R6/lib*/$libname*
+            /lib*/"$libname"* /usr/lib*/"$libname"* \
+            /lib/x86_64-linux-gnu/"$libname"* /usr/lib/x86_64-linux-gnu/"$libname"* \
+            /usr/X11R6/lib*/"$libname"*
         do
             if [ -e "$libfile" ];then
                 needlibs[$count]=$libfile
@@ -741,7 +741,7 @@ function baseStripFirmware {
         fi
         # could be more than one, loop
         for fname in $name ; do
-            for match in /lib/firmware/${fname} /lib/firmware/*/${fname};do
+            for match in /lib/firmware/"${fname}" /lib/firmware/*/"${fname}";do
                 if [ -e "${match}" ];then
                     match=$(echo "${match}" | sed -e 's@\/lib\/firmware\/@@')
                     bmdir=$(dirname "${match}")

@@ -283,7 +283,7 @@ function get_free_disk_bytes {
                 break
             fi
         done
-        if [ ! -z "${part}" ]; then
+        if [ -n "${part}" ]; then
             part_bytes=$((part_bytes + $(blockdev --getsize64 "${part}")))
             part_uuids[${part_count}]=${current_part_uuid}
             part_count=$((part_count + 1))
@@ -345,7 +345,7 @@ function finalize_partition_table {
     declare kiwi_BootPart=${kiwi_BootPart}
     declare kiwi_gpt_hybrid_mbr=${kiwi_gpt_hybrid_mbr}
     local disk_device=$1
-    if [ ! -z "${kiwi_BootPart}" ];then
+    if [ -n "${kiwi_BootPart}" ];then
         activate_boot_partition "${disk_device}" "${kiwi_BootPart}"
     fi
     if [ "${kiwi_gpt_hybrid_mbr}" = "true" ];then
@@ -411,9 +411,9 @@ function _parted_sector_init {
     local sector_size=512
     local sector_start=2048
     local part
-    [ ! -z "${kiwi_align}" ] && align=${kiwi_align}
-    [ ! -z "${kiwi_sectorsize}" ] && sector_size=${kiwi_sectorsize}
-    [ ! -z "${kiwi_startsector}" ] && sector_start=${kiwi_startsector}
+    [ -n "${kiwi_align}" ] && align=${kiwi_align}
+    [ -n "${kiwi_sectorsize}" ] && sector_size=${kiwi_sectorsize}
+    [ -n "${kiwi_startsector}" ] && sector_start=${kiwi_startsector}
     local align=$((align / sector_size))
 
     unset partedStartSectors
