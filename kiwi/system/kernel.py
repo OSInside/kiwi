@@ -66,6 +66,12 @@ class Kernel(object):
                     kernel_file_to_check = kernel_file_to_check.replace(
                         'zImage', 'vmlinux'
                     ) + '.gz'
+                if 'vmlinuz' in kernel_file_to_check:
+                    new_file_to_check = kernel_file_to_check.replace(
+                        'vmlinuz', 'vmlinux'
+                    ) + '.gz'
+                    if os.path.exists(new_file_to_check):
+                        kernel_file_to_check = new_file_to_check
                 version = Command.run(
                     command=['kversion', kernel_file_to_check],
                     raise_on_error=False
