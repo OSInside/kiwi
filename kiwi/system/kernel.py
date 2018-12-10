@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import platform
 from collections import namedtuple
 
 # project
@@ -52,35 +51,27 @@ class Kernel(object):
 
         :rtype: namedtuple
         """
-        arch = platform.machine()
         for kernel_name in self.kernel_names:
-            kernel_file = self.root_dir + '/boot/' + kernel_name
+            kernel_file = os.sep.join(
+                [self.root_dir, 'boot', kernel_name]
+            )
             if os.path.exists(kernel_file):
-                kernel_file_to_check = kernel_file
-                if 'zImage' in kernel_file_to_check:
-                    # kernels build as zImage contains the decompressor code
-                    # as part of the kernel image and could be therefore
-                    # compressed by any possible compression algorithm.
-                    # In this case we assume/hope that there is also a
-                    # standard gz compressed vmlinux version of the kernel
-                    # available and check this one instead of the zImage
-                    # variant
-                    kernel_file_to_check = kernel_file_to_check.replace(
-                        'zImage', 'vmlinux'
-                    ) + '.gz'
-                if 'vmlinuz' in kernel_file_to_check and 's390' in arch:
-                    # On s390 it seems the vmlinuz kernel file cannot be used
-                    # to read the kernel version from via the kversion tool.
-                    # Therefore we try to apply the same fallback as in the
-                    # zImage case.
-                    #
-                    # FIXME: The explanation here should be much better
-                    #
-                    kernel_file_to_check = kernel_file_to_check.replace(
-                        'vmlinuz', 'vmlinux'
-                    ) + '.gz'
+                kernel_file_for_version_check = os.sep.join(
+                    [self.root_dir, 'boot', 'vmlinux.gz']
+                )
+                if not os.path.exists(kernel_file_for_version_check):
+                    # The system does not provide a gzip compressed binary
+                    # of the kernel. Thus we try to fetch the version from
+                    # the arbitrary kernel image format. Please Note:
+                    # kernel images that contains the decompressor code
+                    # as part of the kernel could have been compressed by
+                    # any possible compression algorithm. For such kernels
+                    # the simple kversion utility will not be able to read
+                    # kernel version
+                    kernel_file_for_version_check = kernel_file
+
                 version = Command.run(
-                    command=['kversion', kernel_file_to_check],
+                    command=['kversion', kernel_file_for_version_check],
                     raise_on_error=False
                 ).output
                 if not version:
