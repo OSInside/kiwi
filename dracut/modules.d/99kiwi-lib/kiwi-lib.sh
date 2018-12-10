@@ -57,7 +57,7 @@ function get_persistent_device_from_unix_node {
     local persistent_name
     node=$(basename "${unix_device}")
     udev_pending
-    for persistent_name in /dev/disk/${schema}/*; do
+    for persistent_name in /dev/disk/"${schema}"/*; do
         if [ "$(basename "$(readlink "${persistent_name}")")" = "${node}" ];then
             echo "${persistent_name}"
             return

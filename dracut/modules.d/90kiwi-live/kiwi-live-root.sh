@@ -33,7 +33,7 @@ mountReadOnlyRootImageFromContainer "${container_mount_point}"
 
 # prepare overlay for generated systemd LiveOS_rootfs service
 declare isodiskdev=${isodiskdev}
-if getargbool 0 rd.live.overlay.persistent && [ ! -z "${isodiskdev}" ]; then
+if getargbool 0 rd.live.overlay.persistent && [ -n "${isodiskdev}" ]; then
     if ! preparePersistentOverlay; then
         warn "Failed to setup persistent write space !"
         warn "Falling back to temporary overlay"

@@ -46,7 +46,7 @@ function get_disk_list {
     local disk_meta
     local list_items
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
-    if [ ! -z "${kiwi_devicepersistency}" ];then
+    if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
     if getargbool 0 rd.kiwi.ramdisk; then
@@ -55,7 +55,7 @@ function get_disk_list {
         local rd_size
         local modfile=/etc/modprobe.d/99-brd.conf
         rd_size=$(getarg ramdisk_size=)
-        if [ ! -z "${rd_size}" ];then
+        if [ -n "${rd_size}" ];then
             echo "options brd rd_size=${rd_size}" > ${modfile}
         fi
         modprobe brd
@@ -63,7 +63,7 @@ function get_disk_list {
         # target should be a ramdisk on request. Thus instruct
         # lsblk to list only ramdisk devices (Major=1)
         blk_opts="-I 1 ${blk_opts}"
-    elif [ ! -z "${kiwi_oemmultipath_scan}" ];then
+    elif [ -n "${kiwi_oemmultipath_scan}" ];then
         scan_multipath_devices
     fi
     for disk_meta in $(
@@ -80,7 +80,7 @@ function get_disk_list {
         disk_device_by_id=$(
             get_persistent_device_from_unix_node "${disk_device}" "${disk_id}"
         )
-        if [ ! -z "${disk_device_by_id}" ];then
+        if [ -n "${disk_device_by_id}" ];then
             disk_device=${disk_device_by_id}
         fi
         # check for static filter rules
@@ -89,7 +89,7 @@ function get_disk_list {
             continue
         fi
         # check for custom filter rule
-        if [ ! -z "${kiwi_oemdevicefilter}" ];then
+        if [ -n "${kiwi_oemdevicefilter}" ];then
             if [[ ${disk_device} =~ ${kiwi_oemdevicefilter} ]];then
                 info "${disk_device} filtered out by: ${kiwi_oemdevicefilter}"
                 continue
@@ -110,7 +110,7 @@ function get_selected_disk {
     local disk_list
     local device_array
     disk_list=$(get_disk_list)
-    if [ ! -z "${disk_list}" ];then
+    if [ -n "${disk_list}" ];then
         local count=0
         local device_index=0
         for entry in ${disk_list};do
@@ -123,7 +123,7 @@ function get_selected_disk {
         if [ "${device_index}" -eq 1 ];then
             # one single disk device found, use it
             echo "${device_array[0]}"
-        elif [ ! -z "${kiwi_oemunattended}" ];then
+        elif [ -n "${kiwi_oemunattended}" ];then
             if [ -z "${kiwi_oemunattended_id}" ];then
                 # unattended mode requested but no target specifier,
                 # thus use first device from list
@@ -167,7 +167,7 @@ function export_image_metadata {
     fi
     echo "Image checksum: ${checksum}"
     echo "Image blocks: ${blocks} / blocksize: ${blocksize}"
-    if [ ! -z "${zblocks}" ];then
+    if [ -n "${zblocks}" ];then
         echo "Image compressed blocks: ${zblocks} / blocksize: ${zblocksize}"
     fi
 }
@@ -200,7 +200,7 @@ function dump_image {
     local title_text="Installation..."
     local dump
 
-    if [ ! -z "${image_from_remote}" ];then
+    if [ -n "${image_from_remote}" ];then
         dump=dump_remote_image
     else
         dump=dump_local_image
@@ -268,7 +268,7 @@ function check_image_integrity {
     local verify_text="Verifying ${image_target}"
     local title_text="Installation..."
     local verify_result=/dumped_image.md5
-    if [ ! -z "${kiwi_oemskipverify}" ];then
+    if [ -n "${kiwi_oemskipverify}" ];then
         # no verification wanted
         return
     fi

@@ -4,7 +4,7 @@ type wait_for_storage_device >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
 
 function mdraid_system {
     declare kiwi_RaidDev=${kiwi_RaidDev}
-    if [ ! -z "${kiwi_RaidDev}" ];then
+    if [ -n "${kiwi_RaidDev}" ];then
         return 0
     fi
     return 1

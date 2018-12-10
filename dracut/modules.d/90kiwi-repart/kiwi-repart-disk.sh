@@ -47,7 +47,7 @@ function get_requested_swap_size {
     declare kiwi_oemswapMB=${kiwi_oemswapMB}
     declare kiwi_oemswap=${kiwi_oemswap}
     local swapsize
-    if [ ! -z "${kiwi_oemswapMB}" ];then
+    if [ -n "${kiwi_oemswapMB}" ];then
         # swap size configured by kiwi description
         swapsize=${kiwi_oemswapMB}
     else
@@ -239,7 +239,7 @@ function check_repart_possible {
     local disk_root_mbytes=$1
     local disk_free_mbytes=$2
     local min_additional_mbytes=$3
-    if [ ! -z "${kiwi_oemrootMB}" ];then
+    if [ -n "${kiwi_oemrootMB}" ];then
         if [ "${kiwi_oemrootMB}" -lt "${disk_root_mbytes}" ];then
             # specified oem-systemsize is smaller than root partition
             warn "Requested OEM systemsize is smaller than root partition"
@@ -256,7 +256,7 @@ function check_repart_possible {
         warn "Disk won't be re-partitioned !"
         echo
         warn "Minimum required additional size: ${min_additional_mbytes} MB:"
-        if [ ! -z "${kiwi_oemrootMB}" ];then
+        if [ -n "${kiwi_oemrootMB}" ];then
             local share=$((kiwi_oemrootMB - disk_root_mbytes))
             warn "==> Root's share is: ${share} MB"
         fi

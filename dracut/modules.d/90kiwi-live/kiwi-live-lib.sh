@@ -71,7 +71,7 @@ function initGlobalDevices {
     isodiskmode=$(echo "${isodisk}" | cut -f2 -d%)
     isofs_type=$(blkid -s TYPE -o value "${isodev}")
     media_check_device=${isodev}
-    if [ ! -z "${isodiskdev}" ]; then
+    if [ -n "${isodiskdev}" ]; then
         media_check_device=${isodiskdev}
     fi
     export media_check_device
