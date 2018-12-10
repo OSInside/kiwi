@@ -76,7 +76,9 @@ class TestKernel(object):
     @patch('os.path.exists')
     @patch('os.path.realpath')
     @patch('kiwi.command.Command.run')
-    def test_get_kernel_from_zImage_vmlinux(self, mock_run, mock_realpath, mock_os):
+    def test_get_kernel_from_zImage_vmlinux(
+        self, mock_run, mock_realpath, mock_os
+    ):
         self.kernel.kernel_names = ['zImage']
         run = namedtuple(
             'run', ['output']
@@ -94,10 +96,14 @@ class TestKernel(object):
         assert data.version == '42'
         assert data.name == 'vmlinux.gz'
 
+    @patch('platform.machine')
     @patch('os.path.exists')
     @patch('os.path.realpath')
     @patch('kiwi.command.Command.run')
-    def test_get_kernel_from_vmlinuz_vmlinux(self, mock_run, mock_realpath, mock_os):
+    def test_get_kernel_from_vmlinuz_on_s390(
+        self, mock_run, mock_realpath, mock_os, mock_platform_machine
+    ):
+        mock_platform_machine.return_value = 's390'
         self.kernel.kernel_names = ['vmlinuz']
         run = namedtuple(
             'run', ['output']

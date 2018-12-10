@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import platform
 from collections import namedtuple
 
 # project
@@ -51,6 +52,7 @@ class Kernel(object):
 
         :rtype: namedtuple
         """
+        arch = platform.machine()
         for kernel_name in self.kernel_names:
             kernel_file = self.root_dir + '/boot/' + kernel_name
             if os.path.exists(kernel_file):
@@ -66,12 +68,17 @@ class Kernel(object):
                     kernel_file_to_check = kernel_file_to_check.replace(
                         'zImage', 'vmlinux'
                     ) + '.gz'
-                if 'vmlinuz' in kernel_file_to_check:
-                    new_file_to_check = kernel_file_to_check.replace(
+                if 'vmlinuz' in kernel_file_to_check and 's390' in arch:
+                    # On s390 it seems the vmlinuz kernel file cannot be used
+                    # to read the kernel version from via the kversion tool.
+                    # Therefore we try to apply the same fallback as in the
+                    # zImage case.
+                    #
+                    # FIXME: The explanation here should be much better
+                    #
+                    kernel_file_to_check = kernel_file_to_check.replace(
                         'vmlinuz', 'vmlinux'
                     ) + '.gz'
-                    if os.path.exists(new_file_to_check):
-                        kernel_file_to_check = new_file_to_check
                 version = Command.run(
                     command=['kversion', kernel_file_to_check],
                     raise_on_error=False
