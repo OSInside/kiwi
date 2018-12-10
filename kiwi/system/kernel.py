@@ -56,10 +56,9 @@ class Kernel(object):
                 [self.root_dir, 'boot', kernel_name]
             )
             if os.path.exists(kernel_file):
-                kernel_file_for_version_check = os.sep.join(
-                    [self.root_dir, 'boot', 'vmlinux.gz']
-                )
-                if not os.path.exists(kernel_file_for_version_check):
+                kernel_file_for_version_check = \
+                    self._get_kernel_name_for_version_lookup()
+                if not kernel_file_for_version_check:
                     # The system does not provide a gzip compressed binary
                     # of the kernel. Thus we try to fetch the version from
                     # the arbitrary kernel image format. Please Note:
@@ -181,3 +180,14 @@ class Kernel(object):
                         )
                     )
         return kernel_names
+
+    def _get_kernel_name_for_version_lookup(self):
+        vmlinux_kernel_files = list(
+            filter(lambda kernel: 'vmlinux-' in kernel, self.kernel_names)
+        )
+        if vmlinux_kernel_files:
+            kernel_file_for_version_check = os.sep.join(
+                [self.root_dir, 'boot', vmlinux_kernel_files[0] + '.gz']
+            )
+            if os.path.exists(kernel_file_for_version_check):
+                return kernel_file_for_version_check

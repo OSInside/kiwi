@@ -45,7 +45,7 @@ class TestKernel(object):
         mock_realpath.return_value = 'vmlinux-realpath'
         data = self.kernel.get_kernel()
         mock_run.assert_called_once_with(
-            command=['kversion', 'root-dir/boot/vmlinux.gz'],
+            command=['kversion', 'root-dir/boot/vmlinux-1.2.3-default.gz'],
             raise_on_error=False
         )
         assert data.filename == 'root-dir/boot/vmlinux'
@@ -89,7 +89,7 @@ class TestKernel(object):
         mock_run.return_value = result
         data = self.kernel.get_kernel()
         mock_run.assert_called_once_with(
-            command=['kversion', 'root-dir/boot/vmlinux.gz'],
+            command=['kversion', 'root-dir/boot/vmlinux-1.2.3-default.gz'],
             raise_on_error=False
         )
         assert data.filename == 'root-dir/boot/vmlinux'
