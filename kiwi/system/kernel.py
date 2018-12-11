@@ -52,28 +52,25 @@ class Kernel(object):
         :rtype: namedtuple
         """
         for kernel_name in self.kernel_names:
-            kernel_file = self.root_dir + '/boot/' + kernel_name
+            kernel_file = os.sep.join(
+                [self.root_dir, 'boot', kernel_name]
+            )
             if os.path.exists(kernel_file):
-                kernel_file_to_check = kernel_file
-                if 'zImage' in kernel_file_to_check:
-                    # kernels build as zImage contains the decompressor code
-                    # as part of the kernel image and could be therefore
-                    # compressed by any possible compression algorithm.
-                    # In this case we assume/hope that there is also a
-                    # standard gz compressed vmlinux version of the kernel
-                    # available and check this one instead of the zImage
-                    # variant
-                    kernel_file_to_check = kernel_file_to_check.replace(
-                        'zImage', 'vmlinux'
-                    ) + '.gz'
-                if 'vmlinuz' in kernel_file_to_check:
-                    new_file_to_check = kernel_file_to_check.replace(
-                        'vmlinuz', 'vmlinux'
-                    ) + '.gz'
-                    if os.path.exists(new_file_to_check):
-                        kernel_file_to_check = new_file_to_check
+                kernel_file_for_version_check = \
+                    self._get_kernel_name_for_version_lookup()
+                if not kernel_file_for_version_check:
+                    # The system does not provide a gzip compressed binary
+                    # of the kernel. Thus we try to fetch the version from
+                    # the arbitrary kernel image format. Please Note:
+                    # kernel images that contains the decompressor code
+                    # as part of the kernel could have been compressed by
+                    # any possible compression algorithm. For such kernels
+                    # the simple kversion utility will not be able to read
+                    # kernel version
+                    kernel_file_for_version_check = kernel_file
+
                 version = Command.run(
-                    command=['kversion', kernel_file_to_check],
+                    command=['kversion', kernel_file_for_version_check],
                     raise_on_error=False
                 ).output
                 if not version:
@@ -183,3 +180,14 @@ class Kernel(object):
                         )
                     )
         return kernel_names
+
+    def _get_kernel_name_for_version_lookup(self):
+        vmlinux_kernel_files = list(
+            filter(lambda kernel: 'vmlinux-' in kernel, self.kernel_names)
+        )
+        if vmlinux_kernel_files:
+            kernel_file_for_version_check = os.sep.join(
+                [self.root_dir, 'boot', vmlinux_kernel_files[0] + '.gz']
+            )
+            if os.path.exists(kernel_file_for_version_check):
+                return kernel_file_for_version_check
