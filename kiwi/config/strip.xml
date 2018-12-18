@@ -256,6 +256,7 @@
         <file name="sed"/>
         <file name="seq"/>
         <file name="setsid"/>
+        <file name="setctsid"/>
         <file name="setterm"/>
         <file name="sfdisk"/>
         <file name="sg_inq"/>
