@@ -340,7 +340,7 @@ class DiskSetup(object):
     def _calculate_volume_mbytes(self):
         """
         Calculate the number of mbytes each volume path currently
-        consumes and also provide a total number of these values
+        consumes and also provide a total number of these values.
         """
         volume_mbytes_type = namedtuple(
             'volume_mbytes_type', ['volume', 'total']
@@ -356,7 +356,9 @@ class DiskSetup(object):
                         volume_size.accumulate_mbyte_file_sizes(),
                         self.filesystem
                     )
-                    volume_total += volume_mbytes[volume.realpath]
+                else:
+                    volume_mbytes[volume.realpath] = 0
+                volume_total += volume_mbytes[volume.realpath]
 
         return volume_mbytes_type(
             volume=volume_mbytes,

@@ -180,7 +180,7 @@ class TestDiskSetup(object):
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     def test_get_disksize_mbytes_volumes(self, mock_log_warn, mock_exists):
-        mock_exists.return_value = True
+        mock_exists.side_effect = lambda path: path != 'root_dir/newfolder'
         root_size = self.size.accumulate_mbyte_file_sizes.return_value
         assert self.setup_volumes.get_disksize_mbytes() == \
             Defaults.get_lvm_overhead_mbytes() + \
@@ -191,6 +191,8 @@ class TestDiskSetup(object):
             1024 - root_size + \
             500 + Defaults.get_min_volume_mbytes() + \
             30 + Defaults.get_min_volume_mbytes() + \
+            Defaults.get_min_volume_mbytes() + \
+            Defaults.get_min_volume_mbytes() + \
             Defaults.get_min_volume_mbytes()
         assert mock_log_warn.called
 
