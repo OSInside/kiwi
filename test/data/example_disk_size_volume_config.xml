@@ -25,6 +25,7 @@
                 <volume name="@root" freespace="500M"/>
                 <volume name="etc_volume" mountpoint="etc"/>
                 <volume name="bin_volume" size="all" mountpoint="/usr/bin"/>
+                <volume name="new_volume" mountpoint="newfolder"/>
             </systemdisk>
         </type>
     </preferences>
