@@ -103,7 +103,7 @@ class Result(object):
             )
 
     @classmethod
-    def load(self, filename):
+    def load(cls, filename):
         """
         Load pickle dumped filename into a Result instance
 

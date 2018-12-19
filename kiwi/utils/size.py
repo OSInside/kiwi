@@ -26,7 +26,7 @@ class StringToSize(object):
     **Performs size convertions from strings to numbers**
     """
     @classmethod
-    def to_bytes(self, size_value):
+    def to_bytes(cls, size_value):
         """
         Convert the given string representig a size into the appropriate
         number of bytes.

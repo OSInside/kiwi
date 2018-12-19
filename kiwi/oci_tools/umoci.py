@@ -150,7 +150,7 @@ class OCIUmoci(OCIBase):
             )
 
     @classmethod                                                # noqa:C091
-    def _process_oci_config_to_arguments(self, oci_config):
+    def _process_oci_config_to_arguments(cls, oci_config):
         """
         Process the oci configuration dictionary into a list of arguments
         for the 'umoci config' command
@@ -211,11 +211,11 @@ class OCIUmoci(OCIBase):
                     name, oci_config['labels'][name]
                 ))
 
-        arguments.extend(self._process_oci_history_to_arguments(oci_config))
+        arguments.extend(cls._process_oci_history_to_arguments(oci_config))
         return arguments
 
     @classmethod
-    def _process_oci_history_to_arguments(self, oci_config):
+    def _process_oci_history_to_arguments(cls, oci_config):
         history_args = []
         if 'history' in oci_config:
             if 'comment' in oci_config['history']:

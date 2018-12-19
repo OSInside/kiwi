@@ -100,7 +100,7 @@ except ImportError:
 try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
-    
+
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
         class _FixedOffsetTZ(datetime_.tzinfo):

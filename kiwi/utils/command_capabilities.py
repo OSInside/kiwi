@@ -33,7 +33,7 @@ class CommandCapabilities(object):
     """
     @classmethod
     def has_option_in_help(
-        self, call, flag, help_flags=None,
+        cls, call, flag, help_flags=None,
         root=None, raise_on_error=True
     ):
         """
@@ -72,7 +72,7 @@ class CommandCapabilities(object):
 
     @classmethod
     def check_version(
-        self, call, version_waterline, version_flags=None,
+        cls, call, version_waterline, version_flags=None,
         root=None, raise_on_error=True
     ):
         """
