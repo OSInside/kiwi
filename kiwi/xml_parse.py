@@ -5475,7 +5475,7 @@ class port(GeneratedsSuper):
     superclass = None
     def __init__(self, number=None):
         self.original_tagname_ = None
-        self.number = _cast(int, number)
+        self.number = _cast(None, number)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5489,6 +5489,13 @@ class port(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_number(self): return self.number
     def set_number(self, number): self.number = number
+    def validate_portnum_type(self, value):
+        # Validate type portnum-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_portnum_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_portnum_type_patterns_, ))
+    validate_portnum_type_patterns_ = [['^(\\d+$|^\\d+/(udp$|^tcp))$']]
     def hasContent_(self):
         if (
 
@@ -5519,7 +5526,7 @@ class port(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='port'):
         if self.number is not None and 'number' not in already_processed:
             already_processed.add('number')
-            outfile.write(' number="%s"' % self.gds_format_integer(self.number, input_name='number'))
+            outfile.write(' number=%s' % (quote_attrib(self.number), ))
     def exportChildren(self, outfile, level, namespace_='', name_='port', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -5533,12 +5540,9 @@ class port(GeneratedsSuper):
         value = find_attr_value_('number', node)
         if value is not None and 'number' not in already_processed:
             already_processed.add('number')
-            try:
-                self.number = int(value)
-            except ValueError as exp:
-                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-            if self.number < 0:
-                raise_parse_error(node, 'Invalid NonNegativeInteger')
+            self.number = value
+            self.number = ' '.join(self.number.split())
+            self.validate_portnum_type(self.number)    # validate type portnum-type
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class port

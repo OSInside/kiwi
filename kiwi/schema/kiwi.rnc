@@ -34,6 +34,7 @@ partition-size-type = xsd:token {pattern = "\d+|\d+M|\d+G"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
 arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*"}
+portnum-type = xsd:token {pattern = "(\d+|\d+/(udp|tcp))"}
 
 #==========================================
 # start with image description
@@ -2297,8 +2298,9 @@ div {
 #
 div {
     k.port.number.attribute =
-        ## Specifies the port number to expose
-        attribute number { xsd:nonNegativeInteger }
+        ## Specifies the port number and transport protocol to expose.
+        ## If no protocol is defined OCI defaults are applied.
+        attribute number { portnum-type }
 
     k.port.attlist =
         k.port.number.attribute
