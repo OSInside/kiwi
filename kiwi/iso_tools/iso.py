@@ -55,7 +55,7 @@ class Iso(object):
         self.boot_path = Defaults.get_iso_boot_path()
 
     @classmethod
-    def create_hybrid(self, offset, mbrid, isofile, efi_mode=False):
+    def create_hybrid(cls, offset, mbrid, isofile, efi_mode=False):
         """
         Create hybrid ISO
 
@@ -109,7 +109,7 @@ class Iso(object):
                 )
 
     @classmethod
-    def set_media_tag(self, isofile):
+    def set_media_tag(cls, isofile):
         """
         Include checksum tag in the ISO so it can be verified with
         the mediacheck program.
@@ -127,7 +127,7 @@ class Iso(object):
         )
 
     @classmethod
-    def relocate_boot_catalog(self, isofile):
+    def relocate_boot_catalog(cls, isofile):
         """
         Move ISO boot catalog to the standardized place
 
@@ -187,7 +187,7 @@ class Iso(object):
                     )
 
     @classmethod
-    def fix_boot_catalog(self, isofile):
+    def fix_boot_catalog(cls, isofile):
         """
         Fixup inconsistencies in boot catalog
 

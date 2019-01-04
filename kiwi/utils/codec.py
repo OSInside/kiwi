@@ -25,7 +25,7 @@ class Codec(object):
     **Performs conversions of literal byte sequences to strings**
     """
     @classmethod
-    def decode(self, literal):
+    def decode(cls, literal):
         """
         Decodes the given literal with the default charset. In case of
         failure attemps to decode using utf-8 charset.
@@ -47,7 +47,7 @@ class Codec(object):
                 )
 
     @classmethod
-    def _wrapped_decode(self, literal, charset=None):
+    def _wrapped_decode(cls, literal, charset=None):
         # This decode wrapper is only implemented to facilitate unit testing
         if charset:
             return literal.decode(charset)

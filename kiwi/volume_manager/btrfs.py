@@ -377,7 +377,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             ])
 
     @classmethod
-    def _set_snapper_sysconfig_file(self, root_path):
+    def _set_snapper_sysconfig_file(cls, root_path):
         sysconf_file = SysConfig(
             os.sep.join([root_path, 'etc/sysconfig/snapper'])
         )

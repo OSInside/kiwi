@@ -28,7 +28,7 @@ class Path(object):
     **Directory path helpers**
     """
     @classmethod
-    def sort_by_hierarchy(self, path_list):
+    def sort_by_hierarchy(cls, path_list):
         """
         Sort given list of path names by their hierachy in the tree
 
@@ -61,7 +61,7 @@ class Path(object):
         return ordered_paths
 
     @classmethod
-    def create(self, path):
+    def create(cls, path):
         """
         Create path and all sub directories to target
 
@@ -72,7 +72,7 @@ class Path(object):
         )
 
     @classmethod
-    def wipe(self, path):
+    def wipe(cls, path):
         """
         Delete path and all contents
 
@@ -83,7 +83,7 @@ class Path(object):
         )
 
     @classmethod
-    def remove(self, path):
+    def remove(cls, path):
         """
         Delete empty path, causes an error if target is not empty
 
@@ -94,7 +94,7 @@ class Path(object):
         )
 
     @classmethod
-    def remove_hierarchy(self, path):
+    def remove_hierarchy(cls, path):
         """
         Recursively remove an empty path and its sub directories
         ignore non empty or protected paths and leave them untouched
@@ -124,7 +124,7 @@ class Path(object):
 
     @classmethod
     def which(
-        self, filename, alternative_lookup_paths=None,
+        cls, filename, alternative_lookup_paths=None,
         custom_env=None, access_mode=None
     ):
         """

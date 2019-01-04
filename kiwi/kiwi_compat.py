@@ -212,11 +212,11 @@ class Translate(object):
 
 class Command(object):
     @classmethod
-    def execute(self, arguments):
+    def execute(cls, arguments):
         os.execvp(Command.lookup_kiwi(), ['kiwi'] + arguments)
 
     @classmethod
-    def lookup_kiwi(self):
+    def lookup_kiwi(cls):
         for kiwi_name in ['kiwi-ng-3', 'kiwi-ng-2']:
             kiwi = Path.which(kiwi_name, access_mode=os.X_OK)
             if kiwi:
