@@ -131,6 +131,7 @@ class TestSystemBuildTask(object):
         self.setup.setup_locale.assert_called_once_with()
         self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
+        self.setup.setup_permissions.assert_called_once_with()
         self.system_prepare.pinch_system.assert_has_calls(
             [call(force=False), call(force=True)]
         )
