@@ -21,6 +21,7 @@ class TestSysConfig(object):
 
     def test_get_item(self):
         assert self.sysconfig['name'] == ' "Marcus"'
+        assert self.sysconfig.get('name') == ' "Marcus"'
 
     def test_set_item_existing(self):
         self.sysconfig['name'] = 'Bob'

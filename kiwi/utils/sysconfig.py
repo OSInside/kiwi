@@ -41,6 +41,9 @@ class SysConfig(object):
     def __contains__(self, key):
         return key in self.data_dict
 
+    def get(self, key):
+        return self.data_dict.get(key)
+
     def write(self):
         """
         Write back source file with changed content but in same order
