@@ -232,6 +232,7 @@ class SystemBuildTask(CliTask):
         setup.setup_locale()
         setup.setup_plymouth_splash()
         setup.setup_timezone()
+        setup.setup_permissions()
 
         # make sure manager instance is cleaned up now
         del manager

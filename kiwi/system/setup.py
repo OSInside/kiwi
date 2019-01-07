@@ -239,6 +239,38 @@ class SystemSetup(object):
         with open(machine_id, 'w'):
             pass
 
+    def setup_permissions(self):
+        """
+        Check and Fix permissions using chkstat
+
+        Call chkstat in system mode which reads /etc/sysconfig/security
+        to determine the configured security level and applies the
+        appropriate permission definitions from the /etc/permissions*
+        files. It's possible to provide those files as overlay files
+        in the image description to apply a certain permission setup
+        when needed. Otherwise the default setup as provided on the
+        package level applies.
+
+        It's required that the image root system has chkstat installed.
+        If not present KIWI skips this step and continuous with a
+        warning.
+        """
+        chkstat_search_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
+        }
+        chkstat = Path.which(
+            'chkstat', custom_env=chkstat_search_env, access_mode=os.X_OK
+        )
+        if chkstat:
+            log.info('Check/Fix File Permissions')
+            Command.run(
+                ['chroot', self.root_dir, 'chkstat', '--system', '--set']
+            )
+        else:
+            log.warning(
+                'chkstat not found in image. File Permissions Check skipped'
+            )
+
     def setup_keyboard_map(self):
         """
         Setup console keyboard
