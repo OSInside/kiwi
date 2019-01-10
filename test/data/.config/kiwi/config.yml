@@ -1,6 +1,9 @@
 xz:
   - options: -a -b xxx
 
+bundle:
+  - compress: true
+
 obs:
   - download_url: http://example.com
   - public: true

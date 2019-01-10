@@ -123,45 +123,45 @@ class ResultBundleTask(CliTask):
                 bundle_file = ''.join(
                     [bundle_directory, '/', bundle_file_basename]
                 )
-                checksum_file = ''.join(
-                    [bundle_directory, '/', bundle_file_basename, '.sha256']
-                )
                 Command.run(
                     [
                         'cp', result_file.filename, bundle_file
                     ]
                 )
-                if result_file.compress:
+                if self.runtime_config.is_bundle_compression_requested() and \
+                   result_file.compress:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
                     compress.xz(self.runtime_config.get_xz_options())
                     bundle_file = compress.compressed_filename
-                    checksum_file = compress.compressed_filename + '.sha256'
-                    if self.command_args['--zsync-source']:
-                        zsyncmake = Path.which('zsyncmake', access_mode=os.X_OK)
-                        if zsyncmake:
-                            log.info('--> Creating zsync control file')
-                            Command.run(
-                                [
-                                    zsyncmake, '-e',
-                                    '-u', os.sep.join(
-                                        [
-                                            self.command_args['--zsync-source'],
-                                            os.path.basename(bundle_file)
-                                        ]
-                                    ),
-                                    '-o', bundle_file + '.zsync',
-                                    bundle_file
-                                ]
-                            )
-                        else:
-                            log.warning(
-                                '--> zsyncmake missing, zsync setup skipped'
-                            )
+
+                if self.command_args['--zsync-source'] and result_file.shasum:
+                    # Files with a checksum are considered to be image files
+                    # and are therefore eligible to be provided via the
+                    # requested Partial/differential file download based on
+                    # zsync
+                    zsyncmake = Path.which('zsyncmake', access_mode=os.X_OK)
+                    if zsyncmake:
+                        log.info('--> Creating zsync control file')
+                        Command.run(
+                            [
+                                zsyncmake, '-e', '-u', os.sep.join(
+                                    [
+                                        self.command_args['--zsync-source'],
+                                        os.path.basename(bundle_file)
+                                    ]
+                                ), '-o', bundle_file + '.zsync', bundle_file
+                            ]
+                        )
+                    else:
+                        log.warning(
+                            '--> zsyncmake missing, zsync setup skipped'
+                        )
+
                 if result_file.shasum:
                     log.info('--> Creating SHA 256 sum')
                     checksum = Checksum(bundle_file)
-                    with open(checksum_file, 'w') as shasum:
+                    with open(bundle_file + '.sha256', 'w') as shasum:
                         shasum.write(checksum.sha256())
 
     def _help(self):
