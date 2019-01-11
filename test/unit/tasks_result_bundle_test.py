@@ -49,6 +49,12 @@ class TestResultBundleTask(object):
         )
         self.task = ResultBundleTask()
 
+        runtime_config = mock.Mock()
+        runtime_config.is_bundle_compression_requested = mock.Mock(
+            return_value=True
+        )
+        self.task.runtime_config = runtime_config
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
 
