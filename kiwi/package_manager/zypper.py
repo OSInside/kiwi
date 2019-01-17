@@ -22,6 +22,7 @@ import os
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.path import Path
+from kiwi.logger import log
 from kiwi.exceptions import (
     KiwiRpmDatabaseReloadError,
     KiwiRequestError
@@ -276,6 +277,18 @@ class PackageManagerZypper(PackageManagerBase):
             45: 'db45_load',
             48: 'db48_load'
         }
+
+        rpm_search_env = {
+            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
+        }
+        rpm_bin = Path.which(
+            'rpm', custom_env=rpm_search_env, access_mode=os.X_OK
+        )
+        if not rpm_bin:
+            log.warning(
+                'RPM binary not found in image, RPM database is not reloaded'
+            )
+            return
 
         rpmdb_path_request = Command.run(
             ['chroot', self.root_dir, 'rpm', '-E', '%_dbpath']
