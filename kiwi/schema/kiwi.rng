@@ -2016,9 +2016,8 @@ information is passed as add-profile option</a:documentation>
     <define name="k.type.boottimeout.attribute">
       <attribute name="boottimeout">
         <a:documentation>Specifies the boot timeout in seconds prior to launching
-the default boot option. the unit for the timeout value
-is seconds if GRUB is used as the boot loader and 1/10
-seconds if syslinux is used</a:documentation>
+the default boot option. By default the timeout is set
+to 10sec</a:documentation>
         <data type="nonNegativeInteger"/>
       </attribute>
       <sch:pattern id="boottimeout" is-a="image_type">
@@ -2311,9 +2310,9 @@ system does not support all features of the kiwi initrd</a:documentation>
     </define>
     <define name="k.type.installboot.attribute">
       <attribute name="installboot">
-        <a:documentation>Specifies the bootloader default boot entry for the"
-initial boot of a kiwi install image. This value is"
-only evaluated for grub and ext|syslinux"</a:documentation>
+        <a:documentation>Specifies the bootloader default boot entry for the
+initial boot of a kiwi install image. This value is
+only evaluated for grub and ext|syslinux</a:documentation>
         <choice>
           <value>failsafe-install</value>
           <value>harddisk</value>
@@ -2325,10 +2324,23 @@ only evaluated for grub and ext|syslinux"</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.install_continue_on_timeout.attribute">
+      <attribute name="install_continue_on_timeout">
+        <a:documentation>Specifies the boot timeout handling for the KIWI
+install image. If set to "true" the configured boottimeout
+or its default value applies. If set to "false" no
+timeout applies in the boot menu of the install image.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="install_continue_on_timeout" is-a="image_type">
+        <sch:param name="attr" value="install_continue_on_timeout"/>
+        <sch:param name="types" value="oem vmx iso pxe"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.installprovidefailsafe.attribute">
       <attribute name="installprovidefailsafe">
-        <a:documentation>Specifies if the bootloader menu should provide an"
-failsafe entry with special kernel parameters or not"</a:documentation>
+        <a:documentation>Specifies if the bootloader menu should provide an
+failsafe entry with special kernel parameters or not</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="installprovidefailsafe" is-a="image_type">
@@ -2369,9 +2381,9 @@ be created (oem only)</a:documentation>
     </define>
     <define name="k.type.mediacheck.attribute">
       <attribute name="mediacheck">
-        <a:documentation>Specifies if the bootloader menu should provide an"
+        <a:documentation>Specifies if the bootloader menu should provide an
 mediacheck entry to verify ISO integrity or not.
-Disabled by default and only available for x86 arch family."</a:documentation>
+Disabled by default and only available for x86 arch family.</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="mediacheck" is-a="image_type">
@@ -2642,6 +2654,9 @@ default.</a:documentation>
         <ref name="k.type.image.attribute"/>
         <optional>
           <ref name="k.type.installboot.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.install_continue_on_timeout.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.installprovidefailsafe.attribute"/>

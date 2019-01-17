@@ -86,6 +86,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.bootpath = self.get_boot_path()
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
+        self.continue_on_timeout = self.get_continue_on_timeout()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.mediacheck_boot = self.xml_state.build_type.get_mediacheck()
         self.xen_guest = self.xml_state.is_xen_guest()
@@ -313,13 +314,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_install_template(
-                self.failsafe_boot, self.terminal
+                self.failsafe_boot, self.terminal,
+                self.continue_on_timeout
             )
         else:
             log.info('--> Using standard boot install template')
             hybrid_boot = True
             template = self.grub2.get_install_template(
-                self.failsafe_boot, hybrid_boot, self.terminal
+                self.failsafe_boot, hybrid_boot, self.terminal,
+                self.continue_on_timeout
             )
         try:
             self.config = template.substitute(parameters)

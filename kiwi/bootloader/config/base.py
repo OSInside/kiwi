@@ -197,6 +197,20 @@ class BootLoaderConfigBase(object):
             timeout_seconds = Defaults.get_default_boot_timeout_seconds()
         return timeout_seconds
 
+    def get_continue_on_timeout(self):
+        """
+        Check if the boot should continue after boot timeout or not
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        continue_on_timeout = \
+            self.xml_state.build_type.get_install_continue_on_timeout()
+        if continue_on_timeout is None:
+            continue_on_timeout = True
+        return continue_on_timeout
+
     def failsafe_boot_entry_requested(self):
         """
         Check if a failsafe boot entry is requested

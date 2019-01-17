@@ -31,12 +31,15 @@ class BootLoaderTemplateGrub2(object):
             export btrfs_relative_path
             search ${search_params}
             set default=${default_boot}
-            set timeout=${boot_timeout}
             if [ -n "$$extra_cmdline" ]; then
               submenu "Bootable snapshot $$snapshot_num" {
                 menuentry "If OK, run snapper rollback and reboot." { true; }
               }
             fi
+        ''').strip() + os.linesep
+
+        self.timeout = dedent('''
+            set timeout=${boot_timeout}
         ''').strip() + os.linesep
 
         self.header_hybrid = dedent('''
@@ -317,6 +320,7 @@ class BootLoaderTemplateGrub2(object):
         :rtype: Template
         """
         template_data = self.header
+        template_data += self.timeout
         if hybrid:
             template_data += '\n' + self.header_hybrid
         if terminal == 'gfxterm':
@@ -354,6 +358,7 @@ class BootLoaderTemplateGrub2(object):
         :rtype: Template
         """
         template_data = self.header
+        template_data += self.timeout
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
             template_data += self.header_theme
@@ -384,6 +389,7 @@ class BootLoaderTemplateGrub2(object):
         :rtype: Template
         """
         template_data = self.header
+        template_data += self.timeout
         if hybrid:
             template_data += self.header_hybrid
         if terminal == 'gfxterm':
@@ -426,6 +432,7 @@ class BootLoaderTemplateGrub2(object):
         :rtype: Template
         """
         template_data = self.header
+        template_data += self.timeout
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
             template_data += self.header_theme_iso
@@ -445,7 +452,7 @@ class BootLoaderTemplateGrub2(object):
         return Template(template_data)
 
     def get_install_template(
-        self, failsafe=True, hybrid=True, terminal='gfxterm'
+        self, failsafe=True, hybrid=True, terminal='gfxterm', with_timeout=True
     ):
         """
         Bootloader configuration template for install media
@@ -459,6 +466,8 @@ class BootLoaderTemplateGrub2(object):
         :rtype: Template
         """
         template_data = self.header
+        if with_timeout:
+            template_data += self.timeout
         if hybrid:
             template_data += self.header_hybrid
         if terminal == 'gfxterm':
@@ -483,7 +492,7 @@ class BootLoaderTemplateGrub2(object):
         return Template(template_data)
 
     def get_multiboot_install_template(
-        self, failsafe=True, terminal='gfxterm'
+        self, failsafe=True, terminal='gfxterm', with_timeout=True
     ):
         """
         Bootloader configuration template for install media with
@@ -497,6 +506,8 @@ class BootLoaderTemplateGrub2(object):
         :rtype: Template
         """
         template_data = self.header
+        if with_timeout:
+            template_data += self.timeout
         if terminal == 'gfxterm':
             template_data += self.header_gfxterm
             template_data += self.header_theme_iso
