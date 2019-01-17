@@ -163,15 +163,17 @@ class TestPackageManagerZypper(object):
         assert self.manager.database_consistent() is False
 
     @patch('os.path.exists')
+    @patch('kiwi.package_manager.zypper.Path.which')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.package_manager.zypper.PackageManagerZypper.database_consistent')
     def test_reload_package_database(
-        self, mock_consistent, mock_command, mock_exists
+        self, mock_consistent, mock_command, mock_which, mock_exists
     ):
         command_type = namedtuple('command', ['output'])
         cmd = command_type(output='var/lib/rpm')
         mock_command.return_value = cmd
         mock_exists.return_value = True
+        mock_which.return_value = True
         mock_consistent.return_value = False
         self.manager.dump_reload_package_database()
         assert mock_command.call_args_list == [
@@ -212,25 +214,38 @@ class TestPackageManagerZypper(object):
         ]
 
     @patch('os.path.exists')
+    @patch('kiwi.package_manager.zypper.Path.which')
     @patch('kiwi.command.Command.run')
     @raises(KiwiRpmDatabaseReloadError)
     def test_reload_package_database_wrong_db_path(
-        self, mock_command, mock_exists
+        self, mock_command, mock_which, mock_exists
     ):
         command_type = namedtuple('command', ['output'])
         cmd = command_type(output='var/lib/rpm')
         mock_command.return_value = cmd
         mock_exists.return_value = False
+        mock_which.return_value = True
         self.manager.dump_reload_package_database()
 
+    @patch('kiwi.logger.log.warning')
+    @patch('kiwi.package_manager.zypper.Path.which')
+    def test_reload_package_database_without_rpm_binary(
+        self, mock_which, mock_warning
+    ):
+        mock_which.return_value = False
+        self.manager.dump_reload_package_database()
+        assert mock_warning.called
+
     @patch('os.path.exists')
+    @patch('kiwi.package_manager.zypper.Path.which')
     @patch('kiwi.command.Command.run')
     @raises(KiwiRpmDatabaseReloadError)
     def test_reload_package_database_wrong_db_version(
-        self, mock_command, mock_exists
+        self, mock_command, mock_which, mock_exists
     ):
         command_type = namedtuple('command', ['output'])
         cmd = command_type(output='var/lib/rpm')
         mock_command.return_value = cmd
         mock_exists.return_value = True
+        mock_which.return_value = True
         self.manager.dump_reload_package_database(42)
