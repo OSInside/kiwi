@@ -2334,7 +2334,7 @@ timeout applies in the boot menu of the install image.</a:documentation>
       </attribute>
       <sch:pattern id="install_continue_on_timeout" is-a="image_type">
         <sch:param name="attr" value="install_continue_on_timeout"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
     <define name="k.type.installprovidefailsafe.attribute">
