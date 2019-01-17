@@ -55,9 +55,12 @@ class BootLoaderTemplateIsoLinux(object):
             # kiwi generated isolinux config file
             implicit 1
             prompt   1
-            timeout  ${boot_timeout}
             display isolinux.msg
             default ${default_boot}
+        ''').strip() + self.cr
+
+        self.timeout = dedent('''
+            timeout  ${boot_timeout}
         ''').strip() + self.cr
 
         self.ui_theme = dedent('''
@@ -171,6 +174,7 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        template_data += self.timeout
         if terminal == 'serial':
             template_data += self.serial
             with_theme = False
@@ -201,6 +205,7 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        template_data += self.timeout
         if terminal == 'serial':
             template_data += self.serial
             with_theme = False
@@ -217,7 +222,7 @@ class BootLoaderTemplateIsoLinux(object):
         return Template(template_data)
 
     def get_install_template(
-        self, failsafe=True, with_theme=True, terminal=None
+        self, failsafe=True, with_theme=True, terminal=None, with_timeout=True
     ):
         """
         Bootloader configuration template for install media
@@ -230,6 +235,8 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        if with_timeout:
+            template_data += self.timeout
         if terminal == 'serial':
             template_data += self.serial
             with_theme = False
@@ -244,7 +251,7 @@ class BootLoaderTemplateIsoLinux(object):
         return Template(template_data)
 
     def get_multiboot_install_template(
-        self, failsafe=True, with_theme=True, terminal=None
+        self, failsafe=True, with_theme=True, terminal=None, with_timeout=True
     ):
         """
         Bootloader configuration template for install media with
@@ -258,6 +265,8 @@ class BootLoaderTemplateIsoLinux(object):
         :rtype: Template
         """
         template_data = self.header
+        if with_timeout:
+            template_data += self.timeout
         if terminal == 'serial':
             template_data += self.serial
             with_theme = False

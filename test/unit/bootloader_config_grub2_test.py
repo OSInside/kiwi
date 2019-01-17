@@ -320,9 +320,15 @@ class TestBootLoaderConfigGrub2(object):
         mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
         grub_default.write.assert_called_once_with()
         assert grub_default.__setitem__.call_args_list == [
-            call('GRUB_BACKGROUND', '/boot/grub2/themes/openSUSE/background.png'),
+            call(
+                'GRUB_BACKGROUND',
+                '/boot/grub2/themes/openSUSE/background.png'
+            ),
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
-            call('GRUB_SERIAL_COMMAND', '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'),
+            call(
+                'GRUB_SERIAL_COMMAND',
+                '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'
+            ),
             call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
             call('GRUB_TIMEOUT', 10),
             call('GRUB_USE_INITRDEFI', 'true'),
@@ -386,7 +392,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.multiboot = True
         self.bootloader.setup_install_image_config(self.mbrid)
         self.grub2.get_multiboot_install_template.assert_called_once_with(
-            True, 'gfxterm'
+            True, 'gfxterm', True
         )
 
     def test_setup_disk_image_config_standard(self):
@@ -428,7 +434,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.multiboot = False
         self.bootloader.setup_install_image_config(self.mbrid)
         self.grub2.get_install_template.assert_called_once_with(
-            True, True, 'gfxterm'
+            True, True, 'gfxterm', True
         )
 
     @raises(KiwiTemplateError)

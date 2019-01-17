@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/work/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -100,7 +100,7 @@ except ImportError:
 try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
-
+    
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
         class _FixedOffsetTZ(datetime_.tzinfo):
@@ -2732,7 +2732,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, pxedeploy=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2767,6 +2767,7 @@ class type_(GeneratedsSuper):
         self.initrd_system = _cast(None, initrd_system)
         self.image = _cast(None, image)
         self.installboot = _cast(None, installboot)
+        self.install_continue_on_timeout = _cast(bool, install_continue_on_timeout)
         self.installprovidefailsafe = _cast(bool, installprovidefailsafe)
         self.installiso = _cast(bool, installiso)
         self.installstick = _cast(bool, installstick)
@@ -2931,6 +2932,8 @@ class type_(GeneratedsSuper):
     def set_image(self, image): self.image = image
     def get_installboot(self): return self.installboot
     def set_installboot(self, installboot): self.installboot = installboot
+    def get_install_continue_on_timeout(self): return self.install_continue_on_timeout
+    def set_install_continue_on_timeout(self, install_continue_on_timeout): self.install_continue_on_timeout = install_continue_on_timeout
     def get_installprovidefailsafe(self): return self.installprovidefailsafe
     def set_installprovidefailsafe(self, installprovidefailsafe): self.installprovidefailsafe = installprovidefailsafe
     def get_installiso(self): return self.installiso
@@ -3134,6 +3137,9 @@ class type_(GeneratedsSuper):
         if self.installboot is not None and 'installboot' not in already_processed:
             already_processed.add('installboot')
             outfile.write(' installboot=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.installboot), input_name='installboot')), ))
+        if self.install_continue_on_timeout is not None and 'install_continue_on_timeout' not in already_processed:
+            already_processed.add('install_continue_on_timeout')
+            outfile.write(' install_continue_on_timeout="%s"' % self.gds_format_boolean(self.install_continue_on_timeout, input_name='install_continue_on_timeout'))
         if self.installprovidefailsafe is not None and 'installprovidefailsafe' not in already_processed:
             already_processed.add('installprovidefailsafe')
             outfile.write(' installprovidefailsafe="%s"' % self.gds_format_boolean(self.installprovidefailsafe, input_name='installprovidefailsafe'))
@@ -3434,6 +3440,15 @@ class type_(GeneratedsSuper):
             already_processed.add('installboot')
             self.installboot = value
             self.installboot = ' '.join(self.installboot.split())
+        value = find_attr_value_('install_continue_on_timeout', node)
+        if value is not None and 'install_continue_on_timeout' not in already_processed:
+            already_processed.add('install_continue_on_timeout')
+            if value in ('true', '1'):
+                self.install_continue_on_timeout = True
+            elif value in ('false', '0'):
+                self.install_continue_on_timeout = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('installprovidefailsafe', node)
         if value is not None and 'installprovidefailsafe' not in already_processed:
             already_processed.add('installprovidefailsafe')

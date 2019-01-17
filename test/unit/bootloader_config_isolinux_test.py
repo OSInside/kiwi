@@ -44,6 +44,9 @@ class TestBootLoaderConfigIsoLinux(object):
         self.state.build_type.get_boottimeout = mock.Mock(
             return_value=None
         )
+        self.state.build_type.get_install_continue_on_timeout = mock.Mock(
+            return_value=None
+        )
         self.state.get_initrd_system = mock.Mock(
             return_value='dracut'
         )
@@ -150,7 +153,7 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_install_image_config(mbrid=None)
         self.isolinux.get_install_template.assert_called_once_with(
-            True, False, None
+            True, False, None, True
         )
         self.isolinux.get_install_message_template.assert_called_once_with()
         assert template_cfg.substitute.called
@@ -161,7 +164,7 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_install_image_config(mbrid=None)
         self.isolinux.get_multiboot_install_template.assert_called_once_with(
-            True, False, None
+            True, False, None, True
         )
 
     @patch('os.path.exists')
@@ -170,7 +173,7 @@ class TestBootLoaderConfigIsoLinux(object):
 
         self.bootloader.setup_install_image_config(mbrid=None)
         self.isolinux.get_install_template.assert_called_once_with(
-            True, True, None
+            True, True, None, True
         )
 
     @raises(KiwiTemplateError)
