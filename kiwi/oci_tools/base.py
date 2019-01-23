@@ -106,11 +106,13 @@ class OCIBase(object):
         """
         raise NotImplementedError
 
-    def repack(self):
+    def repack(self, oci_config):
         """
         Pack root data directory into container image
 
         Implementation in specialized tool class
+
+        :param list oci_config: meta data list
         """
         raise NotImplementedError
 

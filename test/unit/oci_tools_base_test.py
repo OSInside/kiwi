@@ -34,7 +34,7 @@ class TestOCIBase(object):
 
     def test_repack(self):
         with raises(NotImplementedError):
-            self.oci.repack()
+            self.oci.repack({})
 
     def test_add_tag(self):
         with raises(NotImplementedError):
@@ -42,7 +42,7 @@ class TestOCIBase(object):
 
     def test_set_config(self):
         with raises(NotImplementedError):
-            self.oci.set_config(['data'])
+            self.oci.set_config({})
 
     def test_garbage_collect(self):
         with raises(NotImplementedError):
