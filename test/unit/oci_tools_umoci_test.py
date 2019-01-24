@@ -41,24 +41,6 @@ class TestOCIBase(object):
             ['umoci', 'unpack', '--image', 'tmpdir/oci_layout:tag', 'oci_root']
         )
 
-    @patch('kiwi.oci_tools.umoci.mkdtemp')
-    @patch('kiwi.oci_tools.base.mkdtemp')
-    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
-    @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_repack_with_history(
-        self, mock_Command_run, mock_cmd_caps,
-        mock_base_mkdtemp, mock_umoci_mkdtemp
-    ):
-        mock_umoci_mkdtemp.return_value = 'oci_root'
-        mock_base_mkdtemp.return_value = 'tmpdir'
-        mock_cmd_caps.return_value = False
-        oci = OCIUmoci('tag')
-        oci.unpack()
-        oci.repack()
-        assert call(
-            ['umoci', 'repack', '--image', 'tmpdir/oci_layout:tag', 'oci_root']
-        ) in mock_Command_run.call_args_list
-
     @patch('kiwi.oci_tools.base.DataSync')
     def test_sync_rootfs(self, mock_sync):
         sync = Mock()
@@ -91,12 +73,23 @@ class TestOCIBase(object):
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_repack(self, mock_Command_run, mock_mkdtemp):
         mock_mkdtemp.return_value = 'oci_root'
+        oci_config = {
+            'history': {
+                'author': 'history author',
+                'comment': 'This is a comment',
+                'created_by': 'created by text'
+            }
+        }
         self.oci.unpack()
-        self.oci.repack()
+        self.oci.repack(oci_config)
         assert call(
             [
-                'umoci', 'repack', '--no-history', '--image',
-                'tmpdir/oci_layout:tag', 'oci_root'
+                'umoci', 'repack',
+                '--history.comment=This is a comment',
+                '--history.created_by=created by text',
+                '--history.author=history author',
+                '--history.created', 'current_date',
+                '--image', 'tmpdir/oci_layout:tag', 'oci_root'
             ]
         ) in mock_Command_run.call_args_list
 
@@ -122,11 +115,6 @@ class TestOCIBase(object):
             'volumes': ['/var/log', '/tmp'],
             'environment': {'FOO': 'bar', 'PATH': '/bin'},
             'labels': {'a': 'value', 'b': 'value'},
-            'history': {
-                'author': 'history author',
-                'comment': 'This is a comment',
-                'created_by': 'created by text'
-            }
         }
         self.oci.set_config(oci_config)
         mock_Command_run.assert_called_once_with(
@@ -138,12 +126,49 @@ class TestOCIBase(object):
                 '--config.exposedports=80', '--config.exposedports=42',
                 '--config.env=FOO=bar', '--config.env=PATH=/bin',
                 '--config.label=a=value', '--config.label=b=value',
-                '--history.comment=This is a comment',
-                '--history.created_by=created by text',
-                '--history.author=history author',
-                '--history.created', 'current_date',
-                '--image', 'tmpdir/oci_layout:tag', '--tag', 'tag',
-                '--created', 'current_date'
+                '--no-history', '--image', 'tmpdir/oci_layout:tag',
+                '--tag', 'tag', '--created', 'current_date'
+            ]
+        )
+
+    @patch('kiwi.oci_tools.base.mkdtemp')
+    @patch('kiwi.oci_tools.base.datetime')
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.oci_tools.umoci.Command.run')
+    def test_set_config_with_history(
+        self, mock_Command_run, mock_cmd_caps, mock_datetime, mock_mkdtemp
+    ):
+        oci_config = {
+            'entry_command': ['/bin/bash', '-x'],
+            'entry_subcommand': ['ls', '-l'],
+            'maintainer': 'tux',
+            'user': 'root',
+            'workingdir': '/root',
+            'expose_ports': ['80', '42'],
+            'volumes': ['/var/log', '/tmp'],
+            'environment': {'FOO': 'bar', 'PATH': '/bin'},
+            'labels': {'a': 'value', 'b': 'value'},
+        }
+        mock_mkdtemp.return_value = 'tmpdir'
+        mock_cmd_caps.return_value = False
+        strftime = Mock()
+        strftime.strftime = Mock(return_value='current_date')
+        mock_datetime.utcnow = Mock(
+            return_value=strftime
+        )
+        oci = OCIUmoci('tag')
+        oci.set_config(oci_config)
+        mock_Command_run.assert_called_once_with(
+            [
+                'umoci', 'config', '--author=tux', '--config.user=root',
+                '--config.workingdir=/root', '--config.entrypoint=/bin/bash',
+                '--config.entrypoint=-x', '--config.cmd=ls', '--config.cmd=-l',
+                '--config.volume=/var/log', '--config.volume=/tmp',
+                '--config.exposedports=80', '--config.exposedports=42',
+                '--config.env=FOO=bar', '--config.env=PATH=/bin',
+                '--config.label=a=value', '--config.label=b=value',
+                '--image', 'tmpdir/oci_layout:tag',
+                '--tag', 'tag', '--created', 'current_date'
             ]
         )
 
@@ -153,8 +178,7 @@ class TestOCIBase(object):
         self.oci.set_config({}, True)
         assert mock_Command_run.call_args_list == [
             call([
-                'umoci', 'config',
-                '--history.created', 'current_date',
+                'umoci', 'config', '--no-history',
                 '--image', 'tmpdir/oci_layout:base_layer', '--tag', 'tag',
                 '--created', 'current_date'
             ]),
@@ -174,7 +198,7 @@ class TestOCIBase(object):
         mock_Command_run.assert_called_once_with(
             [
                 'umoci', 'config', '--clear=config.entrypoint',
-                '--clear=config.cmd', '--history.created', 'current_date',
+                '--clear=config.cmd', '--no-history',
                 '--image', 'tmpdir/oci_layout:tag', '--tag', 'tag',
                 '--created', 'current_date'
             ]

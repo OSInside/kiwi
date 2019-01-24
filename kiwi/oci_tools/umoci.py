@@ -37,7 +37,7 @@ class OCIUmoci(OCIBase):
             [self.container_dir, self.container_tag]
         )
         if CommandCapabilities.has_option_in_help(
-            'umoci', '--no-history', ['repack', '--help']
+            'umoci', '--no-history', ['config', '--help']
         ):
             self.no_history_flag = ['--no-history']
         else:
@@ -102,12 +102,16 @@ class OCIUmoci(OCIBase):
             options=['-a', '-H', '-X', '-A']
         )
 
-    def repack(self):
+    def repack(self, oci_config):
         """
         Pack root data directory into container image
+
+        :param list oci_config: meta data list
         """
+        history_flags = self._process_oci_history_to_arguments(oci_config)
+        history_flags.extend(['--history.created', self.creation_date])
         Command.run(
-            ['umoci', 'repack'] + self.no_history_flag + [
+            ['umoci', 'repack'] + history_flags + [
                 '--image', self.container_name, self.oci_root_dir
             ]
         )
@@ -136,8 +140,7 @@ class OCIUmoci(OCIBase):
         Command.run(
             [
                 'umoci', 'config'
-            ] + config_args + [
-                '--history.created', self.creation_date,
+            ] + config_args + self.no_history_flag + [
                 '--image', self.container_name,
                 '--tag', self.container_tag,
                 '--created', self.creation_date
@@ -211,7 +214,6 @@ class OCIUmoci(OCIBase):
                     name, oci_config['labels'][name]
                 ))
 
-        arguments.extend(cls._process_oci_history_to_arguments(oci_config))
         return arguments
 
     @classmethod

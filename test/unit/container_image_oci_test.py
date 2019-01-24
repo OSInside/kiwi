@@ -114,7 +114,13 @@ class TestContainerImageOCI(object):
                 'var/cache/kiwi', 'boot', 'dev', 'sys', 'proc'
             ]
         )
-        self.oci.oci.repack.assert_called_once_with()
+        self.oci.oci.repack.assert_called_once_with({
+            'container_name': 'foo/bar',
+            'additional_tags': ['current', 'foobar'],
+            'container_tag': 'latest',
+            'entry_subcommand': ['/bin/bash'],
+            'history': {'created_by': 'KIWI {0}'.format(__version__)}
+        })
         self.oci.oci.set_config.assert_called_once_with({
             'container_name': 'foo/bar',
             'additional_tags': ['current', 'foobar'],
@@ -161,7 +167,13 @@ class TestContainerImageOCI(object):
                 'var/cache/kiwi', 'boot', 'dev', 'sys', 'proc'
             ]
         )
-        self.oci.oci.repack.assert_called_once_with()
+        self.oci.oci.repack.assert_called_once_with({
+            'container_name': 'foo/bar',
+            'additional_tags': ['current', 'foobar'],
+            'container_tag': 'latest',
+            'entry_subcommand': ['/bin/bash'],
+            'history': {'created_by': 'KIWI {0}'.format(__version__)}
+        })
         self.oci.oci.set_config.assert_called_once_with({
             'container_name': 'foo/bar',
             'additional_tags': ['current', 'foobar'],
