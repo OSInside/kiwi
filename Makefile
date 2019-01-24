@@ -55,7 +55,7 @@ install:
 	# completion
 	install -d -m 755 ${buildroot}etc/bash_completion.d
 	$(python) helper/completion_generator \
-		> ${buildroot}etc/bash_completion.d/kiwi-ng-${python_version}.sh
+		> ${buildroot}etc/bash_completion.d/kiwi-ng.sh
 
 tox:
 	tox
