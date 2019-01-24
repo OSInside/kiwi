@@ -128,7 +128,9 @@ The prepare step consists of the following substeps:
 
    .. code-block:: xml
 
-      <package type="delete">package_to_be_deleted</package>
+      <packages type="delete">
+          <package name="package_to_be_deleted"/>
+      </packages>
 
 #. **Apply the Overlay Tree.**
 
@@ -383,10 +385,11 @@ The following list describes the functions available inside the
      baseStripMans more less
 
 ``baseStripRPM``
-  Remove rpms defined in :file:`config.xml` in the image type=delete section.
+  Remove rpms defined in :file:`config.xml` in the packages `type=delete`
+  section.
 
 ``suseRemovePackagesMarkedForDeletion``
-  Remove rpms defined in :file:`config.xml` in the image `type=delete`
+  Remove rpms defined in :file:`config.xml` in the packages `type=delete`
   section. The difference compared to `baseStripRPM` is that the suse
   variant checks if the package is really installed prior to passing it
   to rpm to uninstall it. The suse rpm exits with an error exit code
