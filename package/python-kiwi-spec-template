@@ -564,7 +564,6 @@ fi
 %ghost %_sysconfdir/alternatives/kiwi-ng
 %ghost %_sysconfdir/alternatives/kiwicompat
 %{python2_sitelib}/*
-%config %_sysconfdir/bash_completion.d/kiwi-ng.sh
 
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
 %files -n python3-kiwi
@@ -578,7 +577,6 @@ fi
 %ghost %_sysconfdir/alternatives/kiwi-ng
 %ghost %_sysconfdir/alternatives/kiwicompat
 %{python3_sitelib}/*
-%config %_sysconfdir/bash_completion.d/kiwi-ng.sh
 %endif
 
 %files -n kiwi-man-pages
@@ -587,6 +585,7 @@ fi
 %{_defaultdocdir}/python-kiwi/kiwi.pdf
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
+%config %_sysconfdir/bash_completion.d/kiwi-ng.sh
 %doc %{_mandir}/man8/*
 
 %files -n kiwi-tools
