@@ -541,8 +541,10 @@ class XMLState(object):
     def is_xen_guest(self):
         """
         Check if build type setup specifies a Xen Guest (domX)
-        The check is based on the firmware and xen_loader configuration
-        values:
+        The check is based on the architecture, the firmware and
+        xen_loader configuration values:
+
+        * We only support Xen setup on the x86_64 architecture
 
         * Firmware pointing to ec2 means the image is targeted to run
           in Amazon EC2 which is a Xen guest
@@ -554,6 +556,9 @@ class XMLState(object):
 
         :rtype: bool
         """
+        if self.host_architecture != 'x86_64':
+            # We only support Xen stuff on x86_64
+            return False
         firmware = self.build_type.get_firmware()
         machine_section = self.get_build_type_machine_section()
         if firmware and firmware in Defaults.get_ec2_capable_firmware_names():
@@ -562,6 +567,7 @@ class XMLState(object):
         elif machine_section and machine_section.get_xen_loader():
             # the image provides a machine section with a guest loader setup
             return True
+        return False
 
     def get_build_type_system_disk_section(self):
         """
