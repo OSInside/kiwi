@@ -152,7 +152,7 @@ class TestBootLoaderInstallGrub2(object):
     ):
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2'
+            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
 
         def side_effect(device, mountpoint=None):
             return self.mount_managers.pop()
@@ -196,7 +196,7 @@ class TestBootLoaderInstallGrub2(object):
     ):
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2'
+            self.root_mount.mountpoint + '/usr/lib/grub2/powerpc-ieee1275'
         self.bootloader.arch = 'ppc64'
 
         def side_effect(device, mountpoint=None):
@@ -235,7 +235,7 @@ class TestBootLoaderInstallGrub2(object):
     ):
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2'
+            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
         self.boot_mount.device = self.root_mount.device
 
         def side_effect(device, mountpoint=None):
@@ -281,7 +281,7 @@ class TestBootLoaderInstallGrub2(object):
         mock_exists.return_value = True
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2'
+            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
         self.firmware.efi_mode.return_value = 'uefi'
         self.boot_mount.device = self.root_mount.device
 
@@ -342,7 +342,7 @@ class TestBootLoaderInstallGrub2(object):
         mock_exists.return_value = True
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2'
+            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
         self.firmware.efi_mode.return_value = 'uefi'
         self.boot_mount.device = self.root_mount.device
 
