@@ -73,7 +73,7 @@ class BootLoaderTemplateGrub2(object):
         ''').strip() + os.linesep
 
         self.fonts = dedent('''
-            set font=($$root)${bootpath}/unicode.pf2
+            set font=($$root)${bootpath}/${boot_directory_name}/fonts/unicode.pf2
             set ascii_font=${boot_directory_name}/themes/${theme}/ascii.pf2
             set sans_bold_14_font=${boot_directory_name}/themes/${theme}/DejaVuSans-Bold14.pf2
             set sans_10_font=${boot_directory_name}/themes/${theme}/DejaVuSans10.pf2

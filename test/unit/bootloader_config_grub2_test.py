@@ -38,13 +38,13 @@ class TestBootLoaderConfigGrub2(object):
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.os_exists = {
-            'root_dir/boot/unicode.pf2': True,
+            'root_dir/boot/grub2/fonts/unicode.pf2': True,
             'root_dir/boot/grub2/themes/some-theme/background.png': True,
             'root_dir/usr/share/grub2': True,
             'root_dir/usr/share/grub': False,
             'root_dir/boot/grub2/themes': False,
             'root_dir/boot/grub/themes': False,
-            'root_dir/boot/grub/unicode.pf2': False,
+            'root_dir/boot/grub/fonts/unicode.pf2': False,
             'root_dir/usr/lib/grub2': True,
             'root_dir/usr/lib/grub': False,
             'root_dir/boot/grub2/x86_64-efi': False,
@@ -474,7 +474,7 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubDataError)
     def test_no_grub_installation_found(self, mock_exists, mock_command):
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
         self.os_exists['root_dir/usr/share/grub2'] = False
         self.os_exists['root_dir/usr/share/grub'] = False
 
@@ -490,7 +490,7 @@ class TestBootLoaderConfigGrub2(object):
     def test_setup_disk_boot_images_raises_font_does_not_exist(
         self, mock_exists, mock_command
     ):
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -531,7 +531,7 @@ class TestBootLoaderConfigGrub2(object):
             return_value='efi'
         )
         self.bootloader.xen_guest = True
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -543,7 +543,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]),
             call([
                 'grub2-mkimage', '-O', 'x86_64-efi',
@@ -577,7 +577,7 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
         )
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -604,7 +604,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]),
             call([
                 'grub2-mkimage', '-O', 'x86_64-efi',
@@ -644,7 +644,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]),
             call([
                 'cp', 'custom_grub_image',
@@ -674,7 +674,7 @@ class TestBootLoaderConfigGrub2(object):
             return_value=None
         )
         self.bootloader.xen_guest = True
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -686,7 +686,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_command.assert_called_once_with(
             [
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]
         )
         mock_sync.assert_called_once_with(
@@ -707,7 +707,7 @@ class TestBootLoaderConfigGrub2(object):
             return_value=None
         )
         self.bootloader.xen_guest = False
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -719,7 +719,7 @@ class TestBootLoaderConfigGrub2(object):
         mock_command.assert_called_once_with(
             [
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]
         )
 
@@ -824,7 +824,7 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='efi'
         )
-        self.os_exists['root_dir/boot/unicode.pf2'] = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
         self.os_exists['root_dir/boot/efi/'] = False
 
         def side_effect(arg):
@@ -852,7 +852,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]),
             call([
                 'grub2-mkimage', '-O', 'x86_64-efi',
@@ -892,7 +892,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/unicode.pf2'
+                'root_dir/boot/grub2/fonts/unicode.pf2'
             ]),
             call([
                 'cp', 'custom_grub_image', 'root_dir//EFI/BOOT/bootx64.efi'

@@ -724,7 +724,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def _copy_theme_data_to_boot_directory(self, lookup_path):
         if not lookup_path:
             lookup_path = self.root_dir
-        boot_unicode_font = self.root_dir + '/boot/unicode.pf2'
+        boot_fonts_dir = os.sep.join(
+            [self.root_dir, 'boot', self.boot_directory_name, 'fonts']
+        )
+        Path.create(boot_fonts_dir)
+        boot_unicode_font = boot_fonts_dir + '/unicode.pf2'
         if not os.path.exists(boot_unicode_font):
             unicode_font = self._find_grub_data(lookup_path + '/usr/share') + \
                 '/unicode.pf2'
