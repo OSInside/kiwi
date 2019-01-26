@@ -709,10 +709,22 @@ class TestXMLState(object):
     def test_is_xen_guest_by_machine_setup(self):
         assert self.state.is_xen_guest() is True
 
-    def test_is_xen_guest_by_firmware_setup(self):
+    def test_is_xen_guest_no_xen_guest_setup(self):
+        assert self.boot_state.is_xen_guest() is False
+
+    @patch('platform.machine')
+    def test_is_xen_guest_by_firmware_setup(self, mock_platform_machine):
+        mock_platform_machine.return_value = 'x86_64'
         xml_data = self.description.load()
         state = XMLState(xml_data, ['ec2Flavour'], 'vmx')
         assert state.is_xen_guest() is True
+
+    @patch('platform.machine')
+    def test_is_xen_guest_by_architecture(self, mock_platform_machine):
+        mock_platform_machine.return_value = 'unsupported'
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['ec2Flavour'], 'vmx')
+        assert state.is_xen_guest() is False
 
     def test_get_initrd_system(self):
         xml_data = self.description.load()
