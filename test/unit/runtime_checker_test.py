@@ -351,3 +351,19 @@ class TestRuntimeChecker(object):
     @raises(KiwiRuntimeError)
     def test_check_volume_label_used_with_lvm(self):
         self.runtime_checker.check_volume_label_used_with_lvm()
+
+    @raises(KiwiRuntimeError)
+    def test_check_preferences_data_no_version(self):
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_minimal_required_preferences()
+
+    @raises(KiwiRuntimeError)
+    def test_check_preferences_data_no_packagemanager(self):
+        xml_state = XMLState(
+            self.description.load(), ['xenFlavour'], 'vmx'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_minimal_required_preferences()

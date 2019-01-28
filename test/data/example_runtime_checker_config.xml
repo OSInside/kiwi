@@ -26,15 +26,22 @@
         </specification>
     </description>
     <profiles>
+        <profile name="metadata" description="Inlude some preferences metadata"/>
+        <profile name="noVersion" description="Does not include version element"/>
         <profile name="xenFlavour" description="VMX with Xen kernel"/>
         <profile name="ec2Flavour" description="VMX with EC2/Xen kernel"/>
-        <profile name="docker" description="docker image"/>
-        <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
+        <profile name="docker" description="docker image">
+            <requires profile="noVersion"/>
+        </profile>
+        <profile name="vmxFlavour" description="VMX with default kernel" import="true">
+            <requires profile="metadata"/>
+        </profile>
     </profiles>
-    <preferences>
+    <preferences profiles="noVersion">
         <locale>de_DE</locale>
+        <packagemanager>zypper</packagemanager>
     </preferences>
-    <preferences>
+    <preferences profiles="metadata">
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
