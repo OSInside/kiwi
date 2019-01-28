@@ -37,6 +37,7 @@ class TestBootLoaderConfigGrub2(object):
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
+        self.find_grub = {}
         self.os_exists = {
             'root_dir/boot/grub2/fonts/unicode.pf2': True,
             'root_dir/boot/grub2/themes/some-theme/background.png': True,
@@ -135,7 +136,12 @@ class TestBootLoaderConfigGrub2(object):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/usr/share/grub/themes/some-theme'] = False
+        self.os_exists['root_dir/usr/lib/grub2/themes/some-theme'] = True
+        self.os_exists['root_dir/usr/lib/grub/themes/some-theme'] = False
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -165,6 +171,11 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/usr/lib/grub2/themes/some-theme'] = True
+        self.os_exists['root_dir/usr/lib/grub/themes/some-theme'] = False
+        self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -474,9 +485,10 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @raises(KiwiBootLoaderGrubDataError)
     def test_no_grub_installation_found(self, mock_exists, mock_command):
-        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
-        self.os_exists['root_dir/usr/share/grub2'] = False
-        self.os_exists['root_dir/usr/share/grub'] = False
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = False
+        self.os_exists['root_dir/usr/lib/grub2/i386-pc'] = False
+        self.os_exists['root_dir/usr/share/grub/i386-pc'] = False
+        self.os_exists['root_dir/usr/lib/grub/i386-pc'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -486,11 +498,16 @@ class TestBootLoaderConfigGrub2(object):
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
+    @patch('kiwi.defaults.Defaults.get_grub_path')
     @raises(KiwiBootLoaderGrubFontError)
     def test_setup_disk_boot_images_raises_font_does_not_exist(
-        self, mock_exists, mock_command
+        self, mock_get_grub_path, mock_exists, mock_command
     ):
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/lib/grub2/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/lib/grub/unicode.pf2'] = False
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -532,6 +549,9 @@ class TestBootLoaderConfigGrub2(object):
         )
         self.bootloader.xen_guest = True
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-xen'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -550,7 +570,7 @@ class TestBootLoaderConfigGrub2(object):
                 '-o', 'root_dir/boot/efi/EFI/BOOT/bootx64.efi',
                 '-c', 'root_dir/boot/efi/EFI/BOOT/earlyboot.cfg',
                 '-p', '//grub2',
-                '-d', 'root_dir/usr/lib/grub2/x86_64-efi',
+                '-d', 'root_dir/usr/share/grub2/x86_64-efi',
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
@@ -578,6 +598,9 @@ class TestBootLoaderConfigGrub2(object):
             return_value='efi'
         )
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -611,7 +634,7 @@ class TestBootLoaderConfigGrub2(object):
                 '-o', 'root_dir/boot/efi/EFI/BOOT/bootx64.efi',
                 '-c', 'root_dir/boot/efi/EFI/BOOT/earlyboot.cfg',
                 '-p', '//grub2',
-                '-d', 'root_dir/usr/lib/grub2/x86_64-efi',
+                '-d', 'root_dir/usr/share/grub2/x86_64-efi',
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
@@ -622,11 +645,11 @@ class TestBootLoaderConfigGrub2(object):
         ]
         assert mock_sync.call_args_list == [
             call(
-                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ),
             call(
-                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             )
         ]
@@ -675,6 +698,8 @@ class TestBootLoaderConfigGrub2(object):
         )
         self.bootloader.xen_guest = True
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-xen'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -690,7 +715,7 @@ class TestBootLoaderConfigGrub2(object):
             ]
         )
         mock_sync.assert_called_once_with(
-            'root_dir/usr/lib/grub2/x86_64-xen/',
+            'root_dir/usr/share/grub2/x86_64-xen/',
             'root_dir/boot/grub2/x86_64-xen'
         )
 
@@ -708,6 +733,7 @@ class TestBootLoaderConfigGrub2(object):
         )
         self.bootloader.xen_guest = False
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -737,6 +763,8 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -746,12 +774,12 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
-                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
-                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi']
             )]
         assert mock_log.called
@@ -775,6 +803,8 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -788,12 +818,12 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
-                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
-                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             ]),
             call([
@@ -825,6 +855,9 @@ class TestBootLoaderConfigGrub2(object):
             return_value='efi'
         )
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
         self.os_exists['root_dir/boot/efi/'] = False
 
         def side_effect(arg):
@@ -859,7 +892,7 @@ class TestBootLoaderConfigGrub2(object):
                 '-o', 'root_dir//EFI/BOOT/bootx64.efi',
                 '-c', 'root_dir//EFI/BOOT/earlyboot.cfg',
                 '-p', '//grub2',
-                '-d', 'root_dir/usr/lib/grub2/x86_64-efi',
+                '-d', 'root_dir/usr/share/grub2/x86_64-efi',
                 'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
@@ -870,11 +903,11 @@ class TestBootLoaderConfigGrub2(object):
         ]
         assert mock_sync.call_args_list == [
             call(
-                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ),
             call(
-                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             )
         ]
@@ -925,6 +958,8 @@ class TestBootLoaderConfigGrub2(object):
         self.firmware.efi_mode = mock.Mock(
             return_value='uefi'
         )
+        self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
 
         def side_effect_exists(arg):
             return self.os_exists[arg]
@@ -938,7 +973,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_command.call_args_list == [
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
-                'root_dir/usr/lib/grub2/i386-pc/',
+                'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
@@ -946,7 +981,7 @@ class TestBootLoaderConfigGrub2(object):
             ]),
             call([
                 'rsync', '-z', '-a', '--exclude', '/*.module',
-                'root_dir/usr/lib/grub2/x86_64-efi/',
+                'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             ]),
             call([
@@ -979,6 +1014,7 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.theme = 'some-theme'
         self.os_exists['lookup_path/usr/share/grub2'] = True
         self.os_exists['lookup_path/usr/lib/grub2'] = True
+        self.os_exists['lookup_path/usr/share/grub2/i386-pc'] = True
         self.os_exists['lookup_path/usr/share/grub2/themes/some-theme'] = True
         self.os_exists['lookup_path/boot/grub2/themes/some-theme'] = True
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
@@ -1008,15 +1044,17 @@ class TestBootLoaderConfigGrub2(object):
             options=['-z', '-a']
         )
 
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch_open
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
     @patch('glob.iglob')
+    @patch('kiwi.defaults.Defaults.get_grub_path')
     def test_setup_install_boot_images_with_theme_from_boot(
-        self, mock_glob, mock_machine, mock_warn, mock_exists,
-        mock_open, mock_sync
+        self, mock_get_grub_path, mock_glob, mock_machine,
+        mock_warn, mock_exists, mock_open, mock_sync, mock_command
     ):
         mock_glob.return_value = [
             'lookup_path/boot/grub2/themes/some-theme/background.png'
@@ -1026,14 +1064,19 @@ class TestBootLoaderConfigGrub2(object):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
 
-        self.os_exists['lookup_path/usr/share/grub2'] = True
-        self.os_exists['lookup_path/usr/lib/grub2'] = True
-        self.os_exists['lookup_path/usr/share/grub2/themes/some-theme'] = False
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
+        self.os_exists['some-theme'] = False
+
+        self.find_grub['themes/some-theme'] = 'some-theme'
+        self.find_grub['i386-pc'] = 'i386-pc'
+
+        def find_grub_data_side_effect(root_path, filename):
+            return self.find_grub[filename]
 
         def side_effect(arg):
             return self.os_exists[arg]
 
+        mock_get_grub_path.side_effect = find_grub_data_side_effect
         mock_exists.side_effect = side_effect
         self.bootloader.setup_install_boot_images(
             self.mbrid, lookup_path='lookup_path'
@@ -1052,13 +1095,17 @@ class TestBootLoaderConfigGrub2(object):
     @patch('os.path.exists')
     @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
+    @patch('kiwi.defaults.Defaults.get_grub_path')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_machine, mock_warn, mock_exists, mock_open,
-        mock_sync, mock_command
+        self, mock_get_grub_path, mock_machine, mock_warn,
+        mock_exists, mock_open, mock_sync, mock_command
     ):
         mock_machine.return_value = 'x86_64'
         self.bootloader.theme = 'some-theme'
-        self.os_exists['root_dir/usr/share/grub2/themes/some-theme'] = False
+
+        mock_get_grub_path.return_value = 'theme-dir'
+
+        self.os_exists['theme-dir'] = False
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
 
         def side_effect(arg):
@@ -1069,7 +1116,7 @@ class TestBootLoaderConfigGrub2(object):
         assert mock_warn.called
         assert self.bootloader.terminal == 'console'
 
-    @patch('kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_install_boot_images')
+    @patch.object(BootLoaderConfigGrub2, 'setup_install_boot_images')
     def test_setup_live_boot_images(self, mock_setup_install_boot_images):
         self.bootloader.setup_live_boot_images(self.mbrid)
         mock_setup_install_boot_images.assert_called_once_with(

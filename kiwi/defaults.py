@@ -30,6 +30,8 @@ from .version import (
     __version__
 )
 
+from .exceptions import KiwiBootLoaderGrubDataError
+
 
 class Defaults(object):
     """
@@ -431,24 +433,45 @@ class Defaults(object):
         return modules
 
     @classmethod
-    def get_grub_path(cls, lookup_path):
+    def get_grub_path(cls, root_path, filename, raise_on_error=True):
         """
-        Provides grub install path
+        Provides grub path to given search file
 
         Depending on the distribution grub could be installed below
-        a grub2 or grub directory. Therefore this information needs
+        a grub2 or grub directory. grub could also reside in /usr/lib
+        as well as in /usr/share. Therefore this information needs
         to be dynamically looked up
 
-        :param string lookup_path: path name
+        :param string root_path: root path to start the lookup from
+        :param string filename: filename to search
+        :param bool raise_on_error: raise on not found, defaults to True
 
-        :return: grub2 install directory path name
+        The method returns the path to the given grub search file.
+        By default it raises a KiwiBootLoaderGrubDataError exception
+        if the file could not be found in any of the search locations.
+        If raise_on_error is set to False and no file could be found
+        the function returns None
+
+        :return: filepath
 
         :rtype: str
         """
+        install_dirs = [
+            'usr/share', 'usr/lib'
+        ]
+        lookup_list = []
         for grub_name in ['grub2', 'grub']:
-            grub_path = lookup_path + '/' + grub_name
-            if os.path.exists(grub_path):
-                return grub_path
+            for install_dir in install_dirs:
+                grub_path = os.sep.join(
+                    [root_path, install_dir, grub_name, filename]
+                )
+                if os.path.exists(grub_path):
+                    return grub_path
+                lookup_list.append(grub_path)
+        if raise_on_error:
+            raise KiwiBootLoaderGrubDataError(
+                'grub path {0} not found in {1}'.format(filename, lookup_list)
+            )
 
     @classmethod
     def get_preparer(cls):
@@ -487,6 +510,7 @@ class Defaults(object):
         :rtype: str
         """
         shim_file_patterns = [
+            '/usr/share/efi/*/shim.efi',
             '/usr/lib64/efi/shim.efi',
             '/boot/efi/EFI/*/shim.efi'
         ]
@@ -509,6 +533,7 @@ class Defaults(object):
         :rtype: str
         """
         unsigned_grub_file_patterns = [
+            '/usr/share/grub*/*-efi/grub.efi',
             '/usr/lib/grub*/*-efi/grub.efi'
         ]
         for unsigned_grub_file_pattern in unsigned_grub_file_patterns:
@@ -532,6 +557,7 @@ class Defaults(object):
         :rtype: str
         """
         signed_grub_file_patterns = [
+            '/usr/share/efi/*/grub.efi',
             '/usr/lib64/efi/grub.efi',
             '/boot/efi/EFI/*/grub*.efi'
         ]

@@ -193,17 +193,18 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.sysfs_mount.bind_mount()
 
         # check if a grub installation could be found in the image system
-        grub_directory = Defaults.get_grub_path(
-            self.root_mount.mountpoint + '/usr/lib'
+        module_directory = Defaults.get_grub_path(
+            self.root_mount.mountpoint, self.target, raise_on_error=False
         )
-        if not grub_directory:
+        if not module_directory:
             raise KiwiBootLoaderGrubDataError(
-                'No grub2 installation found in %s' % self.root_mount.mountpoint
+                'No grub2 installation found in {0} for target {1}'.format(
+                    self.root_mount.mountpoint, self.target
+                )
             )
-        grub_directory = grub_directory.replace(
+        module_directory = module_directory.replace(
             self.root_mount.mountpoint, ''
         )
-        module_directory = grub_directory + '/' + self.target
         boot_directory = '/boot'
 
         # wipe existing grubenv to allow the grub installer to create a new one
