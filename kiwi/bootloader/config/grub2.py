@@ -724,8 +724,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Path.create(boot_fonts_dir)
         boot_unicode_font = boot_fonts_dir + '/unicode.pf2'
         if not os.path.exists(boot_unicode_font):
-            unicode_font = Defaults.get_grub_path(lookup_path, 'unicode.pf2')
             try:
+                unicode_font = Defaults.get_grub_path(
+                    lookup_path, 'unicode.pf2'
+                )
                 Command.run(
                     ['cp', unicode_font, boot_unicode_font]
                 )
@@ -741,12 +743,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.theme:
             theme_dir = Defaults.get_grub_path(
-                lookup_path, 'themes/' + self.theme
+                lookup_path, 'themes/' + self.theme, raise_on_error=False
             )
             boot_theme_background_file = self._find_theme_background_file(
                 lookup_path
             )
-            if os.path.exists(theme_dir):
+            if theme_dir and os.path.exists(theme_dir):
                 if boot_theme_background_file:
                     # A background file was found. Preserve a copy of the
                     # file which was created at install time of the theme

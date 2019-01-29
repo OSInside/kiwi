@@ -1070,7 +1070,9 @@ class TestBootLoaderConfigGrub2(object):
         self.find_grub['themes/some-theme'] = 'some-theme'
         self.find_grub['i386-pc'] = 'i386-pc'
 
-        def find_grub_data_side_effect(root_path, filename):
+        def find_grub_data_side_effect(
+            root_path, filename, raise_on_error=True
+        ):
             return self.find_grub[filename]
 
         def side_effect(arg):
