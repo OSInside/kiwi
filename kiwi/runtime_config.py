@@ -102,7 +102,7 @@ class RuntimeConfig(object):
         of the bundle is smaller and the download speed increases.
         However the image must be uncompressed before use
 
-        By default the bundle won't contain compressed results.
+        By default the bundle will contain compressed results.
 
         :return: True or False
 
@@ -113,8 +113,8 @@ class RuntimeConfig(object):
         )
         if bundle_compress is None:
             # if the bundle compression is not set,
-            # the default is to not compress image results
-            bundle_compress = False
+            # the default is compress image results
+            bundle_compress = True
         return bool(bundle_compress)
 
     def get_xz_options(self):

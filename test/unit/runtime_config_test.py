@@ -44,7 +44,7 @@ class TestRuntimeConfig(object):
     def test_is_bundle_compression_requested_default(self):
         with patch.dict('os.environ', {'HOME': './'}):
             runtime_config = RuntimeConfig()
-            assert runtime_config.is_bundle_compression_requested() is False
+            assert runtime_config.is_bundle_compression_requested() is True
 
     def test_is_obs_public_default(self):
         with patch.dict('os.environ', {'HOME': './'}):
