@@ -152,7 +152,7 @@ class OCIUmoci(OCIBase):
                 [self.container_dir, self.container_tag]
             )
 
-    @classmethod                                                # noqa:C091
+    @classmethod                                                # noqa:C901
     def _process_oci_config_to_arguments(cls, oci_config):
         """
         Process the oci configuration dictionary into a list of arguments

@@ -856,7 +856,7 @@ class DiskBuilder(object):
             )
 
     def _write_bootloader_config_to_system_image(self, device_map):
-        if self.bootloader is not 'custom':
+        if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
             boot_options = []
             if self.mdraid:
@@ -939,7 +939,7 @@ class DiskBuilder(object):
                 {'system_volumes': self.system.get_volumes()}
             )
 
-        if self.bootloader is not 'custom':
+        if self.bootloader != 'custom':
             log.debug(
                 "custom arguments for bootloader installation %s",
                 custom_install_arguments

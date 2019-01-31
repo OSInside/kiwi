@@ -211,7 +211,7 @@ class SolverRepositoryBase(object):
         if not self.repository_solvable_dir:
             self.repository_solvable_dir = mkdtemp(prefix='solvable_dir.')
 
-        if tool is 'rpms2solv':
+        if tool == 'rpms2solv':
             # solvable is created from a bunch of rpm files
             bash_command = [
                 tool, os.sep.join([metadata_dir, '*.rpm']),
