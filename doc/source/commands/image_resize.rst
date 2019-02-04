@@ -1,3 +1,5 @@
+.. _kiwi_image_resize:
+
 kiwi image resize
 =================
 
