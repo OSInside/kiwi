@@ -28,6 +28,10 @@ class TestRepositoryBase(object):
         )
 
     @raises(NotImplementedError)
+    def test_setup_package_database_configuration(self):
+        self.repo.setup_package_database_configuration()
+
+    @raises(NotImplementedError)
     def test_import_trusted_keys(self):
         self.repo.import_trusted_keys(['key-file.asc'])
 

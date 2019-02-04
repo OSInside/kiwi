@@ -217,17 +217,22 @@ class TestRepositoryZypper(object):
             '../data/shared-dir/zypper/repos/foo.repo', 'w'
         )
 
+    @patch('kiwi.repository.zypper.RpmDataBase')
+    def test_setup_package_database_configuration(self, mock_RpmDataBase):
+        rpmdb = mock.Mock()
+        mock_RpmDataBase.return_value = rpmdb
+        self.repo.setup_package_database_configuration()
+        rpmdb.set_database_to_host_path.assert_called_once_with()
+
     @patch('kiwi.command.Command.run')
     def test_import_trusted_keys(self, mock_run):
         self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
         assert mock_run.call_args_list == [
             call([
-                'rpm', '--root', '../data', '--import',
-                'key-file-a.asc', '--dbpath', '/var/lib/rpm'
+                'rpm', '--root', '../data', '--import', 'key-file-a.asc',
             ]),
             call([
-                'rpm', '--root', '../data', '--import',
-                'key-file-b.asc', '--dbpath', '/var/lib/rpm'
+                'rpm', '--root', '../data', '--import', 'key-file-b.asc'
             ])
         ]
 

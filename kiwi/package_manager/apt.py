@@ -306,24 +306,6 @@ class PackageManagerApt(PackageManagerBase):
             '.*Removing ' + re.escape(package_name) + '.*', apt_get_output
         )
 
-    def database_consistent(self):
-        """
-        Check if package database is consistent
-
-        There is no database consistency/rebuild for apt-get
-        """
-        pass
-
-    def dump_reload_package_database(self, version=45):
-        """
-        Dump and reload the package database to match the desired db version
-
-        There is no such reload cycle for apt-get
-
-        :param str version: unused
-        """
-        pass
-
     def _package_requests(self):
         items = self.package_requests[:]
         self.cleanup_requests()

@@ -94,6 +94,13 @@ class TestRepositoryYum(object):
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
+    @patch('kiwi.repository.yum.RpmDataBase')
+    def test_setup_package_database_configuration(self, mock_RpmDataBase):
+        rpmdb = mock.Mock()
+        mock_RpmDataBase.return_value = rpmdb
+        self.repo.setup_package_database_configuration()
+        rpmdb.set_database_to_host_path.assert_called_once_with()
+
     @patch('kiwi.repository.yum.ConfigParser')
     @patch('os.path.exists')
     @patch_open

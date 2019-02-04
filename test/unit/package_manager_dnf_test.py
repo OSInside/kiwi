@@ -1,5 +1,4 @@
 from mock import patch
-
 import mock
 
 from .test_helper import raises
@@ -62,17 +61,13 @@ class TestPackageManagerDnf(object):
         )
 
     @patch('kiwi.command.Command.call')
-    @patch('kiwi.command.Command.run')
-    def test_process_install_requests(self, mock_run, mock_call):
+    def test_process_install_requests(self, mock_call):
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests()
         self.manager.root_bind.move_to_root(
             self.manager.dnf_args
-        )
-        mock_run.assert_called_once_with(
-            ['chroot', 'root-dir', 'rpm', '--rebuilddb']
         )
         mock_call.assert_called_once_with(
             [
@@ -147,7 +142,8 @@ class TestPackageManagerDnf(object):
         self.manager.process_only_required()
         assert self.manager.custom_args == ['--setopt=install_weak_deps=False']
         self.manager.process_plus_recommended()
-        assert '--setopt=install_weak_deps=False' not in self.manager.custom_args
+        assert \
+            '--setopt=install_weak_deps=False' not in self.manager.custom_args
 
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Installing  : foo')
@@ -155,17 +151,9 @@ class TestPackageManagerDnf(object):
     def test_match_package_deleted(self):
         assert self.manager.match_package_deleted('foo', 'Removing: foo')
 
-    @patch('kiwi.command.Command.run')
-    def test_database_consistent(self, mock_command):
-        assert self.manager.database_consistent() is True
-        mock_command.assert_called_once_with(
-            ['chroot', 'root-dir', 'rpmdb', '--initdb']
-        )
-
-    @patch('kiwi.command.Command.run')
-    def test_database_not_consistent(self, mock_command):
-        mock_command.side_effect = Exception
-        assert self.manager.database_consistent() is False
-
-    def test_dump_reload_package_database(self):
-        self.manager.dump_reload_package_database()
+    @patch('kiwi.package_manager.dnf.RpmDataBase')
+    def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):
+        rpmdb = mock.Mock()
+        mock_RpmDataBase.return_value = rpmdb
+        self.manager.post_process_install_requests_bootstrap()
+        rpmdb.set_database_to_image_path.assert_called_once_with()

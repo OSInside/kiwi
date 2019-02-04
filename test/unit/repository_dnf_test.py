@@ -110,6 +110,13 @@ class TestRepositoryDnf(object):
             '/shared-dir/dnf/repos/foo.repo', 'w'
         )
 
+    @patch('kiwi.repository.dnf.RpmDataBase')
+    def test_setup_package_database_configuration(self, mock_RpmDataBase):
+        rpmdb = mock.Mock()
+        mock_RpmDataBase.return_value = rpmdb
+        self.repo.setup_package_database_configuration()
+        rpmdb.set_database_to_host_path.assert_called_once_with()
+
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('os.path.exists')
     @patch_open

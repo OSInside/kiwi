@@ -193,9 +193,3 @@ class TestPackageManagerApt(object):
 
     def test_match_package_deleted(self):
         assert self.manager.match_package_deleted('foo', 'Removing foo')
-
-    def test_database_consistent(self):
-        self.manager.database_consistent()
-
-    def test_dump_reload_package_database(self):
-        self.manager.dump_reload_package_database()

@@ -209,6 +209,7 @@ class TestSystemPrepare(object):
             call('uri-alias'),
             call('uri-alias')
         ]
+        repo.setup_package_database_configuration.assert_called_once_with()
         repo.import_trusted_keys.assert_called_once_with(
             ['key-file-a.asc', 'key-file-b.asc']
         )
@@ -272,6 +273,7 @@ class TestSystemPrepare(object):
         )
         mock_tar.assert_called_once_with('../data/bootstrap.tgz')
         tar.extract.assert_called_once_with('root_dir')
+        self.manager.post_process_install_requests_bootstrap.assert_called_once_with()
 
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.xml_state.XMLState.get_bootstrap_packages_sections')

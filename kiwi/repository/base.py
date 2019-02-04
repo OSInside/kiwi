@@ -84,6 +84,14 @@ class RepositoryBase(object):
         """
         raise NotImplementedError
 
+    def setup_package_database_configuration(self):
+        """
+        Setup package database configuration
+
+        Implementation in specialized repository class
+        """
+        raise NotImplementedError
+
     def import_trusted_keys(self, signing_keys):
         """
         Imports trusted keys into the image

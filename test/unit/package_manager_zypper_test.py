@@ -1,16 +1,10 @@
 from mock import patch
-from mock import call
-from collections import namedtuple
-
 import mock
 
 from .test_helper import raises
 
 from kiwi.package_manager.zypper import PackageManagerZypper
-from kiwi.exceptions import (
-    KiwiRequestError,
-    KiwiRpmDatabaseReloadError
-)
+from kiwi.exceptions import KiwiRequestError
 
 
 class TestPackageManagerZypper(object):
@@ -153,99 +147,9 @@ class TestPackageManagerZypper(object):
     def test_match_package_deleted(self):
         assert self.manager.match_package_deleted('foo', 'Removing: foo')
 
-    @patch('kiwi.command.Command.run')
-    def test_database_consistent(self, mock_command):
-        assert self.manager.database_consistent() is True
-
-    @patch('kiwi.command.Command.run')
-    def test_database_not_consistent(self, mock_command):
-        mock_command.side_effect = Exception
-        assert self.manager.database_consistent() is False
-
-    @patch('os.path.exists')
-    @patch('kiwi.package_manager.zypper.Path.which')
-    @patch('kiwi.command.Command.run')
-    @patch('kiwi.package_manager.zypper.PackageManagerZypper.database_consistent')
-    def test_reload_package_database(
-        self, mock_consistent, mock_command, mock_which, mock_exists
-    ):
-        command_type = namedtuple('command', ['output'])
-        cmd = command_type(output='var/lib/rpm')
-        mock_command.return_value = cmd
-        mock_exists.return_value = True
-        mock_which.return_value = True
-        mock_consistent.return_value = False
-        self.manager.dump_reload_package_database()
-        assert mock_command.call_args_list == [
-            call([
-                'chroot', 'root-dir', 'rpm', '-E', '%_dbpath'
-            ]),
-            call([
-                'db_dump', '-f', 'root-dir/var/lib/rpm/Name.bak',
-                'root-dir/var/lib/rpm/Name'
-            ]),
-            call([
-                'rm', '-f', 'root-dir/var/lib/rpm/Name'
-            ]),
-            call([
-                'db45_load', '-f', 'root-dir/var/lib/rpm/Name.bak',
-                'root-dir/var/lib/rpm/Name'
-            ]),
-            call([
-                'rm', '-f', 'root-dir/var/lib/rpm/Name.bak'
-            ]),
-            call([
-                'db_dump', '-f', 'root-dir/var/lib/rpm/Packages.bak',
-                'root-dir/var/lib/rpm/Packages'
-            ]),
-            call([
-                'rm', '-f', 'root-dir/var/lib/rpm/Packages'
-            ]),
-            call([
-                'db45_load', '-f', 'root-dir/var/lib/rpm/Packages.bak',
-                'root-dir/var/lib/rpm/Packages'
-            ]),
-            call([
-                'rm', '-f', 'root-dir/var/lib/rpm/Packages.bak'
-            ]),
-            call([
-                'chroot', 'root-dir', 'rpm', '--rebuilddb'
-            ])
-        ]
-
-    @patch('os.path.exists')
-    @patch('kiwi.package_manager.zypper.Path.which')
-    @patch('kiwi.command.Command.run')
-    @raises(KiwiRpmDatabaseReloadError)
-    def test_reload_package_database_wrong_db_path(
-        self, mock_command, mock_which, mock_exists
-    ):
-        command_type = namedtuple('command', ['output'])
-        cmd = command_type(output='var/lib/rpm')
-        mock_command.return_value = cmd
-        mock_exists.return_value = False
-        mock_which.return_value = True
-        self.manager.dump_reload_package_database()
-
-    @patch('kiwi.logger.log.warning')
-    @patch('kiwi.package_manager.zypper.Path.which')
-    def test_reload_package_database_without_rpm_binary(
-        self, mock_which, mock_warning
-    ):
-        mock_which.return_value = False
-        self.manager.dump_reload_package_database()
-        assert mock_warning.called
-
-    @patch('os.path.exists')
-    @patch('kiwi.package_manager.zypper.Path.which')
-    @patch('kiwi.command.Command.run')
-    @raises(KiwiRpmDatabaseReloadError)
-    def test_reload_package_database_wrong_db_version(
-        self, mock_command, mock_which, mock_exists
-    ):
-        command_type = namedtuple('command', ['output'])
-        cmd = command_type(output='var/lib/rpm')
-        mock_command.return_value = cmd
-        mock_exists.return_value = True
-        mock_which.return_value = True
-        self.manager.dump_reload_package_database(42)
+    @patch('kiwi.package_manager.zypper.RpmDataBase')
+    def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):
+        rpmdb = mock.Mock()
+        mock_RpmDataBase.return_value = rpmdb
+        self.manager.post_process_install_requests_bootstrap()
+        rpmdb.set_database_to_image_path.assert_called_once_with()
