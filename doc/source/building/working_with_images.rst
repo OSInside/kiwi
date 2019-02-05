@@ -19,3 +19,5 @@ different image types.
    working_with_images/vagrant_setup
    working_with_images/pxe_live_iso_boot
    working_with_images/oem_ramdisk_deployment
+   working_with_images/custom_partitions
+   working_with_images/custom_volumes
