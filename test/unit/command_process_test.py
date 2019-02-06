@@ -37,13 +37,26 @@ class TestCommandProcess(object):
 
     def setup(self):
         self.data_flow = [True, None, None, None, None, None, None]
-        self.data_out = [bytes(b''), bytes(b'\n'), bytes(b'a'), bytes(b't'), bytes(b'a'), bytes(b'd')]
-        self.data_err = [bytes(b''), bytes(b'r'), bytes(b'o'), bytes(b'r'), bytes(b'r'), bytes(b'e')]
+        self.data_out = [
+            bytes(b''), bytes(b'\n'), bytes(b'a'),
+            bytes(b't'), bytes(b'a'), bytes(b'd')
+        ]
+        self.data_err = [
+            bytes(b''), bytes(b'r'), bytes(b'o'),
+            bytes(b'r'), bytes(b'r'), bytes(b'e')
+        ]
         self.flow = self.create_flow_method(self.poll)
         self.flow_out_available = self.create_flow_method(self.outavailable)
         self.flow_err_available = self.create_flow_method(self.erravailable)
         self.flow_out = self.create_flow_method(self.outdata)
         self.flow_err = self.create_flow_method(self.errdata)
+
+    @patch('kiwi.command.Command')
+    def test_returncode(self, mock_command):
+        command = mock.Mock()
+        mock_command.return_value = command
+        process = CommandProcess(command)
+        assert process.returncode() == command.process.returncode
 
     @patch('kiwi.command.Command')
     @patch('kiwi.logger.log.debug')

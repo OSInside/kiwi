@@ -202,10 +202,11 @@ class SystemPrepare(object):
                     manager.match_package_installed
                 )
             )
-        except Exception as e:
-            raise KiwiBootStrapPhaseFailed(
-                'Bootstrap package installation failed: %s' % format(e)
-            )
+        except Exception as issue:
+            if manager.has_failed(process.returncode()):
+                raise KiwiBootStrapPhaseFailed(
+                    'Bootstrap package installation failed: {0}'.format(issue)
+                )
         manager.post_process_install_requests_bootstrap()
         # process archive installations
         if bootstrap_archives:
@@ -262,10 +263,11 @@ class SystemPrepare(object):
                         manager.match_package_installed
                     )
                 )
-            except Exception as e:
-                raise KiwiInstallPhaseFailed(
-                    'System package installation failed: %s' % format(e)
-                )
+            except Exception as issue:
+                if manager.has_failed(process.returncode()):
+                    raise KiwiInstallPhaseFailed(
+                        'System package installation failed: {0}'.format(issue)
+                    )
         # process archive installations
         if system_archives:
             try:

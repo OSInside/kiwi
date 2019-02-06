@@ -192,6 +192,21 @@ class PackageManagerBase(object):
         """
         pass
 
+    def has_failed(self, returncode):
+        """
+        Evaluate given result return code
+
+        Any returncode != 0 is considered an error unless
+        overwritten in specialized package manager class
+
+        :param int returncode: return code number
+
+        :return: True|False
+
+        :rtype: boolean
+        """
+        return True if returncode != 0 else False
+
     def cleanup_requests(self):
         """
         Cleanup request queues

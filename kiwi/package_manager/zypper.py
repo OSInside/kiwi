@@ -254,6 +254,24 @@ class PackageManagerZypper(PackageManagerBase):
         rpmdb = RpmDataBase(self.root_dir)
         rpmdb.set_database_to_image_path()
 
+    def has_failed(self, returncode):
+        """
+        Evaluate given result return code
+
+        In zypper any return code == 0 or >= 100 is considered success.
+        Any return code different from 0 and < 100 is treated as an
+        error we care for. Return codes >= 100 indicates an issue
+        like 'new kernel needs reboot of the system' or similar which
+        we don't care in the scope of image building
+
+        :param int returncode: return code number
+
+        :return: True|False
+
+        :rtype: boolean
+        """
+        return False if returncode == 0 or returncode >= 100 else True
+
     def _install_items(self):
         items = self.package_requests + self.collection_requests \
             + self.product_requests

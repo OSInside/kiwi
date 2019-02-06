@@ -119,6 +119,9 @@ class CommandProcess(object):
             return method(item_to_match, data)
         return create_method
 
+    def returncode(self):
+        return self.command.get_error_code()
+
     def _init_progress(self):
         log.progress(
             0, 100, '[ INFO    ]: Processing'
