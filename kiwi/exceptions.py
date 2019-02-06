@@ -579,12 +579,6 @@ class KiwiRootInitCreationError(KiwiError):
     """
 
 
-class KiwiRpmDatabaseReloadError(KiwiError):
-    """
-    Exception raised on error of an rpm DB dump -> reload process.
-    """
-
-
 class KiwiRpmDirNotRemoteError(KiwiError):
     """
     Exception raised if the provided rpm-dir repository is not local

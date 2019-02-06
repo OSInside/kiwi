@@ -24,7 +24,7 @@ from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
 from kiwi.system.uri import Uri
 from kiwi.path import Path
-from kiwi.defaults import Defaults
+from kiwi.utils.rpm_database import RpmDataBase
 
 from kiwi.exceptions import (
     KiwiRepoTypeUnknown
@@ -144,6 +144,14 @@ class RepositoryZypper(RepositoryBase):
 
         self._write_runtime_config()
 
+    def setup_package_database_configuration(self):
+        """
+        Make sure for bootstrapping the rpm database location
+        matches the host rpm database setup
+        """
+        rpmdb = RpmDataBase(self.root_dir)
+        rpmdb.set_database_to_host_path()
+
     def use_default_location(self):
         """
         Setup zypper repository operations to store all data
@@ -254,10 +262,8 @@ class RepositoryZypper(RepositoryBase):
         :param list signing_keys: list of the key files to import
         """
         for key in signing_keys:
-            # Including --dbpath flag is a workaround for bsc#1112357
             Command.run([
-                'rpm', '--root', self.root_dir, '--import',
-                key, '--dbpath', Defaults.get_default_rpmdb_path()
+                'rpm', '--root', self.root_dir, '--import', key
             ])
 
     def delete_repo(self, name):

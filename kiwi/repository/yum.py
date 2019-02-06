@@ -23,6 +23,7 @@ from tempfile import NamedTemporaryFile
 from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
+from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.path import Path
 
 
@@ -89,6 +90,14 @@ class RepositoryYum(RepositoryBase):
         self._create_runtime_config_parser()
         self._create_runtime_plugin_config_parser()
         self._write_runtime_config()
+
+    def setup_package_database_configuration(self):
+        """
+        Make sure for bootstrapping the rpm database location
+        matches the host rpm database setup
+        """
+        rpmdb = RpmDataBase(self.root_dir)
+        rpmdb.set_database_to_host_path()
 
     def use_default_location(self):
         """

@@ -106,6 +106,7 @@ class SystemPrepare(object):
         repo = Repository(
             self.root_bind, package_manager, repository_options
         )
+        repo.setup_package_database_configuration()
         if signing_keys:
             repo.import_trusted_keys(signing_keys)
         for xml_repo in repository_sections:
@@ -205,7 +206,7 @@ class SystemPrepare(object):
             raise KiwiBootStrapPhaseFailed(
                 'Bootstrap package installation failed: %s' % format(e)
             )
-        manager.dump_reload_package_database()
+        manager.post_process_install_requests_bootstrap()
         # process archive installations
         if bootstrap_archives:
             try:

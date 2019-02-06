@@ -21,12 +21,9 @@ import os
 # project
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
+from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.path import Path
-from kiwi.logger import log
-from kiwi.exceptions import (
-    KiwiRpmDatabaseReloadError,
-    KiwiRequestError
-)
+from kiwi.exceptions import KiwiRequestError
 
 
 class PackageManagerZypper(PackageManagerBase):
@@ -249,81 +246,13 @@ class PackageManagerZypper(PackageManagerBase):
             '.*Removing: ' + re.escape(package_name) + '.*', zypper_output
         )
 
-    def database_consistent(self):
+    def post_process_install_requests_bootstrap(self):
         """
-        Check if rpm package database is consistent
-
-        :return: True or False
-
-        :rtype: bool
+        Move the rpm database to the place as it is expected by the
+        rpm package installed during bootstrap phase
         """
-        try:
-            Command.run(['chroot', self.root_dir, 'rpmdb', '--initdb'])
-            return True
-        except Exception:
-            return False
-
-    def dump_reload_package_database(self, version=45):
-        """
-        Dump and reload the rpm database to match the desired rpm db version
-        Supported target rpm database db versions are
-
-        * 45 (db45_load)
-        * 48 (db48_load)
-
-        :param str version: target rpm db version
-        """
-        db_load_for_version = {
-            45: 'db45_load',
-            48: 'db48_load'
-        }
-
-        rpm_search_env = {
-            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
-        }
-        rpm_bin = Path.which(
-            'rpm', custom_env=rpm_search_env, access_mode=os.X_OK
-        )
-        if not rpm_bin:
-            log.warning(
-                'RPM binary not found in image, RPM database is not reloaded'
-            )
-            return
-
-        rpmdb_path_request = Command.run(
-            ['chroot', self.root_dir, 'rpm', '-E', '%_dbpath']
-        )
-        rpmdb_path = os.path.normpath(os.sep.join(
-            [self.root_dir, rpmdb_path_request.output.strip()]
-        ))
-        if not os.path.exists(rpmdb_path):
-            raise KiwiRpmDatabaseReloadError(
-                'Unable to get the rpmdb location {0}'.format(rpmdb_path)
-            )
-
-        if version not in db_load_for_version:
-            raise KiwiRpmDatabaseReloadError(
-                'Dump reload for rpm DB version: %s not supported' % version
-            )
-        if not self.database_consistent():
-            reload_db_files = [
-                os.sep.join([rpmdb_path, 'Name']),
-                os.sep.join([rpmdb_path, 'Packages'])
-            ]
-            for db_file in reload_db_files:
-                db_file_backup = '{0}.bak'.format(db_file)
-                Command.run([
-                    'db_dump', '-f', db_file_backup, db_file
-                ])
-                Command.run(['rm', '-f', db_file])
-                Command.run([
-                    db_load_for_version[version],
-                    '-f', db_file_backup, db_file
-                ])
-                Command.run(['rm', '-f', db_file_backup])
-            Command.run([
-                'chroot', self.root_dir, 'rpm', '--rebuilddb'
-            ])
+        rpmdb = RpmDataBase(self.root_dir)
+        rpmdb.set_database_to_image_path()
 
     def _install_items(self):
         items = self.package_requests + self.collection_requests \

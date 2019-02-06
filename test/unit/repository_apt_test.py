@@ -83,6 +83,10 @@ class TestRepositoryApt(object):
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
+    def test_setup_package_database_configuration(self):
+        # just pass
+        self.repo.setup_package_database_configuration()
+
     @patch('os.path.exists')
     @patch_open
     def test_add_repo_with_priority(self, mock_open, mock_exists):

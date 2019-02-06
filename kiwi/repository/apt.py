@@ -29,7 +29,8 @@ class RepositoryApt(RepositoryBase):
     """
     **Implements repository handling for apt-get package manager**
 
-    :param str shared_apt_get_dir: shared directory between image root and build system root
+    :param str shared_apt_get_dir:
+        shared directory between image root and build system root
     :param str runtime_apt_get_config_file: apt-get runtime config file name
     :param list apt_get_args: apt-get caller arguments
     :param dict command_env: customized os.environ for apt-get
@@ -91,6 +92,14 @@ class RepositoryApt(RepositoryBase):
         # config file for apt-get tool
         self.apt_conf = PackageManagerTemplateAptGet()
         self._write_runtime_config()
+
+    def setup_package_database_configuration(self):
+        """
+        Setup package database configuration
+
+        No special database configuration required for apt
+        """
+        pass
 
     def use_default_location(self):
         """

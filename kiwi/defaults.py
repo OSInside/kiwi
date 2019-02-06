@@ -1230,6 +1230,29 @@ class Defaults(object):
             sys.setdefaultencoding('utf-8')
 
     @classmethod
+    def get_custom_rpm_macros_path(cls):
+        """
+        Returns the custom macros directory for the rpm database.
+
+        :return: path name
+
+        :rtype: str
+        """
+        return 'usr/lib/rpm/macros.d'
+
+    @classmethod
+    def get_custom_rpm_bootstrap_macro_name(cls):
+        """
+        Returns the rpm bootstrap macro file name created
+        in the custom rpm macros path
+
+        :return: filename
+
+        :rtype: str
+        """
+        return 'macros.kiwi-bootstrap-config'
+
+    @classmethod
     def get_default_packager_tool(cls, package_manager):
         """
         Provides the packager tool according to the package manager
@@ -1246,17 +1269,6 @@ class Defaults(object):
             return 'rpm'
         elif package_manager in deb_based:
             return 'dpkg'
-
-    @classmethod
-    def get_default_rpmdb_path(cls):
-        """
-        Returns the default path of the rpm database.
-
-        :return: rpmdb default path
-
-        :rtype: str
-        """
-        return '/var/lib/rpm'
 
     def get(self, key):
         """

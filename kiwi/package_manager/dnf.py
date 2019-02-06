@@ -19,10 +19,9 @@ import re
 
 # project
 from kiwi.command import Command
+from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.package_manager.base import PackageManagerBase
-from kiwi.exceptions import (
-    KiwiRequestError
-)
+from kiwi.exceptions import KiwiRequestError
 
 
 class PackageManagerDnf(PackageManagerBase):
@@ -126,9 +125,6 @@ class PackageManagerDnf(PackageManagerBase):
             # hard required by another package, it will break the transaction.
             for package in self.exclude_requests:
                 self.custom_args.append('--exclude=' + package)
-        Command.run(
-            ['chroot', self.root_dir, 'rpm', '--rebuilddb']
-        )
         chroot_dnf_args = self.root_bind.move_to_root(
             self.dnf_args
         )
@@ -261,26 +257,10 @@ class PackageManagerDnf(PackageManagerBase):
             '.*Removing: ' + re.escape(package_name) + '.*', dnf_output
         )
 
-    def database_consistent(self):
+    def post_process_install_requests_bootstrap(self):
         """
-        Check if rpm package database is consistent
-
-        :return: True or False
-
-        :rtype: bool
+        Move the rpm database to the place as it is expected by the
+        rpm package installed during bootstrap phase
         """
-        try:
-            Command.run(['chroot', self.root_dir, 'rpmdb', '--initdb'])
-            return True
-        except Exception:
-            return False
-
-    def dump_reload_package_database(self, version=45):
-        """
-        Dump and reload the rpm database to match the desired rpm db version
-
-        For the supported RHEL versions there is no dump/reload cycle required
-
-        :param str version: unused
-        """
-        pass
+        rpmdb = RpmDataBase(self.root_dir)
+        rpmdb.set_database_to_image_path()

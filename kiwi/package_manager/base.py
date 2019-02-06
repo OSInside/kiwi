@@ -84,8 +84,9 @@ class PackageManagerBase(object):
         """
         Queue a package exclusion(skip) request
 
-        Obsolete method, only kept for API compatbility
-        Method calls: request_package_exclusion
+        OBSOLETE: Will be removed 2019-06-05
+
+        Kept for API compatbility Method calls: request_package_exclusion
         """
         return self.request_package_exclusion(name)
 
@@ -173,22 +174,23 @@ class PackageManagerBase(object):
 
     def database_consistent(self):
         """
-        Check if package database is consistent
-
-        Implementation in specialized package manager class
+        OBSOLETE: Will be removed 2019-06-05
         """
-        raise NotImplementedError
+        pass
 
     def dump_reload_package_database(self, version=45):
         """
-        For rpm based package managers, dump and reload the database
-        to match the desired rpm db version
+        OBSOLETE: Will be removed 2019-06-05
+        """
+        pass
+
+    def post_process_install_requests_bootstrap(self):
+        """
+        Process extra code required after bootstrapping
 
         Implementation in specialized package manager class
-
-        :param str version: unused
         """
-        raise NotImplementedError
+        pass
 
     def cleanup_requests(self):
         """
