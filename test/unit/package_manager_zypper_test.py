@@ -153,3 +153,11 @@ class TestPackageManagerZypper(object):
         mock_RpmDataBase.return_value = rpmdb
         self.manager.post_process_install_requests_bootstrap()
         rpmdb.set_database_to_image_path.assert_called_once_with()
+
+    def test_has_failed(self):
+        assert self.manager.has_failed(0) is False
+        assert self.manager.has_failed(102) is False
+        assert self.manager.has_failed(100) is False
+        assert self.manager.has_failed(1) is True
+        assert self.manager.has_failed(4) is True
+        assert self.manager.has_failed(-42) is True
