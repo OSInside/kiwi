@@ -26,10 +26,6 @@ from kiwi.system.uri import Uri
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import (
-    KiwiRepoTypeUnknown
-)
-
 
 class RepositoryZypper(RepositoryBase):
     """
@@ -214,20 +210,31 @@ class RepositoryZypper(RepositoryBase):
             Path.wipe(repo_file)
 
         self._backup_package_cache()
-        Command.run(
-            ['zypper'] + self.zypper_args + [
-                '--root', self.root_dir,
-                'addrepo',
-                '--refresh',
-                '--type', self._translate_repo_type(repo_type),
-                '--keep-packages' if Uri(uri).is_remote() else
-                '--no-keep-packages',
-                '-C',
-                uri,
-                name
-            ],
-            self.command_env
-        )
+        zypper_addrepo_command = ['zypper'] + self.zypper_args + [
+            '--root', self.root_dir,
+            'addrepo',
+            '--refresh',
+            '--keep-packages' if Uri(uri).is_remote() else
+            '--no-keep-packages',
+            '--no-check',
+            uri,
+            name
+        ]
+        try:
+            Command.run(
+                zypper_addrepo_command, self.command_env
+            )
+        except Exception:
+            # for whatever reason zypper sometimes failes with
+            # a 'failed to cache rpm database' error. I could not
+            # find any reason why and a simple recall of the exact
+            # same command in the exact same environment works.
+            # Thus the stupid but simple workaround to this problem
+            # is try one recall before really failing
+            Command.run(
+                zypper_addrepo_command, self.command_env
+            )
+
         if prio or repo_gpgcheck is not None or pkg_gpgcheck is not None:
             repo_config = ConfigParser()
             repo_config.read(repo_file)
@@ -336,23 +343,6 @@ class RepositoryZypper(RepositoryBase):
             self.runtime_zypper_config.write(config)
         with open(self.runtime_zypp_config_file.name, 'w') as config:
             self.runtime_zypp_config.write(config)
-
-    def _translate_repo_type(self, repo_type):
-        """
-            Translate kiwi supported common repo type names from the schema
-            into the name the zyper package manager understands
-        """
-        zypper_type_for = {
-            'rpm-md': 'YUM',
-            'rpm-dir': 'Plaindir',
-            'yast2': 'YaST'
-        }
-        try:
-            return zypper_type_for[repo_type]
-        except Exception:
-            raise KiwiRepoTypeUnknown(
-                'Unsupported zypper repo type: %s' % repo_type
-            )
 
     def _backup_package_cache(self):
         """
