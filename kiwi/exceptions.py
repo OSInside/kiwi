@@ -522,13 +522,6 @@ class KiwiRepositorySetupError(KiwiError):
     """
 
 
-class KiwiRepoTypeUnknown(KiwiError):
-    """
-    Exception raised if an unsupported repository type is specified
-    for the corresponding package manager.
-    """
-
-
 class KiwiRequestedTypeError(KiwiError):
     """
     Exception raised if an attempt was made to build an image for
