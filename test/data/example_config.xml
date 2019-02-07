@@ -36,7 +36,7 @@
         </profile>
     </profiles>
     <preferences>
-        <locale>de_DE</locale>
+        <locale>en_US,de_DE</locale>
     </preferences>
     <preferences>
         <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" btrfs_root_is_snapshot="true" spare_part="200M" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4">

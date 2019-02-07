@@ -43,6 +43,11 @@ class TestSystemPrepareTask(object):
             return_value=self.manager
         )
 
+        self.rpm = mock.Mock()
+        kiwi.tasks.system_prepare.Rpm = mock.Mock(
+            return_value=self.rpm
+        )
+
         self.setup = mock.Mock()
         kiwi.tasks.system_prepare.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -128,6 +133,7 @@ class TestSystemPrepareTask(object):
         self.system_prepare.pinch_system.assert_has_calls(
             [call(force=False), call(force=True)]
         )
+        self.rpm.wipe_config.assert_called_once_with()
 
     def test_process_system_prepare_add_package(self):
         self._init_command_args()

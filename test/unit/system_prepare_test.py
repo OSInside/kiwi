@@ -183,7 +183,7 @@ class TestSystemPrepare(object):
 
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name',
-            ['check_signatures', 'exclude_docs']
+            ['check_signatures', 'exclude_docs', '_install_langs%en_US:de_DE']
         )
         # mock local repos will be translated and bind mounted
         assert uri.translate.call_args_list == [

@@ -736,3 +736,6 @@ class TestXMLState(object):
         assert state.get_initrd_system() is None
         state = XMLState(xml_data, [], 'oem')
         assert state.get_initrd_system() == 'kiwi'
+
+    def test_get_locale(self):
+        assert self.state.get_locale() == ['en_US', 'de_DE']

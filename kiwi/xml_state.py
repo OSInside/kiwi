@@ -124,6 +124,21 @@ class XMLState(object):
             initrd_system = self.build_type.get_initrd_system()
         return initrd_system
 
+    def get_locale(self):
+        """
+        Gets list of locale names if configured. Takes
+        the first locale setup from the existing preferences
+        sections into account.
+
+        :return: List of names or None
+
+        :rtype: list|None
+        """
+        for preferences in self.get_preferences_sections():
+            locale_section = preferences.get_locale()
+            if locale_section:
+                return locale_section[0].split(',')
+
     def get_rpm_excludedocs(self):
         """
         Gets the rpm-excludedocs configuration flag. Returns
