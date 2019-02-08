@@ -955,7 +955,7 @@ class SystemSetup(object):
                 '|'.join(
                     [
                         '%{NAME}', '%{EPOCH}', '%{VERSION}',
-                        '%{RELEASE}', '%{ARCH}', '%{DISTURL}'
+                        '%{RELEASE}', '%{ARCH}', '%{DISTURL}', '%{LICENSE}'
                     ]
                 ) + '\\n'
             ] + dbpath_option
@@ -973,7 +973,7 @@ class SystemSetup(object):
                 '|'.join(
                     [
                         '${Package}', 'None', '${Version}',
-                        'None', '${Architecture}', 'None'
+                        'None', '${Architecture}', 'None', 'None'
                     ]
                 ) + '\\n'
             ]

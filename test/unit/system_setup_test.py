@@ -787,7 +787,7 @@ class TestSystemSetup(object):
             call(['chroot', 'root_dir', 'rpm', '-E', '%_dbpath']),
             call([
                 'rpm', '--root', 'root_dir', '-qa', '--qf',
-                '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n',
+                '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}|%{LICENSE}\\n',
                 '--dbpath', 'packages_data'
             ])
         ])
@@ -838,7 +838,7 @@ class TestSystemSetup(object):
             call(['chroot', 'root_dir', 'rpm', '-E', '%_dbpath']),
             call([
                 'rpm', '--root', 'root_dir', '-qa', '--qf',
-                '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}\\n'
+                '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|%{DISTURL}|%{LICENSE}\\n'
             ])
         ])
         mock_open.assert_called_once_with(
@@ -860,7 +860,7 @@ class TestSystemSetup(object):
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
             'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg', '-W',
-            '-f', '${Package}|None|${Version}|None|${Architecture}|None\\n'
+            '-f', '${Package}|None|${Version}|None|${Architecture}|None|None\\n'
         ])
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.packages', 'w'
