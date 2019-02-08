@@ -99,14 +99,14 @@ class SystemPrepare(object):
         repository_sections = \
             self.xml_state.get_repository_sections_used_for_build()
         package_manager = self.xml_state.get_package_manager()
-        locale_list = self.xml_state.get_locale()
+        rpm_locale_list = self.xml_state.get_rpm_locale()
         if self.xml_state.get_rpm_check_signatures():
             repository_options.append('check_signatures')
         if self.xml_state.get_rpm_excludedocs():
             repository_options.append('exclude_docs')
-        if locale_list:
+        if rpm_locale_list:
             repository_options.append(
-                '_install_langs%{0}'.format(':'.join(locale_list))
+                '_install_langs%{0}'.format(':'.join(rpm_locale_list))
             )
         repo = Repository(
             self.root_bind, package_manager, repository_options

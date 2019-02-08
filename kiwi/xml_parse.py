@@ -7239,7 +7239,7 @@ class preferences(GeneratedsSuper):
     sections based on profiles combine to create on vaild definition"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
+    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         if bootsplash_theme is None:
@@ -7262,6 +7262,10 @@ class preferences(GeneratedsSuper):
             self.packagemanager = []
         else:
             self.packagemanager = packagemanager
+        if rpm_locale_filtering is None:
+            self.rpm_locale_filtering = []
+        else:
+            self.rpm_locale_filtering = rpm_locale_filtering
         if rpm_check_signatures is None:
             self.rpm_check_signatures = []
         else:
@@ -7322,6 +7326,11 @@ class preferences(GeneratedsSuper):
     def add_packagemanager(self, value): self.packagemanager.append(value)
     def insert_packagemanager_at(self, index, value): self.packagemanager.insert(index, value)
     def replace_packagemanager_at(self, index, value): self.packagemanager[index] = value
+    def get_rpm_locale_filtering(self): return self.rpm_locale_filtering
+    def set_rpm_locale_filtering(self, rpm_locale_filtering): self.rpm_locale_filtering = rpm_locale_filtering
+    def add_rpm_locale_filtering(self, value): self.rpm_locale_filtering.append(value)
+    def insert_rpm_locale_filtering_at(self, index, value): self.rpm_locale_filtering.insert(index, value)
+    def replace_rpm_locale_filtering_at(self, index, value): self.rpm_locale_filtering[index] = value
     def get_rpm_check_signatures(self): return self.rpm_check_signatures
     def set_rpm_check_signatures(self, rpm_check_signatures): self.rpm_check_signatures = rpm_check_signatures
     def add_rpm_check_signatures(self, value): self.rpm_check_signatures.append(value)
@@ -7361,6 +7370,7 @@ class preferences(GeneratedsSuper):
             self.keytable or
             self.locale or
             self.packagemanager or
+            self.rpm_locale_filtering or
             self.rpm_check_signatures or
             self.rpm_excludedocs or
             self.showlicense or
@@ -7416,6 +7426,9 @@ class preferences(GeneratedsSuper):
         for packagemanager_ in self.packagemanager:
             showIndent(outfile, level, pretty_print)
             outfile.write('<packagemanager>%s</packagemanager>%s' % (self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), eol_))
+        for rpm_locale_filtering_ in self.rpm_locale_filtering:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<rpm-locale-filtering>%s</rpm-locale-filtering>%s' % (self.gds_format_boolean(rpm_locale_filtering_, input_name='rpm-locale-filtering'), eol_))
         for rpm_check_signatures_ in self.rpm_check_signatures:
             showIndent(outfile, level, pretty_print)
             outfile.write('<rpm-check-signatures>%s</rpm-check-signatures>%s' % (self.gds_format_boolean(rpm_check_signatures_, input_name='rpm-check-signatures'), eol_))
@@ -7474,6 +7487,16 @@ class preferences(GeneratedsSuper):
                 packagemanager_ = ""
             packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
             self.packagemanager.append(packagemanager_)
+        elif nodeName_ == 'rpm-locale-filtering':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_locale_filtering')
+            self.rpm_locale_filtering.append(ival_)
         elif nodeName_ == 'rpm-check-signatures':
             sval_ = child_.text
             if sval_ in ('true', '1'):

@@ -611,6 +611,33 @@ specifies the where to find the boot kernel</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <rpm-locale-filtering>
+    
+  -->
+  <div>
+    <define name="k.rpm-locale-filtering.content">
+      <data type="boolean"/>
+    </define>
+    <define name="k.rpm-locale-filtering.attlist">
+      <empty/>
+    </define>
+    <define name="k.rpm-locale-filtering">
+      <!--
+        locale-filtering sets the install_lang macro for rpm based
+        installations to the configured locale list. This results
+        in language specific files to become filtered out by rpm
+        if they don't match the configured list. Please note it
+        depends on the package design if the install_lang macro
+        contents apply to the package or not.
+      -->
+      <element name="rpm-locale-filtering">
+        <ref name="k.rpm-locale-filtering.attlist"/>
+        <ref name="k.rpm-locale-filtering.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <namedCollection>
     
   -->
@@ -4164,6 +4191,9 @@ definition</a:documentation>
           </optional>
           <optional>
             <ref name="k.packagemanager"/>
+          </optional>
+          <optional>
+            <ref name="k.rpm-locale-filtering"/>
           </optional>
           <optional>
             <ref name="k.rpm-check-signatures"/>
