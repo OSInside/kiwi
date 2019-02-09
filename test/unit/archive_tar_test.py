@@ -41,7 +41,7 @@ class TestArchiveTar(object):
             [
                 'tar', '-C', 'source-dir',
                 '--xattrs', '--xattrs-include=*',
-                '-c', '-f', 'foo.tar', 'foo', 'bar'
+                '-c', '-f', 'foo.tar', 'bar', 'foo'
             ]
         )
 
@@ -70,7 +70,7 @@ class TestArchiveTar(object):
                 'tar', '-C', 'source-dir',
                 '--fake-option', 'fake_arg',
                 '--xattrs', '--xattrs-include=*',
-                '-c', '-f', 'foo.tar', 'foo', 'bar'
+                '-c', '-f', 'foo.tar', 'bar', 'foo'
             ]
         )
 
@@ -88,7 +88,7 @@ class TestArchiveTar(object):
             call(
                 [
                     'tar', '-C', 'source-dir',
-                    '-c', '-f', 'foo.tar', 'foo', 'bar'
+                    '-c', '-f', 'foo.tar', 'bar', 'foo'
                 ]
             )
         ]
@@ -126,7 +126,7 @@ class TestArchiveTar(object):
                 ' '.join([
                     'tar', '-C', 'source-dir', '--xattrs',
                     '--xattrs-include=*', '-c', '--to-stdout',
-                    'foo', 'bar', '|', 'xz', '-f', '--threads=0',
+                    'bar', 'foo', '|', 'xz', '-f', '--threads=0',
                     '>', 'foo.tar.xz'
                 ])
             ]
@@ -147,7 +147,7 @@ class TestArchiveTar(object):
                 ' '.join([
                     'tar', '-C', 'source-dir', '--xattrs',
                     '--xattrs-include=*', '-c', '--to-stdout',
-                    'foo', 'bar', '|', 'xz', '-f', '-a', '-b',
+                    'bar', 'foo', '|', 'xz', '-f', '-a', '-b',
                     '>', 'foo.tar.xz'
                 ])
             ]
@@ -162,7 +162,7 @@ class TestArchiveTar(object):
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'source-dir',
-                '--format=gnu', '-cSz', '-f', 'foo.tar.gz', 'foo', 'bar'
+                '--format=gnu', '-cSz', '-f', 'foo.tar.gz', 'bar', 'foo'
             ]
         )
 

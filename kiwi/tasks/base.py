@@ -109,7 +109,7 @@ class CliTask(object):
         if not os.path.exists(config_file):
             # glob config file search, first match wins
             glob_match = description_directory + '/*.kiwi'
-            for kiwi_file in glob.iglob(glob_match):
+            for kiwi_file in sorted(glob.iglob(glob_match)):
                 config_file = kiwi_file
                 break
 
