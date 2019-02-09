@@ -20,6 +20,7 @@ from six.moves.configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -61,6 +62,12 @@ class RepositoryYum(RepositoryBase):
         else:
             self.gpg_check = '0'
 
+        self.locale = list(
+            item for item in self.custom_args if '_install_langs' in item
+        )
+        if self.locale:
+            self.custom_args.remove(self.locale[0])
+
         self.repo_names = []
 
         # yum support is based on creating repo files which contains
@@ -93,11 +100,21 @@ class RepositoryYum(RepositoryBase):
 
     def setup_package_database_configuration(self):
         """
-        Make sure for bootstrapping the rpm database location
-        matches the host rpm database setup
+        Setup rpm macros for bootstrapping and image building
+
+        1. Create the rpm image macro which persists during the build
+        2. Create the rpm bootstrap macro to make sure for bootstrapping
+           the rpm database location matches the host rpm database setup.
+           This macro only persists during the bootstrap phase
         """
-        rpmdb = RpmDataBase(self.root_dir)
-        rpmdb.set_database_to_host_path()
+        rpmdb = RpmDataBase(
+            self.root_dir, Defaults.get_custom_rpm_image_macro_name()
+        )
+        if self.locale:
+            rpmdb.set_macro_from_string(self.locale[0])
+        rpmdb.write_config()
+
+        RpmDataBase(self.root_dir).set_database_to_host_path()
 
     def use_default_location(self):
         """

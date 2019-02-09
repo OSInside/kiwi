@@ -32,7 +32,9 @@ class TestRepositoryZypper(object):
         )
         self.root_bind.root_dir = '../data'
         self.root_bind.shared_location = '/shared-dir'
-        self.repo = RepositoryZypper(self.root_bind, ['exclude_docs'])
+        self.repo = RepositoryZypper(
+            self.root_bind, ['exclude_docs', '_install_langs%en_US:de_DE']
+        )
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.NamedTemporaryFile')
@@ -226,6 +228,14 @@ class TestRepositoryZypper(object):
         rpmdb = mock.Mock()
         mock_RpmDataBase.return_value = rpmdb
         self.repo.setup_package_database_configuration()
+        assert mock_RpmDataBase.call_args_list == [
+            call('../data', 'macros.kiwi-image-config'),
+            call('../data')
+        ]
+        rpmdb.set_macro_from_string.assert_called_once_with(
+            '_install_langs%en_US:de_DE'
+        )
+        rpmdb.write_config.assert_called_once_with()
         rpmdb.set_database_to_host_path.assert_called_once_with()
 
     @patch('kiwi.command.Command.run')

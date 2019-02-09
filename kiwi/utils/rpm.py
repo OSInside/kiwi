@@ -28,7 +28,7 @@ class Rpm(object):
     """
     **Helper methods to handle the rpm database configuration**
     """
-    def __init__(self, root_dir=None):
+    def __init__(self, root_dir=None, macro_file=None):
         self.root_dir = root_dir
         self.config = []
         self.custom_config = []
@@ -38,7 +38,11 @@ class Rpm(object):
             ]
         )
         self.macro_file = os.sep.join(
-            [self.macro_path, Defaults.get_custom_rpm_bootstrap_macro_name()]
+            [
+                self.macro_path,
+                macro_file if macro_file else
+                Defaults.get_custom_rpm_bootstrap_macro_name()
+            ]
         )
 
     def expand_query(self, key):

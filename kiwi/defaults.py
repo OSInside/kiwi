@@ -1253,6 +1253,18 @@ class Defaults(object):
         return 'macros.kiwi-bootstrap-config'
 
     @classmethod
+    def get_custom_rpm_image_macro_name(cls):
+        """
+        Returns the rpm image macro file name created
+        in the custom rpm macros path
+
+        :return: filename
+
+        :rtype: str
+        """
+        return 'macros.kiwi-image-config'
+
+    @classmethod
     def get_default_packager_tool(cls, package_manager):
         """
         Provides the packager tool according to the package manager

@@ -51,3 +51,13 @@ class TestRpmDataBase(object):
             ['chroot', 'root_dir', 'rpmdb', '--rebuilddb']
         )
         assert self.rpmdb.rpmdb_image.wipe_config.call_count == 2
+
+    def test_set_macro_from_string(self):
+        self.rpmdb.set_macro_from_string('_install_langs%en_US:de_DE')
+        self.rpmdb.rpmdb_image.set_config_value.assert_called_once_with(
+            '_install_langs', 'en_US:de_DE'
+        )
+
+    def test_write_config(self):
+        self.rpmdb.write_config()
+        self.rpmdb.rpmdb_image.write_config.assert_called_once_with()

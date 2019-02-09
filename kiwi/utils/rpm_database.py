@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 
 # project
 from kiwi.command import Command
@@ -27,9 +28,9 @@ class RpmDataBase(object):
     """
     **Setup RPM database configuration**
     """
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, macro_file=None):
         self.rpmdb_host = Rpm()
-        self.rpmdb_image = Rpm(root_dir)
+        self.rpmdb_image = Rpm(root_dir, macro_file)
         self.root_dir = root_dir
 
     def has_rpm(self):
@@ -54,9 +55,36 @@ class RpmDataBase(object):
             'chroot', self.root_dir, 'rpmdb', '--rebuilddb'
         ])
 
+    def set_macro_from_string(self, setting):
+        """
+        Setup given macro setting in image rpm configuration.
+        The following format for the setting is expected:
+
+            macro_base_key_name%macro_value.
+
+        If this expression is not matched the macro setup will be
+        skipped. Please note the macro_base_key_name includes
+        the name of the macro as rpm expects it exlcuding the
+        leading '%' character.
+
+        Also note macro defintions must happen before calling
+        set_database_* methods in order to become effective
+
+        :param string setting: macro key and value as one string
+        """
+        match = re.match('(.*)%(.*)', setting)
+        if match:
+            self.rpmdb_image.set_config_value(
+                match.group(1), match.group(2)
+            )
+
+    def write_config(self):
+        self.rpmdb_image.write_config()
+
     def set_database_to_host_path(self):
         """
         Setup dbpath to point to the host rpm dbpath configuration
+        and write the configuration file
         """
         self.rpmdb_image.set_config_value(
             '_dbpath', self.rpmdb_host.get_query('_dbpath')
@@ -66,6 +94,8 @@ class RpmDataBase(object):
     def set_database_to_image_path(self):
         """
         Setup dbpath to point to the image rpm dbpath configuration
+        Rebuild the database such that it gets moved to the standard
+        path and delete KIWI's custom macro setup
         """
         self.rpmdb_image.wipe_config()
         rpm_image_dbpath = self.rpmdb_image.expand_query('%_dbpath')

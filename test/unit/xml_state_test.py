@@ -736,3 +736,15 @@ class TestXMLState(object):
         assert state.get_initrd_system() is None
         state = XMLState(xml_data, [], 'oem')
         assert state.get_initrd_system() == 'kiwi'
+
+    def test_get_rpm_locale_filtering(self):
+        assert self.state.get_rpm_locale_filtering() is True
+        assert self.boot_state.get_rpm_locale_filtering() is False
+
+    def test_get_locale(self):
+        assert self.state.get_locale() == ['en_US', 'de_DE']
+
+    def test_get_rpm_locale(self):
+        assert self.state.get_rpm_locale() == [
+            'POSIX', 'C', 'C.UTF-8', 'en_US', 'de_DE'
+        ]

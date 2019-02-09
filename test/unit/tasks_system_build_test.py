@@ -47,6 +47,11 @@ class TestSystemBuildTask(object):
             return_value=self.system_prepare
         )
 
+        self.rpm = mock.Mock()
+        kiwi.tasks.system_build.Rpm = mock.Mock(
+            return_value=self.rpm
+        )
+
         self.setup = mock.Mock()
         kiwi.tasks.system_build.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -135,6 +140,7 @@ class TestSystemBuildTask(object):
         self.system_prepare.pinch_system.assert_has_calls(
             [call(force=False), call(force=True)]
         )
+        self.rpm.wipe_config.assert_called_once_with()
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()

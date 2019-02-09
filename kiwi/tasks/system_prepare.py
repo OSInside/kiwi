@@ -93,6 +93,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
 from kiwi.system.profile import Profile
 from kiwi.logger import log
+from kiwi.utils.rpm import Rpm
 
 
 class SystemPrepareTask(CliTask):
@@ -237,6 +238,11 @@ class SystemPrepareTask(CliTask):
         # handle delete package requests, forced uninstall without
         # any dependency resolution
         system.pinch_system(force=True)
+
+        # delete any custom rpm macros created
+        Rpm(
+            abs_root_path, Defaults.get_custom_rpm_image_macro_name()
+        ).wipe_config()
 
         # make sure system instance is cleaned up now
         del system

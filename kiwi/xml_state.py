@@ -124,6 +124,56 @@ class XMLState(object):
             initrd_system = self.build_type.get_initrd_system()
         return initrd_system
 
+    def get_locale(self):
+        """
+        Gets list of locale names if configured. Takes
+        the first locale setup from the existing preferences
+        sections into account.
+
+        :return: List of names or None
+
+        :rtype: list|None
+        """
+        for preferences in self.get_preferences_sections():
+            locale_section = preferences.get_locale()
+            if locale_section:
+                return locale_section[0].split(',')
+
+    def get_rpm_locale(self):
+        """
+        Gets list of locale names to filter out by rpm
+        if rpm-locale-filtering is switched on the
+        the list always contains: [POSIX, C, C.UTF-8]
+        and is extended by the optionaly configured
+        locale
+
+        :return: List of names or None
+
+        :rtype: list|None
+        """
+        if self.get_rpm_locale_filtering():
+            rpm_locale = ['POSIX', 'C', 'C.UTF-8']
+            configured_locale = self.get_locale()
+            if configured_locale:
+                for locale in configured_locale:
+                    rpm_locale.append(locale)
+            return rpm_locale
+
+    def get_rpm_locale_filtering(self):
+        """
+        Gets the rpm-locale-filtering configuration flag. Returns
+        False if not present.
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        for preferences in self.get_preferences_sections():
+            locale_filtering = preferences.get_rpm_locale_filtering()
+            if locale_filtering:
+                return locale_filtering[0]
+        return False
+
     def get_rpm_excludedocs(self):
         """
         Gets the rpm-excludedocs configuration flag. Returns
