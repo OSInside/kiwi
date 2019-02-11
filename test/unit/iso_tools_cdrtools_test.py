@@ -74,11 +74,11 @@ class TestIsoToolsCdrTools(object):
         assert self.file_mock.write.call_args_list == [
             call('source-dir/boot/x86_64/boot.catalog 3\n'),
             call('source-dir/boot/x86_64/loader/isolinux.bin 2\n'),
-            call('source-dir/efi 1000001\n'),
-            call('source-dir/eggs 1\n'),
+            call('source-dir/EFI 1\n'),
             call('source-dir/bar 1\n'),
             call('source-dir/baz 1\n'),
-            call('source-dir/EFI 1\n'),
+            call('source-dir/efi 1000001\n'),
+            call('source-dir/eggs 1\n'),
             call('source-dir/header_end 1000000\n')
         ]
         assert self.iso_tool.iso_parameters == [
