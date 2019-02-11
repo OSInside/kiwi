@@ -163,7 +163,7 @@ class Kernel(object):
             # lookup for the symlink first
             'vmlinux', 'vmlinuz'
         ]
-        kernel_dirs = os.listdir(''.join([self.root_dir, '/lib/modules']))
+        kernel_dirs = sorted(os.listdir(''.join([self.root_dir, '/lib/modules'])))
         if kernel_dirs:
             # append lookup for the real kernel image names
             # depending on the arch and os they are different

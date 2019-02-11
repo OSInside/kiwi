@@ -169,7 +169,7 @@ class SystemSetup(object):
         :param str target_dir: directory to unpack archive to
         """
         glob_match = self.description_dir + '/config-cdroot.tar*'
-        for cdroot_archive in glob.iglob(glob_match):
+        for cdroot_archive in sorted(glob.iglob(glob_match)):
             log.info(
                 'Extracting ISO user config archive: {0} to: {1}'.format(
                     cdroot_archive, target_dir
@@ -743,7 +743,7 @@ class SystemSetup(object):
 
     def _import_cdroot_archive(self):
         glob_match = self.description_dir + '/config-cdroot.tar*'
-        for cdroot_archive in glob.iglob(glob_match):
+        for cdroot_archive in sorted(glob.iglob(glob_match)):
             log.info(
                 '--> Importing {0} archive as /image/{0}'.format(
                     cdroot_archive

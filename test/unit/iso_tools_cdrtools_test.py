@@ -54,7 +54,7 @@ class TestIsoToolsCdrTools(object):
         )
         mock_walk_results = [
             [('source-dir', ('EFI',), ())],
-            [('source-dir', ('bar', 'baz'), ('efi', 'eggs'))]
+            [('source-dir', ('bar', 'baz'), ('eggs', 'efi'))]
         ]
 
         def side_effect(arg):

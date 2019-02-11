@@ -155,7 +155,7 @@ class ArchiveTar(object):
         final_archive_contents = []
         archive_contents = file_list
         if not archive_contents:
-            archive_contents = os.listdir(source_dir)
+            archive_contents = sorted(os.listdir(source_dir))
 
         for item in archive_contents:
             if not exclude_list:
