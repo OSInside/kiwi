@@ -249,14 +249,12 @@ class IsoToolsCdrTools(IsoToolsBase):
 
             boot_files = list(os.walk(self.source_dir + '/' + self.boot_path))
             boot_files += list(os.walk(self.source_dir + '/EFI'))
-            for basedir, dirnames, filenames in boot_files:
-                for filename in filenames:
-                    if filename == 'efi':
-                        sortfile.write('%s/%s 1000001\n' % (basedir, filename))
+            for basedir, dirnames, filenames in sorted(boot_files):
+                for entry in sorted(dirnames + filenames):
+                    if entry in filenames and entry == 'efi':
+                        sortfile.write('%s/%s 1000001\n' % (basedir, entry))
                     else:
-                        sortfile.write('%s/%s 1\n' % (basedir, filename))
-                for dirname in dirnames:
-                    sortfile.write('%s/%s 1\n' % (basedir, dirname))
+                        sortfile.write('%s/%s 1\n' % (basedir, entry))
 
             sortfile.write(
                 '%s/%s 1000000\n' % (self.source_dir, 'header_end')
