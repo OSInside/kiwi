@@ -12,12 +12,16 @@ class TestContainerImage(object):
     def test_container_image_not_implemented(self):
         ContainerImage('foo', 'root_dir')
 
-    @patch('kiwi.container.ContainerImageDocker')
+    @patch('kiwi.container.ContainerImageOCI')
     def test_container_image_docker(self, mock_docker):
         ContainerImage('docker', 'root_dir')
-        mock_docker.assert_called_once_with('root_dir', None)
+        mock_docker.assert_called_once_with(
+            'root_dir', 'docker-archive', custom_args=None
+        )
 
     @patch('kiwi.container.ContainerImageOCI')
     def test_container_image_oci(self, mock_oci):
         ContainerImage('oci', 'root_dir')
-        mock_oci.assert_called_once_with('root_dir', None)
+        mock_oci.assert_called_once_with(
+            'root_dir', 'oci-archive', custom_args=None
+        )

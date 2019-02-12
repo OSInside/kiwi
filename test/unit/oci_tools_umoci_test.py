@@ -5,10 +5,10 @@ from mock import (
 from kiwi.oci_tools.umoci import OCIUmoci
 
 
-class TestOCIBase(object):
+class TestOCIUmoci(object):
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.base.datetime')
-    @patch('kiwi.oci_tools.base.mkdtemp')
+    @patch('kiwi.oci_tools.umoci.mkdtemp')
     def setup(self, mock_base_mkdtemp, mock_datetime, mock_cmd_caps):
         mock_base_mkdtemp.return_value = 'tmpdir'
         mock_cmd_caps.return_value = True
@@ -17,20 +17,15 @@ class TestOCIBase(object):
         mock_datetime.utcnow = Mock(
             return_value=strftime
         )
-        self.oci = OCIUmoci('tag')
+        self.oci = OCIUmoci()
 
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_init_layout(self, mock_Command_run):
-        self.oci.init_layout()
+    def test_init_container(self, mock_Command_run):
+        self.oci.init_container()
         assert mock_Command_run.call_args_list == [
             call(['umoci', 'init', '--layout', 'tmpdir/oci_layout']),
-            call(['umoci', 'new', '--image', 'tmpdir/oci_layout:tag'])
+            call(['umoci', 'new', '--image', 'tmpdir/oci_layout:base_layer'])
         ]
-
-    @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_init_layout_base_image(self, mock_Command_run):
-        self.oci.init_layout(True)
-        assert self.oci.container_name == 'tmpdir/oci_layout:base_layer'
 
     @patch('kiwi.oci_tools.umoci.mkdtemp')
     @patch('kiwi.oci_tools.umoci.Command.run')
@@ -38,7 +33,7 @@ class TestOCIBase(object):
         mock_mkdtemp.return_value = 'oci_root'
         self.oci.unpack()
         mock_Command_run.assert_called_once_with(
-            ['umoci', 'unpack', '--image', 'tmpdir/oci_layout:tag', 'oci_root']
+            ['umoci', 'unpack', '--image', 'tmpdir/oci_layout:base_layer', 'oci_root']
         )
 
     @patch('kiwi.oci_tools.base.DataSync')
@@ -89,23 +84,14 @@ class TestOCIBase(object):
                 '--history.created_by=created by text',
                 '--history.author=history author',
                 '--history.created', 'current_date',
-                '--image', 'tmpdir/oci_layout:tag', 'oci_root'
+                '--image', 'tmpdir/oci_layout:base_layer', 'oci_root'
             ]
         ) in mock_Command_run.call_args_list
 
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_add_tag(self, mock_Command_run):
-        self.oci.add_tag('other_tag')
-        mock_Command_run.assert_called_once_with(
-            [
-                'umoci', 'config', '--no-history', '--image',
-                'tmpdir/oci_layout:tag', '--tag', 'other_tag'
-            ]
-        )
-
-    @patch('kiwi.oci_tools.umoci.Command.run')
     def test_set_config(self, mock_Command_run):
         oci_config = {
+            'container_tag': 'tag',
             'entry_command': ['/bin/bash', '-x'],
             'entry_subcommand': ['ls', '-l'],
             'maintainer': 'tux',
@@ -126,12 +112,12 @@ class TestOCIBase(object):
                 '--config.exposedports=80', '--config.exposedports=42',
                 '--config.env=FOO=bar', '--config.env=PATH=/bin',
                 '--config.label=a=value', '--config.label=b=value',
-                '--no-history', '--image', 'tmpdir/oci_layout:tag',
+                '--no-history', '--image', 'tmpdir/oci_layout:base_layer',
                 '--tag', 'tag', '--created', 'current_date'
             ]
         )
 
-    @patch('kiwi.oci_tools.base.mkdtemp')
+    @patch('kiwi.oci_tools.umoci.mkdtemp')
     @patch('kiwi.oci_tools.base.datetime')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.umoci.Command.run')
@@ -139,6 +125,7 @@ class TestOCIBase(object):
         self, mock_Command_run, mock_cmd_caps, mock_datetime, mock_mkdtemp
     ):
         oci_config = {
+            'container_tag': 'tag',
             'entry_command': ['/bin/bash', '-x'],
             'entry_subcommand': ['ls', '-l'],
             'maintainer': 'tux',
@@ -156,7 +143,7 @@ class TestOCIBase(object):
         mock_datetime.utcnow = Mock(
             return_value=strftime
         )
-        oci = OCIUmoci('tag')
+        oci = OCIUmoci()
         oci.set_config(oci_config)
         mock_Command_run.assert_called_once_with(
             [
@@ -167,46 +154,65 @@ class TestOCIBase(object):
                 '--config.exposedports=80', '--config.exposedports=42',
                 '--config.env=FOO=bar', '--config.env=PATH=/bin',
                 '--config.label=a=value', '--config.label=b=value',
-                '--image', 'tmpdir/oci_layout:tag',
+                '--image', 'tmpdir/oci_layout:base_layer',
                 '--tag', 'tag', '--created', 'current_date'
             ]
         )
 
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_set_config_dervied_image(self, mock_Command_run):
-        self.oci.init_layout(True)
-        self.oci.set_config({}, True)
-        assert mock_Command_run.call_args_list == [
-            call([
-                'umoci', 'config', '--no-history',
-                '--image', 'tmpdir/oci_layout:base_layer', '--tag', 'tag',
-                '--created', 'current_date'
-            ]),
-            call(['umoci', 'rm', '--image', 'tmpdir/oci_layout:base_layer'])
-        ]
-        self.oci.container_name == 'tmpdir/oci_layout:tag'
+        self.oci.set_config({'container_tag': 'tag'})
+        mock_Command_run.assert_called_once_with([
+            'umoci', 'config', '--no-history',
+            '--image', 'tmpdir/oci_layout:base_layer', '--tag', 'tag',
+            '--created', 'current_date'
+        ])
+        self.oci.working_image == 'tmpdir/oci_layout:tag'
 
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_set_config_clear_inherited_commands(
         self, mock_Command_run
     ):
         oci_config = {
+            'container_tag': 'tag',
             'entry_command': [],
             'entry_subcommand': []
         }
         self.oci.set_config(oci_config)
-        mock_Command_run.assert_called_once_with(
-            [
+        assert mock_Command_run.call_args_list == [
+            call([
                 'umoci', 'config', '--clear=config.entrypoint',
                 '--clear=config.cmd', '--no-history',
-                '--image', 'tmpdir/oci_layout:tag', '--tag', 'tag',
+                '--image', 'tmpdir/oci_layout:base_layer', '--tag', 'tag',
                 '--created', 'current_date'
-            ]
-        )
+            ])
+        ]
 
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_garbage_collect(self, mock_Command_run):
-        self.oci.garbage_collect()
+    def test_import_container_image(self, mock_Command_run):
+        self.oci.import_container_image('oci-archive:image.tar')
+        mock_Command_run.assert_called_once_with([
+            'skopeo', 'copy', 'oci-archive:image.tar',
+            'oci:tmpdir/oci_layout:base_layer'
+        ])
+
+    @patch('kiwi.oci_tools.umoci.Path.wipe')
+    @patch('kiwi.oci_tools.umoci.Command.run')
+    def test_export_container_image(self, mock_Command_run, mock_wipe):
+        self.oci.export_container_image(
+            'image.tar', 'oci-archive', 'myimage:tag',
+            ['myimage:tag2', 'myimage:tag3']
+        )
+        mock_Command_run.assert_called_once_with([
+            'skopeo', 'copy', 'oci:tmpdir/oci_layout:base_layer',
+            'oci-archive:image.tar:myimage:tag', '--additional-tag',
+            'myimage:tag2', '--additional-tag', 'myimage:tag3'
+        ])
+        mock_wipe.assert_called_once_with('image.tar')
+
+    @patch('kiwi.oci_tools.umoci.Command.run')
+    def test_post_process(self, mock_Command_run):
+        self.oci.post_process()
         mock_Command_run.assert_called_once_with(
             ['umoci', 'gc', '--layout', 'tmpdir/oci_layout']
         )
@@ -215,4 +221,6 @@ class TestOCIBase(object):
     def test_destructor(self, mock_Path):
         self.oci.oci_root_dir = 'oci_root'
         self.oci.__del__()
-        mock_Path.wipe.assert_called_once_with('oci_root')
+        assert mock_Path.wipe.call_args_list == [
+            call('oci_root'), call('tmpdir')
+        ]

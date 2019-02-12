@@ -15,16 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import mkdtemp
 import os
 
 # project
 from kiwi.system.root_import.base import RootImportBase
 from kiwi.logger import log
 from kiwi.path import Path
-from kiwi.command import Command
-from kiwi.archive.tar import ArchiveTar
 from kiwi.defaults import Defaults
+from kiwi.utils.compress import Compress
 from kiwi.oci_tools import OCI
 
 
@@ -33,23 +31,16 @@ class RootImportOCI(RootImportBase):
     Implements the base class for importing a root system from
     a oci image tarball file.
     """
-    def post_init(self, image_uri):
-        """
-        Post initialization method
-        """
-        self.uncompressed_image = None
-        self.oci_layout_dir = None
-        self.tag = image_uri.get_fragment()
-        self.oci_layout_dir = mkdtemp(prefix='kiwi_layout_dir.')
+    def post_init(self, custom_args):
+        self.archive_transport = custom_args['archive_transport']
 
     def sync_data(self):
         """
         Synchronize data from the given base image to the target root
         directory.
         """
-        self.extract_oci_image()
-
-        oci = OCI('base_layer', self.oci_layout_dir)
+        oci = OCI()
+        oci.import_container_image(self._set_image_uri())
         oci.unpack()
         oci.import_rootfs(self.root_dir)
 
@@ -59,37 +50,28 @@ class RootImportOCI(RootImportBase):
         # party archive.
         image_copy = Defaults.get_imported_root_image(self.root_dir)
         Path.create(os.path.dirname(image_copy))
-        image_tar = ArchiveTar(image_copy)
-        image_tar.create(self.oci_layout_dir)
+        oci.export_container_image(
+            image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
+        )
         self._make_checksum(image_copy)
 
-    def extract_oci_image(self):
+    def _set_image_uri(self):
         """
         Extract the contents from the provided image file to a temporary
         location KIWI can work with.
         """
         if not self.unknown_uri:
-            tar = ArchiveTar(self.image_file)
-            self.uncompressed_image = mkdtemp(prefix='kiwi_uncompressed.')
-            tar.extract(self.uncompressed_image)
-            if self.tag:
-                skopeo_uri = 'oci:{0}:{1}'.format(
-                    self.uncompressed_image, self.tag
-                )
+            compressor = Compress(self.image_file)
+            if compressor.get_format():
+                compressor.uncompress(True)
+                self.uncompressed_image = compressor.uncompressed_filename
             else:
-                skopeo_uri = 'oci:{0}'.format(self.uncompressed_image)
+                self.uncompressed_image = self.image_file
+            image_uri = '{0}:{1}'.format(
+                self.archive_transport, self.uncompressed_image
+            )
         else:
-            log.warning('Bypassing base image URI to skopeo tool')
-            skopeo_uri = self.unknown_uri
+            log.warning('Bypassing base image URI to OCI tools')
+            image_uri = self.unknown_uri
 
-        Command.run([
-            'skopeo', 'copy', skopeo_uri,
-            'oci:{0}:base_layer'.format(self.oci_layout_dir)
-        ])
-
-    def __del__(self):
-        if self.oci_layout_dir:
-            Path.wipe(self.oci_layout_dir)
-        if self.uncompressed_image:
-            if self.uncompressed_image != self.image_file:
-                Path.wipe(self.uncompressed_image)
+        return image_uri
