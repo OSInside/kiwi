@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
 from collections import namedtuple
 
 # project
@@ -39,6 +40,7 @@ class BootLoaderConfigBase(object):
     def __init__(self, xml_state, root_dir, custom_args=None):
         self.root_dir = root_dir
         self.xml_state = xml_state
+        self.arch = platform.machine()
 
         self.post_init(custom_args)
 
@@ -344,6 +346,9 @@ class BootLoaderConfigBase(object):
                                     volume.name
                                 )
                             )
+
+        if target == 'iso':
+            bootpath = '/boot/' + self.arch + '/loader'
 
         return bootpath
 

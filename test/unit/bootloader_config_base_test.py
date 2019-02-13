@@ -11,7 +11,9 @@ from kiwi.bootloader.config.base import BootLoaderConfigBase
 
 
 class TestBootLoaderConfigBase(object):
-    def setup(self):
+    @patch('platform.machine')
+    def setup(self, mock_machine):
+        mock_machine.return_value = 'x86_64'
         description = XMLDescription(
             '../data/example_config.xml'
         )
@@ -223,6 +225,10 @@ class TestBootLoaderConfigBase(object):
         mock_disk_setup.return_value = disk_setup
         assert self.bootloader.get_boot_path() == \
             '/boot'
+
+    def test_get_boot_path_iso(self):
+        assert self.bootloader.get_boot_path(target='iso') == \
+            '/boot/x86_64/loader'
 
     def test_quote_title(self):
         assert self.bootloader.quote_title('aaa bbb [foo]') == 'aaa_bbb_(foo)'
