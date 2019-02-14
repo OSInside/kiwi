@@ -82,7 +82,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.terminal = self.xml_state.build_type.get_bootloader_console() \
             or 'gfxterm'
         self.gfxmode = self.get_gfxmode('grub2')
-        self.bootpath = self.get_boot_path()
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
         self.continue_on_timeout = self.get_continue_on_timeout()
@@ -253,7 +252,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(),
-            'bootpath': self.bootpath,
+            'bootpath': self.get_boot_path('disk'),
             'boot_directory_name': self.boot_directory_name
         }
         if self.multiboot:
@@ -306,7 +305,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_install_title(),
-            'bootpath': '/boot/' + self.arch + '/loader',
+            'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name
         }
         if self.multiboot:
@@ -362,7 +361,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(plain=True),
-            'bootpath': '/boot/' + self.arch + '/loader',
+            'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name
         }
         if self.multiboot:
@@ -410,7 +409,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.root_dir + '/boot/mbrid'
         )
 
-        self._copy_theme_data_to_boot_directory(lookup_path)
+        self._copy_theme_data_to_boot_directory(lookup_path, 'iso')
 
         if self._supports_bios_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
@@ -449,7 +448,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()
 
-        self._copy_theme_data_to_boot_directory(lookup_path)
+        self._copy_theme_data_to_boot_directory(lookup_path, 'disk')
 
         if not self.xen_guest and self._supports_bios_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
@@ -715,11 +714,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         for background_file in glob.iglob(background_pattern):
             return background_file
 
-    def _copy_theme_data_to_boot_directory(self, lookup_path):
+    def _copy_theme_data_to_boot_directory(self, lookup_path, target):
         if not lookup_path:
             lookup_path = self.root_dir
-        boot_fonts_dir = os.sep.join(
-            [self.root_dir, 'boot', self.boot_directory_name, 'fonts']
+        boot_fonts_dir = os.path.normpath(
+            os.sep.join(
+                [
+                    self.root_dir,
+                    self.get_boot_path(target),
+                    self.boot_directory_name,
+                    'fonts'
+                ]
+            )
         )
         Path.create(boot_fonts_dir)
         boot_unicode_font = boot_fonts_dir + '/unicode.pf2'
