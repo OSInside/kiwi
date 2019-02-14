@@ -270,7 +270,21 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: boolean
         """
-        return False if returncode == 0 or returncode >= 100 else True
+        if returncode == 0:
+            # All is good
+            return False
+        elif returncode == 104 or returncode == 105 or returncode == 106:
+            # Treat the following exit codes as error
+            # 104 - ZYPPER_EXIT_INF_CAP_NOT_FOUND
+            # 105 - ZYPPER_EXIT_ON_SIGNAL
+            # 106 - ZYPPER_EXIT_INF_REPOS_SKIPPED
+            return True
+        elif returncode >= 100:
+            # Treat all other 100 codes as non error codes
+            return False
+
+        # Treat any other error code as error
+        return True
 
     def _install_items(self):
         items = self.package_requests + self.collection_requests \

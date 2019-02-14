@@ -158,6 +158,9 @@ class TestPackageManagerZypper(object):
         assert self.manager.has_failed(0) is False
         assert self.manager.has_failed(102) is False
         assert self.manager.has_failed(100) is False
+        assert self.manager.has_failed(104) is True
+        assert self.manager.has_failed(105) is True
+        assert self.manager.has_failed(106) is True
         assert self.manager.has_failed(1) is True
         assert self.manager.has_failed(4) is True
         assert self.manager.has_failed(-42) is True
