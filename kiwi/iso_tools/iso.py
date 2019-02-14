@@ -28,7 +28,6 @@ from builtins import bytes
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
 from kiwi.logger import log
 from kiwi.defaults import Defaults
-from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.codec import Codec
 from kiwi.exceptions import (
@@ -332,16 +331,18 @@ class Iso(object):
             # isolinux-config was not able to identify the isolinux
             # signature. As a workaround a compat directory /isolinux
             # is created which hardlinks all loader files
-            compat_base_directory = self.source_dir + '/isolinux'
-            loader_files = '/'.join(
-                [self.source_dir, self.boot_path, 'loader/*']
+            loader_source_directory = os.sep.join(
+                [self.source_dir, loader_base_directory]
             )
-            Path.create(compat_base_directory)
-            bash_command = ' '.join(
-                ['ln', loader_files, compat_base_directory]
+            loader_compat_target_directory = os.sep.join(
+                [self.source_dir, 'isolinux']
             )
             Command.run(
-                ['bash', '-c', bash_command]
+                [
+                    'cp', '-a', '-l',
+                    loader_source_directory + os.sep,
+                    loader_compat_target_directory + os.sep
+                ]
             )
 
     @staticmethod

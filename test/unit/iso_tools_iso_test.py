@@ -56,10 +56,9 @@ class TestIso(object):
         )
 
     @patch('kiwi.iso_tools.iso.Command.run')
-    @patch('kiwi.iso_tools.iso.Path.create')
     @patch('os.path.exists')
     def test_setup_isolinux_boot_path_failed_isolinux_config(
-        self, mock_exists, mock_path, mock_command
+        self, mock_exists, mock_command
     ):
         mock_exists.return_value = True
         command_raises = [False, True]
@@ -70,11 +69,10 @@ class TestIso(object):
 
         mock_command.side_effect = side_effect
         self.iso.setup_isolinux_boot_path()
-        mock_path.assert_called_once_with('source-dir/isolinux')
         assert mock_command.call_args_list[1] == call(
             [
-                'bash', '-c',
-                'ln source-dir/boot/x86_64/loader/* source-dir/isolinux'
+                'cp', '-a', '-l',
+                'source-dir/boot/x86_64/loader/', 'source-dir/isolinux/'
             ]
         )
 
