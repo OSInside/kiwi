@@ -686,6 +686,21 @@ class XMLState(object):
         if vagrant_config_sections:
             return vagrant_config_sections[0]
 
+    def get_vagrant_config_virtualbox_guest_additions(self):
+        """
+        Attribute virtualbox_guest_additions_present from the first
+        vagrantconfig section.
+
+        :return: ``<vagrantconfig virtualbox_guest_additions_present=>`` value
+
+        :rtype: bool
+        """
+        vagrant_config_sections = self.get_build_type_vagrant_config_section()
+        if not vagrant_config_sections.virtualbox_guest_additions_present:
+            return Defaults.get_vagrant_config_virtualbox_guest_additions()
+        else:
+            return vagrant_config_sections.virtualbox_guest_additions_present
+
     def get_build_type_vmdisk_section(self):
         """
         First vmdisk section from the first machine section in the
