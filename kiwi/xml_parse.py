@@ -2542,7 +2542,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2592,6 +2592,9 @@ class type_(GeneratedsSuper):
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
         self.spare_part = _cast(None, spare_part)
+        self.spare_part_mountpoint = _cast(None, spare_part_mountpoint)
+        self.spare_part_fs = _cast(None, spare_part_fs)
+        self.spare_part_is_last = _cast(bool, spare_part_is_last)
         self.target_blocksize = _cast(int, target_blocksize)
         self.target_removable = _cast(bool, target_removable)
         self.vga = _cast(None, vga)
@@ -2763,6 +2766,12 @@ class type_(GeneratedsSuper):
     def set_rootfs_label(self, rootfs_label): self.rootfs_label = rootfs_label
     def get_spare_part(self): return self.spare_part
     def set_spare_part(self, spare_part): self.spare_part = spare_part
+    def get_spare_part_mountpoint(self): return self.spare_part_mountpoint
+    def set_spare_part_mountpoint(self, spare_part_mountpoint): self.spare_part_mountpoint = spare_part_mountpoint
+    def get_spare_part_fs(self): return self.spare_part_fs
+    def set_spare_part_fs(self, spare_part_fs): self.spare_part_fs = spare_part_fs
+    def get_spare_part_is_last(self): return self.spare_part_is_last
+    def set_spare_part_is_last(self, spare_part_is_last): self.spare_part_is_last = spare_part_is_last
     def get_target_blocksize(self): return self.target_blocksize
     def set_target_blocksize(self, target_blocksize): self.target_blocksize = target_blocksize
     def get_target_removable(self): return self.target_removable
@@ -2982,6 +2991,15 @@ class type_(GeneratedsSuper):
         if self.spare_part is not None and 'spare_part' not in already_processed:
             already_processed.add('spare_part')
             outfile.write(' spare_part=%s' % (quote_attrib(self.spare_part), ))
+        if self.spare_part_mountpoint is not None and 'spare_part_mountpoint' not in already_processed:
+            already_processed.add('spare_part_mountpoint')
+            outfile.write(' spare_part_mountpoint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.spare_part_mountpoint), input_name='spare_part_mountpoint')), ))
+        if self.spare_part_fs is not None and 'spare_part_fs' not in already_processed:
+            already_processed.add('spare_part_fs')
+            outfile.write(' spare_part_fs=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.spare_part_fs), input_name='spare_part_fs')), ))
+        if self.spare_part_is_last is not None and 'spare_part_is_last' not in already_processed:
+            already_processed.add('spare_part_is_last')
+            outfile.write(' spare_part_is_last="%s"' % self.gds_format_boolean(self.spare_part_is_last, input_name='spare_part_is_last'))
         if self.target_blocksize is not None and 'target_blocksize' not in already_processed:
             already_processed.add('target_blocksize')
             outfile.write(' target_blocksize="%s"' % self.gds_format_integer(self.target_blocksize, input_name='target_blocksize'))
@@ -3347,6 +3365,24 @@ class type_(GeneratedsSuper):
             self.spare_part = value
             self.spare_part = ' '.join(self.spare_part.split())
             self.validate_partition_size_type(self.spare_part)    # validate type partition-size-type
+        value = find_attr_value_('spare_part_mountpoint', node)
+        if value is not None and 'spare_part_mountpoint' not in already_processed:
+            already_processed.add('spare_part_mountpoint')
+            self.spare_part_mountpoint = value
+        value = find_attr_value_('spare_part_fs', node)
+        if value is not None and 'spare_part_fs' not in already_processed:
+            already_processed.add('spare_part_fs')
+            self.spare_part_fs = value
+            self.spare_part_fs = ' '.join(self.spare_part_fs.split())
+        value = find_attr_value_('spare_part_is_last', node)
+        if value is not None and 'spare_part_is_last' not in already_processed:
+            already_processed.add('spare_part_is_last')
+            if value in ('true', '1'):
+                self.spare_part_is_last = True
+            elif value in ('false', '0'):
+                self.spare_part_is_last = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('target_blocksize', node)
         if value is not None and 'target_blocksize' not in already_processed:
             already_processed.add('target_blocksize')

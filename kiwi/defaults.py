@@ -600,6 +600,17 @@ class Defaults(object):
         return 'systemVG'
 
     @staticmethod
+    def get_min_partition_mbytes():
+        """
+        Provides default minimum partition size in mbytes
+
+        :return: mbsize value
+
+        :rtype: int
+        """
+        return 50
+
+    @staticmethod
     def get_min_volume_mbytes():
         """
         Provides default minimum LVM volume size in mbytes

@@ -1397,7 +1397,7 @@ appended into the repository configuration file.</a:documentation>
     </define>
     <define name="k.repository.package_gpgcheck.attribute">
       <attribute name="package_gpgcheck">
-        <a:documentation>Specify whether or not this specific repository is configured to
+        <a:documentation>Specify whether or not this specific repository is configured
 to run package signature validation. If not set, no value is
 appended into the repository configuration file.</a:documentation>
         <data type="boolean"/>
@@ -1852,6 +1852,47 @@ can only be configured for the disk image types oem and vmx</a:documentation>
       <sch:pattern id="spare_part" is-a="image_type">
         <sch:param name="attr" value="spare_part"/>
         <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.spare_part_mountpoint.attribute">
+      <attribute name="spare_part_mountpoint">
+        <a:documentation>Specify mount point for spare partition in the system.
+Can only be configured for the disk image types oem and vmx</a:documentation>
+      </attribute>
+      <sch:pattern id="spare_part_mountpoint" is-a="image_type">
+        <sch:param name="attr" value="spare_part_mountpoint"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.spare_part_fs.attribute">
+      <attribute name="spare_part_fs">
+        <a:documentation>Specify filesystem for spare partition in the system.
+Can only be configured for the disk image types oem and vmx</a:documentation>
+        <choice>
+          <value>btrfs</value>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>ext4</value>
+          <value>xfs</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="spare_part_fs" is-a="image_type">
+        <sch:param name="attr" value="spare_part_fs"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.spare_part_is_last.attribute">
+      <attribute name="spare_part_is_last">
+        <a:documentation>Specify if the spare partition should be the last one in
+the partition table. Can only be configured for the vmx
+disk image type. By default the root partition is the last
+one and the spare partition lives behind it. With this
+attribute that setup can be toggled.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="spare_part_is_last" is-a="image_type">
+        <sch:param name="attr" value="spare_part_is_last"/>
+        <sch:param name="types" value="vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.zipl_targettype.attribute">
@@ -2607,6 +2648,15 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.spare_part.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_mountpoint.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_fs.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_is_last.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.target_blocksize.attribute"/>
@@ -3914,7 +3964,7 @@ packages are only installed if this build type is requested.</a:documentation>
     </define>
     <define name="k.packages.patternType.attribute">
       <attribute name="patternType">
-        <a:documentation>Selection type for patterns. Could be onlyRequired
+        <a:documentation>Selection type for patterns. Can be onlyRequired
 or plusRecommended</a:documentation>
         <choice>
           <value>onlyRequired</value>
