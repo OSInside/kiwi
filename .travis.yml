@@ -47,4 +47,4 @@ install:
 - pip install tox
 
 script:
-- tox
+- tox "-n $(nproc)"

@@ -145,6 +145,20 @@ the following command:
 
     $ tox
 
+We also include ``pytest-xdist`` in the development virtualenv which allows
+to run the unit tests in parallel. It is turned of by default but can be
+enabled via:
+
+.. code:: bash
+
+    $ tox "-n NUMBER_OF_PROCESSES"
+
+where you can insert an arbitrary number as ``NUMBER_OF_PROCESSES`` (or a
+shell command like ``$(nproc)``). Please also note that the double quotes
+around ``-n NUMBER_OF_PROCESSES`` are required (otherwise :command:`tox`
+will consume this command line flag instead of forwarding it to
+:command:`pytest`).
+
 The previous call would run :command:`tox` for different Python versions,
 checks the source code for errors, and builds the documentation.
 
