@@ -20,6 +20,7 @@ import os
 # project
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.logger import log
 
 from kiwi.exceptions import (
@@ -80,7 +81,12 @@ class LoopDevice(DeviceProvider):
             )
         loop_options = []
         if self.blocksize_bytes and self.blocksize_bytes != 512:
-            loop_options.append('--logical-blocksize')
+            if CommandCapabilities.has_option_in_help(
+                'losetup', '--sector-size', raise_on_error=False
+            ):
+                loop_options.append('--sector-size')
+            else:
+                loop_options.append('--logical-blocksize')
             loop_options.append(format(self.blocksize_bytes))
         loop_call = Command.run(
             ['losetup'] + loop_options + ['-f', '--show', self.filename]
