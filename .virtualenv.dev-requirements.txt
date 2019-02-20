@@ -19,6 +19,7 @@ tox
 # python unit testing framework
 pytest
 pytest-cov
+pytest-xdist
 
 # Rolling backport of unittest.mock for all Pythons
 mock
