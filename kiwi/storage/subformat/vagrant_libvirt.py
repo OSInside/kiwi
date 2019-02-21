@@ -28,7 +28,6 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
     """
     **Create a vagrant box for the libvirt provider**
     """
-
     def vagrant_post_init(self):
         self.image_format = 'vagrant.libvirt.box'
         self.provider = 'libvirt'
@@ -65,7 +64,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
         Returns settings for the libvirt provider telling vagrant to use kvm.
         """
         return dedent('''
-        config.vm.provider :libvirt do |libvirt|
-          libvirt.driver = "kvm"
-        end
+            config.vm.provider :libvirt do |libvirt|
+              libvirt.driver = "kvm"
+            end
         ''').strip()
