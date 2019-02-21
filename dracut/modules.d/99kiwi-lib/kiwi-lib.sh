@@ -31,14 +31,32 @@ function get_swap_map {
 function lookup_disk_device_from_root {
     declare root=${root}
     local root_device=${root#block:}
+    local disk_device
+    local disk_matches=0
+    local wwn
     if [ -z "${root_device}" ];then
         die "No root device found"
     fi
     if [ -L "${root_device}" ];then
         root_device=/dev/$(basename "$(readlink "${root_device}")")
     fi
-    lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
-        grep disk | cut -f1 -d ' '
+    for disk_device in $(
+        lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
+            grep disk | cut -f1 -d ' '
+    ); do
+        disk_matches=$((disk_matches + 1))
+    done
+    if [ "${disk_matches}" -gt 1 ];then
+        # multiple disks matches the root_device. Let's lookup
+        # which multipath map combines them
+        for wwn in $(multipath -l -v1 "${disk_device}");do
+            if [ -e "/dev/mapper/${wwn}" ];then
+                disk_device="/dev/mapper/${wwn}"
+                break
+            fi
+        done
+    fi
+    echo "${disk_device}"
 }
 
 function udev_pending {

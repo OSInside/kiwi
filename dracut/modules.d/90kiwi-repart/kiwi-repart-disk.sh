@@ -73,15 +73,6 @@ function deactivate_device_mappings {
     if luks_system "${disk}";then
         deactivate_luks
     fi
-    # delete all remaining device maps
-    deactivate_all_device_maps
-}
-
-function activate_device_mappings {
-    if type multipath &> /dev/null; then
-        multipath -r
-        systemctl daemon-reload
-    fi
 }
 
 function finalize_disk_repart {
@@ -318,6 +309,3 @@ fi
 
 # create swap space
 create_swap "$(get_swap_map)"
-
-# recreate device maps and retrigger systemd generators
-activate_device_mappings
