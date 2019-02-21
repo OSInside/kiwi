@@ -12,6 +12,13 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+`kiwi.storage.subformat.template.vagrant_config` Module
+--------------------------------------------------------
+
+.. automodule:: kiwi.storage.subformat.template.vagrant_config
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Module contents
 ---------------

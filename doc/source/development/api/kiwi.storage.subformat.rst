@@ -43,6 +43,15 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+`kiwi.storage.subformat.vagrant_base` Module
+-----------------------------------------------
+
+.. automodule:: kiwi.storage.subformat.vagrant_base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 `kiwi.storage.subformat.vagrant_libvirt` Module
 -----------------------------------------------
 
