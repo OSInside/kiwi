@@ -88,9 +88,11 @@ class DiskFormatVagrantBase(DiskFormatBase):
                 'no vagrantconfig provided'
             )
 
-        self.image_format = 'vagrant.' + self.provider + '.box'
-
         self.vagrantconfig = custom_args['vagrantconfig']
+        self.vagrant_post_init()
+
+    def vagrant_post_init(self):
+        pass
 
     def create_box_img(self, temp_image_dir):
         """

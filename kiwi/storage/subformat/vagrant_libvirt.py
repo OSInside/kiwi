@@ -25,10 +25,13 @@ from kiwi.command import Command
 
 
 class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
-    provider = 'libvirt'
     """
     **Create a vagrant box for the libvirt provider**
     """
+
+    def vagrant_post_init(self):
+        self.image_format = 'vagrant.libvirt.box'
+        self.provider = 'libvirt'
 
     def create_box_img(self, temp_image_dir):
         """

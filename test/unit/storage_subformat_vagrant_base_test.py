@@ -11,12 +11,14 @@ from textwrap import dedent
 
 class DiskFormatVagrantgMock(DiskFormatVagrantBase):
 
-    provider = "dummy"
-
     FILES = ["one_file", "two_file", "red_file", "blue_file"]
 
     def create_box_img(self, tmp_dir):
         return self.FILES
+
+    def vagrant_post_init(self):
+        self.provider = 'dummy'
+        self.image_format = 'vagrant.dummy.box'
 
 
 class TestDiskFormatVagrant(object):
@@ -40,9 +42,6 @@ class TestDiskFormatVagrantBase(TestDiskFormatVagrant):
 
     def setup(self):
         super(TestDiskFormatVagrantBase, self).setup()
-        # set provider as the base class does not provide this value, but
-        # post_init() requires it
-        DiskFormatVagrantBase.provider = "temporary"
         self.disk_format = DiskFormatVagrantBase(
             self.xml_state, 'root_dir', 'target_dir',
             {'vagrantconfig': self.vagrantconfig}
@@ -61,6 +60,10 @@ class TestDiskFormatVagrantImplementation(TestDiskFormatVagrant):
             {'vagrantconfig': self.vagrantconfig}
         )
 
+    def test_post_init_vagrant(self):
+        assert self.disk_format.image_format == "vagrant.dummy.box"
+        assert self.disk_format.provider == "dummy"
+
     @raises(KiwiFormatSetupError)
     def test_post_init_missing_custom_arguments(self):
         self.disk_format.post_init(custom_args=None)
@@ -68,9 +71,6 @@ class TestDiskFormatVagrantImplementation(TestDiskFormatVagrant):
     @raises(KiwiFormatSetupError)
     def test_post_init_missing_vagrantconfig(self):
         self.disk_format.post_init({'vagrantconfig': None})
-
-    def test_post_init_sets_image_format(self):
-        assert self.disk_format.image_format == 'vagrant.dummy.box'
 
     @patch('kiwi.defaults.Defaults.get_disk_format_types')
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
