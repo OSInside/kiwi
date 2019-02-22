@@ -68,22 +68,36 @@ class TestDiskFormatVagrantBase(object):
         self.disk_format.image_format = "vagrant.libvirt.box"
         self.disk_format.provider = "libvirt"
 
-        mock_rand.return_value = 0xa
-        mock_mkdtemp.return_value = 'tmpdir'
-
-        mock_open.return_value = MagicMock(spec=io.IOBase)
-        file_handle = mock_open.return_value.__enter__.return_value
+        additional_config = dedent('''
+            config.vm.provider :libvirt do |libvirt|
+              libvirt.driver = "kvm"
+            end
+        ''').strip()
 
         metadata_json = dedent('''
             {
               "provider": "libvirt"
             }
         ''').strip()
-        vagrantfile = dedent('''
+
+        expected_vagrantfile = dedent('''
             Vagrant.configure("2") do |config|
               config.vm.base_mac = "00163E0A0A0A"
+              config.vm.provider :libvirt do |libvirt|
+                libvirt.driver = "kvm"
+              end
             end
         ''').strip()
+
+        self.disk_format.get_additional_vagrant_config_settings = Mock(
+            return_value=additional_config
+        )
+
+        mock_rand.return_value = 0xa
+        mock_mkdtemp.return_value = 'tmpdir'
+
+        mock_open.return_value = MagicMock(spec=io.IOBase)
+        file_handle = mock_open.return_value.__enter__.return_value
 
         self.disk_format.create_image_format()
 
@@ -92,7 +106,7 @@ class TestDiskFormatVagrantBase(object):
             call('tmpdir/Vagrantfile', 'w')
         ]
         assert file_handle.write.call_args_list == [
-            call(metadata_json), call(vagrantfile)
+            call(metadata_json), call(expected_vagrantfile)
         ]
         mock_command.assert_called_once_with(
             [
@@ -101,6 +115,9 @@ class TestDiskFormatVagrantBase(object):
                 'metadata.json', 'Vagrantfile'
             ]
         )
+
+    def test_get_additional_vagrant_config_settings(self):
+        assert self.disk_format.get_additional_vagrant_config_settings() is None
 
     def test_store_to_result(self):
         # select an example provider
