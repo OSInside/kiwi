@@ -58,7 +58,7 @@ install:
 		> ${buildroot}etc/bash_completion.d/kiwi-ng.sh
 
 tox:
-	tox
+	tox "-n 5"
 
 kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 	# whenever the schema is changed this target will convert
