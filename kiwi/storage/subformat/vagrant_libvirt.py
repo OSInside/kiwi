@@ -40,7 +40,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
             self.xml_state, self.root_dir, self.target_dir
         )
         qcow.create_image_format()
-        box_img = os.sep.join([self.temp_image_dir, 'box.img'])
+        box_img = os.sep.join([temp_image_dir, 'box.img'])
         Command.run(
             [
                 'mv', self.get_target_file_path_for_format(qcow.image_format),
