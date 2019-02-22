@@ -73,17 +73,17 @@ class VagrantConfigTemplate(object):
     """
 
     def __init__(self):
-        self.INDENT = '  '
+        self.indent = '  '
 
-        self.HEADER = dedent('''
+        self.header = dedent('''
             Vagrant.configure("2") do |config|
         ''').strip() + os.linesep
 
-        self.MAC = self.INDENT + dedent('''
+        self.mac = self.indent + dedent('''
             config.vm.base_mac = "${mac_address}"
         ''').strip() + os.linesep
 
-        self.END = dedent('''
+        self.end = dedent('''
             end
         ''').strip()
 
@@ -101,13 +101,13 @@ class VagrantConfigTemplate(object):
             ``mac_address`` that must be substituted.
         :rtype: string.Template
         """
-        template_data = self.HEADER
-        template_data += self.MAC
+        template_data = self.header
+        template_data += self.mac
         if custom_settings:
-            template_data += self.INDENT
-            template_data += self.INDENT.join(
+            template_data += self.indent
+            template_data += self.indent.join(
                 custom_settings.splitlines(True)
             )
             template_data += os.linesep
-        template_data += self.END
+        template_data += self.end
         return Template(template_data)

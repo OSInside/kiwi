@@ -28,7 +28,6 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
     """
     **Create a vagrant box for the libvirt provider**
     """
-
     def vagrant_post_init(self):
         self.image_format = 'vagrant.libvirt.box'
         self.provider = 'libvirt'
@@ -41,7 +40,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
             self.xml_state, self.root_dir, self.target_dir
         )
         qcow.create_image_format()
-        box_img = os.sep.join([self.temp_image_dir, 'box.img'])
+        box_img = os.sep.join([temp_image_dir, 'box.img'])
         Command.run(
             [
                 'mv', self.get_target_file_path_for_format(qcow.image_format),
@@ -65,7 +64,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
         Returns settings for the libvirt provider telling vagrant to use kvm.
         """
         return dedent('''
-        config.vm.provider :libvirt do |libvirt|
-          libvirt.driver = "kvm"
-        end
+            config.vm.provider :libvirt do |libvirt|
+              libvirt.driver = "kvm"
+            end
         ''').strip()
