@@ -57,7 +57,11 @@ function initGlobalDevices {
         die "No root device for operation given"
     fi
     if getargbool 0 rd.kiwi.live.pxe; then
-        if ! ifup lan0 &>/tmp/net.info;then
+        local bootdev
+        read -r bootdev < /tmp/net.bootdev 2>/dev/null
+        if [ -n "${bootdev}" ] && [ -e /tmp/net."${bootdev}".did-setup ]; then
+            : # already set up
+        elif ! ifup lan0 &>/tmp/net.info;then
             die "Network setup failed, see /tmp/net.info"
         fi
         modprobe aoe
