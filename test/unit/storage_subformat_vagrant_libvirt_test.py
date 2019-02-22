@@ -1,7 +1,10 @@
+import io
 from textwrap import dedent
 from mock import (
-    patch, Mock
+    patch, Mock, MagicMock, call
 )
+
+from .test_helper import patch_open
 
 from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
 
@@ -59,3 +62,28 @@ class TestDiskFormatVagrantLibVirt(object):
                   libvirt.driver = "kvm"
                 end
             ''').strip()
+
+    @patch('kiwi.storage.subformat.vagrant_base.Command.run')
+    @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
+    @patch('kiwi.storage.subformat.vagrant_base.random.randrange')
+    @patch.object(DiskFormatVagrantLibVirt, 'create_box_img')
+    @patch_open
+    def test_create_image_format(
+        self, mock_open, mock_create_box_img, mock_rand,
+        mock_mkdtemp, mock_command
+    ):
+        mock_mkdtemp.return_value = 'tmpdir'
+        mock_create_box_img.return_value = ['arbitrary']
+        mock_open.return_value = MagicMock(spec=io.IOBase)
+        file_handle = mock_open.return_value.__enter__.return_value
+        self.disk_format.create_image_format()
+        assert file_handle.write.call_args_list[1] == call(
+            dedent('''
+                Vagrant.configure("2") do |config|
+                  config.vm.base_mac = "00163E010101"
+                  config.vm.provider :libvirt do |libvirt|
+                    libvirt.driver = "kvm"
+                  end
+                end
+            ''').strip()
+        )

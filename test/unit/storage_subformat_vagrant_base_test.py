@@ -37,7 +37,7 @@ class TestDiskFormatVagrantBase(object):
 
     def test_create_box_img_not_implemented(self):
         with raises(NotImplementedError):
-            self.disk_format.create_box_img("arbitrary")
+            self.disk_format.create_box_img('arbitrary')
 
     def test_post_init_missing_custom_arguments(self):
         with raises(KiwiFormatSetupError):
@@ -65,14 +65,8 @@ class TestDiskFormatVagrantBase(object):
         mock_mkdtemp, mock_command
     ):
         # select an example provider
-        self.disk_format.image_format = "vagrant.libvirt.box"
-        self.disk_format.provider = "libvirt"
-
-        additional_config = dedent('''
-            config.vm.provider :libvirt do |libvirt|
-              libvirt.driver = "kvm"
-            end
-        ''').strip()
+        self.disk_format.image_format = 'vagrant.libvirt.box'
+        self.disk_format.provider = 'libvirt'
 
         metadata_json = dedent('''
             {
@@ -83,15 +77,8 @@ class TestDiskFormatVagrantBase(object):
         expected_vagrantfile = dedent('''
             Vagrant.configure("2") do |config|
               config.vm.base_mac = "00163E0A0A0A"
-              config.vm.provider :libvirt do |libvirt|
-                libvirt.driver = "kvm"
-              end
             end
         ''').strip()
-
-        self.disk_format.get_additional_vagrant_config_settings = Mock(
-            return_value=additional_config
-        )
 
         mock_rand.return_value = 0xa
         mock_mkdtemp.return_value = 'tmpdir'
@@ -121,7 +108,7 @@ class TestDiskFormatVagrantBase(object):
 
     def test_store_to_result(self):
         # select an example provider
-        self.disk_format.image_format = "vagrant.libvirt.box"
+        self.disk_format.image_format = 'vagrant.libvirt.box'
         result = Mock()
         self.disk_format.store_to_result(result)
         result.add.assert_called_once_with(
