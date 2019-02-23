@@ -302,12 +302,7 @@ function get_partition_uuid {
 }
 
 function relocate_gpt_at_end_of_disk {
-    local cmd
-    local cmd_file=/part.input
-    rm -f ${cmd_file} && for cmd in x e w y; do
-        echo $cmd >> ${cmd_file}
-    done
-    if ! gdisk "$1" < ${cmd_file} &>/dev/null; then
+    if ! sgdisk -e "$1";then
         die "Failed to write backup GPT at end of disk"
     fi
 }
