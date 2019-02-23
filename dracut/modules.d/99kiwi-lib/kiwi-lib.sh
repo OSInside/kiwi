@@ -46,9 +46,11 @@ function lookup_disk_device_from_root {
     ); do
         disk_matches=$((disk_matches + 1))
     done
-    if [ "${disk_matches}" -gt 1 ];then
-        # multiple disks matches the root_device. Let's lookup
-        # which multipath map combines them
+    # Check if root_device is managed by multipath. If this
+    # is the case prefer the multipath mapped device because
+    # directly accessing the mapped devices is no longer
+    # possible
+    if type multipath &> /dev/null; then
         for wwn in $(multipath -l -v1 "${disk_device}");do
             if [ -e "/dev/mapper/${wwn}" ];then
                 disk_device="/dev/mapper/${wwn}"
