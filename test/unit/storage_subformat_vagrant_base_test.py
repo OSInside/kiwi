@@ -13,7 +13,8 @@ from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
 from textwrap import dedent
 
 
-class TestDiskFormatVagrantBase(object):
+class VagrantTestBase(object):
+
     def setup(self):
         xml_data = Mock()
         xml_data.get_name = Mock(
@@ -28,6 +29,29 @@ class TestDiskFormatVagrantBase(object):
         self.vagrantconfig.get_virtualsize = Mock(
             return_value=42
         )
+
+    def config_create_image_format_mocks(
+            self, mock_rand, mock_mkdtemp, mock_open
+    ):
+        """
+        Creates mocks to test the function ``create_image_format`` in child
+        classes of DiskFormatVagrantBase.
+
+        :return: mock return_value of `open()`, this can be used to retrieve
+            values that were written to ``open``'d files
+        """
+        mock_rand.return_value = 0xa
+        mock_mkdtemp.return_value = 'tmpdir'
+
+        mock_open.return_value = MagicMock(spec=io.IOBase)
+        file_handle = mock_open.return_value.__enter__.return_value
+
+        return file_handle
+
+
+class TestDiskFormatVagrantBase(VagrantTestBase):
+    def setup(self):
+        super(TestDiskFormatVagrantBase, self).setup()
         self.disk_format = DiskFormatVagrantBase(
             self.xml_state, 'root_dir', 'target_dir',
             {'vagrantconfig': self.vagrantconfig}
@@ -80,11 +104,9 @@ class TestDiskFormatVagrantBase(object):
             end
         ''').strip()
 
-        mock_rand.return_value = 0xa
-        mock_mkdtemp.return_value = 'tmpdir'
-
-        mock_open.return_value = MagicMock(spec=io.IOBase)
-        file_handle = mock_open.return_value.__enter__.return_value
+        file_handle = self.config_create_image_format_mocks(
+            mock_rand, mock_mkdtemp, mock_open
+        )
 
         self.disk_format.create_image_format()
 

@@ -1,29 +1,16 @@
-import io
 from textwrap import dedent
-from mock import (
-    patch, Mock, MagicMock, call
-)
+from mock import patch, Mock, call
 
 from .test_helper import patch_open
+from .storage_subformat_vagrant_base_test import VagrantTestBase
 
 from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
 
 
-class TestDiskFormatVagrantLibVirt(object):
+class TestDiskFormatVagrantLibVirt(VagrantTestBase):
     def setup(self):
-        xml_data = Mock()
-        xml_data.get_name = Mock(
-            return_value='some-disk-image'
-        )
-        self.xml_state = Mock()
-        self.xml_state.xml_data = xml_data
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
-        self.vagrantconfig = Mock()
-        self.vagrantconfig.get_virtualsize = Mock(
-            return_value=42
-        )
+        super(TestDiskFormatVagrantLibVirt, self).setup()
+
         self.disk_format = DiskFormatVagrantLibVirt(
             self.xml_state, 'root_dir', 'target_dir',
             {'vagrantconfig': self.vagrantconfig}
@@ -72,15 +59,15 @@ class TestDiskFormatVagrantLibVirt(object):
         self, mock_open, mock_create_box_img, mock_rand,
         mock_mkdtemp, mock_command
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
         mock_create_box_img.return_value = ['arbitrary']
-        mock_open.return_value = MagicMock(spec=io.IOBase)
-        file_handle = mock_open.return_value.__enter__.return_value
+        file_handle = self.config_create_image_format_mocks(
+            mock_rand, mock_mkdtemp, mock_open
+        )
         self.disk_format.create_image_format()
         assert file_handle.write.call_args_list[1] == call(
             dedent('''
                 Vagrant.configure("2") do |config|
-                  config.vm.base_mac = "00163E010101"
+                  config.vm.base_mac = "00163E0A0A0A"
                   config.vm.provider :libvirt do |libvirt|
                     libvirt.driver = "kvm"
                   end
