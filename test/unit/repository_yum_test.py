@@ -160,12 +160,15 @@ class TestRepositoryYum(object):
             '/shared-dir/yum/repos/foo.repo', 'w'
         )
 
-    @patch('kiwi.command.Command.run')
-    def test_import_trusted_keys(self, mock_run):
-        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
-        assert mock_run.call_args_list == [
-            call(['rpm', '--root', '../data', '--import', 'key-file-a.asc']),
-            call(['rpm', '--root', '../data', '--import', 'key-file-b.asc'])
+    @patch('kiwi.repository.yum.RpmDataBase')
+    def test_import_trusted_keys(self, mock_RpmDataBase):
+        rpmdb = mock.Mock()
+        mock_RpmDataBase.return_value = rpmdb
+        signing_keys = ['key-file-a.asc', 'key-file-b.asc']
+        self.repo.import_trusted_keys(signing_keys)
+        assert rpmdb.import_signing_key_to_image.call_args_list == [
+            call('key-file-a.asc'),
+            call('key-file-b.asc')
         ]
 
     @patch('kiwi.path.Path.wipe')

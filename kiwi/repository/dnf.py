@@ -24,7 +24,6 @@ from tempfile import NamedTemporaryFile
 from kiwi.defaults import Defaults
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
-from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
 
 
@@ -200,8 +199,9 @@ class RepositoryDnf(RepositoryBase):
 
         :param list signing_keys: list of the key files to import
         """
+        rpmdb = RpmDataBase(self.root_dir)
         for key in signing_keys:
-            Command.run(['rpm', '--root', self.root_dir, '--import', key])
+            rpmdb.import_signing_key_to_image(key)
 
     def delete_repo(self, name):
         """
