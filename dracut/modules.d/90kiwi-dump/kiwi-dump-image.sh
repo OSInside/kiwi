@@ -362,7 +362,20 @@ function get_remote_image_source_files {
 
 function boot_installed_system {
     local boot_options
-    boot_options="$(cat /config.bootoptions)"
+    # if rd.kiwi.install.pass.bootparam is given, pass on most
+    # boot options to the kexec kernel
+    if getargbool 0 rd.kiwi.install.pass.bootparam; then
+        local cmdline
+        local option
+        read -r cmdline < /proc/cmdline
+        for option in ${cmdline}; do
+            case ${option} in
+                rd.kiwi.*) ;; # skip all rd.kiwi options, they might do harm
+                *)  boot_options="${boot_options}${option} ";;
+            esac
+        done
+    fi
+    boot_options="${boot_options}$(cat /config.bootoptions)"
     if getargbool 0 rd.kiwi.debug; then
         boot_options="${boot_options} rd.kiwi.debug"
     fi
