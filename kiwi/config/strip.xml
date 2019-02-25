@@ -316,6 +316,8 @@
         <file name="zfcp_host_configure"/>
         <file name="kmod"/>
         <file name="zpool"/>
+        <file name="getopt"/>
+        <file name="chzdev"/>
     </strip>
 <!--
     check with ldd and remove all those libraries with
