@@ -19,7 +19,7 @@
         <file name="lib-b"/>
     </strip>
     <description type="system">
-        <author>Marcus Schäfer</author>
+        <author>Marcus</author>
         <contact>ms@suse.com</contact>
         <specification>
             openSUSE 13.2 JeOS, is a small text based image
