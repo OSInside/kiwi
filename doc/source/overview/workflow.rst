@@ -868,6 +868,13 @@ the available kernel boot parameters for this modules:
   This variable specifies the remote location of the system image in
   a pxe based oem installation
 
+``rd.kiwi.install.pass.bootparam``
+  This variable tells an oem installation image to pass on additional
+  boot parameters to the kernel used to boot the installed image. This
+  can be used e.g. to pass on first boot configuration for a PXE image.
+  Note that options starting with `rd.kiwi` are not passed on to avoid
+  side effects.
+
 ``rd.live.overlay.persistent``
   This variable tells a live iso image to prepare a persistent
   write partition.
