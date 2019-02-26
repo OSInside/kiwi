@@ -63,6 +63,25 @@ class XMLState(object):
             self.xml_data.get_preferences()
         )
 
+    def get_description_section(self):
+        """
+        The description section
+
+        :return: description_type tuple providing the elements
+            author contact and specification
+
+        :rtype: tuple
+        """
+        description_type = namedtuple(
+            'description_type', ['author', 'contact', 'specification']
+        )
+        description = self.xml_data.get_description()[0]
+        return description_type(
+            author=description.get_author()[0],
+            contact=description.get_contact()[0],
+            specification=description.get_specification()[0].strip()
+        )
+
     def get_users_sections(self):
         """
         All users sections for the selected profiles
