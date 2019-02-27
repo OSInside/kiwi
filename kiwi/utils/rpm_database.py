@@ -81,6 +81,17 @@ class RpmDataBase(object):
     def write_config(self):
         self.rpmdb_image.write_config()
 
+    def import_signing_key_to_image(self, key):
+        """
+        Import the given signing key to the image rpm database
+        """
+        Command.run(
+            [
+                'rpm', '--root', self.root_dir, '--import', key,
+                '--dbpath', self.rpmdb_host.expand_query('%_dbpath')
+            ]
+        )
+
     def set_database_to_host_path(self):
         """
         Setup dbpath to point to the host rpm dbpath configuration
@@ -99,13 +110,21 @@ class RpmDataBase(object):
         """
         self.rpmdb_image.wipe_config()
         rpm_image_dbpath = self.rpmdb_image.expand_query('%_dbpath')
-        if rpm_image_dbpath != self.rpmdb_host.expand_query('%_dbpath'):
+        rpm_host_dbpath = self.rpmdb_host.expand_query('%_dbpath')
+        if rpm_image_dbpath != rpm_host_dbpath:
+            self.rpmdb_image.set_config_value(
+                '_dbpath', rpm_host_dbpath
+            )
             self.rpmdb_image.set_config_value(
                 '_dbpath_rebuild', self.rpmdb_image.get_query('_dbpath')
             )
-            Path.wipe(
+            root_rpm_image_dbpath = os.path.normpath(
                 os.sep.join([self.root_dir, rpm_image_dbpath])
             )
+            if os.path.islink(root_rpm_image_dbpath):
+                os.unlink(root_rpm_image_dbpath)
+            else:
+                Path.wipe(root_rpm_image_dbpath)
             self.rpmdb_image.write_config()
             self.rebuild_database()
             self.rpmdb_image.wipe_config()
