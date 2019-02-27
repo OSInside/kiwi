@@ -162,7 +162,11 @@ class ResultBundleTask(CliTask):
                     log.info('--> Creating SHA 256 sum')
                     checksum = Checksum(bundle_file)
                     with open(bundle_file + '.sha256', 'w') as shasum:
-                        shasum.write(checksum.sha256())
+                        shasum.write(
+                            '{0}  {1}'.format(
+                                checksum.sha256(), bundle_file_basename
+                            )
+                        )
 
     def _help(self):
         if self.command_args['help']:
