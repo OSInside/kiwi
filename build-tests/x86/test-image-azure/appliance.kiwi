@@ -120,7 +120,6 @@
         <package name="pkg-config"/>
         <package name="elfutils"/>
         <package name="udev"/>
-        <package name="azuremetadata"/>
         <package name="hyper-v"/>
         <package name="python-azure-agent"/>
         <package name="timezone"/>
