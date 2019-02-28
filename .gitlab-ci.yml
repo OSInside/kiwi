@@ -7,6 +7,6 @@ test:
     - apt-get install -y enchant
     - apt-get install -y shellcheck
     - apt-get install -y python3-pip
-    - pip install --upgrade pip
-    - pip install tox
+    - pip3 install --upgrade pip
+    - pip3 install tox
     - tox "-n 4"
