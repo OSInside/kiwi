@@ -1,0 +1,11 @@
+test:
+  script:
+    - apt-get update -qq
+    - apt-get install -y git
+    - apt-get install -y xsltproc
+    - apt-get install -y genisoimage
+    - apt-get install -y enchant
+    - apt-get install -y shellcheck
+    - pip install --upgrade pip
+    - pip install tox
+    - tox "-n 4"
