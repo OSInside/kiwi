@@ -327,7 +327,7 @@ function create_hybrid_gpt {
         # see man sgdisk for details
         partition_count=3
     fi
-    if ! sgdisk -h $(seq -s : 1 "${partition_count}") "${disk_device}";then
+    if ! sgdisk -h "$(seq -s : 1 "${partition_count}")" "${disk_device}";then
         die "Failed to create hybrid GPT/MBR !"
     fi
 }
