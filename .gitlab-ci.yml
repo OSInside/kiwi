@@ -1,4 +1,5 @@
 test:
+  image: "python:3.6-stretch"
   script:
     - apt-get update -qq
     - apt-get install -y git
@@ -9,4 +10,4 @@ test:
     - apt-get install -y python3-pip
     - pip3 install --upgrade pip
     - pip install tox
-    - tox "-n 4"
+    - tox -e unit_py3_6 "-n 4"
