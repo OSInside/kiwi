@@ -135,6 +135,11 @@ class TestResultBundleTask(object):
             compress.compressed_filename
         )
         checksum.sha256.assert_called_once_with()
+        self.file_mock.write.assert_called_once_with(
+            '{0}  test-image-1.2.3-Build_42'.format(
+                checksum.sha256.return_value
+            )
+        )
 
     @patch('kiwi.tasks.result_bundle.Result.load')
     @patch('kiwi.tasks.result_bundle.Command.run')
