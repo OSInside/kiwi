@@ -12,15 +12,35 @@ Quick Start
 Before you start
 ----------------
 
-Make sure you have installed KIWI and the example collection as
-explained in :ref:`kiwi-installation`
+1. Install KIWI first, either via your distributions' package manager (see
+   :ref:`kiwi-installation`) or via:
 
-Build your first image
+   .. code:: bash
+
+      $ pip install kiwi
+
+2. Clone the repository containing example appliances (see
+   :ref:`example-descriptions`):
+
+   .. code:: bash
+
+      $ git clone https://github.com/SUSE/kiwi-descriptions
+
+
+Choose a First Image
+--------------------
+
+Take a look which images are available in the example appliances repository
+and select one that matches your desired image as close as possible. Or
+just use the one given in the examples below.
+
+
+Build your First Image
 ----------------------
 
 Your first image will be a simple system disk image which can run
-in any full virtualization system like for example QEMU. Call the following
-KIWI command in order to build it
+in any full virtualization system like QEMU. Invoke the following KIWI
+command in order to build it:
 
 .. code:: bash
 
@@ -28,14 +48,20 @@ KIWI command in order to build it
         --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
         --target-dir /tmp/myimage
 
-Find the image with the suffix :file:`.raw` below :file:`/tmp/myimage`.
+The resulting image will be placed into the folder :file:`/tmp/myimage`
+with the suffix :file:`.raw`.
 
-Run your image
+If you don't wish to create a openSUSE Leap 42.3 image, substitute the
+folder following the ``--description`` option with another folder that
+contains the image description which you selected.
+
+
+Run your Image
 --------------
 
-Running an image actually means booting the operating system. In order
-to do that attach the disk image to a virtual system, in our case QEMU
-is used, and boot it as follows:
+Running an image actually means booting the operating system. In order to
+do that attach the disk image to a virtual system. In this example we use
+QEMU and boot it as follows:
 
 .. code:: bash
 
@@ -43,3 +69,12 @@ is used, and boot it as follows:
         -boot c
         -drive file=LimeJeOS-Leap-42.3.x86_64-1.42.3.raw,format=raw,if=virtio \
         -m 4096
+
+Tweak and Customize your Image
+------------------------------
+
+Now that you have successfully built and started your first image, you can
+start tweaking it to match your needs.
+
+Find the documentation of the appliance description files in the following
+sections.
