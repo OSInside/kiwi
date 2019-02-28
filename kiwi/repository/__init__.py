@@ -17,7 +17,6 @@
 #
 # project
 from kiwi.repository.zypper import RepositoryZypper
-from kiwi.repository.yum import RepositoryYum
 from kiwi.repository.apt import RepositoryApt
 from kiwi.repository.dnf import RepositoryDnf
 
@@ -40,9 +39,7 @@ class Repository(object):
     def __new__(self, root_bind, package_manager, custom_args=None):
         if package_manager == 'zypper':
             return RepositoryZypper(root_bind, custom_args)
-        elif package_manager == 'yum':
-            return RepositoryYum(root_bind, custom_args)
-        elif package_manager == 'dnf':
+        elif package_manager == 'dnf' or package_manager == 'yum':
             return RepositoryDnf(root_bind, custom_args)
         elif package_manager == 'apt-get':
             return RepositoryApt(root_bind, custom_args)

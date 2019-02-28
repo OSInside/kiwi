@@ -20,16 +20,16 @@ class TestPackageManager(object):
         PackageManager(repository, 'zypper')
         mock_manager.assert_called_once_with(repository, None)
 
-    @patch('kiwi.package_manager.PackageManagerYum')
-    def test_manager_yum(self, mock_manager):
-        repository = mock.Mock()
-        PackageManager(repository, 'yum')
-        mock_manager.assert_called_once_with(repository, None)
-
     @patch('kiwi.package_manager.PackageManagerDnf')
     def test_manager_dnf(self, mock_manager):
         repository = mock.Mock()
         PackageManager(repository, 'dnf')
+        mock_manager.assert_called_once_with(repository, None)
+
+    @patch('kiwi.package_manager.PackageManagerDnf')
+    def test_manager_yum(self, mock_manager):
+        repository = mock.Mock()
+        PackageManager(repository, 'yum')
         mock_manager.assert_called_once_with(repository, None)
 
     @patch('kiwi.package_manager.PackageManagerApt')

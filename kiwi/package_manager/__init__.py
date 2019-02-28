@@ -17,7 +17,6 @@
 #
 # project
 from kiwi.package_manager.zypper import PackageManagerZypper
-from kiwi.package_manager.yum import PackageManagerYum
 from kiwi.package_manager.apt import PackageManagerApt
 from kiwi.package_manager.dnf import PackageManagerDnf
 
@@ -45,9 +44,7 @@ class PackageManager(object):
 
         if package_manager == 'zypper':
             manager = PackageManagerZypper(repository, custom_args)
-        elif package_manager == 'yum':
-            manager = PackageManagerYum(repository, custom_args)
-        elif package_manager == 'dnf':
+        elif package_manager == 'dnf' or package_manager == 'yum':
             manager = PackageManagerDnf(repository, custom_args)
         elif package_manager == 'apt-get':
             manager = PackageManagerApt(repository, custom_args)

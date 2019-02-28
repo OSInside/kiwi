@@ -12,10 +12,10 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.package_manager.yum` Module
+`kiwi.package_manager.dnf` Module
 ---------------------------------
 
-.. automodule:: kiwi.package_manager.yum
+.. automodule:: kiwi.package_manager.dnf
     :members:
     :undoc-members:
     :show-inheritance:
