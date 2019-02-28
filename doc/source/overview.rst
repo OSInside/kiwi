@@ -11,8 +11,8 @@ Overview
 .. toctree::
    :maxdepth: 1
 
-   overview/legacy_kiwi
    overview/workflow
+   overview/legacy_kiwi
 
 Conceptual Overview
 -------------------

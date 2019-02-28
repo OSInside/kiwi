@@ -18,9 +18,9 @@ build Linux system appliances.
 .. toctree::
    :maxdepth: 1
 
-   overview
-   installation
    quickstart
+   installation
+   overview
    building
    commands
    development
