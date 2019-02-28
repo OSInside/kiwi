@@ -6,8 +6,8 @@ Installation
 .. hint::
 
    This document describes how to install KIWI. Apart from the preferred
-   method to install KIWI via rpm, it is also provided on pypi and can
-   be installed via pip.
+   method to install KIWI via rpm, it is also available on `pypi
+   <https://pypi.org/project/kiwi/>`__ and can be installed via pip.
 
 KIWI can be installed via different methods. For this guide, only the
 installation as a packages through a package manager is described.
@@ -17,7 +17,7 @@ buildservice <http://download.opensuse.org/repositories/Virtualization:/Applianc
 
 To install KIWI, do:
 
-1. Open the URL http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder
+1. Open the URL https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder
    in your browser.
 
 2. Right-click on the link of your preferred operating system and
