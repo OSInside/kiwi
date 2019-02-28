@@ -6,7 +6,8 @@ test:
     - apt-get install -y genisoimage
     - apt-get install -y enchant
     - apt-get install -y shellcheck
-    - apt-get install -y pip
+    - apt-get install -y python3-pip
+    - apt-get install -y python3-tox
     - pip install --upgrade pip
     - pip install tox
     - tox "-n 4"
