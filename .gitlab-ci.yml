@@ -10,4 +10,5 @@ test:
     - apt-get install -y python3-pip
     - pip3 install --upgrade pip
     - pip install tox
-    - tox -e unit_py3_6 "-n 4"
+    - tox -e check
+    - tox -e unit_py3_6 "-n $(nproc)"
