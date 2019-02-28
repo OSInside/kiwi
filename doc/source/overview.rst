@@ -16,6 +16,7 @@ Overview
 
 Conceptual Overview
 -------------------
+
 A system image (usually called "image"), is a *complete installation* of a Linux
 system within a file. The image represents an operation system and,
 optionally, contains the "final" configuration.
@@ -40,7 +41,7 @@ Terminology
 
 Appliance
    An appliance is a ready to use image of an operating system
-   including a preconfigured application for a specific use case.
+   including a pre-configured application for a specific use case.
    The appliance is provided as an image file and needs to be
    deployed to, or activated in the target system or service.
 
@@ -58,10 +59,10 @@ Image Description
 Overlay Files
    A directory structure with files and subdirectories stored as part
    of the Image Description. This directory structure is packaged as
-   a file :file:`root.tar.gz` or stored below a directory named
-   :file:`root`. The content of the directory structure is copied over
-   the existing file system (overlayed) of the appliance root.
-   This includes permissions and attributes as a supplement.
+   a file :file:`root.tar.gz` or stored inside a directory named
+   :file:`root`. The content of the directory structure is copied on top of
+   the the existing file system (overlayed) of the appliance root.
+   This also includes permissions and attributes as a supplement.
 
 KIWI
    An OS appliance builder.
@@ -69,24 +70,25 @@ KIWI
 Virtualization Technology
    Software simulated computer hardware. A virtual machine acts like
    a real computer, but is separated from the physical hardware.
-   Within this documentation the Qemu virtualization system is used.
+   Within this documentation the QEMU virtualization system is
+   used. Another popular alternative is Virtualbox.
 
 System Requirements
 -------------------
 
 To use and run KIWI, you need:
 
-* A recent Linux distribution, see :ref:`supported-distributions` for details.
-  Alternatively a Linux distribution which supports the docker container
-  system as it would be required when running KIWI in a container, see:
+* A recent Linux distribution, see :ref:`supported-distributions` for
+  details. Alternatively a Linux distribution which supports the docker
+  container system, where KIWI can be run inside a container, see:
   :ref:`container-building`
 
 * Enough free disk space to build and store the image. We recommend a
   minimum of 10GB.
 
 * Python version 2.7, 3.4 or higher; as KIWI supports both Python
-  versions, the information in this guide applies also to both
-  packages, be it ``python3-kiwi`` or ``python2-kiwi``.
+  versions, the information in this guide applies to both packages, be it
+  ``python3-kiwi`` or ``python2-kiwi``.
 
 * Git (package ``git-core``) to clone a repository.
 

@@ -9,10 +9,10 @@ Installation
    method to install KIWI via rpm, it is also provided on pypi and can
    be installed via pip.
 
-KIWI can be installed with different methods. For this guide, only the
+KIWI can be installed via different methods. For this guide, only the
 installation as a packages through a package manager is described.
 
-Packages for the new KIWI version are provided at the `openSUSE
+Packages for the new KIWI version are provided by the `openSUSE
 buildservice <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__.
 
 To install KIWI, do:
@@ -48,9 +48,9 @@ To install KIWI, do:
 Example Appliance Descriptions
 ------------------------------
 
-For use with the next generation KIWI there is also a GitHub project
-hosting example appliance descriptions. Users who need an example to
-start with should checkout the project as follows:
+There is a GitHub project hosting example appliance descriptions to be used
+with the next generation KIWI. Users who need an example to start with
+should clone the project as follows:
 
 .. code:: bash
 

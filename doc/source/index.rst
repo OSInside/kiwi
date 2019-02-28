@@ -4,7 +4,7 @@ KIWI Documentation
 ==================
 
 Welcome to the documentation for KIWI |version|- the command line utility to
-build linux system appliances.
+build Linux system appliances.
 
 .. sidebar:: Links
 
@@ -29,7 +29,7 @@ Appliance ?
 -----------
 
 An appliance is a ready to use image of an operating system including
-a preconfigured application for a specific use case. The appliance is
+a pre-configured application for a specific use case. The appliance is
 provided as an image file and needs to be deployed to, or activated in
 the target system or service.
 

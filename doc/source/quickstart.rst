@@ -5,7 +5,8 @@ Quick Start
 
 .. hint:: **Abstract**
 
-   This document describes how to start with KIWI, an OS appliance builder.
+   This document describes how to start working with KIWI, an OS appliance
+   builder.
    This description applies for version |version|.
 
 Before you start
