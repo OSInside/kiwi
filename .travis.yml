@@ -13,6 +13,10 @@ jobs:
   include:
   - python: 3.6
     env: TOXENV=unit_py3_6,check,doc
+  - python: 3.7
+    dist: xenial
+    sudo: true
+    env: TOXENV=unit_py3_7,check,doc
   - python: 2.7
     env: TOXENV=unit_py2_7,check,doc
   - stage: deploy
