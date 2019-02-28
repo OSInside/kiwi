@@ -8,5 +8,5 @@ test:
     - apt-get install -y shellcheck
     - apt-get install -y python3-pip
     - pip3 install --upgrade pip
-    - pip3 install tox
+    - pip install tox
     - tox "-n 4"
