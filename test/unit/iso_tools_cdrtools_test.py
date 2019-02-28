@@ -128,11 +128,12 @@ class TestIsoToolsCdrTools(object):
         ]
 
     @patch('kiwi.iso_tools.cdrtools.Command.run')
-    def test_create_iso(self, mock_command):
+    @patch('kiwi.iso_tools.cdrtools.Path.which')
+    def test_create_iso(self, mock_Path_which, mock_command):
         self.iso_tool.create_iso('myiso', hidden_files=['hide_me'])
         mock_command.assert_called_once_with(
             [
-                '/usr/bin/mkisofs',
+                mock_Path_which.return_value,
                 '-hide', 'hide_me', '-hide-joliet', 'hide_me',
                 '-o', 'myiso', 'source-dir'
             ]
