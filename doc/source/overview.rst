@@ -84,7 +84,7 @@ To use and run KIWI, you need:
   :ref:`container-building`
 
 * Enough free disk space to build and store the image. We recommend a
-  minimum of 10GB.
+  minimum of 15GB.
 
 * Python version 2.7, 3.4 or higher; as KIWI supports both Python
   versions, the information in this guide applies to both packages, be it
