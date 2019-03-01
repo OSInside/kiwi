@@ -52,6 +52,9 @@
         <source path="obs://Fedora:EPEL:7/standard"/>
     </repository>
     <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-7/extras"/>
+    </repository>
+    <repository type="rpm-md">
         <source path="obs://CentOS:CentOS-7/update"/>
     </repository>
     <repository type="rpm-md">
@@ -99,6 +102,7 @@
         <package name="filesystem"/>
         <package name="basesystem"/>
         <package name="yum-plugin-priorities"/>
+        <package name="nextgen-yum4"/>
         <package name="grub2-efi-modules"/>
         <package name="grub2-efi"/>
         <package name="shim" arch="x86_64"/>

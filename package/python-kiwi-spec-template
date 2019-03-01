@@ -130,6 +130,10 @@ Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 Provides:       kiwi-packagemanager:yum
 %endif
+%if 0%{?suse_version}
+# If it's available, let's pull it in
+Recommends:     dnf
+%endif
 %if 0%{?fedora} >= 26 || 0%{?suse_version}
 Requires:       zypper
 Provides:       kiwi-packagemanager:zypper
@@ -207,11 +211,13 @@ Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
 Requires:       gdisk
-%endif
-%if 0%{?fedora} || 0%{?rhel}
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 Provides:       kiwi-packagemanager:yum
+%endif
+%if 0%{?suse_version}
+# If it's available, let's pull it in
+Recommends:     dnf
 %endif
 %if 0%{?fedora} >= 26 || 0%{?suse_version}
 Requires:       zypper
