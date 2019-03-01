@@ -60,6 +60,7 @@ Source:         %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?fedora} || 0%{?suse_version}
+BuildRequires:  gcc
 BuildRequires:  python3-devel
 %endif
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
