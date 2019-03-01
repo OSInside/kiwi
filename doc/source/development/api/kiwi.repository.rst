@@ -19,10 +19,10 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.repository.yum` Module
+`kiwi.repository.dnf` Module
 ----------------------------
 
-.. automodule:: kiwi.repository.yum
+.. automodule:: kiwi.repository.dnf
     :members:
     :undoc-members:
     :show-inheritance:
