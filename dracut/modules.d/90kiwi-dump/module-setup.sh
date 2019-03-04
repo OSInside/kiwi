@@ -19,7 +19,6 @@ install() {
         tr lsblk dd md5sum head pv kexec basename awk kpartx
 
     inst_hook pre-udev 30 "${moddir}/kiwi-installer-genrules.sh"
-    inst_hook pre-udev 60 "${moddir}/kiwi-dump-net-genrules.sh"
 
     inst_script "${moddir}/kiwi-installer-device.sh" \
         "/sbin/kiwi-installer-device"

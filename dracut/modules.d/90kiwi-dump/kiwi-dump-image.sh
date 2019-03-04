@@ -316,7 +316,6 @@ function get_local_image_source_files {
 
 function get_remote_image_source_files {
     local image_uri
-    local bootdev
     local install_dir=/run/install
     local image_md5="${install_dir}/image.md5"
     local metadata_dir="${install_dir}/boot/remote/loader"
@@ -334,14 +333,13 @@ function get_remote_image_source_files {
         echo "${image_uri}" | awk '{ gsub("\\.xz",".kernel", $1); print $1 }'
     )
 
-    read -r bootdev < /tmp/net.bootdev 2>/dev/null
-    if [ -n "${bootdev}" ] && [ -e /tmp/net."${bootdev}".did-setup ]; then
-        : # all good, dracut has already set up the interface
-    elif ! ifup lan0 &>/tmp/net.info;then
-        report_and_quit "Network setup failed, see /tmp/net.info"
-    fi
-
+    # if we can not access image_md5_uri, maybe network setup
+    # by dracut did fail, so collect some additional info
     if ! fetch_file "${image_md5_uri}" > "${image_md5}";then
+        {
+            echo "--- ip a ---"; ip a
+            echo "--- ip r ---"; ip r
+        } >> /tmp/fetch.info 2>&1
         report_and_quit \
             "Failed to fetch ${image_md5_uri}, see /tmp/fetch.info"
     fi
