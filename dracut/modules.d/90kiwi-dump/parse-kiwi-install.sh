@@ -7,6 +7,10 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 if getargbool 0 rd.kiwi.install.pxe; then
     root="install:REMOTE"
+    echo "rd.neednet=1" > /etc/cmdline.d/kiwi-generated.conf
+    if ! getarg "ip="; then
+        echo "ip=dhcp" >> /etc/cmdline.d/kiwi-generated.conf
+    fi
 fi
 
 if [ "${root%%:*}" = "install" ] ; then
