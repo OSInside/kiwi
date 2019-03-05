@@ -1942,7 +1942,9 @@ class XMLState(object):
                 if build_type == image_type.get_image():
                     return image_type
             raise KiwiTypeNotFound(
-                'build type %s not found' % build_type
+                'build type {0} not found in {1}'.format(
+                    build_type, self.xml_data.description
+                )
             )
 
         # lookup if build type matches primary type
@@ -1954,7 +1956,7 @@ class XMLState(object):
         if image_type_sections:
             return image_type_sections[0]
         raise KiwiTypeNotFound(
-            'No build type defined. At least one type section is mandatory'
+            'No build type defined in {0}'.format(self.xml_data.description)
         )
 
     def _profiled(self, xml_abstract):

@@ -60,10 +60,13 @@ class RuntimeChecker(object):
         can be resolved into a http based web URL
         """
         message = dedent('''\n
-            Repository: %s is not publicly available.
-            Therefore it can't be included into the system image
-            repository configuration. Please check the setup of
-            the <imageinclude> attribute for this repository.
+            The use of imageinclude="true" in the repository definition
+            for the Repository: {0} requires the repository to by publicly
+            available. The source locator of the repository however
+            indicates it is private to your local system. Therefore it
+            can't be included into the system image repository configuration.
+            Please define a publicly available repository in your image
+            XML description: {1}
         ''')
 
         repository_sections = self.xml_state.get_repository_sections()
@@ -75,7 +78,11 @@ class RuntimeChecker(object):
                 repo_type = xml_repo.get_type()
                 uri = Uri(repo_source, repo_type)
                 if not uri.is_public():
-                    raise KiwiRuntimeError(message % repo_source)
+                    raise KiwiRuntimeError(
+                        message.format(
+                            repo_source, self.xml_state.xml_data.description
+                        )
+                    )
 
     def check_target_directory_not_in_shared_cache(self, target_dir):
         """
