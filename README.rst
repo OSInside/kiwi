@@ -3,6 +3,8 @@ KIWI - Next Generation
 
 .. |Build Status| image:: https://travis-ci.com/SUSE/kiwi.svg?branch=master
    :target: https://travis-ci.com/SUSE/kiwi
+.. |GitLab CI Pipeline| image:: https://gitlab.com/schaefi/kiwi-ci/badges/master/pipeline.svg
+   :target: https://gitlab.com/schaefi/kiwi-ci/pipelines
 .. |Health| image:: https://api.codacy.com/project/badge/Grade/8ebd8ce362294fabb0870f50358e564f
    :target: https://www.codacy.com/app/Appliances/kiwi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=SUSE/kiwi&amp;utm_campaign=Badge_Grade
 .. |Doc| replace:: `Documentation <https://opensource.suse.com/kiwi>`__
