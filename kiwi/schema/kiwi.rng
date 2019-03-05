@@ -3890,7 +3890,16 @@ and setup the system disk.</a:documentation>
     <define name="k.vagrantconfig.provider.attribute">
       <attribute name="provider">
         <a:documentation>The vagrant provider for this box</a:documentation>
-        <value>libvirt</value>
+        <choice>
+          <value>libvirt</value>
+          <value>virtualbox</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.vagrantconfig.virtualbox_guest_additions_present.attribute">
+      <attribute name="virtualbox_guest_additions_present">
+        <a:documentation>Guest additions are present in this box</a:documentation>
+        <data type="boolean"/>
       </attribute>
     </define>
     <define name="k.vagrantconfig.virtualsize.attribute">
@@ -3915,6 +3924,9 @@ If not specified the image name is used</a:documentation>
         <ref name="k.vagrantconfig.virtualsize.attribute"/>
         <optional>
           <ref name="k.vagrantconfig.boxname.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.vagrantconfig.virtualbox_guest_additions_present.attribute"/>
         </optional>
       </interleave>
     </define>

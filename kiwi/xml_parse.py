@@ -6685,11 +6685,12 @@ class vagrantconfig(GeneratedsSuper):
     options which are used inside a vagrant box"""
     subclass = None
     superclass = None
-    def __init__(self, provider=None, virtualsize=None, boxname=None):
+    def __init__(self, provider=None, virtualsize=None, boxname=None, virtualbox_guest_additions_present=None):
         self.original_tagname_ = None
         self.provider = _cast(None, provider)
         self.virtualsize = _cast(int, virtualsize)
         self.boxname = _cast(None, boxname)
+        self.virtualbox_guest_additions_present = _cast(bool, virtualbox_guest_additions_present)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6707,6 +6708,8 @@ class vagrantconfig(GeneratedsSuper):
     def set_virtualsize(self, virtualsize): self.virtualsize = virtualsize
     def get_boxname(self): return self.boxname
     def set_boxname(self, boxname): self.boxname = boxname
+    def get_virtualbox_guest_additions_present(self): return self.virtualbox_guest_additions_present
+    def set_virtualbox_guest_additions_present(self, virtualbox_guest_additions_present): self.virtualbox_guest_additions_present = virtualbox_guest_additions_present
     def hasContent_(self):
         if (
 
@@ -6744,6 +6747,9 @@ class vagrantconfig(GeneratedsSuper):
         if self.boxname is not None and 'boxname' not in already_processed:
             already_processed.add('boxname')
             outfile.write(' boxname=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.boxname), input_name='boxname')), ))
+        if self.virtualbox_guest_additions_present is not None and 'virtualbox_guest_additions_present' not in already_processed:
+            already_processed.add('virtualbox_guest_additions_present')
+            outfile.write(' virtualbox_guest_additions_present="%s"' % self.gds_format_boolean(self.virtualbox_guest_additions_present, input_name='virtualbox_guest_additions_present'))
     def exportChildren(self, outfile, level, namespace_='', name_='vagrantconfig', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -6772,6 +6778,15 @@ class vagrantconfig(GeneratedsSuper):
         if value is not None and 'boxname' not in already_processed:
             already_processed.add('boxname')
             self.boxname = value
+        value = find_attr_value_('virtualbox_guest_additions_present', node)
+        if value is not None and 'virtualbox_guest_additions_present' not in already_processed:
+            already_processed.add('virtualbox_guest_additions_present')
+            if value in ('true', '1'):
+                self.virtualbox_guest_additions_present = True
+            elif value in ('false', '0'):
+                self.virtualbox_guest_additions_present = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class vagrantconfig

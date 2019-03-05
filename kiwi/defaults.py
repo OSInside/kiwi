@@ -687,8 +687,21 @@ class Defaults(object):
         """
         return [
             'gce', 'qcow2', 'vmdk', 'ova', 'vmx', 'vhd', 'vhdx',
-            'vhdfixed', 'vdi', 'vagrant.libvirt.box'
+            'vhdfixed', 'vdi', 'vagrant.libvirt.box', 'vagrant.virtualbox.box'
         ]
+
+    @classmethod
+    def get_vagrant_config_virtualbox_guest_additions(cls):
+        """
+        Provides the default value for
+        ``vagrantconfig.virtualbox_guest_additions_present``
+
+        :return: whether guest additions are expected to be present in the
+            vagrant box
+
+        :rtype: bool
+        """
+        return False
 
     @classmethod
     def get_firmware_types(cls):

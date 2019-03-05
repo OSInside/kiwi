@@ -26,6 +26,7 @@ from kiwi.storage.subformat.gce import DiskFormatGce
 from kiwi.storage.subformat.vdi import DiskFormatVdi
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
+from kiwi.storage.subformat.vagrant_virtualbox import DiskFormatVagrantVirtualBox
 
 from kiwi.exceptions import (
     KiwiDiskFormatSetupError
@@ -109,6 +110,10 @@ class DiskFormat(object):
                 provider = 'undefined'
             if provider == 'libvirt':
                 return DiskFormatVagrantLibVirt(
+                    xml_state, root_dir, target_dir, custom_args
+                )
+            elif provider == 'virtualbox':
+                return DiskFormatVagrantVirtualBox(
                     xml_state, root_dir, target_dir, custom_args
                 )
             else:

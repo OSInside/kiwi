@@ -20,6 +20,14 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+`kiwi.storage.subformat.template.virtualbox_ovf` Module
+--------------------------------------------------------
+
+.. automodule:: kiwi.storage.subformat.template.virtualbox_ovf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module contents
 ---------------
 

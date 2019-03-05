@@ -2505,7 +2505,10 @@ div {
 div {
     k.vagrantconfig.provider.attribute =
         ## The vagrant provider for this box
-        attribute provider { "libvirt" }
+        attribute provider { "libvirt" | "virtualbox" }
+    k.vagrantconfig.virtualbox_guest_additions_present.attribute =
+        ## Guest additions are present in this box
+        attribute virtualbox_guest_additions_present { xsd:boolean }
     k.vagrantconfig.virtualsize.attribute =
         ## virtualsize provides the value of the virtual_size key which
         ## is embedded in the metadata.json hash inside the box file, as
@@ -2520,7 +2523,8 @@ div {
     k.vagrantconfig.attlist =
         k.vagrantconfig.provider.attribute &
         k.vagrantconfig.virtualsize.attribute &
-        k.vagrantconfig.boxname.attribute?
+        k.vagrantconfig.boxname.attribute? &
+        k.vagrantconfig.virtualbox_guest_additions_present.attribute?
     k.vagrantconfig =
         ## The vagrantconfig element specifies the Vagrant meta
         ## configuration options which are used inside a vagrant box

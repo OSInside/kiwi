@@ -197,6 +197,15 @@ class TestXMLState(object):
         vagrant_config = self.state.get_build_type_vagrant_config_section()
         assert vagrant_config.get_provider() == 'libvirt'
 
+    def test_virtualbox_guest_additions_vagrant_config_section(self):
+        assert not self.state.get_vagrant_config_virtualbox_guest_additions()
+
+    def test_virtualbox_guest_additions_vagrant_config_section_missing(self):
+        self.state. \
+            get_build_type_vagrant_config_section() \
+            .virtualbox_guest_additions_present = True
+        assert self.state.get_vagrant_config_virtualbox_guest_additions()
+
     def test_get_build_type_system_disk_section(self):
         assert self.state.get_build_type_system_disk_section().get_name() == \
             'mydisk'
