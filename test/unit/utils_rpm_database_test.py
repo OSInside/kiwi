@@ -28,6 +28,13 @@ class TestRpmDataBase(object):
             ['chroot', 'root_dir', 'rpmdb', '--rebuilddb']
         )
 
+    @patch('kiwi.command.Command.run')
+    def test_init_database(self, mock_Command_run):
+        self.rpmdb.init_database()
+        mock_Command_run.assert_called_once_with(
+            ['rpm', '--root', 'root_dir', '--initdb']
+        )
+
     def test_set_database_to_host_path(self):
         self.rpmdb.set_database_to_host_path()
         self.rpmdb.rpmdb_image.set_config_value.assert_called_once_with(
