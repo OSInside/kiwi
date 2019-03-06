@@ -7,7 +7,8 @@ from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
-    KiwiProfileNotFound
+    KiwiProfileNotFound,
+    KiwiLvmSetupError
 )
 from collections import namedtuple
 
@@ -342,6 +343,38 @@ class TestXMLState(object):
                 attributes=[]
             )
         ]
+
+    def test_get_implicit_root_volume(self):
+        description = XMLDescription('../data/example_lvm_implicit_root_all_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        volume_type = namedtuple(
+            'volume_type', [
+                'name',
+                'size',
+                'realpath',
+                'mountpoint',
+                'fullsize',
+                'label',
+                'attributes'
+            ]
+        )
+        # size == 'all' gets converted to size=None, fullsize=True
+        assert state.get_volumes() == [
+            volume_type(
+                name='LVRoot', size=None, realpath='/',
+                mountpoint=None, fullsize=True,
+                label=None,
+                attributes=[]
+            )
+        ]
+
+    @raises(KiwiLvmSetupError)
+    def test_get_volumes_dual_size_all_setup(self):
+        description = XMLDescription('../data/example_lvm_implicit_root_size_all_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        state.get_volumes()
 
     def test_get_volumes_no_explicit_root_setup_other_fullsize_volume(self):
         description = XMLDescription(
