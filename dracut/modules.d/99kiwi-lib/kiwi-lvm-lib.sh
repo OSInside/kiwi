@@ -160,7 +160,6 @@ function read_volume_setup_all_free {
             return
         fi
     done < "${profile}"
-    echo LVRoot,
 }
 
 function get_all_free_volume {

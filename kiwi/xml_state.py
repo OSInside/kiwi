@@ -1130,6 +1130,10 @@ class XMLState(object):
                     realpath = '/'
                     name = 'LVRoot'
                     have_root_volume_setup = True
+                    # compatibility: if no size= is given use the full VG
+                    if not size and not freespace:
+                        log.info('--> LVM: @root volume without size attribute, assuming size="all"')
+                        size = 'all'
                 elif not mountpoint:
                     # setup volume without mountpoint. In this case the name
                     # attribute is used as mountpoint path and a name for the
