@@ -259,6 +259,10 @@ class TestRepositoryZypper(object):
                 'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
             ], raise_on_error=False
         )
+        signing_keys = None
+        rpmdb.reset_mock()
+        self.repo.import_trusted_keys(signing_keys)
+        rpmdb.init_database.assert_called_once_with()
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Path.wipe')

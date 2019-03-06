@@ -51,9 +51,14 @@ class RpmDataBase(object):
         """
         Rebuild image rpm database taking current macro setup into account
         """
-        Command.run([
-            'chroot', self.root_dir, 'rpmdb', '--rebuilddb'
-        ])
+        Command.run(
+            ['chroot', self.root_dir, 'rpmdb', '--rebuilddb']
+        )
+
+    def init_database(self):
+        Command.run(
+            ['rpm', '--root', self.root_dir, '--initdb']
+        )
 
     def set_macro_from_string(self, setting):
         """
@@ -128,3 +133,16 @@ class RpmDataBase(object):
             self.rpmdb_image.write_config()
             self.rebuild_database()
             self.rpmdb_image.wipe_config()
+
+            root_rpm_host_dbpath = os.path.normpath(
+                os.sep.join([self.root_dir, rpm_host_dbpath])
+            )
+            root_rpm_alternatives = os.sep.join(
+                [root_rpm_host_dbpath, 'alternatives']
+            )
+            if os.path.exists(root_rpm_alternatives):
+                Command.run(
+                    ['mv', root_rpm_alternatives, root_rpm_image_dbpath]
+                )
+
+            Path.wipe(root_rpm_host_dbpath)
