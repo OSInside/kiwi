@@ -31,7 +31,8 @@ from .utils.size import StringToSize
 from .exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
-    KiwiDistributionNameError
+    KiwiDistributionNameError,
+    KiwiLvmSetupError
 )
 
 
@@ -1051,7 +1052,7 @@ class XMLState(object):
 
         container_config_section.set_labels(labels)
 
-    def get_volumes(self):
+    def get_volumes(self):  # noqa: C901
         """
         List of configured systemdisk volumes.
 
@@ -1158,6 +1159,10 @@ class XMLState(object):
                 if ':all' in size:
                     size = None
                     fullsize = True
+                    if have_full_size_volume:
+                        raise KiwiLvmSetupError(
+                            'More than one LVM volume with size="all" attribute'
+                        )
                     have_full_size_volume = True
 
                 volume_type_list.append(

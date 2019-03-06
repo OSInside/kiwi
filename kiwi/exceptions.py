@@ -428,6 +428,12 @@ class KiwiLoopSetupError(KiwiError):
     """
 
 
+class KiwiLvmSetupError(KiwiError):
+    """
+    Exception raised if the LVM setup is not valid.
+    """
+
+
 class KiwiMappedDeviceError(KiwiError):
     """
     Exception raised if the device to become mapped does not exist.
