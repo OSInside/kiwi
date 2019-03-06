@@ -1212,7 +1212,12 @@ function suseRemoveYaST {
     if [ -e /var/lib/autoinstall/autoconf/autoconf.xml ];then
         return
     fi
-    rpm -qa | grep yast | xargs rpm -e --nodeps
+    local yast_pkgs
+    # prevent non-zero exit status when no yast packages were found
+    yast_pkgs=$(rpm -qa | grep yast || :)
+    if [ "${yast_pkgs}" != "" ];then
+        echo "${yast_pkgs}" | xargs rpm -e --nodeps
+    fi
 }
 
 #======================================
