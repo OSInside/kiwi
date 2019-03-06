@@ -205,9 +205,8 @@ class RepositoryApt(RepositoryBase):
 
         :param list signing_keys: list of the key files to import
         """
-        if signing_keys:
-            for key in signing_keys:
-                self.signing_keys.append(key)
+        for key in signing_keys:
+            self.signing_keys.append(key)
 
     def delete_repo(self, name):
         """
