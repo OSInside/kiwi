@@ -112,7 +112,8 @@ class SystemPrepare(object):
             self.root_bind, package_manager, repository_options
         )
         repo.setup_package_database_configuration()
-        repo.import_trusted_keys(signing_keys)
+        if signing_keys:
+            repo.import_trusted_keys(signing_keys)
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()

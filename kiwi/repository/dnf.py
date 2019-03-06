@@ -199,10 +199,9 @@ class RepositoryDnf(RepositoryBase):
 
         :param list signing_keys: list of the key files to import
         """
-        if signing_keys:
-            rpmdb = RpmDataBase(self.root_dir)
-            for key in signing_keys:
-                rpmdb.import_signing_key_to_image(key)
+        rpmdb = RpmDataBase(self.root_dir)
+        for key in signing_keys:
+            rpmdb.import_signing_key_to_image(key)
 
     def delete_repo(self, name):
         """

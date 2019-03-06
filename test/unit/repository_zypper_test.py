@@ -224,8 +224,13 @@ class TestRepositoryZypper(object):
         )
 
     @patch('kiwi.repository.zypper.RpmDataBase')
-    def test_setup_package_database_configuration(self, mock_RpmDataBase):
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Path.create')
+    def test_setup_package_database_configuration(
+        self, mock_Path_create, mock_Command_run, mock_RpmDataBase
+    ):
         rpmdb = mock.Mock()
+        rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
         self.repo.setup_package_database_configuration()
         assert mock_RpmDataBase.call_args_list == [
@@ -237,15 +242,17 @@ class TestRepositoryZypper(object):
         )
         rpmdb.write_config.assert_called_once_with()
         rpmdb.set_database_to_host_path.assert_called_once_with()
+        rpmdb.init_database.assert_called_once_with()
+        mock_Path_create.assert_called_once_with('../data/var/lib')
+        mock_Command_run.assert_called_once_with(
+            [
+                'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
+            ], raise_on_error=False
+        )
 
     @patch('kiwi.repository.zypper.RpmDataBase')
-    @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.Path.create')
-    def test_import_trusted_keys(
-        self, mock_Path_create, mock_Command_run, mock_RpmDataBase
-    ):
+    def test_import_trusted_keys(self, mock_RpmDataBase):
         rpmdb = mock.Mock()
-        rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
         signing_keys = ['key-file-a.asc', 'key-file-b.asc']
         self.repo.import_trusted_keys(signing_keys)
@@ -253,16 +260,6 @@ class TestRepositoryZypper(object):
             call('key-file-a.asc'),
             call('key-file-b.asc')
         ]
-        mock_Path_create.assert_called_once_with('../data/var/lib')
-        mock_Command_run.assert_called_once_with(
-            [
-                'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
-            ], raise_on_error=False
-        )
-        signing_keys = None
-        rpmdb.reset_mock()
-        self.repo.import_trusted_keys(signing_keys)
-        rpmdb.init_database.assert_called_once_with()
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Path.wipe')

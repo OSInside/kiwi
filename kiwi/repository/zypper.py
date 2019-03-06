@@ -155,6 +155,7 @@ class RepositoryZypper(RepositoryBase):
         2. Create the rpm bootstrap macro to make sure for bootstrapping
            the rpm database location matches the host rpm database setup.
            This macro only persists during the bootstrap phase
+        3. Create zypper compat link
         """
         rpmdb = RpmDataBase(
             self.root_dir, Defaults.get_custom_rpm_image_macro_name()
@@ -164,6 +165,41 @@ class RepositoryZypper(RepositoryBase):
         rpmdb.write_config()
 
         RpmDataBase(self.root_dir).set_database_to_host_path()
+        # Zypper compat code:
+        #
+        # Manually adding the compat link /var/lib/rpm that points to the
+        # rpmdb location as it is configured in the host rpm setup. The
+        # host rpm setup is taken into account because import_trusted_keys
+        # is called during the bootstrap phase where rpm (respectively zypper)
+        # is called from the host
+        #
+        # Usually it is expected that the package manager reads the
+        # signing keys from the rpm database setup provisioned by rpm
+        # itself (macro level) but zypper doesn't take the rpm macro
+        # setup into account and relies on a hard coded path which we
+        # can only provide as a symlink.
+        #
+        # That symlink is usually created by the rpm package when it gets
+        # installed. However at that early phase when we import the
+        # signing keys no rpm is installed yet nor any symlink exists.
+        # Thus we have to create it here and hope to get rid of it in the
+        # future.
+        #
+        # For further details on the motivation in zypper please
+        # refer to bsc#1112357
+        rpmdb.init_database()
+        Path.create(
+            os.sep.join([self.root_dir, 'var', 'lib'])
+        )
+        Command.run(
+            [
+                'ln', '-s', ''.join(
+                    ['../..', rpmdb.rpmdb_host.expand_query('%_dbpath')]
+                ), os.sep.join(
+                    [self.root_dir, 'var', 'lib', 'rpm']
+                )
+            ], raise_on_error=False
+        )
 
     def use_default_location(self):
         """
@@ -286,45 +322,8 @@ class RepositoryZypper(RepositoryBase):
         :param list signing_keys: list of the key files to import
         """
         rpmdb = RpmDataBase(self.root_dir)
-        if signing_keys:
-            for key in signing_keys:
-                rpmdb.import_signing_key_to_image(key)
-        else:
-            rpmdb.init_database()
-        # Zypper compat code:
-        #
-        # Manually adding the compat link /var/lib/rpm that points to the
-        # rpmdb location as it is configured in the host rpm setup. The
-        # host rpm setup is taken into account because import_trusted_keys
-        # is called during the bootstrap phase where rpm (respectively zypper)
-        # is called from the host
-        #
-        # Usually it is expected that the package manager reads the
-        # signing keys from the rpm database setup provisioned by rpm
-        # itself (macro level) but zypper doesn't take the rpm macro
-        # setup into account and relies on a hard coded path which we
-        # can only provide as a symlink.
-        #
-        # That symlink is usually created by the rpm package when it gets
-        # installed. However at that early phase when we import the
-        # signing keys no rpm is installed yet nor any symlink exists.
-        # Thus we have to create it here and hope to get rid of it in the
-        # future.
-        #
-        # For further details on the motivation in zypper please
-        # refer to bsc#1112357
-        Path.create(
-            os.sep.join([self.root_dir, 'var', 'lib'])
-        )
-        Command.run(
-            [
-                'ln', '-s', ''.join(
-                    ['../..', rpmdb.rpmdb_host.expand_query('%_dbpath')]
-                ), os.sep.join(
-                    [self.root_dir, 'var', 'lib', 'rpm']
-                )
-            ], raise_on_error=False
-        )
+        for key in signing_keys:
+            rpmdb.import_signing_key_to_image(key)
 
     def delete_repo(self, name):
         """
