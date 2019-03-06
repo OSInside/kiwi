@@ -1,18 +1,23 @@
-from mock import call, patch
+from builtins import bytes
+from mock import (
+    call, patch
+)
 import mock
 import struct
-from .test_helper import raises, patch_open
+import pytest
 import sys
-from builtins import bytes
+
+from .test_helper import raises, patch_open
+
+from kiwi.iso_tools.iso import Iso
+from kiwi.path import Path
+from tempfile import NamedTemporaryFile
 
 from kiwi.exceptions import (
     KiwiIsoLoaderError,
     KiwiIsoMetaDataError,
     KiwiCommandError
 )
-
-from kiwi.iso_tools.iso import Iso
-from tempfile import NamedTemporaryFile
 
 
 class TestIso(object):
@@ -76,6 +81,9 @@ class TestIso(object):
             ]
         )
 
+    @pytest.mark.skipif(
+        Path.which('isoinfo') is None, reason='requires cdrtools'
+    )
     def test_create_header_end_block(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
@@ -83,6 +91,9 @@ class TestIso(object):
             '../data/iso_with_marker.iso'
         ) == 96
 
+    @pytest.mark.skipif(
+        Path.which('isoinfo') is None, reason='requires cdrtools'
+    )
     @raises(KiwiIsoLoaderError)
     def test_create_header_end_block_raises(self):
         temp_file = NamedTemporaryFile()
