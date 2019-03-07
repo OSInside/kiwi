@@ -155,15 +155,16 @@ class RuntimeChecker(object):
             take the rest space available on the system. It's only
             allowed to specify one all size volume
         ''')
-        all_size_volume_count = 0
         systemdisk_section = self.xml_state.get_build_type_system_disk_section()
-        volumes = systemdisk_section.get_volume() or []
-        for volume in volumes:
-            size = volume.get_size() or volume.get_freespace()
-            if size and 'all' in size:
-                all_size_volume_count += 1
-        if all_size_volume_count > 1:
-            raise KiwiRuntimeError(message)
+        if systemdisk_section:
+            all_size_volume_count = 0
+            volumes = systemdisk_section.get_volume() or []
+            for volume in volumes:
+                size = volume.get_size() or volume.get_freespace()
+                if size and 'all' in size:
+                    all_size_volume_count += 1
+            if all_size_volume_count > 1:
+                raise KiwiRuntimeError(message)
 
     def check_volume_setup_has_no_root_definition(self):
         """
