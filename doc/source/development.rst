@@ -181,7 +181,7 @@ Create a branch for each feature or bugfix
 Congratulation ! you successfully created a KIWI development environment
 and all tests passed. Now it's time to hack on KIWI. Code changes should
 be done in an extra git branch. This allows for creating GitHub pull requests
-in a clean way. Also See `Github Issues and Pull Requests <https://help.github.com/categories/collaborating-on-projects-using-issues-and-pull-requests>`__
+in a clean way. Also See `Github Issues and Pull Requests <https://help.github.com/en/categories/collaborating-with-issues-and-pull-requests>`__
 
 .. code:: bash
 

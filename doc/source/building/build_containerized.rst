@@ -62,7 +62,7 @@ The Dice packages and sources are available at the following locations:
 
 * Build service project:
   http://download.opensuse.org/repositories/Virtualization:/Appliances:/ContainerBuilder
-* Sources: https://github.com/SUSE/dice
+* Sources: https://github.com/OSInside/dice
 
 .. code:: bash
 
