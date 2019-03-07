@@ -167,10 +167,9 @@ with the following sequence of :command:`vagrant` commands:
 
 .. note:: Vagrant Providers
 
-   Currently, KIWI only supports the libvirt provider. There are
-   also other providers available, like virtualbox and vmware, which
-   require a different box layout (currently not supported by KIWI).
-
+   Currently, KIWI only supports the libvirt and virtualbox providers.
+   There are also other providers available, which require a different
+   box layout (currently not supported by KIWI).
 
 .. [#f1] The insecure key is removed from the box when the it is first
          booted via Vagrant.
