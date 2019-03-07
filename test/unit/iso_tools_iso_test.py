@@ -84,23 +84,47 @@ class TestIso(object):
     @pytest.mark.skipif(
         Path.which('isoinfo') is None, reason='requires cdrtools'
     )
-    def test_create_header_end_block(self):
+    def test_create_header_end_block_on_test_iso(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
         assert self.iso.create_header_end_block(
             '../data/iso_with_marker.iso'
         ) == 96
 
+    @patch_open
+    @patch('kiwi.iso_tools.iso.IsoToolsCdrTools')
+    def test_create_header_end_block(self, mock_IsoToolsCdrTools, mock_open):
+        mock_open.return_value = self.context_manager_mock
+        self.file_mock.read.return_value = bytes(
+            b'7984fc91-a43f-4e45-bf27-6d3aa08b24cf'
+        )
+        iso_tool = mock.Mock()
+        iso_tool.list_iso.return_value = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        mock_IsoToolsCdrTools.return_value = iso_tool
+        self.iso.create_header_end_block('some-iso-file')
+        assert mock_open.call_args_list == [
+            call('some-iso-file', 'rb'),
+            call('source-dir/header_end', 'wb')
+        ]
+
     @pytest.mark.skipif(
         Path.which('isoinfo') is None, reason='requires cdrtools'
     )
     @raises(KiwiIsoLoaderError)
-    def test_create_header_end_block_raises(self):
+    def test_create_header_end_block_raises_on_test_iso(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
         self.iso.create_header_end_block(
             '../data/iso_no_marker.iso'
         )
+
+    @patch_open
+    @patch('kiwi.iso_tools.iso.IsoToolsCdrTools')
+    @raises(KiwiIsoLoaderError)
+    def test_create_header_end_block_raises(
+        self, mock_IsoToolsCdrTools, mock_open
+    ):
+        self.iso.create_header_end_block('some-iso-file')
 
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid(self, mock_command):
