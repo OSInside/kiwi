@@ -24,7 +24,7 @@ Building Images
 * ISO Hybrid Live Image
 
   An iso image which can be dumped on a CD/DVD or USB stick
-  and boots off from this media without interferring with other
+  and boots off from this media without interfering with other
   system storage components. A useful pocket system for testing
   and demo and debugging purposes.
 
@@ -44,7 +44,7 @@ Building Images
 * PXE root File System Image
 
   A root filesystem image which can be deployed via KIWI's PXE netboot
-  infrastructure. A client configuration file on the pxe server controlls
+  infrastructure. A client configuration file on the pxe server controls
   how the root filesystem image should be deployed. Many different
   deployment strategies are possible, e.g root over NBD, AoE or NFS for
   diskless and diskfull clients.
@@ -68,8 +68,8 @@ which are **equal** or **newer** compared to the following list:
 *  openSUSE Leap 42
 *  Red Hat Enterprise 7
 *  SUSE Linux Enterprise 12
-*  Tumbleweed
-*  Ubuntu Xenial
+*  openSUSE Tumbleweed
+*  Ubuntu 16.04 (Xenial Xerus)
 
 For anything older please consider to use the legacy KIWI version *v7.x*
 For more details on the legacy kiwi, see: :ref:`legacy_kiwi`.

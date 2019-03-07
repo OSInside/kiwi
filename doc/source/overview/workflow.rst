@@ -33,7 +33,7 @@ images that:
 
 The image creation process with KIWI is automated and does not require any
 user interaction. The information required for the image creation process is
-provided by the primary configuration file named :file:`config.xml`. 
+provided by the primary configuration file named :file:`config.xml`.
 This file is validated against the schema documented in
 :ref:`Schema Documentation <schema-docs>` section.
 In addition, the image can optionally be customized
@@ -42,7 +42,7 @@ and by using an *overlay tree (directory)* called :file:`root`.
 See `Components of an Image Description`_ section for further details.
 
 .. note:: Previous Knowledge
-    
+
     This documentation assumes that you are familiar with the general
     concepts of Linux, including the boot process, and distribution concepts
     such as package management.
@@ -78,7 +78,7 @@ provided in the :file:`config.xml` configuration file.
 .. note:: KIWI configuration file name convention
 
    KIWI at first place looks for a configuration file named
-   :file:`config.xml`. If there is no such file, KIWI looks for files with a 
+   :file:`config.xml`. If there is no such file, KIWI looks for files with a
    :regexp:`*.kiwi` extension. In that case, the first match is the loaded file.
 
 .. _prepare-step:
@@ -106,7 +106,7 @@ The prepare step consists of the following substeps:
 #. **Create Target Root Directory.**
 
    KIWI will exit with an error if the target root tree already exists to
-   avoid accidental deletion of an existing unpacked image. 
+   avoid accidental deletion of an existing unpacked image.
 
 #. **Install Packages.**
 
@@ -196,14 +196,14 @@ KIWI:
    the target root tree. The script is usually used to remove files that are no
    needed in the final image. For example, if an appliance is being built for a
    specific hardware, unnecessary kernel drivers can be removed using this
-   script. 
-   
-#. **Create Requested Image Type.** 
+   script.
+
+#. **Create Requested Image Type.**
 
    The image types that can be created from a prepared image tree depend on the
    types specified in the image description :file:`config.xml` file. The
    configuration file must contain at least one ``type`` element. see: :ref:`building_types`
-  
+
 .. _description_components:
 
 Components of an Image Description
@@ -230,7 +230,7 @@ These are the optional components of an image description:
 
 #. Overlay tree directory
 
-   The *overlay tree* is a folder (called :file:`root`) 
+   The *overlay tree* is a folder (called :file:`root`)
    or a tarball file (called :file:`root.tar.gz`) that contains
    files and directories that will be copied to the target image build tree
    during the :ref:`prepare step <prepare-step>`. It is executed
@@ -283,22 +283,22 @@ See below a common template for `config.sh` script:
    #--------------------------------------
    test -f /.kconfig && . /.kconfig
    test -f /.profile && . /.profile
-   
+
    #======================================
    # Greeting...
    #--------------------------------------
    echo "Configure image: [$kiwi_iname]..."
-   
+
    #======================================
    # Mount system filesystems
    #--------------------------------------
    baseMount
-   
+
    #======================================
    # Call configuration code/functions
    #--------------------------------------
    ...
-   
+
    #======================================
    # Umount kernel filesystems
    #--------------------------------------
@@ -312,7 +312,7 @@ See below a common template for `config.sh` script:
 Common Functions
 ''''''''''''''''
 
-The :file:`.kconfig` file allows to make use of a common set of functions. 
+The :file:`.kconfig` file allows to make use of a common set of functions.
 Functions specific to SUSE Linux specific begin with the name suse.
 Functions applicable to all linux systems starts with the name base.
 The following list describes the functions available inside the
@@ -381,7 +381,7 @@ The following list describes the functions available inside the
   example:
 
   .. code:: bash
- 
+
      baseStripMans more less
 
 ``baseStripRPM``
@@ -411,7 +411,7 @@ The following list describes the functions available inside the
 
 ``Echo {echo commandline}``
   Helper function to print a message to the controlling terminal.
- 
+
 ``Rm {list of files}``
   Helper function to delete files and announce it to log.
 
@@ -530,15 +530,15 @@ fine tune the resulting unpacked image are quickly described:
   whipes any :file:`/etc/machine-id` content, leaving it as an empty file.
   Note this is only applied for images based on dracut initrd, on container
   images, for instance, this setting is not applied.
-  
+
   In case this setting is required also for a non dracut based image
   this could be also achieved by clearing :file:`/etc/machine-id`
   in :file:`config.sh`.
 
   .. note:: Avoid interactive boot
 
-     It is important to remark that the file :file:`/etc/machine-id`    
-     is set to an empty file instead of deleting it. Systemd may trigger 
+     It is important to remark that the file :file:`/etc/machine-id`
+     is set to an empty file instead of deleting it. Systemd may trigger
      :command:`systemd-firstboot` service if this file is not present,
      which leads to an interactive firstboot where the user is
      asked to provide some data.
@@ -552,7 +552,7 @@ fine tune the resulting unpacked image are quickly described:
      different files. This is the case for SLE-12 based images, so
      in those cases it is recommended to add into the :file:`config.sh`
      the symlink creation:
-  
+
      .. code:: bash
 
         #======================================
@@ -589,17 +589,17 @@ See below a common template for :file:`images.sh` script:
    #--------------------------------------
    test -f /.kconfig && . /.kconfig
    test -f /.profile && . /.profile
-   
+
    #======================================
    # Greeting...
    #--------------------------------------
    echo "Configure image: [$kiwi_iname]..."
-   
+
    #======================================
    # Call configuration code/functions
    #--------------------------------------
    ...
-   
+
    #======================================
    # Exit safely
    #--------------------------------------
@@ -687,7 +687,7 @@ variables.
 
 ``$kiwi_size``
   The predefined size value for this image. This is not the computed size
-  but only the optional size value of the preferences section in 
+  but only the optional size value of the preferences section in
   :file:`config.xml`.
 
 ``$kiwi_compressed``
@@ -769,7 +769,7 @@ of KIWI the following dracut modules are used:
    what and how the initrd behaves by its own implementation. This concept
    is mostly used in PXE environments which are usually highly customized
    and requires a specific boot and deployment workflow.
-   
+
 
 Boot Image Hook-Scripts
 .......................
