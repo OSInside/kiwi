@@ -44,7 +44,7 @@ Submodules
     :show-inheritance:
 
 `kiwi.storage.subformat.vagrant_base` Module
------------------------------------------------
+--------------------------------------------
 
 .. automodule:: kiwi.storage.subformat.vagrant_base
     :members:
@@ -60,7 +60,7 @@ Submodules
     :show-inheritance:
 
 `kiwi.storage.subformat.vagrant_virtualbox` Module
------------------------------------------------
+--------------------------------------------------
 
 .. automodule:: kiwi.storage.subformat.vagrant_virtualbox
     :members:
