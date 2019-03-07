@@ -64,6 +64,11 @@ class TestRuntimeChecker(object):
         self.runtime_checker.check_repositories_configured()
 
     @raises(KiwiRuntimeError)
+    def test_check_volume_setup_defines_multiple_fullsize_volumes(self):
+        self.runtime_checker.\
+            check_volume_setup_defines_multiple_fullsize_volumes()
+
+    @raises(KiwiRuntimeError)
     def test_check_volume_setup_has_no_root_definition(self):
         self.runtime_checker.check_volume_setup_has_no_root_definition()
 

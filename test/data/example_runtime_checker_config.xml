@@ -85,6 +85,8 @@
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk">
                 <volume name="root" size="6G" mountpoint="/" label="foo"/>
+                <volume name="foo" size="all"/>
+                <volume name="bar" freespace="all"/>
             </systemdisk>
             <machine memory="512" xen_loader="pvgrub">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
