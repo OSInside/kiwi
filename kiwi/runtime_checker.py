@@ -142,6 +142,29 @@ class RuntimeChecker(object):
                         message.format(volume_management)
                     )
 
+    def check_volume_setup_defines_multiple_fullsize_volumes(self):
+        """
+        The volume size specification 'all' makes this volume to
+        take the rest space available on the system. It's only
+        allowed to specify one all size volume
+        """
+        message = dedent('''\n
+            Multiple all size volumes found but only one is allowed
+
+            The volume size specification 'all' makes this volume to
+            take the rest space available on the system. It's only
+            allowed to specify one all size volume
+        ''')
+        all_size_volume_count = 0
+        systemdisk_section = self.xml_state.get_build_type_system_disk_section()
+        volumes = systemdisk_section.get_volume() or []
+        for volume in volumes:
+            size = volume.get_size() or volume.get_freespace()
+            if size and 'all' in size:
+                all_size_volume_count += 1
+        if all_size_volume_count > 1:
+            raise KiwiRuntimeError(message)
+
     def check_volume_setup_has_no_root_definition(self):
         """
         The root volume in a systemdisk setup is handled in a special
