@@ -279,13 +279,7 @@ class RepositoryDnf(RepositoryBase):
             'main', 'debuglevel', '2'
         )
         self.runtime_dnf_config.set(
-            'main', 'pkgpolicy', 'newest'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'tolerant', '0'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'exactarch', '1'
+            'main', 'best', '1'
         )
         self.runtime_dnf_config.set(
             'main', 'obsoletes', '1'
