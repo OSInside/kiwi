@@ -134,33 +134,43 @@ function read_volume_setup {
 
 function read_volume_setup_all_free {
     # """
-    # read the volume setup for kiwi_allFreeVolume from the profile
-    # file and return a list with the following values:
+    # read the volume setup from the profile file and
+    # lookup the volume that should take the rest space
+    # available in the volume group.
+    #
+    # return a list with the following values:
     #
     # volume_name,mount_point
     #
-    # If no kiwi_allFreeVolume was configured only the default
-    # volume_name which takes the rest space is returned
+    # If no @root volume is configured in the kiwi XML
+    # description the default LVRoot volume will be used
+    # to take the rest space.
     # """
     local profile=$1
     local size
     local volume
     local name
     local mpoint
+    local have_root_volume_setup=false
     while read -r volspec;do
         if ! [[ "${volspec}" =~ "kiwi_Volume_" ]];then
             continue
         fi
         volume=$(echo "${volspec}" | cut -f2 -d= | tr -d \' | tr -d \")
         size=$(echo "${volume}" | cut -f2 -d\| | cut -f2 -d:)
+        name=$(echo "${volume}" | cut -f1 -d\|)
+        if [ "${name}" = "LVRoot" ];then
+            have_root_volume_setup=true
+        fi
         if [ "${size}" = "all" ];then
-            name=$(echo "${volume}" | cut -f1 -d\|)
             mpoint=$(echo "${volume}" | cut -f3 -d\|)
             echo "${name},${mpoint}"
             return
         fi
     done < "${profile}"
-    echo LVRoot,
+    if [ "${have_root_volume_setup}" = "false" ];then
+        echo LVRoot,
+    fi
 }
 
 function get_all_free_volume {
