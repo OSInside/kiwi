@@ -103,9 +103,9 @@
         <package name="basesystem"/>
         <package name="yum-plugin-priorities"/>
         <package name="nextgen-yum4"/>
-        <package name="grub2-efi-modules"/>
-        <package name="grub2-efi"/>
-        <package name="shim" arch="x86_64"/>
+        <package name="grub2-efi-x64-modules" arch="x86_64"/>
+        <package name="grub2-efi-x64" arch="x86_64"/>
+        <package name="shim-x64" arch="x86_64"/>
         <package name="libdb-utils"/>
     </packages>
 </image>
