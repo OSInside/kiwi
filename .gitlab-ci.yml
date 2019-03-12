@@ -26,7 +26,7 @@ pytest:
       dnf install -y --refresh
       xorriso genisoimage python36 python34 python2
       python2-devel python2-pip
-    - export LANG=en_US.UTF-8
+    - export LANG=C.UTF-8
     # Python 2.7
     - export PYTHON=python2.7
     - pip install tox
