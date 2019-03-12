@@ -55,9 +55,6 @@
         <source path="obs://CentOS:CentOS-7/standard"/>
     </repository>
     <repository type="rpm-md">
-        <source path="obs://Fedora:EPEL:7/CentOS"/>
-    </repository>
-    <repository type="rpm-md">
         <source path="obs://Fedora:EPEL:7/standard"/>
     </repository>
     <packages type="image">
