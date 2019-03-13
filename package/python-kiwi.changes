@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Wed Mar 13 14:55:06 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Bump version: 9.17.28 → 9.17.29
+
+-------------------------------------------------------------------
+Wed Mar 13 14:55:04 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Update changelog reference
+
+-------------------------------------------------------------------
 Wed Mar 13 14:53:52 CET 2019 - Marcus Schäfer <ms@suse.de>
 
 - Fixed bumpversion helper
@@ -108,46 +118,6 @@ Sun Mar 10 19:24:40 CET 2019 - Marcus Schäfer <ms@suse.de>
 Sun Mar 10 18:20:11 CET 2019 - David Cassany <dcassany@suse.de>
 
 - Adding a derived docker image build test
-
--------------------------------------------------------------------
-Tue Mar 05 11:15:28 CET 2019 - Dan Čermák <dcermak@suse.com>
-
-- Add GitLab CI pipeline status to README.rst
-
--------------------------------------------------------------------
-Fri Mar 01 12:23:30 CET 2019 - Dan Čermák <dcermak@suse.com>
-
-- Extend the GitLab-CI pipeline
-
-  - build the documentation in the build_doc stage
-  - run tests for all supported Python versions in tox_check
-  - build an RPM for Fedora 29 & OpenSUSE Tumbleweed in RPM stage
-
--------------------------------------------------------------------
-Tue Feb 12 16:54:41 CET 2019 - David Cassany <dcassany@suse.de>
-
-- Refactor OCI images packing
-
-  This commit refactors the OCI images support:
-
-  * added import_container_image and export_container_image methods
-  to oci_tools classes. 'umoci' and 'buildah' consume different
-  formats thus the inital skopeo call to import a container is tool
-  dependent.
-
-  * use oci-archive transport for packing the OCI images, this causes
-  docker and oci operations to just diverge on transport type.
-
-  * add_tag method no longer needed in oci_tools/base, skopeo is used
-  for that matter.
-
-  * container/docker.py class is no longer needed. The difference
-  between docker and OCI images is just on packing format which is just
-  a parameter in skopeo. It does not deserve a dedicated class
-
-  * system/root_import/docker.py class no longer needed. The difference
-  between OCI and Docker class was just the transport type for the
-  skopeo call. It does not deserve a dedicated class
 
 -------------------------------------------------------------------
 Sun Mar 10 15:33:39 CET 2019 - Marcus Schäfer <ms@suse.de>
@@ -784,6 +754,32 @@ Wed Feb 13 17:08:19 CET 2019 - Marcus Schäfer <ms@suse.de>
   104 - ZYPPER_EXIT_INF_CAP_NOT_FOUND
   105 - ZYPPER_EXIT_ON_SIGNAL
   106 - ZYPPER_EXIT_INF_REPOS_SKIPPED
+
+-------------------------------------------------------------------
+Tue Feb 12 16:54:41 CET 2019 - David Cassany <dcassany@suse.de>
+
+- Refactor OCI images packing
+
+  This commit refactors the OCI images support:
+
+  * added import_container_image and export_container_image methods
+  to oci_tools classes. 'umoci' and 'buildah' consume different
+  formats thus the inital skopeo call to import a container is tool
+  dependent.
+
+  * use oci-archive transport for packing the OCI images, this causes
+  docker and oci operations to just diverge on transport type.
+
+  * add_tag method no longer needed in oci_tools/base, skopeo is used
+  for that matter.
+
+  * container/docker.py class is no longer needed. The difference
+  between docker and OCI images is just on packing format which is just
+  a parameter in skopeo. It does not deserve a dedicated class
+
+  * system/root_import/docker.py class no longer needed. The difference
+  between OCI and Docker class was just the transport type for the
+  skopeo call. It does not deserve a dedicated class
 
 -------------------------------------------------------------------
 Mon Feb 11 09:10:47 CET 2019 - Marcus Schäfer <ms@suse.de>
@@ -17339,3 +17335,4 @@ Sat Dec 05 16:51:08 CET 2015 - Marcus Schäfer <ms@suse.com>
 Sat Dec 05 16:46:24 CET 2015 - Marcus Schäfer <ms@suse.com>
 
 - Update README
+
