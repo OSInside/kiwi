@@ -45,9 +45,16 @@ function get_disk_list {
     local disk_device_by_id
     local disk_meta
     local list_items
+    local max_disk
+    local kiwi_oem_maxdisk
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
     if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
+    fi
+    max_disk=0
+    kiwi_oem_maxdisk=$(getarg rd.kiwi.oem.maxdisk=)
+    if [ -n "${kiwi_oem_maxdisk}" ]; then
+        max_disk=$(binsize_to_bytesize "${kiwi_oem_maxdisk}") || max_disk=0
     fi
     if getargbool 0 rd.kiwi.ramdisk; then
         # target should be a ramdisk on request. Thus actively
@@ -77,6 +84,14 @@ function get_disk_list {
             continue
         fi
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
+        if [ ${max_disk} -gt 0 ]; then
+            local disk_size_bytes
+            disk_size_bytes=$(binsize_to_bytesize "${disk_size}") || disk_size_bytes=0
+            if [ "${disk_size_bytes}" -gt "${max_disk}" ]; then
+                info "${disk_device} filtered out by rd.kiwi.oem.maxdisk=${kiwi_oem_maxdisk} (is ${disk_size})" >&2
+                continue
+            fi
+        fi
         disk_device_by_id=$(
             get_persistent_device_from_unix_node "${disk_device}" "${disk_id}"
         )

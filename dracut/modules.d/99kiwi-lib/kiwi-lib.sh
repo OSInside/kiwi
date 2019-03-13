@@ -113,3 +113,20 @@ function import_file {
         eval "export ${key}" &>/dev/null
     done < ${source_format}
 }
+
+function binsize_to_bytesize {
+    # """
+    # converts binary sizes (1024k, 2.4G) to bytes
+    # uses awk to handle floating point numbers
+    # """
+    local sz="$1"
+    local bs=${sz:0:-1}
+    case ${sz} in
+        *K|*k) mult=1024 ;;
+        *M) mult=$((1024*1024)) ;;
+        *G) mult=$((1024*1024*1024)) ;;
+        *T) mult=$((1024*1024*1024*1024)) ;;
+        *) bs=${sz}; mult=1 ;;
+    esac
+    awk "BEGIN {print int(${bs}*${mult})}"
+}
