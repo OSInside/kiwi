@@ -875,6 +875,16 @@ the available kernel boot parameters for this modules:
   Note that options starting with `rd.kiwi` are not passed on to avoid
   side effects.
 
+``rd.kiwi.oem.maxdisk=size[KMGT]``
+  This variable configures the maximum disk size an unattended oem
+  installation should consider for image deployment. Unattended oem
+  deployments default to deploying on /dev/sda (more exactly, the first
+  device not filtered out by `oem-device-filter`). With RAID
+  controllers, it can happen that your buch of big JBOD disks is for
+  example `/dev/sda` to `/dev/sdi` and the 480G RAID1 configured for
+  OS deployment is `/dev/sdj`. With `rd.kiwi.oem.maxdisk=500G` the
+  deployment will land on that RAID disk.
+
 ``rd.live.overlay.persistent``
   This variable tells a live iso image to prepare a persistent
   write partition.
