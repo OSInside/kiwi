@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 """
-usage: update_changelog <reference_file>
+usage: update_changelog --since=<reference_file>|--until=<reference_file>
 
 arguments:
-    reference_file  changelog file to use as reference
+    --since=<reference_file>
+        changes since the latest entry in the reference file
+    --until=<reference_file>
+        changes until the latest entry in the reference file
 """
 import docopt
 import os
@@ -21,8 +24,8 @@ def date_key(date_string):
 # Commandline arguments
 arguments = docopt.docopt(__doc__)
 
-# Date since then we want to ask the git history for data
-since_date = None
+# Latest date of the given reference file
+latest_date = None
 
 # hash of git history log entries
 log_data = {}
@@ -39,17 +42,20 @@ commit_message = []
 
 # Open reference changelog file
 # This assumes a certain changelog format
-with open(arguments['<reference_file>'], 'r') as changelog:
+reference_file = arguments['--until'] or arguments['--since']
+with open(reference_file, 'r') as changelog:
     # read headline of first entry
     changelog.readline()
     # read date of first entry
-    since_date = changelog.readline().split('-')[0]
+    latest_date = changelog.readline().split('-')[0]
 
 # Read git history since latest entry from reference log
 process = subprocess.Popen(
     [
         'git', 'log', '--topo-order', '--no-merges', '--format=fuller',
-        '--since="{0}"'.format(since_date),
+        '{0}="{1}"'.format(
+            '--until' if arguments['--until'] else '--since', latest_date
+        ),
         '--date=format-local:%a %b %d %T %Z %Y'
     ],
     stdout=subprocess.PIPE
