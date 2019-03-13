@@ -1,13 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 from textwrap import dedent
 
 import subprocess
 import re
-import sys
 
 import collections
-import pprint
 
 
 class AutoVivification(dict):
@@ -20,7 +18,7 @@ class AutoVivification(dict):
 
 
 class AppHash:
-    def __init__(self):
+    def __init__(self):  # noqa: C901
         tasks = [
             'kiwi/cli.py',
             'kiwi/tasks/*.py'
@@ -142,8 +140,8 @@ class AppHash:
             elif re.search('<servicename>|<command>|<args>...', key):
                 pass
             else:
-                key = key.replace('<','__')
-                key = key.replace('>','__')
+                key = key.replace('<', '__')
+                key = key.replace('>', '__')
                 result_keys.append(key)
         return result_keys
 
@@ -170,12 +168,11 @@ class AppTree:
             except KeyError:
                 self.level_dict[str(level)][origin] = []
 
-            if not key in self.level_dict[str(level)][origin]:
+            if key not in self.level_dict[str(level)][origin]:
                 self.level_dict[str(level)][origin].append(key)
 
             if tree[key]:
                 self.traverse(tree[key], level + 1, key)
-
 
 
 tree = AppTree()
@@ -224,15 +221,19 @@ for level in sorted_levels:
         continue
     for sub in sorted(sorted_levels[level]):
         print('            "%s")' % (sub))
-        print('                __comp_reply "%s"' % \
-            (" ".join(sorted(sorted_levels[level][sub])))
+        print(
+            '                __comp_reply "{0}"'.format(
+                (" ".join(sorted(sorted_levels[level][sub])))
+            )
         )
         print('                return 0')
         print('                ;;')
 print('        esac')
 print('    done')
-print('    __comp_reply "%s"' % \
-    (" ".join(sorted(sorted_levels['0']['kiwi'])))
+print(
+    '    __comp_reply "{0}"'.format(
+        (" ".join(sorted(sorted_levels['0']['kiwi'])))
+    )
 )
 print('    return 0')
 print('}')

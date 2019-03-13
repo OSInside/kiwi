@@ -47,3 +47,6 @@ pyenchant
 # for travis deployment tasks
 travis-sphinx
 ghp-import
+
+# for helper tools
+python-dateutil
