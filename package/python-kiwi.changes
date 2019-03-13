@@ -1,4 +1,32 @@
 -------------------------------------------------------------------
+Wed Mar 13 14:53:52 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Fixed bumpversion helper
+
+  Make sure the commit for the changelog reference update
+  and the commit for the version bump have different
+  timestamps by sleeping 2sec between the two actions
+
+-------------------------------------------------------------------
+Wed Mar 13 14:39:55 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Update API documentation
+
+  In reference to Refactor OCI images packing the difference
+  between docker and OCI images is just on packing format.
+  Thus the extra docker container subclass is no longer present.
+
+-------------------------------------------------------------------
+Wed Mar 13 14:34:09 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Bump version: 9.17.27 → 9.17.28
+
+-------------------------------------------------------------------
+Wed Mar 13 14:34:08 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Update changelog reference
+
+-------------------------------------------------------------------
 Wed Mar 13 14:02:15 CET 2019 - Stefan Seyfried <seife+dev@b1-systems.com>
 
 - kiwi-dump-image: fix kiwi_oemdevicefilter for rd.debug
