@@ -13,4 +13,4 @@ mv package/python-kiwi.changes.new \
     package/python-kiwi.changes && \
 git commit -S -m 'Update changelog reference' \
     package/python-kiwi.changes && \
-bumpversion "$@"
+sleep 2 && bumpversion "$@"
