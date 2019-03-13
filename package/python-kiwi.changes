@@ -1,4 +1,127 @@
 -------------------------------------------------------------------
+Wed Mar 13 14:02:15 CET 2019 - Stefan Seyfried <seife+dev@b1-systems.com>
+
+- kiwi-dump-image: fix kiwi_oemdevicefilter for rd.debug
+
+-------------------------------------------------------------------
+Wed Mar 13 09:24:26 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Added bumpversion helper
+
+  Script that also updates the changelog reference file
+  before the version bump. It's optional to use this but
+  it would be handy as the commit would show the rpm
+  changelog differences from one tag to the other
+
+-------------------------------------------------------------------
+Tue Mar 12 22:38:28 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Fixed code smells on completion_generator
+
+  Also update python interpreter to use for the completion
+  and the changelog helpers
+
+-------------------------------------------------------------------
+Tue Mar 12 18:01:24 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Update gitlab CI config
+
+  The rpm stage needs python because the changelog script
+  is now written in python
+
+-------------------------------------------------------------------
+Tue Mar 12 14:31:48 CET 2019 - Neal Gompa <ngompa13@gmail.com>
+
+- Drop duplicate EPEL7 reference in the test CentOS appliance
+
+  We already request the standard, update, and extras repos and
+  the EPEL7 repo separately. There's no reason to request the
+  "centos" EPEL7 repo which combines standard+update and EPEL7
+  repos already.
+
+-------------------------------------------------------------------
+Mon Mar 11 14:36:26 CET 2019 - Stefan Seyfried <seife+dev@b1-systems.com>
+
+- centos-appliance: reorder repos to fix build
+
+  EPEL has older package versions of e.g. librepo, which breaks dnf.
+  Re-prioritize to prefer the good CentOS packages instead of bad EPEL.
+
+-------------------------------------------------------------------
+Mon Mar 11 08:09:02 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Update changelog file
+
+  Fix changelog entries for their encoding, author name and format
+  Also make sure commits are shown in reverse chronological order
+  of the author date. We intentionally don't use the commit date
+  because a commit can be older than the latest entry in the current
+  reference file and would then not be part of the git log
+  information
+
+-------------------------------------------------------------------
+Sun Mar 10 19:24:40 CET 2019 - Marcus Schäfer <ms@suse.de>
+
+- Introduce better changelog handling
+
+  The current way of creating the changelog file for the package
+  is based on reading the entire history of the git repository and
+  turns that information into a changelog. The downside of this
+  approach is that any change in the code that creates this changelog
+  information will impact older entries and could cause a conflict
+  on the changes file of the released package. This usually leads
+  to declined package submissions and blocks us in fixing bugs
+  in the changelog generator. This commit changes the process in
+  a way that only changes related to the oldest entry of a reference
+  changelog file compared to the current branch are taken into
+  account. This Fixes #979
+
+-------------------------------------------------------------------
+Sun Mar 10 18:20:11 CET 2019 - David Cassany <dcassany@suse.de>
+
+- Adding a derived docker image build test
+
+-------------------------------------------------------------------
+Tue Mar 05 11:15:28 CET 2019 - Dan Čermák <dcermak@suse.com>
+
+- Add GitLab CI pipeline status to README.rst
+
+-------------------------------------------------------------------
+Fri Mar 01 12:23:30 CET 2019 - Dan Čermák <dcermak@suse.com>
+
+- Extend the GitLab-CI pipeline
+
+  - build the documentation in the build_doc stage
+  - run tests for all supported Python versions in tox_check
+  - build an RPM for Fedora 29 & OpenSUSE Tumbleweed in RPM stage
+
+-------------------------------------------------------------------
+Tue Feb 12 16:54:41 CET 2019 - David Cassany <dcassany@suse.de>
+
+- Refactor OCI images packing
+
+  This commit refactors the OCI images support:
+
+  * added import_container_image and export_container_image methods
+  to oci_tools classes. 'umoci' and 'buildah' consume different
+  formats thus the inital skopeo call to import a container is tool
+  dependent.
+
+  * use oci-archive transport for packing the OCI images, this causes
+  docker and oci operations to just diverge on transport type.
+
+  * add_tag method no longer needed in oci_tools/base, skopeo is used
+  for that matter.
+
+  * container/docker.py class is no longer needed. The difference
+  between docker and OCI images is just on packing format which is just
+  a parameter in skopeo. It does not deserve a dedicated class
+
+  * system/root_import/docker.py class no longer needed. The difference
+  between OCI and Docker class was just the transport type for the
+  skopeo call. It does not deserve a dedicated class
+
+-------------------------------------------------------------------
 Sun Mar 10 15:33:39 CET 2019 - Marcus Schäfer <ms@suse.de>
 
 - Bump version: 9.17.26 → 9.17.27
