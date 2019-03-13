@@ -11,15 +11,6 @@ Subpackages
 Submodules
 ----------
 
-`kiwi.container.docker` Module
-------------------------------
-
-.. automodule:: kiwi.container.docker
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 `kiwi.container.oci` Module
 ---------------------------
 
