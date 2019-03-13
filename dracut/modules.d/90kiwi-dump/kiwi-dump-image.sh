@@ -91,7 +91,8 @@ function get_disk_list {
         # check for custom filter rule
         if [ -n "${kiwi_oemdevicefilter}" ];then
             if [[ ${disk_device} =~ ${kiwi_oemdevicefilter} ]];then
-                info "${disk_device} filtered out by: ${kiwi_oemdevicefilter}"
+                # info is more or less "echo" if debug is on, and it clutters stdout
+                info "${disk_device} filtered out by: ${kiwi_oemdevicefilter}" >&2
                 continue
             fi
         fi
