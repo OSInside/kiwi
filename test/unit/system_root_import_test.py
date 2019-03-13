@@ -7,18 +7,20 @@ from kiwi.exceptions import KiwiRootImportError
 
 
 class TestRootImport(object):
-    @patch('kiwi.system.root_import.RootImportDocker')
+    @patch('kiwi.system.root_import.RootImportOCI')
     def test_docker_import(self, mock_docker_import):
         RootImport('root_dir', 'file:///image.tar.xz', 'docker')
         mock_docker_import.assert_called_once_with(
-            'root_dir', 'file:///image.tar.xz'
+            'root_dir', 'file:///image.tar.xz',
+            custom_args={'archive_transport': 'docker-archive'}
         )
 
     @patch('kiwi.system.root_import.RootImportOCI')
     def test_oci_import(self, mock_oci_import):
         RootImport('root_dir', 'file:///image.tar.xz', 'oci')
         mock_oci_import.assert_called_once_with(
-            'root_dir', 'file:///image.tar.xz'
+            'root_dir', 'file:///image.tar.xz',
+            custom_args={'archive_transport': 'oci-archive'}
         )
 
     @raises(KiwiRootImportError)

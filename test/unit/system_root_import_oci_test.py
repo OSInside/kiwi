@@ -1,6 +1,6 @@
 import mock
 from mock import patch
-from mock import call
+# from mock import call
 
 from .test_helper import raises
 
@@ -11,108 +11,107 @@ from kiwi.exceptions import KiwiRootImportError
 
 class TestRootImportOCI(object):
     @patch('os.path.exists')
-    @patch('kiwi.system.root_import.oci.mkdtemp')
-    def setup(self, mock_mkdtemp, mock_path):
+    def setup(self, mock_path):
         mock_path.return_value = True
-        mock_mkdtemp.return_value = 'kiwi_layout_dir'
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.oci_import = RootImportOCI(
-                'root_dir', Uri('file:///image.tar.xz#tag')
+                'root_dir', Uri('file:///image.tar'),
+                {'archive_transport': 'oci-archive'}
             )
-        assert self.oci_import.image_file == '/image.tar.xz'
+        assert self.oci_import.image_file == '/image.tar'
 
     @patch('os.path.exists')
     @raises(KiwiRootImportError)
     def test_failed_init(self, mock_path):
         mock_path.return_value = False
         RootImportOCI(
-            'root_dir', Uri('file:///image.tar.xz')
+            'root_dir', Uri('file:///image.tar.xz'),
+            {'archive_transport': 'oci-archive'}
         )
 
-    @patch('kiwi.system.root_import.oci.ArchiveTar')
+    @patch('kiwi.system.root_import.oci.Compress')
     @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
-    @patch('kiwi.system.root_import.oci.Command.run')
-    @patch('kiwi.system.root_import.oci.mkdtemp')
     @patch('kiwi.system.root_import.oci.OCI')
-    def test_sync_data(
-        self, mock_OCI, mock_mkdtemp, mock_run,
-        mock_path, mock_md5, mock_tar
-    ):
+    def test_sync_data(self, mock_OCI, mock_path, mock_md5, mock_compress):
         oci = mock.Mock()
         mock_OCI.return_value = oci
-        mock_mkdtemp.return_value = 'kiwi_uncompressed'
-        extract = mock.Mock()
-        mock_tar.extract = extract
         md5 = mock.Mock()
         mock_md5.return_value = mock.Mock()
 
+        uncompress = mock.Mock()
+        uncompress.get_format = mock.Mock(return_value=None)
+        mock_compress.return_value = uncompress
+
         self.oci_import.sync_data()
 
-        mock_tar.extract.called_once_with('kiwi_uncompressed')
-
-        mock_OCI.assert_called_once_with('base_layer', 'kiwi_layout_dir')
+        mock_OCI.assert_called_once_with()
 
         oci.unpack.assert_called_once_with()
-
-        mock_run.assert_called_once_with(
-            [
-                'skopeo', 'copy', 'oci:kiwi_uncompressed:tag',
-                'oci:kiwi_layout_dir:base_layer'
-            ]
-        )
-
         oci.import_rootfs.assert_called_once_with(
             'root_dir'
         )
         mock_md5.assert_called_once_with('root_dir/image/imported_root')
         md5.md5.called_once_with('root_dir/image/imported_root.md5')
-        assert mock_tar.call_args_list == [
-            call('/image.tar.xz'), call('root_dir/image/imported_root')
-        ]
+        uncompress.get_format.assert_called_once_with()
 
-    @patch('kiwi.command.Command.run')
-    @patch('kiwi.system.root_import.oci.log.warning')
-    def test_extract_oci_image_unknown_uri(self, mock_warn, mock_run):
-        self.oci_import.unknown_uri = 'oci://some_image'
-        self.oci_import.extract_oci_image()
-        mock_run.assert_called_once_with([
-            'skopeo', 'copy', 'oci://some_image',
-            'oci:kiwi_layout_dir:base_layer'
-        ])
-        assert mock_warn.called
-
-    @patch('kiwi.system.root_import.oci.ArchiveTar')
-    @patch('os.path.exists')
-    @patch('kiwi.system.root_import.oci.mkdtemp')
-    @patch('kiwi.command.Command.run')
-    def test_extract_oci_image_without_tag(
-        self, mock_run, mock_mkdtemp, mock_path, mock_tar
+    @patch('kiwi.system.root_import.oci.Compress')
+    @patch('kiwi.system.root_import.base.Checksum')
+    @patch('kiwi.system.root_import.oci.Path.create')
+    @patch('kiwi.system.root_import.oci.OCI')
+    def test_sync_data_compressed_image(
+        self, mock_OCI, mock_path, mock_md5, mock_compress
     ):
-        mock_path.return_value = True
-        tmpdirs = ['kiwi_uncompressed', 'kiwi_layout_dir']
+        oci = mock.Mock()
+        mock_OCI.return_value = oci
+        md5 = mock.Mock()
+        mock_md5.return_value = mock.Mock()
 
-        def call_mkdtemp(prefix):
-            return tmpdirs.pop()
+        uncompress = mock.Mock()
+        uncompress.get_format = mock.Mock(return_value='xz')
+        mock_compress.return_value = uncompress
 
-        mock_mkdtemp.side_effect = call_mkdtemp
+        self.oci_import.sync_data()
+
+        mock_OCI.assert_called_once_with()
+
+        oci.unpack.assert_called_once_with()
+        oci.import_rootfs.assert_called_once_with(
+            'root_dir'
+        )
+        mock_md5.assert_called_once_with('root_dir/image/imported_root')
+        md5.md5.called_once_with('root_dir/image/imported_root.md5')
+        uncompress.get_format.assert_called_once_with()
+        uncompress.uncompress.assert_called_once_with(True)
+
+    @patch('kiwi.logger.log.warning')
+    @patch('os.path.exists')
+    @patch('kiwi.system.root_import.base.Checksum')
+    @patch('kiwi.system.root_import.oci.Path.create')
+    @patch('kiwi.system.root_import.oci.OCI')
+    def test_sync_data_unknown_uri(
+        self, mock_OCI, mock_path, mock_md5, mock_exists, mock_warn
+    ):
+        mock_exists.return_value = True
+        oci = mock.Mock()
+        mock_OCI.return_value = oci
+        md5 = mock.Mock()
+        mock_md5.return_value = mock.Mock()
         with patch.dict('os.environ', {'HOME': '../data'}):
             oci_import = RootImportOCI(
-                'root_dir', Uri('file:///image.tar.xz')
+                'root_dir', Uri('docker:image:tag'),
+                {'archive_transport': 'docker-archive'}
             )
-        oci_import.extract_oci_image()
-        mock_run.assert_called_once_with([
-            'skopeo', 'copy', 'oci:kiwi_uncompressed',
-            'oci:kiwi_layout_dir:base_layer'
-        ])
-        mock_tar.assert_called_once_with('/image.tar.xz')
 
-    @patch('kiwi.system.root_import.oci.Path.wipe')
-    def test_del(self, mock_path):
-        self.oci_import.oci_layout_dir = 'layout_dir'
-        self.oci_import.uncompressed_image = 'uncompressed_file'
-        self.oci_import.__del__()
+        oci_import.sync_data()
 
-        assert mock_path.call_args_list == [
-            call('layout_dir'), call('uncompressed_file')
-        ]
+        mock_OCI.assert_called_once_with()
+
+        oci.import_container_image.assert_called_once_with('docker:image:tag')
+        oci.unpack.assert_called_once_with()
+        oci.import_rootfs.assert_called_once_with(
+            'root_dir'
+        )
+        mock_md5.assert_called_once_with('root_dir/image/imported_root')
+        md5.md5.called_once_with('root_dir/image/imported_root.md5')
+        assert mock_warn.called

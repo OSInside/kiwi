@@ -28,11 +28,11 @@ class OCI(object):
     """
     **OCI Factory**
     """
-    def __new__(self, container_tag, container_dir=None):
+    def __new__(self):
         runtime_config = RuntimeConfig()
         tool_name = runtime_config.get_oci_archive_tool()
         if tool_name == 'umoci':
-            return OCIUmoci(container_tag, container_dir)
+            return OCIUmoci()
         else:
             raise KiwiOCIArchiveToolError(
                 'No support for {0} tool available'.format(tool_name)

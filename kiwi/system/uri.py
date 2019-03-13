@@ -219,9 +219,9 @@ class Uri(object):
         """
         Returns the fragment part of the URI.
 
-        :return: fragment part of the URI if any, None otherwise
+        :return: fragment part of the URI if any, empty string otherwise
 
-        :rtype: str, None
+        :rtype: str
         """
         uri = urlparse(self.uri)
         return uri.fragment

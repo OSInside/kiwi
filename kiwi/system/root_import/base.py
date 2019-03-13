@@ -35,8 +35,11 @@ class RootImportBase(object):
 
     * :attr:`image_uri`
         Uri object to store source location
+
+    * :attr:`custom_args`
+        Dictonary to set specialized class specific configuration values
     """
-    def __init__(self, root_dir, image_uri):
+    def __init__(self, root_dir, image_uri, custom_args=None):
         self.unknown_uri = None
         self.root_dir = root_dir
         try:
@@ -60,11 +63,11 @@ class RootImportBase(object):
             )
             self.unknown_uri = image_uri.uri
         finally:
-            self.post_init(image_uri)
+            self.post_init(custom_args)
 
-    def post_init(self, image_uri):
+    def post_init(self, custom_args):
         """
-        Post initalization method
+        Initialization of the specialized import class
 
         Implementation in specialized root import class
         """

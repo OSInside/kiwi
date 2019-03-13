@@ -1183,6 +1183,18 @@ class Defaults(object):
         return 'kiwi-container'
 
     @classmethod
+    def get_container_base_image_tag(cls):
+        """
+        Provides the tag used to identify base layers during the build
+        of derived images.
+
+        :return: tag
+
+        :rtype: str
+        """
+        return 'base_layer'
+
+    @classmethod
     def get_oci_archive_tool(cls):
         """
         Provides the default OCI archive tool name.
