@@ -142,7 +142,7 @@ class ContainerImageOCI(object):
                 self.oci_config['container_tag']
             )
             additional_refs = []
-            if self.oci_config['additional_tags']:
+            if self.oci_config.get('additional_tags'):
                 additional_refs = []
                 for tag in self.oci_config['additional_tags']:
                     additional_refs.append('{0}:{1}'.format(
