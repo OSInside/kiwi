@@ -2503,12 +2503,28 @@ div {
 # main block: <vagrantconfig>
 #
 div {
+    sch:pattern [
+        abstract = "true"
+        id = "vagrant_provider"
+        sch:rule [
+            context = "vagrantconfig[@$attr]"
+            sch:assert [
+                test = "contains('$providers', @provider)"
+                "$attr attribute is only available for the following "
+                "vagrant providers: $providers"
+            ]
+        ]
+    ]
     k.vagrantconfig.provider.attribute =
         ## The vagrant provider for this box
         attribute provider { "libvirt" | "virtualbox" }
     k.vagrantconfig.virtualbox_guest_additions_present.attribute =
         ## Guest additions are present in this box
         attribute virtualbox_guest_additions_present { xsd:boolean }
+        >> sch:pattern [ id = "virtualbox_guest_additions_present" is-a = "vagrant_provider"
+            sch:param [ name = "attr" value = "virtualbox_guest_additions_present" ]
+            sch:param [ name = "providers" value = "virtualbox" ]
+        ]
     k.vagrantconfig.virtualsize.attribute =
         ## virtualsize provides the value of the virtual_size key which
         ## is embedded in the metadata.json hash inside the box file, as
