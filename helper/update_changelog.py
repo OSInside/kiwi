@@ -14,13 +14,6 @@ import subprocess
 import sys
 from dateutil import parser
 
-
-# For sorting dates use a timedelta object
-def date_key(date_string):
-    date_string = parser.parse(date_string)
-    return date_string
-
-
 # Commandline arguments
 arguments = docopt.docopt(__doc__)
 
@@ -77,7 +70,7 @@ for line_data in iter(process.stdout.readline, b''):
                     message_body.append(
                         '  {0}{1}'.format(message_line, os.linesep)
                     )
-            log_data[log_date] = ''.join(
+            log_data[parser.parse(log_date)] = ''.join(
                 [
                     log_start,
                     '{0} - {1}{2}{2}'.format(
@@ -101,5 +94,25 @@ for line_data in iter(process.stdout.readline, b''):
         commit_message.append(line.strip())
 
 # print history
-for author_date in reversed(sorted(log_data.keys(), key=date_key)):
-    sys.stdout.write(log_data[author_date])
+date_reference = parser.parse(latest_date)
+skip_list = []
+for author_date in reversed(sorted(log_data.keys())):
+    if arguments['--since']:
+        if date_reference < author_date:
+            sys.stdout.write(log_data[author_date])
+        else:
+            skip_list.append(author_date)
+    else:
+        sys.stdout.write(log_data[author_date])
+
+# print inconsistencies if any
+if skip_list:
+    sys.stderr.write(
+        'Reference Date: {0}{1}'.format(date_reference, os.linesep)
+    )
+    for date in skip_list:
+        sys.stderr.write(
+            '  + Skipped: {0}: past reference{1}'.format(
+                date, os.linesep
+            )
+        )
