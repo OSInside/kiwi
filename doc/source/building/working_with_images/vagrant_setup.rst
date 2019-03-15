@@ -28,27 +28,21 @@ by the distribution vendor.
 The KIWI way of building images might be helpful, if such a media does not
 exist or does not suit your needs. For example, if the distribution is
 still under development or you want to use a collection of your own
-repositories.
+repositories. Note, that in contrast to Packer KIWI only supports the
+libvirt and VirtualBox providers. Other providers require a different box
+layout that is currently not supported by KIWI.
 
 In addition, you can use the KIWI image description as source for the
 `Open Build Service <https://openbuildservice.org>`_ which allows
 building and maintaining boxes.
 
-A Vagrant box which is able to work with Vagrant has to comply with the
-constraints documented in
-`Vagrant Box Constraints <https://www.vagrantup.com/docs/boxes/base.html>`_.
-Applied to the referenced KIWI image description from :ref:`vmx`,
-the following changes are required:
+Vagrant expects boxes to be setup in a specific way (for details refer to
+the `Vagrant box documentation
+<https://www.vagrantup.com/docs/boxes/base.html>`_.), applied to the
+referenced KIWI image description from :ref:`vmx`, the following steps are
+required:
 
-1. Add mandatory packages
-
-   .. code:: xml
-
-      <package name="sudo"/>
-      <package name="openssh"/>
-      <package name="rsync"/>
-
-2. Update the image type setup
+1. Update the image type setup
 
    .. code:: xml
 
@@ -61,7 +55,49 @@ the following changes are required:
    provider including a pre-defined disk size. The disk size is
    optional, but recommended to provide some free space on disk.
 
-3. Add Vagrant user
+   For the VirtualBox provider, the additional attribute
+   ``virtualbox_guest_additions_present`` can be set to ``true`` when the
+   VirtualBox guest additions are installed in the KIWI image:
+
+   .. code:: xml
+
+      <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0">
+          <vagrantconfig provider="virtualbox" virtualbox_guest_additions_present="true" virtualsize="42"/>
+          <size unit="G">42</size>
+      </type>
+
+   The resulting Vagrant box then uses the ``vboxfs`` module for the
+   synchronized folder instead of ``rsync``, that is used by default.
+
+2. Add mandatory packages
+
+   .. code:: xml
+
+      <package name="sudo"/>
+      <package name="openssh"/>
+
+3. Add additional packages
+
+   If you have set the attribute ``virtualbox_guest_additions_present`` to
+   ``true``, add the VirtualBox guest additions. For openSUSE the following
+   packages are required:
+
+   .. code:: xml
+
+      <package name="virtualbox-guest-tools"/>
+      <package name="virtualbox-guest-x11"/>
+      <package name="virtualbox-guest-kmp-default"/>
+
+   Otherwise, you must add ``rsync``:
+
+   .. code:: xml
+
+      <package name="rsync"/>
+
+   Note that KIWI cannot verify whether these packages are installed. If
+   they are missing, the resulting Vagrant box will be broken.
+
+4. Add Vagrant user
 
    .. code:: xml
 
@@ -72,7 +108,7 @@ the following changes are required:
    This adds the **vagrant** user to the system and applies the
    name of the user as the password for login.
 
-4. Integrate public SSH key
+5. Integrate public SSH key
 
    Vagrant requires an insecure public key pair [#f1]_ to be added to the
    authorized keys for the user ``vagrant`` so that Vagrant itself can
@@ -93,14 +129,14 @@ the following changes are required:
       chmod 0600 /home/vagrant/.ssh/authorized_keys
       chown -R vagrant:vagrant /home/vagrant/
 
-5. Create the default shared folder
+6. Create the default shared folder
 
    Vagrant boxes usually provide a default shared folder under
    :file:`/vagrant`. Consider adding this empty folder to your overlay
    files and ensure that the user ``vagrant`` has write permissions to
    it.
 
-6. Setup and start SSH daemon
+7. Setup and start SSH daemon
 
    In :file:`config.sh`, add the start of sshd and the initial creation of
    machine keys as follows:
@@ -121,7 +157,7 @@ the following changes are required:
    :file:`/etc/ssh/sshd_config`. This can be done by an overlay file or by
    patching the file in the above mentioned :file:`config.sh` file.
 
-7. Configure sudo for the Vagrant user
+8. Configure sudo for the Vagrant user
 
    Vagrant expects to have passwordless root permissions via ``sudo`` to be
    able to setup your box. Add the following line to :file:`/etc/sudoers`
@@ -142,9 +178,10 @@ the following changes are required:
       fi
 
 
-An image built with the above setup creates a box file with the
-extension :file:`.vagrant.libvirt.box`. That box file can now be
-added to vagrant with the command:
+An image built with the above setup creates a Vagrant box file with the
+extension :file:`.vagrant.libvirt.box` or
+:file:`.vagrant.virtualbox.box`. Add the box file to Vagrant with the
+command:
 
 .. code:: bash
 
@@ -152,9 +189,11 @@ added to vagrant with the command:
 
 .. note::
 
-   Using the box requires a correct Vagrant installation on your machine,
-   the plugin ``vagrant-libvirt`` to be installed and the libvirtd daemon
-   to be running.
+   Using the box with the libvirt provider requires alongside a correct
+   Vagrant installation:
+
+   - the plugin ``vagrant-libvirt`` to be installed
+   - a running libvirtd daemon
 
 Once added to Vagrant, boot the box and log in
 with the following sequence of :command:`vagrant` commands:
@@ -164,12 +203,6 @@ with the following sequence of :command:`vagrant` commands:
    vagrant init my-box
    vagrant up --provider libvirt
    vagrant ssh
-
-.. note:: Vagrant Providers
-
-   Currently, KIWI only supports the libvirt and virtualbox providers.
-   There are also other providers available, which require a different
-   box layout (currently not supported by KIWI).
 
 .. [#f1] The insecure key is removed from the box when the it is first
          booted via Vagrant.
