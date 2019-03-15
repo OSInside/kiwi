@@ -39,27 +39,6 @@ class RootImportOCI(RootImportBase):
         Synchronize data from the given base image to the target root
         directory.
         """
-        oci = OCI()
-        oci.import_container_image(self._set_image_uri())
-        oci.unpack()
-        oci.import_rootfs(self.root_dir)
-
-        # A copy of the uncompressed image and its checksum are
-        # kept inside the root_dir in order to ensure the later steps
-        # i.e. system create are atomic and don't need any third
-        # party archive.
-        image_copy = Defaults.get_imported_root_image(self.root_dir)
-        Path.create(os.path.dirname(image_copy))
-        oci.export_container_image(
-            image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
-        )
-        self._make_checksum(image_copy)
-
-    def _set_image_uri(self):
-        """
-        Extract the contents from the provided image file to a temporary
-        location KIWI can work with.
-        """
         if not self.unknown_uri:
             compressor = Compress(self.image_file)
             if compressor.get_format():
@@ -74,4 +53,18 @@ class RootImportOCI(RootImportBase):
             log.warning('Bypassing base image URI to OCI tools')
             image_uri = self.unknown_uri
 
-        return image_uri
+        oci = OCI()
+        oci.import_container_image(image_uri)
+        oci.unpack()
+        oci.import_rootfs(self.root_dir)
+
+        # A copy of the uncompressed image and its checksum are
+        # kept inside the root_dir in order to ensure the later steps
+        # i.e. system create are atomic and don't need any third
+        # party archive.
+        image_copy = Defaults.get_imported_root_image(self.root_dir)
+        Path.create(os.path.dirname(image_copy))
+        oci.export_container_image(
+            image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
+        )
+        self._make_checksum(image_copy)
