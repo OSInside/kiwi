@@ -82,6 +82,20 @@ class TestRuntimeChecker(object):
         runtime_checker = RuntimeChecker(xml_state)
         runtime_checker.check_docker_tool_chain_installed()
 
+    @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
+    @patch('kiwi.runtime_checker.Path.which')
+    @raises(KiwiRuntimeError)
+    def test_check_docker_tool_chain_installed_buildah(
+        self, mock_which, mock_oci_tool
+    ):
+        mock_oci_tool.return_value = 'buildah'
+        mock_which.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_docker_tool_chain_installed()
+
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
     @raises(KiwiRuntimeError)

@@ -131,7 +131,7 @@ class ContainerImageOCI(object):
         )
 
         oci.unpack()
-        oci.sync_rootfs(''.join([self.root_dir, os.sep]), exclude_list)
+        oci.sync_rootfs(self.root_dir, exclude_list)
         oci.repack(self.oci_config)
         oci.set_config(self.oci_config)
         oci.post_process()
@@ -142,7 +142,7 @@ class ContainerImageOCI(object):
                 self.oci_config['container_tag']
             )
             additional_refs = []
-            if self.oci_config.get('additional_tags'):
+            if 'additional_tags' in self.oci_config:
                 additional_refs = []
                 for tag in self.oci_config['additional_tags']:
                     additional_refs.append('{0}:{1}'.format(
