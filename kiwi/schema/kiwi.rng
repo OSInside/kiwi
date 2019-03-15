@@ -3887,6 +3887,11 @@ and setup the system disk.</a:documentation>
     
   -->
   <div>
+    <sch:pattern abstract="true" id="vagrant_provider">
+      <sch:rule context="vagrantconfig[@$attr]">
+        <sch:assert test="contains('$providers', @provider)">$attr attribute is only available for the following vagrant providers: $providers</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.vagrantconfig.provider.attribute">
       <attribute name="provider">
         <a:documentation>The vagrant provider for this box</a:documentation>
@@ -3901,6 +3906,10 @@ and setup the system disk.</a:documentation>
         <a:documentation>Guest additions are present in this box</a:documentation>
         <data type="boolean"/>
       </attribute>
+      <sch:pattern id="virtualbox_guest_additions_present" is-a="vagrant_provider">
+        <sch:param name="attr" value="virtualbox_guest_additions_present"/>
+        <sch:param name="providers" value="virtualbox"/>
+      </sch:pattern>
     </define>
     <define name="k.vagrantconfig.virtualsize.attribute">
       <attribute name="virtualsize">
