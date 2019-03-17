@@ -126,7 +126,8 @@ build: clean tox
 	# update rpm changelog using reference file
 	helper/update_changelog.py --since package/python-kiwi.changes > \
 		dist/python-kiwi.changes
-	cat package/python-kiwi.changes >> dist/python-kiwi.changes
+	helper/update_changelog.py --file package/python-kiwi.changes >> \
+		dist/python-kiwi.changes
 	# update package version in spec file
 	cat package/python-kiwi-spec-template | sed -e s'@%%VERSION@${version}@' \
 		> dist/python-kiwi.spec

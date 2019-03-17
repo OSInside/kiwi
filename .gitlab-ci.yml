@@ -70,8 +70,6 @@ rpm:
       dnf install -y --refresh
       mock gzip tar git python3 python3-dateutil python3-docopt
       make which
-    # set localtime to timezone of reference changes file
-    - ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
     - 'sed -i "s|build: clean tox|build:|" Makefile'
     - make build
     - mv dist/python-kiwi.spec .
