@@ -34,5 +34,7 @@ info "root was ${liveroot}, is now ${root}"
 [ -z "${root}" ] && root="live"
 
 wait_for_dev -n /run/rootfsbase
+wait_for_dev -n /run/overlayfs/rw
+wait_for_dev -n /run/overlayfs/work
 
 return 0
