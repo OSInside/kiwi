@@ -94,6 +94,7 @@ class TestIsoToolsXorrIso(object):
                 '/usr/bin/xorriso',
                 '-outdev', 'myiso',
                 '-map', 'source-dir', '/',
+                '-chmod', '0755', '/', '--',
                 '--', '-find', 'hide_me', '-exec', 'hide', 'on'
             ]
         )
