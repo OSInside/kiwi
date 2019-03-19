@@ -150,6 +150,7 @@ class IsoToolsXorrIso(IsoToolsBase):
             [
                 self.get_tool_name()
             ] + self.iso_parameters + [
-                '-outdev', filename, '-map', self.source_dir, '/'
+                '-outdev', filename, '-map', self.source_dir, '/',
+                '-chmod', '0755', '/', '--'
             ] + self.iso_loaders + hidden_files_parameters
         )
