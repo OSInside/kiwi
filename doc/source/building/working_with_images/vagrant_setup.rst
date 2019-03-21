@@ -136,6 +136,9 @@ required:
    files and ensure that the user ``vagrant`` has write permissions to
    it.
 
+   Note, that the boxes that KIWI produces **require** this folder to
+   exist, otherwise Vagrant will not be able to start them properly.
+
 7. Setup and start SSH daemon
 
    In :file:`config.sh`, add the start of sshd and the initial creation of
