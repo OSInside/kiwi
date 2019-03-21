@@ -58,6 +58,7 @@ class TestDiskFormatVagrantLibVirt(object):
     def test_get_additional_vagrant_config_settings(self):
         assert self.disk_format.get_additional_vagrant_config_settings() == \
             dedent('''
+                config.vm.synced_folder ".", "/vagrant", type: "rsync"
                 config.vm.provider :libvirt do |libvirt|
                   libvirt.driver = "kvm"
                 end
@@ -81,6 +82,7 @@ class TestDiskFormatVagrantLibVirt(object):
             dedent('''
                 Vagrant.configure("2") do |config|
                   config.vm.base_mac = "00163E010101"
+                  config.vm.synced_folder ".", "/vagrant", type: "rsync"
                   config.vm.provider :libvirt do |libvirt|
                     libvirt.driver = "kvm"
                   end
