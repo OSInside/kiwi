@@ -662,7 +662,10 @@ class TestSystemSetup(object):
     @patch_open
     @patch('os.path.exists')
     @patch('kiwi.system.setup.Path.wipe')
-    def test_create_fstab(self, mock_wipe, mock_exists, mock_open):
+    @patch('kiwi.command.Command.run')
+    def test_create_fstab(
+        self, mock_command, mock_wipe, mock_exists, mock_open
+    ):
         mock_exists.return_value = True
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = 'append_entry'
@@ -676,7 +679,13 @@ class TestSystemSetup(object):
             call('fstab_entry\n'),
             call('append_entry')
         ]
-        mock_wipe.assert_called_once_with('root_dir/etc/fstab.append')
+        mock_command.assert_called_once_with(
+            ['patch', 'root_dir/etc/fstab', 'root_dir/etc/fstab.patch']
+        )
+        assert mock_wipe.call_args_list == [
+            call('root_dir/etc/fstab.append'),
+            call('root_dir/etc/fstab.patch')
+        ]
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.NamedTemporaryFile')
