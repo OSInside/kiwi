@@ -222,11 +222,14 @@ These are the optional components of an image description:
    :ref:`prepare step <prepare-step>` if present. It can be used to
    fine tune the unpacked image.
 
+   Note that the script is directly invoked by the operating system if its
+   executable bit is set. Otherwise it is called by :file:`bash` instead.
+
 #. ``images.sh`` shell script
 
-   Is the configuration shell script that runs at the begining of the
+   Is the configuration shell script that runs at the beginning of the
    create step. So it is expected to be used to handle image type specific
-   tasks.
+   tasks. It is called in a similar fashion as ``config.sh``
 
 #. Overlay tree directory
 
