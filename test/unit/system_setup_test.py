@@ -537,13 +537,19 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
-    def test_call_config_script(self, mock_os_path, mock_watch, mock_command):
+    @patch('os.stat')
+    @patch('os.access')
+    def test_call_non_excutable_config_script(
+        self, mock_access, mock_stat, mock_os_path, mock_watch, mock_command
+    ):
         result_type = namedtuple(
             'result', ['stderr', 'returncode']
         )
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
+        mock_access.return_value = False
+
         self.setup.call_config_script()
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'bash', '/image/config.sh']
@@ -552,13 +558,42 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
-    def test_call_image_script(self, mock_os_path, mock_watch, mock_command):
+    @patch('os.stat')
+    @patch('os.access')
+    def test_call_excutable_config_script(
+        self, mock_access, mock_stat, mock_os_path, mock_watch, mock_command
+    ):
+        result_type = namedtuple(
+            'result', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=0)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
+
+        # pretend that the script is executable
+        mock_access.return_value = True
+        self.setup.call_config_script()
+
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', '/image/config.sh']
+        )
+
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    @patch('os.stat')
+    @patch('os.access')
+    def test_call_image_script(
+        self, mock_access, mock_stat, mock_os_path, mock_watch, mock_command
+    ):
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
+        mock_access.return_value = False
+
         self.setup.call_image_script()
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'bash', '/image/images.sh']
@@ -616,8 +651,10 @@ class TestSystemSetup(object):
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
+    @patch('os.stat')
+    @patch('os.access')
     def test_call_image_script_raises(
-        self, mock_os_path, mock_watch, mock_command
+        self, mock_access, mock_stat, mock_os_path, mock_watch, mock_command
     ):
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
@@ -625,6 +662,8 @@ class TestSystemSetup(object):
         mock_result = result_type(stderr='stderr', returncode=1)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
+        mock_access.return_value = False
+
         self.setup.call_image_script()
 
     @raises(KiwiScriptFailed)
