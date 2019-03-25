@@ -9,6 +9,7 @@ Installation
    method to install KIWI via rpm, it is also available on `pypi
    <https://pypi.org/project/kiwi/>`__ and can be installed via pip.
 
+.. _installation-from-obs:
 
 Installation from OBS
 ---------------------
@@ -82,9 +83,10 @@ Installation from your distribution's repositories
    installing it.
 
 
-Some Linux distributions ship KIWI in their official
-repositories. These include openSUSE Tumbleweed, openSUSE Leap and Fedora
-since version 28.
+Some Linux distributions ship KIWI in their official repositories. These
+include openSUSE Tumbleweed, openSUSE Leap and Fedora since
+version 28. Note that these packages tend to not be as up to date as the
+packages from OBS, so some features described here might not exist yet.
 
 To install KIWI on openSUSE, run the following command:
 
@@ -119,6 +121,6 @@ There is a GitHub project hosting example appliance descriptions to be used
 with the next generation KIWI. Users who need an example to start with
 should clone the project as follows:
 
-.. code:: bash
+.. code-block:: shell-session
 
     $ git clone https://github.com/SUSE/kiwi-descriptions
