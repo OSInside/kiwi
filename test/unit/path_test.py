@@ -1,8 +1,10 @@
 from mock import patch, call
+from pytest import raises
 
 import os
 
 from kiwi.path import Path
+from kiwi.exceptions import KiwiFileAccessError
 
 
 class TestPath(object):
@@ -97,3 +99,28 @@ class TestPath(object):
             '"file": in paths "%s" exists: "True" mode match: "False"' %
             mock_env.return_value
         )
+
+    def test_access_invalid_mode(self):
+        with raises(ValueError) as val_err_exc:
+            Path.access("/some/non-existent-file/", 128)
+
+        assert "0x80" in str(val_err_exc)
+
+    def test_access_with_non_existent_file(self):
+        non_existent = "/some/file/that/should/not/exist"
+        with raises(KiwiFileAccessError) as kfae_exc:
+            Path.access(non_existent, os.F_OK)
+
+        assert non_existent in str(kfae_exc)
+
+    @patch('os.stat')
+    @patch('os.access')
+    def test_access_with_args(self, mock_access, mock_stat):
+        mock_access.return_value = True
+
+        fname = "arbitrary"
+        mode = os.R_OK
+        assert Path.access(fname, mode, effective_ids=True)
+
+        mock_stat.assert_called_once_with(fname)
+        mock_access.assert_called_once_with(fname, mode, effective_ids=True)

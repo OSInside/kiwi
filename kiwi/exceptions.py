@@ -778,3 +778,9 @@ class KiwiDecodingError(KiwiError):
     """
     Exception is raised on decoding literals failure
     """
+
+
+class KiwiFileAccessError(KiwiError):
+    """
+    Exception raised if accessing a file or its metadata failed
+    """
