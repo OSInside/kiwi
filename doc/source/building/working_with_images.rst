@@ -21,3 +21,4 @@ different image types.
    working_with_images/oem_ramdisk_deployment
    working_with_images/custom_partitions
    working_with_images/custom_volumes
+   working_with_images/custom_fstab_extension
