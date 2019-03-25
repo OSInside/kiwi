@@ -90,6 +90,6 @@ To use and run KIWI, you need:
   versions, the information in this guide applies to both packages, be it
   ``python3-kiwi`` or ``python2-kiwi``.
 
-* Git (package ``git-core``) to clone a repository.
+* Git (package ``git``) to clone a repository.
 
-* Virtualization technology to start the image. We recommend QEMU
+* Any virtualization technology to start the image. We recommend QEMU.

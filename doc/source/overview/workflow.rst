@@ -15,6 +15,7 @@ Basic Workflow
     complete the system usually reboots and enters a configuration procedure
     upon start-up. The configuration may be fully automatic or it may include
     user interaction.
+
     This description applies for version |version|.
 
 A system image (usually called "image"), is a *complete installation* of a Linux
