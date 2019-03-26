@@ -23,8 +23,8 @@ class SchemaNode(object):
 
     Child = namedtuple('Child', ['node', 'properties'])
 
-    @classmethod
-    def is_type(self, node):
+    @staticmethod
+    def is_type(node):
         pass
 
     def __init__(self, node, namespaces):
@@ -118,8 +118,8 @@ class SchemaNode(object):
 
 class Reference(SchemaNode):
 
-    @classmethod
-    def is_type(self, node):
+    @staticmethod
+    def is_type(node):
         if 'name' in node.attrib and node.tag.endswith('ref'):
             return True
         return False
@@ -158,8 +158,8 @@ class Reference(SchemaNode):
 
 class Attribute(SchemaNode):
 
-    @classmethod
-    def is_type(self, node):
+    @staticmethod
+    def is_type(node):
         if 'name' in node.attrib and node.tag.endswith('attribute'):
             return True
         return False
@@ -176,8 +176,8 @@ class Element(SchemaNode):
 
     Child = namedtuple('Child', ['x_path', 'properties'])
 
-    @classmethod
-    def is_type(self, node):
+    @staticmethod
+    def is_type(node):
         if 'name' in node.attrib and node.tag.endswith('element'):
             return True
         return False

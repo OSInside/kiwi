@@ -223,8 +223,8 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
-        @classmethod
-        def gds_parse_datetime(cls, input_data):
+        @staticmethod
+        def gds_parse_datetime(input_data):
             tz = None
             if input_data[-1] == 'Z':
                 tz = GeneratedsSuper._FixedOffsetTZ(0, 'UTC')
@@ -278,8 +278,8 @@ except ImportError as exp:
             except AttributeError:
                 pass
             return _svalue
-        @classmethod
-        def gds_parse_date(cls, input_data):
+        @staticmethod
+        def gds_parse_date(input_data):
             tz = None
             if input_data[-1] == 'Z':
                 tz = GeneratedsSuper._FixedOffsetTZ(0, 'UTC')
@@ -344,8 +344,8 @@ except ImportError as exp:
                     found1 = False
                     break
             return found1
-        @classmethod
-        def gds_parse_time(cls, input_data):
+        @staticmethod
+        def gds_parse_time(input_data):
             tz = None
             if input_data[-1] == 'Z':
                 tz = GeneratedsSuper._FixedOffsetTZ(0, 'UTC')
@@ -396,8 +396,8 @@ except ImportError as exp:
             return class_obj1
         def gds_build_any(self, node, type_name=None):
             return None
-        @classmethod
-        def gds_reverse_node_mapping(cls, mapping):
+        @staticmethod
+        def gds_reverse_node_mapping(mapping):
             return dict(((v, k) for k, v in mapping.iteritems()))
         @staticmethod
         def gds_encode(instring):

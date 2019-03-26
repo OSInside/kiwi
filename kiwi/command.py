@@ -42,8 +42,8 @@ class Command(object):
     commands in blocking and non blocking mode. Control of
     stdout and stderr is given to the caller
     """
-    @classmethod
-    def run(cls, command, custom_env=None, raise_on_error=True):
+    @staticmethod
+    def run(command, custom_env=None, raise_on_error=True):
         """
         Execute a program and block the caller. The return value
         is a hash containing the stdout, stderr and return code
@@ -125,8 +125,8 @@ class Command(object):
             returncode=process.returncode
         )
 
-    @classmethod
-    def call(cls, command, custom_env=None):
+    @staticmethod
+    def call(command, custom_env=None):
         """
         Execute a program and return an io file handle pair back.
         stdout and stderr are both on different channels. The caller

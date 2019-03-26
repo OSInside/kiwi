@@ -170,8 +170,8 @@ class OCIUmoci(OCIBase):
             self.container_dir, oci_config['container_tag']
         )
 
-    @classmethod                                                # noqa:C901
-    def _process_oci_config_to_arguments(cls, oci_config):
+    @staticmethod                                                # noqa:C901
+    def _process_oci_config_to_arguments(oci_config):
         """
         Process the oci configuration dictionary into a list of arguments
         for the 'umoci config' command
@@ -234,8 +234,8 @@ class OCIUmoci(OCIBase):
 
         return arguments
 
-    @classmethod
-    def _process_oci_history_to_arguments(cls, oci_config):
+    @staticmethod
+    def _process_oci_history_to_arguments(oci_config):
         history_args = []
         if 'history' in oci_config:
             if 'comment' in oci_config['history']:

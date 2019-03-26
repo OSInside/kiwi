@@ -26,8 +26,8 @@ class Shell(object):
     """
     **Special character handling for shell evaluated code**
     """
-    @classmethod
-    def quote(cls, message):
+    @staticmethod
+    def quote(message):
         """
         Quote characters which have a special meaning for bash
         but should be used as normal characters. actually I had
@@ -47,8 +47,8 @@ class Shell(object):
             message = message.replace(quote, '\\' + quote)
         return message
 
-    @classmethod
-    def quote_key_value_file(cls, filename):
+    @staticmethod
+    def quote_key_value_file(filename):
         """
         Quote given input file which has to be of the form
         key=value to be able to become sourced by the shell
@@ -65,8 +65,8 @@ class Shell(object):
         with open(temp_copy.name) as quoted:
             return quoted.read().splitlines()
 
-    @classmethod
-    def run_common_function(cls, name, parameters):
+    @staticmethod
+    def run_common_function(name, parameters):
         """
         Run a function implemented in config/functions.sh
 

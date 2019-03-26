@@ -27,8 +27,8 @@ class Privileges(object):
     """
     **Implements check for root privileges**
     """
-    @classmethod
-    def check_for_root_permissions(cls):
+    @staticmethod
+    def check_for_root_permissions():
         """
         Check if we are effectively root on the system. If not
         an exception is thrown
