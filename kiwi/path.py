@@ -21,6 +21,7 @@ import collections
 # project
 from .command import Command
 from .logger import log
+from .exceptions import KiwiFileAccessError
 
 
 class Path(object):
@@ -59,6 +60,40 @@ class Path(object):
             for path in ordered_paths_at_depth[path_depth]:
                 ordered_paths.append(path)
         return ordered_paths
+
+    @classmethod
+    def access(cls, path, mode, **kwargs):
+        """
+        Check whether path can be accessed with the given mode.
+
+        :param str path: The path that should be checked for
+            access.
+
+        :param int mode: Which access mode should be checked.
+            This value must be a bit-wise or of one or more of the following
+            constants: :py:const:`os.F_OK` (note that this one is zero),
+            :py:const:`os.X_OK`, :py:const:`os.R_OK` and :py:const:`os.W_OK`
+
+        :param kwargs: further keyword arguments are forwarded to
+            :func:`os.access`
+
+        :return: Boolean value whether this access mode is allowed
+        :rtype: bool
+
+        :raises ValueError: if the supplied mode is invalid
+        :raises kiwi.exceptions.KiwiFileNotFound: if the path does not exist or
+            is not accessible by the current user
+        """
+        if mode & ~(os.F_OK | os.X_OK | os.R_OK | os.W_OK) != 0:
+            raise ValueError("Invalid mode 0x{:X}".format(mode))
+        try:
+            os.stat(path)
+        except Exception as exc:
+            raise KiwiFileAccessError(
+                'Error accessing path {0} failed with: {1}'.format(path, exc)
+            )
+
+        return os.access(path, mode, **kwargs)
 
     @classmethod
     def create(cls, path):

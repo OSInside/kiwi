@@ -877,10 +877,13 @@ class SystemSetup(object):
             )
 
     def _call_script(self, name):
-        if os.path.exists(self.root_dir + '/image/' + name):
-            config_script = Command.call(
-                ['chroot', self.root_dir, 'bash', '/image/' + name]
-            )
+        script_path = os.path.join(self.root_dir, 'image', name)
+        if os.path.exists(script_path):
+            command = ['chroot', self.root_dir]
+            if not Path.access(script_path, os.X_OK):
+                command += ['bash']
+            command += ['/image/' + name]
+            config_script = Command.call(command)
             process = CommandProcess(
                 command=config_script, log_topic='Calling ' + name + ' script'
             )
