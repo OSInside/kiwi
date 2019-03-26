@@ -27,7 +27,7 @@ To add a live ISO build to your appliance, create a `type` element with
      <!-- snip -->
 
      <preferences>
-       <type image="iso" primary="true" flags="overlay" hybrid="true" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+       <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
        <!-- additional preferences -->
      </preferences>
 
@@ -47,7 +47,6 @@ live ISO images:
   mapper. Please note both modules support a different set of live
   features.
 
-.. no clue what this is: hybrid="true"
 - `hybridpersistent`: Accepts `true` or `false`, if set to `true`
   then the resulting image will be created with a COW file to keep data
   persistent over a reboot

@@ -84,9 +84,10 @@ Installation from your distribution's repositories
 
 
 Some Linux distributions ship KIWI in their official repositories. These
-include openSUSE Tumbleweed, openSUSE Leap and Fedora since
-version 28. Note that these packages tend to not be as up to date as the
-packages from OBS, so some features described here might not exist yet.
+include openSUSE Tumbleweed, openSUSE Leap, and Fedora since
+version 28. Note, the KIWI package on these Linux distributions can be
+outdated and consequently even some features described here do not
+exist. We recommend to get the latest KIWI version from OBS.
 
 To install KIWI on openSUSE, run the following command:
 
