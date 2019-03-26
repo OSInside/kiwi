@@ -612,14 +612,20 @@ class SystemSetup(object):
         """
         Create etc/fstab from given list of entries
 
-        Also lookup for an optional fstab.append file which allows
+        Also look for an optional fstab.append file which allows
         to append custom fstab entries to the final fstab. Once
         embedded the fstab.append file will be deleted
+
+        Also look for an optional fstab.patch file which allows
+        to patch the current contents of the fstab file with
+        a given patch file. Once patched the fstab.patch file will
+        be deleted
 
         :param list entries: list of line entries for fstab
         """
         fstab_file = self.root_dir + '/etc/fstab'
         fstab_append_file = self.root_dir + '/etc/fstab.append'
+        fstab_patch_file = self.root_dir + '/etc/fstab.patch'
 
         with open(fstab_file, 'w') as fstab:
             for entry in entries:
@@ -628,6 +634,12 @@ class SystemSetup(object):
                 with open(fstab_append_file, 'r') as append:
                     fstab.write(append.read())
                 Path.wipe(fstab_append_file)
+
+        if os.path.exists(fstab_patch_file):
+            Command.run(
+                ['patch', fstab_file, fstab_patch_file]
+            )
+            Path.wipe(fstab_patch_file)
 
     def create_init_link_from_linuxrc(self):
         """
