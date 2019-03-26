@@ -28,8 +28,8 @@ class Path(object):
     """
     **Directory path helpers**
     """
-    @classmethod
-    def sort_by_hierarchy(cls, path_list):
+    @staticmethod
+    def sort_by_hierarchy(path_list):
         """
         Sort given list of path names by their hierachy in the tree
 
@@ -61,8 +61,8 @@ class Path(object):
                 ordered_paths.append(path)
         return ordered_paths
 
-    @classmethod
-    def access(cls, path, mode, **kwargs):
+    @staticmethod
+    def access(path, mode, **kwargs):
         """
         Check whether path can be accessed with the given mode.
 
@@ -95,8 +95,8 @@ class Path(object):
 
         return os.access(path, mode, **kwargs)
 
-    @classmethod
-    def create(cls, path):
+    @staticmethod
+    def create(path):
         """
         Create path and all sub directories to target
 
@@ -106,8 +106,8 @@ class Path(object):
             ['mkdir', '-p', path]
         )
 
-    @classmethod
-    def wipe(cls, path):
+    @staticmethod
+    def wipe(path):
         """
         Delete path and all contents
 
@@ -117,8 +117,8 @@ class Path(object):
             ['rm', '-r', '-f', path]
         )
 
-    @classmethod
-    def remove(cls, path):
+    @staticmethod
+    def remove(path):
         """
         Delete empty path, causes an error if target is not empty
 
@@ -128,8 +128,8 @@ class Path(object):
             ['rmdir', path]
         )
 
-    @classmethod
-    def remove_hierarchy(cls, path):
+    @staticmethod
+    def remove_hierarchy(path):
         """
         Recursively remove an empty path and its sub directories
         ignore non empty or protected paths and leave them untouched
@@ -157,9 +157,9 @@ class Path(object):
                     ['rmdir', '--ignore-fail-on-non-empty', sub_path]
                 )
 
-    @classmethod
+    @staticmethod
     def which(
-        cls, filename, alternative_lookup_paths=None,
+        filename, alternative_lookup_paths=None,
         custom_env=None, access_mode=None
     ):
         """

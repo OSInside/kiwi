@@ -142,8 +142,8 @@ class OCIBase(object):
         """
         raise NotImplementedError
 
-    @classmethod
-    def _sync_data(cls, origin, destination, exclude_list=None, options=None):
+    @staticmethod
+    def _sync_data(origin, destination, exclude_list=None, options=None):
         """
         Synchronizes the origin and destination paths to be equivalent
 
