@@ -22,6 +22,7 @@ from kiwi.system.root_init import RootInit
 from kiwi.system.root_import import RootImport
 from kiwi.system.root_bind import RootBind
 from kiwi.repository import Repository
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.package_manager import PackageManager
 from kiwi.command_process import CommandProcess
 from kiwi.system.uri import Uri
@@ -99,6 +100,19 @@ class SystemPrepare(object):
         repository_sections = \
             self.xml_state.get_repository_sections_used_for_build()
         package_manager = self.xml_state.get_package_manager()
+        runtime_config = RuntimeConfig()
+        try:
+            package_manager_config = runtime_config._get_attribute(
+                element='package_manager_'+package_manager, attribute='options'
+            )
+            if package_manager_config is not None:
+                repository_options = package_manager_config
+                log.debug ("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)
+            else:
+                log.debug ("No custom package_manager_%s/options element found in runtime config", package_manager)
+        except Exception as e:
+            log.warning ("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
+            repository_options = []
         rpm_locale_list = self.xml_state.get_rpm_locale()
         if self.xml_state.get_rpm_check_signatures():
             repository_options.append('check_signatures')
