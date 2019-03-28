@@ -252,7 +252,8 @@ class PackageManagerZypper(PackageManagerBase):
         rpm package installed during bootstrap phase
         """
         rpmdb = RpmDataBase(self.root_dir)
-        rpmdb.set_database_to_image_path()
+        if rpmdb.has_rpm():
+            rpmdb.set_database_to_image_path()
 
     def has_failed(self, returncode):
         """

@@ -154,6 +154,7 @@ class TestPackageManagerDnf(object):
     @patch('kiwi.package_manager.dnf.RpmDataBase')
     def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):
         rpmdb = mock.Mock()
+        rpmdb.has_rpm.return_value = True
         mock_RpmDataBase.return_value = rpmdb
         self.manager.post_process_install_requests_bootstrap()
         rpmdb.set_database_to_image_path.assert_called_once_with()

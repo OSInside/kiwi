@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.9" name="TBZ-openSUSE-Tumbleweed">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Simple tar archive build, bootstrap only</specification>
+    </description>
+    <preferences>
+        <version>1.15.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="tbz"/>
+    </preferences>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
+    </repository>
+    <repository type="rpm-md" alias="Tumbleweed" priority="2">
+        <source path="obs://openSUSE:Factory/snapshot"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="vim"/>
+        <package name="openSUSE-release"/>
+        <package name="openSUSE-release-dvd"/>
+    </packages>
+</image>
