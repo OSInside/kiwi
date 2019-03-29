@@ -26,6 +26,7 @@ from .system.uri import Uri
 from .defaults import Defaults
 from .path import Path
 from .utils.command_capabilities import CommandCapabilities
+from .runtime_config import RuntimeConfig
 from .exceptions import (
     KiwiRuntimeError
 )
@@ -211,8 +212,14 @@ class RuntimeChecker(object):
 
         expected_version = (0, 1, 0)
 
-        if self.xml_state.get_build_type_name() == 'docker':
-            for tool in ['umoci', 'skopeo']:
+        if self.xml_state.get_build_type_name() in ['docker', 'oci']:
+            runtime_config = RuntimeConfig()
+            tool_name = runtime_config.get_oci_archive_tool()
+            if tool_name == 'buildah':
+                oci_tools = ['buildah', 'skopeo']
+            else:
+                oci_tools = ['umoci', 'skopeo']
+            for tool in oci_tools:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
                     raise KiwiRuntimeError(
                         message_tool_not_found.format(name=tool)

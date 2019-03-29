@@ -780,6 +780,12 @@ class KiwiDecodingError(KiwiError):
     """
 
 
+class KiwiBuildahError(KiwiError):
+    """
+    Exception raised on inconsistent buildah class calls
+    """
+
+
 class KiwiFileAccessError(KiwiError):
     """
     Exception raised if accessing a file or its metadata failed
