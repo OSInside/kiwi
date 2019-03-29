@@ -267,6 +267,19 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 setup_debug
 
+# when repartitioning disks, parted and friends might trigger re-reads of
+# the partition table, in turn triggering systemd-fsck-root.service
+# repeatedly via udev events, which finally can cause booting to fail with
+# * start request repeated too quickly for systemd-fsck-root.service
+# * Failed to start File System Check on /dev/disk/by-uuid...
+# * Dependency failed for /sysroot.
+# To avoid this, disable the root fsck (is finished at this point anyway
+# *and* the filesystem is brand new ;) by masking it.
+# "systemctl disable" does not work here, because it is event driven
+# More details: https://github.com/SUSE/kiwi/issues/1034
+info "disable systemd-fsck-root.service"
+systemctl mask systemd-fsck-root.service
+
 # initialize for disk repartition
 initialize
 
@@ -306,6 +319,9 @@ if lvm_system; then
 else
     resize_filesystem "$(get_root_map)"
 fi
+
+info "enabling systemd-fsck-root.service"
+systemctl unmask systemd-fsck-root.service
 
 # create swap space
 create_swap "$(get_swap_map)"
