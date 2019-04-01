@@ -38,6 +38,7 @@ from kiwi.path import Path
 from kiwi.archive.tar import ArchiveTar
 from kiwi.utils.compress import Compress
 from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.utils.rpm_database import RpmDataBase
 
 from kiwi.exceptions import (
     KiwiImportDescriptionError,
@@ -959,11 +960,9 @@ class SystemSetup(object):
 
     def _export_rpm_package_list(self, filename):
         log.info('Export rpm packages metadata')
-        dbpath = self._get_rpm_database_location()
-        if dbpath:
-            dbpath_option = ['--dbpath', dbpath]
-        else:
-            dbpath_option = []
+        dbpath_option = [
+            '--dbpath', self._get_rpm_database_location()
+        ]
         query_call = Command.run(
             [
                 'rpm', '--root', self.root_dir, '-qa', '--qf',
@@ -976,7 +975,9 @@ class SystemSetup(object):
             ] + dbpath_option
         )
         with open(filename, 'w') as packages:
-            packages.write(os.linesep.join(sorted(query_call.output.splitlines())))
+            packages.write(
+                os.linesep.join(sorted(query_call.output.splitlines()))
+            )
             packages.write(os.linesep)
 
     def _export_deb_package_list(self, filename):
@@ -994,16 +995,16 @@ class SystemSetup(object):
             ]
         )
         with open(filename, 'w') as packages:
-            packages.write(os.linesep.join(sorted(query_call.output.splitlines())))
+            packages.write(
+                os.linesep.join(sorted(query_call.output.splitlines()))
+            )
             packages.write(os.linesep)
 
     def _export_rpm_package_verification(self, filename):
         log.info('Export rpm verification metadata')
-        dbpath = self._get_rpm_database_location()
-        if dbpath:
-            dbpath_option = ['--dbpath', dbpath]
-        else:
-            dbpath_option = []
+        dbpath_option = [
+            '--dbpath', self._get_rpm_database_location()
+        ]
         query_call = Command.run(
             command=['rpm', '--root', self.root_dir, '-Va'] + dbpath_option,
             raise_on_error=False
@@ -1024,9 +1025,7 @@ class SystemSetup(object):
             verified.write(query_call.output)
 
     def _get_rpm_database_location(self):
-        try:
-            return Command.run(
-                ['chroot', self.root_dir, 'rpm', '-E', '%_dbpath']
-            ).output.rstrip('\r\n')
-        except Exception:
-            return None
+        rpmdb = RpmDataBase(self.root_dir)
+        if rpmdb.has_rpm():
+            return rpmdb.rpmdb_image.expand_query('%_dbpath')
+        return rpmdb.rpmdb_host.expand_query('%_dbpath')
