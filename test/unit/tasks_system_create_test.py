@@ -33,6 +33,7 @@ class TestSystemCreateTask(object):
         )
 
         self.runtime_config = mock.Mock()
+        self.runtime_config.get_disabled_runtime_checks.return_value = []
         kiwi.tasks.base.RuntimeConfig = mock.Mock(
             return_value=self.runtime_config
         )

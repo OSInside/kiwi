@@ -190,24 +190,33 @@ class RuntimeChecker(object):
             if volume.mountpoint == '/':
                 raise KiwiRuntimeError(message)
 
-    def check_docker_tool_chain_installed(self):
+    def check_container_tool_chain_installed(self):
         """
-        When creating docker images the tools umoci and skopeo are used
-        in order to create docker compatible images. This check searches
-        for those tools to be installed in the build system and fails if
-        it can't find them
+        When creating container images the specific tools are used in order
+        to import and export OCI or Docker compatible images. This check
+        searches for those tools to be installed in the build system and
+        fails if it can't find them
         """
         message_tool_not_found = dedent('''\n
             Required tool {name} not found in caller environment
 
-            Creation of docker images requires the tools umoci and skopeo
-            to be installed on the build system. For SUSE based systems
+            Creation of OCI or Docker images requires the tools {name} and
+            skopeo to be installed on the build system. For SUSE based systems
             you can find the tools at:
 
             http://download.opensuse.org/repositories/Virtualization:/containers
         ''')
         message_version_unsupported = dedent('''\n
             {name} tool found with unknown version
+        ''')
+        message_unknown_tool = dedent('''\n
+            Unknown tool: {0}.
+
+            Please configure KIWI with an appropriate value (umoci or buildah).
+            Consider this runtime configuration file syntax (/etc/kiwi.yml):
+
+            oci:
+                - archive_tool: umoci | buildah
         ''')
 
         expected_version = (0, 1, 0)
@@ -217,8 +226,10 @@ class RuntimeChecker(object):
             tool_name = runtime_config.get_oci_archive_tool()
             if tool_name == 'buildah':
                 oci_tools = ['buildah', 'skopeo']
-            else:
+            elif tool_name == 'umoci':
                 oci_tools = ['umoci', 'skopeo']
+            else:
+                raise KiwiRuntimeError(message_unknown_tool.format(tool_name))
             for tool in oci_tools:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
                     raise KiwiRuntimeError(
