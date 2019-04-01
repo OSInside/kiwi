@@ -126,7 +126,9 @@ class FileSystemBuilder(object):
             key='filesystem_image',
             filename=self.filename,
             use_for_bundle=True,
-            compress=True,
+            compress=self.runtime_config.get_bundle_compression(
+                default=True
+            ),
             shasum=True
         )
         self.result.add(

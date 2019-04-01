@@ -90,7 +90,7 @@ class RuntimeConfig(object):
             obs_public = True
         return bool(obs_public)
 
-    def is_bundle_compression_requested(self):
+    def get_bundle_compression(self, default=True):
         """
         Return boolean value to express if the image bundle should
         contain XZ compressed image results or not.
@@ -102,7 +102,10 @@ class RuntimeConfig(object):
         of the bundle is smaller and the download speed increases.
         However the image must be uncompressed before use
 
-        By default the bundle will contain compressed results.
+        If no compression is explicitly configured, the provided
+        default value applies
+
+        :param bool default: Default value
 
         :return: True or False
 
@@ -112,9 +115,7 @@ class RuntimeConfig(object):
             element='bundle', attribute='compress'
         )
         if bundle_compress is None:
-            # if the bundle compression is not set,
-            # the default is compress image results
-            bundle_compress = True
+            bundle_compress = default
         return bool(bundle_compress)
 
     def get_xz_options(self):
