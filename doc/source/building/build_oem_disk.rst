@@ -148,15 +148,17 @@ target system:
    OEM image by replacing the following setup in
    kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS/config.xml
 
+   Instead of
+
    .. code:: xml
 
-       instead of
+       <type image="oem" installiso="true"/>
 
-       <type image="oem" installiso="true" ...
+   setup
 
-       setup
+   .. code:: xml
 
-       <type image="oem" installpxe="true" ...
+       <type image="oem" installpxe="true"/>
 
 
 2. Rebuild the image, unpack the resulting
