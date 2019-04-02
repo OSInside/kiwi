@@ -128,8 +128,7 @@ class ResultBundleTask(CliTask):
                         'cp', result_file.filename, bundle_file
                     ]
                 )
-                if self.runtime_config.is_bundle_compression_requested() and \
-                   result_file.compress:
+                if result_file.compress:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
                     compress.xz(self.runtime_config.get_xz_options())

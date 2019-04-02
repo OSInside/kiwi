@@ -196,7 +196,9 @@ class PxeBuilder(object):
             key='pxe_archive',
             filename=self.archive_name,
             use_for_bundle=True,
-            compress=False,
+            compress=self.runtime_config.get_bundle_compression(
+                default=False
+            ),
             shasum=True
         )
 

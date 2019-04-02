@@ -85,7 +85,9 @@ class DiskFormatVhdFixed(DiskFormatBase):
                 self.image_format
             ),
             use_for_bundle=True,
-            compress=True,
+            compress=self.runtime_config.get_bundle_compression(
+                default=True
+            ),
             shasum=True
         )
 
