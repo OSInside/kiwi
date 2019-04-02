@@ -74,18 +74,32 @@ class TestRuntimeChecker(object):
 
     @patch('kiwi.runtime_checker.Path.which')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed(self, mock_which):
+    def test_check_container_tool_chain_installed(self, mock_which):
         mock_which.return_value = False
         xml_state = XMLState(
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
     @patch('kiwi.runtime_checker.Path.which')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed_buildah(
+    def test_check_container_tool_chain_installed_unknown_tool(
+        self, mock_which, mock_oci_tool
+    ):
+        mock_oci_tool.return_value = 'budah'
+        mock_which.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_container_tool_chain_installed()
+
+    @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
+    @patch('kiwi.runtime_checker.Path.which')
+    @raises(KiwiRuntimeError)
+    def test_check_container_tool_chain_installed_buildah(
         self, mock_which, mock_oci_tool
     ):
         mock_oci_tool.return_value = 'buildah'
@@ -94,12 +108,12 @@ class TestRuntimeChecker(object):
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed_with_version(
+    def test_check_container_tool_chain_installed_with_version(
         self, mock_cmdver, mock_which
     ):
         mock_which.return_value = True
@@ -108,13 +122,13 @@ class TestRuntimeChecker(object):
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
     @patch('kiwi.runtime_checker.CommandCapabilities.has_option_in_help')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed_with_multitags(
+    def test_check_container_tool_chain_installed_with_multitags(
         self, mock_cmdoptions, mock_cmdver, mock_which
     ):
         mock_which.return_value = True
@@ -124,7 +138,7 @@ class TestRuntimeChecker(object):
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
 
     @raises(KiwiRuntimeError)
     @patch('platform.machine')

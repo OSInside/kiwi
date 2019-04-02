@@ -135,23 +135,26 @@ class SystemBuildTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
-        self.runtime_checker.check_minimal_required_preferences()
-        self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
-        self.runtime_checker.check_boot_description_exists()
-        self.runtime_checker.check_consistent_kernel_in_boot_and_system_image()
-        self.runtime_checker.check_docker_tool_chain_installed()
-        self.runtime_checker.check_volume_setup_defines_multiple_fullsize_volumes()
-        self.runtime_checker.check_volume_setup_has_no_root_definition()
-        self.runtime_checker.check_volume_label_used_with_lvm()
-        self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
-        self.runtime_checker.check_target_directory_not_in_shared_cache(
-            abs_target_dir_path
-        )
-        self.runtime_checker.check_mediacheck_only_for_x86_arch()
-        self.runtime_checker.check_dracut_module_for_live_iso_in_package_list()
-        self.runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
-        self.runtime_checker.check_dracut_module_for_disk_oem_in_package_list()
-        self.runtime_checker.check_dracut_module_for_oem_install_in_package_list()
+
+        checks = {
+            'check_minimal_required_preferences': [],
+            'check_efi_mode_for_disk_overlay_correctly_setup': [],
+            'check_grub_efi_installed_for_efi_firmware': [],
+            'check_boot_description_exists': [],
+            'check_consistent_kernel_in_boot_and_system_image': [],
+            'check_container_tool_chain_installed': [],
+            'check_volume_setup_defines_multiple_fullsize_volumes': [],
+            'check_volume_setup_has_no_root_definition': [],
+            'check_volume_label_used_with_lvm': [],
+            'check_xen_uniquely_setup_as_server_or_guest': [],
+            'check_target_directory_not_in_shared_cache': [abs_target_dir_path],
+            'check_mediacheck_only_for_x86_arch': [],
+            'check_dracut_module_for_live_iso_in_package_list': [],
+            'check_dracut_module_for_disk_overlay_in_package_list': [],
+            'check_dracut_module_for_disk_oem_in_package_list': [],
+            'check_dracut_module_for_oem_install_in_package_list': []
+        }
+        self.run_checks(checks)
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()
@@ -190,8 +193,11 @@ class SystemBuildTask(CliTask):
                 self.command_args['--set-container-derived-from']
             )
 
-        self.runtime_checker.check_repositories_configured()
-        self.runtime_checker.check_image_include_repos_publicly_resolvable()
+        checks = {
+            'check_repositories_configured': [],
+            'check_image_include_repos_publicly_resolvable': []
+        }
+        self.run_checks(checks)
 
         log.info('Preparing new root system')
         system = SystemPrepare(

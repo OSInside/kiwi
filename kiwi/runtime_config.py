@@ -240,6 +240,21 @@ class RuntimeConfig(object):
         )
         return StringToSize.to_bytes(max_size) if max_size else None
 
+    def get_disabled_runtime_checks(self):
+        """
+        Returns disabled runtime checks. Checks can be disabled with:
+
+        runtime_checks:
+            - disable: check_container_tool_chain_installed
+
+        if the provided string does not match any RuntimeChecker method it is
+        just ignored.
+        """
+        disabled_checks = self._get_attribute(
+            element='runtime_checks', attribute='disable'
+        )
+        return disabled_checks or ''
+
     def _get_attribute(self, element, attribute):
         if self.config_data:
             try:

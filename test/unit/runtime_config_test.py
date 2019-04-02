@@ -112,3 +112,9 @@ class TestRuntimeConfig(object):
         with patch.dict('os.environ', {'HOME': './'}):
             runtime_config = RuntimeConfig()
             assert runtime_config.get_oci_archive_tool() == 'umoci'
+
+    def test_get_disabled_runtime_checks(self):
+        assert self.runtime_config.get_disabled_runtime_checks() == [
+            'check_dracut_module_for_oem_install_in_package_list',
+            'check_container_tool_chain_installed'
+        ]

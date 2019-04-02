@@ -18,6 +18,7 @@
 import os
 import logging
 import glob
+from operator import attrgetter
 
 # project
 from kiwi.cli import Cli
@@ -176,6 +177,22 @@ class CliTask(object):
                 0, 6
             )
         ]
+
+    def run_checks(self, checks):
+        """
+        This method runs the given runtime checks excluding the ones disabled
+        in the runtime configuration file.
+
+        :param dict checks: A dictionary with the runtime method names as keys
+            and their arguments list as the values.
+        """
+        exclude_list = self.runtime_config.get_disabled_runtime_checks()
+        if self.runtime_checker is not None:
+            for method, args in {
+                key: value for key, value in checks.items()
+                    if key not in exclude_list
+            }.items():
+                attrgetter(method)(self.runtime_checker)(*args)
 
     def _pop_token(self, tokens):
         token = tokens.pop(0)
