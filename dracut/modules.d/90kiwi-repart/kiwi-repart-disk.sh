@@ -260,6 +260,16 @@ function check_repart_possible {
     return 0
 }
 
+function mask_fsck_root_service {
+    info "disable systemd-fsck-root.service"
+    systemctl mask systemd-fsck-root.service
+}
+
+function unmask_fsck_root_service {
+    info "enabling systemd-fsck-root.service"
+    systemctl unmask systemd-fsck-root.service
+}
+
 #======================================
 # Perform repart/resize operations
 #--------------------------------------
@@ -277,8 +287,11 @@ setup_debug
 # *and* the filesystem is brand new ;) by masking it.
 # "systemctl disable" does not work here, because it is event driven
 # More details: https://github.com/SUSE/kiwi/issues/1034
-info "disable systemd-fsck-root.service"
-systemctl mask systemd-fsck-root.service
+
+# make sure we unmask the fsck service
+trap unmask_fsck_root_service EXIT
+
+mask_fsck_root_service
 
 # initialize for disk repartition
 initialize
@@ -319,9 +332,6 @@ if lvm_system; then
 else
     resize_filesystem "$(get_root_map)"
 fi
-
-info "enabling systemd-fsck-root.service"
-systemctl unmask systemd-fsck-root.service
 
 # create swap space
 create_swap "$(get_swap_map)"
