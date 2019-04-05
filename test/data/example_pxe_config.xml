@@ -18,16 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="pxe" filesystem="squashfs" boot="netboot/suse-13.2">
-            <pxedeploy server="192.168.100.2" blocksize="4096">
-                <partitions device="/dev/sda">
-                    <partition type="swap" number="1" size="5"/>
-                    <partition type="L" number="2" size="image" mountpoint="/" target="true"/>
-                    <partition type="L" number="3" target="false"/>
-                </partitions>
-                <union ro="/dev/sda2" rw="/dev/sda3" type="overlayfs"/>
-            </pxedeploy>
-        </type>
+        <type image="pxe" filesystem="squashfs" boot="netboot/suse-13.2"/>
     </preferences>
     <repository type="yast2">
         <source path="obs://13.2/repo/oss"/>
