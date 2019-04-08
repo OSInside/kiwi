@@ -115,7 +115,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.9</value>
+        <value>7.0</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -433,40 +433,6 @@ file was fetched</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <configuration>
-    
-  -->
-  <div>
-    <define name="k.configuration.source.attribute">
-      <ref name="k.source.attribute"/>
-    </define>
-    <define name="k.configuration.dest.attribute">
-      <ref name="k.dest.attribute"/>
-    </define>
-    <define name="k.configuration.arch.attribute">
-      <ref name="k.arch.attribute"/>
-    </define>
-    <define name="k.configuration.attlist">
-      <interleave>
-        <ref name="k.configuration.source.attribute"/>
-        <ref name="k.configuration.dest.attribute"/>
-        <optional>
-          <ref name="k.configuration.arch.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.configuration">
-      <element name="configuration">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the configuration files which should be included
-into the image after deployment</a:documentation>
-        <ref name="k.configuration.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <contact>
     
   -->
@@ -535,42 +501,6 @@ into the image after deployment</a:documentation>
         <a:documentation>Ignores a Package</a:documentation>
         <ref name="k.ignore.attlist"/>
         <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <initrd>
-    
-  -->
-  <div>
-    <define name="k.initrd.attlist">
-      <empty/>
-    </define>
-    <define name="k.initrd">
-      <element name="initrd">
-        <a:documentation>As part of the network deploy configuration this element
-specifies where the boot image (initrd) can be found</a:documentation>
-        <ref name="k.initrd.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <kernel>
-    
-  -->
-  <div>
-    <define name="k.kernel.attlist">
-      <empty/>
-    </define>
-    <define name="k.kernel">
-      <element name="kernel">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the where to find the boot kernel</a:documentation>
-        <ref name="k.kernel.attlist"/>
-        <text/>
       </element>
     </define>
   </div>
@@ -1328,33 +1258,6 @@ the /etc/fstab file or not</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <partitions>
-    
-  -->
-  <div>
-    <define name="k.partitions.device.attribute">
-      <attribute name="device">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the disk device name</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.partitions.attlist">
-      <optional>
-        <ref name="k.partitions.device.attribute"/>
-      </optional>
-    </define>
-    <define name="k.partitions">
-      <element name="partitions">
-        <a:documentation>A List of Partitions</a:documentation>
-        <ref name="k.partitions.attlist"/>
-        <oneOrMore>
-          <ref name="k.partition"/>
-        </oneOrMore>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <profile>
     
   -->
@@ -1773,23 +1676,6 @@ volume management system</a:documentation>
             <ref name="k.volume"/>
           </zeroOrMore>
         </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <timeout>
-    
-  -->
-  <div>
-    <define name="k.timeout.attlist">
-      <empty/>
-    </define>
-    <define name="k.timeout">
-      <element name="timeout">
-        <a:documentation>Specifies an ATFTP Download Timeout</a:documentation>
-        <ref name="k.timeout.attlist"/>
-        <text/>
       </element>
     </define>
   </div>
@@ -2774,9 +2660,6 @@ default.</a:documentation>
             <ref name="k.oemconfig"/>
           </optional>
           <optional>
-            <ref name="k.pxedeploy"/>
-          </optional>
-          <optional>
             <ref name="k.size"/>
           </optional>
           <optional>
@@ -2786,47 +2669,6 @@ default.</a:documentation>
             <ref name="k.vagrantconfig"/>
           </zeroOrMore>
         </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <union>
-    
-  -->
-  <div>
-    <define name="k.union.ro.attribute">
-      <attribute name="ro">
-        <a:documentation>Device only for read-only </a:documentation>
-      </attribute>
-    </define>
-    <define name="k.union.rw.attribute">
-      <attribute name="rw">
-        <a:documentation>Device for Read-Write</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.union.type.attribute">
-      <attribute name="type">
-        <a:documentation>Union type to use to overlay read-write and read-only parts</a:documentation>
-        <value>overlayfs</value>
-      </attribute>
-    </define>
-    <define name="k.union.attlist">
-      <interleave>
-        <ref name="k.union.ro.attribute"/>
-        <ref name="k.union.rw.attribute"/>
-        <ref name="k.union.type.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.union">
-      <element name="union">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the overlay filesystem setup if required by the
-filesystem type of the system image.An overlay setup is
-only required if the system image uses a squashfs
-compressed filesystem.</a:documentation>
-        <ref name="k.union.attlist"/>
-        <empty/>
       </element>
     </define>
   </div>
@@ -3192,60 +3034,6 @@ add "M" and/or "G" as postfix</a:documentation>
 on an extra volume.</a:documentation>
         <ref name="k.volume.attlist"/>
         <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    main block: <pxedeploy>
-    
-  -->
-  <div>
-    <define name="k.pxedeploy.server.attribute">
-      <attribute name="server">
-        <a:documentation>Name or IP Address of server for downloading the data</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.pxedeploy.blocksize.attribute">
-      <attribute name="blocksize">
-        <a:documentation>Blocksize value used for atftp downloads</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-    </define>
-    <define name="k.pxedeploy.attlist">
-      <interleave>
-        <optional>
-          <ref name="k.pxedeploy.server.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.pxedeploy.blocksize.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.pxedeploy">
-      <element name="pxedeploy">
-        <a:documentation>Controls the Image Deploy Process</a:documentation>
-        <interleave>
-          <ref name="k.pxedeploy.attlist"/>
-          <optional>
-            <ref name="k.timeout"/>
-          </optional>
-          <optional>
-            <ref name="k.kernel"/>
-          </optional>
-          <optional>
-            <ref name="k.initrd"/>
-          </optional>
-          <optional>
-            <ref name="k.partitions"/>
-          </optional>
-          <optional>
-            <ref name="k.union"/>
-          </optional>
-          <zeroOrMore>
-            <ref name="k.configuration"/>
-          </zeroOrMore>
-        </interleave>
       </element>
     </define>
   </div>

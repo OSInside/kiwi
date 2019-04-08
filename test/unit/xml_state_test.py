@@ -394,13 +394,6 @@ class TestXMLState(object):
         state = XMLState(xml_data, None, 'vmx')
         assert state.get_build_type_machine_section().get_guestOS() == 'suse'
 
-    def test_get_build_type_pxedeploy_section(self):
-        description = XMLDescription('../data/example_pxe_config.xml')
-        xml_data = description.load()
-        state = XMLState(xml_data, None, 'pxe')
-        assert state.get_build_type_pxedeploy_section().get_server() == \
-            '192.168.100.2'
-
     def test_get_drivers_list(self):
         assert self.state.get_drivers_list() == \
             ['crypto/*', 'drivers/acpi/*', 'bar']

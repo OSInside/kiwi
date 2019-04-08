@@ -59,7 +59,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.9" }
+        attribute schemaversion { "7.0" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -242,28 +242,6 @@ div {
 }
 
 #==========================================
-# common element <configuration>
-#
-div {
-    k.configuration.source.attribute = k.source.attribute
-    k.configuration.dest.attribute = k.dest.attribute
-    k.configuration.arch.attribute = k.arch.attribute
-    k.configuration.attlist = 
-        k.configuration.source.attribute &
-        k.configuration.dest.attribute &
-        k.configuration.arch.attribute?
-
-    k.configuration =
-        ## As part of the network deploy configuration this section
-        ## specifies the configuration files which should be included
-        ## into the image after deployment
-        element configuration {
-            k.configuration.attlist,
-            empty
-        }
-}
-
-#==========================================
 # common element <contact>
 #
 div {
@@ -307,34 +285,6 @@ div {
         element ignore {
             k.ignore.attlist,
             empty
-        }
-}
-
-#==========================================
-# common element <initrd>
-#
-div {
-    k.initrd.attlist = empty
-    k.initrd =
-        ## As part of the network deploy configuration this element
-        ## specifies where the boot image (initrd) can be found
-        element initrd {
-            k.initrd.attlist,
-            text
-        }
-}
-
-#==========================================
-# common element <kernel>
-#
-div {
-    k.kernel.attlist = empty
-    k.kernel =
-        ## As part of the network deploy configuration this section
-        ## specifies the where to find the boot kernel
-        element kernel {
-            k.kernel.attlist,
-            text
         }
 }
 
@@ -865,23 +815,6 @@ div {
 }
 
 #==========================================
-# common element <partitions>
-#
-div {
-    k.partitions.device.attribute =
-        ## As part of the network deploy configuration this section
-        ## specifies the disk device name
-        attribute device { text }
-    k.partitions.attlist = k.partitions.device.attribute?
-    k.partitions =
-        ## A List of Partitions
-        element partitions { 
-            k.partitions.attlist, 
-            k.partition+
-        }
-}
-
-#==========================================
 # common element <profile>
 #
 div {
@@ -1150,19 +1083,6 @@ div {
         element systemdisk {
             k.systemdisk.attlist &
             k.volume*
-        }
-}
-
-#==========================================
-# common element <timeout>
-#
-div {
-    k.timeout.attlist = empty
-    k.timeout = 
-        ## Specifies an ATFTP Download Timeout
-        element timeout {
-            k.timeout.attlist,
-            text
         }
 }
 
@@ -1816,40 +1736,9 @@ div {
             k.containerconfig? &
             k.machine? &
             k.oemconfig? &
-            k.pxedeploy? &
             k.size? &
             k.systemdisk? &
             k.vagrantconfig*
-        }
-}
-
-#==========================================
-# common element <union>
-#
-div {
-    k.union.ro.attribute =
-        ## Device only for read-only 
-        attribute ro { text }
-    k.union.rw.attribute =
-        ## Device for Read-Write
-        attribute rw { text }
-    k.union.type.attribute =
-        ## Union type to use to overlay read-write and read-only parts
-        attribute type { "overlayfs" }
-    k.union.attlist =
-        k.union.ro.attribute &
-        k.union.rw.attribute &
-        k.union.type.attribute
-    
-    k.union =  
-        ## As part of the network deploy configuration this section
-        ## specifies the overlay filesystem setup if required by the
-        ## filesystem type of the system image.An overlay setup is
-        ## only required if the system image uses a squashfs
-        ## compressed filesystem.
-        element union {
-            k.union.attlist,
-            empty
         }
 }
 
@@ -2064,32 +1953,6 @@ div {
         element volume {
             k.volume.attlist,
             empty
-        }
-}
-
-#==========================================
-# main block: <pxedeploy>
-#
-div {
-    k.pxedeploy.server.attribute =
-        ## Name or IP Address of server for downloading the data
-        attribute server { text }
-    k.pxedeploy.blocksize.attribute = 
-        ## Blocksize value used for atftp downloads
-        attribute blocksize { xsd:nonNegativeInteger }
-    k.pxedeploy.attlist =
-        k.pxedeploy.server.attribute? &
-        k.pxedeploy.blocksize.attribute?
-    k.pxedeploy =
-        ## Controls the Image Deploy Process
-        element pxedeploy {
-            k.pxedeploy.attlist &
-            k.timeout? &
-            k.kernel? &
-            k.initrd? &
-            k.partitions? &
-            k.union? &
-            k.configuration*
         }
 }
 
