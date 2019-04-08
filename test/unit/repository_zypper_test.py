@@ -230,6 +230,7 @@ class TestRepositoryZypper(object):
         self, mock_Path_create, mock_Command_run, mock_RpmDataBase
     ):
         rpmdb = mock.Mock()
+        rpmdb.has_rpm.return_value = False
         rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
         self.repo.setup_package_database_configuration()
@@ -242,6 +243,34 @@ class TestRepositoryZypper(object):
         )
         rpmdb.write_config.assert_called_once_with()
         rpmdb.set_database_to_host_path.assert_called_once_with()
+        rpmdb.init_database.assert_called_once_with()
+        mock_Path_create.assert_called_once_with('../data/var/lib')
+        mock_Command_run.assert_called_once_with(
+            [
+                'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
+            ], raise_on_error=False
+        )
+
+    @patch('kiwi.repository.zypper.RpmDataBase')
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Path.create')
+    def test_setup_package_database_configuration_bootstrapped_system(
+        self, mock_Path_create, mock_Command_run, mock_RpmDataBase
+    ):
+        rpmdb = mock.Mock()
+        rpmdb.has_rpm.return_value = True
+        rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
+        mock_RpmDataBase.return_value = rpmdb
+        self.repo.setup_package_database_configuration()
+        assert mock_RpmDataBase.call_args_list == [
+            call('../data', 'macros.kiwi-image-config'),
+            call('../data')
+        ]
+        rpmdb.set_macro_from_string.assert_called_once_with(
+            '_install_langs%en_US:de_DE'
+        )
+        rpmdb.write_config.assert_called_once_with()
+        rpmdb.link_database_to_host_path.assert_called_once_with()
         rpmdb.init_database.assert_called_once_with()
         mock_Path_create.assert_called_once_with('../data/var/lib')
         mock_Command_run.assert_called_once_with(

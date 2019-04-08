@@ -111,6 +111,7 @@ class TestRepositoryDnf(object):
     @patch('kiwi.repository.dnf.RpmDataBase')
     def test_setup_package_database_configuration(self, mock_RpmDataBase):
         rpmdb = mock.Mock()
+        rpmdb.has_rpm.return_value = False
         mock_RpmDataBase.return_value = rpmdb
         self.repo.setup_package_database_configuration()
         assert mock_RpmDataBase.call_args_list == [
@@ -122,6 +123,24 @@ class TestRepositoryDnf(object):
         )
         rpmdb.write_config.assert_called_once_with()
         rpmdb.set_database_to_host_path.assert_called_once_with()
+
+    @patch('kiwi.repository.dnf.RpmDataBase')
+    def test_setup_package_database_configuration_bootstrapped_system(
+        self, mock_RpmDataBase
+    ):
+        rpmdb = mock.Mock()
+        rpmdb.has_rpm.return_value = True
+        mock_RpmDataBase.return_value = rpmdb
+        self.repo.setup_package_database_configuration()
+        assert mock_RpmDataBase.call_args_list == [
+            call('../data', 'macros.kiwi-image-config'),
+            call('../data')
+        ]
+        rpmdb.set_macro_from_string.assert_called_once_with(
+            '_install_langs%en_US:de_DE'
+        )
+        rpmdb.write_config.assert_called_once_with()
+        rpmdb.link_database_to_host_path.assert_called_once_with()
 
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('os.path.exists')

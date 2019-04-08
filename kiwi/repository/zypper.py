@@ -154,7 +154,8 @@ class RepositoryZypper(RepositoryBase):
         1. Create the rpm image macro which persists during the build
         2. Create the rpm bootstrap macro to make sure for bootstrapping
            the rpm database location matches the host rpm database setup.
-           This macro only persists during the bootstrap phase
+           This macro only persists during the bootstrap phase. If the
+           image was already bootstrapped a compat link is created instead.
         3. Create zypper compat link
         """
         rpmdb = RpmDataBase(
@@ -164,7 +165,11 @@ class RepositoryZypper(RepositoryBase):
             rpmdb.set_macro_from_string(self.locale[0])
         rpmdb.write_config()
 
-        RpmDataBase(self.root_dir).set_database_to_host_path()
+        rpmdb = RpmDataBase(self.root_dir)
+        if rpmdb.has_rpm():
+            rpmdb.link_database_to_host_path()
+        else:
+            rpmdb.set_database_to_host_path()
         # Zypper compat code:
         #
         # Manually adding the compat link /var/lib/rpm that points to the
