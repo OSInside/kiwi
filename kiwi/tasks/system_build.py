@@ -139,7 +139,6 @@ class SystemBuildTask(CliTask):
         checks = {
             'check_minimal_required_preferences': [],
             'check_efi_mode_for_disk_overlay_correctly_setup': [],
-            'check_grub_efi_installed_for_efi_firmware': [],
             'check_boot_description_exists': [],
             'check_consistent_kernel_in_boot_and_system_image': [],
             'check_container_tool_chain_installed': [],
