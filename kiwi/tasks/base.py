@@ -69,6 +69,28 @@ class CliTask(object):
         # get global args
         self.global_args = self.cli.get_global_args()
 
+        # initialize generic runtime check dicts
+        self.checks_before_command_args = {
+            'check_minimal_required_preferences': [],
+            'check_efi_mode_for_disk_overlay_correctly_setup': [],
+            'check_boot_description_exists': [],
+            'check_consistent_kernel_in_boot_and_system_image': [],
+            'check_container_tool_chain_installed': [],
+            'check_volume_setup_defines_multiple_fullsize_volumes': [],
+            'check_volume_setup_has_no_root_definition': [],
+            'check_volume_label_used_with_lvm': [],
+            'check_xen_uniquely_setup_as_server_or_guest': [],
+            'check_mediacheck_only_for_x86_arch': [],
+            'check_dracut_module_for_live_iso_in_package_list': [],
+            'check_dracut_module_for_disk_overlay_in_package_list': [],
+            'check_dracut_module_for_disk_oem_in_package_list': [],
+            'check_dracut_module_for_oem_install_in_package_list': []
+        }
+        self.checks_after_command_args = {
+            'check_repositories_configured': [],
+            'check_image_include_repos_publicly_resolvable': []
+        }
+
         if should_perform_task_setup:
             # set log level
             if self.global_args['--debug']:
