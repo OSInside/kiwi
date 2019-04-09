@@ -10,7 +10,14 @@ function fetch_file {
     local source_uncompressed_bytes=$2
     local fetch_info=/tmp/fetch.info
     local fetch
-    fetch="curl -f ${source_url}"
+    local curl_options
+    curl_options=$(getarg rd.kiwi.install.pxe.curl_options=)
+    if [ -n "${curl_options}" ]; then
+        curl_options=$(str_replace "${curl_options}" "," " ")
+        fetch="curl ${curl_options} -f ${source_url}"
+    else
+        fetch="curl -f ${source_url}"
+    fi
     if _is_compressed "${source_url}";then
         fetch="${fetch} | xz -d"
     fi
