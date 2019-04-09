@@ -541,34 +541,6 @@ class RuntimeChecker(object):
         if overlayroot and firmware == 'uefi':
             raise KiwiRuntimeError(message)
 
-    def check_grub_efi_installed_for_efi_firmware(self):
-        """
-        If the image is being built with efi or uefi firmware setting
-        we need a grub(2)-...-efi package installed. The check is not 100%
-        as every distribution has different names and different requirement
-        but it is a reasonable approximation on the safe side meaning the
-        user may still get an error but should not receive a false positive
-        """
-        message = dedent('''\n
-            Firmware set to efi or uefi but not grub*efi* package is
-            part of the image build.
-        ''')
-        firmware = self.xml_state.build_type.get_firmware()
-        if firmware in ('efi', 'uefi'):
-            grub_efi_packages = (
-                'grub2-x86_64-efi',  # SUSE
-                'grub-efi',  # Debian based distros have grub-efi-*
-                'grub2-efi'  # RedHat
-            )
-            package_names = \
-                self.xml_state.get_bootstrap_packages() + \
-                self.xml_state.get_system_packages()
-            for grub_package in grub_efi_packages:
-                for package_name in package_names:
-                    if package_name.startswith(grub_package):
-                        return True
-            raise KiwiRuntimeError(message)
-
     def check_xen_uniquely_setup_as_server_or_guest(self):
         """
         If the image is classified to be used as Xen image, it can

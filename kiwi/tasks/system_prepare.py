@@ -121,25 +121,13 @@ class SystemPrepareTask(CliTask):
 
         abs_root_path = os.path.abspath(self.command_args['--root'])
 
-        checks = {
-            'check_minimal_required_preferences': [],
-            'check_efi_mode_for_disk_overlay_correctly_setup': [],
-            'check_grub_efi_installed_for_efi_firmware': [],
-            'check_boot_description_exists': [],
-            'check_consistent_kernel_in_boot_and_system_image': [],
-            'check_container_tool_chain_installed': [],
-            'check_volume_setup_defines_multiple_fullsize_volumes': [],
-            'check_volume_setup_has_no_root_definition': [],
-            'check_volume_label_used_with_lvm': [],
-            'check_xen_uniquely_setup_as_server_or_guest': [],
-            'check_target_directory_not_in_shared_cache': [abs_root_path],
-            'check_mediacheck_only_for_x86_arch': [],
-            'check_dracut_module_for_live_iso_in_package_list': [],
-            'check_dracut_module_for_disk_overlay_in_package_list': [],
-            'check_dracut_module_for_disk_oem_in_package_list': [],
-            'check_dracut_module_for_oem_install_in_package_list': []
-        }
-        self.run_checks(checks)
+        prepare_checks = self.checks_before_command_args
+        prepare_checks.update(
+            {
+                'check_target_directory_not_in_shared_cache': [abs_root_path]
+            }
+        )
+        self.run_checks(prepare_checks)
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()
@@ -178,11 +166,7 @@ class SystemPrepareTask(CliTask):
                 self.command_args['--set-container-derived-from']
             )
 
-        checks = {
-            'check_repositories_configured': [],
-            'check_image_include_repos_publicly_resolvable': []
-        }
-        self.run_checks(checks)
+        self.run_checks(self.checks_after_command_args)
 
         log.info('Preparing system')
         system = SystemPrepare(
