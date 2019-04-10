@@ -207,6 +207,32 @@ target system:
    and initrd could be fetched from any server and doesn't have to be stored
    on the `PXE_SERVER`.
 
+   By default KIWI does not use specific `curl` options or flags. However it
+   is possible to add custom ones by adding the 
+   `rd.kiwi.install.pxe.curl_options` flag into the kernel command line.
+   `curl` options are passed as comma separated values. Consider the following
+   example:
+
+   .. code:: bash
+
+       rd.kiwi.install.pxe.curl_options=--retry,3,--retry-delay,3,--speed-limit,2048
+
+   The above tells KIWI to call `curl` with:
+
+   .. code:: bash
+
+       curl --retry 3 --retry-delay 3 --speed-limit 2048 -f <url>
+
+   This is specially handy when the deployment infraestructure requires
+   some fine tuned download behavior. For example, setting retries to be
+   more robust over flaky network connections.
+
+   .. note::
+
+      KIWI just replaces commas with spaces and appends it to the
+      `curl` call. This is relevant since command line options including
+      commas will always fail.
+
    .. note::
 
       The initrd and Linux Kernel for pxe boot are always loaded via tftp
