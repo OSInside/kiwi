@@ -83,6 +83,41 @@ class SystemPrepare(object):
         # for System operations
         self.uri_list = []
 
+    def get_repository_options(self, package_manager):
+        """
+        Figure out if this repository's tools need special options requested
+        by local system configuration (beside kiwi defaults for the tool)
+
+        :param string package_manager: a package management tool name whose
+            configuration we seek to customize
+
+        :return: an array of command-line tokens for the corresponding
+            packaging tool CLI, if any (may be empty array)
+        """
+        # TODOs:
+        # * consider allowing such options only in global config YAML,
+        #   or listing in the global config which user accounts may
+        #   customize these options in their per-user YAMLs
+        # * extend the config.xml schema (and logic here) to allow such
+        #   customization of options per repository rather than just a
+        #   global setting for all invocations of the packaging tool
+        #   via kiwi, enforced for all projects on the server
+        repository_options = []
+        try:
+            runtime_config = RuntimeConfig()
+            package_manager_config = runtime_config._get_attribute(
+                element='package_manager_' + package_manager, attribute='options'
+            )
+            if package_manager_config is not None:
+                repository_options = package_manager_config
+                log.debug("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)
+            else:
+                log.debug("No custom package_manager_%s/options element found in runtime config", package_manager)
+        except Exception as e:
+            log.warning("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
+            repository_options = []
+        return repository_options
+
     def setup_repositories(self, clear_cache=False, signing_keys=None):
         """
         Set up repositories for software installation and return a
@@ -96,23 +131,10 @@ class SystemPrepare(object):
 
         :rtype: PackageManager
         """
-        repository_options = []
         repository_sections = \
             self.xml_state.get_repository_sections_used_for_build()
         package_manager = self.xml_state.get_package_manager()
-        runtime_config = RuntimeConfig()
-        try:
-            package_manager_config = runtime_config._get_attribute(
-                element='package_manager_' + package_manager, attribute='options'
-            )
-            if package_manager_config is not None:
-                repository_options = package_manager_config
-                log.debug("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)
-            else:
-                log.debug("No custom package_manager_%s/options element found in runtime config", package_manager)
-        except Exception as e:
-            log.warning("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
-            repository_options = []
+        repository_options = self.get_repository_options(package_manager)
         rpm_locale_list = self.xml_state.get_rpm_locale()
         if self.xml_state.get_rpm_check_signatures():
             repository_options.append('check_signatures')
