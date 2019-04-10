@@ -103,15 +103,15 @@ class SystemPrepare(object):
         runtime_config = RuntimeConfig()
         try:
             package_manager_config = runtime_config._get_attribute(
-                element='package_manager_'+package_manager, attribute='options'
+                element='package_manager_' + package_manager, attribute='options'
             )
             if package_manager_config is not None:
                 repository_options = package_manager_config
-                log.debug ("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)
+                log.debug("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)
             else:
-                log.debug ("No custom package_manager_%s/options element found in runtime config", package_manager)
+                log.debug("No custom package_manager_%s/options element found in runtime config", package_manager)
         except Exception as e:
-            log.warning ("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
+            log.warning("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
             repository_options = []
         rpm_locale_list = self.xml_state.get_rpm_locale()
         if self.xml_state.get_rpm_check_signatures():
