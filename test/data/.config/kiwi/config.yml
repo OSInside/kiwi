@@ -21,3 +21,8 @@ runtime_checks:
   - disable:
       - check_dracut_module_for_oem_install_in_package_list
       - check_container_tool_chain_installed
+
+package_manager_apt-get:
+  - options:
+    - -o
+    - Acquire::Check-Valid-Until=false

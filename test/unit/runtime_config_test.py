@@ -35,6 +35,13 @@ class TestRuntimeConfig(object):
     def test_get_xz_options(self):
         assert self.runtime_config.get_xz_options() == ['-a', '-b', 'xxx']
 
+    def test_get_package_manager_options(self):
+        assert self.runtime_config.get_package_manager_options('apt-get') == [
+            '-o', 'Acquire::Check-Valid-Until=false'
+        ]
+        opts_rpm = self.runtime_config.get_package_manager_options('rpm')
+        assert opts_rpm is None
+
     def test_is_obs_public(self):
         assert self.runtime_config.is_obs_public() is True
 

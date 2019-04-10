@@ -181,6 +181,13 @@ class TestSystemPrepare(object):
             signing_keys=['key-file-a.asc', 'key-file-b.asc']
         )
 
+        with patch.dict('os.environ', {'HOME': '../data'}):
+            # Load mock config.yml
+            assert self.system.get_repository_options('absent-tool') == []
+            assert self.system.get_repository_options('apt-get') == [
+                '-o', 'Acquire::Check-Valid-Until=false'
+            ]
+
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name', [
                 'check_signatures', 'exclude_docs',
