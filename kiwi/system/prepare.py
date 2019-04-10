@@ -112,8 +112,8 @@ class SystemPrepare(object):
                 log.debug("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)
             else:
                 log.debug("No custom package_manager_%s/options element found in runtime config", package_manager)
-        except Exception as e:
-            log.warning("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
+        except Exception as e:  # pragma: no cover
+            log.debug("Had some error getting custom package_manager_%s/options element found in runtime config, so ignored the setting: %s", package_manager, e)
             repository_options = []
         return repository_options
 

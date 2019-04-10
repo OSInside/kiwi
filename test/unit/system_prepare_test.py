@@ -176,18 +176,17 @@ class TestSystemPrepare(object):
         repo = mock.Mock()
         mock_repo.return_value = repo
 
-        self.system.setup_repositories(
-            clear_cache=True,
-            signing_keys=['key-file-a.asc', 'key-file-b.asc']
-        )
-
         with patch.dict('os.environ', {'HOME': '../data'}):
-            # Load mock config.yml
+            # Load mock config.yml since we patch('os.path.exists')
+            self.system.setup_repositories(
+                clear_cache=True,
+                signing_keys=['key-file-a.asc', 'key-file-b.asc']
+            )
+
             assert self.system.get_repository_options('absent-tool') == []
-            # TODO : make the test load ../data/config.yml and honestly pass this bit:
-            #assert self.system.get_repository_options('apt-get') == [
-            #    '-o', 'Acquire::Check-Valid-Until=false'
-            #]
+            assert self.system.get_repository_options('apt-get') == [
+                '-o', 'Acquire::Check-Valid-Until=false'
+            ]
 
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name', [
@@ -252,6 +251,10 @@ class TestSystemPrepare(object):
         mock_repo.return_value = repo
         self.system.setup_repositories()
         assert mock_log_warn.called
+        with patch.dict('os.environ', {'HOME': '../no-data-here'}):
+            # Cover the exception codepaths
+            self.system.setup_repositories()
+            assert mock_log_warn.called
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')

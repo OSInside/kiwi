@@ -259,7 +259,7 @@ class RuntimeConfig(object):
 
         :rtype: list
         """
-        if package_manager is None or package_manager == "" :
+        if package_manager is None or package_manager == "":
             return None
         custom_options = self._get_attribute(
             element='package_manager_' + package_manager,
