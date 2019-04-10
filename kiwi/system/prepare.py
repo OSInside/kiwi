@@ -83,7 +83,8 @@ class SystemPrepare(object):
         # for System operations
         self.uri_list = []
 
-    def get_repository_options(self, package_manager):
+    @staticmethod
+    def get_repository_options(package_manager):
         """
         Figure out if this repository's tools need special options requested
         by local system configuration (beside kiwi defaults for the tool)
