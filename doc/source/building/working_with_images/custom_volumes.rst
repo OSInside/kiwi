@@ -55,7 +55,7 @@ definition and some additional empty space for the root volume:
 
 .. code:: xml
 
-   <type ...>
+   <type>
      <systemdisk name="vgroup-name">
        <volume name="@root" freespace="5G"/>
        <volume name="home" size="40G"/>
