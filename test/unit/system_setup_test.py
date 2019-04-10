@@ -824,9 +824,10 @@ class TestSystemSetup(object):
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
+    @patch('kiwi.system.setup.MountManager')
     @patch_open
     def test_export_package_list_rpm(
-        self, mock_open, mock_RpmDataBase, mock_command
+        self, mock_open, mock_MountManager, mock_RpmDataBase, mock_command
     ):
         rpmdb = mock.Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
@@ -907,10 +908,19 @@ class TestSystemSetup(object):
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
+    @patch('kiwi.system.setup.MountManager')
     @patch_open
     def test_export_package_verification(
-        self, mock_open, mock_RpmDataBase, mock_command
+        self, mock_open, mock_MountManager, mock_RpmDataBase, mock_command
     ):
+        is_mounted_return = [True, False]
+
+        def is_mounted():
+            return is_mounted_return.pop()
+
+        shared_mount = mock.Mock()
+        shared_mount.is_mounted.side_effect = is_mounted
+        mock_MountManager.return_value = shared_mount
         rpmdb = mock.Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
         rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
@@ -930,8 +940,15 @@ class TestSystemSetup(object):
         mock_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.verified', 'w'
         )
+        mock_MountManager.assert_called_once_with(
+            device='/dev', mountpoint='root_dir/dev'
+        )
+        shared_mount.bind_mount.assert_called_once_with()
+        shared_mount.umount_lazy.assert_called_once_with()
         rpmdb.has_rpm.return_value = False
+        is_mounted_return = [True, False]
         mock_command.reset_mock()
+        shared_mount.reset_mock()
         result = self.setup.export_package_verification('target_dir')
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
@@ -940,6 +957,8 @@ class TestSystemSetup(object):
                 '--dbpath', 'host_dbpath'
             ], raise_on_error=False
         )
+        shared_mount.bind_mount.assert_called_once_with()
+        shared_mount.umount_lazy.assert_called_once_with()
 
     @patch('kiwi.system.setup.Command.run')
     @patch_open
