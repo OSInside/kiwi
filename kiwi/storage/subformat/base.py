@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 # project
 from kiwi.command import Command
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.path import Path
 from kiwi.logger import log
@@ -50,6 +51,7 @@ class DiskFormatBase(object):
         self.temp_image_dir = None
         self.image_format = None
         self.diskname = self.get_target_file_path_for_format('raw')
+        self.runtime_config = RuntimeConfig()
 
         self.post_init(custom_args)
 
@@ -187,7 +189,9 @@ class DiskFormatBase(object):
                 self.image_format
             ),
             use_for_bundle=True,
-            compress=True,
+            compress=self.runtime_config.get_bundle_compression(
+                default=True
+            ),
             shasum=True
         )
 

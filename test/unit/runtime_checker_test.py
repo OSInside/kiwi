@@ -74,18 +74,46 @@ class TestRuntimeChecker(object):
 
     @patch('kiwi.runtime_checker.Path.which')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed(self, mock_which):
+    def test_check_container_tool_chain_installed(self, mock_which):
         mock_which.return_value = False
         xml_state = XMLState(
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
+
+    @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
+    @patch('kiwi.runtime_checker.Path.which')
+    @raises(KiwiRuntimeError)
+    def test_check_container_tool_chain_installed_unknown_tool(
+        self, mock_which, mock_oci_tool
+    ):
+        mock_oci_tool.return_value = 'budah'
+        mock_which.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_container_tool_chain_installed()
+
+    @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
+    @patch('kiwi.runtime_checker.Path.which')
+    @raises(KiwiRuntimeError)
+    def test_check_container_tool_chain_installed_buildah(
+        self, mock_which, mock_oci_tool
+    ):
+        mock_oci_tool.return_value = 'buildah'
+        mock_which.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['docker'], 'docker'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        runtime_checker.check_container_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed_with_version(
+    def test_check_container_tool_chain_installed_with_version(
         self, mock_cmdver, mock_which
     ):
         mock_which.return_value = True
@@ -94,13 +122,13 @@ class TestRuntimeChecker(object):
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.CommandCapabilities.check_version')
     @patch('kiwi.runtime_checker.CommandCapabilities.has_option_in_help')
     @raises(KiwiRuntimeError)
-    def test_check_docker_tool_chain_installed_with_multitags(
+    def test_check_container_tool_chain_installed_with_multitags(
         self, mock_cmdoptions, mock_cmdver, mock_which
     ):
         mock_which.return_value = True
@@ -110,7 +138,7 @@ class TestRuntimeChecker(object):
             self.description.load(), ['docker'], 'docker'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_docker_tool_chain_installed()
+        runtime_checker.check_container_tool_chain_installed()
 
     @raises(KiwiRuntimeError)
     @patch('platform.machine')
@@ -143,118 +171,6 @@ class TestRuntimeChecker(object):
         xml_state = XMLState(description.load())
         runtime_checker = RuntimeChecker(xml_state)
         runtime_checker.check_boot_description_exists()
-
-    @raises(KiwiRuntimeError)
-    def test_check_grub_efi_installed_for_efi_firmware_is_efi(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='efi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['foo']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        runtime_checker.check_grub_efi_installed_for_efi_firmware()
-
-    def test_check_grub_efi_installed_for_efi_firmware_is_efi_debian(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='efi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['grub-efi-amd64']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        assert runtime_checker.check_grub_efi_installed_for_efi_firmware() \
-            is True
-
-    def test_check_grub_efi_installed_for_efi_firmware_is_efi_rhel(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='efi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['grub2-efi-x64']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        assert runtime_checker.check_grub_efi_installed_for_efi_firmware() \
-            is True
-
-    def test_check_grub_efi_installed_for_efi_firmware_is_efi_suse(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='efi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['grub2-x86_64-efi']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        assert runtime_checker.check_grub_efi_installed_for_efi_firmware() \
-            is True
-
-    @raises(KiwiRuntimeError)
-    def test_check_grub_efi_installed_for_efi_firmware_is_uefi(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='uefi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['foo']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        runtime_checker.check_grub_efi_installed_for_efi_firmware()
-
-    def test_check_grub_efi_installed_for_efi_firmware_is_uefi_debian(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='uefi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['grub-efi-amd64']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        assert runtime_checker.check_grub_efi_installed_for_efi_firmware() \
-            is True
-
-    def test_check_grub_efi_installed_for_efi_firmware_is_uefi_rhel(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='uefi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['grub2-efi-x64']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        assert runtime_checker.check_grub_efi_installed_for_efi_firmware() \
-            is True
-
-    def test_check_grub_efi_installed_for_efi_firmware_is_uefi_suse(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
-            return_value='uefi'
-        )
-        self.xml_state.get_bootstrap_packages = mock.Mock(
-            return_value=['grub2-x86_64-efi']
-        )
-        self.xml_state.get_system_packages = mock.Mock(
-            return_value=['bar']
-        )
-        runtime_checker = RuntimeChecker(self.xml_state)
-        assert runtime_checker.check_grub_efi_installed_for_efi_firmware() \
-            is True
 
     @raises(KiwiRuntimeError)
     def test_check_xen_uniquely_setup_as_server_or_guest_for_ec2(self):

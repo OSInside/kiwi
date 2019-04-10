@@ -39,6 +39,7 @@ class TestSystemBuildTask(object):
         )
 
         self.runtime_config = mock.Mock()
+        self.runtime_config.get_disabled_runtime_checks.return_value = []
         kiwi.tasks.base.RuntimeConfig = mock.Mock(
             return_value=self.runtime_config
         )
@@ -107,7 +108,7 @@ class TestSystemBuildTask(object):
             check_consistent_kernel_in_boot_and_system_image.\
             assert_called_once_with()
         self.runtime_checker.\
-            check_docker_tool_chain_installed.assert_called_once_with()
+            check_container_tool_chain_installed.assert_called_once_with()
         self.runtime_checker.\
             check_volume_setup_defines_multiple_fullsize_volumes.\
             assert_called_once_with()

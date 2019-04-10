@@ -32,7 +32,6 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.spelling',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
 ]
@@ -59,14 +58,14 @@ def setup(app):
 
 
 latex_documents = [
-    ('index', 'kiwi.tex', u'KIWI Documentation', u'Marcus Schäfer', 'manual')
+    ('index', 'kiwi.tex', 'KIWI Documentation', 'Marcus Schäfer', 'manual')
 ]
 latex_elements = {
     'papersize': 'a4paper',
     'pointsize':'12pt',
     'classoptions': ',openany',
     'babel': '\\usepackage[english]{babel}',
-    'preamble': ur'''
+    'preamble': r'''
       \makeatletter
       \fancypagestyle{normal}{
         \fancyhf{}
@@ -80,14 +79,6 @@ latex_elements = {
       \makeatother
     '''
 }
-
-spelling_lang = 'en_US'
-spelling_show_suggestions = True
-spelling_ignore_acronyms = True
-spelling_ignore_importable_modules = True
-spelling_ignore_python_builtins = True
-spelling_ignore_pypi_package_names = True
-spelling_word_list_filename = '.wordlists/spelling_wordlist.txt'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -106,16 +97,16 @@ master_doc = 'index'
 default_role="py:obj"
 
 # General information about the project.
-project = u'kiwi'
-copyright = u'2016, Marcus Schäfer'
-author = u'Marcus Schäfer'
+project = 'kiwi'
+copyright = '2016, Marcus Schäfer'
+author = 'Marcus Schäfer'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = u'9.17.32'
+version = '9.17.35'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -205,63 +196,63 @@ image_info_doc = 'commands/image_info'
 man_pages = [
     (
         kiwi_doc,
-        'kiwi', u'Creating Operating System Images',
+        'kiwi', 'Creating Operating System Images',
         [author],
         8
     ),
     (
         result_list_doc,
         'kiwi::result::list',
-        u'List build results',
+        'List build results',
         [author],
         8
     ),
     (
         result_bundle_doc,
         'kiwi::result::bundle',
-        u'Bundle build results',
+        'Bundle build results',
         [author],
         8
     ),
     (
         system_prepare_doc,
         'kiwi::system::prepare',
-        u'Prepare image root system',
+        'Prepare image root system',
         [author],
         8
     ),
     (
         system_create_doc,
         'kiwi::system::create',
-        u'Create image from prepared root system',
+        'Create image from prepared root system',
         [author],
         8
     ),
     (
         system_update_doc,
         'kiwi::system::update',
-        u'Update/Upgrade image root system',
+        'Update/Upgrade image root system',
         [author],
         8
     ),
     (
         system_build_doc,
         'kiwi::system::build',
-        u'Build image in combined prepare and create step',
+        'Build image in combined prepare and create step',
         [author],
         8
     ),
     (
         image_resize_doc,
         'kiwi::image::resize',
-        u'Resize disk images to new geometry',
+        'Resize disk images to new geometry',
         [author],
         8
     ),
     (
         image_info_doc,
         'kiwi::image::info',
-        u'Provide detailed information about an image description',
+        'Provide detailed information about an image description',
         [author],
         8
     )

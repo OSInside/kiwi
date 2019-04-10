@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import copy
 
 # project
 from kiwi.logger import log
@@ -80,7 +81,7 @@ class FileSystemBase(object):
                 }
         """
         if custom_args:
-            self.custom_args = custom_args
+            self.custom_args = copy.deepcopy(custom_args)
 
         if 'create_options' not in self.custom_args:
             self.custom_args['create_options'] = []

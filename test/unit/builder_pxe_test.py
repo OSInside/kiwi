@@ -105,8 +105,6 @@ class TestPxeBuilder(object):
                 'target_dir/some-image.x86_64-1.2.3.tar.xz'
             ]
         )
-        # warning for not implemented pxedeploy handling
-        assert mock_log_warn.called
 
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')

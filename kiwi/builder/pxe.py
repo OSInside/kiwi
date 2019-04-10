@@ -51,7 +51,6 @@ class PxeBuilder(object):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
-        self.pxedeploy = xml_state.get_build_type_pxedeploy_section()
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, root_dir + '/'
         )
@@ -196,7 +195,9 @@ class PxeBuilder(object):
             key='pxe_archive',
             filename=self.archive_name,
             use_for_bundle=True,
-            compress=False,
+            compress=self.runtime_config.get_bundle_compression(
+                default=False
+            ),
             shasum=True
         )
 
@@ -219,10 +220,4 @@ class PxeBuilder(object):
             compress=False,
             shasum=False
         )
-
-        if self.pxedeploy:
-            log.warning(
-                'Creation of client config file from pxedeploy not implemented'
-            )
-
         return self.result

@@ -26,6 +26,7 @@ from .system.uri import Uri
 from .defaults import Defaults
 from .path import Path
 from .utils.command_capabilities import CommandCapabilities
+from .runtime_config import RuntimeConfig
 from .exceptions import (
     KiwiRuntimeError
 )
@@ -189,18 +190,18 @@ class RuntimeChecker(object):
             if volume.mountpoint == '/':
                 raise KiwiRuntimeError(message)
 
-    def check_docker_tool_chain_installed(self):
+    def check_container_tool_chain_installed(self):
         """
-        When creating docker images the tools umoci and skopeo are used
-        in order to create docker compatible images. This check searches
-        for those tools to be installed in the build system and fails if
-        it can't find them
+        When creating container images the specific tools are used in order
+        to import and export OCI or Docker compatible images. This check
+        searches for those tools to be installed in the build system and
+        fails if it can't find them
         """
         message_tool_not_found = dedent('''\n
             Required tool {name} not found in caller environment
 
-            Creation of docker images requires the tools umoci and skopeo
-            to be installed on the build system. For SUSE based systems
+            Creation of OCI or Docker images requires the tools {name} and
+            skopeo to be installed on the build system. For SUSE based systems
             you can find the tools at:
 
             http://download.opensuse.org/repositories/Virtualization:/containers
@@ -208,11 +209,28 @@ class RuntimeChecker(object):
         message_version_unsupported = dedent('''\n
             {name} tool found with unknown version
         ''')
+        message_unknown_tool = dedent('''\n
+            Unknown tool: {0}.
+
+            Please configure KIWI with an appropriate value (umoci or buildah).
+            Consider this runtime configuration file syntax (/etc/kiwi.yml):
+
+            oci:
+                - archive_tool: umoci | buildah
+        ''')
 
         expected_version = (0, 1, 0)
 
-        if self.xml_state.get_build_type_name() == 'docker':
-            for tool in ['umoci', 'skopeo']:
+        if self.xml_state.get_build_type_name() in ['docker', 'oci']:
+            runtime_config = RuntimeConfig()
+            tool_name = runtime_config.get_oci_archive_tool()
+            if tool_name == 'buildah':
+                oci_tools = ['buildah', 'skopeo']
+            elif tool_name == 'umoci':
+                oci_tools = ['umoci', 'skopeo']
+            else:
+                raise KiwiRuntimeError(message_unknown_tool.format(tool_name))
+            for tool in oci_tools:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
                     raise KiwiRuntimeError(
                         message_tool_not_found.format(name=tool)
@@ -521,34 +539,6 @@ class RuntimeChecker(object):
         overlayroot = self.xml_state.build_type.get_overlayroot()
         firmware = self.xml_state.build_type.get_firmware()
         if overlayroot and firmware == 'uefi':
-            raise KiwiRuntimeError(message)
-
-    def check_grub_efi_installed_for_efi_firmware(self):
-        """
-        If the image is being built with efi or uefi firmware setting
-        we need a grub(2)-...-efi package installed. The check is not 100%
-        as every distribution has different names and different requirement
-        but it is a reasonable approximation on the safe side meaning the
-        user may still get an error but should not receive a false positive
-        """
-        message = dedent('''\n
-            Firmware set to efi or uefi but not grub*efi* package is
-            part of the image build.
-        ''')
-        firmware = self.xml_state.build_type.get_firmware()
-        if firmware in ('efi', 'uefi'):
-            grub_efi_packages = (
-                'grub2-x86_64-efi',  # SUSE
-                'grub-efi',  # Debian based distros have grub-efi-*
-                'grub2-efi'  # RedHat
-            )
-            package_names = \
-                self.xml_state.get_bootstrap_packages() + \
-                self.xml_state.get_system_packages()
-            for grub_package in grub_efi_packages:
-                for package_name in package_names:
-                    if package_name.startswith(grub_package):
-                        return True
             raise KiwiRuntimeError(message)
 
     def check_xen_uniquely_setup_as_server_or_guest(self):

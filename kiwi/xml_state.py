@@ -650,18 +650,6 @@ class XMLState(object):
         if systemdisk_sections:
             return systemdisk_sections[0]
 
-    def get_build_type_pxedeploy_section(self):
-        """
-        First pxedeploy section from the build type section
-
-        :return: <pxedeploy> section reference
-
-        :rtype: xml_parse::pxedeploy
-        """
-        pxedeploy_sections = self.build_type.get_pxedeploy()
-        if pxedeploy_sections:
-            return pxedeploy_sections[0]
-
     def get_build_type_machine_section(self):
         """
         First machine section from the build type section

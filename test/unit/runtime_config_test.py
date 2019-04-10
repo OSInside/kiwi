@@ -38,13 +38,14 @@ class TestRuntimeConfig(object):
     def test_is_obs_public(self):
         assert self.runtime_config.is_obs_public() is True
 
-    def test_is_bundle_compression_requested(self):
-        assert self.runtime_config.is_bundle_compression_requested() is True
+    def test_get_bundle_compression(self):
+        assert self.runtime_config.get_bundle_compression() is True
 
-    def test_is_bundle_compression_requested_default(self):
+    def test_get_bundle_compression_default(self):
         with patch.dict('os.environ', {'HOME': './'}):
             runtime_config = RuntimeConfig()
-            assert runtime_config.is_bundle_compression_requested() is True
+            assert runtime_config.get_bundle_compression(default=True) is True
+            assert runtime_config.get_bundle_compression(default=False) is False
 
     def test_is_obs_public_default(self):
         with patch.dict('os.environ', {'HOME': './'}):
@@ -111,3 +112,9 @@ class TestRuntimeConfig(object):
         with patch.dict('os.environ', {'HOME': './'}):
             runtime_config = RuntimeConfig()
             assert runtime_config.get_oci_archive_tool() == 'umoci'
+
+    def test_get_disabled_runtime_checks(self):
+        assert self.runtime_config.get_disabled_runtime_checks() == [
+            'check_dracut_module_for_oem_install_in_package_list',
+            'check_container_tool_chain_installed'
+        ]

@@ -79,8 +79,9 @@ class SystemCreateTask(CliTask):
         self.load_xml_description(
             abs_root_path
         )
-        self.runtime_checker.check_target_directory_not_in_shared_cache(
-            abs_target_dir_path
+
+        self.run_checks(
+            {'check_target_directory_not_in_shared_cache': [abs_root_path]}
         )
 
         log.info('Creating system image')

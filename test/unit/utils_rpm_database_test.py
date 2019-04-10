@@ -16,7 +16,7 @@ class TestRpmDataBase(object):
         mock_Path_which.return_value = None
         assert self.rpmdb.has_rpm() is False
         mock_Path_which.assert_called_once_with(
-            'rpm', access_mode=1, custom_env={'PATH': 'root_dir/usr/bin'}
+            'rpmdb', access_mode=1, custom_env={'PATH': 'root_dir/usr/bin'}
         )
         mock_Path_which.return_value = 'rpm'
         assert self.rpmdb.has_rpm() is True

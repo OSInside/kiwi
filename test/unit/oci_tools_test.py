@@ -25,6 +25,16 @@ class TestOCI(object):
         OCI()
         mock_OCIUmoci.assert_called_once_with()
 
+    @patch('kiwi.oci_tools.OCIBuildah')
+    @patch('kiwi.oci_tools.RuntimeConfig')
+    def test_oci_tool_buildah(
+        self, mock_RuntimeConfig, mock_OCIBuildah
+    ):
+        self.runtime_config.get_oci_archive_tool.return_value = 'buildah'
+        mock_RuntimeConfig.return_value = self.runtime_config
+        OCI()
+        mock_OCIBuildah.assert_called_once_with()
+
     @patch('kiwi.oci_tools.RuntimeConfig')
     def test_oci_tool_not_supported(self, mock_RuntimeConfig):
         self.runtime_config.get_oci_archive_tool.return_value = 'foo'
