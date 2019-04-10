@@ -41,6 +41,10 @@ class TestRuntimeConfig(object):
         ]
         opts_rpm = self.runtime_config.get_package_manager_options('rpm')
         assert opts_rpm is None
+        opts_rpm = self.runtime_config.get_package_manager_options('')
+        assert opts_rpm is None
+        opts_rpm = self.runtime_config.get_package_manager_options(None)
+        assert opts_rpm is None
 
     def test_is_obs_public(self):
         assert self.runtime_config.is_obs_public() is True
