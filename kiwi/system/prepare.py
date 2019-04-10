@@ -105,9 +105,7 @@ class SystemPrepare(object):
         repository_options = []
         try:
             runtime_config = RuntimeConfig()
-            package_manager_config = runtime_config._get_attribute(
-                element='package_manager_' + package_manager, attribute='options'
-            )
+            package_manager_config = runtime_config.get_package_manager_options(package_manager)
             if package_manager_config is not None:
                 repository_options = package_manager_config
                 log.debug("Got custom package_manager_%s/options in runtime config: %s", package_manager, repository_options)

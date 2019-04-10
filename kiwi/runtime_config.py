@@ -239,6 +239,28 @@ class RuntimeConfig(object):
         )
         return StringToSize.to_bytes(max_size) if max_size else None
 
+    def get_package_manager_options(self, package_manager):
+        """
+        Returns a customized set of command-line options for specified
+        package_manager tool (if any are customized in a config.yml);
+        note each CLI token must be a separate option. Example setting:
+            package_manager_apt-get:
+              - options:
+                - -o
+                - Acquire::Check-Valid-Until=false
+
+        :param package_manager string: name of the package management
+            tool, part of the YAML lookup key
+
+        :return: An array of strings with custom options for the tool,
+            can be empty or None if not customized in YAML (or if there
+            was a data extraction error)
+        """
+        return self._get_attribute(
+            element='package_manager_' + package_manager,
+            attribute='options'
+        ) or None
+
     def _get_attribute(self, element, attribute):
         if self.config_data:
             try:
