@@ -23,6 +23,7 @@ from collections import namedtuple
 from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.mount_manager import MountManager
 from kiwi.system.uri import Uri
 from kiwi.repository import Repository
 from kiwi.system.root_bind import RootBind
@@ -1025,7 +1026,16 @@ class SystemSetup(object):
             verified.write(query_call.output)
 
     def _get_rpm_database_location(self):
+        shared_mount = MountManager(
+            device='/dev', mountpoint=self.root_dir + '/dev'
+        )
+        if not shared_mount.is_mounted():
+            shared_mount.bind_mount()
         rpmdb = RpmDataBase(self.root_dir)
         if rpmdb.has_rpm():
-            return rpmdb.rpmdb_image.expand_query('%_dbpath')
-        return rpmdb.rpmdb_host.expand_query('%_dbpath')
+            dbpath = rpmdb.rpmdb_image.expand_query('%_dbpath')
+        else:
+            dbpath = rpmdb.rpmdb_host.expand_query('%_dbpath')
+        if shared_mount.is_mounted():
+            shared_mount.umount_lazy()
+        return dbpath
