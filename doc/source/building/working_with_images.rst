@@ -15,7 +15,7 @@ different image types.
    working_with_images/setup_pxe_bootserver
    working_with_images/setup_yast_on_first_boot
    working_with_images/pxe_client_configuration
-   working_with_images/uninstall_package_requests 
+   working_with_images/uninstall_package_requests
    working_with_images/vagrant_setup
    working_with_images/pxe_live_iso_boot
    working_with_images/oem_ramdisk_deployment

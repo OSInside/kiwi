@@ -18,6 +18,7 @@ Building Images
    building/build_pxe_root_filesystem
    building/build_docker_container
    building/build_containerized
+   building/build_with_profiles
    building/build_in_buildservice
    building/working_with_images
 
