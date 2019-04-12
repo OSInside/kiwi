@@ -1346,13 +1346,8 @@ definition can be composed by other existing profiles.</a:documentation>
           <value>apt-rpm</value>
           <value>deb-dir</value>
           <value>mirrors</value>
-          <value>red-carpet</value>
           <value>rpm-dir</value>
           <value>rpm-md</value>
-          <value>slack-site</value>
-          <value>up2date-mirrors</value>
-          <value>urpmi</value>
-          <value>yast2</value>
         </choice>
       </attribute>
     </define>
