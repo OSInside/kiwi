@@ -14,7 +14,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="uefi" format="vmdk">
             <systemdisk>
@@ -35,7 +35,7 @@
         <package name="patterns-base-minimal_base"/>
         <package name="bind-utils"/>
         <package name="systemd"/>
-        <package name="plymouth-branding-openSUSE"/>
+        <package name="plymouth-theme-bgrt"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="ifplugd"/>
         <package name="iputils"/>
