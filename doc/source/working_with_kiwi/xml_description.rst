@@ -12,6 +12,8 @@ appliance that will be build by KIWI, for example:
 - packages to be installed on the system
 - users to be added
 
+.. TODO: add a better introduction here
+
 The following sections will walk you through the major elements and
 attributes of the RELAX NG schema [#f1]_. A complete description of the
 schema can be found in :ref:`schema-docs`.
@@ -229,11 +231,11 @@ remaining child-elements of `preferences`:
   schemes are possible, e.g. one can use the version of the underlying
   operating system.
 
-- `packagemanager`: Specify the package manager that will be used to
-  download and install the packages for your appliance. Currently the
-  following package managers are supported: apt-get, zypper and dnf. Note
-  that the package manager must be installed on the system **calling**
-  KIWI, it is **not** sufficient to install it inside the appliance.
+- `packagemanager`: Specify the package manager that will be used to download
+  and install the packages for your appliance. Currently the following package
+  managers are supported: ``apt-get``, ``zypper`` and ``dnf``. Note that the
+  package manager must be installed on the system **calling** KIWI, it is
+  **not** sufficient to install it inside the appliance.
 
 - `locale`: Specify the locale that the resulting appliance will use.
 
@@ -592,6 +594,8 @@ following paths types:
   pointing to the mounted ISO.
 
 
+.. _xml-description-adding-and-removing-packages:
+
 Adding and removing packages
 ----------------------------
 
@@ -707,13 +711,16 @@ for the archive in the image description folder).
 .. code-block:: xml
 
    <packages type="image">
-     <archive name="custom-archive.tgz"/>
+     <archive name="custom-program1.tgz"/>
+     <archive name="custom-program2.tar"/>
    </packages>
 
 KIWI will extract the archive into the root directory of the image using
 `GNU tar <https://www.gnu.org/software/tar/>`_, thus only archives
-supported by it can be included.
-
+supported by it can be included. When multiple `archive` elements are
+specified then they will be applied in a top to bottom order. If a file is
+already present in the image, then the file from the archive will overwrite
+it (same as with the image overlay).
 
 .. _xml-description-product-and-namedCollection-element:
 
