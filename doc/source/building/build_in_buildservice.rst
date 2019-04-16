@@ -245,7 +245,7 @@ It provides a good starting point and can be adapted to your OBS project.
 .. [#f2] :file:`osc` compresses added folders into a `cpio
    <https://en.wikipedia.org/wiki/Cpio>`_ archive and decompresses it
    before running your builds. The only downside of this is, that the
-   contents of your overlay are not conveniently visible via the web
+contents of your overlay is not conveniently visible via the web
    interface.
 
 .. [#f3] Taken from the project
