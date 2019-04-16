@@ -137,6 +137,9 @@ The notable differences to running KIWI locally include:
   in mind when adding the overlay files inside the :file:`root/` directory
   to your project.
 
+* OBS ignores file permissions. Therefore :file:`config.sh` and
+  :file:`images.sh` will **always** be executed through BASH (see also:
+  :ref:`working-with-kiwi-user-defined-scripts`).
 
 .. _obs-recommended-settings:
 

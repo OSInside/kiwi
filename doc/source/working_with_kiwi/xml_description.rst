@@ -835,10 +835,8 @@ appliance:
    breaking dependencies and compromising the underlying package database.
 
 Both types of removals take place after :file:`config.sh` is run in the
-:ref:`prepare step <prepare-step>`.
-
-.. FIXME:
-   add this back (see also :ref:`working-with-kiwi-user-defined-scripts`).
+:ref:`prepare step <prepare-step>` (see also
+:ref:`working-with-kiwi-user-defined-scripts`).
 
 .. warning::
 
@@ -882,10 +880,9 @@ custom program in :file:`config.sh`. We ship its source code via an
 
 The tools `meson`, `clang` and `ninja` are then available during the
 :ref:`prepare step <prepare-step>` and can thus be used in
-:file:`config.sh`, for example to build ``foo_app``:
-
-.. FIXME:
-   add this back: (for further details, see :ref:`working-with-kiwi-user-defined-scripts`)
+:file:`config.sh` (for further details, see
+:ref:`working-with-kiwi-user-defined-scripts`), for example to build
+``foo_app``:
 
 .. code-block:: bash
 
