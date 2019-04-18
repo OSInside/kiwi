@@ -751,6 +751,15 @@ function baseStripFirmware {
             done
         done
     done
+    # Preserve licenses and txt files (which are needed for some firmware blobs)
+    find /lib/firmware \( -name 'LICENSE*' -o -name '*txt' \) -print | while read -r match; do
+        if [ -e "${match}" ];then
+            match=$(echo "${match}" | sed -e 's@\/lib\/firmware\/@@')
+            bmdir=$(dirname "${match}")
+            mkdir -p "/lib/firmware-required/${bmdir}"
+            mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
+        fi
+    done
     rm -rf /lib/firmware
     mv /lib/firmware-required /lib/firmware
 }
