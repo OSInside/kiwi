@@ -274,50 +274,25 @@ class Profile(object):
         # kiwi_btrfs_root_is_snapshot
         # kiwi_startsector
         type_section = self.xml_state.build_type
+        for var_name in (
+                'compressed', 'wwid_wait_timeout', 'hybridpersistent',
+                'hybridpersistent_filesystem', 'ramonly', 'target_blocksize',
+                'target_removable', 'firmware', 'bootloader',
+                'bootloader_console', 'btrfs_root_is_snapshot',
+                'gpt_hybrid_mbr', 'devicepersistency', 'installboot',
+                'bootkernel', 'fsmountoptions', 'bootprofile', 'vga'
+        ):
+            self.dot_profile['kiwi_' + var_name] = \
+                getattr(type_section, 'get_' + var_name)()
+
         self.dot_profile['kiwi_type'] = \
             type_section.get_image()
-        self.dot_profile['kiwi_compressed'] = \
-            type_section.get_compressed()
         self.dot_profile['kiwi_boot_timeout'] = \
             type_section.get_boottimeout()
-        self.dot_profile['kiwi_wwid_wait_timeout'] = \
-            type_section.get_wwid_wait_timeout()
-        self.dot_profile['kiwi_hybridpersistent'] = \
-            type_section.get_hybridpersistent()
-        self.dot_profile['kiwi_hybridpersistent_filesystem'] = \
-            type_section.get_hybridpersistent_filesystem()
         self.dot_profile['kiwi_initrd_system'] = \
             self.xml_state.get_initrd_system()
-        self.dot_profile['kiwi_ramonly'] = \
-            type_section.get_ramonly()
-        self.dot_profile['kiwi_target_blocksize'] = \
-            type_section.get_target_blocksize()
-        self.dot_profile['kiwi_target_removable'] = \
-            type_section.get_target_removable()
         self.dot_profile['kiwi_cmdline'] = \
             type_section.get_kernelcmdline()
-        self.dot_profile['kiwi_firmware'] = \
-            type_section.get_firmware()
-        self.dot_profile['kiwi_bootloader'] = \
-            type_section.get_bootloader()
-        self.dot_profile['kiwi_bootloader_console'] = \
-            type_section.get_bootloader_console()
-        self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
-            type_section.get_btrfs_root_is_snapshot()
-        self.dot_profile['kiwi_gpt_hybrid_mbr'] = \
-            type_section.get_gpt_hybrid_mbr()
-        self.dot_profile['kiwi_devicepersistency'] = \
-            type_section.get_devicepersistency()
-        self.dot_profile['kiwi_installboot'] = \
-            type_section.get_installboot()
-        self.dot_profile['kiwi_bootkernel'] = \
-            type_section.get_bootkernel()
-        self.dot_profile['kiwi_fsmountoptions'] = \
-            type_section.get_fsmountoptions()
-        self.dot_profile['kiwi_bootprofile'] = \
-            type_section.get_bootprofile()
-        self.dot_profile['kiwi_vga'] = \
-            type_section.get_vga()
         self.dot_profile['kiwi_startsector'] = \
             self.xml_state.get_disk_start_sector()
 
