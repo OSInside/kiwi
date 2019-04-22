@@ -48,10 +48,9 @@ build without modifications.
 
 The notable differences to running KIWI locally include:
 
-* OBS will pick the KIWI package from the available repositories that you
-  specified in :file:`config.xml`/:file:`config.kiwi`. This means, that you
-  will be very likely building with a different KIWI version in the Open
-  Build Service.
+* OBS will pick the KIWI package from the repositories configured in your
+  project, which will most likely not be the same version that you are
+  running locally.
   This is especially relevant when building images for older versions like
   SUSE Linux Enterprise. Therefore, include the custom appliances
   repository as described in the following section:
@@ -62,7 +61,7 @@ The notable differences to running KIWI locally include:
   local build (where your distributions package manager will resolve the
   dependencies and install the packages), OBS will **not** build your image
   if there are multiple packages that could be chosen to satisfy the
-  dependencies of your packages. This manifests as errors like this:
+  dependencies of your packages [#f1]_. This shows errors like this:
 
   .. code:: bash
 
@@ -79,45 +78,21 @@ The notable differences to running KIWI locally include:
   accessed either via the web interface (click on the tab ``Project
   Config`` on your project's main page) or via ``osc meta -e prjconf``.
 
-* OBS can only build a single image type, for example it cannot build a VMX
-  disk and a live ISO from one :file:`config.xml`. A configuration file
-  that contains multiple image types will therefore not work in the Open
-  Build Service.
-  Split the configuration file into two (or more) :file:`.kiwi` files and
-  provide them as separate packages inside your project.
+  .. warning:: We strongly encourage you to remove your repositories from
+     :file:`config.xml` and move them to the repository configuration in
+     your project's settings. This usually prevents the issue of having the
+     choice for multiple package version and results in a much smoother
+     experience when using OBS.
 
-* OBS projects do not support subfolders, thus you must provide the overlay
-  files packed as an archive called :file:`root.tar.gz`.
+* OBS will by default only build a single image type. If your appliance
+  contains the multiple build types or uses profiles, use the `multibuild
+  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_
+  feature (see :ref:`building-build-with-profiles`).
 
-* OBS projects do not support the use of the ``namedCollection`` section.
-
-  A specification of ``<namedCollection name="collection_name"/>`` is used
-  to pass the information to install a collection of packages to the used
-  package manager. The package manager can resolve that information only if
-  the repository metadata contains the information about that collection
-  and its packages. If the Open Build Service builds the image, it resolves
-  the given package list using its own SAT based solver. That result is
-  used by the Open Build Service to create temporary repositories of the
-  same names as they got configured in the KIWI XML description. Those
-  repositories don't contain the metadata to resolve collections.
-
-  Even though KIWI uses the package manager to register the repositories,
-  one should keep in mind that the repositories the Open Build Service
-  creates, contain just a subset of the data that the real repositories
-  provide.
-
-  Furthermore, the Open Build Service applies a different dependency
-  resolution mechanism to create the repositories before KIWI is
-  called. The differences compared to the dependency resolution of the
-  selected package manager when KIWI calls it are:
-
-  * In the Open Build Service the order of repositories in the XML description
-    matters
-  * In the Open Build Service package dependencies from file provides are not
-    resolved
-
-  Because of this reason an image build that resolves well outside of the
-  Open Build Service might no longer do so on OBS.
+* Subfolders in OBS projects are ignored by default by :file:`osc` and must
+  be explicitly added via `osc add $FOLDER` [#f2]_. Bear that in mind when
+  adding the overlay files inside the :file:`root/` directory to your
+  project.
 
 
 .. _obs-recommended-settings:
@@ -137,46 +112,92 @@ OBS.
 Repository Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-We strongly encourage everyone to include the following repository in the
-KIWI :file:`config.xml` configuration file:
+When setting up the project, enable the `images` repository: the `images`
+repository's checkbox can be found at the bottom of the selection screen
+that appears when clicking `Add from a Distribution` in the `Repositories`
+tab. Or specify it manually in the project configuration (it can be
+accessed via ``osc meta -e prj``):
 
-.. code:: xml
-
-  <repository type="rpm-md" alias="kiwi-next-generation">
-      <source path="obs://Virtualization:Appliances:Builder/$DISTRO"/>
-  </repository>
-
-Replace ``$DISTRO`` with the appropriate name for the distribution that you
-are currently building. This repository contains the latest stable build of
-KIWI (which is in fact the same repository that was recommended to be added
-in :ref:`kiwi-installation`) and will ensure that OBS will use the most up
-to date version of KIWI when building your appliance, thereby reducing the
-possible differences to a local build.
-
-
-Project Configuration
-^^^^^^^^^^^^^^^^^^^^^
-
-When setting up the project enable the ``images`` repository: it can be
-found at the bottom of the selection screen that appears when clicking
-``Add from a Distribution`` in the ``Repositories`` tab. Or specify it
-manually in the project configuration (it can be accessed via ``osc meta -e
-prj``):
-
-.. code:: xml
+.. code-block:: xml
 
   <repository name="images">
     <arch>x86_64</arch>
   </repository>
 
+Furthermore, OBS requires additional repositories from which it obtains
+your dependent packages. These repositories can be provided in two ways:
 
-Due to the nature of OBS' dependency resolution mechanism a lot of
-``Prefer:``, ``Substitute:``, ``Preinstall:`` and ``Support:`` directives
-are required for an image to build successfully without having choices or
-conflicts for packages. We therefore recommend to initially copy the
-current project configuration of the testing project
-`Virtualization:Appliances:Images:Testing_$ARCH` into your own project as a
-start and tweak it from there instead of starting from scratch.
+#. Add the repositories to the project configuration on OBS and omit them
+   from :file:`config.xml`. Provide only the following repository inside
+   the image description:
+
+   .. code-block:: xml
+
+      <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+      </repository>
+
+   This instructs OBS to inject the repositories from your project into
+   your appliance (see also
+   :ref:`xml-description-supported-supported-repository-paths`).
+
+   Additional repositories can be added by invoking ``osc meta -e prj`` and
+   adding a line of the following form as a child of ``<repository
+   name="images">``:
+
+   .. code-block:: xml
+
+      <path project="$OBS_PROJECT" repository="$REPOSITORY_NAME"/>
+
+   Don't forget to add the repository from the
+   `Virtualization:Appliances:Builder` project, providing the latest stable
+   version of KIWI (which you are very likely using for your local builds).
+
+   The following example repository configuration [#f3]_ adds the
+   repositories from the `Virtualization:Appliances:Builder` project and
+   those from the latest snapshot of openSUSE Tumbleweed:
+
+   .. code-block:: xml
+
+      <project name="Virtualization:Appliances:Images:openSUSE-Tumbleweed">
+        <title>JeOS for Tumbleweed </title>
+        <description>Host JeOS images for Tumbleweed</description>
+        <repository name="images">
+          <path project="Virtualization:Appliances:Builder" repository="Factory"/>
+          <path project="openSUSE:Factory" repository="snapshot"/>
+          <arch>x86_64</arch>
+        </repository>
+      </project>
+
+
+#. Keep the repositories in your :file:`config.xml` configuration
+   file. If you have installed KIWI as described in
+   :ref:`kiwi-installation` then you should add the following repository to
+   your :file:`config.xml`, so that OBS will pick the latest stable KIWI
+   version too:
+
+   .. code-block:: xml
+
+      <repository type="rpm-md" alias="kiwi-next-generation">
+        <source path="obs://Virtualization:Appliances:Builder/$DISTRO"/>
+      </repository>
+
+   Replace ``$DISTRO`` with the appropriate name for the distribution that
+   you are currently building.
+
+
+We recommend to use the first method, as it integrates better into
+OBS. Note however, that you will be unable to build images for different
+distributions from the same OBS project when adding repositories to your
+project's configuration (method 1.). The problem is, that all your image
+builds share the same repositories. This will result in dependency
+conflicts for different distributions. On the other hand this approach
+requires a lot less workarounds in the project configuration then adding
+the repositories via the :file:`config.xml`.
+
+
+Project Configuration
+^^^^^^^^^^^^^^^^^^^^^
 
 The Open Build Service will by default create the same output file as KIWI
 when run locally, but with a custom filename ending (that is unfortunately
@@ -195,3 +216,41 @@ setting is not sufficient. The following additional line is required:
 .. code:: bash
 
    Release: <CI_CNT>.<B_CNT>
+
+If build Vagrant images (see :ref:`setup_vagrant`) add the repository-type
+`vagrant`. OBS creates a `boxes/` subdirectory in your download
+repositories, which contains JSON files for Vagrant [#f4]_.
+
+
+If you have added your repositories to :file:`config.xml`, you probably see
+errors of the following type:
+
+.. code:: bash
+
+   unresolvable: have choice for SOMEPACKAGE: SOMEPAKAGE_1 SOMEPACKAGE_2
+
+Instead of starting from scratch and manually adding ``Prefer:`` statements
+to the project configuration, we recommend to copy the current project
+configuration of the testing project
+`Virtualization:Appliances:Images:Testing_$ARCH` into your own project.
+It provides a good starting point and can be adapted to your OBS project.
+
+
+.. [#f1] This is a design decision made by OBS: as it's purpose is to build
+   packages in a reproducible fashion it cannot make a decision which
+   package to choose from multiple available ones. A package manager build
+   for end-users on the other hand **must** make an a choice, as it would
+   be otherwise hardly usable.
+
+.. [#f2] :file:`osc` compresses added folders into a `cpio
+   <https://en.wikipedia.org/wiki/Cpio>`_ archive and decompresses it
+   before running your builds. The only downside of this is, that the
+contents of your overlay is not conveniently visible via the web
+   interface.
+
+.. [#f3] Taken from the project
+   `Virtualization:Appliances:Images:openSUSE-Tumbleweed
+   <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:openSUSE-Tumbleweed>`_
+
+.. [#f4] Vagrant uses these JSON files for automatic updates of your
+   Vagrant boxes.
