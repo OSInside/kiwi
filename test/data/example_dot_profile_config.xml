@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.0" name="LimeJeOS-openSUSE-13.2" displayname="schäfer">
+<image schemaversion="7.1" name="LimeJeOS-openSUSE-13.2" displayname="schäfer">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -42,7 +42,7 @@
     <users>
         <user groups="root" password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
     </users>
-    <repository type="yast2">
+    <repository>
         <source path="obs://13.2/repo/oss"/>
     </repository>
     <packages type="image">

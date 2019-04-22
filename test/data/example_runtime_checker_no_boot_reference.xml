@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.0" name="JeOS">
+<image schemaversion="7.1" name="JeOS">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -18,7 +18,7 @@
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" initrd_system="kiwi" filesystem="ext3"/>
     </preferences>
-    <repository type="yast2">
+    <repository>
         <source path="obs://13.2/repo/oss"/>
     </repository>
     <packages type="image">

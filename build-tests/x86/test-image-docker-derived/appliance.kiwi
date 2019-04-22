@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.0" name="docker-builder-image">
+<image schemaversion="7.1" name="docker-builder-image">
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.de</contact>
