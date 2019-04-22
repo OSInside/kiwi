@@ -43,6 +43,25 @@ class TestRpmDataBase(object):
         self.rpmdb.rpmdb_image.write_config.assert_called_once_with()
         self.rpmdb.rpmdb_host.get_query.assert_called_once_with('_dbpath')
 
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    def test_link_database_to_host_path(self, mock_exists, mock_Command_run):
+        self.rpmdb.rpmdb_image.expand_query.return_value = \
+            '/var/lib/rpm'
+        self.rpmdb.rpmdb_host.expand_query.return_value = \
+            '/usr/lib/sysimage/rpm'
+        mock_exists.return_value = False
+        self.rpmdb.link_database_to_host_path()
+        assert mock_Command_run.call_args_list == [
+            call(['mkdir', '-p', 'root_dir/usr/lib/sysimage']),
+            call(
+                [
+                    'ln', '-s', '../../../var/lib/rpm',
+                    'root_dir/usr/lib/sysimage/rpm'
+                ]
+            )
+        ]
+
     @patch('kiwi.utils.rpm_database.Path.wipe')
     @patch('kiwi.command.Command.run')
     @patch('os.path.islink')
@@ -53,7 +72,13 @@ class TestRpmDataBase(object):
         mock_Command_run, mock_Path_wipe
     ):
         mock_os_exists.return_value = True
-        mock_os_islink.return_value = False
+
+        link = [False, False]
+
+        def mocked_islink(path):
+            return link.pop()
+
+        mock_os_islink.side_effect = mocked_islink
         self.rpmdb.rpmdb_image.expand_query.return_value = \
             '/var/lib/rpm'
         self.rpmdb.rpmdb_host.expand_query.return_value = \
@@ -87,10 +112,17 @@ class TestRpmDataBase(object):
             )
         ]
         assert self.rpmdb.rpmdb_image.wipe_config.call_count == 2
-        mock_os_islink.return_value = True
+        link = [True, False]
+        mock_os_islink.side_effect = mocked_islink
         self.rpmdb.set_database_to_image_path()
         mock_os_unlink.assert_called_once_with(
             'root_dir/var/lib/rpm'
+        )
+        link = [True, True]
+        mock_os_islink.side_effect = mocked_islink
+        self.rpmdb.set_database_to_image_path()
+        assert mock_Command_run.call_args_list[-1] == call(
+            ['chroot', 'root_dir', 'rpmdb', '--rebuilddb']
         )
 
     def test_set_macro_from_string(self):
