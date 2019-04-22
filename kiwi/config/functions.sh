@@ -1187,22 +1187,6 @@ function suseCleanup {
 }
 
 #======================================
-# suseRemovePackagesMarkedForDeletion
-#--------------------------------------
-function suseRemovePackagesMarkedForDeletion {
-    # /.../
-    # This function removes all packages which are
-    # added into the <packages type="delete"> section
-    # ----
-    local packs
-    local final
-    packs=$(baseGetPackagesForDeletion)
-    final=$(rpm -q "${packs}" | grep -v "is not installed")
-    echo "suseRemovePackagesMarkedForDeletion: ${final}"
-    Rpm -e --nodeps --noscripts "${final}"
-}
-
-#======================================
 # suseRemoveYaST
 #--------------------------------------
 function suseRemoveYaST {
