@@ -14,7 +14,7 @@ else
     cat > ../doc/source/development/schema.rst <<- EOF
 	.. _schema-docs:
 
-	Schema Documentation 6.9
+	Schema Documentation 7.1
 	========================
 
 	.. raw:: html

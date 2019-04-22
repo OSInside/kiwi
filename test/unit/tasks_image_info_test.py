@@ -118,7 +118,7 @@ class TestImageInfoTask(object):
         self.task.process()
         assert self.solver.add_repository.called
         assert mock_uri.call_args_list == [
-            call('iso:///image/CDs/dvd.iso', 'yast2'),
+            call('iso:///image/CDs/dvd.iso', None),
             call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md')
         ]
         mock_out.assert_called_once_with(self.result_info)
@@ -128,11 +128,11 @@ class TestImageInfoTask(object):
     def test_process_image_info_add_repo(self, mock_out, mock_state):
         self._init_command_args()
         self.task.command_args['--add-repo'] = [
-            'http://example.com,yast2,alias'
+            'http://example.com,rpm-md,alias'
         ]
         self.task.process()
         mock_state.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None
+            'http://example.com', 'rpm-md', 'alias', None
         )
 
     @patch('kiwi.xml_state.XMLState.delete_repository_sections')

@@ -199,7 +199,7 @@ class TestSystemPrepare(object):
         ]
         assert repo.add_repo.call_args_list == [
             call(
-                'uri-alias', 'uri', 'yast2', 42,
+                'uri-alias', 'uri', None, 42,
                 None, None, None, None, 'credentials-file', None, None
             ),
             call(

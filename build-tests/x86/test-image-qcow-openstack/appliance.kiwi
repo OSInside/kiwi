@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.0" name="TW-OpenStack">
+<image schemaversion="7.1" name="TW-OpenStack">
     <description type="system">
         <author>KIWI Team</author>
         <contact>kiwi-images@googlegroups.com</contact>
