@@ -86,8 +86,7 @@ The notable differences to running KIWI locally include:
 
 * OBS will by default only build a single image type. If your appliance
   contains the multiple build types or uses profiles, use the `multibuild
-  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_
-  feature (see :ref:`building-build-with-profiles`).
+  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_ feature.
 
 * Subfolders in OBS projects are ignored by default by :file:`osc` and must
   be explicitly added via `osc add $FOLDER` [#f2]_. Bear that in mind when
@@ -138,8 +137,7 @@ your dependent packages. These repositories can be provided in two ways:
       </repository>
 
    This instructs OBS to inject the repositories from your project into
-   your appliance (see also
-   :ref:`xml-description-supported-supported-repository-paths`).
+   your appliance.
 
    Additional repositories can be added by invoking ``osc meta -e prj`` and
    adding a line of the following form as a child of ``<repository
@@ -245,7 +243,7 @@ It provides a good starting point and can be adapted to your OBS project.
 .. [#f2] :file:`osc` compresses added folders into a `cpio
    <https://en.wikipedia.org/wiki/Cpio>`_ archive and decompresses it
    before running your builds. The only downside of this is, that the
-contents of your overlay is not conveniently visible via the web
+   contents of your overlay is not conveniently visible via the web
    interface.
 
 .. [#f3] Taken from the project
