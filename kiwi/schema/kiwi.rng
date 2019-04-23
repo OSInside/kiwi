@@ -2728,9 +2728,7 @@ to the user according to he specifing toolchain behaviour.</a:documentation>
           <ref name="k.user.id.attribute"/>
         </optional>
         <ref name="k.user.name.attribute"/>
-        <optional>
-          <ref name="k.user.password.attribute"/>
-        </optional>
+        <ref name="k.user.password.attribute"/>
         <optional>
           <ref name="k.user.pwdformat"/>
         </optional>
