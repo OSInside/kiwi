@@ -1772,7 +1772,7 @@ div {
         k.user.home.attribute &
         k.user.id.attribute? &
         k.user.name.attribute &
-        k.user.password.attribute? &
+        k.user.password.attribute &
         k.user.pwdformat? &
         k.user.realname.attribute? &
         k.user.shell.attribute?
