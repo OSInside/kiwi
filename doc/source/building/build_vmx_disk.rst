@@ -12,7 +12,7 @@ Build a Virtual Disk Image
    - how to run it with QEMU
 
 A Virtual Disk Image is a compressed system disk with additional metadata
-useful for cloud frameworks like Amazon EC2, Google Compute Engine or
+useful for cloud frameworks like Amazon EC2, Google Compute Engine, or
 Microsoft Azure.
 
 To instruct KIWI to build a VMX image add a `type` element with
@@ -39,7 +39,7 @@ interface is shown below:
      <!-- snip -->
    </image>
 
-The following attributes of the `type` element are of especial interest
+The following attributes of the `type` element are of special interest
 when building VMX images:
 
 - `format`: Specifies the format of the virtual disk, possible values are:
@@ -90,10 +90,10 @@ For information how to setup a Vagrant box, see: :ref:`setup_vagrant`.
 
 .. _vmx-the-size-element:
 
-Modifying the size of the image
+Modifying the Size of the Image
 -------------------------------
 
-The `size` child-element of `type` specifies the size of the resulting
+The `size` child element of `type` specifies the size of the resulting
 disk image. The following example shows a image description where 20 GB are
 added to the virtual machine image of which 5 GB are left unpartitioned:
 
@@ -128,10 +128,10 @@ further:
 
 .. _vmx-the-machine-element:
 
-Customizing the virtual machine
+Customizing the Virtual Machine
 -------------------------------
 
-The `machine` child-element of `type` can be used to customize the virtual
+The `machine` child element of `type` can be used to customize the virtual
 machine configuration which is used when the image is run, like the number
 of CPUs or the connected network interfaces.
 
@@ -150,26 +150,26 @@ The following attributes are supported by the `machine` element:
   details which value to choose.
 
 - `arch`: the VM architecture (`vmdk` format only), possible values are:
-  `ix86` (= `i585` and `i686`) and `x86_64`
+  `ix86` (= `i585` and `i686`) and `x86_64`.
 
 - `xen_loader`: the Xen target loader which is expected to load this guest,
-  supported values are: `hvmloader`, `pygrub` and `pvgrub`
+  supported values are: `hvmloader`, `pygrub` and `pvgrub`.
 
 - `guestOS`: The virtual guest OS' identification string for the VM (only
   applicable for `vmdk` and `ova` formats, note that the name designation
   is different for the two formats).
 
 - `min_memory`: The virtual machine's minimum memory in MB (`ova` format
-  only)
+  only).
 
 - `max_memory`: The virtual machine's maximum memory in MB (`ova` format
-  only)
+  only).
 
-- `min_cpu`: The virtual machine's minimum CPU count (`ova` format only)
+- `min_cpu`: The virtual machine's minimum CPU count (`ova` format only).
 
-- `max_cpu`: The virtual machine's maximum CPU count (`ova` format only)
+- `max_cpu`: The virtual machine's maximum CPU count (`ova` format only).
 
-- `memory`: The virtual machine's memory in MB (all formats)
+- `memory`: The virtual machine's memory in MB (all formats).
 
 - `ncpus`: The umber of virtual CPUs available to the virtual machine (all
   formats).
@@ -177,7 +177,7 @@ The following attributes are supported by the `machine` element:
 Additionally, `machine` supports additional child elements that are covered
 in the following subsections.
 
-Modifying the VM configuration directly
+Modifying the VM Configuration Directly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `vmconfig-entry` element is used to add entries directly into the
@@ -187,7 +187,7 @@ the `vmdk` format where the provided strings are directly pasted into the
 
 The `vmconfig-entry` element has no attributes and can appear multiple
 times, the entries are added to the configuration file in the provided
-order. Note that KIWI does not check the entries for correctness, it only
+order. Note, that KIWI does not check the entries for correctness. KIWI only
 forwards them.
 
 The following example adds the two entries `numvcpus = "4"` and
@@ -209,14 +209,14 @@ The following example adds the two entries `numvcpus = "4"` and
    </image>
 
 
-Adding network interfaces to the VM
+Adding Network Interfaces to the VM
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Network interfaces can be explicitly specified for the VM when required via
 the `vmnic` element. This can be used to add another bridged interface or
 to specify the driver which is being used.
 
-Note that this element is only used for the `vmdk` image format.
+Note, that this element is only used for the `vmdk` image format.
 
 In the following example we add a bridged network interface using the
 `e1000` driver:
@@ -249,7 +249,7 @@ attributes, it will only paste them into the appropriate configuration
 files.
 
 
-Specifying disks and disk controllers
+Specifying Disks and Disk Controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `vmdisk` element can be used to customize the disks and disk
@@ -281,7 +281,7 @@ attributes:
   only). Supported values are: `ide`, `buslogic`, `lsilogic`, `lsisas1068`,
   `legacyESX` and `pvscsi`.
 
-- `device`: The disk device to appear in the guest (`xen` format only)
+- `device`: The disk device to appear in the guest (`xen` format only).
 
 - `diskmode`: The disk mode (`vmdk` format only), possible values are:
   `monolithicSparse`, `monolithicFlat`, `twoGbMaxExtentSparse`,
@@ -293,7 +293,7 @@ attributes:
 
 - `id`: The disk ID of the VM disk (`vmdk` format only).
 
-Adding CD/DVD drives
+Adding CD/DVD Drives
 ^^^^^^^^^^^^^^^^^^^^
 
 KIWI supports the addition of IDE and SCSCI CD/DVD drives to the virtual
