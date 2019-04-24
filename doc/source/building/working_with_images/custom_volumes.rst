@@ -13,8 +13,8 @@ KIWI supports defining custom volumes by using the logical volume manager
 filesystem supports it (e.g. btrfs).
 
 Volumes are defined in the KIWI description file :file:`config.xml`,
-using the `systemdisk` element, which itself is a child of the `type`
-element. Volumes themselves are added via (multiple) `volume` child
+using `systemdisk`. This element is a child of the `type`.
+Volumes themselves are added via (multiple) `volume` child
 elements of the `systemdisk` element:
 
 .. code-block:: xml
@@ -30,11 +30,11 @@ elements of the `systemdisk` element:
      </type>
    </image>
 
-Additional non-root volumes are created for each present `volume`
+Additional non-root volumes are created for each `volume`
 element. Volume details can be defined by setting the following `volume`
 attributes:
 
-- `name`: Required attribute representing a volume's name. In addition this
+- `name`: Required attribute representing the volume's name. Additionally, this
   attribute is interpreted as the mountpoint if the `mountpoint` attribute
   is not used.
 
@@ -55,7 +55,7 @@ attributes:
         <volume name="@root" size="4G"/>
 
 - `freespace`: Optional attribute defining the additional free space added
-  to the volume. If no suffix (`M` or `G`) is used the value is considered
+  to the volume. If no suffix (`M` or `G`) is used, the value is considered
   to be in megabytes.
 
 - `label`: Optional attribute to set filesystem label of the volume.
@@ -65,7 +65,7 @@ attributes:
 
 
 .. warning::
-   Note that size attributes for filesystem volumes, as for btrfs, are
+   The size attributes for filesystem volumes, as for btrfs, are
    ignored and have no effect.
 
 
