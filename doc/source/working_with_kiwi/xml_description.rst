@@ -676,13 +676,11 @@ following paths types:
   of the project `$PROJECT` available on the Open Build Service (OBS). By
   default KIWI will look for projects on `build.opensuse.org
   <https://build.opensuse.org>`_, but this can be overridden using the
-  runtime configuration file.
+  runtime configuration file (see :ref:`The Runtime Configuration
+  File<working-with-kiwi-runtime-configuration-file>`).
   Note that it is not possible to add repositories using the `obs://` path
   from **different** OBS instances (use direct URLs to the :file:`.repo`
   file instead in this case).
-
-.. FIXME:
-   add this back: .. (see :ref:`The Runtime Configuration File<working-with-kiwi-runtime-configuration-file>`)
 
 - `obsrepositories:/`: special path only available for builds using the
   Open Build Service. The repositories configured for the OBS project in

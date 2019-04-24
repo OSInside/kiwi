@@ -10,6 +10,7 @@ Working with KIWI
    :maxdepth: 1
 
    working_with_kiwi/xml_description
+   working_with_kiwi/runtime_configuration
 
 
 Overview

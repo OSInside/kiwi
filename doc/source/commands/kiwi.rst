@@ -122,35 +122,8 @@ EXAMPLE
        --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
        --target-dir /tmp/myimage
 
-RUNTIME CONFIG FILE
--------------------
+.. include:: ../working_with_kiwi/runtime_configuration_incl.rst
 
-To control custom paramters of the tool chain used by KIWI a user
-specific configuration file can be provided as:
-
-:file:`~/.config/kiwi/config.yml`
-
-The contents of the file is in YAML format and supports the following
-setup parameters:
-
-.. code-block:: yaml
-
-   xz:
-     - options: -a -b -c
-
-       # Specifies XZ-compression-options
-       # For details see man xz
-
-   obs:
-     - download_url: url
-
-       # Specifies download server url of an open buildservice instance
-       # defaults to: http://download.opensuse.org/repositories
-
-     - public: true|false
-
-       # Specifies if the buildservice instance is public or private
-       # defaults to: true
 
 COMPATIBILITY
 -------------
