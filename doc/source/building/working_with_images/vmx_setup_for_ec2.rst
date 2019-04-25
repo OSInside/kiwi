@@ -30,7 +30,7 @@ description as follows:
    Make sure to add the following packages to the package list
 
    .. note::
- 
+
       Package names used in the following list matches the
       package names of the SUSE distribution and might be different
       on other distributions.
