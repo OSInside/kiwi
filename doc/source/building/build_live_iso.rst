@@ -11,32 +11,61 @@ Build an ISO Hybrid Live Image
    * how to run it with QEMU
 
 A Live ISO image is a system on a removable media, e.g CD/DVD or USB stick.
-Once built and deployed it boots off from this media without interferring
-with other system storage components. A useful pocket system for testing
-and demo and debugging purposes.
+Once built and deployed it boots off from this media without interfering
+with other system storage components making it a useful pocket system for
+testing and demo- and debugging-purposes.
 
-The following example shows how to build a live ISO image based on
-openSUSE Leap:
+To add a live ISO build to your appliance, create a `type` element with
+`image` set to `iso` in your :file:`config.xml` (see
+:ref:`xml-description-build-types`) as shown below:
 
-1. Make sure you have checked out the example image descriptions,
-   see :ref:`example-descriptions`.
+.. code-block:: xml
 
-2. Build the image with KIWI:
+   <image schemaversion="6.9" name="JeOS-Tumbleweed">
+     <!-- snip -->
+     <preferences>
+       <type image="iso" primary="true" flags="overlay" hybrid="true" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+       <!-- additional preferences -->
+     </preferences>
+     <!-- snip -->
+   </image>
 
-   .. code:: bash
+The following attributes of the `type` element are relevant when building
+live ISO images:
 
-      $ sudo kiwi-ng --type iso system build \
-           --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
-           --target-dir /tmp/myimage
+- `flags`: Specifies the live ISO technology and dracut module to use, can
+  be set to `overlay` or to `dmsquash`.
 
-   Find the image with the suffix :file:`.iso` below :file:`/tmp/myimage`.
+  If set to `overlay`, the kiwi-live dracut module will be used to support a
+  live ISO system based on squashfs and overlayfs.
+  If set to `dmsquash`, the dracut standard dmsquash-live module will be
+  used to support a live ISO system based on squashfs and the device
+  mapper. Note, both modules support a different set of live features.
 
-3. Test the live image with QEMU:
+- `hybridpersistent`: Accepts `true` or `false`, if set to `true` then the
+  resulting image will be created with a COW file to keep data persistent
+  over a reboot
 
-   .. code:: bash
+- `hybridpersistent_filesystem`: The filesystem used for the COW
+  file. Possible values are `ext4` or `xfs`, with `ext4` being the default.
 
-      $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.iso -m 4096
 
-After the test was successful, the image is complete and ready to use.
-See :ref:`iso_to_usb_stick` and :ref:`iso_as_file_to_usb_stick`
-for further information.
+With the appropriate settings present in :file:`config.xml` KIWI can now
+build the image:
+
+.. code:: bash
+
+   $ sudo kiwi-ng --type iso system build \
+         --description path/to/description/directory \
+         --target-dir /tmp/myimage
+
+The resulting image is saved in the folder :file:`/tmp/myimage` and can
+be tested with QEMU:
+
+.. code:: bash
+
+   $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.iso -m 4096
+
+The image is now complete and ready to use. See :ref:`iso_to_usb_stick` and
+:ref:`iso_as_file_to_usb_stick` for further information concerning
+deployment.

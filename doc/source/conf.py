@@ -98,7 +98,7 @@ default_role="py:obj"
 
 # General information about the project.
 project = 'kiwi'
-copyright = '2016, Marcus Schäfer'
+copyright = '2019, Marcus Schäfer'
 author = 'Marcus Schäfer'
 
 # The version info for the project you're documenting, acts as replacement for
