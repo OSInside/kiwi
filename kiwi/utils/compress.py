@@ -117,9 +117,9 @@ class Compress(object):
         """
         Detect compression format
 
-        :return: compression format name
+        :return: compression format name or None if it couldn't be inferred
 
-        :rtype: str
+        :rtype: Optional[str]
         """
         for zipper in self.supported_zipper:
             try:
