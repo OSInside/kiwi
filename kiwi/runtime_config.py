@@ -49,7 +49,7 @@ class RuntimeConfig(object):
         if os.path.exists(config_file):
             log.info('Reading runtime config file: {0}'.format(config_file))
             with open(config_file, 'r') as config:
-                self.config_data = yaml.load(config)
+                self.config_data = yaml.safe_load(config)
 
     def get_obs_download_server_url(self):
         """
