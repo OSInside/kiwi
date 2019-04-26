@@ -89,3 +89,20 @@ class TestCompress(object):
         assert xz.get_format() == 'xz'
         gzip = Compress('../data/gz_data.gz')
         assert gzip.get_format() == 'gzip'
+
+    @patch('kiwi.logger.log.debug')
+    @patch('kiwi.command.Command.run')
+    def test_get_format_invalid_format(self, mock_run, mock_log):
+        mock_run.side_effect = ValueError("nothing")
+        invalid = Compress("../data/gz_data.gz")
+        invalid.supported_zipper = ["mock_zip"]
+
+        assert invalid.get_format() is None
+
+        mock_run.assert_called_once_with(
+            ['mock_zip', '-l', '../data/gz_data.gz']
+        )
+        mock_log.assert_called_once_with(
+            'Error running "mock_zip -l ../data/gz_data.gz", got a'
+            ' ValueError: nothing'
+        )
