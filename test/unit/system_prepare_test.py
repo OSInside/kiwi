@@ -374,7 +374,16 @@ class TestSystemPrepare(object):
         self.system.__del__()
         self.system.root_bind.cleanup.assert_called_once_with()
 
-    def test_destructor_raising(self):
+    @patch('kiwi.logger.log.info')
+    def test_destructor_raising(self, mock_log):
         self.system.root_bind = mock.Mock()
-        self.system.root_bind.cleanup.side_effect = Exception
+        self.system.root_bind.cleanup.side_effect = ValueError("nothing")
         del self.system
+
+        assert mock_log.call_args_list[0] == call(
+            'Cleaning up SystemPrepare instance'
+        )
+        assert mock_log.call_args_list[1] == call(
+            'Cleaning up SystemPrepare instance failed, got an exception of'
+            ' type ValueError: nothing'
+        )

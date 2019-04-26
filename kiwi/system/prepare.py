@@ -452,8 +452,16 @@ class SystemPrepare(object):
             manager.exclude_requests
 
     def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
+        log.info('Cleaning up {:s} instance'.format(type(self).__name__))
         try:
             self.root_bind.cleanup()
-        except Exception:
-            pass
+        except Exception as exc:
+            log.info(
+                'Cleaning up {self_name:s} instance failed, got an exception '
+                'of type {exc_type:s}: {exc:s}'
+                .format(
+                    self_name=type(self).__name__,
+                    exc_type=type(exc).__name__,
+                    exc=str(exc)
+                )
+            )
