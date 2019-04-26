@@ -13,7 +13,7 @@ KIWI - Next Generation
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
    :target: https://www.paypal.me/SchaeferMarcus
 
-|Build Status| |Health|
+|Build Status| |GitLab CI Pipeline| |Health|
 
 **KIWI, the OS image and appliance builder.**
 
