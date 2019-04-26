@@ -15,7 +15,7 @@ class TestRuntimeConfig(object):
             self.runtime_config = RuntimeConfig()
 
     @patch('os.path.exists')
-    @patch('yaml.load')
+    @patch('yaml.safe_load')
     def test_reading_system_wide_config_file(self, mock_yaml, mock_exists):
         exists_call_results = [True, False]
 
