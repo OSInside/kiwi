@@ -5,60 +5,75 @@ Custom Disk Volumes
 
 .. sidebar:: Abstract
 
-   This page provides high level explanations on how to handle volumes or
-   subvolumes definitions for disk images using KIWI.
+   This chapter provides high level explanations on how to handle volumes
+   or subvolumes definitions for disk images using KIWI.
 
 KIWI supports defining custom volumes by using the logical volume manager
 (LVM) for the Linux kernel or by setting volumes at filesystem level when
-filesystem supports it, like Btrfs.
+filesystem supports it (e.g. btrfs).
 
-Volumes are defined inside the KIWI description file, :file:`config.xml`,
-under the `type` element by setting a `systemdisk` section. The
-`systemdisk` element can include `volume` child elements.
+Volumes are defined in the KIWI description file :file:`config.xml`,
+using `systemdisk`. This element is a child of the `type`.
+Volumes themselves are added via (multiple) `volume` child
+elements of the `systemdisk` element:
 
-Additional non-root volumes are created for each `volume` element. Volume
-details can be defined by setting the following `volume` attributes:
+.. code-block:: xml
 
-  * `name`: Required attribute representing a volume's name. In
-    addition this attribute is understood as the mountpoint path if
-    `mountpoint` attribute is not used.
+   <image schemaversion="7.1" name="openSUSE-Leap-15.1">
+     <type image="oem" filesystem="btrfs" preferlvm="true">
+       <systemdisk name="vgroup">
+         <volume name="usr/lib" size="1G" label="library"/>
+         <volume name="@root" freespace="500M"/>
+         <volume name="etc_volume" mountpoint="etc" copy_on_write="false"/>
+         <volume name="bin_volume" size="all" mountpoint="/usr/bin"/>
+       </systemdisk>
+     </type>
+   </image>
 
-  * `mountpoint`: Optional attribute that specifies the mountpoint path.
+Additional non-root volumes are created for each `volume`
+element. Volume details can be defined by setting the following `volume`
+attributes:
 
-  * `size`: Optional attribute to set the size of the volume. If no suffix
-    (`M` or `G`) is used the value is considered to be in megabytes.
+- `name`: Required attribute representing the volume's name. Additionally, this
+  attribute is interpreted as the mountpoint if the `mountpoint` attribute
+  is not used.
 
-    .. note:: Special name for root
+- `mountpoint`: Optional attribute that specifies the mountpoint of this
+  volume.
 
-       In case defining some specific size attributes for the root volume is
-       required one can use the `@root` name to refer to the volume mounted
-       at root, `/`. For instance
+- `size`: Optional attribute to set the size of the volume. If no suffix
+  (`M` or `G`) is used, then the value is considered to be in megabytes.
 
-       .. code:: xml
+  .. note:: Special name for the root volume
 
-          <volume name="@root" size="4G"/>
+     One can use the `@root` name to refer to the volume mounted at `/`, in
+     case some specific size attributes for the root volume have to be
+     defined. For instance:
 
-  * `freespace`: Optional attribute to set the additional size added to the
-    volume. If no suffix (`M` or `G`)is used the value is considered to be
-    in megabytes.
+     .. code-block:: xml
 
-  * `label`: Optional attribute to set filesystem label name of the volume.
+        <volume name="@root" size="4G"/>
 
-  * `copy_on_write`: Optional attribute to apply the filesystem
-    copy-on-write attribute for this volume.
+- `freespace`: Optional attribute defining the additional free space added
+  to the volume. If no suffix (`M` or `G`) is used, the value is considered
+  to be in megabytes.
 
-Note that size attribute for filesystem volumes, as in Btrfs, are ignored
-and have no effect.
+- `label`: Optional attribute to set filesystem label of the volume.
 
-This is a configuration example including a couple of additional volumes
-definition and some additional empty space for the root volume:
+- `copy_on_write`: Optional attribute to set the filesystem copy-on-write
+  attribute for this volume.
 
-.. code:: xml
 
-   <type>
-     <systemdisk name="vgroup-name">
-       <volume name="@root" freespace="5G"/>
-       <volume name="home" size="40G"/>
-       <volume name="tmp" size="1024"/>
-     </systemdisk>
-   </type>
+.. warning::
+   The size attributes for filesystem volumes, as for btrfs, are
+   ignored and have no effect.
+
+
+The `systemdisk` element additionally supports the following optional
+attributes:
+
+- `name`: The volume group name, by default `kiwiVG` is used. This setting
+  is only relevant for LVM volumes.
+
+- `preferlvm`: Boolean value instructing KIWI to prefer LVM even if the
+  used filesystem has its own volume management system.
