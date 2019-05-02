@@ -26,13 +26,13 @@ class SolverRepository(object):
     """
     **Repository factory for creation of SAT solvables**
 
-    * :param object uri: Instance of :class:`Uri`
+    :param object uri: Instance of :class:`Uri`
     """
-    def __new__(self, uri, user=None, secret=None):
+    def __new__(self, uri):
         if uri.repo_type == 'rpm-md':
-            return SolverRepositoryRpmMd(uri, user, secret)
+            return SolverRepositoryRpmMd(uri)
         elif uri.repo_type == 'rpm-dir':
-            return SolverRepositoryRpmDir(uri, user, secret)
+            return SolverRepositoryRpmDir(uri)
         else:
             raise KiwiSolverRepositorySetupError(
                 'Support for %s solver repository type not implemented' %

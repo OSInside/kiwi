@@ -117,8 +117,6 @@ class SystemPrepare(object):
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()
-            repo_user = xml_repo.get_username()
-            repo_secret = xml_repo.get_password()
             repo_alias = xml_repo.get_alias()
             repo_priority = xml_repo.get_priority()
             repo_dist = xml_repo.get_distribution()
@@ -152,7 +150,6 @@ class SystemPrepare(object):
             repo.add_repo(
                 repo_alias, repo_source_translated,
                 repo_type, repo_priority, repo_dist, repo_components,
-                repo_user, repo_secret, uri.credentials_file_name(),
                 repo_repository_gpgcheck, repo_package_gpgcheck
             )
             if clear_cache:

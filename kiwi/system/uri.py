@@ -135,25 +135,6 @@ class Uri(object):
                 'URI schema %s not supported' % self.uri
             )
 
-    def credentials_file_name(self):
-        """
-        Filename to store repository credentials
-
-        :return: credentials file name
-
-        :rtype: str
-        """
-        uri = self._get_credentials_uri()
-        # initialize query with default credentials file name.
-        # The information will be overwritten if the uri contains
-        # a parameter query with a credentials parameter
-        query = {'credentials': 'kiwiRepoCredentials'}
-
-        if uri:
-            query = dict(params.split('=') for params in uri.query.split('&'))
-
-        return query['credentials']
-
     def alias(self):
         """
         Create hexdigest from URI as alias

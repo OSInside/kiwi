@@ -1412,18 +1412,6 @@ priority is used</a:documentation>
         <data type="integer"/>
       </attribute>
     </define>
-    <define name="k.repository.password.attribute">
-      <ref name="k.password.attribute">
-        <a:documentation>Channel password if required. It depends on the url type
-whether and how this information is passed</a:documentation>
-      </ref>
-    </define>
-    <define name="k.repository.username.attribute">
-      <ref name="k.username.attribute">
-        <a:documentation>Channel username if required. It depends on the url type
-whether and how this information is passed</a:documentation>
-      </ref>
-    </define>
     <define name="k.repository.attlist">
       <interleave>
         <optional>
@@ -1455,12 +1443,6 @@ whether and how this information is passed</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.priority.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repository.password.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repository.username.attribute"/>
         </optional>
       </interleave>
     </define>

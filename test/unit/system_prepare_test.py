@@ -170,9 +170,6 @@ class TestSystemPrepare(object):
         uri.alias = mock.Mock(
             return_value='uri-alias'
         )
-        uri.credentials_file_name = mock.Mock(
-            return_value='credentials-file'
-        )
         repo = mock.Mock()
         mock_repo.return_value = repo
 
@@ -200,11 +197,11 @@ class TestSystemPrepare(object):
         assert repo.add_repo.call_args_list == [
             call(
                 'uri-alias', 'uri', None, 42,
-                None, None, None, None, 'credentials-file', None, None
+                None, None, None, None
             ),
             call(
                 'uri-alias', 'uri', 'rpm-md', None,
-                None, None, None, None, 'credentials-file', None, None
+                None, None, None, None
             )
         ]
         assert repo.delete_repo_cache.call_args_list == [

@@ -90,39 +90,6 @@ class TestSolverRepositoryBase(object):
     @patch('kiwi.solver.repository.base.urlopen')
     @patch('kiwi.solver.repository.base.Request')
     @patch_open
-    def test_download_from_repository_with_credentials(
-        self, mock_open, mock_request, mock_urlopen
-    ):
-        request = mock.Mock()
-        mock_request.return_value = request
-        location = mock.Mock()
-        location.read.return_value = 'data-from-network'
-        mock_urlopen.return_value = location
-        mock_open.return_value = self.context_manager_mock
-        self.uri.is_remote.return_value = True
-        self.uri.translate.return_value = 'http://myrepo/file'
-        self.solver.user = 'user'
-        self.solver.secret = 'secret'
-        self.solver.download_from_repository(
-            'repodata/file', 'target-file'
-        )
-        mock_urlopen.assert_called_once_with(request)
-        mock_request.assert_called_once_with(
-            'http://myrepo/file/repodata/file'
-        )
-        request.add_header.assert_called_once_with(
-            'Authorization', b'Basic dXNlcjpzZWNyZXQ='
-        )
-        mock_open.assert_called_once_with(
-            'target-file', 'wb'
-        )
-        self.file_mock.write.assert_called_once_with(
-            'data-from-network'
-        )
-
-    @patch('kiwi.solver.repository.base.urlopen')
-    @patch('kiwi.solver.repository.base.Request')
-    @patch_open
     def test_download_from_repository_remote(
         self, mock_open, mock_request, mock_urlopen
     ):

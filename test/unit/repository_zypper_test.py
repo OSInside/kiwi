@@ -291,47 +291,6 @@ class TestRepositoryZypper(object):
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.Path.wipe')
-    @patch('os.path.exists')
-    @patch('kiwi.repository.zypper.Uri')
-    @patch_open
-    def test_add_repo_with_credentials(
-        self, mock_open, mock_uri, mock_exists, mock_wipe, mock_command
-    ):
-        mock_open.return_value = self.context_manager_mock
-        exists_results = [False, False, False, True]
-
-        def side_effect(arg):
-            return exists_results.pop()
-
-        mock_exists.side_effect = side_effect
-
-        self.repo.add_repo(
-            name='foo', uri='http://some/repo',
-            user='user', secret='secret', credentials_file='credentials_file'
-        )
-        mock_wipe.assert_called_once_with(
-            '../data/shared-dir/zypper/credentials/credentials_file'
-        )
-        mock_open.assert_called_once_with(
-            '../data/shared-dir/zypper/credentials/credentials_file', 'w'
-        )
-        assert self.file_mock.write.call_args_list == [
-            call('username=user\n'),
-            call('password=secret\n')
-        ]
-        mock_command.assert_called_once_with(
-            ['zypper'] + self.repo.zypper_args + [
-                '--root', '../data',
-                'addrepo', '--refresh',
-                '--keep-packages',
-                '--no-check',
-                'http://some/repo?credentials=credentials_file',
-                'foo'
-            ], self.repo.command_env
-        )
-
-    @patch('kiwi.command.Command.run')
     def test_delete_repo(self, mock_command):
         self.repo.delete_repo('foo')
         mock_command.assert_called_once_with(

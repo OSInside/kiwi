@@ -658,8 +658,6 @@ following optional attributes:
 
 - `profiles`: List of profiles to which this repository applies.
 
-.. TODO: username & password are supported, but no clue what they are for?
-
 .. _xml-description-supported-supported-repository-paths:
 
 Supported repository paths

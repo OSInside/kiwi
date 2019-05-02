@@ -912,14 +912,6 @@ div {
         ## is available in more than one channel, the highest
         ## priority is used
         attribute priority { xsd:integer }
-    k.repository.password.attribute =
-        ## Channel password if required. It depends on the url type
-        ## whether and how this information is passed
-        k.password.attribute
-    k.repository.username.attribute =
-        ## Channel username if required. It depends on the url type
-        ## whether and how this information is passed
-        k.username.attribute
     k.repository.attlist =
         k.repository.type.attribute? &
         k.repository.profiles.attribute? &
@@ -932,9 +924,7 @@ div {
         )? &
         k.repository.repository_gpgcheck.attribute? &
         k.repository.package_gpgcheck.attribute? &
-        k.repository.priority.attribute? &
-        k.repository.password.attribute? &
-        k.repository.username.attribute?
+        k.repository.priority.attribute?
     k.repository =
         ## The Name of the Repository
         element repository {

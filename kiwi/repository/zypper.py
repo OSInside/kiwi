@@ -232,7 +232,6 @@ class RepositoryZypper(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
@@ -244,29 +243,9 @@ class RepositoryZypper(RepositoryBase):
         :param int prio: zypper repostory priority
         :param dist: unused
         :param components: unused
-        :param user: credentials username
-        :param secret: credentials password
-        :param credentials_file: zypper credentials file
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: enable package signature validation
         """
-        if credentials_file:
-            repo_secret = os.sep.join(
-                [self.shared_zypper_dir['credentials-dir'], credentials_file]
-            )
-            if os.path.exists(repo_secret):
-                Path.wipe(repo_secret)
-
-            if user and secret:
-                uri = ''.join([uri, '?credentials=', credentials_file])
-                with open(repo_secret, 'w') as credentials:
-                    credentials.write('username={0}{1}'.format(
-                        user, os.linesep)
-                    )
-                    credentials.write('password={0}{1}'.format(
-                        secret, os.linesep)
-                    )
-
         repo_file = ''.join(
             [self.shared_zypper_dir['reposd-dir'], '/', name, '.repo']
         )

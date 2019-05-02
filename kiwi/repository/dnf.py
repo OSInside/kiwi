@@ -152,7 +152,6 @@ class RepositoryDnf(RepositoryBase):
     def add_repo(
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
-        user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None
     ):
         """
@@ -164,9 +163,6 @@ class RepositoryDnf(RepositoryBase):
         :param int prio: dnf repostory priority
         :param dist: unused
         :param components: unused
-        :param user: unused
-        :param secret: unused
-        :param credentials_file: unused
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: enable package signature validation
         """

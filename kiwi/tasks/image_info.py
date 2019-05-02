@@ -129,12 +129,8 @@ class ImageInfoTask(CliTask):
         solver = Sat()
         for xml_repo in self.xml_state.get_repository_sections_used_for_build():
             repo_source = xml_repo.get_source().get_path()
-            repo_user = xml_repo.get_username()
-            repo_secret = xml_repo.get_password()
             repo_type = xml_repo.get_type()
             solver.add_repository(
-                SolverRepository(
-                    Uri(repo_source, repo_type), repo_user, repo_secret
-                )
+                SolverRepository(Uri(repo_source, repo_type))
             )
         return solver

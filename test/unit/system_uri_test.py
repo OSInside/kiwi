@@ -114,20 +114,6 @@ class TestUri(object):
             'https://example.com'.encode()).hexdigest(
         )
 
-    def test_credentials_file_name(self):
-        uri = Uri(
-            'http://example.com/foo?credentials=my_credentials&x=2',
-            'rpm-md'
-        )
-        assert uri.credentials_file_name() == 'my_credentials'
-
-    def test_credentials_default_file_name(self):
-        uri = Uri(
-            'http://example.com/foo',
-            'rpm-md'
-        )
-        assert uri.credentials_file_name() == 'kiwiRepoCredentials'
-
     def test_translate_http_path_with_token(self):
         uri = Uri(
             'http://foo.bar/baz?asdf',

@@ -2050,7 +2050,7 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, alias=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None):
+    def __init__(self, source=None, type_=None, profiles=None, alias=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
@@ -2063,8 +2063,6 @@ class repository(k_source):
         self.repository_gpgcheck = _cast(bool, repository_gpgcheck)
         self.package_gpgcheck = _cast(bool, package_gpgcheck)
         self.priority = _cast(int, priority)
-        self.password = _cast(None, password)
-        self.username = _cast(None, username)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2096,10 +2094,6 @@ class repository(k_source):
     def set_package_gpgcheck(self, package_gpgcheck): self.package_gpgcheck = package_gpgcheck
     def get_priority(self): return self.priority
     def set_priority(self, priority): self.priority = priority
-    def get_password(self): return self.password
-    def set_password(self, password): self.password = password
-    def get_username(self): return self.username
-    def set_username(self, username): self.username = username
     def hasContent_(self):
         if (
             super(repository, self).hasContent_()
@@ -2160,12 +2154,6 @@ class repository(k_source):
         if self.priority is not None and 'priority' not in already_processed:
             already_processed.add('priority')
             outfile.write(' priority="%s"' % self.gds_format_integer(self.priority, input_name='priority'))
-        if self.password is not None and 'password' not in already_processed:
-            already_processed.add('password')
-            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
-        if self.username is not None and 'username' not in already_processed:
-            already_processed.add('username')
-            outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
     def exportChildren(self, outfile, level, namespace_='', name_='repository', fromsubclass_=False, pretty_print=True):
         super(repository, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
     def build(self, node):
@@ -2240,14 +2228,6 @@ class repository(k_source):
                 self.priority = int(value)
             except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-        value = find_attr_value_('password', node)
-        if value is not None and 'password' not in already_processed:
-            already_processed.add('password')
-            self.password = value
-        value = find_attr_value_('username', node)
-        if value is not None and 'username' not in already_processed:
-            already_processed.add('username')
-            self.username = value
         super(repository, self).buildAttributes(node, attrs, already_processed)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         super(repository, self).buildChildren(child_, node, nodeName_, True)
