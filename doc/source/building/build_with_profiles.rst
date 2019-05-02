@@ -5,7 +5,7 @@ Building Images with Profiles
 
 KIWI supports so-called *profiles* inside the XML image description. Profiles
 act as namespaces for additional settings to be applied on top of the
-defaults.
+defaults. For further details, see :ref:`xml-description-image-profiles`.
 
 
 Local Builds

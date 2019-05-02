@@ -20,6 +20,7 @@ build Linux system appliances.
 
    quickstart
    installation
+   working_with_kiwi
    overview
    building
    commands

@@ -16,14 +16,15 @@ with other system storage components making it a useful pocket system for
 testing and demo- and debugging-purposes.
 
 To add a live ISO build to your appliance, create a `type` element with
-`image` set to `iso` in your :file:`config.xml` as shown below:
+`image` set to `iso` in your :file:`config.xml` (see
+:ref:`xml-description-build-types`) as shown below:
 
 .. code-block:: xml
 
    <image schemaversion="6.9" name="JeOS-Tumbleweed">
      <!-- snip -->
      <preferences>
-       <type image="iso" primary="true" flags="overlay" hybrid="true" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+       <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
        <!-- additional preferences -->
      </preferences>
      <!-- snip -->
