@@ -519,7 +519,7 @@ Additionally, the following optional attributes can be specified:
 - `groups`: A comma separated list of UNIX groups. The first element of the
   list is used as the user's primary group. The remaining elements are
   appended to the user's supplementary groups. When no groups are assigned
-  then the system's default primary group will be used [#f3]_.
+  then the system's default primary group will be used.
 
 - `id`: The numeric user id of this account.
 
@@ -657,8 +657,6 @@ following optional attributes:
 - `distribution`: Distribution name information, used for deb repositories.
 
 - `profiles`: List of profiles to which this repository applies.
-
-.. TODO: username & password are supported, but no clue what they are for?
 
 .. _xml-description-supported-supported-repository-paths:
 
@@ -979,7 +977,3 @@ package's name. Optionally one can also specify the architecture via the
 
 .. [#f2] A hybrid persistent filesystem contains a copy-on-write file to
          keep data persistent over a reboot.
-
-.. FIXME: @schaefi: is this correct?
-.. [#f3] Note that the default primary group is taken from the system on
-         which KIWI is run, not from the system that KIWI is building.
