@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from kiwi.solver.repository.suse import SolverRepositorySUSE
 from kiwi.solver.repository.rpm_md import SolverRepositoryRpmMd
 from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
 
@@ -30,9 +29,7 @@ class SolverRepository(object):
     * :param object uri: Instance of :class:`Uri`
     """
     def __new__(self, uri, user=None, secret=None):
-        if uri.repo_type == 'yast2':
-            return SolverRepositorySUSE(uri, user, secret)
-        elif uri.repo_type == 'rpm-md':
+        if uri.repo_type == 'rpm-md':
             return SolverRepositoryRpmMd(uri, user, secret)
         elif uri.repo_type == 'rpm-dir':
             return SolverRepositoryRpmDir(uri, user, secret)
