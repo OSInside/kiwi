@@ -1397,7 +1397,7 @@ appended into the repository configuration file.</a:documentation>
     </define>
     <define name="k.repository.package_gpgcheck.attribute">
       <attribute name="package_gpgcheck">
-        <a:documentation>Specify whether or not this specific repository is configured to
+        <a:documentation>Specify whether or not this specific repository is configured
 to run package signature validation. If not set, no value is
 appended into the repository configuration file.</a:documentation>
         <data type="boolean"/>
@@ -3896,7 +3896,7 @@ packages are only installed if this build type is requested.</a:documentation>
     </define>
     <define name="k.packages.patternType.attribute">
       <attribute name="patternType">
-        <a:documentation>Selection type for patterns. Could be onlyRequired
+        <a:documentation>Selection type for patterns. Can be onlyRequired
 or plusRecommended</a:documentation>
         <choice>
           <value>onlyRequired</value>
