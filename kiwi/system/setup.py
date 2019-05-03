@@ -324,17 +324,12 @@ class SystemSetup(object):
                     'chroot', self.root_dir, 'systemd-firstboot',
                     '--locale=' + locale
                 ])
-            elif os.path.exists(self.root_dir + '/etc/sysconfig/language'):
+            if os.path.exists(self.root_dir + '/etc/sysconfig/language'):
                 Shell.run_common_function(
                     'baseUpdateSysConfig', [
                         self.root_dir + '/etc/sysconfig/language',
                         'RC_LANG', locale
                     ]
-                )
-            else:
-                log.warning(
-                    'locale setup skipped no capable '
-                    'systemd-firstboot or etc/sysconfig/language not found'
                 )
 
     def setup_timezone(self):

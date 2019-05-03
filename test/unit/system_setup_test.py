@@ -310,24 +310,11 @@ class TestSystemSetup(object):
         self.setup.setup_keyboard_map()
         assert mock_log_warn.called
 
-    @patch('kiwi.system.setup.Shell.run_common_function')
-    @patch('kiwi.system.setup.Command.run')
-    @patch('os.path.exists')
-    def test_setup_locale(self, mock_path, mock_run, mock_shell):
-        mock_path.return_value = True
-        self.setup.preferences['locale'] = 'locale1,locale2'
-        self.setup.setup_locale()
-        mock_shell.assert_called_once_with(
-            'baseUpdateSysConfig', [
-                'root_dir/etc/sysconfig/language', 'RC_LANG', 'locale1.UTF-8'
-            ]
-        )
-
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_locale_with_systemd(
+    def test_setup_locale(
         self, mock_path, mock_run, mock_shell, mock_caps
     ):
         mock_caps.return_valure = True
@@ -341,6 +328,11 @@ class TestSystemSetup(object):
                 '--locale=locale1.UTF-8'
             ])
         ])
+        mock_shell.assert_called_once_with(
+            'baseUpdateSysConfig', [
+                'root_dir/etc/sysconfig/language', 'RC_LANG', 'locale1.UTF-8'
+            ]
+        )
 
     @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
@@ -354,14 +346,6 @@ class TestSystemSetup(object):
                 'root_dir/etc/sysconfig/language', 'RC_LANG', 'POSIX'
             ]
         )
-
-    @patch('kiwi.logger.log.warning')
-    @patch('os.path.exists')
-    def test_setup_locale_skipped(self, mock_exists, mock_log_warn):
-        mock_exists.return_value = False
-        self.setup.preferences['locale'] = 'locale1,locale2'
-        self.setup.setup_locale()
-        assert mock_log_warn.called
 
     @patch('kiwi.system.setup.Command.run')
     def test_setup_timezone(self, mock_command):
