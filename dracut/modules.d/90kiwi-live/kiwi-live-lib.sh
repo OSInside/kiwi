@@ -103,7 +103,7 @@ function mountIso {
     ln -s "${isodev}" /run/initramfs/isodev
     local iso_mount_point=/run/initramfs/live
     mkdir -m 0755 -p "${iso_mount_point}"
-    if ! mount -n -t "${isofs_type}" "${isodev}" "${iso_mount_point}"; then
+    if ! mount -o ro -n -t "${isofs_type}" "${isodev}" "${iso_mount_point}"; then
         die "Failed to mount live ISO device"
     fi
     echo "${iso_mount_point}"
