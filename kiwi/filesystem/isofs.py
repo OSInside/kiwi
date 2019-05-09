@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
+import re
+
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.iso_tools.iso import Iso
@@ -36,11 +39,13 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param string exclude: unused
         """
+        arch = platform.machine()
         meta_data = self.custom_args['meta_data']
         iso_tool = IsoTools(self.root_dir)
 
         iso = Iso(self.root_dir)
-        iso.setup_isolinux_boot_path()
+        if re.match(r'x86_64|i[56]86', arch):
+            iso.setup_isolinux_boot_path()
 
         if not iso_tool.has_iso_hybrid_capability():
             iso.create_header_end_marker()
