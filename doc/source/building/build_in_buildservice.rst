@@ -85,13 +85,14 @@ The notable differences to running KIWI locally include:
      experience when using OBS.
 
 * OBS will by default only build a single image type. If your appliance
-  contains the multiple build types or uses profiles, use the `multibuild
-  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_ feature.
+  contains multiple build types or uses profiles, use the `multibuild
+  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_
+  feature.
 
-* Subfolders in OBS projects are ignored by default by :file:`osc` and must
-  be explicitly added via `osc add $FOLDER` [#f2]_. Bear that in mind when
-  adding the overlay files inside the :file:`root/` directory to your
-  project.
+* Subfolders in OBS projects are ignored by default by :command:`osc` and
+  must be explicitly added via :command:`osc add $FOLDER` [#f2]_. Bear that
+  in mind when adding the overlay files inside the :file:`root/` directory
+  to your project.
 
 
 .. _obs-recommended-settings:
@@ -147,6 +148,11 @@ your dependent packages. These repositories can be provided in two ways:
 
       <path project="$OBS_PROJECT" repository="$REPOSITORY_NAME"/>
 
+   The order in which you add repositories matters: if a package is present
+   in multiple repositories, then it is taken from the **first**
+   repository. The **last** repository is subject to path expansion: its
+   repository paths are included as well.
+
    Don't forget to add the repository from the
    `Virtualization:Appliances:Builder` project, providing the latest stable
    version of KIWI (which you are very likely using for your local builds).
@@ -167,31 +173,60 @@ your dependent packages. These repositories can be provided in two ways:
         </repository>
       </project>
 
-
-#. Keep the repositories in your :file:`config.xml` configuration
-   file. If you have installed KIWI as described in
-   :ref:`kiwi-installation` then you should add the following repository to
-   your :file:`config.xml`, so that OBS will pick the latest stable KIWI
-   version too:
+   The above can be simplified further using the path expansion of the last
+   repository to:
 
    .. code-block:: xml
 
-      <repository type="rpm-md" alias="kiwi-next-generation">
-        <source path="obs://Virtualization:Appliances:Builder/$DISTRO"/>
+      <project name="Virtualization:Appliances:Images:openSUSE-Tumbleweed">
+        <title>JeOS for Tumbleweed </title>
+        <description>Host JeOS images for Tumbleweed</description>
+        <repository name="images">
+          <path project="Virtualization:Appliances:Builder" repository="Factory"/>
+          <arch>x86_64</arch>
+        </repository>
+      </project>
+
+   Now `Virtualization:Appliances:Builder` is the last repository, which'
+   repositories are included into the search path. As
+   `openSUSE:Factory/snapshot` is among these, it can be omitted from the
+   repository list.
+
+#. Keep the repositories in your :file:`config.xml` configuration file. If
+   you have installed the latest stable KIWI as described in
+   :ref:`kiwi-installation` then you should add the following repository to
+   your projects configuration (accessible via :command:`osc meta -e
+   prjconf`), so that OBS will pick the latest stable KIWI version too:
+
+   .. code-block:: xml
+
+      <repository name="images">
+        <path project="Virtualization:Appliances:Builder" repository="$DISTRO"/>
+        <arch>x86_64</arch>
       </repository>
 
    Replace ``$DISTRO`` with the appropriate name for the distribution that
-   you are currently building.
+   you are currently building and optionally adjust the architecture.
 
 
 We recommend to use the first method, as it integrates better into
-OBS. Note however, that you will be unable to build images for different
-distributions from the same OBS project when adding repositories to your
-project's configuration (method 1.). The problem is, that all your image
-builds share the same repositories. This will result in dependency
-conflicts for different distributions. On the other hand this approach
-requires a lot less workarounds in the project configuration then adding
-the repositories via the :file:`config.xml`.
+OBS. Note that your image description will then no longer build outside of
+OBS though. If building locally is required, use the second method.
+
+.. warning::
+
+   Adding the repositories to project's configuration makes it impossible
+   to build images for different distributions from the same project.
+
+   Since the repositories are added for every package in your project, all
+   your image builds will share the same repositories, thereby resulting in
+   conflicts for different distributions.
+
+   We recommend to create a separate project for each distribution. If that
+   is impossible, you can keep all your repositories (including
+   `Virtualization:Appliances:Builder`) in :file:`config.xml`. That however
+   usually requires a large number of workarounds via `Prefer:` settings in
+   the project configuration and is thus **not** recommended.
 
 
 Project Configuration
@@ -201,19 +236,12 @@ The Open Build Service will by default create the same output file as KIWI
 when run locally, but with a custom filename ending (that is unfortunately
 unpredictable). This has the consequence that the download URL of your
 image will change with every rebuild (and thus break automated
-scripts). This behavior can be deactivated by adding the following line
-into the project's configuration:
+scripts). OBS can create symbolic links with static names to the latest
+build by adding the following line to the project configuration:
 
 .. code:: bash
 
    Repotype: staticlinks
-
-Furthermore, if you are building images of openSUSE Leap 15 the above
-setting is not sufficient. The following additional line is required:
-
-.. code:: bash
-
-   Release: <CI_CNT>.<B_CNT>
 
 If build Vagrant images (see :ref:`setup_vagrant`) add the repository-type
 `vagrant`. OBS creates a `boxes/` subdirectory in your download
