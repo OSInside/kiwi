@@ -46,8 +46,6 @@ illustrated in the following example:
    bundle:
      # Configure whether the image bundle should contain a XZ compressed
      # image result or not.
-     # FIXME (@scheafi @davidcassany): What's the default, what's an image
-     #                                 bundle?
      - compress: true | false
 
    container:
