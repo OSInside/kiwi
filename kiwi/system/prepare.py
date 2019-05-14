@@ -419,7 +419,8 @@ class SystemPrepare(object):
                     [description_dir, archive]
                 )
             archive_exists = os.path.exists(archive_file)
-            if not archive_is_absolute and not archive_exists and derived_description_dir:
+            if not archive_is_absolute \
+               and not archive_exists and derived_description_dir:
                 archive_file = '/'.join(
                     [derived_description_dir, archive]
                 )
@@ -454,7 +455,8 @@ class SystemPrepare(object):
     def __del__(self):
         log.info('Cleaning up {:s} instance'.format(type(self).__name__))
         try:
-            self.root_bind.cleanup()
+            if hasattr(self, 'root_bind'):
+                self.root_bind.cleanup()
         except Exception as exc:
             log.info(
                 'Cleaning up {self_name:s} instance failed, got an exception '

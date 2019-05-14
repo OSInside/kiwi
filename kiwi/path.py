@@ -141,7 +141,7 @@ class Path(object):
         )
         path_elements = path.split(os.sep)
         protected_elements = [
-            'boot', 'dev', 'proc', 'run', 'sys', 'tmp'
+            'boot', 'dev', 'proc', 'run', 'sys', 'tmp', 'home'
         ]
         for path_index in reversed(range(0, len(path_elements))):
             sub_path = os.sep.join(path_elements[0:path_index])
