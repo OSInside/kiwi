@@ -80,7 +80,7 @@ class CliTask(object):
             'check_volume_setup_has_no_root_definition': [],
             'check_volume_label_used_with_lvm': [],
             'check_xen_uniquely_setup_as_server_or_guest': [],
-            'check_mediacheck_only_for_x86_arch': [],
+            'check_mediacheck_installed': [],
             'check_dracut_module_for_live_iso_in_package_list': [],
             'check_dracut_module_for_disk_overlay_in_package_list': [],
             'check_dracut_module_for_disk_oem_in_package_list': [],

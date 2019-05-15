@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import platform
 from textwrap import dedent
 
 # project
@@ -579,18 +578,12 @@ class RuntimeChecker(object):
             else:
                 raise KiwiRuntimeError(xen_message)
 
-    def check_mediacheck_only_for_x86_arch(self):
+    def check_mediacheck_installed(self):
         """
-        If the current architecture is not from the x86 family the
-        'mediacheck' feature available for iso images is not supported.
-        Checkmedia tool and its related boot code are only available
-        for x86 platforms.
+        If the image description enables the mediacheck attribute
+        the required tools to run this check must be installed
+        on the image build host
         """
-        message_arch_unsupported = dedent('''\n
-            The attribute 'mediacheck' is only supported for
-            x86 platforms, thus it can't be set to 'true'
-            for the current ({0}) architecture.
-        ''')
         message_tool_not_found = dedent('''\n
             Required tool {name} not found in caller environment
 
@@ -598,13 +591,8 @@ class RuntimeChecker(object):
             the above tool to be installed on the build system
         ''')
         if self.xml_state.build_type.get_mediacheck() is True:
-            arch = platform.machine()
             tool = 'tagmedia'
-            if arch not in ['x86_64', 'i586', 'i686']:
-                raise KiwiRuntimeError(
-                    message_arch_unsupported.format(arch)
-                )
-            elif not Path.which(filename=tool, access_mode=os.X_OK):
+            if not Path.which(filename=tool, access_mode=os.X_OK):
                 raise KiwiRuntimeError(
                     message_tool_not_found.format(name=tool)
                 )

@@ -114,7 +114,7 @@ class TestSystemPrepareTask(object):
                 self.abs_root_dir
             )
         self.runtime_checker.\
-            check_mediacheck_only_for_x86_arch.assert_called_once_with()
+            check_mediacheck_installed.assert_called_once_with()
         self.runtime_checker.\
             check_dracut_module_for_live_iso_in_package_list.\
             assert_called_once_with()
