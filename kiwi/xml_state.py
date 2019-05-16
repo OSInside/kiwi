@@ -39,7 +39,7 @@ class XMLState(object):
     """
     **Implements methods to get stateful information from the XML data**
 
-    :param object xml_data: instance of XMLDescription
+    :param object xml_data: parse result from XMLDescription.load()
     :param list profiles: list of used profiles
     :param object build_type: build <type> section reference
     """
