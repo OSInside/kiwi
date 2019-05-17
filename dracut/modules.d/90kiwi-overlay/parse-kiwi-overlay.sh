@@ -15,7 +15,7 @@ modprobe -q loop
 case "${overlayroot}" in
     overlay:UUID=*|UUID=*) \
         root="${root#overlay:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="overlay:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
 esac
