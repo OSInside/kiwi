@@ -220,30 +220,14 @@ class TestRuntimeChecker(object):
         self.runtime_checker.check_efi_mode_for_disk_overlay_correctly_setup()
 
     @raises(KiwiRuntimeError)
-    @patch('platform.machine')
-    def test_check_mediacheck_only_for_x86_arch_invalid_arch(
-        self, mock_machine
-    ):
-        mock_machine.return_value = 'aarch64'
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
-        runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_mediacheck_only_for_x86_arch()
-
-    @raises(KiwiRuntimeError)
-    @patch('platform.machine')
     @patch('kiwi.runtime_checker.Path.which')
-    def test_check_mediacheck_only_for_x86_arch_tagmedia_missing(
-        self, mock_which, mock_machine
-    ):
-        mock_machine.return_value = 'x86_64'
+    def test_check_mediacheck_installed_tagmedia_missing(self, mock_which):
         mock_which.return_value = False
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'iso'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        runtime_checker.check_mediacheck_only_for_x86_arch()
+        runtime_checker.check_mediacheck_installed()
 
     @raises(KiwiRuntimeError)
     def test_check_dracut_module_for_live_iso_in_package_list(self):
