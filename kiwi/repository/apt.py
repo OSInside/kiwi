@@ -159,12 +159,10 @@ class RepositoryApt(RepositoryBase):
         if not components:
             components = 'main'
         with open(list_file, 'w') as repo:
-            if repo_gpgcheck is None:
-                repo_line = 'deb {0}'.format(uri)
+            if repo_gpgcheck is False:
+                repo_line = 'deb [trusted=yes check-valid-until=no] {0}'.format(uri)
             else:
-                repo_line = 'deb [trusted={0}] {1}'.format(
-                    'no' if repo_gpgcheck else 'yes', uri
-                )
+                repo_line = 'deb {0}'.format(uri)
             if not dist:
                 # create a debian flat repository setup. We consider the
                 # repository metadata to exist on the toplevel of the
