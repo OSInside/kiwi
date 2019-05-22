@@ -24,7 +24,7 @@ modprobe -q loop
 case "${installroot}" in
     install:CDLABEL=*|CDLABEL=*) \
         root="${root#install:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="install:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
 

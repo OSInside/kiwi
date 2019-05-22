@@ -16,12 +16,12 @@ modprobe -q loop
 case "${liveroot}" in
     live:CDLABEL=*|CDLABEL=*) \
         root="${root#live:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="live:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
     live:AOEINTERFACE=*|AOEINTERFACE=*) \
         root="${root#live:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="live:aoe:/dev/etherd/${root#AOEINTERFACE=}"
         rootok=1 ;;
 esac
