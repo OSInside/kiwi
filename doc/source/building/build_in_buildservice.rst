@@ -84,33 +84,32 @@ The notable differences to running KIWI locally include:
      choice for multiple package version and results in a much smoother
      experience when using OBS.
 
-* OBS will by default only build a single build type and the default
-  profile. If your appliance uses multiple build types, then you must put
+* By default, OBS builds only a single build type and the default
+  profile. If your appliance uses multiple build types, put
   each build type into a profile, as OBS cannot handle multiple build
   types.
 
-  There are two options how to build multiple profiles on OBS. Either, add
-  the following comment at the top of your image description, but bellow
-  the `<?xml ..?>` element:
+  There are two options to build multiple profiles on OBS:
 
-  .. code-block:: xml
+  1. Use the `<image>` element and add it bellow the XML
+     declaration (`<?xml ..?>`):
 
-     <?xml version="1.0" encoding="utf-8"?>
+     .. code-block:: xml
 
-     <!-- OBS-Profiles: foo_profile bar_profile -->
+        <?xml version="1.0" encoding="utf-8"?>
 
-     <image schemaversion="7.1" name="openSUSE-Leap-15.1">
-       <!-- image description with the profiles foo_profile and bar_profile
-     </image>
+        <!-- OBS-Profiles: foo_profile bar_profile -->
 
-  or use the `multibuild
-  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_
-  feature.
+        <image schemaversion="7.1" name="openSUSE-Leap-15.1">
+          <!-- image description with the profiles foo_profile and bar_profile
+        </image>
+
+  2. Use the `multibuild <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_ feature.
 
   The first option is simpler to use, but has the disadvantage that your
-  appliances are built sequentially. `multibuild` allows to build each
-  profile as a single package, thereby enabling parallel execution, but
-  requires an additional :file:`_multibuild`. For the above example
+  appliances are built sequentially. The `multibuild` feature allows to
+  build each profile as a single package, thereby enabling parallel execution,
+  but requires an additional :file:`_multibuild` file. For the above example
   :file:`config.xml` would have to be adapted as follows:
 
   .. code-block:: xml
@@ -123,7 +122,7 @@ The notable differences to running KIWI locally include:
        <!-- image description with the profiles foo_profile and bar_profile
      </image>
 
-  and :file:`_multibuild` would have the following contents:
+  The file :file:`_multibuild` would have the following contents:
 
   .. code-block:: xml
 
