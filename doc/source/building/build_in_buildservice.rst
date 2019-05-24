@@ -84,10 +84,53 @@ The notable differences to running KIWI locally include:
      choice for multiple package version and results in a much smoother
      experience when using OBS.
 
-* OBS will by default only build a single image type. If your appliance
-  contains multiple build types or uses profiles, use the `multibuild
-  <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_
-  feature.
+* By default, OBS builds only a single build type and the default
+  profile. If your appliance uses multiple build types, put
+  each build type into a profile, as OBS cannot handle multiple build
+  types.
+
+  There are two options to build multiple profiles on OBS:
+
+  1. Use the `<image>` element and add it bellow the XML
+     declaration (`<?xml ..?>`):
+
+     .. code-block:: xml
+
+        <?xml version="1.0" encoding="utf-8"?>
+
+        <!-- OBS-Profiles: foo_profile bar_profile -->
+
+        <image schemaversion="7.1" name="openSUSE-Leap-15.1">
+          <!-- image description with the profiles foo_profile and bar_profile
+        </image>
+
+  2. Use the `multibuild <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_ feature.
+
+  The first option is simpler to use, but has the disadvantage that your
+  appliances are built sequentially. The `multibuild` feature allows to
+  build each profile as a single package, thereby enabling parallel execution,
+  but requires an additional :file:`_multibuild` file. For the above example
+  :file:`config.xml` would have to be adapted as follows:
+
+  .. code-block:: xml
+
+     <?xml version="1.0" encoding="utf-8"?>
+
+     <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+     <image schemaversion="7.1" name="openSUSE-Leap-15.1">
+       <!-- image description with the profiles foo_profile and bar_profile
+     </image>
+
+  The file :file:`_multibuild` would have the following contents:
+
+  .. code-block:: xml
+
+     <multibuild>
+       <flavor>foo_profile</flavor>
+       <flavor>bar_profile</flavor>
+     </multibuild>
+
 
 * Subfolders in OBS projects are ignored by default by :command:`osc` and
   must be explicitly added via :command:`osc add $FOLDER` [#f2]_. Bear that
