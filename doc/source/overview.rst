@@ -12,7 +12,6 @@ Overview
    :maxdepth: 1
 
    overview/workflow
-   overview/legacy_kiwi
 
 Conceptual Overview
 -------------------
