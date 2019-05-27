@@ -17,7 +17,7 @@ using `systemdisk`. This element is a child of the `type`.
 Volumes themselves are added via (multiple) `volume` child
 elements of the `systemdisk` element:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="openSUSE-Leap-15.1">
      <type image="oem" filesystem="btrfs" preferlvm="true">
@@ -50,7 +50,7 @@ attributes:
      case some specific size attributes for the root volume have to be
      defined. For instance:
 
-     .. code-block:: xml
+     .. code:: xml
 
         <volume name="@root" size="4G"/>
 

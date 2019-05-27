@@ -52,10 +52,30 @@ def remove_module_docstring(app, what, name, obj, options, lines):
     if what == "module" and name in docopt_ignore:
         del lines[:]
 
+def prologReplace(app, docname, source):
+    result = source[0]
+    for key in app.config.prolog_replacements:
+        result = result.replace(key, app.config.prolog_replacements[key])
+    source[0] = result
+
 def setup(app):
+    app.add_config_value('prolog_replacements', {}, True)
+    app.connect('source-read', prologReplace)
     app.connect("autodoc-process-docstring", remove_module_docstring)
     app.add_stylesheet('css/custom.css')
 
+
+prolog_replacements = {
+    '{exc_image_base_name}': 'LimeJeOS-Leap-15.1',
+    '{exc_description}': 'suse-leap-15.1-JeOS',
+    '{exc_netboot}': 'netboot/suse-leap15.1',
+    '{exc_os_version}': '15.1',
+    '{exc_image_version}': '1.15.1',
+    '{exc_repo}': 'obs://openSUSE:Leap:15.1/standard',
+    '{exc_kiwi_repo}':
+        'obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.1',
+    '{schema_version}': '7.1'
+}
 
 latex_documents = [
     ('index', 'kiwi.tex', 'KIWI Documentation', 'Marcus Schäfer', 'manual')

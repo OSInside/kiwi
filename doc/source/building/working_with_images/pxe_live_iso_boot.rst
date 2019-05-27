@@ -28,7 +28,7 @@ the network:
    
    .. code:: bash
 
-       $ mount LimeJeOS-Leap-42.3.x86_64-1.42.3.iso /mnt
+       $ mount {exc_image_base_name}.x86_64-{exc_image_version}.iso /mnt
        $ cp /mnt/boot/x86_64/loader/initrd /srv/tftpboot/boot/initrd
        $ cp /mnt/boot/x86_64/loader/linux /srv/tftpboot/boot/linux
        $ umount /mnt
@@ -60,7 +60,7 @@ the network:
 
    .. code:: bash
 
-       $ vbladed 0 1 INTERFACE LimeJeOS-Leap-42.3.x86_64-1.42.3.iso
+       $ vbladed 0 1 INTERFACE {exc_image_base_name}.x86_64-{exc_image_version}.iso
 
    The above command exports the given ISO file as a block storage
    device to the network of the given INTERFACE. On any machine

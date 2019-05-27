@@ -6,7 +6,7 @@ kiwi
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
    kiwi [global options] service <command> [<args>]
 
@@ -114,12 +114,12 @@ GLOBAL OPTIONS
 EXAMPLE
 -------
 
-.. code-block:: bash
+.. code:: bash
 
    $ git clone https://github.com/SUSE/kiwi-descriptions
 
    $ kiwi --type vmx system build \
-       --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
+       --description kiwi-descriptions/suse/x86_64/{exc_description} \
        --target-dir /tmp/myimage
 
 .. include:: ../working_with_kiwi/runtime_configuration_incl.rst
@@ -132,8 +132,8 @@ This version of KIWI uses a different caller syntax compared to
 former versions. However there is a compatibility mode which allows
 to use a legacy KIWI commandline as follows:
 
-.. code-block:: bash
+.. code:: bash
 
    $ kiwi compat \
-       --build kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
+       --build kiwi-descriptions/suse/x86_64/{exc_description} \
        --type vmx -d /tmp/myimage

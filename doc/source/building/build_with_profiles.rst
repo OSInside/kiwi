@@ -14,11 +14,11 @@ Local Builds
 To execute local KIWI builds with a specific, selected profile, add the
 command line flag `--profile=$PROFILE_NAME`:
 
-.. code-block:: shell-session
+.. code:: shell-session
 
    $ sudo kiwi-ng --type iso system build \
          --profile=workstation \
-         --description path/to/description/directory \
+         --description kiwi-descriptions/suse/x86_64/{exc_description} \
          --target-dir /tmp/myimage
 
 Consult the manual page of :file:`kiwi` for further details:
@@ -39,25 +39,25 @@ To enable and use the profiles, follow these steps:
 
 #. Add the following XML comment to your :file:`config.xml`:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
    It must be added before the opening `<image>` element and after the
    `<?xml?>` element, e.g.:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <?xml version="1.0" encoding="utf-8"?>
       <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
-      <image schemaversion="6.9" name="OpenSUSE-Leap-15.0">
+      <image schemaversion="6.9" name="{exc_image_base_name}">
         <!-- snip -->
       </image>
 
 #. Add a file :file:`_multibuild` into your package's repository with the
    following contents:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <multibuild>
         <flavor>profile_1</flavor>
@@ -74,6 +74,6 @@ enabled.
 Running a build of a multibuild enabled repository via :file:`osc` can be
 achieved via the `-M $PROFILE` flag:
 
-.. code-block:: shell-session
+.. code:: shell-session
 
    $ osc build -M $PROFILE

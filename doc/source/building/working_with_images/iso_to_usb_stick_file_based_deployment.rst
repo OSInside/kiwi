@@ -54,7 +54,7 @@ to setup the USB stick with `live-grub-stick`:
 
    .. code:: bash
 
-      $ sudo live-grub-stick LimeJeOS-Leap-42.3.x86_64-1.42.3.iso /dev/sdz1
+      $ sudo live-grub-stick {exc_image_base_name}.x86_64-{exc_image_version}.iso /dev/sdz1
 
 4. Boot from your USB Stick
 

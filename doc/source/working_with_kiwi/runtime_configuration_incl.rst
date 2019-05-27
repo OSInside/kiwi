@@ -23,7 +23,7 @@ file in the following locations:
 The parameters that can be changed via the runtime configuration file are
 illustrated in the following example:
 
-.. code-block:: yaml
+.. code:: yaml
 
    xz:
      # Additional command line flags for `xz`

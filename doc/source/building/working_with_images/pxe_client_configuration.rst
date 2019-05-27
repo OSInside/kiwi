@@ -96,19 +96,19 @@ is required:
 
 .. note::
 
-   In the referenced :file:`suse-leap-42.3-JeOS` XML description the ``pxe``
+   In the referenced {exc_description} XML description the ``pxe``
    type must be changed as follows and the image needs to be
    rebuild:
 
    .. code:: xml
 
-       <type image="pxe" filesystem="ext3" boot="netboot/suse-leap42.3"/>
+       <type image="pxe" filesystem="ext3" boot="{exc_netboot}"/>
 
 .. code:: bash
 
-   IMAGE="/dev/sda2;LimeJeOS-Leap-42.3.x86_64;1.42.3;192.168.100.2;4096"
-   DISK="/dev/sda"
-   PART="5;S;X,X;L;/"
+       IMAGE="/dev/sda2;{exc_image_base_name}.x86_64;{exc_image_version};192.168.100.2;4096"
+       DISK="/dev/sda"
+       PART="5;S;X,X;L;/"
 
 The setup above will create a partition table on sda with a 5MB swap
 partition (no mountpoint) and the rest of the disk will be a Linux(L)
@@ -123,19 +123,19 @@ configuration, the following setup is required:
 
 .. note::
 
-   In the referenced :file:`suse-leap-42.3-JeOS` XML description the ``pxe``
+   In the referenced {exc_description} XML description the ``pxe``
    type must be changed as follows and the image needs to be
    rebuild:
 
    .. code:: xml
 
-       <type image="pxe" filesystem="ext3" boot="netboot/suse-leap42.3"/>
+       <type image="pxe" filesystem="ext3" boot="{exc_netboot}"/>
 
 .. code:: bash
 
-   RAID='1;/dev/sda;/dev/sdb'
-   IMAGE="/dev/md1;LimeJeOS-Leap-42.3.x86_64;1.42.3;192.168.100.2;4096"
-   PART="5;S;x,x;L;/"
+       RAID="1;/dev/sda;/dev/sdb"
+       IMAGE="/dev/md1;{exc_image_base_name}.x86_64;{exc_image_version};192.168.100.2;4096"
+       PART="5;S;x,x;L;/"
 
 The first parameter of the RAID line is the RAID level. So far only raid1
 (mirroring) is supported. The second and third parameter specifies the

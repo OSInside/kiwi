@@ -19,7 +19,7 @@ To add a live ISO build to your appliance, create a `type` element with
 `image` set to `iso` in your :file:`config.xml` (see
 :ref:`xml-description-build-types`) as shown below:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="6.9" name="JeOS-Tumbleweed">
      <!-- snip -->
@@ -56,7 +56,7 @@ build the image:
 .. code:: bash
 
    $ sudo kiwi-ng --type iso system build \
-         --description path/to/description/directory \
+         --description kiwi-descriptions/suse/x86_64/{exc_description} \
          --target-dir /tmp/myimage
 
 The resulting image is saved in the folder :file:`/tmp/myimage` and can
@@ -64,7 +64,7 @@ be tested with QEMU:
 
 .. code:: bash
 
-   $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.iso -m 4096
+   $ qemu -cdrom {exc_image_base_name}.x86_64-{exc_image_version}.iso -m 4096
 
 The image is now complete and ready to use. See :ref:`iso_to_usb_stick` and
 :ref:`iso_as_file_to_usb_stick` for further information concerning

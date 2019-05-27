@@ -1,8 +1,7 @@
 .. _xml-description:
 
-=======================
- The Image Description
-=======================
+The Image Description
+=====================
 
 The image description is a XML file that defines properties of the
 appliance that will be build by KIWI, for example:
@@ -27,7 +26,7 @@ XML file:
 
 - Elements can have *children*:
 
-  .. code-block:: xml
+  .. code:: xml
 
      <element>
        <child/>
@@ -44,11 +43,11 @@ The `image` Element
 The image description consists of the root element `image` and its
 children, for example:
 
-.. code-block:: xml
+.. code:: xml
 
    <?xml version="1.0" encoding="utf-8"?>
 
-   <image schemaversion="7.1" name="LimeJeOS-Leap-15.0">
+   <image schemaversion="7.1" name="{exc_image_base_name}">
        <!-- all settings belong here -->
    </image>
 
@@ -69,11 +68,11 @@ provide an alternative name that will be displayed in the bootloader via
 the attribute `displayName`, which doesn't have the same strict rules as
 `name` (it can contain spaces and slashes):
 
-.. code-block:: xml
+.. code:: xml
 
    <?xml version="1.0" encoding="utf-8"?>
 
-   <image schemaversion="7.1" name="LimeJeOS-Leap-15.0" displayName="LimeJeOS Leap 15.0">
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}" displayName="{exc_image_base_name}">
        <!-- all setting belong here -->
    </image>
 
@@ -84,20 +83,18 @@ The `description` Element
 The `description` element, contains some high level information about the
 image:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="LimeJeOS-Leap-15.0">
-
-     <description type="system">
-       <author>Jane Doe</author>
-       <contact>jane@myemaildomain.xyz</contact>
-       <specification>
-         Leap 15.0 JeOS, a small image, that is just enough of an OS
-       </specification>
-       <license>GPLv3</license>
-     </description>
-
-     <!-- snip -->
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <description type="system">
+           <author>Jane Doe</author>
+           <contact>jane@myemaildomain.xyz</contact>
+           <specification>
+               {exc_image_base_name}, a small image
+           </specification>
+           <license>GPLv3</license>
+       </description>
+       <!-- snip -->
    </image>
 
 
@@ -140,16 +137,15 @@ instance, a live ISO image or a virtual machine disk.
 
 For example, a live ISO image is specified as follows:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="LimeJeOS-Leap-15.0">
-     <preferences>
-       <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
-       <!-- additional preferences -->
-     </preferences>
-     <!-- additional image settings -->
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <preferences>
+           <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+           <!-- additional preferences -->
+       </preferences>
+       <!-- additional image settings -->
    </image>
-
 
 A build type is defined via a single `type` element whose only required
 attribute is `image`, that defines which image type is created. All other
@@ -162,30 +158,30 @@ It is possible to provide **multiple** `type` elements with **different**
 snippet can be used to create a live image, an OEM installation image, and
 a virtual machine disk of the same appliance:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="LimeJeOS-Leap-15.0">
-     <preferences>
-       <!-- Live ISO -->
-       <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <preferences>
+           <!-- Live ISO -->
+           <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
 
-       <!-- Virtual machine -->
-       <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="splash" firmware="efi"/>
+           <!-- Virtual machine -->
+           <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="splash" firmware="efi"/>
 
-       <!-- OEM installation image -->
-       <type image="oem" filesystem="ext4" initrd_system="dracut" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
-         <oemconfig>
-           <oem-systemsize>2048</oem-systemsize>
-           <oem-swap>true</oem-swap>
-           <oem-device-filter>/dev/ram</oem-device-filter>
-           <oem-multipath-scan>false</oem-multipath-scan>
-         </oemconfig>
-         <machine memory="512" guestOS="suse" HWversion="4"/>
-       </type>
-       <!-- additional preferences -->
-     </preferences>
+           <!-- OEM installation image -->
+           <type image="oem" filesystem="ext4" initrd_system="dracut" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
+               <oemconfig>
+                   <oem-systemsize>2048</oem-systemsize>
+                   <oem-swap>true</oem-swap>
+                   <oem-device-filter>/dev/ram</oem-device-filter>
+                   <oem-multipath-scan>false</oem-multipath-scan>
+               </oemconfig>
+               <machine memory="512" guestOS="suse" HWversion="4"/>
+           </type>
+           <!-- additional preferences -->
+       </preferences>
 
-     <!-- additional image settings -->
+       <!-- additional image settings -->
    </image>
 
 Note the additional attribute `primary` in the Live ISO image build
@@ -327,7 +323,7 @@ build types and will be covered here:
   Bytes is used, which works on many disks. You can obtain the blocksize
   from the `SSZ` column in the output of the following command:
 
-  .. code-block:: shell-session
+  .. code:: shell-session
 
      blockdev --report $DEVICE
 
@@ -377,25 +373,24 @@ remaining child-elements of `preferences`:
 An example excerpt from a image description using these child-elements of
 `preferences`, results in the following image description:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="OpenSUSE-Leap-15.0">
-     <!-- snip -->
-     <preferences>
-       <version>15.0</version>
-       <packagemanager>zypper</packagemanager>
-       <locale>en_US</locale>
-       <keytable>us</keytable>
-       <timezone>Europe/Berlin</timezone>
-       <rpm-excludedocs>true</rpm-excludedocs>
-       <rpm-check-signatures>false</rpm-check-signatures>
-       <bootsplash-theme>openSUSE</bootsplash-theme>
-       <bootloader-theme>openSUSE</bootloader-theme>
-       <type image="vmx" filesystem="ext4" format="qcow2" boottimeout="0" bootloader="grub2">
-    </preferences>
-    <!-- snip -->
-  </image>
-
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <preferences>
+           <version>15.0</version>
+           <packagemanager>zypper</packagemanager>
+           <locale>en_US</locale>
+           <keytable>us</keytable>
+           <timezone>Europe/Berlin</timezone>
+           <rpm-excludedocs>true</rpm-excludedocs>
+           <rpm-check-signatures>false</rpm-check-signatures>
+           <bootsplash-theme>openSUSE</bootsplash-theme>
+           <bootloader-theme>openSUSE</bootloader-theme>
+           <type image="vmx" filesystem="ext4" format="qcow2" boottimeout="0" bootloader="grub2">
+       </preferences>
+       <!-- snip -->
+   </image>
 
 .. _xml-description-image-profiles:
 
@@ -423,27 +418,26 @@ In the following example, we create two virtual machine images: one for
 QEMU (using the `qcow2` format) and one for VMWare (using the `vmdk`
 format).
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="OpenSUSE-Leap-15.0">
-     <!-- snip -->
-     <profiles>
-       <profile name="QEMU" description="virtual machine for QEMU"/>
-       <profile name="VMWare" description="virtual machine for VMWare"/>
-     </profiles>
-     <preferences>
-       <version>15.0</version>
-       <packagemanager>zypper</packagemanager>
-     </preferences>
-     <preferences profiles="QEMU">
-       <type image="vmx" format="qcow2" filesystem="ext4" bootloader="grub2">
-     </preferences>
-     <preferences profiles="VMWare">
-       <type image="vmx" format="vmdk" filesystem="ext4" bootloader="grub2">
-     </preferences>
-     <!-- snip -->
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <profiles>
+           <profile name="QEMU" description="virtual machine for QEMU"/>
+           <profile name="VMWare" description="virtual machine for VMWare"/>
+       </profiles>
+       <preferences>
+           <version>15.0</version>
+           <packagemanager>zypper</packagemanager>
+       </preferences>
+       <preferences profiles="QEMU">
+           <type image="vmx" format="qcow2" filesystem="ext4" bootloader="grub2">
+       </preferences>
+       <preferences profiles="VMWare">
+           <type image="vmx" format="vmdk" filesystem="ext4" bootloader="grub2">
+       </preferences>
+       <!-- snip -->
    </image>
-
 
 Each profile is declared via the element `profile`, which itself must be a
 child of `profiles` and must contain the `name` and `description`
@@ -468,13 +462,13 @@ attribute is present in the following elements only:
 Profiles can furthermore inherit settings from another profile via the
 `requires` sub-element:
 
-.. code-block:: xml
+.. code:: xml
 
    <profiles>
-     <profile name="VM" description="virtual machine"/>
-     <profile name="QEMU" description="virtual machine for QEMU">
-       <requires>VM</requires>
-     </profile>
+       <profile name="VM" description="virtual machine"/>
+       <profile name="QEMU" description="virtual machine for QEMU">
+           <requires>VM</requires>
+       </profile>
    </profiles>
 
 The profile `QEMU` would inherit the settings from `VM` in the above
@@ -491,20 +485,20 @@ Adding Users
 User accounts can be added or modified via the `users` element, which
 supports a list of multiple `user` child elements:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <users>
-       <user
-         password="this_is_soo_insecure"
-         home="/home/me" name="me"
-         groups="users" pwdformat="plain"
-       />
-       <user
-         password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0"
-         home="/root" name="root" groups="root"
-       />
-     </users>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <users>
+           <user
+               password="this_is_soo_insecure"
+               home="/home/me" name="me"
+               groups="users" pwdformat="plain"
+           />
+           <user
+               password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0"
+               home="/root" name="root" groups="root"
+           />
+       </users>
    </image>
 
 Each `user` element represents a specific user that is added or
@@ -543,32 +537,32 @@ The `users` element furthermore accepts a list of profiles (see
 :ref:`xml-description-image-profiles`) to which it applies via the
 `profiles` attribute, as shown in the following example:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <profiles>
-       <profile name="VM" description="standard virtual machine"/>
-       <profile name="shared_VM" description="virtual machine shared by everyone"/>
-     </profiles>
-     <!-- snip -->
-     <users>
-       <user
-         password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0"
-         home="/root" name="root" groups="root"
-       />
-     </users>
-     <users profiles="VM">
-       <user
-         password="$1$blablabl$FRTFJZxMPfM6LA1g0EZ5h1"
-         home="/home/devel" name="devel"
-       />
-     </users>
-     <users profiles="shared_VM">
-       <user
-         password="super_secr4t" pwdformat="plain"
-         home="/share/devel" name="devel" groups="users,devel"
-       />
-     </users>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <profiles>
+           <profile name="VM" description="standard virtual machine"/>
+           <profile name="shared_VM" description="virtual machine shared by everyone"/>
+       </profiles>
+       <!-- snip -->
+       <users>
+           <user
+               password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0"
+               home="/root" name="root" groups="root"
+           />
+       </users>
+       <users profiles="VM">
+           <user
+               password="$1$blablabl$FRTFJZxMPfM6LA1g0EZ5h1"
+               home="/home/devel" name="devel"
+           />
+       </users>
+       <users profiles="shared_VM">
+           <user
+               password="super_secr4t" pwdformat="plain"
+               home="/share/devel" name="devel" groups="users,devel"
+           />
+       </users>
    </image>
 
 Here the settings for the root user are shared among all appliances. The
@@ -595,27 +589,26 @@ defined, as KIWI will otherwise not be able to fetch any packages.
 A repository is added to the description via the `repository` element,
 which is a child of the top-level `image` element:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <!-- snip -->
-     <repository type="rpm-md" alias="kiwi" priority="1">
-       <source path="obs://Virtualization:Appliances:Builder/Factory"/>
-     </repository>
-     <repository type="rpm-md" alias="Tumbleweed" imageinclude="true">
-       <source path="http://download.opensuse.org/tumbleweed/repo/oss"/>
-     </repository>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <repository type="rpm-md" alias="kiwi" priority="1">
+           <source path="{exc_kiwi_repo}"/>
+       </repository>
+       <repository type="rpm-md" alias="OS" imageinclude="true">
+           <source path="{exc_repo}"/>
+       </repository>
    </image>
 
 In the above snippet we defined two repositories:
 
-1. The repository belonging to the project
-   *Virtualization:Appliances:Builder* on the Open Build Service (OBS)
+1. The repository belonging to the KIWI project:
+   *{exc_kiwi_repo}* at the Open Build Service (OBS)
 
-2. The RPM repository available via the URL:
-   `<http://download.opensuse.org/tumbleweed/repo/oss>`_, which will also
-   be included in the final appliance.
-
+2. The RPM repository belonging to the OS project:
+   *{exc_repo}*, at the Open Build Service (OBS). The translated
+   http URL will also be included in the final appliance.
 
 The `repository` element accepts one `source` child element, which
 contains the URL to the repository in an appropriate format and the
@@ -705,23 +698,19 @@ should be installed on the image. This is achieved via the `packages`
 element which includes the packages that should be installed, ignore or
 removed via individual `package` child elements:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <!-- snip -->
-     <repository type="rpm-md" alias="Tumbleweed" imageinclude="true">
-       <source path="https://download.opensuse.org/tumbleweed/repo/oss"/>
-     </repository>
-     <packages type="bootstrap">
-       <package name="udev"/>
-       <package name="filesystem"/>
-       <package name="openSUSE-release"/>
-       <!-- additional packages installed before the chroot is created -->
-     </packages>
-     <packages type="image">
-       <package name="patterns-openSUSE-base"/>
-       <!-- additional packages to be installed into the chroot -->
-     </packages>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <packages type="bootstrap">
+           <package name="udev"/>
+           <package name="filesystem"/>
+           <package name="openSUSE-release"/>
+           <!-- additional packages installed before the chroot is created -->
+       </packages>
+       <packages type="image">
+           <package name="patterns-openSUSE-base"/>
+           <!-- additional packages to be installed into the chroot -->
+       </packages>
    </image>
 
 The `packages` element provides a collection of different child elements
@@ -762,13 +751,13 @@ The `package` element
 The `package` element represents a single package to be installed (or
 removed), whose name is specified via the mandatory `name` attribute:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <!-- snip -->
-     <packages type="bootstrap">
-       <package name="udev"/>
-     </packages>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <packages type="bootstrap">
+           <package name="udev"/>
+       </packages>
    </image>
 
 which adds the package `udev` to the list of packages to be added to the
@@ -778,15 +767,15 @@ Packages can also be included only on specific architectures via the `arch`
 attribute. KIWI compares the `arch` attributes value with the output of
 `uname -m`.
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <!-- snip -->
-     <packages type="image">
-       <package name="grub2"/>
-       <package name="grub2-x86_64-efi" arch="x86_64"/>
-       <package name="shim" arch="x86_64"/>
-     </packages>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <packages type="image">
+           <package name="grub2"/>
+           <package name="grub2-x86_64-efi" arch="x86_64"/>
+           <package name="shim" arch="x86_64"/>
+       </packages>
    </image>
 
 which results in `grub2-x86_64-efi` and `shim` being only installed on 64
@@ -804,11 +793,11 @@ supports the inclusion of ordinary archives via the `archive` element,
 whose `name` attribute specifies the filename of the archive (KIWI looks
 for the archive in the image description folder).
 
-.. code-block:: xml
+.. code:: xml
 
    <packages type="image">
-     <archive name="custom-program1.tgz"/>
-     <archive name="custom-program2.tar"/>
+       <archive name="custom-program1.tgz"/>
+       <archive name="custom-program2.tar"/>
    </packages>
 
 KIWI will extract the archive into the root directory of the image using
@@ -858,24 +847,24 @@ custom program in :file:`config.sh`. We ship its source code via an
 `archive` element and add the build tools (`ninja`, `meson` and `clang`) to
 `<packages type="image">` and `<packages type="uninstall">`:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
-     <!-- snip -->
-     <packages type="image">
-       <package name="ca-certificates"/>
-       <package name="coreutils"/>
-       <package name="ninja"/>
-       <package name="clang"/>
-       <package name="meson"/>
-       <archive name="foo_app_sources.tar.gz"/>
-     </packages>
-     <!-- These packages will be uninstalled after running config.sh -->
-     <packages type="uninstall">
-       <package name="ninja"/>
-       <package name="meson"/>
-       <package name="clang"/>
-     </packages>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <packages type="image">
+           <package name="ca-certificates"/>
+           <package name="coreutils"/>
+           <package name="ninja"/>
+           <package name="clang"/>
+           <package name="meson"/>
+           <archive name="foo_app_sources.tar.gz"/>
+       </packages>
+       <!-- These packages will be uninstalled after running config.sh -->
+       <packages type="uninstall">
+           <package name="ninja"/>
+           <package name="meson"/>
+           <package name="clang"/>
+       </packages>
    </image>
 
 The tools `meson`, `clang` and `ninja` are then available during the
@@ -884,7 +873,7 @@ The tools `meson`, `clang` and `ninja` are then available during the
 :ref:`working-with-kiwi-user-defined-scripts`), for example to build
 ``foo_app``:
 
-.. code-block:: bash
+.. code:: bash
 
    pushd /opt/src/foo_app
    mkdir build
@@ -941,16 +930,16 @@ Packages can be explicitly marked to be ignored for installation inside a
 installed when using patterns with `patternType="plusRecommended"` as shown
 in the following example:
 
-.. code-block:: xml
+.. code:: xml
 
-   <image schemaversion="7.1" name="Fedora-29">
-     <packages type="image" patternType="plusRecommended">
-       <namedCollection name="network-server"/>
-       <package name="grub2"/>
-       <package name="kernel"/>
-       <ignore name="ejabberd"/>
-       <ignore name="puppet-server"/>
-     </packages>
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <packages type="image" patternType="plusRecommended">
+           <namedCollection name="network-server"/>
+           <package name="grub2"/>
+           <package name="kernel"/>
+           <ignore name="ejabberd"/>
+           <ignore name="puppet-server"/>
+       </packages>
    </image>
 
 

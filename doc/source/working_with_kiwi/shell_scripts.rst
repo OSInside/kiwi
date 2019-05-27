@@ -103,7 +103,7 @@ Configuration Tips
      targeting these older operating systems, it is recommended to add the
      symlink creation into :file:`config.sh`:
 
-     .. code-block:: bash
+     .. code:: bash
 
         #======================================
         # Make machine-id consistent with dbus
@@ -142,7 +142,7 @@ an error and abort the image creation.
 
 See below a common template for :file:`images.sh` script:
 
-.. code-block:: bash
+.. code:: bash
 
    #======================================
    # Include functions & variables
@@ -268,7 +268,7 @@ The following list describes all functions provided by :file:`.kconfig`:
 
   Example to enable the sshd service on boot:
 
-  .. code-block:: bash
+  .. code:: bash
 
      baseService sshd on
 
