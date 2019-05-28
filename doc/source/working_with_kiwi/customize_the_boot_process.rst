@@ -51,7 +51,7 @@ of KIWI the following dracut modules are used:
    and ``pxe``. The use of a custom boot image is activated by setting the
    following attribute in the image description:
 
-   .. code-block:: none
+   .. code:: none
 
       <type ... initrd_system="kiwi"/>
 
@@ -59,9 +59,9 @@ of KIWI the following dracut modules are used:
    a boot image description in the ``boot`` attribute like in the
    following example:
 
-   .. code-block:: none
+   .. code:: none
 
-      <type ... boot="netboot/suse-leap42.3"/>
+      <type ... boot="{exc_netboot}"/>
 
    Such boot descriptions for the OEM and PXE types are currently still
    provided by the KIWI packages but will be moved into its own repository
@@ -111,7 +111,7 @@ right before the system rootfs gets mounted.
 
 4. Create a module setup file in :file:`root/usr/lib/dracut/modules.d/90my-module/module-setup.sh` with the following content:
 
-   .. code-block:: bash
+   .. code:: bash
 
 
        #!/bin/bash
@@ -222,7 +222,7 @@ stop the boot process without any possibility to interact with the system.
 Prevent this behavior by activating dracut's builtin debug mode in combination
 with the kiwi debug mode as follows:
 
-.. code-block:: bash
+.. code:: bash
 
     rd.debug rd.kiwi.debug
 
@@ -231,6 +231,6 @@ the system will enter a limited shell environment in case of a fatal error
 during boot. The shell contains a basic set of commands and allows for a closer
 look to:
 
-.. code-block:: bash
+.. code:: bash
 
     less /run/initramfs/log/boot.kiwi

@@ -25,20 +25,20 @@ system:
 
 2. Build the image with KIWI:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ sudo kiwi-ng --type oem system build \
-            --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
-            --target-dir /tmp/myimage
+       $ sudo kiwi-ng --type oem system build \
+           --description kiwi-descriptions/suse/x86_64/{exc_description} \
+           --target-dir /tmp/myimage
 
-    Find the following result images below :file:`/tmp/myimage`.
+   Find the following result images below :file:`/tmp/myimage`.
 
-    * The OEM disk image with the suffix :file:`.raw` is an expandable
-      virtual disk. It can expand itself to a custom disk geometry.
+   * The OEM disk image with the suffix :file:`.raw` is an expandable
+     virtual disk. It can expand itself to a custom disk geometry.
 
-    * The OEM installation image with the suffix :file:`install.iso` is a
-      hybrid installation system which contains the OEM disk image and is
-      capable to install this image on any target disk.
+   * The OEM installation image with the suffix :file:`install.iso` is a
+     hybrid installation system which contains the OEM disk image and is
+     capable to install this image on any target disk.
 
 .. _deployment_methods:
 
@@ -91,7 +91,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ dd if=LimeJeOS-Leap-42.3.x86_64-1.42.3.raw of=target_disk conv=notrunc
+       $ dd if={exc_image_base_name}.x86_64-{exc_image_version}.raw of=target_disk conv=notrunc
 
 3. Boot the target disk
 
@@ -122,7 +122,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.install.iso -hda target_disk -boot d -m 4096
+       $ qemu -cdrom{exc_image_base_name}.x86_64-{exc_image_version}.install.iso -hda target_disk -boot d -m 4096
 
    .. note:: USB Stick Deployment
 
@@ -146,7 +146,7 @@ target system:
 
 1. Make sure to create an installation PXE TAR archive along with your
    OEM image by replacing the following setup in
-   kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS/config.xml
+   kiwi-descriptions/suse/x86_64/{exc_description}/config.xml
 
    Instead of
 
@@ -162,18 +162,23 @@ target system:
 
 
 2. Rebuild the image, unpack the resulting
-   :file:`LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz` file to a temporary
-   directory and copy the initrd and kernel images to the PXE server:
+   :file:`{exc_image_base_name}.x86_64-{exc_image_version}.install.tar.xz`
+   file to a temporary directory and copy the initrd and kernel images to
+   the PXE server:
 
-   .. code:: bash
+   a) Unpack installation tarball
 
-       # Unpack installation tarball
-       mkdir /tmp/pxe && cd /tmp/pxe
-       tar -xf LimeJeOS-Leap-42.3.x86_64-1.42.3.install.tar.xz
+      .. code:: bash
 
-       # Copy kernel and initrd used for pxe boot
-       scp pxeboot.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
-       scp pxeboot.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
+          mkdir /tmp/pxe && cd /tmp/pxe
+          tar -xf {exc_image_base_name}.x86_64-{exc_image_version}.install.tar.xz
+
+   b) Copy kernel and initrd used for pxe boot
+
+      .. code:: bash
+
+          scp pxeboot.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+          scp pxeboot.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
 3. Copy the OEM disk image, MD5 file, system kernel and initrd to
    the PXE boot server:
@@ -181,15 +186,19 @@ target system:
    Activation of the deployed system is done via `kexec` of the kernel
    and initrd provided here.
 
-   .. code:: bash
+   a) Copy system image and MD5 checksum
 
-       # Copy system image and MD5 checksum
-       scp LimeJeOS-Leap-42.3.xz PXE_SERVER_IP:/srv/tftpboot/image/
-       scp LimeJeOS-Leap-42.3.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+      .. code:: bash
 
-       # Copy kernel and initrd used for booting the system via kexec
-       scp LimeJeOS-Leap-42.3.initrd PXE_SERVER_IP:/srv/tftpboot/image/
-       scp LimeJeOS-Leap-42.3.kernel PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.xz PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+
+   b) Copy kernel and initrd used for booting the system via kexec
+
+      .. code:: bash
+
+          scp {exc_image_base_name}.initrd PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.kernel PXE_SERVER_IP:/srv/tftpboot/image/
 
 4. Add/Update the kernel command line parameters
 
@@ -199,7 +208,7 @@ target system:
 
    .. code:: bash
 
-       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/LimeJeOS-Leap-42.3.xz
+       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/{exc_image_base_name}.xz
 
    The location of the image is specified as a source URI which can point
    to any location supported by the `curl` command. KIWI calls `curl` to fetch

@@ -94,7 +94,7 @@ The notable differences to running KIWI locally include:
   1. Use the `<image>` element and add it bellow the XML
      declaration (`<?xml ..?>`):
 
-     .. code-block:: xml
+     .. code:: xml
 
         <?xml version="1.0" encoding="utf-8"?>
 
@@ -112,7 +112,7 @@ The notable differences to running KIWI locally include:
   but requires an additional :file:`_multibuild` file. For the above example
   :file:`config.xml` would have to be adapted as follows:
 
-  .. code-block:: xml
+  .. code:: xml
 
      <?xml version="1.0" encoding="utf-8"?>
 
@@ -124,7 +124,7 @@ The notable differences to running KIWI locally include:
 
   The file :file:`_multibuild` would have the following contents:
 
-  .. code-block:: xml
+  .. code:: xml
 
      <multibuild>
        <flavor>foo_profile</flavor>
@@ -164,7 +164,7 @@ that appears when clicking `Add from a Distribution` in the `Repositories`
 tab. Or specify it manually in the project configuration (it can be
 accessed via ``osc meta -e prj``):
 
-.. code-block:: xml
+.. code:: xml
 
   <repository name="images">
     <arch>x86_64</arch>
@@ -177,7 +177,7 @@ your dependent packages. These repositories can be provided in two ways:
    from :file:`config.xml`. Provide only the following repository inside
    the image description:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <repository type="rpm-md">
         <source path="obsrepositories:/"/>
@@ -190,7 +190,7 @@ your dependent packages. These repositories can be provided in two ways:
    adding a line of the following form as a child of ``<repository
    name="images">``:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <path project="$OBS_PROJECT" repository="$REPOSITORY_NAME"/>
 
@@ -207,7 +207,7 @@ your dependent packages. These repositories can be provided in two ways:
    repositories from the `Virtualization:Appliances:Builder` project and
    those from the latest snapshot of openSUSE Tumbleweed:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <project name="Virtualization:Appliances:Images:openSUSE-Tumbleweed">
         <title>JeOS for Tumbleweed </title>
@@ -222,7 +222,7 @@ your dependent packages. These repositories can be provided in two ways:
    The above can be simplified further using the path expansion of the last
    repository to:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <project name="Virtualization:Appliances:Images:openSUSE-Tumbleweed">
         <title>JeOS for Tumbleweed </title>
@@ -244,7 +244,7 @@ your dependent packages. These repositories can be provided in two ways:
    your projects configuration (accessible via :command:`osc meta -e
    prjconf`), so that OBS will pick the latest stable KIWI version too:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <repository name="images">
         <path project="Virtualization:Appliances:Builder" repository="$DISTRO"/>

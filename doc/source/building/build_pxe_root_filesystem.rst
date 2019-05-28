@@ -70,31 +70,31 @@ system. As diskless client, a QEMU virtual machine is used.
 
 2. Build the image with KIWI:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ sudo kiwi-ng --type pxe system build \
-            --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
-            --target-dir /tmp/mypxe-result
+       $ sudo kiwi-ng --type pxe system build \
+           --description kiwi-descriptions/suse/x86_64/{exc_description} \
+           --target-dir /tmp/mypxe-result
 
 3. Change into the build directory:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ cd /tmp/mypxe-result
+       $ cd /tmp/mypxe-result
 
 4. Copy the initrd and the kernel to :file:`/srv/tftpboot/boot`:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ cp *.initrd.xz /srv/tftpboot/boot/initrd
-        $ cp *.kernel /srv/tftpboot/boot/linux
+       $ cp *.initrd.xz /srv/tftpboot/boot/initrd
+       $ cp *.kernel /srv/tftpboot/boot/linux
 
 5. Copy the system image and its MD5 sum to :file:`/srv/tftpboot/image`:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ cp LimeJeOS-Leap-42.3.x86_64-1.42.3 /srv/tftpboot/image
-        $ cp LimeJeOS-Leap-42.3.x86_64-1.42.3.md5 /srv/tftpboot/image
+       $ cp {exc_image_base_name}.x86_64-{exc_image_version}/srv/tftpboot/image
+       $ cp {exc_image_base_name}.x86_64-{exc_image_version}.md5 /srv/tftpboot/image
 
 6. Adjust the PXE configuration file.
    The configuration file controls which kernel and initrd is
@@ -103,25 +103,25 @@ system. As diskless client, a QEMU virtual machine is used.
    The minimal configuration required to boot the example image looks
    like to following:
 
-    .. code:: bash
+   .. code:: bash
 
-        DEFAULT KIWI-Boot
+       DEFAULT KIWI-Boot
 
-        LABEL KIWI-Boot
-            kernel boot/linux
-            append initrd=boot/initrd
-            IPAPPEND 2
+       LABEL KIWI-Boot
+           kernel boot/linux
+           append initrd=boot/initrd
+           IPAPPEND 2
 
     Additional configuration files can be found at :ref:`pxe_client_config`.
 
 7. Create the image client configuration file:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ vi /srv/tftpboot/KIWI/config.default
+       $ vi /srv/tftpboot/KIWI/config.default
 
-        IMAGE=/dev/ram1;LimeJeOS-Leap-42.3.x86_64;1.42.3;192.168.100.2;4096
-        UNIONFS_CONFIG=/dev/ram2,/dev/ram1,overlay
+       IMAGE=/dev/ram1;{exc_image_base_name}.x86_64;{exc_image_version};192.168.100.2;4096
+       UNIONFS_CONFIG=/dev/ram2,/dev/ram1,overlay
 
    All PXE boot based deployment methods are controlled by a client
    configuration file. The above configuration tells the client where
@@ -135,6 +135,6 @@ system. As diskless client, a QEMU virtual machine is used.
 8. Connect the client to the network and boot. This can also be done
    in a virtualized environment using QEMU as follows:
 
-    .. code:: bash
+   .. code:: bash
 
-        $ qemu -boot n -m 4096
+       $ qemu -boot n -m 4096

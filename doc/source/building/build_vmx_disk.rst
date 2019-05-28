@@ -20,7 +20,7 @@ To instruct KIWI to build a VMX image add a `type` element with
 large VMDK image with 512 MB RAM, an IDE controller and a bridged network
 interface is shown below:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="JeOS-Tumbleweed">
      <!-- snip -->
@@ -61,10 +61,10 @@ Once your image description is finished (or you are content with a image
 from the :ref:`example descriptions <example-descriptions>` and use one of
 them) build the image with KIWI:
 
-.. code-block:: bash
+.. code:: bash
 
    $ sudo kiwi-ng --type vmx system build \
-       --description path/to/the/vmx-image-description/ \
+       --description kiwi-descriptions/suse/x86_64/{exc_description} \
        --target-dir /tmp/myimage
 
 The created image will be in the target directory :file:`/tmp/myimage` with
@@ -72,10 +72,10 @@ the file extension :file:`.raw`.
 
 The live image can then be tested with QEMU:
 
-.. code-block:: bash
+.. code:: bash
 
    $ qemu \
-       -drive file=$IMAGE_NAME.raw,format=raw,if=virtio \
+       -drive file={exc_image_base_name}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
        -m 4096
 
 For further information how to setup the image to work within a cloud
@@ -97,7 +97,7 @@ The `size` child element of `type` specifies the size of the resulting
 disk image. The following example shows a image description where 20 GB are
 added to the virtual machine image of which 5 GB are left unpartitioned:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="JeOS-Tumbleweed">
      <!-- snip -->
@@ -193,7 +193,7 @@ forwards them.
 The following example adds the two entries `numvcpus = "4"` and
 `cpuid.coresPerSocket = "2"` into the VM configuration file:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
      <preferences>
@@ -221,7 +221,7 @@ Note, that this element is only used for the `vmdk` image format.
 In the following example we add a bridged network interface using the
 `e1000` driver:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
      <preferences>
@@ -260,7 +260,7 @@ Note that this element is only used for `vmdk` and `ova` image formats.
 
 The following example adds a disk with the ID 0 using an IDE controller:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
      <preferences>
@@ -301,7 +301,7 @@ machine using the `vmdvd` element for the `vmdk` image format. In the
 following example we add two drives: one with a SCSCI and another with a
 IDE controller:
 
-.. code-block:: xml
+.. code:: xml
 
    <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
      <preferences>

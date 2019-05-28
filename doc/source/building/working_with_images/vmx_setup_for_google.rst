@@ -50,7 +50,7 @@ description as follows:
    Update the vmx image type setup to be changed into an expandable
    (oem) type as follows:
 
-   .. code-block:: xml
+   .. code:: xml
 
       <type image="oem"
             initrd_system="dracut"

@@ -31,7 +31,7 @@ To install KIWI, follow these steps:
    placeholder contains the respective distribution.
    Use :command:`zypper addrepo` to add it to the list of your repositories:
 
-   .. code-block:: shell-session
+   .. code:: shell-session
 
        $ sudo zypper addrepo http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST> appliance-builder
 
@@ -39,20 +39,20 @@ To install KIWI, follow these steps:
    package manager's appropriate command instead. For :command:`dnf` that
    is:
 
-   .. code-block:: shell-session
+   .. code:: shell-session
 
       $ sudo dnf config-manager --add-repo https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>/Virtualization:Appliances:Builder.repo
 
 4. Add the repositories' signing-key to your package manager's
    database. For rpm run:
 
-   .. code-block:: shell-session
+   .. code:: shell-session
 
       $ sudo rpm --import https://build.opensuse.org/projects/Virtualization:Appliances:Builder/public_key
 
    And verify that you got the correct key:
 
-   .. code-block:: shell-session
+   .. code:: shell-session
 
       $ rpm -qi gpg-pubkey-74cbe823-* | gpg2
       gpg: WARNING: no command supplied.  Trying to guess what you mean ...
@@ -67,7 +67,7 @@ To install KIWI, follow these steps:
       This version of KIWI is provided as packages for python 2 and
       python 3. The following assumes that you will install the python 3 package.
 
-   .. code-block:: shell-session
+   .. code:: shell-session
 
        $ sudo zypper in python3-kiwi
 
@@ -90,13 +90,13 @@ packages from OBS, so some features described here might not exist yet.
 
 To install KIWI on openSUSE, run the following command:
 
-.. code-block:: shell-session
+.. code:: shell-session
 
    $ sudo zypper install python3-kiwi
 
 On Fedora, use the following command instead:
 
-.. code-block:: shell-session
+.. code:: shell-session
 
    $ sudo dnf install kiwi-cli
 
@@ -107,7 +107,7 @@ Installation from PyPI
 KIWI can be obtained from the Python Package Index (PyPi) via Python's
 package manager pip:
 
-.. code-block:: shell-session
+.. code:: shell-session
 
    $ pip install kiwi
 
@@ -121,6 +121,6 @@ There is a GitHub project hosting example appliance descriptions to be used
 with the next generation KIWI. Users who need an example to start with
 should clone the project as follows:
 
-.. code-block:: shell-session
+.. code:: shell-session
 
     $ git clone https://github.com/SUSE/kiwi-descriptions

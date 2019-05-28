@@ -197,7 +197,7 @@ The prepare step consists of the following substeps:
    directly proceed with the *create step*. Therfore to perform manual
    modifications, proceed as follows:
 
-   .. code-block:: shell-session
+   .. code:: shell-session
 
       $ kiwi system prepare $ARGS
       $ # make your changes

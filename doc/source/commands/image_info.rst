@@ -4,7 +4,7 @@ kiwi image info
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
    kiwi [global options] service <command> [<args>]
 

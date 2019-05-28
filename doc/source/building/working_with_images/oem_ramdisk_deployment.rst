@@ -50,7 +50,7 @@ follows:
 
 .. code:: bash
 
-    $ qemu -cdrom LimeJeOS-Leap-42.3.x86_64-1.42.3.install.iso
+    $ qemu -cdrom {exc_image_base_name}.x86_64-{exc_image_version}.install.iso
 
 .. note:: Enough Main Memory
 

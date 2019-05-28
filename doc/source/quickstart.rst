@@ -45,15 +45,15 @@ command in order to build it:
 .. code:: bash
 
     $ sudo kiwi-ng --type vmx system build \
-        --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
+        --description kiwi-descriptions/suse/x86_64/{exc_description} \
         --target-dir /tmp/myimage
 
 The resulting image will be placed into the folder :file:`/tmp/myimage`
 with the suffix :file:`.raw`.
 
-If you don't wish to create a openSUSE Leap 42.3 image, substitute the
-folder following the ``--description`` option with another folder that
-contains the image description which you selected.
+If you don't wish to create a openSUSE Leap {exc_os_version} image,
+substitute the folder following the ``--description`` option with another
+folder that contains the image description which you selected.
 
 
 Run your Image
@@ -65,9 +65,8 @@ QEMU and boot it as follows:
 
 .. code:: bash
 
-    $ qemu \
-        -boot c
-        -drive file=LimeJeOS-Leap-42.3.x86_64-1.42.3.raw,format=raw,if=virtio \
+    $ qemu -boot c \
+        -drive file={exc_image_base_name}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
         -m 4096
 
 Tweak and Customize your Image
