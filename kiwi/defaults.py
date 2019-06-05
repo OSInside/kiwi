@@ -608,7 +608,7 @@ class Defaults(object):
 
         :rtype: int
         """
-        return 50
+        return 10
 
     @staticmethod
     def get_min_volume_mbytes():
