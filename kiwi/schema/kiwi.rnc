@@ -1236,6 +1236,35 @@ div {
             sch:param [ name = "attr" value = "spare_part" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
+    k.type.spare_part_mountpoint.attribute =
+        ## Specify mount point for spare partition in the system.
+        ## Can only be configured for the disk image types oem and vmx
+        attribute spare_part_mountpoint { text }
+        >> sch:pattern [ id = "spare_part_mountpoint" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_mountpoint" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
+    k.type.spare_part_fs.attribute =
+        ## Specify filesystem for spare partition in the system.
+        ## Can only be configured for the disk image types oem and vmx
+        attribute spare_part_fs {
+            "btrfs" | "ext2" | "ext3" | "ext4" | "xfs"
+        }
+        >> sch:pattern [ id = "spare_part_fs" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_fs" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
+    k.type.spare_part_is_last.attribute =
+        ## Specify if the spare partition should be the last one in
+        ## the partition table. Can only be configured for the vmx
+        ## disk image type. By default the root partition is the last
+        ## one and the spare partition lives behind it. With this
+        ## attribute that setup can be toggled.
+        attribute spare_part_is_last { xsd:boolean }
+        >> sch:pattern [ id = "spare_part_is_last" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_is_last" ]
+            sch:param [ name = "types" value = "vmx" ]
+        ]
     k.type.zipl_targettype.attribute =
         ## The device type of the disk zipl should boot. On zFCP
         ## devices use SCSI, on DASD devices use CDL or LDL on
@@ -1717,6 +1746,9 @@ div {
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
         k.type.spare_part.attribute? &
+        k.type.spare_part_mountpoint.attribute? &
+        k.type.spare_part_fs.attribute? &
+        k.type.spare_part_is_last.attribute? &
         k.type.target_blocksize.attribute? &
         k.type.target_removable.attribute? &
         k.type.vga.attribute? &

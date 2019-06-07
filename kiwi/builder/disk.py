@@ -73,6 +73,10 @@ class DiskBuilder(object):
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.spare_part_mbsize = xml_state.get_build_type_spare_part_size()
+        self.spare_part_fs = xml_state.build_type.get_spare_part_fs()
+        self.spare_part_is_last = xml_state.build_type.get_spare_part_is_last()
+        self.spare_part_mountpoint = \
+            xml_state.build_type.get_spare_part_mountpoint()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
@@ -145,6 +149,10 @@ class DiskBuilder(object):
         # representing the boot/efi area of the disk
         self.system_efi = None
 
+        # an instance of a class with the sync_data capability
+        # representing the spare_part_mountpoint area of the disk
+        self.system_spare = None
+
         # result store
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
@@ -186,7 +194,7 @@ class DiskBuilder(object):
 
         return result
 
-    def create_disk(self):
+    def create_disk(self):  # noqa: C901
         """
         Build a bootable raw disk image
 
@@ -243,7 +251,7 @@ class DiskBuilder(object):
         )
 
         # create disk partitions and instance device map
-        device_map = self._build_and_map_disk_partitions()
+        device_map = self._build_and_map_disk_partitions(disksize_mbytes)
 
         # create raid on current root device if requested
         if self.mdraid:
@@ -262,6 +270,9 @@ class DiskBuilder(object):
                 passphrase=self.luks, os=self.luks_os
             )
             device_map['root'] = self.luks_root.get_device()
+
+        # create spare filesystem on spare partition if present
+        self._build_spare_filesystem(device_map)
 
         # create filesystems on boot partition(s) if any
         self._build_boot_filesystems(device_map)
@@ -366,6 +377,9 @@ class DiskBuilder(object):
 
         # syncing system data to disk image
         log.info('Syncing system to image')
+        if self.system_spare:
+            self.system_spare.sync_data()
+
         if self.system_efi:
             log.info('--> Syncing EFI boot data to EFI partition')
             self.system_efi.sync_data()
@@ -563,6 +577,13 @@ class DiskBuilder(object):
 
     def _get_exclude_list_for_root_data_sync(self, device_map):
         exclude_list = Defaults.get_exclude_list_for_root_data_sync()
+        if 'spare' in device_map and self.spare_part_mountpoint:
+            exclude_list.append(
+                '{0}/*'.format(self.spare_part_mountpoint.lstrip(os.sep))
+            )
+            exclude_list.append(
+                '{0}/.*'.format(self.spare_part_mountpoint.lstrip(os.sep))
+            )
         if 'boot' in device_map and self.bootloader == 'grub2_s390x_emu':
             exclude_list.append('boot/zipl/*')
             exclude_list.append('boot/zipl/.*')
@@ -576,6 +597,21 @@ class DiskBuilder(object):
 
     def _get_exclude_list_for_boot_data_sync(self):
         return ['efi/*']
+
+    def _build_spare_filesystem(self, device_map):
+        if 'spare' in device_map and self.spare_part_fs:
+            spare_part_data_path = None
+            if self.spare_part_mountpoint:
+                spare_part_data_path = self.root_dir + '{0}/'.format(
+                    self.spare_part_mountpoint
+                )
+            filesystem = FileSystem(
+                self.spare_part_fs, device_map['spare'], spare_part_data_path
+            )
+            filesystem.create_on_device(
+                label='SPARE'
+            )
+            self.system_spare = filesystem
 
     def _build_boot_filesystems(self, device_map):
         if 'efi' in device_map:
@@ -611,33 +647,42 @@ class DiskBuilder(object):
             )
             self.system_boot = filesystem
 
-    def _build_and_map_disk_partitions(self):               # noqa: C901
+    def _build_and_map_disk_partitions(self, disksize_mbytes):  # noqa: C901
         self.disk.wipe()
+        disksize_used_mbytes = 0
         if self.firmware.legacy_bios_mode():
             log.info('--> creating EFI CSM(legacy bios) partition')
+            partition_mbsize = self.firmware.get_legacy_bios_partition_size()
             self.disk.create_efi_csm_partition(
-                self.firmware.get_legacy_bios_partition_size()
+                partition_mbsize
             )
+            disksize_used_mbytes += partition_mbsize
 
         if self.firmware.efi_mode():
             log.info('--> creating EFI partition')
+            partition_mbsize = self.firmware.get_efi_partition_size()
             self.disk.create_efi_partition(
-                self.firmware.get_efi_partition_size()
+                partition_mbsize
             )
+            disksize_used_mbytes += partition_mbsize
 
         if self.firmware.ofw_mode():
             log.info('--> creating PReP partition')
+            partition_mbsize = self.firmware.get_prep_partition_size()
             self.disk.create_prep_partition(
-                self.firmware.get_prep_partition_size()
+                partition_mbsize
             )
+            disksize_used_mbytes += partition_mbsize
 
         if self.disk_setup.need_boot_partition():
             log.info('--> creating boot partition')
+            partition_mbsize = self.disk_setup.boot_partition_size()
             self.disk.create_boot_partition(
-                self.disk_setup.boot_partition_size()
+                partition_mbsize
             )
+            disksize_used_mbytes += partition_mbsize
 
-        if self.spare_part_mbsize:
+        if self.spare_part_mbsize and not self.spare_part_is_last:
             log.info('--> creating spare partition')
             self.disk.create_spare_partition(
                 self.spare_part_mbsize
@@ -653,24 +698,37 @@ class DiskBuilder(object):
                 filename=squashed_root_file.name,
                 exclude=[Defaults.get_shared_cache_location()]
             )
-            squashed_rootfs_mbsize = os.path.getsize(
-                squashed_root_file.name
-            ) / 1048576
+            squashed_rootfs_mbsize = int(
+                os.path.getsize(squashed_root_file.name) / 1048576
+            ) + Defaults.get_min_partition_mbytes()
             self.disk.create_root_readonly_partition(
-                int(squashed_rootfs_mbsize + 50)
+                squashed_rootfs_mbsize
             )
+            disksize_used_mbytes += squashed_rootfs_mbsize
+
+        if self.spare_part_mbsize and self.spare_part_is_last:
+            rootfs_mbsize = disksize_mbytes - disksize_used_mbytes - \
+                self.spare_part_mbsize - Defaults.get_min_partition_mbytes()
+        else:
+            rootfs_mbsize = 'all_free'
 
         if self.volume_manager_name and self.volume_manager_name == 'lvm':
             log.info('--> creating LVM root partition')
-            self.disk.create_root_lvm_partition('all_free')
+            self.disk.create_root_lvm_partition(rootfs_mbsize)
 
         elif self.mdraid:
             log.info('--> creating mdraid root partition')
-            self.disk.create_root_raid_partition('all_free')
+            self.disk.create_root_raid_partition(rootfs_mbsize)
 
         else:
             log.info('--> creating root partition')
-            self.disk.create_root_partition('all_free')
+            self.disk.create_root_partition(rootfs_mbsize)
+
+        if self.spare_part_mbsize and self.spare_part_is_last:
+            log.info('--> creating spare partition')
+            self.disk.create_spare_partition(
+                'all_free'
+            )
 
         if self.firmware.bios_mode():
             log.info('--> setting active flag to primary boot partition')
@@ -803,6 +861,11 @@ class DiskBuilder(object):
             device_map['root'].get_device(), '/',
             custom_root_mount_args, fs_check_interval
         )
+        if 'spare' in device_map and \
+           self.spare_part_fs and self.spare_part_mountpoint:
+            self._add_generic_fstab_entry(
+                device_map['spare'].get_device(), self.spare_part_mountpoint
+            )
         if 'boot' in device_map:
             if self.bootloader == 'grub2_s390x_emu':
                 boot_mount_point = '/boot/zipl'
