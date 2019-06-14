@@ -241,6 +241,7 @@ class Logger(logging.Logger):
     def __init__(self, name):
         logging.Logger.__init__(self, name)
         self.console_handlers = {}
+        self.logfile = None
         # log INFO to stdout
         self._add_stream_handler(
             'info',
@@ -323,10 +324,21 @@ class Logger(logging.Logger):
             )
             logfile.addFilter(LoggerSchedulerFilter())
             self.addHandler(logfile)
+            self.logfile = filename
         except Exception as e:
             raise KiwiLogFileSetupFailed(
                 '%s: %s' % (type(e).__name__, format(e))
             )
+
+    def get_logfile(self):
+        """
+        Return file path name of logfile
+
+        :return: file path
+
+        :rtype: str
+        """
+        return self.logfile
 
     def progress(self, current, total, prefix, bar_length=40):
         """

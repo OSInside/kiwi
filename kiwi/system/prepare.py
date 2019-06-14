@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
+from textwrap import dedent
 
 # project
 from kiwi.system.root_init import RootInit
@@ -55,6 +57,18 @@ class SystemPrepare(object):
         Setup and host bind new root system at given root_dir directory
         """
         log.info('Setup root directory: %s', root_dir)
+        if not log.getLogLevel() == logging.DEBUG and not log.get_logfile():
+            self.issue_message = dedent('''
+                {headline}: {reason}
+
+                Further details to clarify the error might have been
+                reported earlier in the package manager log information
+                and did not get exposed to the caller. Thus if the above
+                message is not clear on the error please call kiwi with
+                the --debug or --logfile option.
+            ''')
+        else:
+            self.issue_message = '{headline}: {reason}'
         root = RootInit(
             root_dir, allow_existing
         )
@@ -210,16 +224,22 @@ class SystemPrepare(object):
         except Exception as issue:
             if manager.has_failed(process.returncode()):
                 raise KiwiBootStrapPhaseFailed(
-                    'Bootstrap package installation failed: {0}'.format(issue)
+                    self.issue_message.format(
+                        headline='Bootstrap package installation failed',
+                        reason=issue
+                    )
                 )
         manager.post_process_install_requests_bootstrap()
         # process archive installations
         if bootstrap_archives:
             try:
                 self._install_archives(bootstrap_archives)
-            except Exception as e:
+            except Exception as issue:
                 raise KiwiBootStrapPhaseFailed(
-                    'Bootstrap archive installation failed: %s' % format(e)
+                    self.issue_message.format(
+                        headline='Bootstrap archive installation failed',
+                        reason=issue
+                    )
                 )
 
     def install_system(self, manager):
@@ -271,15 +291,21 @@ class SystemPrepare(object):
             except Exception as issue:
                 if manager.has_failed(process.returncode()):
                     raise KiwiInstallPhaseFailed(
-                        'System package installation failed: {0}'.format(issue)
+                        self.issue_message.format(
+                            headline='Systen package installation failed',
+                            reason=issue
+                        )
                     )
         # process archive installations
         if system_archives:
             try:
                 self._install_archives(system_archives)
-            except Exception as e:
+            except Exception as issue:
                 raise KiwiInstallPhaseFailed(
-                    'System archive installation failed: %s' % format(e)
+                    self.issue_message.format(
+                        headline='System archive installation failed',
+                        reason=issue
+                    )
                 )
 
     def pinch_system(self, manager=None, force=False):
@@ -297,11 +323,13 @@ class SystemPrepare(object):
         """
         to_become_deleted_packages = \
             self.xml_state.get_to_become_deleted_packages(force)
-        try:
-            if to_become_deleted_packages:
-                log.info('{0} system packages (chroot)'.format(
-                    'Force deleting' if force else 'Uninstalling')
+        if to_become_deleted_packages:
+            log.info(
+                '{0} system packages (chroot)'.format(
+                    'Force deleting' if force else 'Uninstalling'
                 )
+            )
+            try:
                 if manager is None:
                     package_manager = self.xml_state.get_package_manager()
                     manager = PackageManager(
@@ -311,10 +339,13 @@ class SystemPrepare(object):
                 self.delete_packages(
                     manager, to_become_deleted_packages, force
                 )
-        except Exception as e:
-            raise KiwiPackagesDeletePhaseFailed(
-                '%s: %s' % (type(e).__name__, format(e))
-            )
+            except Exception as issue:
+                raise KiwiPackagesDeletePhaseFailed(
+                    self.issue_message.format(
+                        headline='System package deletion failed',
+                        reason=issue
+                    )
+                )
 
     def install_packages(self, manager, packages):
         """
@@ -341,9 +372,12 @@ class SystemPrepare(object):
                         manager.match_package_installed
                     )
                 )
-            except Exception as e:
+            except Exception as issue:
                 raise KiwiSystemInstallPackagesFailed(
-                    'Package installation failed: %s' % format(e)
+                    self.issue_message.format(
+                        headline='Package installation failed',
+                        reason=issue
+                    )
                 )
 
     def delete_packages(self, manager, packages, force=False):
@@ -359,13 +393,15 @@ class SystemPrepare(object):
 
         :raises KiwiSystemDeletePackagesFailed: if installation process fails
         """
-        log.info('{0} system packages (chroot)'.format(
-            'Force deleting' if force else 'Uninstall'
-        ))
         all_delete_items = self._setup_requests(
             manager, packages
         )
         if all_delete_items:
+            log.info(
+                '{0} system packages (chroot)'.format(
+                    'Force deleting' if force else 'Uninstall'
+                )
+            )
             process = CommandProcess(
                 command=manager.process_delete_requests(force),
                 log_topic='system'
@@ -377,9 +413,12 @@ class SystemPrepare(object):
                         manager.match_package_deleted
                     )
                 )
-            except Exception as e:
+            except Exception as issue:
                 raise KiwiSystemDeletePackagesFailed(
-                    'Package deletion failed: %s' % format(e)
+                    self.issue_message.format(
+                        headline='Package deletion failed',
+                        reason=issue
+                    )
                 )
 
     def update_system(self, manager):
@@ -398,9 +437,12 @@ class SystemPrepare(object):
         )
         try:
             process.poll()
-        except Exception as e:
+        except Exception as issue:
             raise KiwiSystemUpdateFailed(
-                'System update failed: %s' % format(e)
+                self.issue_message.format(
+                    headline='System update failed',
+                    reason=issue
+                )
             )
 
     def _install_archives(self, archive_list):
