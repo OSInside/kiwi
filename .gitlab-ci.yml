@@ -13,6 +13,24 @@ variables:
       python3 python3-devel 'python3dist(pip)' 'python3dist(tox)'
       gcc xz libxml2-devel libxslt-devel enchant
 
+.install_and_build_src_package: &install_and_build_system_src_package
+  before_script:
+    - >
+      dnf install -y --refresh
+      mock gzip tar git python3 python3-dateutil python3-docopt
+      make which
+    - 'sed -i "s|build: clean tox|build:|" Makefile'
+    - make build
+    - mv dist/python-kiwi.spec .
+    - rm dist/python-kiwi.changes
+    - >
+      mock
+      --old-chroot -r /etc/mock/fedora-29-x86_64.cfg
+      --buildsrpm --sources ./dist
+      --spec ./python-kiwi.spec 2>&1 | tee srpm_build_out
+    - "export SRC_RPM=$(ls $(grep 'INFO: Results ' srpm_build_out | awk -F ':' '{print $3}')/*.src.rpm)"
+    - mv $SRC_RPM .
+
 .add_cache: &set_cache_dir
   cache:
     key: "$CI_JOB_NAME"
@@ -71,31 +89,25 @@ build_doc:
       - .tox/
       - doc/build/
 
-rpm:
+rpm_fedora_29:
   stage: package
+  <<: *install_and_build_system_src_package
   script:
-    - >
-      dnf install -y --refresh
-      mock gzip tar git python3 python3-dateutil python3-docopt
-      make which
-    - 'sed -i "s|build: clean tox|build:|" Makefile'
-    - make build
-    - mv dist/python-kiwi.spec .
-    - rm dist/python-kiwi.changes
-    - >
-      mock
-      --old-chroot -r /etc/mock/fedora-29-x86_64.cfg
-      --buildsrpm --sources ./dist
-      --spec ./python-kiwi.spec 2>&1 | tee srpm_build_out
-    - "export SRC_RPM=$(ls $(grep 'INFO: Results ' srpm_build_out | awk -F ':' '{print $3}')/*.src.rpm)"
-    - mv $SRC_RPM .
-    - >
-      mock
-      --old-chroot
-      -r /etc/mock/opensuse-tumbleweed-x86_64.cfg $(basename $SRC_RPM)
     - >
       mock
       --old-chroot
       -r /etc/mock/fedora-29-x86_64.cfg $(basename $SRC_RPM)
+  dependencies:
+    - build_doc
+
+rpm_suse_TW:
+  stage: package
+  <<: *install_and_build_system_src_package
+  script:
+    - >
+      mock
+      --old-chroot
+      -r /etc/mock/opensuse-tumbleweed-x86_64.cfg $(basename $SRC_RPM)
+  allow_failure: true
   dependencies:
     - build_doc
