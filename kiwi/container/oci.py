@@ -72,7 +72,7 @@ class ContainerImageOCI(object):
         # buildservice.
         if Defaults.is_buildservice_worker():
             bs_label = 'org.openbuildservice.disturl'
-            # Do not label anything if any build service label is
+            # Do not label anything if the build service label is
             # already present
             if 'labels' not in self.oci_config or \
                     bs_label not in self.oci_config['labels']:
