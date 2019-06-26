@@ -66,7 +66,7 @@
                 <vmnic interface=""/>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash" xen_server="true">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash" xen_server="true" firmware="bios">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
@@ -98,7 +98,7 @@
                 <oem-recovery>false</oem-recovery>
             </oemconfig>
         </type>
-        <type image="iso" mediacheck="true"/>
+        <type image="iso" mediacheck="true" firmware="bios"/>
     </preferences>
     <users>
         <user groups="root" pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>

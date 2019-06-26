@@ -113,13 +113,6 @@ class KiwiBootLoaderInstallSetupError(KiwiError):
     """
 
 
-class KiwiBootLoaderIsoLinuxPlatformError(KiwiError):
-    """
-    Exception raised if an attempt was made to use isolinux on
-    an unsupported platform.
-    """
-
-
 class KiwiBootLoaderTargetError(KiwiError):
     """
     Exception raised if the target to read the bootloader path
