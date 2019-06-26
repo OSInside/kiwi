@@ -53,11 +53,12 @@ class TestContainerImageOCI(object):
             'history': {'created_by': 'KIWI {0}'.format(__version__)}
         }
 
+    @patch('kiwi.container.oci.RuntimeConfig')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
     def test_init_in_buildservice(
-        self, mock_open, mock_buildservice, mock_cmd_caps
+        self, mock_open, mock_buildservice, mock_cmd_caps, mock_RuntimeConfig
     ):
         mock_buildservice.return_value = True
         mock_cmd_caps.return_value = True
@@ -71,12 +72,14 @@ class TestContainerImageOCI(object):
             'obs://build.opensuse.org/some:project'
         }
 
+    @patch('kiwi.container.oci.RuntimeConfig')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     @patch_open
     @patch('kiwi.logger.log.warning')
     def test_init_in_buildservice_without_disturl(
-        self, mock_warn, mock_open, mock_buildservice, mock_cmd_caps
+        self, mock_warn, mock_open, mock_buildservice,
+        mock_cmd_caps, mock_RuntimeConfig
     ):
         mock_buildservice.return_value = True
         mock_cmd_caps.return_value = True
