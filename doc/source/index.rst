@@ -69,6 +69,7 @@ below:
   wants a copy of that? KIWI will build you ready to deploy images for your
   Raspberry Pi, tweaked to your needs.
 
+.. _contact_us:
 
 Contact
 -------
