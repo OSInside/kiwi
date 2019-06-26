@@ -602,7 +602,8 @@ class Defaults(object):
         signed_grub_file_patterns = [
             '/usr/share/efi/*/grub.efi',
             '/usr/lib64/efi/grub.efi',
-            '/boot/efi/EFI/*/grub*.efi'
+            '/boot/efi/EFI/*/grub*.efi',
+            '/usr/share/grub*/arm64-efi/grub.efi'
         ]
         for signed_grub_pattern in signed_grub_file_patterns:
             for signed_grub in glob.iglob(root_path + signed_grub_pattern):
