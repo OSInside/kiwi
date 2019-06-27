@@ -160,7 +160,12 @@ Requires:       tar >= 1.2.7
 %if %{_vendor} != "debbuild"
 # Not supported with debbuild yet
 %ifarch %arm aarch64
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       uboot-tools
+%endif
+%if 0%{?suse_version}
 Requires:       u-boot-tools
+%endif
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
@@ -243,7 +248,12 @@ Requires:       kpartx
 Requires:       rsync
 Requires:       tar >= 1.2.7
 %ifarch %arm aarch64
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       uboot-tools
+%endif
+%if 0%{?suse_version}
 Requires:       u-boot-tools
+%endif
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
