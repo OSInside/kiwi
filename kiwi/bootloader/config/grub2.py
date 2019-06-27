@@ -554,22 +554,30 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if not lookup_path:
             lookup_path = self.root_dir
-        shim_image = Defaults.get_shim_loader(lookup_path)
-        if not shim_image:
-            raise KiwiBootLoaderGrubSecureBootError(
-                'Microsoft signed shim loader not found'
-            )
         grub_image = Defaults.get_signed_grub_loader(lookup_path)
         if not grub_image:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Shim signed grub2 efi loader not found'
+                'Signed grub2 efi loader not found'
             )
-        Command.run(
-            ['cp', shim_image, self._get_efi_image_name()]
-        )
-        Command.run(
-            ['cp', grub_image, self.efi_boot_path]
-        )
+        shim_image = Defaults.get_shim_loader(lookup_path)
+        if shim_image:
+            # The shim concept is based on a two step system including a
+            # grub image(shim) that got signed by Microsoft followed by
+            # a grub image that got signed by the shim. The shim image
+            # is the one that gets loaded by the firmware which itself
+            # loads the second stage grub image
+            Command.run(
+                ['cp', shim_image, self._get_efi_image_name()]
+            )
+            Command.run(
+                ['cp', grub_image, self.efi_boot_path]
+            )
+        else:
+            # Without shim a self signed grub image is used that
+            # gets loaded by the firmware
+            Command.run(
+                ['cp', grub_image, self._get_efi_image_name()]
+            )
 
     def _setup_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
         """
