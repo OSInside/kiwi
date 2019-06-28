@@ -61,16 +61,90 @@ Building Images
 Supported Distributions
 -----------------------
 
-KIWI can build the above image types for distributions
-which are **equal** or **newer** compared to the following list:
+KIWI can build images for the distributions which are **equal** or **newer**
+compared to the table below. For anything older use the
+legacy KIWI version *v7.x* For more details on the legacy KIWI,
+see: :ref:`legacy_kiwi`
 
-*  CentOS 7
-*  Fedora 25
-*  openSUSE Leap 42
-*  Red Hat Enterprise 7
-*  SUSE Linux Enterprise 12
-*  openSUSE Tumbleweed
-*  Ubuntu 16.04 (Xenial Xerus)
+The most compatible environment is provided if the build host is of the same
+distribution than the target image. This always applies for the Open Build
+Service (OBS). In other cases please check the table if your target combination
+is known to be supported.
 
-For anything older please consider to use the legacy KIWI version *v7.x*
-For more details on the legacy kiwi, see: :ref:`legacy_kiwi`.
+
+.. table::
+   :align: left
+
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+   | Host / Image     | CentOS 7   | Fedora 25     | openSUSE Leap 15 | RHEL 7   | openSUSE TW | Ubuntu 16 |
+   +==================+============+===============+==================+==========+=============+===========+
+   | CentOS 7         | yes        | no            | no               | yes      | no          | no        |
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+   | Fedora 25        | untested   | yes           | no               | untested | no          | no        |
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+   | openSUSE Leap 15 | untested   | **note:dnf**  | yes              | untested | no          | no        |
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+   | RHEL 7           | untested   | no            | no               | yes      | no          | no        |
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+   | openSUSE TW      | untested   | **note:dnf**  | yes              | untested | yes         | no        |
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+   | Ubuntu 16        | no         | no            | no               | no       | no          | yes       |
+   +------------------+------------+---------------+------------------+----------+-------------+-----------+
+
+.. admonition:: dnf
+
+   dnf is the package manager used on Fedora and RHEL and is
+   the successor of yum. When KIWI builds images for this distributions
+   the latest version of dnf is required to be installed on the host to
+   build the image.
+
+In general, our goal is to support any major distribution with KIWI. However
+for building images we rely on core tools which are not under our control.
+Also several design aspects of distributions like **secure boot** and working
+with **upstream projects** are different and not influenced by us. There
+are many side effects that can be annoying especially if the build host
+is not of the same distribution vendor than the image target.
+
+Supported Platforms and Architectures
+-------------------------------------
+
+Images built with KIWI are designed for a specific use case. The author of
+the image description sets this with the contents in the KIWI XML document
+as well as custom scripts and services. The following list provides a brief
+overview of the platforms where KIWI built images are productively used:
+
+* Amazon EC2
+* Microsoft Azure
+* Google Compute Engine
+* Private Data Centers based on OpenStack
+* Bare metal deployments e.g Microsoft Azure Large Instance
+* SAP workloads
+
+For further information or on interest in one of the above areas,
+contact us directly: :ref:`contact_us`
+
+The majority of the workloads is based on the x86 architecture. KIWI
+also supports other architectures, shown in the table below:
+
+.. table::
+   :align: left
+
+   +--------------+---------------------+
+   | Architecture | Supported           |
+   +==============+=====================+
+   | x86_64       | yes                 |
+   +--------------+---------------------+
+   | ix86         | yes **note:distro** |
+   +--------------+---------------------+
+   | s390/s390x   | yes **note:distro** |
+   +--------------+---------------------+
+   | arm/aarch64  | yes **note:distro** |
+   +--------------+---------------------+
+   | ppc64        | no (alpha-phase)    |
+   +--------------+---------------------+
+
+.. admonition:: distro
+
+   The support status for an architecture depends on the distribution.
+   If the distribution does not build its packages for the desired
+   architecture, KIWI will not be able to build an image for it
