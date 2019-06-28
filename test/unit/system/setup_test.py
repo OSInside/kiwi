@@ -925,6 +925,24 @@ class TestSystemSetup:
         ])
 
     @patch('kiwi.system.setup.Command.run')
+    def test_export_package_list_pacman(self, mock_command):
+        command = Mock()
+        command.output = 'packages_data'
+        mock_command.return_value = command
+        self.xml_state.get_package_manager = Mock(
+            return_value='pacman'
+        )
+
+        with patch('builtins.open') as m_open:
+            result = self.setup.export_package_list('target_dir')
+            m_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+            )
+
+        assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
+        mock_command.assert_called_once_with(['pacman', '-Qe'])
+
+    @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
     @patch('kiwi.system.setup.MountManager')
     def test_export_package_verification(

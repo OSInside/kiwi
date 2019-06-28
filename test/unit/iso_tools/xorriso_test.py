@@ -37,6 +37,7 @@ class TestIsoToolsXorrIso:
         mock_which.assert_called_once_with(
             'isohdpfx.bin', [
                 '/usr/share/syslinux',
+                '/usr/lib/syslinux/bios',
                 '/usr/lib/syslinux/modules/bios',
                 '/usr/lib/ISOLINUX'
             ]

@@ -64,6 +64,10 @@ class TestIsoToolsBase:
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/bios/isolinux.bin',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/lib/syslinux/modules/bios/isolinux.bin',
                 'root_dir/image/loader/'
             ),
@@ -73,6 +77,10 @@ class TestIsoToolsBase:
             ),
             call(
                 'root_dir/usr/share/syslinux/ldlinux.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/bios/ldlinux.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -88,6 +96,10 @@ class TestIsoToolsBase:
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/bios/libcom32.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/lib/syslinux/modules/bios/libcom32.c32',
                 'root_dir/image/loader/'
             ),
@@ -97,6 +109,10 @@ class TestIsoToolsBase:
             ),
             call(
                 'root_dir/usr/share/syslinux/libutil.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/bios/libutil.c32',
                 'root_dir/image/loader/'
             ),
             call(
@@ -112,6 +128,10 @@ class TestIsoToolsBase:
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/bios/gfxboot.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/lib/syslinux/modules/bios/gfxboot.c32',
                 'root_dir/image/loader/'
             ),
@@ -121,6 +141,10 @@ class TestIsoToolsBase:
             ),
             call(
                 'root_dir/usr/share/syslinux/gfxboot.com',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/bios/gfxboot.com',
                 'root_dir/image/loader/'
             ),
             call(
@@ -136,6 +160,10 @@ class TestIsoToolsBase:
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/bios/menu.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/lib/syslinux/modules/bios/menu.c32',
                 'root_dir/image/loader/'
             ),
@@ -148,6 +176,10 @@ class TestIsoToolsBase:
                 'root_dir/image/loader/'
             ),
             call(
+                'root_dir/usr/lib/syslinux/bios/chain.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
                 'root_dir/usr/lib/syslinux/modules/bios/chain.c32',
                 'root_dir/image/loader/'
             ),
@@ -157,6 +189,10 @@ class TestIsoToolsBase:
             ),
             call(
                 'root_dir/usr/share/syslinux/mboot.c32',
+                'root_dir/image/loader/'
+            ),
+            call(
+                'root_dir/usr/lib/syslinux/bios/mboot.c32',
                 'root_dir/image/loader/'
             ),
             call(
