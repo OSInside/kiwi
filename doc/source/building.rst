@@ -62,15 +62,14 @@ Supported Distributions
 -----------------------
 
 KIWI can build images for the distributions which are **equal** or **newer**
-compared to the table below. For anything older please consider to use the
-legacy KIWI version *v7.x* For more details on the legacy kiwi,
+compared to the table below. For anything older use the
+legacy KIWI version *v7.x* For more details on the legacy KIWI,
 see: :ref:`legacy_kiwi`
 
 The most compatible environment is provided if the build host is of the same
-distribution than the target image. For images build with the
-Open Build Service (OBS) this always applies. In any other case please check
-the table if your *Host* vs. *Image* target combination is known to be
-supported.
+distribution than the target image. This always applies for the Open Build
+Service (OBS). In other cases please check the table if your target combination
+is known to be supported.
 
 
 .. table::
@@ -95,19 +94,19 @@ supported.
 .. admonition:: dnf
 
    dnf is the package manager used on Fedora and RHEL and is
-   the successor of yum. When kiwi builds images for this distributions
+   the successor of yum. When KIWI builds images for this distributions
    the latest version of dnf is required to be installed on the host to
-   build the image
+   build the image.
 
-In general our goal is to support any major distribution with KIWI. However
+In general, our goal is to support any major distribution with KIWI. However
 for building images we rely on core tools which are not under our control.
-Also several design aspects of distributions are different and not
-influenced by us. There are many side effects that can be annoying especially
-if the building host is not of the same distribution vendor than the image
-target.
+Also several design aspects of distributions like **secure boot** and working
+with **upstream projects** are different and not influenced by us. There
+are many side effects that can be annoying especially if the build host
+is not of the same distribution vendor than the image target.
 
-Supported Platforms/Architectures
----------------------------------
+Supported Platforms and Architectures
+-------------------------------------
 
 Images built with KIWI are designed for a specific use case. The author of
 the image description sets this with the contents in the KIWI XML document
@@ -122,7 +121,7 @@ overview of the platforms where KIWI built images are productively used:
 * SAP workloads
 
 For further information or on interest in one of the above areas,
-please don't hesitate to contact us directly: :ref:`contact_us`
+contact us directly: :ref:`contact_us`
 
 The majority of the workloads is based on the x86 architecture. KIWI
 also supports other architectures, shown in the table below:
