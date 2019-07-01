@@ -43,7 +43,9 @@ class Command(object):
     stdout and stderr is given to the caller
     """
     @staticmethod
-    def run(command, custom_env=None, raise_on_error=True):
+    def run(
+        command, custom_env=None, raise_on_error=True, stderr_to_stdout=False
+    ):
         """
         Execute a program and block the caller. The return value
         is a hash containing the stdout, stderr and return code
@@ -60,6 +62,7 @@ class Command(object):
         :param list command: command and arguments
         :param list custom_env: custom os.environ
         :param bool raise_on_error: control error behaviour
+        :param bool stderr_to_stdout: redirects stderr to stdout
 
         :return:
             Contains call results in command type
@@ -92,11 +95,12 @@ class Command(object):
                 )
             else:
                 raise KiwiCommandNotFound(message)
+        stderr = subprocess.STDOUT if stderr_to_stdout else subprocess.PIPE
         try:
             process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=stderr,
                 env=environment
             )
         except Exception as e:

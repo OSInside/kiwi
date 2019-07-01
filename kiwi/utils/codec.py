@@ -35,6 +35,8 @@ class Codec(object):
         :return: decoded string
         :rtype: str
         """
+        if literal is None:
+            return ''
         try:
             return Codec._wrapped_decode(literal)
         except Exception:
