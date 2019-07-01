@@ -85,7 +85,7 @@ class Path(object):
             is not accessible by the current user
         """
         if mode & ~(os.F_OK | os.X_OK | os.R_OK | os.W_OK) != 0:
-            raise ValueError("Invalid mode 0x{:X}".format(mode))
+            raise ValueError('Invalid mode 0x{:X}'.format(mode))
         try:
             os.stat(path)
         except Exception as exc:

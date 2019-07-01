@@ -220,8 +220,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             sysconfig_bootloader.write()
 
     def setup_disk_image_config(
-        self, boot_uuid, root_uuid, hypervisor='xen.gz', kernel='linux.vmx',
-        initrd='initrd.vmx', boot_options=''
+        self, boot_uuid, root_uuid, hypervisor='xen.gz',
+        kernel=None, initrd=None, boot_options=''
     ):
         """
         Create the grub.cfg in memory from a template suitable to boot

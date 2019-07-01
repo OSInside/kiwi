@@ -422,13 +422,14 @@ class TestBootLoaderConfigGrub2(object):
             return_value=template
         )
         self.bootloader.setup_disk_image_config(
-            boot_uuid='boot_uuid', root_uuid='root_uuid', boot_options='foo'
+            kernel='kernel', initrd='initrd', boot_uuid='boot_uuid',
+            root_uuid='root_uuid', boot_options='foo'
         )
         template.substitute.assert_called_once_with(
             {
                 'title': 'Bob',
                 'boot_directory_name': 'grub2',
-                'kernel_file': 'linux.vmx',
+                'kernel_file': 'kernel',
                 'failsafe_boot_options': 'splash foo ide=nodma apm=off '
                 'noresume edd=off nomodeset 3 foo',
                 'default_boot': '0',
@@ -437,7 +438,7 @@ class TestBootLoaderConfigGrub2(object):
                 'gfxmode': '800x600',
                 'bootpath': '/',
                 'search_params': '--fs-uuid --set=root boot_uuid',
-                'initrd_file': 'initrd.vmx',
+                'initrd_file': 'initrd',
                 'theme': None
             }
         )

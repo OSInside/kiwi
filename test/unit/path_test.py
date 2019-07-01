@@ -101,17 +101,15 @@ class TestPath(object):
         )
 
     def test_access_invalid_mode(self):
-        with raises(ValueError) as val_err_exc:
+        with raises(ValueError) as issue:
             Path.access("/some/non-existent-file/", 128)
-
-        assert "0x80" in str(val_err_exc)
+        assert '0x80' in format(issue.value)
 
     def test_access_with_non_existent_file(self):
         non_existent = "/some/file/that/should/not/exist"
-        with raises(KiwiFileAccessError) as kfae_exc:
+        with raises(KiwiFileAccessError) as issue:
             Path.access(non_existent, os.F_OK)
-
-        assert non_existent in str(kfae_exc)
+        assert non_existent in issue.value.message
 
     @patch('os.stat')
     @patch('os.access')
