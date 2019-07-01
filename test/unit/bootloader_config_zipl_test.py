@@ -87,9 +87,16 @@ class TestBootLoaderConfigZipl(object):
 
     @patch_open
     @patch('os.path.exists')
+    @patch('os.readlink')
     @patch('kiwi.bootloader.config.zipl.Path.create')
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    def test_write(self, mock_command, mock_path, mock_exists, mock_open):
+    def test_write(
+        self, mock_command, mock_path, mock_readlink, mock_exists, mock_open
+    ):
+        mock_readlink.side_effect = [
+            'initrd_readlink_name',
+            'kernel_readlink_name'
+        ]
         mock_exists.return_value = True
         context_manager_mock = mock.Mock()
         mock_open.return_value = context_manager_mock
@@ -115,8 +122,8 @@ class TestBootLoaderConfigZipl(object):
         mock_command.assert_called_once_with(
             [
                 'mv',
-                'root_dir/boot/initrd.vmx',
-                'root_dir/boot/linux.vmx',
+                'root_dir/boot/initrd_readlink_name',
+                'root_dir/boot/kernel_readlink_name',
                 'root_dir/boot/zipl'
             ]
         )
@@ -205,16 +212,18 @@ class TestBootLoaderConfigZipl(object):
 
         mock_command.side_effect = side_effect
 
-        self.bootloader.setup_disk_image_config(boot_options='foo')
+        self.bootloader.setup_disk_image_config(
+            kernel='kernel', initrd='initrd', boot_options='foo'
+        )
 
         self.zipl.get_template.assert_called_once_with(True)
         self.template.substitute.assert_called_once_with(
             {
                 'blocksize': '4096',
-                'initrd_file': 'initrd.vmx',
+                'initrd_file': 'initrd',
                 'offset': 168,
                 'device': '/dev/loop0',
-                'kernel_file': 'linux.vmx',
+                'kernel_file': 'kernel',
                 'title': 'image-name_(_OEM_)',
                 'geometry': '10017,15,12',
                 'boot_options': 'cmdline foo',
@@ -259,16 +268,18 @@ class TestBootLoaderConfigZipl(object):
 
         mock_command.side_effect = side_effect
 
-        self.bootloader.setup_disk_image_config()
+        self.bootloader.setup_disk_image_config(
+            kernel='kernel', initrd='initrd'
+        )
 
         self.zipl.get_template.assert_called_once_with(True)
         self.template.substitute.assert_called_once_with(
             {
                 'blocksize': '4096',
-                'initrd_file': 'initrd.vmx',
+                'initrd_file': 'initrd',
                 'offset': 129024,
                 'device': '/dev/loop0',
-                'kernel_file': 'linux.vmx',
+                'kernel_file': 'kernel',
                 'title': 'image-name_(_OEM_)',
                 'geometry': '242251,256,63',
                 'boot_options': 'cmdline ',

@@ -18,6 +18,7 @@
 
 import platform
 import re
+import os
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
@@ -103,15 +104,25 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             Command.run(
                 [
                     'mv',
-                    self.root_dir + '/boot/initrd.vmx',
-                    self.root_dir + '/boot/linux.vmx',
+                    os.sep.join(
+                        [
+                            self.root_dir, 'boot',
+                            os.readlink(self.root_dir + '/boot/initrd')
+                        ]
+                    ),
+                    os.sep.join(
+                        [
+                            self.root_dir, 'boot',
+                            os.readlink(self.root_dir + '/boot/image')
+                        ]
+                    ),
                     self._get_zipl_boot_path()
                 ]
             )
 
     def setup_disk_image_config(
         self, boot_uuid=None, root_uuid=None, hypervisor=None,
-        kernel='linux.vmx', initrd='initrd.vmx', boot_options=''
+        kernel=None, initrd=None, boot_options=''
     ):
         """
         Create the zipl config in memory from a template suitable to
