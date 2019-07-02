@@ -586,6 +586,57 @@ class Defaults(object):
                 return bios_grub_core
 
     @staticmethod
+    def get_syslinux_modules():
+        """
+        Returns list of syslinux modules to include on ISO
+        images that boots via isolinux
+
+        :return: base file names
+
+        :rtype: list
+        """
+        return [
+            'isolinux.bin',
+            'ldlinux.c32',
+            'libcom32.c32',
+            'libutil.c32',
+            'gfxboot.c32',
+            'gfxboot.com',
+            'menu.c32',
+            'chain.c32',
+            'mboot.c32'
+        ]
+
+    @staticmethod
+    def get_syslinux_search_paths():
+        """
+        syslinux is packaged differently between distributions.
+        This method returns a list of directories to search for
+        syslinux data
+
+        :return: directory names
+
+        :rtype: list
+        """
+        return [
+            '/usr/share/syslinux',
+            '/usr/lib/syslinux/modules/bios',
+            '/usr/lib/ISOLINUX'
+        ]
+
+    @staticmethod
+    def get_isolinux_bios_grub_loader():
+        """
+        Return name of eltorito grub image used as isolinux loader
+        in BIOS mode if isolinux.bin should not be used
+
+        :return: file base name
+
+        :rtype: str
+        """
+        return 'eltorito.img'
+
+    @staticmethod
     def get_signed_grub_loader(root_path):
         """
         Provides shim signed grub loader file path

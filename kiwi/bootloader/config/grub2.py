@@ -622,7 +622,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self._get_bios_modules_path(lookup_path) + '/cdboot.img',
                 grub_image or self._get_bios_image_name(lookup_path),
                 '>',
-                self._get_bios_modules_path(lookup_path) + '/eltorito.img',
+                os.sep.join(
+                    [
+                        self._get_bios_modules_path(lookup_path),
+                        Defaults.get_isolinux_bios_grub_loader()
+                    ]
+                )
             ]
         )
         Command.run(

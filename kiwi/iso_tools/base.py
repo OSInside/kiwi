@@ -111,26 +111,9 @@ class IsoToolsBase(object):
         )
         Path.wipe(loader_data)
         Path.create(loader_data)
-
-        syslinux_file_names = [
-            'isolinux.bin',
-            'ldlinux.c32',
-            'libcom32.c32',
-            'libutil.c32',
-            'gfxboot.c32',
-            'gfxboot.com',
-            'menu.c32',
-            'chain.c32',
-            'mboot.c32'
-        ]
         grub_image_file_names = [
-            'eltorito.img',
+            Defaults.get_isolinux_bios_grub_loader(),
             'boot_hybrid.img'
-        ]
-        syslinux_dirs = [
-            '/usr/share/syslinux/',
-            '/usr/lib/syslinux/modules/bios/',
-            '/usr/lib/ISOLINUX/'
         ]
         loader_files = []
         for grub_image_file_name in grub_image_file_names:
@@ -141,10 +124,12 @@ class IsoToolsBase(object):
             if grub_file and os.path.exists(grub_file):
                 loader_files.append(grub_file)
 
-        for syslinux_file_name in syslinux_file_names:
-            for syslinux_dir in syslinux_dirs:
-                syslinux_file = ''.join(
-                    [lookup_path, syslinux_dir, syslinux_file_name]
+        for syslinux_file_name in Defaults.get_syslinux_modules():
+            for syslinux_dir in Defaults.get_syslinux_search_paths():
+                syslinux_file = os.path.normpath(
+                    os.sep.join(
+                        [lookup_path, syslinux_dir, syslinux_file_name]
+                    )
                 )
                 if os.path.exists(syslinux_file):
                     loader_files.append(syslinux_file)

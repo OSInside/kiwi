@@ -92,7 +92,12 @@ class IsoToolsXorrIso(IsoToolsBase):
 
         if Defaults.is_x86_arch(self.arch):
             if efi_mode:
-                loader_file = self.boot_path + '/loader/eltorito.img'
+                loader_file = os.sep.join(
+                    [
+                        self.boot_path, 'loader',
+                        Defaults.get_isolinux_bios_grub_loader()
+                    ]
+                )
                 mbr_file = os.sep.join(
                     [self.source_dir, self.boot_path, '/loader/boot_hybrid.img']
                 )
@@ -103,14 +108,16 @@ class IsoToolsXorrIso(IsoToolsBase):
                 ]
             else:
                 loader_file = self.boot_path + '/loader/isolinux.bin'
-                syslinux_lookup_paths = [
-                    '/usr/share/syslinux', '/usr/lib/syslinux/modules/bios',
-                    '/usr/lib/ISOLINUX'
-                ]
-                mbr_file = Path.which('isohdpfx.bin', syslinux_lookup_paths)
+                mbr_file = Path.which(
+                    'isohdpfx.bin', Defaults.get_syslinux_search_paths()
+                )
                 self.iso_loaders += [
-                    '-boot_image', 'isolinux', 'bin_path={0}'.format(loader_file),
-                    '-boot_image', 'isolinux', 'system_area={0}'.format(mbr_file),
+                    '-boot_image', 'isolinux', 'bin_path={0}'.format(
+                        loader_file
+                    ),
+                    '-boot_image', 'isolinux', 'system_area={0}'.format(
+                        mbr_file
+                    ),
                     '-boot_image', 'isolinux', 'partition_table=on',
                 ]
 
