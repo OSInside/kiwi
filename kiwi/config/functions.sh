@@ -749,7 +749,7 @@ function baseStripFirmware {
         for fname in $name ; do
             for match in /lib/firmware/"${fname}" /lib/firmware/*/"${fname}";do
                 if [ -e "${match}" ];then
-                    match="${match//^\/lib\/firmware\//}"
+                    match="${match//\/lib\/firmware\//}"
                     bmdir=$(dirname "${match}")
                     mkdir -p "/lib/firmware-required/${bmdir}"
                     mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
