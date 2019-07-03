@@ -41,10 +41,12 @@ class RuntimeConfig(object):
     def __init__(self):
         self.config_data = None
 
-        config_file = os.sep.join(
-            [self._home_path(), '.config', 'kiwi', 'config.yml']
-        )
-        if not os.path.exists(config_file):
+        config_file = None
+        if self._home_path():
+            config_file = os.sep.join(
+                [self._home_path(), '.config', 'kiwi', 'config.yml']
+            )
+        if not config_file or not os.path.exists(config_file):
             config_file = '/etc/kiwi.yml'
         if os.path.exists(config_file):
             log.info('Reading runtime config file: {0}'.format(config_file))
@@ -270,4 +272,4 @@ class RuntimeConfig(object):
                 )
 
     def _home_path(self):
-        return os.environ['HOME']
+        return os.environ.get('HOME')
