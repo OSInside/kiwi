@@ -98,7 +98,7 @@ class BootImageDracut(BootImageBase):
             else:
                 included_files = self.included_files
             dracut_initrd_basename += '.xz'
-            Command.run(
+            dracut_call = Command.run(
                 [
                     'chroot', self.boot_root_directory,
                     'dracut', '--force',
@@ -108,8 +108,10 @@ class BootImageDracut(BootImageBase):
                 ] + self.dracut_options + included_files + [
                     dracut_initrd_basename,
                     kernel_details.version
-                ]
+                ],
+                stderr_to_stdout=True
             )
+            log.debug(dracut_call.output)
             Command.run(
                 [
                     'mv',

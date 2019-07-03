@@ -90,7 +90,7 @@ class TestBootImageKiwi(object):
                 '--install', 'system-directory/etc/foo',
                 '--install', '/system-directory/var/lib/bar',
                 'LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz', '1.2.3'
-            ]),
+            ], stderr_to_stdout=True),
             call([
                 'mv',
                 'system-directory/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz',
@@ -106,7 +106,7 @@ class TestBootImageKiwi(object):
                 '--no-hostonly-cmdline', '--xz',
                 '--install', '/system-directory/var/lib/bar',
                 'foo.xz', '1.2.3'
-            ]),
+            ], stderr_to_stdout=True),
             call([
                 'mv',
                 'system-directory/foo.xz',

@@ -28,6 +28,9 @@ class TestCodec(object):
         assert msg == Codec.decode(self.literal)
         assert mock_warn.called
 
+    def test_decode_None_literal(self):
+        assert '' == Codec.decode(None)
+
     @patch('kiwi.utils.codec.Codec._wrapped_decode')
     def test_decode(self, mock_decode):
         msg = 'utf-8 compatible string'
