@@ -3742,6 +3742,13 @@ and setup the system disk.</a:documentation>
         <sch:param name="providers" value="virtualbox"/>
       </sch:pattern>
     </define>
+    <define name="k.vagrantconfig.embedded_vagrantfile.attribute">
+      <attribute name="embedded_vagrantfile">
+        <a:documentation>Path to a Vagrantfile that will be embedded in the box
+Kiwi cannot check the Vagrantfile for correctnes, therefore use this
+at your own risk!</a:documentation>
+      </attribute>
+    </define>
     <define name="k.vagrantconfig.virtualsize.attribute">
       <attribute name="virtualsize">
         <a:documentation>virtualsize provides the value of the virtual_size key which
@@ -3767,6 +3774,9 @@ If not specified the image name is used</a:documentation>
         </optional>
         <optional>
           <ref name="k.vagrantconfig.virtualbox_guest_additions_present.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.vagrantconfig.embedded_vagrantfile.attribute"/>
         </optional>
       </interleave>
     </define>

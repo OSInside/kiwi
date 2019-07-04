@@ -6231,12 +6231,13 @@ class vagrantconfig(GeneratedsSuper):
     options which are used inside a vagrant box"""
     subclass = None
     superclass = None
-    def __init__(self, provider=None, virtualsize=None, boxname=None, virtualbox_guest_additions_present=None):
+    def __init__(self, provider=None, virtualsize=None, boxname=None, virtualbox_guest_additions_present=None, embedded_vagrantfile=None):
         self.original_tagname_ = None
         self.provider = _cast(None, provider)
         self.virtualsize = _cast(int, virtualsize)
         self.boxname = _cast(None, boxname)
         self.virtualbox_guest_additions_present = _cast(bool, virtualbox_guest_additions_present)
+        self.embedded_vagrantfile = _cast(None, embedded_vagrantfile)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6256,6 +6257,8 @@ class vagrantconfig(GeneratedsSuper):
     def set_boxname(self, boxname): self.boxname = boxname
     def get_virtualbox_guest_additions_present(self): return self.virtualbox_guest_additions_present
     def set_virtualbox_guest_additions_present(self, virtualbox_guest_additions_present): self.virtualbox_guest_additions_present = virtualbox_guest_additions_present
+    def get_embedded_vagrantfile(self): return self.embedded_vagrantfile
+    def set_embedded_vagrantfile(self, embedded_vagrantfile): self.embedded_vagrantfile = embedded_vagrantfile
     def hasContent_(self):
         if (
 
@@ -6296,6 +6299,9 @@ class vagrantconfig(GeneratedsSuper):
         if self.virtualbox_guest_additions_present is not None and 'virtualbox_guest_additions_present' not in already_processed:
             already_processed.add('virtualbox_guest_additions_present')
             outfile.write(' virtualbox_guest_additions_present="%s"' % self.gds_format_boolean(self.virtualbox_guest_additions_present, input_name='virtualbox_guest_additions_present'))
+        if self.embedded_vagrantfile is not None and 'embedded_vagrantfile' not in already_processed:
+            already_processed.add('embedded_vagrantfile')
+            outfile.write(' embedded_vagrantfile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.embedded_vagrantfile), input_name='embedded_vagrantfile')), ))
     def exportChildren(self, outfile, level, namespace_='', name_='vagrantconfig', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -6333,6 +6339,10 @@ class vagrantconfig(GeneratedsSuper):
                 self.virtualbox_guest_additions_present = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('embedded_vagrantfile', node)
+        if value is not None and 'embedded_vagrantfile' not in already_processed:
+            already_processed.add('embedded_vagrantfile')
+            self.embedded_vagrantfile = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class vagrantconfig
