@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.1" name="ISO-Fedora">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>ms@suse.com</contact>
+        <specification>live iso test build</specification>
+    </description>
+    <preferences>
+        <version>1.30.2</version>
+        <packagemanager>dnf</packagemanager>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <bootloader-theme>breeze</bootloader-theme>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences>
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_30"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora30Update">
+        <source path="obs://Fedora:30/update"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora30">
+        <source path="obs://Fedora:30/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="grub2-breeze-theme"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="dracut-kiwi-live"/>
+        <package name="fedora-logos"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="shim-signed-aa64"/>
+        <package name="grub2-efi-aa64"/>
+        <package name="grub2-efi-aa64-modules"/>
+        <package name="grub2-efi-aa64-cdboot"/>
+    </packages>
+</image>
