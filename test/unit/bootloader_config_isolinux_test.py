@@ -1,19 +1,12 @@
-from mock import patch
-from mock import call
-
-import mock
-
 import kiwi
-
-from .test_helper import raises, patch_open
-
-from kiwi.xml_state import XMLState
-from kiwi.xml_description import XMLDescription
-from kiwi.exceptions import (
-    KiwiBootLoaderIsoLinuxPlatformError,
-    KiwiTemplateError
+import mock
+from mock import (
+    patch, call
 )
+from .test_helper import raises, patch_open
 from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
+
+from kiwi.exceptions import KiwiTemplateError
 
 
 class TestBootLoaderConfigIsoLinux(object):
@@ -94,19 +87,10 @@ class TestBootLoaderConfigIsoLinux(object):
             self.state, 'root_dir'
         )
 
-    @raises(KiwiBootLoaderIsoLinuxPlatformError)
-    @patch('platform.machine')
-    def test_post_init_invalid_platform(self, mock_machine):
-        mock_machine.return_value = 'unsupported-arch'
-        BootLoaderConfigIsoLinux(mock.Mock(), 'root_dir')
-
     @patch('platform.machine')
     def test_post_init_ix86_platform(self, mock_machine):
-        xml_state = XMLState(
-            XMLDescription('../data/example_config.xml').load()
-        )
         mock_machine.return_value = 'i686'
-        bootloader = BootLoaderConfigIsoLinux(xml_state, 'root_dir')
+        bootloader = BootLoaderConfigIsoLinux(self.state, 'root_dir')
         assert bootloader.arch == 'ix86'
 
     @patch('os.path.exists')
@@ -181,175 +165,11 @@ class TestBootLoaderConfigIsoLinux(object):
         self.isolinux.get_install_message_template.side_effect = Exception
         self.bootloader.setup_install_image_config(mbrid=None)
 
-    @patch('kiwi.bootloader.config.isolinux.DataSync')
-    @patch('kiwi.bootloader.config.isolinux.shutil')
-    @patch('kiwi.bootloader.config.isolinux.Command.run')
-    @patch('os.path.exists')
-    def test_setup_install_boot_images(
-        self, mock_exists, mock_command, mock_shutil, mock_sync
-    ):
-        mock_exists.return_value = True
-        data = mock.Mock()
-        mock_sync.return_value = data
-        self.bootloader.setup_install_boot_images(
-            mbrid=None
-        )
-        assert mock_shutil.copy.call_args_list == [
-            call(
-                'root_dir/usr/share/syslinux/isolinux.bin',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/isolinux.bin',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/isolinux.bin',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/ldlinux.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/ldlinux.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/ldlinux.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/libcom32.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/libcom32.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/libcom32.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/libutil.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/libutil.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/libutil.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/gfxboot.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/gfxboot.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/gfxboot.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/gfxboot.com',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/gfxboot.com',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/gfxboot.com',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/menu.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/menu.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/menu.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/chain.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/chain.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/chain.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/share/syslinux/mboot.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/syslinux/modules/bios/mboot.c32',
-                'root_dir/image/loader/'
-            ),
-            call(
-                'root_dir/usr/lib/ISOLINUX/mboot.c32',
-                'root_dir/image/loader/'
-            )
-        ]
-        assert mock_command.call_args_list == [
-            call(
-                command=[
-                    'bash', '-c',
-                    'cp root_dir/boot/memtest* '
-                    'root_dir/image/loader//memtest'
-                ], raise_on_error=False
-            ),
-            call(
-                [
-                    'bash', '-c',
-                    'cp root_dir/etc/bootsplash/themes/openSUSE/'
-                    'cdrom/* root_dir/image/loader/'
-                ]
-            ),
-            call(
-                [
-                    'gfxboot',
-                    '--config-file', 'root_dir/image/loader//gfxboot.cfg',
-                    '--change-config', 'install::autodown=0'
-                ]
-            ),
-            call(
-                [
-                    'cp',
-                    'root_dir/etc/bootsplash/themes/openSUSE/'
-                    'bootloader/message', 'root_dir/image/loader/'
-                ]
-            )
-        ]
-        mock_sync.assert_called_once_with(
-            'root_dir/image/loader/',
-            'root_dir/boot/x86_64/loader'
-        )
-        data.sync_data.assert_called_once_with(
-            options=['-z', '-a']
-        )
+    def test_setup_install_boot_images(self):
+        assert self.bootloader.setup_install_boot_images(mbrid=None) is None
 
-    @patch.object(BootLoaderConfigIsoLinux, 'setup_install_boot_images')
-    def test_setup_live_boot_images(self, mock_install_boot_images):
-        self.bootloader.setup_live_boot_images(
-            mbrid=None, lookup_path='lookup_dir'
-        )
-        mock_install_boot_images.assert_called_once_with(
-            None, 'lookup_dir'
-        )
+    def test_setup_live_boot_images(self):
+        assert self.bootloader.setup_live_boot_images(mbrid=None) is None
 
     @raises(KiwiTemplateError)
     def test_setup_live_image_config_invalid_template(self):

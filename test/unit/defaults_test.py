@@ -93,3 +93,7 @@ class TestDefaults(object):
         assert Defaults.get_unsigned_grub_loader('root') == \
             mock_glob.return_value.pop()
         mock_glob.assert_called_once_with('root/usr/share/grub*/*-efi/grub.efi')
+
+    def test_is_x86_arch(self):
+        assert Defaults.is_x86_arch('x86_64') is True
+        assert Defaults.is_x86_arch('aarch64') is False

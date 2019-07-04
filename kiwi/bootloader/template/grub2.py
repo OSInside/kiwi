@@ -300,8 +300,7 @@ class BootLoaderTemplateGrub2(object):
 
         self.menu_iso_harddisk_entry = dedent('''
             menuentry "Boot from Hard Disk" --class os --unrestricted {
-                search --set=root --label EFI
-                chainloader ($${root})/EFI/BOOT/bootx64.efi
+                exit
             }
         ''').strip() + os.linesep
 

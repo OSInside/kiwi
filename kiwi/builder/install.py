@@ -35,6 +35,7 @@ from kiwi.system.kernel import Kernel
 from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
 from kiwi.system.setup import SystemSetup
+from kiwi.iso_tools.base import IsoToolsBase
 
 from kiwi.exceptions import (
     KiwiInstallBootImageError
@@ -178,34 +179,38 @@ class InstallImageBuilder(object):
             ['mv', squashed_image_file, self.media_dir]
         )
 
-        # setup bootloader config to boot the ISO via isolinux
-        log.info('Setting up install image bootloader configuration')
-        bootloader_config_isolinux = BootLoaderConfig(
-            'isolinux', self.xml_state, self.media_dir
+        log.info(
+            'Setting up install image bootloader configuration'
         )
-        bootloader_config_isolinux.setup_install_boot_images(
-            mbrid=None,
-            lookup_path=self.boot_image_task.boot_root_directory
+        if self.firmware.efi_mode():
+            # setup bootloader config to boot the ISO via EFI
+            # This also embedds an MBR and the respective BIOS modules
+            # for compat boot. The complete bootloader setup will be
+            # based on grub
+            bootloader_config = BootLoaderConfig(
+                'grub2', self.xml_state, self.media_dir, {
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                }
+            )
+            bootloader_config.setup_install_boot_images(
+                mbrid=self.mbrid, lookup_path=self.root_dir
+            )
+        else:
+            # setup bootloader config to boot the ISO via isolinux.
+            # This allows for booting on x86 platforms in BIOS mode
+            # only.
+            bootloader_config = BootLoaderConfig(
+                'isolinux', self.xml_state, self.media_dir
+            )
+        IsoToolsBase.setup_media_loader_directory(
+            self.boot_image_task.boot_root_directory, self.media_dir,
+            bootloader_config.get_boot_theme()
         )
-        bootloader_config_isolinux.setup_install_image_config(
-            mbrid=None
-        )
-        bootloader_config_isolinux.write()
-
-        # setup bootloader config to boot the ISO via EFI
-        bootloader_config_grub = BootLoaderConfig(
-            'grub2', self.xml_state, self.media_dir, {
-                'grub_directory_name':
-                    Defaults.get_grub_boot_directory_name(self.root_dir)
-            }
-        )
-        bootloader_config_grub.setup_install_boot_images(
-            mbrid=self.mbrid, lookup_path=self.root_dir
-        )
-        bootloader_config_grub.setup_install_image_config(
+        bootloader_config.setup_install_image_config(
             mbrid=self.mbrid
         )
-        bootloader_config_grub.write()
+        bootloader_config.write()
 
         # create initrd for install image
         log.info('Creating install image boot image')

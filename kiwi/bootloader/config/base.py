@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import platform
 from collections import namedtuple
 
@@ -165,7 +166,9 @@ class BootLoaderConfigBase(object):
 
         :rtype: str
         """
-        efi_boot_path = self.root_dir + '/' + in_sub_dir + '/EFI/BOOT'
+        efi_boot_path = os.path.normpath(
+            os.sep.join([self.root_dir, in_sub_dir, 'EFI/BOOT'])
+        )
         Path.create(efi_boot_path)
         return efi_boot_path
 

@@ -82,6 +82,21 @@ class Defaults(object):
         ]
 
     @staticmethod
+    def is_x86_arch(arch):
+        """
+        Checks if machine architecture is x86 based
+
+        Any arch that matches 32bit and 64bit x86 architecture
+        causes the method to return True. Anything else will
+        cause the method to return False
+
+        :rtype: bool
+        """
+        if arch == 'x86_64' or arch == 'i686' or arch == 'i586':
+            return True
+        return False
+
+    @staticmethod
     def is_buildservice_worker():
         """
         Checks if build host is an open buildservice machine
@@ -543,6 +558,85 @@ class Defaults(object):
                 return unsigned_grub_file
 
     @staticmethod
+    def get_grub_bios_core_loader(root_path):
+        """
+        Provides grub bios image
+
+        Searches distribution specific locations to find the
+        core bios image below the given root path
+
+        :param string root_path: image root path
+
+        :return: file path or None
+
+        :rtype: str
+        """
+        bios_grub_core_patterns = [
+            '/usr/share/grub*/i386-pc/{0}'.format(
+                Defaults.get_bios_image_name()
+            ),
+            '/usr/lib/grub*/i386-pc/{0}'.format(
+                Defaults.get_bios_image_name()
+            )
+        ]
+        for bios_grub_core_pattern in bios_grub_core_patterns:
+            for bios_grub_core in glob.iglob(
+                root_path + bios_grub_core_pattern
+            ):
+                return bios_grub_core
+
+    @staticmethod
+    def get_syslinux_modules():
+        """
+        Returns list of syslinux modules to include on ISO
+        images that boots via isolinux
+
+        :return: base file names
+
+        :rtype: list
+        """
+        return [
+            'isolinux.bin',
+            'ldlinux.c32',
+            'libcom32.c32',
+            'libutil.c32',
+            'gfxboot.c32',
+            'gfxboot.com',
+            'menu.c32',
+            'chain.c32',
+            'mboot.c32'
+        ]
+
+    @staticmethod
+    def get_syslinux_search_paths():
+        """
+        syslinux is packaged differently between distributions.
+        This method returns a list of directories to search for
+        syslinux data
+
+        :return: directory names
+
+        :rtype: list
+        """
+        return [
+            '/usr/share/syslinux',
+            '/usr/lib/syslinux/modules/bios',
+            '/usr/lib/ISOLINUX'
+        ]
+
+    @staticmethod
+    def get_isolinux_bios_grub_loader():
+        """
+        Return name of eltorito grub image used as isolinux loader
+        in BIOS mode if isolinux.bin should not be used
+
+        :return: file base name
+
+        :rtype: str
+        """
+        return 'eltorito.img'
+
+    @staticmethod
     def get_signed_grub_loader(root_path):
         """
         Provides shim signed grub loader file path
@@ -559,7 +653,8 @@ class Defaults(object):
         signed_grub_file_patterns = [
             '/usr/share/efi/*/grub.efi',
             '/usr/lib64/efi/grub.efi',
-            '/boot/efi/EFI/*/grub*.efi'
+            '/boot/efi/EFI/*/grub*.efi',
+            '/usr/share/grub*/*-efi/grub.efi'
         ]
         for signed_grub_pattern in signed_grub_file_patterns:
             for signed_grub in glob.iglob(root_path + signed_grub_pattern):
@@ -828,6 +923,17 @@ class Defaults(object):
             return default_module_directory_names[arch]
 
     @staticmethod
+    def get_bios_module_directory_name():
+        """
+        Provides x86 BIOS directory name which stores the pc binaries
+
+        :return: directory name
+
+        :rtype: str
+        """
+        return 'i386-pc'
+
+    @staticmethod
     def get_efi_image_name(arch):
         """
         Provides architecture specific EFI boot binary name
@@ -849,6 +955,17 @@ class Defaults(object):
         }
         if arch in default_efi_image_names:
             return default_efi_image_names[arch]
+
+    @staticmethod
+    def get_bios_image_name():
+        """
+        Provides bios core boot binary name
+
+        :return: name
+
+        :rtype: str
+        """
+        return 'core.img'
 
     @staticmethod
     def get_default_boot_timeout_seconds():

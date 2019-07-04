@@ -22,6 +22,7 @@ from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.exceptions import KiwiIsoToolError
+from kiwi.defaults import Defaults
 
 
 class IsoToolsXorrIso(IsoToolsBase):
@@ -64,7 +65,10 @@ class IsoToolsXorrIso(IsoToolsBase):
 
         :param list custom_args: custom ISO meta data
         """
+        efi_mode = False
         if custom_args:
+            if custom_args.get('efi_mode'):
+                efi_mode = True
             if 'mbr_id' in custom_args:
                 self.iso_parameters += [
                     '-application_id', custom_args['mbr_id']
@@ -85,23 +89,40 @@ class IsoToolsXorrIso(IsoToolsBase):
         self.iso_parameters += [
             '-joliet', 'on', '-padding', '0'
         ]
-        loader_file = self.boot_path + '/loader/isolinux.bin'
 
-        syslinux_lookup_paths = [
-            '/usr/share/syslinux', '/usr/lib/syslinux/modules/bios',
-            '/usr/lib/ISOLINUX'
-        ]
-        mbr_file = Path.which('isohdpfx.bin', syslinux_lookup_paths)
-        if not mbr_file:
-            raise KiwiIsoToolError(
-                'isohdpfx.bin not found in {0}'.format(syslinux_lookup_paths)
-            )
+        if Defaults.is_x86_arch(self.arch):
+            if efi_mode:
+                loader_file = os.sep.join(
+                    [
+                        self.boot_path, 'loader',
+                        Defaults.get_isolinux_bios_grub_loader()
+                    ]
+                )
+                mbr_file = os.sep.join(
+                    [self.source_dir, self.boot_path, '/loader/boot_hybrid.img']
+                )
+                self.iso_loaders += [
+                    '-boot_image', 'grub', 'bin_path={0}'.format(loader_file),
+                    '-boot_image', 'grub', 'grub2_mbr={0}'.format(mbr_file),
+                    '-boot_image', 'grub', 'grub2_boot_info=on'
+                ]
+            else:
+                loader_file = self.boot_path + '/loader/isolinux.bin'
+                mbr_file = Path.which(
+                    'isohdpfx.bin', Defaults.get_syslinux_search_paths()
+                )
+                self.iso_loaders += [
+                    '-boot_image', 'isolinux', 'bin_path={0}'.format(
+                        loader_file
+                    ),
+                    '-boot_image', 'isolinux', 'system_area={0}'.format(
+                        mbr_file
+                    ),
+                    '-boot_image', 'isolinux', 'partition_table=on',
+                ]
 
         self.iso_loaders += [
             '-boot_image', 'any', 'partition_offset=16',
-            '-boot_image', 'isolinux', 'bin_path={0}'.format(loader_file),
-            '-boot_image', 'isolinux', 'system_area={0}'.format(mbr_file),
-            '-boot_image', 'isolinux', 'partition_table=on',
             '-boot_image', 'any', 'cat_path={0}'.format(catalog_file),
             '-boot_image', 'any', 'cat_hidden=on',
             '-boot_image', 'any', 'boot_info_table=on',

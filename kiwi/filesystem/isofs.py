@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
-import re
-
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.iso_tools.iso import Iso
@@ -39,12 +36,12 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param string exclude: unused
         """
-        arch = platform.machine()
         meta_data = self.custom_args['meta_data']
+        efi_mode = meta_data.get('efi_mode')
         iso_tool = IsoTools(self.root_dir)
 
         iso = Iso(self.root_dir)
-        if re.match(r'x86_64|i[56]86', arch):
+        if not efi_mode:
             iso.setup_isolinux_boot_path()
 
         if not iso_tool.has_iso_hybrid_capability():
@@ -63,10 +60,8 @@ class FileSystemIsoFs(FileSystemBase):
             )
             iso.relocate_boot_catalog(filename)
             iso.fix_boot_catalog(filename)
-            efi_mode = meta_data['efi_mode'] if 'efi_mode' in meta_data else \
-                False
             mbr_id = meta_data['mbr_id'] if 'mbr_id' in meta_data else \
                 '0xffffffff'
             iso.create_hybrid(
-                hybrid_offset, mbr_id, filename, efi_mode
+                hybrid_offset, mbr_id, filename, bool(efi_mode)
             )

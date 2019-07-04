@@ -22,14 +22,8 @@ class TestIsoToolsXorrIso(object):
         mock_exists.return_value = False
         self.iso_tool.get_tool_name()
 
-    @raises(KiwiIsoToolError)
     @patch('kiwi.iso_tools.xorriso.Path.which')
-    def test_init_iso_creation_parameters_no_isohdpfx(self, mock_which):
-        mock_which.return_value = None
-        self.iso_tool.init_iso_creation_parameters('sortfile')
-
-    @patch('kiwi.iso_tools.xorriso.Path.which')
-    def test_init_iso_creation_parameters(self, mock_which):
+    def test_init_iso_creation_parameters_isolinux(self, mock_which):
         mock_which.return_value = '/usr/share/syslinux/isohdpfx.bin'
         self.iso_tool.init_iso_creation_parameters(
             {
@@ -55,12 +49,45 @@ class TestIsoToolsXorrIso(object):
             '-padding', '0'
         ]
         assert self.iso_tool.iso_loaders == [
-            '-boot_image', 'any', 'partition_offset=16',
             '-boot_image', 'isolinux',
             'bin_path=boot/x86_64/loader/isolinux.bin',
             '-boot_image', 'isolinux',
             'system_area=/usr/share/syslinux/isohdpfx.bin',
             '-boot_image', 'isolinux', 'partition_table=on',
+            '-boot_image', 'any', 'partition_offset=16',
+            '-boot_image', 'any', 'cat_path=boot/x86_64/boot.catalog',
+            '-boot_image', 'any', 'cat_hidden=on',
+            '-boot_image', 'any', 'boot_info_table=on',
+            '-boot_image', 'any', 'platform_id=0x00',
+            '-boot_image', 'any', 'emul_type=no_emulation',
+            '-boot_image', 'any', 'load_size=2048'
+        ]
+
+    def test_init_iso_creation_parameters_efi(self):
+        self.iso_tool.init_iso_creation_parameters(
+            {
+                'mbr_id': 'app_id',
+                'publisher': 'org',
+                'preparer': 'preparer',
+                'volume_id': 'vol_id',
+                'efi_mode': 'uefi'
+            }
+        )
+        assert self.iso_tool.iso_parameters == [
+            '-application_id', 'app_id',
+            '-publisher', 'org',
+            '-preparer_id', 'preparer',
+            '-volid', 'vol_id',
+            '-joliet', 'on',
+            '-padding', '0'
+        ]
+        assert self.iso_tool.iso_loaders == [
+            '-boot_image', 'grub',
+            'bin_path=boot/x86_64/loader/eltorito.img',
+            '-boot_image', 'grub',
+            'grub2_mbr=source-dir/boot/x86_64//loader/boot_hybrid.img',
+            '-boot_image', 'grub', 'grub2_boot_info=on',
+            '-boot_image', 'any', 'partition_offset=16',
             '-boot_image', 'any', 'cat_path=boot/x86_64/boot.catalog',
             '-boot_image', 'any', 'cat_hidden=on',
             '-boot_image', 'any', 'boot_info_table=on',

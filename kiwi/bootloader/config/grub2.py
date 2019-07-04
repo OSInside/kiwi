@@ -306,7 +306,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_install_title(),
             'bootpath': self.get_boot_path('iso'),
-            'boot_directory_name': self.boot_directory_name
+            'boot_directory_name': self.boot_directory_name,
+            'efi_image_name': Defaults.get_efi_image_name(self.arch)
         }
         if self.multiboot:
             log.info('--> Using multiboot install template')
@@ -362,7 +363,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(plain=True),
             'bootpath': self.get_boot_path('iso'),
-            'boot_directory_name': self.boot_directory_name
+            'boot_directory_name': self.boot_directory_name,
+            'efi_image_name': Defaults.get_efi_image_name(self.arch)
         }
         if self.multiboot:
             log.info('--> Using multiboot template')
@@ -413,6 +415,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self._supports_bios_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
+            self._setup_bios_image(mbrid=mbrid, lookup_path=lookup_path)
 
         if self.firmware.efi_mode():
             self._setup_EFI_path(lookup_path)
@@ -551,22 +554,30 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if not lookup_path:
             lookup_path = self.root_dir
-        shim_image = Defaults.get_shim_loader(lookup_path)
-        if not shim_image:
-            raise KiwiBootLoaderGrubSecureBootError(
-                'Microsoft signed shim loader not found'
-            )
         grub_image = Defaults.get_signed_grub_loader(lookup_path)
         if not grub_image:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Shim signed grub2 efi loader not found'
+                'Signed grub2 efi loader not found'
             )
-        Command.run(
-            ['cp', shim_image, self._get_efi_image_name()]
-        )
-        Command.run(
-            ['cp', grub_image, self.efi_boot_path]
-        )
+        shim_image = Defaults.get_shim_loader(lookup_path)
+        if shim_image:
+            # The shim concept is based on a two step system including a
+            # grub image(shim) that got signed by Microsoft followed by
+            # a grub image that got signed by the shim. The shim image
+            # is the one that gets loaded by the firmware which itself
+            # loads the second stage grub image
+            Command.run(
+                ['cp', shim_image, self._get_efi_image_name()]
+            )
+            Command.run(
+                ['cp', grub_image, self.efi_boot_path]
+            )
+        else:
+            # Without shim a self signed grub image is used that
+            # gets loaded by the firmware
+            Command.run(
+                ['cp', grub_image, self._get_efi_image_name()]
+            )
 
     def _setup_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
         """
@@ -591,6 +602,38 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 uuid, mbrid, lookup_path
             )
 
+    def _setup_bios_image(self, mbrid=None, lookup_path=None):
+        """
+        Provide bios grub image
+        """
+        if not lookup_path:
+            lookup_path = self.root_dir
+        grub_image = Defaults.get_grub_bios_core_loader(lookup_path)
+        if grub_image:
+            log.info('--> Using prebuilt bios image')
+        else:
+            log.info('--> Creating bios image')
+            self._create_bios_image(
+                mbrid, lookup_path
+            )
+        bash_command = ' '.join(
+            [
+                'cat',
+                self._get_bios_modules_path(lookup_path) + '/cdboot.img',
+                grub_image or self._get_bios_image_name(lookup_path),
+                '>',
+                os.sep.join(
+                    [
+                        self._get_bios_modules_path(lookup_path),
+                        Defaults.get_isolinux_bios_grub_loader()
+                    ]
+                )
+            ]
+        )
+        Command.run(
+            ['bash', '-c', bash_command]
+        )
+
     def _create_embedded_fat_efi_image(self):
         Path.create(self.root_dir + '/boot/' + self.arch)
         efi_fat_image = ''.join(
@@ -610,7 +653,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def _create_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
-        early_boot_script = self.efi_boot_path + '/earlyboot.cfg'
+        early_boot_script = os.path.normpath(
+            os.sep.join([self.efi_boot_path, 'earlyboot.cfg'])
+        )
         if uuid:
             self._create_early_boot_script_for_uuid_search(
                 early_boot_script, uuid
@@ -642,6 +687,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         with open(efi_boot_config, 'a') as config:
             config.write('normal{0}'.format(os.linesep))
+
+    def _create_bios_image(self, mbrid=None, lookup_path=None):
+        early_boot_script = os.path.normpath(
+            os.sep.join([self._get_grub2_boot_path(), 'earlyboot.cfg'])
+        )
+        self._create_early_boot_script_for_mbrid_search(
+            early_boot_script, mbrid
+        )
+        Command.run(
+            [
+                self._get_grub2_mkimage_tool() or 'grub2-mkimage',
+                '-O', Defaults.get_bios_module_directory_name(),
+                '-o', self._get_bios_image_name(lookup_path),
+                '-c', early_boot_script,
+                '-p', self.get_boot_path() + '/' + self.boot_directory_name,
+                '-d', self._get_bios_modules_path(lookup_path)
+            ] + Defaults.get_grub_bios_modules(multiboot=self.xen_guest)
+        )
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
@@ -682,7 +745,20 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return self.root_dir + '/boot/' + self.boot_directory_name
 
     def _get_efi_image_name(self):
-        return self.efi_boot_path + '/' + Defaults.get_efi_image_name(self.arch)
+        return os.sep.join(
+            [
+                self.efi_boot_path,
+                Defaults.get_efi_image_name(self.arch)
+            ]
+        )
+
+    def _get_bios_image_name(self, lookup_path):
+        return os.sep.join(
+            [
+                self._get_bios_modules_path(lookup_path),
+                Defaults.get_bios_image_name()
+            ]
+        )
 
     def _get_efi_modules_path(self, lookup_path=None):
         return self._get_module_path(

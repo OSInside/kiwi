@@ -20,11 +20,7 @@ class TestFileSystemIsoFs(object):
 
     @patch('kiwi.filesystem.isofs.IsoTools')
     @patch('kiwi.filesystem.isofs.Iso')
-    @patch('kiwi.filesystem.isofs.platform.machine')
-    def test_create_on_file(
-        self, mock_platform_machine, mock_iso, mock_cdrtools
-    ):
-        mock_platform_machine.return_value = 'x86_64'
+    def test_create_on_file(self, mock_iso, mock_cdrtools):
         iso_tool = mock.Mock()
         iso_tool.has_iso_hybrid_capability = mock.Mock(
             return_value=False
