@@ -14,6 +14,12 @@ class TestRuntimeConfig(object):
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.runtime_config = RuntimeConfig()
 
+        # pretend that none of the runtime config files exist, even if they do
+        # (e.g. the system wide config file in /etc/kiwi.yml)
+        # => this will give us the defaults
+        with patch('os.path.exists', return_value=False):
+            self.default_runtime_config = RuntimeConfig()
+
     @patch('os.path.exists')
     @patch('yaml.safe_load')
     def test_reading_system_wide_config_file(self, mock_yaml, mock_exists):
@@ -42,33 +48,25 @@ class TestRuntimeConfig(object):
         assert self.runtime_config.get_bundle_compression() is True
 
     def test_get_bundle_compression_default(self):
-        with patch.dict('os.environ', {'HOME': './'}):
-            runtime_config = RuntimeConfig()
-            assert runtime_config.get_bundle_compression(default=True) is True
-            assert runtime_config.get_bundle_compression(default=False) is False
+        assert self.default_runtime_config.get_bundle_compression(default=True) is True
+        assert self.default_runtime_config.get_bundle_compression(default=False) is False
 
     def test_is_obs_public_default(self):
-        with patch.dict('os.environ', {'HOME': './'}):
-            runtime_config = RuntimeConfig()
-            assert runtime_config.is_obs_public() is True
+        assert self.default_runtime_config.is_obs_public() is True
 
     def test_get_obs_download_server_url(self):
         assert self.runtime_config.get_obs_download_server_url() == \
             'http://example.com'
 
     def test_get_obs_download_server_url_default(self):
-        with patch.dict('os.environ', {'HOME': './'}):
-            runtime_config = RuntimeConfig()
-            assert runtime_config.get_obs_download_server_url() == \
-                Defaults.get_obs_download_server_url()
+        assert self.default_runtime_config.get_obs_download_server_url() == \
+            Defaults.get_obs_download_server_url()
 
     def test_get_container_compression(self):
         assert self.runtime_config.get_container_compression() is None
 
     def test_get_container_compression_default(self):
-        with patch.dict('os.environ', {'HOME': './'}):
-            runtime_config = RuntimeConfig()
-            assert runtime_config.get_container_compression() == 'xz'
+        assert self.default_runtime_config.get_container_compression() == 'xz'
 
     @patch.object(RuntimeConfig, '_get_attribute')
     @patch('kiwi.logger.log.warning')
@@ -90,9 +88,7 @@ class TestRuntimeConfig(object):
         assert self.runtime_config.get_iso_tool_category() == 'cdrtools'
 
     def test_get_iso_tool_category_default(self):
-        with patch.dict('os.environ', {'HOME': './'}):
-            runtime_config = RuntimeConfig()
-            assert runtime_config.get_iso_tool_category() == 'xorriso'
+        assert self.default_runtime_config.get_iso_tool_category() == 'xorriso'
 
     @patch.object(RuntimeConfig, '_get_attribute')
     @patch('kiwi.logger.log.warning')
@@ -109,9 +105,7 @@ class TestRuntimeConfig(object):
         assert self.runtime_config.get_oci_archive_tool() == 'umoci'
 
     def test_get_oci_archive_tool_default(self):
-        with patch.dict('os.environ', {'HOME': './'}):
-            runtime_config = RuntimeConfig()
-            assert runtime_config.get_oci_archive_tool() == 'umoci'
+        assert self.default_runtime_config.get_oci_archive_tool() == 'umoci'
 
     def test_get_disabled_runtime_checks(self):
         assert self.runtime_config.get_disabled_runtime_checks() == [
