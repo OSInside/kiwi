@@ -50,7 +50,7 @@ To enable and use the profiles, follow these steps:
 
       <?xml version="1.0" encoding="utf-8"?>
       <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
-      <image schemaversion="6.9" name="{exc_image_base_name}">
+      <image schemaversion="{schema_version}" name="{exc_image_base_name}">
         <!-- snip -->
       </image>
 

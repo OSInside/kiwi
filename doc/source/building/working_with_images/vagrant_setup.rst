@@ -17,13 +17,9 @@ Virtualization technologies. To run a system, Vagrant needs so-called
 **boxes**. A box is a TAR archive containing a virtual disk image and
 some metadata.
 
-To build Vagrant boxes, you can use
-`veewee <https://github.com/jedi4ever/veewee>`_ which builds boxes
-based on AutoYaST. As an alternative, `Packer <https://www.packer.io>`_ can
-be utilized, which is provided by Hashicorp itself.
-
-Both tools are based on the official installation media (DVDs) as shipped
-by the distribution vendor.
+To build Vagrant boxes, you can use `Packer <https://www.packer.io>`_ which
+is provided by Hashicorp itself. Packer is based on the official
+installation media (DVDs) as shipped by the distribution vendor.
 
 The KIWI way of building images might be helpful, if such a media does not
 exist or does not suit your needs. For example, if the distribution is
@@ -62,7 +58,11 @@ required:
    .. code:: xml
 
       <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0">
-          <vagrantconfig provider="virtualbox" virtualbox_guest_additions_present="true" virtualsize="42"/>
+          <vagrantconfig
+            provider="virtualbox"
+            virtualbox_guest_additions_present="true"
+            virtualsize="42"
+          />
           <size unit="G">42</size>
       </type>
 
@@ -141,20 +141,14 @@ required:
 
 7. Setup and start SSH daemon
 
-   In :file:`config.sh`, add the start of sshd and the initial creation of
-   machine keys as follows:
+   In :file:`config.sh` add the start of sshd:
 
    .. code:: bash
 
       #======================================
-      # Create ssh machine keys
-      #--------------------------------------
-      /usr/sbin/sshd-gen-keys-start
-
-      #======================================
       # Activate services
       #--------------------------------------
-      suseInsertService sshd
+      baseInsertService sshd
 
    Also make sure to add the line **UseDNS=no** into
    :file:`/etc/ssh/sshd_config`. This can be done by an overlay file or by
@@ -206,6 +200,94 @@ with the following sequence of :command:`vagrant` commands:
    vagrant init my-box
    vagrant up --provider libvirt
    vagrant ssh
+
+
+Customizing the embedded Vagrantfile
+------------------------------------
+
+.. warning:: This is an advanced topic and not required for most users
+
+
+Vagrant ship with an embedded :file:`Vagrantfile` that carries settings
+specific to this box, for instance the synchronization mechanism for the
+shared folder. KIWI generates such a file automatically for you and it
+should be sufficient for most use cases.
+
+If a box requires different settings in the embedded :file:`Vagrantfile`,
+then the user can provide KIWI with a path to an alternative via the
+attribute `embebbed_vagrantfile` of the `vagrantconfig` element: it
+specifies a relative path to the :file:`Vagrantfile` that will be included
+in the finished box.
+
+In the following example snippet from :file:`config.xml` we add a custom
+:file:`MyVagrantfile` into the box (the file should be in the image
+description directory next to :file:`config.sh`):
+
+.. code:: xml
+
+   <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0">
+       <vagrantconfig
+         provider="libvirt"
+         virtualsize="42"
+         embedded_vagrantfile="MyVagrantfile"
+       />
+       <size unit="G">42</size>
+   </type>
+
+
+The option to provide a custom :file:`Vagrantfile` can be combined with the
+usage of *profiles* (see :ref:`xml-description-image-profiles`), so that
+certain builds can use the automatically generated :file:`Vagrantfile` (in
+the following example that is the Virtualbox build) and others get a
+customized one (the libvirt profile in the following example):
+
+.. code:: xml
+
+   <?xml version="1.0" encoding="utf-8"?>
+
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+     <!-- description goes here -->
+     <profiles>
+       <profile name="libvirt" description="Vagrant Box for Libvirt"/>
+       <profile name="virtualbox" description="Vagrant Box for VirtualBox"/>
+     </profiles>
+
+     <!-- general preferences go here -->
+
+     <preferences profiles="libvirt">
+       <type
+         image="vmx"
+         filesystem="ext4"
+         format="vagrant"
+         boottimeout="0"
+         bootloader="grub2">
+           <vagrantconfig
+             provider="libvirt"
+             virtualsize="42"
+             embedded_vagrantfile="LibvirtVagrantfile"
+           />
+           <size unit="G">42</size>
+      </type>
+      </preferences>
+      <preferences profiles="virtualbox">
+        <type
+          image="vmx"
+          filesystem="ext4"
+          format="vagrant"
+          boottimeout="0"
+          bootloader="grub2">
+            <vagrantconfig
+              provider="virtualbox"
+              virtualbox_guest_additions_present="true"
+              virtualsize="42"
+            />
+            <size unit="G">42</size>
+        </type>
+      </preferences>
+
+      <!-- remaining box description -->
+    </image>
+
 
 .. [#f1] The insecure key is removed from the box when the it is first
          booted via Vagrant.
