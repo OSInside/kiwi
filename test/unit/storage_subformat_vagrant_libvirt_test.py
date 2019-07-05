@@ -21,6 +21,9 @@ class TestDiskFormatVagrantLibVirt(object):
             return_value='1.2.3'
         )
         self.vagrantconfig = Mock()
+        self.vagrantconfig.get_embedded_vagrantfile = Mock(
+            return_value=None
+        )
         self.vagrantconfig.get_virtualsize = Mock(
             return_value=42
         )

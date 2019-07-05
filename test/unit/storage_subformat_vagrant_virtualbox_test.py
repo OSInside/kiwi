@@ -32,6 +32,9 @@ class TestDiskFormatVagrantVirtualBox(object):
         self.vagrantconfig.get_virtualsize = Mock(
             return_value=42
         )
+        self.vagrantconfig.get_embedded_vagrantfile = Mock(
+            return_value=None
+        )
         self.disk_format = DiskFormatVagrantVirtualBox(
             self.xml_state, 'root_dir', 'target_dir',
             {'vagrantconfig': self.vagrantconfig}

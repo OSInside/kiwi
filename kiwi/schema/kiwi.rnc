@@ -2418,6 +2418,11 @@ div {
             sch:param [ name = "attr" value = "virtualbox_guest_additions_present" ]
             sch:param [ name = "providers" value = "virtualbox" ]
         ]
+    k.vagrantconfig.embedded_vagrantfile.attribute =
+        ## Path to a Vagrantfile that will be embedded in the box
+        ## Kiwi cannot check the Vagrantfile for correctnes, therefore use this
+        ## at your own risk!
+        attribute embedded_vagrantfile { text }
     k.vagrantconfig.virtualsize.attribute =
         ## virtualsize provides the value of the virtual_size key which
         ## is embedded in the metadata.json hash inside the box file, as
@@ -2433,7 +2438,8 @@ div {
         k.vagrantconfig.provider.attribute &
         k.vagrantconfig.virtualsize.attribute &
         k.vagrantconfig.boxname.attribute? &
-        k.vagrantconfig.virtualbox_guest_additions_present.attribute?
+        k.vagrantconfig.virtualbox_guest_additions_present.attribute? &
+        k.vagrantconfig.embedded_vagrantfile.attribute?
     k.vagrantconfig =
         ## The vagrantconfig element specifies the Vagrant meta
         ## configuration options which are used inside a vagrant box
