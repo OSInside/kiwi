@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from base64 import b64encode
-from six.moves.urllib.request import urlopen
-from six.moves.urllib.request import Request
+from urllib.request import urlopen
+from urllib.request import Request
 from tempfile import NamedTemporaryFile
 from tempfile import mkdtemp
 from lxml import etree

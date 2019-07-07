@@ -69,8 +69,6 @@ class Profile(object):
 
         :rtype: str
         """
-        Defaults.set_python_default_encoding_to_utf8()
-
         sorted_profile = collections.OrderedDict(
             sorted(self.dot_profile.items())
         )

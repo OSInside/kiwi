@@ -17,7 +17,7 @@
 #
 import os
 from tempfile import NamedTemporaryFile
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 # project
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet

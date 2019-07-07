@@ -1,11 +1,11 @@
 import io
 from pytest import raises
-from mock import call, patch, mock_open
+from mock import (
+    call, patch, mock_open
+)
 from mock import (
     Mock, MagicMock
 )
-
-from .test_helper import patch_open
 
 from kiwi.exceptions import KiwiFormatSetupError
 from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
@@ -62,9 +62,8 @@ class TestDiskFormatVagrantBase(object):
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
     @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
     @patch.object(DiskFormatVagrantBase, 'create_box_img')
-    @patch_open
     def test_create_image_format(
-        self, mocked_open, mock_create_box_img, mock_mkdtemp, mock_command
+        self, mock_create_box_img, mock_mkdtemp, mock_command
     ):
         # select an example provider
         self.disk_format.image_format = 'vagrant.libvirt.box'
@@ -83,18 +82,20 @@ class TestDiskFormatVagrantBase(object):
 
         mock_mkdtemp.return_value = 'tmpdir'
 
-        mocked_open.return_value = MagicMock(spec=io.IOBase)
-        file_handle = mocked_open.return_value.__enter__.return_value
+        with patch('builtins.open', create=True) as mock_file:
+            mock_file.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_file.return_value.__enter__.return_value
 
-        self.disk_format.create_image_format()
+            self.disk_format.create_image_format()
 
-        assert mocked_open.call_args_list == [
-            call('tmpdir/metadata.json', 'w'),
-            call('tmpdir/Vagrantfile', 'w')
-        ]
-        assert file_handle.write.call_args_list == [
-            call(metadata_json), call(expected_vagrantfile)
-        ]
+            assert mock_file.call_args_list == [
+                call('tmpdir/metadata.json', 'w'),
+                call('tmpdir/Vagrantfile', 'w')
+            ]
+            assert file_handle.write.call_args_list == [
+                call(metadata_json), call(expected_vagrantfile)
+            ]
+
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'tmpdir', '-czf',
@@ -122,24 +123,20 @@ class TestDiskFormatVagrantBase(object):
 
         expected_vagrantfile = r"it's something"
 
-        mockd_open = mock_open(read_data=expected_vagrantfile)
-        # FIXME: drop this once we drop Python 2 support
-        open_name = (
-            open.__module__ if open.__module__ != "io" else "builtins"
-        ) + '.open'
-        with patch(open_name, mockd_open):
+        with patch(
+            'builtins.open', mock_open(read_data=expected_vagrantfile)
+        ) as mock_file:
             self.disk_format.create_image_format()
+            file_handle = mock_file.return_value.__enter__.return_value
 
-        print(mockd_open, mockd_open.__dict__)
-
-        assert mockd_open.call_args_list == [
-            call('tmpdir/metadata.json', 'w'),
-            call('tmpdir/Vagrantfile', 'w'),
-            call('./example_Vagrantfile', 'r')
-        ]
-
-        fd = mockd_open.return_value.__enter__.return_value
-        assert fd.write.call_args_list[1] == call(expected_vagrantfile)
+            assert mock_file.call_args_list == [
+                call('tmpdir/metadata.json', 'w'),
+                call('tmpdir/Vagrantfile', 'w'),
+                call('./example_Vagrantfile', 'r')
+            ]
+            assert file_handle.write.call_args_list[1] == call(
+                expected_vagrantfile
+            )
 
     def test_get_additional_vagrant_config_settings(self):
         assert self.disk_format.get_additional_vagrant_config_settings() \

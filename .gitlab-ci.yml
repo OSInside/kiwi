@@ -53,21 +53,6 @@ code_style_plus_unit_test:
     - tox -e unit_py3_7 "-n $(nproc)"
   <<: *set_cache_dir
 
-unit_test_2_and_34:
-  <<: *install_system_deps
-  script:
-    - >
-      dnf install -y
-      python34 python2 python2-devel python2-virtualenv
-      python2-pip xorriso genisoimage
-    # Python 2.7
-    - export PYTHON=python2.7
-    - tox -e unit_py2_7 "-n $(nproc)"
-    # Python 3.4
-    - export PYTHON=python3.4
-    - tox -e unit_py3_4 "-n $(nproc)"
-  <<: *set_cache_dir
-
 build_doc:
   <<: *install_system_deps
   script:

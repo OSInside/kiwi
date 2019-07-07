@@ -64,14 +64,6 @@ class TestDefaults(object):
             lookup_path='lookup_path'
         ) == 'grub'
 
-    @patch('kiwi.defaults.sys')
-    @patch('kiwi.defaults.reload_module')
-    def test_set_python_default_encoding_to_utf8(self, mock_reload, mock_sys):
-        mock_sys.version_info.major = 2
-        Defaults.set_python_default_encoding_to_utf8()
-        mock_reload.assert_called_once_with(mock_sys)
-        mock_sys.setdefaultencoding.assert_called_once_with('utf-8')
-
     def test_get_live_dracut_module_from_flag(self):
         assert Defaults.get_live_dracut_module_from_flag('foo') == \
             'kiwi-live'
