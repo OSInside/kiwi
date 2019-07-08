@@ -83,6 +83,9 @@ function get_persistent_device_from_unix_node {
             return
         fi
     done
+    warn "Could not find ${schema} representation of ${node}"
+    warn "Using original device ${unix_device}"
+    echo "${unix_device}"
 }
 
 function deactivate_all_device_maps {
