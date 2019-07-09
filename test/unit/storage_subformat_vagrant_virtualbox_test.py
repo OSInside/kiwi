@@ -78,15 +78,21 @@ class TestDiskFormatVagrantVirtualBox(object):
 
         assert file_handle.write.call_args_list[0] == call(self.Leap_15_ovf)
 
-    def test_get_additional_vagrant_config_settings(self):
+    @patch('kiwi.storage.subformat.vagrant_virtualbox.random.randrange')
+    def test_get_additional_vagrant_config_settings(self, mock_rand):
         self.xml_state.get_vagrant_config_virtualbox_guest_additions \
             .return_value = None
+
+        expected_res = dedent('''
+            config.vm.base_mac = "00163E010101"
+            config.vm.synced_folder ".", "/vagrant", type: "rsync"
+        ''').strip()
         assert self.disk_format.get_additional_vagrant_config_settings() == \
-            'config.vm.synced_folder ".", "/vagrant", type: "rsync"'
+            expected_res
 
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
     @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
-    @patch('kiwi.storage.subformat.vagrant_base.random.randrange')
+    @patch('kiwi.storage.subformat.vagrant_virtualbox.random.randrange')
     @patch.object(DiskFormatVagrantVirtualBox, 'create_box_img')
     @patch_open
     def test_create_image_format_with_and_without_guest_additions(

@@ -17,7 +17,6 @@
 #
 import json
 import os.path
-import random
 
 from tempfile import mkdtemp
 
@@ -234,18 +233,6 @@ class DiskFormatVagrantBase(DiskFormatBase):
 
     def _create_box_vagrantconfig(self):
         template = VagrantConfigTemplate()
-        vagrant_config = template.get_template(
+        return template.get_template(
             custom_settings=self.get_additional_vagrant_config_settings()
-        )
-        return vagrant_config.substitute(
-            {'mac_address': self._random_mac()}
-        )
-
-    @staticmethod
-    def _random_mac():
-        return '%02x%02x%02x%02x%02x%02x'.upper() % (
-            0x00, 0x16, 0x3e,
-            random.randrange(0, 0x7e),
-            random.randrange(0, 0xff),
-            random.randrange(0, 0xff)
         )
