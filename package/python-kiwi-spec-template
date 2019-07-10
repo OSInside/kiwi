@@ -25,17 +25,21 @@
 %global python3_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 %endif
 
+%if 0%{?el7}
+%global python3_pkgversion 36
+%else
+%{!?python3_pkgversion:%global python3_pkgversion 3}
+%endif
+
 %if 0%{?debian} || 0%{?ubuntu}
 %global is_deb 1
 %global pygroup python
 %global sysgroup admin
 %global develsuffix dev
-%global update_alternatives %{_bindir}/update-alternatives
 %else
 %global pygroup Development/Languages/Python
 %global sysgroup System/Management
 %global develsuffix devel
-%global update_alternatives %{_sbindir}/update-alternatives
 %endif
 
 Name:           python-kiwi
@@ -53,19 +57,12 @@ Group:          %{pygroup}
 Source:         %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-%if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  gcc
-BuildRequires:  python3-devel
-%endif
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
-BuildRequires:  python3-setuptools
+BuildRequires:  python%{python3_pkgversion}-%{develsuffix}
+BuildRequires:  python%{python3_pkgversion}-setuptools
 BuildRequires:  fdupes
-%endif
-BuildRequires:  python-%{develsuffix}
-BuildRequires:  python-setuptools
 %if 0%{?suse_version}
 BuildRequires:  shadow
-BuildRequires:  update-alternatives
 %endif
 %if 0%{?debian} || 0%{?ubuntu}
 BuildRequires:  passwd
@@ -79,27 +76,23 @@ The KIWI Image System provides an operating system image builder
 for Linux supported hardware platforms as well as for virtualization
 and cloud systems like Xen, KVM, VMware, EC2 and more.
 
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
 # python3-kiwi
-%package -n python3-kiwi
+%package -n python%{python3_pkgversion}-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          Development/Languages/Python
 Recommends:     jing
 %if 0%{?ubuntu} || 0%{?debian}
-Requires:       python3-yaml
+Requires:       python%{python3_pkgversion}-yaml
 %else
-Requires:       python3-PyYAML
+Requires:       python%{python3_pkgversion}-PyYAML
 %endif
-Requires:       python3-docopt
-Requires:       python3-lxml
-Requires:       python3-requests
-Requires:       python3-setuptools
-Requires:       python3-xattr
+Requires:       python%{python3_pkgversion}-docopt
+Requires:       python%{python3_pkgversion}-lxml
+Requires:       python%{python3_pkgversion}-requests
+Requires:       python%{python3_pkgversion}-setuptools
+Requires:       python%{python3_pkgversion}-xattr
 # tools used by kiwi
 %if 0%{?suse_version}
-Requires:       update-alternatives
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
 %ifarch x86_64
 Requires:       grub2-x86_64-efi
 %endif
@@ -159,12 +152,10 @@ Requires:       u-boot-tools
 Requires:       s390-tools
 %endif
 
-%description -n python3-kiwi
+%description -n python%{python3_pkgversion}-kiwi
 Python 3 library of the KIWI Image System. Provides an operating system
 image builder for Linux supported hardware platforms as well as for
 virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
-
-%endif
 
 %package -n kiwi-tools
 Summary:        KIWI - Collection of Boot Helper Tools
@@ -359,16 +350,12 @@ Provides manual pages to describe the kiwi commands
 sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
 
 %build
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
 # Build Python 3 version
 python3 setup.py build --cflags="${RPM_OPT_FLAGS}"
-%endif
 
 %install
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
 # Install Python 3 version
 python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
-%endif
 
 # Install dracut modules
 make buildroot=%{buildroot}/ install_dracut
@@ -376,25 +363,12 @@ make buildroot=%{buildroot}/ install_dracut
 # Install documentation in PDF format
 make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install_package_docs
 
+# Create symlinks for correct binaries
+ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi
+ln -sr %{buildroot}%{_bindir}/kiwi-ng-3 %{buildroot}%{_bindir}/kiwi-ng
+ln -sr %{buildroot}%{_bindir}/kiwicompat-3 %{buildroot}%{_bindir}/kiwicompat
+
 %if %{_vendor} != "debbuild"
-# init alternatives setup
-mkdir -p %{buildroot}%{_sysconfdir}/alternatives
-
-# alternatives setup for kiwi -> kiwi-ng-py_ver binary
-touch %{buildroot}%{_sysconfdir}/alternatives/kiwi
-ln -s %{_sysconfdir}/alternatives/kiwi \
-    %{buildroot}%_bindir/kiwi
-
-# alternatives setup for kiwi-ng -> kiwi-ng-py_ver binary
-touch %{buildroot}%{_sysconfdir}/alternatives/kiwi-ng
-ln -s %{_sysconfdir}/alternatives/kiwi-ng \
-    %{buildroot}%_bindir/kiwi-ng
-
-# alternatives setup for kiwicompat -> kiwicompat-py_ver binary
-touch %{buildroot}%{_sysconfdir}/alternatives/kiwicompat
-ln -s %{_sysconfdir}/alternatives/kiwicompat \
-    %{buildroot}%_bindir/kiwicompat
-
 # kiwi pxeboot directory structure to be packed in kiwi-pxeboot
 %ifarch %{ix86} x86_64
 for i in KIWI pxelinux.cfg image upload boot; do \
@@ -405,26 +379,6 @@ done
 
 %if 0%{?fedora} || 0%{?suse_version}
 %fdupes %{buildroot}/srv/tftpboot
-%endif
-
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
-%post -n python3-kiwi
-%{update_alternatives} \
-    --install %_bindir/kiwi kiwi %_bindir/kiwi-ng-3 10
-%{update_alternatives} \
-    --install %_bindir/kiwi-ng kiwi-ng %_bindir/kiwi-ng-3 10
-%{update_alternatives} \
-    --install %_bindir/kiwicompat kiwicompat %_bindir/kiwicompat-3 10
-%endif
-
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
-%preun -n python3-kiwi
-%{update_alternatives} \
-    --remove kiwi %_bindir/kiwi
-%{update_alternatives} \
-    --remove kiwi %_bindir/kiwi-ng
-%{update_alternatives} \
-    --remove kiwicompat %_bindir/kiwicompat
 %endif
 
 %if %{_vendor} != "debbuild"
@@ -442,22 +396,15 @@ fi
 %endif
 %endif
 
-%if 0%{?fedora} || 0%{?suse_version} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
-%files -n python3-kiwi
-%defattr(-,root,root,-)
+%files -n python%{python3_pkgversion}-kiwi
+%{_bindir}/kiwi
+%{_bindir}/kiwi-ng
+%{_bindir}/kiwicompat
 %{_bindir}/kiwi-ng-3*
 %{_bindir}/kiwicompat-3*
-%ghost %{_bindir}/kiwi
-%ghost %{_bindir}/kiwi-ng
-%ghost %{_bindir}/kiwicompat
-%ghost %_sysconfdir/alternatives/kiwi
-%ghost %_sysconfdir/alternatives/kiwi-ng
-%ghost %_sysconfdir/alternatives/kiwicompat
-%{python3_sitelib}/*
-%endif
+%{python3_sitelib}/kiwi*
 
 %files -n kiwi-man-pages
-%defattr(-, root, root)
 %dir %{_defaultdocdir}/python-kiwi
 %{_defaultdocdir}/python-kiwi/kiwi.pdf
 %{_defaultdocdir}/python-kiwi/LICENSE
@@ -466,36 +413,29 @@ fi
 %doc %{_mandir}/man8/*
 
 %files -n kiwi-tools
-%defattr(-, root, root)
 %{_bindir}/dcounter
 %{_bindir}/isconsole
 %{_bindir}/kversion
 %{_bindir}/utimer
 
 %files -n dracut-kiwi-lib
-%defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/99kiwi-lib
 
 %files -n dracut-kiwi-oem-repart
-%defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-repart
 
 %files -n dracut-kiwi-oem-dump
-%defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-dump
 
 %files -n dracut-kiwi-live
-%defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-live
 
 %files -n dracut-kiwi-overlay
-%defattr(-, root, root)
 %{_usr}/lib/dracut/modules.d/90kiwi-overlay
 
 %if %{_vendor} != "debbuild"
 %ifarch %{ix86} x86_64
 %files -n kiwi-pxeboot
-%defattr(-, root, root)
 %dir %attr(0755,tftp,tftp) /srv/tftpboot
 %dir /srv/tftpboot/KIWI
 %dir /srv/tftpboot/pxelinux.cfg
