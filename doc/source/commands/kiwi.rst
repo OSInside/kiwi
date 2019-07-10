@@ -40,7 +40,7 @@ one :file:`config.xml` or :file:`.kiwi` file and may as well include other files
 scripts or configuration data.
 
 A collection of example image descriptions can be found on the github
-repository here: https://github.com/SUSE/kiwi-descriptions. Most of the
+repository here: https://github.com/OSInside/kiwi-descriptions. Most of the
 descriptions provide a so called JeOS image. JeOS means Just enough
 Operating System. A JeOS is a small, text only based image including a
 predefined remote source setup to allow installation of missing
@@ -116,7 +116,7 @@ EXAMPLE
 
 .. code:: bash
 
-   $ git clone https://github.com/SUSE/kiwi-descriptions
+   $ git clone https://github.com/OSInside/kiwi-descriptions
 
    $ kiwi --type vmx system build \
        --description kiwi-descriptions/suse/x86_64/{exc_description} \
