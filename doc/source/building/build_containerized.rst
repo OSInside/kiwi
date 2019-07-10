@@ -210,7 +210,7 @@ provided at the GitHub project hosting example appliance descriptions.
 
 .. code:: bash
 
-    $ git clone https://github.com/SUSE/kiwi-descriptions
+    $ git clone https://github.com/OSInside/kiwi-descriptions
 
 The descriptions hosted here also provides a default :file:`Dicefile`
 as part of each image description.

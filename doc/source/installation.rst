@@ -123,4 +123,4 @@ should clone the project as follows:
 
 .. code:: shell-session
 
-    $ git clone https://github.com/SUSE/kiwi-descriptions
+    $ git clone https://github.com/OSInside/kiwi-descriptions

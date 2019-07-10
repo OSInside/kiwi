@@ -24,7 +24,7 @@ Before you start
 
    .. code:: bash
 
-      $ git clone https://github.com/SUSE/kiwi-descriptions
+      $ git clone https://github.com/OSInside/kiwi-descriptions
 
 
 Choose a First Image
