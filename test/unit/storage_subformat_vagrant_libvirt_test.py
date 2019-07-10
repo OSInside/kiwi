@@ -69,12 +69,10 @@ class TestDiskFormatVagrantLibVirt(object):
 
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
     @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
-    @patch('kiwi.storage.subformat.vagrant_base.random.randrange')
     @patch.object(DiskFormatVagrantLibVirt, 'create_box_img')
     @patch_open
     def test_create_image_format(
-        self, mock_open, mock_create_box_img, mock_rand,
-        mock_mkdtemp, mock_command
+        self, mock_open, mock_create_box_img, mock_mkdtemp, mock_command
     ):
         mock_mkdtemp.return_value = 'tmpdir'
         mock_create_box_img.return_value = ['arbitrary']
@@ -84,7 +82,6 @@ class TestDiskFormatVagrantLibVirt(object):
         assert file_handle.write.call_args_list[1] == call(
             dedent('''
                 Vagrant.configure("2") do |config|
-                  config.vm.base_mac = "00163E010101"
                   config.vm.synced_folder ".", "/vagrant", type: "rsync"
                   config.vm.provider :libvirt do |libvirt|
                     libvirt.driver = "kvm"

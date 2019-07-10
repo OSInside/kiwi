@@ -61,12 +61,10 @@ class TestDiskFormatVagrantBase(object):
 
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
     @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
-    @patch('kiwi.storage.subformat.vagrant_base.random.randrange')
     @patch.object(DiskFormatVagrantBase, 'create_box_img')
     @patch_open
     def test_create_image_format(
-        self, mocked_open, mock_create_box_img, mock_rand,
-        mock_mkdtemp, mock_command
+        self, mocked_open, mock_create_box_img, mock_mkdtemp, mock_command
     ):
         # select an example provider
         self.disk_format.image_format = 'vagrant.libvirt.box'
@@ -80,11 +78,9 @@ class TestDiskFormatVagrantBase(object):
 
         expected_vagrantfile = dedent('''
             Vagrant.configure("2") do |config|
-              config.vm.base_mac = "00163E0A0A0A"
             end
         ''').strip()
 
-        mock_rand.return_value = 0xa
         mock_mkdtemp.return_value = 'tmpdir'
 
         mocked_open.return_value = MagicMock(spec=io.IOBase)

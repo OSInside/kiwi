@@ -17,6 +17,9 @@
 #
 
 import os
+import random
+
+from textwrap import dedent
 
 # project
 from kiwi.storage.subformat.template.virtualbox_ovf import (
@@ -41,8 +44,16 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
         Configure the default shared folder to use rsync when guest additions
         are not present inside the box.
         """
+        extra_settings = dedent('''
+            config.vm.base_mac = "{mac_address}"
+        ''').strip().format(mac_address=self._random_mac())
+
         if not self.xml_state.get_vagrant_config_virtualbox_guest_additions():
-            return 'config.vm.synced_folder ".", "/vagrant", type: "rsync"'
+            extra_settings += os.linesep + dedent('''
+            config.vm.synced_folder ".", "/vagrant", type: "rsync"
+            ''').strip()
+
+        return extra_settings
 
     def create_box_img(self, temp_image_dir):
         """
@@ -75,3 +86,12 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
                 })
             )
         return [box_img, box_ovf]
+
+    @staticmethod
+    def _random_mac():
+        return '%02x%02x%02x%02x%02x%02x'.upper() % (
+            0x00, 0x16, 0x3e,
+            random.randrange(0, 0x7e),
+            random.randrange(0, 0xff),
+            random.randrange(0, 0xff)
+        )
