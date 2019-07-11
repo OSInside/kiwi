@@ -17,9 +17,7 @@ sys.argv = [
 argv_kiwi_tests = sys.argv
 
 # mock open calls
-patch_open = patch("{0}.open".format(
-    sys.version_info.major < 3 and "__builtin__" or "builtins")
-)
+patch_open = patch('builtins.open')
 
 
 class raises(object):

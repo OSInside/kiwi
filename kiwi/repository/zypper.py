@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project

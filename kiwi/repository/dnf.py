@@ -17,7 +17,7 @@
 #
 import os
 import glob
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project

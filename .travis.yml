@@ -17,8 +17,6 @@ jobs:
     dist: xenial
     sudo: true
     env: TOXENV=check,unit_py3_7
-  - python: 2.7
-    env: TOXENV=check,unit_py2_7
   - stage: deploy
     python: 3.6
     env: TOXENV=doc_travis

@@ -248,6 +248,5 @@ function __comp_reply {
 
 complete -F _kiwi -o default kiwi
 complete -F _kiwi -o default kiwi-ng
-complete -F _kiwi -o default kiwi-ng-2
 complete -F _kiwi -o default kiwi-ng-3
 ''').strip())

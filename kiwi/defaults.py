@@ -17,8 +17,6 @@
 #
 import os
 import glob
-import sys
-from six.moves import reload_module
 from collections import namedtuple
 import platform
 from pkg_resources import resource_filename
@@ -1365,22 +1363,6 @@ class Defaults(object):
         :rtype: str
         """
         return 'KIWI {0}'.format(__version__)
-
-    @staticmethod
-    def set_python_default_encoding_to_utf8():
-        """
-        Set python default encoding to utf-8 if not already done
-
-        This is not a safe operation since sys.setdefaultencoding()
-        was removed from sys on purpose when Python starts. Reenabling
-        it and changing the default encoding can break code that relies
-        on ascii being the default. Within the scope of kiwi the
-        operation is safe because all data is expected to be utf-8
-        everywhere and considered a bug if this is not the case
-        """
-        if sys.version_info.major < 3:
-            reload_module(sys)  # Reload required to get setdefaultencoding back
-            sys.setdefaultencoding('utf-8')
 
     @staticmethod
     def get_custom_rpm_macros_path():

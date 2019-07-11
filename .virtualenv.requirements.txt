@@ -20,9 +20,5 @@ PyYAML
 # Python wrapper for extended filesystem attributes
 xattr==0.9.3
 
-# Python 2 compatibility
-future
-six
-
 # Network request/response library
 requests
