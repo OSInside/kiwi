@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import importlib
 from stat import ST_MODE
-import xattr
 
 # project
 from kiwi.logger import log
@@ -94,6 +94,13 @@ class DataSync(object):
 
         :rtype: bool
         """
+        try:
+            xattr = importlib.import_module('xattr')
+        except Exception as issue:
+            log.warning(
+                'Could not load xattr module: {0}'.format(issue)
+            )
+            return False
         try:
             xattr.getxattr(self.target_dir, 'user.mime_type')
         except Exception as e:

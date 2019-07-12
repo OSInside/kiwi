@@ -83,6 +83,12 @@ Group:          Development/Languages/Python
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
 Recommends:     jing
 %endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
+Recommends:     python%{python3_pkgversion}-pyxattr
+%endif
+%if 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
+Recommends:     python%{python3_pkgversion}-xattr
+%endif
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       python%{python3_pkgversion}-yaml
 %else
@@ -92,7 +98,6 @@ Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
-Requires:       python%{python3_pkgversion}-xattr
 # tools used by kiwi
 %if 0%{?suse_version}
 %ifarch x86_64

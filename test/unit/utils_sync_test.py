@@ -1,6 +1,8 @@
 import os
 from stat import ST_MODE
-from mock import patch
+from mock import (
+    patch, Mock
+)
 
 from kiwi.utils.sync import DataSync
 
@@ -34,16 +36,29 @@ class TestDataSync(object):
         )
         assert mock_warn.called
 
-    @patch('xattr.getxattr')
-    def test_target_supports_extended_attributes(self, mock_getxattr):
+    @patch('importlib.import_module')
+    def test_target_supports_extended_attributes(self, mock_import_module):
+        xattr = Mock()
+        mock_import_module.return_value = xattr
         assert self.sync.target_supports_extended_attributes() is True
-        mock_getxattr.assert_called_once_with(
+        xattr.getxattr.assert_called_once_with(
             'target_dir', 'user.mime_type'
         )
 
-    @patch('xattr.getxattr')
-    def test_target_does_not_support_extended_attributes(self, mock_getxattr):
-        mock_getxattr.side_effect = OSError(
+    @patch('importlib.import_module')
+    def test_target_does_not_support_extended_attributes(
+        self, mock_import_module
+    ):
+        xattr = Mock()
+        mock_import_module.return_value = xattr
+        xattr.getxattr.side_effect = OSError(
             """[Errno 95] Operation not supported: b'/boot/efi"""
         )
         assert self.sync.target_supports_extended_attributes() is False
+
+    @patch('importlib.import_module')
+    @patch('kiwi.logger.log.warning')
+    def test_no_xattr_module_available(self, mock_warn, mock_import_module):
+        mock_import_module.side_effect = Exception
+        assert self.sync.target_supports_extended_attributes() is False
+        assert mock_warn.called
