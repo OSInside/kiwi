@@ -73,7 +73,7 @@ class Cli(object):
                     'In case of a correct legacy kiwi command but not',
                     'supported by kiwicompat, please contact us via the',
                     'github issue system at:\n',
-                    'https://github.com/SUSE/kiwi/issues'
+                    'https://github.com/OSInside/kiwi/issues'
                 ]
             )
             raise NotImplementedError(

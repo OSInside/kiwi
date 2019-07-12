@@ -258,7 +258,7 @@ class TestLiveImageBuilder(object):
             custom_args={
                 'meta_data': {
                     'mbr_id': '0xffffffff',
-                    'preparer': 'KIWI - http://suse.github.com/kiwi',
+                    'preparer': 'KIWI - https://github.com/OSInside/kiwi',
                     'publisher': 'Custom publisher',
                     'volume_id': 'volid',
                     'efi_mode': 'uefi',

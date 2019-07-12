@@ -10,7 +10,7 @@ Legacy KIWI vs. Next Generation
    maintenance state of the legacy kiwi version and under which
    circumstances the use of the legacy kiwi version is required.
 
-There is still the former `KIWI <https://github.com/openSUSE/kiwi>`__
+There is still the former `KIWI <https://github.com/OSInside/kiwi-legacy>`__
 version and we decided to rewrite it.
 
 The reasons to rewrite software from scratch could be very different
@@ -52,7 +52,7 @@ the used KIWI version.
 This provides an opportunity for users to test the next generation KIWI
 with their appliance descriptions without risk. If it builds and works
 as expected, I recommend to switch to the next generation KIWI. If not,
-please open an issue on https://github.com/SUSE/kiwi.
+please open an issue on https://github.com/OSInside/kiwi.
 
 The legacy KIWI version will be further developed in maintenance mode.
 There won't be any new features added in that code base though.

@@ -20,12 +20,12 @@ driven development rules.
 
 If you want to implement a bigger feature, consider opening an issue on
 GitHub first to discuss the changes. Or join the discussion in the
-``#kiwi`` channel on `Riot.im <https://riot.im/>`_.
+``#kiwi`` channel on `Riot.im <https://about.riot.im>`_.
 
 Fork the upstream KIWI repository
 ---------------------------------
 
-1. On GitHub, navigate to: https://github.com/SUSE/kiwi
+1. On GitHub, navigate to: https://github.com/OSInside/kiwi
 
 2. In the top-right corner of the page, click :command:`Fork`.
 
@@ -36,7 +36,7 @@ Create a local clone of the forked KIWI repository
 
     $ git clone https://github.com/YOUR-USERNAME/kiwi
 
-    $ git remote add upstream https://github.com/SUSE/kiwi.git
+    $ git remote add upstream https://github.com/OSInside/kiwi.git
 
 Install Required Operating System Packages
 ------------------------------------------
@@ -219,7 +219,7 @@ Make and commit your changes.
     $ git commit -S -a
 
 Run the tests and code style checks. All of these are also performed by the
-`Travis CI <https://travis-ci.com/SUSE/kiwi>`_ and `GitLab CI
+`Travis CI <https://travis-ci.com/OSInside/kiwi>`_ and `GitLab CI
 <https://gitlab.com/schaefi/kiwi-ci/pipelines>`_ integration test systems
 when a pull request is created.
 
