@@ -36,7 +36,7 @@ class TestDefaults(object):
         )
 
     def test_get_preparer(self):
-        assert Defaults.get_preparer() == 'KIWI - http://suse.github.com/kiwi'
+        assert Defaults.get_preparer() == 'KIWI - https://github.com/OSInside/kiwi'
 
     def test_get_publisher(self):
         assert Defaults.get_publisher() == 'SUSE LINUX GmbH'

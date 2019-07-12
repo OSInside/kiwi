@@ -8,8 +8,8 @@ build Linux system appliances.
 
 .. sidebar:: Links
 
-   * `GitHub Sources <https://github.com/SUSE/kiwi>`__
-   * `GitHub Releases <https://github.com/SUSE/kiwi/releases>`__
+   * `GitHub Sources <https://github.com/OSInside/kiwi>`__
+   * `GitHub Releases <https://github.com/OSInside/kiwi/releases>`__
    * `RPM Packages <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
    * `Build Tests(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86>`__
    * `Build Tests(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm>`__
@@ -80,7 +80,7 @@ Contact
   `subscribe <mailto:kiwi-images+subscribe@googlegroups.com>`__,
   even if you do not have a Google account.
 
-* `Matrix <https://matrix.org/blog/home/>`__
+* `Matrix <https://matrix.org>`__
 
   An open network for secure, decentralized communication. Please find the
   `kiwi` room via `Riot <https://riot.im/app/>`__ on the web or by using

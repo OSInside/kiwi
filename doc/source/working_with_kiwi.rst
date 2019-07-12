@@ -144,7 +144,7 @@ The prepare step consists of the following substeps:
    installation of packages into the new root tree. The aforementioned two
    packages might not be enough for every distribution.  Consult the
    `kiwi-descriptions repository
-   <https://github.com/SUSE/kiwi-descriptions/>`_ containing examples for
+   <https://github.com/OSInside/kiwi-descriptions/>`_ containing examples for
    various Linux distributions.
 
    The installation of software packages through the selected package
