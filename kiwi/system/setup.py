@@ -238,8 +238,10 @@ class SystemSetup(object):
         machine_id = os.sep.join(
             [self.root_dir, 'etc', 'machine-id']
         )
-        with open(machine_id, 'w'):
-            pass
+
+        if os.path.exists(machine_id):
+            with open(machine_id, 'w'):
+                pass
 
     def setup_permissions(self):
         """
