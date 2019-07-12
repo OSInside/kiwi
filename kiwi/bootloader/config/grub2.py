@@ -200,11 +200,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.cmdline_failsafe
             )
 
-        log.info('Writing sysconfig bootloader file')
         sysconfig_bootloader_location = ''.join(
             [self.root_dir, '/etc/sysconfig/']
         )
         if os.path.exists(sysconfig_bootloader_location):
+            log.info('Writing sysconfig bootloader file')
             sysconfig_bootloader_file = ''.join(
                 [sysconfig_bootloader_location, 'bootloader']
             )

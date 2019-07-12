@@ -221,10 +221,16 @@ class TestLiveImageBuilder(object):
             call('dracut_rescue_image="no"\n')
         ]
 
-        kiwi.builder.live.BootLoaderConfig.assert_called_once_with(
-            'grub2', self.xml_state, 'temp_media_dir',
-            {'grub_directory_name': 'grub2'}
-        )
+        kiwi.builder.live.BootLoaderConfig.call_args_list == [
+            call(
+                'grub2', self.xml_state, 'root_dir',
+                {'grub_directory_name': 'grub2'}
+            ),
+            call(
+                'grub2', self.xml_state, 'temp_media_dir',
+                {'grub_directory_name': 'grub2'}
+            )
+        ]
         self.bootloader.setup_live_boot_images.assert_called_once_with(
             lookup_path='root_dir', mbrid=self.mbrid
         )

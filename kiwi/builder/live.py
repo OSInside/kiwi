@@ -139,6 +139,16 @@ class LiveImageBuilder(object):
             }
         }
 
+        # create /etc/sysconfig/bootloader if needed
+        if self.firmware.efi_mode():
+            bootloader_sysconfig = BootLoaderConfig(
+                'grub2', self.xml_state, self.root_dir, {
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                }
+            )
+            bootloader_sysconfig.setup_sysconfig_bootloader()
+
         # pack system into live boot structure as expected by dracut
         log.info(
             'Packing system into dracut live ISO type: {0}'.format(
@@ -211,6 +221,7 @@ class LiveImageBuilder(object):
             bootloader_config.setup_live_boot_images(
                 mbrid=self.mbrid, lookup_path=self.root_dir
             )
+            # TODO clean sysconfig/bootloader ?
         else:
             # setup bootloader config to boot the ISO via isolinux.
             # This allows for booting on x86 platforms in BIOS mode
