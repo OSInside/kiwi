@@ -847,8 +847,12 @@ class TestSystemSetup(object):
             ]
         )
 
+    @patch('kiwi.system.setup.os.path.exists')
     @patch_open
-    def test_setup_machine_id(self, mock_open):
+    def test_setup_machine_id(self, mock_open, mock_path_exists):
+        mock_path_exists.return_value = True
+        self.setup.setup_machine_id()
+        mock_path_exists.return_value = False
         self.setup.setup_machine_id()
         mock_open.assert_called_once_with(
             'root_dir/etc/machine-id', 'w'
