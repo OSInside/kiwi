@@ -54,5 +54,29 @@ class TestFileSystemIsoFs(object):
         )
         iso.create_hybrid.assert_called_once_with(
             iso.create_header_end_block.return_value,
-            '0xffffffff', 'myimage', False
+            '0xffffffff', 'myimage'
         )
+
+    @patch('kiwi.filesystem.isofs.IsoTools')
+    @patch('kiwi.filesystem.isofs.Iso')
+    @patch('kiwi.logger.log.warning')
+    def test_create_on_file_EFI_enabled(
+        self, mock_log_warn, mock_iso, mock_cdrtools
+    ):
+        iso_tool = mock.Mock()
+        iso_tool.has_iso_hybrid_capability = mock.Mock(
+            return_value=False
+        )
+        iso_tool.get_tool_name = mock.Mock(
+            return_value='/usr/bin/mkisofs'
+        )
+        iso = mock.Mock()
+        iso.header_end_name = 'header_end'
+        mock_cdrtools.return_value = iso_tool
+        mock_iso.return_value = iso
+        self.isofs.custom_args['meta_data']['efi_mode'] = 'uefi'
+
+        self.isofs.create_on_file('myimage')
+
+        iso_tool.create_iso.assert_called_once_with('myimage')
+        assert mock_log_warn.called

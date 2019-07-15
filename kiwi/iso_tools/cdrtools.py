@@ -24,6 +24,7 @@ from collections import (
 )
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.path import Path
@@ -80,7 +81,10 @@ class IsoToolsCdrTools(IsoToolsBase):
 
         :param list custom_args: custom ISO creation args
         """
+        efi_mode = False
         if custom_args:
+            if custom_args.get('efi_mode'):
+                efi_mode = True
             if 'mbr_id' in custom_args:
                 self.iso_parameters += [
                     '-A', custom_args['mbr_id']
@@ -109,7 +113,15 @@ class IsoToolsCdrTools(IsoToolsBase):
             '-hide', catalog_file,
             '-hide-joliet', catalog_file,
         ]
-        loader_file = self.boot_path + '/loader/isolinux.bin'
+        if efi_mode:
+            loader_file = os.sep.join(
+                [
+                    self.boot_path, 'loader',
+                    Defaults.get_isolinux_bios_grub_loader()
+                ]
+            )
+        else:
+            loader_file = self.boot_path + '/loader/isolinux.bin'
         self.iso_loaders += [
             '-b', loader_file, '-c', catalog_file
         ]
