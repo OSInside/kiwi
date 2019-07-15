@@ -242,7 +242,8 @@ class DiskBuilder(object):
 
         # create the bootloader instance
         self.bootloader_config = BootLoaderConfig(
-            self.bootloader, self.xml_state, self.root_dir, {
+            self.bootloader, self.xml_state, root_dir=self.root_dir,
+            boot_dir=self.root_dir, custom_args={
                 'targetbase':
                     loop_provider.get_device(),
                 'grub_directory_name':

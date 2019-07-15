@@ -188,7 +188,8 @@ class InstallImageBuilder(object):
             # for compat boot. The complete bootloader setup will be
             # based on grub
             bootloader_config = BootLoaderConfig(
-                'grub2', self.xml_state, self.media_dir, {
+                'grub2', self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir, custom_args={
                     'grub_directory_name':
                         Defaults.get_grub_boot_directory_name(self.root_dir)
                 }
@@ -201,7 +202,8 @@ class InstallImageBuilder(object):
             # This allows for booting on x86 platforms in BIOS mode
             # only.
             bootloader_config = BootLoaderConfig(
-                'isolinux', self.xml_state, self.media_dir
+                'isolinux', self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir
             )
         IsoToolsBase.setup_media_loader_directory(
             self.boot_image_task.boot_root_directory, self.media_dir,

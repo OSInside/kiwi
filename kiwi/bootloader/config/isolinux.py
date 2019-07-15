@@ -234,7 +234,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         pass
 
     def _get_iso_boot_path(self):
-        return self.root_dir + '/boot/' + self.arch + '/loader'
+        return self.boot_dir + '/boot/' + self.arch + '/loader'
 
     def _have_theme(self):
         if os.path.exists(self._get_iso_boot_path() + '/bootlogo'):

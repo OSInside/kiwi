@@ -164,8 +164,10 @@ class TestInstallImageBuilder(object):
             'target_dir/result-image.raw.squashfs'
         )
         mock_BootLoaderConfig.assert_called_once_with(
-            'grub2', self.xml_state, 'temp_media_dir',
-            {'grub_directory_name': mock_grub_dir.return_value}
+            'grub2', self.xml_state, root_dir='root_dir',
+            boot_dir='temp_media_dir', custom_args={
+                'grub_directory_name': mock_grub_dir.return_value
+            }
         )
         bootloader_config.setup_install_boot_images.assert_called_once_with(
             lookup_path='root_dir', mbrid=self.mbrid
@@ -234,7 +236,8 @@ class TestInstallImageBuilder(object):
         self.firmware.efi_mode.return_value = None
         self.install_image.create_install_iso()
         mock_BootLoaderConfig.assert_called_once_with(
-            'isolinux', self.xml_state, 'temp_media_dir'
+            'isolinux', self.xml_state, root_dir='root_dir',
+            boot_dir='temp_media_dir'
         )
 
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')

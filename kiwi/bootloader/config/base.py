@@ -38,8 +38,9 @@ class BootLoaderConfigBase(object):
     :param string root_dir: root directory path name
     :param dict custom_args: custom bootloader arguments dictionary
     """
-    def __init__(self, xml_state, root_dir, custom_args=None):
+    def __init__(self, xml_state, root_dir, boot_dir=None, custom_args=None):
         self.root_dir = root_dir
+        self.boot_dir = boot_dir or root_dir
         self.xml_state = xml_state
         self.arch = platform.machine()
 
@@ -167,7 +168,7 @@ class BootLoaderConfigBase(object):
         :rtype: str
         """
         efi_boot_path = os.path.normpath(
-            os.sep.join([self.root_dir, in_sub_dir, 'EFI/BOOT'])
+            os.sep.join([self.boot_dir, in_sub_dir, 'EFI/BOOT'])
         )
         Path.create(efi_boot_path)
         return efi_boot_path
@@ -326,7 +327,7 @@ class BootLoaderConfigBase(object):
         bootpath = '/boot'
         need_boot_partition = False
         if target == 'disk':
-            disk_setup = DiskSetup(self.xml_state, self.root_dir)
+            disk_setup = DiskSetup(self.xml_state, self.boot_dir)
             need_boot_partition = disk_setup.need_boot_partition()
             if need_boot_partition:
                 # if an extra boot partition is used we will find the
