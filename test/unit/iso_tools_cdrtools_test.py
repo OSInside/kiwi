@@ -95,6 +95,23 @@ class TestIsoToolsCdrTools(object):
             '-c', 'boot/x86_64/boot.catalog'
         ]
 
+        self.iso_tool.iso_loaders = []
+        self.file_mock.write.reset_mock()
+        self.iso_tool.init_iso_creation_parameters(
+            {
+                'efi_mode': 'uefi',
+                'mbr_id': 'app_id',
+                'publisher': 'org',
+                'preparer': 'name',
+                'volume_id': 'vol_id',
+                'udf': True
+            }
+        )
+        assert self.iso_tool.iso_loaders == [
+            '-b', 'boot/x86_64/loader/eltorito.img',
+            '-c', 'boot/x86_64/boot.catalog'
+        ]
+
     @patch('os.path.exists')
     @patch('os.path.getsize')
     @patch('kiwi.iso_tools.cdrtools.CommandCapabilities.has_option_in_help')
