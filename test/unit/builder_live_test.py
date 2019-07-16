@@ -222,8 +222,10 @@ class TestLiveImageBuilder(object):
         ]
 
         kiwi.builder.live.BootLoaderConfig.assert_called_once_with(
-            'grub2', self.xml_state, 'temp_media_dir',
-            {'grub_directory_name': 'grub2'}
+            'grub2', self.xml_state, root_dir='root_dir',
+            boot_dir='temp_media_dir', custom_args={
+                'grub_directory_name': 'grub2'
+            }
         )
         self.bootloader.setup_live_boot_images.assert_called_once_with(
             lookup_path='root_dir', mbrid=self.mbrid
@@ -304,7 +306,8 @@ class TestLiveImageBuilder(object):
         kiwi.builder.live.BootLoaderConfig.reset_mock()
         self.live_image.create()
         kiwi.builder.live.BootLoaderConfig.assert_called_once_with(
-            'isolinux', self.xml_state, 'temp_media_dir'
+            'isolinux', self.xml_state, root_dir='root_dir',
+            boot_dir='temp_media_dir'
         )
 
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')

@@ -95,7 +95,7 @@ class TestBootLoaderConfigGrub2(object):
             return_value=False
         )
         self.bootloader = BootLoaderConfigGrub2(
-            self.state, 'root_dir', {'grub_directory_name': 'grub2'}
+            self.state, 'root_dir', None, {'grub_directory_name': 'grub2'}
         )
 
     @patch('platform.machine')

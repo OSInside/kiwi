@@ -70,7 +70,7 @@ class TestBootLoaderConfigZipl(object):
             return_value='oem'
         )
         self.bootloader = BootLoaderConfigZipl(
-            self.xml_state, 'root_dir', {'targetbase': '/dev/loop0'}
+            self.xml_state, 'root_dir', None, {'targetbase': '/dev/loop0'}
         )
 
     @raises(KiwiBootLoaderZiplPlatformError)

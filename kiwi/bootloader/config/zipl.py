@@ -106,14 +106,14 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                     'mv',
                     os.sep.join(
                         [
-                            self.root_dir, 'boot',
-                            os.readlink(self.root_dir + '/boot/initrd')
+                            self.boot_dir, 'boot',
+                            os.readlink(self.boot_dir + '/boot/initrd')
                         ]
                     ),
                     os.sep.join(
                         [
-                            self.root_dir, 'boot',
-                            os.readlink(self.root_dir + '/boot/image')
+                            self.boot_dir, 'boot',
+                            os.readlink(self.boot_dir + '/boot/image')
                         ]
                     ),
                     self._get_zipl_boot_path()
@@ -174,7 +174,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         pass
 
     def _get_zipl_boot_path(self):
-        return self.root_dir + '/boot/zipl'
+        return self.boot_dir + '/boot/zipl'
 
     def _get_target_geometry(self):
         if self.target_table_type == 'dasd':
