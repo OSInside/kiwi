@@ -56,7 +56,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
         """
         return {
             'format': 'qcow2',
-            'virtual_size': format(self.vagrantconfig.get_virtualsize() or 42)
+            'virtual_size': int(self.vagrantconfig.get_virtualsize() or 42)
         }
 
     def get_additional_vagrant_config_settings(self):

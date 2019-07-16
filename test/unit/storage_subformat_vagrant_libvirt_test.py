@@ -55,7 +55,7 @@ class TestDiskFormatVagrantLibVirt(object):
 
     def test_get_additional_metadata(self):
         assert self.disk_format.get_additional_metadata() == {
-            'format': 'qcow2', 'virtual_size': '42'
+            'format': 'qcow2', 'virtual_size': 42
         }
 
     def test_get_additional_vagrant_config_settings(self):
