@@ -371,9 +371,7 @@ class TestInstallImageBuilder(object):
         mock_archive.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.install.tar'
         )
-        archive.create_xz_compressed.assert_called_once_with(
-            'tmpdir', xz_options=None
-        )
+        archive.create.assert_called_once_with('tmpdir')
 
         file_mock.write.reset_mock()
         mock_chmod.reset_mock()
