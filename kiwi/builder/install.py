@@ -97,7 +97,7 @@ class InstallImageBuilder(object):
                 xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + xml_state.get_image_version(),
-                '.install.tar.xz'
+                '.install.tar'
             ]
         )
         self.dracut_config_file = ''.join(
@@ -324,12 +324,9 @@ class InstallImageBuilder(object):
 
         # create pxe install tarball
         log.info('Creating pxe install archive')
-        archive = ArchiveTar(
-            self.pxename.replace('.xz', '')
-        )
-        archive.create_xz_compressed(
-            self.pxe_dir, xz_options=self.xz_options
-        )
+        archive = ArchiveTar(self.pxename)
+
+        archive.create(self.pxe_dir)
 
     def _create_pxe_install_kernel_and_initrd(self):
         kernel = Kernel(self.boot_image_task.boot_root_directory)
