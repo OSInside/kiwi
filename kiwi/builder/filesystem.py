@@ -68,7 +68,8 @@ class FileSystemBuilder(object):
                 self.requested_image_type
             )
         self.filesystem_custom_parameters = {
-            'mount_options': xml_state.get_fs_mount_option_list()
+            'mount_options': xml_state.get_fs_mount_option_list(),
+            'create_options': xml_state.get_fs_create_option_list()
         }
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir

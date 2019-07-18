@@ -80,6 +80,7 @@ class DiskBuilder(object):
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
+        self.custom_root_creation_args = xml_state.get_fs_create_option_list()
         self.build_type_name = xml_state.get_build_type_name()
         self.image_format = xml_state.build_type.get_format()
         self.install_iso = xml_state.build_type.get_installiso()
@@ -283,6 +284,8 @@ class DiskBuilder(object):
             volume_manager_custom_parameters = {
                 'fs_mount_options':
                     self.custom_root_mount_args,
+                'fs_create_options':
+                    self.custom_root_creation_args,
                 'root_label':
                     self.disk_setup.get_root_label(),
                 'root_is_snapshot':
@@ -318,7 +321,8 @@ class DiskBuilder(object):
                 self.requested_filesystem, device_map['root'].get_device()
             )
             filesystem_custom_parameters = {
-                'mount_options': self.custom_root_mount_args
+                'mount_options': self.custom_root_mount_args,
+                'create_options': self.custom_root_creation_args
             }
             filesystem = FileSystem(
                 self.requested_filesystem, device_map['root'],

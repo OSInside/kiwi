@@ -1698,6 +1698,25 @@ class XMLState(object):
 
         return option_list
 
+    def get_fs_create_option_list(self):
+        """
+        List of root filesystem creation options
+
+        The list contains elements with the information from the
+        fscreateoptions attribute string that got split into its
+        substring components
+
+        :return: list with create options
+
+        :rtype: list
+        """
+        option_list = []
+        create_options = self.build_type.get_fscreateoptions()
+        if create_options:
+            option_list = create_options.split()
+
+        return option_list
+
     def get_derived_from_image_uri(self):
         """
         Uri object of derived image if configured

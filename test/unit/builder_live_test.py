@@ -76,7 +76,10 @@ class TestLiveImageBuilder(object):
 
         self.xml_state = mock.Mock()
         self.xml_state.get_fs_mount_option_list = mock.Mock(
-            return_value='async'
+            return_value=['async']
+        )
+        self.xml_state.get_fs_create_option_list = mock.Mock(
+            return_value=['-O', 'option']
         )
         self.xml_state.build_type.get_flags = mock.Mock(
             return_value=None
@@ -181,9 +184,12 @@ class TestLiveImageBuilder(object):
 
         assert kiwi.builder.live.FileSystem.call_args_list == [
             call(
-                custom_args={'mount_options': 'async'},
                 device_provider=self.loop, name='ext4',
-                root_dir='root_dir/'
+                root_dir='root_dir/',
+                custom_args={
+                    'mount_options': ['async'],
+                    'create_options': ['-O', 'option']
+                }
             ),
             call(
                 device_provider=None, name='squashfs',

@@ -2183,6 +2183,11 @@ partitions</a:documentation>
 The string given here is passed as value to the -o option of mount</a:documentation>
       </attribute>
     </define>
+    <define name="k.type.fscreateoptions.attribute">
+      <attribute name="fscreateoptions">
+        <a:documentation>Specifies options to create the filesystem</a:documentation>
+      </attribute>
+    </define>
     <define name="k.type.hybridpersistent.attribute">
       <attribute name="hybridpersistent">
         <a:documentation>Will trigger the creation of a partition for a COW file
@@ -2581,6 +2586,9 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.fsmountoptions.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.fscreateoptions.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.gcelicense.attribute"/>

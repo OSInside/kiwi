@@ -98,6 +98,10 @@ class VolumeManagerBase(DeviceProvider):
             self.custom_filesystem_args['mount_options'] = \
                 custom_args['fs_mount_options']
 
+        if custom_args and 'fs_create_options' in custom_args:
+            self.custom_filesystem_args['create_options'] = \
+                custom_args['fs_create_options']
+
         self.post_init(custom_args)
 
     def post_init(self, custom_args):

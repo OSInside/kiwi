@@ -69,9 +69,6 @@ class LiveImageBuilder(object):
             Defaults.get_volume_id()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
-        self.filesystem_custom_parameters = {
-            'mount_options': xml_state.get_fs_mount_option_list()
-        }
         self.publisher = xml_state.build_type.get_publisher() or \
             Defaults.get_publisher()
         self.custom_args = custom_args
@@ -205,7 +202,8 @@ class LiveImageBuilder(object):
         )
         root_filesystem = Defaults.get_default_live_iso_root_filesystem()
         filesystem_custom_parameters = {
-            'mount_options': self.xml_state.get_fs_mount_option_list()
+            'mount_options': self.xml_state.get_fs_mount_option_list(),
+            'create_options': self.xml_state.get_fs_create_option_list()
         }
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
