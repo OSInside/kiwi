@@ -30,7 +30,10 @@ class TestFileSystemBuilder(object):
             return_value=0
         )
         self.xml_state.get_fs_mount_option_list = mock.Mock(
-            return_value='async'
+            return_value=['async']
+        )
+        self.xml_state.get_fs_create_option_list = mock.Mock(
+            return_value=['-O', 'option']
         )
         self.xml_state.get_build_type_name = mock.Mock(
             return_value='ext3'
@@ -97,7 +100,10 @@ class TestFileSystemBuilder(object):
         )
         self.loop_provider.create.assert_called_once_with()
         mock_fs.assert_called_once_with(
-            'ext3', self.loop_provider, 'root_dir/', {'mount_options': 'async'}
+            'ext3', self.loop_provider, 'root_dir/', {
+                'mount_options': ['async'],
+                'create_options': ['-O', 'option']
+            }
         )
         self.filesystem.create_on_device.assert_called_once_with(None)
         self.filesystem.sync_data.assert_called_once_with(
@@ -128,7 +134,10 @@ class TestFileSystemBuilder(object):
         )
         fs.create()
         mock_fs.assert_called_once_with(
-            'squashfs', provider, 'root_dir', {'mount_options': 'async'}
+            'squashfs', provider, 'root_dir', {
+                'mount_options': ['async'],
+                'create_options': ['-O', 'option']
+            }
         )
         self.filesystem.create_on_file.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.squashfs', None,

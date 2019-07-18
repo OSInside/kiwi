@@ -172,7 +172,11 @@ class InstallImageBuilder(object):
             ]
         )
         squashed_image = FileSystemSquashFs(
-            device_provider=None, root_dir=self.squashed_contents
+            device_provider=None,
+            root_dir=self.squashed_contents,
+            custom_args={
+                'create_options': self.xml_state.get_fs_create_option_list()
+            }
         )
         squashed_image.create_on_file(squashed_image_file)
         Command.run(

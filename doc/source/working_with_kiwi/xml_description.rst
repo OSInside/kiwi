@@ -307,6 +307,25 @@ build types and will be covered here:
   via the `-o` flag to :command:`mount` and are included in
   :file:`/etc/fstab`.
 
+- `fscreateoptions`: Specifies the filesystem options used to create the
+  filesystem. In KIWI the filesystem utility to create a filesystem is
+  called without any custom options. The default options are filesystem
+  specific and are provided along with the package that provides the
+  filesystem utility. For the Linux `ext[234]` filesystem, the default
+  options can be found in the :file:`/etc/mke2fs.conf` file. Other
+  filesystems provides this differently and documents information
+  about options and their defaults in the respective manual page, e.g
+  :command:`man mke2fs`. With the `fscreateoptions` attribute it's possible
+  to directly influence how the filesystem will be created. The options
+  provided as a string are passed to the command that creates the
+  filesystem without any further validation by KIWI. For example, to turn
+  off the journal on creation of an ext4 filesystem the following option
+  would be required:
+
+  .. code:: xml
+
+      <type fscreateoptions="-O ^has_journal"/>
+
 - `kernelcmdline`: Additional kernel parameters passed to the kernel by the
   bootloader.
 

@@ -40,7 +40,7 @@
         <rpm-locale-filtering>true</rpm-locale-filtering>
     </preferences>
     <preferences>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" btrfs_root_is_snapshot="true" spare_part="200M" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4">
+        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" xen_loader="hvmloader">
