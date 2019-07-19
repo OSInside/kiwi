@@ -92,7 +92,11 @@ Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
+%if 0%{?suse_version}
 Requires:       python%{python3_pkgversion}-xattr
+%else
+Requires:       python%{python3_pkgversion}-pyxattr
+%endif
 # tools used by kiwi
 %if 0%{?suse_version}
 %ifarch x86_64
