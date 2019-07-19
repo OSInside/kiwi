@@ -51,13 +51,8 @@ class PxeBuilder(object):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
-        self.filesystem_custom_parameters = {
-            'mount_options': xml_state.get_fs_mount_option_list(),
-            'create_options': xml_state.get_fs_create_option_list()
-        }
         self.filesystem = FileSystemBuilder(
-            xml_state, target_dir, root_dir + '/',
-            self.filesystem_custom_parameters
+            xml_state, target_dir, root_dir + '/'
         )
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
