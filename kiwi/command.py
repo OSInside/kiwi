@@ -28,6 +28,10 @@ from .exceptions import (
     KiwiCommandNotFound
 )
 
+command_type = namedtuple(
+    'command', ['output', 'error', 'returncode']
+)
+
 
 class Command(object):
     """
@@ -70,9 +74,6 @@ class Command(object):
         """
         from .logger import log
         from .path import Path
-        command_type = namedtuple(
-            'command', ['output', 'error', 'returncode']
-        )
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
         if custom_env:
