@@ -76,6 +76,11 @@
       <param name="pattern">(\d+|\d+/(udp|tcp))</param>
     </data>
   </define>
+  <define name="grub_console">
+    <data type="token">
+      <param name="pattern">(console|gfxterm|serial)( (console|gfxterm|serial))*</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -1749,11 +1754,7 @@ the editbootinstall and editbootconfig custom scripts</a:documentation>
         <a:documentation>Specifies the bootloader console.
 The value only has an effect for the grub bootloader.
 By default a graphics console setup is used</a:documentation>
-        <choice>
-          <value>console</value>
-          <value>gfxterm</value>
-          <value>serial</value>
-        </choice>
+        <ref name="grub_console"/>
       </attribute>
       <sch:pattern id="bootloader_console" is-a="image_type">
         <sch:param name="attr" value="bootloader_console"/>

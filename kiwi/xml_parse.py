@@ -2795,6 +2795,13 @@ class type_(GeneratedsSuper):
     def set_publisher(self, publisher): self.publisher = publisher
     def get_disk_start_sector(self): return self.disk_start_sector
     def set_disk_start_sector(self, disk_start_sector): self.disk_start_sector = disk_start_sector
+    def validate_grub_console(self, value):
+        # Validate type grub_console, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_grub_console_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
+    validate_grub_console_patterns_ = [['^(console$|^gfxterm$|^serial)( (console$|^gfxterm$|^serial))*$']]
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -2867,7 +2874,7 @@ class type_(GeneratedsSuper):
             outfile.write(' bootloader=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootloader), input_name='bootloader')), ))
         if self.bootloader_console is not None and 'bootloader_console' not in already_processed:
             already_processed.add('bootloader_console')
-            outfile.write(' bootloader_console=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootloader_console), input_name='bootloader_console')), ))
+            outfile.write(' bootloader_console=%s' % (quote_attrib(self.bootloader_console), ))
         if self.zipl_targettype is not None and 'zipl_targettype' not in already_processed:
             already_processed.add('zipl_targettype')
             outfile.write(' zipl_targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.zipl_targettype), input_name='zipl_targettype')), ))
@@ -3089,6 +3096,7 @@ class type_(GeneratedsSuper):
             already_processed.add('bootloader_console')
             self.bootloader_console = value
             self.bootloader_console = ' '.join(self.bootloader_console.split())
+            self.validate_grub_console(self.bootloader_console)    # validate type grub_console
         value = find_attr_value_('zipl_targettype', node)
         if value is not None and 'zipl_targettype' not in already_processed:
             already_processed.add('zipl_targettype')
