@@ -253,7 +253,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_title(),
             'bootpath': self.get_boot_path('disk'),
-            'boot_directory_name': self.boot_directory_name
+            'boot_directory_name': self.boot_directory_name,
+            'terminal_setup': self.terminal
         }
         if self.multiboot:
             log.info('--> Using multiboot disk template')
@@ -307,7 +308,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'title': self.get_menu_entry_install_title(),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
-            'efi_image_name': Defaults.get_efi_image_name(self.arch)
+            'efi_image_name': Defaults.get_efi_image_name(self.arch),
+            'terminal_setup': self.terminal
         }
         if self.multiboot:
             log.info('--> Using multiboot install template')
@@ -364,7 +366,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'title': self.get_menu_entry_title(plain=True),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
-            'efi_image_name': Defaults.get_efi_image_name(self.arch)
+            'efi_image_name': Defaults.get_efi_image_name(self.arch),
+            'terminal_setup': self.terminal
         }
         if self.multiboot:
             log.info('--> Using multiboot template')
@@ -494,7 +497,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
                 self.cmdline
             )
-        if self.terminal and self.terminal == 'serial':
+        if self.terminal and 'serial' in self.terminal:
             serial_format = '"serial {0} {1} {2} {3} {4}"'
             grub_default_entries['GRUB_SERIAL_COMMAND'] = serial_format.format(
                 '--speed=38400',

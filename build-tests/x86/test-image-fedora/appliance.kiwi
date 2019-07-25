@@ -28,7 +28,7 @@
         <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash"/>
+        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash" bootloader_console="serial console"/>
     </preferences>
     <preferences profiles="Disk">
         <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" bootloader="grub2" firmware="uefi">

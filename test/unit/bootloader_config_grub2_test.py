@@ -405,7 +405,8 @@ class TestBootLoaderConfigGrub2(object):
                 'bootpath': '/',
                 'search_params': '--fs-uuid --set=root boot_uuid',
                 'initrd_file': 'initrd',
-                'theme': None
+                'theme': None,
+                'terminal_setup': 'gfxterm'
             }
         )
 

@@ -58,18 +58,15 @@ class BootLoaderTemplateGrub2(object):
                 echo "Please press 't' to show the boot menu on this console"
             fi
             set gfxmode=${gfxmode}
-            terminal_output gfxterm
         ''').strip() + os.linesep
 
         self.header_serial = dedent('''
             serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1
-            terminal_input serial
-            terminal_output serial
         ''').strip() + os.linesep
 
-        self.header_textconsole = dedent('''
-            terminal_input console
-            terminal_output console
+        self.header_terminal_setup = dedent('''
+            terminal_input ${terminal_setup}
+            terminal_output ${terminal_setup}
         ''').strip() + os.linesep
 
         self.fonts = dedent('''
@@ -322,13 +319,12 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.timeout
         if hybrid:
             template_data += '\n' + self.header_hybrid
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.header_gfxterm
             template_data += self.header_theme
-        elif terminal == 'serial':
+        if 'serial' in terminal:
             template_data += self.header_serial
-        else:
-            template_data += self.header_textconsole
+        template_data += self.header_terminal_setup
         if hybrid:
             template_data += self.menu_entry_hybrid
             if failsafe:
@@ -338,7 +334,7 @@ class BootLoaderTemplateGrub2(object):
             if failsafe:
                 template_data += self.menu_entry_failsafe
         template_data += self.menu_entry_boot_snapshots
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
@@ -358,18 +354,17 @@ class BootLoaderTemplateGrub2(object):
         """
         template_data = self.header
         template_data += self.timeout
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.header_gfxterm
             template_data += self.header_theme
-        elif terminal == 'serial':
+        if 'serial' in terminal:
             template_data += self.header_serial
-        else:
-            template_data += self.header_textconsole
+        template_data += self.header_terminal_setup
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
         template_data += self.menu_entry_boot_snapshots
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
@@ -391,13 +386,12 @@ class BootLoaderTemplateGrub2(object):
         template_data += self.timeout
         if hybrid:
             template_data += self.header_hybrid
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.header_gfxterm
             template_data += self.header_theme_iso
-        elif terminal == 'serial':
+        if 'serial' in terminal:
             template_data += self.header_serial
-        else:
-            template_data += self.header_textconsole
+        template_data += self.header_terminal_setup
         if hybrid:
             template_data += self.menu_entry_hybrid
             if failsafe:
@@ -412,7 +406,7 @@ class BootLoaderTemplateGrub2(object):
                 template_data += self.menu_mediacheck_entry
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
@@ -432,13 +426,12 @@ class BootLoaderTemplateGrub2(object):
         """
         template_data = self.header
         template_data += self.timeout
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.header_gfxterm
             template_data += self.header_theme_iso
-        elif terminal == 'serial':
+        if 'serial' in terminal:
             template_data += self.header_serial
-        else:
-            template_data += self.header_textconsole
+        template_data += self.header_terminal_setup
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
@@ -446,7 +439,7 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.menu_mediacheck_entry_multiboot
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
@@ -469,13 +462,12 @@ class BootLoaderTemplateGrub2(object):
             template_data += self.timeout
         if hybrid:
             template_data += self.header_hybrid
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.header_gfxterm
             template_data += self.header_theme_iso
-        elif terminal == 'serial':
+        if 'serial' in terminal:
             template_data += self.header_serial
-        else:
-            template_data += self.header_textconsole
+        template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
         if hybrid:
             template_data += self.menu_install_entry_hybrid
@@ -486,7 +478,7 @@ class BootLoaderTemplateGrub2(object):
             if failsafe:
                 template_data += self.menu_install_entry_failsafe
         template_data += self.menu_entry_boot_snapshots
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
@@ -507,18 +499,17 @@ class BootLoaderTemplateGrub2(object):
         template_data = self.header
         if with_timeout:
             template_data += self.timeout
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.header_gfxterm
             template_data += self.header_theme_iso
-        elif terminal == 'serial':
+        if 'serial' in terminal:
             template_data += self.header_serial
-        else:
-            template_data += self.header_textconsole
+        template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
         template_data += self.menu_entry_boot_snapshots
-        if terminal == 'gfxterm':
+        if 'gfxterm' in terminal:
             template_data += self.menu_entry_console_switch
         return Template(template_data)

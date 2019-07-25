@@ -18,12 +18,13 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
-            boot_directory_name='grub2'
+            boot_directory_name='grub2',
+            terminal_setup='console'
         )
 
     def test_get_disk_template_console(self):
         assert self.grub2.get_disk_template(
-            terminal='console'
+            terminal='serial console'
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -33,7 +34,8 @@ class TestBootLoaderTemplateGrub2(object):
             failsafe_boot_options='splash',
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
-            bootpath='/boot'
+            bootpath='/boot',
+            terminal_setup='serial console'
         )
 
     def test_get_disk_template_serial_no_hybird(self):
@@ -49,7 +51,8 @@ class TestBootLoaderTemplateGrub2(object):
             failsafe_boot_options='splash',
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
-            bootpath='/boot'
+            bootpath='/boot',
+            terminal_setup='serial'
         )
 
     def test_get_multiboot_disk_template(self):
@@ -66,7 +69,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
             boot_directory_name='grub2',
-            hypervisor='xen.gz'
+            hypervisor='xen.gz',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_disk_template_console(self):
@@ -82,12 +86,13 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
-            hypervisor='xen.gz'
+            hypervisor='xen.gz',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_disk_template_serial(self):
         assert self.grub2.get_multiboot_disk_template(
-            terminal='serial'
+            terminal='serial console'
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -98,7 +103,8 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
-            hypervisor='xen.gz'
+            hypervisor='xen.gz',
+            terminal_setup='serial console'
         )
 
     def test_get_multiboot_install_template(self):
@@ -116,7 +122,8 @@ class TestBootLoaderTemplateGrub2(object):
             bootpath='/boot',
             boot_directory_name='grub2',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_install_template_console(self):
@@ -133,7 +140,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_install_template_serial(self):
@@ -150,7 +158,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='serial'
         )
 
     def test_get_install_template(self):
@@ -167,7 +176,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
             boot_directory_name='grub2',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_install_template_console_no_hybrid(self):
@@ -184,7 +194,8 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_install_template_serial_no_hybrid(self):
@@ -201,7 +212,8 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='serial'
         )
 
     def test_get_iso_template(self):
@@ -218,7 +230,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             boot_directory_name='grub2',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_iso_template_console_no_hybrid(self):
@@ -235,7 +248,8 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_iso_template_serial_no_hybrid(self):
@@ -252,7 +266,8 @@ class TestBootLoaderTemplateGrub2(object):
             boot_timeout='10',
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='serial'
         )
 
     def test_get_iso_template_checkiso_no_hybrid(self):
@@ -271,7 +286,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             boot_directory_name='grub2',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_iso_template_checkiso(self):
@@ -288,7 +304,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             boot_directory_name='grub2',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_iso_template(self):
@@ -306,7 +323,8 @@ class TestBootLoaderTemplateGrub2(object):
             bootpath='/boot',
             boot_directory_name='grub2',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_iso_template_console(self):
@@ -323,7 +341,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )
 
     def test_get_multiboot_iso_template_serial(self):
@@ -340,7 +359,8 @@ class TestBootLoaderTemplateGrub2(object):
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='serial'
         )
 
     def test_get_multiboot_iso_template_checkiso(self):
@@ -358,5 +378,6 @@ class TestBootLoaderTemplateGrub2(object):
             bootpath='/boot',
             boot_directory_name='grub2',
             hypervisor='xen.gz',
-            efi_image_name='bootx64.efi'
+            efi_image_name='bootx64.efi',
+            terminal_setup='console'
         )

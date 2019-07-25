@@ -175,7 +175,7 @@ class BootLoaderTemplateIsoLinux(object):
         """
         template_data = self.header
         template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
         if with_theme:
@@ -206,7 +206,7 @@ class BootLoaderTemplateIsoLinux(object):
         """
         template_data = self.header
         template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
         if with_theme:
@@ -237,7 +237,7 @@ class BootLoaderTemplateIsoLinux(object):
         template_data = self.header
         if with_timeout:
             template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
         if with_theme:
@@ -267,7 +267,7 @@ class BootLoaderTemplateIsoLinux(object):
         template_data = self.header
         if with_timeout:
             template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
         if with_theme:
