@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import six
 from collections import namedtuple
 
 # project
@@ -148,7 +147,7 @@ class CommandProcess(object):
             self.command.kill()
 
 
-class CommandIterator(six.Iterator):
+class CommandIterator(object):
     """
     **Implements an Iterator for Instances of Command**
 
