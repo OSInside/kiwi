@@ -15,7 +15,8 @@ depends() {
 install() {
     declare moddir=${moddir}
     inst_multiple \
-        blkid blockdev parted dd mkdir grep cut tail head tr bc \
+        blkid blockdev parted dd mkdir rmdir \
+        grep cut tail head tr bc \
         basename partprobe sgdisk mkswap readlink lsblk \
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
