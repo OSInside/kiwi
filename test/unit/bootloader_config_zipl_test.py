@@ -216,7 +216,7 @@ class TestBootLoaderConfigZipl(object):
             kernel='kernel', initrd='initrd', boot_options='foo'
         )
 
-        self.zipl.get_template.assert_called_once_with(True)
+        self.zipl.get_template.assert_called_once_with(True, 'CDL')
         self.template.substitute.assert_called_once_with(
             {
                 'blocksize': '4096',
@@ -272,7 +272,7 @@ class TestBootLoaderConfigZipl(object):
             kernel='kernel', initrd='initrd'
         )
 
-        self.zipl.get_template.assert_called_once_with(True)
+        self.zipl.get_template.assert_called_once_with(True, 'CDL')
         self.template.substitute.assert_called_once_with(
             {
                 'blocksize': '4096',

@@ -154,7 +154,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             )
         }
         log.info('--> Using standard disk boot template')
-        template = self.zipl.get_template(self.failsafe_boot)
+        template = self.zipl.get_template(self.failsafe_boot, self.target_type)
         try:
             self.config = template.substitute(parameters)
         except Exception as e:
