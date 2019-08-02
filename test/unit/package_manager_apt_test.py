@@ -17,6 +17,7 @@ class TestPackageManagerApt(object):
         repository.root_dir = 'root-dir'
         repository.signing_keys = ['key-file.asc']
         repository.unauthenticated = 'false'
+        repository.components = ['main', 'restricted']
 
         root_bind = mock.Mock()
         root_bind.move_to_root = mock.Mock(
@@ -102,19 +103,31 @@ class TestPackageManagerApt(object):
             options=['-a', '-H', '-X', '-A']
         )
         assert mock_run.call_args_list == [
-            call(command=['mountpoint', '-q', 'root-dir/dev'], raise_on_error=False),
-            call([
-                'debootstrap', '--no-check-gpg', '--variant=minbase',
-                'xenial', 'root-dir.debootstrap', 'xenial_path'],
-                ['env']),
-            call([
-                'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'
-            ], ['env']),
-            call(['rm', '-r', '-f', 'root-dir.debootstrap']),
-            call([
-                'chroot', 'root-dir', 'apt-get',
-                'root-moved-arguments', 'update'
-            ], ['env'])
+            call(
+                command=['mountpoint', '-q', 'root-dir/dev'],
+                raise_on_error=False
+            ),
+            call(
+                [
+                    'debootstrap', '--no-check-gpg', '--variant=minbase',
+                    '--components=main,restricted', 'xenial',
+                    'root-dir.debootstrap', 'xenial_path'
+                ], ['env']
+            ),
+            call(
+                [
+                    'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'
+                ], ['env']
+            ),
+            call(
+                ['rm', '-r', '-f', 'root-dir.debootstrap']
+            ),
+            call(
+                [
+                    'chroot', 'root-dir', 'apt-get',
+                    'root-moved-arguments', 'update'
+                ], ['env']
+            )
         ]
         mock_call.assert_called_once_with([
             'chroot', 'root-dir', 'apt-get',

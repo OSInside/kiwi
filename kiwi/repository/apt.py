@@ -66,6 +66,7 @@ class RepositoryApt(RepositoryBase):
         self.distribution = None
         self.distribution_path = None
         self.repo_names = []
+        self.components = []
 
         # apt-get support is based on creating a sources file which
         # contains path names to the repo and its cache. In order to
@@ -158,6 +159,7 @@ class RepositoryApt(RepositoryBase):
             uri = uri.replace('file://', 'file:/')
         if not components:
             components = 'main'
+        self._add_components(components)
         with open(list_file, 'w') as repo:
             if repo_gpgcheck is False:
                 repo_line = 'deb [trusted=yes check-valid-until=no] {0}'.format(uri)
@@ -251,6 +253,11 @@ class RepositoryApt(RepositoryBase):
         for repo_file in repo_files:
             if repo_file not in self.repo_names:
                 Path.wipe(repos_dir + '/' + repo_file)
+
+    def _add_components(self, components):
+        for component in components.split():
+            if component not in self.components:
+                self.components.append(component)
 
     def _create_apt_get_runtime_environment(self):
         for apt_get_dir in list(self.shared_apt_get_dir.values()):
