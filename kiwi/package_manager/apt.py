@@ -147,6 +147,12 @@ class PackageManagerApt(PackageManagerBase):
             cmd = ['debootstrap', '--no-check-gpg']
             if self.deboostrap_minbase:
                 cmd.append('--variant=minbase')
+            if self.repository.components:
+                cmd.append(
+                    '--components={0}'.format(
+                        ','.join(self.repository.components)
+                    )
+                )
             cmd.extend([
                 self.distribution, bootstrap_dir, self.distribution_path
             ])
