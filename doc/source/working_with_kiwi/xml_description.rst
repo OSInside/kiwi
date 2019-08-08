@@ -332,7 +332,12 @@ build types and will be covered here:
 - `luks`: Supplying a value will trigger the encryption of the partitions
   using the LUKS extension and using the provided string as the
   password. Note that the password must be entered when booting the
-  appliance!
+  appliance!  You may also need to tweak the grub configuration, e.g.
+  by adding something like the following to `config.sh`:
+
+  .. code:: bash
+
+      echo "GRUB_ENABLE_CRYPTODISK=y" >>/etc/default/grub
 
 - `primary`: Boolean option, KIWI will by default build the image which
   `primary` attribute is set to `true`.
