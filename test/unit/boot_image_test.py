@@ -33,5 +33,5 @@ class TestBootImage(object):
         self.xml_state.get_initrd_system.return_value = 'dracut'
         BootImage(self.xml_state, 'target_dir', 'root_dir')
         mock_dracut.assert_called_once_with(
-            self.xml_state, 'target_dir', 'root_dir'
+            self.xml_state, 'target_dir', 'root_dir', None
         )
