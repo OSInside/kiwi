@@ -48,6 +48,7 @@ function get_disk_list {
     local max_disk
     local kiwi_oem_maxdisk
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
+    local message
     if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
@@ -86,9 +87,13 @@ function get_disk_list {
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         if [ ${max_disk} -gt 0 ]; then
             local disk_size_bytes
-            disk_size_bytes=$(binsize_to_bytesize "${disk_size}") || disk_size_bytes=0
+            disk_size_bytes=$(binsize_to_bytesize "${disk_size}") || \
+                disk_size_bytes=0
             if [ "${disk_size_bytes}" -gt "${max_disk}" ]; then
-                info "${disk_device} filtered out by rd.kiwi.oem.maxdisk=${kiwi_oem_maxdisk} (is ${disk_size})" >&2
+                message="${disk_device} filtered out by"
+                message="${message} rd.kiwi.oem.maxdisk=${kiwi_oem_maxdisk}"
+                message="${message} (disk size is: ${disk_size})"
+                info "${message}" >&2
                 continue
             fi
         fi
@@ -106,8 +111,9 @@ function get_disk_list {
         # check for custom filter rule
         if [ -n "${kiwi_oemdevicefilter}" ];then
             if [[ ${disk_device} =~ ${kiwi_oemdevicefilter} ]];then
-                # info is more or less "echo" if debug is on, and it clutters stdout
-                info "${disk_device} filtered out by: ${kiwi_oemdevicefilter}" >&2
+                message="${disk_device} filtered out by rule:"
+                message="${message} ${kiwi_oemdevicefilter}"
+                info "${message}" >&2
                 continue
             fi
         fi
