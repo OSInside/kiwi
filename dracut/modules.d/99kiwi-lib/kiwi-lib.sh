@@ -133,3 +133,17 @@ function binsize_to_bytesize {
     esac
     awk "BEGIN {print int(${bs}*${mult})}"
 }
+
+function bool {
+    # """
+    # provides boolean string true|false for given value.
+    # Only if value matches true return true, in any other
+    # case return false
+    # """
+    local value=$1
+    if [ -n "${value}" ] && [ "${value}" = "true" ] ;then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
