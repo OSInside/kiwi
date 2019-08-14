@@ -48,6 +48,7 @@ function get_disk_list {
     local max_disk
     local kiwi_oem_maxdisk
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
+    local message
     if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
@@ -86,9 +87,13 @@ function get_disk_list {
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         if [ ${max_disk} -gt 0 ]; then
             local disk_size_bytes
-            disk_size_bytes=$(binsize_to_bytesize "${disk_size}") || disk_size_bytes=0
+            disk_size_bytes=$(binsize_to_bytesize "${disk_size}") || \
+                disk_size_bytes=0
             if [ "${disk_size_bytes}" -gt "${max_disk}" ]; then
-                info "${disk_device} filtered out by rd.kiwi.oem.maxdisk=${kiwi_oem_maxdisk} (is ${disk_size})" >&2
+                message="${disk_device} filtered out by"
+                message="${message} rd.kiwi.oem.maxdisk=${kiwi_oem_maxdisk}"
+                message="${message} (disk size is: ${disk_size})"
+                info "${message}" >&2
                 continue
             fi
         fi
@@ -106,8 +111,9 @@ function get_disk_list {
         # check for custom filter rule
         if [ -n "${kiwi_oemdevicefilter}" ];then
             if [[ ${disk_device} =~ ${kiwi_oemdevicefilter} ]];then
-                # info is more or less "echo" if debug is on, and it clutters stdout
-                info "${disk_device} filtered out by: ${kiwi_oemdevicefilter}" >&2
+                message="${disk_device} filtered out by rule:"
+                message="${message} ${kiwi_oemdevicefilter}"
+                info "${message}" >&2
                 continue
             fi
         fi
@@ -125,6 +131,7 @@ function get_selected_disk {
     declare kiwi_oemunattended_id=${kiwi_oemunattended_id}
     local disk_list
     local device_array
+    kiwi_oemunattended=$(bool "${kiwi_oemunattended}")
     disk_list=$(get_disk_list)
     if [ -n "${disk_list}" ];then
         local count=0
@@ -139,7 +146,7 @@ function get_selected_disk {
         if [ "${device_index}" -eq 1 ];then
             # one single disk device found, use it
             echo "${device_array[0]}"
-        elif [ -n "${kiwi_oemunattended}" ];then
+        elif [ "${kiwi_oemunattended}" = "true" ];then
             if [ -z "${kiwi_oemunattended_id}" ];then
                 # unattended mode requested but no target specifier,
                 # thus use first device from list
@@ -209,6 +216,8 @@ function dump_image {
     local image_from_remote=$3
     local image_source
     local image_basename
+    kiwi_oemsilentinstall=$(bool "${kiwi_oemsilentinstall}")
+    kiwi_oemunattended=$(bool "${kiwi_oemunattended}")
     image_source="$(echo "${image_source_files}" | cut -f1 -d\|)"
     image_basename=$(basename "${image_source}")
     local progress=/dev/install_progress
@@ -224,7 +233,7 @@ function dump_image {
 
     check_image_fits_target "${image_target}"
 
-    if [ -z "${kiwi_oemunattended}" ];then
+    if [ "${kiwi_oemunattended}" = "false" ];then
         local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
         if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
             local install_cancel_text="System installation canceled"
@@ -233,7 +242,8 @@ function dump_image {
     fi
 
     echo "${load_text} [${image_target}]..."
-    if command -v pv &>/dev/null && [ -z "${kiwi_oemsilentinstall}" ];then
+    if command -v pv &>/dev/null && [ "${kiwi_oemsilentinstall}" = "false" ]
+    then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
         eval "${dump}" "${image_source}" "${image_target}" "${progress}" &
@@ -284,11 +294,14 @@ function check_image_integrity {
     local verify_text="Verifying ${image_target}"
     local title_text="Installation..."
     local verify_result=/dumped_image.md5
-    if [ -n "${kiwi_oemskipverify}" ];then
+    kiwi_oemskipverify=$(bool "${kiwi_oemskipverify}")
+    kiwi_oemsilentverify=$(bool "${kiwi_oemsilentverify}")
+    if [ "${kiwi_oemskipverify}" = "true" ];then
         # no verification wanted
         return
     fi
-    if command -v pv &>/dev/null && [ -z "${kiwi_oemsilentverify}" ];then
+    if command -v pv &>/dev/null && [ "${kiwi_oemsilentverify}" = "false" ]
+    then
         # verify with dialog based progress information
         setup_progress_fifo ${progress}
         run_progress_dialog "${verify_text}" "${title_text}" &
