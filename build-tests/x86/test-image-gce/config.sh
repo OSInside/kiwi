@@ -46,30 +46,6 @@ baseUpdateSysConfig /etc/sysconfig/network/dhcp DHCLIENT_SET_HOSTNAME yes
 baseUpdateSysConfig /etc/sysconfig/network/dhcp WRITE_HOSTNAME_TO_HOSTS no
 baseUpdateSysConfig /etc/sysconfig/security POLKIT_DEFAULT_PRIVS restrictive
 baseUpdateSysConfig /etc/sysconfig/storage USED_FS_LIST ext3
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_LOAD_MODULES "nf_conntrack_netbios_ns"
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_DEV_EXT "any eth0"
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_LOG_DROP_CRIT yes
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_LOG_DROP_ALL no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_LOG_ACCEPT_CRIT yes
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_LOG_ACCEPT_ALL no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_ALLOW_FW_BROADCAST_EXT no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_ALLOW_FW_BROADCAST_INT no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_ALLOW_FW_BROADCAST_DMZ no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_IGNORE_FW_BROADCAST_INT no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_IGNORE_FW_BROADCAST_DMZ no
-baseUpdateSysConfig \
-    /etc/sysconfig/SuSEfirewall2 FW_IPSEC_TRUST no
 
 # Set up ntp server
 sed -i 's/server 127/#server 127/' /etc/ntp.conf

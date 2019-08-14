@@ -105,7 +105,6 @@
         <package name="screen"/>
         <package name="strace"/>
         <package name="SUSEConnect"/>
-        <package name="SuSEfirewall2"/>
         <package name="openSUSE-build-key"/>
         <package name="tcpd"/>
         <package name="tcpdump"/>

@@ -101,7 +101,6 @@
         <package name="strace"/>
         <package name="supportutils"/>
         <package name="SUSEConnect"/>
-        <package name="SuSEfirewall2"/>
         <package name="suse-build-key"/>
         <package name="tcpd"/>
         <package name="tcpdump"/>

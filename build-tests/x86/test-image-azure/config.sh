@@ -56,19 +56,6 @@ baseUpdateSysConfig /etc/sysconfig/security POLKIT_DEFAULT_PRIVS restrictive
 
 baseUpdateSysConfig /etc/sysconfig/storage USED_FS_LIST ext4
 
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_LOAD_MODULES "nf_conntrack_netbios_ns"
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_DEV_EXT "any eth0"
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_LOG_DROP_CRIT yes
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_LOG_DROP_ALL no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_LOG_ACCEPT_CRIT yes
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_LOG_ACCEPT_ALL no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_ALLOW_FW_BROADCAST_EXT no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_ALLOW_FW_BROADCAST_INT no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_ALLOW_FW_BROADCAST_DMZ no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_IGNORE_FW_BROADCAST_INT no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_IGNORE_FW_BROADCAST_DMZ no
-baseUpdateSysConfig /etc/sysconfig/SuSEfirewall2 FW_IPSEC_TRUST no
-
 baseUpdateSysConfig /etc/sysconfig/windowmanager X_MOUSE_CURSOR ""
 baseUpdateSysConfig /etc/sysconfig/windowmanager DEFAULT_WM ""
 

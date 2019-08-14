@@ -97,7 +97,6 @@
         <package name="screen"/>
         <package name="strace"/>
         <package name="SUSEConnect"/>
-        <package name="SuSEfirewall2"/>
         <package name="tcpd"/>
         <package name="tcpdump"/>
         <package name="tcsh"/>
