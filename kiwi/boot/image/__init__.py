@@ -39,10 +39,12 @@ class BootImage(object):
         initrd_system = xml_state.get_initrd_system()
         if initrd_system == 'kiwi':
             return BootImageKiwi(
-                xml_state, target_dir, root_dir, signing_keys
+                xml_state, target_dir, None, signing_keys
             )
         elif initrd_system == 'dracut':
-            return BootImageDracut(xml_state, target_dir, root_dir)
+            return BootImageDracut(
+                xml_state, target_dir, root_dir, None
+            )
         else:
             raise KiwiBootImageSetupError(
                 'Support for %s initrd system not implemented' % initrd_system

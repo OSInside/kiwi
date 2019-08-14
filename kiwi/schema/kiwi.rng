@@ -2238,7 +2238,7 @@ system does not support all features of the kiwi initrd</a:documentation>
       </attribute>
       <sch:pattern id="initrd_system" is-a="image_type">
         <sch:param name="attr" value="initrd_system"/>
-        <sch:param name="types" value="oem"/>
+        <sch:param name="types" value="oem pxe"/>
       </sch:pattern>
     </define>
     <define name="k.type.image.attribute">

@@ -65,7 +65,8 @@ class PxeBuilder(object):
             and 'xz_options' in custom_args else None
 
         self.boot_image_task = BootImage(
-            xml_state, target_dir, signing_keys=self.boot_signing_keys
+            xml_state, target_dir, root_dir,
+            signing_keys=self.boot_signing_keys
         )
         self.image_name = ''.join(
             [
