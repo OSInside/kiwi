@@ -803,7 +803,7 @@ class TestSystemSetup(object):
             'root_dir/etc/modprobe.d', 'target_root_dir/etc/'
         )
         data.sync_data.assert_called_once_with(
-            options=['-z', '-a']
+            options=['-a']
         )
 
     @patch('kiwi.system.setup.Command.run')

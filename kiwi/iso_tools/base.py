@@ -176,5 +176,5 @@ class IsoToolsBase(object):
             loader_data, media_boot_path
         )
         data.sync_data(
-            options=['-z', '-a']
+            options=['-a']
         )

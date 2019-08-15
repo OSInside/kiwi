@@ -170,7 +170,7 @@ class ContainerSetupBase(object):
         try:
             data = DataSync('/dev/', self.root_dir + '/dev/')
             data.sync_data(
-                options=['-z', '-a', '-x', '--devices', '--specials']
+                options=['-a', '-x', '--devices', '--specials']
             )
         except Exception as e:
             raise KiwiContainerSetupError(
