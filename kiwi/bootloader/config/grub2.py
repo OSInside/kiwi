@@ -525,6 +525,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
+        if self.custom_args.get('boot_is_crypto'):
+            grub_default_entries['GRUB_ENABLE_CRYPTODISK'] = 'y'
 
         if grub_default_entries:
             log.info('Writing grub2 defaults file')

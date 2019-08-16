@@ -95,7 +95,9 @@ class TestBootLoaderConfigGrub2(object):
             return_value=False
         )
         self.bootloader = BootLoaderConfigGrub2(
-            self.state, 'root_dir', None, {'grub_directory_name': 'grub2'}
+            self.state, 'root_dir', None, {
+                'grub_directory_name': 'grub2', 'boot_is_crypto': True
+            }
         )
 
     @patch('platform.machine')
@@ -303,6 +305,7 @@ class TestBootLoaderConfigGrub2(object):
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
+            call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call(
                 'GRUB_SERIAL_COMMAND',
                 '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'

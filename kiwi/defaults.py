@@ -62,6 +62,13 @@ class Defaults(object):
         ]
 
     @staticmethod
+    def get_luks_key_length():
+        """
+        Provides key length to use for random luks keys
+        """
+        return 256
+
+    @staticmethod
     def get_xz_compression_options():
         """
         Provides compression options for the xz compressor

@@ -15,9 +15,10 @@ different image types.
    working_with_images/setup_pxe_bootserver
    working_with_images/setup_yast_on_first_boot
    working_with_images/pxe_client_configuration
-   working_with_images/vagrant_setup
+   working_with_images/vmx_vagrant_setup
    working_with_images/pxe_live_iso_boot
    working_with_images/oem_ramdisk_deployment
    working_with_images/custom_partitions
    working_with_images/custom_volumes
    working_with_images/custom_fstab_extension
+   working_with_images/vmx_setup_for_luks

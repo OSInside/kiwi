@@ -680,14 +680,17 @@ class TestDiskBuilder(object):
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.luks = 'passphrase'
+        self.disk_setup.need_boot_partition.return_value = False
+        self.disk_builder.boot_is_crypto = True
         self.disk_builder.create_disk()
         self.luks_root.create_crypto_luks.assert_called_once_with(
-            passphrase='passphrase', os=None
+            passphrase='passphrase', os=None, keyfile='root_dir/.root.keyfile'
         )
         self.luks_root.create_crypttab.assert_called_once_with(
             'root_dir/etc/crypttab'
         )
         assert self.boot_image_task.include_file.call_args_list == [
+            call('/.root.keyfile'),
             call('/config.partids'),
             call('/etc/crypttab')
         ]

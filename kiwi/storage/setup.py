@@ -191,8 +191,6 @@ class DiskSetup(object):
             return True
         if self.bootloader == 'grub2_s390x_emu':
             return True
-        if self.luks:
-            return True
 
     def get_boot_label(self):
         """
