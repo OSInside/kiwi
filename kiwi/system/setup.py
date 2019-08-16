@@ -502,7 +502,7 @@ class SystemSetup(object):
                 modprobe_config, target_root_dir + '/etc/'
             )
             data.sync_data(
-                options=['-z', '-a']
+                options=['-a']
             )
 
     def export_package_list(self, target_dir):

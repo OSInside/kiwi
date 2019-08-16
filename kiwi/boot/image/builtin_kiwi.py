@@ -135,7 +135,7 @@ class BootImageKiwi(BootImageBase):
                 temp_boot_root_directory
             )
             data.sync_data(
-                options=['-z', '-a']
+                options=['-a']
             )
             boot_directory = temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)

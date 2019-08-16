@@ -203,5 +203,5 @@ class TestIsoToolsBase(object):
             'media_dir/boot/x86_64/loader'
         )
         data.sync_data.assert_called_once_with(
-            options=['-z', '-a']
+            options=['-a']
         )

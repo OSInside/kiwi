@@ -631,8 +631,8 @@ class TestBootLoaderConfigGrub2(object):
             )
         ]
         assert data.sync_data.call_args_list == [
-            call(exclude=['*.module'], options=['-z', '-a']),
-            call(exclude=['*.module'], options=['-z', '-a'])
+            call(exclude=['*.module'], options=['-a']),
+            call(exclude=['*.module'], options=['-a'])
         ]
 
         mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
@@ -758,12 +758,12 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('uuid')
         assert mock_command.call_args_list == [
             call([
-                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'rsync', '-a', '--exclude', '/*.module',
                 'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
-                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'rsync', '-a', '--exclude', '/*.module',
                 'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi']
             )]
@@ -804,12 +804,12 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('uuid')
         assert mock_command.call_args_list == [
             call([
-                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'rsync', '-a', '--exclude', '/*.module',
                 'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
-                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'rsync', '-a', '--exclude', '/*.module',
                 'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             ]),
@@ -861,12 +861,12 @@ class TestBootLoaderConfigGrub2(object):
         self.bootloader.setup_disk_boot_images('uuid')
         assert mock_command.call_args_list == [
             call([
-                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'rsync', '-a', '--exclude', '/*.module',
                 'root_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ]),
             call([
-                'rsync', '-z', '-a', '--exclude', '/*.module',
+                'rsync', '-a', '--exclude', '/*.module',
                 'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             ]),
@@ -988,8 +988,8 @@ class TestBootLoaderConfigGrub2(object):
             )
         ]
         assert data.sync_data.call_args_list == [
-            call(exclude=['*.module'], options=['-z', '-a']),
-            call(exclude=['*.module'], options=['-z', '-a'])
+            call(exclude=['*.module'], options=['-a']),
+            call(exclude=['*.module'], options=['-a'])
         ]
 
         mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
@@ -1068,7 +1068,7 @@ class TestBootLoaderConfigGrub2(object):
             ),
             call(
                 [
-                    'rsync', '-z', '-a', '--exclude', '/*.module',
+                    'rsync', '-a', '--exclude', '/*.module',
                     'root_dir/usr/share/grub2/x86_64-efi/',
                     'root_dir/boot/grub2/x86_64-efi'
                 ]
@@ -1137,7 +1137,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/themes'
         )
         assert data.sync_data.call_args_list[0] == call(
-            options=['-z', '-a']
+            options=['-a']
         )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -1184,7 +1184,7 @@ class TestBootLoaderConfigGrub2(object):
             'root_dir/boot/grub2/themes'
         )
         assert data.sync_data.call_args_list[0] == call(
-            options=['-z', '-a']
+            options=['-a']
         )
 
     @patch('kiwi.bootloader.config.grub2.Command.run')

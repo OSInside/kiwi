@@ -852,7 +852,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     theme_dir, boot_theme_dir
                 )
                 data.sync_data(
-                    options=['-z', '-a']
+                    options=['-a']
                 )
                 if boot_theme_background_file:
                     # Install preserved background file to the theme
@@ -870,7 +870,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     os.path.dirname(boot_theme_background_file), boot_theme_dir
                 )
                 data.sync_data(
-                    options=['-z', '-a']
+                    options=['-a']
                 )
 
         self._check_boot_theme_exists()
@@ -922,7 +922,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 module_path + '/', boot_module_path
             )
             data.sync_data(
-                options=['-z', '-a'], exclude=['*.module']
+                options=['-a'], exclude=['*.module']
             )
         except Exception as e:
             raise KiwiBootLoaderGrubModulesError(
