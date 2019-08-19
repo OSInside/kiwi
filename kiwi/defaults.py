@@ -383,6 +383,12 @@ class Defaults(object):
             'xfs',
             'btrfs',
             'lvm',
+            'luks',
+            'gcry_rijndael',
+            'gcry_sha256',
+            'gcry_sha512',
+            'crypto',
+            'cryptodisk',
             'test',
             'true'
         ]

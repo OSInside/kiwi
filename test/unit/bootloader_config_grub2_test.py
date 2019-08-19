@@ -555,8 +555,10 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'all_video', 'xfs',
-                'btrfs', 'lvm', 'test', 'true', 'multiboot', 'part_gpt',
-                'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                'btrfs', 'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
+                'gcry_sha512', 'crypto', 'cryptodisk', 'test', 'true',
+                'multiboot', 'part_gpt', 'part_msdos', 'efi_gop',
+                'efi_uga', 'linuxefi'
             ])
         ]
 
@@ -601,6 +603,10 @@ class TestBootLoaderConfigGrub2(object):
         )
         assert file_mock.write.call_args_list == [
             call('set btrfs_relative_path="yes"\n'),
+            call('insmod cryptodisk\n'),
+            call('insmod luks\n'),
+            call('cryptomount -u 0815\n'),
+            call('set root="cryptouuid/0815"\n'),
             call('search --fs-uuid --set=root 0815\n'),
             call('set prefix=($root)//grub2\n')
         ]
@@ -619,8 +625,9 @@ class TestBootLoaderConfigGrub2(object):
                 'search_label', 'search_fs_file', 'search', 'search_fs_uuid',
                 'ls', 'normal', 'gzio', 'png', 'fat', 'gettext', 'font',
                 'minicmd', 'gfxterm', 'gfxmenu', 'all_video', 'xfs',
-                'btrfs', 'lvm', 'test', 'true', 'part_gpt', 'part_msdos',
-                'efi_gop', 'efi_uga', 'linuxefi'
+                'btrfs', 'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
+                'gcry_sha512', 'crypto', 'cryptodisk', 'test', 'true',
+                'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
             ])
         ]
         assert mock_sync.call_args_list == [
@@ -656,6 +663,10 @@ class TestBootLoaderConfigGrub2(object):
         ]
         assert file_mock.write.call_args_list == [
             call('set btrfs_relative_path="yes"\n'),
+            call('insmod cryptodisk\n'),
+            call('insmod luks\n'),
+            call('cryptomount -u 0815\n'),
+            call('set root="cryptouuid/0815"\n'),
             call('search --fs-uuid --set=root 0815\n'),
             call('set prefix=($root)//grub2\n'),
             call('normal\n')
@@ -952,8 +963,10 @@ class TestBootLoaderConfigGrub2(object):
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'lvm', 'test', 'true',
-                    'part_gpt', 'part_msdos', 'biosdisk', 'vga', 'vbe',
+                    'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
+                    'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
+                    'crypto', 'cryptodisk', 'test', 'true', 'part_gpt',
+                    'part_msdos', 'biosdisk', 'vga', 'vbe',
                     'chain', 'boot'
                 ]
             ),
@@ -975,8 +988,10 @@ class TestBootLoaderConfigGrub2(object):
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'lvm', 'test', 'true',
-                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
+                    'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
+                    'crypto', 'cryptodisk', 'test', 'true', 'part_gpt',
+                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]

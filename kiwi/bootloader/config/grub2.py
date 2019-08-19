@@ -716,6 +716,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             early_boot.write(
                 'set btrfs_relative_path="yes"{0}'.format(os.linesep)
             )
+            if self.custom_args.get('boot_is_crypto'):
+                early_boot.write(
+                    'insmod cryptodisk{0}'.format(os.linesep)
+                )
+                early_boot.write(
+                    'insmod luks{0}'.format(os.linesep)
+                )
+                early_boot.write(
+                    'cryptomount -u {0}{1}'.format(
+                        uuid.replace('-', ''), os.linesep
+                    )
+                )
+                early_boot.write(
+                    'set root="cryptouuid/{0}"{1}'.format(
+                        uuid.replace('-', ''), os.linesep
+                    )
+                )
             early_boot.write(
                 'search --fs-uuid --set=root {0}{1}'.format(uuid, os.linesep)
             )
