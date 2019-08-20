@@ -990,6 +990,7 @@ class Defaults:
             'ppc': ['ofw'],
             'ppc64': ['ofw', 'opal'],
             'ppc64le': ['ofw', 'opal'],
+            'riscv64': ['efi', 'uefi'],
             's390': [],
             's390x': []
         }
@@ -1019,7 +1020,8 @@ class Defaults:
             'armv6hl': 'efi',
             'armv6l': 'efi',
             'armv7hl': 'efi',
-            'armv7l': 'efi'
+            'armv7l': 'efi',
+            'riscv64': 'efi'
         }
         if arch in default_firmware:
             return default_firmware[arch]
@@ -1075,7 +1077,8 @@ class Defaults:
             'armv5el': 'arm-efi',
             'armv5tel': 'arm-efi',
             'armv6l': 'arm-efi',
-            'armv7l': 'arm-efi'
+            'armv7l': 'arm-efi',
+            'riscv64': 'riscv64-efi'
         }
         if arch in default_module_directory_names:
             return default_module_directory_names[arch]
@@ -1109,7 +1112,8 @@ class Defaults:
             'armv5el': 'bootarm.efi',
             'armv5tel': 'bootarm.efi',
             'armv6l': 'bootarm.efi',
-            'armv7l': 'bootarm.efi'
+            'armv7l': 'bootarm.efi',
+            'riscv64': 'bootriscv64.efi'
         }
         if arch in default_efi_image_names:
             return default_efi_image_names[arch]

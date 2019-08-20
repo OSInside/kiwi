@@ -218,6 +218,16 @@ class TestBootLoaderConfigGrub2:
         bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
         assert bootloader.arch == mock_machine.return_value
 
+    @patch('platform.machine')
+    def test_post_init_riscv64_platform(self, mock_machine):
+        xml_state = MagicMock()
+        xml_state.build_type.get_firmware = Mock(
+            return_value=None
+        )
+        mock_machine.return_value = 'riscv64'
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.arch == mock_machine.return_value
+
     @patch('os.path.exists')
     @patch('platform.machine')
     def test_post_init_dom0(self, mock_machine, mock_exists):

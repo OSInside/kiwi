@@ -77,6 +77,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         elif arch.startswith('s390'):
             # grub2 support for s390x systems
             self.arch = arch
+        elif arch == 'riscv64':
+            # grub2 support for efi systems
+            self.arch = arch
         else:
             raise KiwiBootLoaderGrubPlatformError(
                 'host architecture %s not supported for grub2 setup' % arch
