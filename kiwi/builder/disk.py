@@ -133,6 +133,8 @@ class DiskBuilder(object):
                 '.raw'
             ]
         )
+        self.boot_is_crypto = True if self.luks and not \
+            self.disk_setup.need_boot_partition() else False
         self.install_media = self._install_image_requested()
         self.generic_fstab_entries = []
 
@@ -248,7 +250,9 @@ class DiskBuilder(object):
                 'targetbase':
                     loop_provider.get_device(),
                 'grub_directory_name':
-                    Defaults.get_grub_boot_directory_name(self.root_dir)
+                    Defaults.get_grub_boot_directory_name(self.root_dir),
+                'boot_is_crypto':
+                    self.boot_is_crypto
             }
         )
 
@@ -268,9 +272,19 @@ class DiskBuilder(object):
         # create luks on current root device if requested
         if self.luks:
             self.luks_root = LuksDevice(device_map['root'])
-            self.luks_root.create_crypto_luks(
-                passphrase=self.luks, os=self.luks_os
+            self.luks_boot_keyfile = ''.join(
+                [self.root_dir, '/.root.keyfile']
             )
+            self.luks_root.create_crypto_luks(
+                passphrase=self.luks,
+                os=self.luks_os,
+                keyfile=self.luks_boot_keyfile if self.boot_is_crypto else None
+            )
+            if self.boot_is_crypto:
+                self.boot_image.include_file(
+                    os.sep + os.path.basename(self.luks_boot_keyfile)
+                )
+            device_map['luks_root'] = device_map['root']
             device_map['root'] = self.luks_root.get_device()
 
         # create spare filesystem on spare partition if present
@@ -942,7 +956,12 @@ class DiskBuilder(object):
             boot_uuid = self.disk.get_uuid(
                 boot_device.get_device()
             )
-            self.bootloader_config.setup_disk_boot_images(boot_uuid)
+            boot_uuid_unmapped = self.disk.get_uuid(
+                device_map['luks_root'].get_device()
+            ) if self.luks else boot_uuid
+            self.bootloader_config.setup_disk_boot_images(
+                boot_uuid_unmapped
+            )
             self.bootloader_config.setup_disk_image_config(
                 boot_uuid=boot_uuid,
                 root_uuid=root_uuid,
