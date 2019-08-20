@@ -121,7 +121,6 @@
         <package name="fipscheck"/>
         <package name="ncurses-utils"/>
         <package name="sg3_utils"/>
-        <package name="pkg-config"/>
         <package name="elfutils"/>
         <package name="udev"/>
         <package name="growpart"/>

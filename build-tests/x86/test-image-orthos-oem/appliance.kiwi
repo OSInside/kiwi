@@ -59,7 +59,6 @@
         <package name="yast2-metapackage-handler"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
-        <package name="pkg-config"/>
         <package name="acl"/>
         <package name="sg3_utils"/>
         <package name="elfutils"/>

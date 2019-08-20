@@ -119,7 +119,6 @@
         <package name="fipscheck"/>
         <package name="ncurses-utils"/>
         <package name="sg3_utils"/>
-        <package name="pkg-config"/>
         <package name="elfutils"/>
         <package name="iputils"/>
         <package name="libyui-ncurses-pkg7"/>

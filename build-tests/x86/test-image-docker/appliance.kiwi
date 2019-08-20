@@ -58,7 +58,6 @@
         <package name="sudo"/>
         <package name="rsync"/>
         <package name="sg3_utils"/>
-        <package name="pkg-config"/>
         <package name="btrfsprogs"/>
         <package name="squashfs"/>
         <package name="kernel-default"/>
@@ -82,7 +81,6 @@
         <package name="kmod"/>
         <package name="ncurses-utils"/>
         <package name="pinentry"/>
-        <package name="pkg-config"/>
         <package name="sg3_utils"/>
         <package name="udev"/>
     </packages>
