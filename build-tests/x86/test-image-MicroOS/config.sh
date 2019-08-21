@@ -32,6 +32,11 @@ echo "Configure image: [$kiwi_iname]..."
 suseSetupProduct
 
 #======================================
+# Create Host Keys
+#--------------------------------------
+/usr/sbin/sshd-gen-keys-start
+
+#======================================
 # Activate services
 #--------------------------------------
 suseInsertService sshd
