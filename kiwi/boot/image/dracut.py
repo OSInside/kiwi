@@ -17,7 +17,7 @@
 #
 import os
 import re
-from collections import namedtuple
+from typing import List, NamedTuple
 
 # project
 from kiwi.logger import log
@@ -30,6 +30,12 @@ from kiwi.system.setup import SystemSetup
 from kiwi.path import Path
 
 from kiwi.exceptions import KiwiDiskBootImageError
+
+
+class BootNames(NamedTuple):
+    """Container for the kernel and initrd name."""
+    kernel_name: str
+    initrd_name: str
 
 
 class BootImageDracut(BootImageBase):
@@ -202,20 +208,17 @@ class BootImageDracut(BootImageBase):
         Provides kernel and initrd names for kiwi boot image
 
         :return:
-            Contains boot_names_type tuple
+            Contains BootNames
 
             .. code:: python
 
-                boot_names_type(
+                BootNames(
                     kernel_name='INSTALLED_KERNEL',
                     initrd_name='DRACUT_OUTPUT_NAME'
                 )
 
-        :rtype: tuple
+        :rtype: BootNames
         """
-        boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name']
-        )
         kernel = Kernel(
             self.boot_root_directory
         )
@@ -226,7 +229,7 @@ class BootImageDracut(BootImageBase):
                 self.boot_root_directory
             )
         dracut_output_format = self._get_dracut_output_file_format()
-        return boot_names_type(
+        return BootNames(
             kernel_name=kernel_info.name,
             initrd_name=dracut_output_format.format(
                 kernel_version=kernel_info.version

@@ -16,12 +16,25 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from collections import namedtuple
+from typing import List, Optional, NamedTuple
 
 # project
 from kiwi.command import Command
 
 from kiwi.exceptions import KiwiKernelLookupError
+
+
+class Xen(NamedTuple):
+    """Storage for the XEN hypervisor name and filename"""
+    filename: str
+    name: str
+
+
+class KernelInfo(NamedTuple):
+    """Storage for files related to a specific kernel version."""
+    name: str
+    filename: str
+    version: str
 
 
 class Kernel:
@@ -47,9 +60,9 @@ class Kernel:
 
         :raises KiwiKernelLookupError: if raise_on_not_found flag is active
             and kernel is not found
-        :return: tuple with filename, kernelname and version
+        :return: filename, kernelname and version if found, otherwise None
 
-        :rtype: namedtuple
+        :rtype: KernelInfo
         """
         for kernel_name in self.kernel_names:
             kernel_file = os.sep.join(
@@ -76,10 +89,7 @@ class Kernel:
                 if not version:
                     version = 'no-version-found'
                 version = version.rstrip('\n')
-                kernel = namedtuple(
-                    'kernel', ['name', 'filename', 'version']
-                )
-                return kernel(
+                return KernelInfo(
                     name=os.path.basename(os.path.realpath(kernel_file)),
                     filename=kernel_file,
                     version=version
@@ -97,16 +107,13 @@ class Kernel:
         """
         Lookup xen hypervisor and provide filename and hypervisor name
 
-        :return: tuple with filename and hypervisor name
+        :return: filename and hypervisor name if found, otherwise None
 
-        :rtype: namedtuple
+        :rtype: Xen
         """
         xen_hypervisor = self.root_dir + '/boot/xen.gz'
         if os.path.exists(xen_hypervisor):
-            xen = namedtuple(
-                'xen', ['filename', 'name']
-            )
-            return xen(
+            return Xen(
                 filename=xen_hypervisor,
                 name='xen.gz'
             )
