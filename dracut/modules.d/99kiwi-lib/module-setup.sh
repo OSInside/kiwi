@@ -2,12 +2,12 @@
 
 # called by dracut
 check() {
-    return 0
+    return 255
 }
 
 # called by dracut
 depends() {
-    echo udev-rules
+    echo udev-rules crypt
     return 0
 }
 
