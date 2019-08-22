@@ -17,7 +17,7 @@
 #
 import os
 import re
-from typing import List, NamedTuple
+from typing import Dict, List, NamedTuple, Optional
 
 # project
 from kiwi.logger import log
@@ -42,7 +42,16 @@ class BootImageDracut(BootImageBase):
     """
     **Implements creation of dracut boot(initrd) images.**
     """
-    def post_init(self):
+
+    dracut_options: List[str]
+    included_files: List[str]
+    included_files_install: List[str]
+    modules: List[str]
+    install_modules: List[str]
+    omit_modules: List[str]
+    omit_install_modules: List[str]
+
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -56,7 +65,8 @@ class BootImageDracut(BootImageBase):
         self.omit_modules = []
         self.omit_install_modules = []
 
-    def include_file(self, filename, install_media=False):
+    def include_file(self, filename: str,
+                     install_media: bool = False) -> None:
         """
         Include file to dracut boot image
 
@@ -68,7 +78,7 @@ class BootImageDracut(BootImageBase):
             self.included_files_install.append('--install')
             self.included_files_install.append(filename)
 
-    def include_module(self, module, install_media=False):
+    def include_module(self, module: str, install_media: bool = False) -> None:
         """
         Include module to dracut boot image
 
@@ -80,7 +90,7 @@ class BootImageDracut(BootImageBase):
         elif module not in self.modules:
             self.modules.append(module)
 
-    def omit_module(self, module, install_media=False):
+    def omit_module(self, module: str, install_media: bool = False) -> None:
         """
         Omit module to dracut boot image
 
@@ -92,7 +102,9 @@ class BootImageDracut(BootImageBase):
         elif module not in self.omit_modules:
             self.omit_modules.append(module)
 
-    def write_system_config_file(self, config, config_file=None):
+    def write_system_config_file(
+            self, config: Dict[str, str], config_file: Optional[str] = None
+    ) -> None:
         """
         Writes modules configuration into a dracut configuration file.
 
@@ -104,6 +116,7 @@ class BootImageDracut(BootImageBase):
             config_file = os.path.normpath(
                 self.boot_root_directory + Defaults.get_dracut_conf_name()
             )
+        assert config_file
         if config.get('modules'):
             dracut_config.append(
                 'add_dracutmodules+=" {0} "\n'.format(
@@ -117,10 +130,10 @@ class BootImageDracut(BootImageBase):
                 )
             )
         if dracut_config:
-            with open(config_file, 'w') as config:
-                config.writelines(dracut_config)
+            with open(config_file, 'w') as config_fd:
+                config_fd.writelines(dracut_config)
 
-    def prepare(self):
+    def prepare(self) -> None:
         """
         Prepare dracut caller environment
 
@@ -138,7 +151,8 @@ class BootImageDracut(BootImageBase):
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 
-    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
+    def create_initrd(self, mbrid: None = None, basename: str = None,
+                      install_initrd: bool = False) -> None:
         """
         Call dracut as chroot operation to create the initrd and move
         the result into the image build target directory
@@ -203,7 +217,7 @@ class BootImageDracut(BootImageBase):
                 [self.target_dir, dracut_initrd_basename]
             )
 
-    def get_boot_names(self):
+    def get_boot_names(self) -> BootNames:
         """
         Provides kernel and initrd names for kiwi boot image
 
@@ -236,7 +250,7 @@ class BootImageDracut(BootImageBase):
             )
         )
 
-    def _get_dracut_output_file_format(self):
+    def _get_dracut_output_file_format(self) -> str:
         """
         Unfortunately the dracut initrd output file format varies between
         the different Linux distributions. Tools like lsinitrd, and also

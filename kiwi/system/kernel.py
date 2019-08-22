@@ -47,11 +47,13 @@ class Kernel:
         file so that we do not have to search for many different
         names in this code
     """
-    def __init__(self, root_dir):
+    def __init__(self, root_dir: str) -> None:
         self.root_dir = root_dir
-        self.kernel_names = self._setup_kernel_names_for_lookup()
+        self.kernel_names: List[str] = self._setup_kernel_names_for_lookup()
 
-    def get_kernel(self, raise_on_not_found=False):
+    def get_kernel(
+            self, raise_on_not_found: bool = False
+    ) -> Optional[KernelInfo]:
         """
         Lookup kernel files and provide filename and version
 
@@ -103,7 +105,7 @@ class Kernel:
                 )
             )
 
-    def get_xen_hypervisor(self):
+    def get_xen_hypervisor(self) -> Optional[Xen]:
         """
         Lookup xen hypervisor and provide filename and hypervisor name
 
@@ -118,7 +120,8 @@ class Kernel:
                 name='xen.gz'
             )
 
-    def copy_kernel(self, target_dir, file_name=None):
+    def copy_kernel(self, target_dir: str,
+                    file_name: Optional[str] = None) -> None:
         """
         Copy kernel to specified target
 
@@ -137,7 +140,8 @@ class Kernel:
             )
             Command.run(['cp', kernel.filename, target_file])
 
-    def copy_xen_hypervisor(self, target_dir, file_name=None):
+    def copy_xen_hypervisor(self, target_dir: str,
+                            file_name: Optional[str] = None) -> None:
         """
         Copy xen hypervisor to specified target
 
@@ -156,7 +160,7 @@ class Kernel:
             )
             Command.run(['cp', xen.filename, target_file])
 
-    def _setup_kernel_names_for_lookup(self):
+    def _setup_kernel_names_for_lookup(self) -> List[str]:
         """
         The kernel image name is different per arch and distribution
         This method returns a list of possible kernel image names in
@@ -188,7 +192,7 @@ class Kernel:
                     )
         return kernel_names
 
-    def _get_kernel_name_for_version_lookup(self):
+    def _get_kernel_name_for_version_lookup(self) -> Optional[str]:
         vmlinux_kernel_files = list(
             filter(lambda kernel: 'vmlinux-' in kernel, self.kernel_names)
         )

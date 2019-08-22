@@ -18,9 +18,11 @@
 import os
 import platform
 import pickle
+from typing import Dict, Optional, List
 
 # project
 from kiwi.defaults import Defaults
+from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.logger import log
@@ -43,17 +45,19 @@ class BootImageBase:
     :param list signing_keys: list of package signing keys
     """
     def __init__(
-        self, xml_state, target_dir, root_dir=None, signing_keys=None
-    ):
-        self.xml_state = xml_state
-        self.target_dir = target_dir
-        self.initrd_filename = None
-        self.boot_xml_state = None
-        self.setup = None
-        self.temp_directories = []
-        self.call_destructor = True
-        self.signing_keys = signing_keys
-        self.boot_root_directory = root_dir
+            self, xml_state: XMLState, target_dir: str,
+            root_dir: Optional[str] = None,
+            signing_keys: Optional[List[str]] = None
+    ) -> None:
+        self.xml_state: XMLState = xml_state
+        self.target_dir: str = target_dir
+        self.initrd_filename: Optional[str] = None
+        self.boot_xml_state: Optional[XMLState] = None
+        self.setup: Optional[SystemSetup] = None
+        self.temp_directories: List[str] = []
+        self.call_destructor: bool = True
+        self.signing_keys: Optional[List[str]] = signing_keys
+        self.boot_root_directory: Optional[str] = root_dir
 
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
@@ -70,7 +74,7 @@ class BootImageBase:
         )
         self.post_init()
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -78,7 +82,7 @@ class BootImageBase:
         """
         pass
 
-    def include_file(self, filename, install_media=False):
+    def include_file(self, filename: str, install_media: bool = False) -> None:
         """
         Include file to boot image
 
@@ -92,7 +96,7 @@ class BootImageBase:
         """
         pass
 
-    def include_module(self, module, install_media=False):
+    def include_module(self, module: str, install_media: bool = False) -> None:
         """
         Include module to boot image
 
@@ -104,7 +108,7 @@ class BootImageBase:
         """
         pass
 
-    def omit_module(self, module, install_media=False):
+    def omit_module(self, module: str, install_media: bool = False) -> None:
         """
         Omit module to boot image
 
@@ -117,8 +121,8 @@ class BootImageBase:
         pass
 
     def write_system_config_file(
-        self, config, config_file=None
-    ):
+        self, config: Dict[str, str], config_file: str = None
+    ) -> None:
         """
         Writes relevant boot image configuration into configuration file
         that will be part of the system image.
@@ -134,7 +138,7 @@ class BootImageBase:
         """
         pass
 
-    def dump(self, filename):
+    def dump(self, filename: str) -> None:
         """
         Pickle dump this instance to a file. If the object dump
         is requested the destructor code will also be disabled
@@ -151,13 +155,13 @@ class BootImageBase:
                 'Failed to pickle dump boot image: %s' % format(e)
             )
 
-    def disable_cleanup(self):
+    def disable_cleanup(self) -> None:
         """
         Deactivate cleanup(deletion) of boot root directory
         """
         self.call_destructor = False
 
-    def enable_cleanup(self):
+    def enable_cleanup(self) -> None:
         """
         Activate cleanup(deletion) of boot root directory
         """
@@ -180,7 +184,8 @@ class BootImageBase:
         """
         raise NotImplementedError
 
-    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
+    def create_initrd(self, mbrid=None, basename: str = None,
+                      install_initrd: bool = False) -> None:
         """
         Implements creation of the initrd
 
@@ -192,7 +197,7 @@ class BootImageBase:
         """
         raise NotImplementedError
 
-    def is_prepared(self):
+    def is_prepared(self) -> bool:
         """
         Check if initrd system is prepared.
 
@@ -202,7 +207,7 @@ class BootImageBase:
         """
         return bool(os.listdir(self.boot_root_directory))
 
-    def load_boot_xml_description(self):
+    def load_boot_xml_description(self) -> None:
         """
         Load the boot image description referenced by the system image
         description boot attribute
@@ -246,7 +251,7 @@ class BootImageBase:
                 boot_image_profile, boot_kernel_profile
             )
 
-    def import_system_description_elements(self):
+    def import_system_description_elements(self) -> None:
         """
         Copy information from the system image relevant to create the
         boot image to the boot image state XML description
@@ -331,7 +336,7 @@ class BootImageBase:
             self.boot_xml_state
         )
 
-    def get_boot_description_directory(self):
+    def get_boot_description_directory(self) -> Optional[str]:
         """
         Provide path to the boot image XML description
 
