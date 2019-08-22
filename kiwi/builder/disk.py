@@ -54,7 +54,7 @@ from kiwi.exceptions import (
 )
 
 
-class DiskBuilder(object):
+class DiskBuilder:
     """
     **Disk image builder**
 

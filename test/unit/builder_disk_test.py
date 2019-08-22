@@ -23,7 +23,7 @@ from kiwi.storage.mapped_device import MappedDevice
 from builtins import bytes
 
 
-class TestDiskBuilder(object):
+class TestDiskBuilder:
     @patch('os.path.exists')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):

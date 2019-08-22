@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiConfigFileNotFound
 import kiwi.xml_parse
 
 
-class TestCliTask(object):
+class TestCliTask:
     @patch('kiwi.logger.log.setLogLevel')
     @patch('kiwi.logger.log.set_logfile')
     @patch('kiwi.logger.log.set_color_format')

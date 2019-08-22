@@ -5,7 +5,7 @@ from .test_helper import raises
 from kiwi.partitioner.base import PartitionerBase
 
 
-class TestPartitionerBase(object):
+class TestPartitionerBase:
     def setup(self):
         disk_provider = mock.Mock()
         disk_provider.get_device = mock.Mock(

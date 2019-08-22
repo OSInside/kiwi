@@ -20,7 +20,7 @@ import os
 from textwrap import dedent
 
 
-class VagrantConfigTemplate(object):
+class VagrantConfigTemplate:
     """
     **Generate a Vagrantfile configuration template**
 

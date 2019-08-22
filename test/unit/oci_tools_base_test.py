@@ -3,7 +3,7 @@ from pytest import raises
 from kiwi.oci_tools.base import OCIBase
 
 
-class TestOCIBase(object):
+class TestOCIBase:
     def setup(self):
         self.oci = OCIBase()
 

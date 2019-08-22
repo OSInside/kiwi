@@ -5,7 +5,7 @@ import mock
 from kiwi.storage.subformat.vhd import DiskFormatVhd
 
 
-class TestDiskFormatVhd(object):
+class TestDiskFormatVhd:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

@@ -36,7 +36,7 @@ from kiwi.exceptions import (
 )
 
 
-class PxeBuilder(object):
+class PxeBuilder:
     """
     **Filesystem based PXE image builder.**
 

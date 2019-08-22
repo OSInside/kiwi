@@ -9,7 +9,7 @@ from kiwi.archive.tar import ArchiveTar
 from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 
-class TestArchiveTar(object):
+class TestArchiveTar:
     @patch('kiwi.archive.tar.Command.run')
     def setup(self, mock_command):
         command = mock.Mock()

@@ -24,7 +24,7 @@ from .logger import log
 from .exceptions import KiwiFileAccessError
 
 
-class Path(object):
+class Path:
     """
     **Directory path helpers**
     """

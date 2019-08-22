@@ -32,7 +32,7 @@ from kiwi.exceptions import (
 )
 
 
-class CliTask(object):
+class CliTask:
     """
     Base class for all task classes, loads the task and provides
     the interface to the command options and the XML description

@@ -31,7 +31,7 @@ from kiwi.exceptions import (
 )
 
 
-class ArchiveBuilder(object):
+class ArchiveBuilder:
     """
     **Root archive image builder**
 

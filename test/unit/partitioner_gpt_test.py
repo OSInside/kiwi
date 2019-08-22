@@ -8,7 +8,7 @@ from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.exceptions import KiwiPartitionerGptFlagError
 
 
-class TestPartitionerGpt(object):
+class TestPartitionerGpt:
     def setup(self):
         disk_provider = mock.Mock()
         disk_provider.get_device = mock.Mock(

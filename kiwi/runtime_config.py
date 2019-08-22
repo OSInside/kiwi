@@ -27,7 +27,7 @@ from .exceptions import (
 )
 
 
-class RuntimeConfig(object):
+class RuntimeConfig:
     """
     **Implements reading of runtime configuration file:**
 

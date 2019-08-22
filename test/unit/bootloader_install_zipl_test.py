@@ -10,7 +10,7 @@ from kiwi.exceptions import KiwiBootLoaderZiplInstallError
 from kiwi.bootloader.install.zipl import BootLoaderInstallZipl
 
 
-class TestBootLoaderInstallZipl(object):
+class TestBootLoaderInstallZipl:
     @patch('kiwi.bootloader.install.zipl.MountManager')
     def setup(self, mock_mount):
         custom_args = {

@@ -5,7 +5,7 @@ from mock import (
 from kiwi.utils.rpm_database import RpmDataBase
 
 
-class TestRpmDataBase(object):
+class TestRpmDataBase:
     def setup(self):
         self.rpmdb = RpmDataBase('root_dir')
         self.rpmdb.rpmdb_host = Mock()

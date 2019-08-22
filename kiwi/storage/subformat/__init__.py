@@ -33,7 +33,7 @@ from kiwi.exceptions import (
 )
 
 
-class DiskFormat(object):
+class DiskFormat:
     """
     **DiskFormat factory**
 

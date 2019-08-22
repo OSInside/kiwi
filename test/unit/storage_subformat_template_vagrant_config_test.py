@@ -5,7 +5,7 @@ from kiwi.storage.subformat.template.vagrant_config import (
 from textwrap import dedent
 
 
-class TestVagrantConfigTemplate(object):
+class TestVagrantConfigTemplate:
 
     def setup(self):
         self.vagrant_config = VagrantConfigTemplate()

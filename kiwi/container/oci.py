@@ -25,7 +25,7 @@ from kiwi.oci_tools import OCI
 from kiwi.utils.compress import Compress
 
 
-class ContainerImageOCI(object):
+class ContainerImageOCI:
     """
     Create oci container from a root directory
 

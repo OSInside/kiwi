@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiRuntimeConfigFormatError
 from kiwi.defaults import Defaults
 
 
-class TestRuntimeConfig(object):
+class TestRuntimeConfig:
     def setup(self):
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.runtime_config = RuntimeConfig()

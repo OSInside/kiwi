@@ -30,7 +30,7 @@ from kiwi.exceptions import (
 )
 
 
-class BootLoaderConfigBase(object):
+class BootLoaderConfigBase:
     """
     **Base class for bootloader configuration**
 

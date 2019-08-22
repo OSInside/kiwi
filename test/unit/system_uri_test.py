@@ -15,7 +15,7 @@ from kiwi.system.uri import Uri
 import hashlib
 
 
-class TestUri(object):
+class TestUri:
     def setup(self):
         self.mock_mkdtemp = mock.Mock()
         self.mock_manager = mock.Mock()

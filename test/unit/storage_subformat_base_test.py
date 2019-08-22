@@ -12,7 +12,7 @@ from kiwi.exceptions import (
 from kiwi.storage.subformat.base import DiskFormatBase
 
 
-class TestDiskFormatBase(object):
+class TestDiskFormatBase:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

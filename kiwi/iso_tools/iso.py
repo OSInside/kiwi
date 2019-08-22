@@ -32,7 +32,7 @@ from kiwi.exceptions import (
 )
 
 
-class Iso(object):
+class Iso:
     """
     **Implements helper methods around the creation of ISO filesystems**
 

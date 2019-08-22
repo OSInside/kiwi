@@ -23,7 +23,7 @@ from .command import Command
 from .path import Path
 
 
-class MountManager(object):
+class MountManager:
     """
     **Implements methods for mounting, umounting and mount checking**
 

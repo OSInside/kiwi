@@ -21,7 +21,7 @@ from datetime import datetime
 from kiwi.utils.sync import DataSync
 
 
-class OCIBase(object):
+class OCIBase:
     """
     **Base Class for Open Container Interface operations**
 

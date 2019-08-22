@@ -32,7 +32,7 @@ from .exceptions import (
 )
 
 
-class RuntimeChecker(object):
+class RuntimeChecker:
     """
     **Implements build consistency checks at runtime**
 

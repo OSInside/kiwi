@@ -25,7 +25,7 @@ from kiwi.defaults import Defaults
 from kiwi.logger import log
 
 
-class DiskSetup(object):
+class DiskSetup:
     """
     **Implements disk setup methods**
 

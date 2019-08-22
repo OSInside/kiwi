@@ -1,7 +1,7 @@
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 
 
-class TestPackageManagerTemplateAptGet(object):
+class TestPackageManagerTemplateAptGet:
     def setup(self):
         self.apt = PackageManagerTemplateAptGet()
 

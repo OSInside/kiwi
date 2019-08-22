@@ -19,7 +19,7 @@
 from kiwi.command import Command
 
 
-class ArchiveCpio(object):
+class ArchiveCpio:
     """
     **Extraction/Creation of cpio archives**
 

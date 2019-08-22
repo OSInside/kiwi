@@ -6,7 +6,7 @@ from kiwi.exceptions import KiwiPrivilegesError
 from kiwi.privileges import Privileges
 
 
-class TestPrivileges(object):
+class TestPrivileges:
     @raises(KiwiPrivilegesError)
     @patch('os.geteuid')
     def test_check_for_root_permiossion_false(self, mock_euid):

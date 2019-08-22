@@ -28,7 +28,7 @@ from kiwi.exceptions import (
 )
 
 
-class Partitioner(object):
+class Partitioner:
     """
     **Partitioner factory**
 

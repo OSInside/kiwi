@@ -22,7 +22,7 @@ from kiwi.command import Command
 from kiwi.defaults import Defaults
 
 
-class Shell(object):
+class Shell:
     """
     **Special character handling for shell evaluated code**
     """

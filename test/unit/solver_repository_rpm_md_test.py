@@ -8,7 +8,7 @@ from kiwi.solver.repository.rpm_md import SolverRepositoryRpmMd
 from kiwi.solver.repository.base import SolverRepositoryBase
 
 
-class TestSolverRepositoryRpmMd(object):
+class TestSolverRepositoryRpmMd:
     def setup(self):
         self.xml_data = etree.parse('../data/repomd.xml')
         self.uri = mock.Mock()

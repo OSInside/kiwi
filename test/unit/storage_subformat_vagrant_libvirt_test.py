@@ -9,7 +9,7 @@ from .test_helper import patch_open
 from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
 
 
-class TestDiskFormatVagrantLibVirt(object):
+class TestDiskFormatVagrantLibVirt:
     def setup(self):
         xml_data = Mock()
         xml_data.get_name = Mock(

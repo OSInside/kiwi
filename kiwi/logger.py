@@ -24,7 +24,7 @@ from .exceptions import (
 )
 
 
-class ColorMessage(object):
+class ColorMessage:
     """
     **Implements color messages for Python logging facility**
 

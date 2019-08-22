@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiMappedDeviceError
 from kiwi.storage.mapped_device import MappedDevice
 
 
-class TestMappedDevice(object):
+class TestMappedDevice:
     @patch('os.path.exists')
     def setup(self, mock_path):
         mock_path.return_value = True

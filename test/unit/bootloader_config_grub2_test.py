@@ -23,7 +23,7 @@ from kiwi.exceptions import (
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 
 
-class TestBootLoaderConfigGrub2(object):
+class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.FirmWare')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
     @patch('platform.machine')

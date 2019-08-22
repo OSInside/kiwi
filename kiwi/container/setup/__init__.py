@@ -24,7 +24,7 @@ from kiwi.exceptions import (
 )
 
 
-class ContainerSetup(object):
+class ContainerSetup:
     """
         container setup factory
     """

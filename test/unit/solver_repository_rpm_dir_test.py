@@ -9,7 +9,7 @@ from kiwi.solver.repository.base import SolverRepositoryBase
 from kiwi.exceptions import KiwiRpmDirNotRemoteError
 
 
-class TestSolverRepositoryRpmDir(object):
+class TestSolverRepositoryRpmDir:
     def setup(self):
         self.uri = mock.Mock()
         self.solver = SolverRepositoryRpmDir(self.uri)

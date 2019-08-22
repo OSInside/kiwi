@@ -6,7 +6,7 @@ from .test_helper import raises
 from kiwi.iso_tools.base import IsoToolsBase
 
 
-class TestIsoToolsBase(object):
+class TestIsoToolsBase:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

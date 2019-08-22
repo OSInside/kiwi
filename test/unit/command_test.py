@@ -14,7 +14,7 @@ from kiwi.exceptions import (
 from kiwi.command import Command
 
 
-class TestCommand(object):
+class TestCommand:
     @raises(KiwiCommandError)
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')

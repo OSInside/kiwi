@@ -10,7 +10,7 @@ from kiwi.exceptions import (
 )
 
 
-class TestOCI(object):
+class TestOCI:
     def setup(self):
         self.runtime_config = Mock()
         self.runtime_config.get_oci_archive_tool = Mock()

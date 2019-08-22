@@ -23,7 +23,7 @@ from .exceptions import (
 )
 
 
-class Privileges(object):
+class Privileges:
     """
     **Implements check for root privileges**
     """

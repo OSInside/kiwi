@@ -12,7 +12,7 @@ from kiwi.exceptions import (
 from kiwi.storage.subformat.ova import DiskFormatOva
 
 
-class TestDiskFormatOva(object):
+class TestDiskFormatOva:
     @patch('platform.machine')
     def setup(self, mock_machine):
         self.context_manager_mock = mock.Mock()

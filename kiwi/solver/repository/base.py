@@ -32,7 +32,7 @@ from kiwi.command import Command
 from kiwi.defaults import Defaults
 
 
-class SolverRepositoryBase(object):
+class SolverRepositoryBase:
     """
     **Base class interface for SAT solvable creation.**
 

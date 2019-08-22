@@ -9,7 +9,7 @@ from kiwi.system.root_import.oci import RootImportOCI
 from kiwi.exceptions import KiwiRootImportError
 
 
-class TestRootImportOCI(object):
+class TestRootImportOCI:
     @patch('os.path.exists')
     def setup(self, mock_path):
         mock_path.return_value = True

@@ -5,7 +5,7 @@ import mock
 from kiwi.filesystem.ext3 import FileSystemExt3
 
 
-class TestFileSystemExt3(object):
+class TestFileSystemExt3:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

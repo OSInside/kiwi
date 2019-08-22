@@ -9,7 +9,7 @@ from kiwi.package_manager import PackageManager
 from kiwi.exceptions import KiwiPackageManagerSetupError
 
 
-class TestPackageManager(object):
+class TestPackageManager:
     @raises(KiwiPackageManagerSetupError)
     def test_package_manager_not_implemented(self):
         PackageManager('repository', 'ms-manager')

@@ -17,7 +17,7 @@
 #
 
 
-class PackageManagerBase(object):
+class PackageManagerBase:
     """
     **Implements base class for installation/deletion of
     packages and collections using a package manager**

@@ -9,7 +9,7 @@ from kiwi.partitioner import Partitioner
 from kiwi.exceptions import KiwiPartitionerSetupError
 
 
-class TestPartitioner(object):
+class TestPartitioner:
     @patch('platform.machine')
     @raises(KiwiPartitionerSetupError)
     def test_partitioner_not_implemented(self, mock_machine):

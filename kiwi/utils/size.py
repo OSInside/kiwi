@@ -21,7 +21,7 @@ import math
 from kiwi.exceptions import KiwiSizeError
 
 
-class StringToSize(object):
+class StringToSize:
     """
     **Performs size convertions from strings to numbers**
     """

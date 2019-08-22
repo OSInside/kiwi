@@ -21,7 +21,7 @@ import os
 from kiwi.command import Command
 
 
-class BlockID(object):
+class BlockID:
     """
     **Get information from a block device**
 

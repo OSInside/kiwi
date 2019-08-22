@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.repository.apt import RepositoryApt
 
 
-class TestRepositoryApt(object):
+class TestRepositoryApt:
     @patch('kiwi.repository.apt.NamedTemporaryFile')
     @patch_open
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')

@@ -11,7 +11,7 @@ from kiwi.command_process import CommandIterator
 from builtins import bytes
 
 
-class TestCommandProcess(object):
+class TestCommandProcess:
     def fake_matcher(self, item, output):
         return True
 

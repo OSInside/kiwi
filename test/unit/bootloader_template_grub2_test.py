@@ -1,7 +1,7 @@
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 
 
-class TestBootLoaderTemplateGrub2(object):
+class TestBootLoaderTemplateGrub2:
     def setup(self):
         self.grub2 = BootLoaderTemplateGrub2()
 

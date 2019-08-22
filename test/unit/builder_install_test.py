@@ -13,7 +13,7 @@ from kiwi.exceptions import KiwiInstallBootImageError
 from kiwi.builder.install import InstallImageBuilder
 
 
-class TestInstallImageBuilder(object):
+class TestInstallImageBuilder:
     @patch('platform.machine')
     def setup(self, mock_machine):
         boot_names_type = namedtuple(

@@ -18,7 +18,7 @@
 import os
 
 
-class SysConfig(object):
+class SysConfig:
     """
     **Read and Write sysconfig style files**
 

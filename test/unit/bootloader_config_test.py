@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiBootLoaderConfigSetupError
 from kiwi.bootloader.config import BootLoaderConfig
 
 
-class TestBootLoaderConfig(object):
+class TestBootLoaderConfig:
     @raises(KiwiBootLoaderConfigSetupError)
     def test_bootloader_config_not_implemented(self):
         BootLoaderConfig('foo', mock.Mock(), 'root_dir')

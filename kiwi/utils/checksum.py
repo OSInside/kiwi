@@ -28,7 +28,7 @@ from kiwi.exceptions import (
 )
 
 
-class Checksum(object):
+class Checksum:
     """
     **Manage checksum creation for files**
 

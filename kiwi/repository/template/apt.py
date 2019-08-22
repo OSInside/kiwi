@@ -20,7 +20,7 @@ from string import Template
 from textwrap import dedent
 
 
-class PackageManagerTemplateAptGet(object):
+class PackageManagerTemplateAptGet:
     """
     apt-get configuration file template
     """

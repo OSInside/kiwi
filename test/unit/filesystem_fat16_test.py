@@ -5,7 +5,7 @@ import mock
 from kiwi.filesystem.fat16 import FileSystemFat16
 
 
-class TestFileSystemFat16(object):
+class TestFileSystemFat16:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

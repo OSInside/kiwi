@@ -24,7 +24,7 @@ from kiwi.exceptions import (
 )
 
 
-class BootImage(object):
+class BootImage:
     """
     **BootImge Factory**
 

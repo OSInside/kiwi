@@ -16,7 +16,7 @@ from kiwi.exceptions import (
 from kiwi.system.root_bind import RootBind
 
 
-class TestRootBind(object):
+class TestRootBind:
     def setup(self):
         root = mock.Mock()
         root.root_dir = 'root-dir'

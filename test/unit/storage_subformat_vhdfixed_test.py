@@ -14,7 +14,7 @@ from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
 from builtins import bytes
 
 
-class TestDiskFormatVhdFixed(object):
+class TestDiskFormatVhdFixed:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

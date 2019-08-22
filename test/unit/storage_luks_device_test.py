@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiLuksSetupError
 from kiwi.storage.luks_device import LuksDevice
 
 
-class TestLuksDevice(object):
+class TestLuksDevice:
     def setup(self):
         storage_device = Mock()
         storage_device.get_byte_size = Mock(

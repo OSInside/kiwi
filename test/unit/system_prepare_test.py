@@ -18,7 +18,7 @@ from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 
 
-class TestSystemPrepare(object):
+class TestSystemPrepare:
     @patch('kiwi.system.prepare.RootInit')
     @patch('kiwi.system.prepare.RootBind')
     @patch('kiwi.logger.log.get_logfile')

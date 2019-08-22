@@ -6,7 +6,7 @@ from kiwi.system.root_import import RootImport
 from kiwi.exceptions import KiwiRootImportError
 
 
-class TestRootImport(object):
+class TestRootImport:
     @patch('kiwi.system.root_import.RootImportOCI')
     def test_docker_import(self, mock_docker_import):
         RootImport('root_dir', 'file:///image.tar.xz', 'docker')

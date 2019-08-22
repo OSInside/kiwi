@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.storage.disk import Disk
 
 
-class TestDisk(object):
+class TestDisk:
     @patch('kiwi.storage.disk.Partitioner')
     @patch_open
     def setup(self, mock_open, mock_partitioner):

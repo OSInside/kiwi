@@ -23,7 +23,7 @@ from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
 from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 
-class SolverRepository(object):
+class SolverRepository:
     """
     **Repository factory for creation of SAT solvables**
 

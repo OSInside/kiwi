@@ -19,7 +19,7 @@ from string import Template
 from textwrap import dedent
 
 
-class BootLoaderTemplateZipl(object):
+class BootLoaderTemplateZipl:
     """
     **zipl configuraton file templates**
     """

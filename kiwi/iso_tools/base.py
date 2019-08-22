@@ -27,7 +27,7 @@ from kiwi.path import Path
 from kiwi.logger import log
 
 
-class IsoToolsBase(object):
+class IsoToolsBase:
     """
     **Base Class for Parameter API for iso creation tools**
 

@@ -1,7 +1,7 @@
 from kiwi.bootloader.template.isolinux import BootLoaderTemplateIsoLinux
 
 
-class TestBootLoaderTemplateIsoLinux(object):
+class TestBootLoaderTemplateIsoLinux:
     def setup(self):
         self.isolinux = BootLoaderTemplateIsoLinux()
 

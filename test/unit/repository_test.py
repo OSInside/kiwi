@@ -9,7 +9,7 @@ from kiwi.repository import Repository
 from kiwi.exceptions import KiwiRepositorySetupError
 
 
-class TestRepository(object):
+class TestRepository:
     @raises(KiwiRepositorySetupError)
     def test_repository_manager_not_implemented(self):
         Repository('root_bind', 'ms-manager')

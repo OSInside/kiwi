@@ -5,7 +5,7 @@ import mock
 from kiwi.filesystem.clicfs import FileSystemClicFs
 
 
-class TestFileSystemClicFs(object):
+class TestFileSystemClicFs:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

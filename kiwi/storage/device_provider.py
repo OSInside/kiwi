@@ -22,7 +22,7 @@ from kiwi.exceptions import (
 )
 
 
-class DeviceProvider(object):
+class DeviceProvider:
     """
     **Base class for any class providing storage devices**
     """

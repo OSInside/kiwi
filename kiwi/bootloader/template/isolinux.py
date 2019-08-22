@@ -19,7 +19,7 @@ from string import Template
 from textwrap import dedent
 
 
-class BootLoaderTemplateIsoLinux(object):
+class BootLoaderTemplateIsoLinux:
     """
     **isolinux configuraton file templates**
     """

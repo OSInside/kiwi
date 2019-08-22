@@ -7,7 +7,7 @@ from .test_helper import argv_kiwi_tests
 import kiwi.kiwi_compat
 
 
-class TestKiwiCompat(object):
+class TestKiwiCompat:
     def teardown(self):
         sys.argv = argv_kiwi_tests
 

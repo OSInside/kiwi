@@ -20,7 +20,7 @@ from kiwi.command import Command
 from kiwi.defaults import Defaults
 
 
-class SystemSize(object):
+class SystemSize:
     """
     **Provide source tree size information**
 

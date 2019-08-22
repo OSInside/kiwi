@@ -8,7 +8,7 @@ from .test_helper import argv_kiwi_tests
 from kiwi.tasks.system_update import SystemUpdateTask
 
 
-class TestSystemUpdateTask(object):
+class TestSystemUpdateTask:
     def setup(self):
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'update',

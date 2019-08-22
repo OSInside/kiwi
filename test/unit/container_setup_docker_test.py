@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.container.setup.docker import ContainerSetupDocker
 
 
-class TestContainerSetupDocker(object):
+class TestContainerSetupDocker:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

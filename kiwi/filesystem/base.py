@@ -28,7 +28,7 @@ from kiwi.exceptions import (
 )
 
 
-class FileSystemBase(object):
+class FileSystemBase:
     """
     **Implements base class for filesystem interface**
 

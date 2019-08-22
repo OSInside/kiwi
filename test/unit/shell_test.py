@@ -5,7 +5,7 @@ from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
 
 
-class TestShell(object):
+class TestShell:
     def test_quote(self):
         assert Shell.quote('aa\!') == 'aa\\\\\\!'
 

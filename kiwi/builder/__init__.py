@@ -29,7 +29,7 @@ from kiwi.exceptions import (
 )
 
 
-class ImageBuilder(object):
+class ImageBuilder:
     """
         image builder factory
     """

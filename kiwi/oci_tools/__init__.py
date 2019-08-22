@@ -25,7 +25,7 @@ from kiwi.exceptions import (
 )
 
 
-class OCI(object):
+class OCI:
     """
     **OCI Factory**
     """

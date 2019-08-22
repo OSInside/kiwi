@@ -26,7 +26,7 @@ from .exceptions import (
 )
 
 
-class FirmWare(object):
+class FirmWare:
     """
     **Implements firmware specific methods**
 

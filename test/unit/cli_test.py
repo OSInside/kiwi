@@ -14,7 +14,7 @@ from kiwi.exceptions import (
 )
 
 
-class TestCli(object):
+class TestCli:
     def setup(self):
         self.help_global_args = {
             'help': False,

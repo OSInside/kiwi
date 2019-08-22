@@ -21,7 +21,7 @@ from kiwi.iso_tools.xorriso import IsoToolsXorrIso
 from kiwi.runtime_config import RuntimeConfig
 
 
-class IsoTools(object):
+class IsoTools:
     """
     **IsoTools factory**
     """

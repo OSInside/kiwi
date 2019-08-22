@@ -10,7 +10,7 @@ from kiwi.xml_description import XMLDescription
 from kiwi.defaults import Defaults
 
 
-class TestDiskSetup(object):
+class TestDiskSetup:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

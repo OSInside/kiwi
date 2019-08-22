@@ -41,7 +41,7 @@ from kiwi.exceptions import (
 )
 
 
-class SystemPrepare(object):
+class SystemPrepare:
     """
     Implements preparation and installation of a new root system
 

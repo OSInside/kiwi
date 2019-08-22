@@ -10,7 +10,7 @@ from kiwi.repository.zypper import RepositoryZypper
 from kiwi.exceptions import KiwiCommandError
 
 
-class TestRepositoryZypper(object):
+class TestRepositoryZypper:
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.NamedTemporaryFile')
     @patch_open

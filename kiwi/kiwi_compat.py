@@ -51,7 +51,7 @@ from docopt import DocoptExit
 from .path import Path
 
 
-class Cli(object):
+class Cli:
     """
         Compatibility class for old style kiwi calls
     """
@@ -82,7 +82,7 @@ class Cli(object):
             )
 
 
-class Translate(object):
+class Translate:
     def __init__(self, arguments):
         self.arguments = arguments
 
@@ -210,7 +210,7 @@ class Translate(object):
         )
 
 
-class Command(object):
+class Command:
     @staticmethod
     def execute(arguments):
         os.execvp(Command.lookup_kiwi(), ['kiwi'] + arguments)

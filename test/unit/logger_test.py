@@ -18,7 +18,7 @@ from kiwi.logger import (
 from kiwi.exceptions import KiwiLogFileSetupFailed
 
 
-class TestLoggerSchedulerFilter(object):
+class TestLoggerSchedulerFilter:
     def setup(self):
         self.scheduler_filter = LoggerSchedulerFilter()
 
@@ -36,7 +36,7 @@ class TestLoggerSchedulerFilter(object):
             assert self.scheduler_filter.filter(record) is False
 
 
-class TestColorFormatter(object):
+class TestColorFormatter:
     def setup(self):
         self.color_formatter = ColorFormatter('%(levelname)s: %(message)s')
 
@@ -52,7 +52,7 @@ class TestColorFormatter(object):
         assert 'message' in self.color_formatter.format(record)
 
 
-class TestInfoFilter(object):
+class TestInfoFilter:
     def setup(self):
         self.info_filter = InfoFilter()
 
@@ -65,7 +65,7 @@ class TestInfoFilter(object):
         assert self.info_filter.filter(record) is True
 
 
-class TestDebugFilter(object):
+class TestDebugFilter:
     def setup(self):
         self.debug_filter = DebugFilter()
 
@@ -78,7 +78,7 @@ class TestDebugFilter(object):
         assert self.debug_filter.filter(record) is True
 
 
-class TestErrorFilter(object):
+class TestErrorFilter:
     def setup(self):
         self.error_filter = ErrorFilter()
 
@@ -91,7 +91,7 @@ class TestErrorFilter(object):
         assert self.error_filter.filter(record) is True
 
 
-class TestWarningFilter(object):
+class TestWarningFilter:
     def setup(self):
         self.error_filter = WarningFilter()
 
@@ -104,7 +104,7 @@ class TestWarningFilter(object):
         assert self.error_filter.filter(record) is True
 
 
-class TestLogger(object):
+class TestLogger:
     @patch('sys.stdout')
     def test_progress(self, mock_stdout):
         log.progress(50, 100, 'foo')

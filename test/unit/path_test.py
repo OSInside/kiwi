@@ -7,7 +7,7 @@ from kiwi.path import Path
 from kiwi.exceptions import KiwiFileAccessError
 
 
-class TestPath(object):
+class TestPath:
     def test_sort_by_hierarchy(self):
         ordered = Path.sort_by_hierarchy(
             ['usr', 'usr/bin', 'etc', 'usr/lib']

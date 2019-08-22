@@ -29,7 +29,7 @@ from kiwi.exceptions import (
 )
 
 
-class Compress(object):
+class Compress:
     """
     **File compression / decompression**
 

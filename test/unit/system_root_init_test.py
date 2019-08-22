@@ -12,7 +12,7 @@ from kiwi.exceptions import (
 from kiwi.system.root_init import RootInit
 
 
-class TestRootInit(object):
+class TestRootInit:
     @raises(KiwiRootDirExists)
     @patch('os.path.exists')
     def test_init_raises_error(self, mock_path):

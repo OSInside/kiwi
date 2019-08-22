@@ -12,7 +12,7 @@ from kiwi.tasks.result_bundle import ResultBundleTask
 from kiwi.system.result import Result
 
 
-class TestResultBundleTask(object):
+class TestResultBundleTask:
     def setup(self):
         sys.argv = [
             sys.argv[0], 'result', 'bundle', '--target-dir', 'target_dir',

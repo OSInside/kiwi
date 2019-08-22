@@ -3,7 +3,7 @@ from mock import patch
 from kiwi.archive.cpio import ArchiveCpio
 
 
-class TestArchiveCpio(object):
+class TestArchiveCpio:
     def setup(self):
         self.archive = ArchiveCpio('foo.cpio')
 

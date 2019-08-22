@@ -7,7 +7,7 @@ from kiwi.exceptions import KiwiContainerImageSetupError
 from kiwi.container import ContainerImage
 
 
-class TestContainerImage(object):
+class TestContainerImage:
     @raises(KiwiContainerImageSetupError)
     def test_container_image_not_implemented(self):
         ContainerImage('foo', 'root_dir')

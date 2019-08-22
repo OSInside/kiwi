@@ -5,7 +5,7 @@ from mock import patch
 from kiwi.utils.sync import DataSync
 
 
-class TestDataSync(object):
+class TestDataSync:
     def setup(self):
         self.sync = DataSync('source_dir', 'target_dir')
 

@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiDiskFormatSetupError
 from kiwi.storage.subformat import DiskFormat
 
 
-class TestDiskFormat(object):
+class TestDiskFormat:
     def setup(self):
         self.xml_state = mock.Mock()
         self.xml_state.get_build_type_format_options.return_value = {}

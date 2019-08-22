@@ -12,7 +12,7 @@ from kiwi.exceptions import (
 from collections import namedtuple
 
 
-class TestXMLState(object):
+class TestXMLState:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

@@ -14,7 +14,7 @@ from kiwi.xml_state import XMLState
 from kiwi.exceptions import KiwiConfigFileNotFound
 
 
-class TestBootImageKiwi(object):
+class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
     @patch('platform.machine')

@@ -3,7 +3,7 @@ from mock import patch
 from kiwi.utils.block import BlockID
 
 
-class TestBlockID(object):
+class TestBlockID:
     def setup(self):
         self.blkid = BlockID('device')
 

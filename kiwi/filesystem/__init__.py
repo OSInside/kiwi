@@ -31,7 +31,7 @@ from ..exceptions import (
 )
 
 
-class FileSystem(object):
+class FileSystem:
     """
     **FileSystem factory**
 

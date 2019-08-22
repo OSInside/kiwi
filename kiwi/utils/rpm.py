@@ -24,7 +24,7 @@ from kiwi.defaults import Defaults
 from kiwi.path import Path
 
 
-class Rpm(object):
+class Rpm:
     """
     **Helper methods to handle the rpm database configuration**
     """

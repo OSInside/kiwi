@@ -12,7 +12,7 @@ from kiwi.tasks.image_info import ImageInfoTask
 from collections import namedtuple
 
 
-class TestImageInfoTask(object):
+class TestImageInfoTask:
     def setup(self):
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'image', 'info',

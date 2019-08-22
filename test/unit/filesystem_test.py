@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiFileSystemSetupError
 from kiwi.filesystem import FileSystem
 
 
-class TestFileSystem(object):
+class TestFileSystem:
     @raises(KiwiFileSystemSetupError)
     def test_filesystem_not_implemented(self):
         FileSystem('foo', mock.Mock(), 'root_dir')

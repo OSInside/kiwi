@@ -16,7 +16,7 @@ from kiwi.exceptions import (
 from kiwi.tasks.image_resize import ImageResizeTask
 
 
-class TestImageResizeTask(object):
+class TestImageResizeTask:
     def setup(self):
         sys.argv = [
             sys.argv[0], '--type', 'vmx', 'image', 'resize',

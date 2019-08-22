@@ -13,7 +13,7 @@ from kiwi.xml_state import XMLState
 from kiwi.exceptions import KiwiDiskBootImageError
 
 
-class TestBootImageKiwi(object):
+class TestBootImageKiwi:
     @patch('kiwi.boot.image.base.os.path.exists')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):

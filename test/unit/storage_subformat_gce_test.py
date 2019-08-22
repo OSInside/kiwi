@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.storage.subformat.gce import DiskFormatGce
 
 
-class TestDiskFormatGce(object):
+class TestDiskFormatGce:
     def setup(self):
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(

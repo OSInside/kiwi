@@ -7,7 +7,7 @@ from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
 from kiwi.exceptions import KiwiIsoToolError
 
 
-class TestIsoToolsCdrTools(object):
+class TestIsoToolsCdrTools:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

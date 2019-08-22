@@ -46,7 +46,7 @@ from kiwi.exceptions import (
 )
 
 
-class LiveImageBuilder(object):
+class LiveImageBuilder:
     """
     **Live image builder**
 

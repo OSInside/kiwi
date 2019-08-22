@@ -17,7 +17,7 @@
 #
 
 
-class RepositoryBase(object):
+class RepositoryBase:
     """
     Implements base class for package manager repository handling
 

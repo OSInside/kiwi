@@ -25,7 +25,7 @@ from kiwi.exceptions import (
 )
 
 
-class Repository(object):
+class Repository:
     """
     **Repository factory**
 

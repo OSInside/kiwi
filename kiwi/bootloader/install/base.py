@@ -17,7 +17,7 @@
 #
 
 
-class BootLoaderInstallBase(object):
+class BootLoaderInstallBase:
     """
     **Base class for bootloader installation on device**
 

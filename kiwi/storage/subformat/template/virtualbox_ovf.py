@@ -19,7 +19,7 @@
 from string import Template
 
 
-class VirtualboxOvfTemplate(object):
+class VirtualboxOvfTemplate:
     """
     **Generate a OVF file template for a vagrant virtualbox box**
 
