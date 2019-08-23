@@ -462,8 +462,6 @@ class TestDiskBuilder:
         assert mock_open.call_args_list == [
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
-            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
-            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
             call('boot_dir/config.bootoptions', 'w'),
             call('/dev/some-loop', 'wb')
         ]
@@ -471,13 +469,6 @@ class TestDiskBuilder:
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n'),
-            # before dracut is called, image dracut setup
-            call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
-            call('omit_dracutmodules+=" kiwi-live kiwi-dump multipath kiwi-overlay "\n'),
-            # after dracut was called, system dracut setup
-            call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-repart kiwi-overlay "\n'),
             call('boot_cmdline\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f'))
         ]
@@ -495,6 +486,11 @@ class TestDiskBuilder:
             call('/config.partids'),
             call('/recovery.partition.size')
         ]
+        self.boot_image_task.include_module.assert_called_once_with(
+            'kiwi-repart'
+        )
+        self.boot_image_task.omit_module.assert_called_once_with('multipath')
+        assert self.boot_image_task.write_system_config_file.call_args_list == []
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
@@ -543,17 +539,16 @@ class TestDiskBuilder:
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
             call('0x0f0f0f0f\n'),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n'),
-            # before dracut is called, image dracut setup
-            call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
-            call('omit_dracutmodules+=" kiwi-live kiwi-dump multipath "\n'),
-            # after dracut was called, system dracut setup
-            call('add_dracutmodules+=" kiwi-overlay "\n'),
-            call('omit_dracutmodules+=" kiwi-live kiwi-dump kiwi-repart "\n'),
             call('boot_cmdline\n'),
             call(b'\x0f\x0f\x0f\x0f')
         ]
+        assert self.boot_image_task.include_module.call_args_list == [
+            call('kiwi-overlay'), call('kiwi-repart')
+        ]
+        self.boot_image_task.omit_module.assert_called_once_with('multipath')
+        self.boot_image_task.write_system_config_file.assert_called_once_with(
+            config={'modules': ['kiwi-overlay']}
+        )
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

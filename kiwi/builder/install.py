@@ -358,7 +358,13 @@ class InstallImageBuilder:
                     self.boot_image_task.boot_root_directory
                 )
         if self.initrd_system == 'dracut':
-            self._create_dracut_install_config()
+            self.boot_image_task.include_module(
+                'kiwi-dump', install_media=True
+            )
+            if self.root_filesystem_is_multipath is False:
+                self.boot_image_task.omit_module(
+                    'multipath', install_media=True
+                )
             self._add_system_image_boot_options_to_boot_image()
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
@@ -392,7 +398,13 @@ class InstallImageBuilder:
                     self.boot_image_task.boot_root_directory
                 )
         if self.initrd_system == 'dracut':
-            self._create_dracut_install_config()
+            self.boot_image_task.include_module(
+                'kiwi-dump', install_media=True
+            )
+            if self.root_filesystem_is_multipath is False:
+                self.boot_image_task.omit_module(
+                    'multipath', install_media=True
+                )
             self._add_system_image_boot_options_to_boot_image()
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
@@ -433,33 +445,8 @@ class InstallImageBuilder:
         with open(initrd_trigger, 'w') as vmx_system:
             vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
-    def _create_dracut_install_config(self):
-        dracut_config = [
-            'hostonly="no"',
-            'dracut_rescue_image="no"'
-        ]
-        dracut_modules = ['kiwi-lib', 'kiwi-dump']
-        dracut_modules_omit = ['kiwi-overlay', 'kiwi-live', 'kiwi-repart']
-        if self.root_filesystem_is_multipath is False:
-            dracut_modules_omit.append('multipath')
-        dracut_config.append(
-            'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
-        )
-        dracut_config.append(
-            'omit_dracutmodules+=" {0} "'.format(' '.join(dracut_modules_omit))
-        )
-        with open(self.dracut_config_file, 'w') as config:
-            for entry in dracut_config:
-                config.write(entry + os.linesep)
-
-    def _delete_dracut_install_config(self):
-        if os.path.exists(self.dracut_config_file):
-            os.remove(self.dracut_config_file)
-
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
-        if self.initrd_system == 'dracut':
-            self._delete_dracut_install_config()
         if self.media_dir:
             Path.wipe(self.media_dir)
         if self.pxe_dir:

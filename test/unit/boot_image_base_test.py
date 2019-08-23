@@ -116,3 +116,8 @@ class TestBootImageBase:
     @raises(NotImplementedError)
     def test_get_boot_names(self):
         self.boot_image.get_boot_names()
+
+    def test_noop_methods(self):
+        self.boot_image.include_module('module')
+        self.boot_image.omit_module('module')
+        self.boot_image.write_system_config_file({'config_key': 'value'})

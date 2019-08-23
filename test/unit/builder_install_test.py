@@ -213,22 +213,21 @@ class TestInstallImageBuilder:
 
         self.install_image.create_install_iso()
 
+        self.boot_image_task.include_module.assert_called_once_with(
+            'kiwi-dump', install_media=True
+        )
+        self.boot_image_task.omit_module.assert_called_once_with(
+            'multipath', install_media=True
+        )
+
         self.boot_image_task.include_file.assert_called_once_with(
             '/config.bootoptions', install_media=True
         )
         assert mock_open.call_args_list == [
             call('temp_media_dir/config.isoclient', 'w'),
-            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w')
         ]
         assert file_mock.write.call_args_list == [
-            call('IMAGE="result-image.raw"\n'),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n'),
-            call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call(
-                'omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart '
-                'multipath "\n'
-            )
+            call('IMAGE="result-image.raw"\n')
         ]
 
         mock_BootLoaderConfig.reset_mock()
@@ -392,7 +391,6 @@ class TestInstallImageBuilder:
         ]
         assert mock_open.call_args_list == [
             call('tmpdir/result-image.append', 'w'),
-            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call(
@@ -401,26 +399,25 @@ class TestInstallImageBuilder:
                     'rd.kiwi.install.image=http://example.com/image.xz',
                     'custom_kernel_options\n'
                 ])
-            ),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n'),
-            call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call('omit_dracutmodules+=" kiwi-overlay kiwi-live kiwi-repart multipath "\n')
+            )
         ]
+
+        self.boot_image_task.include_module.assert_called_once_with(
+            'kiwi-dump', install_media=True
+        )
+        self.boot_image_task.omit_module.assert_called_once_with(
+            'multipath', install_media=True
+        )
 
     @patch('kiwi.builder.install.Path.wipe')
     @patch('os.path.exists')
-    @patch('os.remove')
-    def test_destructor(self, mock_remove, mock_exists, mock_wipe):
+    def test_destructor(self, mock_exists, mock_wipe):
         mock_exists.return_value = True
         self.install_image.initrd_system = 'dracut'
         self.install_image.pxe_dir = 'pxe-dir'
         self.install_image.media_dir = 'media-dir'
         self.install_image.squashed_contents = 'squashed-dir'
         self.install_image.__del__()
-        mock_remove.assert_called_once_with(
-            'root_dir/etc/dracut.conf.d/02-kiwi.conf'
-        )
         assert mock_wipe.call_args_list == [
             call('media-dir'), call('pxe-dir'), call('squashed-dir')
         ]

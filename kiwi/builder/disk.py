@@ -373,14 +373,18 @@ class DiskBuilder:
         self._write_generic_fstab_to_system_image(device_map)
 
         if self.initrd_system == 'dracut':
-            self._create_dracut_config()
+            if self.root_filesystem_is_multipath is False:
+                self.boot_image.omit_module('multipath')
+            if self.root_filesystem_is_overlay:
+                self.boot_image.include_module('kiwi-overlay')
+                self.boot_image.write_system_config_file(
+                    config={'modules': ['kiwi-overlay']}
+                )
+            if self.build_type_name == 'oem':
+                self.boot_image.include_module('kiwi-repart')
 
         # create initrd cpio archive
         self.boot_image.create_initrd(self.mbrid)
-
-        # create dracut config omitting one time kiwi dracut modules
-        if self.initrd_system == 'dracut':
-            self._create_system_dracut_config()
 
         # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
@@ -768,55 +772,6 @@ class DiskBuilder:
         self.disk.map_partitions()
 
         return self.disk.get_device()
-
-    def _create_dracut_config(self):
-        dracut_config = [
-            'hostonly="no"',
-            'dracut_rescue_image="no"'
-        ]
-        dracut_modules = []
-        dracut_modules_omit = ['kiwi-live', 'kiwi-dump']
-        if self.root_filesystem_is_multipath is False:
-            dracut_modules_omit.append('multipath')
-        if self.root_filesystem_is_overlay:
-            dracut_modules.append('kiwi-overlay')
-        else:
-            dracut_modules_omit.append('kiwi-overlay')
-        if self.build_type_name == 'oem':
-            dracut_modules.append('kiwi-lib')
-            dracut_modules.append('kiwi-repart')
-        self._write_dracut_config(
-            config=dracut_config,
-            modules=dracut_modules,
-            omit_modules=dracut_modules_omit
-        )
-
-    def _create_system_dracut_config(self):
-        dracut_modules = []
-        dracut_modules_omit = ['kiwi-live', 'kiwi-dump', 'kiwi-repart']
-        if self.root_filesystem_is_overlay:
-            dracut_modules.append('kiwi-overlay')
-        else:
-            dracut_modules_omit.append('kiwi-overlay')
-        self._write_dracut_config(
-            config=[], modules=dracut_modules, omit_modules=dracut_modules_omit
-        )
-
-    def _write_dracut_config(self, config, modules, omit_modules):
-        dracut_config_file = ''.join(
-            [self.root_dir, Defaults.get_dracut_conf_name()]
-        )
-        if modules:
-            config.append(
-                'add_dracutmodules+=" {0} "'.format(' '.join(modules))
-            )
-        if omit_modules:
-            config.append(
-                'omit_dracutmodules+=" {0} "'.format(' '.join(omit_modules))
-            )
-        with open(dracut_config_file, 'w') as dracut_config:
-            for entry in config:
-                dracut_config.write(entry + os.linesep)
 
     def _write_partition_id_config_to_boot_image(self):
         log.info('Creating config.partids in boot system')
