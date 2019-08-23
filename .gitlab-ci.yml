@@ -15,6 +15,7 @@ variables:
 
 .install_and_build_src_package: &install_and_build_system_src_package
   before_script:
+    - groupadd -f -g 135 -r mock # workaround RHBZ#1740545
     - >
       dnf install -y --refresh
       mock gzip tar git python3 python3-dateutil python3-docopt
@@ -25,7 +26,7 @@ variables:
     - rm dist/python-kiwi.changes
     - >
       mock
-      --old-chroot -r /etc/mock/fedora-29-x86_64.cfg
+      --old-chroot -r /etc/mock/fedora-30-x86_64.cfg
       --buildsrpm --sources ./dist
       --spec ./python-kiwi.spec 2>&1 | tee srpm_build_out
     - "export SRC_RPM=$(ls $(grep 'INFO: Results ' srpm_build_out | awk -F ':' '{print $3}')/*.src.rpm)"
@@ -74,14 +75,14 @@ build_doc:
       - .tox/
       - doc/build/
 
-rpm_fedora_29:
+rpm_fedora_30:
   stage: package
   <<: *install_and_build_system_src_package
   script:
     - >
       mock
       --old-chroot
-      -r /etc/mock/fedora-29-x86_64.cfg $(basename $SRC_RPM)
+      -r /etc/mock/fedora-30-x86_64.cfg $(basename $SRC_RPM)
   dependencies:
     - build_doc
 
