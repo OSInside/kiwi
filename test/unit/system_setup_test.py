@@ -703,12 +703,14 @@ class TestSystemSetup:
             call('fstab_entry\n'),
             call('append_entry')
         ]
-        mock_command.assert_called_once_with(
-            ['patch', 'root_dir/etc/fstab', 'root_dir/etc/fstab.patch']
-        )
+        assert mock_command.call_args_list == [
+            call(['patch', 'root_dir/etc/fstab', 'root_dir/etc/fstab.patch']),
+            call(['chroot', 'root_dir', '/etc/fstab.script'])
+        ]
         assert mock_wipe.call_args_list == [
             call('root_dir/etc/fstab.append'),
-            call('root_dir/etc/fstab.patch')
+            call('root_dir/etc/fstab.patch'),
+            call('root_dir/etc/fstab.script')
         ]
 
     @patch('kiwi.command.Command.run')
