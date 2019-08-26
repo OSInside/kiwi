@@ -10,7 +10,7 @@ from .test_helper import argv_kiwi_tests
 from kiwi.tasks.result_list import ResultListTask
 
 
-class TestResultListTask(object):
+class TestResultListTask:
     def setup(self):
         sys.argv = [
             sys.argv[0], 'result', 'list', '--target-dir', 'directory'

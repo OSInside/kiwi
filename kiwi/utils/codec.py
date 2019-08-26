@@ -20,7 +20,7 @@ from kiwi.logger import log
 from kiwi.exceptions import KiwiDecodingError
 
 
-class Codec(object):
+class Codec:
     """
     **Performs conversions of literal byte sequences to strings**
     """

@@ -11,7 +11,7 @@ from kiwi.exceptions import KiwiKernelLookupError
 from kiwi.system.kernel import Kernel
 
 
-class TestKernel(object):
+class TestKernel:
     @patch('os.listdir')
     def setup(self, mock_listdir):
         mock_listdir.return_value = ['1.2.3-default']

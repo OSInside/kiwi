@@ -26,7 +26,7 @@ from kiwi.exceptions import (
 )
 
 
-class RootImportBase(object):
+class RootImportBase:
     """
     Imports the root system from an already packed image.
 

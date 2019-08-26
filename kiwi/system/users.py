@@ -18,7 +18,7 @@
 from kiwi.command import Command
 
 
-class Users(object):
+class Users:
     """
     **Operations on users and groups in a root directory**
 

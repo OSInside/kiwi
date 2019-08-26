@@ -3,7 +3,7 @@ from kiwi.storage.subformat.template.vmware_settings import (
 )
 
 
-class TestVmwareSettingsTempla(object):
+class TestVmwareSettingsTempla:
     def setup(self):
         self.vmware = VmwareSettingsTemplate()
 

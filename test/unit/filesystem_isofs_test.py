@@ -6,7 +6,7 @@ import mock
 from kiwi.filesystem.isofs import FileSystemIsoFs
 
 
-class TestFileSystemIsoFs(object):
+class TestFileSystemIsoFs:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

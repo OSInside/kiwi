@@ -30,7 +30,7 @@ from kiwi.exceptions import (
 )
 
 
-class Sat(object):
+class Sat:
     """
     **Sat Solver class to run package solver operations**
 

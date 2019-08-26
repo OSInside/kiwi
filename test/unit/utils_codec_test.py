@@ -6,7 +6,7 @@ from kiwi.utils.codec import Codec
 from kiwi.exceptions import KiwiDecodingError
 
 
-class TestCodec(object):
+class TestCodec:
 
     def setup(self):
         self.literal = bytes(b'\xc3\xbc')

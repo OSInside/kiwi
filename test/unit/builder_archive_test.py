@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiArchiveSetupError
 from kiwi.builder.archive import ArchiveBuilder
 
 
-class TestArchiveBuilder(object):
+class TestArchiveBuilder:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

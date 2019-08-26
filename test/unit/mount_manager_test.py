@@ -5,7 +5,7 @@ import mock
 from kiwi.mount_manager import MountManager
 
 
-class TestMountManager(object):
+class TestMountManager:
     def setup(self):
         self.mount_manager = MountManager(
             '/dev/some-device', '/some/mountpoint'

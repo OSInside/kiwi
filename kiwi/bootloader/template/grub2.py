@@ -20,7 +20,7 @@ from string import Template
 from textwrap import dedent
 
 
-class BootLoaderTemplateGrub2(object):
+class BootLoaderTemplateGrub2:
     """
     **grub2 configuraton file templates**
     """

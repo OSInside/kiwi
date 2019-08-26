@@ -26,7 +26,7 @@ from .exceptions import (
 )
 
 
-class CommandProcess(object):
+class CommandProcess:
     """
     **Implements processing of non blocking Command calls**
 
@@ -147,7 +147,7 @@ class CommandProcess(object):
             self.command.kill()
 
 
-class CommandIterator(object):
+class CommandIterator:
     """
     **Implements an Iterator for Instances of Command**
 

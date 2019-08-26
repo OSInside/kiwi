@@ -16,7 +16,7 @@ from kiwi.exceptions import (
 from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 
 
-class TestVolumeManagerBtrfs(object):
+class TestVolumeManagerBtrfs:
     @patch('os.path.exists')
     def setup(self, mock_path):
         self.context_manager_mock = mock.Mock()

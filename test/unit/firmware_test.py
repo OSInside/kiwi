@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiNotImplementedError
 from kiwi.firmware import FirmWare
 
 
-class TestFirmWare(object):
+class TestFirmWare:
     @patch('platform.machine')
     def setup(self, mock_platform):
         mock_platform.return_value = 'x86_64'

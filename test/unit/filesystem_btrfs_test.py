@@ -5,7 +5,7 @@ import mock
 from kiwi.filesystem.btrfs import FileSystemBtrfs
 
 
-class TestFileSystemBtrfs(object):
+class TestFileSystemBtrfs:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

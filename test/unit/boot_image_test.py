@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiBootImageSetupError
 from kiwi.boot.image import BootImage
 
 
-class TestBootImage(object):
+class TestBootImage:
     def setup(self):
         self.xml_state = mock.Mock()
         self.xml_state.get_initrd_system = mock.Mock(

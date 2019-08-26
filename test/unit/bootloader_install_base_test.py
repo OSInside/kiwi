@@ -5,7 +5,7 @@ from .test_helper import raises
 from kiwi.bootloader.install.base import BootLoaderInstallBase
 
 
-class TestBootLoaderInstallBase(object):
+class TestBootLoaderInstallBase:
     def setup(self):
         self.bootloader = BootLoaderInstallBase(
             'root_dir', mock.Mock()

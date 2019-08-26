@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiBootLoaderInstallSetupError
 from kiwi.bootloader.install import BootLoaderInstall
 
 
-class TestBootLoaderInstall(object):
+class TestBootLoaderInstall:
     @raises(KiwiBootLoaderInstallSetupError)
     def test_bootloader_install_not_implemented(self):
         BootLoaderInstall('foo', 'root_dir', mock.Mock())

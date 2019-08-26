@@ -7,7 +7,7 @@ from kiwi.exceptions import KiwiLoopSetupError
 from kiwi.storage.loop_device import LoopDevice
 
 
-class TestLoopDevice(object):
+class TestLoopDevice:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = False

@@ -32,7 +32,7 @@ from kiwi.exceptions import (
 )
 
 
-class DiskFormatBase(object):
+class DiskFormatBase:
     """
     **Base class to create disk formats from a raw disk image**
 

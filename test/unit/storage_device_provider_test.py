@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiDeviceProviderError
 from kiwi.storage.device_provider import DeviceProvider
 
 
-class TestDeviceProvider(object):
+class TestDeviceProvider:
     def setup(self):
         self.provider = DeviceProvider()
 

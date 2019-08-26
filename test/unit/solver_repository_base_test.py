@@ -10,7 +10,7 @@ from kiwi.solver.repository.base import SolverRepositoryBase
 from kiwi.exceptions import KiwiUriOpenError
 
 
-class TestSolverRepositoryBase(object):
+class TestSolverRepositoryBase:
     def setup(self):
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()

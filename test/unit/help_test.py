@@ -7,7 +7,7 @@ from kiwi.help import Help
 from kiwi.exceptions import KiwiHelpNoCommandGiven
 
 
-class TestHelp(object):
+class TestHelp:
     def setup(self):
         self.help = Help()
 

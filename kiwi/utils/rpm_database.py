@@ -24,7 +24,7 @@ from kiwi.path import Path
 from kiwi.utils.rpm import Rpm
 
 
-class RpmDataBase(object):
+class RpmDataBase:
     """
     **Setup RPM database configuration**
     """

@@ -23,7 +23,7 @@ from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
 
 
-class Profile(object):
+class Profile:
     """
     **Create bash readable .profile environment from the XML
     description**

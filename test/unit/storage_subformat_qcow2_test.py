@@ -5,7 +5,7 @@ import mock
 from kiwi.storage.subformat.qcow2 import DiskFormatQcow2
 
 
-class TestDiskFormatQcow2(object):
+class TestDiskFormatQcow2:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

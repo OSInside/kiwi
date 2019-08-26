@@ -10,7 +10,7 @@ from kiwi.builder.container import ContainerBuilder
 from kiwi.exceptions import KiwiContainerBuilderError
 
 
-class TestContainerBuilder(object):
+class TestContainerBuilder:
     @patch('platform.machine')
     @patch('os.path.exists')
     def setup(self, mock_exists, mock_machine):

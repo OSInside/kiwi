@@ -12,7 +12,7 @@ from kiwi.volume_manager.lvm import VolumeManagerLVM
 from kiwi.defaults import Defaults
 
 
-class TestVolumeManagerLVM(object):
+class TestVolumeManagerLVM:
     @patch('os.path.exists')
     def setup(self, mock_path):
         self.volume_type = namedtuple(

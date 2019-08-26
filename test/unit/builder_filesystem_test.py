@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiFileSystemSetupError
 from kiwi.builder.filesystem import FileSystemBuilder
 
 
-class TestFileSystemBuilder(object):
+class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.FileSystemSetup')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_fs_setup):

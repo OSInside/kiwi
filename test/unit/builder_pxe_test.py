@@ -12,7 +12,7 @@ from kiwi.exceptions import KiwiPxeBootImageError
 from kiwi.builder.pxe import PxeBuilder
 
 
-class TestPxeBuilder(object):
+class TestPxeBuilder:
     @patch('kiwi.builder.pxe.FileSystemBuilder')
     @patch('kiwi.builder.pxe.BootImage')
     def setup(self, mock_boot, mock_filesystem):

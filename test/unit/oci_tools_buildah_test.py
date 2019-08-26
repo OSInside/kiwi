@@ -8,7 +8,7 @@ from kiwi.oci_tools.buildah import OCIBuildah
 from kiwi.exceptions import KiwiBuildahError
 
 
-class TestOCIBuildah(object):
+class TestOCIBuildah:
     @patch('kiwi.oci_tools.base.datetime')
     def setup(self, mock_datetime):
         strftime = Mock()

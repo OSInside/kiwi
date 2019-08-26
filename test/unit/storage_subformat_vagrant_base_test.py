@@ -13,7 +13,7 @@ from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
 from textwrap import dedent
 
 
-class TestDiskFormatVagrantBase(object):
+class TestDiskFormatVagrantBase:
     def setup(self):
         xml_data = Mock()
         xml_data.get_name = Mock(

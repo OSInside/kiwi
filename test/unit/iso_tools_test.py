@@ -4,7 +4,7 @@ import mock
 from kiwi.iso_tools import IsoTools
 
 
-class TestIsoTools(object):
+class TestIsoTools:
     def setup(self):
         self.runtime_config = mock.Mock()
         self.runtime_config.get_iso_tool_category = mock.Mock()

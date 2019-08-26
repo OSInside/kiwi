@@ -23,7 +23,7 @@ from kiwi.exceptions import (
 )
 
 
-class ContainerImage(object):
+class ContainerImage:
     """
     **Container Image factory**
 

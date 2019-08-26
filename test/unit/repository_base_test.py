@@ -5,7 +5,7 @@ from .test_helper import raises
 from kiwi.repository.base import RepositoryBase
 
 
-class TestRepositoryBase(object):
+class TestRepositoryBase:
     def setup(self):
         root_bind = mock.Mock()
         self.repo = RepositoryBase(root_bind)

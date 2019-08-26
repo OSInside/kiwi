@@ -23,7 +23,7 @@ from kiwi.logger import log
 from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 
-class CommandCapabilities(object):
+class CommandCapabilities:
     """
     **Validation of command version flags or version**
 

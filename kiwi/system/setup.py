@@ -47,7 +47,7 @@ from kiwi.exceptions import (
 )
 
 
-class SystemSetup(object):
+class SystemSetup:
     """
     **Implementation of system setup steps supported by kiwi**
 

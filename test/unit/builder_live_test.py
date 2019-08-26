@@ -10,7 +10,7 @@ from kiwi.exceptions import KiwiLiveBootImageError
 from kiwi.builder.live import LiveImageBuilder
 
 
-class TestLiveImageBuilder(object):
+class TestLiveImageBuilder:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

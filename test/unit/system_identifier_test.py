@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.system.identifier import SystemIdentifier
 
 
-class TestSystemIdentifier(object):
+class TestSystemIdentifier:
     def setup(self):
         self.identifier = SystemIdentifier()
 

@@ -24,7 +24,7 @@ from kiwi.path import Path
 from kiwi.logger import log
 
 
-class DataOutput(object):
+class DataOutput:
     """
     **Converts dict or list variables to a print friendly json format**
 

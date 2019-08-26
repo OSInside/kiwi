@@ -25,7 +25,7 @@ from kiwi.exceptions import (
 )
 
 
-class BootLoaderConfig(object):
+class BootLoaderConfig:
     """
     **BootLoaderConfig factory**
 

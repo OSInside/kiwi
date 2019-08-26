@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiRaidSetupError
 from kiwi.storage.raid_device import RaidDevice
 
 
-class TestRaidDevice(object):
+class TestRaidDevice:
     def setup(self):
         storage_device = mock.Mock()
         storage_device.get_device = mock.Mock(

@@ -25,7 +25,7 @@ from kiwi.exceptions import (
 )
 
 
-class PackageManager(object):
+class PackageManager:
     """
     **Package manager factory**
 

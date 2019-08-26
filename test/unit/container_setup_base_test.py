@@ -8,7 +8,7 @@ from kiwi.exceptions import KiwiContainerSetupError
 from kiwi.container.setup.base import ContainerSetupBase
 
 
-class TestContainerSetupBase(object):
+class TestContainerSetupBase:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

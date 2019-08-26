@@ -35,7 +35,7 @@ from kiwi.exceptions import (
 )
 
 
-class Uri(object):
+class Uri:
     """
     **Normalize url types available in a kiwi configuration into
     standard mime types**

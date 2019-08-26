@@ -24,7 +24,7 @@ from kiwi.command import Command
 from kiwi.exceptions import KiwiKernelLookupError
 
 
-class Kernel(object):
+class Kernel:
     """
     **Implementes kernel lookup and extraction from given root tree**
 

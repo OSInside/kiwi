@@ -33,7 +33,7 @@ from kiwi.exceptions import (
 )
 
 
-class BootImageBase(object):
+class BootImageBase:
     """
     **Base class for boot image(initrd) task**
 

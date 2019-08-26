@@ -16,7 +16,7 @@ from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
 from kiwi.defaults import Defaults
 
 
-class TestBootLoaderInstallGrub2(object):
+class TestBootLoaderInstallGrub2:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

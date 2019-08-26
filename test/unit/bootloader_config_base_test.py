@@ -10,7 +10,7 @@ from kiwi.exceptions import KiwiBootLoaderTargetError
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 
 
-class TestBootLoaderConfigBase(object):
+class TestBootLoaderConfigBase:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

@@ -8,7 +8,7 @@ from kiwi.solver.repository import SolverRepository
 from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 
-class TestSolverRepository(object):
+class TestSolverRepository:
     def setup(self):
         self.uri = mock.Mock()
         self.uri.repo_type = 'some-unknown-type'

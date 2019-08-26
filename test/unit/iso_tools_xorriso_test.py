@@ -5,7 +5,7 @@ from kiwi.iso_tools.xorriso import IsoToolsXorrIso
 from kiwi.exceptions import KiwiIsoToolError
 
 
-class TestIsoToolsXorrIso(object):
+class TestIsoToolsXorrIso:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

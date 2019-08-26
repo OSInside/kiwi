@@ -34,7 +34,7 @@ from kiwi.exceptions import (
 )
 
 
-class RootBind(object):
+class RootBind:
     """
     **Implements binding/copying of host system paths
     into the new root directory**

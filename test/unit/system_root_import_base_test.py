@@ -7,7 +7,7 @@ from kiwi.system.root_import.base import RootImportBase
 from kiwi.exceptions import KiwiRootImportError
 
 
-class TestRootImportBase(object):
+class TestRootImportBase:
     @patch('os.path.exists')
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_init(self, mock_buildservice, mock_path):

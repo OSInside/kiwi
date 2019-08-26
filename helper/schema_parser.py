@@ -19,7 +19,7 @@ import sys
 logging.basicConfig(level=logging.WARNING)
 
 
-class SchemaNode(object):
+class SchemaNode:
 
     Child = namedtuple('Child', ['node', 'properties'])
 
@@ -216,7 +216,7 @@ class Element(SchemaNode):
         return elements
 
 
-class RNGSchemaParser(object):
+class RNGSchemaParser:
 
     def __init__(self, schema):
         self.logger = logging.getLogger(self.__class__.__name__)

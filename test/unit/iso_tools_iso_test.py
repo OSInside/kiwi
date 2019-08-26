@@ -20,7 +20,7 @@ from kiwi.exceptions import (
 )
 
 
-class TestIso(object):
+class TestIso:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

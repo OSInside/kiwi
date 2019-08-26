@@ -8,7 +8,7 @@ from kiwi.container.oci import ContainerImageOCI
 from kiwi.version import __version__
 
 
-class TestContainerImageOCI(object):
+class TestContainerImageOCI:
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.container.oci.RuntimeConfig')
     def setup(self, mock_RuntimeConfig, mock_cmd_caps):

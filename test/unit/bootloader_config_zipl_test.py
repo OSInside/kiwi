@@ -18,7 +18,7 @@ from kiwi.exceptions import (
 from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
 
 
-class TestBootLoaderConfigZipl(object):
+class TestBootLoaderConfigZipl:
     @patch('kiwi.bootloader.config.zipl.FirmWare')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_firmware):

@@ -11,7 +11,7 @@ from kiwi.exceptions import (
 )
 
 
-class TestCompress(object):
+class TestCompress:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

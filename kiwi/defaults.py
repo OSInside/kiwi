@@ -31,7 +31,7 @@ from .version import (
 from .exceptions import KiwiBootLoaderGrubDataError
 
 
-class Defaults(object):
+class Defaults:
     """
     **Implements default values**
 

@@ -11,7 +11,7 @@ from kiwi.exceptions import (
 )
 
 
-class TestSat(object):
+class TestSat:
     @patch('importlib.import_module')
     def setup(self, mock_import_module):
         self.sat = Sat()

@@ -5,7 +5,7 @@ import mock
 from kiwi.system.size import SystemSize
 
 
-class TestSystemSize(object):
+class TestSystemSize:
     def setup(self):
         self.size = SystemSize('directory')
 

@@ -41,7 +41,7 @@ from .exceptions import (
 )
 
 
-class XMLDescription(object):
+class XMLDescription:
     """
     **Implements data management for the XML description**
 

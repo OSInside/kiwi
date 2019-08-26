@@ -6,7 +6,7 @@ from .test_helper import raises
 from kiwi.package_manager.base import PackageManagerBase
 
 
-class TestPackageManagerBase(object):
+class TestPackageManagerBase:
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'

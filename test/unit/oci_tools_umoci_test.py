@@ -5,7 +5,7 @@ from mock import (
 from kiwi.oci_tools.umoci import OCIUmoci
 
 
-class TestOCIUmoci(object):
+class TestOCIUmoci:
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.base.datetime')
     @patch('kiwi.oci_tools.umoci.mkdtemp')

@@ -11,7 +11,7 @@ from kiwi.partitioner.msdos import PartitionerMsDos
 from kiwi.exceptions import KiwiPartitionerMsDosFlagError
 
 
-class TestPartitionerMsDos(object):
+class TestPartitionerMsDos:
     def setup(self):
         disk_provider = mock.Mock()
         disk_provider.get_device = mock.Mock(

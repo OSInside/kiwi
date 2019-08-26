@@ -11,7 +11,7 @@ from kiwi.exceptions import (
 )
 
 
-class TestPackageManagerApt(object):
+class TestPackageManagerApt:
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'

@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.partitioner.dasd import PartitionerDasd
 
 
-class TestPartitionerDasd(object):
+class TestPartitionerDasd:
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
     @patch_open

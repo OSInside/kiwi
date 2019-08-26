@@ -34,7 +34,7 @@ from kiwi.exceptions import (
 )
 
 
-class FileSystemBuilder(object):
+class FileSystemBuilder:
     """
     **Filesystem image builder**
 

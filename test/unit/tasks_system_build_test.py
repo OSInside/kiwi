@@ -11,7 +11,7 @@ from .test_helper import argv_kiwi_tests
 from kiwi.tasks.system_build import SystemBuildTask
 
 
-class TestSystemBuildTask(object):
+class TestSystemBuildTask:
     def setup(self):
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'build',

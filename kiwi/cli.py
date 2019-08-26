@@ -86,7 +86,7 @@ from .version import __version__
 from .help import Help
 
 
-class Cli(object):
+class Cli:
     """
     **Implements the main command line interface**
 

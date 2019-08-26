@@ -13,7 +13,7 @@ from kiwi.exceptions import (
 from kiwi.boot.image.base import BootImageBase
 
 
-class TestBootImageBase(object):
+class TestBootImageBase:
     @patch('kiwi.boot.image.base.os.path.exists')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):

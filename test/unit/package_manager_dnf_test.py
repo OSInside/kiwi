@@ -7,7 +7,7 @@ from kiwi.package_manager.dnf import PackageManagerDnf
 from kiwi.exceptions import KiwiRequestError
 
 
-class TestPackageManagerDnf(object):
+class TestPackageManagerDnf:
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'

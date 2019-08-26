@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiVolumeManagerSetupError
 from kiwi.volume_manager import VolumeManager
 
 
-class TestVolumeManager(object):
+class TestVolumeManager:
     @raises(KiwiVolumeManagerSetupError)
     def test_volume_manager_not_implemented(self):
         VolumeManager('foo', mock.Mock(), 'root_dir', mock.Mock())

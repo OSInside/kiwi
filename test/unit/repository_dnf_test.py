@@ -9,7 +9,7 @@ import mock
 from kiwi.repository.dnf import RepositoryDnf
 
 
-class TestRepositoryDnf(object):
+class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
     @patch_open
     @patch('kiwi.repository.dnf.ConfigParser')

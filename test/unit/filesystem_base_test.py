@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiFileSystemSyncError
 from kiwi.filesystem.base import FileSystemBase
 
 
-class TestFileSystemBase(object):
+class TestFileSystemBase:
     def setup(self):
         provider = mock.Mock()
         provider.get_device = mock.Mock(

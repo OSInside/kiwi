@@ -3,7 +3,7 @@ from mock import patch
 from kiwi.system.users import Users
 
 
-class TestUsers(object):
+class TestUsers:
     def setup(self):
         self.users = Users('root_dir')
 

@@ -18,7 +18,7 @@ from kiwi.exceptions import (
 from kiwi.xml_description import XMLDescription
 
 
-class TestSchema(object):
+class TestSchema:
     def setup(self):
         test_xml = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>

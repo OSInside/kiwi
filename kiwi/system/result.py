@@ -32,7 +32,7 @@ result_file_type = namedtuple(
 )
 
 
-class Result(object):
+class Result:
     """
     **Collect image building results**
 

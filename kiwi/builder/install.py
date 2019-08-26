@@ -42,7 +42,7 @@ from kiwi.exceptions import (
 )
 
 
-class InstallImageBuilder(object):
+class InstallImageBuilder:
     """
     **Installation image builder**
 

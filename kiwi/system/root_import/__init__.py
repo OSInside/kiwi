@@ -21,7 +21,7 @@ from kiwi.exceptions import KiwiRootImportError
 from kiwi.logger import log
 
 
-class RootImport(object):
+class RootImport:
     """
     Root import factory
 

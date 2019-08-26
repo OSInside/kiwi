@@ -33,7 +33,7 @@ command_type = namedtuple(
 )
 
 
-class Command(object):
+class Command:
     """
     **Implements command invocation**
 

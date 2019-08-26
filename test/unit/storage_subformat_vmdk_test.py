@@ -12,7 +12,7 @@ from kiwi.exceptions import (
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 
 
-class TestDiskFormatVmdk(object):
+class TestDiskFormatVmdk:
     @patch('platform.machine')
     def setup(self, mock_machine):
         self.context_manager_mock = mock.Mock()

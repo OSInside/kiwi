@@ -9,7 +9,7 @@ from .test_helper import argv_kiwi_tests
 from kiwi.defaults import Defaults
 
 
-class TestDefaults(object):
+class TestDefaults:
     def setup(self):
         self.defaults = Defaults()
 

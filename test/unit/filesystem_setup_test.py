@@ -5,7 +5,7 @@ import mock
 from kiwi.filesystem.setup import FileSystemSetup
 
 
-class TestFileSystemSetup(object):
+class TestFileSystemSetup:
     @patch('kiwi.filesystem.setup.SystemSize')
     def setup(self, mock_size):
         size = mock.Mock()

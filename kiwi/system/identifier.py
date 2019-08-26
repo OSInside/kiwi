@@ -19,7 +19,7 @@ import random
 import struct
 
 
-class SystemIdentifier(object):
+class SystemIdentifier:
     """
     **Create a random ID to identify the system**
 

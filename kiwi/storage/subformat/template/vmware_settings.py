@@ -19,7 +19,7 @@ from string import Template
 from textwrap import dedent
 
 
-class VmwareSettingsTemplate(object):
+class VmwareSettingsTemplate:
     """
     VMware machine settings template
     """

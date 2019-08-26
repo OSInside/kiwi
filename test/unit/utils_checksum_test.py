@@ -10,7 +10,7 @@ from kiwi.utils.checksum import Checksum
 from builtins import bytes
 
 
-class TestChecksum(object):
+class TestChecksum:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         self.context_manager_mock = mock.Mock()

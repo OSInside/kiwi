@@ -14,7 +14,7 @@ from kiwi.storage.subformat.vagrant_virtualbox import (
 from kiwi.defaults import Defaults
 
 
-class TestDiskFormatVagrantVirtualBox(object):
+class TestDiskFormatVagrantVirtualBox:
     def setup(self):
         with open("../data/vagrant_virtualbox.ovf", "r") as ovf_file:
             self.Leap_15_ovf = ovf_file.read(-1)

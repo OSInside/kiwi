@@ -24,7 +24,7 @@ from kiwi.exceptions import (
 )
 
 
-class VolumeManager(object):
+class VolumeManager:
     """
     **VolumeManager factory**
 

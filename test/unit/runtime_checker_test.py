@@ -16,7 +16,7 @@ sys.argv = [
 argv_kiwi_tests = sys.argv
 
 
-class TestRuntimeChecker(object):
+class TestRuntimeChecker:
     def setup(self):
         self.description = XMLDescription(
             '../data/example_runtime_checker_config.xml'

@@ -20,7 +20,7 @@ argv_kiwi_tests = sys.argv
 patch_open = patch('builtins.open')
 
 
-class raises(object):
+class raises:
     """
     exception decorator as used in nose, tools/nontrivial.py
     """

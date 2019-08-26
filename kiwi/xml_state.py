@@ -35,7 +35,7 @@ from .exceptions import (
 )
 
 
-class XMLState(object):
+class XMLState:
     """
     **Implements methods to get stateful information from the XML data**
 

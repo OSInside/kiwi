@@ -7,7 +7,7 @@ from kiwi.exceptions import KiwiContainerSetupError
 from kiwi.container.setup import ContainerSetup
 
 
-class TestContainerSetup(object):
+class TestContainerSetup:
     @raises(KiwiContainerSetupError)
     def test_container_not_implemented(self):
         ContainerSetup('foo', 'root_dir')

@@ -5,7 +5,7 @@ import mock
 from kiwi.filesystem.xfs import FileSystemXfs
 
 
-class TestFileSystemXfs(object):
+class TestFileSystemXfs:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True

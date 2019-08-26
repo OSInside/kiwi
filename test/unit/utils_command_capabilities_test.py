@@ -8,7 +8,7 @@ from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 
-class TestCommandCapabilities(object):
+class TestCommandCapabilities:
     @patch('kiwi.command.Command.run')
     def test_has_option_in_help(self, mock_run):
         command_type = namedtuple('command', ['output', 'error'])

@@ -283,7 +283,7 @@ syntax as supported by Sphinx, an example class is documented as follows:
 
 .. code:: python
 
-   class Example(object):
+   class Example:
        """
        **Example class**
 

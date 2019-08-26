@@ -9,7 +9,7 @@ from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
 from kiwi.exceptions import KiwiTemplateError
 
 
-class TestBootLoaderConfigIsoLinux(object):
+class TestBootLoaderConfigIsoLinux:
     @patch('os.path.exists')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):

@@ -7,7 +7,7 @@ from .test_helper import patch_open
 from kiwi.utils.sysconfig import SysConfig
 
 
-class TestSysConfig(object):
+class TestSysConfig:
     def setup(self):
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()

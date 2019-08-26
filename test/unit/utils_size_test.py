@@ -4,7 +4,7 @@ from kiwi.utils.size import StringToSize
 from kiwi.exceptions import KiwiSizeError
 
 
-class TestStringToSize(object):
+class TestStringToSize:
 
     def test_to_bytes(self):
         assert StringToSize.to_bytes('1m') == 1048576

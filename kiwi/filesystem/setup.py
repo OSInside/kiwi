@@ -21,7 +21,7 @@ from kiwi.logger import log
 from kiwi.defaults import Defaults
 
 
-class FileSystemSetup(object):
+class FileSystemSetup:
     """
     **Implement filesystem setup methods**
 

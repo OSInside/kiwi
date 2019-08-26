@@ -17,7 +17,7 @@ from kiwi.exceptions import (
 from kiwi.defaults import Defaults
 
 
-class TestSystemSetup(object):
+class TestSystemSetup:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'

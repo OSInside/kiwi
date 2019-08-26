@@ -27,7 +27,7 @@ from kiwi.exceptions import (
 )
 
 
-class ContainerSetupBase(object):
+class ContainerSetupBase:
     """
     Base class for setting up the root system to create
     a container image from for e.g docker. The methods here

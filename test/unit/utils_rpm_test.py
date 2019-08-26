@@ -9,7 +9,7 @@ from kiwi.utils.rpm import Rpm
 from kiwi.defaults import Defaults
 
 
-class TestRpm(object):
+class TestRpm:
     def setup(self):
         self.rpm_host = Rpm()
         self.rpm_image = Rpm('root_dir')

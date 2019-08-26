@@ -30,7 +30,7 @@ from kiwi.exceptions import KiwiContainerBuilderError
 from kiwi.runtime_config import RuntimeConfig
 
 
-class ContainerBuilder(object):
+class ContainerBuilder:
     """
     **Container image builder**
 

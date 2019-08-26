@@ -17,7 +17,7 @@
 #
 
 
-class PartitionerBase(object):
+class PartitionerBase:
     """
     **Base class for partitioners**
 

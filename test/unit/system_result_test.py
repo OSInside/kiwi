@@ -8,7 +8,7 @@ from kiwi.system.result import Result
 from kiwi.exceptions import KiwiResultError
 
 
-class TestResult(object):
+class TestResult:
     def setup(self):
         self.context_manager_mock = mock.MagicMock()
         self.file_mock = mock.MagicMock()

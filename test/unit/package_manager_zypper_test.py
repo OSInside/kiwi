@@ -7,7 +7,7 @@ from kiwi.package_manager.zypper import PackageManagerZypper
 from kiwi.exceptions import KiwiRequestError
 
 
-class TestPackageManagerZypper(object):
+class TestPackageManagerZypper:
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'

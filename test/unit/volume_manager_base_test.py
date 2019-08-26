@@ -9,7 +9,7 @@ from kiwi.exceptions import KiwiVolumeManagerSetupError
 from kiwi.volume_manager.base import VolumeManagerBase
 
 
-class TestVolumeManagerBase(object):
+class TestVolumeManagerBase:
     @patch('os.path.exists')
     def setup(self, mock_path):
         self.volume_type = namedtuple(

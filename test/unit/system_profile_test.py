@@ -9,7 +9,7 @@ from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 
 
-class TestProfile(object):
+class TestProfile:
     def setup(self):
         self.tmpfile = mock.Mock()
         self.tmpfile.name = 'tmpfile'

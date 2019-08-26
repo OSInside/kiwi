@@ -33,7 +33,7 @@ from kiwi.exceptions import (
 )
 
 
-class RootInit(object):
+class RootInit:
     """
     **Implements creation of new root directory for a linux system**
 

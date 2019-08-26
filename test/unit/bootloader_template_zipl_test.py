@@ -1,7 +1,7 @@
 from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
 
 
-class TestBootLoaderTemplateZipl(object):
+class TestBootLoaderTemplateZipl:
     def setup(self):
         self.zipl = BootLoaderTemplateZipl()
 
