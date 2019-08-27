@@ -32,9 +32,9 @@ echo "Configure image: [$kiwi_iname]..."
 suseSetupProduct
 
 #======================================
-# Create Host Keys
+# Install overlay systemd mount props
 #--------------------------------------
-/usr/sbin/sshd-gen-keys-start
+cp /usr/sbin/setup-fstab-for-overlayfs /etc/fstab.script
 
 #======================================
 # Activate services

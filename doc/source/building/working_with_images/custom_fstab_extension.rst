@@ -42,25 +42,31 @@ The optimal way to provide custom fstab information is through a
 package. If this can't be done the files can also be provided via
 the overlay file tree of the image description.
 
-KIWI supports two ways to modify the contents of the `/etc/fstab`
+KIWI supports three ways to modify the contents of the `/etc/fstab`
 file:
 
-1. Providing an `/etc/fstab.append` file
+Providing an `/etc/fstab.append` file
+  If that file exists in the image root tree, KIWI will take its
+  contents and append it to the existing `/etc/fstab` file. The
+  provided `/etc/fstab.append` file will be deleted after successful
+  modification.
 
-   If that file exists in the image root tree, KIWI will take its
-   contents and append it to the existing `/etc/fstab` file. The
-   provided `/etc/fstab.append` file will be deleted after successful
-   modification.
+Providing an `/etc/fstab.patch` file
+  The `/etc/fstab.patch` represents a patch file that will be
+  applied to `/etc/fstab` using the `patch` program. This method
+  also allows to change the existing contents of `/etc/fstab`.
+  On success `/etc/fstab.patch` will be deleted.
 
-2. Providing an `/etc/fstab.patch` file
-
-   The `/etc/fstab.patch` represents a patch file that will be
-   applied to `/etc/fstab` using the `patch` program. This method
-   also allows to change the existing contents of `/etc/fstab`.
-   On success `/etc/fstab.patch` will be deleted.
+Providing an `/etc/fstab.script` file
+  The `/etc/fstab.script` represents an executable which is called
+  as chrooted process. This method is the most flexible one and
+  allows to apply any change. On success `/etc/fstab.script` will be
+  deleted.
 
 .. note::
 
-   `/etc/fstab.append` and `/etc/fstab.patch` can be used together.
-   If both files are provided, appending happens first and patching
-   afterwards.
+   All three variants to handle the fstab file can be used together.
+   Appending happens first, patching afterwards and the script call
+   is last. When using the script call, there is no validation that
+   checks if the script actually handles fstab or any other
+   file in the image rootfs.

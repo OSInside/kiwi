@@ -84,6 +84,7 @@
         <package name="kernel-default"/>
         <package name="shim"/>
         <package name="timezone"/>
+        <package name="read-only-root-fs"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>
