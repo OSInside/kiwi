@@ -82,8 +82,10 @@ class TestBootImageBase:
 
     @patch('os.listdir')
     def test_is_prepared(self, mock_listdir):
-        mock_listdir.return_value = True
-        assert self.boot_image.is_prepared() == mock_listdir.return_value
+        mock_listdir.return_value = []
+        assert self.boot_image.is_prepared() is False
+        mock_listdir.return_value = ['a', 'b', 'c']
+        assert self.boot_image.is_prepared() is True
 
     @patch('kiwi.boot.image.base.XMLState.copy_strip_sections')
     def test_import_system_description_elements(self, mock_strip):
