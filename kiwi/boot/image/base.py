@@ -158,7 +158,7 @@ class BootImageBase:
 
         :rtype: bool
         """
-        return os.listdir(self.boot_root_directory)
+        return bool(os.listdir(self.boot_root_directory))
 
     def load_boot_xml_description(self):
         """
