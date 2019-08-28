@@ -75,7 +75,7 @@ function get_disk_list {
         scan_multipath_devices
     fi
     for disk_meta in $(
-        eval lsblk "${blk_opts}" | grep disk | tr ' ' ":"
+        eval lsblk "${blk_opts}" | grep -E "disk|raid" | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         if [ "$(blkid "${disk_device}" -s LABEL -o value)" = \
