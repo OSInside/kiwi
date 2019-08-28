@@ -92,6 +92,48 @@ class BootImageBase:
         """
         pass
 
+    def include_module(self, module, install_media=False):
+        """
+        Include module to boot image
+
+        For kiwi boot no modules configuration is required. Thus in
+        such a case this method is a noop.
+
+        :param string module: module to include
+        :param bool install_media: include the module for install initrds
+        """
+        pass
+
+    def omit_module(self, module, install_media=False):
+        """
+        Omit module to boot image
+
+        For kiwi boot no modules configuration is required. Thus in
+        such a case this method is a noop.
+
+        :param string module: module to omit
+        :param bool install_media: omit the module for install initrds
+        """
+        pass
+
+    def write_system_config_file(
+        self, config, config_file=None
+    ):
+        """
+        Writes relevant boot image configuration into configuration file
+        that will be part of the system image.
+
+        This is used to configure any further boot image rebuilds after
+        deployment. For instance, initrds recreated on kernel update.
+
+        For kiwi boot no specific configuration is required for initrds
+        recreation, thus this method is a noop in that case.
+
+        :param dict config: dictonary including configuration parameters
+        :param string config_file: configuration file to write
+        """
+        pass
+
     def dump(self, filename):
         """
         Pickle dump this instance to a file. If the object dump

@@ -182,7 +182,19 @@ class LiveImageBuilder:
 
         # create dracut initrd for live image
         log.info('Creating live ISO boot image')
-        self._create_dracut_live_iso_config()
+        live_dracut_module = Defaults.get_live_dracut_module_from_flag(
+            self.live_type
+        )
+        self.boot_image.include_module('pollcdrom')
+        self.boot_image.include_module(live_dracut_module)
+        self.boot_image.omit_module('multipath')
+        self.boot_image.write_system_config_file(
+            config={
+                'modules': ['pollcdrom', live_dracut_module],
+                'omit_modules': ['multipath']
+            },
+            config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+        )
         self.boot_image.create_initrd(self.mbrid)
 
         # setup kernel file(s) and initrd in ISO boot layout
@@ -292,23 +304,6 @@ class LiveImageBuilder:
             shasum=False
         )
         return self.result
-
-    def _create_dracut_live_iso_config(self):
-        live_config_file = self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
-        omit_modules = [
-            'kiwi-dump', 'kiwi-overlay', 'kiwi-repart', 'kiwi-lib', 'multipath'
-        ]
-        live_config = [
-            'add_dracutmodules+=" {0} pollcdrom "'.format(
-                Defaults.get_live_dracut_module_from_flag(self.live_type)
-            ),
-            'omit_dracutmodules+=" {0} "'.format(' '.join(omit_modules)),
-            'hostonly="no"',
-            'dracut_rescue_image="no"'
-        ]
-        with open(live_config_file, 'w') as config:
-            for entry in live_config:
-                config.write(entry + os.linesep)
 
     def _setup_live_iso_kernel_and_initrd(self):
         """

@@ -11,6 +11,8 @@ root_uuid=$(
     grep root= | cut -f2- -d=
 )
 
+[ -z "${root_uuid}" ] && exit 1
+
 {
     echo "[Unit]"
     echo "Before=initrd-root-fs.target"

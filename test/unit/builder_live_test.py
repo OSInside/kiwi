@@ -213,19 +213,17 @@ class TestLiveImageBuilder:
             working_directory='root_dir'
         )
 
-        assert call(
-            'root_dir/etc/dracut.conf.d/02-livecd.conf', 'w'
-        ) in mock_open.call_args_list
-
-        assert self.file_mock.write.call_args_list == [
-            call('add_dracutmodules+=" kiwi-live pollcdrom "\n'),
-            call(
-                'omit_dracutmodules+=" '
-                'kiwi-dump kiwi-overlay kiwi-repart kiwi-lib multipath "\n'
-            ),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n')
+        assert self.boot_image_task.include_module.call_args_list == [
+            call('pollcdrom'), call('kiwi-live')
         ]
+        self.boot_image_task.omit_module.assert_called_once_with('multipath')
+        self.boot_image_task.write_system_config_file.assert_called_once_with(
+            config={
+                'modules': ['pollcdrom', 'kiwi-live'],
+                'omit_modules': ['multipath']
+            },
+            config_file='root_dir/etc/dracut.conf.d/02-livecd.conf'
+        )
 
         kiwi.builder.live.BootLoaderConfig.assert_called_once_with(
             'grub2', self.xml_state, root_dir='root_dir',

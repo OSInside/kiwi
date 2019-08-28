@@ -45,6 +45,10 @@ class BootImageDracut(BootImageBase):
         self.dracut_options = []
         self.included_files = []
         self.included_files_install = []
+        self.modules = []
+        self.install_modules = []
+        self.omit_modules = []
+        self.omit_install_modules = []
 
     def include_file(self, filename, install_media=False):
         """
@@ -57,6 +61,58 @@ class BootImageDracut(BootImageBase):
         if install_media:
             self.included_files_install.append('--install')
             self.included_files_install.append(filename)
+
+    def include_module(self, module, install_media=False):
+        """
+        Include module to dracut boot image
+
+        :param string module: module to include
+        :param bool install_media: include the module for install initrds
+        """
+        if install_media and module not in self.install_modules:
+            self.install_modules.append(module)
+        elif module not in self.modules:
+            self.modules.append(module)
+
+    def omit_module(self, module, install_media=False):
+        """
+        Omit module to dracut boot image
+
+        :param string module: module to omit
+        :param bool install_media: omit the module for install initrds
+        """
+        if install_media and module not in self.omit_install_modules:
+            self.omit_install_modules.append(module)
+        elif module not in self.omit_modules:
+            self.omit_modules.append(module)
+
+    def write_system_config_file(self, config, config_file=None):
+        """
+        Writes modules configuration into a dracut configuration file.
+
+        :param dict config: a dictionary containing the modules to add and omit
+        :param string conf_file: configuration file to write
+        """
+        dracut_config = []
+        if not config_file:
+            config_file = os.path.normpath(
+                self.boot_root_directory + Defaults.get_dracut_conf_name()
+            )
+        if config.get('modules'):
+            dracut_config.append(
+                'add_dracutmodules+=" {0} "\n'.format(
+                    ' '.join(config['modules'])
+                )
+            )
+        if config.get('omit_modules'):
+            dracut_config.append(
+                'omit_dracutmodules+=" {0} "\n'.format(
+                    ' '.join(config['omit_modules'])
+                )
+            )
+        if dracut_config:
+            with open(config_file, 'w') as config:
+                config.writelines(dracut_config)
 
     def prepare(self):
         """
@@ -95,9 +151,25 @@ class BootImageDracut(BootImageBase):
                 dracut_initrd_basename = self.initrd_base_name
             if install_initrd:
                 included_files = self.included_files_install
+                modules_args = [
+                    '--add', ' {0} '.format(' '.join(self.install_modules))
+                ] if self.install_modules else []
+                omit_modules_args = [
+                    '--omit', ' {0} '.format(
+                        ' '.join(self.omit_install_modules)
+                    )
+                ] if self.omit_install_modules else []
             else:
                 included_files = self.included_files
+                modules_args = [
+                    '--add', ' {0} '.format(' '.join(self.modules))
+                ] if self.modules else []
+                omit_modules_args = [
+                    '--omit', ' {0} '.format(' '.join(self.omit_modules))
+                ] if self.omit_install_modules else []
             dracut_initrd_basename += '.xz'
+            options = self.dracut_options + modules_args +\
+                omit_modules_args + included_files
             dracut_call = Command.run(
                 [
                     'chroot', self.boot_root_directory,
@@ -105,7 +177,7 @@ class BootImageDracut(BootImageBase):
                     '--no-hostonly',
                     '--no-hostonly-cmdline',
                     '--xz'
-                ] + self.dracut_options + included_files + [
+                ] + options + [
                     dracut_initrd_basename,
                     kernel_details.version
                 ],
