@@ -177,23 +177,27 @@ class SystemPrepare:
             repo, package_manager
         )
 
-    def install_bootstrap(self, manager):
+    def install_bootstrap(self, manager, plus_packages=None):
         """
         Install system software using the package manager
         from the host, also known as bootstrapping
 
         :param object manager: instance of a :class:`PackageManager` subclass
+        :param list plus_packages: list of additional packages
 
         :raises KiwiBootStrapPhaseFailed: if the bootstrapping process fails
             either installing packages or including bootstrap archives
         """
-        if not self.xml_state.get_bootstrap_packages_sections():
+        if not self.xml_state.get_bootstrap_packages_sections() \
+           and not plus_packages:
             log.warning('No <packages> sections marked as "bootstrap" found')
             log.info('Processing of bootstrap stage skipped')
             return
 
         log.info('Installing bootstrap packages')
-        bootstrap_packages = self.xml_state.get_bootstrap_packages()
+        bootstrap_packages = self.xml_state.get_bootstrap_packages(
+            plus_packages
+        )
         collection_type = self.xml_state.get_bootstrap_collection_type()
         log.info('--> collection type: %s', collection_type)
         bootstrap_collections = self.xml_state.get_bootstrap_collections()

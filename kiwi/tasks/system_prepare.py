@@ -25,6 +25,7 @@ usage: kiwi system prepare -h | --help
            [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
            [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
            [--add-package=<name>...]
+           [--add-bootstrap-package=<name>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
@@ -39,6 +40,8 @@ commands:
         show manual page for prepare command
 
 options:
+    --add-bootstrap-package=<name>
+        install the given package name as part of the early bootstrap process
     --add-package=<name>
         install the given package name
     --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
@@ -178,7 +181,9 @@ class SystemPrepareTask(CliTask):
             self.command_args['--clear-cache'],
             self.command_args['--signing-key']
         )
-        system.install_bootstrap(manager)
+        system.install_bootstrap(
+            manager, self.command_args['--add-bootstrap-package']
+        )
         system.install_system(
             manager
         )

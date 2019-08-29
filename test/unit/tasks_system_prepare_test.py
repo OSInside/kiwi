@@ -78,6 +78,7 @@ class TestSystemPrepareTask:
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--add-package'] = []
+        self.task.command_args['--add-bootstrap-package'] = []
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--ignore-repos-used-for-build'] = False
@@ -139,7 +140,7 @@ class TestSystemPrepareTask:
             True, None
         )
         self.system_prepare.install_bootstrap.assert_called_once_with(
-            self.manager
+            self.manager, []
         )
         self.system_prepare.install_system.assert_called_once_with(
             self.manager

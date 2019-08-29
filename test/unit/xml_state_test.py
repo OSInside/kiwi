@@ -77,6 +77,9 @@ class TestXMLState:
         assert self.state.get_bootstrap_packages() == [
             'filesystem', 'zypper'
         ]
+        assert self.state.get_bootstrap_packages(plus_packages=['vim']) == [
+            'filesystem', 'vim', 'zypper'
+        ]
         assert self.no_image_packages_boot_state.get_bootstrap_packages() == [
             'patterns-openSUSE-base'
         ]

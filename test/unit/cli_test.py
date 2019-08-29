@@ -45,6 +45,7 @@ class TestCli:
             '--root': 'directory',
             '--set-repo': None,
             '--add-package': [],
+            '--add-bootstrap-package': [],
             '--delete-package': [],
             '--set-container-derived-from': None,
             '--set-container-tag': None,
