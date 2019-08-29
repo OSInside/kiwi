@@ -17,6 +17,7 @@ SYNOPSIS
        [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
        [--add-package=<name>...]
+       [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
    kiwi system build help
@@ -33,6 +34,11 @@ are created in the specified target-dir.
 
 OPTIONS
 -------
+
+--add-bootstrap-package=<name>
+
+  specify package to install as part of the early kiwi bootstrap phase.
+  The option can be specified multiple times
 
 --add-package=<name>
 

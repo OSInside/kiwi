@@ -370,13 +370,15 @@ class XMLState:
         """
         return self.get_packages_sections(['image'])
 
-    def get_bootstrap_packages(self):
+    def get_bootstrap_packages(self, plus_packages=None):
         """
         List of package names from the type="bootstrap" packages section(s)
 
         The list gets the selected package manager appended
         if there is a request to install packages inside of
         the image via a chroot operation
+
+        :param list plus_packages: list of additional packages
 
         :return: package names
 
@@ -392,6 +394,8 @@ class XMLState:
                 result.append(package.package_section.get_name())
             if self.get_system_packages():
                 result.append(self.get_package_manager())
+        if plus_packages:
+            result += plus_packages
         return sorted(list(set(result)))
 
     def get_system_packages(self):
