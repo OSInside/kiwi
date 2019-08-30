@@ -41,8 +41,7 @@ function lookup_disk_device_from_root {
         root_device=/dev/$(basename "$(readlink "${root_device}")")
     fi
     for disk_device in $(
-        lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
-            grep disk | cut -f1 -d ' '
+	lsblk -p -n -f -o PKNAME "${root_device}"
     ); do
         disk_matches=$((disk_matches + 1))
     done
