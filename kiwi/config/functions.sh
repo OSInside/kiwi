@@ -263,7 +263,7 @@ function baseSetupUserPermissions {
         fi
         if [[ ! "${shell}" =~ nologin|true|false ]];then
             group=$(grep "${group}" /etc/group | cut -f1 -d:)
-            chown -c -R "${usern}:${group} ${dir}/*"
+            chown -c -R ${usern}:${group} ${dir}/*
         fi
     done < /etc/passwd
 }
