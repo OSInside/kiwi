@@ -52,7 +52,7 @@ class FileSystemSquashFs(FileSystemBase):
                 self.custom_args['create_options'].append('powerpc')
 
         if exclude:
-            exclude_options.append('-e')
+            exclude_options.extend(['-wildcards', '-e'])
             for item in exclude:
                 exclude_options.append(item)
 
