@@ -200,8 +200,8 @@ The following list describes all functions provided by :file:`.kconfig`:
   Set the default run level.
 
 ``baseSetupUserPermissions``
-  Search all home directories of all users listed in :file:`/etc/passwd` and
-  change the ownership of all files to belong to the correct user and group.
+  Set the ownership of all home directories and their content to the correct
+  users and groups listed in :file:`/etc/passwd`.
 
 ``baseStripAndKeep {list of info-files to keep}``
   Helper function for the ``baseStrip*`` functions, reads the list of files
