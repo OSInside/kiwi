@@ -30,8 +30,8 @@ class TestFileSystemSquashfs:
         self.squashfs.create_on_file('myimage', 'label', ['foo'])
         mock_command.assert_called_once_with(
             [
-                'mksquashfs', 'root_dir', 'myimage', '-noappend',
-                '-b', '1M', '-comp', 'xz', '-Xbcj', 'powerpc', '-e', 'foo'
+                'mksquashfs', 'root_dir', 'myimage', '-noappend', '-b', '1M',
+                '-comp', 'xz', '-Xbcj', 'powerpc', '-wildcards', '-e', 'foo'
             ]
         )
 
