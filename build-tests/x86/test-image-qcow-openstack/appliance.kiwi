@@ -14,8 +14,8 @@
         <packagemanager>zypper</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
-        <keytable>us.map.gz</keytable>
-        <timezone>utc</timezone>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
@@ -115,6 +115,7 @@
         <package name="elfutils"/>
         <package name="iputils"/>
         <package name="libyui-ncurses-pkg10"/>
+        <package name="timezone"/>
         <package name="yast2"/>
         <package name="yast2-add-on"/>
         <package name="yast2-audit-laf"/>
@@ -161,7 +162,6 @@
         <package name="yast2-support"/>
         <package name="yast2-sysconfig"/>
         <package name="yast2-tftp-server"/>
-        <package name="yast2-theme-SLE"/>
         <package name="yast2-trans-en_US"/>
         <package name="yast2-transfer"/>
         <package name="yast2-trans-stats"/>
