@@ -81,7 +81,6 @@
         <package name="man-pages"/>
         <package name="mozilla-nss-certs"/>
         <package name="netcat-openbsd"/>
-        <package name="nfsidmap"/>
         <package name="nfs-client"/>
         <package name="nfs-kernel-server"/>
         <package name="nscd"/>

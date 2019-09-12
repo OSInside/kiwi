@@ -85,7 +85,6 @@
         <package name="man-pages"/>
         <package name="mozilla-nss-certs"/>
         <package name="netcat-openbsd"/>
-        <package name="nfsidmap"/>
         <package name="nscd"/>
         <package name="ntp"/>
         <package name="openldap2-client"/>
