@@ -58,7 +58,6 @@
         <package name="cifs-utils"/>
         <package name="command-not-found"/>
         <package name="crash"/>
-        <package name="cryptconfig"/>
         <package name="curl"/>
         <package name="cyrus-sasl"/>
         <package name="cyrus-sasl-digestmd5"/>
@@ -78,8 +77,6 @@
         <package name="kernel-default"/>
         <package name="klogd"/>
         <package name="ksh"/>
-        <package name="libnl1"/>
-        <package name="libnettle4"/>
         <package name="lockdev"/>
         <package name="man"/>
         <package name="man-pages"/>
@@ -89,7 +86,6 @@
         <package name="ntp"/>
         <package name="openldap2-client"/>
         <package name="opie"/>
-        <package name="pam-modules"/>
         <package name="polkit-default-privs"/>
         <package name="prctl"/>
         <package name="procinfo"/>
@@ -99,8 +95,6 @@
         <package name="screen"/>
         <package name="strace"/>
         <package name="supportutils"/>
-        <package name="SUSEConnect"/>
-        <package name="suse-build-key"/>
         <package name="tcpd"/>
         <package name="tcpdump"/>
         <package name="tcsh"/>
@@ -120,23 +114,20 @@
         <package name="sg3_utils"/>
         <package name="elfutils"/>
         <package name="iputils"/>
-        <package name="libyui-ncurses-pkg7"/>
+        <package name="libyui-ncurses-pkg10"/>
         <package name="yast2"/>
         <package name="yast2-add-on"/>
         <package name="yast2-audit-laf"/>
         <package name="yast2-bootloader"/>
-        <package name="yast2-ca-management"/>
         <package name="yast2-core"/>
         <package name="yast2-country"/>
         <package name="yast2-country-data"/>
-        <package name="yast2-dbus-server"/>
         <package name="yast2-dhcp-server"/>
         <package name="yast2-dns-server"/>
         <package name="yast2-firewall"/>
         <package name="yast2-ftp-server"/>
         <package name="yast2-hardware-detection"/>
         <package name="yast2-http-server"/>
-        <package name="yast2-inetd"/>
         <package name="yast2-iscsi-client"/>
         <package name="yast2-iscsi-lio-server"/>
         <package name="yast2-isns"/>
@@ -165,7 +156,7 @@
         <package name="yast2-slp"/>
         <package name="yast2-slp-server"/>
         <package name="yast2-squid"/>
-        <package name="yast2-storage"/>
+        <package name="yast2-storage-ng"/>
         <package name="yast2-sudo"/>
         <package name="yast2-support"/>
         <package name="yast2-sysconfig"/>
@@ -181,7 +172,6 @@
         <package name="yast2-ycp-ui-bindings"/>
         <package name="docker"/>
         <package name="yast2-docker"/>
-        <package name="python-ceilometerclient"/>
         <package name="python-cinderclient"/>
         <package name="python-glanceclient"/>
         <package name="python-heatclient"/>
@@ -191,6 +181,7 @@
         <package name="python-openstackclient"/>
         <package name="python-swiftclient"/>
         <package name="cloud-init"/>
+        <package name="cloud-init-config-suse"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>
