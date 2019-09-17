@@ -125,12 +125,15 @@ class TestBootImageKiwi:
         self.boot_image.include_file(
             '/system-directory/var/lib/bar', install_media=True
         )
+        self.boot_image.include_module('foo')
+        self.boot_image.omit_module('bar')
         self.boot_image.create_initrd()
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'system-directory',
                 'dracut', '--force', '--no-hostonly',
                 '--no-hostonly-cmdline', '--xz',
+                '--add', ' foo ', '--omit', ' bar ',
                 '--install', 'system-directory/etc/foo',
                 '--install', '/system-directory/var/lib/bar',
                 'LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz', '1.2.3'
