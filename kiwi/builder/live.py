@@ -166,6 +166,7 @@ class LiveImageBuilder:
             self.boot_image.boot_root_directory, self.media_dir,
             bootloader_config.get_boot_theme()
         )
+        bootloader_config.write_meta_data(iso_boot=True)
         bootloader_config.setup_live_image_config(
             mbrid=self.mbrid
         )

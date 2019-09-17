@@ -20,6 +20,7 @@ import platform
 from collections import namedtuple
 
 # project
+from kiwi.mount_manager import MountManager
 from kiwi.logger import log
 from kiwi.storage.setup import DiskSetup
 from kiwi.path import Path
@@ -44,6 +45,12 @@ class BootLoaderConfigBase:
         self.xml_state = xml_state
         self.arch = platform.machine()
 
+        self.volumes_mount = []
+        self.root_mount = None
+        self.boot_mount = None
+        self.device_mount = None
+        self.proc_mount = None
+
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
@@ -64,6 +71,17 @@ class BootLoaderConfigBase:
         """
         raise NotImplementedError
 
+    def write_meta_data(self, root_uuid=None, boot_options=''):
+        """
+        Write bootloader setup meta data files
+
+        :param string root_uuid: root device UUID
+        :param string boot_options: kernel options as string
+
+        Implementation in specialized bootloader class optional
+        """
+        pass
+
     def setup_disk_image_config(
         self, boot_uuid, root_uuid, hypervisor, kernel, initrd, boot_options
     ):
@@ -75,7 +93,9 @@ class BootLoaderConfigBase:
         :param string hypervisor: hypervisor name
         :param string kernel: kernel name
         :param string initrd: initrd name
-        :param string boot_options: kernel options as string
+        :param string boot_options:
+            custom options required to setup the boot. The scope
+            of the options is specified in the implementation
 
         Implementation in specialized bootloader class required
         """
@@ -450,6 +470,44 @@ class BootLoaderConfigBase:
         else:
             return gfxmode
 
+    def _mount_system(self, root_device, boot_device, volumes=None):
+        self.root_mount = MountManager(
+            device=root_device
+        )
+        self.boot_mount = MountManager(
+            device=boot_device,
+            mountpoint=self.root_mount.mountpoint + '/boot'
+        )
+
+        self.root_mount.mount()
+
+        if not self.root_mount.device == self.boot_mount.device:
+            self.boot_mount.mount()
+
+        if volumes:
+            for volume_path in Path.sort_by_hierarchy(
+                sorted(volumes.keys())
+            ):
+                volume_mount = MountManager(
+                    device=volumes[volume_path]['volume_device'],
+                    mountpoint=self.root_mount.mountpoint + '/' + volume_path
+                )
+                self.volumes_mount.append(volume_mount)
+                volume_mount.mount(
+                    options=[volumes[volume_path]['volume_options']]
+                )
+
+        self.device_mount = MountManager(
+            device='/dev',
+            mountpoint=self.root_mount.mountpoint + '/dev'
+        )
+        self.proc_mount = MountManager(
+            device='/proc',
+            mountpoint=self.root_mount.mountpoint + '/proc'
+        )
+        self.device_mount.bind_mount()
+        self.proc_mount.bind_mount()
+
     def _get_root_cmdline_parameter(self, uuid):
         firmware = self.xml_state.build_type.get_firmware()
         initrd_system = self.xml_state.get_initrd_system()
@@ -482,3 +540,16 @@ class BootLoaderConfigBase:
                 log.warning(
                     'root=UUID=<uuid> setup requested, but uuid is not provided'
                 )
+
+    def __del__(self):
+        log.info('Cleaning up %s instance', type(self).__name__)
+        for volume_mount in reversed(self.volumes_mount):
+            volume_mount.umount()
+        if self.device_mount:
+            self.device_mount.umount()
+        if self.proc_mount:
+            self.proc_mount.umount()
+        if self.boot_mount:
+            self.boot_mount.umount()
+        if self.root_mount:
+            self.root_mount.umount()

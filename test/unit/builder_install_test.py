@@ -166,6 +166,7 @@ class TestInstallImageBuilder:
             'initrd_dir', 'temp_media_dir',
             bootloader_config.get_boot_theme.return_value
         )
+        bootloader_config.write_meta_data.assert_called_once_with(iso_boot=True)
         bootloader_config.setup_install_image_config.assert_called_once_with(
             mbrid=self.mbrid
         )

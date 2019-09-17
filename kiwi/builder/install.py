@@ -216,6 +216,7 @@ class InstallImageBuilder:
             self.boot_image_task.boot_root_directory, self.media_dir,
             bootloader_config.get_boot_theme()
         )
+        bootloader_config.write_meta_data(iso_boot=True)
         bootloader_config.setup_install_image_config(
             mbrid=self.mbrid
         )

@@ -310,8 +310,14 @@ class TestDiskBuilder:
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            boot_options='', initrd='initrd.vmx', kernel='linux.vmx',
-            boot_uuid='0815', root_uuid='0815'
+            boot_options={
+                'boot_device': '/dev/boot-device',
+                'root_device': '/dev/readonly-root-device',
+                'firmware': self.firmware,
+                'target_removable': None,
+                'efi_device': '/dev/efi-device',
+                'prep_device': '/dev/prep-device'
+            }
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -420,8 +426,14 @@ class TestDiskBuilder:
             '0815'
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            boot_options='', initrd='initramfs-1.2.3.img',
-            kernel='vmlinuz-1.2.3-default', boot_uuid='0815', root_uuid='0815'
+            boot_options={
+                'boot_device': '/dev/boot-device',
+                'root_device': '/dev/readonly-root-device',
+                'firmware': self.firmware,
+                'target_removable': None,
+                'efi_device': '/dev/efi-device',
+                'prep_device': '/dev/prep-device'
+            }
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -543,29 +555,6 @@ class TestDiskBuilder:
         self.boot_image_task.omit_module.assert_called_once_with('multipath')
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={'modules': ['kiwi-overlay']}
-        )
-
-    @patch('kiwi.builder.disk.FileSystem')
-    @patch('kiwi.builder.disk.Command.run')
-    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
-    def test_create_disk_standard_root_dracut_initrd_system_on_arm(
-        self, mock_grub_dir, mock_command, mock_fs
-    ):
-        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
-            kernel_name='zImage-4.14.14-1-default',
-            initrd_name='initramfs-1.2.3.img'
-        )
-        self.disk_builder.initrd_system = 'dracut'
-        self.disk_builder.arch = 'aarch64'
-        self.disk_builder.volume_manager_name = None
-
-        with patch('builtins.open'):
-            self.disk_builder.create_disk()
-
-        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
-            boot_options='', initrd='initramfs-1.2.3.img',
-            kernel='zImage-4.14.14-1-default',
-            boot_uuid='0815', root_uuid='0815'
         )
 
     @patch('kiwi.builder.disk.FileSystem')

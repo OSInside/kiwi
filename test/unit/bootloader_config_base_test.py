@@ -1,8 +1,7 @@
 from mock import (
-    patch, call
+    patch, call, Mock, MagicMock
 )
 from pytest import raises
-import mock
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
@@ -118,7 +117,7 @@ class TestBootLoaderConfigBase:
         self, mock_initrd
     ):
         mock_initrd.return_value = 'dracut'
-        self.state.build_type.get_overlayroot = mock.Mock(
+        self.state.build_type.get_overlayroot = Mock(
             return_value=True
         )
         assert self.bootloader.get_boot_cmdline('uuid') == \
@@ -174,12 +173,12 @@ class TestBootLoaderConfigBase:
     def test_get_boot_path_btrfs_boot_is_a_volume_error(
         self, mock_volumes, mock_fs, mock_disk_setup
     ):
-        volume = mock.Mock()
+        volume = Mock()
         volume.name = 'boot'
         mock_volumes.return_value = [volume]
         mock_fs.return_value = 'btrfs'
-        disk_setup = mock.Mock()
-        disk_setup.need_boot_partition = mock.Mock(
+        disk_setup = Mock()
+        disk_setup.need_boot_partition = Mock(
             return_value=False
         )
         mock_disk_setup.return_value = disk_setup
@@ -193,13 +192,13 @@ class TestBootLoaderConfigBase:
     def test_get_boot_path_btrfs_no_snapshot(
         self, mock_volumes, mock_snapshot, mock_fs, mock_disk_setup
     ):
-        volume = mock.Mock()
+        volume = Mock()
         volume.name = 'some-volume'
         mock_volumes.return_value = [volume]
         mock_fs.return_value = 'btrfs'
         mock_snapshot.return_value = False
-        disk_setup = mock.Mock()
-        disk_setup.need_boot_partition = mock.Mock(
+        disk_setup = Mock()
+        disk_setup.need_boot_partition = Mock(
             return_value=False
         )
         mock_disk_setup.return_value = disk_setup
@@ -213,13 +212,13 @@ class TestBootLoaderConfigBase:
     def test_get_boot_path_btrfs_snapshot(
         self, mock_volumes, mock_snapshot, mock_fs, mock_disk_setup
     ):
-        volume = mock.Mock()
+        volume = Mock()
         volume.name = 'some-volume'
         mock_volumes.return_value = [volume]
         mock_fs.return_value = 'btrfs'
         mock_snapshot.return_value = True
-        disk_setup = mock.Mock()
-        disk_setup.need_boot_partition = mock.Mock(
+        disk_setup = Mock()
+        disk_setup.need_boot_partition = Mock(
             return_value=False
         )
         mock_disk_setup.return_value = disk_setup
@@ -274,3 +273,57 @@ class TestBootLoaderConfigBase:
         mock_get_vga.return_value = '0x318'
         assert self.bootloader.get_gfxmode('some-loader') == \
             mock_get_vga.return_value
+
+    @patch('kiwi.bootloader.config.base.MountManager')
+    def test_mount_system(self, mock_MountManager):
+        proc_mount = MagicMock()
+        dev_mount = MagicMock()
+        root_mount = MagicMock()
+        root_mount.mountpoint = 'root_mount_point'
+        root_mount.device = 'rootdev'
+        boot_mount = MagicMock()
+        boot_mount.device = 'bootdev'
+        volume_mount = MagicMock()
+
+        mount_managers = [
+            proc_mount, dev_mount, volume_mount, boot_mount, root_mount
+        ]
+
+        def mount_managers_effect(**args):
+            return mount_managers.pop()
+
+        mock_MountManager.side_effect = mount_managers_effect
+        self.bootloader._mount_system(
+            'rootdev', 'bootdev', {
+                'boot/grub2': {
+                    'volume_options': 'subvol=@/boot/grub2',
+                    'volume_device': 'device'
+                }
+            }
+        )
+        assert mock_MountManager.call_args_list == [
+            call(device='rootdev'),
+            call(device='bootdev', mountpoint='root_mount_point/boot'),
+            call(device='device', mountpoint='root_mount_point/boot/grub2'),
+            call(device='/dev', mountpoint='root_mount_point/dev'),
+            call(device='/proc', mountpoint='root_mount_point/proc')
+        ]
+        root_mount.mount.assert_called_once_with()
+        boot_mount.mount.assert_called_once_with()
+        volume_mount.mount.assert_called_once_with(
+            options=['subvol=@/boot/grub2']
+        )
+        proc_mount.bind_mount.assert_called_once_with()
+        dev_mount.bind_mount.assert_called_once_with()
+
+        del self.bootloader
+
+        volume_mount.umount.assert_called_once_with()
+        dev_mount.umount.assert_called_once_with()
+        proc_mount.umount.assert_called_once_with()
+        boot_mount.umount.assert_called_once_with()
+        root_mount.umount.assert_called_once_with()
+
+    def test_write_meta_data(self):
+        # just pass
+        self.bootloader.write_meta_data()
