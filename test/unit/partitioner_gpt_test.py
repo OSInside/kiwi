@@ -97,8 +97,8 @@ class TestPartitionerGpt:
             call(['sgdisk', '-i=2', '/dev/loop0']),
             call(['sgdisk', '-i=3', '/dev/loop0']),
             call(['sgdisk', '-i=4', '/dev/loop0']),
-            call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0']),
-            call(['sgdisk', '-t', '4:8300', '/dev/loop0'])
+            call(['sgdisk', '-t', '4:8300', '/dev/loop0']),
+            call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0'])
         ]
 
     @patch('kiwi.partitioner.gpt.Command.run')
