@@ -166,7 +166,7 @@ class BootImageDracut(BootImageBase):
                 ] if self.modules else []
                 omit_modules_args = [
                     '--omit', ' {0} '.format(' '.join(self.omit_modules))
-                ] if self.omit_install_modules else []
+                ] if self.omit_modules else []
             dracut_initrd_basename += '.xz'
             options = self.dracut_options + modules_args +\
                 omit_modules_args + included_files
