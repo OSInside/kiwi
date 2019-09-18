@@ -486,7 +486,7 @@ Profiles can furthermore inherit settings from another profile via the
    <profiles>
        <profile name="VM" description="virtual machine"/>
        <profile name="QEMU" description="virtual machine for QEMU">
-           <requires>VM</requires>
+           <requires profile="VM"/>
        </profile>
    </profiles>
 
