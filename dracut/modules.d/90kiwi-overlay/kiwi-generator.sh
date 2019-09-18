@@ -14,7 +14,7 @@ case "${overlayroot}" in
     overlay:UUID=*|UUID=*) \
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
-        root="overlay:/dev/disk/by-uuid/${root#UUID=}"
+        root="block:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
 esac
 
@@ -28,6 +28,7 @@ ROOTFLAGS="$(getarg rootflags)"
 {
     echo "[Unit]"
     echo "Before=initrd-root-fs.target"
+    echo "DefaultDependencies=no"
     echo "[Mount]"
     echo "Where=/sysroot"
     echo "What=OverlayOS_rootfs"
