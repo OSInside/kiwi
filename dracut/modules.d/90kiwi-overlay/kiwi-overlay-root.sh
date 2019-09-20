@@ -1,5 +1,6 @@
 #!/bin/bash
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+# root=overlay:UUID=uuid was converted to
+# root=block:/dev/disk/by-uuid/uuid in cmdline hook
 
 #======================================
 # functions
@@ -57,11 +58,13 @@ function preparePersistentOverlay {
 #--------------------------------------
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
+declare root=${root}
+
 # init debug log file if wanted
 setupDebugMode
 
 # device nodes and types
-initGlobalDevices "$1"
+initGlobalDevices "${root#block:}"
 
 # load required kernel modules
 loadKernelModules
@@ -74,4 +77,4 @@ preparePersistentOverlay
 
 need_shutdown
 
-exit 0
+return 0
