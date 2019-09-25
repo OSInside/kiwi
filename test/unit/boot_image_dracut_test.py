@@ -131,7 +131,7 @@ class TestBootImageKiwi:
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'system-directory',
-                'dracut', '--force', '--no-hostonly',
+                'dracut', '--verbose', '--no-hostonly',
                 '--no-hostonly-cmdline', '--xz',
                 '--add', ' foo ', '--omit', ' bar ',
                 '--install', 'system-directory/etc/foo',
@@ -149,7 +149,7 @@ class TestBootImageKiwi:
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'system-directory',
-                'dracut', '--force', '--no-hostonly',
+                'dracut', '--verbose', '--no-hostonly',
                 '--no-hostonly-cmdline', '--xz',
                 '--install', '/system-directory/var/lib/bar',
                 'foo.xz', '1.2.3'
