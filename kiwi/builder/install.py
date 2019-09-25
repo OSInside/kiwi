@@ -93,11 +93,14 @@ class InstallImageBuilder:
         )
         self.pxename = ''.join(
             [
-                target_dir, '/',
                 xml_state.xml_data.get_name(),
                 '.' + self.arch,
-                '-' + xml_state.get_image_version(),
-                '.install.tar'
+                '-' + xml_state.get_image_version()
+            ]
+        )
+        self.pxetarball = ''.join(
+            [
+                target_dir, '/', self.pxename, '.install.tar'
             ]
         )
         self.dracut_config_file = ''.join(
@@ -258,7 +261,7 @@ class InstallImageBuilder:
         pxe_image_filename = ''.join(
             [
                 self.pxe_dir, '/',
-                self.xml_state.xml_data.get_name(), '.xz'
+                self.pxename, '.xz'
             ]
         )
         compress = Compress(
@@ -275,7 +278,7 @@ class InstallImageBuilder:
         pxe_md5_filename = ''.join(
             [
                 self.pxe_dir, '/',
-                self.xml_state.xml_data.get_name(), '.md5'
+                self.pxename, '.md5'
             ]
         )
         checksum = Checksum(self.diskname)
@@ -292,7 +295,7 @@ class InstallImageBuilder:
                 [self.root_dir, 'boot', boot_names.initrd_name]
             )
             target_initrd_name = '{0}/{1}.initrd'.format(
-                self.pxe_dir, self.xml_state.xml_data.get_name()
+                self.pxe_dir, self.pxename
             )
             shutil.copy(
                 system_image_initrd, target_initrd_name
@@ -303,8 +306,7 @@ class InstallImageBuilder:
         # this information helps to configure the boot server correctly
         append_filename = ''.join(
             [
-                self.pxe_dir, '/',
-                self.xml_state.xml_data.get_name(), '.append'
+                self.pxe_dir, '/', self.pxename, '.append'
             ]
         )
         if self.initrd_system == 'kiwi':
@@ -328,19 +330,21 @@ class InstallImageBuilder:
 
         # create pxe install tarball
         log.info('Creating pxe install archive')
-        archive = ArchiveTar(self.pxename)
+        archive = ArchiveTar(self.pxetarball)
 
         archive.create(self.pxe_dir)
 
     def _create_pxe_install_kernel_and_initrd(self):
+        kernelname = 'pxeboot.{0}.kernel'.format(self.pxename)
+        initrdname = 'pxeboot.{0}.initrd.xz'.format(self.pxename)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():
-            kernel.copy_kernel(self.pxe_dir, '/pxeboot.kernel')
+            kernel.copy_kernel(self.pxe_dir, kernelname)
             os.symlink(
-                'pxeboot.kernel', ''.join(
+                kernelname, ''.join(
                     [
                         self.pxe_dir, '/',
-                        self.xml_state.xml_data.get_name(), '.kernel'
+                        self.pxename, '.kernel'
                     ]
                 )
             )
@@ -351,7 +355,9 @@ class InstallImageBuilder:
             )
         if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
-                kernel.copy_xen_hypervisor(self.pxe_dir, '/pxeboot.xen.gz')
+                kernel.copy_xen_hypervisor(
+                    self.pxe_dir, '/pxeboot.{0}.xen.gz'.format(self.pxename)
+                )
             else:
                 raise KiwiInstallBootImageError(
                     'No hypervisor in boot image tree %s found' %
@@ -373,10 +379,10 @@ class InstallImageBuilder:
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
-                self.pxe_dir + '/pxeboot.initrd.xz'
+                self.pxe_dir + '/{0}'.format(initrdname)
             ]
         )
-        os.chmod(self.pxe_dir + '/pxeboot.initrd.xz', 420)
+        os.chmod(self.pxe_dir + '/{0}'.format(initrdname), 420)
 
     def _create_iso_install_kernel_and_initrd(self):
         boot_path = self.media_dir + '/boot/' + self.arch + '/loader'

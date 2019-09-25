@@ -333,39 +333,46 @@ class TestInstallImageBuilder:
         )
         compress.xz.assert_called_once_with(None)
         assert mock_command.call_args_list[0] == call(
-            ['mv', compress.compressed_filename, 'tmpdir/result-image.xz']
+            [
+                'mv', compress.compressed_filename,
+                'tmpdir/result-image.x86_64-1.2.3.xz'
+            ]
         )
         mock_md5.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.raw'
         )
         checksum.md5.assert_called_once_with(
-            'tmpdir/result-image.md5'
+            'tmpdir/result-image.x86_64-1.2.3.md5'
         )
         assert mock_open.call_args_list == [
             call('initrd_dir/config.vmxsystem', 'w'),
-            call('tmpdir/result-image.append', 'w')
+            call('tmpdir/result-image.x86_64-1.2.3.append', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call('IMAGE="result-image.raw"\n'),
             call('pxe=1 custom_kernel_options\n')
         ]
         self.kernel.copy_kernel.assert_called_once_with(
-            'tmpdir', '/pxeboot.kernel'
+            'tmpdir', 'pxeboot.result-image.x86_64-1.2.3.kernel'
         )
         mock_symlink.assert_called_once_with(
-            'pxeboot.kernel', 'tmpdir/result-image.kernel'
+            'pxeboot.result-image.x86_64-1.2.3.kernel',
+            'tmpdir/result-image.x86_64-1.2.3.kernel'
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
-            'tmpdir', '/pxeboot.xen.gz'
+            'tmpdir', '/pxeboot.result-image.x86_64-1.2.3.xen.gz'
         )
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
         assert mock_command.call_args_list[1] == call(
-            ['mv', 'initrd', 'tmpdir/pxeboot.initrd.xz']
+            [
+                'mv', 'initrd',
+                'tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz'
+            ]
         )
         mock_chmod.assert_called_once_with(
-            'tmpdir/pxeboot.initrd.xz', 420
+            'tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz', 420
         )
         mock_archive.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.install.tar'
@@ -383,14 +390,15 @@ class TestInstallImageBuilder:
             '/config.bootoptions', install_media=True
         )
         mock_copy.assert_called_once_with(
-            'root_dir/boot/initrd-kernel_version', 'tmpdir/result-image.initrd'
+            'root_dir/boot/initrd-kernel_version',
+            'tmpdir/result-image.x86_64-1.2.3.initrd'
         )
         assert mock_chmod.call_args_list == [
-            call('tmpdir/result-image.initrd', 420),
-            call('tmpdir/pxeboot.initrd.xz', 420)
+            call('tmpdir/result-image.x86_64-1.2.3.initrd', 420),
+            call('tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz', 420)
         ]
         assert mock_open.call_args_list == [
-            call('tmpdir/result-image.append', 'w'),
+            call('tmpdir/result-image.x86_64-1.2.3.append', 'w'),
         ]
         assert file_mock.write.call_args_list == [
             call(

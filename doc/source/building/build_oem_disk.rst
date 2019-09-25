@@ -177,8 +177,8 @@ target system:
 
       .. code:: bash
 
-          scp pxeboot.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
-          scp pxeboot.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
+          scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+          scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
 3. Copy the OEM disk image, MD5 file, system kernel and initrd to
    the PXE boot server:
@@ -190,15 +190,15 @@ target system:
 
       .. code:: bash
 
-          scp {exc_image_base_name}.xz PXE_SERVER_IP:/srv/tftpboot/image/
-          scp {exc_image_base_name}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.x86_64-{exc_image_version}.xz PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.x86_64-{exc_image_version}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
 
    b) Copy kernel and initrd used for booting the system via kexec
 
       .. code:: bash
 
-          scp {exc_image_base_name}.initrd PXE_SERVER_IP:/srv/tftpboot/image/
-          scp {exc_image_base_name}.kernel PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.x86_64-{exc_image_version}.initrd PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/image/
 
 4. Add/Update the kernel command line parameters
 
@@ -208,7 +208,7 @@ target system:
 
    .. code:: bash
 
-       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/{exc_image_base_name}.xz
+       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/{exc_image_base_name}.x86_64-{exc_image_version}.xz
 
    The location of the image is specified as a source URI which can point
    to any location supported by the `curl` command. KIWI calls `curl` to fetch
