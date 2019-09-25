@@ -296,7 +296,7 @@ class SystemPrepare:
                 if manager.has_failed(process.returncode()):
                     raise KiwiInstallPhaseFailed(
                         self.issue_message.format(
-                            headline='Systen package installation failed',
+                            headline='System package installation failed',
                             reason=issue
                         )
                     )
