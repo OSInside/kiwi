@@ -173,7 +173,7 @@ class BootImageDracut(BootImageBase):
             dracut_call = Command.run(
                 [
                     'chroot', self.boot_root_directory,
-                    'dracut', '--force',
+                    'dracut', '--verbose',
                     '--no-hostonly',
                     '--no-hostonly-cmdline',
                     '--xz'
