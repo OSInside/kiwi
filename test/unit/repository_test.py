@@ -1,18 +1,15 @@
 from mock import patch
-
+from pytest import raises
 import mock
 
-from .test_helper import raises
-
 from kiwi.repository import Repository
-
 from kiwi.exceptions import KiwiRepositorySetupError
 
 
 class TestRepository:
-    @raises(KiwiRepositorySetupError)
     def test_repository_manager_not_implemented(self):
-        Repository('root_bind', 'ms-manager')
+        with raises(KiwiRepositorySetupError):
+            Repository('root_bind', 'ms-manager')
 
     @patch('kiwi.repository.RepositoryZypper')
     def test_repository_zypper(self, mock_manager):

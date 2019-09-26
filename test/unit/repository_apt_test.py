@@ -1,26 +1,17 @@
-from mock import patch, call
-
+from mock import (
+    patch, call, MagicMock
+)
+import io
 import mock
-
-from .test_helper import patch_open
 
 from kiwi.repository.apt import RepositoryApt
 
 
 class TestRepositoryApt:
     @patch('kiwi.repository.apt.NamedTemporaryFile')
-    @patch_open
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
     @patch('kiwi.repository.apt.Path.create')
-    def setup(self, mock_path, mock_template, mock_open, mock_temp):
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
+    def setup(self, mock_path, mock_template, mock_temp):
         self.apt_conf = mock.Mock()
         mock_template.return_value = self.apt_conf
 
@@ -37,7 +28,8 @@ class TestRepositoryApt:
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
 
-        self.repo = RepositoryApt(root_bind, ['exclude_docs'])
+        with patch('builtins.open', create=True):
+            self.repo = RepositoryApt(root_bind, ['exclude_docs'])
 
         self.exclude_docs = True
         self.apt_conf.get_host_template.assert_called_once_with(
@@ -50,24 +42,22 @@ class TestRepositoryApt:
             }
         )
 
-    @patch_open
     @patch('kiwi.repository.apt.NamedTemporaryFile')
     @patch('kiwi.repository.apt.Path.create')
-    def test_post_init_no_custom_args(self, mock_open, mock_path, mock_temp):
+    def test_post_init_no_custom_args(self, mock_path, mock_temp):
         self.repo.post_init()
         assert self.repo.custom_args == []
 
-    @patch_open
     @patch('kiwi.repository.apt.NamedTemporaryFile')
     @patch('kiwi.repository.apt.Path.create')
-    def test_post_init_with_custom_args(self, mock_open, mock_path, mock_temp):
+    def test_post_init_with_custom_args(self, mock_path, mock_temp):
         self.repo.post_init(['check_signatures'])
         assert self.repo.custom_args == []
         assert self.repo.unauthenticated == 'false'
 
-    @patch_open
-    def test_use_default_location(self, mock_open):
+    def test_use_default_location(self):
         template = mock.Mock()
+        template.substitute.return_value = 'template-data'
         self.apt_conf.get_image_template.return_value = template
         self.repo.use_default_location()
         self.apt_conf.get_image_template.assert_called_once_with(
@@ -88,105 +78,107 @@ class TestRepositoryApt:
         self.repo.setup_package_database_configuration()
 
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo_with_priority(self, mock_open, mock_exists):
-        mock_open.return_value = self.context_manager_mock
+    def test_add_repo_with_priority(self, mock_exists):
         mock_exists.return_value = True
-        self.repo.add_repo(
-            'foo', '/srv/my-repo', 'deb', '42', 'xenial', 'a b'
-        )
-        assert mock_open.call_args_list == [
-            call('/shared-dir/apt-get/sources.list.d/foo.list', 'w'),
-            call('/shared-dir/apt-get/preferences.d/foo.pref', 'w')
-        ]
-        print(self.file_mock.write.call_args_list)
-        assert self.file_mock.write.call_args_list == [
-            call('deb file:/srv/my-repo xenial a b\n'),
-            call('Package: *\n'),
-            call('Pin: origin ""\n'),
-            call('Pin-Priority: 42\n')
-        ]
-        self.file_mock.reset_mock()
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', '/srv/my-repo', 'deb', '42', 'xenial', 'a b'
+            )
+            assert mock_open.call_args_list == [
+                call('/shared-dir/apt-get/sources.list.d/foo.list', 'w'),
+                call('/shared-dir/apt-get/preferences.d/foo.pref', 'w')
+            ]
+            assert file_handle.write.call_args_list == [
+                call('deb file:/srv/my-repo xenial a b\n'),
+                call('Package: *\n'),
+                call('Pin: origin ""\n'),
+                call('Pin-Priority: 42\n')
+            ]
         mock_exists.return_value = False
-        self.repo.add_repo(
-            'foo',
-            'http://download.opensuse.org/repositories/V:/A:/C/Debian_9.0/',
-            'deb', '99', 'xenial', 'a b'
-        )
-        assert self.file_mock.write.call_args_list == [
-            call(
-                'deb http://download.opensuse.org/repositories/'
-                'V:/A:/C/Debian_9.0/ xenial a b\n'
-            ),
-            call('Package: *\n'),
-            call('Pin: origin "download.opensuse.org"\n'),
-            call('Pin-Priority: 99\n')
-        ]
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo',
+                'http://download.opensuse.org/repositories/V:/A:/C/Debian_9.0/',
+                'deb', '99', 'xenial', 'a b'
+            )
+            assert file_handle.write.call_args_list == [
+                call(
+                    'deb http://download.opensuse.org/repositories/'
+                    'V:/A:/C/Debian_9.0/ xenial a b\n'
+                ),
+                call('Package: *\n'),
+                call('Pin: origin "download.opensuse.org"\n'),
+                call('Pin-Priority: 99\n')
+            ]
 
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo_distribution(self, mock_open, mock_exists):
-        mock_open.return_value = self.context_manager_mock
+    def test_add_repo_distribution(self, mock_exists):
         mock_exists.return_value = True
-        self.repo.add_repo(
-            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b'
-        )
-        self.file_mock.write.assert_called_once_with(
-            'deb file:/kiwi_iso_mount/uri xenial a b\n'
-        )
-        mock_open.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
-        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b'
+            )
+            file_handle.write.assert_called_once_with(
+                'deb file:/kiwi_iso_mount/uri xenial a b\n'
+            )
+            mock_open.assert_called_once_with(
+                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+            )
 
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo_distribution_without_gpgchecks(
-        self, mock_open, mock_exists
-    ):
-        mock_open.return_value = self.context_manager_mock
+    def test_add_repo_distribution_without_gpgchecks(self, mock_exists):
         mock_exists.return_value = True
-        self.repo.add_repo(
-            'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
-            repo_gpgcheck=False, pkg_gpgcheck=False
-        )
-        self.file_mock.write.assert_called_once_with(
-            'deb [trusted=yes check-valid-until=no] file:/kiwi_iso_mount/uri xenial a b\n'
-        )
-        mock_open.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
-        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
+                repo_gpgcheck=False, pkg_gpgcheck=False
+            )
+            file_handle.write.assert_called_once_with(
+                'deb [trusted=yes check-valid-until=no] file:/kiwi_iso_mount/uri xenial a b\n'
+            )
+            mock_open.assert_called_once_with(
+                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+            )
 
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo_distribution_default_component(
-        self, mock_open, mock_exists
-    ):
-        mock_open.return_value = self.context_manager_mock
+    def test_add_repo_distribution_default_component(self, mock_exists):
         mock_exists.return_value = True
-        self.repo.add_repo(
-            'foo', '/kiwi_iso_mount/uri', 'deb', None, 'xenial'
-        )
-        self.file_mock.write.assert_called_once_with(
-            'deb file:/kiwi_iso_mount/uri xenial main\n'
-        )
-        mock_open.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
-        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', '/kiwi_iso_mount/uri', 'deb', None, 'xenial'
+            )
+            file_handle.write.assert_called_once_with(
+                'deb file:/kiwi_iso_mount/uri xenial main\n'
+            )
+            mock_open.assert_called_once_with(
+                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+            )
 
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo_flat(self, mock_open, mock_exists):
-        mock_open.return_value = self.context_manager_mock
+    def test_add_repo_flat(self, mock_exists):
         mock_exists.return_value = False
-        self.repo.add_repo(
-            'foo', 'http://repo.com', 'deb'
-        )
-        self.file_mock.write.assert_called_once_with(
-            'deb http://repo.com ./\n'
-        )
-        mock_open.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
-        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', 'http://repo.com', 'deb'
+            )
+            file_handle.write.assert_called_once_with(
+                'deb http://repo.com ./\n'
+            )
+            mock_open.assert_called_once_with(
+                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+            )
 
     def test_import_trusted_keys(self):
         self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])

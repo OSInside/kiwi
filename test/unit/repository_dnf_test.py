@@ -1,9 +1,6 @@
-
-from mock import patch
-from mock import call
-
-from .test_helper import patch_open
-
+from mock import (
+    patch, call
+)
 import mock
 
 from kiwi.repository.dnf import RepositoryDnf
@@ -11,11 +8,10 @@ from kiwi.repository.dnf import RepositoryDnf
 
 class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
-    @patch_open
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
     @patch('kiwi.logger.log.warning')
-    def setup(self, mock_warn, mock_path, mock_config, mock_open, mock_temp):
+    def setup(self, mock_warn, mock_path, mock_config, mock_temp):
         runtime_dnf_config = mock.Mock()
         mock_config.return_value = runtime_dnf_config
         tmpfile = mock.Mock()
@@ -27,9 +23,11 @@ class TestRepositoryDnf:
         )
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
-        self.repo = RepositoryDnf(
-            root_bind, ['exclude_docs', '_install_langs%en_US:de_DE']
-        )
+
+        with patch('builtins.open', create=True):
+            self.repo = RepositoryDnf(
+                root_bind, ['exclude_docs', '_install_langs%en_US:de_DE']
+            )
 
         assert runtime_dnf_config.set.call_args_list == [
             call('main', 'cachedir', '/shared-dir/dnf/cache'),
@@ -45,28 +43,28 @@ class TestRepositoryDnf:
             call('main', 'enabled', '1')
         ]
 
-    @patch_open
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
     @patch('kiwi.repository.dnf.Path.create')
-    def test_post_init_no_custom_args(self, mock_path, mock_temp, mock_open):
-        self.repo.post_init()
+    def test_post_init_no_custom_args(self, mock_path, mock_temp):
+        with patch('builtins.open', create=True):
+            self.repo.post_init()
         assert self.repo.custom_args == []
 
-    @patch_open
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
     @patch('kiwi.repository.dnf.Path.create')
-    def test_post_init_with_custom_args(self, mock_path, mock_temp, mock_open):
-        self.repo.post_init(['check_signatures'])
+    def test_post_init_with_custom_args(self, mock_path, mock_temp):
+        with patch('builtins.open', create=True):
+            self.repo.post_init(['check_signatures'])
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
 
-    @patch_open
     @patch('kiwi.repository.dnf.ConfigParser')
-    def test_use_default_location(self, mock_config, mock_open):
+    def test_use_default_location(self, mock_config):
         runtime_dnf_config = mock.Mock()
         mock_config.return_value = runtime_dnf_config
 
-        self.repo.use_default_location()
+        with patch('builtins.open', create=True):
+            self.repo.use_default_location()
 
         assert runtime_dnf_config.set.call_args_list == [
             call('main', 'cachedir', '../data/var/cache/dnf'),
@@ -90,23 +88,23 @@ class TestRepositoryDnf:
 
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo(self, mock_open, mock_exists, mock_config):
+    def test_add_repo(self, mock_exists, mock_config):
         repo_config = mock.Mock()
         mock_config.return_value = repo_config
         mock_exists.return_value = True
 
-        self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
+        with patch('builtins.open', create=True) as mock_open:
+            self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
 
-        repo_config.add_section.assert_called_once_with('foo')
-        assert repo_config.set.call_args_list == [
-            call('foo', 'name', 'foo'),
-            call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
-            call('foo', 'priority', '42')
-        ]
-        mock_open.assert_called_once_with(
-            '/shared-dir/dnf/repos/foo.repo', 'w'
-        )
+            repo_config.add_section.assert_called_once_with('foo')
+            assert repo_config.set.call_args_list == [
+                call('foo', 'name', 'foo'),
+                call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+                call('foo', 'priority', '42')
+            ]
+            mock_open.assert_called_once_with(
+                '/shared-dir/dnf/repos/foo.repo', 'w'
+            )
 
     @patch('kiwi.repository.dnf.RpmDataBase')
     def test_setup_package_database_configuration(self, mock_RpmDataBase):
@@ -144,30 +142,28 @@ class TestRepositoryDnf:
 
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('os.path.exists')
-    @patch_open
-    def test_add_repo_with_gpgchecks(
-        self, mock_open, mock_exists, mock_config
-    ):
+    def test_add_repo_with_gpgchecks(self, mock_exists, mock_config):
         repo_config = mock.Mock()
         mock_config.return_value = repo_config
         mock_exists.return_value = True
 
-        self.repo.add_repo(
-            'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
-            repo_gpgcheck=False, pkg_gpgcheck=True
-        )
+        with patch('builtins.open', create=True) as mock_open:
+            self.repo.add_repo(
+                'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+                repo_gpgcheck=False, pkg_gpgcheck=True
+            )
 
-        repo_config.add_section.assert_called_once_with('foo')
-        assert repo_config.set.call_args_list == [
-            call('foo', 'name', 'foo'),
-            call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
-            call('foo', 'priority', '42'),
-            call('foo', 'repo_gpgcheck', '0'),
-            call('foo', 'gpgcheck', '1')
-        ]
-        mock_open.assert_called_once_with(
-            '/shared-dir/dnf/repos/foo.repo', 'w'
-        )
+            repo_config.add_section.assert_called_once_with('foo')
+            assert repo_config.set.call_args_list == [
+                call('foo', 'name', 'foo'),
+                call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+                call('foo', 'priority', '42'),
+                call('foo', 'repo_gpgcheck', '0'),
+                call('foo', 'gpgcheck', '1')
+            ]
+            mock_open.assert_called_once_with(
+                '/shared-dir/dnf/repos/foo.repo', 'w'
+            )
 
     @patch('kiwi.repository.dnf.RpmDataBase')
     def test_import_trusted_keys(self, mock_RpmDataBase):
