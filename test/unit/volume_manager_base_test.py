@@ -1,12 +1,12 @@
-from mock import patch
-
-import mock
-
-from .test_helper import raises
-
 from collections import namedtuple
-from kiwi.exceptions import KiwiVolumeManagerSetupError
+from mock import (
+    patch, Mock
+)
+from pytest import raises
+
 from kiwi.volume_manager.base import VolumeManagerBase
+
+from kiwi.exceptions import KiwiVolumeManagerSetupError
 
 
 class TestVolumeManagerBase:
@@ -23,15 +23,15 @@ class TestVolumeManagerBase:
             ]
         )
         mock_path.return_value = True
-        self.device_provider = mock.Mock()
-        self.device_provider.is_loop = mock.Mock(
+        self.device_provider = Mock()
+        self.device_provider.is_loop = Mock(
             return_value=True
         )
-        self.device_provider.get_device = mock.Mock(
+        self.device_provider.get_device = Mock(
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerBase(
-            self.device_provider, 'root_dir', mock.Mock()
+            self.device_provider, 'root_dir', Mock()
         )
         self.volume_manager.volumes = [
             self.volume_type(
@@ -48,8 +48,7 @@ class TestVolumeManagerBase:
     def test_init_custom_args(self, mock_exists):
         mock_exists.return_value = True
         volume_manager = VolumeManagerBase(
-            mock.Mock(), 'root_dir', mock.Mock(),
-            {
+            Mock(), 'root_dir', Mock(), {
                 'fs_create_options': 'create-opts',
                 'fs_mount_options': 'mount-opts'
             }
@@ -60,10 +59,10 @@ class TestVolumeManagerBase:
             'create-opts'
 
     @patch('os.path.exists')
-    @raises(KiwiVolumeManagerSetupError)
     def test_root_dir_does_not_exist(self, mock_exists):
         mock_exists.return_value = False
-        VolumeManagerBase(mock.Mock(), 'root_dir', mock.Mock())
+        with raises(KiwiVolumeManagerSetupError):
+            VolumeManagerBase(Mock(), 'root_dir', Mock())
 
     def test_is_loop(self):
         assert self.volume_manager.is_loop() == \
@@ -75,17 +74,17 @@ class TestVolumeManagerBase:
         assert self.volume_manager.get_device()['root'].get_device() == \
             '/dev/storage'
 
-    @raises(NotImplementedError)
     def test_setup(self):
-        self.volume_manager.setup()
+        with raises(NotImplementedError):
+            self.volume_manager.setup()
 
-    @raises(NotImplementedError)
     def test_create_volumes(self):
-        self.volume_manager.create_volumes('ext3')
+        with raises(NotImplementedError):
+            self.volume_manager.create_volumes('ext3')
 
-    @raises(NotImplementedError)
     def test_get_fstab(self):
-        self.volume_manager.get_fstab('by-label', 'ext3')
+        with raises(NotImplementedError):
+            self.volume_manager.get_fstab('by-label', 'ext3')
 
     @patch('kiwi.volume_manager.base.Path.create')
     @patch('os.path.exists')
@@ -101,8 +100,8 @@ class TestVolumeManagerBase:
 
     @patch('kiwi.volume_manager.base.SystemSize')
     def test_get_volume_mbsize(self, mock_size):
-        size = mock.Mock()
-        size.customize = mock.Mock(
+        size = Mock()
+        size.customize = Mock(
             return_value=42
         )
         mock_size.return_value = size
@@ -113,8 +112,8 @@ class TestVolumeManagerBase:
 
     @patch('kiwi.volume_manager.base.SystemSize')
     def test_get_volume_mbsize_for_oem_type(self, mock_size):
-        size = mock.Mock()
-        size.customize = mock.Mock(
+        size = Mock()
+        size.customize = Mock(
             return_value=42
         )
         mock_size.return_value = size
@@ -125,8 +124,8 @@ class TestVolumeManagerBase:
 
     @patch('kiwi.volume_manager.base.SystemSize')
     def test_get_volume_mbsize_nested_volumes(self, mock_size):
-        size = mock.Mock()
-        size.customize = mock.Mock(
+        size = Mock()
+        size.customize = Mock(
             return_value=42
         )
         mock_size.return_value = size
@@ -150,8 +149,8 @@ class TestVolumeManagerBase:
 
     @patch('kiwi.volume_manager.base.SystemSize')
     def test_get_volume_mbsize_root_volume(self, mock_size):
-        size = mock.Mock()
-        size.customize = mock.Mock(
+        size = Mock()
+        size.customize = Mock(
             return_value=42
         )
         mock_size.return_value = size
@@ -177,17 +176,17 @@ class TestVolumeManagerBase:
             ['root_dir/usr', 'root_dir/usr/lib']
         )
 
-    @raises(NotImplementedError)
     def test_mount_volumes(self):
-        self.volume_manager.mount_volumes()
+        with raises(NotImplementedError):
+            self.volume_manager.mount_volumes()
 
-    @raises(NotImplementedError)
     def test_umount_volumes(self):
-        self.volume_manager.umount_volumes()
+        with raises(NotImplementedError):
+            self.volume_manager.umount_volumes()
 
-    @raises(NotImplementedError)
     def test_get_volumes(self):
-        self.volume_manager.get_volumes()
+        with raises(NotImplementedError):
+            self.volume_manager.get_volumes()
 
     @patch('kiwi.volume_manager.base.DataSync')
     @patch('kiwi.volume_manager.base.MountManager.is_mounted')
@@ -196,7 +195,7 @@ class TestVolumeManagerBase:
     def test_sync_data(
         self, mock_umount_volumes, mock_mount_volumes, mock_mounted, mock_sync
     ):
-        data_sync = mock.Mock()
+        data_sync = Mock()
         mock_sync.return_value = data_sync
         mock_mounted.return_value = False
         self.volume_manager.mountpoint = 'mountpoint'
@@ -217,9 +216,9 @@ class TestVolumeManagerBase:
         self.volume_manager.setup_mountpoint()
         assert self.volume_manager.mountpoint == 'tmpdir'
 
-    @raises(KiwiVolumeManagerSetupError)
     def test_set_property_readonly_root(self):
-        self.volume_manager.set_property_readonly_root()
+        with raises(KiwiVolumeManagerSetupError):
+            self.volume_manager.set_property_readonly_root()
 
     @patch('kiwi.volume_manager.base.Command.run')
     def test_apply_attributes_on_volume(self, mock_command):

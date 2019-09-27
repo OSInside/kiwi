@@ -1,14 +1,11 @@
-
-from mock import patch
-
 import mock
-
-from .test_helper import raises
-
+from mock import patch
+from pytest import raises
 from collections import namedtuple
 
-from kiwi.exceptions import KiwiKernelLookupError
 from kiwi.system.kernel import Kernel
+
+from kiwi.exceptions import KiwiKernelLookupError
 
 
 class TestKernel:
@@ -27,10 +24,10 @@ class TestKernel:
             'image-1.2.3-default'
         ]
 
-    @raises(KiwiKernelLookupError)
     def test_get_kernel_raises_if_no_kernel_found(self):
         self.kernel.kernel_names = []
-        self.kernel.get_kernel(raise_on_not_found=True)
+        with raises(KiwiKernelLookupError):
+            self.kernel.get_kernel(raise_on_not_found=True)
 
     @patch('os.path.exists')
     @patch('os.path.realpath')

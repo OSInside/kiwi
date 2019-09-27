@@ -1,9 +1,12 @@
-from mock import patch
+import sys
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
-import mock
+from .test_helper import argv_kiwi_tests
+
 import kiwi
-
-from .test_helper import raises
 
 from kiwi.exceptions import KiwiFileSystemSetupError
 from kiwi.builder.filesystem import FileSystemBuilder
@@ -14,71 +17,71 @@ class TestFileSystemBuilder:
     @patch('platform.machine')
     def setup(self, mock_machine, mock_fs_setup):
         mock_machine.return_value = 'x86_64'
-        self.loop_provider = mock.Mock()
-        self.loop_provider.get_device = mock.Mock(
+        self.loop_provider = Mock()
+        self.loop_provider.get_device = Mock(
             return_value='/dev/loop1'
         )
-        self.loop_provider.create = mock.Mock()
+        self.loop_provider.create = Mock()
 
-        self.filesystem = mock.Mock()
-        self.filesystem.create_on_device = mock.Mock()
-        self.filesystem.create_on_file = mock.Mock()
-        self.filesystem.sync_data = mock.Mock()
+        self.filesystem = Mock()
+        self.filesystem.create_on_device = Mock()
+        self.filesystem.create_on_file = Mock()
+        self.filesystem.sync_data = Mock()
 
-        self.xml_state = mock.Mock()
-        self.xml_state.get_build_type_unpartitioned_bytes = mock.Mock(
+        self.xml_state = Mock()
+        self.xml_state.get_build_type_unpartitioned_bytes = Mock(
             return_value=0
         )
-        self.xml_state.get_fs_mount_option_list = mock.Mock(
+        self.xml_state.get_fs_mount_option_list = Mock(
             return_value=['async']
         )
-        self.xml_state.get_fs_create_option_list = mock.Mock(
+        self.xml_state.get_fs_create_option_list = Mock(
             return_value=['-O', 'option']
         )
-        self.xml_state.get_build_type_name = mock.Mock(
+        self.xml_state.get_build_type_name = Mock(
             return_value='ext3'
         )
-        self.xml_state.get_image_version = mock.Mock(
+        self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
-        self.xml_state.xml_data.get_name = mock.Mock(
+        self.xml_state.xml_data.get_name = Mock(
             return_value='myimage'
         )
-        self.xml_state.build_type.get_target_blocksize = mock.Mock(
+        self.xml_state.build_type.get_target_blocksize = Mock(
             return_value=4096
         )
 
-        self.fs_setup = mock.Mock()
-        self.fs_setup.get_size_mbytes = mock.Mock(
+        self.fs_setup = Mock()
+        self.fs_setup.get_size_mbytes = Mock(
             return_value=42
         )
 
-        self.setup = mock.Mock()
-        kiwi.builder.filesystem.SystemSetup = mock.Mock(
+        self.setup = Mock()
+        kiwi.builder.filesystem.SystemSetup = Mock(
             return_value=self.setup
         )
 
-    @raises(KiwiFileSystemSetupError)
     def test_create_unknown_filesystem(self):
-        self.xml_state.get_build_type_name = mock.Mock(
+        self.xml_state.get_build_type_name = Mock(
             return_value='super-fs'
         )
         fs = FileSystemBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
-        fs.create()
+        with raises(KiwiFileSystemSetupError):
+            fs.create()
 
-    @raises(KiwiFileSystemSetupError)
     def test_no_filesystem_configured(self):
-        self.xml_state.get_build_type_name = mock.Mock(
+        self.xml_state.get_build_type_name = Mock(
             return_value='pxe'
         )
-        self.xml_state.build_type.get_filesystem = mock.Mock(
+        self.xml_state.build_type.get_filesystem = Mock(
             return_value=None
         )
-        FileSystemBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
+        with raises(KiwiFileSystemSetupError):
+            FileSystemBuilder(
+                self.xml_state, 'target_dir', 'root_dir'
+            )
 
     @patch('kiwi.builder.filesystem.LoopDevice')
     @patch('kiwi.builder.filesystem.FileSystem')
@@ -123,10 +126,10 @@ class TestFileSystemBuilder:
         self, mock_machine, mock_provider, mock_fs
     ):
         mock_machine.return_value = 'x86_64'
-        provider = mock.Mock()
+        provider = Mock()
         mock_provider.return_value = provider
         mock_fs.return_value = self.filesystem
-        self.xml_state.get_build_type_name = mock.Mock(
+        self.xml_state.get_build_type_name = Mock(
             return_value='squashfs'
         )
         fs = FileSystemBuilder(
@@ -149,3 +152,6 @@ class TestFileSystemBuilder:
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests

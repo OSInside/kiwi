@@ -1,13 +1,14 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 import kiwi
 
-from .test_helper import raises, patch_open
-
-from kiwi.exceptions import KiwiLiveBootImageError
+from .test_helper import patch_open
 
 from kiwi.builder.live import LiveImageBuilder
+from kiwi.exceptions import KiwiLiveBootImageError
 
 
 class TestLiveImageBuilder:
@@ -318,41 +319,41 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.shutil')
     @patch_open
-    @raises(KiwiLiveBootImageError)
     def test_create_no_kernel_found(
         self, mock_open, mock_shutil, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_kernel.return_value = False
-        self.live_image.create()
+        with raises(KiwiLiveBootImageError):
+            self.live_image.create()
 
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.shutil')
     @patch_open
-    @raises(KiwiLiveBootImageError)
     def test_create_no_hypervisor_found(
         self, mock_open, mock_shutil, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
-        self.live_image.create()
+        with raises(KiwiLiveBootImageError):
+            self.live_image.create()
 
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.shutil')
     @patch('os.path.exists')
     @patch_open
-    @raises(KiwiLiveBootImageError)
     def test_create_no_initrd_found(
         self, mock_open, mock_exists, mock_shutil, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         mock_dtemp.return_value = 'tmpdir'
         mock_exists.return_value = False
-        self.live_image.create()
+        with raises(KiwiLiveBootImageError):
+            self.live_image.create()
 
     @patch('kiwi.builder.live.Path.wipe')
     def test_destructor(self, mock_wipe):

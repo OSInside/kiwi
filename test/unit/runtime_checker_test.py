@@ -3,17 +3,12 @@ from mock import patch
 import mock
 from pytest import raises
 
+from .test_helper import argv_kiwi_tests
+
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
 from kiwi.exceptions import KiwiRuntimeError
-
-# default commandline used for any test, overwrite when needed
-sys.argv = [
-    sys.argv[0], 'system', 'prepare',
-    '--description', 'description', '--root', 'directory'
-]
-argv_kiwi_tests = sys.argv
 
 
 class TestRuntimeChecker:
@@ -301,3 +296,6 @@ class TestRuntimeChecker:
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_architecture_supports_iso_firmware_setup()
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests

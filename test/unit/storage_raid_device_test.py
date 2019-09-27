@@ -1,33 +1,35 @@
-from mock import patch
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
-import mock
+from .test_helper import patch_open
 
-from .test_helper import raises, patch_open
+from kiwi.storage.raid_device import RaidDevice
 
 from kiwi.exceptions import KiwiRaidSetupError
-from kiwi.storage.raid_device import RaidDevice
 
 
 class TestRaidDevice:
     def setup(self):
-        storage_device = mock.Mock()
-        storage_device.get_device = mock.Mock(
+        storage_device = Mock()
+        storage_device.get_device = Mock(
             return_value='/dev/some-device'
         )
-        storage_device.is_loop = mock.Mock(
+        storage_device.is_loop = Mock(
             return_value=True
         )
         self.raid = RaidDevice(storage_device)
 
-    @raises(KiwiRaidSetupError)
     def test_create_degraded_raid_invalid_level(self):
-        self.raid.create_degraded_raid('bogus-level')
+        with raises(KiwiRaidSetupError):
+            self.raid.create_degraded_raid('bogus-level')
 
-    @raises(KiwiRaidSetupError)
     @patch('os.path.exists')
     def test_create_degraded_raid_no_free_device(self, mock_path):
         mock_path.return_value = True
-        self.raid.create_degraded_raid('mirroring')
+        with raises(KiwiRaidSetupError):
+            self.raid.create_degraded_raid('mirroring')
 
     @patch('os.path.exists')
     def test_get_device(self, mock_path):
@@ -54,14 +56,14 @@ class TestRaidDevice:
     @patch_open
     def test_create_raid_config(self, mock_open, mock_command):
         self.raid.raid_device = '/dev/md0'
-        command_call = mock.Mock()
+        command_call = Mock()
         command_call.output = 'data'
         mock_command.return_value = command_call
-        context_manager_mock = mock.Mock()
+        context_manager_mock = Mock()
         mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
+        file_mock = Mock()
+        enter_mock = Mock()
+        exit_mock = Mock()
         enter_mock.return_value = file_mock
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)

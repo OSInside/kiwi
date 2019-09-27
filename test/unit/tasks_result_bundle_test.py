@@ -1,15 +1,17 @@
-import sys
-import mock
 import os
+import sys
+from mock import (
+    patch, call, Mock
+)
+from pytest import raises
 
-from mock import patch, call
+from .test_helper import argv_kiwi_tests, patch_open
 
 import kiwi
-
-from .test_helper import raises, argv_kiwi_tests, patch_open
-from kiwi.exceptions import KiwiBundleError
 from kiwi.tasks.result_bundle import ResultBundleTask
 from kiwi.system.result import Result
+
+from kiwi.exceptions import KiwiBundleError
 
 
 class TestResultBundleTask:
@@ -20,21 +22,21 @@ class TestResultBundleTask:
         ]
         self.abs_target_dir = os.path.abspath('target_dir')
         self.abs_bundle_dir = os.path.abspath('bundle_dir')
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
+        self.context_manager_mock = Mock()
+        self.file_mock = Mock()
+        self.enter_mock = Mock()
+        self.exit_mock = Mock()
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
         self.file_mock.read.return_value = b'data'
 
-        self.xml_state = mock.Mock()
-        self.xml_state.get_image_version = mock.Mock(
+        self.xml_state = Mock()
+        self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
-        self.xml_state.xml_data.get_name = mock.Mock(
+        self.xml_state.xml_data.get_name = Mock(
             return_value='test-image'
         )
 
@@ -44,13 +46,13 @@ class TestResultBundleTask:
             use_for_bundle=True, compress=True, shasum=True
         )
 
-        kiwi.tasks.result_bundle.Help = mock.Mock(
-            return_value=mock.Mock()
+        kiwi.tasks.result_bundle.Help = Mock(
+            return_value=Mock()
         )
         self.task = ResultBundleTask()
 
-        runtime_config = mock.Mock()
-        runtime_config.is_bundle_compression_requested = mock.Mock(
+        runtime_config = Mock()
+        runtime_config.is_bundle_compression_requested = Mock(
             return_value=True
         )
         self.task.runtime_config = runtime_config
@@ -67,13 +69,13 @@ class TestResultBundleTask:
         self.task.command_args['--id'] = 'Build_42'
         self.task.command_args['--zsync-source'] = None
 
-    @raises(KiwiBundleError)
     def test_process_invalid_bundle_directory(self):
         self._init_command_args()
         self.task.command_args['--bundle-dir'] = \
             self.task.command_args['--target-dir']
         self.task.command_args['bundle'] = True
-        self.task.process()
+        with raises(KiwiBundleError):
+            self.task.process()
 
     @patch('kiwi.tasks.result_bundle.Result.load')
     @patch('kiwi.tasks.result_bundle.Command.run')
@@ -93,8 +95,8 @@ class TestResultBundleTask:
             use_for_bundle=True, compress=False, shasum=False
         )
 
-        checksum = mock.Mock()
-        compress = mock.Mock()
+        checksum = Mock()
+        compress = Mock()
         mock_path_which.return_value = 'zsyncmake'
         compress.compressed_filename = 'compressed_filename'
         mock_compress.return_value = compress
@@ -154,7 +156,7 @@ class TestResultBundleTask:
             use_for_bundle=True, compress=False, shasum=False
         )
 
-        self.xml_state.xml_data.get_name = mock.Mock(
+        self.xml_state.xml_data.get_name = Mock(
             return_value='test-1.2.3-image'
         )
 
@@ -191,8 +193,8 @@ class TestResultBundleTask:
         self, mock_open, mock_exists, mock_checksum, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load, mock_log
     ):
-        checksum = mock.Mock()
-        compress = mock.Mock()
+        checksum = Mock()
+        compress = Mock()
         mock_path_which.return_value = None
         compress.compressed_filename = 'compressed_filename'
         mock_compress.return_value = compress

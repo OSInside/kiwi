@@ -1,15 +1,13 @@
-from mock import patch
-from mock import call
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, call, Mock
+)
+from pytest import raises
 from collections import namedtuple
 
-from kiwi.exceptions import KiwiVolumeGroupConflict
-
 from kiwi.volume_manager.lvm import VolumeManagerLVM
-
 from kiwi.defaults import Defaults
+
+from kiwi.exceptions import KiwiVolumeGroupConflict
 
 
 class TestVolumeManagerLVM:
@@ -45,11 +43,11 @@ class TestVolumeManagerLVM:
             ),
         ]
         mock_path.return_value = True
-        self.device_provider = mock.Mock()
-        self.device_provider.is_loop = mock.Mock(
+        self.device_provider = Mock()
+        self.device_provider.is_loop = Mock(
             return_value=True
         )
-        self.device_provider.get_device = mock.Mock(
+        self.device_provider.get_device = Mock(
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerLVM(
@@ -88,7 +86,7 @@ class TestVolumeManagerLVM:
     @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup(self, mock_mkdtemp, mock_command):
         mock_mkdtemp.return_value = 'tmpdir'
-        command = mock.Mock()
+        command = Mock()
         # no output for commands to mock empty information for
         # vgs command, indicating the volume group is not in use
         command.output = ''
@@ -117,13 +115,13 @@ class TestVolumeManagerLVM:
         assert self.volume_manager.volume_group == 'volume_group'
         self.volume_manager.volume_group = None
 
-    @raises(KiwiVolumeGroupConflict)
     @patch('kiwi.volume_manager.lvm.Command.run')
     def test_setup_volume_group_host_conflict(self, mock_command):
-        command = mock.Mock()
+        command = Mock()
         command.output = 'some_data_about_volume_group'
         mock_command.return_value = command
-        self.volume_manager.setup('volume_group')
+        with raises(KiwiVolumeGroupConflict):
+            self.volume_manager.setup('volume_group')
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.base.SystemSize')
@@ -136,12 +134,12 @@ class TestVolumeManagerLVM:
         self, mock_attrs, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_size, mock_os_exists
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.volume_manager.mountpoint = 'tmpdir'
         mock_mapped_device.return_value = 'mapped_device'
-        size = mock.Mock()
-        size.customize = mock.Mock(
+        size = Mock()
+        size.customize = Mock(
             return_value=42
         )
         mock_size.return_value = size
@@ -237,7 +235,7 @@ class TestVolumeManagerLVM:
 
     @patch('kiwi.volume_manager.lvm.Path')
     def test_mount_volumes(self, mock_path):
-        volume_mount = mock.Mock()
+        volume_mount = Mock()
         volume_mount.mountpoint = 'volume_mount_point'
         self.volume_manager.mount_list = [volume_mount]
         self.volume_manager.mount_volumes()
@@ -245,14 +243,14 @@ class TestVolumeManagerLVM:
         volume_mount.mount.assert_called_once_with(options=['a,b,c'])
 
     def test_umount_volumes(self):
-        volume_mount = mock.Mock()
+        volume_mount = Mock()
         volume_mount.mountpoint = 'volume_mount_point'
         self.volume_manager.mount_list = [volume_mount]
         assert self.volume_manager.umount_volumes() is True
         volume_mount.umount.assert_called_once_with()
 
     def test_get_volumes(self):
-        volume_mount = mock.Mock()
+        volume_mount = Mock()
         volume_mount.mountpoint = \
             '/tmp/kiwi_volumes.f2qx_d3y/boot/grub2/x86_64-efi'
         volume_mount.device = '/dev/mapper/vg1-LVRoot'
@@ -265,7 +263,7 @@ class TestVolumeManagerLVM:
         }
 
     def test_get_fstab(self):
-        volume_mount = mock.Mock()
+        volume_mount = Mock()
         volume_mount.mountpoint = '/tmp/kiwi_volumes.f2qx_d3y/var/tmp'
         volume_mount.device = 'device'
         self.volume_manager.mount_list = [volume_mount]
@@ -278,7 +276,7 @@ class TestVolumeManagerLVM:
     def test_destructor_busy_volumes(self, mock_command, mock_wipe):
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.volume_group = 'volume_group'
-        volume_mount = mock.Mock()
+        volume_mount = Mock()
         volume_mount.is_mounted.return_value = True
         volume_mount.umount.return_value = False
         volume_mount.mountpoint = 'volume_mount_point'

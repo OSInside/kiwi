@@ -1,21 +1,19 @@
 from mock import patch
-
+from pytest import raises
+from collections import namedtuple
 import mock
 
 import kiwi
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
-from collections import namedtuple
-
+from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
 from kiwi.exceptions import (
     KiwiBootLoaderZiplPlatformError,
     KiwiBootLoaderZiplSetupError,
     KiwiDiskGeometryError,
     KiwiTemplateError
 )
-
-from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
 
 
 class TestBootLoaderConfigZipl:
@@ -73,17 +71,17 @@ class TestBootLoaderConfigZipl:
             self.xml_state, 'root_dir', None, {'targetbase': '/dev/loop0'}
         )
 
-    @raises(KiwiBootLoaderZiplPlatformError)
     @patch('platform.machine')
     def test_post_init_invalid_platform(self, mock_machine):
         mock_machine.return_value = 'unsupported-arch'
-        BootLoaderConfigZipl(mock.Mock(), 'root_dir')
+        with raises(KiwiBootLoaderZiplPlatformError):
+            BootLoaderConfigZipl(mock.Mock(), 'root_dir')
 
     @patch('platform.machine')
-    @raises(KiwiBootLoaderZiplSetupError)
     def test_post_init_no_target_base(self, mock_machine):
         mock_machine.return_value = 's390'
-        BootLoaderConfigZipl(mock.Mock(), 'root_dir')
+        with raises(KiwiBootLoaderZiplSetupError):
+            BootLoaderConfigZipl(mock.Mock(), 'root_dir')
 
     @patch_open
     @patch('os.path.exists')
@@ -133,13 +131,12 @@ class TestBootLoaderConfigZipl:
         self.bootloader.setup_disk_boot_images('uuid')
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    @raises(KiwiTemplateError)
     def test_setup_disk_image_config_template_error(self, mock_command):
         self.template.substitute.side_effect = Exception
-        self.bootloader.setup_disk_image_config()
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_disk_image_config()
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_dasd_invalid_offset(self, mock_command):
         command_results = [
             self.command_type(output='bogus data\n'),
@@ -150,10 +147,10 @@ class TestBootLoaderConfigZipl:
             return command_results.pop()
 
         mock_command.side_effect = side_effect
-        self.bootloader.setup_disk_image_config()
+        with raises(KiwiDiskGeometryError):
+            self.bootloader.setup_disk_image_config()
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_msdos_invalid_offset(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
         command_results = [
@@ -168,10 +165,10 @@ class TestBootLoaderConfigZipl:
             return command_results.pop()
 
         mock_command.side_effect = side_effect
-        self.bootloader.setup_disk_image_config()
+        with raises(KiwiDiskGeometryError):
+            self.bootloader.setup_disk_image_config()
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_dasd_invalid_geometry(self, mock_command):
         command_results = [
             self.command_type(output='bogus data\n')
@@ -181,10 +178,10 @@ class TestBootLoaderConfigZipl:
             return command_results.pop()
 
         mock_command.side_effect = side_effect
-        self.bootloader.setup_disk_image_config()
+        with raises(KiwiDiskGeometryError):
+            self.bootloader.setup_disk_image_config()
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    @raises(KiwiDiskGeometryError)
     def test_setup_disk_image_config_msdos_invalid_geometry(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
         command_results = [
@@ -195,7 +192,8 @@ class TestBootLoaderConfigZipl:
             return command_results.pop()
 
         mock_command.side_effect = side_effect
-        self.bootloader.setup_disk_image_config()
+        with raises(KiwiDiskGeometryError):
+            self.bootloader.setup_disk_image_config()
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
     def test_setup_disk_image_config_dasd(self, mock_command):

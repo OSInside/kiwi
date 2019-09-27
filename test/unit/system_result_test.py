@@ -1,24 +1,26 @@
-from mock import patch
+from mock import (
+    patch, Mock, MagicMock
+)
+from pytest import raises
 
-import mock
-
-from .test_helper import patch_open, raises
+from .test_helper import patch_open
 
 from kiwi.system.result import Result
+
 from kiwi.exceptions import KiwiResultError
 
 
 class TestResult:
     def setup(self):
-        self.context_manager_mock = mock.MagicMock()
-        self.file_mock = mock.MagicMock()
-        self.enter_mock = mock.MagicMock()
-        self.exit_mock = mock.MagicMock()
+        self.context_manager_mock = MagicMock()
+        self.file_mock = MagicMock()
+        self.enter_mock = MagicMock()
+        self.exit_mock = MagicMock()
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
-        self.xml_state = mock.Mock()
+        self.xml_state = Mock()
 
         self.result = Result(self.xml_state)
 
@@ -54,10 +56,10 @@ class TestResult:
 
     @patch('pickle.dump')
     @patch_open
-    @raises(KiwiResultError)
     def test_dump_failed(self, mock_open, mock_pickle_dump):
         mock_pickle_dump.side_effect = Exception
-        self.result.dump('kiwi.result')
+        with raises(KiwiResultError):
+            self.result.dump('kiwi.result')
 
     @patch('pickle.load')
     @patch('os.path.exists')
@@ -74,18 +76,18 @@ class TestResult:
         )
 
     @patch('os.path.exists')
-    @raises(KiwiResultError)
     def test_load_result_not_present(self, mock_exists):
         mock_exists.return_value = False
-        Result.load('kiwi.result')
+        with raises(KiwiResultError):
+            Result.load('kiwi.result')
 
     @patch('pickle.load')
     @patch('os.path.exists')
-    @raises(KiwiResultError)
     def test_load_failed(self, mock_exists, mock_pickle_load):
         mock_exists.return_value = True
         mock_pickle_load.side_effect = Exception
-        Result.load('kiwi.result')
+        with raises(KiwiResultError):
+            Result.load('kiwi.result')
 
     @patch('os.path.getsize')
     def test_build_constraint(self, mock_getsize):
@@ -93,7 +95,7 @@ class TestResult:
         self.result.verify_image_size(524288000, 'foo')
 
     @patch('os.path.getsize')
-    @raises(KiwiResultError)
     def test_build_constraint_failure(self, mock_getsize):
         mock_getsize.return_value = 524288000
-        self.result.verify_image_size(524287999, 'foo')
+        with raises(KiwiResultError):
+            self.result.verify_image_size(524287999, 'foo')

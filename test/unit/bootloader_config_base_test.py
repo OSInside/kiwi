@@ -1,8 +1,8 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
-
-from .test_helper import raises
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
@@ -24,44 +24,44 @@ class TestBootLoaderConfigBase:
             self.state, 'root_dir'
         )
 
-    @raises(NotImplementedError)
     def test_write(self):
-        self.bootloader.write()
+        with raises(NotImplementedError):
+            self.bootloader.write()
 
-    @raises(NotImplementedError)
     def test_setup_disk_image_config(self):
-        self.bootloader.setup_disk_image_config(
-            'boot_uuid', 'root_uuid', 'hypervisor',
-            'kernel', 'initrd', 'options'
-        )
+        with raises(NotImplementedError):
+            self.bootloader.setup_disk_image_config(
+                'boot_uuid', 'root_uuid', 'hypervisor',
+                'kernel', 'initrd', 'options'
+            )
 
-    @raises(NotImplementedError)
     def test_setup_install_image_config(self):
-        self.bootloader.setup_install_image_config(
-            'mbrid', 'hypervisor', 'kernel', 'initrd'
-        )
+        with raises(NotImplementedError):
+            self.bootloader.setup_install_image_config(
+                'mbrid', 'hypervisor', 'kernel', 'initrd'
+            )
 
-    @raises(NotImplementedError)
     def test_setup_live_image_config(self):
-        self.bootloader.setup_live_image_config(
-            'mbrid', 'hypervisor', 'kernel', 'initrd'
-        )
+        with raises(NotImplementedError):
+            self.bootloader.setup_live_image_config(
+                'mbrid', 'hypervisor', 'kernel', 'initrd'
+            )
 
-    @raises(NotImplementedError)
     def test_setup_disk_boot_images(self):
-        self.bootloader.setup_disk_boot_images('uuid')
+        with raises(NotImplementedError):
+            self.bootloader.setup_disk_boot_images('uuid')
 
-    @raises(NotImplementedError)
     def test_setup_install_boot_images(self):
-        self.bootloader.setup_install_boot_images('mbrid')
+        with raises(NotImplementedError):
+            self.bootloader.setup_install_boot_images('mbrid')
 
-    @raises(NotImplementedError)
     def test_setup_live_boot_images(self):
-        self.bootloader.setup_live_boot_images('mbrid')
+        with raises(NotImplementedError):
+            self.bootloader.setup_live_boot_images('mbrid')
 
-    @raises(NotImplementedError)
     def test_setup_sysconfig_bootloader(self):
-        self.bootloader.setup_sysconfig_bootloader()
+        with raises(NotImplementedError):
+            self.bootloader.setup_sysconfig_bootloader()
 
     @patch('kiwi.path.Path.create')
     def test_create_efi_path(self, mock_path):
@@ -164,11 +164,10 @@ class TestBootLoaderConfigBase:
             call('Switching to standard install')
         ]
 
-    @raises(KiwiBootLoaderTargetError)
     def test_get_boot_path_raises(self):
-        self.bootloader.get_boot_path('foo')
+        with raises(KiwiBootLoaderTargetError):
+            self.bootloader.get_boot_path('foo')
 
-    @raises(KiwiBootLoaderTargetError)
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
     @patch('kiwi.xml_state.XMLState.get_volumes')
@@ -184,7 +183,8 @@ class TestBootLoaderConfigBase:
             return_value=False
         )
         mock_disk_setup.return_value = disk_setup
-        self.bootloader.get_boot_path()
+        with raises(KiwiBootLoaderTargetError):
+            self.bootloader.get_boot_path()
 
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')

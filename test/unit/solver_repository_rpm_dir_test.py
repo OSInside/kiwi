@@ -1,22 +1,22 @@
-from mock import patch
-
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
 from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
 from kiwi.solver.repository.base import SolverRepositoryBase
+
 from kiwi.exceptions import KiwiRpmDirNotRemoteError
 
 
 class TestSolverRepositoryRpmDir:
     def setup(self):
-        self.uri = mock.Mock()
+        self.uri = Mock()
         self.solver = SolverRepositoryRpmDir(self.uri)
 
-    @raises(KiwiRpmDirNotRemoteError)
     def test__setup_repository_metadata_raises(self):
-        self.solver._setup_repository_metadata()
+        with raises(KiwiRpmDirNotRemoteError):
+            self.solver._setup_repository_metadata()
 
     @patch.object(SolverRepositoryBase, 'download_from_repository')
     @patch.object(SolverRepositoryBase, '_create_solvables')

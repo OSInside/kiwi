@@ -1,11 +1,11 @@
-from mock import patch
-from mock import call
-import mock
-
-from .test_helper import (
-    raises,
-    patch_open
+from mock import (
+    patch, call, Mock
 )
+from pytest import raises
+
+from .test_helper import patch_open
+
+from kiwi.system.root_bind import RootBind
 
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -13,12 +13,10 @@ from kiwi.exceptions import (
     KiwiSetupIntermediateConfigError
 )
 
-from kiwi.system.root_bind import RootBind
-
 
 class TestRootBind:
     def setup(self):
-        root = mock.Mock()
+        root = Mock()
         root.root_dir = 'root-dir'
         self.bind_root = RootBind(root)
 
@@ -27,12 +25,11 @@ class TestRootBind:
         self.bind_root.bind_locations = ['/proc']
 
         # stub files/dirs and mountpoints to cleanup
-        self.mount_manager = mock.Mock()
+        self.mount_manager = Mock()
         self.bind_root.cleanup_files = ['/foo.kiwi']
         self.bind_root.mount_stack = [self.mount_manager]
         self.bind_root.dir_stack = ['/mountpoint']
 
-    @raises(KiwiMountKernelFileSystemsError)
     @patch('kiwi.system.root_bind.MountManager.bind_mount')
     @patch('kiwi.system.root_bind.RootBind.cleanup')
     @patch('os.path.exists')
@@ -43,10 +40,10 @@ class TestRootBind:
         mock_mount.side_effect = KiwiMountKernelFileSystemsError(
             'mount-error'
         )
-        self.bind_root.mount_kernel_file_systems()
-        mock.cleanup.assert_called_once_with()
+        with raises(KiwiMountKernelFileSystemsError):
+            self.bind_root.mount_kernel_file_systems()
+        mock_cleanup.assert_called_once_with()
 
-    @raises(KiwiMountSharedDirectoryError)
     @patch('kiwi.system.root_bind.MountManager.bind_mount')
     @patch('kiwi.system.root_bind.Path.create')
     @patch('kiwi.system.root_bind.RootBind.cleanup')
@@ -56,10 +53,10 @@ class TestRootBind:
         mock_mount.side_effect = KiwiMountSharedDirectoryError(
             'mount-error'
         )
-        self.bind_root.mount_shared_directory()
-        mock.cleanup.assert_called_once_with()
+        with raises(KiwiMountSharedDirectoryError):
+            self.bind_root.mount_shared_directory()
+        mock_cleanup.assert_called_once_with()
 
-    @raises(KiwiSetupIntermediateConfigError)
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.RootBind.cleanup')
     @patch('os.path.exists')
@@ -70,14 +67,15 @@ class TestRootBind:
         mock_command.side_effect = KiwiSetupIntermediateConfigError(
             'config-error'
         )
-        self.bind_root.setup_intermediate_config()
-        mock.cleanup.assert_called_once_with()
+        with raises(KiwiSetupIntermediateConfigError):
+            self.bind_root.setup_intermediate_config()
+        mock_cleanup.assert_called_once_with()
 
     @patch('kiwi.system.root_bind.os.path.exists')
     @patch('kiwi.system.root_bind.MountManager')
     def test_mount_kernel_file_systems(self, mock_mount, mock_exists):
         mock_exists.return_value = True
-        shared_mount = mock.Mock()
+        shared_mount = Mock()
         mock_mount.return_value = shared_mount
         self.bind_root.mount_kernel_file_systems()
         mock_mount.assert_called_once_with(
@@ -88,7 +86,7 @@ class TestRootBind:
     @patch('kiwi.system.root_bind.MountManager')
     @patch('kiwi.system.root_bind.Path.create')
     def test_mount_shared_directory(self, mock_path, mock_mount):
-        shared_mount = mock.Mock()
+        shared_mount = Mock()
         mock_mount.return_value = shared_mount
         self.bind_root.mount_shared_directory()
         mock_path.call_args_list = [
@@ -107,7 +105,7 @@ class TestRootBind:
     def test_intermediate_config(
         self, mock_open, mock_exists, mock_Checksum, mock_command
     ):
-        checksum = mock.Mock()
+        checksum = Mock()
         mock_Checksum.return_value = checksum
         mock_exists.return_value = True
         self.bind_root.setup_intermediate_config()
@@ -137,7 +135,7 @@ class TestRootBind:
         mock_remove_hierarchy, mock_command, mock_is_mounted,
         mock_Checksum
     ):
-        checksum = mock.Mock()
+        checksum = Mock()
         checksum.matches.return_value = False
         mock_Checksum.return_value = checksum
         os_exists_return_values = [False, True]

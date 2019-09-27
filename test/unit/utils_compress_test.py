@@ -1,10 +1,10 @@
-from mock import patch
-
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
 from kiwi.utils.compress import Compress
+
 from kiwi.exceptions import (
     KiwiFileNotFound,
     KiwiCompressionFormatUnknown
@@ -17,9 +17,9 @@ class TestCompress:
         mock_exists.return_value = True
         self.compress = Compress('some-file', True)
 
-    @raises(KiwiFileNotFound)
     def test_source_file_not_found(self):
-        Compress('some-file')
+        with raises(KiwiFileNotFound):
+            Compress('some-file')
 
     @patch('kiwi.command.Command.run')
     def test_xz(self, mock_command):
@@ -66,7 +66,7 @@ class TestCompress:
     @patch('kiwi.utils.compress.NamedTemporaryFile')
     @patch('kiwi.utils.compress.Compress.get_format')
     def test_uncompress_temporary(self, mock_format, mock_temp, mock_command):
-        tempfile = mock.Mock()
+        tempfile = Mock()
         tempfile.name = 'tempfile'
         mock_temp.return_value = tempfile
         mock_format.return_value = 'xz'
@@ -76,11 +76,11 @@ class TestCompress:
         )
         assert self.compress.uncompressed_filename == 'tempfile'
 
-    @raises(KiwiCompressionFormatUnknown)
     @patch('kiwi.utils.compress.Compress.get_format')
     def test_uncompress_unknown_format(self, mock_format):
         mock_format.return_value = None
-        self.compress.uncompress()
+        with raises(KiwiCompressionFormatUnknown):
+            self.compress.uncompress()
 
     @patch('kiwi.path.Path.which')
     def test_get_format(self, mock_which):

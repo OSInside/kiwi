@@ -1,14 +1,14 @@
-from mock import call
-from mock import patch
 import mock
+from mock import (
+    call, patch
+)
+from pytest import raises
+from builtins import bytes
 
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiCommandError
 from kiwi.command_process import CommandProcess
 from kiwi.command_process import CommandIterator
 
-from builtins import bytes
+from kiwi.exceptions import KiwiCommandError
 
 
 class TestCommandProcess:
@@ -76,7 +76,6 @@ class TestCommandProcess:
             call('%s: %s', 'system', 'data')
         ]
 
-    @raises(KiwiCommandError)
     @patch('kiwi.command.Command')
     def test_poll_show_progress_raises(self, mock_command):
         match_method = CommandProcess(mock_command).create_match_method(
@@ -89,7 +88,8 @@ class TestCommandProcess:
         process.command.command.output.read = self.flow_out
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 1
-        process.poll_show_progress(['a', 'b'], match_method)
+        with raises(KiwiCommandError):
+            process.poll_show_progress(['a', 'b'], match_method)
 
     @patch('kiwi.command.Command')
     @patch('kiwi.logger.log.debug')
@@ -106,7 +106,6 @@ class TestCommandProcess:
             call('%s: %s', 'system', 'data')
         ]
 
-    @raises(KiwiCommandError)
     @patch('kiwi.command.Command')
     def test_poll_raises(self, mock_command):
         process = CommandProcess(mock_command)
@@ -117,7 +116,8 @@ class TestCommandProcess:
         process.command.command.error.read = self.flow_err
         process.command.command.output.read.return_value = 'data'
         process.command.command.process.returncode = 1
-        process.poll()
+        with raises(KiwiCommandError):
+            process.poll()
 
     @patch('kiwi.command.Command')
     @patch('kiwi.logger.log.debug')

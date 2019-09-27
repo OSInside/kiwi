@@ -1,11 +1,14 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
+
+from kiwi.container.setup.base import ContainerSetupBase
 
 from kiwi.exceptions import KiwiContainerSetupError
-from kiwi.container.setup.base import ContainerSetupBase
 
 
 class TestContainerSetupBase:
@@ -23,14 +26,14 @@ class TestContainerSetupBase:
         self.container = ContainerSetupBase('root_dir')
 
     @patch('os.path.exists')
-    @raises(KiwiContainerSetupError)
     def test_container_root_dir_does_not_exist(self, mock_exists):
         mock_exists.return_value = False
-        ContainerSetupBase('root_dir')
+        with raises(KiwiContainerSetupError):
+            ContainerSetupBase('root_dir')
 
-    @raises(NotImplementedError)
     def test_setup(self):
-        self.container.setup()
+        with raises(NotImplementedError):
+            self.container.setup()
 
     def test_post_init(self):
         self.container.custom_args == {}
@@ -89,11 +92,11 @@ class TestContainerSetupBase:
 
     @patch('os.path.exists')
     @patch('kiwi.container.setup.base.Command.run')
-    @raises(KiwiContainerSetupError)
     def test_deactivate_systemd_service_failed(self, mock_command, mock_exists):
         mock_exists.return_value = True
         mock_command.side_effect = Exception
-        self.container.deactivate_systemd_service('my.service')
+        with raises(KiwiContainerSetupError):
+            self.container.deactivate_systemd_service('my.service')
 
     @patch_open
     @patch('os.path.exists')
@@ -125,7 +128,7 @@ class TestContainerSetupBase:
         )
 
     @patch('kiwi.container.setup.base.Command.run')
-    @raises(KiwiContainerSetupError)
     def test_setup_static_device_nodes_failed(self, mock_command):
         mock_command.side_effect = Exception
-        self.container.setup_static_device_nodes()
+        with raises(KiwiContainerSetupError):
+            self.container.setup_static_device_nodes()

@@ -1,21 +1,21 @@
-from mock import patch
-
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
 from kiwi.solver.repository import SolverRepository
+
 from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 
 class TestSolverRepository:
     def setup(self):
-        self.uri = mock.Mock()
+        self.uri = Mock()
         self.uri.repo_type = 'some-unknown-type'
 
-    @raises(KiwiSolverRepositorySetupError)
     def test_solver_repository_type_not_implemented(self):
-        SolverRepository(self.uri)
+        with raises(KiwiSolverRepositorySetupError):
+            SolverRepository(self.uri)
 
     @patch('kiwi.solver.repository.SolverRepositorySUSE')
     def test_solver_repository_suse(self, mock_suse):

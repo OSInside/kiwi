@@ -1,11 +1,10 @@
 from mock import patch
-
+from pytest import raises
 import mock
 
-from .test_helper import raises
+from kiwi.firmware import FirmWare
 
 from kiwi.exceptions import KiwiNotImplementedError
-from kiwi.firmware import FirmWare
 
 
 class TestFirmWare:
@@ -54,13 +53,13 @@ class TestFirmWare:
 
         mock_platform.return_value = 'arm64'
 
-    @raises(KiwiNotImplementedError)
     def test_firmware_unsupported(self):
         xml_state = mock.Mock()
         xml_state.build_type.get_firmware = mock.Mock(
             return_value='bogus'
         )
-        FirmWare(xml_state)
+        with raises(KiwiNotImplementedError):
+            FirmWare(xml_state)
 
     def test_get_partition_table_type(self):
         assert self.firmware_bios.get_partition_table_type() == 'msdos'

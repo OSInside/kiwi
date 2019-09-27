@@ -1,8 +1,9 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 from collections import namedtuple
 
-from .test_helper import raises
 import logging
 
 from kiwi.logger import (
@@ -142,11 +143,11 @@ class TestLogger:
             )
         ]
 
-    @raises(KiwiLogFileSetupFailed)
     @patch('logging.FileHandler')
     def test_set_logfile_raise(self, mock_file_handler):
         mock_file_handler.side_effect = KiwiLogFileSetupFailed
-        log.set_logfile('logfile')
+        with raises(KiwiLogFileSetupFailed):
+            log.set_logfile('logfile')
 
     def test_getLogLevel(self):
         log.setLogLevel(42)

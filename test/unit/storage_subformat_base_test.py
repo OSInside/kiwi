@@ -1,41 +1,40 @@
-from mock import patch
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
-import mock
-
-from .test_helper import raises
+from kiwi.storage.subformat.base import DiskFormatBase
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
     KiwiResizeRawDiskError
 )
 
-from kiwi.storage.subformat.base import DiskFormatBase
-
 
 class TestDiskFormatBase:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        xml_data = mock.Mock()
-        xml_data.get_name = mock.Mock(
+        xml_data = Mock()
+        xml_data.get_name = Mock(
             return_value='some-disk-image'
         )
-        self.xml_state = mock.Mock()
+        self.xml_state = Mock()
         self.xml_state.xml_data = xml_data
-        self.xml_state.get_image_version = mock.Mock(
+        self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
         self.disk_format = DiskFormatBase(
             self.xml_state, 'root_dir', 'target_dir'
         )
 
-    @raises(NotImplementedError)
     def test_create_image_format(self):
-        self.disk_format.create_image_format()
+        with raises(NotImplementedError):
+            self.disk_format.create_image_format()
 
-    @raises(KiwiFormatSetupError)
     def test_get_target_file_path_for_format_invalid_format(self):
-        self.disk_format.get_target_file_path_for_format('foo')
+        with raises(KiwiFormatSetupError):
+            self.disk_format.get_target_file_path_for_format('foo')
 
     def test_post_init(self):
         self.disk_format.post_init({'option': 'unhandled'})
@@ -55,7 +54,7 @@ class TestDiskFormatBase:
             'target_dir/some-disk-image.x86_64-1.2.3.vhd'
 
     def test_store_to_result(self):
-        result = mock.Mock()
+        result = Mock()
         self.disk_format.image_format = 'qcow2'
         self.disk_format.store_to_result(result)
         result.add.assert_called_once_with(
@@ -66,11 +65,11 @@ class TestDiskFormatBase:
             use_for_bundle=True
         )
 
-    @raises(KiwiResizeRawDiskError)
     @patch('os.path.getsize')
     def test_resize_raw_disk_raises_on_shrink_disk(self, mock_getsize):
         mock_getsize.return_value = 42
-        self.disk_format.resize_raw_disk(10)
+        with raises(KiwiResizeRawDiskError):
+            self.disk_format.resize_raw_disk(10)
 
     @patch('os.path.getsize')
     @patch('kiwi.storage.subformat.base.Command.run')

@@ -1,8 +1,8 @@
 from mock import patch
-
+from pytest import raises
 import mock
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
@@ -34,26 +34,26 @@ class TestBootImageBase:
             self.xml_state, 'some-target-dir'
         )
 
-    @raises(KiwiTargetDirectoryNotFound)
     def test_boot_image_raises(self):
-        BootImageBase(
-            self.xml_state, 'target-dir-does-not-exist', 'some-root-dir'
-        )
+        with raises(KiwiTargetDirectoryNotFound):
+            BootImageBase(
+                self.xml_state, 'target-dir-does-not-exist', 'some-root-dir'
+            )
 
-    @raises(NotImplementedError)
     def test_prepare(self):
-        self.boot_image.prepare()
+        with raises(NotImplementedError):
+            self.boot_image.prepare()
 
-    @raises(NotImplementedError)
     def test_create_initrd(self):
-        self.boot_image.create_initrd()
+        with raises(NotImplementedError):
+            self.boot_image.create_initrd()
 
-    @raises(KiwiBootImageDumpError)
     @patch_open
     @patch('pickle.dump')
     def test_dump_error(self, mock_dump, mock_open):
         mock_dump.side_effect = Exception
-        self.boot_image.dump('filename')
+        with raises(KiwiBootImageDumpError):
+            self.boot_image.dump('filename')
 
     @patch_open
     @patch('pickle.dump')
@@ -109,15 +109,15 @@ class TestBootImageBase:
         assert self.boot_image.get_boot_description_directory() == \
             '/usr/share/kiwi/custom_boot/oemboot/suse-13.2'
 
-    @raises(KiwiConfigFileNotFound)
     @patch('kiwi.boot.image.base.BootImageBase.get_boot_description_directory')
     def test_load_boot_xml_description(self, mock_boot_dir):
         mock_boot_dir.return_value = None
-        self.boot_image.load_boot_xml_description()
+        with raises(KiwiConfigFileNotFound):
+            self.boot_image.load_boot_xml_description()
 
-    @raises(NotImplementedError)
     def test_get_boot_names(self):
-        self.boot_image.get_boot_names()
+        with raises(NotImplementedError):
+            self.boot_image.get_boot_names()
 
     def test_noop_methods(self):
         self.boot_image.include_module('module')

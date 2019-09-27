@@ -1,18 +1,15 @@
 from mock import patch
-
+from pytest import raises
+import hashlib
 import mock
 
-from .test_helper import raises
+from kiwi.system.uri import Uri
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
     KiwiUriTypeUnknown,
     KiwiUriOpenError
 )
-
-from kiwi.system.uri import Uri
-
-import hashlib
 
 
 class TestUri:
@@ -24,42 +21,42 @@ class TestUri:
             return_value='obs_server'
         )
 
-    @raises(KiwiUriStyleUnknown)
     def test_is_remote_raises_style_error(self):
         uri = Uri('xxx', 'rpm-md')
-        uri.is_remote()
+        with raises(KiwiUriStyleUnknown):
+            uri.is_remote()
 
-    @raises(KiwiUriTypeUnknown)
     def test_is_remote_raises_type_error(self):
         uri = Uri('xtp://download.example.com', 'rpm-md')
-        uri.is_remote()
+        with raises(KiwiUriTypeUnknown):
+            uri.is_remote()
 
-    @raises(KiwiUriStyleUnknown)
     def test_translate_unknown_style(self):
         uri = Uri('xxx', 'rpm-md')
-        uri.translate()
+        with raises(KiwiUriStyleUnknown):
+            uri.translate()
 
-    @raises(KiwiUriStyleUnknown)
     def test_translate_unsupported_style(self):
         uri = Uri('ms://foo', 'rpm-md')
-        uri.translate()
+        with raises(KiwiUriStyleUnknown):
+            uri.translate()
 
-    @raises(KiwiUriStyleUnknown)
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_translate_obsrepositories_outside_buildservice(
         self, mock_buildservice
     ):
         mock_buildservice.return_value = False
         uri = Uri('obsrepositories:/')
-        uri.translate()
+        with raises(KiwiUriStyleUnknown):
+            uri.translate()
 
-    @raises(KiwiUriOpenError)
     @patch('kiwi.system.uri.requests.get')
     def test_translate_obs_uri_not_found(mock_request_get, self):
         mock_request_get.side_effect = Exception
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
         uri.runtime_config = self.runtime_config
-        assert uri.translate()
+        with raises(KiwiUriOpenError):
+            uri.translate()
 
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')

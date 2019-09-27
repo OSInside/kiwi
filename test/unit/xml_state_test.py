@@ -1,6 +1,5 @@
 from mock import patch
-
-from .test_helper import raises
+from pytest import raises
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
@@ -253,21 +252,21 @@ class TestXMLState:
         state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
         assert state.get_build_type_name() == 'vmx'
 
-    @raises(KiwiTypeNotFound)
     def test_build_type_not_found(self):
         xml_data = self.description.load()
-        XMLState(xml_data, ['vmxFlavour'], 'foo')
+        with raises(KiwiTypeNotFound):
+            XMLState(xml_data, ['vmxFlavour'], 'foo')
 
-    @raises(KiwiTypeNotFound)
     def test_build_type_not_found_no_default_type(self):
         description = XMLDescription('../data/example_no_default_type.xml')
         xml_data = description.load()
-        XMLState(xml_data, ['minimal'])
+        with raises(KiwiTypeNotFound):
+            XMLState(xml_data, ['minimal'])
 
-    @raises(KiwiProfileNotFound)
     def test_profile_not_found(self):
         xml_data = self.description.load()
-        XMLState(xml_data, ['foo'])
+        with raises(KiwiProfileNotFound):
+            XMLState(xml_data, ['foo'])
 
     def test_profile_requires(self):
         xml_data = self.description.load()
@@ -565,19 +564,19 @@ class TestXMLState:
     def test_get_fs_create_option_list(self):
         assert self.state.get_fs_create_option_list() == ['-O', '^has_journal']
 
-    @raises(KiwiDistributionNameError)
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_no_boot(self, mock_boot):
         mock_boot.return_value = None
-        self.state.get_distribution_name_from_boot_attribute()
+        with raises(KiwiDistributionNameError):
+            self.state.get_distribution_name_from_boot_attribute()
 
-    @raises(KiwiDistributionNameError)
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_invalid_boot(
         self, mock_boot
     ):
         mock_boot.return_value = 'invalid'
-        self.state.get_distribution_name_from_boot_attribute()
+        with raises(KiwiDistributionNameError):
+            self.state.get_distribution_name_from_boot_attribute()
 
     def test_delete_repository_sections(self):
         self.state.delete_repository_sections()

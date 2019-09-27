@@ -1,16 +1,15 @@
 from mock import patch
-
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiContainerSetupError
+from pytest import raises
 
 from kiwi.container.setup import ContainerSetup
 
+from kiwi.exceptions import KiwiContainerSetupError
+
 
 class TestContainerSetup:
-    @raises(KiwiContainerSetupError)
     def test_container_not_implemented(self):
-        ContainerSetup('foo', 'root_dir')
+        with raises(KiwiContainerSetupError):
+            ContainerSetup('foo', 'root_dir')
 
     @patch('kiwi.container.setup.ContainerSetupDocker')
     def test_container_docker(self, mock_docker):

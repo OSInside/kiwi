@@ -3,8 +3,9 @@ import mock
 from mock import patch
 from mock import call
 from collections import namedtuple
+from pytest import raises
 
-from .test_helper import patch_open, raises
+from .test_helper import patch_open
 
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
@@ -161,13 +162,13 @@ class TestBootImageKiwi:
             ])
         ]
 
-    @raises(KiwiDiskBootImageError)
     @patch('kiwi.boot.image.dracut.Kernel')
     def test_get_boot_names_raises(self, mock_Kernel):
         kernel = mock.Mock()
         mock_Kernel.return_value = kernel
         kernel.get_kernel.return_value = None
-        self.boot_image.get_boot_names()
+        with raises(KiwiDiskBootImageError):
+            self.boot_image.get_boot_names()
 
     @patch_open
     @patch('kiwi.boot.image.dracut.Kernel')

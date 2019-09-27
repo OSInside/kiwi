@@ -1,12 +1,14 @@
+import sys
 from mock import patch
-
+from pytest import raises
 import logging
-from .test_helper import raises
 
-from kiwi.tasks.base import CliTask
-from kiwi.exceptions import KiwiConfigFileNotFound
+from .test_helper import argv_kiwi_tests
 
 import kiwi.xml_parse
+from kiwi.tasks.base import CliTask
+
+from kiwi.exceptions import KiwiConfigFileNotFound
 
 
 class TestCliTask:
@@ -64,6 +66,9 @@ class TestCliTask:
         assert self.task.config_file == \
             '../data/description.buildservice/appliance.kiwi'
 
-    @raises(KiwiConfigFileNotFound)
     def test_load_xml_description_raises(self):
-        self.task.load_xml_description('foo')
+        with raises(KiwiConfigFileNotFound):
+            self.task.load_xml_description('foo')
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests

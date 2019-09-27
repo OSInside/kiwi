@@ -1,19 +1,17 @@
-from mock import patch
-from mock import call
-
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 
-from .test_helper import raises
+from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubInstallError,
     KiwiBootLoaderGrubDataError,
     KiwiBootLoaderGrubPlatformError
 )
-
-from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
-
-from kiwi.defaults import Defaults
 
 
 class TestBootLoaderInstallGrub2:
@@ -88,42 +86,42 @@ class TestBootLoaderInstallGrub2:
         )
 
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
-    @raises(KiwiBootLoaderGrubInstallError)
     def test_post_init_ppc_no_prep_device(self, mock_grub_path):
         self.bootloader.arch = 'ppc64'
         del self.custom_args['prep_device']
-        self.bootloader.install()
+        with raises(KiwiBootLoaderGrubInstallError):
+            self.bootloader.install()
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
-    @raises(KiwiBootLoaderGrubDataError)
     def test_grub2_bootloader_not_installed(
         self, mock_grub_path, mock_mount_manager, mock_command
     ):
         mock_grub_path.return_value = None
         self.bootloader.arch = 'x86_64'
-        self.bootloader.install()
+        with raises(KiwiBootLoaderGrubDataError):
+            self.bootloader.install()
 
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
-    @raises(KiwiBootLoaderGrubPlatformError)
     def test_unsupported_platform(self, mock_grub_path):
         self.bootloader.arch = 'unsupported'
-        self.bootloader.install()
+        with raises(KiwiBootLoaderGrubPlatformError):
+            self.bootloader.install()
 
-    @raises(KiwiBootLoaderGrubInstallError)
     def test_post_init_no_boot_device(self):
-        self.bootloader.post_init({})
+        with raises(KiwiBootLoaderGrubInstallError):
+            self.bootloader.post_init({})
 
-    @raises(KiwiBootLoaderGrubInstallError)
     def test_post_init_no_root_device(self):
-        self.bootloader.post_init({'boot_device': 'a'})
+        with raises(KiwiBootLoaderGrubInstallError):
+            self.bootloader.post_init({'boot_device': 'a'})
 
-    @raises(KiwiBootLoaderGrubInstallError)
     def test_post_init_secure_boot_no_efi_device(self):
         self.firmware.efi_mode.return_value = 'uefi'
         del self.custom_args['efi_device']
-        self.bootloader.post_init(self.custom_args)
+        with raises(KiwiBootLoaderGrubInstallError):
+            self.bootloader.post_init(self.custom_args)
 
     def test_install_required(self):
         assert self.bootloader.install_required() is True

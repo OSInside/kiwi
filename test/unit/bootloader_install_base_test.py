@@ -1,6 +1,5 @@
-import mock
-
-from .test_helper import raises
+from mock import Mock
+from pytest import raises
 
 from kiwi.bootloader.install.base import BootLoaderInstallBase
 
@@ -8,13 +7,13 @@ from kiwi.bootloader.install.base import BootLoaderInstallBase
 class TestBootLoaderInstallBase:
     def setup(self):
         self.bootloader = BootLoaderInstallBase(
-            'root_dir', mock.Mock()
+            'root_dir', Mock()
         )
 
-    @raises(NotImplementedError)
     def test_install(self):
-        self.bootloader.install()
+        with raises(NotImplementedError):
+            self.bootloader.install()
 
-    @raises(NotImplementedError)
     def test_install_required(self):
-        self.bootloader.install_required()
+        with raises(NotImplementedError):
+            self.bootloader.install_required()

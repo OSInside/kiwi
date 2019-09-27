@@ -1,8 +1,8 @@
 from mock import patch
-
-from .test_helper import raises
+from pytest import raises
 
 from kiwi.system.root_import import RootImport
+
 from kiwi.exceptions import KiwiRootImportError
 
 
@@ -23,6 +23,6 @@ class TestRootImport:
             custom_args={'archive_transport': 'oci-archive'}
         )
 
-    @raises(KiwiRootImportError)
     def test_not_implemented_import(self):
-        RootImport('root_dir', 'file:///image.tar.xz', 'foo')
+        with raises(KiwiRootImportError):
+            RootImport('root_dir', 'file:///image.tar.xz', 'foo')

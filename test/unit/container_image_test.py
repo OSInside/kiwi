@@ -1,16 +1,15 @@
 from mock import patch
-
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiContainerImageSetupError
+from pytest import raises
 
 from kiwi.container import ContainerImage
 
+from kiwi.exceptions import KiwiContainerImageSetupError
+
 
 class TestContainerImage:
-    @raises(KiwiContainerImageSetupError)
     def test_container_image_not_implemented(self):
-        ContainerImage('foo', 'root_dir')
+        with raises(KiwiContainerImageSetupError):
+            ContainerImage('foo', 'root_dir')
 
     @patch('kiwi.container.ContainerImageOCI')
     def test_container_image_docker(self, mock_docker):

@@ -1,10 +1,10 @@
-from mock import patch, call
-
-import mock
-
-from .test_helper import patch_open, raises
-
+from mock import (
+    patch, call, Mock
+)
+from pytest import raises
 from collections import namedtuple
+
+from .test_helper import patch_open
 
 from kiwi.partitioner.msdos import PartitionerMsDos
 
@@ -13,8 +13,8 @@ from kiwi.exceptions import KiwiPartitionerMsDosFlagError
 
 class TestPartitionerMsDos:
     def setup(self):
-        disk_provider = mock.Mock()
-        disk_provider.get_device = mock.Mock(
+        disk_provider = Mock()
+        disk_provider.get_device = Mock(
             return_value='/dev/loop0'
         )
         self.partitioner = PartitionerMsDos(disk_provider)
@@ -31,11 +31,11 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-        context_manager_mock = mock.Mock()
+        context_manager_mock = Mock()
         mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
+        file_mock = Mock()
+        enter_mock = Mock()
+        exit_mock = Mock()
         enter_mock.return_value = file_mock
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
@@ -62,8 +62,8 @@ class TestPartitionerMsDos:
     def test_create_custom_start_sector(
         self, mock_open, mock_temp, mock_flag, mock_command
     ):
-        disk_provider = mock.Mock()
-        disk_provider.get_device = mock.Mock(
+        disk_provider = Mock()
+        disk_provider.get_device = Mock(
             return_value='/dev/loop0'
         )
         partitioner = PartitionerMsDos(disk_provider, 4096)
@@ -74,11 +74,11 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-        context_manager_mock = mock.Mock()
+        context_manager_mock = Mock()
         mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
+        file_mock = Mock()
+        enter_mock = Mock()
+        exit_mock = Mock()
         enter_mock.return_value = file_mock
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
@@ -114,11 +114,11 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-        context_manager_mock = mock.Mock()
+        context_manager_mock = Mock()
         mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
+        file_mock = Mock()
+        enter_mock = Mock()
+        exit_mock = Mock()
         enter_mock.return_value = file_mock
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
@@ -129,9 +129,9 @@ class TestPartitionerMsDos:
             'n\np\n1\n\n\nw\nq\n'
         )
 
-    @raises(KiwiPartitionerMsDosFlagError)
     def test_set_flag_invalid(self):
-        self.partitioner.set_flag(1, 'foo')
+        with raises(KiwiPartitionerMsDosFlagError):
+            self.partitioner.set_flag(1, 'foo')
 
     @patch('kiwi.partitioner.msdos.Command.run')
     def test_set_flag(self, mock_command):
