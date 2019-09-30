@@ -1429,6 +1429,21 @@ whether and how this information is passed</a:documentation>
 whether and how this information is passed</a:documentation>
       </ref>
     </define>
+    <define name="k.repository.sourcetype.attribute">
+      <attribute name="sourcetype">
+        <a:documentation>Specify the source type of the repository path.
+Depending on if the source path is a simple url or a
+pointer to a metadata file or mirror list, the
+configured package manager needs to be setup
+appropriately. By default the source is expected to
+be a simple repository url</a:documentation>
+        <choice>
+          <value>baseurl</value>
+          <value>metalink</value>
+          <value>mirrorlist</value>
+        </choice>
+      </attribute>
+    </define>
     <define name="k.repository.attlist">
       <interleave>
         <optional>
@@ -1439,6 +1454,9 @@ whether and how this information is passed</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.alias.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.sourcetype.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.components.attribute"/>

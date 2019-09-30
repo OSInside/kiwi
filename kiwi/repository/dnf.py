@@ -153,7 +153,8 @@ class RepositoryDnf(RepositoryBase):
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
-        repo_gpgcheck=None, pkg_gpgcheck=None
+        repo_gpgcheck=None, pkg_gpgcheck=None,
+        sourcetype=None
     ):
         """
         Add dnf repository
@@ -162,13 +163,15 @@ class RepositoryDnf(RepositoryBase):
         :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: dnf repostory priority
-        :param dist: unused
-        :param components: unused
-        :param user: unused
-        :param secret: unused
-        :param credentials_file: unused
+        :param str dist: unused
+        :param str components: unused
+        :param str user: unused
+        :param str secret: unused
+        :param str credentials_file: unused
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: enable package signature validation
+        :param str sourcetype:
+            source type, one of 'baseurl', 'metalink' or 'mirrorlist'
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -181,7 +184,7 @@ class RepositoryDnf(RepositoryBase):
             name, 'name', name
         )
         repo_config.set(
-            name, 'baseurl', uri
+            name, sourcetype if sourcetype else 'baseurl', uri
         )
         if prio:
             repo_config.set(

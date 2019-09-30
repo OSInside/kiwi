@@ -130,6 +130,7 @@ class SystemSetup:
             repo_components = xml_repo.get_components()
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+            repo_sourcetype = xml_repo.get_sourcetype()
             uri = Uri(repo_source, repo_type)
             repo_source_translated = uri.translate(
                 check_build_environment=False
@@ -144,7 +145,8 @@ class SystemSetup:
                 repo_alias, repo_source_translated,
                 repo_type, repo_priority, repo_dist, repo_components,
                 repo_user, repo_secret, uri.credentials_file_name(),
-                repo_repository_gpgcheck, repo_package_gpgcheck
+                repo_repository_gpgcheck, repo_package_gpgcheck,
+                repo_sourcetype
             )
 
     def import_shell_environment(self, profile):

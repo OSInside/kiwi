@@ -106,6 +106,23 @@ class TestRepositoryDnf:
                 '/shared-dir/dnf/repos/foo.repo', 'w'
             )
 
+        repo_config.add_section.reset_mock()
+        repo_config.set.reset_mock()
+        mock_exists.return_value = False
+        with patch('builtins.open', create=True) as mock_open:
+            self.repo.add_repo(
+                'bar', 'https://metalink', 'rpm-md', sourcetype='metalink'
+            )
+
+            repo_config.add_section.assert_called_once_with('bar')
+            assert repo_config.set.call_args_list == [
+                call('bar', 'name', 'bar'),
+                call('bar', 'metalink', 'https://metalink')
+            ]
+            mock_open.assert_called_once_with(
+                '/shared-dir/dnf/repos/bar.repo', 'w'
+            )
+
     @patch('kiwi.repository.dnf.RpmDataBase')
     def test_setup_package_database_configuration(self, mock_RpmDataBase):
         rpmdb = mock.Mock()

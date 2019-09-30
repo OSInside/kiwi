@@ -233,7 +233,8 @@ class RepositoryZypper(RepositoryBase):
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
-        repo_gpgcheck=None, pkg_gpgcheck=None
+        repo_gpgcheck=None, pkg_gpgcheck=None,
+        sourcetype=None
     ):
         """
         Add zypper repository
@@ -242,13 +243,14 @@ class RepositoryZypper(RepositoryBase):
         :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: zypper repostory priority
-        :param dist: unused
-        :param components: unused
-        :param user: credentials username
-        :param secret: credentials password
-        :param credentials_file: zypper credentials file
+        :param str dist: unused
+        :param str components: unused
+        :param str user: credentials username
+        :param str secret: credentials password
+        :param str credentials_file: zypper credentials file
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: enable package signature validation
+        :param str sourcetype: unused
         """
         if credentials_file:
             repo_secret = os.sep.join(
