@@ -354,17 +354,17 @@ function get_remote_image_source_files {
 
     image_uri=$(getarg rd.kiwi.install.image=)
     image_md5_uri=$(
-        echo "${image_uri}" | awk '{ gsub("\\.xz",".md5", $1); print $1 }'
+      echo "${image_uri}" | awk '{ gsub("\\.xz",".md5", $1); gsub("dolly:","tftp:", $1); print $1 }'
     )
     image_initrd_uri=$(
-        echo "${image_uri}" | awk '{ gsub("\\.xz",".initrd", $1); print $1 }'
+      echo "${image_uri}" | awk '{ gsub("\\.xz",".initrd", $1); gsub("dolly:","tftp:", $1); print $1 }'
     )
     image_kernel_uri=$(
-        echo "${image_uri}" | awk '{ gsub("\\.xz",".kernel", $1); print $1 }'
+      echo "${image_uri}" | awk '{ gsub("\\.xz",".kernel", $1); gsub("dolly:","tftp:", $1); print $1 }'
     )
     image_config_uri=$(
         echo "${image_uri}" | \
-        awk '{ gsub("\\.xz",".config.bootoptions", $1); print $1 }'
+        awk '{ gsub("\\.xz",".config.bootoptions", $1); gsub("dolly:","tftp:", $1); print $1 }'
     )
 
     # if we can not access image_md5_uri, maybe network setup
