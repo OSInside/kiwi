@@ -142,7 +142,8 @@ class SystemPrepare:
             repo_sourcetype = xml_repo.get_sourcetype()
             log.info('Setting up repository %s', repo_source)
             log.info('--> Type: {0}'.format(repo_type))
-            log.info('--> Metalink: {0}'.format(repo_sourcetype))
+            if repo_sourcetype:
+                log.info('--> SourceType: {0}'.format(repo_sourcetype))
             if repo_priority:
                 log.info('--> Priority: {0}'.format(repo_priority))
 

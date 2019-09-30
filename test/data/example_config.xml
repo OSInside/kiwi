@@ -147,7 +147,7 @@
         <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
         <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
     </users>
-    <repository priority="42">
+    <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
     <repository type="rpm-md" imageinclude="true">
