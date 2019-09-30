@@ -1,9 +1,14 @@
-from mock import patch, call
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 from collections import namedtuple
-from .test_helper import raises, patch_open
+
+from .test_helper import patch_open
 
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
+
 from kiwi.exceptions import KiwiIsoToolError
 
 
@@ -34,11 +39,11 @@ class TestIsoToolsCdrTools:
             call('mkisofs'), call('genisoimage')
         ]
 
-    @raises(KiwiIsoToolError)
     @patch('os.path.exists')
     def test_get_tool_name_raises(self, mock_exists):
         mock_exists.return_value = False
-        self.iso_tool.get_tool_name()
+        with raises(KiwiIsoToolError):
+            self.iso_tool.get_tool_name()
 
     @patch_open
     @patch('os.walk')
@@ -168,11 +173,11 @@ class TestIsoToolsCdrTools:
         result = self.iso_tool.list_iso('some-iso')
         assert result[2158].name == 'header_end'
 
-    @raises(KiwiIsoToolError)
     @patch('os.path.exists')
     def test_list_iso_no_tool_found(self, mock_exists):
         mock_exists.return_value = False
-        self.iso_tool.list_iso('some-iso')
+        with raises(KiwiIsoToolError):
+            self.iso_tool.list_iso('some-iso')
 
     def test_has_iso_hybrid_capability(self):
         assert self.iso_tool.has_iso_hybrid_capability() is False

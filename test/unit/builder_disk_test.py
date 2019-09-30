@@ -1,26 +1,26 @@
 import mock
-from mock import call
-from mock import patch
-
+from mock import (
+    call, patch
+)
+from pytest import raises
 import kiwi
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
 from collections import OrderedDict
 from collections import namedtuple
-
-from kiwi.exceptions import (
-    KiwiDiskBootImageError,
-    KiwiInstallMediaError,
-    KiwiVolumeManagerSetupError
-)
+from builtins import bytes
 
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
 from kiwi.storage.mapped_device import MappedDevice
 
-from builtins import bytes
+from kiwi.exceptions import (
+    KiwiDiskBootImageError,
+    KiwiInstallMediaError,
+    KiwiVolumeManagerSetupError
+)
 
 
 class TestDiskBuilder:
@@ -212,7 +212,6 @@ class TestDiskBuilder:
         )
         assert disk_builder.arch == 'ix86'
 
-    @raises(KiwiInstallMediaError)
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
@@ -220,13 +219,14 @@ class TestDiskBuilder:
         self, mock_cmd, mock_open, mock_fs
     ):
         self.disk_builder.build_type_name = 'vmx'
-        self.disk_builder.create_disk()
+        with raises(KiwiInstallMediaError):
+            self.disk_builder.create_disk()
 
-    @raises(KiwiVolumeManagerSetupError)
     def test_create_disk_overlay_with_volume_setup_not_supported(self):
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.volume_manager_name = 'lvm'
-        self.disk_builder.create_disk()
+        with raises(KiwiVolumeManagerSetupError):
+            self.disk_builder.create_disk()
 
     @patch_open
     @patch('os.path.exists')
@@ -245,22 +245,22 @@ class TestDiskBuilder:
         mock_wipe.assert_called_once_with('target_dir/boot_image.pickledump')
 
     @patch('os.path.exists')
-    @raises(KiwiInstallMediaError)
     def test_create_install_media_no_boot_instance_found(self, mock_path):
         result_instance = mock.Mock()
         mock_path.return_value = False
         self.disk_builder.install_iso = True
-        self.disk_builder.create_install_media(result_instance)
+        with raises(KiwiInstallMediaError):
+            self.disk_builder.create_install_media(result_instance)
 
     @patch('os.path.exists')
     @patch('pickle.load')
-    @raises(KiwiInstallMediaError)
     def test_create_install_media_pickle_load_error(self, mock_load, mock_path):
         result_instance = mock.Mock()
         mock_load.side_effect = Exception
         mock_path.return_value = True
         self.disk_builder.install_iso = True
-        self.disk_builder.create_install_media(result_instance)
+        with raises(KiwiInstallMediaError):
+            self.disk_builder.create_install_media(result_instance)
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
@@ -574,14 +574,14 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open
     @patch('kiwi.builder.disk.Command.run')
-    @raises(KiwiDiskBootImageError)
     def test_create_disk_standard_root_no_hypervisor_found(
         self, mock_command, mock_open, mock_fs
     ):
         self.kernel.get_xen_hypervisor.return_value = False
         self.disk_builder.volume_manager_name = None
         self.disk_builder.xen_server = True
-        self.disk_builder.create_disk()
+        with raises(KiwiDiskBootImageError):
+            self.disk_builder.create_disk()
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch_open

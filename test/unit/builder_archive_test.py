@@ -1,9 +1,10 @@
 from mock import patch
-
+from pytest import raises
+import sys
 import mock
 import kiwi
 
-from .test_helper import raises
+from .test_helper import argv_kiwi_tests
 
 from kiwi.exceptions import KiwiArchiveSetupError
 from kiwi.builder.archive import ArchiveBuilder
@@ -31,7 +32,6 @@ class TestArchiveBuilder:
             self.xml_state, 'target_dir', 'root_dir'
         )
 
-    @raises(KiwiArchiveSetupError)
     def test_create_unknown_archive_type(self):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -46,7 +46,8 @@ class TestArchiveBuilder:
         archive = ArchiveBuilder(
             xml_state, 'target_dir', 'root_dir'
         )
-        archive.create()
+        with raises(KiwiArchiveSetupError):
+            archive.create()
 
     @patch('kiwi.builder.archive.ArchiveTar')
     @patch('kiwi.builder.archive.Checksum')
@@ -78,3 +79,6 @@ class TestArchiveBuilder:
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests

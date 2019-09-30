@@ -1,9 +1,11 @@
-from mock import patch, call
-
-from .test_helper import raises
+from mock import (
+    patch, call
+)
+from pytest import raises
 
 from kiwi.system.uri import Uri
 from kiwi.system.root_import.base import RootImportBase
+
 from kiwi.exceptions import KiwiRootImportError
 
 
@@ -17,9 +19,9 @@ class TestRootImportBase:
             RootImportBase('root_dir', Uri('file:///image.tar.xz'))
         assert call('/image.tar.xz') in mock_path.call_args_list
 
-    @raises(KiwiRootImportError)
     def test_init_remote_uri(self):
-        RootImportBase('root_dir', Uri('http://example.com/image.tar.xz'))
+        with raises(KiwiRootImportError):
+            RootImportBase('root_dir', Uri('http://example.com/image.tar.xz'))
 
     @patch('kiwi.system.root_import.base.log.warning')
     def test_init_unknown_uri(self, mock_log_warn):
@@ -28,14 +30,12 @@ class TestRootImportBase:
         assert mock_log_warn.called
 
     @patch('os.path.exists')
-    @raises(KiwiRootImportError)
     def test_init_non_existing(self, mock_path):
         mock_path.return_value = False
         with patch.dict('os.environ', {'HOME': '../data'}):
-            RootImportBase('root_dir', Uri('file:///image.tar.xz'))
-        mock_path.assert_called_once_with('/image.tar.xz')
+            with raises(KiwiRootImportError):
+                RootImportBase('root_dir', Uri('file:///image.tar.xz'))
 
-    @raises(NotImplementedError)
     @patch('os.path.exists')
     def test_data_sync(self, mock_path):
         mock_path.return_value = True
@@ -43,4 +43,5 @@ class TestRootImportBase:
             root_import = RootImportBase(
                 'root_dir', Uri('file:///image.tar.xz')
             )
-        root_import.sync_data()
+        with raises(NotImplementedError):
+            root_import.sync_data()

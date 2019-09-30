@@ -1,9 +1,11 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 import kiwi
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
 from kiwi.system.uri import Uri
 from kiwi.builder.container import ContainerBuilder
@@ -59,15 +61,14 @@ class TestContainerBuilder:
         assert self.container.base_image == 'root_dir/image/imported_root'
 
     @patch('os.path.exists')
-    @raises(KiwiContainerBuilderError)
     def test_init_derived_base_image_not_existing(self, mock_exists):
         mock_exists.return_value = False
-        ContainerBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
+        with raises(KiwiContainerBuilderError):
+            ContainerBuilder(
+                self.xml_state, 'target_dir', 'root_dir'
+            )
 
     @patch('os.path.exists')
-    @raises(KiwiContainerBuilderError)
     def test_init_derived_base_image_md5_not_existing(self, mock_exists):
         exists_results = [False, False, True]
 
@@ -75,14 +76,14 @@ class TestContainerBuilder:
             return exists_results.pop()
 
         mock_exists.side_effect = side_effect
-        ContainerBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
+        with raises(KiwiContainerBuilderError):
+            ContainerBuilder(
+                self.xml_state, 'target_dir', 'root_dir'
+            )
 
     @patch('kiwi.builder.container.Checksum')
     @patch('kiwi.builder.container.ContainerImage')
     @patch('os.path.exists')
-    @raises(KiwiContainerBuilderError)
     def test_create_derived_checksum_match_failed(
         self, mock_exists, mock_image, mock_checksum
     ):
@@ -106,7 +107,8 @@ class TestContainerBuilder:
             return_value=False
         )
         mock_checksum.return_value = checksum
-        container.create()
+        with raises(KiwiContainerBuilderError):
+            container.create()
 
     @patch('kiwi.builder.container.ContainerSetup')
     @patch('kiwi.builder.container.ContainerImage')
@@ -242,12 +244,7 @@ class TestContainerBuilder:
 
     @patch_open
     @patch('kiwi.builder.container.Checksum')
-    @raises(KiwiContainerBuilderError)
     def test_create_derived_with_different_md5(self, mock_md5, mock_open):
-        container = ContainerBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
-
         md5 = mock.Mock()
         md5.md5.return_value = 'diffchecksumvalue'
         mock_md5.return_value = md5
@@ -261,22 +258,23 @@ class TestContainerBuilder:
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
         mock_open.return_value = context_manager_mock
-
-        container.create()
+        with raises(KiwiContainerBuilderError):
+            container = ContainerBuilder(
+                self.xml_state, 'target_dir', 'root_dir'
+            )
+            container.create()
 
     @patch_open
     @patch('kiwi.builder.container.Checksum')
-    @raises(Exception)
     def test_create_derived_fail_open(self, mock_md5, mock_open):
-        container = ContainerBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
-
         context_manager_mock = mock.Mock()
         enter_mock = mock.Mock(side_effect=Exception('open failed!'))
         exit_mock = mock.Mock()
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
         mock_open.return_value = context_manager_mock
-
-        container.create()
+        with raises(Exception):
+            container = ContainerBuilder(
+                self.xml_state, 'target_dir', 'root_dir'
+            )
+            container.create()

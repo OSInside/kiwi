@@ -1,12 +1,13 @@
+import sys
 import mock
-
 from mock import patch
 from mock import call
 from collections import namedtuple
+from pytest import raises
 
 import kiwi
 
-from .test_helper import raises
+from .test_helper import argv_kiwi_tests
 
 from kiwi.boot.image.builtin_kiwi import BootImageKiwi
 from kiwi.xml_description import XMLDescription
@@ -81,11 +82,11 @@ class TestBootImageKiwi:
         )
         self.setup.call_image_script.assert_called_once_with()
 
-    @raises(KiwiConfigFileNotFound)
     @patch('os.path.exists')
     def test_prepare_no_boot_description_found(self, mock_os_path):
         mock_os_path.return_value = False
-        self.boot_image.prepare()
+        with raises(KiwiConfigFileNotFound):
+            self.boot_image.prepare()
 
     @patch('kiwi.boot.image.builtin_kiwi.ArchiveCpio')
     @patch('kiwi.boot.image.builtin_kiwi.Compress')
@@ -172,3 +173,6 @@ class TestBootImageKiwi:
         assert self.boot_image.get_boot_names() == boot_names_type(
             kernel_name='linux.vmx', initrd_name='initrd.vmx'
         )
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests

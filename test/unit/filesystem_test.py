@@ -1,17 +1,16 @@
 from mock import patch
-
+from pytest import raises
 import mock
 
-from .test_helper import raises
+from kiwi.filesystem import FileSystem
 
 from kiwi.exceptions import KiwiFileSystemSetupError
-from kiwi.filesystem import FileSystem
 
 
 class TestFileSystem:
-    @raises(KiwiFileSystemSetupError)
     def test_filesystem_not_implemented(self):
-        FileSystem('foo', mock.Mock(), 'root_dir')
+        with raises(KiwiFileSystemSetupError):
+            FileSystem('foo', mock.Mock(), 'root_dir')
 
     @patch('kiwi.filesystem.FileSystemExt2')
     def test_filesystem_ext2(self, mock_ext2):

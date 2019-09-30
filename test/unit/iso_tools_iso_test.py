@@ -2,12 +2,13 @@ from builtins import bytes
 from mock import (
     call, patch
 )
+from pytest import raises
 import mock
 import struct
 import pytest
 import sys
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
 from kiwi.iso_tools.iso import Iso
 from kiwi.path import Path
@@ -42,11 +43,11 @@ class TestIso:
             'source-dir/header_end 1000000\n'
         )
 
-    @raises(KiwiIsoLoaderError)
     @patch('os.path.exists')
     def test_setup_isolinux_boot_path_raises(self, mock_exists):
         mock_exists.return_value = False
-        self.iso.setup_isolinux_boot_path()
+        with raises(KiwiIsoLoaderError):
+            self.iso.setup_isolinux_boot_path()
 
     @patch('os.path.exists')
     @patch('kiwi.iso_tools.iso.Command.run')
@@ -110,21 +111,21 @@ class TestIso:
     @pytest.mark.skipif(
         Path.which('isoinfo') is None, reason='requires cdrtools'
     )
-    @raises(KiwiIsoLoaderError)
     def test_create_header_end_block_raises_on_test_iso(self):
         temp_file = NamedTemporaryFile()
         self.iso.header_end_file = temp_file.name
-        self.iso.create_header_end_block(
-            '../data/iso_no_marker.iso'
-        )
+        with raises(KiwiIsoLoaderError):
+            self.iso.create_header_end_block(
+                '../data/iso_no_marker.iso'
+            )
 
     @patch_open
     @patch('kiwi.iso_tools.iso.IsoToolsCdrTools')
-    @raises(KiwiIsoLoaderError)
     def test_create_header_end_block_raises(
         self, mock_IsoToolsCdrTools, mock_open
     ):
-        self.iso.create_header_end_block('some-iso-file')
+        with raises(KiwiIsoLoaderError):
+            self.iso.create_header_end_block('some-iso-file')
 
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid(self, mock_command):
@@ -140,15 +141,14 @@ class TestIso:
             ]
         )
 
-    @raises(KiwiCommandError)
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_error(self, mock_command):
         command = mock.Mock()
         command.error = 'some error message'
         mock_command.return_value = command
-        Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
+        with raises(KiwiCommandError):
+            Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
 
-    @raises(KiwiCommandError)
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_multiple_errors(self, mock_command):
         command = mock.Mock()
@@ -157,7 +157,8 @@ class TestIso:
             'isohybrid: Not all BIOSes will be able to boot this device\n' + \
             'isohybrid: some other error we do not ignore'
         mock_command.return_value = command
-        Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
+        with raises(KiwiCommandError):
+            Iso.create_hybrid(42, '0x0815', 'some-iso', 'efi')
 
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid_with_cylinders_warning(self, mock_command):
@@ -183,21 +184,20 @@ class TestIso:
         )
 
     @patch_open
-    @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_iso9660_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = bytes(b'bogus')
-        Iso.fix_boot_catalog('isofile')
+        with raises(KiwiIsoMetaDataError):
+            Iso.fix_boot_catalog('isofile')
 
     @patch_open
-    @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_not_bootable(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         self.file_mock.read.return_value = bytes(b'CD001')
-        Iso.fix_boot_catalog('isofile')
+        with raises(KiwiIsoMetaDataError):
+            Iso.fix_boot_catalog('isofile')
 
     @patch_open
-    @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_path_table_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         read_results = [bytes(b'EL TORITO SPECIFICATION'), bytes(b'CD001')]
@@ -206,10 +206,10 @@ class TestIso:
             return read_results.pop()
 
         self.file_mock.read.side_effect = side_effect
-        Iso.fix_boot_catalog('isofile')
+        with raises(KiwiIsoMetaDataError):
+            Iso.fix_boot_catalog('isofile')
 
     @patch_open
-    @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_catalog_sector_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
@@ -220,10 +220,10 @@ class TestIso:
             return read_results.pop()
 
         self.file_mock.read.side_effect = side_effect
-        Iso.fix_boot_catalog('isofile')
+        with raises(KiwiIsoMetaDataError):
+            Iso.fix_boot_catalog('isofile')
 
     @patch_open
-    @raises(KiwiIsoMetaDataError)
     def test_iso_metadata_catalog_invalid(self, mock_open):
         mock_open.return_value = self.context_manager_mock
         volume_descriptor = \
@@ -237,7 +237,8 @@ class TestIso:
             return read_results.pop()
 
         self.file_mock.read.side_effect = side_effect
-        Iso.fix_boot_catalog('isofile')
+        with raises(KiwiIsoMetaDataError):
+            Iso.fix_boot_catalog('isofile')
 
     @patch_open
     def test_relocate_boot_catalog(self, mock_open):

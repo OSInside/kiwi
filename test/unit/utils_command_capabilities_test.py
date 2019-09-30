@@ -1,10 +1,11 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 from collections import namedtuple
 
-from .test_helper import raises
-
 from kiwi.utils.command_capabilities import CommandCapabilities
+
 from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 
@@ -51,15 +52,15 @@ class TestCommandCapabilities:
         assert mock_warn.called
 
     @patch('kiwi.command.Command.run')
-    @raises(KiwiCommandCapabilitiesError)
     def test_has_option_in_help_command_failure_exception(self, mock_run):
         def side_effect():
             raise Exception("Something went wrong")
 
         mock_run.side_effect = side_effect
-        CommandCapabilities.has_option_in_help(
-            'command_that_fails', '--non-existing-flag'
-        )
+        with raises(KiwiCommandCapabilitiesError):
+            CommandCapabilities.has_option_in_help(
+                'command_that_fails', '--non-existing-flag'
+            )
 
     @patch('kiwi.command.Command.run')
     def test_check_version(self, mock_run):
@@ -85,13 +86,13 @@ class TestCommandCapabilities:
         ])
 
     @patch('kiwi.command.Command.run')
-    @raises(KiwiCommandCapabilitiesError)
     def test_check_version_no_match(self, mock_run):
         command_type = namedtuple('command', ['output'])
         mock_run.return_value = command_type(
             output="Dummy line\ncommand someother stuff\n"
         )
-        CommandCapabilities.check_version('command', (1, 2, 3))
+        with raises(KiwiCommandCapabilitiesError):
+            CommandCapabilities.check_version('command', (1, 2, 3))
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.logger.log.warning')
@@ -106,12 +107,12 @@ class TestCommandCapabilities:
         assert mock_warn.called
 
     @patch('kiwi.command.Command.run')
-    @raises(KiwiCommandCapabilitiesError)
     def test_check_version_failure_exception(self, mock_run):
         def side_effect():
             raise Exception("Something went wrong")
 
         mock_run.side_effect = side_effect
-        CommandCapabilities.check_version(
-            'command_that_fails', '--non-existing-flag'
-        )
+        with raises(KiwiCommandCapabilitiesError):
+            CommandCapabilities.check_version(
+                'command_that_fails', '--non-existing-flag'
+            )

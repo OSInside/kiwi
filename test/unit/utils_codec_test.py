@@ -1,8 +1,8 @@
 from mock import patch
-
-from .test_helper import raises
+from pytest import raises
 
 from kiwi.utils.codec import Codec
+
 from kiwi.exceptions import KiwiDecodingError
 
 
@@ -35,11 +35,9 @@ class TestCodec:
         mock_decode.return_value = msg
         assert msg == Codec.decode(self.literal)
 
-    @raises(KiwiDecodingError)
     @patch('kiwi.utils.codec.Codec._wrapped_decode')
     @patch('kiwi.logger.log.warning')
     def test_decode_utf8_failure(self, mock_warn, mock_decode):
-
         def mocked_decode(literal, charset):
             if charset:
                 raise KiwiDecodingError('utf-8 decoding failure')
@@ -47,7 +45,8 @@ class TestCodec:
                 raise KiwiDecodingError('ascii decoding failure')
 
         mock_decode.side_effect = mocked_decode
-        Codec.decode(self.literal)
+        with raises(KiwiDecodingError):
+            Codec.decode(self.literal)
         assert mock_warn.called
 
     def test_wrapped_decode(self):

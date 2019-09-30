@@ -1,10 +1,11 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 
-from .test_helper import raises
-
 from kiwi.package_manager.apt import PackageManagerApt
+
 from kiwi.exceptions import (
     KiwiDebootstrapError,
     KiwiRequestError
@@ -57,30 +58,30 @@ class TestPackageManagerApt:
         assert self.manager.exclude_requests == []
         assert mock_log_warn.called
 
-    @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_no_dist(self):
         self.manager.distribution = None
-        self.manager.process_install_requests_bootstrap()
+        with raises(KiwiDebootstrapError):
+            self.manager.process_install_requests_bootstrap()
 
     @patch('os.path.exists')
-    @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_no_debootstrap_script(
         self, mock_exists
     ):
         mock_exists.return_value = False
-        self.manager.process_install_requests_bootstrap()
+        with raises(KiwiDebootstrapError):
+            self.manager.process_install_requests_bootstrap()
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.package_manager.apt.Path.wipe')
-    @raises(KiwiDebootstrapError)
     def test_process_install_requests_bootstrap_failed_debootstrap(
         self, mock_wipe, mock_exists, mock_run
     ):
         self.manager.request_package('apt-get')
         mock_run.side_effect = Exception
         mock_exists.return_value = True
-        self.manager.process_install_requests_bootstrap()
+        with raises(KiwiDebootstrapError):
+            self.manager.process_install_requests_bootstrap()
 
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.call')
@@ -173,11 +174,11 @@ class TestPackageManagerApt:
         )
 
     @patch('kiwi.command.Command.run')
-    @raises(KiwiRequestError)
     def test_process_delete_requests_package_missing(self, mock_run):
         mock_run.side_effect = Exception
         self.manager.request_package('vim')
-        self.manager.process_delete_requests()
+        with raises(KiwiRequestError):
+            self.manager.process_delete_requests()
 
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):

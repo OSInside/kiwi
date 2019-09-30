@@ -3,7 +3,8 @@ import mock
 from mock import (
     patch, call
 )
-from .test_helper import raises, patch_open
+from pytest import raises
+from .test_helper import patch_open
 from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
 
 from kiwi.exceptions import KiwiTemplateError
@@ -160,10 +161,10 @@ class TestBootLoaderConfigIsoLinux:
             True, True, None, True
         )
 
-    @raises(KiwiTemplateError)
     def test_setup_install_image_config_invalid_template(self):
         self.isolinux.get_install_message_template.side_effect = Exception
-        self.bootloader.setup_install_image_config(mbrid=None)
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_install_image_config(mbrid=None)
 
     def test_setup_install_boot_images(self):
         assert self.bootloader.setup_install_boot_images(mbrid=None) is None
@@ -171,10 +172,10 @@ class TestBootLoaderConfigIsoLinux:
     def test_setup_live_boot_images(self):
         assert self.bootloader.setup_live_boot_images(mbrid=None) is None
 
-    @raises(KiwiTemplateError)
     def test_setup_live_image_config_invalid_template(self):
         self.isolinux.get_message_template.side_effect = Exception
-        self.bootloader.setup_live_image_config(mbrid=None)
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_live_image_config(mbrid=None)
 
     def test_setup_live_image_config(self):
         template_parameters = {

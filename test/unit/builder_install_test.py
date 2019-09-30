@@ -1,16 +1,16 @@
-from mock import patch
-from mock import call
-
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 import kiwi
 
 from collections import namedtuple
 
-from .test_helper import raises, patch_open
-
-from kiwi.exceptions import KiwiInstallBootImageError
+from .test_helper import patch_open
 
 from kiwi.builder.install import InstallImageBuilder
+from kiwi.exceptions import KiwiInstallBootImageError
 
 
 class TestInstallImageBuilder:
@@ -243,38 +243,38 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open
     @patch('kiwi.builder.install.Command.run')
-    @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_kernel_found(
         self, mock_command, mock_open, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         self.kernel.get_kernel.return_value = False
-        self.install_image.create_install_iso()
+        with raises(KiwiInstallBootImageError):
+            self.install_image.create_install_iso()
 
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open
     @patch('kiwi.builder.install.Command.run')
-    @raises(KiwiInstallBootImageError)
     def test_create_install_iso_no_hypervisor_found(
         self, mock_command, mock_open, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         self.kernel.get_xen_hypervisor.return_value = False
-        self.install_image.create_install_iso()
+        with raises(KiwiInstallBootImageError):
+            self.install_image.create_install_iso()
 
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
-    @raises(KiwiInstallBootImageError)
     def test_create_install_pxe_no_kernel_found(
         self, mock_compress, mock_md5, mock_command, mock_open, mock_dtemp
     ):
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_kernel.return_value = False
-        self.install_image.create_install_pxe_archive()
+        with raises(KiwiInstallBootImageError):
+            self.install_image.create_install_pxe_archive()
 
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open
@@ -282,14 +282,14 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
     @patch('kiwi.builder.install.os.symlink')
-    @raises(KiwiInstallBootImageError)
     def test_create_install_pxe_no_hypervisor_found(
         self, mock_symlink, mock_compress, mock_md5, mock_command,
         mock_open, mock_dtemp
     ):
         mock_dtemp.return_value = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
-        self.install_image.create_install_pxe_archive()
+        with raises(KiwiInstallBootImageError):
+            self.install_image.create_install_pxe_archive()
 
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open

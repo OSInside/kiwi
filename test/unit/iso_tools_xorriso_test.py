@@ -1,7 +1,8 @@
 from mock import patch
-from .test_helper import raises
+from pytest import raises
 
 from kiwi.iso_tools.xorriso import IsoToolsXorrIso
+
 from kiwi.exceptions import KiwiIsoToolError
 
 
@@ -16,11 +17,11 @@ class TestIsoToolsXorrIso:
         mock_which.return_value = 'tool_found'
         assert self.iso_tool.get_tool_name() == 'tool_found'
 
-    @raises(KiwiIsoToolError)
     @patch('os.path.exists')
     def test_get_tool_name_raises(self, mock_exists):
         mock_exists.return_value = False
-        self.iso_tool.get_tool_name()
+        with raises(KiwiIsoToolError):
+            self.iso_tool.get_tool_name()
 
     @patch('kiwi.iso_tools.xorriso.Path.which')
     def test_init_iso_creation_parameters_isolinux(self, mock_which):

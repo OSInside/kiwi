@@ -1,19 +1,17 @@
-from mock import patch
-
-import mock
-
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiRequestedTypeError
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
 from kiwi.builder import ImageBuilder
+from kiwi.exceptions import KiwiRequestedTypeError
 
 
 class TestImageBuilder:
     @patch('kiwi.builder.FileSystemBuilder')
     def test_filesystem_builder(self, mock_builder):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='ext4'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
@@ -23,8 +21,8 @@ class TestImageBuilder:
 
     @patch('kiwi.builder.DiskBuilder')
     def test_disk_builder(self, mock_builder):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='vmx'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
@@ -34,8 +32,8 @@ class TestImageBuilder:
 
     @patch('kiwi.builder.LiveImageBuilder')
     def test_live_builder(self, mock_builder):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='iso'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
@@ -45,8 +43,8 @@ class TestImageBuilder:
 
     @patch('kiwi.builder.PxeBuilder')
     def test_pxe_builder(self, mock_builder):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='pxe'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
@@ -56,8 +54,8 @@ class TestImageBuilder:
 
     @patch('kiwi.builder.ArchiveBuilder')
     def test_archive_builder(self, mock_builder):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='tbz'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
@@ -67,8 +65,8 @@ class TestImageBuilder:
 
     @patch('kiwi.builder.ContainerBuilder')
     def test_container_builder(self, mock_builder):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='docker'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
@@ -76,10 +74,10 @@ class TestImageBuilder:
             xml_state, 'target_dir', 'root_dir', None
         )
 
-    @raises(KiwiRequestedTypeError)
     def test_unsupported_build_type(self):
-        xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
             return_value='bogus'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        with raises(KiwiRequestedTypeError):
+            ImageBuilder(xml_state, 'target_dir', 'root_dir')

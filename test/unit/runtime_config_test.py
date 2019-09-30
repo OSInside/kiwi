@@ -1,12 +1,12 @@
 from mock import patch
+from pytest import raises
 
-from .test_helper import (
-    raises, patch_open
-)
+from .test_helper import patch_open
 
 from kiwi.runtime_config import RuntimeConfig
-from kiwi.exceptions import KiwiRuntimeConfigFormatError
 from kiwi.defaults import Defaults
+
+from kiwi.exceptions import KiwiRuntimeConfigFormatError
 
 
 class TestRuntimeConfig:
@@ -33,10 +33,10 @@ class TestRuntimeConfig:
             self.runtime_config = RuntimeConfig()
             mock_open.assert_called_once_with('/etc/kiwi.yml', 'r')
 
-    @raises(KiwiRuntimeConfigFormatError)
     def test_invalid_yaml_format(self):
         self.runtime_config.config_data = {'xz': None}
-        self.runtime_config.get_xz_options()
+        with raises(KiwiRuntimeConfigFormatError):
+            self.runtime_config.get_xz_options()
 
     def test_get_xz_options(self):
         assert self.runtime_config.get_xz_options() == ['-a', '-b', 'xxx']
@@ -48,8 +48,12 @@ class TestRuntimeConfig:
         assert self.runtime_config.get_bundle_compression() is True
 
     def test_get_bundle_compression_default(self):
-        assert self.default_runtime_config.get_bundle_compression(default=True) is True
-        assert self.default_runtime_config.get_bundle_compression(default=False) is False
+        assert self.default_runtime_config.get_bundle_compression(
+            default=True
+        ) is True
+        assert self.default_runtime_config.get_bundle_compression(
+            default=False
+        ) is False
 
     def test_is_obs_public_default(self):
         assert self.default_runtime_config.is_obs_public() is True

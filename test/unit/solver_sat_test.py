@@ -1,9 +1,10 @@
-from mock import patch
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, Mock, MagicMock
+)
+from pytest import raises
 
 from kiwi.solver.sat import Sat
+
 from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobProblems,
@@ -15,35 +16,35 @@ class TestSat:
     @patch('importlib.import_module')
     def setup(self, mock_import_module):
         self.sat = Sat()
-        self.solver = mock.MagicMock()
-        self.transaction = mock.Mock()
-        self.transaction.newpackages = mock.Mock(
-            return_value=[mock.Mock()]
+        self.solver = MagicMock()
+        self.transaction = Mock()
+        self.transaction.newpackages = Mock(
+            return_value=[Mock()]
         )
-        self.selection = mock.Mock()
-        self.solver.transaction = mock.Mock(
+        self.selection = Mock()
+        self.solver.transaction = Mock(
             return_value=self.transaction
         )
-        self.sat.pool.Solver = mock.Mock(
+        self.sat.pool.Solver = Mock(
             return_value=self.solver
         )
-        self.sat.pool.select = mock.Mock(
+        self.sat.pool.select = Mock(
             return_value=self.selection
         )
         mock_import_module.assert_called_once_with('solv')
 
     @patch('importlib.import_module')
-    @raises(KiwiSatSolverPluginError)
     def test_setup_no_sat_plugin(self, mock_import_module):
         mock_import_module.side_effect = Exception
-        Sat()
+        with raises(KiwiSatSolverPluginError):
+            Sat()
 
     def test_add_repository(self):
-        solver_repository = mock.Mock()
+        solver_repository = Mock()
         solver_repository.uri.uri = 'some-uri'
-        solvable = mock.Mock()
+        solvable = Mock()
         solver_repository.create_repository_solvable.return_value = solvable
-        pool_repository = mock.Mock()
+        pool_repository = Mock()
         self.sat.pool.add_repo.return_value = pool_repository
 
         self.sat.add_repository(solver_repository)
@@ -54,48 +55,48 @@ class TestSat:
         self.sat.pool.addfileprovides.assert_called_once_with()
         self.sat.pool.createwhatprovides.assert_called_once_with()
 
-    @raises(KiwiSatSolverJobProblems)
     @patch.object(Sat, '_setup_jobs')
     def test_solve_has_problems(self, mock_setup_jobs):
         packages = ['vim']
-        problem = mock.Mock()
+        problem = Mock()
         problem.id = 42
-        info = mock.Mock()
-        info.problemstr = mock.Mock(
+        info = Mock()
+        info.problemstr = Mock(
             return_value='some-problem'
         )
-        findproblemrule = mock.Mock()
-        findproblemrule.info = mock.Mock(
+        findproblemrule = Mock()
+        findproblemrule.info = Mock(
             return_value=info
         )
         problem.findproblemrule.return_value = findproblemrule
 
-        option = mock.Mock()
-        option.str = mock.Mock(
+        option = Mock()
+        option.str = Mock(
             return_value='some-option'
         )
-        solution = mock.Mock()
+        solution = Mock()
         solution.id = 42
-        solution.elements = mock.Mock(
+        solution.elements = Mock(
             return_value=[option]
         )
         problem.solutions.return_value = [solution]
-        self.solver.solve = mock.Mock(
+        self.solver.solve = Mock(
             return_value=[problem]
         )
-        self.sat.solve(packages)
+        with raises(KiwiSatSolverJobProblems):
+            self.sat.solve(packages)
 
     @patch('kiwi.logger.log.info')
     def test_solve_package_not_found_and_skipped(self, mock_log_info):
         packages = ['vim']
-        self.solver.solve = mock.Mock(
+        self.solver.solve = Mock(
             return_value=None
         )
         self.sat.solv.Selection.SELECTION_PROVIDES = 0
-        self.selection.flags = mock.Mock(
+        self.selection.flags = Mock(
             return_value=0
         )
-        self.selection.isempty = mock.Mock(
+        self.selection.isempty = Mock(
             return_value=True
         )
         self.sat.solve(packages, skip_missing=True)
@@ -103,26 +104,26 @@ class TestSat:
             '--> Package vim not found: skipped'
         )
 
-    @raises(KiwiSatSolverJobError)
     def test_solve_package_not_found_raises(self):
         packages = ['vim']
-        self.solver.solve = mock.Mock(
+        self.solver.solve = Mock(
             return_value=None
         )
-        self.selection.isempty = mock.Mock(
+        self.selection.isempty = Mock(
             return_value=True
         )
-        self.sat.solve(packages)
+        with raises(KiwiSatSolverJobError):
+            self.sat.solve(packages)
 
     def test_solve(self):
         packages = ['vim']
-        self.solver.solve = mock.Mock(
+        self.solver.solve = Mock(
             return_value=None
         )
-        self.selection.isempty = mock.Mock(
+        self.selection.isempty = Mock(
             return_value=False
         )
-        self.selection.jobs = mock.Mock(
+        self.selection.jobs = Mock(
             return_value=packages
         )
         self.sat.solve(packages)
@@ -132,17 +133,17 @@ class TestSat:
     @patch('kiwi.logger.log.info')
     def test_solve_with_capabilities(self, mock_log_info):
         packages = ['kernel-base']
-        self.solver.solve = mock.Mock(
+        self.solver.solve = Mock(
             return_value=None
         )
         self.sat.solv.Selection.SELECTION_PROVIDES = 1
-        self.selection.flags = mock.Mock(
+        self.selection.flags = Mock(
             return_value=1
         )
-        self.selection.isempty = mock.Mock(
+        self.selection.isempty = Mock(
             return_value=False
         )
-        self.selection.jobs = mock.Mock(
+        self.selection.jobs = Mock(
             return_value=packages
         )
         self.sat.solve(packages)

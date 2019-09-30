@@ -1,31 +1,30 @@
-from mock import patch
-
-import mock
-
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiDiskFormatSetupError
+from mock import (
+    patch, Mock
+)
+from pytest import raises
 
 from kiwi.storage.subformat import DiskFormat
+
+from kiwi.exceptions import KiwiDiskFormatSetupError
 
 
 class TestDiskFormat:
     def setup(self):
-        self.xml_state = mock.Mock()
+        self.xml_state = Mock()
         self.xml_state.get_build_type_format_options.return_value = {}
 
-    @raises(KiwiDiskFormatSetupError)
     def test_format_not_implemented(self):
-        DiskFormat('foo', self.xml_state, 'root_dir', 'target_dir')
+        with raises(KiwiDiskFormatSetupError):
+            DiskFormat('foo', self.xml_state, 'root_dir', 'target_dir')
 
-    @raises(KiwiDiskFormatSetupError)
     def test_disk_format_vagrant_not_implemented(self):
-        self.xml_state.get_build_type_vagrant_config_section = mock.Mock(
+        self.xml_state.get_build_type_vagrant_config_section = Mock(
             return_value=None
         )
-        DiskFormat(
-            'vagrant', self.xml_state, 'root_dir', 'target_dir'
-        )
+        with raises(KiwiDiskFormatSetupError):
+            DiskFormat(
+                'vagrant', self.xml_state, 'root_dir', 'target_dir'
+            )
 
     @patch('kiwi.storage.subformat.DiskFormatQcow2')
     def test_disk_format_qcow2(self, mock_qcow2):
@@ -57,7 +56,7 @@ class TestDiskFormat:
 
     @patch('kiwi.storage.subformat.DiskFormatVhdFixed')
     def test_disk_format_vhdfixed(self, mock_vhdfixed):
-        self.xml_state.build_type.get_vhdfixedtag = mock.Mock(
+        self.xml_state.build_type.get_vhdfixedtag = Mock(
             return_value='disk-tag'
         )
         DiskFormat('vhd-fixed', self.xml_state, 'root_dir', 'target_dir')
@@ -67,7 +66,7 @@ class TestDiskFormat:
 
     @patch('kiwi.storage.subformat.DiskFormatGce')
     def test_disk_format_gce(self, mock_gce):
-        self.xml_state.build_type.get_gcelicense = mock.Mock(
+        self.xml_state.build_type.get_gcelicense = Mock(
             return_value='gce_license_tag'
         )
         DiskFormat('gce', self.xml_state, 'root_dir', 'target_dir')
@@ -78,14 +77,14 @@ class TestDiskFormat:
 
     @patch('kiwi.storage.subformat.DiskFormatVmdk')
     def test_disk_format_vmdk(self, mock_vmdk):
-        vmdisk = mock.Mock()
-        vmdisk.get_controller = mock.Mock(
+        vmdisk = Mock()
+        vmdisk.get_controller = Mock(
             return_value='controller'
         )
-        vmdisk.get_diskmode = mock.Mock(
+        vmdisk.get_diskmode = Mock(
             return_value='disk-mode'
         )
-        self.xml_state.get_build_type_vmdisk_section = mock.Mock(
+        self.xml_state.get_build_type_vmdisk_section = Mock(
             return_value=vmdisk
         )
         DiskFormat('vmdk', self.xml_state, 'root_dir', 'target_dir')
@@ -96,14 +95,14 @@ class TestDiskFormat:
 
     @patch('kiwi.storage.subformat.DiskFormatOva')
     def test_disk_format_ova(self, mock_ova):
-        vmdisk = mock.Mock()
-        vmdisk.get_controller = mock.Mock(
+        vmdisk = Mock()
+        vmdisk.get_controller = Mock(
             return_value='controller'
         )
-        vmdisk.get_diskmode = mock.Mock(
+        vmdisk.get_diskmode = Mock(
             return_value='disk-mode'
         )
-        self.xml_state.get_build_type_vmdisk_section = mock.Mock(
+        self.xml_state.get_build_type_vmdisk_section = Mock(
             return_value=vmdisk
         )
         DiskFormat('ova', self.xml_state, 'root_dir', 'target_dir')
@@ -121,11 +120,11 @@ class TestDiskFormat:
                 ('libvirt', mock_vagrant_libvirt),
                 ('virtualbox', mock_vagrant_virt_box)
         ):
-            vagrant_config = mock.Mock()
-            vagrant_config.get_provider = mock.Mock(
+            vagrant_config = Mock()
+            vagrant_config.get_provider = Mock(
                 return_value=provider_name
             )
-            self.xml_state.get_build_type_vagrant_config_section = mock.Mock(
+            self.xml_state.get_build_type_vagrant_config_section = Mock(
                 return_value=vagrant_config
             )
             DiskFormat(

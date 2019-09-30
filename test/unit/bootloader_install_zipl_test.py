@@ -1,12 +1,9 @@
-from mock import patch
-from mock import call
-
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, call, Mock
+)
+from pytest import raises
 
 from kiwi.exceptions import KiwiBootLoaderZiplInstallError
-
 from kiwi.bootloader.install.zipl import BootLoaderInstallZipl
 
 
@@ -16,23 +13,23 @@ class TestBootLoaderInstallZipl:
         custom_args = {
             'boot_device': '/dev/mapper/loop0p1'
         }
-        boot_mount = mock.Mock()
+        boot_mount = Mock()
         boot_mount.device = custom_args['boot_device']
         boot_mount.mountpoint = 'tmp_boot'
 
         mock_mount.return_value = boot_mount
 
-        device_provider = mock.Mock()
-        device_provider.get_device = mock.Mock(
+        device_provider = Mock()
+        device_provider.get_device = Mock(
             return_value='/dev/some-device'
         )
         self.bootloader = BootLoaderInstallZipl(
             'root_dir', device_provider, custom_args
         )
 
-    @raises(KiwiBootLoaderZiplInstallError)
     def test_post_init_missing_boot_mount_path(self):
-        self.bootloader.post_init(None)
+        with raises(KiwiBootLoaderZiplInstallError):
+            self.bootloader.post_init(None)
 
     def test_install_required(self):
         assert self.bootloader.install_required() is True

@@ -1,10 +1,9 @@
 from mock import patch
-
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiLoopSetupError
+from pytest import raises
 
 from kiwi.storage.loop_device import LoopDevice
+
+from kiwi.exceptions import KiwiLoopSetupError
 
 
 class TestLoopDevice:
@@ -13,9 +12,9 @@ class TestLoopDevice:
         mock_exists.return_value = False
         self.loop = LoopDevice('loop-file', 20, 4096)
 
-    @raises(KiwiLoopSetupError)
     def test_loop_setup_invalid(self):
-        LoopDevice('loop-file-does-not-exist-and-no-size-given')
+        with raises(KiwiLoopSetupError):
+            LoopDevice('loop-file-does-not-exist-and-no-size-given')
 
     def test_get_device(self):
         assert self.loop.get_device() is None

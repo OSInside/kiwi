@@ -1,37 +1,34 @@
-from mock import patch
-
-import mock
-
+from mock import (
+    patch, Mock, MagicMock
+)
+from pytest import raises
 import kiwi
-
-from .test_helper import raises
-
 from collections import namedtuple
 
-from kiwi.exceptions import KiwiPxeBootImageError
 from kiwi.builder.pxe import PxeBuilder
+from kiwi.exceptions import KiwiPxeBootImageError
 
 
 class TestPxeBuilder:
     @patch('kiwi.builder.pxe.FileSystemBuilder')
     @patch('kiwi.builder.pxe.BootImage')
     def setup(self, mock_boot, mock_filesystem):
-        self.setup = mock.Mock()
-        kiwi.builder.pxe.SystemSetup = mock.Mock(
+        self.setup = Mock()
+        kiwi.builder.pxe.SystemSetup = Mock(
             return_value=self.setup
         )
-        self.boot_image_task = mock.MagicMock()
+        self.boot_image_task = MagicMock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd_file_name'
         mock_boot.return_value = self.boot_image_task
-        self.filesystem = mock.MagicMock()
+        self.filesystem = MagicMock()
         self.filesystem.filename = 'myimage.fs'
         mock_filesystem.return_value = self.filesystem
-        self.xml_state = mock.Mock()
-        self.xml_state.get_image_version = mock.Mock(
+        self.xml_state = Mock()
+        self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
-        self.xml_state.xml_data.get_name = mock.Mock(
+        self.xml_state.xml_data.get_name = Mock(
             return_value='some-image'
         )
         kernel_type = namedtuple(
@@ -40,14 +37,14 @@ class TestPxeBuilder:
         xen_type = namedtuple(
             'xen', ['filename', 'name']
         )
-        self.kernel = mock.Mock()
-        self.kernel.get_kernel = mock.Mock(
+        self.kernel = Mock()
+        self.kernel.get_kernel = Mock(
             return_value=kernel_type(filename='some-kernel', version='42')
         )
-        self.kernel.get_xen_hypervisor = mock.Mock(
+        self.kernel.get_xen_hypervisor = Mock(
             return_value=xen_type(filename='hypervisor', name='xen.gz')
         )
-        kiwi.builder.pxe.Kernel = mock.Mock(
+        kiwi.builder.pxe.Kernel = Mock(
             return_value=self.kernel
         )
         self.pxe = PxeBuilder(
@@ -66,14 +63,14 @@ class TestPxeBuilder:
         self, mock_rename, mock_tar, mock_log_warn,
         mock_compress, mock_checksum
     ):
-        tar = mock.Mock()
+        tar = Mock()
         mock_tar.return_value = tar
-        compress = mock.Mock()
+        compress = Mock()
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'
-        checksum = mock.Mock()
+        checksum = Mock()
         mock_checksum.return_value = checksum
-        self.boot_image_task.required = mock.Mock(
+        self.boot_image_task.required = Mock(
             return_value=True
         )
         self.pxe.create()
@@ -109,25 +106,25 @@ class TestPxeBuilder:
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')
     @patch('os.rename')
-    @raises(KiwiPxeBootImageError)
     def test_create_no_kernel_found(
         self, mock_rename, mock_compress, mock_checksum
     ):
-        compress = mock.Mock()
+        compress = Mock()
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'
         self.kernel.get_kernel.return_value = False
-        self.pxe.create()
+        with raises(KiwiPxeBootImageError):
+            self.pxe.create()
 
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')
     @patch('os.rename')
-    @raises(KiwiPxeBootImageError)
     def test_create_no_hypervisor_found(
         self, mock_rename, mock_compress, mock_checksum
     ):
-        compress = mock.Mock()
+        compress = Mock()
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'
         self.kernel.get_xen_hypervisor.return_value = False
-        self.pxe.create()
+        with raises(KiwiPxeBootImageError):
+            self.pxe.create()

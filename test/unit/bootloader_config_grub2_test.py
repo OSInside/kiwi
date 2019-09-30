@@ -1,15 +1,16 @@
-from mock import patch
-from mock import call
-
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
 
 import kiwi
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
 from kiwi.xml_state import XMLState
-
 from kiwi.xml_description import XMLDescription
+from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
@@ -19,8 +20,6 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubFontError,
     KiwiBootLoaderGrubModulesError
 )
-
-from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 
 
 class TestBootLoaderConfigGrub2:
@@ -112,11 +111,11 @@ class TestBootLoaderConfigGrub2:
         bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
         assert bootloader.boot_directory_name == 'grub'
 
-    @raises(KiwiBootLoaderGrubPlatformError)
     @patch('platform.machine')
     def test_post_init_invalid_platform(self, mock_machine):
         mock_machine.return_value = 'unsupported-arch'
-        BootLoaderConfigGrub2(mock.Mock(), 'root_dir')
+        with raises(KiwiBootLoaderGrubPlatformError):
+            BootLoaderConfigGrub2(mock.Mock(), 'root_dir')
 
     @patch('kiwi.logger.log.warning')
     @patch('kiwi.defaults.Defaults.get_shim_loader')
@@ -126,7 +125,6 @@ class TestBootLoaderConfigGrub2:
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch_open
-    @raises(KiwiBootLoaderGrubSecureBootError)
     def test_setup_install_boot_images_raises_no_efigrub(
         self, mock_open, mock_machine, mock_exists,
         mock_sync, mock_command, mock_grub, mock_shim, mock_warn
@@ -150,7 +148,8 @@ class TestBootLoaderConfigGrub2:
             return self.os_exists[arg]
 
         mock_exists.side_effect = side_effect
-        self.bootloader.setup_install_boot_images(self.mbrid)
+        with raises(KiwiBootLoaderGrubSecureBootError):
+            self.bootloader.setup_install_boot_images(self.mbrid)
 
     @patch('platform.machine')
     def test_post_init_ix86_platform(self, mock_machine):
@@ -420,7 +419,6 @@ class TestBootLoaderConfigGrub2:
             True, True, 'gfxterm', True
         )
 
-    @raises(KiwiTemplateError)
     def test_setup_iso_image_config_substitute_error(self):
         self.bootloader.multiboot = True
         template = mock.Mock()
@@ -429,9 +427,9 @@ class TestBootLoaderConfigGrub2:
         self.grub2.get_multiboot_iso_template = mock.Mock(
             return_value=template
         )
-        self.bootloader.setup_live_image_config(self.mbrid)
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_live_image_config(self.mbrid)
 
-    @raises(KiwiTemplateError)
     def test_setup_disk_image_config_substitute_error(self):
         self.bootloader.multiboot = True
         template = mock.Mock()
@@ -440,9 +438,9 @@ class TestBootLoaderConfigGrub2:
         self.grub2.get_multiboot_disk_template = mock.Mock(
             return_value=template
         )
-        self.bootloader.setup_disk_image_config('boot_uuid', 'root_uuid')
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_disk_image_config('boot_uuid', 'root_uuid')
 
-    @raises(KiwiTemplateError)
     def test_setup_install_image_config_substitute_error(self):
         self.bootloader.multiboot = True
         template = mock.Mock()
@@ -451,12 +449,12 @@ class TestBootLoaderConfigGrub2:
         self.grub2.get_multiboot_install_template = mock.Mock(
             return_value=template
         )
-        self.bootloader.setup_install_image_config(self.mbrid)
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_install_image_config(self.mbrid)
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('os.path.exists')
-    @raises(KiwiBootLoaderGrubDataError)
     def test_no_grub_installation_found(
         self, mock_exists, mock_get_boot_path, mock_command
     ):
@@ -470,13 +468,13 @@ class TestBootLoaderConfigGrub2:
             return self.os_exists[arg]
 
         mock_exists.side_effect = side_effect
-        self.bootloader.setup_disk_boot_images('0815')
+        with raises(KiwiBootLoaderGrubDataError):
+            self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('os.path.exists')
     @patch('kiwi.defaults.Defaults.get_grub_path')
-    @raises(KiwiBootLoaderGrubFontError)
     def test_setup_disk_boot_images_raises_font_does_not_exist(
         self, mock_get_grub_path, mock_exists, mock_get_boot_path, mock_command
     ):
@@ -492,13 +490,13 @@ class TestBootLoaderConfigGrub2:
 
         mock_exists.side_effect = side_effect
         mock_command.side_effect = Exception
-        self.bootloader.setup_disk_boot_images('0815')
+        with raises(KiwiBootLoaderGrubFontError):
+            self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('platform.machine')
     @patch('os.path.exists')
     @patch.object(BootLoaderConfigGrub2, '_copy_theme_data_to_boot_directory')
-    @raises(KiwiBootLoaderGrubModulesError)
     def test_setup_disk_boot_images_raises_grub_modules_does_not_exist(
         self, mock_copy_theme_data, mock_exists, mock_machine, mock_command
     ):
@@ -508,7 +506,8 @@ class TestBootLoaderConfigGrub2:
             return_value=False
         )
         mock_command.side_effect = Exception
-        self.bootloader.setup_disk_boot_images('0815')
+        with raises(KiwiBootLoaderGrubModulesError):
+            self.bootloader.setup_disk_boot_images('0815')
 
     @patch('kiwi.bootloader.config.grub2.Defaults.get_unsigned_grub_loader')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')

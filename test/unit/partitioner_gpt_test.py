@@ -1,17 +1,17 @@
-from mock import patch, call
-
-import mock
-
-from .test_helper import raises
+from mock import (
+    patch, call, Mock
+)
+from pytest import raises
 
 from kiwi.partitioner.gpt import PartitionerGpt
+
 from kiwi.exceptions import KiwiPartitionerGptFlagError
 
 
 class TestPartitionerGpt:
     def setup(self):
-        disk_provider = mock.Mock()
-        disk_provider.get_device = mock.Mock(
+        disk_provider = Mock()
+        disk_provider.get_device = Mock(
             return_value='/dev/loop0'
         )
         self.partitioner = PartitionerGpt(disk_provider)
@@ -33,8 +33,8 @@ class TestPartitionerGpt:
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create_custom_start_sector(self, mock_flag, mock_command):
-        disk_provider = mock.Mock()
-        disk_provider.get_device = mock.Mock(
+        disk_provider = Mock()
+        disk_provider.get_device = Mock(
             return_value='/dev/loop0'
         )
         partitioner = PartitionerGpt(disk_provider, 4096)
@@ -61,9 +61,9 @@ class TestPartitionerGpt:
             ['sgdisk', '-n', '1:0:0', '-c', '1:name', '/dev/loop0']
         )
 
-    @raises(KiwiPartitionerGptFlagError)
     def test_set_flag_invalid(self):
-        self.partitioner.set_flag(1, 'foo')
+        with raises(KiwiPartitionerGptFlagError):
+            self.partitioner.set_flag(1, 'foo')
 
     @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_flag(self, mock_command):
@@ -87,7 +87,7 @@ class TestPartitionerGpt:
 
     @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_mbr(self, mock_command):
-        command_output = mock.Mock()
+        command_output = Mock()
         command_output.output = '...(EFI System)'
         self.partitioner.partition_id = 4
         mock_command.return_value = command_output

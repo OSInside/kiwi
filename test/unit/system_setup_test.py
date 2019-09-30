@@ -1,44 +1,44 @@
-
-from mock import patch
-from mock import call
-
-import mock
-
-from .test_helper import raises, patch_open
+from mock import (
+    patch, call, Mock, MagicMock
+)
+from pytest import raises
 from collections import namedtuple
+
+from .test_helper import patch_open
 
 from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
+from kiwi.defaults import Defaults
+
 from kiwi.exceptions import (
     KiwiScriptFailed,
     KiwiImportDescriptionError
 )
-from kiwi.defaults import Defaults
 
 
 class TestSystemSetup:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
+        self.context_manager_mock = Mock()
+        self.file_mock = Mock()
+        self.enter_mock = Mock()
+        self.exit_mock = Mock()
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-        self.xml_state = mock.MagicMock()
-        self.xml_state.get_package_manager = mock.Mock(
+        self.xml_state = MagicMock()
+        self.xml_state.get_package_manager = Mock(
             return_value='zypper'
         )
-        self.xml_state.build_type.get_filesystem = mock.Mock(
+        self.xml_state.build_type.get_filesystem = Mock(
             return_value='ext3'
         )
-        self.xml_state.xml_data.get_name = mock.Mock(
+        self.xml_state.xml_data.get_name = Mock(
             return_value='some-image'
         )
-        self.xml_state.get_image_version = mock.Mock(
+        self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
         self.xml_state.xml_data.description_dir = 'description_dir'
@@ -65,7 +65,7 @@ class TestSystemSetup:
     def test_setup_ix86(self, mock_machine):
         mock_machine.return_value = 'i686'
         setup = SystemSetup(
-            mock.MagicMock(), 'root_dir'
+            MagicMock(), 'root_dir'
         )
         assert setup.arch == 'ix86'
 
@@ -145,7 +145,6 @@ class TestSystemSetup:
     @patch('kiwi.command.Command.run')
     @patch_open
     @patch('os.path.exists')
-    @raises(KiwiImportDescriptionError)
     def test_import_description_configured_editboot_scripts_not_found(
         self, mock_path, mock_open, mock_command
     ):
@@ -155,12 +154,12 @@ class TestSystemSetup:
             return path_return_values.pop()
 
         mock_path.side_effect = side_effect
-        self.setup_with_real_xml.import_description()
+        with raises(KiwiImportDescriptionError):
+            self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
     @patch_open
     @patch('os.path.exists')
-    @raises(KiwiImportDescriptionError)
     def test_import_description_configured_archives_not_found(
         self, mock_path, mock_open, mock_command
     ):
@@ -170,7 +169,8 @@ class TestSystemSetup:
             return path_return_values.pop()
 
         mock_path.side_effect = side_effect
-        self.setup_with_real_xml.import_description()
+        with raises(KiwiImportDescriptionError):
+            self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
     def test_cleanup(self, mock_command):
@@ -181,8 +181,8 @@ class TestSystemSetup:
 
     @patch_open
     def test_import_shell_environment(self, mock_open):
-        mock_profile = mock.MagicMock()
-        mock_profile.create = mock.Mock(
+        mock_profile = MagicMock()
+        mock_profile.create = Mock(
             return_value=['a']
         )
         mock_open.return_value = self.context_manager_mock
@@ -194,7 +194,7 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.glob.iglob')
     def test_import_cdroot_files(self, mock_iglob, mock_ArchiveTar):
-        archive = mock.Mock()
+        archive = Mock()
         mock_ArchiveTar.return_value = archive
         mock_iglob.return_value = ['config-cdroot.tar.xz']
         self.setup.import_cdroot_files('target_dir')
@@ -208,7 +208,7 @@ class TestSystemSetup:
     def test_import_overlay_files_copy_links(
         self, mock_os_path, mock_DataSync, mock_command
     ):
-        data = mock.Mock()
+        data = Mock()
         mock_DataSync.return_value = data
         mock_os_path.return_value = True
         self.setup.import_overlay_files(
@@ -230,7 +230,7 @@ class TestSystemSetup:
     def test_import_overlay_files_links(
         self, mock_os_path, mock_DataSync, mock_command
     ):
-        data = mock.Mock()
+        data = Mock()
         mock_DataSync.return_value = data
         mock_os_path.return_value = True
         self.setup.import_overlay_files(
@@ -251,7 +251,7 @@ class TestSystemSetup:
     def test_import_overlay_files_from_archive(
         self, mock_os_path, mock_archive
     ):
-        archive = mock.Mock()
+        archive = Mock()
         mock_archive.return_value = archive
 
         exists_results = [True, False]
@@ -374,8 +374,8 @@ class TestSystemSetup:
 
     @patch('kiwi.system.setup.Users')
     def test_setup_groups(self, mock_users):
-        users = mock.Mock()
-        users.group_exists = mock.Mock(
+        users = Mock()
+        users.group_exists = Mock(
             return_value=False
         )
         mock_users.return_value = users
@@ -399,8 +399,8 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Users')
     @patch('kiwi.system.setup.Command.run')
     def test_setup_users_add(self, mock_command, mock_users):
-        users = mock.Mock()
-        users.user_exists = mock.Mock(
+        users = Mock()
+        users.user_exists = Mock(
             return_value=False
         )
         mock_users.return_value = users
@@ -448,8 +448,8 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Users')
     @patch('kiwi.system.setup.Command.run')
     def test_setup_users_modify(self, mock_command, mock_users):
-        users = mock.Mock()
-        users.user_exists = mock.Mock(
+        users = Mock()
+        users.user_exists = Mock(
             return_value=True
         )
         mock_users.return_value = users
@@ -489,11 +489,11 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Command.run')
     def test_setup_plymouth_splash(self, mock_command, mock_which):
         mock_which.return_value = 'plymouth-set-default-theme'
-        preferences = mock.Mock()
-        preferences.get_bootsplash_theme = mock.Mock(
+        preferences = Mock()
+        preferences.get_bootsplash_theme = Mock(
             return_value=['some-theme']
         )
-        self.xml_state.get_preferences_sections = mock.Mock(
+        self.xml_state.get_preferences_sections = Mock(
             return_value=[preferences]
         )
         self.setup.setup_plymouth_splash()
@@ -508,7 +508,7 @@ class TestSystemSetup:
     @patch_open
     @patch('os.path.exists')
     def test_import_image_identifier(self, mock_os_path, mock_open):
-        self.xml_state.xml_data.get_id = mock.Mock(
+        self.xml_state.xml_data.get_id = Mock(
             return_value='42'
         )
         mock_os_path.return_value = True
@@ -632,7 +632,6 @@ class TestSystemSetup:
             'my_image.raw /dev/mapper/loop0p1'
         ])
 
-    @raises(KiwiScriptFailed)
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
@@ -648,10 +647,9 @@ class TestSystemSetup:
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
         mock_access.return_value = False
+        with raises(KiwiScriptFailed):
+            self.setup.call_image_script()
 
-        self.setup.call_image_script()
-
-    @raises(KiwiScriptFailed)
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
@@ -664,9 +662,10 @@ class TestSystemSetup:
         mock_result = result_type(stderr='stderr', returncode=1)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
-        self.setup.call_edit_boot_install_script(
-            'my_image.raw', '/dev/mapper/loop0p1'
-        )
+        with raises(KiwiScriptFailed):
+            self.setup.call_edit_boot_install_script(
+                'my_image.raw', '/dev/mapper/loop0p1'
+            )
 
     @patch('kiwi.command.Command.run')
     def test_create_init_link_from_linuxrc(self, mock_command):
@@ -726,11 +725,11 @@ class TestSystemSetup:
     ):
         mock_open.return_value = self.context_manager_mock
         mock_getsize.return_value = 42
-        compress = mock.Mock()
+        compress = Mock()
         mock_compress.return_value = compress
-        archive = mock.Mock()
+        archive = Mock()
         mock_archive.return_value = archive
-        tmpdir = mock.Mock()
+        tmpdir = Mock()
         tmpdir.name = 'tmpdir'
         mock_temp.return_value = tmpdir
         self.setup.oemconfig['recovery'] = True
@@ -796,7 +795,7 @@ class TestSystemSetup:
     def test_export_modprobe_setup(
         self, mock_exists, mock_DataSync, mock_path, mock_command
     ):
-        data = mock.Mock()
+        data = Mock()
         mock_DataSync.return_value = data
         mock_exists.return_value = True
         self.setup.export_modprobe_setup('target_root_dir')
@@ -815,12 +814,12 @@ class TestSystemSetup:
     def test_export_package_list_rpm(
         self, mock_open, mock_MountManager, mock_RpmDataBase, mock_command
     ):
-        rpmdb = mock.Mock()
+        rpmdb = Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
         rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
         rpmdb.has_rpm.return_value = True
         mock_RpmDataBase.return_value = rpmdb
-        command = mock.Mock()
+        command = Mock()
         command.output = 'packages_data'
         mock_command.return_value = command
         result = self.setup.export_package_list('target_dir')
@@ -880,10 +879,10 @@ class TestSystemSetup:
     def test_export_package_list_dpkg(
         self, mock_open, mock_command
     ):
-        command = mock.Mock()
+        command = Mock()
         command.output = 'packages_data'
         mock_command.return_value = command
-        self.xml_state.get_package_manager = mock.Mock(
+        self.xml_state.get_package_manager = Mock(
             return_value='apt-get'
         )
         result = self.setup.export_package_list('target_dir')
@@ -908,15 +907,15 @@ class TestSystemSetup:
         def is_mounted():
             return is_mounted_return.pop()
 
-        shared_mount = mock.Mock()
+        shared_mount = Mock()
         shared_mount.is_mounted.side_effect = is_mounted
         mock_MountManager.return_value = shared_mount
-        rpmdb = mock.Mock()
+        rpmdb = Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
         rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
         rpmdb.has_rpm.return_value = True
         mock_RpmDataBase.return_value = rpmdb
-        command = mock.Mock()
+        command = Mock()
         command.output = 'verification_data'
         mock_command.return_value = command
         result = self.setup.export_package_verification('target_dir')
@@ -955,10 +954,10 @@ class TestSystemSetup:
     def test_export_package_verification_dpkg(
         self, mock_open, mock_command
     ):
-        command = mock.Mock()
+        command = Mock()
         command.output = 'verification_data'
         mock_command.return_value = command
-        self.xml_state.get_package_manager = mock.Mock(
+        self.xml_state.get_package_manager = Mock(
             return_value='apt-get'
         )
         result = self.setup.export_package_verification('target_dir')
@@ -989,19 +988,19 @@ class TestSystemSetup:
     def test_import_repositories_marked_as_imageinclude(
         self, mock_uri, mock_repo
     ):
-        uri = mock.Mock()
+        uri = Mock()
         mock_uri.return_value = uri
-        uri.translate = mock.Mock(
+        uri.translate = Mock(
             return_value="uri"
         )
-        uri.alias = mock.Mock(
+        uri.alias = Mock(
             return_value="uri-alias"
         )
-        uri.credentials_file_name = mock.Mock(
+        uri.credentials_file_name = Mock(
             return_value='kiwiRepoCredentials'
         )
         mock_uri.return_value = uri
-        repo = mock.Mock()
+        repo = Mock()
         mock_repo.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
         assert repo.add_repo.call_args_list[0] == call(

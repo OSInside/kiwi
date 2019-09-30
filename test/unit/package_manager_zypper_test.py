@@ -1,9 +1,9 @@
 from mock import patch
+from pytest import raises
 import mock
 
-from .test_helper import raises
-
 from kiwi.package_manager.zypper import PackageManagerZypper
+
 from kiwi.exceptions import KiwiRequestError
 
 
@@ -113,11 +113,11 @@ class TestPackageManagerZypper:
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.command.Command.call')
-    @raises(KiwiRequestError)
     def test_process_delete_requests_package_missing(self, mock_call, mock_run):
         mock_run.side_effect = Exception
         self.manager.request_package('vim')
-        self.manager.process_delete_requests()
+        with raises(KiwiRequestError):
+            self.manager.process_delete_requests()
         mock_run.assert_called_once_with(
             ['chroot', 'root-dir', 'rpm', '-q', 'vim']
         )

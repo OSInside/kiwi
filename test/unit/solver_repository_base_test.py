@@ -1,12 +1,14 @@
 from mock import patch, call
+from pytest import raises
 import os
 import mock
 
 from lxml import etree
 
-from .test_helper import raises, patch_open
+from .test_helper import patch_open
 
 from kiwi.solver.repository.base import SolverRepositoryBase
+
 from kiwi.exceptions import KiwiUriOpenError
 
 
@@ -24,9 +26,9 @@ class TestSolverRepositoryBase:
 
         self.solver = SolverRepositoryBase(self.uri)
 
-    @raises(NotImplementedError)
     def test__setup_repository_metadata(self):
-        self.solver._setup_repository_metadata()
+        with raises(NotImplementedError):
+            self.solver._setup_repository_metadata()
 
     def test__get_repomd_xpath(self):
         xml_data = etree.parse('../data/repomd.xml')
@@ -173,12 +175,12 @@ class TestSolverRepositoryBase:
         )
 
     @patch('kiwi.solver.repository.base.urlopen')
-    @raises(KiwiUriOpenError)
     def test_download_from_repository_raises(self, mock_urlopen):
         self.uri.is_remote.return_value = False
         self.uri.translate.return_value = '/my_local_repo/file'
         mock_urlopen.side_effect = Exception
-        self.solver.download_from_repository('repodata/file', 'target-file')
+        with raises(KiwiUriOpenError):
+            self.solver.download_from_repository('repodata/file', 'target-file')
 
     @patch('kiwi.solver.repository.base.mkdtemp')
     @patch('kiwi.solver.repository.base.random.randrange')

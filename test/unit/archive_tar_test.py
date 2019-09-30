@@ -1,8 +1,8 @@
-from mock import patch, call
-
+from mock import (
+    patch, call
+)
+from pytest import raises
 import mock
-
-from .test_helper import raises
 
 from kiwi.archive.tar import ArchiveTar
 
@@ -17,13 +17,13 @@ class TestArchiveTar:
         mock_command.return_value = command
         self.archive = ArchiveTar('foo.tar')
 
-    @raises(KiwiCommandCapabilitiesError)
     @patch('kiwi.archive.tar.Command.run')
     def test_invalid_tar_command_version(self, mock_command):
         command = mock.Mock()
         command.output = 'version cannot be parsed'
         mock_command.return_value = command
-        self.archive = ArchiveTar('foo.tar')
+        with raises(KiwiCommandCapabilitiesError):
+            self.archive = ArchiveTar('foo.tar')
 
     @patch('kiwi.archive.tar.Command.run')
     def test_extract(self, mock_command):

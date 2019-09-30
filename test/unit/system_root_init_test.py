@@ -1,25 +1,26 @@
-from mock import patch
-from mock import call
-import mock
+import sys
+from mock import (
+    patch, call, Mock
+)
+from pytest import raises
 
-from .test_helper import raises
+from .test_helper import argv_kiwi_tests
+
+from kiwi.system.root_init import RootInit
 
 from kiwi.exceptions import (
     KiwiRootDirExists,
     KiwiRootInitCreationError
 )
 
-from kiwi.system.root_init import RootInit
-
 
 class TestRootInit:
-    @raises(KiwiRootDirExists)
     @patch('os.path.exists')
     def test_init_raises_error(self, mock_path):
         mock_path.return_value = True
-        RootInit('root_dir')
+        with raises(KiwiRootDirExists):
+            RootInit('root_dir')
 
-    @raises(KiwiRootInitCreationError)
     @patch('os.path.exists')
     @patch('os.makedirs')
     @patch('os.chown')
@@ -36,7 +37,8 @@ class TestRootInit:
         mock_temp.return_value = 'tmpdir'
         mock_data_sync.side_effect = Exception
         root = RootInit('root_dir')
-        root.create()
+        with raises(KiwiRootInitCreationError):
+            root.create()
 
     @patch('os.path.exists')
     @patch('os.makedirs')
@@ -53,7 +55,7 @@ class TestRootInit:
         mock_makedev, mock_symlink, mock_chwon, mock_makedirs,
         mock_path
     ):
-        data_sync = mock.Mock()
+        data_sync = Mock()
         mock_data_sync.return_value = data_sync
         mock_makedev.return_value = 'makedev'
         mock_path_return = [
@@ -135,3 +137,6 @@ class TestRootInit:
         mock_command.assert_called_once_with(
             ['rm', '-r', '-f', 'root_dir']
         )
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests

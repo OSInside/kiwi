@@ -1,12 +1,10 @@
-
 from mock import patch
-
+from pytest import raises
 import mock
 
-from .test_helper import raises
+from kiwi.filesystem.base import FileSystemBase
 
 from kiwi.exceptions import KiwiFileSystemSyncError
-from kiwi.filesystem.base import FileSystemBase
 
 
 class TestFileSystemBase:
@@ -17,23 +15,23 @@ class TestFileSystemBase:
         )
         self.fsbase = FileSystemBase(provider, 'root_dir')
 
-    @raises(KiwiFileSystemSyncError)
     def test_root_dir_does_not_exist(self):
         fsbase = FileSystemBase(mock.Mock(), 'root_dir_not_existing')
-        fsbase.sync_data()
+        with raises(KiwiFileSystemSyncError):
+            fsbase.sync_data()
 
-    @raises(KiwiFileSystemSyncError)
     def test_root_dir_not_defined(self):
         fsbase = FileSystemBase(mock.Mock())
-        fsbase.sync_data()
+        with raises(KiwiFileSystemSyncError):
+            fsbase.sync_data()
 
-    @raises(NotImplementedError)
     def test_create_on_device(self):
-        self.fsbase.create_on_device('/dev/foo')
+        with raises(NotImplementedError):
+            self.fsbase.create_on_device('/dev/foo')
 
-    @raises(NotImplementedError)
     def test_create_on_file(self):
-        self.fsbase.create_on_file('myimage')
+        with raises(NotImplementedError):
+            self.fsbase.create_on_file('myimage')
 
     @patch('kiwi.filesystem.base.MountManager')
     @patch('kiwi.filesystem.base.DataSync')
