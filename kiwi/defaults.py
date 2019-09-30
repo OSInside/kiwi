@@ -415,8 +415,7 @@ class Defaults:
         ]
         if host_architecture == 'x86_64':
             modules += [
-                'efi_uga',
-                'linuxefi'
+                'efi_uga'
             ]
         return modules
 

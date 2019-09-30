@@ -485,8 +485,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * SUSE_BTRFS_SNAPSHOT_BOOTING
         * GRUB_BACKGROUND
         * GRUB_THEME
-        * GRUB_USE_LINUXEFI
-        * GRUB_USE_INITRDEFI
         * GRUB_SERIAL_COMMAND
         * GRUB_CMDLINE_LINUX_DEFAULT
         """
@@ -518,11 +516,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             if os.path.exists(os.sep.join([self.root_dir, theme_background])):
                 grub_default_entries['GRUB_BACKGROUND'] = theme_background
-        if self.firmware.efi_mode():
-            # linuxefi/initrdefi only exist on x86, others always use efi
-            if self.arch == 'ix86' or self.arch == 'x86_64':
-                grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
-                grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('boot_is_crypto'):

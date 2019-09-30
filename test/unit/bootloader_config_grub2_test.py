@@ -311,8 +311,6 @@ class TestBootLoaderConfigGrub2:
             ),
             call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
             call('GRUB_TIMEOUT', 10),
-            call('GRUB_USE_INITRDEFI', 'true'),
-            call('GRUB_USE_LINUXEFI', 'true'),
             call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
         ]
 
@@ -557,7 +555,7 @@ class TestBootLoaderConfigGrub2:
                 'btrfs', 'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
                 'gcry_sha512', 'crypto', 'cryptodisk', 'test', 'true',
                 'multiboot', 'part_gpt', 'part_msdos', 'efi_gop',
-                'efi_uga', 'linuxefi'
+                'efi_uga'
             ])
         ]
 
@@ -626,7 +624,7 @@ class TestBootLoaderConfigGrub2:
                 'minicmd', 'gfxterm', 'gfxmenu', 'all_video', 'xfs',
                 'btrfs', 'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
                 'gcry_sha512', 'crypto', 'cryptodisk', 'test', 'true',
-                'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga'
             ])
         ]
         assert mock_sync.call_args_list == [
@@ -990,7 +988,7 @@ class TestBootLoaderConfigGrub2:
                     'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
                     'crypto', 'cryptodisk', 'test', 'true', 'part_gpt',
-                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'part_msdos', 'efi_gop', 'efi_uga'
                 ]
             )
         ]
