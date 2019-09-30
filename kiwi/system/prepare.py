@@ -139,17 +139,19 @@ class SystemPrepare:
             repo_components = xml_repo.get_components()
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+            repo_sourcetype = xml_repo.get_sourcetype()
             log.info('Setting up repository %s', repo_source)
-            log.info('--> Type: %s', repo_type)
+            log.info('--> Type: {0}'.format(repo_type))
+            log.info('--> Metalink: {0}'.format(repo_sourcetype))
             if repo_priority:
-                log.info('--> Priority: %s', repo_priority)
+                log.info('--> Priority: {0}'.format(repo_priority))
 
             uri = Uri(repo_source, repo_type)
             repo_source_translated = uri.translate()
-            log.info('--> Translated: %s', repo_source_translated)
+            log.info('--> Translated: {0}'.format(repo_source_translated))
             if not repo_alias:
                 repo_alias = uri.alias()
-            log.info('--> Alias: %s', repo_alias)
+            log.info('--> Alias: {0}'.format(repo_alias))
 
             if not uri.is_remote() and not os.path.exists(
                 repo_source_translated
@@ -167,7 +169,8 @@ class SystemPrepare:
                 repo_alias, repo_source_translated,
                 repo_type, repo_priority, repo_dist, repo_components,
                 repo_user, repo_secret, uri.credentials_file_name(),
-                repo_repository_gpgcheck, repo_package_gpgcheck
+                repo_repository_gpgcheck, repo_package_gpgcheck,
+                repo_sourcetype
             )
             if clear_cache:
                 repo.delete_repo_cache(repo_alias)

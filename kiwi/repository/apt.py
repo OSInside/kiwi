@@ -129,7 +129,8 @@ class RepositoryApt(RepositoryBase):
         self, name, uri, repo_type='deb',
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
-        repo_gpgcheck=None, pkg_gpgcheck=None
+        repo_gpgcheck=None, pkg_gpgcheck=None,
+        sourcetype=None
     ):
         """
         Add apt_get repository
@@ -138,13 +139,14 @@ class RepositoryApt(RepositoryBase):
         :param str uri: repository URI
         :param repo_type: unused
         :param int prio: unused
-        :param dist: distribution name for non flat deb repos
-        :param components: distribution categories
-        :param user: unused
-        :param secret: unused
-        :param credentials_file: unused
+        :param str dist: distribution name for non flat deb repos
+        :param str components: distribution categories
+        :param str user: unused
+        :param str secret: unused
+        :param str credentials_file: unused
         :param bool repo_gpgcheck: enable repository signature validation
-        :param pkg_gpgcheck: unused
+        :param bool pkg_gpgcheck: unused
+        :param str sourcetype: unused
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
@@ -162,7 +164,9 @@ class RepositoryApt(RepositoryBase):
         self._add_components(components)
         with open(list_file, 'w') as repo:
             if repo_gpgcheck is False:
-                repo_line = 'deb [trusted=yes check-valid-until=no] {0}'.format(uri)
+                repo_line = 'deb [trusted=yes check-valid-until=no] {0}'.format(
+                    uri
+                )
             else:
                 repo_line = 'deb {0}'.format(uri)
             if not dist:

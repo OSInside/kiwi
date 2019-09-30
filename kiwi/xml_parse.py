@@ -101,7 +101,7 @@ try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
     
-    class GeneratedsSuper:
+    class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
         class _FixedOffsetTZ(datetime_.tzinfo):
             def __init__(self, offset, name):
@@ -678,7 +678,7 @@ class MixedContainer:
             outfile.write(')\n')
 
 
-class MemberSpec_:
+class MemberSpec_(object):
     def __init__(self, name='', data_type='', container=0,
             optional=0, child_attrs=None, choice=None):
         self.name = name
@@ -2050,12 +2050,13 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, alias=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None):
+    def __init__(self, source=None, type_=None, profiles=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
         self.alias = _cast(None, alias)
+        self.sourcetype = _cast(None, sourcetype)
         self.components = _cast(None, components)
         self.distribution = _cast(None, distribution)
         self.imageinclude = _cast(bool, imageinclude)
@@ -2082,6 +2083,8 @@ class repository(k_source):
     def set_profiles(self, profiles): self.profiles = profiles
     def get_alias(self): return self.alias
     def set_alias(self, alias): self.alias = alias
+    def get_sourcetype(self): return self.sourcetype
+    def set_sourcetype(self, sourcetype): self.sourcetype = sourcetype
     def get_components(self): return self.components
     def set_components(self, components): self.components = components
     def get_distribution(self): return self.distribution
@@ -2139,6 +2142,9 @@ class repository(k_source):
         if self.alias is not None and 'alias' not in already_processed:
             already_processed.add('alias')
             outfile.write(' alias=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.alias), input_name='alias')), ))
+        if self.sourcetype is not None and 'sourcetype' not in already_processed:
+            already_processed.add('sourcetype')
+            outfile.write(' sourcetype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.sourcetype), input_name='sourcetype')), ))
         if self.components is not None and 'components' not in already_processed:
             already_processed.add('components')
             outfile.write(' components=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.components), input_name='components')), ))
@@ -2189,6 +2195,11 @@ class repository(k_source):
         if value is not None and 'alias' not in already_processed:
             already_processed.add('alias')
             self.alias = value
+        value = find_attr_value_('sourcetype', node)
+        if value is not None and 'sourcetype' not in already_processed:
+            already_processed.add('sourcetype')
+            self.sourcetype = value
+            self.sourcetype = ' '.join(self.sourcetype.split())
         value = find_attr_value_('components', node)
         if value is not None and 'components' not in already_processed:
             already_processed.add('components')
