@@ -5074,7 +5074,7 @@ class port(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_portnum_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_portnum_type_patterns_, ))
-    validate_portnum_type_patterns_ = [['^(\\d+$|^\\d+/(udp$|^tcp))$']]
+    validate_portnum_type_patterns_ = [['^(\\d+$|\\d+/(udp|tcp))$']]
     def hasContent_(self):
         if (
 
