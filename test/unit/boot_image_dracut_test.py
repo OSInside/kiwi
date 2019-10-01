@@ -81,13 +81,18 @@ class TestBootImageKiwi:
     def test_write_system_config_file(self):
         with patch('builtins.open', create=True) as mock_write:
             self.boot_image.write_system_config_file(
-                config={'modules': ['module'], 'omit_modules': ['foobar']},
+                config={
+                    'modules': ['module'],
+                    'omit_modules': ['foobar'],
+                    'install_items': ['foo', 'bar']
+                },
                 config_file='/root/dir/my_dracut_conf.conf'
             )
             assert call().__enter__().writelines(
                 [
                     'add_dracutmodules+=" module "\n',
-                    'omit_dracutmodules+=" foobar "\n'
+                    'omit_dracutmodules+=" foobar "\n',
+                    'install_items+=" foo bar "\n',
                 ]
             ) in mock_write.mock_calls
             assert call(

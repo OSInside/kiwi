@@ -110,6 +110,12 @@ class BootImageDracut(BootImageBase):
                     ' '.join(config['omit_modules'])
                 )
             )
+        if config.get('install_items'):
+            dracut_config.append(
+                'install_items+=" {0} "\n'.format(
+                    ' '.join(config['install_items'])
+                )
+            )
         if dracut_config:
             with open(config_file, 'w') as config:
                 config.writelines(dracut_config)
