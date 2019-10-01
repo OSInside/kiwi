@@ -272,8 +272,9 @@ class DiskBuilder:
         # create luks on current root device if requested
         if self.luks:
             self.luks_root = LuksDevice(device_map['root'])
+            self.luks_boot_keyname = '/.root.keyfile'
             self.luks_boot_keyfile = ''.join(
-                [self.root_dir, '/.root.keyfile']
+                [self.root_dir, self.luks_boot_keyname]
             )
             self.luks_root.create_crypto_luks(
                 passphrase=self.luks,
@@ -281,6 +282,13 @@ class DiskBuilder:
                 keyfile=self.luks_boot_keyfile if self.boot_is_crypto else None
             )
             if self.boot_is_crypto:
+                self.luks_boot_keyfile_setup = ''.join(
+                    [self.root_dir, '/etc/dracut.conf.d/99-luks-boot.conf']
+                )
+                self.boot_image.write_system_config_file(
+                    config={'install_items': [self.luks_boot_keyname]},
+                    config_file=self.luks_boot_keyfile_setup
+                )
                 self.boot_image.include_file(
                     os.sep + os.path.basename(self.luks_boot_keyfile)
                 )

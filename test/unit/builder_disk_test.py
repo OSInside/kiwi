@@ -689,6 +689,10 @@ class TestDiskBuilder:
             call('/config.partids'),
             call('/etc/crypttab')
         ]
+        self.boot_image_task.write_system_config_file.assert_called_once_with(
+            config={'install_items': ['/.root.keyfile']},
+            config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
+        )
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch('kiwi.builder.disk.VolumeManager')
