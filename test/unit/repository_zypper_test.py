@@ -250,6 +250,10 @@ class TestRepositoryZypper:
                 'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
             ], raise_on_error=False
         )
+        mock_Command_run.reset_mock()
+        rpmdb.rpmdb_host.expand_query.return_value = '/var/lib/rpm'
+        self.repo.setup_package_database_configuration()
+        assert not mock_Command_run.called
 
     @patch('kiwi.repository.zypper.RpmDataBase')
     @patch('kiwi.command.Command.run')
