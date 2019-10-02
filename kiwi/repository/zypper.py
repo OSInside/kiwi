@@ -193,18 +193,18 @@ class RepositoryZypper(RepositoryBase):
         # For further details on the motivation in zypper please
         # refer to bsc#1112357
         rpmdb.init_database()
-        Path.create(
-            os.sep.join([self.root_dir, 'var', 'lib'])
-        )
-        Command.run(
-            [
-                'ln', '-s', ''.join(
-                    ['../..', rpmdb.rpmdb_host.expand_query('%_dbpath')]
-                ), os.sep.join(
-                    [self.root_dir, 'var', 'lib', 'rpm']
-                )
-            ], raise_on_error=False
-        )
+        image_rpm_compat_link = '/var/lib/rpm'
+        host_rpm_dbpath = rpmdb.rpmdb_host.expand_query('%_dbpath')
+        if host_rpm_dbpath != image_rpm_compat_link:
+            Path.create(
+                self.root_dir + os.path.dirname(image_rpm_compat_link)
+            )
+            Command.run(
+                [
+                    'ln', '-s', ''.join(['../..', host_rpm_dbpath]),
+                    self.root_dir + image_rpm_compat_link
+                ], raise_on_error=False
+            )
 
     def use_default_location(self):
         """
