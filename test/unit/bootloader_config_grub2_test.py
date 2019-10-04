@@ -281,7 +281,13 @@ class TestBootLoaderConfigGrub2:
 
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')
-    def test__setup_default_grub(self, mock_sysconfig, mock_exists):
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_default_grub(
+        self, mock_Command_run, mock_sysconfig, mock_exists
+    ):
+        use_linuxefi_implemented = mock.Mock()
+        use_linuxefi_implemented.returncode = 0
+        mock_Command_run.return_value = use_linuxefi_implemented
         grub_default = mock.MagicMock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
@@ -525,6 +531,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-xen'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -576,6 +583,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -905,6 +913,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = True
         self.os_exists['root_dir/boot/efi/'] = False
 
         def side_effect(arg):
