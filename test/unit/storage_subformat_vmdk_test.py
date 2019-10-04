@@ -1,10 +1,8 @@
 import os
 from mock import (
-    patch, call, Mock
+    patch, call, Mock, mock_open
 )
 from pytest import raises
-
-from .test_helper import patch_open
 
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 
@@ -131,67 +129,67 @@ class TestDiskFormatVmdk:
     @patch('kiwi.storage.subformat.vmdk.VmwareSettingsTemplate.get_template')
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
-    @patch_open
     def test_create_image_format_template_error(
-        self, mock_open, mock_exists, mock_command, mock_get_template
+        self, mock_exists, mock_command, mock_get_template
     ):
         template = Mock()
         mock_get_template.return_value = template
         template.substitute.side_effect = Exception
-        with raises(KiwiTemplateError):
+        with patch('builtins.open'):
+            with raises(KiwiTemplateError):
+                self.disk_format.create_image_format()
+
+    @patch('kiwi.storage.subformat.vmdk.Command.run')
+    @patch('os.path.exists')
+    def test_create_image_format(
+        self, mock_exists, mock_command
+    ):
+        mock_open.return_value = self.context_manager_mock
+        mock_exists.return_value = True
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
             self.disk_format.create_image_format()
 
-    @patch('kiwi.storage.subformat.vmdk.Command.run')
-    @patch('os.path.exists')
-    @patch_open
-    def test_create_image_format(
-        self, mock_open, mock_exists, mock_command
-    ):
-        mock_open.return_value = self.context_manager_mock
-        mock_exists.return_value = True
-
-        self.disk_format.create_image_format()
-
-        assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
-        ]
+        m_open.assert_called_once_with(
+            'target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w'
+        )
 
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
-    @patch_open
     def test_create_image_format_encoding_exists(
-        self, mock_open, mock_exists, mock_command
+        self, mock_exists, mock_command
     ):
-        mock_open.return_value = self.context_manager_mock
         mock_exists.return_value = True
 
-        self.disk_format.create_image_format()
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_format.create_image_format()
 
-        assert mock_open.call_args_list == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w')
-        ]
-        assert self.file_mock.write.call_args_list[2] == call(
+        m_open.assert_called_once_with(
+            'target_dir/some-disk-image.x86_64-1.2.3.vmx', 'w'
+        )
+        assert m_open.return_value.write.call_args_list[2] == call(
             'custom entry 2' + os.linesep
         )
 
     @patch('kiwi.storage.subformat.vmdk.Command.run')
     @patch('os.path.exists')
-    @patch_open
     def test_create_image_format_pvscsi_adapter(
-        self, mock_open, mock_exists, mock_command
+        self, mock_exists, mock_command
     ):
         self.disk_format.patch_header_for_pvscsi = True
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = b'ddb.adapterType = "lsilogic"'
 
-        self.disk_format.create_image_format()
+        m_open = mock_open(read_data=b'ddb.adapterType = "lsilogic"')
+        with patch('builtins.open', m_open, create=True):
+            self.disk_format.create_image_format()
 
-        assert mock_open.call_args_list[0:2] == [
+        assert m_open.call_args_list[0:2] == [
             call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'rb'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'r+b')
         ]
-        assert self.file_mock.seek.called_once_with(512, 0)
-        assert self.file_mock.read.called_once_with(1024)
-        assert self.file_mock.write.call_args_list[0] == call(
+        assert m_open.return_value.seek.called_once_with(512, 0)
+        assert m_open.return_value.read.called_once_with(1024)
+        assert m_open.return_value.write.call_args_list[0] == call(
             b'ddb.adapterType = "pvscsi"'
         )

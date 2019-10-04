@@ -1,10 +1,9 @@
 import kiwi
 import mock
 from mock import (
-    patch, call
+    patch, call, mock_open
 )
 from pytest import raises
-from .test_helper import patch_open
 from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
 
 from kiwi.exceptions import KiwiTemplateError
@@ -105,27 +104,21 @@ class TestBootLoaderConfigIsoLinux:
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
 
-    @patch_open
     @patch('os.path.exists')
-    def test_write(self, mock_exists, mock_open):
+    def test_write(self, mock_exists):
         mock_exists.return_value = True
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
         self.bootloader.config = 'some-data'
         self.bootloader.config_message = 'some-message-data'
 
-        self.bootloader.write()
-        assert mock_open.call_args_list == [
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.bootloader.write()
+
+        assert m_open.call_args_list == [
             call('root_dir/boot/x86_64/loader/isolinux.cfg', 'w'),
             call('root_dir/boot/x86_64/loader/isolinux.msg', 'w')
         ]
-        assert file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call('some-data'),
             call('some-message-data')
         ]

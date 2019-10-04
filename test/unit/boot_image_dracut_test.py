@@ -1,11 +1,10 @@
 import mock
 
-from mock import patch
-from mock import call
+from mock import (
+    patch, call, mock_open
+)
 from collections import namedtuple
 from pytest import raises
-
-from .test_helper import patch_open
 
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
@@ -18,14 +17,6 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.base.os.path.exists')
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
         mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         description = XMLDescription('../data/example_config.xml')
@@ -175,12 +166,11 @@ class TestBootImageKiwi:
         with raises(KiwiDiskBootImageError):
             self.boot_image.get_boot_names()
 
-    @patch_open
     @patch('kiwi.boot.image.dracut.Kernel')
     @patch('kiwi.boot.image.dracut.Path.which')
     @patch('kiwi.boot.image.dracut.log.warning')
     def test_get_boot_names(
-        self, mock_warning, mock_Path_which, mock_Kernel, mock_open
+        self, mock_warning, mock_Path_which, mock_Kernel
     ):
         boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
@@ -193,18 +183,16 @@ class TestBootImageKiwi:
         kernel.get_kernel.return_value = kernel_info
         mock_Kernel.return_value = kernel
 
-        self.file_mock.read.return_value = 'outfile="/boot/initrd-$kernel"'
+        m_open = mock_open(read_data='outfile="/boot/initrd-$kernel"')
+        with patch('builtins.open', m_open, create=True):
+            assert self.boot_image.get_boot_names() == boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initrd-kernel_version'
+            )
 
-        mock_open.return_value = self.context_manager_mock
-
-        assert self.boot_image.get_boot_names() == boot_names_type(
-            kernel_name='kernel_name',
-            initrd_name='initrd-kernel_version'
-        )
-
-        self.file_mock.read.return_value = 'outfile="foo"'
-
-        assert self.boot_image.get_boot_names() == boot_names_type(
-            kernel_name='kernel_name',
-            initrd_name='initramfs-kernel_version.img'
-        )
+        m_open.return_value.read.return_value = 'outfile="foo"'
+        with patch('builtins.open', m_open, create=True):
+            assert self.boot_image.get_boot_names() == boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initramfs-kernel_version.img'
+            )

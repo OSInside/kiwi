@@ -1,8 +1,7 @@
-from mock import patch
-from mock import call
+from mock import (
+    patch, call, mock_open
+)
 import mock
-
-from .test_helper import patch_open
 
 from kiwi.storage.subformat.gce import DiskFormatGce
 
@@ -39,25 +38,18 @@ class TestDiskFormatGce:
 
     @patch('kiwi.storage.subformat.gce.Command.run')
     @patch('kiwi.storage.subformat.gce.ArchiveTar')
-    @patch_open
     @patch('kiwi.storage.subformat.gce.mkdtemp')
     def test_create_image_format(
-        self, mock_mkdtemp, mock_open, mock_archive, mock_command
+        self, mock_mkdtemp, mock_archive, mock_command
     ):
         mock_mkdtemp.return_value = 'tmpdir'
         archive = mock.Mock()
         mock_archive.return_value = archive
         self.disk_format.tag = 'gce-license'
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
 
-        self.disk_format.create_image_format()
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_format.create_image_format()
 
         mock_command.assert_called_once_with(
             [
@@ -65,10 +57,10 @@ class TestDiskFormatGce:
                 'tmpdir/disk.raw'
             ]
         )
-        assert mock_open.call_args_list == [
+        assert m_open.call_args_list == [
             call('tmpdir/manifest.json', 'w')
         ]
-        assert file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call('{"licenses": ["gce-license"]}')
         ]
         mock_archive.assert_called_once_with(

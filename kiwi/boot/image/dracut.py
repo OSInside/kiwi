@@ -258,9 +258,9 @@ class BootImageDracut(BootImageBase):
         if dracut_tool:
             outfile_expression = r'outfile="/boot/(init.*\$kernel.*)"'
             with open(dracut_tool) as dracut:
-                outfile = re.findall(outfile_expression, dracut.read())[0]
-                if outfile:
-                    return outfile.replace('$kernel', '{kernel_version}')
+                matches = re.findall(outfile_expression, dracut.read())
+                if matches:
+                    return matches[0].replace('$kernel', '{kernel_version}')
 
         log.warning('Could not detect dracut output file format')
         log.warning('Using default initrd file name format {0}'.format(

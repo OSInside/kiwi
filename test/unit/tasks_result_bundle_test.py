@@ -1,11 +1,11 @@
 import os
 import sys
 from mock import (
-    patch, call, Mock
+    patch, call, Mock, mock_open
 )
 from pytest import raises
 
-from .test_helper import argv_kiwi_tests, patch_open
+from .test_helper import argv_kiwi_tests
 
 import kiwi
 from kiwi.tasks.result_bundle import ResultBundleTask
@@ -22,15 +22,6 @@ class TestResultBundleTask:
         ]
         self.abs_target_dir = os.path.abspath('target_dir')
         self.abs_bundle_dir = os.path.abspath('bundle_dir')
-        self.context_manager_mock = Mock()
-        self.file_mock = Mock()
-        self.enter_mock = Mock()
-        self.exit_mock = Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
-        self.file_mock.read.return_value = b'data'
 
         self.xml_state = Mock()
         self.xml_state.get_image_version = Mock(
@@ -84,9 +75,8 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Compress')
     @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
-    @patch_open
     def test_process_result_bundle(
-        self, mock_open, mock_exists, mock_checksum, mock_compress,
+        self, mock_exists, mock_checksum, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load
     ):
         # This file won't be copied with build id
@@ -102,13 +92,14 @@ class TestResultBundleTask:
         mock_compress.return_value = compress
         mock_checksum.return_value = checksum
         mock_exists.return_value = False
-        mock_open.return_value = self.context_manager_mock
         mock_load.return_value = self.result
         self._init_command_args()
         self.task.command_args['bundle'] = True
         self.task.command_args['--zsync-source'] = 'http://example.com/zsync'
 
-        self.task.process()
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.task.process()
 
         mock_load.assert_called_once_with(
             os.sep.join([self.abs_target_dir, 'kiwi.result'])
@@ -137,7 +128,7 @@ class TestResultBundleTask:
             compress.compressed_filename
         )
         checksum.sha256.assert_called_once_with()
-        self.file_mock.write.assert_called_once_with(
+        m_open.return_value.write.assert_called_once_with(
             '{0}  compressed_filename'.format(
                 checksum.sha256.return_value
             )
@@ -188,9 +179,8 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Compress')
     @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
-    @patch_open
     def test_process_result_bundle_zsyncmake_missing(
-        self, mock_open, mock_exists, mock_checksum, mock_compress,
+        self, mock_exists, mock_checksum, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load, mock_log
     ):
         checksum = Mock()
@@ -200,13 +190,14 @@ class TestResultBundleTask:
         mock_compress.return_value = compress
         mock_checksum.return_value = checksum
         mock_exists.return_value = False
-        mock_open.return_value = self.context_manager_mock
         mock_load.return_value = self.result
         self._init_command_args()
         self.task.command_args['bundle'] = True
         self.task.command_args['--zsync-source'] = 'http://example.com/zsync'
 
-        self.task.process()
+        with patch('builtins.open'):
+            self.task.process()
+
         mock_log.assert_called_once_with(
             '--> zsyncmake missing, zsync setup skipped'
         )

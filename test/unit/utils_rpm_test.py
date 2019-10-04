@@ -1,8 +1,6 @@
-import io
 import os
-from .test_helper import patch_open
 from mock import (
-    patch, Mock, MagicMock, call
+    patch, Mock, call, mock_open
 )
 
 from kiwi.utils.rpm import Rpm
@@ -65,26 +63,30 @@ class TestRpm:
             os.sep.join(['root_dir', self.macro_file])
         )
 
-    @patch_open
     @patch('kiwi.utils.rpm.Path.create')
-    def test_write_config(self, mock_Path_create, mock_open):
-        mock_open.return_value = MagicMock(spec=io.IOBase)
-        file_handle = mock_open.return_value.__enter__.return_value
+    def test_write_config(self, mock_Path_create):
         self.rpm_host.set_config_value('key', 'value')
-        self.rpm_host.write_config()
-        mock_open.assert_called_once_with(
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.rpm_host.write_config()
+
+        m_open.assert_called_once_with(
             os.sep + self.macro_file, 'w'
         )
-        assert file_handle.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call('%key\tvalue\n')
         ]
-        mock_open.reset_mock()
-        file_handle.write.reset_mock()
+
         self.rpm_image.set_config_value('foo', 'bar')
-        self.rpm_image.write_config()
-        mock_open.assert_called_once_with(
+
+        m_open.reset_mock()
+        with patch('builtins.open', m_open, create=True):
+            self.rpm_image.write_config()
+
+        m_open.assert_called_once_with(
             os.sep.join(['root_dir', self.macro_file]), 'w'
         )
-        assert file_handle.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call('%foo\tbar\n')
         ]

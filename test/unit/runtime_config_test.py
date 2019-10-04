@@ -1,8 +1,6 @@
 from mock import patch
 from pytest import raises
 
-from .test_helper import patch_open
-
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 
@@ -29,9 +27,9 @@ class TestRuntimeConfig:
             return exists_call_results.pop()
 
         mock_exists.side_effect = os_path_exists
-        with patch_open as mock_open:
+        with patch('builtins.open') as m_open:
             self.runtime_config = RuntimeConfig()
-            mock_open.assert_called_once_with('/etc/kiwi.yml', 'r')
+            m_open.assert_called_once_with('/etc/kiwi.yml', 'r')
 
     def test_invalid_yaml_format(self):
         self.runtime_config.config_data = {'xz': None}

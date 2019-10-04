@@ -1,10 +1,12 @@
+import sys
 from mock import (
-    patch, call, Mock, MagicMock
+    patch, call, Mock, MagicMock, mock_open
 )
+
+from .test_helper import argv_kiwi_tests
+
 from pytest import raises
 from collections import namedtuple
-
-from .test_helper import patch_open
 
 from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
@@ -21,13 +23,6 @@ class TestSystemSetup:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        self.context_manager_mock = Mock()
-        self.file_mock = Mock()
-        self.enter_mock = Mock()
-        self.exit_mock = Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.xml_state = MagicMock()
         self.xml_state.get_package_manager = Mock(
             return_value='zypper'
@@ -61,6 +56,9 @@ class TestSystemSetup:
             returncode=0
         )
 
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
+
     @patch('platform.machine')
     def test_setup_ix86(self, mock_machine):
         mock_machine.return_value = 'i686'
@@ -70,15 +68,16 @@ class TestSystemSetup:
         assert setup.arch == 'ix86'
 
     @patch('kiwi.command.Command.run')
-    @patch_open
     @patch('os.path.exists')
     @patch('kiwi.system.setup.glob.iglob')
     def test_import_description(
-        self, mock_iglob, mock_path, mock_open, mock_command
+        self, mock_iglob, mock_path, mock_command
     ):
         mock_iglob.return_value = ['config-cdroot.tar.xz']
         mock_path.return_value = True
-        self.setup_with_real_xml.import_description()
+
+        with patch('builtins.open'):
+            self.setup_with_real_xml.import_description()
 
         mock_iglob.assert_called_once_with(
             '../data/config-cdroot.tar*'
@@ -105,10 +104,9 @@ class TestSystemSetup:
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch_open
     @patch('os.path.exists')
     def test_import_description_archive_from_derived(
-        self, mock_path, mock_open, mock_command
+        self, mock_path, mock_command
     ):
         path_return_values = [
             True, False, True, True, True, True, True
@@ -118,7 +116,9 @@ class TestSystemSetup:
             return path_return_values.pop()
 
         mock_path.side_effect = side_effect
-        self.setup_with_real_xml.import_description()
+
+        with patch('builtins.open'):
+            self.setup_with_real_xml.import_description()
 
         assert mock_command.call_args_list == [
             call(['mkdir', '-p', 'root_dir/image']),
@@ -143,10 +143,9 @@ class TestSystemSetup:
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch_open
     @patch('os.path.exists')
     def test_import_description_configured_editboot_scripts_not_found(
-        self, mock_path, mock_open, mock_command
+        self, mock_path, mock_command
     ):
         path_return_values = [False, True, True]
 
@@ -154,14 +153,14 @@ class TestSystemSetup:
             return path_return_values.pop()
 
         mock_path.side_effect = side_effect
-        with raises(KiwiImportDescriptionError):
-            self.setup_with_real_xml.import_description()
+        with patch('builtins.open'):
+            with raises(KiwiImportDescriptionError):
+                self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
-    @patch_open
     @patch('os.path.exists')
     def test_import_description_configured_archives_not_found(
-        self, mock_path, mock_open, mock_command
+        self, mock_path, mock_command
     ):
         path_return_values = [False, False, True, True, True, True]
 
@@ -169,8 +168,9 @@ class TestSystemSetup:
             return path_return_values.pop()
 
         mock_path.side_effect = side_effect
-        with raises(KiwiImportDescriptionError):
-            self.setup_with_real_xml.import_description()
+        with patch('builtins.open'):
+            with raises(KiwiImportDescriptionError):
+                self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
     def test_cleanup(self, mock_command):
@@ -179,17 +179,19 @@ class TestSystemSetup:
             ['rm', '-r', '-f', '/.kconfig', '/image']
         )
 
-    @patch_open
-    def test_import_shell_environment(self, mock_open):
+    def test_import_shell_environment(self):
         mock_profile = MagicMock()
         mock_profile.create = Mock(
             return_value=['a']
         )
-        mock_open.return_value = self.context_manager_mock
-        self.setup.import_shell_environment(mock_profile)
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.setup.import_shell_environment(mock_profile)
+
         mock_profile.create.assert_called_once_with()
-        mock_open.assert_called_once_with('root_dir/.profile', 'w')
-        self.file_mock.write.assert_called_once_with('a\n')
+        m_open.assert_called_once_with('root_dir/.profile', 'w')
+        m_open.return_value.write.assert_called_once_with('a\n')
 
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.glob.iglob')
@@ -505,17 +507,19 @@ class TestSystemSetup:
             ['chroot', 'root_dir', 'plymouth-set-default-theme', 'some-theme']
         )
 
-    @patch_open
     @patch('os.path.exists')
-    def test_import_image_identifier(self, mock_os_path, mock_open):
+    def test_import_image_identifier(self, mock_os_path):
         self.xml_state.xml_data.get_id = Mock(
             return_value='42'
         )
         mock_os_path.return_value = True
-        mock_open.return_value = self.context_manager_mock
-        self.setup.import_image_identifier()
-        mock_open.assert_called_once_with('root_dir/etc/ImageID', 'w')
-        self.file_mock.write.assert_called_once_with('42\n')
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.setup.import_image_identifier()
+
+        m_open.assert_called_once_with('root_dir/etc/ImageID', 'w')
+        m_open.return_value.write.assert_called_once_with('42\n')
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
@@ -682,23 +686,21 @@ class TestSystemSetup:
             ['bash', '-c', 'rm -f root_dir/recovery.*']
         )
 
-    @patch_open
     @patch('os.path.exists')
     @patch('kiwi.system.setup.Path.wipe')
     @patch('kiwi.command.Command.run')
-    def test_create_fstab(
-        self, mock_command, mock_wipe, mock_exists, mock_open
-    ):
+    def test_create_fstab(self, mock_command, mock_wipe, mock_exists):
         mock_exists.return_value = True
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = 'append_entry'
-        self.setup.create_fstab(['fstab_entry'])
 
-        assert mock_open.call_args_list == [
+        m_open = mock_open(read_data='append_entry')
+        with patch('builtins.open', m_open, create=True):
+            self.setup.create_fstab(['fstab_entry'])
+
+        assert m_open.call_args_list == [
             call('root_dir/etc/fstab', 'w'),
             call('root_dir/etc/fstab.append', 'r')
         ]
-        assert self.file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call('fstab_entry\n'),
             call('append_entry')
         ]
@@ -715,15 +717,13 @@ class TestSystemSetup:
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.NamedTemporaryFile')
     @patch('kiwi.system.setup.ArchiveTar')
-    @patch_open
     @patch('kiwi.system.setup.Compress')
     @patch('os.path.getsize')
     @patch('kiwi.system.setup.Path.wipe')
     def test_create_recovery_archive(
         self, mock_wipe, mock_getsize, mock_compress,
-        mock_open, mock_archive, mock_temp, mock_command
+        mock_archive, mock_temp, mock_command
     ):
-        mock_open.return_value = self.context_manager_mock
         mock_getsize.return_value = 42
         compress = Mock()
         mock_compress.return_value = compress
@@ -735,7 +735,9 @@ class TestSystemSetup:
         self.setup.oemconfig['recovery'] = True
         self.setup.oemconfig['recovery_inplace'] = True
 
-        self.setup.create_recovery_archive()
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.setup.create_recovery_archive()
 
         assert mock_command.call_args_list[0] == call(
             ['bash', '-c', 'rm -f root_dir/recovery.*']
@@ -755,24 +757,24 @@ class TestSystemSetup:
         assert mock_command.call_args_list[1] == call(
             ['mv', 'tmpdir', 'root_dir/recovery.tar']
         )
-        assert mock_open.call_args_list[0] == call(
+        assert m_open.call_args_list[0] == call(
             'root_dir/recovery.tar.filesystem', 'w'
         )
-        assert self.file_mock.write.call_args_list[0] == call('ext3')
+        assert m_open.return_value.write.call_args_list[0] == call('ext3')
         assert mock_command.call_args_list[2] == call(
             ['bash', '-c', 'tar -tf root_dir/recovery.tar | wc -l']
         )
-        assert mock_open.call_args_list[1] == call(
+        assert m_open.call_args_list[1] == call(
             'root_dir/recovery.tar.files', 'w'
         )
         assert mock_getsize.call_args_list[0] == call(
             'root_dir/recovery.tar'
         )
-        assert self.file_mock.write.call_args_list[1] == call('1\n')
-        assert mock_open.call_args_list[2] == call(
+        assert m_open.return_value.write.call_args_list[1] == call('1\n')
+        assert m_open.call_args_list[2] == call(
             'root_dir/recovery.tar.size', 'w'
         )
-        assert self.file_mock.write.call_args_list[2] == call('42')
+        assert m_open.return_value.write.call_args_list[2] == call('42')
         mock_compress.assert_called_once_with(
             'root_dir/recovery.tar'
         )
@@ -780,10 +782,10 @@ class TestSystemSetup:
         assert mock_getsize.call_args_list[1] == call(
             'root_dir/recovery.tar.gz'
         )
-        assert mock_open.call_args_list[3] == call(
+        assert m_open.call_args_list[3] == call(
             'root_dir/recovery.partition.size', 'w'
         )
-        assert self.file_mock.write.call_args_list[3] == call('300')
+        assert m_open.return_value.write.call_args_list[3] == call('300')
         mock_wipe.assert_called_once_with(
             'root_dir/recovery.tar.gz'
         )
@@ -810,9 +812,8 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
     @patch('kiwi.system.setup.MountManager')
-    @patch_open
     def test_export_package_list_rpm(
-        self, mock_open, mock_MountManager, mock_RpmDataBase, mock_command
+        self, mock_MountManager, mock_RpmDataBase, mock_command
     ):
         rpmdb = Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
@@ -822,7 +823,13 @@ class TestSystemSetup:
         command = Mock()
         command.output = 'packages_data'
         mock_command.return_value = command
-        result = self.setup.export_package_list('target_dir')
+
+        with patch('builtins.open') as m_open:
+            result = self.setup.export_package_list('target_dir')
+            m_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+            )
+
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with(
             [
@@ -832,12 +839,12 @@ class TestSystemSetup:
                 '--dbpath', 'image_dbpath'
             ]
         )
-        mock_open.assert_called_once_with(
-            'target_dir/some-image.x86_64-1.2.3.packages', 'w'
-        )
         rpmdb.has_rpm.return_value = False
         mock_command.reset_mock()
-        result = self.setup.export_package_list('target_dir')
+
+        with patch('builtins.open'):
+            result = self.setup.export_package_list('target_dir')
+
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with(
             [
@@ -849,15 +856,18 @@ class TestSystemSetup:
         )
 
     @patch('kiwi.system.setup.os.path.exists')
-    @patch_open
-    def test_setup_machine_id(self, mock_open, mock_path_exists):
+    def test_setup_machine_id(self, mock_path_exists):
         mock_path_exists.return_value = True
-        self.setup.setup_machine_id()
+
+        with patch('builtins.open') as m_open:
+            self.setup.setup_machine_id()
+            m_open.assert_called_once_with(
+                'root_dir/etc/machine-id', 'w'
+            )
+
         mock_path_exists.return_value = False
+
         self.setup.setup_machine_id()
-        mock_open.assert_called_once_with(
-            'root_dir/etc/machine-id', 'w'
-        )
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.Path.which')
@@ -875,32 +885,31 @@ class TestSystemSetup:
         mock_log_warn.assert_called_once()
 
     @patch('kiwi.system.setup.Command.run')
-    @patch_open
-    def test_export_package_list_dpkg(
-        self, mock_open, mock_command
-    ):
+    def test_export_package_list_dpkg(self, mock_command):
         command = Mock()
         command.output = 'packages_data'
         mock_command.return_value = command
         self.xml_state.get_package_manager = Mock(
             return_value='apt-get'
         )
-        result = self.setup.export_package_list('target_dir')
+
+        with patch('builtins.open') as m_open:
+            result = self.setup.export_package_list('target_dir')
+            m_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+            )
+
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with([
             'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg', '-W',
             '-f', '${Package}|None|${Version}|None|${Architecture}|None|None\\n'
         ])
-        mock_open.assert_called_once_with(
-            'target_dir/some-image.x86_64-1.2.3.packages', 'w'
-        )
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
     @patch('kiwi.system.setup.MountManager')
-    @patch_open
     def test_export_package_verification(
-        self, mock_open, mock_MountManager, mock_RpmDataBase, mock_command
+        self, mock_MountManager, mock_RpmDataBase, mock_command
     ):
         is_mounted_return = [True, False]
 
@@ -918,7 +927,13 @@ class TestSystemSetup:
         command = Mock()
         command.output = 'verification_data'
         mock_command.return_value = command
-        result = self.setup.export_package_verification('target_dir')
+
+        with patch('builtins.open') as m_open:
+            result = self.setup.export_package_verification('target_dir')
+            m_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.verified', 'w'
+            )
+
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=[
@@ -926,9 +941,7 @@ class TestSystemSetup:
                 '--dbpath', 'image_dbpath'
             ], raise_on_error=False
         )
-        mock_open.assert_called_once_with(
-            'target_dir/some-image.x86_64-1.2.3.verified', 'w'
-        )
+
         mock_MountManager.assert_called_once_with(
             device='/dev', mountpoint='root_dir/dev'
         )
@@ -938,7 +951,10 @@ class TestSystemSetup:
         is_mounted_return = [True, False]
         mock_command.reset_mock()
         shared_mount.reset_mock()
-        result = self.setup.export_package_verification('target_dir')
+
+        with patch('builtins.open'):
+            result = self.setup.export_package_verification('target_dir')
+
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=[
@@ -950,17 +966,20 @@ class TestSystemSetup:
         shared_mount.umount_lazy.assert_called_once_with()
 
     @patch('kiwi.system.setup.Command.run')
-    @patch_open
-    def test_export_package_verification_dpkg(
-        self, mock_open, mock_command
-    ):
+    def test_export_package_verification_dpkg(self, mock_command):
         command = Mock()
         command.output = 'verification_data'
         mock_command.return_value = command
         self.xml_state.get_package_manager = Mock(
             return_value='apt-get'
         )
-        result = self.setup.export_package_verification('target_dir')
+
+        with patch('builtins.open') as m_open:
+            result = self.setup.export_package_verification('target_dir')
+            m_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.verified', 'w'
+            )
+
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=[
@@ -968,9 +987,6 @@ class TestSystemSetup:
                 '--verify-format', 'rpm'
             ],
             raise_on_error=False
-        )
-        mock_open.assert_called_once_with(
-            'target_dir/some-image.x86_64-1.2.3.verified', 'w'
         )
 
     @patch('kiwi.system.setup.Command.run')

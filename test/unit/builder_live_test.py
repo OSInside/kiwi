@@ -3,9 +3,10 @@ from mock import (
 )
 from pytest import raises
 import mock
+import sys
 import kiwi
 
-from .test_helper import patch_open
+from .test_helper import argv_kiwi_tests
 
 from kiwi.builder.live import LiveImageBuilder
 from kiwi.exceptions import KiwiLiveBootImageError
@@ -109,16 +110,11 @@ class TestLiveImageBuilder:
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
 
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
         self.result = mock.Mock()
         self.live_image.result = self.result
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     @patch('platform.machine')
     def test_init_for_ix86_platform(self, mock_machine):
@@ -144,9 +140,8 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.SystemSize')
     @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
-    @patch_open
     def test_create_overlay_structure(
-        self, mock_open, mock_exists, mock_grub_dir, mock_size,
+        self, mock_exists, mock_grub_dir, mock_size,
         mock_isofs, mock_tag, mock_shutil, mock_tmpfile, mock_dtemp,
         mock_setup_media_loader_directory
     ):
@@ -161,8 +156,6 @@ class TestLiveImageBuilder:
             return tmpdir_name.pop()
 
         mock_dtemp.side_effect = side_effect
-
-        mock_open.return_value = self.context_manager_mock
 
         self.live_image.live_type = 'overlay'
 
@@ -318,9 +311,8 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.shutil')
-    @patch_open
     def test_create_no_kernel_found(
-        self, mock_open, mock_shutil, mock_dtemp,
+        self, mock_shutil, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         mock_dtemp.return_value = 'tmpdir'
@@ -331,9 +323,8 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.shutil')
-    @patch_open
     def test_create_no_hypervisor_found(
-        self, mock_open, mock_shutil, mock_dtemp,
+        self, mock_shutil, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         mock_dtemp.return_value = 'tmpdir'
@@ -345,9 +336,8 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.shutil')
     @patch('os.path.exists')
-    @patch_open
     def test_create_no_initrd_found(
-        self, mock_open, mock_exists, mock_shutil, mock_dtemp,
+        self, mock_exists, mock_shutil, mock_dtemp,
         mock_setup_media_loader_directory
     ):
         mock_dtemp.return_value = 'tmpdir'

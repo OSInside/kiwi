@@ -1,11 +1,9 @@
 from mock import (
-    patch, call
+    patch, call, mock_open
 )
 from pytest import raises
 import mock
 import kiwi
-
-from .test_helper import patch_open
 
 from kiwi.system.uri import Uri
 from kiwi.builder.container import ContainerBuilder
@@ -242,39 +240,30 @@ class TestContainerBuilder:
             'target_dir'
         )
 
-    @patch_open
     @patch('kiwi.builder.container.Checksum')
-    def test_create_derived_with_different_md5(self, mock_md5, mock_open):
+    def test_create_derived_with_different_md5(self, mock_md5):
         md5 = mock.Mock()
         md5.md5.return_value = 'diffchecksumvalue'
         mock_md5.return_value = md5
 
-        context_manager_mock = mock.Mock()
-        file_mock = mock.Mock()
-        file_mock.read.return_value = 'checksumvalue and someotherstuff\n'
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-        mock_open.return_value = context_manager_mock
-        with raises(KiwiContainerBuilderError):
-            container = ContainerBuilder(
-                self.xml_state, 'target_dir', 'root_dir'
-            )
-            container.create()
+        m_open = mock_open(read_data='checksum data\n')
+        with patch('builtins.open', m_open, create=True):
+            with raises(KiwiContainerBuilderError):
+                container = ContainerBuilder(
+                    self.xml_state, 'target_dir', 'root_dir'
+                )
+                container.create()
 
-    @patch_open
     @patch('kiwi.builder.container.Checksum')
-    def test_create_derived_fail_open(self, mock_md5, mock_open):
-        context_manager_mock = mock.Mock()
-        enter_mock = mock.Mock(side_effect=Exception('open failed!'))
-        exit_mock = mock.Mock()
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-        mock_open.return_value = context_manager_mock
-        with raises(Exception):
-            container = ContainerBuilder(
-                self.xml_state, 'target_dir', 'root_dir'
+    def test_create_derived_fail_open(self, mock_md5):
+        with patch('builtins.open') as m_open:
+            m_open = mock_open()
+            m_open.return_value.__enter__.side_effect = Exception(
+                'open failed'
             )
-            container.create()
+            with raises(Exception) as e:
+                container = ContainerBuilder(
+                    self.xml_state, 'target_dir', 'root_dir'
+                )
+                container.create()
+                assert 'open failed' in str(e)

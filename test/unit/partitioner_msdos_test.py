@@ -1,10 +1,8 @@
 from mock import (
-    patch, call, Mock
+    patch, call, mock_open, Mock
 )
 from pytest import raises
 from collections import namedtuple
-
-from .test_helper import patch_open
 
 from kiwi.partitioner.msdos import PartitionerMsDos
 
@@ -22,8 +20,7 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
-    @patch_open
-    def test_create(self, mock_open, mock_temp, mock_flag, mock_command):
+    def test_create(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
         temp_type = namedtuple(
             'temp_type', ['name']
@@ -31,18 +28,12 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-        context_manager_mock = Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = Mock()
-        enter_mock = Mock()
-        exit_mock = Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
 
-        self.partitioner.create('name', 100, 't.linux', ['f.active'])
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner.create('name', 100, 't.linux', ['f.active'])
 
-        file_mock.write.assert_called_once_with(
+        m_open.return_value.write.assert_called_once_with(
             'n\np\n1\n\n+100M\nw\nq\n'
         )
         mock_command.assert_called_once_with(
@@ -58,9 +49,8 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
-    @patch_open
     def test_create_custom_start_sector(
-        self, mock_open, mock_temp, mock_flag, mock_command
+        self, mock_temp, mock_flag, mock_command
     ):
         disk_provider = Mock()
         disk_provider.get_device = Mock(
@@ -74,17 +64,11 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-        context_manager_mock = Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = Mock()
-        enter_mock = Mock()
-        exit_mock = Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
 
-        partitioner.create('name', 100, 't.linux', ['f.active'])
-        partitioner.create('name', 100, 't.linux', ['f.active'])
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            partitioner.create('name', 100, 't.linux', ['f.active'])
+            partitioner.create('name', 100, 't.linux', ['f.active'])
 
         mock_command.assert_has_calls([
             call(['bash', '-c', 'cat tempfile | fdisk /dev/loop0']),
@@ -95,7 +79,7 @@ class TestPartitionerMsDos:
         assert mock_flag.call_args_list[1] == \
             call(1, 'f.active')
 
-        file_mock.write.assert_has_calls([
+        m_open.return_value.write.assert_has_calls([
             call('n\np\n1\n4096\n+100M\nw\nq\n'),
             call('n\np\n2\n\n+100M\nw\nq\n')
         ])
@@ -103,9 +87,8 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.NamedTemporaryFile')
-    @patch_open
     def test_create_all_free(
-        self, mock_open, mock_temp, mock_flag, mock_command
+        self, mock_temp, mock_flag, mock_command
     ):
         mock_command.side_effect = Exception
         temp_type = namedtuple(
@@ -114,18 +97,12 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-        context_manager_mock = Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = Mock()
-        enter_mock = Mock()
-        exit_mock = Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
 
-        self.partitioner.create('name', 'all_free', 't.linux')
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner.create('name', 'all_free', 't.linux')
 
-        file_mock.write.assert_called_once_with(
+        m_open.return_value.write.assert_called_once_with(
             'n\np\n1\n\n\nw\nq\n'
         )
 

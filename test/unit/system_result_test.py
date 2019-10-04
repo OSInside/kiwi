@@ -1,9 +1,7 @@
 from mock import (
-    patch, Mock, MagicMock
+    patch, Mock, mock_open
 )
 from pytest import raises
-
-from .test_helper import patch_open
 
 from kiwi.system.result import Result
 
@@ -12,14 +10,6 @@ from kiwi.exceptions import KiwiResultError
 
 class TestResult:
     def setup(self):
-        self.context_manager_mock = MagicMock()
-        self.file_mock = MagicMock()
-        self.enter_mock = MagicMock()
-        self.exit_mock = MagicMock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
         self.xml_state = Mock()
 
         self.result = Result(self.xml_state)
@@ -43,36 +33,40 @@ class TestResult:
         assert mock_info.called
 
     @patch('pickle.dump')
-    @patch_open
-    def test_dump(self, mock_open, mock_pickle_dump):
-        mock_open.return_value = self.context_manager_mock
-        self.result.dump('kiwi.result')
-        mock_open.assert_called_once_with(
+    def test_dump(self, mock_pickle_dump):
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.result.dump('kiwi.result')
+
+        m_open.assert_called_once_with(
             'kiwi.result', 'wb'
         )
         mock_pickle_dump.assert_called_once_with(
-            self.result, self.file_mock
+            self.result, m_open.return_value
         )
 
     @patch('pickle.dump')
-    @patch_open
-    def test_dump_failed(self, mock_open, mock_pickle_dump):
+    def test_dump_failed(self, mock_pickle_dump):
         mock_pickle_dump.side_effect = Exception
-        with raises(KiwiResultError):
-            self.result.dump('kiwi.result')
+        with patch('builtins.open'):
+            with raises(KiwiResultError):
+                self.result.dump('kiwi.result')
 
     @patch('pickle.load')
     @patch('os.path.exists')
-    @patch_open
-    def test_load(self, mock_open, mock_exists, mock_pickle_load):
-        mock_open.return_value = self.context_manager_mock
+    def test_load(self, mock_exists, mock_pickle_load):
         mock_exists.return_value = True
-        Result.load('kiwi.result')
-        mock_open.assert_called_once_with(
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            Result.load('kiwi.result')
+
+        m_open.assert_called_once_with(
             'kiwi.result', 'rb'
         )
         mock_pickle_load.assert_called_once_with(
-            self.file_mock
+            m_open.return_value
         )
 
     @patch('os.path.exists')

@@ -1,9 +1,10 @@
+import sys
 from mock import (
     patch, call, Mock
 )
 from pytest import raises
 
-from .test_helper import patch_open
+from .test_helper import argv_kiwi_tests
 
 from kiwi.system.root_bind import RootBind
 
@@ -29,6 +30,9 @@ class TestRootBind:
         self.bind_root.cleanup_files = ['/foo.kiwi']
         self.bind_root.mount_stack = [self.mount_manager]
         self.bind_root.dir_stack = ['/mountpoint']
+
+    def teardown(self):
+        sys.argv = argv_kiwi_tests
 
     @patch('kiwi.system.root_bind.MountManager.bind_mount')
     @patch('kiwi.system.root_bind.RootBind.cleanup')
@@ -101,14 +105,19 @@ class TestRootBind:
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.Checksum')
     @patch('os.path.exists')
-    @patch_open
     def test_intermediate_config(
-        self, mock_open, mock_exists, mock_Checksum, mock_command
+        self, mock_exists, mock_Checksum, mock_command
     ):
         checksum = Mock()
         mock_Checksum.return_value = checksum
         mock_exists.return_value = True
-        self.bind_root.setup_intermediate_config()
+
+        with patch('builtins.open') as m_open:
+            self.bind_root.setup_intermediate_config()
+            m_open.assert_called_once_with(
+                'root-dir/foo.sha', 'w'
+            )
+
         assert mock_command.call_args_list == [
             call([
                 'cp', '/foo', 'root-dir/foo.kiwi'
@@ -118,9 +127,6 @@ class TestRootBind:
             ])
         ]
         checksum.sha256.assert_called_once_with()
-        mock_open.assert_called_once_with(
-            'root-dir/foo.sha', 'w'
-        )
 
     @patch('kiwi.system.root_bind.Checksum')
     @patch('kiwi.system.root_bind.MountManager.is_mounted')

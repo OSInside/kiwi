@@ -1,22 +1,12 @@
-from mock import call
-
-import mock
-
-from .test_helper import patch_open
+from mock import (
+    call, mock_open, patch
+)
 
 from kiwi.utils.sysconfig import SysConfig
 
 
 class TestSysConfig:
     def setup(self):
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
         self.sysconfig = SysConfig('../data/sysconfig_example.txt')
 
     def test_get_item(self):
@@ -36,11 +26,12 @@ class TestSysConfig:
         assert 'non_existing_key' not in self.sysconfig
         assert 'name' in self.sysconfig
 
-    @patch_open
-    def test_write(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
-        self.sysconfig.write()
-        assert self.file_mock.write.call_args_list == [
+    def test_write(self):
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.sysconfig.write()
+
+        assert m_open.return_value.write.call_args_list == [
             call('# some name'),
             call('\n'),
             call('name= "Marcus"'),

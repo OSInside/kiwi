@@ -1,8 +1,8 @@
-from mock import patch
+from mock import (
+    patch, mock_open
+)
 
 import mock
-
-from .test_helper import patch_open
 
 from kiwi.container.oci import ContainerImageOCI
 from kiwi.version import __version__
@@ -56,17 +56,19 @@ class TestContainerImageOCI:
     @patch('kiwi.container.oci.RuntimeConfig')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
-    @patch_open
     def test_init_in_buildservice(
-        self, mock_open, mock_buildservice, mock_cmd_caps, mock_RuntimeConfig
+        self, mock_buildservice, mock_cmd_caps, mock_RuntimeConfig
     ):
         mock_buildservice.return_value = True
         mock_cmd_caps.return_value = True
-        handle = mock_open.return_value.__enter__.return_value
-        handle.__iter__.return_value =\
-            iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
-        container = ContainerImageOCI('root_dir', 'oci-archive')
-        mock_open.assert_called_once_with('/.buildenv')
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.__iter__ = lambda _:\
+                iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
+            container = ContainerImageOCI('root_dir', 'oci-archive')
+
+        m_open.assert_called_once_with('/.buildenv')
         assert container.oci_config['labels'] == {
             'org.openbuildservice.disturl':
             'obs://build.opensuse.org/some:project'
@@ -75,18 +77,19 @@ class TestContainerImageOCI:
     @patch('kiwi.container.oci.RuntimeConfig')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
-    @patch_open
     @patch('kiwi.logger.log.warning')
     def test_init_in_buildservice_without_disturl(
-        self, mock_warn, mock_open, mock_buildservice,
-        mock_cmd_caps, mock_RuntimeConfig
+        self, mock_warn, mock_buildservice, mock_cmd_caps, mock_RuntimeConfig
     ):
         mock_buildservice.return_value = True
         mock_cmd_caps.return_value = True
-        handle = mock_open.return_value.__enter__.return_value
-        handle.__iter__.return_value = iter(['line content'])
-        container = ContainerImageOCI('root_dir', 'oci-archive')
-        mock_open.assert_called_once_with('/.buildenv')
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.__iter__ = lambda _: iter(['line content'])
+            container = ContainerImageOCI('root_dir', 'oci-archive')
+
+        m_open.assert_called_once_with('/.buildenv')
         assert 'labels' not in container.oci_config
         assert mock_warn.called
 
