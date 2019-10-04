@@ -163,7 +163,8 @@ class ResultBundleTask(CliTask):
                     with open(bundle_file + '.sha256', 'w') as shasum:
                         shasum.write(
                             '{0}  {1}'.format(
-                                checksum.sha256(), bundle_file_basename
+                                checksum.sha256(),
+                                os.path.basename(bundle_file)
                             )
                         )
 
