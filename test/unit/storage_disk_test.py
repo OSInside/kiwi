@@ -1,25 +1,17 @@
-from mock import patch
+from mock import (
+    patch, mock_open
+)
 
 import mock
-
-from .test_helper import patch_open
 
 from kiwi.storage.disk import Disk
 
 
 class TestDisk:
     @patch('kiwi.storage.disk.Partitioner')
-    @patch_open
-    def setup(self, mock_open, mock_partitioner):
+    def setup(self, mock_partitioner):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
         self.partitioner = mock.Mock()
         self.partitioner.create = mock.Mock()
@@ -191,16 +183,18 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    @patch_open
     @patch('kiwi.storage.disk.NamedTemporaryFile')
     @patch('kiwi.logger.log.debug')
-    def test_wipe_dasd(self, mock_debug, mock_temp, mock_open, mock_command):
+    def test_wipe_dasd(self, mock_debug, mock_temp, mock_command):
         mock_command.side_effect = Exception
         self.disk.table_type = 'dasd'
         mock_temp.return_value = self.tempfile
-        mock_open.return_value = self.context_manager_mock
-        self.disk.wipe()
-        self.file_mock.write.assert_called_once_with(
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk.wipe()
+
+        m_open.return_value.write.assert_called_once_with(
             'y\n\nw\nq\n'
         )
         mock_command.assert_called_once_with(

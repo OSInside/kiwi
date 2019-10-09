@@ -1,9 +1,7 @@
 from mock import (
-    patch, Mock
+    patch, Mock, mock_open
 )
 from pytest import raises
-
-from .test_helper import patch_open
 
 from kiwi.storage.raid_device import RaidDevice
 
@@ -53,25 +51,20 @@ class TestRaidDevice:
         self.raid.raid_device = None
 
     @patch('kiwi.storage.raid_device.Command.run')
-    @patch_open
-    def test_create_raid_config(self, mock_open, mock_command):
+    def test_create_raid_config(self, mock_command):
         self.raid.raid_device = '/dev/md0'
         command_call = Mock()
         command_call.output = 'data'
         mock_command.return_value = command_call
-        context_manager_mock = Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = Mock()
-        enter_mock = Mock()
-        exit_mock = Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-        self.raid.create_raid_config('mdadm.conf')
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.raid.create_raid_config('mdadm.conf')
+
         mock_command.assert_called_once_with(
             ['mdadm', '-Db', '/dev/md0']
         )
-        file_mock.write.assert_called_once_with('data')
+        m_open.return_value.write.assert_called_once_with('data')
         self.raid.raid_device = None
 
     def test_is_loop(self):

@@ -1,10 +1,8 @@
 from mock import (
-    patch, call
+    patch, call, mock_open
 )
 from pytest import raises
 import mock
-
-from .test_helper import patch_open
 
 from kiwi.container.setup.base import ContainerSetupBase
 
@@ -15,13 +13,6 @@ class TestContainerSetupBase:
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True
-        self.context_manager_mock = mock.MagicMock()
-        self.file_mock = mock.MagicMock()
-        self.enter_mock = mock.MagicMock()
-        self.exit_mock = mock.MagicMock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
         self.container = ContainerSetupBase('root_dir')
 
@@ -41,41 +32,44 @@ class TestContainerSetupBase:
     def test_get_container_name(self):
         assert self.container.get_container_name() == 'systemContainer'
 
-    @patch_open
-    def test_create_fstab(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
-        self.container.create_fstab()
-        mock_open.assert_called_once_with(
+    def test_create_fstab(self):
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.container.create_fstab()
+
+        m_open.assert_called_once_with(
             'root_dir/etc/fstab', 'w'
         )
-        assert self.file_mock.call_args_list == []
+        assert m_open.return_value.call_args_list == []
 
-    @patch_open
     @patch('os.path.exists')
-    def test_deactivate_bootloader_setup(self, mock_exists, mock_open):
+    def test_deactivate_bootloader_setup(self, mock_exists):
         mock_exists.return_value = True
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = 'LOADER_LOCATION="mylocation"'
-        self.container.deactivate_bootloader_setup()
-        assert mock_open.call_args_list[0] == call(
+
+        m_open = mock_open(read_data='LOADER_LOCATION="mylocation"')
+        with patch('builtins.open', m_open, create=True):
+            self.container.deactivate_bootloader_setup()
+
+        assert m_open.call_args_list[0] == call(
             'root_dir/etc/sysconfig/bootloader', 'r'
         )
-        assert self.file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call('LOADER_LOCATION="none"\nLOADER_TYPE="none"\n')
         ]
 
-    @patch_open
     @patch('os.path.exists')
-    def test_deactivate_root_filesystem_check(self, mock_exists, mock_open):
+    def test_deactivate_root_filesystem_check(self, mock_exists):
         mock_exists.return_value = True
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = None
-        self.container.deactivate_root_filesystem_check()
-        assert mock_open.call_args_list[0] == call(
+
+        m_open = mock_open(read_data=None)
+        with patch('builtins.open', m_open, create=True):
+            self.container.deactivate_root_filesystem_check()
+
+        assert m_open.call_args_list[0] == call(
             'root_dir/etc/sysconfig/boot', 'r'
         )
-        assert self.file_mock.write.call_args_list == [
-            call('ROOTFS_BLKDEV="/dev/null"\n')
+        assert m_open.return_value.write.call_args_list == [
+            call('\nROOTFS_BLKDEV="/dev/null"\n')
         ]
 
     @patch('os.path.exists')
@@ -98,20 +92,21 @@ class TestContainerSetupBase:
         with raises(KiwiContainerSetupError):
             self.container.deactivate_systemd_service('my.service')
 
-    @patch_open
     @patch('os.path.exists')
-    def test_setup_root_console(self, mock_exists, mock_open):
+    def test_setup_root_console(self, mock_exists):
         mock_exists.return_value = False
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = None
-        self.container.setup_root_console()
-        assert mock_open.call_args_list == [
+
+        m_open = mock_open(read_data=None)
+        with patch('builtins.open', m_open, create=True):
+            self.container.setup_root_console()
+
+        assert m_open.call_args_list == [
             call('root_dir/etc/securetty', 'w'),
             call('root_dir/etc/securetty', 'r'),
             call('root_dir/etc/securetty', 'w')
         ]
-        assert self.file_mock.write.call_args_list == [
-            call('console\n')
+        assert m_open.return_value.write.call_args_list == [
+            call('\nconsole\n')
         ]
 
     @patch('kiwi.container.setup.base.Command.run')

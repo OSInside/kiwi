@@ -1,11 +1,9 @@
 import sys
 from builtins import bytes
 from mock import (
-    call, patch, Mock
+    call, patch, Mock, mock_open
 )
 from pytest import raises
-
-from .test_helper import patch_open
 
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
 
@@ -43,20 +41,12 @@ class TestDiskFormatVhdFixed:
             self.disk_format.create_image_format()
 
     @patch('kiwi.storage.subformat.vhdfixed.Command.run')
-    @patch_open
-    def test_create_image_format(self, mock_open, mock_command):
+    def test_create_image_format(self, mock_command):
         self.disk_format.tag = '12345678-1234-1234-1234-123456789999'
-        context_manager_mock = Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = Mock()
-        enter_mock = Mock()
-        exit_mock = Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-        file_mock.read.return_value = 'dev_zero_data'
 
-        self.disk_format.create_image_format()
+        m_open = mock_open(read_data='dev_zero_data')
+        with patch('builtins.open', m_open, create=True):
+            self.disk_format.create_image_format()
 
         mock_command.assert_called_once_with(
             [
@@ -66,25 +56,25 @@ class TestDiskFormatVhdFixed:
                 'target_dir/some-disk-image.x86_64-1.2.3.vhdfixed'
             ]
         )
-        assert mock_open.call_args_list == [
+        assert m_open.call_args_list == [
             call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'r+b'),
             call('/dev/zero', 'rb'),
             call('target_dir/some-disk-image.x86_64-1.2.3.vhdfixed', 'r+b')
         ]
-        assert file_mock.write.call_args_list[0] == call(
+        assert m_open.return_value.write.call_args_list[0] == call(
             'dev_zero_data'
         )
         if sys.byteorder == 'little':
             # on little endian machines
-            assert file_mock.write.call_args_list[1] == call(
+            assert m_open.return_value.write.call_args_list[1] == call(
                 bytes(b'xV4\x124\x124\x12\x124\x124Vx\x99\x99')
             )
         else:
             # on big endian machines
-            assert file_mock.write.call_args_list[1] == call(
+            assert m_open.return_value.write.call_args_list[1] == call(
                 bytes(b'\x124Vx\x124\x124\x124\x124Vx\x99\x99')
             )
-        assert file_mock.seek.call_args_list == [
+        assert m_open.return_value.seek.call_args_list == [
             call(65536, 0), call(0, 2),
             call(65536, 0), call(0, 2)
         ]

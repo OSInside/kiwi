@@ -1,8 +1,8 @@
-from mock import patch
+from mock import (
+    patch, mock_open
+)
 from pytest import raises
 import mock
-
-from .test_helper import patch_open
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
@@ -48,28 +48,22 @@ class TestBootImageBase:
         with raises(NotImplementedError):
             self.boot_image.create_initrd()
 
-    @patch_open
     @patch('pickle.dump')
-    def test_dump_error(self, mock_dump, mock_open):
+    def test_dump_error(self, mock_dump):
         mock_dump.side_effect = Exception
-        with raises(KiwiBootImageDumpError):
-            self.boot_image.dump('filename')
+        with patch('builtins.open'):
+            with raises(KiwiBootImageDumpError):
+                self.boot_image.dump('filename')
 
-    @patch_open
     @patch('pickle.dump')
     @patch('kiwi.boot.image.base.BootImageBase.disable_cleanup')
-    def test_dump(self, mock_disable_cleanup, mock_dump, mock_open):
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
-        self.boot_image.dump('filename')
-        mock_open.assert_called_once_with('filename', 'wb')
-        mock_dump.assert_called_once_with(self.boot_image, file_mock)
+    def test_dump(self, mock_disable_cleanup, mock_dump):
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.boot_image.dump('filename')
+
+        m_open.assert_called_once_with('filename', 'wb')
+        mock_dump.assert_called_once_with(self.boot_image, m_open.return_value)
         mock_disable_cleanup.assert_called_once_with()
 
     def test_disable_cleanup(self):

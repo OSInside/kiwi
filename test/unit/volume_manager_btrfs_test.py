@@ -1,13 +1,11 @@
 import datetime
 from mock import (
-    patch, call, Mock
+    patch, call, Mock, mock_open
 )
 from pytest import raises
 from lxml import etree
 from xml.dom import minidom
 from collections import namedtuple
-
-from .test_helper import patch_open
 
 from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 
@@ -20,13 +18,6 @@ from kiwi.exceptions import (
 class TestVolumeManagerBtrfs:
     @patch('os.path.exists')
     def setup(self, mock_path):
-        self.context_manager_mock = Mock()
-        self.file_mock = Mock()
-        self.enter_mock = Mock()
-        self.exit_mock = Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         self.volume_type = namedtuple(
             'volume_type', [
                 'name',
@@ -358,7 +349,6 @@ class TestVolumeManagerBtrfs:
         )
         assert self.volume_manager.umount_volumes() is False
 
-    @patch_open
     @patch('kiwi.volume_manager.btrfs.SysConfig')
     @patch('kiwi.volume_manager.btrfs.DataSync')
     @patch('kiwi.volume_manager.btrfs.Command.run')
@@ -367,7 +357,7 @@ class TestVolumeManagerBtrfs:
     @patch.object(datetime, 'datetime', Mock(wraps=datetime.datetime))
     def test_sync_data(
         self, mock_copy, mock_exists, mock_command,
-        mock_sync, mock_sysconf, mock_open
+        mock_sync, mock_sysconf
     ):
         item = {'SNAPPER_CONFIGS': '""'}
 
@@ -398,14 +388,15 @@ class TestVolumeManagerBtrfs:
             '../data/info.xml', etree.XMLParser(remove_blank_text=True)
         ))
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
-        mock_open.return_value = self.context_manager_mock
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.custom_args['root_is_snapshot'] = True
         sync = Mock()
         mock_sync.return_value = sync
 
-        self.volume_manager.sync_data(['exclude_me'])
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.volume_manager.sync_data(['exclude_me'])
 
         root_path = 'tmpdir/@/.snapshots/1/snapshot'
         mock_sync.assert_called_once_with('root_dir', root_path)
@@ -417,10 +408,10 @@ class TestVolumeManagerBtrfs:
             exclude=['exclude_me'],
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
-        assert mock_open.call_args_list == [
+        assert m_open.call_args_list == [
             call('tmpdir/@/.snapshots/1/info.xml', 'w'),
         ]
-        assert self.file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call(minidom.parseString(xml_info).toprettyxml(indent="    "))
         ]
         assert mock_command.call_args_list == [
@@ -431,14 +422,13 @@ class TestVolumeManagerBtrfs:
             ])
         ]
 
-    @patch_open
     @patch('kiwi.volume_manager.btrfs.SysConfig')
     @patch('kiwi.volume_manager.btrfs.DataSync')
     @patch('kiwi.volume_manager.btrfs.Command.run')
     @patch('os.path.exists')
     @patch.object(datetime, 'datetime', Mock(wraps=datetime.datetime))
     def test_sync_data_existing_bad_snapper_config(
-        self, mock_exists, mock_command, mock_sync, mock_sysconf, mock_open
+        self, mock_exists, mock_command, mock_sync, mock_sysconf
     ):
         item = {'SNAPPER_CONFIGS': '"root foo"'}
 
@@ -459,15 +449,16 @@ class TestVolumeManagerBtrfs:
             '../data/info.xml', etree.XMLParser(remove_blank_text=True)
         ))
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
-        mock_open.return_value = self.context_manager_mock
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.custom_args['root_is_snapshot'] = True
         sync = Mock()
         mock_sync.return_value = sync
 
-        with raises(KiwiVolumeManagerSetupError):
-            self.volume_manager.sync_data(['exclude_me'])
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            with raises(KiwiVolumeManagerSetupError):
+                self.volume_manager.sync_data(['exclude_me'])
 
         mock_sync.assert_called_once_with(
             'root_dir', 'tmpdir/@/.snapshots/1/snapshot'
@@ -476,10 +467,10 @@ class TestVolumeManagerBtrfs:
             exclude=['exclude_me'],
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
-        assert mock_open.call_args_list == [
+        assert m_open.call_args_list == [
             call('tmpdir/@/.snapshots/1/info.xml', 'w'),
         ]
-        assert self.file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call(minidom.parseString(xml_info).toprettyxml(indent="    "))
         ]
 
@@ -493,16 +484,15 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.custom_args['quota_groups'] = True
         mock_exists.return_value = True
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
-        self.file_mock.readlines = Mock(
-            return_value=[]
-        )
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.custom_args['root_is_snapshot'] = False
         sync = Mock()
         mock_sync.return_value = sync
 
-        self.volume_manager.sync_data(['exclude_me'])
+        m_open = mock_open(read_data='')
+        with patch('builtins.open', m_open, create=True):
+            self.volume_manager.sync_data(['exclude_me'])
 
         mock_sync.assert_called_once_with(
             'root_dir', 'tmpdir/@'

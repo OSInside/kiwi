@@ -1,11 +1,11 @@
-from mock import patch
+from mock import (
+    patch, mock_open
+)
 from pytest import raises
 from collections import namedtuple
 import mock
 
 import kiwi
-
-from .test_helper import patch_open
 
 from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
 from kiwi.exceptions import (
@@ -83,38 +83,32 @@ class TestBootLoaderConfigZipl:
         with raises(KiwiBootLoaderZiplSetupError):
             BootLoaderConfigZipl(mock.Mock(), 'root_dir')
 
-    @patch_open
     @patch('os.path.exists')
     @patch('os.readlink')
     @patch('kiwi.bootloader.config.zipl.Path.create')
     @patch('kiwi.bootloader.config.zipl.Command.run')
     def test_write(
-        self, mock_command, mock_path, mock_readlink, mock_exists, mock_open
+        self, mock_command, mock_path, mock_readlink, mock_exists
     ):
         mock_readlink.side_effect = [
             'initrd_readlink_name',
             'kernel_readlink_name'
         ]
         mock_exists.return_value = True
-        context_manager_mock = mock.Mock()
-        mock_open.return_value = context_manager_mock
-        file_mock = mock.Mock()
-        enter_mock = mock.Mock()
-        exit_mock = mock.Mock()
-        enter_mock.return_value = file_mock
-        setattr(context_manager_mock, '__enter__', enter_mock)
-        setattr(context_manager_mock, '__exit__', exit_mock)
+
         self.bootloader.config = 'some-data'
 
-        self.bootloader.write()
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.bootloader.write()
 
         mock_path.assert_called_once_with(
             'root_dir/boot/zipl'
         )
-        mock_open.assert_called_once_with(
+        m_open.assert_called_once_with(
             'root_dir/boot/zipl/config', 'w'
         )
-        file_mock.write.assert_called_once_with(
+        m_open.return_value.write.assert_called_once_with(
             'some-data'
         )
         mock_command.assert_called_once_with(

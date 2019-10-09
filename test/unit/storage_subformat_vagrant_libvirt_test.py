@@ -1,10 +1,7 @@
-import io
 from textwrap import dedent
 from mock import (
-    patch, Mock, MagicMock, call
+    patch, Mock, call, mock_open
 )
-
-from .test_helper import patch_open
 
 from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
 
@@ -70,16 +67,17 @@ class TestDiskFormatVagrantLibVirt:
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
     @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
     @patch.object(DiskFormatVagrantLibVirt, 'create_box_img')
-    @patch_open
     def test_create_image_format(
-        self, mock_open, mock_create_box_img, mock_mkdtemp, mock_command
+        self, mock_create_box_img, mock_mkdtemp, mock_command
     ):
         mock_mkdtemp.return_value = 'tmpdir'
         mock_create_box_img.return_value = ['arbitrary']
-        mock_open.return_value = MagicMock(spec=io.IOBase)
-        file_handle = mock_open.return_value.__enter__.return_value
-        self.disk_format.create_image_format()
-        assert file_handle.write.call_args_list[1] == call(
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_format.create_image_format()
+
+        assert m_open.return_value.write.call_args_list[1] == call(
             dedent('''
                 Vagrant.configure("2") do |config|
                   config.vm.synced_folder ".", "/vagrant", type: "rsync"

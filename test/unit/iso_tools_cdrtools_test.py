@@ -1,11 +1,8 @@
 from mock import (
-    patch, call
+    patch, call, mock_open
 )
 from pytest import raises
-import mock
 from collections import namedtuple
-
-from .test_helper import patch_open
 
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
 
@@ -16,14 +13,6 @@ class TestIsoToolsCdrTools:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
         self.iso_tool = IsoToolsCdrTools('source-dir')
 
     @patch('kiwi.iso_tools.cdrtools.Path.which')
@@ -45,11 +34,10 @@ class TestIsoToolsCdrTools:
         with raises(KiwiIsoToolError):
             self.iso_tool.get_tool_name()
 
-    @patch_open
     @patch('os.walk')
     @patch('kiwi.iso_tools.cdrtools.NamedTemporaryFile')
     def test_init_iso_creation_parameters(
-        self, mock_tempfile, mock_walk, mock_open
+        self, mock_tempfile, mock_walk
     ):
         temp_type = namedtuple(
             'temp_type', ['name']
@@ -59,6 +47,8 @@ class TestIsoToolsCdrTools:
         )
         mock_walk_results = [
             [('source-dir', ('EFI',), ())],
+            [('source-dir', ('bar', 'baz'), ('eggs', 'efi'))],
+            [('source-dir', ('EFI',), ())],
             [('source-dir', ('bar', 'baz'), ('eggs', 'efi'))]
         ]
 
@@ -66,17 +56,18 @@ class TestIsoToolsCdrTools:
             return mock_walk_results.pop()
 
         mock_walk.side_effect = side_effect
-        mock_open.return_value = self.context_manager_mock
-        self.iso_tool.init_iso_creation_parameters(
-            {
-                'mbr_id': 'app_id',
-                'publisher': 'org',
-                'preparer': 'name',
-                'volume_id': 'vol_id',
-                'udf': True
-            }
-        )
-        assert self.file_mock.write.call_args_list == [
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.iso_tool.init_iso_creation_parameters(
+                {
+                    'mbr_id': 'app_id',
+                    'publisher': 'org',
+                    'preparer': 'name',
+                    'volume_id': 'vol_id',
+                    'udf': True
+                }
+            )
+        assert m_open.return_value.write.call_args_list == [
             call('source-dir/boot/x86_64/boot.catalog 3\n'),
             call('source-dir/boot/x86_64/loader/isolinux.bin 2\n'),
             call('source-dir/EFI 1\n'),
@@ -101,17 +92,18 @@ class TestIsoToolsCdrTools:
         ]
 
         self.iso_tool.iso_loaders = []
-        self.file_mock.write.reset_mock()
-        self.iso_tool.init_iso_creation_parameters(
-            {
-                'efi_mode': 'uefi',
-                'mbr_id': 'app_id',
-                'publisher': 'org',
-                'preparer': 'name',
-                'volume_id': 'vol_id',
-                'udf': True
-            }
-        )
+        m_open.reset_mock()
+        with patch('builtins.open', m_open, create=True):
+            self.iso_tool.init_iso_creation_parameters(
+                {
+                    'efi_mode': 'uefi',
+                    'mbr_id': 'app_id',
+                    'publisher': 'org',
+                    'preparer': 'name',
+                    'volume_id': 'vol_id',
+                    'udf': True
+                }
+            )
         assert self.iso_tool.iso_loaders == [
             '-b', 'boot/x86_64/loader/eltorito.img',
             '-c', 'boot/x86_64/boot.catalog'

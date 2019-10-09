@@ -1,6 +1,6 @@
 from builtins import bytes
 from mock import (
-    call, patch
+    call, patch, mock_open
 )
 from pytest import raises
 import mock
@@ -8,7 +8,6 @@ import struct
 import pytest
 import sys
 
-from .test_helper import patch_open
 
 from kiwi.iso_tools.iso import Iso
 from kiwi.path import Path
@@ -25,21 +24,13 @@ class TestIso:
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
-        self.enter_mock.return_value = self.file_mock
-        setattr(self.context_manager_mock, '__enter__', self.enter_mock)
-        setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-
         self.iso = Iso('source-dir')
 
-    @patch_open
-    def test_create_header_end_marker(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
-        self.iso.create_header_end_marker()
-        assert self.file_mock.write.called_once_with(
+    def test_create_header_end_marker(self):
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.iso.create_header_end_marker()
+        assert m_open.return_value.write.called_once_with(
             'source-dir/header_end 1000000\n'
         )
 
@@ -92,18 +83,17 @@ class TestIso:
             '../data/iso_with_marker.iso'
         ) == 96
 
-    @patch_open
     @patch('kiwi.iso_tools.iso.IsoToolsCdrTools')
-    def test_create_header_end_block(self, mock_IsoToolsCdrTools, mock_open):
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = bytes(
-            b'7984fc91-a43f-4e45-bf27-6d3aa08b24cf'
-        )
+    def test_create_header_end_block(self, mock_IsoToolsCdrTools):
         iso_tool = mock.Mock()
         iso_tool.list_iso.return_value = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         mock_IsoToolsCdrTools.return_value = iso_tool
-        self.iso.create_header_end_block('some-iso-file')
-        assert mock_open.call_args_list == [
+
+        m_open = mock_open(read_data=b'7984fc91-a43f-4e45-bf27-6d3aa08b24cf')
+        with patch('builtins.open', m_open, create=True):
+            self.iso.create_header_end_block('some-iso-file')
+
+        assert m_open.call_args_list == [
             call('some-iso-file', 'rb'),
             call('source-dir/header_end', 'wb')
         ]
@@ -119,13 +109,13 @@ class TestIso:
                 '../data/iso_no_marker.iso'
             )
 
-    @patch_open
     @patch('kiwi.iso_tools.iso.IsoToolsCdrTools')
     def test_create_header_end_block_raises(
-        self, mock_IsoToolsCdrTools, mock_open
+        self, mock_IsoToolsCdrTools
     ):
-        with raises(KiwiIsoLoaderError):
-            self.iso.create_header_end_block('some-iso-file')
+        with patch('builtins.open'):
+            with raises(KiwiIsoLoaderError):
+                self.iso.create_header_end_block('some-iso-file')
 
     @patch('kiwi.iso_tools.iso.Command.run')
     def test_create_hybrid(self, mock_command):
@@ -183,35 +173,31 @@ class TestIso:
             ['tagmedia', '--md5', '--check', '--pad', '150', 'foo']
         )
 
-    @patch_open
-    def test_iso_metadata_iso9660_invalid(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = bytes(b'bogus')
-        with raises(KiwiIsoMetaDataError):
-            Iso.fix_boot_catalog('isofile')
+    def test_iso_metadata_iso9660_invalid(self):
+        m_open = mock_open(read_data=b'bogus')
+        with patch('builtins.open', m_open, create=True):
+            with raises(KiwiIsoMetaDataError):
+                Iso.fix_boot_catalog('isofile')
 
-    @patch_open
-    def test_iso_metadata_not_bootable(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
-        self.file_mock.read.return_value = bytes(b'CD001')
-        with raises(KiwiIsoMetaDataError):
-            Iso.fix_boot_catalog('isofile')
+    def test_iso_metadata_not_bootable(self):
+        m_open = mock_open(read_data=b'CD001')
+        with patch('builtins.open', m_open, create=True):
+            with raises(KiwiIsoMetaDataError):
+                Iso.fix_boot_catalog('isofile')
 
-    @patch_open
-    def test_iso_metadata_path_table_sector_invalid(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
+    def test_iso_metadata_path_table_sector_invalid(self):
         read_results = [bytes(b'EL TORITO SPECIFICATION'), bytes(b'CD001')]
 
         def side_effect(arg):
             return read_results.pop()
 
-        self.file_mock.read.side_effect = side_effect
-        with raises(KiwiIsoMetaDataError):
-            Iso.fix_boot_catalog('isofile')
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.read.side_effect = side_effect
+            with raises(KiwiIsoMetaDataError):
+                Iso.fix_boot_catalog('isofile')
 
-    @patch_open
-    def test_iso_metadata_catalog_sector_invalid(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
+    def test_iso_metadata_catalog_sector_invalid(self):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         read_results = [bytes(b'EL TORITO SPECIFICATION'), volume_descriptor]
@@ -219,13 +205,13 @@ class TestIso:
         def side_effect(arg):
             return read_results.pop()
 
-        self.file_mock.read.side_effect = side_effect
-        with raises(KiwiIsoMetaDataError):
-            Iso.fix_boot_catalog('isofile')
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.read.side_effect = side_effect
+            with raises(KiwiIsoMetaDataError):
+                Iso.fix_boot_catalog('isofile')
 
-    @patch_open
-    def test_iso_metadata_catalog_invalid(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
+    def test_iso_metadata_catalog_invalid(self):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
@@ -236,13 +222,13 @@ class TestIso:
         def side_effect(arg):
             return read_results.pop()
 
-        self.file_mock.read.side_effect = side_effect
-        with raises(KiwiIsoMetaDataError):
-            Iso.fix_boot_catalog('isofile')
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.read.side_effect = side_effect
+            with raises(KiwiIsoMetaDataError):
+                Iso.fix_boot_catalog('isofile')
 
-    @patch_open
-    def test_relocate_boot_catalog(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
+    def test_relocate_boot_catalog(self):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
@@ -265,10 +251,12 @@ class TestIso:
         def side_effect(arg):
             return read_results.pop()
 
-        self.file_mock.read.side_effect = side_effect
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.read.side_effect = side_effect
+            Iso.relocate_boot_catalog('isofile')
 
-        Iso.relocate_boot_catalog('isofile')
-        assert self.file_mock.write.call_args_list == [
+        assert m_open.return_value.write.call_args_list == [
             call(bytes(b'catalog')),
             call(
                 bytes(
@@ -279,9 +267,7 @@ class TestIso:
             )
         ]
 
-    @patch_open
-    def test_fix_boot_catalog(self, mock_open):
-        mock_open.return_value = self.context_manager_mock
+    def test_fix_boot_catalog(self):
         volume_descriptor = \
             bytes(b'CD001') + bytes(b'_') * (0x08c - 0x5) + bytes(b'0x1d5f23a')
         eltorito_descriptor = \
@@ -298,9 +284,10 @@ class TestIso:
         def side_effect(arg):
             return read_results.pop()
 
-        self.file_mock.read.side_effect = side_effect
-
-        Iso.fix_boot_catalog('isofile')
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.read.side_effect = side_effect
+            Iso.fix_boot_catalog('isofile')
 
         if sys.byteorder == 'big':
             assert self.file_mock.write.call_args_list == [
@@ -317,7 +304,7 @@ class TestIso:
                 )
             ]
         else:
-            assert self.file_mock.write.call_args_list == [
+            assert m_open.return_value.write.call_args_list == [
                 call(
                     bytes(
                         b'_'
