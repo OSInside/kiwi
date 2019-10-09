@@ -476,7 +476,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             return True
         return False
 
-    def _setup_default_grub(self):
+    def _setup_default_grub(self):  # noqa: C901
         """
         Create or update etc/default/grub by parameters required
         according to the root filesystem setup
@@ -521,8 +521,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.firmware.efi_mode():
             # linuxefi/initrdefi only exist on x86, others always use efi
             if self.arch == 'ix86' or self.arch == 'x86_64':
-                grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
-                grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
+                use_linuxefi_implemented = Command.run(
+                    [
+                        'grep', '-q', 'GRUB_USE_LINUXEFI',
+                        Defaults.get_grub_config_tool()
+                    ], raise_on_error=False
+                )
+                if use_linuxefi_implemented.returncode == 0:
+                    grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
+                    grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('boot_is_crypto'):
@@ -669,6 +676,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_early_boot_script_for_mbrid_search(
                 early_boot_script, mbrid
             )
+        module_list = Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
+        module_path = self._get_efi_modules_path(lookup_path)
+        if os.path.exists(module_path + '/linuxefi.mod'):
+            module_list.append('linuxefi')
         Command.run(
             [
                 self._get_grub2_mkimage_tool() or 'grub2-mkimage',
@@ -676,8 +687,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '-o', self._get_efi_image_name(),
                 '-c', early_boot_script,
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d', self._get_efi_modules_path(lookup_path)
-            ] + Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
+                '-d', module_path
+            ] + module_list
         )
 
     def _create_efi_config_search(self, uuid=None, mbrid=None):

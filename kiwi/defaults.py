@@ -349,6 +349,20 @@ class Defaults:
             return 'grub'
 
     @staticmethod
+    def get_grub_config_tool():
+        """
+        Provides full qualified path name to grub mkconfig utility
+
+        :return: file path name
+
+        :rtype: str
+        """
+        for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
+            grub_mkconfig_tool_file_path = Path.which(grub_mkconfig_tool)
+            if grub_mkconfig_tool_file_path:
+                return grub_mkconfig_tool_file_path
+
+    @staticmethod
     def get_grub_basic_modules(multiboot):
         """
         Provides list of basic grub modules
@@ -415,8 +429,7 @@ class Defaults:
         ]
         if host_architecture == 'x86_64':
             modules += [
-                'efi_uga',
-                'linuxefi'
+                'efi_uga'
             ]
         return modules
 
@@ -560,7 +573,8 @@ class Defaults:
         """
         unsigned_grub_file_patterns = [
             '/usr/share/grub*/*-efi/grub.efi',
-            '/usr/lib/grub*/*-efi/grub.efi'
+            '/usr/lib/grub*/*-efi/grub.efi',
+            '/boot/efi/EFI/*/grubx64.efi'
         ]
         for unsigned_grub_file_pattern in unsigned_grub_file_patterns:
             for unsigned_grub_file in glob.iglob(

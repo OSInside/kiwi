@@ -110,6 +110,9 @@ Requires:       squashfs
 Requires:       gptfdisk
 %endif
 %if 0%{?fedora} || 0%{?rhel}
+%ifarch x86_64
+Requires:       grub2-efi-x64
+%endif
 Requires:         chkconfig
 Requires(post):   chkconfig
 Requires(postun): chkconfig
