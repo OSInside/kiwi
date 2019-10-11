@@ -200,8 +200,8 @@ config = {
     },
     'entry_points': {
         'console_scripts': [
-            'kiwi-ng-{0}=kiwi.kiwi:main'.format(python_version),
-            'kiwicompat-{0}=kiwi.kiwi_compat:main'.format(python_version)
+            'kiwi-ng=kiwi.kiwi:main',
+            'kiwicompat=kiwi.kiwi_compat:main'
         ]
     },
     'include_package_data': True,
