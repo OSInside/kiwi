@@ -391,45 +391,24 @@ class SystemSetup:
 
             user_exists = system_users.user_exists(user_name)
 
-            options = []
-            if password_format == 'plain':
-                password = self._create_passwd_hash(password)
-            if password:
-                options.append('-p')
-                options.append(password)
-            if user_shell:
-                options.append('-s')
-                options.append(user_shell)
-            if len(user_groups):
-                options.append('-g')
-                options.append(user_groups[0])
-                if len(user_groups) > 1:
-                    options.append('-G')
-                    options.append(','.join(user_groups[1:]))
-            if user_id:
-                options.append('-u')
-                options.append('{0}'.format(user_id))
-            if user_realname:
-                options.append('-c')
-                options.append(user_realname)
-            if not user_exists and home_path:
-                options.append('-m')
-                options.append('-d')
-                options.append(home_path)
+            options = self._process_user_options(
+                password_format, password, user_shell, user_groups,
+                user_id, user_realname, user_exists, home_path
+            )
+
+            group_msg = '--> Primary group for user {0}: {1}'.format(
+                user_name, user_groups[0]
+            ) if len(user_groups) else ''
 
             if user_exists:
-                log.info(
-                    '--> Modifying user: %s [%s]',
-                    user_name,
-                    user_groups[0] if len(user_groups) else ''
-                )
+                log.info('--> Modifying user: {0}'.format(user_name))
+                if group_msg:
+                    log.info(group_msg)
                 system_users.user_modify(user_name, options)
             else:
-                log.info(
-                    '--> Adding user: %s [%s]',
-                    user_name,
-                    user_groups[0] if len(user_groups) else ''
-                )
+                log.info('--> Adding user: {0}'.format(user_name))
+                if group_msg:
+                    log.info(group_msg)
                 system_users.user_add(user_name, options)
                 if home_path:
                     log.info(
@@ -770,6 +749,37 @@ class SystemSetup:
                 '--> Inplace recovery requested, deleting archive'
             )
             Path.wipe(metadata['archive_name'] + '.gz')
+
+    def _process_user_options(
+        self, password_format, password, user_shell, user_groups,
+        user_id, user_realname, user_exists, home_path
+    ):
+        options = []
+        if password_format == 'plain':
+            password = self._create_passwd_hash(password)
+        if password:
+            options.append('-p')
+            options.append(password)
+        if user_shell:
+            options.append('-s')
+            options.append(user_shell)
+        if len(user_groups):
+            options.append('-g')
+            options.append(user_groups[0])
+            if len(user_groups) > 1:
+                options.append('-G')
+                options.append(','.join(user_groups[1:]))
+        if user_id:
+            options.append('-u')
+            options.append('{0}'.format(user_id))
+        if user_realname:
+            options.append('-c')
+            options.append(user_realname)
+        if not user_exists and home_path:
+            options.append('-m')
+            options.append('-d')
+            options.append(home_path)
+        return options
 
     def _import_cdroot_archive(self):
         glob_match = self.description_dir + '/config-cdroot.tar*'
