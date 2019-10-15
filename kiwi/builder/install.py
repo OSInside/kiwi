@@ -202,7 +202,8 @@ class InstallImageBuilder:
                 }
             )
             bootloader_config.setup_install_boot_images(
-                mbrid=self.mbrid, lookup_path=self.root_dir
+                mbrid=self.mbrid,
+                lookup_path=self.boot_image_task.boot_root_directory
             )
         else:
             # setup bootloader config to boot the ISO via isolinux.
