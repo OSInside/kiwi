@@ -160,12 +160,13 @@ class TestInstallImageBuilder:
             }
         )
         bootloader_config.setup_install_boot_images.assert_called_once_with(
-            lookup_path='root_dir', mbrid=self.mbrid
+            lookup_path='initrd_dir', mbrid=self.mbrid
         )
         mock_setup_media_loader_directory.assert_called_once_with(
             'initrd_dir', 'temp_media_dir',
             bootloader_config.get_boot_theme.return_value
         )
+        bootloader_config.write_meta_data.assert_called_once_with(iso_boot=True)
         bootloader_config.setup_install_image_config.assert_called_once_with(
             mbrid=self.mbrid
         )

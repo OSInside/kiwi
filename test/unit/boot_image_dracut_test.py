@@ -1,16 +1,10 @@
-import mock
-
 from mock import (
-    patch, call, mock_open
+    patch, call, Mock
 )
-from collections import namedtuple
-from pytest import raises
 
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-
-from kiwi.exceptions import KiwiDiskBootImageError
 
 
 class TestBootImageKiwi:
@@ -30,8 +24,8 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.dracut.SystemSetup')
     @patch('kiwi.boot.image.dracut.Profile')
     def test_prepare(self, mock_profile, mock_setup):
-        setup = mock.Mock()
-        profile = mock.Mock()
+        setup = Mock()
+        profile = Mock()
         profile.dot_profile = dict()
         mock_profile.return_value = profile
         mock_setup.return_value = setup
@@ -113,10 +107,10 @@ class TestBootImageKiwi:
     def test_create_initrd(
         self, mock_prepared, mock_command, mock_kernel
     ):
-        kernel = mock.Mock()
-        kernel_details = mock.Mock()
+        kernel = Mock()
+        kernel_details = Mock()
         kernel_details.version = '1.2.3'
-        kernel.get_kernel = mock.Mock(return_value=kernel_details)
+        kernel.get_kernel = Mock(return_value=kernel_details)
         mock_kernel.return_value = kernel
         self.boot_image.include_file('system-directory/etc/foo')
         self.boot_image.include_file(
@@ -137,7 +131,8 @@ class TestBootImageKiwi:
             ], stderr_to_stdout=True),
             call([
                 'mv',
-                'system-directory/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz',
+                'system-directory/'
+                'LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz',
                 'some-target-dir'
             ])
         ]
@@ -157,42 +152,3 @@ class TestBootImageKiwi:
                 'some-target-dir'
             ])
         ]
-
-    @patch('kiwi.boot.image.dracut.Kernel')
-    def test_get_boot_names_raises(self, mock_Kernel):
-        kernel = mock.Mock()
-        mock_Kernel.return_value = kernel
-        kernel.get_kernel.return_value = None
-        with raises(KiwiDiskBootImageError):
-            self.boot_image.get_boot_names()
-
-    @patch('kiwi.boot.image.dracut.Kernel')
-    @patch('kiwi.boot.image.dracut.Path.which')
-    @patch('kiwi.boot.image.dracut.log.warning')
-    def test_get_boot_names(
-        self, mock_warning, mock_Path_which, mock_Kernel
-    ):
-        boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name']
-        )
-        mock_Path_which.return_value = 'dracut'
-        kernel = mock.Mock()
-        kernel_info = mock.Mock()
-        kernel_info.name = 'kernel_name'
-        kernel_info.version = 'kernel_version'
-        kernel.get_kernel.return_value = kernel_info
-        mock_Kernel.return_value = kernel
-
-        m_open = mock_open(read_data='outfile="/boot/initrd-$kernel"')
-        with patch('builtins.open', m_open, create=True):
-            assert self.boot_image.get_boot_names() == boot_names_type(
-                kernel_name='kernel_name',
-                initrd_name='initrd-kernel_version'
-            )
-
-        m_open.return_value.read.return_value = 'outfile="foo"'
-        with patch('builtins.open', m_open, create=True):
-            assert self.boot_image.get_boot_names() == boot_names_type(
-                kernel_name='kernel_name',
-                initrd_name='initramfs-kernel_version.img'
-            )

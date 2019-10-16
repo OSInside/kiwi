@@ -397,7 +397,7 @@ class DiskBuilder:
         # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
 
-        self._write_bootloader_config_to_system_image(device_map)
+        self._write_bootloader_meta_data_to_system_image(device_map)
 
         self.mbrid.write_to_disk(
             self.disk.storage_provider
@@ -902,14 +902,14 @@ class DiskBuilder:
                 os.sep + os.path.basename(recovery_metadata)
             )
 
-    def _write_bootloader_config_to_system_image(self, device_map):
+    def _write_bootloader_meta_data_to_system_image(self, device_map):
         if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
             boot_options = []
             if self.mdraid:
                 boot_options.append('rd.auto')
-            boot_names = self.boot_image.get_boot_names()
-            boot_device = device_map['root']
+            root_device = device_map['root']
+            boot_device = root_device
             if 'boot' in device_map:
                 boot_device = device_map['boot']
 
@@ -925,14 +925,9 @@ class DiskBuilder:
             self.bootloader_config.setup_disk_boot_images(
                 boot_uuid_unmapped
             )
-            self.bootloader_config.setup_disk_image_config(
-                boot_uuid=boot_uuid,
-                root_uuid=root_uuid,
-                kernel=boot_names.kernel_name,
-                initrd=boot_names.initrd_name,
-                boot_options=' '.join(boot_options)
+            self.bootloader_config.write_meta_data(
+                root_uuid=root_uuid, boot_options=' '.join(boot_options)
             )
-            self.bootloader_config.write()
 
             log.info('Creating config.bootoptions')
             filename = ''.join(
@@ -990,6 +985,15 @@ class DiskBuilder:
             custom_install_arguments.update(
                 {'system_volumes': self.system.get_volumes()}
             )
+
+        # create bootloader config prior bootloader installation
+        self.bootloader_config.setup_disk_image_config(
+            boot_options=custom_install_arguments
+        )
+        self.bootloader_config.write()
+
+        # cleanup bootloader config resources taken prior to next steps
+        del self.bootloader_config
 
         if self.bootloader != 'custom':
             log.debug(

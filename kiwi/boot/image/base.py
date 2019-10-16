@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import re
 import os
 import platform
 import pickle
+from collections import namedtuple
 
 # project
 from kiwi.defaults import Defaults
@@ -25,11 +27,14 @@ from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.logger import log
 from kiwi.path import Path
+from kiwi.system.kernel import Kernel
+
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiConfigFileNotFound,
-    KiwiBootImageDumpError
+    KiwiBootImageDumpError,
+    KiwiDiskBootImageError
 )
 
 
@@ -165,11 +170,39 @@ class BootImageBase:
 
     def get_boot_names(self):
         """
-        Provides kernel and initrd names for this boot image
+        Provides kernel and initrd names for the boot image
 
-        Implementation in specialized boot image class
+        :return:
+            Contains boot_names_type tuple
+
+            .. code:: python
+
+                boot_names_type(
+                    kernel_name='INSTALLED_KERNEL',
+                    initrd_name='DRACUT_OUTPUT_NAME'
+                )
+
+        :rtype: tuple
         """
-        raise NotImplementedError
+        boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
+        )
+        kernel = Kernel(
+            self.boot_root_directory
+        )
+        kernel_info = kernel.get_kernel()
+        if not kernel_info:
+            raise KiwiDiskBootImageError(
+                'No kernel in boot image tree %s found' %
+                self.boot_root_directory
+            )
+        dracut_output_format = self._get_boot_image_output_file_format()
+        return boot_names_type(
+            kernel_name=kernel_info.name,
+            initrd_name=dracut_output_format.format(
+                kernel_version=kernel_info.version
+            )
+        )
 
     def prepare(self):
         """
@@ -346,6 +379,45 @@ class BootImageBase:
                     Defaults.get_boot_image_description_path() + '/' + \
                     boot_description
             return boot_description
+
+    def _get_boot_image_output_file_format(self):
+        """
+        The initrd output file format varies between
+        the different Linux distributions. Tools like lsinitrd, and also
+        grub2 rely on the initrd output file to be in that format. Thus
+        kiwi should use the same file format to stay compatible
+        with the distributions. The format is determined by the
+        outfile format used in the dracut initrd tool which is the
+        standard on all major linux distributions.
+        """
+        if self.xml_state.get_initrd_system() == 'kiwi':
+            # The custom kiwi initrd system is used only on SUSE systems.
+            # The initrd environment does not provide dracut and thus the
+            # outfile format cannot be determined. on SUSE systems the
+            # initrd format is different than on upstream and therefore
+            # it can be explicitly specified. Note that the custom initrd
+            # system will become obsolete in the future.
+            default_outfile_format = 'initrd-{kernel_version}'
+        else:
+            default_outfile_format = 'initramfs-{kernel_version}.img'
+        dracut_search_env = {
+            'PATH': os.sep.join([self.boot_root_directory, 'usr', 'bin'])
+        }
+        dracut_tool = Path.which(
+            'dracut', custom_env=dracut_search_env, access_mode=os.X_OK
+        )
+        if dracut_tool:
+            outfile_expression = r'outfile="/boot/(init.*\$kernel.*)"'
+            with open(dracut_tool) as dracut:
+                matches = re.findall(outfile_expression, dracut.read())
+                if matches:
+                    return matches[0].replace('$kernel', '{kernel_version}')
+
+        log.warning('Could not detect dracut output file format')
+        log.warning('Using default initrd file name format {0}'.format(
+            default_outfile_format
+        ))
+        return default_outfile_format
 
     def __del__(self):
         if self.call_destructor:

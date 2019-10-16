@@ -1,13 +1,15 @@
+import io
+from collections import namedtuple
 from mock import (
-    patch, mock_open
+    patch, Mock, MagicMock
 )
 from pytest import raises
-import mock
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiBootImageDumpError,
-    KiwiConfigFileNotFound
+    KiwiConfigFileNotFound,
+    KiwiDiskBootImageError
 )
 
 from kiwi.boot.image.base import BootImageBase
@@ -18,20 +20,23 @@ class TestBootImageBase:
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
-        self.boot_xml_state = mock.Mock()
-        self.xml_state = mock.Mock()
-        self.xml_state.xml_data.get_name = mock.Mock(
+        self.boot_xml_state = Mock()
+        self.xml_state = Mock()
+        self.xml_state.get_initrd_system = Mock(
+            return_value='dracut'
+        )
+        self.xml_state.xml_data.get_name = Mock(
             return_value='some-image'
         )
-        self.xml_state.get_image_version = mock.Mock(
+        self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
-        self.xml_state.build_type.get_boot = mock.Mock(
+        self.xml_state.build_type.get_boot = Mock(
             return_value='oemboot/suse-13.2'
         )
         mock_exists.return_value = True
         self.boot_image = BootImageBase(
-            self.xml_state, 'some-target-dir'
+            self.xml_state, 'some-target-dir', 'system-directory'
         )
 
     def test_boot_image_raises(self):
@@ -58,13 +63,15 @@ class TestBootImageBase:
     @patch('pickle.dump')
     @patch('kiwi.boot.image.base.BootImageBase.disable_cleanup')
     def test_dump(self, mock_disable_cleanup, mock_dump):
-        m_open = mock_open()
-        with patch('builtins.open', m_open, create=True):
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
             self.boot_image.dump('filename')
-
-        m_open.assert_called_once_with('filename', 'wb')
-        mock_dump.assert_called_once_with(self.boot_image, m_open.return_value)
-        mock_disable_cleanup.assert_called_once_with()
+            mock_open.assert_called_once_with('filename', 'wb')
+            mock_dump.assert_called_once_with(
+                self.boot_image, file_handle
+            )
+            mock_disable_cleanup.assert_called_once_with()
 
     def test_disable_cleanup(self):
         self.boot_image.disable_cleanup()
@@ -109,9 +116,55 @@ class TestBootImageBase:
         with raises(KiwiConfigFileNotFound):
             self.boot_image.load_boot_xml_description()
 
-    def test_get_boot_names(self):
-        with raises(NotImplementedError):
+    @patch('kiwi.boot.image.base.Kernel')
+    def test_get_boot_names_raises(self, mock_Kernel):
+        kernel = Mock()
+        mock_Kernel.return_value = kernel
+        kernel.get_kernel.return_value = None
+        with raises(KiwiDiskBootImageError):
             self.boot_image.get_boot_names()
+
+    @patch('kiwi.boot.image.base.Kernel')
+    @patch('kiwi.boot.image.base.Path.which')
+    @patch('kiwi.boot.image.base.log.warning')
+    def test_get_boot_names(
+        self, mock_warning, mock_Path_which, mock_Kernel
+    ):
+        boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
+        )
+        mock_Path_which.return_value = 'dracut'
+        kernel = Mock()
+        kernel_info = Mock()
+        kernel_info.name = 'kernel_name'
+        kernel_info.version = 'kernel_version'
+        kernel.get_kernel.return_value = kernel_info
+        mock_Kernel.return_value = kernel
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = 'outfile="/boot/initrd-$kernel"'
+            assert self.boot_image.get_boot_names() == boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initrd-kernel_version'
+            )
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = 'outfile="foo"'
+            assert self.boot_image.get_boot_names() == boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initramfs-kernel_version.img'
+            )
+
+        self.xml_state.get_initrd_system.return_value = 'kiwi'
+        mock_Path_which.return_value = None
+        assert self.boot_image.get_boot_names() == boot_names_type(
+            kernel_name='kernel_name',
+            initrd_name='initrd-kernel_version'
+        )
 
     def test_noop_methods(self):
         self.boot_image.include_module('module')

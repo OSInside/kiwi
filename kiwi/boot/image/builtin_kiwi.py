@@ -17,7 +17,6 @@
 #
 import os
 from tempfile import mkdtemp
-from collections import namedtuple
 
 from kiwi.defaults import Defaults
 from kiwi.utils.sync import DataSync
@@ -176,27 +175,3 @@ class BootImageKiwi(BootImageBase):
                 ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']
             )
             self.initrd_filename = compress.compressed_filename
-
-    def get_boot_names(self):
-        """
-        Provides kernel and initrd names for kiwi boot image
-
-        :return:
-            Contains boot_names_type tuple
-
-            .. code:: python
-
-                boot_names_type(
-                    kernel_name='linux.vmx',
-                    initrd_name='initrd.vmx'
-                )
-
-        :rtype: tuple
-        """
-        boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name']
-        )
-        return boot_names_type(
-            kernel_name='linux.vmx',
-            initrd_name='initrd.vmx'
-        )
