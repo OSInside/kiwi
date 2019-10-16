@@ -93,12 +93,12 @@ environment for Python 3:
    $ source .tox/3/bin/activate
 
 The commands above automatically creates the application script
-called :command:`kiwi-ng-3`, which allows you to run KIWI from the
+called :command:`kiwi-ng`, which allows you to run KIWI from the
 Python sources inside the virtual environment:
 
 .. code:: shell-session
 
-    $ kiwi-ng-3 --help
+    $ kiwi-ng --help
 
 .. warning::
 
@@ -108,7 +108,7 @@ Python sources inside the virtual environment:
 
    .. code:: shell-session
 
-      $ sudo $PWD/.tox/3/bin/kiwi-ng-3 system build ...
+      $ sudo $PWD/.tox/3/bin/kiwi-ng system build ...
 
 To leave the development mode, run:
 

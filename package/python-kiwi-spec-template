@@ -373,8 +373,8 @@ make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install_package_docs
 
 # Create symlinks for correct binaries
 ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi
-ln -sr %{buildroot}%{_bindir}/kiwi-ng-3 %{buildroot}%{_bindir}/kiwi-ng
-ln -sr %{buildroot}%{_bindir}/kiwicompat-3 %{buildroot}%{_bindir}/kiwicompat
+ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi-ng-3
+ln -sr %{buildroot}%{_bindir}/kiwicompat %{buildroot}%{_bindir}/kiwicompat-3
 
 %if %{_vendor} != "debbuild"
 # kiwi pxeboot directory structure to be packed in kiwi-pxeboot

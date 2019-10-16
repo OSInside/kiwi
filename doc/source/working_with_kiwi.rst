@@ -199,9 +199,9 @@ The prepare step consists of the following substeps:
 
    .. code:: shell-session
 
-      $ kiwi system prepare $ARGS
+      $ kiwi-ng system prepare $ARGS
       $ # make your changes
-      $ kiwi system create $ARGS
+      $ kiwi-ng system create $ARGS
 
    .. warning:: Modifications of the unpacked root tree
 
