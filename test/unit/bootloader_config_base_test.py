@@ -283,10 +283,13 @@ class TestBootLoaderConfigBase:
         root_mount.device = 'rootdev'
         boot_mount = MagicMock()
         boot_mount.device = 'bootdev'
+        efi_mount = MagicMock()
+        efi_mount.device = 'efidev'
         volume_mount = MagicMock()
 
         mount_managers = [
-            proc_mount, dev_mount, volume_mount, boot_mount, root_mount
+            proc_mount, dev_mount, volume_mount,
+            efi_mount, boot_mount, root_mount
         ]
 
         def mount_managers_effect(**args):
@@ -294,7 +297,7 @@ class TestBootLoaderConfigBase:
 
         mock_MountManager.side_effect = mount_managers_effect
         self.bootloader._mount_system(
-            'rootdev', 'bootdev', {
+            'rootdev', 'bootdev', 'efidev', {
                 'boot/grub2': {
                     'volume_options': 'subvol=@/boot/grub2',
                     'volume_device': 'device'
@@ -304,12 +307,14 @@ class TestBootLoaderConfigBase:
         assert mock_MountManager.call_args_list == [
             call(device='rootdev'),
             call(device='bootdev', mountpoint='root_mount_point/boot'),
+            call(device='efidev', mountpoint='root_mount_point/boot/efi'),
             call(device='device', mountpoint='root_mount_point/boot/grub2'),
             call(device='/dev', mountpoint='root_mount_point/dev'),
             call(device='/proc', mountpoint='root_mount_point/proc')
         ]
         root_mount.mount.assert_called_once_with()
         boot_mount.mount.assert_called_once_with()
+        efi_mount.mount.assert_called_once_with()
         volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
@@ -321,6 +326,7 @@ class TestBootLoaderConfigBase:
         volume_mount.umount.assert_called_once_with()
         dev_mount.umount.assert_called_once_with()
         proc_mount.umount.assert_called_once_with()
+        efi_mount.umount.assert_called_once_with()
         boot_mount.umount.assert_called_once_with()
         root_mount.umount.assert_called_once_with()
 
