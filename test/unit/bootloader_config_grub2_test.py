@@ -263,7 +263,10 @@ class TestBootLoaderConfigGrub2:
 
     @patch('glob.iglob')
     @patch('shutil.copy')
-    def test_copy_grub_config_to_efi_path(self, mock_shutil_copy, mock_glob):
+    @patch('kiwi.bootloader.config.grub2.Path.create')
+    def test_copy_grub_config_to_efi_path(
+        self, mock_Path_create, mock_shutil_copy, mock_glob
+    ):
         self.bootloader.shim_fallback_setup = True
         self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
         mock_glob.return_value = []
@@ -272,16 +275,23 @@ class TestBootLoaderConfigGrub2:
             'root_dir', 'config_file'
         )
 
+        mock_Path_create.assert_called_once_with(
+            'root_dir/boot/efi/EFI/BOOT'
+        )
         mock_shutil_copy.assert_called_once_with(
             'config_file', 'root_dir/boot/efi/EFI/BOOT/grub.cfg'
         )
         mock_shutil_copy.reset_mock()
+        mock_Path_create.reset_mock()
         mock_glob.return_value = ['root_dir/boot/efi/EFI/fedora/shim.efi']
 
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
         )
 
+        mock_Path_create.assert_called_once_with(
+            'root_dir/boot/efi/EFI/fedora'
+        )
         mock_shutil_copy.assert_called_once_with(
             'config_file', 'root_dir/boot/efi/EFI/fedora/grub.cfg'
         )

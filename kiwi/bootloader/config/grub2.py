@@ -422,17 +422,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _copy_grub_config_to_efi_path(self, root_path, config_file):
         if self.iso_boot or self.shim_fallback_setup:
-            efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
+            efi_boot_path = Defaults.get_shim_vendor_directory(
                 root_path
             )
-            if efi_vendor_boot_path:
-                grub_config_file_for_efi_boot = os.sep.join(
-                    [efi_vendor_boot_path, 'grub.cfg']
+            if not efi_boot_path:
+                efi_boot_path = os.path.normpath(
+                    os.sep.join([root_path, 'boot/efi/EFI/BOOT'])
                 )
-            else:
-                grub_config_file_for_efi_boot = os.path.normpath(
-                    os.sep.join([root_path, 'boot/efi/EFI/BOOT', 'grub.cfg'])
-                )
+            Path.create(efi_boot_path)
+            grub_config_file_for_efi_boot = os.sep.join(
+                [efi_boot_path, 'grub.cfg']
+            )
             log.info(
                 'Copying {0} -> {1} to be found by EFI'.format(
                     config_file, grub_config_file_for_efi_boot
