@@ -72,12 +72,13 @@ class BootLoaderConfigBase:
         """
         raise NotImplementedError
 
-    def write_meta_data(self, root_uuid=None, boot_options=''):
+    def write_meta_data(self, root_uuid=None, boot_options='', iso_boot=False):
         """
         Write bootloader setup meta data files
 
         :param string root_uuid: root device UUID
         :param string boot_options: kernel options as string
+        :param bool iso_boot: indicate target is an ISO
 
         Implementation in specialized bootloader class optional
         """
