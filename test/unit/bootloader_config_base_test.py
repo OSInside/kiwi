@@ -276,6 +276,7 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.bootloader.config.base.MountManager')
     def test_mount_system(self, mock_MountManager):
+        tmp_mount = MagicMock()
         proc_mount = MagicMock()
         dev_mount = MagicMock()
         root_mount = MagicMock()
@@ -288,7 +289,7 @@ class TestBootLoaderConfigBase:
         volume_mount = MagicMock()
 
         mount_managers = [
-            proc_mount, dev_mount, volume_mount,
+            proc_mount, dev_mount, tmp_mount, volume_mount,
             efi_mount, boot_mount, root_mount
         ]
 
@@ -296,6 +297,7 @@ class TestBootLoaderConfigBase:
             return mount_managers.pop()
 
         mock_MountManager.side_effect = mount_managers_effect
+        self.bootloader.root_filesystem_is_overlay = True
         self.bootloader._mount_system(
             'rootdev', 'bootdev', 'efidev', {
                 'boot/grub2': {
@@ -309,6 +311,7 @@ class TestBootLoaderConfigBase:
             call(device='bootdev', mountpoint='root_mount_point/boot'),
             call(device='efidev', mountpoint='root_mount_point/boot/efi'),
             call(device='device', mountpoint='root_mount_point/boot/grub2'),
+            call(device='/tmp', mountpoint='root_mount_point/tmp'),
             call(device='/dev', mountpoint='root_mount_point/dev'),
             call(device='/proc', mountpoint='root_mount_point/proc')
         ]
@@ -324,6 +327,7 @@ class TestBootLoaderConfigBase:
         del self.bootloader
 
         volume_mount.umount.assert_called_once_with()
+        tmp_mount.umount.assert_called_once_with()
         dev_mount.umount.assert_called_once_with()
         proc_mount.umount.assert_called_once_with()
         efi_mount.umount.assert_called_once_with()

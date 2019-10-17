@@ -51,7 +51,9 @@ class BootLoaderConfigBase:
         self.efi_mount = None
         self.device_mount = None
         self.proc_mount = None
+        self.tmp_mount = None
 
+        self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
@@ -509,6 +511,18 @@ class BootLoaderConfigBase:
                     options=[volumes[volume_path]['volume_options']]
                 )
 
+        if self.root_filesystem_is_overlay:
+            # In case of an overlay root system all parts of the rootfs
+            # are read-only by squashfs except for the extra boot partition.
+            # However tools like grub's mkconfig creates temporary files
+            # at call time and therefore /tmp needs to be writable during
+            # the call time of the tools
+            self.tmp_mount = MountManager(
+                device='/tmp',
+                mountpoint=self.root_mount.mountpoint + '/tmp'
+            )
+            self.tmp_mount.bind_mount()
+
         self.device_mount = MountManager(
             device='/dev',
             mountpoint=self.root_mount.mountpoint + '/dev'
@@ -563,6 +577,8 @@ class BootLoaderConfigBase:
             self.proc_mount.umount()
         if self.efi_mount:
             self.efi_mount.umount()
+        if self.tmp_mount:
+            self.tmp_mount.umount()
         if self.boot_mount:
             self.boot_mount.umount()
         if self.root_mount:
