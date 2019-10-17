@@ -145,11 +145,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Also copies grub config file to alternative boot path for
         EFI systems in fallback mode
         """
+        config_dir = self._get_grub2_boot_path()
+        config_file = config_dir + '/grub.cfg'
+        Path.create(config_dir)
         if self.config:
             log.info('Writing KIWI template grub.cfg file')
-            config_dir = self._get_grub2_boot_path()
-            config_file = config_dir + '/grub.cfg'
-            Path.create(config_dir)
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
