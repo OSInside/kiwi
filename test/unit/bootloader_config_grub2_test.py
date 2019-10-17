@@ -239,18 +239,13 @@ class TestBootLoaderConfigGrub2:
         mock_setup_sysconfig_bootloader.assert_called_once_with()
 
     @patch('os.path.exists')
-    @patch('glob.iglob')
-    @patch('shutil.copy')
-    def test_write(self, mock_shutil_copy, mock_glob, mock_exists):
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    def test_write(self, mock_copy_grub_config_to_efi_path, mock_exists):
         mock_exists.return_value = True
         self.bootloader.config = 'some-data'
-        self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
-        self.bootloader.iso_boot = True
-        mock_glob.return_value = []
-
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
@@ -262,20 +257,33 @@ class TestBootLoaderConfigGrub2:
             file_handle.write.assert_called_once_with(
                 'some-data'
             )
-
-        mock_shutil_copy.assert_called_once_with(
-            'root_dir/boot/grub2/grub.cfg',
-            'root_dir/boot/efi/EFI/BOOT/grub.cfg'
+        mock_copy_grub_config_to_efi_path.assert_called_once_with(
+            'root_dir', 'root_dir/boot/grub2/grub.cfg'
         )
 
-        mock_shutil_copy.reset_mock()
-        mock_glob.return_value = ['root_dir/boot/efi/EFI/fedora/shim.efi']
-        with patch('builtins.open', create=True):
-            self.bootloader.write()
+    @patch('glob.iglob')
+    @patch('shutil.copy')
+    def test_copy_grub_config_to_efi_path(self, mock_shutil_copy, mock_glob):
+        self.bootloader.shim_fallback_setup = True
+        self.bootloader.efi_boot_path = 'root_dir/boot/efi/EFI/BOOT/'
+        mock_glob.return_value = []
+
+        self.bootloader._copy_grub_config_to_efi_path(
+            'root_dir', 'config_file'
+        )
 
         mock_shutil_copy.assert_called_once_with(
-            'root_dir/boot/grub2/grub.cfg',
-            'root_dir/boot/efi/EFI/fedora/grub.cfg'
+            'config_file', 'root_dir/boot/efi/EFI/BOOT/grub.cfg'
+        )
+        mock_shutil_copy.reset_mock()
+        mock_glob.return_value = ['root_dir/boot/efi/EFI/fedora/shim.efi']
+
+        self.bootloader._copy_grub_config_to_efi_path(
+            'root_dir', 'config_file'
+        )
+
+        mock_shutil_copy.assert_called_once_with(
+            'config_file', 'root_dir/boot/efi/EFI/fedora/grub.cfg'
         )
 
     @patch('os.path.exists')
@@ -370,20 +378,31 @@ class TestBootLoaderConfigGrub2:
         )
 
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    def test_setup_disk_image_config(self, mock_Command_run, mock_mount_system):
+    def test_setup_disk_image_config(
+        self, mock_Command_run, mock_copy_grub_config_to_efi_path,
+        mock_mount_system
+    ):
+        self.firmware.efi_mode = Mock(
+            return_value='uefi'
+        )
         self.bootloader.root_mount = Mock()
+        self.bootloader.root_mount.mountpoint = 'root_mount_point'
         self.bootloader.setup_disk_image_config(
             boot_options={'root_device': 'rootdev', 'boot_device': 'bootdev'}
         )
         mock_mount_system.assert_called_once_with(
-            'rootdev', 'bootdev', None
+            'rootdev', 'bootdev', None, None
         )
         mock_Command_run.assert_called_once_with(
             [
                 'chroot', self.bootloader.root_mount.mountpoint,
-                'grub2-mkconfig', '-o', 'boot/grub2/grub.cfg'
+                'grub2-mkconfig', '-o', '/boot/grub2/grub.cfg'
             ]
+        )
+        mock_copy_grub_config_to_efi_path.assert_called_once_with(
+            'root_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
         )
 
     def test_setup_install_image_config_standard(self):

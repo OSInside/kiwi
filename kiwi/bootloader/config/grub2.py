@@ -145,34 +145,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Also copies grub config file to alternative boot path for
         EFI systems in fallback mode
         """
-        config_dir = self._get_grub2_boot_path()
-        config_file = config_dir + '/grub.cfg'
-        Path.create(config_dir)
         if self.config:
             log.info('Writing KIWI template grub.cfg file')
+            config_dir = self._get_grub2_boot_path()
+            config_file = config_dir + '/grub.cfg'
+            Path.create(config_dir)
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-        if self.firmware.efi_mode():
-            if self.iso_boot or self.shim_fallback_setup:
-                efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
-                    self.boot_dir
-                )
-                if efi_vendor_boot_path:
-                    grub_config_file_for_efi_boot = os.sep.join(
-                        [efi_vendor_boot_path, 'grub.cfg']
-                    )
-                else:
-                    grub_config_file_for_efi_boot = os.path.normpath(
-                        os.sep.join([self.efi_boot_path, 'grub.cfg'])
-                    )
-                log.info(
-                    'Writing {0} file to be found by EFI firmware'.format(
-                        grub_config_file_for_efi_boot
-                    )
-                )
-                shutil.copy(
-                    config_file, grub_config_file_for_efi_boot
+            if self.firmware.efi_mode():
+                self._copy_grub_config_to_efi_path(
+                    self.root_dir, config_file
                 )
 
     def write_meta_data(self, root_uuid=None, boot_options='', iso_boot=False):
@@ -223,20 +206,32 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 {
                     'root_device': string,
                     'boot_device': string,
+                    'efi_device': string,
                     'system_volumes': volume_manager_instance.get_volumes()
                 }
         """
         self._mount_system(
             boot_options.get('root_device'),
             boot_options.get('boot_device'),
+            boot_options.get('efi_device'),
             boot_options.get('system_volumes')
+        )
+        config_file = os.sep.join(
+            [
+                self.root_mount.mountpoint, 'boot',
+                self.boot_directory_name, 'grub.cfg'
+            ]
         )
         Command.run(
             [
-                'chroot', self.root_mount.mountpoint,
-                'grub2-mkconfig', '-o', 'boot/grub2/grub.cfg'
+                'chroot', self.root_mount.mountpoint, 'grub2-mkconfig', '-o',
+                config_file.replace(self.root_mount.mountpoint, '')
             ]
         )
+        if self.firmware.efi_mode():
+            self._copy_grub_config_to_efi_path(
+                self.root_mount.mountpoint, config_file
+            )
 
     def setup_install_image_config(
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
@@ -424,6 +419,28 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
+
+    def _copy_grub_config_to_efi_path(self, root_path, config_file):
+        if self.iso_boot or self.shim_fallback_setup:
+            efi_vendor_boot_path = Defaults.get_shim_vendor_directory(
+                root_path
+            )
+            if efi_vendor_boot_path:
+                grub_config_file_for_efi_boot = os.sep.join(
+                    [efi_vendor_boot_path, 'grub.cfg']
+                )
+            else:
+                grub_config_file_for_efi_boot = os.path.normpath(
+                    os.sep.join([root_path, 'boot/efi/EFI/BOOT', 'grub.cfg'])
+                )
+            log.info(
+                'Copying {0} -> {1} to be found by EFI'.format(
+                    config_file, grub_config_file_for_efi_boot
+                )
+            )
+            shutil.copy(
+                config_file, grub_config_file_for_efi_boot
+            )
 
     def _supports_bios_modules(self):
         if self.arch == 'ix86' or self.arch == 'x86_64':

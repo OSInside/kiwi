@@ -990,7 +990,6 @@ class DiskBuilder:
         self.bootloader_config.setup_disk_image_config(
             boot_options=custom_install_arguments
         )
-        self.bootloader_config.write()
 
         # cleanup bootloader config resources taken prior to next steps
         del self.bootloader_config
