@@ -20,6 +20,5 @@
     <packages type="bootstrap">
         <package name="vim"/>
         <package name="openSUSE-release"/>
-        <package name="openSUSE-release-dvd"/>
     </packages>
 </image>

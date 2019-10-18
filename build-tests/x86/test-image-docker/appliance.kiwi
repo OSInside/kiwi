@@ -69,7 +69,6 @@
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
-        <package name="openSUSE-release-dvd"/>
         <package name="openSUSE-release"/>
     </packages>
     <packages type="delete">
