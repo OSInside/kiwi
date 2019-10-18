@@ -149,7 +149,6 @@
         <package name="yast2-perl-bindings"/>
         <package name="yast2-pkg-bindings"/>
         <package name="yast2-printer"/>
-        <package name="yast2-registration"/>
         <package name="yast2-samba-client"/>
         <package name="yast2-samba-server"/>
         <package name="yast2-schema"/>
