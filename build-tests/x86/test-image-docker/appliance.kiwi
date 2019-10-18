@@ -27,7 +27,7 @@
         <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
     </repository>
     <repository type="rpm-md" alias="Tumbleweed" priority="2">
-        <source path="obs://openSUSE:Factory/snapshot"/>
+        <source path="obs://openSUSE:Tumbleweed/standard"/>
     </repository>
     <packages type="image">
         <package name="ifplugd"/>

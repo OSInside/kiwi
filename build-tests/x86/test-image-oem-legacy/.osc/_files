@@ -1,0 +1,4 @@
+<directory name="test-image-oem-legacy" rev="2" srcmd5="2e53bb3f2aac8d9210bf65f71fc84ca4" vrev="2">
+  <entry md5="ebbc7a155ef054fbe95b79ed89832ece" mtime="1571295935" name="appliance.kiwi" size="3131" />
+  <entry md5="b793b284d69b5fd365bfba53b637a6af" mtime="1571237107" name="config.sh" size="1182" />
+</directory>

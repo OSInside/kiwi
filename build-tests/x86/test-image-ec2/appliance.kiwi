@@ -25,7 +25,7 @@
         <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
     </repository>
     <repository alias="Tumbleweed">
-        <source path="obs://openSUSE:Factory/snapshot"/>
+        <source path="obs://openSUSE:Tumbleweed/standard"/>
     </repository>
     <packages type="image" patternType="plusRecommended">
         <package name="patterns-base-minimal_base"/>
