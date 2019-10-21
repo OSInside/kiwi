@@ -233,7 +233,7 @@ function check_repart_possible {
     if [ -n "${kiwi_oemrootMB}" ];then
         if [ "${kiwi_oemrootMB}" -lt "${disk_root_mbytes}" ];then
             # specified oem-systemsize is smaller than root partition
-            warn "Requested OEM systemsize is smaller than root partition"
+            warn "Requested OEM systemsize is smaller than root partition:"
             warn "Disk won't be re-partitioned !"
             echo
             warn "Current Root partition: ${disk_root_mbytes} MB"
@@ -243,18 +243,20 @@ function check_repart_possible {
     fi
     if [ "${min_additional_mbytes}" -gt "${disk_free_mbytes}" ];then
         # Requested sizes for root and swap exceeds free space on disk
-        warn "Requested sizes exceeds free space on the disk:"
-        warn "Disk won't be re-partitioned !"
-        echo
-        warn "Minimum required additional size: ${min_additional_mbytes} MB:"
+        local requested_size
         if [ -n "${kiwi_oemrootMB}" ];then
-            local share=$((kiwi_oemrootMB - disk_root_mbytes))
-            warn "==> Root's share is: ${share} MB"
+            requested_size="root:($((kiwi_oemrootMB - disk_root_mbytes)) MB)"
+        else
+            requested_size="root:(keep)"
         fi
         if [ ${swapsize} -gt 0 ];then
-            warn "==> Swap's share is: ${swapsize} MB"
+            requested_size="${requested_size}, swap:(${swapsize} MB)"
         fi
-        warn "Free Space on disk: ${disk_free_mbytes} MB"
+        warn "Requested OEM systemsize exceeds free space on the disk:"
+        warn "Disk won't be re-partitioned !"
+        echo
+        warn "Requested size(s): ${requested_size}"
+        warn "==> Free Space on disk: ${disk_free_mbytes} MB"
         return 1
     fi
     return 0
@@ -277,6 +279,14 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 setup_debug
 
+# initialize for disk repartition
+initialize
+
+if ! disk_has_unallocated_space "${disk}";then
+    # already resized or disk has not received any geometry change
+    return
+fi
+
 # when repartitioning disks, parted and friends might trigger re-reads of
 # the partition table, in turn triggering systemd-fsck-root.service
 # repeatedly via udev events, which finally can cause booting to fail with
@@ -292,9 +302,6 @@ setup_debug
 trap unmask_fsck_root_service EXIT
 
 mask_fsck_root_service
-
-# initialize for disk repartition
-initialize
 
 # prepare disk for repartition
 if [ "$(get_partition_table_type "${disk}")" = 'gpt' ];then
