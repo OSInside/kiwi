@@ -16,13 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import shutil
 from textwrap import dedent
 
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.mount_manager import MountManager
 from kiwi.utils.checksum import Checksum
@@ -32,6 +32,8 @@ from kiwi.exceptions import (
     KiwiMountSharedDirectoryError,
     KiwiSetupIntermediateConfigError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class RootBind:

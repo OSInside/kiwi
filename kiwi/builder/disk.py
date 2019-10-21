@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import platform
 import pickle
 from tempfile import NamedTemporaryFile
@@ -35,7 +36,6 @@ from kiwi.storage.luks_device import LuksDevice
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.volume_manager import VolumeManager
-from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.system.setup import SystemSetup
 from kiwi.builder.install import InstallImageBuilder
@@ -52,6 +52,8 @@ from kiwi.exceptions import (
     KiwiInstallMediaError,
     KiwiVolumeManagerSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class DiskBuilder:

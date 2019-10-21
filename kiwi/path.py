@@ -16,12 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import collections
 
 # project
-from .command import Command
-from .logger import log
-from .exceptions import KiwiFileAccessError
+from kiwi.command import Command
+from kiwi.exceptions import KiwiFileAccessError
+
+log = logging.getLogger('kiwi')
 
 
 class Path:

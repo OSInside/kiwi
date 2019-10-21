@@ -16,15 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import yaml
 
 # project
-from .logger import log
-from .defaults import Defaults
-from .utils.size import StringToSize
-from .exceptions import (
+from kiwi.defaults import Defaults
+from kiwi.utils.size import StringToSize
+from kiwi.exceptions import (
     KiwiRuntimeConfigFormatError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class RuntimeConfig:

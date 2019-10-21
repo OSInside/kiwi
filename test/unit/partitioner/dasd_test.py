@@ -1,3 +1,5 @@
+import logging
+from pytest import fixture
 from mock import (
     patch, mock_open
 )
@@ -8,6 +10,10 @@ from kiwi.partitioner.dasd import PartitionerDasd
 
 
 class TestPartitionerDasd:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
     def setup(self, mock_temp, mock_command):
@@ -25,14 +31,14 @@ class TestPartitionerDasd:
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
-    @patch('kiwi.logger.log.debug')
-    def test_create(self, mock_debug, mock_temp, mock_command):
+    def test_create(self, mock_temp, mock_command):
         mock_command.side_effect = Exception
         mock_temp.return_value = self.tempfile
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            self.partitioner.create('name', 100, 't.linux', ['f.active'])
+            with self._caplog.at_level(logging.DEBUG):
+                self.partitioner.create('name', 100, 't.linux', ['f.active'])
 
         m_open.return_value.write.assert_called_once_with(
             'n\np\n\n+100M\nw\nq\n'
@@ -40,7 +46,6 @@ class TestPartitionerDasd:
         mock_command.assert_called_once_with(
             ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
         )
-        assert mock_debug.called
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.NamedTemporaryFile')

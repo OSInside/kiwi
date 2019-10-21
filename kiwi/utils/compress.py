@@ -16,17 +16,19 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiFileNotFound,
     KiwiCompressionFormatUnknown
 )
+
+log = logging.getLogger('kiwi')
 
 
 class Compress:

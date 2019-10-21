@@ -86,6 +86,7 @@ options:
         includes the key-file as a trusted key for package manager validations
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
@@ -95,8 +96,9 @@ from kiwi.system.prepare import SystemPrepare
 from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
 from kiwi.system.profile import Profile
-from kiwi.logger import log
 from kiwi.utils.rpm import Rpm
+
+log = logging.getLogger('kiwi')
 
 
 class SystemPrepareTask(CliTask):

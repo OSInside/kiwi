@@ -1,9 +1,10 @@
+import logging
 import os
 import sys
-from mock import (
-    call, patch, Mock
+from mock import Mock
+from pytest import (
+    raises, fixture
 )
-from pytest import raises
 
 from ..test_helper import argv_kiwi_tests
 
@@ -18,6 +19,10 @@ from kiwi.exceptions import (
 
 
 class TestImageResizeTask:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         sys.argv = [
             sys.argv[0], '--type', 'vmx', 'image', 'resize',
@@ -123,29 +128,26 @@ class TestImageResizeTask:
         )
         self.image_format.create_image_format.assert_called_once_with()
 
-    @patch('kiwi.logger.log.info')
-    def test_process_image_resize_not_needed(self, mock_log_info):
+    def test_process_image_resize_not_needed(self):
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42'
         self.image_format.resize_raw_disk.return_value = False
-        self.task.process()
-        self.loop_provider.create.assert_called_once_with(overwrite=False)
-        self.partitioner.resize_table.assert_called_once_with()
-        self.image_format.resize_raw_disk.assert_called_once_with(
-            42
-        )
-        assert mock_log_info.call_args_list == [
-            call('Loading XML description'),
-            call(
-                '--> loaded %s',
+        with self._caplog.at_level(logging.INFO):
+            self.task.process()
+            self.loop_provider.create.assert_called_once_with(overwrite=False)
+            self.partitioner.resize_table.assert_called_once_with()
+            self.image_format.resize_raw_disk.assert_called_once_with(
+                42
+            )
+            assert 'Loading XML description' in self._caplog.text
+            assert '--> loaded {0}'.format(
                 os.sep.join([self.abs_root_dir, 'image', 'config.xml'])
-            ),
-            call('--> Selected build type: %s', 'vmx'),
-            call('--> Selected profiles: %s', 'vmxFlavour'),
-            call('Resizing raw disk to 42 bytes'),
-            call('Raw disk is already at 42 bytes')
-        ]
+            ) in self._caplog.text
+            assert '--> Selected build type: vmx' in self._caplog.text
+            assert '--> Selected profiles: vmxFlavour' in self._caplog.text
+            assert 'Resizing raw disk to 42 bytes' in self._caplog.text
+            assert 'Raw disk is already at 42 bytes' in self._caplog.text
 
     def test_process_image_resize_help(self):
         self._init_command_args()

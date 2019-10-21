@@ -1,5 +1,8 @@
+import logging
 from mock import patch
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 import hashlib
 import mock
 
@@ -13,6 +16,10 @@ from kiwi.exceptions import (
 
 
 class TestUri:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.mock_mkdtemp = mock.Mock()
         self.mock_manager = mock.Mock()
@@ -58,17 +65,16 @@ class TestUri:
         with raises(KiwiUriOpenError):
             uri.translate()
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_translate_obs_uri_inside_buildservice(
-            self, mock_buildservice, mock_warn
+        self, mock_buildservice
     ):
         mock_buildservice.return_value = True
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'rpm-md')
         uri.runtime_config = self.runtime_config
-        assert uri.translate(False) == \
-            'obs_server/openSUSE:/Leap:/42.2/standard'
-        assert mock_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert uri.translate(False) == \
+                'obs_server/openSUSE:/Leap:/42.2/standard'
 
     def test_get_fragment(self):
         uri = Uri('file:///myimage.tar#tag')

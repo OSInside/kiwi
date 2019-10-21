@@ -29,8 +29,6 @@ from kiwi.command_process import CommandProcess
 from kiwi.system.uri import Uri
 from kiwi.archive.tar import ArchiveTar
 
-from kiwi.logger import log
-
 from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,
     KiwiSystemUpdateFailed,
@@ -39,6 +37,8 @@ from kiwi.exceptions import (
     KiwiInstallPhaseFailed,
     KiwiPackagesDeletePhaseFailed
 )
+
+log = logging.getLogger('kiwi')
 
 
 class SystemPrepare:

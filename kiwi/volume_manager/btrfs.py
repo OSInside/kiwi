@@ -17,6 +17,7 @@
 #
 import re
 import os
+import logging
 import shutil
 import datetime
 from xml.etree import ElementTree
@@ -32,13 +33,14 @@ from kiwi.utils.sync import DataSync
 from kiwi.utils.block import BlockID
 from kiwi.utils.sysconfig import SysConfig
 from kiwi.path import Path
-from kiwi.logger import log
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiVolumeRootIDError,
     KiwiVolumeManagerSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class VolumeManagerBtrfs(VolumeManagerBase):

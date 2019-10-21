@@ -17,12 +17,12 @@
 #
 import glob
 import os
+import logging
 import platform
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.defaults import Defaults
 from kiwi.mount_manager import MountManager
 from kiwi.path import Path
@@ -32,6 +32,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubDataError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderInstallGrub2(BootLoaderInstallBase):

@@ -1,6 +1,8 @@
 import sys
 from mock import patch
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 import logging
 
 from ..test_helper import argv_kiwi_tests
@@ -12,9 +14,13 @@ from kiwi.exceptions import KiwiConfigFileNotFound
 
 
 class TestCliTask:
-    @patch('kiwi.logger.log.setLogLevel')
-    @patch('kiwi.logger.log.set_logfile')
-    @patch('kiwi.logger.log.set_color_format')
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
+    @patch('kiwi.logger.Logger.setLogLevel')
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.logger.Logger.set_color_format')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
     @patch('kiwi.cli.Cli.load_command')
     @patch('kiwi.cli.Cli.get_command_args')

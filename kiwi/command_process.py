@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 from collections import namedtuple
 
 # project
-from .logger import log
-from .utils.codec import Codec
+from kiwi.utils.codec import Codec
 
-from .exceptions import (
-    KiwiCommandError
-)
+from kiwi.exceptions import KiwiCommandError
+
+log = logging.getLogger('kiwi')
 
 
 class CommandProcess:

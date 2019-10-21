@@ -1,11 +1,16 @@
+import logging
 from mock import patch
-
+from pytest import fixture
 import mock
 
 from kiwi.filesystem.setup import FileSystemSetup
 
 
 class TestFileSystemSetup:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.filesystem.setup.SystemSize')
     def setup(self, mock_size):
         size = mock.Mock()
@@ -27,8 +32,7 @@ class TestFileSystemSetup:
             self.xml_state, 'root_dir'
         )
 
-    @patch('kiwi.logger.log.warning')
-    def test_init_with_unpartitioned(self, mock_warn):
+    def test_init_with_unpartitioned(self):
         self.xml_state.get_build_type_unpartitioned_bytes = mock.Mock(
             return_value=1024
         )
@@ -55,9 +59,8 @@ class TestFileSystemSetup:
         self.setup.configured_size.additive = True
         assert self.setup.get_size_mbytes() == 62
 
-    @patch('kiwi.logger.log.warning')
-    def test_get_size_mbytes_configured(self, mock_log_warn):
+    def test_get_size_mbytes_configured(self):
         self.setup.configured_size.mbytes = 3
         self.setup.configured_size.additive = False
-        assert self.setup.get_size_mbytes() == 3
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.setup.get_size_mbytes() == 3

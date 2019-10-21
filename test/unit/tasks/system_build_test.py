@@ -1,7 +1,8 @@
+import logging
 import sys
 import mock
 import os
-
+from pytest import fixture
 from mock import patch, call
 
 import kiwi
@@ -12,6 +13,10 @@ from kiwi.tasks.system_build import SystemBuildTask
 
 
 class TestSystemBuildTask:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'build',
@@ -233,15 +238,14 @@ class TestSystemBuildTask:
             call('anotherLabel', 'my=crazy value')
         ])
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build_add_container_label_invalid_format(
-        self, mock_logger, mock_log_warn
+        self, mock_logger
     ):
         self._init_command_args()
         self.task.command_args['--add-container-label'] = ['newLabel:value']
-        self.task.process()
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.task.process()
 
     @patch('kiwi.xml_state.XMLState.set_derived_from_image_uri')
     @patch('kiwi.logger.Logger.set_logfile')

@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, call, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.partitioner.gpt import PartitionerGpt
 
@@ -9,6 +12,10 @@ from kiwi.exceptions import KiwiPartitionerGptFlagError
 
 
 class TestPartitionerGpt:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         disk_provider = Mock()
         disk_provider.get_device = Mock(
@@ -72,10 +79,9 @@ class TestPartitionerGpt:
             ['sgdisk', '-t', '1:EF02', '/dev/loop0']
         )
 
-    @patch('kiwi.logger.log.warning')
-    def test_set_flag_ignored(self, mock_warn):
-        self.partitioner.set_flag(1, 'f.active')
-        assert mock_warn.called
+    def test_set_flag_ignored(self):
+        with self._caplog.at_level(logging.WARNING):
+            self.partitioner.set_flag(1, 'f.active')
 
     @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_hybrid_mbr(self, mock_command):

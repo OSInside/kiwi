@@ -1,4 +1,7 @@
-from pytest import raises
+import logging
+from pytest import (
+    raises, fixture
+)
 from mock import (
     patch, call
 )
@@ -19,9 +22,13 @@ from kiwi.xml_state import XMLState
 
 
 class TestSystemPrepare:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.system.prepare.RootInit')
     @patch('kiwi.system.prepare.RootBind')
-    @patch('kiwi.logger.log.get_logfile')
+    @patch('kiwi.logger.Logger.get_logfile')
     def setup(self, mock_get_logfile, mock_root_bind, mock_root_init):
         mock_get_logfile.return_value = None
         description = XMLDescription(
@@ -62,7 +69,7 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.RootImport')
     @patch('kiwi.system.prepare.RootInit')
     @patch('kiwi.system.prepare.RootBind')
-    @patch('kiwi.logger.log.get_logfile')
+    @patch('kiwi.logger.Logger.get_logfile')
     def test_init_with_derived_from_image(
         self, mock_get_logfile, mock_root_bind, mock_root_init, mock_root_import
     ):
@@ -232,9 +239,8 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
     @patch('os.path.exists')
-    @patch('kiwi.logger.log.warning')
     def test_setup_repositories_local_not_existing(
-        self, mock_log_warn, mock_exists, mock_package_manager,
+        self, mock_exists, mock_package_manager,
         mock_manager, mock_uri, mock_repo
     ):
         mock_exists.return_value = False
@@ -253,8 +259,8 @@ class TestSystemPrepare:
         )
         repo = mock.Mock()
         mock_repo.return_value = repo
-        self.system.setup_repositories()
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.system.setup_repositories()
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
@@ -288,15 +294,12 @@ class TestSystemPrepare:
         tar.extract.assert_called_once_with('root_dir')
         self.manager.post_process_install_requests_bootstrap.assert_called_once_with()
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.xml_state.XMLState.get_bootstrap_packages_sections')
-    def test_install_bootstrap_skipped(
-        self, mock_bootstrap_section, mock_log_warning
-    ):
+    def test_install_bootstrap_skipped(self, mock_bootstrap_section):
         mock_bootstrap_section.return_value = []
         self.system.install_bootstrap(self.manager)
-        mock_bootstrap_section.assert_called_once_with()
-        assert mock_log_warning.called
+        with self._caplog.at_level(logging.WARNING):
+            mock_bootstrap_section.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
@@ -385,16 +388,11 @@ class TestSystemPrepare:
         self.system.__del__()
         self.system.root_bind.cleanup.assert_called_once_with()
 
-    @patch('kiwi.logger.log.info')
-    def test_destructor_raising(self, mock_log):
+    def test_destructor_raising(self):
         self.system.root_bind = mock.Mock()
         self.system.root_bind.cleanup.side_effect = ValueError("nothing")
-        del self.system
-
-        assert mock_log.call_args_list[0] == call(
-            'Cleaning up SystemPrepare instance'
-        )
-        assert mock_log.call_args_list[1] == call(
-            'Cleaning up SystemPrepare instance failed, got an exception of'
-            ' type ValueError: nothing'
-        )
+        with self._caplog.at_level(logging.INFO):
+            del self.system
+            assert 'Cleaning up SystemPrepare instance' in self._caplog.text
+            assert 'Cleaning up SystemPrepare instance failed, '
+            'got an exception of type ValueError: nothing' in self._caplog.text

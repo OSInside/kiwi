@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 
-from kiwi.logger import log
+# project
 from kiwi.exceptions import KiwiDecodingError
+
+log = logging.getLogger('kiwi')
 
 
 class Codec:

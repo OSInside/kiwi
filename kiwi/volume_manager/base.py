@@ -17,10 +17,10 @@
 #
 from collections import namedtuple
 from tempfile import mkdtemp
+import logging
 import os
 
 # project
-from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.mount_manager import MountManager
@@ -33,6 +33,8 @@ from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiVolumeManagerSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class VolumeManagerBase(DeviceProvider):

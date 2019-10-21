@@ -1,12 +1,18 @@
-from mock import patch
-from mock import call
-
+import logging
+from pytest import fixture
+from mock import (
+    patch, call
+)
 import mock
 
 from kiwi.filesystem.isofs import FileSystemIsoFs
 
 
 class TestFileSystemIsoFs:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True
@@ -59,10 +65,7 @@ class TestFileSystemIsoFs:
 
     @patch('kiwi.filesystem.isofs.IsoTools')
     @patch('kiwi.filesystem.isofs.Iso')
-    @patch('kiwi.logger.log.warning')
-    def test_create_on_file_EFI_enabled(
-        self, mock_log_warn, mock_iso, mock_cdrtools
-    ):
+    def test_create_on_file_EFI_enabled(self, mock_iso, mock_cdrtools):
         iso_tool = mock.Mock()
         iso_tool.has_iso_hybrid_capability = mock.Mock(
             return_value=False
@@ -75,8 +78,6 @@ class TestFileSystemIsoFs:
         mock_cdrtools.return_value = iso_tool
         mock_iso.return_value = iso
         self.isofs.custom_args['meta_data']['efi_mode'] = 'uefi'
-
-        self.isofs.create_on_file('myimage')
-
-        iso_tool.create_iso.assert_called_once_with('myimage')
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.isofs.create_on_file('myimage')
+            iso_tool.create_iso.assert_called_once_with('myimage')

@@ -17,6 +17,7 @@
 #
 import glob
 import os
+import logging
 import platform
 from collections import OrderedDict
 from collections import namedtuple
@@ -31,7 +32,6 @@ from kiwi.system.root_init import RootInit
 from kiwi.command import Command
 from kiwi.command_process import CommandProcess
 from kiwi.utils.sync import DataSync
-from kiwi.logger import log
 from kiwi.defaults import Defaults
 from kiwi.system.users import Users
 from kiwi.system.shell import Shell
@@ -45,6 +45,8 @@ from kiwi.exceptions import (
     KiwiImportDescriptionError,
     KiwiScriptFailed
 )
+
+log = logging.getLogger('kiwi')
 
 
 class SystemSetup:

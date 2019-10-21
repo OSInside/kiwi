@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
@@ -22,11 +24,12 @@ from kiwi.mount_manager import MountManager
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
 from kiwi.path import Path
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiVolumeGroupConflict
 )
+
+log = logging.getLogger('kiwi')
 
 
 class VolumeManagerLVM(VolumeManagerBase):

@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import platform
 from collections import namedtuple
 
 # project
 from kiwi.mount_manager import MountManager
-from kiwi.logger import log
 from kiwi.storage.setup import DiskSetup
 from kiwi.path import Path
 from kiwi.defaults import Defaults
@@ -29,6 +29,8 @@ from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiBootLoaderTargetError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderConfigBase:

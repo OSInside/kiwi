@@ -16,16 +16,18 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import platform
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.isolinux import BootLoaderTemplateIsoLinux
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import KiwiTemplateError
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderConfigIsoLinux(BootLoaderConfigBase):

@@ -15,22 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+import logging
 from xml.dom import minidom
 from lxml import (
     etree,
     isoschematron
 )
 from tempfile import NamedTemporaryFile
-import os
 from io import BytesIO
 
 # project
-from .defaults import Defaults
-from . import xml_parse
-from .command import Command
-from .logger import log
+from kiwi.defaults import Defaults
+from kiwi import xml_parse
+from kiwi.command import Command
 
-from .exceptions import (
+from kiwi.exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
@@ -39,6 +39,8 @@ from .exceptions import (
     KiwiExtensionError,
     KiwiCommandNotFound
 )
+
+log = logging.getLogger('kiwi')
 
 
 class XMLDescription:

@@ -1,5 +1,6 @@
+import logging
 from mock import patch
-
+from pytest import fixture
 import mock
 
 import kiwi
@@ -11,6 +12,10 @@ from kiwi.defaults import Defaults
 
 
 class TestDiskSetup:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
@@ -154,15 +159,14 @@ class TestDiskSetup:
             root_size + 42 + \
             200 * 1.7
 
-    @patch('kiwi.logger.log.warning')
-    def test_get_disksize_mbytes_configured(self, mock_log_warn):
+    def test_get_disksize_mbytes_configured(self):
         self.setup.configured_size = mock.Mock()
         self.setup.build_type_name = 'vmx'
         self.setup.configured_size.additive = False
         self.setup.configured_size.mbytes = 42
-        assert self.setup.get_disksize_mbytes() == \
-            self.setup.configured_size.mbytes
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.setup.get_disksize_mbytes() == \
+                self.setup.configured_size.mbytes
 
     def test_get_disksize_mbytes_empty_volumes(self):
         assert self.setup_empty_volumes.get_disksize_mbytes() == \
@@ -173,23 +177,22 @@ class TestDiskSetup:
             self.size.accumulate_mbyte_file_sizes.return_value
 
     @patch('os.path.exists')
-    @patch('kiwi.logger.log.warning')
-    def test_get_disksize_mbytes_volumes(self, mock_log_warn, mock_exists):
+    def test_get_disksize_mbytes_volumes(self, mock_exists):
         mock_exists.side_effect = lambda path: path != 'root_dir/newfolder'
         root_size = self.size.accumulate_mbyte_file_sizes.return_value
-        assert self.setup_volumes.get_disksize_mbytes() == \
-            Defaults.get_lvm_overhead_mbytes() + \
-            Defaults.get_default_legacy_bios_mbytes() + \
-            Defaults.get_default_efi_boot_mbytes() + \
-            Defaults.get_default_boot_mbytes() + \
-            root_size + \
-            1024 - root_size + \
-            500 + Defaults.get_min_volume_mbytes() + \
-            30 + Defaults.get_min_volume_mbytes() + \
-            Defaults.get_min_volume_mbytes() + \
-            Defaults.get_min_volume_mbytes() + \
-            Defaults.get_min_volume_mbytes()
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.setup_volumes.get_disksize_mbytes() == \
+                Defaults.get_lvm_overhead_mbytes() + \
+                Defaults.get_default_legacy_bios_mbytes() + \
+                Defaults.get_default_efi_boot_mbytes() + \
+                Defaults.get_default_boot_mbytes() + \
+                root_size + \
+                1024 - root_size + \
+                500 + Defaults.get_min_volume_mbytes() + \
+                30 + Defaults.get_min_volume_mbytes() + \
+                Defaults.get_min_volume_mbytes() + \
+                Defaults.get_min_volume_mbytes() + \
+                Defaults.get_min_volume_mbytes()
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_oem_volumes(self, mock_exists):
@@ -204,17 +207,16 @@ class TestDiskSetup:
             5 * Defaults.get_min_volume_mbytes()
 
     @patch('os.path.exists')
-    @patch('kiwi.logger.log.warning')
-    def test_get_disksize_mbytes_root_volume(self, mock_log_warn, mock_exists):
+    def test_get_disksize_mbytes_root_volume(self, mock_exists):
         mock_exists.return_value = True
         root_size = self.size.accumulate_mbyte_file_sizes.return_value
-        assert self.setup_root_volume.get_disksize_mbytes() == \
-            Defaults.get_lvm_overhead_mbytes() + \
-            Defaults.get_default_legacy_bios_mbytes() + \
-            Defaults.get_default_efi_boot_mbytes() + \
-            Defaults.get_default_boot_mbytes() + \
-            root_size
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.setup_root_volume.get_disksize_mbytes() == \
+                Defaults.get_lvm_overhead_mbytes() + \
+                Defaults.get_default_legacy_bios_mbytes() + \
+                Defaults.get_default_efi_boot_mbytes() + \
+                Defaults.get_default_boot_mbytes() + \
+                root_size
 
     def test_get_boot_label(self):
         assert self.setup.get_boot_label() == 'BOOT'

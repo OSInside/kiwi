@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
@@ -24,7 +25,8 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner import Partitioner
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class Disk(DeviceProvider):

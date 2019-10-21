@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, call
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from collections import namedtuple
 
 from kiwi.utils.command_capabilities import CommandCapabilities
@@ -10,6 +13,10 @@ from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 
 class TestCommandCapabilities:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.command.Command.run')
     def test_has_option_in_help(self, mock_run):
         command_type = namedtuple('command', ['output', 'error'])
@@ -17,8 +24,12 @@ class TestCommandCapabilities:
             output="Dummy line\n\t--some-flag\n\t--some-other-flag",
             error="Dummy line\n\t--error-flag\n\t--some-other-flag"
         )
-        assert CommandCapabilities.has_option_in_help('command', '--some-flag')
-        assert CommandCapabilities.has_option_in_help('command', '--error-flag')
+        assert CommandCapabilities.has_option_in_help(
+            'command', '--some-flag'
+        )
+        assert CommandCapabilities.has_option_in_help(
+            'command', '--error-flag'
+        )
         assert CommandCapabilities.has_option_in_help(
             'command', '--some-flag', help_flags=['subcommand', '-h']
         )
@@ -38,18 +49,16 @@ class TestCommandCapabilities:
         ])
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.logger.log.warning')
-    def test_has_option_in_help_command_failure_warning(
-        self, mock_warn, mock_run
-    ):
+    def test_has_option_in_help_command_failure_warning(self, mock_run):
         def side_effect():
             raise Exception("Something went wrong")
 
         mock_run.side_effect = side_effect
-        CommandCapabilities.has_option_in_help(
-            'command_that_fails', '--non-existing-flag', raise_on_error=False
-        )
-        assert mock_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            CommandCapabilities.has_option_in_help(
+                'command_that_fails', '--non-existing-flag',
+                raise_on_error=False
+            )
 
     @patch('kiwi.command.Command.run')
     def test_has_option_in_help_command_failure_exception(self, mock_run):
@@ -95,16 +104,15 @@ class TestCommandCapabilities:
             CommandCapabilities.check_version('command', (1, 2, 3))
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.logger.log.warning')
-    def test_check_version_failure_warning(self, mock_warn, mock_run):
+    def test_check_version_failure_warning(self, mock_run):
         def side_effect():
             raise Exception("Something went wrong")
 
         mock_run.side_effect = side_effect
-        CommandCapabilities.check_version(
-            'command_that_fails', (1, 2), raise_on_error=False
-        )
-        assert mock_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            CommandCapabilities.check_version(
+                'command_that_fails', (1, 2), raise_on_error=False
+            )
 
     @patch('kiwi.command.Command.run')
     def test_check_version_failure_exception(self, mock_run):

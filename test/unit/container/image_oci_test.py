@@ -1,3 +1,5 @@
+import logging
+from pytest import fixture
 from mock import (
     patch, mock_open
 )
@@ -9,6 +11,10 @@ from kiwi.version import __version__
 
 
 class TestContainerImageOCI:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.container.oci.RuntimeConfig')
     def setup(self, mock_RuntimeConfig, mock_cmd_caps):
@@ -77,9 +83,8 @@ class TestContainerImageOCI:
     @patch('kiwi.container.oci.RuntimeConfig')
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
-    @patch('kiwi.logger.log.warning')
     def test_init_in_buildservice_without_disturl(
-        self, mock_warn, mock_buildservice, mock_cmd_caps, mock_RuntimeConfig
+        self, mock_buildservice, mock_cmd_caps, mock_RuntimeConfig
     ):
         mock_buildservice.return_value = True
         mock_cmd_caps.return_value = True
@@ -87,11 +92,11 @@ class TestContainerImageOCI:
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             m_open.return_value.__iter__ = lambda _: iter(['line content'])
-            container = ContainerImageOCI('root_dir', 'oci-archive')
+            with self._caplog.at_level(logging.WARNING):
+                container = ContainerImageOCI('root_dir', 'oci-archive')
 
         m_open.assert_called_once_with('/.buildenv')
         assert 'labels' not in container.oci_config
-        assert mock_warn.called
 
     @patch('kiwi.container.oci.OCI')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')

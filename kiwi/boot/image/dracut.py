@@ -16,15 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
-from kiwi.logger import log
 from kiwi.command import Command
 from kiwi.system.kernel import Kernel
 from kiwi.boot.image.base import BootImageBase
 from kiwi.defaults import Defaults
 from kiwi.system.profile import Profile
 from kiwi.system.setup import SystemSetup
+
+log = logging.getLogger('kiwi')
 
 
 class BootImageDracut(BootImageBase):

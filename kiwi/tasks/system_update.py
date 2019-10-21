@@ -39,6 +39,7 @@ options:
         path to the root directory of the image
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
@@ -46,7 +47,7 @@ from kiwi.privileges import Privileges
 from kiwi.help import Help
 from kiwi.system.prepare import SystemPrepare
 
-from kiwi.logger import log
+log = logging.getLogger('kiwi')
 
 
 class SystemUpdateTask(CliTask):

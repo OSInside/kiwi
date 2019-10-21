@@ -15,14 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.partitioner.base import PartitionerBase
 
 from kiwi.exceptions import (
     KiwiPartitionerGptFlagError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PartitionerGpt(PartitionerBase):

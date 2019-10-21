@@ -17,11 +17,11 @@
 #
 import os
 import struct
+import logging
 from collections import namedtuple
 
 # project
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
-from kiwi.logger import log
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.utils.codec import Codec
@@ -30,6 +30,8 @@ from kiwi.exceptions import (
     KiwiIsoMetaDataError,
     KiwiCommandError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class Iso:

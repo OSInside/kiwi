@@ -17,12 +17,14 @@
 #
 import sys
 import docopt
+import logging
 
 # project
-from . import logger
-from .app import App
-from .exceptions import KiwiError
-from .defaults import Defaults
+from kiwi.app import App
+from kiwi.exceptions import KiwiError
+from kiwi.defaults import Defaults
+
+log = logging.getLogger('kiwi')
 
 
 def extras(help_, version, options, doc):
@@ -64,10 +66,10 @@ def main():
         App()
     except KiwiError as e:
         # known exception, log information and exit
-        logger.log.error('%s: %s', type(e).__name__, format(e))
+        log.error('%s: %s', type(e).__name__, format(e))
         sys.exit(1)
     except KeyboardInterrupt:
-        logger.log.error('kiwi aborted by keyboard interrupt')
+        log.error('kiwi aborted by keyboard interrupt')
         sys.exit(1)
     except docopt.DocoptExit as e:
         # exception thrown by docopt, results in usage message
@@ -78,7 +80,7 @@ def main():
         sys.exit(e)
     except Exception:
         # exception we did no expect, show python backtrace
-        logger.log.error('Unexpected error:')
+        log.error('Unexpected error:')
         raise
 
 

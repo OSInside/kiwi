@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, call
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 import mock
 
 from kiwi.package_manager.apt import PackageManagerApt
@@ -13,6 +16,10 @@ from kiwi.exceptions import (
 
 
 class TestPackageManagerApt:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
@@ -40,23 +47,20 @@ class TestPackageManagerApt:
         self.manager.request_package('name')
         assert self.manager.package_requests == ['name']
 
-    @patch('kiwi.logger.log.warning')
-    def test_request_collection(self, mock_log_warn):
+    def test_request_collection(self):
         self.manager.request_collection('name')
-        assert self.manager.collection_requests == []
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.manager.collection_requests == []
 
-    @patch('kiwi.logger.log.warning')
-    def test_request_product(self, mock_log_warn):
+    def test_request_product(self):
         self.manager.request_product('name')
-        assert self.manager.product_requests == []
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.manager.product_requests == []
 
-    @patch('kiwi.logger.log.warning')
-    def test_request_package_exclusion(self, mock_log_warn):
+    def test_request_package_exclusion(self):
         self.manager.request_package_exclusion('name')
-        assert self.manager.exclude_requests == []
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            assert self.manager.exclude_requests == []
 
     def test_process_install_requests_bootstrap_no_dist(self):
         self.manager.distribution = None
@@ -83,13 +87,12 @@ class TestPackageManagerApt:
         with raises(KiwiDebootstrapError):
             self.manager.process_install_requests_bootstrap()
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.package_manager.apt.DataSync')
     def test_process_install_requests_bootstrap(
-        self, mock_sync, mock_exists, mock_run, mock_call, mock_warn
+        self, mock_sync, mock_exists, mock_run, mock_call
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
@@ -100,42 +103,42 @@ class TestPackageManagerApt:
         mock_sync.assert_called_once_with(
             'root-dir.debootstrap/', 'root-dir'
         )
-        data.sync_data.assert_called_once_with(
-            options=['-a', '-H', '-X', '-A']
-        )
-        assert mock_run.call_args_list == [
-            call(
-                command=['mountpoint', '-q', 'root-dir/dev'],
-                raise_on_error=False
-            ),
-            call(
-                [
-                    'debootstrap', '--no-check-gpg', '--variant=minbase',
-                    '--components=main,restricted', 'xenial',
-                    'root-dir.debootstrap', 'xenial_path'
-                ], ['env']
-            ),
-            call(
-                [
-                    'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'
-                ], ['env']
-            ),
-            call(
-                ['rm', '-r', '-f', 'root-dir.debootstrap']
-            ),
-            call(
-                [
-                    'chroot', 'root-dir', 'apt-get',
-                    'root-moved-arguments', 'update'
-                ], ['env']
+        with self._caplog.at_level(logging.WARNING):
+            data.sync_data.assert_called_once_with(
+                options=['-a', '-H', '-X', '-A']
             )
-        ]
-        mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            'root-moved-arguments', 'install', 'vim'],
-            ['env']
-        )
-        assert mock_warn.called
+            assert mock_run.call_args_list == [
+                call(
+                    command=['mountpoint', '-q', 'root-dir/dev'],
+                    raise_on_error=False
+                ),
+                call(
+                    [
+                        'debootstrap', '--no-check-gpg', '--variant=minbase',
+                        '--components=main,restricted', 'xenial',
+                        'root-dir.debootstrap', 'xenial_path'
+                    ], ['env']
+                ),
+                call(
+                    [
+                        'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'
+                    ], ['env']
+                ),
+                call(
+                    ['rm', '-r', '-f', 'root-dir.debootstrap']
+                ),
+                call(
+                    [
+                        'chroot', 'root-dir', 'apt-get',
+                        'root-moved-arguments', 'update'
+                    ], ['env']
+                )
+            ]
+            mock_call.assert_called_once_with([
+                'chroot', 'root-dir', 'apt-get',
+                'root-moved-arguments', 'install', 'vim'],
+                ['env']
+            )
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')

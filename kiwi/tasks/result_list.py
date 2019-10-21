@@ -29,12 +29,14 @@ options:
         the target directory as it was used in a system command
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.system.result import Result
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class ResultListTask(CliTask):

@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import platform
 
 # project
@@ -26,7 +27,6 @@ from kiwi.utils.compress import Compress
 from kiwi.utils.checksum import Checksum
 from kiwi.system.setup import SystemSetup
 from kiwi.system.kernel import Kernel
-from kiwi.logger import log
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.archive.tar import ArchiveTar
@@ -34,6 +34,8 @@ from kiwi.archive.tar import ArchiveTar
 from kiwi.exceptions import (
     KiwiPxeBootImageError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PxeBuilder:

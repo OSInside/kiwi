@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-
 from tempfile import mkdtemp
+import logging
 
 # project
 from kiwi.filesystem.base import FileSystemBase
@@ -25,7 +25,8 @@ from kiwi.command import Command
 from kiwi.system.size import SystemSize
 from kiwi.path import Path
 from kiwi.storage.loop_device import LoopDevice
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class FileSystemClicFs(FileSystemBase):

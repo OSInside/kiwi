@@ -3,17 +3,22 @@ import mock
 from mock import (
     patch, call, mock_open
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
 
 from kiwi.exceptions import KiwiTemplateError
 
 
 class TestBootLoaderConfigIsoLinux:
-    @patch('kiwi.logger.log.warning')
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists, mock_warn):
+    def setup(self, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         self.state = mock.Mock()
@@ -88,17 +93,15 @@ class TestBootLoaderConfigIsoLinux:
             self.state, 'root_dir'
         )
 
-    @patch('kiwi.logger.log.warning')
     @patch('platform.machine')
-    def test_post_init_ix86_platform(self, mock_machine, mock_warn):
+    def test_post_init_ix86_platform(self, mock_machine):
         mock_machine.return_value = 'i686'
         bootloader = BootLoaderConfigIsoLinux(self.state, 'root_dir')
         assert bootloader.arch == 'ix86'
 
-    @patch('kiwi.logger.log.warning')
     @patch('os.path.exists')
     @patch('platform.machine')
-    def test_post_init_dom0(self, mock_machine, mock_exists, mock_warn):
+    def test_post_init_dom0(self, mock_machine, mock_exists):
         self.state.is_xen_server = mock.Mock(
             return_value=True
         )

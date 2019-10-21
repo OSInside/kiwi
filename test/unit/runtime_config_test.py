@@ -1,5 +1,8 @@
+import logging
 from mock import patch
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
@@ -8,6 +11,10 @@ from kiwi.exceptions import KiwiRuntimeConfigFormatError
 
 
 class TestRuntimeConfig:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.runtime_config = RuntimeConfig()
@@ -71,15 +78,12 @@ class TestRuntimeConfig:
         assert self.default_runtime_config.get_container_compression() == 'xz'
 
     @patch.object(RuntimeConfig, '_get_attribute')
-    @patch('kiwi.logger.log.warning')
-    def test_get_container_compression_invalid(
-        self, mock_warning, mock_get_attribute
-    ):
+    def test_get_container_compression_invalid(self, mock_get_attribute):
         mock_get_attribute.return_value = 'foo'
-        assert self.runtime_config.get_container_compression() == 'xz'
-        mock_warning.assert_called_once_with(
-            'Skipping invalid container compression: foo'
-        )
+        with self._caplog.at_level(logging.WARNING):
+            assert self.runtime_config.get_container_compression() == 'xz'
+            assert 'Skipping invalid container compression: foo' in \
+                self._caplog.text
 
     @patch.object(RuntimeConfig, '_get_attribute')
     def test_get_container_compression_xz(self, mock_get_attribute):
@@ -93,15 +97,12 @@ class TestRuntimeConfig:
         assert self.default_runtime_config.get_iso_tool_category() == 'xorriso'
 
     @patch.object(RuntimeConfig, '_get_attribute')
-    @patch('kiwi.logger.log.warning')
-    def test_get_iso_tool_category_invalid(
-        self, mock_warning, mock_get_attribute
-    ):
+    def test_get_iso_tool_category_invalid(self, mock_get_attribute):
         mock_get_attribute.return_value = 'foo'
-        assert self.runtime_config.get_iso_tool_category() == 'xorriso'
-        mock_warning.assert_called_once_with(
-            'Skipping invalid iso tool category: foo'
-        )
+        with self._caplog.at_level(logging.WARNING):
+            assert self.runtime_config.get_iso_tool_category() == 'xorriso'
+            assert 'Skipping invalid iso tool category: foo' in \
+                self._caplog.text
 
     def test_get_oci_archive_tool(self):
         assert self.runtime_config.get_oci_archive_tool() == 'umoci'

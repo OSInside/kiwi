@@ -1,8 +1,9 @@
 import mock
-from mock import (
-    call, patch
+import logging
+from mock import patch
+from pytest import (
+    raises, fixture
 )
-from pytest import raises
 from builtins import bytes
 
 from kiwi.command_process import CommandProcess
@@ -12,6 +13,10 @@ from kiwi.exceptions import KiwiCommandError
 
 
 class TestCommandProcess:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def fake_matcher(self, item, output):
         return True
 
@@ -59,8 +64,7 @@ class TestCommandProcess:
         assert process.returncode() == command.process.returncode
 
     @patch('kiwi.command.Command')
-    @patch('kiwi.logger.log.debug')
-    def test_poll_show_progress(self, mock_log_debug, mock_command):
+    def test_poll_show_progress(self, mock_command):
         match_method = CommandProcess(mock_command).create_match_method(
             self.fake_matcher
         )
@@ -71,10 +75,9 @@ class TestCommandProcess:
         process.command.command.output.read = self.flow_out
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 0
-        process.poll_show_progress(['a', 'b'], match_method)
-        assert mock_log_debug.call_args_list == [
-            call('%s: %s', 'system', 'data')
-        ]
+        with self._caplog.at_level(logging.DEBUG):
+            process.poll_show_progress(['a', 'b'], match_method)
+            assert 'system: data' in self._caplog.text
 
     @patch('kiwi.command.Command')
     def test_poll_show_progress_raises(self, mock_command):
@@ -92,8 +95,7 @@ class TestCommandProcess:
             process.poll_show_progress(['a', 'b'], match_method)
 
     @patch('kiwi.command.Command')
-    @patch('kiwi.logger.log.debug')
-    def test_poll(self, mock_log_debug, mock_command):
+    def test_poll(self, mock_command):
         process = CommandProcess(mock_command)
         process.command.command.process.poll = self.flow
         process.command.command.output_available = self.flow_out_available
@@ -101,10 +103,9 @@ class TestCommandProcess:
         process.command.command.output.read = self.flow_out
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 0
-        process.poll()
-        assert mock_log_debug.call_args_list == [
-            call('%s: %s', 'system', 'data')
-        ]
+        with self._caplog.at_level(logging.DEBUG):
+            process.poll()
+            assert 'system: data' in self._caplog.text
 
     @patch('kiwi.command.Command')
     def test_poll_raises(self, mock_command):
@@ -120,8 +121,7 @@ class TestCommandProcess:
             process.poll()
 
     @patch('kiwi.command.Command')
-    @patch('kiwi.logger.log.debug')
-    def test_poll_and_watch(self, mock_log_debug, mock_command):
+    def test_poll_and_watch(self, mock_command):
         process = CommandProcess(mock_command)
         process.command.command.process.poll = self.flow
         process.command.command.output_available = self.flow_out_available
@@ -129,17 +129,12 @@ class TestCommandProcess:
         process.command.command.output.read = self.flow_out
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 1
-        result = process.poll_and_watch()
-        call = mock_log_debug.call_args_list[0]
-        assert mock_log_debug.call_args_list[0] == \
-            call('--------------out start-------------')
-        call = mock_log_debug.call_args_list[1]
-        assert mock_log_debug.call_args_list[1] == \
-            call('data')
-        call = mock_log_debug.call_args_list[2]
-        assert mock_log_debug.call_args_list[2] == \
-            call('--------------out stop--------------')
-        assert result.stderr == 'error'
+        with self._caplog.at_level(logging.DEBUG):
+            result = process.poll_and_watch()
+            assert '--------------out start-------------' in self._caplog.text
+            assert 'data' in self._caplog.text
+            assert '--------------out stop--------------' in self._caplog.text
+            assert result.stderr == 'error'
 
     @patch('kiwi.command.Command')
     def test_create_match_method(self, mock_command):

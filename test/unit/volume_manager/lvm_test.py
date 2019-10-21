@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, call, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from collections import namedtuple
 
 from kiwi.volume_manager.lvm import VolumeManagerLVM
@@ -11,6 +14,10 @@ from kiwi.exceptions import KiwiVolumeGroupConflict
 
 
 class TestVolumeManagerLVM:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_path):
         self.volume_type = namedtuple(
@@ -291,21 +298,19 @@ class TestVolumeManagerLVM:
     @patch('kiwi.volume_manager.lvm.VolumeManagerLVM.umount_volumes')
     @patch('kiwi.volume_manager.lvm.Path.wipe')
     @patch('kiwi.volume_manager.lvm.Command.run')
-    @patch('kiwi.logger.log.warning')
     def test_destructor(
-        self, mock_warn, mock_command, mock_wipe, mock_umount_volumes
+        self, mock_command, mock_wipe, mock_umount_volumes
     ):
         mock_umount_volumes.return_value = True
         mock_command.side_effect = Exception
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.volume_group = 'volume_group'
 
-        self.volume_manager.__del__()
-
-        mock_umount_volumes.assert_called_once_with()
-        mock_wipe.assert_called_once_with('tmpdir')
-        mock_command.assert_called_once_with(
-            ['vgchange', '-an', 'volume_group']
-        )
-        assert mock_warn.called
-        self.volume_manager.volume_group = None
+        with self._caplog.at_level(logging.WARNING):
+            self.volume_manager.__del__()
+            mock_umount_volumes.assert_called_once_with()
+            mock_wipe.assert_called_once_with('tmpdir')
+            mock_command.assert_called_once_with(
+                ['vgchange', '-an', 'volume_group']
+            )
+            self.volume_manager.volume_group = None

@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-
 import platform
+import logging
 import re
 import os
 
@@ -24,7 +24,6 @@ import os
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.firmware import FirmWare
 from kiwi.defaults import Defaults
@@ -35,6 +34,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderZiplSetupError,
     KiwiDiskGeometryError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderConfigZipl(BootLoaderConfigBase):

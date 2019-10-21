@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 import platform
 import os
 
@@ -25,13 +26,14 @@ from kiwi.storage.loop_device import LoopDevice
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
-from kiwi.logger import log
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiFileSystemSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class FileSystemBuilder:

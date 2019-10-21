@@ -16,16 +16,18 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import copy
 
 # project
-from kiwi.logger import log
 from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
 
 from kiwi.exceptions import (
     KiwiFileSystemSyncError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class FileSystemBase:

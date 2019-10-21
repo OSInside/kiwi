@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.utils.compress import Compress
 
@@ -12,6 +15,10 @@ from kiwi.exceptions import (
 
 
 class TestCompress:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = True
@@ -90,19 +97,16 @@ class TestCompress:
         gzip = Compress('../data/gz_data.gz')
         assert gzip.get_format() == 'gzip'
 
-    @patch('kiwi.logger.log.debug')
     @patch('kiwi.command.Command.run')
-    def test_get_format_invalid_format(self, mock_run, mock_log):
+    def test_get_format_invalid_format(self, mock_run):
         mock_run.side_effect = ValueError("nothing")
         invalid = Compress("../data/gz_data.gz")
         invalid.supported_zipper = ["mock_zip"]
 
-        assert invalid.get_format() is None
-
-        mock_run.assert_called_once_with(
-            ['mock_zip', '-l', '../data/gz_data.gz']
-        )
-        mock_log.assert_called_once_with(
-            'Error running "mock_zip -l ../data/gz_data.gz", got a'
-            ' ValueError: nothing'
-        )
+        with self._caplog.at_level(logging.DEBUG):
+            assert invalid.get_format() is None
+            mock_run.assert_called_once_with(
+                ['mock_zip', '-l', '../data/gz_data.gz']
+            )
+            assert 'Error running "mock_zip -l ../data/gz_data.gz", got a'
+            ' ValueError: nothing' in self._caplog.text

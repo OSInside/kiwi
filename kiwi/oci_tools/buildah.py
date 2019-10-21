@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 import os
 import random
 import string
@@ -24,8 +25,9 @@ from kiwi.oci_tools.base import OCIBase
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.defaults import Defaults
-from kiwi.logger import log
 from kiwi.exceptions import KiwiBuildahError
+
+log = logging.getLogger('kiwi')
 
 
 class OCIBuildah(OCIBase):

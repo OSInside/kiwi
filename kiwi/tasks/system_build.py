@@ -88,6 +88,7 @@ options:
         the target directory to store the system image file(s)
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
@@ -99,8 +100,9 @@ from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
 from kiwi.privileges import Privileges
 from kiwi.path import Path
-from kiwi.logger import log
 from kiwi.utils.rpm import Rpm
+
+log = logging.getLogger('kiwi')
 
 
 class SystemBuildTask(CliTask):

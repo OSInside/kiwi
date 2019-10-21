@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, Mock, MagicMock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.solver.sat import Sat
 
@@ -13,6 +16,10 @@ from kiwi.exceptions import (
 
 
 class TestSat:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('importlib.import_module')
     def setup(self, mock_import_module):
         self.sat = Sat()
@@ -86,8 +93,7 @@ class TestSat:
         with raises(KiwiSatSolverJobProblems):
             self.sat.solve(packages)
 
-    @patch('kiwi.logger.log.info')
-    def test_solve_package_not_found_and_skipped(self, mock_log_info):
+    def test_solve_package_not_found_and_skipped(self):
         packages = ['vim']
         self.solver.solve = Mock(
             return_value=None
@@ -99,10 +105,9 @@ class TestSat:
         self.selection.isempty = Mock(
             return_value=True
         )
-        self.sat.solve(packages, skip_missing=True)
-        mock_log_info.assert_called_once_with(
-            '--> Package vim not found: skipped'
-        )
+        with self._caplog.at_level(logging.INFO):
+            self.sat.solve(packages, skip_missing=True)
+            assert '--> Package vim not found: skipped' in self._caplog.text
 
     def test_solve_package_not_found_raises(self):
         packages = ['vim']
@@ -130,8 +135,7 @@ class TestSat:
         self.solver.solve.assert_called_once_with(['vim'])
         self.solver.transaction.assert_called_once_with()
 
-    @patch('kiwi.logger.log.info')
-    def test_solve_with_capabilities(self, mock_log_info):
+    def test_solve_with_capabilities(self):
         packages = ['kernel-base']
         self.solver.solve = Mock(
             return_value=None
@@ -146,7 +150,7 @@ class TestSat:
         self.selection.jobs = Mock(
             return_value=packages
         )
-        self.sat.solve(packages)
-        mock_log_info.assert_called_once_with(
-            '--> Using capability match for kernel-base'
-        )
+        with self._caplog.at_level(logging.INFO):
+            self.sat.solve(packages)
+            assert '--> Using capability match for kernel-base' in \
+                self._caplog.text
