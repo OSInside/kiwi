@@ -436,8 +436,7 @@ class TestSystemSetup:
             call(
                 'kiwi', [
                     '-p', 'password-hash',
-                    '-g', 'kiwi', '-G', 'admin,users',
-                    '-m', '-d', '/home/kiwi'
+                    '-g', 'kiwi', '-G', 'admin,users', '-m'
                 ]
             )
         ]

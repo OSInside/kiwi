@@ -2800,7 +2800,9 @@ to the user according to he specifing toolchain behaviour.</a:documentation>
         <optional>
           <ref name="k.user.groups.attribute"/>
         </optional>
-        <ref name="k.user.home.attribute"/>
+        <optional>
+          <ref name="k.user.home.attribute"/>
+        </optional>
         <optional>
           <ref name="k.user.id.attribute"/>
         </optional>

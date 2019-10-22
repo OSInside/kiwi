@@ -775,10 +775,11 @@ class SystemSetup:
         if user_realname:
             options.append('-c')
             options.append(user_realname)
-        if not user_exists and home_path:
+        if not user_exists:
             options.append('-m')
-            options.append('-d')
-            options.append(home_path)
+            if home_path:
+                options.append('-d')
+                options.append(home_path)
         return options
 
     def _import_cdroot_archive(self):
