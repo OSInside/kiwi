@@ -307,11 +307,24 @@ function relocate_gpt_at_end_of_disk {
     fi
 }
 
+function disk_has_unallocated_space {
+    local disk_device=$1
+    local pt_table_type
+    pt_table_type=$(get_partition_table_type "${disk_device}")
+    if [ "${pt_table_type}" = "dos" ];then
+        sfdisk --verify "${disk_device}" 2>&1 | grep -q "unallocated"
+    else
+        sgdisk --verify "${disk_device}" 2>&1 | grep -q "end of the disk"
+    fi
+}
+
 function activate_boot_partition {
     local disk_device=$1
     local boot_partition_id=$2
+    local pt_table_type
+    pt_table_type=$(get_partition_table_type "${disk_device}")
     if [[ "$(uname -m)" =~ i.86|x86_64 ]];then
-        if [ "$(get_partition_table_type)" = "msdos" ];then
+        if [ "${pt_table_type}" = "dos" ];then
             parted "${disk_device}" set "${boot_partition_id}" boot on
         fi
     fi
