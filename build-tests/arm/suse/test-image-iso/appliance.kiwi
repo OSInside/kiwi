@@ -21,14 +21,8 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md">
-        <source path="obs://Virtualization:Appliances:Staging/openSUSE_Factory_ARM"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://openSUSE:Factory:ARM/standard"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://openSUSE:Factory/ports"/>
+    <repository type="rpm-md" >
+        <source path='obsrepositories:/'/>
     </repository>
     <packages type="image">
         <package name="bind-utils"/>
