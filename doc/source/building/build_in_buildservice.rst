@@ -12,12 +12,12 @@ Building in the Open Build Service
 The next generation KIWI is fully integrated with the Open Build Service.
 In order to start it's best to checkout one of the integration test
 image build projects from the base Testing project
-`Virtualization:Appliances:Images:Testing_$ARCH` at:
+`Virtualization:Appliances:Images:Testing_$ARCH:$DISTRO` at:
 
 https://build.opensuse.org
 
-For example the test images for x86 can be found `here
-<https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86>`__.
+For example the test images for SUSE on x86 can be found `here
+<https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:suse>`__.
 
 
 Advantages of using the Open Build Service (OBS)
@@ -304,7 +304,7 @@ errors of the following type:
 Instead of starting from scratch and manually adding ``Prefer:`` statements
 to the project configuration, we recommend to copy the current project
 configuration of the testing project
-`Virtualization:Appliances:Images:Testing_$ARCH` into your own project.
+`Virtualization:Appliances:Images:Testing_$ARCH:$DISTRO` into your own project.
 It provides a good starting point and can be adapted to your OBS project.
 
 

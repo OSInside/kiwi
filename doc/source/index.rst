@@ -11,9 +11,16 @@ build Linux system appliances.
    * `GitHub Sources <https://github.com/OSInside/kiwi>`__
    * `GitHub Releases <https://github.com/OSInside/kiwi/releases>`__
    * `RPM Packages <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
-   * `Build Tests(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86>`__
-   * `Build Tests(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm>`__
-   * `Build Tests(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390>`__
+   * `Build Tests SUSE(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:suse>`__
+   * `Build Tests SUSE(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:suse>`__
+   * `Build Tests SUSE(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390:suse>`__
+
+   * `Build Tests Fedora(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:fedora>`__
+   * `Build Tests Fedora(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:fedora>`__
+
+   * `Build Tests CentOS(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:centos>`__
+
+   * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:ubuntu>`__
 
 .. toctree::
    :maxdepth: 1
