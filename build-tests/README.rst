@@ -7,4 +7,4 @@ This directory contains the description files of several images
 which are used for testing KIWI within the |BuildService|
 
 Testing projects can be found at `Virtualization:Appliances:Images` in
-the `Testing_XXX` subprojects.
+the `Testing_XXX/DISTRO` subprojects.
