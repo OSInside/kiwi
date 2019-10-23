@@ -14,11 +14,8 @@
         <packagemanager>zypper</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
     </preferences>
-    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
-    </repository>
-    <repository type="rpm-md" alias="openSUSE Tumbleweed" priority="2">
-        <source path="obs://openSUSE:Tumbleweed/standard"/>
+    <repository type="rpm-md" >
+        <source path='obsrepositories:/'/>
     </repository>
     <packages type="image">
         <package name="python3-kiwi"/>

@@ -20,11 +20,8 @@
     <users>
         <user name="root" password="linux" pwdformat="plain" home="/root" groups="root"/>
     </users>
-    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/openSUSE_Tumbleweed"/>
-    </repository>
-    <repository type="rpm-md" alias="Tumbleweed">
-        <source path="obs://openSUSE:Tumbleweed/standard"/>
+    <repository type="rpm-md" >
+        <source path='obsrepositories:/'/>
     </repository>
     <packages type="image" patternType="plusRecommended">
         <package name="patterns-openSUSE-base"/>
