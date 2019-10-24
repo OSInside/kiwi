@@ -20,17 +20,6 @@ modified description on stdout.
     from kiwi.xml_description import XMLDescription
     from kiwi.xml_state import XMLState
 
-    # Import of log handler only needed if default logging
-    # setup is not appropriate for the project
-    # from kiwi.logger import log
-
-    # By default the logging level is set to DEBUG, which
-    # can be changed by the following call
-    # log.setLogLevel(logging.INFO)
-
-    # Logging can also be disabled completely
-    # log.disabled = True
-
     description = XMLDescription('path/to/kiwi/XML/config.xml')
 
     xml_data = description.load()

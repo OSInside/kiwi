@@ -1,3 +1,4 @@
+from pytest import fixture
 from mock import (
     patch, call
 )
@@ -7,11 +8,14 @@ from kiwi.repository.dnf import RepositoryDnf
 
 
 class TestRepositoryDnf:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
-    @patch('kiwi.logger.log.warning')
-    def setup(self, mock_warn, mock_path, mock_config, mock_temp):
+    def setup(self, mock_path, mock_config, mock_temp):
         runtime_dnf_config = mock.Mock()
         mock_config.return_value = runtime_dnf_config
         tmpfile = mock.Mock()

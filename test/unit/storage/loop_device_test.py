@@ -1,5 +1,8 @@
+import logging
 from mock import patch
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.storage.loop_device import LoopDevice
 
@@ -7,6 +10,10 @@ from kiwi.exceptions import KiwiLoopSetupError
 
 
 class TestLoopDevice:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_exists):
         mock_exists.return_value = False
@@ -53,13 +60,12 @@ class TestLoopDevice:
         self.loop.node_name = None
 
     @patch('kiwi.storage.loop_device.Command.run')
-    @patch('kiwi.logger.log.warning')
-    def test_destructor(self, mock_log_warn, mock_command):
+    def test_destructor(self, mock_command):
         self.loop.node_name = '/dev/loop0'
         mock_command.side_effect = Exception
         self.loop.__del__()
-        mock_command.assert_called_once_with(
-            ['losetup', '-d', '/dev/loop0']
-        )
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            mock_command.assert_called_once_with(
+                ['losetup', '-d', '/dev/loop0']
+            )
         self.loop.node_name = None

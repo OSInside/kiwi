@@ -1,9 +1,4 @@
-import kiwi.logger
 import sys
-import logging
-
-# default log level, overwrite when needed
-kiwi.logger.log.setLevel(logging.WARN)
 
 # default commandline used for any test, overwrite when needed
 sys.argv = [

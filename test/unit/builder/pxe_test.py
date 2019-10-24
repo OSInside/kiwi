@@ -1,15 +1,21 @@
+from collections import namedtuple
 from mock import (
     patch, Mock, MagicMock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 import kiwi
-from collections import namedtuple
 
 from kiwi.builder.pxe import PxeBuilder
 from kiwi.exceptions import KiwiPxeBootImageError
 
 
 class TestPxeBuilder:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.builder.pxe.FileSystemBuilder')
     @patch('kiwi.builder.pxe.BootImage')
     def setup(self, mock_boot, mock_filesystem):
@@ -56,12 +62,10 @@ class TestPxeBuilder:
 
     @patch('kiwi.builder.pxe.Checksum')
     @patch('kiwi.builder.pxe.Compress')
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.builder.pxe.ArchiveTar')
     @patch('os.rename')
     def test_create(
-        self, mock_rename, mock_tar, mock_log_warn,
-        mock_compress, mock_checksum
+        self, mock_rename, mock_tar, mock_compress, mock_checksum
     ):
         tar = Mock()
         mock_tar.return_value = tar

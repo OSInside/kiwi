@@ -16,18 +16,21 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import mkdtemp
 
+# project
 from kiwi.defaults import Defaults
 from kiwi.utils.sync import DataSync
 from kiwi.system.prepare import SystemPrepare
 from kiwi.system.profile import Profile
 from kiwi.system.setup import SystemSetup
-from kiwi.logger import log
 from kiwi.archive.cpio import ArchiveCpio
 from kiwi.utils.compress import Compress
 from kiwi.path import Path
 from kiwi.boot.image.base import BootImageBase
+
+log = logging.getLogger('kiwi')
 
 
 class BootImageKiwi(BootImageBase):

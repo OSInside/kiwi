@@ -16,14 +16,16 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
 from kiwi.system.root_import.base import RootImportBase
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.utils.compress import Compress
 from kiwi.oci_tools import OCI
+
+log = logging.getLogger('kiwi')
 
 
 class RootImportOCI(RootImportBase):

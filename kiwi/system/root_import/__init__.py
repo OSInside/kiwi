@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.system.root_import.oci import RootImportOCI
 from kiwi.exceptions import KiwiRootImportError
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class RootImport:

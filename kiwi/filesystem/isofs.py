@@ -16,13 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from textwrap import dedent
 
 # project
-from kiwi.logger import log
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.iso_tools.iso import Iso
 from kiwi.iso_tools import IsoTools
+
+log = logging.getLogger('kiwi')
 
 
 class FileSystemIsoFs(FileSystemBase):

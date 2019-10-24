@@ -16,11 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from tempfile import NamedTemporaryFile
+import logging
 
 # project
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.partitioner.base import PartitionerBase
+
+log = logging.getLogger('kiwi')
 
 
 class PartitionerDasd(PartitionerBase):

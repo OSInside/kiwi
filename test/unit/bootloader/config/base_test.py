@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, call, Mock, MagicMock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
@@ -10,6 +13,10 @@ from kiwi.bootloader.config.base import BootLoaderConfigBase
 
 
 class TestBootLoaderConfigBase:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
@@ -124,13 +131,10 @@ class TestBootLoaderConfigBase:
             'splash root=overlay:UUID=uuid'
 
     @patch('kiwi.xml_parse.type_.get_firmware')
-    @patch('kiwi.logger.log.warning')
-    def test_get_boot_cmdline_firmware_ec2_no_uuid(
-        self, mock_log_warn, mock_firmware
-    ):
+    def test_get_boot_cmdline_firmware_ec2_no_uuid(self, mock_firmware):
         mock_firmware.return_value = 'ec2'
-        self.bootloader.get_boot_cmdline()
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.bootloader.get_boot_cmdline()
 
     @patch('kiwi.xml_parse.type_.get_installboot')
     def test_get_install_image_boot_default(self, mock_installboot):
@@ -149,19 +153,16 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.xml_parse.type_.get_installboot')
     @patch('kiwi.xml_parse.type_.get_installprovidefailsafe')
-    @patch('kiwi.logger.log.warning')
     def test_get_install_image_boot_default_failsafe_but_no_failsafe_entry(
-        self, mock_warn, mock_installprovidefailsafe, mock_installboot
+        self, mock_installprovidefailsafe, mock_installboot
     ):
         mock_installprovidefailsafe.return_value = False
         mock_installboot.return_value = 'failsafe-install'
-        assert self.bootloader.get_install_image_boot_default() == '1'
-        assert mock_warn.call_args_list == [
-            call(
-                'Failsafe install requested but failsafe menu entry is disabled'
-            ),
-            call('Switching to standard install')
-        ]
+        with self._caplog.at_level(logging.WARNING):
+            assert self.bootloader.get_install_image_boot_default() == '1'
+            assert 'Failsafe install requested but failsafe '
+            'menu entry is disabled' in self._caplog.text
+            assert 'Switching to standard install' in self._caplog.text
 
     def test_get_boot_path_raises(self):
         with raises(KiwiBootLoaderTargetError):

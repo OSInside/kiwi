@@ -31,6 +31,8 @@ from kiwi.exceptions import (
     KiwiConfigFileNotFound
 )
 
+log = logging.getLogger('kiwi')
+
 
 class CliTask:
     """
@@ -47,8 +49,6 @@ class CliTask:
         * setup color output
     """
     def __init__(self, should_perform_task_setup=True):
-        from ..logger import log
-
         self.cli = Cli()
 
         # initialize runtime checker
@@ -123,8 +123,6 @@ class CliTask:
         * :attr:`xml_state`
             Instance of XMLState, stateful data
         """
-        from ..logger import log
-
         log.info('Loading XML description')
         config_file = description_directory + '/config.xml'
         if not os.path.exists(config_file):

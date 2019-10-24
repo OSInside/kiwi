@@ -39,6 +39,7 @@ options:
         includes the key-file as a trusted key for package manager validations
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
@@ -47,7 +48,8 @@ from kiwi.builder import ImageBuilder
 from kiwi.system.setup import SystemSetup
 from kiwi.privileges import Privileges
 from kiwi.path import Path
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class SystemCreateTask(CliTask):

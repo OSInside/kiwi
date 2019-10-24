@@ -16,14 +16,16 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
 from kiwi.utils.checksum import Checksum
-from kiwi.logger import log
 from kiwi.exceptions import (
     KiwiRootImportError,
     KiwiUriTypeUnknown
 )
+
+log = logging.getLogger('kiwi')
 
 
 class RootImportBase:

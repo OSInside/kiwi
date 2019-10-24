@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import platform
 import glob
 import shutil
@@ -27,7 +28,6 @@ from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.firmware import FirmWare
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
@@ -39,6 +39,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubSecureBootError,
     KiwiBootLoaderGrubFontError,
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderConfigGrub2(BootLoaderConfigBase):

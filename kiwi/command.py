@@ -17,16 +17,19 @@
 #
 import select
 import os
+import logging
 import subprocess
 from collections import namedtuple
 
 # project
-from .utils.codec import Codec
+from kiwi.utils.codec import Codec
 
-from .exceptions import (
+from kiwi.exceptions import (
     KiwiCommandError,
     KiwiCommandNotFound
 )
+
+log = logging.getLogger('kiwi')
 
 command_type = namedtuple(
     'command', ['output', 'error', 'returncode']
@@ -72,7 +75,6 @@ class Command:
 
         :rtype: namedtuple
         """
-        from .logger import log
         from .path import Path
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ
@@ -156,7 +158,6 @@ class Command:
 
         :rtype: namedtuple
         """
-        from .logger import log
         from .path import Path
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = os.environ

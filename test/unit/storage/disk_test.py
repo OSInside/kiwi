@@ -1,6 +1,8 @@
+import logging
 from mock import (
     patch, mock_open
 )
+from pytest import fixture
 
 import mock
 
@@ -8,6 +10,10 @@ from kiwi.storage.disk import Disk
 
 
 class TestDisk:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.storage.disk.Partitioner')
     def setup(self, mock_partitioner):
         self.tempfile = mock.Mock()
@@ -184,8 +190,7 @@ class TestDisk:
 
     @patch('kiwi.storage.disk.Command.run')
     @patch('kiwi.storage.disk.NamedTemporaryFile')
-    @patch('kiwi.logger.log.debug')
-    def test_wipe_dasd(self, mock_debug, mock_temp, mock_command):
+    def test_wipe_dasd(self, mock_temp, mock_command):
         mock_command.side_effect = Exception
         self.disk.table_type = 'dasd'
         mock_temp.return_value = self.tempfile
@@ -197,10 +202,10 @@ class TestDisk:
         m_open.return_value.write.assert_called_once_with(
             'y\n\nw\nq\n'
         )
-        mock_command.assert_called_once_with(
-            ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
-        )
-        assert mock_debug.called
+        with self._caplog.at_level(logging.DEBUG):
+            mock_command.assert_called_once_with(
+                ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
+            )
 
     @patch('kiwi.storage.disk.Command.run')
     def test_map_partitions_loop(self, mock_command):
@@ -219,16 +224,15 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    @patch('kiwi.logger.log.warning')
-    def test_destructor(self, mock_log_warn, mock_command):
+    def test_destructor(self, mock_command):
         self.disk.is_mapped = True
         self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         mock_command.side_effect = Exception
         self.disk.__del__()
-        mock_command.assert_called_once_with(
-            ['dmsetup', 'remove', '/dev/mapper/loop0p1']
-        )
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            mock_command.assert_called_once_with(
+                ['dmsetup', 'remove', '/dev/mapper/loop0p1']
+            )
         self.disk.is_mapped = False
 
     def test_get_public_partition_id_map(self):

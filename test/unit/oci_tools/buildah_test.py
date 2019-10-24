@@ -1,7 +1,10 @@
+import logging
 from mock import (
     Mock, patch, call
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from collections import namedtuple
 
 from kiwi.oci_tools.buildah import OCIBuildah
@@ -9,6 +12,10 @@ from kiwi.exceptions import KiwiBuildahError
 
 
 class TestOCIBuildah:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.oci_tools.base.datetime')
     def setup(self, mock_datetime):
         strftime = Mock()
@@ -84,9 +91,8 @@ class TestOCIBuildah:
             ['buildah', 'umount', 'kiwi-working']
         )
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_set_config(self, mock_cmd_run, mock_warn):
+    def test_set_config(self, mock_cmd_run):
         oci_config = {
             'entry_command': ['/bin/bash', '-x'],
             'entry_subcommand': ['ls', '-l'],
@@ -104,17 +110,19 @@ class TestOCIBuildah:
             }
         }
         self.oci.working_container = 'kiwi-working'
-        self.oci.set_config(oci_config)
-        mock_cmd_run.assert_called_once_with([
-            'buildah', 'config', '--author=tux', '--user=root',
-            '--workingdir=/root', '--entrypoint=["/bin/bash","-x"]',
-            '--cmd=ls -l',
-            '--volume=/var/log', '--volume=/tmp', '--port=80', '--port=42',
-            '--env=FOO=bar', '--env=PATH=/bin', '--label=a=value',
-            '--label=b=value', '--history-comment=This is a comment',
-            '--created-by=created by text', 'kiwi-working'
-        ])
-        assert mock_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.oci.set_config(oci_config)
+        mock_cmd_run.assert_called_once_with(
+            [
+                'buildah', 'config', '--author=tux', '--user=root',
+                '--workingdir=/root', '--entrypoint=["/bin/bash","-x"]',
+                '--cmd=ls -l',
+                '--volume=/var/log', '--volume=/tmp', '--port=80', '--port=42',
+                '--env=FOO=bar', '--env=PATH=/bin', '--label=a=value',
+                '--label=b=value', '--history-comment=This is a comment',
+                '--created-by=created by text', 'kiwi-working'
+            ]
+        )
 
     @patch('kiwi.oci_tools.buildah.random.choice')
     @patch('kiwi.oci_tools.umoci.Command.run')

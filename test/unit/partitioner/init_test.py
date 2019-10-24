@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.partitioner import Partitioner
 
@@ -9,6 +12,10 @@ from kiwi.exceptions import KiwiPartitionerSetupError
 
 
 class TestPartitioner:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('platform.machine')
     def test_partitioner_not_implemented(self, mock_machine):
         mock_machine.return_value = 'x86_64'
@@ -61,17 +68,16 @@ class TestPartitioner:
         Partitioner('dasd', storage_provider)
         mock_dasd.assert_called_once_with(storage_provider)
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.partitioner.PartitionerDasd')
     @patch('platform.machine')
     def test_partitioner_s390_dasd_with_custom_start_sector(
-        self, mock_machine, mock_dasd, mock_warning
+        self, mock_machine, mock_dasd
     ):
         mock_machine.return_value = 's390'
         storage_provider = Mock()
-        Partitioner('dasd', storage_provider, 4096)
-        mock_dasd.assert_called_once_with(storage_provider)
-        assert mock_warning.called
+        with self._caplog.at_level(logging.WARNING):
+            Partitioner('dasd', storage_provider, 4096)
+            mock_dasd.assert_called_once_with(storage_provider)
 
     @patch('kiwi.partitioner.PartitionerMsDos')
     @patch('platform.machine')

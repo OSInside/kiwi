@@ -1,8 +1,11 @@
 import sys
+import logging
 from mock import (
     patch, call, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from ..test_helper import argv_kiwi_tests
 
@@ -16,6 +19,10 @@ from kiwi.exceptions import (
 
 
 class TestRootBind:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         root = Mock()
         root.root_dir = 'root-dir'
@@ -135,9 +142,8 @@ class TestRootBind:
     @patch('os.path.islink')
     @patch('os.path.exists')
     @patch('shutil.move')
-    @patch('kiwi.logger.log.warning')
     def test_cleanup(
-        self, mock_log_warn, mock_move, mock_exists, mock_islink,
+        self, mock_move, mock_exists, mock_islink,
         mock_remove_hierarchy, mock_command, mock_is_mounted,
         mock_Checksum
     ):
@@ -152,60 +158,52 @@ class TestRootBind:
         mock_is_mounted.return_value = False
         mock_exists.side_effect = exists_side_effect
         mock_islink.return_value = True
-        self.bind_root.cleanup()
-        self.mount_manager.umount_lazy.assert_called_once_with()
-        mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
-        mock_command.assert_called_once_with(
-            [
-                'rm', '-f', 'root-dir/foo.kiwi',
-                'root-dir/foo.sha', 'root-dir/foo'
-            ]
-        )
-        mock_move.assert_called_once_with(
-            'root-dir/foo.rpmnew', 'root-dir/foo'
-        )
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.bind_root.cleanup()
+            self.mount_manager.umount_lazy.assert_called_once_with()
+            mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
+            mock_command.assert_called_once_with(
+                [
+                    'rm', '-f', 'root-dir/foo.kiwi',
+                    'root-dir/foo.sha', 'root-dir/foo'
+                ]
+            )
+            mock_move.assert_called_once_with(
+                'root-dir/foo.rpmnew', 'root-dir/foo'
+            )
 
     @patch('os.path.islink')
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('kiwi.system.root_bind.Checksum')
     def test_cleanup_continue_on_error(
         self, mock_Checksum, mock_remove_hierarchy,
-        mock_command, mock_warn, mock_islink
+        mock_command, mock_islink
     ):
         mock_islink.return_value = True
         mock_remove_hierarchy.side_effect = Exception('rm')
         mock_command.side_effect = Exception
         self.mount_manager.umount_lazy.side_effect = Exception
-        self.bind_root.cleanup()
-        assert mock_warn.call_args_list == [
-            call(
-                'Image root directory %s not cleanly umounted: %s',
-                'root-dir', ''
-            ),
-            call(
-                'Failed to remove directory hierarchy root-dir/mountpoint: rm'
-            ),
-            call(
-                'Failed to remove intermediate config files: %s', ''
-            )
-        ]
+        with self._caplog.at_level(logging.WARNING):
+            self.bind_root.cleanup()
+            assert 'Image root directory root-dir not cleanly umounted:' in \
+                self._caplog.text
+            assert 'Failed to remove directory hierarchy '
+            'root-dir/mountpoint: rm' in self._caplog.text
+            assert 'Failed to remove intermediate config files' in \
+                self._caplog.text
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('kiwi.system.root_bind.Checksum')
     def test_cleanup_nothing_mounted(
-        self, mock_Checksum, mock_remove_hierarchy, mock_command, mock_warn
+        self, mock_Checksum, mock_remove_hierarchy, mock_command
     ):
         self.mount_manager.is_mounted.return_value = False
         self.mount_manager.mountpoint = '/mountpoint'
-        self.bind_root.cleanup()
-        mock_warn.assert_called_once_with(
-            'Path %s not a mountpoint', '/mountpoint'
-        )
+        with self._caplog.at_level(logging.WARNING):
+            self.bind_root.cleanup()
+            assert 'Path /mountpoint not a mountpoint' in self._caplog.text
 
     def test_move_to_root(self):
         assert self.bind_root.move_to_root(

@@ -16,13 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from collections import namedtuple
 
 # project
 from kiwi.firmware import FirmWare
 from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class DiskSetup:

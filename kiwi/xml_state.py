@@ -16,23 +16,25 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
+import logging
 import copy
 import platform
 from collections import namedtuple
 from textwrap import dedent
 
 # project
-from . import xml_parse
-from .logger import log
-from .system.uri import Uri
-from .defaults import Defaults
-from .utils.size import StringToSize
+from kiwi import xml_parse
+from kiwi.system.uri import Uri
+from kiwi.defaults import Defaults
+from kiwi.utils.size import StringToSize
 
-from .exceptions import (
+from kiwi.exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
     KiwiDistributionNameError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class XMLState:

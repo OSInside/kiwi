@@ -19,16 +19,15 @@ import re
 import os
 import platform
 import pickle
+import logging
 from collections import namedtuple
 
 # project
 from kiwi.defaults import Defaults
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.system.kernel import Kernel
-
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
@@ -36,6 +35,8 @@ from kiwi.exceptions import (
     KiwiBootImageDumpError,
     KiwiDiskBootImageError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootImageBase:

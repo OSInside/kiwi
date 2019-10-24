@@ -16,19 +16,21 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import logging
 
 # project
 from kiwi.defaults import Defaults
 from kiwi.archive.tar import ArchiveTar
 from kiwi.system.setup import SystemSetup
 from kiwi.utils.checksum import Checksum
-from kiwi.logger import log
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiArchiveSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class ArchiveBuilder:

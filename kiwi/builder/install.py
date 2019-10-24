@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import mkdtemp
 import platform
 import shutil
@@ -30,7 +31,6 @@ from kiwi.system.identifier import SystemIdentifier
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.utils.checksum import Checksum
-from kiwi.logger import log
 from kiwi.system.kernel import Kernel
 from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
@@ -40,6 +40,8 @@ from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.exceptions import (
     KiwiInstallBootImageError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class InstallImageBuilder:

@@ -17,11 +17,13 @@
 #
 import json
 import os
+import logging
 from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.path import Path
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class DataOutput:

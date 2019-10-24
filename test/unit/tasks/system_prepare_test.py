@@ -1,7 +1,8 @@
+import logging
 import sys
 import mock
 import os
-
+from pytest import fixture
 from mock import patch, call
 
 import kiwi
@@ -12,6 +13,10 @@ from kiwi.tasks.system_prepare import SystemPrepareTask
 
 
 class TestSystemPrepareTask:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'prepare',
@@ -211,14 +216,11 @@ class TestSystemPrepareTask:
             'newLabel', 'value'
         )
 
-    @patch('kiwi.logger.log.warning')
-    def test_process_system_prepare_add_container_label_invalid_format(
-        self, mock_log_warn
-    ):
+    def test_process_system_prepare_add_container_label_invalid_format(self):
         self._init_command_args()
         self.task.command_args['--add-container-label'] = ['newLabel:value']
-        self.task.process()
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.task.process()
 
     @patch('kiwi.xml_state.XMLState.set_derived_from_image_uri')
     def test_process_system_prepare_set_derived_from_uri(

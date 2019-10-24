@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import platform
 from collections import OrderedDict
 
@@ -24,12 +25,13 @@ from kiwi.command import Command
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.path import Path
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
     KiwiResizeRawDiskError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class DiskFormatBase:

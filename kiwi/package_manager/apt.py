@@ -17,11 +17,11 @@
 #
 import re
 import os
+import logging
 
 # project
 from kiwi.command import Command
 from kiwi.mount_manager import MountManager
-from kiwi.logger import log
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
@@ -29,6 +29,8 @@ from kiwi.exceptions import (
     KiwiDebootstrapError,
     KiwiRequestError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PackageManagerApt(PackageManagerBase):

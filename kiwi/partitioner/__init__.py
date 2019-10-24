@@ -16,16 +16,18 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
+import logging
 
 # project
 from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.partitioner.msdos import PartitionerMsDos
 from kiwi.partitioner.dasd import PartitionerDasd
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiPartitionerSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class Partitioner:

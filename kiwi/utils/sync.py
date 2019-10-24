@@ -16,12 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from stat import ST_MODE
 import xattr
 
 # project
-from kiwi.logger import log
 from kiwi.command import Command
+
+log = logging.getLogger('kiwi')
 
 
 class DataSync:

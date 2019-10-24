@@ -1,3 +1,5 @@
+import logging
+from pytest import fixture
 from mock import patch
 from kiwi.utils.output import DataOutput
 import json
@@ -5,6 +7,10 @@ import mock
 
 
 class TestDataOutput:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         test_data = {
             'some-name': 'some-data'
@@ -34,14 +40,10 @@ class TestDataOutput:
         )
 
     @patch('sys.stdout')
-    @patch('kiwi.logger.log.warning')
-    def test_display_color_no_pjson(self, mock_warn, mock_stdout):
+    def test_display_color_no_pjson(self, mock_stdout):
         self.out.style = 'color'
         self.out.color_json = False
-        self.out.display()
-        mock_warn.assert_any_call(
-            'pjson for color output not installed'
-        )
-        mock_warn.assert_any_call(
-            'run: pip install pjson'
-        )
+        with self._caplog.at_level(logging.WARNING):
+            self.out.display()
+            assert 'pjson for color output not installed' in self._caplog.text
+            assert 'run: pip install pjson' in self._caplog.text

@@ -16,15 +16,16 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from collections import namedtuple
+import logging
 import pickle
 import os
 
 # project
-from kiwi.logger import log
-
 from kiwi.exceptions import (
     KiwiResultError
 )
+
+log = logging.getLogger('kiwi')
 
 # must be global to allow pickle to find it
 result_file_type = namedtuple(

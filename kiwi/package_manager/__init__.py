@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.package_manager.zypper import PackageManagerZypper
 from kiwi.package_manager.apt import PackageManagerApt
@@ -23,6 +25,8 @@ from kiwi.package_manager.dnf import PackageManagerDnf
 from kiwi.exceptions import (
     KiwiPackageManagerSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PackageManager:
@@ -40,8 +44,6 @@ class PackageManager:
     :rtype: PackageManagerBase subclass
     """
     def __new__(self, repository, package_manager, custom_args=None):
-        from ..logger import log
-
         if package_manager == 'zypper':
             manager = PackageManagerZypper(repository, custom_args)
         elif package_manager == 'dnf' or package_manager == 'yum':

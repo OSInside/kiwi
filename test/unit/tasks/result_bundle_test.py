@@ -1,9 +1,12 @@
 import os
 import sys
+import logging
 from mock import (
     patch, call, Mock, mock_open
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from ..test_helper import argv_kiwi_tests
 
@@ -15,6 +18,10 @@ from kiwi.exceptions import KiwiBundleError
 
 
 class TestResultBundleTask:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         sys.argv = [
             sys.argv[0], 'result', 'bundle', '--target-dir', 'target_dir',
@@ -171,7 +178,6 @@ class TestResultBundleTask:
             ])
         ]
 
-    @patch('kiwi.logger.log.warning')
     @patch('kiwi.tasks.result_bundle.Result.load')
     @patch('kiwi.tasks.result_bundle.Command.run')
     @patch('kiwi.tasks.result_bundle.Path.create')
@@ -181,7 +187,7 @@ class TestResultBundleTask:
     @patch('os.path.exists')
     def test_process_result_bundle_zsyncmake_missing(
         self, mock_exists, mock_checksum, mock_compress,
-        mock_path_which, mock_path_create, mock_command, mock_load, mock_log
+        mock_path_which, mock_path_create, mock_command, mock_load
     ):
         checksum = Mock()
         compress = Mock()
@@ -196,11 +202,10 @@ class TestResultBundleTask:
         self.task.command_args['--zsync-source'] = 'http://example.com/zsync'
 
         with patch('builtins.open'):
-            self.task.process()
-
-        mock_log.assert_called_once_with(
-            '--> zsyncmake missing, zsync setup skipped'
-        )
+            with self._caplog.at_level(logging.WARNING):
+                self.task.process()
+                assert '--> zsyncmake missing, zsync setup skipped' in \
+                    self._caplog.text
 
     def test_process_result_bundle_help(self):
         self._init_command_args()

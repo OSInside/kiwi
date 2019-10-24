@@ -1,5 +1,8 @@
+import logging
 from mock import patch, call
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 import os
 
@@ -8,6 +11,10 @@ from kiwi.exceptions import KiwiFileAccessError
 
 
 class TestPath:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def test_sort_by_hierarchy(self):
         ordered = Path.sort_by_hierarchy(
             ['usr', 'usr/bin', 'etc', 'usr/lib']
@@ -36,16 +43,25 @@ class TestPath:
         )
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.logger.log.warning')
-    def test_remove_hierarchy(self, mock_log_warn, mock_command):
+    def test_remove_hierarchy(self, mock_command):
         Path.remove_hierarchy('/my_root/tmp/foo/bar')
-        assert mock_command.call_args_list == [
-            call(['rmdir', '--ignore-fail-on-non-empty', '/my_root/tmp/foo/bar']),
-            call(['rmdir', '--ignore-fail-on-non-empty', '/my_root/tmp/foo'])
-        ]
-        mock_log_warn.assert_called_once_with(
-            'remove_hierarchy: path /my_root/tmp is protected'
-        )
+        with self._caplog.at_level(logging.WARNING):
+            assert mock_command.call_args_list == [
+                call(
+                    [
+                        'rmdir', '--ignore-fail-on-non-empty',
+                        '/my_root/tmp/foo/bar'
+                    ]
+                ),
+                call(
+                    [
+                        'rmdir', '--ignore-fail-on-non-empty',
+                        '/my_root/tmp/foo'
+                    ]
+                )
+            ]
+            assert 'remove_hierarchy: path /my_root/tmp is protected' in \
+                self._caplog.text
 
     @patch('os.access')
     @patch('os.environ.get')
@@ -72,33 +88,30 @@ class TestPath:
     @patch('os.access')
     @patch('os.environ.get')
     @patch('os.path.exists')
-    @patch('kiwi.logger.log.debug')
     def test_which_not_found_log(
-        self, mock_log, mock_exists, mock_env, mock_access
+        self, mock_exists, mock_env, mock_access
     ):
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
         mock_exists.return_value = False
-        assert Path.which('file') is None
-        mock_log.assert_called_once_with(
-            '"file": in paths "%s" exists: "False" mode match: not checked' %
-            mock_env.return_value
-        )
+        with self._caplog.at_level(logging.DEBUG):
+            assert Path.which('file') is None
+            print(self._caplog.text)
+            assert '"file": in paths "{0}" exists: "False" mode match: '
+            'not checked'.format(mock_env.return_value) in self._caplog.text
 
     @patch('os.access')
     @patch('os.environ.get')
     @patch('os.path.exists')
-    @patch('kiwi.logger.log.debug')
     def test_which_not_found_for_mode_log(
-        self, mock_log, mock_exists, mock_env, mock_access
+        self, mock_exists, mock_env, mock_access
     ):
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
         mock_exists.return_value = True
         mock_access.return_value = False
-        assert Path.which('file', access_mode=os.X_OK) is None
-        mock_log.assert_called_once_with(
-            '"file": in paths "%s" exists: "True" mode match: "False"' %
-            mock_env.return_value
-        )
+        with self._caplog.at_level(logging.DEBUG):
+            assert Path.which('file', access_mode=os.X_OK) is None
+            assert '"file": in paths "{0}" exists: "True" mode match: '
+            '"False"'.format(mock_env.return_value) in self._caplog.text
 
     def test_access_invalid_mode(self):
         with raises(ValueError) as issue:

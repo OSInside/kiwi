@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, Mock, mock_open
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.system.result import Result
 
@@ -9,6 +12,10 @@ from kiwi.exceptions import KiwiResultError
 
 
 class TestResult:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.xml_state = Mock()
 
@@ -21,16 +28,14 @@ class TestResult:
         assert result['foo'].use_for_bundle is True
         assert result['foo'].compress is False
 
-    @patch('kiwi.logger.log.info')
-    def test_print_results_no_data(self, mock_info):
+    def test_print_results_no_data(self):
         self.result.print_results()
-        assert mock_info.called == 0
+        assert not self._caplog.text
 
-    @patch('kiwi.logger.log.info')
-    def test_print_results_data(self, mock_info):
+    def test_print_results_data(self):
         self.result.add('foo', 'bar')
-        self.result.print_results()
-        assert mock_info.called
+        with self._caplog.at_level(logging.INFO):
+            self.result.print_results()
 
     @patch('pickle.dump')
     def test_dump(self, mock_pickle_dump):

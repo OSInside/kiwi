@@ -16,13 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
 from kiwi.defaults import Defaults
-from kiwi.logger import log
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.oci_tools import OCI
 from kiwi.utils.compress import Compress
+
+log = logging.getLogger('kiwi')
 
 
 class ContainerImageOCI:

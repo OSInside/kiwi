@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, call, mock_open, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from collections import namedtuple
 
 from kiwi.partitioner.msdos import PartitionerMsDos
@@ -10,6 +13,10 @@ from kiwi.exceptions import KiwiPartitionerMsDosFlagError
 
 
 class TestPartitionerMsDos:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         disk_provider = Mock()
         disk_provider.get_device = Mock(
@@ -124,10 +131,9 @@ class TestPartitionerMsDos:
             ['parted', '/dev/loop0', 'set', '1', 'boot', 'on']
         )
 
-    @patch('kiwi.logger.log.warning')
-    def test_set_flag_ignored(self, mock_warn):
-        self.partitioner.set_flag(1, 't.csm')
-        assert mock_warn.called
+    def test_set_flag_ignored(self):
+        with self._caplog.at_level(logging.WARNING):
+            self.partitioner.set_flag(1, 't.csm')
 
     def test_resize_table(self):
         self.partitioner.resize_table()

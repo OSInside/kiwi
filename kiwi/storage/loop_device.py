@@ -16,16 +16,18 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.utils.command_capabilities import CommandCapabilities
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiLoopSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class LoopDevice(DeviceProvider):

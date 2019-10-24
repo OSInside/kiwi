@@ -1,12 +1,14 @@
 import sys
+import logging
 from mock import (
     patch, call, Mock, MagicMock, mock_open
 )
+from pytest import (
+    raises, fixture
+)
+from collections import namedtuple
 
 from ..test_helper import argv_kiwi_tests
-
-from pytest import raises
-from collections import namedtuple
 
 from kiwi.system.setup import SystemSetup
 from kiwi.xml_description import XMLDescription
@@ -20,6 +22,10 @@ from kiwi.exceptions import (
 
 
 class TestSystemSetup:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
@@ -304,13 +310,12 @@ class TestSystemSetup:
             ])
         ])
 
-    @patch('kiwi.logger.log.warning')
     @patch('os.path.exists')
-    def test_setup_keyboard_skipped(self, mock_exists, mock_log_warn):
+    def test_setup_keyboard_skipped(self, mock_exists):
         mock_exists.return_value = False
         self.setup.preferences['keytable'] = 'keytable'
-        self.setup.setup_keyboard_map()
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            self.setup.setup_keyboard_map()
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Shell.run_common_function')
@@ -870,9 +875,8 @@ class TestSystemSetup:
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.Path.which')
-    @patch('kiwi.logger.log.warning')
     def test_setup_permissions(
-        self, mock_log_warn, mock_path_which, mock_command
+        self, mock_path_which, mock_command
     ):
         mock_path_which.return_value = 'chkstat'
         self.setup.setup_permissions()
@@ -880,8 +884,8 @@ class TestSystemSetup:
             ['chroot', 'root_dir', 'chkstat', '--system', '--set']
         )
         mock_path_which.return_value = None
-        self.setup.setup_permissions()
-        mock_log_warn.assert_called_once()
+        with self._caplog.at_level(logging.WARNING):
+            self.setup.setup_permissions()
 
     @patch('kiwi.system.setup.Command.run')
     def test_export_package_list_dpkg(self, mock_command):

@@ -1,17 +1,25 @@
+import logging
+from collections import namedtuple
 from mock import patch
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
+
 from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
     KiwiProfileNotFound
 )
-from collections import namedtuple
 
 
 class TestXMLState:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
@@ -641,19 +649,17 @@ class TestXMLState:
             'somelabel': 'newlabelvalue'
         }
 
-    @patch('kiwi.logger.log.warning')
-    def test_add_container_label_no_container_image_type(self, mock_log_warn):
+    def test_add_container_label_no_container_image_type(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
         state.add_container_config_label('somelabel', 'newlabelvalue')
-        config = state.get_container_config()
-        assert not config
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            config = state.get_container_config()
+            assert not config
 
-    @patch('kiwi.logger.log.warning')
-    def test_set_container_tag_not_applied(self, mock_log_warn):
-        self.state.set_container_config_tag('new_tag')
-        assert mock_log_warn.called
+    def test_set_container_tag_not_applied(self):
+        with self._caplog.at_level(logging.WARNING):
+            self.state.set_container_config_tag('new_tag')
 
     def test_get_container_config(self):
         expected_config = {
@@ -720,10 +726,9 @@ class TestXMLState:
         state.set_derived_from_image_uri('file:///new_uri')
         assert state.get_derived_from_image_uri().translate() == '/new_uri'
 
-    @patch('kiwi.logger.log.warning')
-    def test_set_derived_from_image_uri_not_applied(self, mock_log_warn):
-        self.state.set_derived_from_image_uri('file:///new_uri')
-        assert mock_log_warn.called
+    def test_set_derived_from_image_uri_not_applied(self):
+        with self._caplog.at_level(logging.WARNING):
+            self.state.set_derived_from_image_uri('file:///new_uri')
 
     def test_is_xen_server(self):
         assert self.state.is_xen_server() is True

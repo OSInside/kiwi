@@ -44,6 +44,7 @@ options:
         the target directory to expect image build results
 """
 import os
+import logging
 
 # project
 from kiwi.firmware import FirmWare
@@ -51,13 +52,14 @@ from kiwi.storage.loop_device import LoopDevice
 from kiwi.partitioner import Partitioner
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
-from kiwi.logger import log
 from kiwi.storage.subformat import DiskFormat
 from kiwi.utils.size import StringToSize
 
 from kiwi.exceptions import (
     KiwiImageResizeError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class ImageResizeTask(CliTask):

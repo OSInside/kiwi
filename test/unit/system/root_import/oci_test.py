@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.system.uri import Uri
 from kiwi.system.root_import.oci import RootImportOCI
@@ -10,6 +13,10 @@ from kiwi.exceptions import KiwiRootImportError
 
 
 class TestRootImportOCI:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_path):
         mock_path.return_value = True
@@ -84,13 +91,12 @@ class TestRootImportOCI:
         uncompress.get_format.assert_called_once_with()
         uncompress.uncompress.assert_called_once_with(True)
 
-    @patch('kiwi.logger.log.warning')
     @patch('os.path.exists')
     @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data_unknown_uri(
-        self, mock_OCI, mock_path, mock_md5, mock_exists, mock_warn
+        self, mock_OCI, mock_path, mock_md5, mock_exists
     ):
         mock_exists.return_value = True
         oci = Mock()
@@ -103,15 +109,15 @@ class TestRootImportOCI:
                 {'archive_transport': 'docker-archive'}
             )
 
-        oci_import.sync_data()
-
-        mock_OCI.assert_called_once_with()
-
-        oci.import_container_image.assert_called_once_with('docker:image:tag')
-        oci.unpack.assert_called_once_with()
-        oci.import_rootfs.assert_called_once_with(
-            'root_dir'
-        )
-        mock_md5.assert_called_once_with('root_dir/image/imported_root')
-        md5.md5.called_once_with('root_dir/image/imported_root.md5')
-        assert mock_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            oci_import.sync_data()
+            mock_OCI.assert_called_once_with()
+            oci.import_container_image.assert_called_once_with(
+                'docker:image:tag'
+            )
+            oci.unpack.assert_called_once_with()
+            oci.import_rootfs.assert_called_once_with(
+                'root_dir'
+            )
+            mock_md5.assert_called_once_with('root_dir/image/imported_root')
+            md5.md5.called_once_with('root_dir/image/imported_root.md5')
