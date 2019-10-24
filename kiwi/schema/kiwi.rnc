@@ -1815,7 +1815,7 @@ div {
         attribute shell { text }
     k.user.attlist =
         k.user.groups.attribute? &
-        k.user.home.attribute &
+        k.user.home.attribute? &
         k.user.id.attribute? &
         k.user.name.attribute &
         k.user.password.attribute &
