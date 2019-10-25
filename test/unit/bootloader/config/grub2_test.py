@@ -321,7 +321,6 @@ class TestBootLoaderConfigGrub2:
 
         mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
         grub_default.write.assert_called_once_with()
-        print(grub_default.__setitem__.call_args_list)
         assert grub_default.__setitem__.call_args_list == [
             call(
                 'GRUB_BACKGROUND',
