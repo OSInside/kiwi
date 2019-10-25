@@ -121,9 +121,10 @@ class TestVolumeManagerBtrfs:
 
         self.volume_manager.setup()
 
-        mock_mount.assert_called_once_with(
-            device='/dev/storage', mountpoint='tmpdir'
-        )
+        assert mock_mount.call_args_list == [
+            call(device='/dev/storage', mountpoint='tmpdir'),
+            call(device='/dev/storage', mountpoint='tmpdir/.snapshots')
+        ]
         toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
             call(['btrfs', 'quota', 'enable', 'tmpdir']),
@@ -240,9 +241,7 @@ class TestVolumeManagerBtrfs:
         volume_mount.device = 'device'
         self.volume_manager.toplevel_volume = '@/.snapshots/1/snapshot'
         self.volume_manager.subvol_mount_list = [volume_mount]
-        self.volume_manager.custom_args['root_is_snapshot'] = True
         assert self.volume_manager.get_fstab() == [
-            'LABEL=id /.snapshots btrfs defaults,subvol=@/.snapshots 0 0',
             'LABEL=id /var/tmp btrfs defaults,subvol=@/var/tmp 0 0'
         ]
 
