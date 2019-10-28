@@ -418,6 +418,7 @@ fi
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
 %config %_sysconfdir/bash_completion.d/kiwi-ng.sh
+%config %_sysconfdir/kiwi.yml
 %doc %{_mandir}/man8/*
 
 %files -n kiwi-tools

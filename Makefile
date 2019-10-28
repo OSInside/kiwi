@@ -55,6 +55,8 @@ install:
 	install -d -m 755 ${buildroot}etc/bash_completion.d
 	$(python) helper/completion_generator.py \
 		> ${buildroot}etc/bash_completion.d/kiwi-ng.sh
+	# kiwi default configuration
+	install -m 644 kiwi.yml ${buildroot}etc/kiwi.yml
 
 tox:
 	tox "-n 5"
