@@ -34,6 +34,7 @@ include Makefile
 include README.rst
 include LICENSE
 include tox.ini
+include kiwi.yml
 
 recursive-include doc/build/man *
 recursive-include test *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
