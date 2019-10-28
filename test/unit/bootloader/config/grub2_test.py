@@ -308,9 +308,9 @@ class TestBootLoaderConfigGrub2:
     def test_setup_default_grub(
         self, mock_Command_run, mock_sysconfig, mock_exists
     ):
-        use_linuxefi_implemented = Mock()
-        use_linuxefi_implemented.returncode = 0
-        mock_Command_run.return_value = use_linuxefi_implemented
+        grep_grub_option = Mock()
+        grep_grub_option.returncode = 0
+        mock_Command_run.return_value = grep_grub_option
         grub_default = MagicMock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
@@ -328,6 +328,7 @@ class TestBootLoaderConfigGrub2:
             ),
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
+            call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call('GRUB_GFXMODE', '800x600'),
             call(

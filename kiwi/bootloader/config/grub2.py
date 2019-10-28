@@ -560,6 +560,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.custom_args.get('boot_is_crypto'):
             grub_default_entries['GRUB_ENABLE_CRYPTODISK'] = 'y'
 
+        enable_blscfg_implemented = Command.run(
+            [
+                'grep', '-q', 'GRUB_ENABLE_BLSCFG',
+                Defaults.get_grub_config_tool()
+            ], raise_on_error=False
+        )
+        if enable_blscfg_implemented.returncode == 0:
+            grub_default_entries['GRUB_ENABLE_BLSCFG'] = 'true'
+
         if grub_default_entries:
             log.info('Writing grub2 defaults file')
             grub_default_location = ''.join([self.root_dir, '/etc/default/'])
