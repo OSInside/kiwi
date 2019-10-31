@@ -735,7 +735,7 @@ function baseStripFirmware {
     local kernel_module
     local firmware
     mkdir -p /lib/firmware-required
-    find "${base}" -name "*.ko" -print0 | \
+    find "${base}" \( -name "*.ko" -o -name "*.ko.xz" \) -print0 | \
     while IFS= read -r -d $'\0' kernel_module; do
         firmware=$(modinfo "${kernel_module}" | grep ^firmware)
         if [ -z "${firmware}" ];then
@@ -747,7 +747,10 @@ function baseStripFirmware {
         fi
         # could be more than one, loop
         for fname in $name ; do
-            for match in /lib/firmware/"${fname}" /lib/firmware/*/"${fname}";do
+            for match in /lib/firmware/"${fname}"      \
+                         /lib/firmware/"${fname}".xz   \
+                         /lib/firmware/*/"${fname}"    \
+                         /lib/firmware/*/"${fname}".xz ;do
                 if [ -e "${match}" ];then
                     match="${match//\/lib\/firmware\//}"
                     bmdir=$(dirname "${match}")
@@ -784,7 +787,7 @@ function baseStripModules {
     local count=1
     local mosum=1
     local modup
-    files=$(find ${kernel} -type f -name "*.ko")
+    files=$(find ${kernel} -type f \( -name "*.ko" -o -name "*.ko.xz" \) )
     mlist=$(for i in ${files};do echo "$i";done | sed -e "s@.*/@@g" | sort)
     #======================================
     # create sorted module array
@@ -876,7 +879,7 @@ function baseStripKernelModules {
         fi
         echo "Downsizing kernel modules for ${kernel_dir}"
         for module in $(
-            find "/kernel-tree/${kernel_version}/kernel" -name "*.ko" | sort
+            find "/kernel-tree/${kernel_version}/kernel" -name "*.ko" -o -name "*.ko.xz" | sort
         ); do
             if ! baseKernelDriverMatches "${module}"; then
                 echo "Deleting unwanted module: ${module}"
@@ -900,10 +903,11 @@ function baseFixupKernelModuleDependencies {
     for kernel_dir in /kernel-tree/*;do
         echo "Checking kernel dependencies for ${kernel_dir}"
         kernel_version=$(/usr/bin/basename "${kernel_dir}")
-        module_files=$(find "/kernel-tree/${kernel_version}" -name "*.ko")
+        module_files=$(find "/kernel-tree/${kernel_version}" -name "*.ko" -o -name "*.ko.xz")
 
         for module in ${module_files};do
-            module_name=$(/usr/bin/basename "${module}")
+            module_u=${module%.xz}
+            module_name=$(/usr/bin/basename "${module_u}")
             module_info=$(/sbin/modprobe \
                 --set-version "${kernel_version}" --ignore-install \
                 --show-depends "${module_name%.ko}" |\
