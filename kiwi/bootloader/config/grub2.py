@@ -157,7 +157,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
             if self.firmware.efi_mode():
                 self._copy_grub_config_to_efi_path(
-                    self.root_dir, config_file
+                    self.boot_dir, config_file
                 )
 
     def write_meta_data(self, root_uuid=None, boot_options='', iso_boot=False):
@@ -431,7 +431,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             if not efi_boot_path:
                 efi_boot_path = os.path.normpath(
-                    os.sep.join([root_path, 'boot/efi/EFI/BOOT'])
+                    os.sep.join([root_path, 'EFI/BOOT'])
                 )
             Path.create(efi_boot_path)
             grub_config_file_for_efi_boot = os.sep.join(
