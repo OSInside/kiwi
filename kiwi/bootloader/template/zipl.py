@@ -77,7 +77,8 @@ class BootLoaderTemplateZipl:
         :rtype: Template
         """
         template_data = self.header
-        if targettype and targettype != 'SCSI':
+        unsupported_for_target_geometry = ['FBA', 'SCSI']
+        if targettype and targettype not in unsupported_for_target_geometry:
             template_data += self.add_targetgeometry
         template_data += self.activate_menu_entry
         if failsafe:
