@@ -14,7 +14,7 @@
         <locale>en_US</locale>
         <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
-        <type image="oem" filesystem="btrfs" initrd_system="dracut" bootloader="grub2_s390x_emu" target_blocksize="4096" zipl_targettype="CDL" kernelcmdline="cio_ignore=all,!ipldev,!condev">
+        <type image="oem" filesystem="xfs" initrd_system="dracut" bootloader="grub2_s390x_emu" target_blocksize="4096" zipl_targettype="CDL" kernelcmdline="cio_ignore=all,!ipldev,!condev" bootloader_console="serial">
             <size unit="G">20</size>
             <systemdisk>
                 <volume name="home"/>
