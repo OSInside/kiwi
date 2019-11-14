@@ -1,4 +1,5 @@
 import logging
+import os
 from mock import patch
 from pytest import (
     raises, fixture
@@ -157,6 +158,14 @@ class TestUri:
     def test_translate_dir_path(self):
         uri = Uri('dir:///some/path', 'rpm-md')
         assert uri.translate() == '/some/path'
+
+    @patch('os.path.abspath')
+    def test_translate_dir_relative_path(self, mock_abspath):
+        mock_abspath.side_effect = lambda path: os.sep.join(
+            ['/current/dir', path]
+        )
+        uri = Uri('dir:some/path', 'rpm-md')
+        assert uri.translate() == '/current/dir/some/path'
 
     def test_translate_http_path(self):
         uri = Uri('http://example.com/foo', 'rpm-md')

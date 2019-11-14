@@ -246,7 +246,7 @@ class Uri:
         return iso_mount.mountpoint
 
     def _local_path(self, path):
-        return os.path.normpath(path)
+        return os.path.abspath(os.path.normpath(path))
 
     def _obs_project_download_link(self, name):
         name_parts = name.split(os.sep)
