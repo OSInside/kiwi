@@ -1,5 +1,5 @@
 from mock import (
-    patch, call, Mock
+    patch, Mock
 )
 from pytest import raises
 
@@ -35,17 +35,12 @@ class TestBootLoaderInstallZipl:
         assert self.bootloader.install_required() is True
 
     @patch('kiwi.bootloader.install.zipl.Command.run')
-    def test_install(self, mock_command):
+    def test_install(self, mock_Command_run):
         self.bootloader.install()
         self.bootloader.boot_mount.mount.assert_called_once_with()
-        mock_command.call_args_list == [
-            call(
-                ['bash', '-c', 'cd tmpdir && zipl -V -c tmpdir/config -m menu']
-            ),
-            call(
-                ['umount', 'tmpdir']
-            )
-        ]
+        mock_Command_run.assert_called_once_with(
+            ['bash', '-c', 'cd root_dir/boot && zipl -V -c zipl/config -m menu']
+        )
 
     def test_destructor(self):
         self.bootloader.__del__()

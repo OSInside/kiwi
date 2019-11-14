@@ -89,7 +89,7 @@ class BootLoaderConfigBase:
         pass
 
     def setup_disk_image_config(
-        self, boot_uuid, root_uuid, hypervisor, kernel, initrd, boot_options
+        self, boot_uuid, root_uuid, hypervisor, kernel, initrd, boot_options={}
     ):
         """
         Create boot config file to boot from disk.
@@ -99,9 +99,15 @@ class BootLoaderConfigBase:
         :param string hypervisor: hypervisor name
         :param string kernel: kernel name
         :param string initrd: initrd name
-        :param string boot_options:
-            custom options required to setup the boot. The scope
-            of the options is specified in the implementation
+        :param dict boot_options:
+            custom options dictionary required to setup the bootloader.
+            The scope of the options covers all information needed
+            to setup and configure the bootloader and gets effective
+            in the individual implementation. boot_options should
+            not be mixed up with commandline options used at boot time.
+            This information is provided from the get_*_cmdline
+            methods. The contents of the dictionary can vary between
+            bootloaders or even not be needed
 
         Implementation in specialized bootloader class required
         """
