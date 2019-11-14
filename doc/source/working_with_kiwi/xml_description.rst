@@ -780,7 +780,27 @@ removed), whose name is specified via the mandatory `name` attribute:
    </image>
 
 which adds the package `udev` to the list of packages to be added to the
-initial filesystem.
+initial filesystem. Note, that the value that you pass via the `name`
+attribute is passed directly to the used package manager. Thus, if the
+package manager supports other means how packages can be specified, you may
+pass them in this context too. For example, RPM based package managers
+(like :command:`dnf` or :command:`zypper`) can install packages via their
+`Provides:`. This can be used to add a package that provides a certain
+capability (e.g. `Provides: /usr/bin/my-binary`) via:
+
+.. code:: xml
+
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <!-- snip -->
+       <packages type="bootstrap">
+           <package name="/usr/bin/my-binary"/>
+       </packages>
+   </image>
+
+Whether this works depends on the package manager and on the environment
+that is being used. In the Open Build Service, certain `Provides` either
+are not visible or cannot be properly extracted from the KIWI
+description. Therefore, relying on `Provides` is not recommended.
 
 Packages can also be included only on specific architectures via the `arch`
 attribute. KIWI compares the `arch` attributes value with the output of
