@@ -18,7 +18,6 @@
 import platform
 import logging
 import re
-import os
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
@@ -101,29 +100,9 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-            log.info('Moving initrd/kernel to zipl boot directory')
-            Command.run(
-                [
-                    'mv',
-                    os.sep.join(
-                        [
-                            self.boot_dir, 'boot',
-                            os.readlink(self.boot_dir + '/boot/initrd')
-                        ]
-                    ),
-                    os.sep.join(
-                        [
-                            self.boot_dir, 'boot',
-                            os.readlink(self.boot_dir + '/boot/image')
-                        ]
-                    ),
-                    self._get_zipl_boot_path()
-                ]
-            )
-
     def setup_disk_image_config(
         self, boot_uuid=None, root_uuid=None, hypervisor=None,
-        kernel=None, initrd=None, boot_options=''
+        kernel='image', initrd='initrd', boot_options={}
     ):
         """
         Create the zipl config in memory from a template suitable to
@@ -134,7 +113,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
         :param string hypervisor: unused
         :param string kernel: kernel name
         :param string initrd: initrd name
-        :param string boot_options: kernel options as string
+        :param dict boot_options: unused
         """
         log.info('Creating zipl config file from template')
         parameters = {
@@ -149,10 +128,8 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
             'title': self.quote_title(self.get_menu_entry_title()),
             'kernel_file': kernel,
             'initrd_file': initrd,
-            'boot_options': ' '.join([self.cmdline, boot_options]),
-            'failsafe_boot_options': ' '.join(
-                [self.cmdline_failsafe, boot_options]
-            )
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe
         }
         log.info('--> Using standard disk boot template')
         template = self.zipl.get_template(self.failsafe_boot, self.target_type)

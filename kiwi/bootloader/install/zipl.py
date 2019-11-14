@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import logging
 
 # project
@@ -77,9 +78,8 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
 
         bash_command = ' '.join(
             [
-                'cd', self.boot_mount.mountpoint, '&&',
-                'zipl', '-V', '-c', self.boot_mount.mountpoint + '/config',
-                '-m', 'menu'
+                'cd', os.sep.join([self.root_dir, 'boot']), '&&',
+                'zipl', '-V', '-c', 'zipl/config', '-m', 'menu'
             ]
         )
         zipl_call = Command.run(

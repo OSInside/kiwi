@@ -199,7 +199,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string hypervisor: unused
         :param string kernel: unused
         :param string initrd: unused
-        :param string boot_options:
+        :param dict boot_options:
             options dictionary that has to contain the root and boot
             device and optional volume configuration. KIWI has to
             mount the system prior to run grub2-mkconfig.

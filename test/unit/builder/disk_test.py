@@ -503,7 +503,8 @@ class TestDiskBuilder:
             'kiwi-repart'
         )
         self.boot_image_task.omit_module.assert_called_once_with('multipath')
-        assert self.boot_image_task.write_system_config_file.call_args_list == []
+        assert self.boot_image_task.write_system_config_file.call_args_list == \
+            []
 
     @patch('kiwi.builder.disk.FileSystem')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
@@ -602,6 +603,7 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_s390_boot(
         self, mock_grub_dir, mock_command, mock_fs
     ):
+        self.disk_builder.arch = 's390x'
         filesystem = mock.Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -612,6 +614,8 @@ class TestDiskBuilder:
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()
+
+        self.bootloader_config.write.assert_called_once_with()
 
         assert mock_fs.call_args_list[1] == call(
             'ext2', self.device_map['boot'], 'root_dir/boot/zipl/'
@@ -728,11 +732,14 @@ class TestDiskBuilder:
         volume_manager.create_volumes.assert_called_once_with('btrfs')
         volume_manager.mount_volumes.call_args_list[0].assert_called_once_with()
         volume_manager.get_fstab.assert_called_once_with(None, 'btrfs')
-        volume_manager.sync_data.assert_called_once_with([
-            'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
-            'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
-        ])
-        volume_manager.umount_volumes.call_args_list[0].assert_called_once_with()
+        volume_manager.sync_data.assert_called_once_with(
+            [
+                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
+                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
+            ]
+        )
+        volume_manager.umount_volumes.call_args_list[0].assert_called_once_with(
+        )
         self.setup.create_fstab.assert_called_once_with(
             [
                 'fstab_volume_entries',

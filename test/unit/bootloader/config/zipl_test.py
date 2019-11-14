@@ -84,16 +84,11 @@ class TestBootLoaderConfigZipl:
             BootLoaderConfigZipl(mock.Mock(), 'root_dir')
 
     @patch('os.path.exists')
-    @patch('os.readlink')
     @patch('kiwi.bootloader.config.zipl.Path.create')
     @patch('kiwi.bootloader.config.zipl.Command.run')
     def test_write(
-        self, mock_command, mock_path, mock_readlink, mock_exists
+        self, mock_command, mock_path, mock_exists
     ):
-        mock_readlink.side_effect = [
-            'initrd_readlink_name',
-            'kernel_readlink_name'
-        ]
         mock_exists.return_value = True
 
         self.bootloader.config = 'some-data'
@@ -110,14 +105,6 @@ class TestBootLoaderConfigZipl:
         )
         m_open.return_value.write.assert_called_once_with(
             'some-data'
-        )
-        mock_command.assert_called_once_with(
-            [
-                'mv',
-                'root_dir/boot/initrd_readlink_name',
-                'root_dir/boot/kernel_readlink_name',
-                'root_dir/boot/zipl'
-            ]
         )
 
     def test_setup_disk_boot_images(self):
@@ -205,7 +192,7 @@ class TestBootLoaderConfigZipl:
         mock_command.side_effect = side_effect
 
         self.bootloader.setup_disk_image_config(
-            kernel='kernel', initrd='initrd', boot_options='foo'
+            kernel='image', initrd='initrd'
         )
 
         self.zipl.get_template.assert_called_once_with(True, 'CDL')
@@ -215,14 +202,14 @@ class TestBootLoaderConfigZipl:
                 'initrd_file': 'initrd',
                 'offset': 168,
                 'device': '/dev/loop0',
-                'kernel_file': 'kernel',
+                'kernel_file': 'image',
                 'title': 'image-name_(_OEM_)',
                 'geometry': '10017,15,12',
-                'boot_options': 'cmdline foo',
+                'boot_options': 'cmdline',
                 'target_type': 'CDL',
                 'boot_timeout': '200',
                 'failsafe_boot_options': 'cmdline ide=nodma apm=off '
-                'noresume edd=off nomodeset 3 foo',
+                'noresume edd=off nomodeset 3',
                 'default_boot': '1',
                 'bootpath': '.'
             }
@@ -261,7 +248,7 @@ class TestBootLoaderConfigZipl:
         mock_command.side_effect = side_effect
 
         self.bootloader.setup_disk_image_config(
-            kernel='kernel', initrd='initrd'
+            kernel='image', initrd='initrd'
         )
 
         self.zipl.get_template.assert_called_once_with(True, 'CDL')
@@ -271,14 +258,14 @@ class TestBootLoaderConfigZipl:
                 'initrd_file': 'initrd',
                 'offset': 129024,
                 'device': '/dev/loop0',
-                'kernel_file': 'kernel',
+                'kernel_file': 'image',
                 'title': 'image-name_(_OEM_)',
                 'geometry': '242251,256,63',
-                'boot_options': 'cmdline ',
+                'boot_options': 'cmdline',
                 'target_type': 'CDL',
                 'boot_timeout': '200',
                 'failsafe_boot_options': 'cmdline ide=nodma apm=off noresume '
-                'edd=off nomodeset 3 ',
+                'edd=off nomodeset 3',
                 'default_boot': '1',
                 'bootpath': '.'
             }
