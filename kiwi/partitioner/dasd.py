@@ -38,6 +38,7 @@ class PartitionerDasd(PartitionerBase):
         self.flag_map = {
             'f.active': None,
             't.linux': '1',
+            't.swap': '1',
             't.lvm': '1',
             't.raid': '1',
             't.efi': None,

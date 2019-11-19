@@ -214,7 +214,7 @@ class VolumeManagerBase(DeviceProvider):
         Implements creation of volume paths in the given root directory
         """
         for volume in self.volumes:
-            if volume.realpath and not volume.realpath == os.sep:
+            if volume.realpath and volume.realpath not in ['/', 'swap']:
                 volume_image_path = os.path.normpath(
                     self.root_dir + os.sep + volume.realpath
                 )
@@ -273,6 +273,10 @@ class VolumeManagerBase(DeviceProvider):
         """
         [size_type, mbsize] = volume.size.split(':')
         lookup_path = volume.realpath
+        lookup_abspath = os.path.normpath(
+            os.sep.join([self.root_dir, lookup_path])
+        )
+        mbsize = int(mbsize)
 
         if image_type and image_type == 'oem':
             # only for vmx types we need to create the volumes in the
@@ -281,9 +285,9 @@ class VolumeManagerBase(DeviceProvider):
             # image. Therefore the requested size is set to null
             # and we add the required minimum size to hold the data
             size_type = 'freespace'
-            mbsize = 0
+            mbsize = Defaults.get_min_volume_mbytes()
 
-        if size_type == 'freespace':
+        if size_type == 'freespace' and os.path.exists(lookup_abspath):
             exclude_paths = []
             for volume in all_volumes:
                 volume_path = volume.realpath
@@ -300,11 +304,9 @@ class VolumeManagerBase(DeviceProvider):
                         os.path.normpath(self.root_dir + os.sep + volume_path)
                     )
 
-            volume_size = SystemSize(
-                os.path.normpath(self.root_dir + os.sep + lookup_path)
-            )
-            mbsize = int(mbsize) + \
-                Defaults.get_min_volume_mbytes()
+            volume_size = SystemSize(lookup_abspath)
+            if mbsize != Defaults.get_min_volume_mbytes():
+                mbsize += Defaults.get_min_volume_mbytes()
             mbsize += volume_size.customize(
                 volume_size.accumulate_mbyte_file_sizes(exclude_paths),
                 filesystem_name

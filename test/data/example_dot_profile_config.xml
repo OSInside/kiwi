@@ -28,6 +28,7 @@
                 <volume name="usr/bin"/>
             </systemdisk>
             <oemconfig>
+                <oem-skip-verify>true</oem-skip-verify>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
                 <oem-recovery>false</oem-recovery>

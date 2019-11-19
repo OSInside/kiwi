@@ -37,6 +37,10 @@ class TestVolumeManagerLVM:
                 mountpoint=None, fullsize=False, label=None, attributes=[]
             ),
             self.volume_type(
+                name='LVSwap', size='size:100', realpath='swap',
+                mountpoint=None, fullsize=False, label='SWAP', attributes=[]
+            ),
+            self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False, label='etc', attributes=[]
             ),
@@ -82,12 +86,15 @@ class TestVolumeManagerLVM:
     def test_get_device(self, mock_path):
         mock_path.return_value = True
         self.volume_manager.volume_map = {
-            'LVRoot': '/dev/lvroot', 'LVx': '/dev/lvx'
+            'LVRoot': '/dev/lvroot', 'LVx': '/dev/lvx',
+            'LVSwap': '/dev/lvswap', 'LVs': '/dev/lvs'
         }
         assert self.volume_manager.get_device()['LVx'].get_device() == \
             '/dev/lvx'
         assert self.volume_manager.get_device()['root'].get_device() == \
             '/dev/lvroot'
+        assert self.volume_manager.get_device()['swap'].get_device() == \
+            '/dev/lvswap'
 
     @patch('kiwi.volume_manager.lvm.Command.run')
     @patch('kiwi.volume_manager.base.mkdtemp')
@@ -141,6 +148,12 @@ class TestVolumeManagerLVM:
         self, mock_attrs, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_size, mock_os_exists
     ):
+        mock_os_exists_return_list = [True, True, False, False, False]
+
+        def mock_os_exists_return(path):
+            return mock_os_exists_return_list.pop()
+
+        mock_os_exists.side_effect = mock_os_exists_return
         filesystem = Mock()
         mock_fs.return_value = filesystem
         self.volume_manager.mountpoint = 'tmpdir'
@@ -150,7 +163,6 @@ class TestVolumeManagerLVM:
             return_value=42
         )
         mock_size.return_value = size
-        mock_os_exists.return_value = False
         self.volume_manager.volume_group = 'volume_group'
         self.volume_manager.create_volumes('ext3')
         myvol_size = 500
@@ -158,6 +170,13 @@ class TestVolumeManagerLVM:
         root_size = 100 + 42 + Defaults.get_min_volume_mbytes()
 
         assert mock_attrs.call_args_list == [
+            call(
+                'root_dir', self.volume_type(
+                    name='LVSwap', size='size:100', realpath='swap',
+                    mountpoint=None, fullsize=False, label='SWAP',
+                    attributes=[]
+                )
+            ),
             call(
                 'root_dir', self.volume_type(
                     name='LVRoot', size='freespace:100', realpath='/',
@@ -187,28 +206,60 @@ class TestVolumeManagerLVM:
             call(device='/dev/volume_group/LVhome', mountpoint='tmpdir//home')
         ]
         assert mock_command.call_args_list == [
-            call(['mkdir', '-p', 'root_dir/etc']),
-            call(['mkdir', '-p', 'root_dir/data']),
-            call(['mkdir', '-p', 'root_dir/home']),
-            call([
-                'lvcreate', '-Zn', '-L', format(root_size), '-n', 'LVRoot',
-                'volume_group'
-            ]),
-            call(['vgscan', '--mknodes']),
-            call([
-                'lvcreate', '-Zn', '-L', format(myvol_size), '-n', 'myvol',
-                'volume_group'
-            ]),
-            call(['vgscan', '--mknodes']),
-            call([
-                'lvcreate', '-Zn', '-L', format(etc_size), '-n', 'LVetc',
-                'volume_group'
-            ]),
-            call(['vgscan', '--mknodes']),
-            call([
-                'lvcreate', '-Zn', '-l', '+100%FREE', '-n', 'LVhome', 'volume_group'
-            ]),
-            call(['vgscan', '--mknodes'])
+            call(
+                ['mkdir', '-p', 'root_dir/etc']
+            ),
+            call(
+                ['mkdir', '-p', 'root_dir/data']
+            ),
+            call(
+                ['mkdir', '-p', 'root_dir/home']
+            ),
+            call(
+                [
+                    'lvcreate', '-Zn', '-L', '100', '-n', 'LVSwap',
+                    'volume_group'
+                ]
+            ),
+            call(
+                ['vgscan', '--mknodes']
+            ),
+            call(
+                [
+                    'lvcreate', '-Zn', '-L', format(root_size), '-n', 'LVRoot',
+                    'volume_group'
+                ]
+            ),
+            call(
+                ['vgscan', '--mknodes']
+            ),
+            call(
+                [
+                    'lvcreate', '-Zn', '-L', format(myvol_size), '-n', 'myvol',
+                    'volume_group'
+                ]
+            ),
+            call(
+                ['vgscan', '--mknodes']
+            ),
+            call(
+                [
+                    'lvcreate', '-Zn', '-L', format(etc_size), '-n', 'LVetc',
+                    'volume_group'
+                ]
+            ),
+            call(
+                ['vgscan', '--mknodes']
+            ),
+            call(
+                [
+                    'lvcreate', '-Zn', '-l', '+100%FREE', '-n', 'LVhome',
+                    'volume_group'
+                ]
+            ),
+            call(
+                ['vgscan', '--mknodes']
+            )
         ]
         assert mock_fs.call_args_list == [
             call(

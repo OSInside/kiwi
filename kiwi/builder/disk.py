@@ -106,6 +106,7 @@ class DiskBuilder:
         self.target_removable = xml_state.build_type.get_target_removable()
         self.root_filesystem_is_multipath = \
             xml_state.get_oemconfig_oem_multipath_scan()
+        self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
@@ -338,7 +339,8 @@ class DiskBuilder:
                 self.persistency_type, self.requested_filesystem
             )
             self.system = volume_manager
-            device_map['root'] = volume_manager.get_device()['root']
+            device_map['root'] = volume_manager.get_device().get('root')
+            device_map['swap'] = volume_manager.get_device().get('swap')
         else:
             log.info(
                 'Creating root(%s) filesystem on %s',
@@ -357,6 +359,15 @@ class DiskBuilder:
                 label=self.disk_setup.get_root_label()
             )
             self.system = filesystem
+
+        # create swap on current root device if requested
+        if self.swap_mbytes:
+            swap = FileSystem(
+                'swap', device_map['swap']
+            )
+            swap.create_on_device(
+                label='SWAP'
+            )
 
         # create a random image identifier
         self.mbrid = SystemIdentifier()
@@ -715,6 +726,13 @@ class DiskBuilder:
             )
             disksize_used_mbytes += partition_mbsize
 
+        if self.swap_mbytes and not self.volume_manager_name:
+            log.info('--> creating SWAP partition')
+            self.disk.create_swap_partition(
+                self.swap_mbytes
+            )
+            disksize_used_mbytes += self.swap_mbytes
+
         if self.spare_part_mbsize and not self.spare_part_is_last:
             log.info('--> creating spare partition')
             self.disk.create_spare_partition(
@@ -850,6 +868,15 @@ class DiskBuilder:
             self._add_generic_fstab_entry(
                 device_map['spare'].get_device(), self.spare_part_mountpoint
             )
+        if 'swap' in device_map:
+            if self.volume_manager_name:
+                self._add_simple_fstab_entry(
+                    device_map['swap'].get_device(), 'swap', 'swap'
+                )
+            else:
+                self._add_generic_fstab_entry(
+                    device_map['swap'].get_device(), 'swap'
+                )
         if 'boot' in device_map:
             if self.bootloader == 'grub2_s390x_emu':
                 boot_mount_point = '/boot/zipl'
@@ -865,6 +892,21 @@ class DiskBuilder:
         setup.create_fstab(
             self.generic_fstab_entries
         )
+
+    def _add_simple_fstab_entry(
+        self, device, mount_point, filesystem, options=None, check='0 0'
+    ):
+        if not options:
+            options = ['defaults']
+        fstab_entry = ' '.join(
+            [
+                device, mount_point, filesystem, ','.join(options), check
+            ]
+        )
+        if fstab_entry not in self.generic_fstab_entries:
+            self.generic_fstab_entries.append(
+                fstab_entry
+            )
 
     def _add_generic_fstab_entry(
         self, device, mount_point, options=None, check='0 0'

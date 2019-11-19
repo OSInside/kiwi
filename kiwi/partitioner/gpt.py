@@ -42,6 +42,7 @@ class PartitionerGpt(PartitionerBase):
             'f.active': None,
             't.csm': 'EF02',
             't.linux': '8300',
+            't.swap': '8200',
             't.lvm': '8E00',
             't.raid': 'FD00',
             't.efi': 'EF00'

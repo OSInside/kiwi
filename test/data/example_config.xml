@@ -51,6 +51,7 @@
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
+                <oem-swapsize>42</oem-swapsize>
                 <oem-recovery>false</oem-recovery>
             </oemconfig>
             <vagrantconfig provider="libvirt" virtualsize="42"/>

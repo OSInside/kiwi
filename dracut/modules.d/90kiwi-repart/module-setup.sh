@@ -20,6 +20,5 @@ installkernel() {
 install() {
     declare moddir=${moddir}
     inst_hook pre-mount 20 "${moddir}/kiwi-repart-disk.sh"
-    inst_hook pre-pivot 20 "${moddir}/kiwi-update-fstab.sh"
     dracut_need_initqueue
 }
