@@ -279,14 +279,6 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 setup_debug
 
-# initialize for disk repartition
-initialize
-
-if ! disk_has_unallocated_space "${disk}";then
-    # already resized or disk has not received any geometry change
-    return
-fi
-
 # when repartitioning disks, parted and friends might trigger re-reads of
 # the partition table, in turn triggering systemd-fsck-root.service
 # repeatedly via udev events, which finally can cause booting to fail with
@@ -302,6 +294,14 @@ fi
 trap unmask_fsck_root_service EXIT
 
 mask_fsck_root_service
+
+# initialize for disk repartition
+initialize
+
+if ! disk_has_unallocated_space "${disk}";then
+    # already resized or disk has not received any geometry change
+    return
+fi
 
 # prepare disk for repartition
 if [ "$(get_partition_table_type "${disk}")" = 'gpt' ];then
