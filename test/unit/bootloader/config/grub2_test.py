@@ -217,12 +217,41 @@ class TestBootLoaderConfigGrub2:
 
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
     @patch.object(BootLoaderConfigGrub2, '_setup_sysconfig_bootloader')
-    @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_write_meta_data(
-        self, mock_command, mock_setup_sysconfig_bootloader,
+        self, mock_setup_sysconfig_bootloader,
         mock_setup_default_grub
     ):
-        self.bootloader.write_meta_data(iso_boot=True)
+        self.bootloader.write_meta_data()
+        mock_setup_default_grub.assert_called_once_with()
+        mock_setup_sysconfig_bootloader.assert_called_once_with()
+
+    @patch('os.path.exists')
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_write(
+        self, mock_command, mock_copy_grub_config_to_efi_path, mock_exists
+    ):
+        mock_exists.return_value = True
+        self.bootloader.config = 'some-data'
+        self.bootloader.iso_boot = True
+        self.firmware.efi_mode = Mock(
+            return_value='uefi'
+        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader.write()
+
+            mock_open.assert_called_once_with(
+                'root_dir/boot/grub2/grub.cfg', 'w'
+            )
+            file_handle.write.assert_called_once_with(
+                'some-data'
+            )
+        mock_copy_grub_config_to_efi_path.assert_called_once_with(
+            'root_dir', 'root_dir/boot/grub2/grub.cfg'
+        )
+
         assert mock_command.call_args_list == [
             call(
                 [
@@ -241,31 +270,6 @@ class TestBootLoaderConfigGrub2:
                 ]
             )
         ]
-        mock_setup_default_grub.assert_called_once_with()
-        mock_setup_sysconfig_bootloader.assert_called_once_with()
-
-    @patch('os.path.exists')
-    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
-    def test_write(self, mock_copy_grub_config_to_efi_path, mock_exists):
-        mock_exists.return_value = True
-        self.bootloader.config = 'some-data'
-        self.firmware.efi_mode = Mock(
-            return_value='uefi'
-        )
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            self.bootloader.write()
-
-            mock_open.assert_called_once_with(
-                'root_dir/boot/grub2/grub.cfg', 'w'
-            )
-            file_handle.write.assert_called_once_with(
-                'some-data'
-            )
-        mock_copy_grub_config_to_efi_path.assert_called_once_with(
-            'root_dir', 'root_dir/boot/grub2/grub.cfg'
-        )
 
     @patch('glob.iglob')
     @patch('shutil.copy')

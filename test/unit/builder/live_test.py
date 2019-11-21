@@ -232,7 +232,7 @@ class TestLiveImageBuilder:
             'initrd_dir', 'temp_media_dir',
             self.bootloader.get_boot_theme.return_value
         )
-        self.bootloader.write_meta_data.assert_called_once_with(iso_boot=True)
+        self.bootloader.write_meta_data.assert_called_once_with()
         self.bootloader.setup_live_image_config.assert_called_once_with(
             mbrid=self.mbrid
         )

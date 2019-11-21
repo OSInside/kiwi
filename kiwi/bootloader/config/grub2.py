@@ -143,9 +143,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         Write bootloader configuration
 
-        Writes grub.cfg template by KIWI if template system is used
-        Also copies grub config file to alternative boot path for
-        EFI systems in fallback mode
+        * writes grub.cfg template by KIWI if template system is used
+        * copies grub config file to alternative boot path for EFI systems
+          in fallback mode
+        * creates an embedded fat efi image for EFI ISO boot
         """
         if self.config:
             log.info('Writing KIWI template grub.cfg file')
@@ -159,13 +160,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self._copy_grub_config_to_efi_path(
                     self.boot_dir, config_file
                 )
+                if self.iso_boot:
+                    self._create_embedded_fat_efi_image()
 
-    def write_meta_data(self, root_uuid=None, boot_options='', iso_boot=False):
+    def write_meta_data(self, root_uuid=None, boot_options=''):
         """
         Write bootloader setup meta data files
 
         * cmdline arguments initialization
-        * creation of embedded fat efi image for EFI ISO boot
         * etc/default/grub setup file
         * etc/sysconfig/bootloader
 
@@ -179,10 +181,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options(), boot_options]
         )
-        self.iso_boot = iso_boot
-
-        if self.iso_boot:
-            self._create_embedded_fat_efi_image()
 
         self._setup_default_grub()
         self._setup_sysconfig_bootloader()
@@ -249,6 +247,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 install config file from template')
+        self.iso_boot = True
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': self.get_install_image_boot_default(),
@@ -302,6 +301,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string initrd: initrd name
         """
         log.info('Creating grub2 live ISO config file from template')
+        self.iso_boot = True
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
