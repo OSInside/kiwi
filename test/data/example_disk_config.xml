@@ -21,6 +21,7 @@
         <type image="oem" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true">
             <oemconfig>
                 <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-swap>true</oem-swap>
             </oemconfig>
         </type>
     </preferences>

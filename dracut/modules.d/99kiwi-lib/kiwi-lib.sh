@@ -15,17 +15,8 @@ function set_root_map {
     export root_map
 }
 
-function set_swap_map {
-    swap_map=$1
-    export swap_map
-}
-
 function get_root_map {
     echo "${root_map}"
-}
-
-function get_swap_map {
-    echo "${swap_map}"
 }
 
 function lookup_disk_device_from_root {

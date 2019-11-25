@@ -22,6 +22,7 @@
             <oemconfig>
                 <oem-inplace-recovery>true</oem-inplace-recovery>
                 <oem-recovery-part-size>200</oem-recovery-part-size>
+                <oem-swap>true</oem-swap>
             </oemconfig>
         </type>
     </preferences>

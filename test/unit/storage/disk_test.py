@@ -118,6 +118,13 @@ class TestDisk:
         )
         assert self.disk.public_partition_id_map['kiwi_SparePart'] == 1
 
+    def test_create_swap_partition(self):
+        self.disk.create_swap_partition(42)
+        self.partitioner.create.assert_called_once_with(
+            'p.swap', 42, 't.swap'
+        )
+        assert self.disk.public_partition_id_map['kiwi_SwapPart'] == 1
+
     @patch('kiwi.storage.disk.Command.run')
     def test_create_prep_partition(self, mock_command):
         self.disk.create_prep_partition(8)

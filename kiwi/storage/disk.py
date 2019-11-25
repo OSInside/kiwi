@@ -180,6 +180,18 @@ class Disk(DeviceProvider):
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
 
+    def create_swap_partition(self, mbsize):
+        """
+        Create swap partition
+
+        Populates kiwi_SwapPart(id)
+
+        :param int mbsize: partition size
+        """
+        self.partitioner.create('p.swap', mbsize, 't.swap')
+        self._add_to_map('swap')
+        self._add_to_public_id_map('kiwi_SwapPart')
+
     def create_efi_csm_partition(self, mbsize):
         """
         Create EFI bios grub partition

@@ -21,6 +21,9 @@ function resize_filesystem {
         resize_fs="${resize_fs} xfs_growfs ${mpoint}"
         resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
     ;;
+    swap)
+        resize_fs="mkswap ${device} --label SWAP"
+    ;;
     *)
         # don't know how to resize this filesystem
         warn "Don't know how to resize ${fstype}... skipped"
@@ -95,27 +98,6 @@ function probe_filesystem {
         fstype=luks
     fi
     echo ${fstype}
-}
-
-function create_swap {
-    # """
-    # create swap signature on device and create a
-    # fstab reference file which is used by a pre-pivot
-    # hook to update the system fstab
-    # """
-    local device=$1
-    local swap_label="SWAP"
-    test -n "${device}" || return
-    if ! mkswap "${device}" --label "${swap_label}" 1>&2;then
-        die "Failed to create swap signature"
-    fi
-    echo "LABEL=${swap_label} swap swap defaults 0 0" > /fstab.swap
-}
-
-function merge_swap_to_fstab {
-    if [ -f /sysroot/etc/fstab ];then
-        test -f /fstab.swap && cat /fstab.swap >> /sysroot/etc/fstab
-    fi
 }
 
 #======================================

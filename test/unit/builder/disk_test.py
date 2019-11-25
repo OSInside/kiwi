@@ -44,6 +44,7 @@ class TestDiskBuilder:
         )
         self.device_map = {
             'root': MappedDevice('/dev/root-device', mock.Mock()),
+            'swap': MappedDevice('/dev/swap-device', mock.Mock()),
             'readonly': MappedDevice('/dev/readonly-root-device', mock.Mock()),
             'boot': MappedDevice('/dev/boot-device', mock.Mock()),
             'prep': MappedDevice('/dev/prep-device', mock.Mock()),
@@ -298,6 +299,9 @@ class TestDiskBuilder:
         )
         self.disk.create_boot_partition.assert_called_once_with(
             self.disk_setup.boot_partition_size()
+        )
+        self.disk.create_swap_partition.assert_called_once_with(
+            128
         )
         self.disk.create_prep_partition.assert_called_once_with(
             self.firmware.get_prep_partition_size()
@@ -713,7 +717,8 @@ class TestDiskBuilder:
         volume_manager = mock.Mock()
         volume_manager.get_device = mock.Mock(
             return_value={
-                'root': MappedDevice('/dev/systemVG/LVRoot', mock.Mock())
+                'root': MappedDevice('/dev/systemVG/LVRoot', mock.Mock()),
+                'swap': MappedDevice('/dev/systemVG/LVSwap', mock.Mock())
             }
         )
         volume_manager.get_fstab = mock.Mock(
@@ -744,6 +749,7 @@ class TestDiskBuilder:
             [
                 'fstab_volume_entries',
                 'UUID=blkid_result / blkid_result_fs ro 0 0',
+                '/dev/systemVG/LVSwap swap swap defaults 0 0',
                 'UUID=blkid_result /boot blkid_result_fs defaults 0 0',
                 'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0'
             ]
@@ -752,6 +758,7 @@ class TestDiskBuilder:
             [
                 'fstab_volume_entries',
                 'UUID=blkid_result / blkid_result_fs ro 0 0',
+                '/dev/systemVG/LVSwap swap swap defaults 0 0',
                 'UUID=blkid_result /boot blkid_result_fs defaults 0 0',
                 'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0'
             ]

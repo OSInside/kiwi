@@ -326,6 +326,13 @@ class TestXMLState:
                 mountpoint='/usr/bin', fullsize=True,
                 label=None,
                 attributes=[]
+            ),
+            volume_type(
+                name='LVSwap', size='size:128',
+                realpath='swap',
+                mountpoint=None, fullsize=False,
+                label='SWAP',
+                attributes=[]
             )
         ]
 
@@ -349,6 +356,13 @@ class TestXMLState:
                 name='LVRoot', size=None, realpath='/',
                 mountpoint=None, fullsize=True,
                 label=None,
+                attributes=[]
+            ),
+            volume_type(
+                name='LVSwap', size='size:128',
+                realpath='swap',
+                mountpoint=None, fullsize=False,
+                label='SWAP',
                 attributes=[]
             )
         ]
@@ -382,6 +396,13 @@ class TestXMLState:
                 mountpoint=None, fullsize=False,
                 label=None,
                 attributes=[]
+            ),
+            volume_type(
+                name='LVSwap', size='size:128',
+                realpath='swap',
+                mountpoint=None, fullsize=False,
+                label='SWAP',
+                attributes=[]
             )
         ]
 
@@ -413,6 +434,21 @@ class TestXMLState:
         state = XMLState(xml_data, None, 'oem')
         assert state.get_build_type_oemconfig_section().get_oem_swap()[0] is \
             True
+
+    def test_get_oemconfig_swap_mbytes(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['xenFlavour'], 'docker')
+        assert state.get_oemconfig_swap_mbytes() is None
+        state = XMLState(xml_data, ['vmxFlavour'], 'oem')
+        assert state.get_oemconfig_swap_mbytes() == 42
+
+    def test_get_oemconfig_swap_mbytes_default(self):
+        description = XMLDescription(
+            '../data/example_btrfs_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_oemconfig_swap_mbytes() == 128
 
     def test_get_users_sections(self):
         assert self.state.get_users_sections()[0].get_user()[0].get_name() == \

@@ -782,6 +782,27 @@ class XMLState:
         if oemconfig and oemconfig.get_oem_multipath_scan():
             return oemconfig.get_oem_multipath_scan()[0]
 
+    def get_oemconfig_swap_mbytes(self):
+        """
+        Return swapsize in MB if requested or None
+
+        Operates on the value of oem-swap and if set to true
+        returns the given size or the default value.
+
+        :return: Content of <oem-swapsize> section value or default
+
+        :rtype: int
+        """
+        oemconfig = self.get_build_type_oemconfig_section()
+        if oemconfig and oemconfig.get_oem_swap():
+            swap_requested = oemconfig.get_oem_swap()[0]
+            if swap_requested:
+                swapsize = oemconfig.get_oem_swapsize()
+                if swapsize:
+                    return swapsize[0]
+                else:
+                    return Defaults.get_swapsize_mbytes()
+
     def get_build_type_containerconfig_section(self):
         """
         First containerconfig section from the build type section
@@ -1045,7 +1066,7 @@ class XMLState:
 
         container_config_section.set_labels(labels)
 
-    def get_volumes(self):
+    def get_volumes(self):  # noqa C901
         """
         List of configured systemdisk volumes.
 
@@ -1080,6 +1101,7 @@ class XMLState:
         """
         volume_type_list = []
         systemdisk_section = self.get_build_type_system_disk_section()
+        swap_mbytes = self.get_oemconfig_swap_mbytes()
         if not systemdisk_section:
             return volume_type_list
 
@@ -1181,6 +1203,19 @@ class XMLState:
                     mountpoint=None,
                     realpath='/',
                     label=None,
+                    attributes=[]
+                )
+            )
+
+        if swap_mbytes:
+            volume_type_list.append(
+                volume_type(
+                    name='LVSwap',
+                    size='size:{0}'.format(swap_mbytes),
+                    fullsize=False,
+                    mountpoint=None,
+                    realpath='swap',
+                    label='SWAP',
                     attributes=[]
                 )
             )

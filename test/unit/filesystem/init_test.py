@@ -65,3 +65,9 @@ class TestFileSystem:
         provider = mock.Mock()
         FileSystem('clicfs', provider, 'root_dir')
         mock_clicfs.assert_called_once_with(provider, 'root_dir', None)
+
+    @patch('kiwi.filesystem.FileSystemSwap')
+    def test_filesystem_swap(self, mock_swap):
+        provider = mock.Mock()
+        FileSystem('swap', provider)
+        mock_swap.assert_called_once_with(provider, None, None)

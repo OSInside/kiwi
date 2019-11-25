@@ -99,7 +99,11 @@ class TestVolumeManagerBase:
         assert volume_list.full_size_volume.name == 'LVRoot'
 
     @patch('kiwi.volume_manager.base.SystemSize')
-    def test_get_volume_mbsize(self, mock_size):
+    @patch('os.path.exists')
+    def test_get_volume_mbsize(
+        self, mock_os_path_exists, mock_size
+    ):
+        mock_os_path_exists.return_value = True
         size = Mock()
         size.customize = Mock(
             return_value=42
@@ -111,7 +115,11 @@ class TestVolumeManagerBase:
         ) == 272
 
     @patch('kiwi.volume_manager.base.SystemSize')
-    def test_get_volume_mbsize_for_oem_type(self, mock_size):
+    @patch('os.path.exists')
+    def test_get_volume_mbsize_for_oem_type(
+        self, mock_os_path_exists, mock_size
+    ):
+        mock_os_path_exists.return_value = True
         size = Mock()
         size.customize = Mock(
             return_value=42
@@ -123,7 +131,11 @@ class TestVolumeManagerBase:
         ) == 72
 
     @patch('kiwi.volume_manager.base.SystemSize')
-    def test_get_volume_mbsize_nested_volumes(self, mock_size):
+    @patch('os.path.exists')
+    def test_get_volume_mbsize_nested_volumes(
+        self, mock_os_path_exists, mock_size
+    ):
+        mock_os_path_exists.return_value = True
         size = Mock()
         size.customize = Mock(
             return_value=42
@@ -148,7 +160,11 @@ class TestVolumeManagerBase:
         )
 
     @patch('kiwi.volume_manager.base.SystemSize')
-    def test_get_volume_mbsize_root_volume(self, mock_size):
+    @patch('os.path.exists')
+    def test_get_volume_mbsize_root_volume(
+        self, mock_os_path_exists, mock_size
+    ):
+        mock_os_path_exists.return_value = True
         size = Mock()
         size.customize = Mock(
             return_value=42

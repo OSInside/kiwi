@@ -71,6 +71,7 @@ function resize_lvm_volumes_and_filesystems {
     local volspec
     local all_free_volume
     for volspec in $(read_volume_setup "/.profile" "skip_all_free_volume");do
+        resize_prefix=''
         volume_name=$(get_volume_name "${volspec}")
         resize_mode=$(get_volume_size_mode "${volspec}")
         volume_size=$(get_volume_size "${volspec}")

@@ -69,6 +69,13 @@ class Defaults:
         return 256
 
     @staticmethod
+    def get_swapsize_mbytes():
+        """
+        Provides swapsize in MB
+        """
+        return 128
+
+    @staticmethod
     def get_xz_compression_options():
         """
         Provides compression options for the xz compressor

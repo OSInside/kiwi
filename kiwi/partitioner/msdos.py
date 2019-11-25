@@ -42,6 +42,7 @@ class PartitionerMsDos(PartitionerBase):
         self.flag_map = {
             'f.active': True,
             't.linux': '83',
+            't.swap': '82',
             't.lvm': '8e',
             't.raid': 'fd',
             't.efi': None,

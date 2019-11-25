@@ -156,6 +156,7 @@ class TestDiskSetup:
             Defaults.get_default_legacy_bios_mbytes() + \
             Defaults.get_default_efi_boot_mbytes() + \
             Defaults.get_default_boot_mbytes() + \
+            Defaults.get_swapsize_mbytes() + \
             root_size + 42 + \
             200 * 1.7
 

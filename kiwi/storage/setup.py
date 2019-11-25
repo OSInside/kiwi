@@ -39,6 +39,7 @@ class DiskSetup:
     """
     def __init__(self, xml_state, root_dir):
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
+        self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.configured_size = xml_state.get_build_type_size()
         self.build_type_name = xml_state.get_build_type_name()
         self.filesystem = xml_state.build_type.get_filesystem()
@@ -62,7 +63,7 @@ class DiskSetup:
         self.root_dir = root_dir
         self.xml_state = xml_state
 
-    def get_disksize_mbytes(self):
+    def get_disksize_mbytes(self):  # noqa C901
         """
         Precalculate disk size requirements in mbytes
 
@@ -94,6 +95,11 @@ class DiskSetup:
                 log.info(
                     '--> volume(s) size setup adding %s MB', volume_mbytes
                 )
+        elif self.swap_mbytes:
+            calculated_disk_mbytes += self.swap_mbytes
+            log.info(
+                '--> swap partition adding %s MB', self.swap_mbytes
+            )
 
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
