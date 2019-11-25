@@ -66,6 +66,14 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_repositories_configured()
 
+    def test_check_volume_setup_defines_reserved_labels(self):
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'vmx'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_volume_setup_defines_reserved_labels()
+
     def test_check_volume_setup_defines_multiple_fullsize_volumes(self):
         with raises(KiwiRuntimeError):
             self.runtime_checker.\

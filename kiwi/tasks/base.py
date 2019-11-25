@@ -76,6 +76,7 @@ class CliTask:
             'check_boot_description_exists': [],
             'check_consistent_kernel_in_boot_and_system_image': [],
             'check_container_tool_chain_installed': [],
+            'check_volume_setup_defines_reserved_labels': [],
             'check_volume_setup_defines_multiple_fullsize_volumes': [],
             'check_volume_setup_has_no_root_definition': [],
             'check_volume_label_used_with_lvm': [],

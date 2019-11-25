@@ -88,6 +88,9 @@
 #      # verify for legacy kiwi boot images that the same kernel is used
 #      - check_consistent_kernel_in_boot_and_system_image
 
+#      # check for reserved label names used in LVM setup
+#      - check_volume_setup_defines_reserved_labels
+
 #      # verify only one full size volume is specified for LVM images
 #      - check_volume_setup_defines_multiple_fullsize_volumes
 
