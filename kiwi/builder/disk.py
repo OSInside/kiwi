@@ -323,7 +323,7 @@ class DiskBuilder:
                     self.xml_state.get_build_type_name()
             }
             volume_manager = VolumeManager(
-                self.volume_manager_name, device_map['root'],
+                self.volume_manager_name, device_map,
                 self.root_dir + '/',
                 self.volumes,
                 volume_manager_custom_parameters

@@ -17,20 +17,20 @@ class TestVolumeManager:
     @patch('os.path.exists')
     def test_volume_manager_lvm(self, mock_path, mock_lvm):
         mock_path.return_value = True
-        provider = Mock()
+        device_map = Mock()
         volumes = Mock()
-        VolumeManager('lvm', provider, 'root_dir', volumes)
+        VolumeManager('lvm', device_map, 'root_dir', volumes)
         mock_lvm.assert_called_once_with(
-            provider, 'root_dir', volumes, None
+            device_map, 'root_dir', volumes, None
         )
 
     @patch('kiwi.volume_manager.VolumeManagerBtrfs')
     @patch('os.path.exists')
     def test_volume_manager_btrfs(self, mock_path, mock_btrfs):
         mock_path.return_value = True
-        provider = Mock()
+        device_map = Mock()
         volumes = Mock()
-        VolumeManager('btrfs', provider, 'root_dir', volumes)
+        VolumeManager('btrfs', device_map, 'root_dir', volumes)
         mock_btrfs.assert_called_once_with(
-            provider, 'root_dir', volumes, None
+            device_map, 'root_dir', volumes, None
         )

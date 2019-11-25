@@ -1,8 +1,11 @@
 import datetime
+import logging
 from mock import (
     patch, call, Mock, mock_open
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from lxml import etree
 from xml.dom import minidom
 from collections import namedtuple
@@ -16,6 +19,10 @@ from kiwi.exceptions import (
 
 
 class TestVolumeManagerBtrfs:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_path):
         self.volume_type = namedtuple(
@@ -51,15 +58,17 @@ class TestVolumeManagerBtrfs:
             )
         ]
         mock_path.return_value = True
-        self.device_provider = Mock()
-        self.device_provider.is_loop = Mock(
+        self.device_map = {
+            'root': Mock()
+        }
+        self.device_map['root'].is_loop = Mock(
             return_value=True
         )
-        self.device_provider.get_device = Mock(
+        self.device_map['root'].get_device = Mock(
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerBtrfs(
-            self.device_provider, 'root_dir', self.volumes
+            self.device_map, 'root_dir', self.volumes
         )
 
     def test_post_init(self):
@@ -518,6 +527,7 @@ class TestVolumeManagerBtrfs:
     def test_destructor(self, mock_wipe, mock_umount_volumes):
         mock_umount_volumes.return_value = True
         self.volume_manager.toplevel_mount = Mock()
-        self.volume_manager.__del__()
-        mock_umount_volumes.assert_called_once_with()
-        mock_wipe.assert_called_once_with(self.volume_manager.mountpoint)
+        with self._caplog.at_level(logging.INFO):
+            self.volume_manager.__del__()
+            mock_umount_volumes.assert_called_once_with()
+            mock_wipe.assert_called_once_with(self.volume_manager.mountpoint)

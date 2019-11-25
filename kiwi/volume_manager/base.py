@@ -24,7 +24,6 @@ import os
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.mount_manager import MountManager
-from kiwi.storage.mapped_device import MappedDevice
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.system.size import SystemSize
@@ -42,8 +41,8 @@ class VolumeManagerBase(DeviceProvider):
     **Implements base class for volume management interface**
 
     :param str mountpoint: root mountpoint for volumes
-    :param object device_provider: instance of a :class:`DeviceProvider`
-        subclass
+    :param object device_map:
+        dictionary of low level DeviceProvider intances
     :param str root_dir: root directory path name
     :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
     :param str volume_group: volume group name
@@ -58,16 +57,19 @@ class VolumeManagerBase(DeviceProvider):
 
     :raises KiwiVolumeManagerSetupError: if the given root_dir doesn't exist
     """
-    def __init__(self, device_provider, root_dir, volumes, custom_args=None):
+    def __init__(self, device_map, root_dir, volumes, custom_args=None):
         # all volumes are combined into one mountpoint. This is
         # needed at sync_data time. How to mount the volumes is
         # special to the volume management class
         self.mountpoint = None
 
+        # dictionary of mapped DeviceProviders
+        self.device_map = device_map
+
         # bind the device providing class instance to this object.
         # This is done to guarantee the correct destructor order when
         # the device should be released.
-        self.device_provider = device_provider
+        self.device_provider_root = device_map['root']
 
         # An indicator for the mount of the filesystem and its volumes
         # when mounted for the first time
@@ -79,7 +81,8 @@ class VolumeManagerBase(DeviceProvider):
         self.volume_map = {}
         self.mount_list = []
 
-        self.device = self.device_provider.get_device()
+        # Main device to operate on
+        self.device = self.device_provider_root.get_device()
 
         if not os.path.exists(root_dir):
             raise KiwiVolumeManagerSetupError(
@@ -193,21 +196,17 @@ class VolumeManagerBase(DeviceProvider):
 
         :rtype: bool
         """
-        return self.device_provider.is_loop()
+        return self.device_provider_root.is_loop()
 
     def get_device(self):
         """
-        Dictionary with instance of MappedDevice for the root device node
+        Return current DeviceProvider dictionary
 
-        :return: root device map
+        :return: device_map
 
         :rtype: dict
         """
-        return {
-            'root': MappedDevice(
-                device=self.device, device_provider=self
-            )
-        }
+        return self.device_map
 
     def create_volume_paths_in_root_dir(self):
         """
