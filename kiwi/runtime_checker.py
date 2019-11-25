@@ -136,7 +136,7 @@ class RuntimeChecker:
         volume_management = self.xml_state.get_volume_management()
         if volume_management != 'lvm':
             for volume in self.xml_state.get_volumes():
-                if volume.label:
+                if volume.label and volume.name != 'LVSwap':
                     raise KiwiRuntimeError(
                         message.format(volume_management)
                     )
@@ -156,12 +156,13 @@ class RuntimeChecker:
         volume_management = self.xml_state.get_volume_management()
         if volume_management == 'lvm':
             for volume in self.xml_state.get_volumes():
-                if volume.label and volume.label in reserved_labels:
-                    raise KiwiRuntimeError(
-                        message.format(
-                            volume.name, volume.label, reserved_labels
+                if volume.name != 'LVSwap':
+                    if volume.label and volume.label in reserved_labels:
+                        raise KiwiRuntimeError(
+                            message.format(
+                                volume.name, volume.label, reserved_labels
+                            )
                         )
-                    )
 
     def check_volume_setup_defines_multiple_fullsize_volumes(self):
         """
