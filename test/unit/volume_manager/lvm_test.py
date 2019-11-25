@@ -54,15 +54,17 @@ class TestVolumeManagerLVM:
             ),
         ]
         mock_path.return_value = True
-        self.device_provider = Mock()
-        self.device_provider.is_loop = Mock(
+        self.device_map = {
+            'root': Mock()
+        }
+        self.device_map['root'].is_loop = Mock(
             return_value=True
         )
-        self.device_provider.get_device = Mock(
+        self.device_map['root'].get_device = Mock(
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerLVM(
-            self.device_provider, 'root_dir', self.volumes,
+            self.device_map, 'root_dir', self.volumes,
             {'some-arg': 'some-val', 'fs_mount_options': ['a,b,c']}
         )
         assert self.volume_manager.mount_options == 'a,b,c'

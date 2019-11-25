@@ -23,15 +23,17 @@ class TestVolumeManagerBase:
             ]
         )
         mock_path.return_value = True
-        self.device_provider = Mock()
-        self.device_provider.is_loop = Mock(
+        self.device_map = {
+            'root': Mock()
+        }
+        self.device_map['root'].is_loop = Mock(
             return_value=True
         )
-        self.device_provider.get_device = Mock(
+        self.device_map['root'].get_device = Mock(
             return_value='/dev/storage'
         )
         self.volume_manager = VolumeManagerBase(
-            self.device_provider, 'root_dir', Mock()
+            self.device_map, 'root_dir', Mock()
         )
         self.volume_manager.volumes = [
             self.volume_type(
@@ -48,7 +50,7 @@ class TestVolumeManagerBase:
     def test_init_custom_args(self, mock_exists):
         mock_exists.return_value = True
         volume_manager = VolumeManagerBase(
-            Mock(), 'root_dir', Mock(), {
+            self.device_map, 'root_dir', Mock(), {
                 'fs_create_options': 'create-opts',
                 'fs_mount_options': 'mount-opts'
             }
@@ -62,11 +64,11 @@ class TestVolumeManagerBase:
     def test_root_dir_does_not_exist(self, mock_exists):
         mock_exists.return_value = False
         with raises(KiwiVolumeManagerSetupError):
-            VolumeManagerBase(Mock(), 'root_dir', Mock())
+            VolumeManagerBase(self.device_map, 'root_dir', Mock())
 
     def test_is_loop(self):
         assert self.volume_manager.is_loop() == \
-            self.device_provider.is_loop()
+            self.device_map['root'].is_loop()
 
     @patch('os.path.exists')
     def test_get_device(self, mock_exists):
