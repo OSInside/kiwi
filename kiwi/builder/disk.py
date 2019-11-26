@@ -863,12 +863,12 @@ class DiskBuilder:
             device_map['root'].get_device(), '/',
             custom_root_mount_args, fs_check_interval
         )
-        if 'spare' in device_map and \
+        if device_map.get('spare') and \
            self.spare_part_fs and self.spare_part_mountpoint:
             self._add_generic_fstab_entry(
                 device_map['spare'].get_device(), self.spare_part_mountpoint
             )
-        if 'swap' in device_map:
+        if device_map.get('swap'):
             if self.volume_manager_name:
                 self._add_simple_fstab_entry(
                     device_map['swap'].get_device(), 'swap', 'swap'
@@ -877,7 +877,7 @@ class DiskBuilder:
                 self._add_generic_fstab_entry(
                     device_map['swap'].get_device(), 'swap'
                 )
-        if 'boot' in device_map:
+        if device_map.get('boot'):
             if self.bootloader == 'grub2_s390x_emu':
                 boot_mount_point = '/boot/zipl'
             else:
@@ -885,7 +885,7 @@ class DiskBuilder:
             self._add_generic_fstab_entry(
                 device_map['boot'].get_device(), boot_mount_point
             )
-        if 'efi' in device_map:
+        if device_map.get('efi'):
             self._add_generic_fstab_entry(
                 device_map['efi'].get_device(), '/boot/efi'
             )
