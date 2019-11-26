@@ -726,12 +726,13 @@ class DiskBuilder:
             )
             disksize_used_mbytes += partition_mbsize
 
-        if self.swap_mbytes and not self.volume_manager_name:
-            log.info('--> creating SWAP partition')
-            self.disk.create_swap_partition(
-                self.swap_mbytes
-            )
-            disksize_used_mbytes += self.swap_mbytes
+        if self.swap_mbytes:
+            if not self.volume_manager_name or self.volume_manager_name != 'lvm':
+                log.info('--> creating SWAP partition')
+                self.disk.create_swap_partition(
+                    self.swap_mbytes
+                )
+                disksize_used_mbytes += self.swap_mbytes
 
         if self.spare_part_mbsize and not self.spare_part_is_last:
             log.info('--> creating spare partition')
