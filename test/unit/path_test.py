@@ -63,6 +63,16 @@ class TestPath:
             assert 'remove_hierarchy: path /my_root/tmp is protected' in \
                 self._caplog.text
 
+    def test_move_to_root(self):
+        assert [
+            '/usr/bin', '/sbin'
+        ] == Path.move_to_root('/root_dir', ['/root_dir/usr/bin', '/sbin'])
+
+    def test_rebase_to_root(self):
+        assert [
+            '/root_dir/usr/bin', '/root_dir/sbin'
+        ] == Path.rebase_to_root('/root_dir', ['usr/bin', '/sbin'])
+
     @patch('os.access')
     @patch('os.environ.get')
     @patch('os.path.exists')
@@ -84,6 +94,11 @@ class TestPath:
             '/usr/local/bin/some-file'
         assert Path.which('some-file', custom_env={'PATH': 'custom_path'}) == \
             'custom_path/some-file'
+        assert Path.which(
+            'some-file',
+            custom_env={'PATH': 'custom_path'},
+            root_dir='/root_dir'
+        ) == '/root_dir/custom_path/some-file'
 
     @patch('os.access')
     @patch('os.environ.get')
