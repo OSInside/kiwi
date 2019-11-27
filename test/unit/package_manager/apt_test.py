@@ -105,13 +105,10 @@ class TestPackageManagerApt:
         )
         with self._caplog.at_level(logging.WARNING):
             data.sync_data.assert_called_once_with(
-                exclude=['proc', 'sys'], options=['-a', '-H', '-X', '-A']
+                exclude=['proc', 'sys', 'dev'],
+                options=['-a', '-H', '-X', '-A']
             )
             assert mock_run.call_args_list == [
-                call(
-                    command=['mountpoint', '-q', 'root-dir/dev'],
-                    raise_on_error=False
-                ),
                 call(
                     [
                         'debootstrap', '--no-check-gpg', '--variant=minbase',
