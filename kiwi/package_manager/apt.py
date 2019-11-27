@@ -163,7 +163,8 @@ class PackageManagerApt(PackageManagerBase):
                 bootstrap_dir + '/', self.root_dir
             )
             data.sync_data(
-                options=['-a', '-H', '-X', '-A']
+                options=['-a', '-H', '-X', '-A'],
+                exclude=['proc', 'sys']
             )
             for key in self.repository.signing_keys:
                 Command.run([
