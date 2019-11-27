@@ -21,7 +21,6 @@ import logging
 
 # project
 from kiwi.command import Command
-from kiwi.mount_manager import MountManager
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
@@ -135,10 +134,6 @@ class PackageManagerApt(PackageManagerBase):
             # debootstrap takes care to install apt-get
             self.package_requests.remove('apt-get')
         try:
-            dev_mount = MountManager(
-                device='/dev', mountpoint=self.root_dir + '/dev'
-            )
-            dev_mount.umount()
             if self.repository.unauthenticated == 'false':
                 log.warning(
                     'KIWI does not support signature checks for apt-get '
@@ -164,7 +159,7 @@ class PackageManagerApt(PackageManagerBase):
             )
             data.sync_data(
                 options=['-a', '-H', '-X', '-A'],
-                exclude=['proc', 'sys']
+                exclude=['proc', 'sys', 'dev']
             )
             for key in self.repository.signing_keys:
                 Command.run([
