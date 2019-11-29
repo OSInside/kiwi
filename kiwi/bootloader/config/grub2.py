@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import re
 import os
 import logging
 import platform
@@ -135,6 +136,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.config = None
         self.efi_boot_path = None
         self.cmdline_failsafe = None
+        self.root_reference = None
         self.cmdline = None
         self.iso_boot = False
         self.shim_fallback_setup = False
@@ -181,6 +183,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options(), boot_options]
         )
+        self.root_reference = self._get_root_cmdline_parameter(root_uuid)
 
         self._setup_default_grub()
         self._setup_sysconfig_bootloader()
@@ -230,6 +233,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 config_file.replace(self.root_mount.mountpoint, '')
             ]
         )
+        if self.root_filesystem_is_overlay:
+            # grub2-mkconfig has no idea how the correct root= setup is
+            # for disk images created with overlayroot enabled. Because
+            # of that the mkconfig tool just finds the raw partition loop
+            # device and includes it which is wrong. In this particular
+            # case we have to patch the written config file and replace
+            # the wrong root= reference with the correct value such that
+            # the dracut-kiwi-overlay module can boot the system.
+            with open(config_file) as grub_config_file:
+                grub_config = grub_config_file.read()
+                grub_config = grub_config.replace(
+                    'root={0}'.format(boot_options.get('root_device')),
+                    self.root_reference
+                )
+            with open(config_file, 'w') as grub_config_file:
+                grub_config_file.write(grub_config)
+
         if self.firmware.efi_mode():
             self._copy_grub_config_to_efi_path(
                 self.root_mount.mountpoint, config_file
@@ -520,7 +540,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         }
         if self.cmdline:
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
-                self.cmdline
+                re.sub(r'root=.* |root=.*$', '', self.cmdline).strip()
             )
         if self.terminal and 'serial' in self.terminal:
             serial_format = '"serial {0} {1} {2} {3} {4}"'
