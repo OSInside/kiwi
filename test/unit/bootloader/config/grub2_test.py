@@ -97,8 +97,10 @@ class TestBootLoaderConfigGrub2:
                 'grub_directory_name': 'grub2', 'boot_is_crypto': True
             }
         )
-        self.bootloader.cmdline = 'some-cmdline'
-        self.bootloader.cmdline_failsafe = 'some-failsafe-cmdline'
+        self.bootloader.cmdline = 'some-cmdline root=UUID=foo'
+        self.bootloader.cmdline_failsafe = ' '.join(
+            [self.bootloader.cmdline, 'failsafe-options']
+        )
 
     @patch('platform.machine')
     @patch('kiwi.bootloader.config.grub2.Path.which')
@@ -360,8 +362,11 @@ class TestBootLoaderConfigGrub2:
         )
         sysconfig_bootloader.write.assert_called_once_with()
         assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline"'),
-            call('FAILSAFE_APPEND', '"some-failsafe-cmdline"'),
+            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
+            call(
+                'FAILSAFE_APPEND',
+                '"some-cmdline root=UUID=foo failsafe-options"'
+            ),
             call('LOADER_LOCATION', 'mbr'),
             call('LOADER_TYPE', 'grub2')
         ]
@@ -371,8 +376,11 @@ class TestBootLoaderConfigGrub2:
         sysconfig_bootloader.__setitem__.reset_mock()
         self.bootloader._setup_sysconfig_bootloader()
         assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline"'),
-            call('FAILSAFE_APPEND', '"some-failsafe-cmdline"'),
+            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
+            call(
+                'FAILSAFE_APPEND',
+                '"some-cmdline root=UUID=foo failsafe-options"'
+            ),
             call('LOADER_LOCATION', 'none'),
             call('LOADER_TYPE', 'grub2-efi')
         ]
@@ -408,23 +416,34 @@ class TestBootLoaderConfigGrub2:
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
+        self.bootloader.root_filesystem_is_overlay = True
+        self.bootloader.root_reference = 'root=overlay:UUID=ID'
         self.bootloader.root_mount = Mock()
         self.bootloader.root_mount.mountpoint = 'root_mount_point'
-        self.bootloader.setup_disk_image_config(
-            boot_options={'root_device': 'rootdev', 'boot_device': 'bootdev'}
-        )
-        mock_mount_system.assert_called_once_with(
-            'rootdev', 'bootdev', None, None
-        )
-        mock_Command_run.assert_called_once_with(
-            [
-                'chroot', self.bootloader.root_mount.mountpoint,
-                'grub2-mkconfig', '-o', '/boot/grub2/grub.cfg'
-            ]
-        )
-        mock_copy_grub_config_to_efi_path.assert_called_once_with(
-            'root_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
-        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = 'root=rootdev'
+            self.bootloader.setup_disk_image_config(
+                boot_options={
+                    'root_device': 'rootdev', 'boot_device': 'bootdev'
+                }
+            )
+            mock_mount_system.assert_called_once_with(
+                'rootdev', 'bootdev', None, None
+            )
+            mock_Command_run.assert_called_once_with(
+                [
+                    'chroot', self.bootloader.root_mount.mountpoint,
+                    'grub2-mkconfig', '-o', '/boot/grub2/grub.cfg'
+                ]
+            )
+            mock_copy_grub_config_to_efi_path.assert_called_once_with(
+                'root_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
+            )
+            file_handle.write.assert_called_once_with(
+                'root=overlay:UUID=ID'
+            )
 
     def test_setup_install_image_config_standard(self):
         self.bootloader.multiboot = False
