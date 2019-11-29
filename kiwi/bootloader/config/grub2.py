@@ -865,6 +865,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def _copy_theme_data_to_boot_directory(self, lookup_path, target):
         if not lookup_path:
             lookup_path = self.boot_dir
+        font_name = 'unicode.pf2'
+        efi_font_dir = Defaults.get_grub_efi_font_directory(
+            lookup_path
+        )
         boot_fonts_dir = os.path.normpath(
             os.sep.join(
                 [
@@ -875,20 +879,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 ]
             )
         )
-        Path.create(boot_fonts_dir)
-        boot_unicode_font = boot_fonts_dir + '/unicode.pf2'
-        if not os.path.exists(boot_unicode_font):
-            try:
-                unicode_font = Defaults.get_grub_path(
-                    lookup_path, 'unicode.pf2'
-                )
+        try:
+            unicode_font = Defaults.get_grub_path(
+                lookup_path, font_name
+            )
+            if not os.path.exists(os.sep.join([boot_fonts_dir, font_name])):
+                Path.create(boot_fonts_dir)
                 Command.run(
-                    ['cp', unicode_font, boot_unicode_font]
+                    ['cp', unicode_font, boot_fonts_dir]
                 )
-            except Exception as issue:
-                raise KiwiBootLoaderGrubFontError(
-                    'Setting up unicode font failed with {0}'.format(issue)
+            if efi_font_dir:
+                Command.run(
+                    ['cp', unicode_font, efi_font_dir]
                 )
+        except Exception as issue:
+            raise KiwiBootLoaderGrubFontError(
+                'Setting up unicode font failed with {0}'.format(issue)
+            )
 
         boot_theme_dir = os.sep.join(
             [self.boot_dir, 'boot', self.boot_directory_name, 'themes']

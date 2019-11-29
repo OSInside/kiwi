@@ -565,6 +565,24 @@ class Defaults:
                 return shim_file
 
     @staticmethod
+    def get_grub_efi_font_directory(root_path):
+        """
+        Provides distribution specific EFI font directory used with grub.
+
+        :param string root_path: image root path
+
+        :return: file path or None
+
+        :rtype: str
+        """
+        font_dir_patterns = [
+            '/boot/efi/EFI/*/fonts'
+        ]
+        for font_dir_pattern in font_dir_patterns:
+            for font_dir in glob.iglob(root_path + font_dir_pattern):
+                return font_dir
+
+    @staticmethod
     def get_unsigned_grub_loader(root_path):
         """
         Provides unsigned grub efi loader file path

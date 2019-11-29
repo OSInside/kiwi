@@ -56,7 +56,8 @@ class TestBootLoaderConfigGrub2:
         }
         self.glob_iglob = [
             ['root_dir/usr/lib64/efi/shim.efi'],
-            ['root_dir/usr/lib64/efi/grub.efi']
+            ['root_dir/usr/lib64/efi/grub.efi'],
+            ['root_dir/boot/efi/EFI/DIST/fonts']
         ]
         mock_machine.return_value = 'x86_64'
         mock_theme.return_value = None
@@ -141,6 +142,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -464,6 +466,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/lib/grub2/i386-pc'] = False
         self.os_exists['root_dir/usr/share/grub/i386-pc'] = False
         self.os_exists['root_dir/usr/lib/grub/i386-pc'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -546,7 +549,7 @@ class TestBootLoaderConfigGrub2:
             call(
                 [
                     'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/boot/grub2/fonts/unicode.pf2'
+                    'root_dir/boot/grub2/fonts'
                 ]
             ),
             call(
@@ -617,7 +620,7 @@ class TestBootLoaderConfigGrub2:
             call(
                 [
                     'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/grub2/fonts/unicode.pf2'
+                    'root_dir/grub2/fonts'
                 ]
             ),
             call(
@@ -680,7 +683,7 @@ class TestBootLoaderConfigGrub2:
             call(
                 [
                     'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/grub2/fonts/unicode.pf2'
+                    'root_dir/grub2/fonts'
                 ]
             ),
             call(
@@ -720,7 +723,7 @@ class TestBootLoaderConfigGrub2:
         mock_command.assert_called_once_with(
             [
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/grub2/fonts/unicode.pf2'
+                'root_dir/boot/grub2/fonts'
             ]
         )
         mock_sync.assert_called_once_with(
@@ -757,7 +760,7 @@ class TestBootLoaderConfigGrub2:
         mock_command.assert_called_once_with(
             [
                 'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/grub2/fonts/unicode.pf2'
+                'root_dir/boot/grub2/fonts'
             ]
         )
 
@@ -778,6 +781,7 @@ class TestBootLoaderConfigGrub2:
         )
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -824,6 +828,7 @@ class TestBootLoaderConfigGrub2:
         )
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -836,6 +841,12 @@ class TestBootLoaderConfigGrub2:
         with self._caplog.at_level(logging.WARNING):
             self.bootloader.setup_disk_boot_images('uuid')
             assert mock_command.call_args_list == [
+                call(
+                    [
+                        'cp', 'root_dir/usr/share/grub2/unicode.pf2',
+                        'root_dir/boot/efi/EFI/DIST/fonts'
+                    ]
+                ),
                 call(
                     [
                         'rsync', '-a', '--exclude', '/*.module',
@@ -888,6 +899,7 @@ class TestBootLoaderConfigGrub2:
         )
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -900,6 +912,12 @@ class TestBootLoaderConfigGrub2:
         with self._caplog.at_level(logging.WARNING):
             self.bootloader.setup_disk_boot_images('uuid')
             assert mock_command.call_args_list == [
+                call(
+                    [
+                        'cp', 'root_dir/usr/share/grub2/unicode.pf2',
+                        'root_dir/boot/efi/EFI/DIST/fonts'
+                    ]
+                ),
                 call(
                     [
                         'rsync', '-a', '--exclude', '/*.module',
@@ -978,7 +996,7 @@ class TestBootLoaderConfigGrub2:
             call(
                 [
                     'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/boot/grub2/fonts/unicode.pf2'
+                    'root_dir/boot/grub2/fonts'
                 ]
             ),
             call(
@@ -1063,7 +1081,7 @@ class TestBootLoaderConfigGrub2:
             call(
                 [
                     'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/boot/grub2/fonts/unicode.pf2'
+                    'root_dir/boot/grub2/fonts'
                 ]
             ),
             call(
@@ -1099,6 +1117,7 @@ class TestBootLoaderConfigGrub2:
         )
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect_exists(arg):
             return self.os_exists[arg]
@@ -1111,6 +1130,12 @@ class TestBootLoaderConfigGrub2:
         with self._caplog.at_level(logging.INFO):
             self.bootloader.setup_install_boot_images(self.mbrid, 'root_dir')
             assert mock_command.call_args_list == [
+                call(
+                    [
+                        'cp', 'root_dir/usr/share/grub2/unicode.pf2',
+                        'root_dir/boot/efi/EFI/DIST/fonts'
+                    ]
+                ),
                 call(
                     [
                         'rsync', '-a', 'root_dir/boot/efi/', 'root_dir'
@@ -1137,6 +1162,7 @@ class TestBootLoaderConfigGrub2:
                 )
             ]
 
+    @patch('kiwi.defaults.Defaults.get_grub_efi_font_directory')
     @patch.object(BootLoaderConfigGrub2, '_supports_bios_modules')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
@@ -1145,8 +1171,10 @@ class TestBootLoaderConfigGrub2:
     @patch('glob.iglob')
     def test_setup_install_boot_images_with_theme_from_usr_share(
         self, mock_glob, mock_machine, mock_exists,
-        mock_sync, mock_command, mock_supports_bios_modules
+        mock_sync, mock_command, mock_supports_bios_modules,
+        mock_get_grub_efi_font_directory
     ):
+        mock_get_grub_efi_font_directory.return_value = None
         mock_supports_bios_modules.return_value = False
         mock_glob.return_value = [
             'root_dir/boot/grub2/themes/some-theme/background.png'
@@ -1161,6 +1189,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['lookup_path/usr/share/grub2/themes/some-theme'] = True
         self.os_exists['lookup_path/boot/grub2/themes/some-theme'] = True
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = True
+        self.os_exists['lookup_path/usr/share/grub2/unicode.pf2'] = True
 
         def side_effect(arg):
             return self.os_exists[arg]
@@ -1195,6 +1224,7 @@ class TestBootLoaderConfigGrub2:
             options=['-a']
         )
 
+    @patch('kiwi.defaults.Defaults.get_grub_efi_font_directory')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
@@ -1203,8 +1233,10 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.defaults.Defaults.get_grub_path')
     def test_setup_install_boot_images_with_theme_from_boot(
         self, mock_get_grub_path, mock_glob, mock_machine,
-        mock_exists, mock_sync, mock_command
+        mock_exists, mock_sync, mock_command,
+        mock_get_grub_efi_font_directory
     ):
+        mock_get_grub_efi_font_directory.return_value = None
         mock_glob.return_value = [
             'lookup_path/boot/grub2/themes/some-theme/background.png'
         ]
@@ -1218,6 +1250,7 @@ class TestBootLoaderConfigGrub2:
 
         self.find_grub['themes/some-theme'] = 'some-theme'
         self.find_grub['i386-pc'] = 'i386-pc'
+        self.find_grub['unicode.pf2'] = True
 
         def find_grub_data_side_effect(
             root_path, filename, raise_on_error=True
