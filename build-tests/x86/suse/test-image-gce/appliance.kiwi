@@ -120,7 +120,6 @@
         <package name="elfutils"/>
         <package name="udev"/>
         <package name="growpart"/>
-        <package name="growpart-rootgrow"/>
         <package name="python3-gcemetadata"/>
         <package name="google-compute-engine-init"/>
         <package name="timezone"/>
