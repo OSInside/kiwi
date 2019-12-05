@@ -91,7 +91,7 @@ class SystemSetup:
         description = self.root_dir + '/image/config.xml'
         log.info('--> Importing state XML description as image/config.xml')
         Path.create(self.root_dir + '/image')
-        with open(description, 'w') as config:
+        with open(description, 'w', encoding='utf-8') as config:
             config.write('<?xml version="1.0" encoding="utf-8"?>')
             self.xml_state.xml_data.export(outfile=config, level=0)
 
@@ -1004,7 +1004,7 @@ class SystemSetup:
                 ) + '\\n'
             ] + dbpath_option
         )
-        with open(filename, 'w') as packages:
+        with open(filename, 'w', encoding='utf-8') as packages:
             packages.write(
                 os.linesep.join(sorted(query_call.output.splitlines()))
             )
@@ -1024,7 +1024,7 @@ class SystemSetup:
                 ) + '\\n'
             ]
         )
-        with open(filename, 'w') as packages:
+        with open(filename, 'w', encoding='utf-8') as packages:
             packages.write(
                 os.linesep.join(sorted(query_call.output.splitlines()))
             )
@@ -1039,7 +1039,7 @@ class SystemSetup:
             command=['rpm', '--root', self.root_dir, '-Va'] + dbpath_option,
             raise_on_error=False
         )
-        with open(filename, 'w') as verified:
+        with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
 
     def _export_deb_package_verification(self, filename):
@@ -1051,7 +1051,7 @@ class SystemSetup:
             ],
             raise_on_error=False
         )
-        with open(filename, 'w') as verified:
+        with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
 
     def _get_rpm_database_location(self):
