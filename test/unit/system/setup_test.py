@@ -831,7 +831,8 @@ class TestSystemSetup:
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_list('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+                'target_dir/some-image.x86_64-1.2.3.packages', 'w',
+                encoding='utf-8'
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
@@ -899,7 +900,8 @@ class TestSystemSetup:
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_list('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.packages', 'w'
+                'target_dir/some-image.x86_64-1.2.3.packages', 'w',
+                encoding='utf-8'
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
@@ -934,7 +936,8 @@ class TestSystemSetup:
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_verification('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.verified', 'w'
+                'target_dir/some-image.x86_64-1.2.3.verified', 'w',
+                encoding='utf-8'
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
@@ -980,7 +983,8 @@ class TestSystemSetup:
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_verification('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.verified', 'w'
+                'target_dir/some-image.x86_64-1.2.3.verified', 'w',
+                encoding='utf-8'
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
