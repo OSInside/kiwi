@@ -30,8 +30,7 @@
 # Setup behaviour of XZ compressor
 #xz:
 #  # Specify options used in any xz compression call
-#  - options:
-#      - '--threads=0'
+#  - options: '--threads=0'
 
 
 # Setup process parameters for container image creation
