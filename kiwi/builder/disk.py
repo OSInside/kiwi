@@ -583,7 +583,7 @@ class DiskBuilder:
                 install_image.create_install_pxe_archive()
                 result_instance.add(
                     key='installation_pxe_archive',
-                    filename=install_image.pxename,
+                    filename=install_image.pxetarball,
                     use_for_bundle=True,
                     compress=False,
                     shasum=True
