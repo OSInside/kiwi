@@ -159,7 +159,9 @@ Requires:       u-boot-tools
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
+%if ! (0%{?rhel} && 0%{?rhel} < 8)
 Recommends:     kiwi-man-pages
+%endif
 
 %description -n python%{python3_pkgversion}-kiwi
 Python 3 library of the KIWI Image System. Provides an operating system
