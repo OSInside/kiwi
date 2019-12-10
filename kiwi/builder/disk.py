@@ -870,7 +870,7 @@ class DiskBuilder:
                 device_map['spare'].get_device(), self.spare_part_mountpoint
             )
         if device_map.get('swap'):
-            if self.volume_manager_name:
+            if self.volume_manager_name and self.volume_manager_name == 'lvm':
                 self._add_simple_fstab_entry(
                     device_map['swap'].get_device(), 'swap', 'swap'
                 )
