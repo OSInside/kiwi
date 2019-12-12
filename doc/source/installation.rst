@@ -62,11 +62,6 @@ To install KIWI, follow these steps:
 
 5. Install KIWI:
 
-   .. note:: Multipython packages
-
-      This version of KIWI is provided as packages for python 2 and
-      python 3. The following assumes that you will install the python 3 package.
-
    .. code:: shell-session
 
        $ sudo zypper in python3-kiwi
