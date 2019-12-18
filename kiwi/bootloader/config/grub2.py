@@ -254,7 +254,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.firmware.efi_mode():
             self._copy_grub_config_to_efi_path(
-                self.root_mount.mountpoint, config_file
+                self.efi_mount.mountpoint, config_file
             )
 
     def setup_install_image_config(

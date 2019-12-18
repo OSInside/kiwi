@@ -420,6 +420,8 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.root_reference = 'root=overlay:UUID=ID'
         self.bootloader.root_mount = Mock()
         self.bootloader.root_mount.mountpoint = 'root_mount_point'
+        self.bootloader.efi_mount = Mock()
+        self.bootloader.efi_mount.mountpoint = 'efi_mount_point'
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
@@ -439,7 +441,7 @@ class TestBootLoaderConfigGrub2:
                 ]
             )
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
-                'root_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
+                'efi_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
             )
             file_handle.write.assert_called_once_with(
                 'root=overlay:UUID=ID'
