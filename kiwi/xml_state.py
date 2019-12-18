@@ -1207,7 +1207,7 @@ class XMLState:
                 )
             )
 
-        if swap_mbytes:
+        if swap_mbytes and self.get_volume_management() == 'lvm':
             volume_type_list.append(
                 volume_type(
                     name='LVSwap',
