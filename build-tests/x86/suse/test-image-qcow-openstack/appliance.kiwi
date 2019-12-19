@@ -111,7 +111,7 @@
         <package name="sg3_utils"/>
         <package name="elfutils"/>
         <package name="iputils"/>
-        <package name="libyui-ncurses-pkg10"/>
+        <package name="libyui-ncurses-pkg11"/>
         <package name="timezone"/>
         <package name="yast2"/>
         <package name="yast2-add-on"/>
