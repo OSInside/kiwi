@@ -590,6 +590,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if enable_blscfg_implemented.returncode == 0:
             grub_default_entries['GRUB_ENABLE_BLSCFG'] = 'true'
+            if self.cmdline:
+                grub_default_entries['GRUB_CMDLINE_LINUX'] = '"{0}"'.format(
+                    re.sub(r'root=.* |root=.*$', '', self.cmdline).strip()
+                )
 
         if grub_default_entries:
             log.info('Writing grub2 defaults file')
