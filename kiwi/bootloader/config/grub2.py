@@ -529,7 +529,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_USE_LINUXEFI
         * GRUB_USE_INITRDEFI
         * GRUB_SERIAL_COMMAND
-        * GRUB_CMDLINE_LINUX_DEFAULT
+        * GRUB_CMDLINE_LINUX_DEFAULT | GRUB_CMDLINE_LINUX
         * GRUB_GFXMODE
         * GRUB_TERMINAL
         * GRUB_DISTRIBUTOR
@@ -540,8 +540,22 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'GRUB_TERMINAL': '"{0}"'.format(self.terminal),
             'GRUB_DISTRIBUTOR': '"{0}"'.format(self.get_menu_entry_title())
         }
+        enable_blscfg_implemented = Command.run(
+            [
+                'grep', '-q', 'GRUB_ENABLE_BLSCFG',
+                Defaults.get_grub_config_tool()
+            ], raise_on_error=False
+        )
         if self.cmdline:
-            grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
+            if enable_blscfg_implemented.returncode == 0:
+                # As documented in:
+                # https://fedoraproject.org/wiki/Changes/BootLoaderSpecByDefault
+                # Distros implementing BootLoaderSpec (BLS), prefers
+                # GRUB_CMDLINE_LINUX over GRUB_CMDLINE_LINUX_DEFAULT
+                grub_cmdline_key = 'GRUB_CMDLINE_LINUX'
+            else:
+                grub_cmdline_key = 'GRUB_CMDLINE_LINUX_DEFAULT'
+            grub_default_entries[grub_cmdline_key] = '"{0}"'.format(
                 re.sub(r'root=.* |root=.*$', '', self.cmdline).strip()
             )
         if self.terminal and 'serial' in self.terminal:
@@ -582,12 +596,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.custom_args.get('boot_is_crypto'):
             grub_default_entries['GRUB_ENABLE_CRYPTODISK'] = 'y'
 
-        enable_blscfg_implemented = Command.run(
-            [
-                'grep', '-q', 'GRUB_ENABLE_BLSCFG',
-                Defaults.get_grub_config_tool()
-            ], raise_on_error=False
-        )
         if enable_blscfg_implemented.returncode == 0:
             grub_default_entries['GRUB_ENABLE_BLSCFG'] = 'true'
 

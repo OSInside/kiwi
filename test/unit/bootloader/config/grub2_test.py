@@ -316,7 +316,11 @@ class TestBootLoaderConfigGrub2:
         self, mock_Command_run, mock_sysconfig, mock_exists
     ):
         grep_grub_option = Mock()
+        # mock option lookup in grub toolkit to match
+        # leading to bootloader spec based setup plus
+        # use of special options linuxefi/initrdefi
         grep_grub_option.returncode = 0
+
         mock_Command_run.return_value = grep_grub_option
         grub_default = MagicMock()
         mock_sysconfig.return_value = grub_default
@@ -333,7 +337,7 @@ class TestBootLoaderConfigGrub2:
                 'GRUB_BACKGROUND',
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
-            call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
+            call('GRUB_CMDLINE_LINUX', '"some-cmdline"'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
@@ -347,6 +351,32 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_TIMEOUT', 10),
             call('GRUB_USE_INITRDEFI', 'true'),
             call('GRUB_USE_LINUXEFI', 'true'),
+            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
+        ]
+
+        grub_default.reset_mock()
+        # mock option lookup in grub toolkit to not match
+        # leading to default behavior, no bootloader spec
+        # no special linuxefi/initrdefi config
+        grep_grub_option.returncode = 1
+
+        self.bootloader._setup_default_grub()
+        assert grub_default.__setitem__.call_args_list == [
+            call(
+                'GRUB_BACKGROUND',
+                '/boot/grub2/themes/openSUSE/background.png'
+            ),
+            call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
+            call('GRUB_DISTRIBUTOR', '"Bob"'),
+            call('GRUB_ENABLE_CRYPTODISK', 'y'),
+            call('GRUB_GFXMODE', '800x600'),
+            call(
+                'GRUB_SERIAL_COMMAND',
+                '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'
+            ),
+            call('GRUB_TERMINAL', '"serial"'),
+            call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
+            call('GRUB_TIMEOUT', 10),
             call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
         ]
 
