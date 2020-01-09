@@ -8,10 +8,6 @@ just set the package kiwi-tools in your config.xml file
 
   run a timer process like the kernel
 
-* /usr/bin/kversion
-
-  extract kernel version information from kernel image
-
 * /usr/bin/dcounter
 
   a small program to count bytes on a transfer so that you

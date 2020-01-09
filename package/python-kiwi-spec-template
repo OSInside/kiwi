@@ -426,7 +426,6 @@ fi
 %files -n kiwi-tools
 %{_bindir}/dcounter
 %{_bindir}/isconsole
-%{_bindir}/kversion
 %{_bindir}/utimer
 
 %files -n dracut-kiwi-lib

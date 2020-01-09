@@ -1,7 +1,7 @@
 import mock
+import os
 from mock import patch
 from pytest import raises
-from collections import namedtuple
 
 from kiwi.system.kernel import Kernel
 
@@ -14,13 +14,10 @@ class TestKernel:
         mock_listdir.return_value = ['1.2.3-default']
         self.kernel = Kernel('root-dir')
         assert self.kernel.kernel_names == [
-            'vmlinux',
-            'vmlinuz',
             'uImage-1.2.3-default',
             'Image-1.2.3-default',
             'zImage-1.2.3-default',
             'vmlinuz-1.2.3-default',
-            'vmlinux-1.2.3-default',
             'image-1.2.3-default'
         ]
 
@@ -31,66 +28,14 @@ class TestKernel:
 
     @patch('os.path.exists')
     @patch('os.path.realpath')
-    @patch('kiwi.command.Command.run')
-    def test_get_kernel(self, mock_run, mock_realpath, mock_os):
-        run = namedtuple(
-            'run', ['output']
+    def test_get_kernel(self, mock_os_path_realpath, mock_os_path_exists):
+        mock_os_path_exists.return_value = True
+        kernel = self.kernel.get_kernel()
+        assert kernel.filename == 'root-dir/boot/uImage-1.2.3-default'
+        assert kernel.version == '1.2.3-default'
+        assert kernel.name == os.path.basename(
+            mock_os_path_realpath.return_value
         )
-        result = run(output='42')
-        mock_os.return_value = True
-        mock_run.return_value = result
-        mock_realpath.return_value = 'vmlinux-realpath'
-        data = self.kernel.get_kernel()
-        mock_run.assert_called_once_with(
-            command=['kversion', 'root-dir/boot/vmlinux-1.2.3-default.gz'],
-            raise_on_error=False
-        )
-        assert data.filename == 'root-dir/boot/vmlinux'
-        assert data.version == '42'
-        assert data.name == 'vmlinux-realpath'
-
-    @patch('os.path.exists')
-    @patch('os.path.realpath')
-    @patch('kiwi.command.Command.run')
-    def test_get_kernel_from_arbitrary_kernel_image(
-        self, mock_run, mock_realpath, mock_os
-    ):
-        def path_exists(path):
-            return False if 'vmlinux.gz' in path else True
-
-        self.kernel.kernel_names = ['zImage']
-        run = namedtuple(
-            'run', ['output']
-        )
-        result = run(output='42')
-        mock_os.side_effect = path_exists
-        mock_run.return_value = result
-        mock_realpath.return_value = 'vmlinux.gz'
-        data = self.kernel.get_kernel()
-        mock_run.assert_called_once_with(
-            command=['kversion', 'root-dir/boot/zImage'],
-            raise_on_error=False
-        )
-        assert data.filename == 'root-dir/boot/zImage'
-        assert data.version == '42'
-        assert data.name == mock_realpath.return_value
-
-    @patch('os.path.exists')
-    @patch('kiwi.command.Command.run')
-    def test_get_kernel_no_version(self, mock_run, mock_os):
-        run = namedtuple(
-            'run', ['output']
-        )
-        result = run(output=None)
-        mock_os.return_value = True
-        mock_run.return_value = result
-        data = self.kernel.get_kernel()
-        mock_run.assert_called_once_with(
-            command=['kversion', 'root-dir/boot/vmlinux-1.2.3-default.gz'],
-            raise_on_error=False
-        )
-        assert data.filename == 'root-dir/boot/vmlinux'
-        assert data.version == 'no-version-found'
 
     @patch('os.path.exists')
     def test_get_xen_hypervisor(self, mock_os):
