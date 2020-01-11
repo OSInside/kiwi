@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 from collections import namedtuple
 
 # project
@@ -56,34 +57,19 @@ class Kernel:
                 [self.root_dir, 'boot', kernel_name]
             )
             if os.path.exists(kernel_file):
-                kernel_file_for_version_check = \
-                    self._get_kernel_name_for_version_lookup()
-                if not kernel_file_for_version_check:
-                    # The system does not provide a gzip compressed binary
-                    # of the kernel. Thus we try to fetch the version from
-                    # the arbitrary kernel image format. Please Note:
-                    # kernel images that contains the decompressor code
-                    # as part of the kernel could have been compressed by
-                    # any possible compression algorithm. For such kernels
-                    # the simple kversion utility will not be able to read
-                    # kernel version
-                    kernel_file_for_version_check = kernel_file
-
-                version = Command.run(
-                    command=['kversion', kernel_file_for_version_check],
-                    raise_on_error=False
-                ).output
-                if not version:
-                    version = 'no-version-found'
-                version = version.rstrip('\n')
-                kernel = namedtuple(
-                    'kernel', ['name', 'filename', 'version']
+                version_match = re.match(
+                    '.*?-(.*)', os.path.basename(kernel_file)
                 )
-                return kernel(
-                    name=os.path.basename(os.path.realpath(kernel_file)),
-                    filename=kernel_file,
-                    version=version
-                )
+                if version_match:
+                    version = version_match.group(1)
+                    kernel = namedtuple(
+                        'kernel', ['name', 'filename', 'version']
+                    )
+                    return kernel(
+                        name=os.path.basename(os.path.realpath(kernel_file)),
+                        filename=kernel_file,
+                        version=version
+                    )
 
         if raise_on_not_found:
             raise KiwiKernelLookupError(
@@ -159,17 +145,16 @@ class Kernel:
 
         :rtype: list
         """
-        kernel_names = [
-            # lookup for the symlink first
-            'vmlinux', 'vmlinuz'
-        ]
-        kernel_dirs = sorted(os.listdir(''.join([self.root_dir, '/lib/modules'])))
+        kernel_names = []
+        kernel_dirs = sorted(
+            os.listdir(''.join([self.root_dir, '/lib/modules']))
+        )
         if kernel_dirs:
             # append lookup for the real kernel image names
             # depending on the arch and os they are different
             # in their prefix
             kernel_prefixes = [
-                'uImage', 'Image', 'zImage', 'vmlinuz', 'vmlinux', 'image'
+                'uImage', 'Image', 'zImage', 'vmlinuz', 'image'
             ]
             kernel_name_pattern = '{prefix}-{name}'
             for kernel_prefix in kernel_prefixes:
@@ -180,14 +165,3 @@ class Kernel:
                         )
                     )
         return kernel_names
-
-    def _get_kernel_name_for_version_lookup(self):
-        vmlinux_kernel_files = list(
-            filter(lambda kernel: 'vmlinux-' in kernel, self.kernel_names)
-        )
-        if vmlinux_kernel_files:
-            kernel_file_for_version_check = os.sep.join(
-                [self.root_dir, 'boot', vmlinux_kernel_files[0] + '.gz']
-            )
-            if os.path.exists(kernel_file_for_version_check):
-                return kernel_file_for_version_check

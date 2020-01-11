@@ -11,7 +11,6 @@ doc/source/development/schema/xsdDocHtml.css
 tools/dcounter
 tools/driveready
 tools/isconsole
-tools/kversion
 tools/setctsid
 tools/startshell
 tools/utimer
