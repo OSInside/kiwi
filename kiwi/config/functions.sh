@@ -946,126 +946,33 @@ function baseUpdateModuleDependencies {
 }
 
 #======================================
-# baseCreateCommonKernelFile
-#--------------------------------------
-function baseCreateCommonKernelFile {
-    # /.../
-    # Search for the kernel file name and move them into
-    # a common file name used by kiwi
-    # ----
-    local kernel_dir
-    local kernel_names
-    local kernel_name
-    local kernel_version
-    local have_kernel_package=0
-    for kernel_dir in /lib/modules/*;do
-        if [ ! -d "${kernel_dir}" ];then
-            continue
-        fi
-        if [ -x /bin/rpm ];then
-            # if we have a package database take the kernel name from
-            # the package name. This could result in multiple kernel
-            # names
-            if kernel_names=$(rpm -qf "${kernel_dir}"); then
-                have_kernel_package=1
-            fi
-        else
-            # without a package database take the installed kernel
-            # directory name as the kernel name
-            kernel_names="${kernel_dir}"
-        fi
-        for kernel_name in ${kernel_names};do
-            #==========================================
-            # get kernel VERSION information
-            #------------------------------------------
-            if [ "${have_kernel_package}" -eq 0 ];then
-                # not in a package...
-                continue
-            fi
-            if echo "${kernel_name}" | grep -q "\-kmp\-";then
-                # a kernel module package...
-                continue
-            fi
-            if echo "${kernel_name}" | grep -q "\-source\-";then
-                # a kernel source package...
-                continue
-            fi
-            kernel_version=$(/usr/bin/basename "${kernel_dir}")
-            #==========================================
-            # create common kernel files, last wins !
-            #------------------------------------------
-            pushd /boot || return
-            if [ -f "uImage-${kernel_version}" ];then
-                # dedicated to kernels on arm
-                mv "uImage-${kernel_version}" vmlinuz
-            elif [ -f "Image-${kernel_version}" ];then
-                # dedicated to kernels on arm
-                mv "Image-${kernel_version}" vmlinuz
-            elif [ -f "zImage-${kernel_version}" ];then
-                # dedicated to kernels on arm
-                mv "zImage-${kernel_version}" vmlinuz
-            elif [ -f "vmlinuz-${kernel_version}.gz" ];then
-                # dedicated to kernels on x86
-                mv "vmlinuz-${kernel_version}" vmlinuz
-            elif [ -f "vmlinuz-${kernel_version}.el5" ];then
-                # dedicated to kernels on ppc
-                mv "vmlinux-${kernel_version}.el5" vmlinuz
-            elif [ -f "vmlinux-${kernel_version}" ];then
-                # dedicated to kernels on ppc
-                mv "vmlinux-${kernel_version}" vmlinux
-            elif [ -f "image-${kernel_version}" ];then
-                # dedicated to kernels on s390
-                mv "image-${kernel_version}" vmlinuz
-            elif [ -f "vmlinuz-${kernel_version}" ];then
-                # dedicated to xz kernels
-                mv "vmlinuz-${kernel_version}" vmlinuz
-            elif [ -f vmlinuz ];then
-                # nothing to map, vmlinuz already there
-                :
-            else
-                echo "Failed to find a mapping kernel"
-            fi
-            if [ -f "vmlinux-${kernel_version}.gz" ];then
-                mv "vmlinux-${kernel_version}.gz" vmlinux.gz
-            fi
-            popd || return
-        done
-    done
-}
-
-#======================================
 # baseStripKernel
 #--------------------------------------
 function baseStripKernel {
     # /.../
     # this function will strip the kernel
     #
-    # 1. create the vmlinux.gz and vmlinuz commonly named files
-    #    which are used as fallback for the kernel extraction in
-    #    case of kiwi boot images
-    #
-    # 2. handle <strip type="delete"> requests. Because this
+    # 1. handle <strip type="delete"> requests. Because this
     #    information is generic not only files of the kernel
     #    are affected but also other data which is unwanted
     #    gets deleted here
     #
-    # 3. only keep kernel modules matching the <drivers>
+    # 2. only keep kernel modules matching the <drivers>
     #    patterns from the kiwi boot image description
     #
-    # 4. lookup kernel module dependencies and bring back
+    # 3. lookup kernel module dependencies and bring back
     #    modules which were removed but still required by
     #    other modules kept in the system to stay consistent
     #
-    # 5. lookup for duplicate kernel modules due to kernel
+    # 4. lookup for duplicate kernel modules due to kernel
     #    module updates and keep only the latest version
     #
-    # 6. lookup for kernel firmware files and keep only those
+    # 5. lookup for kernel firmware files and keep only those
     #    for which a kernel driver is still present in the
     #    system
     # ----
     declare kiwi_initrd_system=${kiwi_initrd_system}
     declare kiwi_strip_delete=${kiwi_strip_delete}
-    baseCreateCommonKernelFile
     if [ "${kiwi_initrd_system}" = "dracut" ]; then
         echo "dracut initrd system requested, kernel strip skipped"
     else
