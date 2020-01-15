@@ -885,6 +885,19 @@ class XMLState:
         if spare_part_size:
             return self._to_mega_byte(spare_part_size)
 
+    def get_build_type_spare_part_fs_attributes(self):
+        """
+        Build type specific list of filesystem attributes applied to
+        the spare partition.
+
+        :return: list of strings or empty list
+
+        :rtype: list
+        """
+        spare_part_attributes = self.build_type.get_spare_part_fs_attributes()
+        if spare_part_attributes:
+            return spare_part_attributes.strip().split(',')
+
     def get_build_type_format_options(self):
         """
         Disk format options returned as a dictionary

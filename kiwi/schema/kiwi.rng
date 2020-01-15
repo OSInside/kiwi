@@ -81,6 +81,11 @@
       <param name="pattern">(console|gfxterm|serial)( (console|gfxterm|serial))*</param>
     </data>
   </define>
+  <define name="fs_attributes">
+    <data type="token">
+      <param name="pattern">(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -1900,6 +1905,18 @@ Can only be configured for the disk image types oem and vmx</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
+    <define name="k.type.spare_part_fs_attributes.attribute">
+      <attribute name="spare_part_fs_attributes">
+        <a:documentation>Specify filesystem attributes for the spare partition.
+Attributes can be specified as comma separated list.
+Can only be configured for the disk image types oem and vmx</a:documentation>
+        <ref name="fs_attributes"/>
+      </attribute>
+      <sch:pattern id="spare_part_fs_attributes" is-a="image_type">
+        <sch:param name="attr" value="spare_part_fs_attributes"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.spare_part_is_last.attribute">
       <attribute name="spare_part_is_last">
         <a:documentation>Specify if the spare partition should be the last one in
@@ -2681,6 +2698,9 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.spare_part_fs.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_fs_attributes.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.spare_part_is_last.attribute"/>
