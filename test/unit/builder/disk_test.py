@@ -837,7 +837,8 @@ class TestDiskBuilder:
         assert mock_fs.call_args_list[0] == call(
             self.disk_builder.spare_part_fs,
             self.device_map['spare'],
-            'root_dir/var/'
+            'root_dir/var/',
+            {'fs_attributes': None}
         )
         assert filesystem.sync_data.call_args_list.pop() == call(
             [
