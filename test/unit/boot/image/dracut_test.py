@@ -1,6 +1,7 @@
 from mock import (
     patch, call, Mock
 )
+from collections import namedtuple
 
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
@@ -8,11 +9,16 @@ from kiwi.xml_state import XMLState
 
 
 class TestBootImageKiwi:
+    @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.base.os.path.exists')
     @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists):
+    def setup(self, mock_machine, mock_exists, mock_cmd):
         mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
+        command_type = namedtuple('command', ['output'])
+        mock_cmd.return_value = command_type(
+            output='foo\nfoobar\nmodule'
+        )
         description = XMLDescription('../data/example_config.xml')
         self.xml_state = XMLState(
             description.load()
@@ -20,6 +26,10 @@ class TestBootImageKiwi:
         self.boot_image = BootImageDracut(
             self.xml_state, 'some-target-dir', 'system-directory'
         )
+        mock_cmd.assert_called_once_with([
+            'chroot', 'system-directory', 'dracut',
+            '--list-modules', '--no-kernel'
+        ])
 
     @patch('kiwi.boot.image.dracut.SystemSetup')
     @patch('kiwi.boot.image.dracut.Profile')
@@ -50,6 +60,7 @@ class TestBootImageKiwi:
 
         self.boot_image.include_module('module', install_media=True)
         self.boot_image.include_module('foobar')
+        self.boot_image.include_module('not_available')
         assert self.boot_image.modules == ['foobar']
         assert self.boot_image.install_modules == ['module']
 

@@ -46,6 +46,7 @@ class BootImageDracut(BootImageBase):
         self.install_modules = []
         self.omit_modules = []
         self.omit_install_modules = []
+        self.available_modules = self._get_modules()
 
     def include_file(self, filename, install_media=False):
         """
@@ -66,10 +67,14 @@ class BootImageDracut(BootImageBase):
         :param string module: module to include
         :param bool install_media: include the module for install initrds
         """
-        if install_media and module not in self.install_modules:
-            self.install_modules.append(module)
-        elif module not in self.modules:
-            self.modules.append(module)
+        warn_msg = 'module "{0}" not included in initrd'.format(module)
+        if self._module_available(module):
+            if install_media and module not in self.install_modules:
+                self.install_modules.append(module)
+            elif module not in self.modules:
+                self.modules.append(module)
+        else:
+            log.warning(warn_msg)
 
     def omit_module(self, module, install_media=False):
         """
@@ -96,10 +101,12 @@ class BootImageDracut(BootImageBase):
                 self.boot_root_directory + Defaults.get_dracut_conf_name()
             )
         if config.get('modules'):
+            modules = [
+                module for module in config['modules']
+                if self._module_available(module)
+            ]
             dracut_config.append(
-                'add_dracutmodules+=" {0} "\n'.format(
-                    ' '.join(config['modules'])
-                )
+                'add_dracutmodules+=" {0} "\n'.format(' '.join(modules))
             )
         if config.get('omit_modules'):
             dracut_config.append(
@@ -199,3 +206,19 @@ class BootImageDracut(BootImageBase):
             self.initrd_filename = os.sep.join(
                 [self.target_dir, dracut_initrd_basename]
             )
+
+    def _get_modules(self):
+        cmd = Command.run(
+            [
+                'chroot', self.boot_root_directory,
+                'dracut', '--list-modules', '--no-kernel'
+            ]
+        )
+        return cmd.output.splitlines()
+
+    def _module_available(self, module):
+        warn_msg = 'dracut module "{0}" not found in the root tree'
+        if module in self.available_modules:
+            return True
+        log.warning(warn_msg.format(module))
+        return False
