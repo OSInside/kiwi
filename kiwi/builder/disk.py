@@ -645,12 +645,19 @@ class DiskBuilder:
     def _build_spare_filesystem(self, device_map):
         if 'spare' in device_map and self.spare_part_fs:
             spare_part_data_path = None
+            spare_part_custom_parameters = {
+                'fs_attributes':
+                    self.xml_state.get_build_type_spare_part_fs_attributes()
+            }
             if self.spare_part_mountpoint:
                 spare_part_data_path = self.root_dir + '{0}/'.format(
                     self.spare_part_mountpoint
                 )
             filesystem = FileSystem(
-                self.spare_part_fs, device_map['spare'], spare_part_data_path
+                self.spare_part_fs,
+                device_map['spare'],
+                spare_part_data_path,
+                spare_part_custom_parameters
             )
             filesystem.create_on_device(
                 label='SPARE'

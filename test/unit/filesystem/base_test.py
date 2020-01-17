@@ -13,7 +13,10 @@ class TestFileSystemBase:
         provider.get_device = mock.Mock(
             return_value='/dev/loop0'
         )
-        self.fsbase = FileSystemBase(provider, 'root_dir')
+        custom_args = {
+            'fs_attributes': ['no-copy-on-write']
+        }
+        self.fsbase = FileSystemBase(provider, 'root_dir', custom_args)
 
     def test_root_dir_does_not_exist(self):
         fsbase = FileSystemBase(mock.Mock(), 'root_dir_not_existing')
@@ -35,8 +38,11 @@ class TestFileSystemBase:
 
     @patch('kiwi.filesystem.base.MountManager')
     @patch('kiwi.filesystem.base.DataSync')
+    @patch('kiwi.filesystem.base.Command.run')
     @patch('os.path.exists')
-    def test_sync_data(self, mock_exists, mock_sync, mock_mount):
+    def test_sync_data(
+        self, mock_exists, mock_Command_run, mock_sync, mock_mount
+    ):
         mock_exists.return_value = True
 
         filesystem_mount = mock.Mock()
@@ -55,6 +61,9 @@ class TestFileSystemBase:
         )
         mock_mount.assert_called_once_with(
             device='/dev/loop0'
+        )
+        mock_Command_run.assert_called_once_with(
+            ['chattr', '+C', 'tmpdir']
         )
         filesystem_mount.mount.assert_called_once_with([])
         filesystem_mount.umount.assert_called_once_with()

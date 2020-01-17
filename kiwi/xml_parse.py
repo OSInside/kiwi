@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.5 (default, Mar 31 2018, 19:45:04) [GCC]
+# Python 3.6.9 (default, Oct 29 2019, 10:39:36) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -2566,7 +2566,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2619,6 +2619,7 @@ class type_(GeneratedsSuper):
         self.spare_part = _cast(None, spare_part)
         self.spare_part_mountpoint = _cast(None, spare_part_mountpoint)
         self.spare_part_fs = _cast(None, spare_part_fs)
+        self.spare_part_fs_attributes = _cast(None, spare_part_fs_attributes)
         self.spare_part_is_last = _cast(bool, spare_part_is_last)
         self.target_blocksize = _cast(int, target_blocksize)
         self.target_removable = _cast(bool, target_removable)
@@ -2797,6 +2798,8 @@ class type_(GeneratedsSuper):
     def set_spare_part_mountpoint(self, spare_part_mountpoint): self.spare_part_mountpoint = spare_part_mountpoint
     def get_spare_part_fs(self): return self.spare_part_fs
     def set_spare_part_fs(self, spare_part_fs): self.spare_part_fs = spare_part_fs
+    def get_spare_part_fs_attributes(self): return self.spare_part_fs_attributes
+    def set_spare_part_fs_attributes(self, spare_part_fs_attributes): self.spare_part_fs_attributes = spare_part_fs_attributes
     def get_spare_part_is_last(self): return self.spare_part_is_last
     def set_spare_part_is_last(self, spare_part_is_last): self.spare_part_is_last = spare_part_is_last
     def get_target_blocksize(self): return self.target_blocksize
@@ -2833,6 +2836,13 @@ class type_(GeneratedsSuper):
                     self.validate_partition_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
     validate_partition_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G$']]
+    def validate_fs_attributes(self, value):
+        # Validate type fs_attributes, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_fs_attributes_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_fs_attributes_patterns_, ))
+    validate_fs_attributes_patterns_ = [['^(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*$']]
     def validate_vhd_tag_type(self, value):
         # Validate type vhd-tag-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3034,6 +3044,9 @@ class type_(GeneratedsSuper):
         if self.spare_part_fs is not None and 'spare_part_fs' not in already_processed:
             already_processed.add('spare_part_fs')
             outfile.write(' spare_part_fs=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.spare_part_fs), input_name='spare_part_fs')), ))
+        if self.spare_part_fs_attributes is not None and 'spare_part_fs_attributes' not in already_processed:
+            already_processed.add('spare_part_fs_attributes')
+            outfile.write(' spare_part_fs_attributes=%s' % (quote_attrib(self.spare_part_fs_attributes), ))
         if self.spare_part_is_last is not None and 'spare_part_is_last' not in already_processed:
             already_processed.add('spare_part_is_last')
             outfile.write(' spare_part_is_last="%s"' % self.gds_format_boolean(self.spare_part_is_last, input_name='spare_part_is_last'))
@@ -3416,6 +3429,12 @@ class type_(GeneratedsSuper):
             already_processed.add('spare_part_fs')
             self.spare_part_fs = value
             self.spare_part_fs = ' '.join(self.spare_part_fs.split())
+        value = find_attr_value_('spare_part_fs_attributes', node)
+        if value is not None and 'spare_part_fs_attributes' not in already_processed:
+            already_processed.add('spare_part_fs_attributes')
+            self.spare_part_fs_attributes = value
+            self.spare_part_fs_attributes = ' '.join(self.spare_part_fs_attributes.split())
+            self.validate_fs_attributes(self.spare_part_fs_attributes)    # validate type fs_attributes
         value = find_attr_value_('spare_part_is_last', node)
         if value is not None and 'spare_part_is_last' not in already_processed:
             already_processed.add('spare_part_is_last')

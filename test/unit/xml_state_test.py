@@ -743,6 +743,9 @@ class TestXMLState:
 
     def test_get_spare_part(self):
         assert self.state.get_build_type_spare_part_size() == 200
+        assert self.state.get_build_type_spare_part_fs_attributes() == [
+            'no-copy-on-write'
+        ]
 
     def test_get_build_type_format_options(self):
         assert self.state.get_build_type_format_options() == {
