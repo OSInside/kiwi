@@ -86,16 +86,16 @@ class FileSystemBase:
         if custom_args:
             self.custom_args = copy.deepcopy(custom_args)
 
-        if 'create_options' not in self.custom_args:
+        if not self.custom_args.get('create_options'):
             self.custom_args['create_options'] = []
 
-        if 'meta_data' not in self.custom_args:
+        if not self.custom_args.get('meta_data'):
             self.custom_args['meta_data'] = {}
 
-        if 'mount_options' not in self.custom_args:
+        if not self.custom_args.get('mount_options'):
             self.custom_args['mount_options'] = []
 
-        if 'fs_attributes' not in self.custom_args:
+        if not self.custom_args.get('fs_attributes'):
             self.custom_args['fs_attributes'] = []
 
     def create_on_device(self, label=None):
