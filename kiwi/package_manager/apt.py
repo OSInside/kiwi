@@ -183,13 +183,17 @@ class PackageManagerApt(PackageManagerBase):
         :rtype: namedtuple
         """
         update_command = ['chroot', self.root_dir, 'apt-get']
-        update_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        update_command.extend(
+            Path.move_to_root(self.root_dir, self.apt_get_args)
+        )
         update_command.extend(self.custom_args)
         update_command.append('update')
         Command.run(update_command, self.command_env)
 
         apt_get_command = ['chroot', self.root_dir, 'apt-get']
-        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(
+            Path.move_to_root(self.root_dir, self.apt_get_args)
+        )
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('install')
         apt_get_command.extend(self._package_requests())
@@ -232,7 +236,7 @@ class PackageManagerApt(PackageManagerBase):
         else:
             apt_get_command = ['chroot', self.root_dir, 'apt-get']
             apt_get_command.extend(
-                self.root_bind.move_to_root(self.apt_get_args)
+                Path.move_to_root(self.root_dir, self.apt_get_args)
             )
             apt_get_command.extend(self.custom_args)
             apt_get_command.extend(['--auto-remove', 'remove'])
@@ -251,7 +255,9 @@ class PackageManagerApt(PackageManagerBase):
         :rtype: namedtuple
         """
         apt_get_command = ['chroot', self.root_dir, 'apt-get']
-        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(
+            Path.move_to_root(self.root_dir, self.apt_get_args)
+        )
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('upgrade')
 

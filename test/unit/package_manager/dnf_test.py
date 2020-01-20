@@ -10,17 +10,11 @@ from kiwi.exceptions import KiwiRequestError
 class TestPackageManagerDnf:
     def setup(self):
         repository = mock.Mock()
-        repository.root_dir = 'root-dir'
-
-        root_bind = mock.Mock()
-        root_bind.move_to_root = mock.Mock(
-            return_value=['root-moved-arguments']
-        )
-        repository.root_bind = root_bind
+        repository.root_dir = '/root-dir'
 
         repository.runtime_config = mock.Mock(
             return_value={
-                'dnf_args': ['-c', 'dnf.conf', '-y'],
+                'dnf_args': ['-c', '/root-dir/dnf.conf', '-y'],
                 'command_env': ['env']
             }
         )
@@ -49,13 +43,15 @@ class TestPackageManagerDnf:
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
-            ['dnf', '-c', 'dnf.conf', '-y', 'makecache']
+            ['dnf', '-c', '/root-dir/dnf.conf', '-y', 'makecache']
         )
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'dnf -c dnf.conf -y --installroot root-dir install vim && '
-                'dnf -c dnf.conf -y --installroot root-dir group install '
+                'dnf -c /root-dir/dnf.conf -y '
+                '--installroot /root-dir install vim && '
+                'dnf -c /root-dir/dnf.conf -y '
+                '--installroot /root-dir group install '
                 '"collection"'
             ], ['env']
         )
@@ -66,15 +62,12 @@ class TestPackageManagerDnf:
         self.manager.request_collection('collection')
         self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests()
-        self.manager.root_bind.move_to_root(
-            self.manager.dnf_args
-        )
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'chroot root-dir dnf root-moved-arguments '
+                'chroot /root-dir dnf -c /dnf.conf -y '
                 '--exclude=skipme install vim && '
-                'chroot root-dir dnf root-moved-arguments '
+                'chroot /root-dir dnf -c /dnf.conf -y '
                 '--exclude=skipme group install '
                 '"collection"'
             ], ['env']
@@ -87,7 +80,7 @@ class TestPackageManagerDnf:
         self.manager.process_delete_requests(True)
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'rpm', '-e',
+                'chroot', '/root-dir', 'rpm', '-e',
                 '--nodeps', '--allmatches', '--noscripts', 'vim'
             ],
             [
@@ -102,8 +95,8 @@ class TestPackageManagerDnf:
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'dnf',
-                'root-moved-arguments', 'autoremove', 'vim'
+                'chroot', '/root-dir', 'dnf',
+                '-c', '/dnf.conf', '-y', 'autoremove', 'vim'
             ],
             ['env']
         )
@@ -118,19 +111,16 @@ class TestPackageManagerDnf:
         with raises(KiwiRequestError):
             self.manager.process_delete_requests()
         mock_run.assert_called_once_with(
-            ['chroot', 'root-dir', 'rpm', '-q', 'vim']
+            ['chroot', '/root-dir', 'rpm', '-q', 'vim']
         )
 
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        self.manager.root_bind.move_to_root(
-            self.manager.dnf_args
-        )
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'dnf',
-                'root-moved-arguments', 'upgrade'
+                'chroot', '/root-dir', 'dnf',
+                '-c', '/dnf.conf', '-y', 'upgrade'
             ], ['env']
         )
 

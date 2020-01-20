@@ -163,26 +163,6 @@ class RootBind:
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def move_to_root(self, elements):
-        """
-        Change the given path elements to a new root directory
-
-        :param list elements: list of path names
-
-        :return: changed elements
-
-        :rtype: list
-        """
-        result = []
-        for element in elements:
-            normalized_element = os.path.normpath(element)
-            result.append(
-                normalized_element.replace(
-                    os.path.normpath(self.root_dir), os.sep
-                ).replace('{0}{0}'.format(os.sep), os.sep)
-            )
-        return result
-
     def cleanup(self):
         """
         Cleanup mounted locations, directories and intermediate config files

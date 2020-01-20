@@ -204,8 +204,3 @@ class TestRootBind:
         with self._caplog.at_level(logging.WARNING):
             self.bind_root.cleanup()
             assert 'Path /mountpoint not a mountpoint' in self._caplog.text
-
-    def test_move_to_root(self):
-        assert self.bind_root.move_to_root(
-            [self.bind_root.root_dir + '/argument']
-        ) == ['/argument']

@@ -27,9 +27,6 @@ class TestRepositoryZypper:
         tmpfile.name = 'tmpfile'
         mock_temp.return_value = tmpfile
         self.root_bind = mock.Mock()
-        self.root_bind.move_to_root = mock.Mock(
-            return_value=['root-moved-arguments']
-        )
         self.root_bind.root_dir = '../data'
         self.root_bind.shared_location = '/shared-dir'
         with patch('builtins.open', create=True):

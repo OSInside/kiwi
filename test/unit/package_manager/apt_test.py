@@ -27,12 +27,6 @@ class TestPackageManagerApt:
         repository.unauthenticated = 'false'
         repository.components = ['main', 'restricted']
 
-        root_bind = mock.Mock()
-        root_bind.move_to_root = mock.Mock(
-            return_value=['root-moved-arguments']
-        )
-        repository.root_bind = root_bind
-
         repository.runtime_config = mock.Mock(
             return_value={
                 'apt_get_args': ['-c', 'apt.conf', '-y'],
@@ -127,13 +121,13 @@ class TestPackageManagerApt:
                 call(
                     [
                         'chroot', 'root-dir', 'apt-get',
-                        'root-moved-arguments', 'update'
+                        '-c', 'apt.conf', '-y', 'update'
                     ], ['env']
                 )
             ]
             mock_call.assert_called_once_with([
                 'chroot', 'root-dir', 'apt-get',
-                'root-moved-arguments', 'install', 'vim'],
+                '-c', 'apt.conf', '-y', 'install', 'vim'],
                 ['env']
             )
 
@@ -142,12 +136,9 @@ class TestPackageManagerApt:
     def test_process_install_requests(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.process_install_requests()
-        self.manager.root_bind.move_to_root(
-            self.manager.apt_get_args
-        )
         mock_call.assert_called_once_with([
             'chroot', 'root-dir', 'apt-get',
-            'root-moved-arguments', 'install', 'vim'],
+            '-c', 'apt.conf', '-y', 'install', 'vim'],
             ['env']
         )
 
@@ -158,7 +149,7 @@ class TestPackageManagerApt:
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'apt-get', 'root-moved-arguments',
+                'chroot', 'root-dir', 'apt-get', '-c', 'apt.conf', '-y',
                 '--auto-remove', 'remove', 'vim'
             ], ['env']
         )
@@ -183,12 +174,9 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        self.manager.root_bind.move_to_root(
-            self.manager.apt_get_args
-        )
         mock_call.assert_called_once_with([
             'chroot', 'root-dir', 'apt-get',
-            'root-moved-arguments', 'upgrade'],
+            '-c', 'apt.conf', '-y', 'upgrade'],
             ['env']
         )
 
