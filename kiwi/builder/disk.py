@@ -335,9 +335,6 @@ class DiskBuilder:
                 self.requested_filesystem
             )
             volume_manager.mount_volumes()
-            self.generic_fstab_entries += volume_manager.get_fstab(
-                self.persistency_type, self.requested_filesystem
-            )
             self.system = volume_manager
             device_map['root'] = volume_manager.get_device().get('root')
             device_map['swap'] = volume_manager.get_device().get('swap')
@@ -871,6 +868,13 @@ class DiskBuilder:
             device_map['root'].get_device(), '/',
             custom_root_mount_args, fs_check_interval
         )
+        if self.volume_manager_name:
+            volume_fstab_entries = self.system.get_fstab(
+                self.persistency_type, self.requested_filesystem
+            )
+            for volume_fstab_entry in volume_fstab_entries:
+                if volume_fstab_entry not in self.generic_fstab_entries:
+                    self.generic_fstab_entries.append(volume_fstab_entry)
         if device_map.get('spare') and \
            self.spare_part_fs and self.spare_part_mountpoint:
             self._add_generic_fstab_entry(
