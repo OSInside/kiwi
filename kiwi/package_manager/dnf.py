@@ -21,6 +21,7 @@ import re
 from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.package_manager.base import PackageManagerBase
+from kiwi.path import Path
 from kiwi.exceptions import KiwiRequestError
 
 
@@ -125,8 +126,8 @@ class PackageManagerDnf(PackageManagerBase):
             # hard required by another package, it will break the transaction.
             for package in self.exclude_requests:
                 self.custom_args.append('--exclude=' + package)
-        chroot_dnf_args = self.root_bind.move_to_root(
-            self.dnf_args
+        chroot_dnf_args = Path.move_to_root(
+            self.root_dir, self.dnf_args
         )
         bash_command = [
             'chroot', self.root_dir, 'dnf'
@@ -178,7 +179,7 @@ class PackageManagerDnf(PackageManagerBase):
                 self.command_env
             )
         else:
-            chroot_dnf_args = self.root_bind.move_to_root(self.dnf_args)
+            chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
             return Command.call(
                 [
                     'chroot', self.root_dir, 'dnf'
@@ -196,9 +197,7 @@ class PackageManagerDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        chroot_dnf_args = self.root_bind.move_to_root(
-            self.dnf_args
-        )
+        chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
         return Command.call(
             [
                 'chroot', self.root_dir, 'dnf'

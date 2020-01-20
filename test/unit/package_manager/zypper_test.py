@@ -2,6 +2,7 @@ from mock import patch
 from pytest import raises
 import mock
 
+from kiwi.path import Path
 from kiwi.package_manager.zypper import PackageManagerZypper
 
 from kiwi.exceptions import KiwiRequestError
@@ -11,12 +12,6 @@ class TestPackageManagerZypper:
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
-
-        root_bind = mock.Mock()
-        root_bind.move_to_root = mock.Mock(
-            return_value=['root-moved-arguments']
-        )
-        repository.root_bind = root_bind
 
         self.command_env = {
             'HOME': '/home/ms', 'ZYPP_CONF': 'root-dir/my/zypp.conf'
@@ -29,13 +24,13 @@ class TestPackageManagerZypper:
         )
         self.manager = PackageManagerZypper(repository)
 
-        self.chroot_zypper_args = self.manager.root_bind.move_to_root(
-            self.manager.zypper_args
+        self.chroot_zypper_args = Path.move_to_root(
+            'root-dir', self.manager.zypper_args
         )
         self.chroot_command_env = self.manager.command_env
         zypp_conf = self.manager.command_env['ZYPP_CONF']
         self.chroot_command_env['ZYPP_CONF'] = \
-            self.manager.root_bind.move_to_root(zypp_conf)[0]
+            Path.move_to_root('root-dir', [zypp_conf])[0]
 
     def test_request_package(self):
         self.manager.request_package('name')

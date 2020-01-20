@@ -24,7 +24,6 @@ class PackageManagerBase:
 
     :param object repository: instance of :class:`Repository`
     :param str root_dir: root directory path name
-    :param object root_bind: instance of :class:`RootBind`
     :param list package_requests: list of packages to install or delete
     :param list collection_requests: list of collections to install
     :param list product_requests: list of products to install
@@ -32,7 +31,6 @@ class PackageManagerBase:
     def __init__(self, repository, custom_args=None):
         self.repository = repository
         self.root_dir = repository.root_dir
-        self.root_bind = repository.root_bind
         self.package_requests = []
         self.collection_requests = []
         self.product_requests = []

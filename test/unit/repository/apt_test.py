@@ -22,9 +22,6 @@ class TestRepositoryApt:
         tmpfile.name = 'tmpfile'
         mock_temp.return_value = tmpfile
         root_bind = mock.Mock()
-        root_bind.move_to_root = mock.Mock(
-            return_value=['root-moved-arguments']
-        )
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
 

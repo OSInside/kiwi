@@ -51,15 +51,15 @@ class PackageManagerZypper(PackageManagerBase):
         runtime_config = self.repository.runtime_config()
 
         self.zypper_args = runtime_config['zypper_args']
-        self.chroot_zypper_args = self.root_bind.move_to_root(
-            self.zypper_args
+        self.chroot_zypper_args = Path.move_to_root(
+            self.root_dir, self.zypper_args
         )
 
         self.command_env = runtime_config['command_env']
         self.chroot_command_env = dict(self.command_env)
         if 'ZYPP_CONF' in self.command_env:
-            self.chroot_command_env['ZYPP_CONF'] = self.root_bind.move_to_root(
-                [self.command_env['ZYPP_CONF']]
+            self.chroot_command_env['ZYPP_CONF'] = Path.move_to_root(
+                self.root_dir, [self.command_env['ZYPP_CONF']]
             )[0]
 
     def request_package(self, name):
