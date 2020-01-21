@@ -180,7 +180,7 @@ target system:
           scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
           scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
-3. Copy the OEM disk image, MD5 file, system kernel and initrd to
+3. Copy the OEM disk image, MD5 file, system kernel, initrd and bootoptions to
    the PXE boot server:
 
    Activation of the deployed system is done via `kexec` of the kernel
@@ -193,12 +193,23 @@ target system:
           scp {exc_image_base_name}.x86_64-{exc_image_version}.xz PXE_SERVER_IP:/srv/tftpboot/image/
           scp {exc_image_base_name}.x86_64-{exc_image_version}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
 
-   b) Copy kernel and initrd used for booting the system via kexec
+   b) Copy kernel, initrd and bootoptions used for booting the system via kexec
 
       .. code:: bash
 
           scp {exc_image_base_name}.x86_64-{exc_image_version}.initrd PXE_SERVER_IP:/srv/tftpboot/image/
           scp {exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name}.x86_64-{exc_image_version}.config.bootoptions PXE_SERVER_IP:/srv/tftpboot/image/
+
+      .. note::
+
+         The config.bootoptions file is used together with kexec to boot the
+         previously dumped image. The information in that file references the
+         root of the dumped image and can also include any other type of
+         boot options. The file provided with the KIWI built image is
+         by default connected to the image present in the PXE TAR archive.
+         If other images got deployed the contents of this file must be
+         adapted to match the correct root reference.
 
 4. Add/Update the kernel command line parameters
 

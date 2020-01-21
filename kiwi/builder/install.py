@@ -332,6 +332,15 @@ class InstallImageBuilder:
         log.info('Creating pxe install boot image')
         self._create_pxe_install_kernel_and_initrd()
 
+        # create pxe image bound boot config file, contents can be
+        # changed but presence is required.
+        log.info('Creating pxe install boot options file')
+        configname = 'pxeboot.{0}.config.bootoptions'.format(self.pxename)
+        shutil.copy(
+            os.sep.join([self.root_dir, 'config.bootoptions']),
+            os.sep.join([self.pxe_dir, configname])
+        )
+
         # create pxe install tarball
         log.info('Creating pxe install archive')
         archive = ArchiveTar(self.pxetarball)
@@ -375,7 +384,6 @@ class InstallImageBuilder:
                 self.boot_image_task.omit_module(
                     'multipath', install_media=True
                 )
-            self._add_system_image_boot_options_to_boot_image()
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
             install_initrd=True

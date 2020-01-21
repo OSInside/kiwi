@@ -6,6 +6,8 @@ GENERATOR_DIR="$1"
 [ -z "${GENERATOR_DIR}" ] && exit 1
 [ -d "${GENERATOR_DIR}" ] || mkdir -p "${GENERATOR_DIR}"
 
+[ -e /config.bootoptions ] || exit 1
+
 root_uuid=$(
     while read -r -d ' ' opt; do echo "${opt}";done < /config.bootoptions |\
     grep root= | cut -f2- -d=
