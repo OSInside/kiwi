@@ -1028,9 +1028,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
     def _get_shim_install(self):
-        chroot_env = {
-            'PATH': os.sep.join([self.boot_dir, 'usr', 'sbin'])
-        }
         return Path.which(
-            filename='shim-install', custom_env=chroot_env
+            filename='shim-install', root_dir=self.boot_dir
         )

@@ -401,11 +401,8 @@ class BootImageBase:
             default_outfile_format = 'initrd-{kernel_version}'
         else:
             default_outfile_format = 'initramfs-{kernel_version}.img'
-        dracut_search_env = {
-            'PATH': os.sep.join([self.boot_root_directory, 'usr', 'bin'])
-        }
         dracut_tool = Path.which(
-            'dracut', custom_env=dracut_search_env, access_mode=os.X_OK
+            'dracut', root_dir=self.boot_root_directory, access_mode=os.X_OK
         )
         if dracut_tool:
             outfile_expression = r'outfile="/boot/(init.*\$kernel.*)"'

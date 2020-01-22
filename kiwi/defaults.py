@@ -343,10 +343,7 @@ class Defaults:
 
         :rtype: str
         """
-        chroot_env = {
-            'PATH': os.sep.join([lookup_path, 'usr', 'sbin'])
-        }
-        if Path.which(filename='grub2-install', custom_env=chroot_env):
+        if Path.which(filename='grub2-install', root_dir=lookup_path):
             # the presence of grub2-install is an indicator to put all
             # grub2 data below boot/grub2
             return 'grub2'
