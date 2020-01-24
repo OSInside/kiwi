@@ -167,7 +167,7 @@ class TestBootLoaderInstallGrub2:
             'tmp_root/boot/grub2/grubenv'
         )
         mock_which.assert_called_once_with(
-            custom_env={'PATH': 'tmp_root/usr/sbin'}, filename='grub2-install'
+            root_dir='tmp_root', filename='grub2-install'
         )
         mock_command.assert_called_once_with(
             [

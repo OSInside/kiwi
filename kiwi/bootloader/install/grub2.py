@@ -312,9 +312,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     def _get_tool_name(
         self, root_path, lookup_list, fallback_on_not_found=True
     ):
-        chroot_env = {'PATH': os.sep.join([root_path, 'usr', 'sbin'])}
         for tool in lookup_list:
-            if Path.which(filename=tool, custom_env=chroot_env):
+            if Path.which(filename=tool, root_dir=root_path):
                 return tool
 
         if fallback_on_not_found:

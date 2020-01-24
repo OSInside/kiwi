@@ -38,11 +38,8 @@ class RpmDataBase:
         Check if rpmdb binary was found in root_dir to indicate
         that the rpm system is present.
         """
-        rpm_search_env = {
-            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
-        }
         rpm_bin = Path.which(
-            'rpmdb', custom_env=rpm_search_env, access_mode=os.X_OK
+            'rpmdb', root_dir=self.root_dir, access_mode=os.X_OK
         )
         if not rpm_bin:
             return False

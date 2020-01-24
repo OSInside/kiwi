@@ -504,7 +504,7 @@ class TestSystemSetup:
         )
         self.setup.setup_plymouth_splash()
         mock_which.assert_called_once_with(
-            custom_env={'PATH': 'root_dir/usr/sbin'},
+            root_dir='root_dir',
             filename='plymouth-set-default-theme'
         )
         mock_command.assert_called_once_with(

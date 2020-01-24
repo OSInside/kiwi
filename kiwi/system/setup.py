@@ -263,11 +263,8 @@ class SystemSetup:
         If not present KIWI skips this step and continuous with a
         warning.
         """
-        chkstat_search_env = {
-            'PATH': os.sep.join([self.root_dir, 'usr', 'bin'])
-        }
         chkstat = Path.which(
-            'chkstat', custom_env=chkstat_search_env, access_mode=os.X_OK
+            'chkstat', root_dir=self.root_dir, access_mode=os.X_OK
         )
         if chkstat:
             log.info('Check/Fix File Permissions')
@@ -432,11 +429,8 @@ class SystemSetup:
         be found in the image root, it is assumed plymouth splash is in
         use and the tool is called in a chroot operation
         """
-        chroot_env = {
-            'PATH': os.sep.join([self.root_dir, 'usr', 'sbin'])
-        }
         theme_setup = 'plymouth-set-default-theme'
-        if Path.which(filename=theme_setup, custom_env=chroot_env):
+        if Path.which(filename=theme_setup, root_dir=self.root_dir):
             for preferences in self.xml_state.get_preferences_sections():
                 splash_section_content = preferences.get_bootsplash_theme()
                 if splash_section_content:
