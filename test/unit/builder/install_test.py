@@ -362,18 +362,22 @@ class TestInstallImageBuilder:
         archive.create.assert_called_once_with('tmpdir')
 
         mock_chmod.reset_mock()
+        mock_copy.reset_mock()
         self.install_image.initrd_system = 'dracut'
         m_open.reset_mock()
         with patch('builtins.open', m_open, create=True):
             self.install_image.create_install_pxe_archive()
 
-        self.boot_image_task.include_file.assert_called_once_with(
-            '/config.bootoptions', install_media=True
-        )
-        mock_copy.assert_called_once_with(
-            'root_dir/boot/initrd-kernel_version',
-            'tmpdir/result-image.x86_64-1.2.3.initrd'
-        )
+        assert mock_copy.call_args_list == [
+            call(
+                'root_dir/boot/initrd-kernel_version',
+                'tmpdir/result-image.x86_64-1.2.3.initrd'
+            ),
+            call(
+                'root_dir/config.bootoptions',
+                'tmpdir/pxeboot.result-image.x86_64-1.2.3.config.bootoptions'
+            )
+        ]
         assert mock_chmod.call_args_list == [
             call('tmpdir/result-image.x86_64-1.2.3.initrd', 420),
             call('tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz', 420)

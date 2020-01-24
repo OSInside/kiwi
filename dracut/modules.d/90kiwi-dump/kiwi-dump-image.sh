@@ -361,6 +361,10 @@ function get_remote_image_source_files {
     image_kernel_uri=$(
         echo "${image_uri}" | awk '{ gsub("\\.xz",".kernel", $1); print $1 }'
     )
+    image_config_uri=$(
+        echo "${image_uri}" | \
+        awk '{ gsub("\\.xz",".config.bootoptions", $1); print $1 }'
+    )
 
     # if we can not access image_md5_uri, maybe network setup
     # by dracut did fail, so collect some additional info
@@ -382,6 +386,12 @@ function get_remote_image_source_files {
     then
         report_and_quit \
             "Failed to fetch ${image_initrd_uri}, see /tmp/fetch.info"
+    fi
+
+    if ! fetch_file "${image_config_uri}" > "/config.bootoptions"
+    then
+        report_and_quit \
+            "Failed to fetch ${image_config_uri}, see /tmp/fetch.info"
     fi
 
     echo "${image_uri}|${image_md5}"
