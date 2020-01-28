@@ -154,7 +154,7 @@ class Kernel:
             # depending on the arch and os they are different
             # in their prefix
             kernel_prefixes = [
-                'uImage', 'Image', 'zImage', 'vmlinuz', 'image'
+                'uImage', 'Image', 'zImage', 'vmlinuz', 'image', 'vmlinux'
             ]
             kernel_name_pattern = '{prefix}-{name}'
             for kernel_prefix in kernel_prefixes:
