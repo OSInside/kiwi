@@ -204,7 +204,7 @@ class Sat:
             selection = self.pool.select(
                 job_name, selection_name | selection_provides
             )
-            if selection.flags() & self.solv.Selection.SELECTION_PROVIDES:
+            if selection.flags & self.solv.Selection.SELECTION_PROVIDES:
                 log.info('--> Using capability match for {0}'.format(job_name))
             if selection.isempty():
                 if skip_missing:

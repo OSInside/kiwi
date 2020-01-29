@@ -99,9 +99,7 @@ class TestSat:
             return_value=None
         )
         self.sat.solv.Selection.SELECTION_PROVIDES = 0
-        self.selection.flags = Mock(
-            return_value=0
-        )
+        self.selection.flags = 0
         self.selection.isempty = Mock(
             return_value=True
         )
@@ -141,9 +139,7 @@ class TestSat:
             return_value=None
         )
         self.sat.solv.Selection.SELECTION_PROVIDES = 1
-        self.selection.flags = Mock(
-            return_value=1
-        )
+        self.selection.flags = 1
         self.selection.isempty = Mock(
             return_value=False
         )
