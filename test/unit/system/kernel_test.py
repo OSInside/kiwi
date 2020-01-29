@@ -18,7 +18,8 @@ class TestKernel:
             'Image-1.2.3-default',
             'zImage-1.2.3-default',
             'vmlinuz-1.2.3-default',
-            'image-1.2.3-default'
+            'image-1.2.3-default',
+            'vmlinux-1.2.3-default'
         ]
 
     def test_get_kernel_raises_if_no_kernel_found(self):
