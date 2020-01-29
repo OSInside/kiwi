@@ -198,6 +198,13 @@ class RepositoryDnf(RepositoryBase):
             repo_config.set(
                 name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
             )
+        if Defaults.is_buildservice_worker():
+            # when building in the build service, modular metadata is inaccessible...
+            # in order to use modular content in the build service, we need to disable
+            # modular filtering, which is done with module_hotfixes option
+            repo_config.set(
+                name, 'module_hotfixes', '1'
+            )
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
 

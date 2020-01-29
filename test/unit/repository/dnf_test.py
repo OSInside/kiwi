@@ -88,9 +88,11 @@ class TestRepositoryDnf:
             self.repo.command_env
 
     @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
-    def test_add_repo(self, mock_exists, mock_config):
+    def test_add_repo(self, mock_exists, mock_buildservice, mock_config):
         repo_config = mock.Mock()
+        mock_buildservice.return_value = False
         mock_config.return_value = repo_config
         mock_exists.return_value = True
 
@@ -122,6 +124,29 @@ class TestRepositoryDnf:
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/bar.repo', 'w'
+            )
+
+    @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
+    @patch('os.path.exists')
+    def test_add_repo_inside_buildservice(self, mock_exists, mock_buildservice, mock_config):
+        repo_config = mock.Mock()
+        mock_buildservice.return_value = True
+        mock_config.return_value = repo_config
+        mock_exists.return_value = True
+
+        with patch('builtins.open', create=True) as mock_open:
+            self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
+
+            repo_config.add_section.assert_called_once_with('foo')
+            assert repo_config.set.call_args_list == [
+                call('foo', 'name', 'foo'),
+                call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
+                call('foo', 'priority', '42'),
+                call('foo', 'module_hotfixes', '1')
+            ]
+            mock_open.assert_called_once_with(
+                '/shared-dir/dnf/repos/foo.repo', 'w'
             )
 
     @patch('kiwi.repository.dnf.RpmDataBase')
@@ -159,9 +184,11 @@ class TestRepositoryDnf:
         rpmdb.link_database_to_host_path.assert_called_once_with()
 
     @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
-    def test_add_repo_with_gpgchecks(self, mock_exists, mock_config):
+    def test_add_repo_with_gpgchecks(self, mock_exists, mock_buildservice, mock_config):
         repo_config = mock.Mock()
+        mock_buildservice.return_value = False
         mock_config.return_value = repo_config
         mock_exists.return_value = True
 
