@@ -26,7 +26,6 @@
         <package name="patterns-base-minimal_base"/>
         <package name="bind-utils"/>
         <package name="systemd"/>
-        <package name="ifplugd"/>
         <package name="iputils"/>
         <package name="vim"/>
         <package name="grub2"/>
