@@ -1,6 +1,6 @@
 from collections import namedtuple
 from mock import (
-    patch, Mock, MagicMock
+    patch, Mock, MagicMock, mock_open
 )
 from pytest import (
     raises, fixture
@@ -29,13 +29,21 @@ class TestPxeBuilder:
         mock_boot.return_value = self.boot_image_task
         self.filesystem = MagicMock()
         self.filesystem.filename = 'myimage.fs'
+        self.filesystem.root_uuid = 'some_uuid'
         mock_filesystem.return_value = self.filesystem
         self.xml_state = Mock()
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
+        self.xml_state.get_initrd_system = Mock(
+            return_value='dracut'
+        )
         self.xml_state.xml_data.get_name = Mock(
             return_value='some-image'
+        )
+        self.xml_state.build_type = Mock()
+        self.xml_state.build_type.get_kernelcmdline = Mock(
+            return_value='console=hvc0'
         )
         kernel_type = namedtuple(
             'kernel', ['filename', 'version']
@@ -77,7 +85,18 @@ class TestPxeBuilder:
         self.boot_image_task.required = Mock(
             return_value=True
         )
-        self.pxe.create()
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.pxe.create()
+
+        m_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.append', 'w'
+        )
+        m_open.return_value.write.assert_called_once_with(
+            'root=UUID=some_uuid console=hvc0'
+        )
+
         self.filesystem.create.assert_called_once_with()
         mock_rename.assert_called_once_with(
             'myimage.fs', 'myimage'
@@ -101,7 +120,14 @@ class TestPxeBuilder:
         tar.create.assert_called_once_with('target_dir')
 
         self.pxe.compressed = False
-        self.pxe.create()
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.pxe.create()
+
+        m_open.return_value.write.assert_called_once_with(
+            'root=UUID=some_uuid console=hvc0'
+        )
 
         tar.create_xz_compressed.assert_called_once_with(
             'target_dir', xz_options=['--threads=0']

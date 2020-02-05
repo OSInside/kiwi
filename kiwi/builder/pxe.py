@@ -53,12 +53,14 @@ class PxeBuilder:
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
+        self.custom_cmdline = xml_state.build_type.get_kernelcmdline()
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, root_dir + '/'
         )
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
         )
+        self.initrd_system = xml_state.get_initrd_system()
 
         self.boot_signing_keys = custom_args['signing_keys'] if custom_args \
             and 'signing_keys' in custom_args else None
@@ -78,6 +80,7 @@ class PxeBuilder:
                 '-' + xml_state.get_image_version()
             ]
         )
+        self.append_file = '{}.append'.format(self.image_name)
         self.archive_name = ''.join([self.image_name, '.tar'])
         self.checksum_name = ''.join([self.image_name, '.md5'])
         self.kernel_filename = None
@@ -172,6 +175,15 @@ class PxeBuilder:
         # create initrd for pxe boot
         self.boot_image_task.create_initrd()
 
+        # create pxe config append information
+        # this information helps to configure the boot server correctly
+        if self.filesystem.root_uuid and self.initrd_system == 'dracut':
+            cmdline = 'root=UUID={}'.format(self.filesystem.root_uuid)
+            if self.custom_cmdline:
+                cmdline += ' {}'.format(self.custom_cmdline)
+            with open(self.append_file, 'w') as append:
+                append.write(cmdline)
+
         # put results into a tarball
         if not self.xz_options:
             self.xz_options = Defaults.get_xz_compression_options()
@@ -180,7 +192,8 @@ class PxeBuilder:
             self.kernel_filename,
             os.path.basename(self.boot_image_task.initrd_filename),
             os.path.basename(self.image),
-            os.path.basename(self.checksum_name)
+            os.path.basename(self.checksum_name),
+            os.path.basename(self.append_file)
         ]
         pxe_tarball = ArchiveTar(
             self.archive_name,
