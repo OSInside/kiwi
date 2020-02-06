@@ -41,6 +41,7 @@ class FileSystemBuilder:
     **Filesystem image builder**
 
     :param str label: filesystem label
+    :param str root_uuid: UUID of the created filesystem (on block device only)
     :param str root_dir: root directory path name
     :param str target_dir: target directory path name
     :param str requested_image_type: configured image type
@@ -57,6 +58,7 @@ class FileSystemBuilder:
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.label = None
+        self.root_uuid = None
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.requested_image_type = xml_state.get_build_type_name()
@@ -167,6 +169,7 @@ class FileSystemBuilder:
             self.root_dir + os.sep, self.filesystem_custom_parameters
         )
         filesystem.create_on_device(self.label)
+        self.root_uuid = loop_provider.get_uuid(loop_provider.get_device())
         log.info(
             '--> Syncing data to filesystem on %s', loop_provider.get_device()
         )
