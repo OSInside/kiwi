@@ -14,9 +14,11 @@ build Linux system appliances.
    * `Build Tests SUSE(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:suse>`__
    * `Build Tests SUSE(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:suse>`__
    * `Build Tests SUSE(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390:suse>`__
+   * `Build Tests SUSE(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:suse>`__
 
    * `Build Tests Fedora(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:fedora>`__
    * `Build Tests Fedora(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:fedora>`__
+   * `Build Tests Fedora(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:fedora>`__
 
    * `Build Tests CentOS(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:centos>`__
 
