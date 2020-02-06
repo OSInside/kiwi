@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.1" name="VMX-Fedora-30.0">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>vmx disk test build</specification>
+    </description>
+    <preferences>
+        <version>1.30.1</version>
+        <packagemanager>dnf</packagemanager>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <bootloader-theme>breeze</bootloader-theme>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="ofw" bootloader_console="serial" format="qcow2"/>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" >
+        <source path='obsrepositories:/'/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="grub2-breeze-theme"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+    </packages>
+</image>

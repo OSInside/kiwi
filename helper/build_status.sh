@@ -23,9 +23,11 @@ for image in \
     Virtualization:Appliances:Images:Testing_x86:ubuntu/test-image-iso-oem-vmx \
     Virtualization:Appliances:Images:Testing_s390:suse/test-image-oem \
     Virtualization:Appliances:Images:Testing_s390:suse/test-image-vmx \
-    Virtualization:Appliances:Images:Testing_arm:fedora/test-image-iso \
     Virtualization:Appliances:Images:Testing_arm:suse/test-image-iso \
-    Virtualization:Appliances:Images:Testing_arm:suse/test-image-rpi-oem
+    Virtualization:Appliances:Images:Testing_arm:suse/test-image-rpi-oem \
+    Virtualization:Appliances:Images:Testing_arm:fedora/test-image-iso \
+    Virtualization:Appliances:Images:Testing_ppc:suse/test-image-vmx \
+    Virtualization:Appliances:Images:Testing_ppc:fedora/test-image-vmx
 do
     project=$(echo "${image}" | cut -f1 -d/)
     package=$(echo "${image}" | cut -f2 -d/)
