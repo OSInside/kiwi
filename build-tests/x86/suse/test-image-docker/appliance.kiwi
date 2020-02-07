@@ -27,7 +27,6 @@
         <source path='obsrepositories:/'/>
     </repository>
     <packages type="image">
-        <package name="ifplugd"/>
         <package name="grub"/>
         <package name="grub2"/>
         <package name="ncurses-utils"/>
@@ -42,7 +41,6 @@
         <package name="pigz"/>
         <package name="elfutils"/>
         <package name="systemd-presets-branding-openSUSE"/>
-        <package name="ifplugd"/>
         <package name="iputils"/>
         <package name="tar"/>
         <package name="psmisc"/>

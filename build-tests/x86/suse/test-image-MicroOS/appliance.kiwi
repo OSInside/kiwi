@@ -59,7 +59,6 @@
         <package name="systemd"/>
         <package name="plymouth-theme-bgrt"/>
         <package name="grub2-branding-openSUSE"/>
-        <package name="ifplugd"/>
         <package name="iputils"/>
         <package name="vim"/>
         <package name="grub2"/>
