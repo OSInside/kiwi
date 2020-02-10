@@ -2,9 +2,10 @@ stages:
   - test
   - package
 
-image: fedora:latest
 variables:
   LANG: en_US.UTF-8
+  BUILD_IMAGES_PROJECT: kiwi3/kiwi-ci-containers
+  TUMBLEWEED_BUILD: buildenv-tumbleweed
 
 .install_deps: &install_system_deps
   before_script:
@@ -39,6 +40,7 @@ variables:
       - .tox
 
 code_style_plus_unit_test:
+  image: fedora:latest
   <<: *install_system_deps
   script:
     - >
@@ -55,16 +57,8 @@ code_style_plus_unit_test:
   <<: *set_cache_dir
 
 build_doc:
-  <<: *install_system_deps
+  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
   script:
-    - >
-      dnf install -y
-      latexmk texlive-cmap texlive-metafont texlive-ec
-      texlive-babel-english texlive-fncychap texlive-fancyhdr texlive-titlesec
-      texlive-tabulary texlive-framed texlive-wrapfig texlive-parskip
-      texlive-upquote texlive-capt-of texlive-needspace texlive-makeindex
-      texlive-times texlive-helvetic texlive-courier texlive-gsftopk
-      texlive-updmap-map texlive-dvips make
     - tox -e packagedoc
   artifacts:
     paths:
@@ -76,6 +70,7 @@ build_doc:
       - doc/build/
 
 rpm_fedora_30:
+  image: fedora:latest
   stage: package
   <<: *install_and_build_system_src_package
   script:
@@ -87,6 +82,7 @@ rpm_fedora_30:
     - build_doc
 
 rpm_suse_TW:
+  image: fedora:latest
   stage: package
   <<: *install_and_build_system_src_package
   script:
