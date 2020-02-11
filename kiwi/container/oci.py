@@ -33,31 +33,32 @@ class ContainerImageOCI:
 
     :param string root_dir: root directory path name
     :param dict custom_args:
-        Custom processing arguments defined as hash keys:
 
-        Example
+    Custom processing arguments defined as hash keys:
 
-        .. code:: python
+    Example
 
-            {
-                'container_name': 'name',
-                'container_tag': '1.0',
-                'additional_tags': ['current', 'foobar'],
-                'entry_command': ['/bin/bash', '-x'],
-                'entry_subcommand': ['ls', '-l'],
-                'maintainer': 'tux',
-                'user': 'root',
-                'workingdir': '/root',
-                'expose_ports': ['80', '42'],
-                'volumes': ['/var/log', '/tmp'],
-                'environment': {'PATH': '/bin'},
-                'labels': {'name': 'value'},
-                'history': {
-                    'created_by': 'some explanation here',
-                    'comment': 'some comment here',
-                    'author': 'tux'
-                }
+    .. code:: python
+
+        {
+            'container_name': 'name',
+            'container_tag': '1.0',
+            'additional_tags': ['current', 'foobar'],
+            'entry_command': ['/bin/bash', '-x'],
+            'entry_subcommand': ['ls', '-l'],
+            'maintainer': 'tux',
+            'user': 'root',
+            'workingdir': '/root',
+            'expose_ports': ['80', '42'],
+            'volumes': ['/var/log', '/tmp'],
+            'environment': {'PATH': '/bin'},
+            'labels': {'name': 'value'},
+            'history': {
+                'created_by': 'some explanation here',
+                'comment': 'some comment here',
+                'author': 'tux'
             }
+        }
     """
     def __init__(self, root_dir, transport, custom_args=None):
         self.root_dir = root_dir

@@ -121,13 +121,9 @@ The `preferences` Element
 The mandatory `preferences` element contains the definition of the various
 enabled image types (so-called build types). Each of these build types can
 be supplied with attributes specific to that image type, which we described
-in the section :ref:`xml-description-build-types`.
+in the section :ref:`build-types`.
 
-The elements that are not image type specific are presented afterwards in
-section :ref:`xml-description-preferences-common-elements`.
-
-
-.. _xml-description-build-types:
+.. _build-types:
 
 Build Types
 -----------
@@ -347,8 +343,6 @@ build types and will be covered here:
      blockdev --report $DEVICE
 
 
-.. _xml-description-preferences-common-elements:
-
 Common Elements
 ---------------
 
@@ -411,7 +405,7 @@ An example excerpt from a image description using these child-elements of
        <!-- snip -->
    </image>
 
-.. _xml-description-image-profiles:
+.. _image-profiles:
 
 Image Profiles
 ==============
@@ -475,7 +469,7 @@ attribute is present in the following elements only:
 - `preferences`
 - `drivers`
 - `repository` and `packages` (see
-  :ref:`xml-description-repositories-and-packages`)
+  :ref:`repositories-and-packages`)
 - `users`
 
 Profiles can furthermore inherit settings from another profile via the
@@ -496,7 +490,7 @@ example.
 We cover the usage of *profiles* when invoking KIWI and when building in
 the Open Build Service in :ref:`building-build-with-profiles`.
 
-.. _xml-description-adding-users:
+.. _adding-users:
 
 Adding Users
 ============
@@ -553,7 +547,7 @@ Additionally, the following optional attributes can be specified:
 
 
 The `users` element furthermore accepts a list of profiles (see
-:ref:`xml-description-image-profiles`) to which it applies via the
+:ref:`image-profiles`) to which it applies via the
 `profiles` attribute, as shown in the following example:
 
 .. code:: xml
@@ -588,7 +582,7 @@ Here the settings for the root user are shared among all appliances. The
 configuration of the `devel` user on the other hand depends on the profile.
 
 
-.. _xml-description-repositories-and-packages:
+.. _repositories-and-packages:
 
 Defining Repositories and Adding or Removing Packages
 =====================================================
@@ -670,7 +664,7 @@ following optional attributes:
 
 - `profiles`: List of profiles to which this repository applies.
 
-.. _xml-description-supported-supported-repository-paths:
+.. _supported-supported-repository-paths:
 
 Supported repository paths
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -686,8 +680,7 @@ following paths types:
   of the project `$PROJECT` available on the Open Build Service (OBS). By
   default KIWI will look for projects on `build.opensuse.org
   <https://build.opensuse.org>`_, but this can be overridden using the
-  runtime configuration file (see :ref:`The Runtime Configuration
-  File<working-with-kiwi-runtime-configuration-file>`).
+  runtime configuration file (see :ref:`runtime_config`).
   Note that it is not possible to add repositories using the `obs://` path
   from **different** OBS instances (use direct URLs to the :file:`.repo`
   file instead in this case).
@@ -707,7 +700,7 @@ following paths types:
   pointing to the mounted ISO.
 
 
-.. _xml-description-adding-and-removing-packages:
+.. _adding-and-removing-packages:
 
 Adding and removing packages
 ----------------------------
@@ -747,22 +740,22 @@ configured via the following attributes:
   chroot into the new root file system.
 
   Packages in `type="delete"` and `type="uninstall"` are removed from the
-  image, for details see :ref:`xml-description-uninstall-system-packages`.
+  image, for details see :ref:`uninstall-system-packages`.
 
   And packages which belong to a build type are only installed when that
   specific build type is currently processed by KIWI.
 
 - `profiles`: a list of profiles to which this package selection applies
-  (see :ref:`xml-description-image-profiles`).
+  (see :ref:`image-profiles`).
 
 - `patternType`: selection type for patterns, supported values are:
   `onlyRequired`, `plusRecommended`, see:
-  :ref:`xml-description-product-and-namedCollection-element`.
+  :ref:`product-and-namedCollection-element`.
 
 We will describe the different child elements of `packages` in the following
 sections.
 
-.. _xml-description-package-element:
+.. _package-element:
 
 The `package` element
 ^^^^^^^^^^^^^^^^^^^^^
@@ -821,7 +814,7 @@ which results in `grub2-x86_64-efi` and `shim` being only installed on 64
 Bit images, but GRUB2 also on 32 Bit images.
 
 
-.. _xml-description-archive-element:
+.. _archive-element:
 
 The `archive` element
 ^^^^^^^^^^^^^^^^^^^^^
@@ -846,7 +839,7 @@ specified then they will be applied in a top to bottom order. If a file is
 already present in the image, then the file from the archive will overwrite
 it (same as with the image overlay).
 
-.. _xml-description-uninstall-system-packages:
+.. _uninstall-system-packages:
 
 Uninstall System Packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -932,7 +925,7 @@ partitioning tools (`parted` or `fdisk`). All networking tools can be
 safely uninstalled in images for embedded devices without a network
 connection.
 
-.. _xml-description-product-and-namedCollection-element:
+.. _product-and-namedCollection-element:
 
 The `product` and `namedCollection` element
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -985,7 +978,7 @@ in the following example:
 Packages can be marked as ignored during the installation by adding a
 `ignore` child element with the mandatory `name` attribute set to the
 package's name. Optionally one can also specify the architecture via the
-`arch` similarly to :ref:`xml-description-package-element`.
+`arch` similarly to :ref:`package-element`.
 
 .. warning::
 

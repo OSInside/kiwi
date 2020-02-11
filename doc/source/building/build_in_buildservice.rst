@@ -1,7 +1,7 @@
 Building in the Open Build Service
 ==================================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    This document gives a brief overview how to build images with
    KIWI in version |version| inside of the Open Build Service.

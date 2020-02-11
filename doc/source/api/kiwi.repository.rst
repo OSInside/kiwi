@@ -1,12 +1,7 @@
 kiwi.repository Package
 =======================
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.repository.template
+.. _db_kiwi_repository_submodules:
 
 Submodules
 ----------
@@ -35,6 +30,8 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+
+.. _db_kiwi_repository_content:
 
 Module Contents
 ---------------

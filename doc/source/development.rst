@@ -1,7 +1,7 @@
 Development and Contributing
 ============================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    This document describes the development process of KIWI
    and how you can be part of it. This description applies
@@ -11,9 +11,10 @@ Development and Contributing
    :maxdepth: 1
 
    development/kiwi_from_python
-   development/api/kiwi
-   development/schema
    development/schema_extensions.rst
+
+The Basics
+----------
 
 The core appliance builder is developed in Python and follows the test
 driven development rules.
@@ -230,9 +231,6 @@ KIWI follows the general PEP8 guidelines with the following exceptions:
   `__init__` method.
 
 - The names of constants are not written in all capital letters.
-
-- We do not use type hints (yet) as the current code base needs to maintain Python
-  2 compatibility.
 
 
 Documentation

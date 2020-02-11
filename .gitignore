@@ -36,6 +36,7 @@ env/
 .env2/
 .env3/
 build/
+build_travis/
 develop-eggs/
 dist/
 downloads/
@@ -73,6 +74,7 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+doc/xml/
 
 # PyBuilder
 target/

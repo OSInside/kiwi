@@ -1,12 +1,7 @@
 kiwi.solver Package
 ===================
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.solver.repository
+.. _db_kiwi_solver_submodules:
 
 Submodules
 ----------
@@ -18,6 +13,8 @@ Submodules
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. _db_kiwi_solver_content:
 
 Module Contents
 ---------------

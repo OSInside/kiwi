@@ -1,6 +1,8 @@
 kiwi.container.setup Package
 ============================
 
+.. _db_kiwi_container_setup_submodules:
+
 Submodules
 ----------
 
@@ -20,6 +22,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_container_setup_content:
 
 Module Contents
 ---------------

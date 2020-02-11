@@ -1,6 +1,8 @@
 kiwi.tasks package
 ==================
 
+.. _db_kiwi_tasks_submodules:
+
 Submodules
 ----------
 
@@ -60,6 +62,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_tasks_content:
 
 Module Contents
 ---------------

@@ -1,7 +1,9 @@
+.. _db_overview:
+
 Overview
 ========
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    This document provides a conceptual overview about the steps
    of creating an image with KIWI. It also explains the terminology

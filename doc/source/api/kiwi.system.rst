@@ -1,6 +1,8 @@
 kiwi.system Package
 ===================
 
+.. _db_kiwi_system_submodules:
+
 Submodules
 ----------
 
@@ -100,6 +102,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_system_content:
 
 Module Contents
 ---------------

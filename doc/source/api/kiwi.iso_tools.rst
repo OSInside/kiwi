@@ -1,6 +1,8 @@
 kiwi.iso_tools Package
 ======================
 
+.. _db_kiwi_iso_tools_submodules:
+
 Submodules
 ----------
 
@@ -25,6 +27,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_iso_tools_content:
 
 Module Contents
 ---------------

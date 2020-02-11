@@ -1,7 +1,7 @@
-.. _commands-kiwi:
-
 kiwi
 ====
+
+.. _db_commands_kiwi_synopsis:
 
 SYNOPSIS
 --------
@@ -30,6 +30,8 @@ SYNOPSIS
    kiwi compat <legacy_args>...
    kiwi -v | --version
    kiwi help
+
+.. _db_commands_kiwi_desc:
 
 DESCRIPTION
 -----------
@@ -67,6 +69,8 @@ KIWI supports the creation of the following image types:
 
 Depending on the image type a variety of different disk formats and
 architectures are supported.
+
+.. _db_commands_kiwi_opts:
 
 GLOBAL OPTIONS
 --------------
@@ -111,6 +115,8 @@ GLOBAL OPTIONS
 
   Show program version
 
+.. _db_commands_kiwi_example:
+
 EXAMPLE
 -------
 
@@ -122,8 +128,8 @@ EXAMPLE
        --description kiwi-descriptions/suse/x86_64/{exc_description} \
        --target-dir /tmp/myimage
 
-.. include:: ../working_with_kiwi/runtime_configuration_incl.rst
 
+.. _db_commands_kiwi_compat:
 
 COMPATIBILITY
 -------------

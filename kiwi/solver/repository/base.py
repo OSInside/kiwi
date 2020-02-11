@@ -36,7 +36,9 @@ class SolverRepositoryBase:
     """
     **Base class interface for SAT solvable creation.**
 
-    * :param object uri: Instance of :class:`Uri`
+    :param object uri: Instance of :class:`Uri`
+    :param string user: User name for uri authentication
+    :param string secret: Secret token for uri authentication
     """
     def __init__(self, uri, user=None, secret=None):
         self.uri = uri

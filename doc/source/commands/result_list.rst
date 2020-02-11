@@ -1,6 +1,8 @@
 kiwi result list
 ================
 
+.. _db_kiwi_result_list_synopsis:
+
 SYNOPSIS
 --------
 
@@ -12,6 +14,8 @@ SYNOPSIS
    kiwi result list --target-dir=<directory>
    kiwi result list help
 
+.. _db_kiwi_result_list_desc:
+
 DESCRIPTION
 -----------
 
@@ -20,6 +24,8 @@ Please note if you build an image several times with the same
 target directory the build result information will be overwritten
 each time you build the image. Therefore the build result list
 is valid for the last build
+
+.. _db_kiwi_result_list_opts:
 
 OPTIONS
 -------

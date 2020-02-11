@@ -1,14 +1,7 @@
 kiwi.bootloader Package
 =======================
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.bootloader.config
-    kiwi.bootloader.install
-    kiwi.bootloader.template
+.. _db_kiwi_bootloader_content:
 
 Module Contents
 ---------------

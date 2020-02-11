@@ -3,8 +3,26 @@
 KIWI Documentation
 ==================
 
-Welcome to the documentation for KIWI |version|- the command line utility to
-build Linux system appliances.
+.. note::
+
+   This documentation covers KIWI |version|- the command line utility to
+   build Linux system appliances. For versions of KIWI older or equal to
+   v7.x.x please refer to `Legacy KIWI <https://doc.opensuse.org/projects/kiwi/doc>`__
+
+
+.. toctree::
+   :maxdepth: 1
+
+   quickstart
+   installation
+   working_with_kiwi
+   working_with_images
+   overview
+   building
+   commands
+   development
+   schema
+   api
 
 .. sidebar:: Links
 
@@ -24,19 +42,8 @@ build Linux system appliances.
 
    * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:ubuntu>`__
 
-.. toctree::
-   :maxdepth: 1
-
-   quickstart
-   installation
-   working_with_kiwi
-   overview
-   building
-   commands
-   development
-
-Appliance ?
------------
+The Appliance Concept
+---------------------
 
 An appliance is a ready to use image of an operating system including
 a pre-configured application for a specific use case. The appliance is
@@ -51,7 +58,6 @@ In KIWI, the appliance is specified via a collection of human readable files
 in a directory, also called the `image description`. At least one XML file
 :file:`config.xml` or :file:`.kiwi` is required. In addition there may as
 well be other files like scripts or configuration data.
-
 
 Use Cases
 ---------
@@ -78,8 +84,6 @@ below:
   wants a copy of that? KIWI will build you ready to deploy images for your
   Raspberry Pi, tweaked to your needs.
 
-.. _contact_us:
-
 Contact
 -------
 
@@ -92,6 +96,5 @@ Contact
 * `Matrix <https://matrix.org>`__
 
   An open network for secure, decentralized communication. Please find the
-  `kiwi` room via `Riot <https://riot.im/app/>`__ on the web or by using
-  the supported `clients
-  <https://matrix.org/docs/projects/clients-matrix>`__.
+  ``#kiwi`` room via `Riot <https://riot.im/app/>`__ on the web or by using
+  the supported `clients <https://matrix.org/docs/projects/clients-matrix>`__.

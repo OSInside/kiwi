@@ -1,7 +1,7 @@
 Working with KIWI
 =================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    The following sections describe the general workflow of building
    appliances with KIWI |version|.
@@ -78,7 +78,7 @@ to find in the *description directory*:
 #. Archives included in the :file:`config.xml` file.
 
    The archives that are included in `<packages>` using the `<archive>`
-   element (see :ref:`xml-description-archive-element`):
+   element (see :ref:`archive-element`):
 
    .. code:: xml
 
@@ -118,8 +118,7 @@ directory will be the installation target for software packages to be
 installed during the image creation process.
 
 For the package installation, KIWI relies on the package manager specified
-in the ``packagemanager`` element in :file:`config.xml` (see
-:ref:`xml-description-preferences-common-elements`). KIWI supports the
+in the ``packagemanager`` element in :file:`config.xml`. KIWI supports the
 following package managers: ``dnf``, ``zypper`` (default) and ``apt-get``.
 
 The prepare step consists of the following substeps:
@@ -150,7 +149,7 @@ The prepare step consists of the following substeps:
    The installation of software packages through the selected package
    manager may install unwanted packages. Removing these packages can be
    accomplished by marking them for deletion in the image description, see
-   :ref:`xml-description-adding-and-removing-packages`.
+   :ref:`adding-and-removing-packages`.
 
 #. **Apply the Overlay Tree**
 
@@ -166,7 +165,7 @@ The prepare step consists of the following substeps:
    All archives specified in the `archive` element of the
    :file:`config.xml` file are applied in the specified order (top to
    bottom) after the overlay tree copy operation is complete (see
-   :ref:`xml-description-archive-element`). Files and directories are
+   :ref:`archive-element`). Files and directories are
    extracted relative to the top level of the new root tree. As with the
    overlay tree, it is possible to overwrite files already existing in the
    target root tree.

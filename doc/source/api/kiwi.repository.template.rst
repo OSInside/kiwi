@@ -1,6 +1,8 @@
 kiwi.repository.template Package
 ================================
 
+.. _db_kiwi_repository_template_submodules:
+
 Submodules
 ----------
 
@@ -12,6 +14,8 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+
+.. _db_kiwi_repository_template_content:
 
 Module Contents
 ---------------

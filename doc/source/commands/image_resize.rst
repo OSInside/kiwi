@@ -1,7 +1,9 @@
-.. _kiwi_image_resize:
+.. _db_kiwi_image_resize:
 
 kiwi image resize
 =================
+
+.. _db_kiwi_image_resize_synopsis:
 
 SYNOPSIS
 --------
@@ -15,6 +17,8 @@ SYNOPSIS
        [--root=<directory>]
    kiwi image resize help
 
+.. _db_kiwi_image_resize_desc:
+
 DESCRIPTION
 -----------
 
@@ -23,6 +27,8 @@ The additional space is free and not in use by the image. In order to
 make use of the additional free space a repartition process is required
 like it is provided by kiwi's oem boot code. Therefore the resize operation
 is useful for oem image builds most of the time.
+
+.. _db_kiwi_image_resize_opts:
 
 OPTIONS
 -------

@@ -1,12 +1,7 @@
 kiwi.storage Package
 ====================
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.storage.subformat
+.. _db_kiwi_storage_submodules:
 
 Submodules
 ----------
@@ -67,6 +62,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_storage_content:
 
 Module Contents
 ---------------

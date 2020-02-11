@@ -45,7 +45,7 @@ schema can be customized. KIWI supports:
 
      A built image can be resized by using the `kiwi-ng image resize` command
      and set a new extended size for the disk. See KIWI commands docs
-     :ref:`here <kiwi_image_resize>`.
+     :ref:`here <db_kiwi_image_resize>`.
 
 Custom Partitioning at Boot Time
 ++++++++++++++++++++++++++++++++

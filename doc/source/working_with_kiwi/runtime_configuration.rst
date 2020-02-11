@@ -1,3 +1,20 @@
-.. _working-with-kiwi-runtime-configuration-file:
+.. _runtime_config:
 
-.. include:: runtime_configuration_incl.rst
+The Runtime Configuration File
+------------------------------
+
+KIWI supports an additional configuration file for runtime specific
+settings that do not belong into the image description but which are
+persistent and would be unsuitable for command line parameters.
+
+The runtime configuration file must adhere to the `YAML
+<https://yaml.org/>`_ syntax. KIWI searches for the runtime configuration
+file in the following locations:
+
+1. :file:`~/.config/kiwi/config.yml`
+
+2. :file:`/etc/kiwi.yml`
+
+A default runtime config file in :file:`/etc/kiwi.yml` is provided with
+the python3-kiwi package. The file contains all settings as comments
+including a short description of each setting.

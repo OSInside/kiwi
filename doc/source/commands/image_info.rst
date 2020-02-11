@@ -1,6 +1,8 @@
 kiwi image info
 ===============
 
+.. _db_image_info_synopsis:
+
 SYNOPSIS
 --------
 
@@ -15,6 +17,8 @@ SYNOPSIS
        [--add-repo=<source,type,alias,priority>...]
    kiwi image info help
 
+.. _db_image_info_desc:
+
 DESCRIPTION
 -----------
 
@@ -27,6 +31,7 @@ will cause a dependency resolver to run over the list of
 packages and thus provides more detailed information about
 the image description.
 
+.. _db_image_info_opts:
 
 OPTIONS
 -------

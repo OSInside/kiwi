@@ -1,6 +1,8 @@
 kiwi.bootloader.config Package
 ==============================
 
+.. _db_kiwi_bootloader_config_submodules:
+
 Submodules
 ----------
 
@@ -36,6 +38,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_bootloader_config_contents:
 
 Module Contents
 ---------------
