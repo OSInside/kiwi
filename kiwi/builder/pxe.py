@@ -80,7 +80,7 @@ class PxeBuilder:
                 '-' + xml_state.get_image_version()
             ]
         )
-        self.append_file = '{}.append'.format(self.image_name)
+        self.append_file = ''.join([self.image_name, '.append'])
         self.archive_name = ''.join([self.image_name, '.tar'])
         self.checksum_name = ''.join([self.image_name, '.md5'])
         self.kernel_filename = None
@@ -193,8 +193,11 @@ class PxeBuilder:
             os.path.basename(self.boot_image_task.initrd_filename),
             os.path.basename(self.image),
             os.path.basename(self.checksum_name),
-            os.path.basename(self.append_file)
         ]
+
+        if self.filesystem.root_uuid and self.initrd_system == 'dracut':
+            pxe_tarball_files.append(os.path.basename(self.append_file))
+
         pxe_tarball = ArchiveTar(
             self.archive_name,
             create_from_file_list=True,
