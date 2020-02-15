@@ -44,10 +44,11 @@ class FileSystemIsoFs(FileSystemBase):
         """
         meta_data = self.custom_args['meta_data']
         efi_mode = meta_data.get('efi_mode')
+        ofw_mode = meta_data.get('ofw_mode')
         iso_tool = IsoTools(self.root_dir)
 
         iso = Iso(self.root_dir)
-        if not efi_mode:
+        if not efi_mode and not ofw_mode:
             iso.setup_isolinux_boot_path()
 
         if not iso_tool.has_iso_hybrid_capability():
@@ -60,7 +61,7 @@ class FileSystemIsoFs(FileSystemBase):
         iso_tool.create_iso(filename)
 
         if not iso_tool.has_iso_hybrid_capability():
-            if not efi_mode:
+            if not efi_mode and not ofw_mode:
                 hybrid_offset = iso.create_header_end_block(filename)
                 iso_tool.create_iso(
                     filename, hidden_files=[iso.header_end_name]
