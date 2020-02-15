@@ -21,6 +21,10 @@ of KIWI the following dracut modules are used:
   This module is required if one of the attributes `installiso`, `installstick`
   or `installpxe` is set to `true` in the image type definition
 
+``kiwi-dump-reboot``
+  Serves to boot the system into the installed image after installation is
+  completed.
+
 ``kiwi-live``
   Boots up a KIWI live image. This module is required
   if the `iso` image type is selected
