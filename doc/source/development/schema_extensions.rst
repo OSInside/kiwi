@@ -1,7 +1,7 @@
 Extending KIWI with Custom Operations
 =====================================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    Users building images with KIWI need to implement their
    own infrastructure if the image description does not
@@ -125,6 +125,7 @@ RELAX NG schema file you are ready for a first test:
 
 Using the Extension
 -------------------
+
 In order to test your extension place the example extension section
 from the beginning of this document into one of your image description's
 :file:`config.xml` file
@@ -132,7 +133,7 @@ from the beginning of this document into one of your image description's
 The following example will read the name attribute from the title
 section of the my_feature root element and prints it:
 
-.. code:: bash
+.. code:: python
 
     import logging
 

@@ -1,6 +1,8 @@
 kiwi.utils Package
 ==================
 
+.. _db_kiwi_utils_submodules:
+
 Submodules
 ----------
 
@@ -43,6 +45,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_utils_content:
 
 Module Contents
 ---------------

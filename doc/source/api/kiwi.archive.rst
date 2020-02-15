@@ -1,6 +1,8 @@
 kiwi.archive Package
 ====================
 
+.. _db_kiwi_archive_submodules:
+
 Submodules
 ----------
 
@@ -20,6 +22,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_archive_content:
 
 Module Contents
 ---------------

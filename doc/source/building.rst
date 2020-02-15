@@ -3,7 +3,7 @@
 Building Images
 ===============
 
-.. hint::
+.. note::
 
    This document provides an overview about the supported KIWI image
    types. Before building an image with KIWI it's important to understand
@@ -20,7 +20,9 @@ Building Images
    building/build_containerized
    building/build_with_profiles
    building/build_in_buildservice
-   building/working_with_images
+
+Image Types
+-----------
 
 ISO Hybrid Live Image
   An iso image which can be dumped on a CD/DVD or USB stick
@@ -109,8 +111,8 @@ Supported Platforms and Architectures
 
 Images built with KIWI are designed for a specific use case. The author of
 the image description sets this with the contents in the KIWI XML document
-as well as custom scripts and services. The following list provides a brief
-overview of the platforms where KIWI built images are productively used:
+as well as custom scripts and services. The following list provides an
+abstract of the platforms where KIWI built images are productively used:
 
 * Amazon EC2
 * Microsoft Azure
@@ -118,9 +120,6 @@ overview of the platforms where KIWI built images are productively used:
 * Private Data Centers based on OpenStack
 * Bare metal deployments e.g Microsoft Azure Large Instance
 * SAP workloads
-
-For further information or on interest in one of the above areas,
-contact us directly: :ref:`contact_us`
 
 The majority of the workloads is based on the x86 architecture. KIWI
 also supports other architectures, shown in the table below:

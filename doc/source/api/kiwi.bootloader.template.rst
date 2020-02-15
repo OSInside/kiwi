@@ -1,6 +1,8 @@
 kiwi.bootloader.template Package
 ================================
 
+.. _db_kiwi_bootloader_template_submodules:
+
 Submodules
 ----------
 
@@ -28,6 +30,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_bootloader_template_content:
 
 Module Contents
 ---------------

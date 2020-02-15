@@ -1,12 +1,7 @@
 kiwi.container Package
 ======================
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.container.setup
+.. _db_kiwi_container_submodules:
 
 Submodules
 ----------
@@ -18,6 +13,8 @@ Submodules
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. _db_kiwi_container_content:
 
 Module Contents
 ---------------

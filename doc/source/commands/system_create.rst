@@ -1,6 +1,8 @@
 kiwi system create
 ==================
 
+.. _db_kiwi_system_create_synopsis:
+
 SYNOPSIS
 --------
 
@@ -13,12 +15,16 @@ SYNOPSIS
        [--signing-key=<key-file>...]
    kiwi system create help
 
+.. _db_kiwi_system_create_desc:
+
 DESCRIPTION
 -----------
 
 Create an image from a previously prepared image root directory.
 The kiwi create call is usually issued after a kiwi prepare command
 and builds the requested image type in the specified target directory
+
+.. _db_kiwi_system_create_opts:
 
 OPTIONS
 -------

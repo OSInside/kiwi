@@ -1,6 +1,8 @@
 kiwi system prepare
 ===================
 
+.. _db_kiwi_system_prepare_synopsis:
+
 SYNOPSIS
 --------
 
@@ -22,6 +24,8 @@ SYNOPSIS
        [--signing-key=<key-file>...]
    kiwi system prepare help
 
+.. _db_kiwi_system_prepare_desc:
+
 DESCRIPTION
 -----------
 
@@ -33,6 +37,8 @@ As the root user you can enter this system via chroot as follows:
 .. code:: bash
 
    $ chroot <directory> bash
+
+.. _db_kiwi_system_prepare_opts:
 
 OPTIONS
 -------

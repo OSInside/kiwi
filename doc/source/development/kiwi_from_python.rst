@@ -1,7 +1,7 @@
 Using KIWI NG in a Python Project
 =================================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    KIWI is provided as python module under the **kiwi** namespace.
    It is available for the python 2 and 3 versions. The following

@@ -1,7 +1,7 @@
 KIWI Commands
 =============
 
-.. hint::
+.. note::
 
    This document provides a list of the existing KIWI commands
    for version |version|.

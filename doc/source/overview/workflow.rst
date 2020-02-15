@@ -1,7 +1,7 @@
 Basic Workflow
 ==============
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
     Installation of a Linux system generally occurs by booting the target
     system from an installation source such as an installation CD/DVD, a live
@@ -40,7 +40,7 @@ This file is validated against the schema documented in
 In addition, the image can optionally be customized
 using the :file:`config.sh` and :file:`images.sh` scripts
 and by using an *overlay tree (directory)* called :file:`root`.
-See `Components of an Image Description`_ section for further details.
+See :ref:`description_components` section for further details.
 
 .. note:: Previous Knowledge
 

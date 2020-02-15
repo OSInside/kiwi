@@ -1,6 +1,8 @@
 kiwi.partitioner Package
 ========================
 
+.. _db_kiwi_partitioner_submodules:
+
 Submodules
 ----------
 
@@ -36,6 +38,8 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+
+.. _db_kiwi_partitioner_content:
 
 Module Contents
 ---------------

@@ -36,11 +36,13 @@ def extras(help_, version, options, doc):
     :param bool help_: indicate to show help
     :param string version: version string
     :param list options:
-        list of option tuples
 
-        .. code:: python
+    list of option tuples
 
-            [option(name='name', value='value')]
+    .. code:: python
+
+        [option(name='name', value='value')]
+
     :param string doc: docopt doc string
     """
     if help_ and any((o.name in ('-h', '--help')) and o.value for o in options):

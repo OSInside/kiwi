@@ -5,7 +5,7 @@ Building Images with Profiles
 
 KIWI supports so-called *profiles* inside the XML image description. Profiles
 act as namespaces for additional settings to be applied on top of the
-defaults. For further details, see :ref:`xml-description-image-profiles`.
+defaults. For further details, see :ref:`image-profiles`.
 
 
 Local Builds
@@ -22,7 +22,7 @@ command line flag `--profile=$PROFILE_NAME`:
          --target-dir /tmp/myimage
 
 Consult the manual page of :file:`kiwi` for further details:
-:ref:`commands-kiwi`.
+:ref:`db_commands_kiwi_synopsis`.
 
 
 Building with the Open Build Service

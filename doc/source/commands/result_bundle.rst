@@ -1,6 +1,8 @@
 kiwi result bundle
 ==================
 
+.. _db_kiwi_result_bundle_synopsis:
+
 SYNOPSIS
 --------
 
@@ -13,6 +15,8 @@ SYNOPSIS
        [--zsync_source=<download_location>]
    kiwi result bundle help
 
+.. _db_kiwi_result_bundle_desc:
+
 DESCRIPTION
 -----------
 
@@ -20,6 +24,8 @@ Create result bundle from the image build results in the specified target
 directory. Each result image will contain the specified bundle identifier
 as part of its filename. Uncompressed image files will also become xz
 compressed and a sha sum will be created from every result image.
+
+.. _db_kiwi_result_bundle_opts:
 
 OPTIONS
 -------

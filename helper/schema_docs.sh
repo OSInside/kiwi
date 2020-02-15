@@ -9,9 +9,9 @@ if [ -z "$oxygen_tool" ];then
     echo "Switching to fallback schema documentation creator"
     echo
     ./schema_parser.py ../kiwi/schema/kiwi.rng \
-        --output ../doc/source/development/schema.rst
+        --output ../doc/source/schema.rst
 else
-    cat > ../doc/source/development/schema.rst <<- EOF
+    cat > ../doc/source/schema.rst <<- EOF
 	.. _schema-docs:
 
 	Schema Documentation 7.1
@@ -22,5 +22,5 @@ else
 	EOF
     trang -I rnc -O xsd ../kiwi/schema/kiwi.rnc kiwi.xsd && \
         bash $oxygen_tool kiwi.xsd -cfg:schema_docs.conf
-    rm -f kiwi.xsd xsi.xsd ../doc/source/development/schema/xsdDocHtml.css
+    rm -f kiwi.xsd xsi.xsd ../doc/source/schema/xsdDocHtml.css
 fi

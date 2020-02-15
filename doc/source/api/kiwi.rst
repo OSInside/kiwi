@@ -3,27 +3,7 @@ API Documentation |version|
 
 .. default-domain:: py
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.archive
-    kiwi.boot
-    kiwi.bootloader
-    kiwi.builder
-    kiwi.container
-    kiwi.filesystem
-    kiwi.iso_tools
-    kiwi.package_manager
-    kiwi.partitioner
-    kiwi.repository
-    kiwi.storage
-    kiwi.system
-    kiwi.solver
-    kiwi.tasks
-    kiwi.utils
-    kiwi.volume_manager
+.. _db_kiwi_submodules:
 
 Submodules
 ----------
@@ -172,6 +152,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_content:
 
 Module Contents
 ---------------

@@ -1,6 +1,8 @@
 kiwi.boot.image Package
 =======================
 
+.. _db_kiwi_boot_image_submodules:
+
 Submodules
 ----------
 
@@ -28,6 +30,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_boot_image_content:
 
 Module Contents
 ---------------

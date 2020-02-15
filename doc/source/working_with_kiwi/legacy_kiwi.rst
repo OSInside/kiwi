@@ -3,7 +3,7 @@
 Legacy KIWI vs. Next Generation
 ===============================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    Users currently have the choice for the kiwi legacy version
    or this next generation kiwi. This document describes the

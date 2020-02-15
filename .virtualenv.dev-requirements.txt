@@ -40,6 +40,8 @@ generateDS==2.29.24
 # for building documentation
 sphinx
 
+git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
+
 sphinx_rtd_theme
 sphinxcontrib-spelling
 pyenchant

@@ -3,7 +3,7 @@
 Installation
 ============
 
-.. hint::
+.. note::
 
    This document describes how to install KIWI. Apart from the preferred
    method to install KIWI via rpm, it is also available on `pypi

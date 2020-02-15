@@ -3,7 +3,7 @@
 User Defined Scripts
 ====================
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
    This chapter describes the usage of the user defined scripts
    :file:`config.sh` and :file:`image.sh`, which can be used to further

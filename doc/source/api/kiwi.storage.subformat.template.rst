@@ -1,6 +1,8 @@
 kiwi.storage.subformat.template Package
 =======================================
 
+.. _db_kiwi_storage_subformat_template_submodules:
+
 Submodules
 ----------
 
@@ -27,6 +29,8 @@ Submodules
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. _db_kiwi_storage_subformat_template_content:
 
 Module contents
 ---------------

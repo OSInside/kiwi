@@ -201,18 +201,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string kernel: unused
         :param string initrd: unused
         :param dict boot_options:
-            options dictionary that has to contain the root and boot
-            device and optional volume configuration. KIWI has to
-            mount the system prior to run grub2-mkconfig.
 
-            .. code:: python
+        options dictionary that has to contain the root and boot
+        device and optional volume configuration. KIWI has to
+        mount the system prior to run grub2-mkconfig.
 
-                {
-                    'root_device': string,
-                    'boot_device': string,
-                    'efi_device': string,
-                    'system_volumes': volume_manager_instance.get_volumes()
-                }
+        .. code:: python
+
+            {
+                'root_device': string,
+                'boot_device': string,
+                'efi_device': string,
+                'system_volumes': volume_manager_instance.get_volumes()
+            }
         """
         self._mount_system(
             boot_options.get('root_device'),

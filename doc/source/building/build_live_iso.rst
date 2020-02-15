@@ -17,7 +17,7 @@ testing and demo- and debugging-purposes.
 
 To add a live ISO build to your appliance, create a `type` element with
 `image` set to `iso` in your :file:`config.xml` (see
-:ref:`xml-description-build-types`) as shown below:
+:ref:`build-types`) as shown below:
 
 .. code:: xml
 

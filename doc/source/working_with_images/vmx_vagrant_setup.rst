@@ -236,7 +236,7 @@ description directory next to :file:`config.sh`):
 
 
 The option to provide a custom :file:`Vagrantfile` can be combined with the
-usage of *profiles* (see :ref:`xml-description-image-profiles`), so that
+usage of *profiles* (see :ref:`image-profiles`), so that
 certain builds can use the automatically generated :file:`Vagrantfile` (in
 the following example that is the Virtualbox build) and others get a
 customized one (the libvirt profile in the following example):

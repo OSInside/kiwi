@@ -1,6 +1,8 @@
 kiwi system build
 =================
 
+.. _db_kiwi_system_build_synopsis:
+
 SYNOPSIS
 --------
 
@@ -22,6 +24,8 @@ SYNOPSIS
        [--signing-key=<key-file>...]
    kiwi system build help
 
+.. _db_kiwi_system_build_desc:
+
 DESCRIPTION
 -----------
 
@@ -31,6 +35,8 @@ build command creates the root directory of the image below
 `<target-dir>/build/image-root` and if not specified differently writes
 a log file `<target-dir>/build/image-root.log`. The result image files
 are created in the specified target-dir.
+
+.. _db_kiwi_system_build_opts:
 
 OPTIONS
 -------
@@ -143,6 +149,8 @@ OPTIONS
 --target-dir=<directory>
 
   Path to store the build results.
+
+.. _db_kiwi_system_build_uri:
 
 URI_TYPES
 ---------

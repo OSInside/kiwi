@@ -1,6 +1,8 @@
 kiwi.volume_manager Package
 ===========================
 
+.. _db_kiwi_volume_manager_submodules:
+
 Submodules
 ----------
 
@@ -28,6 +30,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. _db_kiwi_volume_manager_content:
 
 Module Contents
 ---------------

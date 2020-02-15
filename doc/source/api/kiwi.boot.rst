@@ -1,12 +1,7 @@
 kiwi.boot Package
 =================
 
-Subpackages
------------
-
-.. toctree::
-
-    kiwi.boot.image
+.. _db_kiwi_boot_content:
 
 Module Contents
 ---------------
