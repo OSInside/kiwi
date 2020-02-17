@@ -21,19 +21,31 @@ class TestPath:
         )
         assert ordered == ['usr', 'etc', 'usr/bin', 'usr/lib']
 
+    @patch('kiwi.command.os.path.exists')
     @patch('kiwi.command.Command.run')
-    def test_create(self, mock_command):
+    def test_create(self, mock_command, mock_exists):
+        mock_exists.return_value = False
         Path.create('foo')
         mock_command.assert_called_once_with(
             ['mkdir', '-p', 'foo']
         )
+        mock_exists.return_value = True
+        mock_command.reset_mock()
+        Path.create('foo')
+        assert not mock_command.called
 
+    @patch('kiwi.command.os.path.exists')
     @patch('kiwi.command.Command.run')
-    def test_wipe(self, mock_command):
+    def test_wipe(self, mock_command, mock_exists):
+        mock_exists.return_value = True
         Path.wipe('foo')
         mock_command.assert_called_once_with(
             ['rm', '-r', '-f', 'foo']
         )
+        mock_exists.return_value = False
+        mock_command.reset_mock()
+        Path.wipe('foo')
+        assert not mock_command.called
 
     @patch('kiwi.command.Command.run')
     def test_remove(self, mock_command):

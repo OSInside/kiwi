@@ -140,6 +140,7 @@ class TestVolumeManagerLVM:
             self.volume_manager.setup('volume_group')
 
     @patch('os.path.exists')
+    @patch('kiwi.path.Path.create')
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('kiwi.volume_manager.lvm.Command.run')
     @patch('kiwi.volume_manager.lvm.FileSystem')
@@ -148,7 +149,7 @@ class TestVolumeManagerLVM:
     @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
     def test_create_volumes(
         self, mock_attrs, mock_mount, mock_mapped_device, mock_fs,
-        mock_command, mock_size, mock_os_exists
+        mock_command, mock_size, mock_create, mock_os_exists
     ):
         mock_os_exists_return_list = [True, True, False, False, False]
 
@@ -208,15 +209,6 @@ class TestVolumeManagerLVM:
             call(device='/dev/volume_group/LVhome', mountpoint='tmpdir//home')
         ]
         assert mock_command.call_args_list == [
-            call(
-                ['mkdir', '-p', 'root_dir/etc']
-            ),
-            call(
-                ['mkdir', '-p', 'root_dir/data']
-            ),
-            call(
-                ['mkdir', '-p', 'root_dir/home']
-            ),
             call(
                 [
                     'lvcreate', '-Zn', '-L', '100', '-n', 'LVSwap',
@@ -290,6 +282,10 @@ class TestVolumeManagerLVM:
             call(label=None),
             call(label='etc'),
             call(label=None)
+        ]
+
+        assert mock_create.call_args_list == [
+            call('root_dir/etc'), call('root_dir/data'), call('root_dir/home')
         ]
         self.volume_manager.volume_group = None
 
