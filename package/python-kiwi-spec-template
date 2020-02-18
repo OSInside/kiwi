@@ -212,12 +212,16 @@ BuildRequires:  dracut
 Requires:       bc
 Requires:       cryptsetup
 %if 0%{?fedora} || 0%{?rhel} || 0%{?ubuntu} >= 1804 || 0%{?debian} >= 9
+%if 0%{?rhel} && 0%{?rhel} < 8
 Requires:       btrfs-progs
+%else
+Recommends:     btrfs-progs
+%endif
 Requires:       gdisk
 Requires:       dracut-network
 %else
 %if 0%{?debian} || 0%{?ubuntu}
-Requires:       btrfs-tools
+Recommends:     btrfs-tools
 Requires:       gdisk
 %else
 Requires:       btrfsprogs
