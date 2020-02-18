@@ -45,6 +45,7 @@ class TestRootInit:
     @patch('os.chown')
     @patch('os.symlink')
     @patch('os.makedev')
+    @patch('kiwi.path.Path.create')
     @patch('kiwi.system.root_init.copy')
     @patch('kiwi.system.root_init.rmtree')
     @patch('kiwi.system.root_init.DataSync')
@@ -52,7 +53,7 @@ class TestRootInit:
     @patch('kiwi.system.root_init.Command.run')
     def test_create(
         self, mock_command, mock_temp, mock_data_sync, mock_rmtree, mock_copy,
-        mock_makedev, mock_symlink, mock_chwon, mock_makedirs,
+        mock_create, mock_makedev, mock_symlink, mock_chwon, mock_makedirs,
         mock_path
     ):
         data_sync = Mock()
@@ -97,7 +98,6 @@ class TestRootInit:
             call('/run', 'tmpdir/var/run')
         ]
         assert mock_command.call_args_list == [
-            call(['mkdir', '-p', 'root_dir']),
             call([
                 'cp',
                 '/var/adm/fillup-templates/group.aaa_base',
@@ -127,16 +127,15 @@ class TestRootInit:
         mock_copy.assert_called_once_with(
             '/.buildenv', 'root_dir'
         )
+        mock_create.assert_called_once_with('root_dir')
 
-    @patch('kiwi.command.Command.run')
+    @patch('kiwi.path.Path.wipe')
     @patch('os.path.exists')
-    def test_delete(self, mock_path, mock_command):
+    def test_delete(self, mock_path, mock_wipe):
         mock_path.return_value = False
         root = RootInit('root_dir')
         root.delete()
-        mock_command.assert_called_once_with(
-            ['rm', '-r', '-f', 'root_dir']
-        )
+        mock_wipe.assert_called_once_with('root_dir')
 
     def teardown(self):
         sys.argv = argv_kiwi_tests

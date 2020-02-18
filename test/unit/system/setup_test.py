@@ -89,7 +89,6 @@ class TestSystemSetup:
             '../data/config-cdroot.tar*'
         )
         assert mock_command.call_args_list == [
-            call(['mkdir', '-p', 'root_dir/image']),
             call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
             call([
                 'cp', '../data/my_edit_boot_script',
@@ -109,10 +108,11 @@ class TestSystemSetup:
             call(['cp', 'config-cdroot.tar.xz', 'root_dir/image/'])
         ]
 
+    @patch('kiwi.path.Path.create')
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     def test_import_description_archive_from_derived(
-        self, mock_path, mock_command
+        self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
             True, False, True, True, True, True, True
@@ -127,7 +127,6 @@ class TestSystemSetup:
             self.setup_with_real_xml.import_description()
 
         assert mock_command.call_args_list == [
-            call(['mkdir', '-p', 'root_dir/image']),
             call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
             call([
                 'cp', '../data/my_edit_boot_script',
@@ -147,6 +146,7 @@ class TestSystemSetup:
                 'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
             ])
         ]
+        mock_create.assert_called_once_with('root_dir/image')
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
@@ -372,7 +372,6 @@ class TestSystemSetup:
         self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
         mock_command.assert_has_calls([
-            call(['rm', '-r', '-f', 'root_dir/etc/localtime']),
             call([
                 'chroot', 'root_dir', 'systemd-firstboot',
                 '--timezone=timezone'

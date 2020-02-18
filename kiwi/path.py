@@ -104,9 +104,10 @@ class Path:
 
         :param string path: path name
         """
-        Command.run(
-            ['mkdir', '-p', path]
-        )
+        if not os.path.exists(path):
+            Command.run(
+                ['mkdir', '-p', path]
+            )
 
     @staticmethod
     def wipe(path):
@@ -115,9 +116,10 @@ class Path:
 
         :param string path: path name
         """
-        Command.run(
-            ['rm', '-r', '-f', path]
-        )
+        if os.path.exists(path):
+            Command.run(
+                ['rm', '-r', '-f', path]
+            )
 
     @staticmethod
     def remove(path):
