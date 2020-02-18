@@ -5,13 +5,13 @@ Building in a Self-Contained Environment
 
 .. note:: **Abstract**
 
-   Users building images with KIWI face problems if they want
+   Users building images with {kiwi} face problems if they want
    to build an image matching one of the following criteria:
 
    * build should happen as non root user.
 
    * build should happen on a host system distribution for which
-     no KIWI packages exists.
+     no {kiwi} packages exists.
 
    * build happens on an incompatible host system distribution
      compared to the target image distribution. For example
@@ -22,7 +22,7 @@ Building in a Self-Contained Environment
 
    This document describes how to perform the build process in
    a Docker container using the Dice containment build system
-   written for KIWI in order to address the issues listed above.
+   written for {kiwi} in order to address the issues listed above.
 
    The changes on the machine to become a build host will
    be reduced to the requirements of Dice and Docker.
@@ -32,12 +32,12 @@ Requirements
 
 The following components needs to be installed on the build system:
 
-* Dice - a containment build system for KIWI.
+* Dice - a containment build system for {kiwi}.
 
 * Docker - a container framework based on the Linux
   container support in the kernel.
 
-* Docker Image - a docker build container for KIWI.
+* Docker Image - a docker build container for {kiwi}.
 
 * optionally Vagrant - a framework to run, provision and control
   virtual machines and container instances. Vagrant has a very nice
@@ -50,9 +50,9 @@ The following components needs to be installed on the build system:
   capabilities of Linux. In combination with vagrant, libvirt can
   be used as provider for provision and control full virtual
   instances running via qemu. As docker shares the host system
-  kernel and thus any device, because KIWI needs to use privileged
+  kernel and thus any device, because {kiwi} needs to use privileged
   docker containers for building images, the more secure but less
-  performant solution is to use virtual machines to run the KIWI
+  performant solution is to use virtual machines to run the {kiwi}
   build.
 
 Installing and Setting up Dice
@@ -120,12 +120,12 @@ Finally start the docker service:
     $ sudo systemctl restart docker
 
 Installing and Setting up the Build Container
-----------------------------------------------
+---------------------------------------------
 
 In order to build in a contained environment Docker has to start a
 privileged system container. Such a container must be imported before
 Docker can use it. The build container is provided to you as a
-service and build with KIWI in the project
+service and build with {kiwi} in the project
 at http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images.
 The result image is pushed to https://hub.docker.com/r/opensuse/dice.
 
@@ -167,7 +167,7 @@ Installing and Setting up Vagrant
 
 .. note:: Optional step
 
-    By default Dice shares the KIWI image description directory with
+    By default Dice shares the {kiwi} image description directory with
     the Docker instance. If more data from the host should be shared
     with the Docker instance we recommend to use Vagrant for this
     provision tasks.
@@ -177,7 +177,7 @@ https://www.vagrantup.com/docs/installation/index.html
 
 Access to a machine started by Vagrant is done through SSH exclusively.
 Because of that an initial key setup is required in the Docker image vagrant
-should start. The KIWI Docker image includes the public key of the Vagrant
+should start. The {kiwi} Docker image includes the public key of the Vagrant
 key pair and thus allows access. It is important to understand that the
 private Vagrant key is not a secure key because the private key is not
 protected.
@@ -197,15 +197,15 @@ executed as root, but as the intended user to build images.
 Configuring Dice
 ----------------
 
-If you build in a contained environment, there is no need to have KIWI
-installed on the host system. KIWI is part of the container and is only
-called there. However, a KIWI image description and some metadata
+If you build in a contained environment, there is no need to have {kiwi}
+installed on the host system. {kiwi} is part of the container and is only
+called there. However, a {kiwi} image description and some metadata
 defining how to run the container are required as input data.
 
-Selecting a KIWI Template
--------------------------
+Selecting a Template
+--------------------
 
-If you don't have a KIWI description select one from the templates
+If you don't have a {kiwi} description select one from the templates
 provided at the GitHub project hosting example appliance descriptions.
 
 .. code:: bash
@@ -251,7 +251,7 @@ Buildsystem Backends
 Dice currently supports three build system backends:
 
 1. Host buildsystem - Dice builds on the host like if you would call
-   KIWI on the host directly.
+   {kiwi} on the host directly.
 
 2. Vagrant Buildsystem - Dice uses Vagrant to run a virtual system which
    could also be a container and build the image on this machine.
@@ -267,10 +267,10 @@ Building with the Host Buildsystem
 ----------------------------------
 
 Using the Host Buildsystem basically tells Dice to ssh into the
-specified machine with the specified user and run KIWI. This is
+specified machine with the specified user and run {kiwi}. This is
 also the information which needs to be provided in a Dicefile.
 Using the Host Buildsystem is recommended if there are dedicated
-build machines available to take over KIWI build jobs.
+build machines available to take over {kiwi} build jobs.
 
 The Dicefile
 ------------
@@ -283,7 +283,7 @@ The Dicefile
     end
 
 After these changes a :command:`dice build` command will make use
-of the Host Buildsystem and starts the KIWI build process there.
+of the Host Buildsystem and starts the {kiwi} build process there.
 
 .. note:: Provisioning of the Host Buildsystem
 
@@ -358,7 +358,7 @@ the Vagrantfile with the following content:
 
 After these changes a :command:`dice build` command will make use
 of the Vagrant build system and offers a nice way to provision
-the Docker container instances prior to the actual KIWI build process.
+the Docker container instances prior to the actual {kiwi} build process.
 Vagrant will take over the task to run and manage the docker container
 via the `docker` tool chain.
 
@@ -374,7 +374,7 @@ The Vagrant Build Box
 
 Apart from the Docker build container the Dice infrastructure also
 provides a virtual machine image also known as vagrant box which
-contains a system ready to build images with KIWI.
+contains a system ready to build images with {kiwi}.
 
 Download the Vagrant build box which starts with
 :file:`Vagrant-Libvirt-Tumbleweed` from the Open BuildService and add
@@ -408,6 +408,6 @@ The Vagrantfile
 
 After these changes a :command:`dice build` command will make use
 of the Vagrant build system and offers a nice way to provision
-fully isolated qemu instances via libvirt prior to the actual KIWI
+fully isolated qemu instances via libvirt prior to the actual {kiwi}
 build process. Vagrant will take over the task to run and manage the
 virtual machines via the `libvirt` tool chain.

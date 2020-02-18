@@ -1,5 +1,5 @@
-API Documentation |version|
-===========================
+kiwi Package
+============
 
 .. default-domain:: py
 
@@ -84,6 +84,22 @@ Submodules
 --------------------
 
 .. automodule:: kiwi.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+`kiwi.logger_color_formatter` Module
+------------------------------------
+
+.. automodule:: kiwi.logger_color_formatter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+`kiwi.logger_filter` Module
+---------------------------
+
+.. automodule:: kiwi.logger_filter
     :members:
     :undoc-members:
     :show-inheritance:

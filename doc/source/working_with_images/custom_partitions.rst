@@ -5,17 +5,17 @@ Custom Disk Partitions
 
 .. sidebar:: Abstract
 
-   This page provides some details about what KIWI supports and does
+   This page provides some details about what {kiwi} supports and does
    not support regarding customization over the partition scheme. It also
    provides some guidance in case the user requires some custom layout
-   beyond KIWI supported features.
+   beyond {kiwi} supported features.
 
-By design, KIWI does not support a customized partition table. Alternatively,
-KIWI supports the definition of user-defined volumes which covers most of
+By design, {kiwi} does not support a customized partition table. Alternatively,
+{kiwi} supports the definition of user-defined volumes which covers most of
 common use cases. See :ref:`Custom Disk Volumes <custom_volumes>` for
 further details about that.
 
-KIWI has its own partitioning schema which is defined according to several
+{kiwi} has its own partitioning schema which is defined according to several
 different user configurations: boot firmware, boot partition,
 expandable layouts, etc. Those supported features have an impact on the
 partitioning schema. MBR or GUID partition tables are not flexible,
@@ -23,12 +23,12 @@ carry limitations and are tied to some specific disk geometry. Because
 of that the preferred alternative to disk layouts based on traditional
 partition tables is using flexible approaches like logic volumes.
 
-As an example, expandable OEM images is a relevant KIWI feature that
+As an example, expandable OEM images is a relevant {kiwi} feature that
 is incompatible with the idea of adding user defined partitions on the
 system area.
 
 Despite no full customization is supported, some aspects of the partition
-schema can be customized. KIWI supports:
+schema can be customized. {kiwi} supports:
 
 1. Adding a spare partition *before* the root (`/`) partition.
 
@@ -44,13 +44,13 @@ schema can be customized. KIWI supports:
    the *end* of the disk.
 
      A built image can be resized by using the `kiwi-ng image resize` command
-     and set a new extended size for the disk. See KIWI commands docs
+     and set a new extended size for the disk. See {kiwi} commands docs
      :ref:`here <db_kiwi_image_resize>`.
 
 Custom Partitioning at Boot Time
 ++++++++++++++++++++++++++++++++
 
-Adding additional partitions at boot time of KIWI images is also possible,
+Adding additional partitions at boot time of {kiwi} images is also possible,
 however, setting the tools and scripts for doing so needs to be handled by
 the user. A possible strategy to add partitions on system area are described
 below.

@@ -6,12 +6,12 @@ Deploy ISO Image on an USB Stick
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   ISO images built with KIWI and references the following
+   ISO images built with {kiwi} and references the following
    articles:
 
    * :ref:`hybrid_iso`
 
-In KIWI all generated ISO images are created to be hybrid. This means,
+In {kiwi} all generated ISO images are created to be hybrid. This means,
 the image can be used as a CD/DVD or as a disk. This works because
 the ISO image also has a partition table embedded. With more and more
 computers delivered without a CD/DVD drive this becomes important.

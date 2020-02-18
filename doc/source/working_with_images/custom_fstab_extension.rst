@@ -9,10 +9,10 @@ Add or Update the Fstab File
    the `/etc/fstab` file which controls the mounting of
    filesystems at boot time.
 
-In KIWI, all major filesystems that were created at image
-build time are handled by KIWI itself and setup in `/etc/fstab`.
+In {kiwi}, all major filesystems that were created at image
+build time are handled by {kiwi} itself and setup in `/etc/fstab`.
 Thus there is usually no need to add entries or change the
-ones added by KIWI. However depending on where the image is
+ones added by {kiwi}. However depending on where the image is
 deployed later it might be required to pre-populate fstab
 entries that are unknown at the time the image is build.
 
@@ -42,11 +42,11 @@ The optimal way to provide custom fstab information is through a
 package. If this can't be done the files can also be provided via
 the overlay file tree of the image description.
 
-KIWI supports three ways to modify the contents of the `/etc/fstab`
+{kiwi} supports three ways to modify the contents of the `/etc/fstab`
 file:
 
 Providing an `/etc/fstab.append` file
-  If that file exists in the image root tree, KIWI will take its
+  If that file exists in the image root tree, {kiwi} will take its
   contents and append it to the existing `/etc/fstab` file. The
   provided `/etc/fstab.append` file will be deleted after successful
   modification.

@@ -15,7 +15,7 @@ A Virtual Disk Image is a compressed system disk with additional metadata
 useful for cloud frameworks like Amazon EC2, Google Compute Engine, or
 Microsoft Azure.
 
-To instruct KIWI to build a VMX image add a `type` element with
+To instruct {kiwi} to build a VMX image add a `type` element with
 `image="vmx"` in :file:`config.xml`. An example configuration for a 42 GB
 large VMDK image with 512 MB RAM, an IDE controller and a bridged network
 interface is shown below:
@@ -49,7 +49,7 @@ when building VMX images:
 - `formatoptions`: Specifies additional format options passed to
   :command:`qemu-img`. `formatoptions` is a comma separated list of format
   specific options in a ``name=value`` format like :command:`qemu-img`
-  expects it. KIWI will forward the settings from this attribute as a
+  expects it. {kiwi} will forward the settings from this attribute as a
   parameter to the `-o` option in the :command:`qemu-img` call.
 
 The `size` and `machine` child-elements of `type` can be used to customize
@@ -59,7 +59,7 @@ sections (see :ref:`vmx-the-size-element` and
 
 Once your image description is finished (or you are content with a image
 from the :ref:`example descriptions <example-descriptions>` and use one of
-them) build the image with KIWI:
+them) build the image with {kiwi}:
 
 .. code:: bash
 
@@ -187,7 +187,7 @@ the `vmdk` format where the provided strings are directly pasted into the
 
 The `vmconfig-entry` element has no attributes and can appear multiple
 times, the entries are added to the configuration file in the provided
-order. Note, that KIWI does not check the entries for correctness. KIWI only
+order. Note, that {kiwi} does not check the entries for correctness. {kiwi} only
 forwards them.
 
 The following example adds the two entries `numvcpus = "4"` and
@@ -244,7 +244,7 @@ The `vmnic` element supports the following attributes:
 
 - `mode`: this interfaces' mode.
 
-Note that KIWI will **not** verify the values that are passed to these
+Note that {kiwi} will **not** verify the values that are passed to these
 attributes, it will only paste them into the appropriate configuration
 files.
 
@@ -296,7 +296,7 @@ attributes:
 Adding CD/DVD Drives
 ^^^^^^^^^^^^^^^^^^^^
 
-KIWI supports the addition of IDE and SCSCI CD/DVD drives to the virtual
+{kiwi} supports the addition of IDE and SCSCI CD/DVD drives to the virtual
 machine using the `vmdvd` element for the `vmdk` image format. In the
 following example we add two drives: one with a SCSCI and another with a
 IDE controller:

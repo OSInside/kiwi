@@ -18,14 +18,14 @@ SYNOPSIS
         [--color-output]
        image <command> [<args>...]
    kiwi [--debug]
-        [--color-output]
+           [--color-output]
        result <command> [<args>...]
    kiwi [--profile=<name>...]
-        [--shared-cache-dir=<directory>]
-        [--type=<build_type>]
-        [--logfile=<filename>]
-        [--debug]
-        [--color-output]
+           [--shared-cache-dir=<directory>]
+           [--type=<build_type>]
+           [--logfile=<filename>]
+           [--debug]
+           [--color-output]
        system <command> [<args>...]
    kiwi compat <legacy_args>...
    kiwi -v | --version
@@ -36,7 +36,7 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-KIWI is an imaging solution that is based on an image XML description.
+{kiwi} is an imaging solution that is based on an image XML description.
 Such a description is represented by a directory which includes at least
 one :file:`config.xml` or :file:`.kiwi` file and may as well include other files like
 scripts or configuration data.
@@ -48,8 +48,8 @@ Operating System. A JeOS is a small, text only based image including a
 predefined remote source setup to allow installation of missing
 software components at a later point in time.
 
-KIWI operates in two steps. The system build command combines
-both steps into one to make it easier to start with KIWI. The first
+{kiwi} operates in two steps. The system build command combines
+both steps into one to make it easier to start with {kiwi}. The first
 step is the preparation step and if that step was successful, a
 creation step follows which is able to create different image output
 types.
@@ -60,7 +60,7 @@ The creation step is based on the result of the preparation step and
 uses the contents of the new image root tree to create the output
 image.
 
-KIWI supports the creation of the following image types:
+{kiwi} supports the creation of the following image types:
 
 - ISO Live Systems
 - Virtual Disk for e.g cloud frameworks
@@ -134,9 +134,9 @@ EXAMPLE
 COMPATIBILITY
 -------------
 
-This version of KIWI uses a different caller syntax compared to
+This version of {kiwi} uses a different caller syntax compared to
 former versions. However there is a compatibility mode which allows
-to use a legacy KIWI commandline as follows:
+to use a legacy {kiwi} commandline as follows:
 
 .. code:: bash
 

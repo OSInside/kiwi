@@ -3,7 +3,7 @@
 Building Images with Profiles
 =============================
 
-KIWI supports so-called *profiles* inside the XML image description. Profiles
+{kiwi} supports so-called *profiles* inside the XML image description. Profiles
 act as namespaces for additional settings to be applied on top of the
 defaults. For further details, see :ref:`image-profiles`.
 
@@ -11,7 +11,7 @@ defaults. For further details, see :ref:`image-profiles`.
 Local Builds
 ------------
 
-To execute local KIWI builds with a specific, selected profile, add the
+To execute local {kiwi} builds with a specific, selected profile, add the
 command line flag `--profile=$PROFILE_NAME`:
 
 .. code:: shell-session

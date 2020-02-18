@@ -51,7 +51,7 @@ live ISO images:
   file. Possible values are `ext4` or `xfs`, with `ext4` being the default.
 
 
-With the appropriate settings present in :file:`config.xml` KIWI can now
+With the appropriate settings present in :file:`config.xml` {kiwi} can now
 build the image:
 
 .. code:: bash
@@ -93,9 +93,9 @@ ISO scan
 
 ISO in RAM completely
   Usable with the `dmsquash` module through `rd.live.ram`. The `overlay`
-  module does not support this mode but KIWI supports RAM only systems
+  module does not support this mode but {kiwi} supports RAM only systems
   as OEM deployment into RAM from an install ISO media. For details how
-  to setup RAM only deployments in KIWI see: :ref:`ramdisk_deployment`
+  to setup RAM only deployments in {kiwi} see: :ref:`ramdisk_deployment`
 
 Overlay based on overlayfs
   Usable with the `overlay` module. A squashfs compressed readonly root

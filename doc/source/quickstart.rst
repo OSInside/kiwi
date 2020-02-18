@@ -5,14 +5,14 @@ Quick Start
 
 .. note:: **Abstract**
 
-   This document describes how to start working with KIWI, an OS appliance
+   This document describes how to start working with {kiwi}, an OS appliance
    builder.
    This description applies for version |version|.
 
 Before you start
 ----------------
 
-1. Install KIWI first, either via your distributions' package manager (see
+1. Install {kiwi} first, either via your distributions' package manager (see
    :ref:`kiwi-installation`) or via:
 
    .. code:: bash
@@ -39,7 +39,7 @@ Build your First Image
 ----------------------
 
 Your first image will be a simple system disk image which can run
-in any full virtualization system like QEMU. Invoke the following KIWI
+in any full virtualization system like QEMU. Invoke the following {kiwi}
 command in order to build it:
 
 .. code:: bash

@@ -6,14 +6,14 @@ Deploy and Run System in a RamDisk
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   oem images built with KIWI and references the following
+   oem images built with {kiwi} and references the following
    articles:
 
    * :ref:`oem`
 
 If a machine should run the OS completely in memory without
 the need for any persistent storage, the approach to deploy
-the image into a ramdisk serves this purpose. KIWI allows
+the image into a ramdisk serves this purpose. {kiwi} allows
 to create a bootable ISO image which deploys the image
 into a ramdisk and activates that image with the following
 oem type definition:
@@ -57,7 +57,7 @@ follows:
     The machine, no matter if it's a virtual machine like QEMU
     or a real machine, must provide enough RAM to hold the image
     in the ramdisk as well as have enough RAM available to operate
-    the OS and its applications. The KIWI build image with the
+    the OS and its applications. The {kiwi} build image with the
     extension .raw provides the System Image which gets deployed
     into the RAM space. Substract the size of the System Image
     from the RAM space the machine offers and make sure the result
@@ -66,7 +66,7 @@ follows:
     this calculation. In case of QEMU this can be done with
     the `-m` option
 
-Like all other oem KIWI images, also the ramdisk setup supports
+Like all other oem {kiwi} images, also the ramdisk setup supports
 all the deployments methods as explained in :ref:`deployment_methods`
 This means it's also possible to dump the ISO image on a USB
 stick let the system boot from it and unplug the stick from
@@ -75,7 +75,7 @@ the machine because the system was deployed into RAM
 .. note:: Limitations Of RamDisk Deployments
 
     Only standard images which can be booted by a simple root mount
-    and root switch can be used. Usually KIWI calls kexec after deployment
+    and root switch can be used. Usually {kiwi} calls kexec after deployment
     such that the correct, for the image created dracut initrd, will boot
     the image. In case of a RAM only system kexec does not work because
     it would loose the ramdisk contents. Thus the dracut initrd driving

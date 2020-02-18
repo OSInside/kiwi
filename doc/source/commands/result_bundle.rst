@@ -51,7 +51,7 @@ OPTIONS
   used to sync the bundle.
 
   * The zsync control file is only created for those bundle files
-    which are marked for compression because in a KIWI build only those
+    which are marked for compression because in a {kiwi} build only those
     are meaningful for a partial binary file download.
 
   * It is expected that all files from a bundle are placed to the same

@@ -1,7 +1,7 @@
 .. _legacy_kiwi:
 
-Legacy KIWI vs. Next Generation
-===============================
+Legacy KIWI vs. {kiwi-product}
+==============================================
 
 .. note:: **Abstract**
 
@@ -10,7 +10,8 @@ Legacy KIWI vs. Next Generation
    maintenance state of the legacy kiwi version and under which
    circumstances the use of the legacy kiwi version is required.
 
-There is still the former `KIWI <https://github.com/OSInside/kiwi-legacy>`__
+There is still the former
+`{kiwi-legacy} <https://github.com/OSInside/kiwi-legacy>`__
 version and we decided to rewrite it.
 
 The reasons to rewrite software from scratch could be very different
@@ -20,7 +21,7 @@ variety of groups with different use cases and requirements. It
 became more and more difficult to handle those requests in good
 quality and without regressions. At some point we asked ourselves:
 
-  `Is KIWI really well prepared for future challenges?`
+  `Is {kiwi-legacy} really well prepared for future challenges?`
 
 The conclusion was that the former version has some major weaknesses
 which has to be addressed prior to continue with future development.
@@ -39,28 +40,28 @@ In order to address all of these the questions came up:
   `How to change/drop features without making anybody unhappy?`
 
 As there is no good way to achieve this in the former code base the
-decision was made to start a rewrite of KIWI with a maintained and
+decision was made to start a rewrite of {kiwi-legacy} with a maintained and
 stable version in the background.
 
-Users will be able to use both versions in parallel. In addition, the
-next generation KIWI will be fully compatible with the current format of
+Users will be able to use both versions in parallel. In addition,
+{kiwi} will be fully compatible with the current format of
 the appliance description. This means, users can build an appliance from
-the same appliance description with the legacy and the next generation
-KIWI, if the distribution and all configured features are supported by
-the used KIWI version.
+the same appliance description with {kiwi-legacy} and
+{kiwi}, if the distribution and all configured features are
+supported by the used version.
 
-This provides an opportunity for users to test the next generation KIWI
+This provides an opportunity for users to test {kiwi}
 with their appliance descriptions without risk. If it builds and works
-as expected, I recommend to switch to the next generation KIWI. If not,
+as expected, I recommend to switch to the {kiwi}. If not,
 please open an issue on https://github.com/OSInside/kiwi.
 
-The legacy KIWI version will be further developed in maintenance mode.
+The {kiwi-legacy} version will be further developed in maintenance mode.
 There won't be any new features added in that code base though.
 Packages will be available at the known place:
-`Legacy KIWI packages <http://download.opensuse.org/repositories/Virtualization:/Appliances>`__
+`{kiwi-legacy} packages <http://download.opensuse.org/repositories/Virtualization:/Appliances>`__
 
-When Do I need to use the legacy kiwi
--------------------------------------
+When Do I need to use {kiwi-legacy}
+-----------------------------------
 
 * If you are building images using one of the features of the dropped
   features list below.
@@ -72,10 +73,10 @@ Dropped Features
 ----------------
 
 The following features have been dropped. If you make use of them
-consider to use the legacy KIWI version.
+consider to use the {kiwi-legacy} version.
 
 Split systems
-  The legacy KIWI version supports building of split systems
+  The {kiwi-legacy} version supports building of split systems
   which uses a static definition of files and directories marked
   as read-only or read-write. Evolving technologies like overlayfs
   makes this feature obsolete.
@@ -112,12 +113,12 @@ OEM Recovery/Restore
   and snapshots for consumer machines are provided as features of the
   distribution. SUSE as an example provides this via Rear
   (Relax-and-Recover) and snapshot based filesystems (btrfs+snapper).
-  Therefore the recovery feature offered in the legacy KIWI version
+  Therefore the recovery feature offered in the {kiwi-legacy} version
   will not be continued.
 
 Partition based install method in OEM install image
   The section :ref:`deployment_methods` describes the supported OEM
-  installation procedures. The legacy KIWI version also provided a method
+  installation procedures. The {kiwi-legacy} version also provided a method
   to install an image based on the partitions of the OEM disk image.
   Instead of selecting one target disk to dump the entire image file to,
   the user selects target partitions. Target partitions could be located
@@ -130,8 +131,8 @@ Partition based install method in OEM install image
 Compatibility
 -------------
 
-The legacy KIWI version can be installed and used together with the next
-generation KIWI.
+The {kiwi-legacy} version can be installed and used together with
+{kiwi}.
 
 .. note:: Automatic Link Creation for :command:`kiwi` Command
 
@@ -141,15 +142,15 @@ generation KIWI.
    already exists on your system, the alternative setup will skip the
    creation of the link target because it already exists.
 
-From an appliance description perspective, both KIWI versions are fully
+From an appliance description perspective, both versions are fully
 compatible. Users can build their appliances with both versions and the
 same appliance description. If the appliance description uses features
-the next generation KIWI does not provide, the build will fail with an
+{kiwi} does not provide, the build will fail with an
 exception early. If the appliance description uses next generation
 features like the selection of the initrd system, it's not possible to
-build that with the legacy KIWI, unless the appliance description
+build that with the {kiwi-legacy}, unless the appliance description
 properly encapsulates the differences into a profile.
 
-The next generation KIWI also provides the `--compat` option and
+{kiwi} also provides the `--compat` option and
 the :command:`kiwicompat` tool to be able to use the same commandline
-as provided with the legacy KIWI version.
+as provided with the {kiwi-legacy} version.

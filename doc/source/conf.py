@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# kiwi documentation build configuration file, created by
-# sphinx-quickstart on Fri Feb  5 11:03:18 2016.
+# KIWI NG documentation build configuration file
 #
 import sys
 from os.path import abspath, dirname, join, normpath
@@ -74,11 +73,14 @@ prolog_replacements = {
     '{exc_repo}': 'obs://openSUSE:Leap:15.1/standard',
     '{exc_kiwi_repo}':
         'obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.1',
-    '{schema_version}': '7.1'
+    '{schema_version}': '7.1',
+    '{kiwi}': 'KIWI NG',
+    '{kiwi-product}': 'KIWI Next Generation (KIWI NG)',
+    '{kiwi-legacy}': 'KIWI Legacy'
 }
 
 latex_documents = [
-    ('index', 'kiwi.tex', 'KIWI Documentation', 'Marcus Schäfer', 'manual')
+    ('index', 'kiwi.tex', 'KIWI NG Documentation', 'Marcus Schäfer', 'manual')
 ]
 latex_elements = {
     'papersize': 'a4paper',
@@ -117,8 +119,8 @@ master_doc = 'index'
 default_role="py:obj"
 
 # General information about the project.
-project = 'kiwi'
-copyright = '2019, Marcus Schäfer'
+project = 'KIWI NG'
+copyright = '2020, Marcus Schäfer'
 author = 'Marcus Schäfer'
 
 # The version info for the project you're documenting, acts as replacement for

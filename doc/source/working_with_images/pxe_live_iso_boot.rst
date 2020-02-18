@@ -6,12 +6,12 @@ Booting a Live ISO Image from Network
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   ISO images built with KIWI and references the following
+   ISO images built with {kiwi} and references the following
    articles:
 
    * :ref:`hybrid_iso`
 
-In KIWI, live ISO images can be configured to boot via PXE.
+In {kiwi}, live ISO images can be configured to boot via PXE.
 This functionality requires a network boot server setup on the
 system. Details how to setup such a server can be found in
 :ref:`pxe-boot-server`.
@@ -40,7 +40,7 @@ the network:
 2. Export Live ISO To The Network
 
    Access to the live ISO file is implemented using the AoE protocol
-   in KIWI. This requires the export of the live ISO file as remote
+   in {kiwi}. This requires the export of the live ISO file as remote
    block device which is typically done with the :command:`vblade`
    toolkit. Install the following package on the system which is
    expected to export the live ISO image:
@@ -80,7 +80,7 @@ the network:
        be connected through a bridge. In this case INTERFACE
        is the bridge device. The availability scope of the live
        ISO image on the network is in general not influenced
-       by KIWI and is a task for the network administrators.
+       by {kiwi} and is a task for the network administrators.
 
 3. Setup live ISO boot entry in PXE configuration
 
@@ -93,7 +93,7 @@ the network:
           kernel boot/linux
           append initrd=boot/initrd rd.kiwi.live.pxe root=live:AOEINTERFACE=e0.1
 
-   * The boot parameter `rd.kiwi.live.pxe` tells the KIWI boot process to
+   * The boot parameter `rd.kiwi.live.pxe` tells the {kiwi} boot process to
      setup the network and to load the required :mod:`aoe` kernel module.
 
    * The boot parameter `root=live:AOEINTERFACE=e0.1` specifies the

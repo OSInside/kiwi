@@ -6,9 +6,9 @@ Overview
 .. note:: **Abstract**
 
    This document provides a conceptual overview about the steps
-   of creating an image with KIWI. It also explains the terminology
+   of creating an image with {kiwi}. It also explains the terminology
    regarding the concept and process when building system images
-   with KIWI |version|.
+   with {kiwi} |version|.
 
 .. toctree::
    :maxdepth: 1
@@ -22,7 +22,7 @@ A system image (usually called "image"), is a *complete installation* of a Linux
 system within a file. The image represents an operation system and,
 optionally, contains the "final" configuration.
 
-KIWI creates images in a two step process:
+{kiwi} creates images in a two step process:
 
 1. The first step, the *prepare operation*, generates a so-called
    *unpacked image tree* (directory) using the information provided in
@@ -32,7 +32,7 @@ KIWI creates images in a two step process:
    *image* in the specified format based on the unpacked image and the
    information provided in the configuration file.
 
-The image creation process with KIWI is automated and does not require any
+The image creation process with {kiwi} is automated and does not require any
 user interaction. The information required for the image creation process is
 provided by the image description.
 
@@ -47,14 +47,14 @@ Appliance
    deployed to, or activated in the target system or service.
 
 Image
-   The result of a KIWI build process.
+   The result of a {kiwi} build process.
 
 Image Description
    Specification to define an appliance. The image description is a
    collection of human readable files in a directory. At least one XML
    file :file:`config.xml` or :file:`.kiwi` is required. In addition
    there may be as well other files like scripts or configuration data.
-   These can be used to customize certain parts either of the KIWI
+   These can be used to customize certain parts either of the {kiwi}
    build process or of the initial start-up behavior of the image.
 
 Overlay Files
@@ -65,7 +65,7 @@ Overlay Files
    the the existing file system (overlayed) of the appliance root.
    This also includes permissions and attributes as a supplement.
 
-KIWI
+{kiwi}
    An OS appliance builder.
 
 Virtualization Technology
@@ -77,11 +77,11 @@ Virtualization Technology
 System Requirements
 -------------------
 
-To use and run KIWI, you need:
+To use and run {kiwi}, you need:
 
 * A recent Linux distribution, see :ref:`supported-distributions` for
   details. Alternatively a Linux distribution which supports the docker
-  container system, where KIWI can be run inside a container, see:
+  container system, where {kiwi} can be run inside a container, see:
   :ref:`container-building`
 
 * Enough free disk space to build and store the image. We recommend a

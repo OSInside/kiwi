@@ -11,7 +11,7 @@ User Defined Scripts
    description alone.
 
 
-KIWI supports up to two user defined scripts that it runs in the change
+{kiwi} supports up to two user defined scripts that it runs in the change
 root environment (chroot) containing your new appliance:
 
 1. :file:`config.sh` runs the end of the :ref:`prepare step <prepare-step>`
@@ -24,7 +24,7 @@ root environment (chroot) containing your new appliance:
    built for a specific hardware, unnecessary kernel drivers can be removed
    using this script.
 
-KIWI will execute both scripts via the operating system if their executable
+{kiwi} will execute both scripts via the operating system if their executable
 bit is set (in that case a shebang is mandatory) otherwise they will be
 invoked via the BASH.
 
@@ -33,7 +33,7 @@ invoked via the BASH.
 Image Customization via the ``config.sh`` Shell Script
 ------------------------------------------------------
 
-The KIWI image description allows to have an :file:`config.sh` script in
+The {kiwi} image description allows to have an :file:`config.sh` script in
 place. It can be used for changes appropriate for all images to be created
 from a given unpacked image (:file:`config.sh` runs prior to the *create
 step*). The script should add operating system configuration files which
@@ -44,7 +44,7 @@ for a firstboot workflow, etc.
 The :file:`config.sh` script is called at the end of the :ref:`prepare step
 <prepare-step>` (after users have been set and the *overlay tree directory*
 has been applied). If :file:`config.sh` exits with a non-zero exit code
-then KIWI will report the failure and abort the image creation.
+then {kiwi} will report the failure and abort the image creation.
 
 Find a common template for `config.sh` script below:
 
@@ -74,7 +74,7 @@ Configuration Tips
   Machine ID files are created and set (:file:`/etc/machine-id`,
   :file:`/var/lib/dbus/machine-id`) during the image package installation
   when *systemd* and/or *dbus* are installed. Those UUIDs are intended to
-  be unique and set only once in each deployment. KIWI follows the `systemd
+  be unique and set only once in each deployment. {kiwi} follows the `systemd
   recommendations
   <https://www.freedesktop.org/software/systemd/man/machine-id.html>`_ and
   wipes any :file:`/etc/machine-id` content, leaving it as an empty file.
@@ -119,7 +119,7 @@ Configuration Tips
 Image Customization via the ``images.sh`` Shell Script
 ------------------------------------------------------
 
-The KIWI image description allows to have an optional :file:`images.sh`
+The {kiwi} image description allows to have an optional :file:`images.sh`
 bash script in place. It can be used for changes appropriate for certain
 images/image types on a case-by-case basis (since it runs at beginning of
 :ref:`create step <create-step>`).
@@ -137,7 +137,7 @@ additional packages or configurations then that can be handled in
 changes performed beforehand do not interfere in a negative way if another
 image type is created from the same unpacked image root tree.
 
-If :file:`images.sh` exits with a non-zero exit code, then KIWI will report
+If :file:`images.sh` exits with a non-zero exit code, then {kiwi} will report
 an error and abort the image creation.
 
 See below a common template for :file:`images.sh` script:
@@ -166,10 +166,10 @@ See below a common template for :file:`images.sh` script:
    exit 0
 
 
-Functions and Variables Provided by KIWI
-----------------------------------------
+Functions and Variables Provided by {kiwi}
+-------------------------------------------
 
-KIWI creates the :file:`.kconfig` and :file:`.profile` files to be sourced
+{kiwi} creates the :file:`.kconfig` and :file:`.profile` files to be sourced
 by the shell scripts :file:`config.sh` and :file:`images.sh`.
 :file:`.kconfig` contains various helper functions which can be used to
 simplify the image configuration and :file:`.profile` contains environment
@@ -315,14 +315,14 @@ The following list describes all functions provided by :file:`.kconfig`:
 Functions for Custom non-dracut Based Boot
 ''''''''''''''''''''''''''''''''''''''''''
 
-KIWI also provides the following functions (mostly for compatibility
+{kiwi} also provides the following functions (mostly for compatibility
 reasons) which can be used to customize the boot process when using the
 custom boot option (see
 :ref:`working-with-kiwi-customizing-the-boot-process`):
 
 ``baseStripInitrd``
   Removes various tools binaries and libraries which
-  are not required to boot a SUSE system with KIWI. This function is not
+  are not required to boot a SUSE system with {kiwi}. This function is not
   required when using the dracut initrd system and is kept for
   compatibility reasons.
 
@@ -369,7 +369,7 @@ custom boot option (see
 Profile Environment Variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :file:`.profile` environment file is created by KIWI and contains a
+The :file:`.profile` environment file is created by {kiwi} and contains a
 specific set of variables which are listed below.
 
 ``$kiwi_compressed``
