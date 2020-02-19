@@ -6,12 +6,12 @@ Setting Up a Network Boot Server
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   PXE images built with KIWI and references the following
+   PXE images built with {kiwi} and references the following
    articles:
 
    * :ref:`build_pxe`
 
-To be able to deploy PXE bot images created with KIWI, you need to
+To be able to deploy PXE bot images created with {kiwi}, you need to
 set up a network boot server providing the services DHCP and atftp.
 
 Installing and Configuring atftp

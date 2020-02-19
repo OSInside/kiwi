@@ -11,12 +11,12 @@ Build a Docker Container Image
    * how to build a Docker image
    * how to run it with the Docker daemon
 
-KIWI is capable of building native Docker images, from scratch and derived
-ones. KIWI Docker images are considered to be native since the KIWI
+{kiwi} is capable of building native Docker images, from scratch and derived
+ones. {kiwi} Docker images are considered to be native since the {kiwi}
 tarball image is ready to be loaded to a Docker daemon, including common
 container configurations.
 
-The Docker configuration metadata is provided to KIWI as part of the
+The Docker configuration metadata is provided to {kiwi} as part of the
 :ref:`XML description file <description_components>` using the
 ``<containerconfig>`` tag. The following configuration metadata can be
 specified:
@@ -52,7 +52,7 @@ specified:
   one or more `VOLUME` directives of a Docker file.
 
 Other Docker file directives such as ``RUN``, ``COPY`` or ``ADD``, can be
-mapped to KIWI by using the :ref:`config.sh <description_components>`
+mapped to {kiwi} by using the :ref:`config.sh <description_components>`
 script file to run bash commands or the
 :ref:`overlay tree <description_components>` to include extra files.
 
@@ -76,7 +76,7 @@ openSUSE Leap:
 
       $ zypper in umoci skopeo
 
-#. Build the image with KIWI:
+#. Build the image with {kiwi}:
 
    .. code:: bash
 

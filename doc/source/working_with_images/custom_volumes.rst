@@ -6,13 +6,13 @@ Custom Disk Volumes
 .. sidebar:: Abstract
 
    This chapter provides high level explanations on how to handle volumes
-   or subvolumes definitions for disk images using KIWI.
+   or subvolumes definitions for disk images using {kiwi}.
 
-KIWI supports defining custom volumes by using the logical volume manager
+{kiwi} supports defining custom volumes by using the logical volume manager
 (LVM) for the Linux kernel or by setting volumes at filesystem level when
 filesystem supports it (e.g. btrfs).
 
-Volumes are defined in the KIWI description file :file:`config.xml`,
+Volumes are defined in the {kiwi} description file :file:`config.xml`,
 using `systemdisk`. This element is a child of the `type`.
 Volumes themselves are added via (multiple) `volume` child
 elements of the `systemdisk` element:
@@ -75,5 +75,5 @@ attributes:
 - `name`: The volume group name, by default `kiwiVG` is used. This setting
   is only relevant for LVM volumes.
 
-- `preferlvm`: Boolean value instructing KIWI to prefer LVM even if the
+- `preferlvm`: Boolean value instructing {kiwi} to prefer LVM even if the
   used filesystem has its own volume management system.

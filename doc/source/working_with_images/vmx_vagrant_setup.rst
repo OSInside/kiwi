@@ -1,12 +1,12 @@
 .. _setup_vagrant:
 
-KIWI Image Description for Vagrant
-==================================
+Image Description for Vagrant
+=============================
 
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   VMX images built with KIWI and references the following
+   VMX images built with {kiwi} and references the following
    article:
 
    * :ref:`vmx`
@@ -21,21 +21,21 @@ To build Vagrant boxes, you can use `Packer <https://www.packer.io>`_ which
 is provided by Hashicorp itself. Packer is based on the official
 installation media (DVDs) as shipped by the distribution vendor.
 
-The KIWI way of building images might be helpful, if such a media does not
+The {kiwi} way of building images might be helpful, if such a media does not
 exist or does not suit your needs. For example, if the distribution is
 still under development or you want to use a collection of your own
-repositories. Note, that in contrast to Packer KIWI only supports the
+repositories. Note, that in contrast to Packer {kiwi} only supports the
 libvirt and VirtualBox providers. Other providers require a different box
-layout that is currently not supported by KIWI.
+layout that is currently not supported by {kiwi}.
 
-In addition, you can use the KIWI image description as source for the
+In addition, you can use the {kiwi} image description as source for the
 `Open Build Service <https://openbuildservice.org>`_ which allows
 building and maintaining boxes.
 
 Vagrant expects boxes to be setup in a specific way (for details refer to
 the `Vagrant box documentation
 <https://www.vagrantup.com/docs/boxes/base.html>`_.), applied to the
-referenced KIWI image description from :ref:`vmx`, the following steps are
+referenced {kiwi} image description from :ref:`vmx`, the following steps are
 required:
 
 1. Update the image type setup
@@ -53,7 +53,7 @@ required:
 
    For the VirtualBox provider, the additional attribute
    ``virtualbox_guest_additions_present`` can be set to ``true`` when the
-   VirtualBox guest additions are installed in the KIWI image:
+   VirtualBox guest additions are installed in the {kiwi} image:
 
    .. code:: xml
 
@@ -94,7 +94,7 @@ required:
 
       <package name="rsync"/>
 
-   Note that KIWI cannot verify whether these packages are installed. If
+   Note that {kiwi} cannot verify whether these packages are installed. If
    they are missing, the resulting Vagrant box will be broken.
 
 4. Add Vagrant user
@@ -136,7 +136,7 @@ required:
    files and ensure that the user ``vagrant`` has write permissions to
    it.
 
-   Note, that the boxes that KIWI produces **require** this folder to
+   Note, that the boxes that {kiwi} produces **require** this folder to
    exist, otherwise Vagrant will not be able to start them properly.
 
 7. Setup and start SSH daemon
@@ -210,11 +210,11 @@ Customizing the embedded Vagrantfile
 
 Vagrant ship with an embedded :file:`Vagrantfile` that carries settings
 specific to this box, for instance the synchronization mechanism for the
-shared folder. KIWI generates such a file automatically for you and it
+shared folder. {kiwi} generates such a file automatically for you and it
 should be sufficient for most use cases.
 
 If a box requires different settings in the embedded :file:`Vagrantfile`,
-then the user can provide KIWI with a path to an alternative via the
+then the user can provide {kiwi} with a path to an alternative via the
 attribute `embebbed_vagrantfile` of the `vagrantconfig` element: it
 specifies a relative path to the :file:`Vagrantfile` that will be included
 in the finished box.

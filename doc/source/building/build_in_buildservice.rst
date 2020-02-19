@@ -4,12 +4,12 @@ Building in the Open Build Service
 .. note:: **Abstract**
 
    This document gives a brief overview how to build images with
-   KIWI in version |version| inside of the Open Build Service.
+   {kiwi} in version |version| inside of the Open Build Service.
    A tutorial on the Open Buildservice itself can be found here:
    https://en.opensuse.org/openSUSE:Build_Service_Tutorial
 
 
-The next generation KIWI is fully integrated with the Open Build Service.
+The next generation {kiwi} is fully integrated with the Open Build Service.
 In order to start it's best to checkout one of the integration test
 image build projects from the base Testing project
 `Virtualization:Appliances:Images:Testing_$ARCH:$DISTRO` at:
@@ -23,14 +23,14 @@ For example the test images for SUSE on x86 can be found `here
 Advantages of using the Open Build Service (OBS)
 ------------------------------------------------
 
-The Open Build Service offers multiple advantages over running KIWI
+The Open Build Service offers multiple advantages over running {kiwi}
 locally:
 
 * OBS will host the latest successful build for you without having to setup
   a server yourself.
 
-* As KIWI is fully integrated into OBS, OBS will automatically rebuild your
-  images if one of the included packages or one of its dependencies or KIWI
+* As {kiwi} is fully integrated into OBS, OBS will automatically rebuild your
+  images if one of the included packages or one of its dependencies or {kiwi}
   itself get updated.
 
 * The builds will no longer have to be executed on your own machine, but
@@ -42,13 +42,13 @@ locally:
 Differences Between Building Locally and on OBS
 -----------------------------------------------
 
-Note, there is a number of differences when building images with KIWI using
+Note, there is a number of differences when building images with {kiwi} using
 the Open Build Service. Your image that build locally just fine, might not
 build without modifications.
 
-The notable differences to running KIWI locally include:
+The notable differences to running {kiwi} locally include:
 
-* OBS will pick the KIWI package from the repositories configured in your
+* OBS will pick the {kiwi} package from the repositories configured in your
   project, which will most likely not be the same version that you are
   running locally.
   This is especially relevant when building images for older versions like
@@ -56,7 +56,7 @@ The notable differences to running KIWI locally include:
   repository as described in the following section:
   :ref:`obs-recommended-settings`.
 
-* When KIWI runs on OBS, OBS will extract the list of packages from
+* When {kiwi} runs on OBS, OBS will extract the list of packages from
   :file:`config.xml` and use it to create a build root. In contrast to a
   local build (where your distributions package manager will resolve the
   dependencies and install the packages), OBS will **not** build your image
@@ -201,7 +201,7 @@ your dependent packages. These repositories can be provided in two ways:
 
    Don't forget to add the repository from the
    `Virtualization:Appliances:Builder` project, providing the latest stable
-   version of KIWI (which you are very likely using for your local builds).
+   version of {kiwi} (which you are very likely using for your local builds).
 
    The following example repository configuration [#f3]_ adds the
    repositories from the `Virtualization:Appliances:Builder` project and
@@ -239,10 +239,10 @@ your dependent packages. These repositories can be provided in two ways:
    repository list.
 
 #. Keep the repositories in your :file:`config.xml` configuration file. If
-   you have installed the latest stable KIWI as described in
+   you have installed the latest stable {kiwi} as described in
    :ref:`kiwi-installation` then you should add the following repository to
    your projects configuration (accessible via :command:`osc meta -e
-   prjconf`), so that OBS will pick the latest stable KIWI version too:
+   prjconf`), so that OBS will pick the latest stable {kiwi} version too:
 
    .. code:: xml
 
@@ -278,7 +278,7 @@ OBS though. If building locally is required, use the second method.
 Project Configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
-The Open Build Service will by default create the same output file as KIWI
+The Open Build Service will by default create the same output file as {kiwi}
 when run locally, but with a custom filename ending (that is unfortunately
 unpredictable). This has the consequence that the download URL of your
 image will change with every rebuild (and thus break automated

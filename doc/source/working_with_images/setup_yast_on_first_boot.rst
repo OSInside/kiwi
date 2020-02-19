@@ -5,7 +5,7 @@ Setting Up YaST at First Boot
 
 .. sidebar:: Abstract
 
-    This page provides information how to setup the KIWI
+    This page provides information how to setup the {kiwi}
     XML description to start the SUSE YaST system setup
     utility at first boot of the image
 
@@ -17,17 +17,17 @@ To create the profile, run:
 
     yast autoyast
 
-Once the YaST profile exists, update the KIWI XML description
+Once the YaST profile exists, update the {kiwi} XML description
 as follows:
 
-1. Edit the KIWI XML file and add the following package to
+1. Edit the {kiwi} XML file and add the following package to
    the `<packages type="image">` section:
 
    .. code:: xml
 
        <package name="yast2-firstboot"/>
 
-2. Copy the YaST profile file as overlay file to your KIWI image
+2. Copy the YaST profile file as overlay file to your {kiwi} image
    description overlay directory:
 
    .. code:: bash
@@ -38,7 +38,7 @@ as follows:
 
 3. Copy and activate the YaST firstboot template.
    This is done by the following instructions which needs to be written
-   into the KIWI :file:`config.sh` which is stored in the image
+   into the {kiwi} :file:`config.sh` which is stored in the image
    description directory:
 
    .. code:: bash

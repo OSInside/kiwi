@@ -9,15 +9,15 @@ operating system. This boot image is called the :file:`initrd`. The Linux kernel
 loads the :file:`initrd`, a compressed cpio initial RAM disk, into the RAM and
 executes :command:`init` or, if present, :command:`linuxrc`.
 
-Depending on the image type, KIWI creates the boot image automatically during
+Depending on the image type, {kiwi} creates the boot image automatically during
 the ``create`` step. It uses a tool called `dracut` to create this initrd.
 Dracut generated initrd archives can be extended by custom modules to add
 functionality which is not natively provided by dracut itself. In the scope
-of KIWI the following dracut modules are used:
+of {kiwi} the following dracut modules are used:
 
 ``kiwi-dump``
   Serves as an image installer. It provides the
-  required implementation to install a KIWI image on a selectable target.
+  required implementation to install a {kiwi} image on a selectable target.
   This module is required if one of the attributes `installiso`, `installstick`
   or `installpxe` is set to `true` in the image type definition
 
@@ -26,7 +26,7 @@ of KIWI the following dracut modules are used:
   completed.
 
 ``kiwi-live``
-  Boots up a KIWI live image. This module is required
+  Boots up a {kiwi} live image. This module is required
   if the `iso` image type is selected
 
 ``kiwi-overlay``
@@ -50,7 +50,7 @@ of KIWI the following dracut modules are used:
 
 .. note:: Using Custom Boot Image Support
 
-   Apart from the standard dracut based creation of the boot image, KIWI
+   Apart from the standard dracut based creation of the boot image, {kiwi}
    supports the use of custom boot images for the image types ``oem``
    and ``pxe``. The use of a custom boot image is activated by setting the
    following attribute in the image description:
@@ -68,7 +68,7 @@ of KIWI the following dracut modules are used:
       <type ... boot="{exc_netboot}"/>
 
    Such boot descriptions for the OEM and PXE types are currently still
-   provided by the KIWI packages but will be moved into its own repository
+   provided by the {kiwi} packages but will be moved into its own repository
    and package soon.
 
    The custom boot image descriptions allows a user to completely customize
@@ -86,7 +86,7 @@ of services which are documented in the bootup man page at:
 http://man7.org/linux/man-pages/man7/dracut.bootup.7.html
 
 To hook in a custom boot script into this workflow it's required to provide
-a dracut module which is picked up by dracut at the time KIWI calls it.
+a dracut module which is picked up by dracut at the time {kiwi} calls it.
 The module files can be either provided as a package or as part of the
 overlay directory in your image description
 
@@ -144,7 +144,7 @@ right before the system rootfs gets mounted.
            inst_hook pre-mount 30 "${moddir}/my-script.sh"
        }
 
-That's it! At the time KIWI calls dracut the :file:`90my-module` will be taken
+That's it! At the time {kiwi} calls dracut the :file:`90my-module` will be taken
 into account and is installed into the generated initrd. At boot time
 systemd calls the scripts as part of the :file:`dracut-pre-mount.service`.
 
@@ -156,12 +156,12 @@ the `dracut project page <http://people.redhat.com/harald/dracut.html>`_.
 Boot Image Parameters
 .....................
 
-A dracut generated initrd in a KIWI image build process includes one or
-more of the KIWI provided dracut modules. The following list documents
+A dracut generated initrd in a {kiwi} image build process includes one or
+more of the {kiwi} provided dracut modules. The following list documents
 the available kernel boot parameters for this modules:
 
 ``rd.kiwi.debug``
-  Activates the debug log file for the KIWI part of
+  Activates the debug log file for the {kiwi} part of
   the boot process at :file:`/run/initramfs/log/boot.kiwi`.
 
 ``rd.kiwi.install.pxe``

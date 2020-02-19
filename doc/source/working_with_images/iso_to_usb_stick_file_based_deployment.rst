@@ -6,12 +6,12 @@ Deploy ISO Image as File on a FAT32 Formated USB Stick
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   ISO images built with KIWI and references the following
+   ISO images built with {kiwi} and references the following
    articles:
 
    * :ref:`hybrid_iso`
 
-In KIWI, all generated ISO images are created to be hybrid. This means,
+In {kiwi}, all generated ISO images are created to be hybrid. This means,
 the image can be used as a CD/DVD or as a disk. The deployment of such
 an image onto a disk like an USB stick normally destroys all existing
 data on this device. Most USB sticks are pre-formatted with a FAT32
@@ -26,8 +26,8 @@ kernel and initrd directly from the ISO file.
 
 The initrd loaded in this process must also be able to loopback
 mount the ISO file to access the root filesystem and boot the
-live system. The dracut initrd system used by KIWI provides this
-feature upstream called as "iso-scan". Therefore all KIWI generated
+live system. The dracut initrd system used by {kiwi} provides this
+feature upstream called as "iso-scan". Therefore all {kiwi} generated
 live ISO images supports this deployment mode.
 
 For copying the ISO file on the USB stick and the setup of the

@@ -1,11 +1,16 @@
 .. _api:
   
-KIWI API
-========
+Python API
+==========
+
+.. note::
+
+   This API documentation covers {kiwi} |version|
 
 .. toctree::
    :maxdepth: 1
 
+   api/kiwi
    api/kiwi.archive
    api/kiwi.boot.image
    api/kiwi.bootloader.config
@@ -22,7 +27,6 @@ KIWI API
    api/kiwi.partitioner
    api/kiwi.repository
    api/kiwi.repository.template
-   api/kiwi
    api/kiwi.solver.repository
    api/kiwi.solver
    api/kiwi.storage

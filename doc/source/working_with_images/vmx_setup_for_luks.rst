@@ -1,7 +1,7 @@
 .. _setup_for_luks:
 
-KIWI Image Description Encrypted Disk
-=====================================
+Image Description Encrypted Disk
+================================
 
 .. sidebar:: Abstract
 
@@ -13,7 +13,7 @@ KIWI Image Description Encrypted Disk
    * :ref:`vmx`
 
 A virtual disk image can be partially or fully encrypted
-using the LUKS extension supported by KIWI. A fully encrypted
+using the LUKS extension supported by {kiwi}. A fully encrypted
 image also includes the data in :file:`/boot` to be encrypted.
 Such an image requests the passphrase for the master key
 to be entered at the bootloader stage. A partialy encrypted
@@ -23,7 +23,7 @@ in the boot process when the root partition gets accessed by
 the systemd mount service. In any case the master passphrase
 is requested only once.
 
-Update the KIWI image description as follows:
+Update the {kiwi} image description as follows:
 
 1. Software packages
 

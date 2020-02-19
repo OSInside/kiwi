@@ -6,7 +6,7 @@ PXE Client Setup Configuration
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   PXE images built with KIWI and references the following
+   PXE images built with {kiwi} and references the following
    articles:
 
    * :ref:`build_pxe`
@@ -83,7 +83,7 @@ write operations on a tmpfs, the following setup is required:
    UNIONFS_CONFIG=tmpfs,nbd,overlay
 
 The above setup shows the most common use case where the image built
-with KIWI is populated over the network using either AoE, NBD or NFS
+with {kiwi} is populated over the network using either AoE, NBD or NFS
 in combination with overlayfs which redirects all write operations
 to be local to the client. In any case a setup of either AoE, NBD or
 NFS on the image server is required beforehand.
@@ -156,7 +156,7 @@ the following setup is required:
 
    CONF="hosts;/etc/hosts;192.168.1.2;4096;ffffffff"
 
-On boot of the client KIWI's boot code will fetch the :file:`hosts` file
+On boot of the client {kiwi}'s boot code will fetch the :file:`hosts` file
 from the root of the server (192.168.1.2) with 4k blocksize and deploy
 it as :file:`/etc/hosts` on the client. The protocol is by default tftp
 but can be changed via the ``kiwiservertype`` kernel commandline option.
@@ -235,11 +235,11 @@ the following setup is required.
 Setup a Different Download Protocol and Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default all downloads controlled by the KIWI linuxrc code are
+By default all downloads controlled by the {kiwi} linuxrc code are
 performed by an atftp call using the TFTP protocol. With PXE the download
 protocol is fixed and thus you cannot change the way how the kernel and
 the boot image (:file:`initrd`) is downloaded. As soon as Linux takes over, the
-download protocols http, https and ftp are supported too. KIWI uses
+download protocols http, https and ftp are supported too. {kiwi} uses
 the curl program to support the additional protocols.
 
 To select one of the additional download protocols the following

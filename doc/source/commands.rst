@@ -1,9 +1,9 @@
-KIWI Commands
-=============
+Command Line
+============
 
 .. note::
 
-   This document provides a list of the existing KIWI commands
+   This document provides a list of the existing {kiwi-product} commands
    for version |version|.
 
 .. toctree::

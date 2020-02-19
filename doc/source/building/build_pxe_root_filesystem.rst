@@ -12,7 +12,7 @@ Build a PXE Root File System Image
 .. sidebar:: Abstract
 
    This page explains how to build a file system image for use with
-   KIWI's PXE boot infrastructure. It contains:
+   {kiwi}'s PXE boot infrastructure. It contains:
 
    * how to build a PXE file system image
    * how to setup the PXE file system image on the PXE server
@@ -22,11 +22,11 @@ Build a PXE Root File System Image
 implementations. The protocol sends a DHCP request to get an IP
 address. When an IP address is assigned, it uses the `TFTP`_ protocol
 to download a Kernel and boot instructions. Contrary to other images
-built with KIWI, a PXE image consists of separate boot, kernel and root
+built with {kiwi}, a PXE image consists of separate boot, kernel and root
 filesystem images, since those images need to be made available in
 different locations on the PXE boot server.
 
-A root filesystem image which can be deployed via KIWI’s PXE
+A root filesystem image which can be deployed via {kiwi}'s PXE
 netboot infrastructure represents the system rootfs in a linux
 filesystem. A user could loop mount the image and access the
 contents of the root filesystem. The image does not contain
@@ -61,14 +61,14 @@ system. As diskless client, a QEMU virtual machine is used.
 
    * The PXE root filesystem image approach is considered to be a
      legacy setup. The required netboot initrd code will be maintained
-     outside of the KIWI appliance builder code base. If possible,
+     outside of the {kiwi} appliance builder code base. If possible,
      we recommend to switch to the OEM disk image deployment via
      PXE.
 
 1. Make sure you have checked out the example image descriptions,
    see :ref:`example-descriptions`.
 
-2. Build the image with KIWI:
+2. Build the image with {kiwi}:
 
    .. code:: bash
 
@@ -128,7 +128,7 @@ system. As diskless client, a QEMU virtual machine is used.
    to find the image and how to activate it. In this case the image
    will be deployed into a ramdisk (ram1) and overlay mounted such
    that all write operations will land in another ramdisk (ram2).
-   KIWI supports a variety of different deployment strategies based
+   {kiwi} supports a variety of different deployment strategies based
    on the rootfs image created beforehand. For details, refer
    to :ref:`pxe_client_config`
 

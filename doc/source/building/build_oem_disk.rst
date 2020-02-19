@@ -23,7 +23,7 @@ system:
 1. Make sure you have checked out the example image descriptions,
    see :ref:`example-descriptions`.
 
-2. Build the image with KIWI:
+2. Build the image with {kiwi}:
 
    .. code:: bash
 
@@ -57,12 +57,12 @@ There are the following basic deployment strategies:
 
 2. :ref:`deploy_from_iso`
 
-   Boot the OEM installation image and let KIWI's OEM installer
+   Boot the OEM installation image and let {kiwi}'s OEM installer
    deploy the OEM disk image from CD/DVD or USB stick onto the target disk
 
 3. :ref:`deploy_from_network`
 
-   PXE boot the target system and let KIWI's OEM installer
+   PXE boot the target system and let {kiwi}'s OEM installer
    deploy the OEM disk image from the network onto the target disk
 
 .. _deploy_manually:
@@ -126,7 +126,7 @@ The following steps shows how to do it:
 
    .. note:: USB Stick Deployment
 
-       Like any other iso image built with KIWI, also the OEM installation
+       Like any other iso image built with {kiwi}, also the OEM installation
        image is a hybrid image. Thus it can also be used on USB stick and
        serve as installation stick image like it is explained in
        :ref:`hybrid_iso`
@@ -206,7 +206,7 @@ target system:
          The config.bootoptions file is used together with kexec to boot the
          previously dumped image. The information in that file references the
          root of the dumped image and can also include any other type of
-         boot options. The file provided with the KIWI built image is
+         boot options. The file provided with the {kiwi} built image is
          by default connected to the image present in the PXE TAR archive.
          If other images got deployed the contents of this file must be
          adapted to match the correct root reference.
@@ -222,12 +222,12 @@ target system:
        append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/{exc_image_base_name}.x86_64-{exc_image_version}.xz
 
    The location of the image is specified as a source URI which can point
-   to any location supported by the `curl` command. KIWI calls `curl` to fetch
+   to any location supported by the `curl` command. {kiwi} calls `curl` to fetch
    the data from this URI. This also means your image, MD5 file, system kernel
    and initrd could be fetched from any server and doesn't have to be stored
    on the `PXE_SERVER`.
 
-   By default KIWI does not use specific `curl` options or flags. However it
+   By default {kiwi} does not use specific `curl` options or flags. However it
    is possible to add custom ones by adding the 
    `rd.kiwi.install.pxe.curl_options` flag into the kernel command line.
    `curl` options are passed as comma separated values. Consider the following
@@ -237,7 +237,7 @@ target system:
 
        rd.kiwi.install.pxe.curl_options=--retry,3,--retry-delay,3,--speed-limit,2048
 
-   The above tells KIWI to call `curl` with:
+   The above tells {kiwi} to call `curl` with:
 
    .. code:: bash
 
@@ -249,7 +249,7 @@ target system:
 
    .. note::
 
-      KIWI just replaces commas with spaces and appends it to the
+      {kiwi} just replaces commas with spaces and appends it to the
       `curl` call. This is relevant since command line options including
       commas will always fail.
 

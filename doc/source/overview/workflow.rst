@@ -23,7 +23,7 @@ system within a file. The image represents an operational system and,
 optionally, contains the "final" configuration.
 
 The behavior of the image upon deployment varies depending on the image type
-and the image configuration since KIWI allows you to completely customize
+and the image configuration since {kiwi} allows you to completely customize
 the initial start-up behavior of the image. Among others, this includes
 images that:
 
@@ -32,7 +32,7 @@ images that:
 * automatically configure themselves in a known target environment.
 * prompt the user for an interactive system configuration.
 
-The image creation process with KIWI is automated and does not require any
+The image creation process with {kiwi} is automated and does not require any
 user interaction. The information required for the image creation process is
 provided by the primary configuration file named :file:`config.xml`.
 This file is validated against the schema documented in
@@ -53,8 +53,8 @@ See :ref:`description_components` section for further details.
 Components of an Image Description
 ----------------------------------
 
-A KIWI image description can composed by several parts. The main part is
-the KIWI description file itself (named :file:`config.xml` or an arbitrary
+A {kiwi} image description can composed by several parts. The main part is
+the {kiwi} description file itself (named :file:`config.xml` or an arbitrary
 name plus the :file:`*.kiwi` extension). The configuration XML is the
 only required component, others are optional.
 

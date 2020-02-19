@@ -5,8 +5,8 @@ Installation
 
 .. note::
 
-   This document describes how to install KIWI. Apart from the preferred
-   method to install KIWI via rpm, it is also available on `pypi
+   This document describes how to install {kiwi}. Apart from the preferred
+   method to install {kiwi} via rpm, it is also available on `pypi
    <https://pypi.org/project/kiwi/>`__ and can be installed via pip.
 
 .. _installation-from-obs:
@@ -14,12 +14,12 @@ Installation
 Installation from OBS
 ---------------------
 
-The most up to date packages of KIWI can be found on the Open Build Service
+The most up to date packages of {kiwi} can be found on the Open Build Service
 in the `Virtualization:Appliances:Builder
 <https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
 project.
 
-To install KIWI, follow these steps:
+To install {kiwi}, follow these steps:
 
 1. Open the URL https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder
    in your browser.
@@ -60,7 +60,7 @@ To install KIWI, follow these steps:
             F7E82012C74FD0B85F5334DC994B195474CBE823
       uid           Virtualization:Appliances OBS Project <Virtualization:Appliances@build.opensuse.org>
 
-5. Install KIWI:
+5. Install {kiwi}:
 
    .. code:: shell-session
 
@@ -72,18 +72,18 @@ Installation from your distribution's repositories
 
 .. note::
 
-   There are many packages that contain the name KIWI in their name, some
+   There are many packages that contain the name {kiwi} in their name, some
    of these are even python packages. Please double check the packages'
-   description whether it is actually the KIWI Appliance builder before
+   description whether it is actually the {kiwi} Appliance builder before
    installing it.
 
 
-Some Linux distributions ship KIWI in their official repositories. These
+Some Linux distributions ship {kiwi} in their official repositories. These
 include openSUSE Tumbleweed, openSUSE Leap, and Fedora since
 version 28. Note, these packages tend to not be as up to date as the
 packages from OBS, so some features described here might not exist yet.
 
-To install KIWI on openSUSE, run the following command:
+To install {kiwi} on openSUSE, run the following command:
 
 .. code:: shell-session
 
@@ -99,7 +99,7 @@ On Fedora, use the following command instead:
 Installation from PyPI
 ----------------------
 
-KIWI can be obtained from the Python Package Index (PyPi) via Python's
+{kiwi} can be obtained from the Python Package Index (PyPi) via Python's
 package manager pip:
 
 .. code:: shell-session
@@ -113,7 +113,7 @@ Example Appliance Descriptions
 ------------------------------
 
 There is a GitHub project hosting example appliance descriptions to be used
-with the next generation KIWI. Users who need an example to start with
+with the next generation {kiwi}. Users who need an example to start with
 should clone the project as follows:
 
 .. code:: shell-session

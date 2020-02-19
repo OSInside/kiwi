@@ -3,12 +3,12 @@
 The Runtime Configuration File
 ------------------------------
 
-KIWI supports an additional configuration file for runtime specific
+{kiwi} supports an additional configuration file for runtime specific
 settings that do not belong into the image description but which are
 persistent and would be unsuitable for command line parameters.
 
 The runtime configuration file must adhere to the `YAML
-<https://yaml.org/>`_ syntax. KIWI searches for the runtime configuration
+<https://yaml.org/>`_ syntax. {kiwi} searches for the runtime configuration
 file in the following locations:
 
 1. :file:`~/.config/kiwi/config.yml`

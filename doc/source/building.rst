@@ -5,8 +5,8 @@ Building Images
 
 .. note::
 
-   This document provides an overview about the supported KIWI image
-   types. Before building an image with KIWI it's important to understand
+   This document provides an overview about the supported {kiwi} image
+   types. Before building an image with {kiwi} it's important to understand
    the different image types and their meaning.
 
 .. toctree::
@@ -42,7 +42,7 @@ OEM Expandable Disk Image
   can be created in addition.
 
 PXE root File System Image
-  A root filesystem image which can be deployed via KIWI's PXE netboot
+  A root filesystem image which can be deployed via {kiwi}'s PXE netboot
   infrastructure. A client configuration file on the pxe server controls
   how the root filesystem image should be deployed. Many different
   deployment strategies are possible, e.g root over NBD, AoE or NFS for
@@ -58,9 +58,9 @@ Docker Container Image
 Supported Distributions
 -----------------------
 
-KIWI can build images for the distributions which are **equal** or **newer**
+{kiwi} can build images for the distributions which are **equal** or **newer**
 compared to the table below. For anything older use the
-legacy KIWI version *v7.x* For more details on the legacy KIWI,
+legacy {kiwi} version *v7.x* For more details on the legacy {kiwi},
 see: :ref:`legacy_kiwi`
 
 The most compatible environment is provided if the build host is of the same
@@ -95,11 +95,11 @@ is known to be supported.
 .. admonition:: dnf
 
    dnf is the package manager used on Fedora and RHEL and is
-   the successor of yum. When KIWI builds images for this distributions
+   the successor of yum. When {kiwi} builds images for this distributions
    the latest version of dnf is required to be installed on the host to
    build the image.
 
-In general, our goal is to support any major distribution with KIWI. However
+In general, our goal is to support any major distribution with {kiwi}. However
 for building images we rely on core tools which are not under our control.
 Also several design aspects of distributions like **secure boot** and working
 with **upstream projects** are different and not influenced by us. There
@@ -109,10 +109,10 @@ is not of the same distribution vendor than the image target.
 Supported Platforms and Architectures
 -------------------------------------
 
-Images built with KIWI are designed for a specific use case. The author of
-the image description sets this with the contents in the KIWI XML document
+Images built with {kiwi} are designed for a specific use case. The author of
+the image description sets this with the contents in the {kiwi} XML document
 as well as custom scripts and services. The following list provides an
-abstract of the platforms where KIWI built images are productively used:
+abstract of the platforms where {kiwi} built images are productively used:
 
 * Amazon EC2
 * Microsoft Azure
@@ -121,7 +121,7 @@ abstract of the platforms where KIWI built images are productively used:
 * Bare metal deployments e.g Microsoft Azure Large Instance
 * SAP workloads
 
-The majority of the workloads is based on the x86 architecture. KIWI
+The majority of the workloads is based on the x86 architecture. {kiwi}
 also supports other architectures, shown in the table below:
 
 .. table::
@@ -145,4 +145,4 @@ also supports other architectures, shown in the table below:
 
    The support status for an architecture depends on the distribution.
    If the distribution does not build its packages for the desired
-   architecture, KIWI will not be able to build an image for it
+   architecture, {kiwi} will not be able to build an image for it

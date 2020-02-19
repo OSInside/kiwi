@@ -1,12 +1,12 @@
 .. _setup_for_azure:
 
-KIWI Image Description for Microsoft Azure
-==========================================
+Image Description for Microsoft Azure
+=====================================
 
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images built with KIWI and references the following
+   vmx images built with {kiwi} and references the following
    articles:
 
    * :ref:`vmx`
@@ -19,7 +19,7 @@ cloud framework has to comply the following constraints:
 * Disk size must be set to 30G
 * Kernel parameters must allow for serial console
 
-To meet this requirements update the KIWI image
+To meet this requirements update the {kiwi} image
 description as follows:
 
 1. Software packages

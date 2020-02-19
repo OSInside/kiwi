@@ -1,12 +1,12 @@
 .. _setup_for_ec2:
 
-KIWI Image Description for Amazon EC2
-=====================================
+Image Description for Amazon EC2
+================================
 
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images built with KIWI and references the following
+   vmx images built with {kiwi} and references the following
    articles:
 
    * :ref:`vmx`
@@ -22,7 +22,7 @@ cloud framework has to comply the following constraints:
 * Disk size must be set to 10G
 * Kernel parameters must allow for xen console
 
-To meet this requirements add or update the KIWI image
+To meet this requirements add or update the {kiwi} image
 description as follows:
 
 1. Software packages
@@ -66,7 +66,7 @@ description as follows:
    to customize the system by activating one ore more cloud init
    modules. For Amazon EC2 the following configuration file
    :file:`/etc/cloud/cloud.cfg` needs to be provided as part of the
-   overlay files in your KIWI image description
+   overlay files in your {kiwi} image description
 
    .. code:: yaml
 

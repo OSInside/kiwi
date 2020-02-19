@@ -1,10 +1,10 @@
-Working with KIWI
-=================
+Concept and Workflow
+====================
 
 .. note:: **Abstract**
 
-   The following sections describe the general workflow of building
-   appliances with KIWI |version|.
+   The following sections describe the concept and general workflow
+   of building appliances with {kiwi} |version|.
 
 .. toctree::
    :maxdepth: 1
@@ -19,7 +19,7 @@ Working with KIWI
 Overview
 --------
 
-KIWI builds so-called *system images* (a fully installed and optionally
+{kiwi} builds so-called *system images* (a fully installed and optionally
 configured system in a single file) of a Linux distribution in two steps (for
 further details, see :ref:`working-with-kiwi-image-building-process`):
 
@@ -31,7 +31,7 @@ further details, see :ref:`working-with-kiwi-image-building-process`):
    into the format required for the final usage (e.g. a ``qcow2`` disk
    image to launch the image with QEMU).
 
-KIWI executes these steps using the following components, which it expects
+{kiwi} executes these steps using the following components, which it expects
 to find in the *description directory*:
 
 #. :file:`config.xml`: :ref:`xml-description`
@@ -42,7 +42,7 @@ to find in the *description directory*:
 
    The filename :file:`config.xml` is not mandatory, the image description
    file can also have an arbitrary name plus the :file:`*.kiwi` extension.
-   KIWI first looks for a :file:`config.xml` file. If it cannot be found,
+   {kiwi} first looks for a :file:`config.xml` file. If it cannot be found,
    it picks the first :file:`*.kiwi` file.
 
 #. :file:`config.sh` and :file:`images.sh`:
@@ -92,7 +92,7 @@ to find in the *description directory*:
 Image Building Process
 ----------------------
 
-KIWI creates images in a two step process: The first step, the *prepare*
+{kiwi} creates images in a two step process: The first step, the *prepare*
 operation, generates a so-called *unpacked image tree* (directory) using
 the information provided in the :file:`config.xml` configuration file
 (see :ref:`xml-description`)
@@ -113,24 +113,24 @@ information provided in the :file:`config.xml` configuration file.
 The Prepare Step
 ^^^^^^^^^^^^^^^^
 
-As the first step, KIWI creates an *unpackaged image tree*, also called "root tree". This
+As the first step, {kiwi} creates an *unpackaged image tree*, also called "root tree". This
 directory will be the installation target for software packages to be
 installed during the image creation process.
 
-For the package installation, KIWI relies on the package manager specified
-in the ``packagemanager`` element in :file:`config.xml`. KIWI supports the
+For the package installation, {kiwi} relies on the package manager specified
+in the ``packagemanager`` element in :file:`config.xml`. {kiwi} supports the
 following package managers: ``dnf``, ``zypper`` (default) and ``apt-get``.
 
 The prepare step consists of the following substeps:
 
 #. **Create Target Root Directory**
 
-   KIWI aborts with an error if the target root tree already exists to
+   {kiwi} aborts with an error if the target root tree already exists to
    avoid accidental deletion of an existing unpacked image.
 
 #. **Install Packages**
 
-   First, KIWI configures the package manager to use the repositories
+   First, {kiwi} configures the package manager to use the repositories
    specified in the configuration file, via the command line, or
    both. After the repository setup, the packages specified in the
    ``bootstrap`` section of the image description are installed in a
@@ -153,7 +153,7 @@ The prepare step consists of the following substeps:
 
 #. **Apply the Overlay Tree**
 
-   Next, KIWI applies all files and directories present in the overlay
+   Next, {kiwi} applies all files and directories present in the overlay
    directory named :file:`root` or in the compressed overlay
    :file:`root.tar.gz` to the target root tree. Files already present in
    the target root directory are overwritten. This allows you to
@@ -189,10 +189,10 @@ The prepare step consists of the following substeps:
    root (:command:`chroot`)" into it, for instance to invoke the package
    manager. Beside the standard file system layout, the unpacked image tree
    contains an additional directory named :file:`/image` that is not
-   present in a regular system. It contains information KIWI requires
+   present in a regular system. It contains information {kiwi} requires
    during the create step, including a copy of the :file:`config.xml` file.
 
-   By default, KIWI will not stop after the *prepare step* and will
+   By default, {kiwi} will not stop after the *prepare step* and will
    directly proceed with the *create step*. Therfore to perform manual
    modifications, proceed as follows:
 
@@ -217,7 +217,7 @@ The prepare step consists of the following substeps:
 The Create Step
 ^^^^^^^^^^^^^^^
 
-KIWI creates the final image during the *create step*: it converts the
+{kiwi} creates the final image during the *create step*: it converts the
 unpacked root tree into one or multiple output files appropriate for the
 respective build type.
 
@@ -226,7 +226,7 @@ root tree, for example, a self installing OEM
 image and a virtual machine image from the same image description. The only
 prerequisite is that both image types are specified in :file:`config.xml`.
 
-During the *create step* the following operations are performed by KIWI:
+During the *create step* the following operations are performed by {kiwi}:
 
 #. **Execute the User-defined Script** :file:`images.sh`
 
@@ -241,5 +241,5 @@ During the *create step* the following operations are performed by KIWI:
 
 #. **Create the Requested Image Type**
 
-   KIWI converts the unpacked root into an output format appropriate for
+   {kiwi} converts the unpacked root into an output format appropriate for
    the requested build type.
