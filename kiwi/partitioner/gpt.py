@@ -45,7 +45,8 @@ class PartitionerGpt(PartitionerBase):
             't.swap': '8200',
             't.lvm': '8E00',
             't.raid': 'FD00',
-            't.efi': 'EF00'
+            't.efi': 'EF00',
+            't.prep': '4100'
         }
 
     def create(self, name, mbsize, type_name, flags=None):
