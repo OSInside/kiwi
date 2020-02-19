@@ -70,10 +70,7 @@ class FirmWare:
             else:
                 return 'msdos'
         elif 'ppc64' in self.arch:
-            if self.opal_mode():
-                return 'gpt'
-            else:
-                return 'msdos'
+            return 'gpt'
         elif self.efi_mode():
             default_efi_table = Defaults.get_default_efi_partition_table_type()
             return self.efi_partition_table or default_efi_table
