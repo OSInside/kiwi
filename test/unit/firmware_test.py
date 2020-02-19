@@ -70,7 +70,7 @@ class TestFirmWare:
         assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'
 
     def test_get_partition_table_type_ppc_ofw_mode(self):
-        assert self.firmware_ofw.get_partition_table_type() == 'msdos'
+        assert self.firmware_ofw.get_partition_table_type() == 'gpt'
 
     def test_get_partition_table_type_ppc_opal_mode(self):
         assert self.firmware_opal.get_partition_table_type() == 'gpt'
@@ -97,9 +97,11 @@ class TestFirmWare:
 
     def test_ofw_mode(self):
         assert self.firmware_ofw.ofw_mode() is True
+        assert self.firmware_bios.ofw_mode() is False
 
     def test_opal_mode(self):
         assert self.firmware_opal.opal_mode() is True
+        assert self.firmware_bios.opal_mode() is False
 
     def test_get_legacy_bios_partition_size(self):
         assert self.firmware_bios.get_legacy_bios_partition_size() == 0
