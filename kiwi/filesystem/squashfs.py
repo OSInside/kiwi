@@ -37,19 +37,28 @@ class FileSystemSquashFs(FileSystemBase):
         :param list exclude: list of exclude dirs/files
         """
         exclude_options = []
+        compression = self.custom_args.get('compression')
+        if compression is None or compression == 'xz':
+            if '-comp' not in self.custom_args['create_options']:
+                self.custom_args['create_options'].append('-comp')
+                self.custom_args['create_options'].append('xz')
 
-        if '-comp' not in self.custom_args['create_options']:
-            self.custom_args['create_options'].append('-comp')
-            self.custom_args['create_options'].append('xz')
-
-        if '-Xbcj' not in self.custom_args['create_options']:
-            host_architecture = platform.machine()
-            if '86' in host_architecture:
-                self.custom_args['create_options'].append('-Xbcj')
-                self.custom_args['create_options'].append('x86')
-            if 'ppc' in host_architecture:
-                self.custom_args['create_options'].append('-Xbcj')
-                self.custom_args['create_options'].append('powerpc')
+            if '-Xbcj' not in self.custom_args['create_options']:
+                host_architecture = platform.machine()
+                if '86' in host_architecture:
+                    self.custom_args['create_options'].append('-Xbcj')
+                    self.custom_args['create_options'].append('x86')
+                if 'ppc' in host_architecture:
+                    self.custom_args['create_options'].append('-Xbcj')
+                    self.custom_args['create_options'].append('powerpc')
+        elif compression != 'uncompressed':
+            if '-comp' not in self.custom_args['create_options']:
+                self.custom_args['create_options'].append('-comp')
+                self.custom_args['create_options'].append(compression)
+        else:
+            for flag in ['-noI', '-noD', '-noF', '-noX']:
+                if flag not in self.custom_args['create_options']:
+                    self.custom_args['create_options'].append(flag)
 
         if exclude:
             exclude_options.extend(['-wildcards', '-e'])

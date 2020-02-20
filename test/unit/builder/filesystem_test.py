@@ -51,6 +51,10 @@ class TestFileSystemBuilder:
             return_value=4096
         )
 
+        self.xml_state.build_type.get_squashfscompression = Mock(
+            return_value='gzip'
+        )
+
         self.fs_setup = Mock()
         self.fs_setup.get_size_mbytes = Mock(
             return_value=42
@@ -139,7 +143,8 @@ class TestFileSystemBuilder:
         mock_fs.assert_called_once_with(
             'squashfs', provider, 'root_dir', {
                 'mount_options': ['async'],
-                'create_options': ['-O', 'option']
+                'create_options': ['-O', 'option'],
+                'compression': 'gzip'
             }
         )
         self.filesystem.create_on_file.assert_called_once_with(

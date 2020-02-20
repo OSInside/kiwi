@@ -254,7 +254,11 @@ class LiveImageBuilder:
         live_container_image = FileSystem(
             name='squashfs',
             device_provider=None,
-            root_dir=self.live_container_dir
+            root_dir=self.live_container_dir,
+            custom_args={
+                'compression':
+                    self.xml_state.build_type.get_squashfscompression()
+            }
         )
         container_image = NamedTemporaryFile()
         live_container_image.create_on_file(
