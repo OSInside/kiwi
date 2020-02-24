@@ -29,12 +29,12 @@ class TestRootBind:
         self.bind_root = RootBind(root)
 
         # stub config files and bind locations
-        self.bind_root.config_files = ['/foo']
+        self.bind_root.config_files = ['/etc/sysconfig/proxy']
         self.bind_root.bind_locations = ['/proc']
 
         # stub files/dirs and mountpoints to cleanup
         self.mount_manager = Mock()
-        self.bind_root.cleanup_files = ['/foo.kiwi']
+        self.bind_root.cleanup_files = ['/etc/sysconfig/proxy.kiwi']
         self.bind_root.mount_stack = [self.mount_manager]
         self.bind_root.dir_stack = ['/mountpoint']
 
@@ -122,15 +122,15 @@ class TestRootBind:
         with patch('builtins.open') as m_open:
             self.bind_root.setup_intermediate_config()
             m_open.assert_called_once_with(
-                'root-dir/foo.sha', 'w'
+                'root-dir/etc/sysconfig/proxy.sha', 'w'
             )
 
         assert mock_command.call_args_list == [
             call([
-                'cp', '/foo', 'root-dir/foo.kiwi'
+                'cp', '/etc/sysconfig/proxy', 'root-dir/etc/sysconfig/proxy.kiwi'
             ]),
             call([
-                'ln', '-s', '-f', 'foo.kiwi', 'root-dir/foo'
+                'ln', '-s', '-f', 'proxy.kiwi', 'root-dir/etc/sysconfig/proxy'
             ])
         ]
         checksum.sha256.assert_called_once_with()
@@ -150,7 +150,7 @@ class TestRootBind:
         checksum = Mock()
         checksum.matches.return_value = False
         mock_Checksum.return_value = checksum
-        os_exists_return_values = [False, True]
+        os_exists_return_values = [False, True, True, False]
 
         def exists_side_effect(*args):
             return os_exists_return_values.pop()
@@ -162,14 +162,25 @@ class TestRootBind:
             self.bind_root.cleanup()
             self.mount_manager.umount_lazy.assert_called_once_with()
             mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
-            mock_command.assert_called_once_with(
-                [
-                    'rm', '-f', 'root-dir/foo.kiwi',
-                    'root-dir/foo.sha', 'root-dir/foo'
-                ]
-            )
+            assert mock_command.call_args_list == [
+                call(['rm', '-f', 'root-dir/etc/sysconfig/proxy']),
+                call(
+                    [
+                        'cp',
+                        'root-dir/usr/share/fillup-templates/sysconfig.proxy',
+                        'root-dir/etc/sysconfig/proxy'
+                    ]
+                ),
+                call(
+                    [
+                        'rm', '-f', 'root-dir/etc/sysconfig/proxy.kiwi',
+                        'root-dir/etc/sysconfig/proxy.sha'
+                    ]
+                )
+            ]
             mock_move.assert_called_once_with(
-                'root-dir/foo.rpmnew', 'root-dir/foo'
+                'root-dir/etc/sysconfig/proxy.rpmnew',
+                'root-dir/etc/sysconfig/proxy'
             )
 
     @patch('os.path.islink')
@@ -190,7 +201,7 @@ class TestRootBind:
                 self._caplog.text
             assert 'Failed to remove directory hierarchy '
             'root-dir/mountpoint: rm' in self._caplog.text
-            assert 'Failed to remove intermediate config files' in \
+            assert 'Failed to cleanup intermediate config files' in \
                 self._caplog.text
 
     @patch('kiwi.command.Command.run')
