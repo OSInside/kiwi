@@ -180,7 +180,9 @@ config = {
     'description': 'KIWI - Appliance Builder (next generation)',
     'author': 'Marcus Schaefer',
     'url': 'https://osinside.github.io/kiwi',
-    'download_url': 'https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder',
+    'download_url':
+        'https://download.opensuse.org/repositories/'
+        'Virtualization:/Appliances:/Builder',
     'author_email': 'ms@suse.com',
     'version': __version__,
     'license' : 'GPLv3+',
@@ -199,6 +201,16 @@ config = {
         'clean': clean
     },
     'entry_points': {
+        'kiwi.tasks': [
+            'image_info=kiwi.tasks.image_info',
+            'image_resize=kiwi.tasks.image_resize',
+            'result_bundle=kiwi.tasks.result_bundle',
+            'result_list=kiwi.tasks.result_list',
+            'system_build=kiwi.tasks.system_build',
+            'system_create=kiwi.tasks.system_create',
+            'system_prepare=kiwi.tasks.system_prepare',
+            'system_update=kiwi.tasks.system_update'
+        ],
         'console_scripts': [
             'kiwi-ng=kiwi.kiwi:main',
             'kiwicompat=kiwi.kiwi_compat:main'
@@ -210,7 +222,8 @@ config = {
        # classifier: http://pypi.python.org/pypi?%3Aaction=list_classifiers
        'Development Status :: 5 - Production/Stable',
        'Intended Audience :: Developers',
-       'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+       'License :: OSI Approved :: '
+       'GNU General Public License v3 or later (GPLv3+)',
        'Operating System :: POSIX :: Linux',
        'Programming Language :: Python :: 3.6',
        'Programming Language :: Python :: 3.7',
