@@ -150,6 +150,10 @@ class TestInstallImageBuilder:
             call('IMAGE="result-image.raw"\n'),
             call('IMAGE="result-image.raw"\n')
         ]
+        kiwi.builder.install.FileSystemSquashFs.assert_called_once_with(
+            custom_args={'compression': mock.ANY},
+            device_provider=None, root_dir='temp-squashfs'
+        )
         self.squashed_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.raw.squashfs'
         )

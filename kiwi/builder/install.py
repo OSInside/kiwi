@@ -181,7 +181,8 @@ class InstallImageBuilder:
             device_provider=None,
             root_dir=self.squashed_contents,
             custom_args={
-                'create_options': self.xml_state.get_fs_create_option_list()
+                'compression':
+                    self.xml_state.build_type.get_squashfscompression()
             }
         )
         squashed_image.create_on_file(squashed_image_file)

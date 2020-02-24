@@ -435,7 +435,11 @@ class DiskBuilder:
         if self.root_filesystem_is_overlay:
             squashed_root_file = NamedTemporaryFile()
             squashed_root = FileSystemSquashFs(
-                device_provider=None, root_dir=self.root_dir
+                device_provider=None, root_dir=self.root_dir,
+                custom_args={
+                    'compression':
+                        self.xml_state.build_type.get_squashfscompression()
+                }
             )
             squashed_root.create_on_file(
                 filename=squashed_root_file.name,
@@ -748,7 +752,11 @@ class DiskBuilder:
             log.info('--> creating readonly root partition')
             squashed_root_file = NamedTemporaryFile()
             squashed_root = FileSystemSquashFs(
-                device_provider=None, root_dir=self.root_dir
+                device_provider=None, root_dir=self.root_dir,
+                custom_args={
+                    'compression':
+                        self.xml_state.build_type.get_squashfscompression()
+                }
             )
             squashed_root.create_on_file(
                 filename=squashed_root_file.name,

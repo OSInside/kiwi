@@ -539,8 +539,13 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         assert mock_squashfs.call_args_list == [
-            call(device_provider=None, root_dir='root_dir'),
-            call(device_provider=None, root_dir='root_dir')
+            call(
+                custom_args={'compression': None},
+                device_provider=None, root_dir='root_dir'
+            ), call(
+                custom_args={'compression': None},
+                device_provider=None, root_dir='root_dir'
+            )
         ]
         assert squashfs.create_on_file.call_args_list == [
             call(exclude=['var/cache/kiwi'], filename='tempname'),

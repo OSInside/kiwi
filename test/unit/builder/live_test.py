@@ -86,6 +86,9 @@ class TestLiveImageBuilder:
         self.xml_state.build_type.get_flags = mock.Mock(
             return_value=None
         )
+        self.xml_state.build_type.get_squashfscompression = mock.Mock(
+            return_value='lzo'
+        )
         self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
@@ -187,7 +190,8 @@ class TestLiveImageBuilder:
             ),
             call(
                 device_provider=None, name='squashfs',
-                root_dir='temp-squashfs'
+                root_dir='temp-squashfs',
+                custom_args={'compression': 'lzo'}
             )
         ]
 
