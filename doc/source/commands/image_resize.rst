@@ -1,7 +1,7 @@
 .. _db_kiwi_image_resize:
 
-kiwi image resize
-=================
+kiwi-ng image resize
+====================
 
 .. _db_kiwi_image_resize_synopsis:
 
@@ -10,12 +10,12 @@ SYNOPSIS
 
 .. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi image resize -h | --help
-   kiwi image resize --target-dir=<directory> --size=<size>
+   kiwi-ng image resize -h | --help
+   kiwi-ng image resize --target-dir=<directory> --size=<size>
        [--root=<directory>]
-   kiwi image resize help
+   kiwi-ng image resize help
 
 .. _db_kiwi_image_resize_desc:
 
