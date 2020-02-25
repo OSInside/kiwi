@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi result list -h | --help
-       kiwi result list --target-dir=<directory>
-       kiwi result list help
+usage: kiwi-ng result list -h | --help
+       kiwi-ng result list --target-dir=<directory>
+       kiwi-ng result list help
 
 commands:
     list

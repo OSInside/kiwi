@@ -1,5 +1,5 @@
-kiwi system build
-=================
+kiwi-ng system build
+====================
 
 .. _db_kiwi_system_build_synopsis:
 
@@ -8,10 +8,10 @@ SYNOPSIS
 
 .. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi system build -h | --help
-   kiwi system build --description=<directory> --target-dir=<directory>
+   kiwi-ng system build -h | --help
+   kiwi-ng system build --description=<directory> --target-dir=<directory>
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
@@ -22,7 +22,7 @@ SYNOPSIS
        [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
-   kiwi system build help
+   kiwi-ng system build help
 
 .. _db_kiwi_system_build_desc:
 

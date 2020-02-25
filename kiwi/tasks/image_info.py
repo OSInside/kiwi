@@ -16,12 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi image info -h | --help
-       kiwi image info --description=<directory>
+usage: kiwi-ng image info -h | --help
+       kiwi-ng image info --description=<directory>
            [--resolve-package-list]
            [--ignore-repos]
            [--add-repo=<source,type,alias,priority>...]
-       kiwi image info help
+       kiwi-ng image info help
 
 commands:
     info

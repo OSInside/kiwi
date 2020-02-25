@@ -1,5 +1,5 @@
-kiwi system create
-==================
+kiwi-ng system create
+=====================
 
 .. _db_kiwi_system_create_synopsis:
 
@@ -8,12 +8,12 @@ SYNOPSIS
 
 .. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi system create -h | --help
-   kiwi system create --root=<directory> --target-dir=<directory>
+   kiwi-ng system create -h | --help
+   kiwi-ng system create --root=<directory> --target-dir=<directory>
        [--signing-key=<key-file>...]
-   kiwi system create help
+   kiwi-ng system create help
 
 .. _db_kiwi_system_create_desc:
 

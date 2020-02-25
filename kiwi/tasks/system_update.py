@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system update -h | --help
-       kiwi system update --root=<directory>
+usage: kiwi-ng system update -h | --help
+       kiwi-ng system update --root=<directory>
            [--add-package=<name>...]
            [--delete-package=<name>...]
-       kiwi system update help
+       kiwi-ng system update help
 
 commands:
     update

@@ -1,5 +1,5 @@
-kiwi
-====
+kiwi-ng
+=======
 
 .. _db_commands_kiwi_synopsis:
 
@@ -8,28 +8,28 @@ SYNOPSIS
 
 .. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi -h | --help
-   kiwi [--profile=<name>...]
-        [--type=<build_type>]
-        [--logfile=<filename>]
-        [--debug]
-        [--color-output]
+   kiwi-ng -h | --help
+   kiwi-ng [--profile=<name>...]
+           [--type=<build_type>]
+           [--logfile=<filename>]
+           [--debug]
+           [--color-output]
        image <command> [<args>...]
-   kiwi [--debug]
+   kiwi-ng [--debug]
            [--color-output]
        result <command> [<args>...]
-   kiwi [--profile=<name>...]
+   kiwi-ng [--profile=<name>...]
            [--shared-cache-dir=<directory>]
            [--type=<build_type>]
            [--logfile=<filename>]
            [--debug]
            [--color-output]
        system <command> [<args>...]
-   kiwi compat <legacy_args>...
-   kiwi -v | --version
-   kiwi help
+   kiwi-ng compat <legacy_args>...
+   kiwi-ng -v | --version
+   kiwi-ng help
 
 .. _db_commands_kiwi_desc:
 

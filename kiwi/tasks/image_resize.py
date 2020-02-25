@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi image resize -h | --help
-       kiwi image resize --target-dir=<directory> --size=<size>
+usage: kiwi-ng image resize -h | --help
+       kiwi-ng image resize --target-dir=<directory> --size=<size>
            [--root=<directory>]
-       kiwi image resize help
+       kiwi-ng image resize help
 
 commands:
     resize

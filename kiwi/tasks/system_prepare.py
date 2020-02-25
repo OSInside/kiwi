@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system prepare -h | --help
-       kiwi system prepare --description=<directory> --root=<directory>
+usage: kiwi-ng system prepare -h | --help
+       kiwi-ng system prepare --description=<directory> --root=<directory>
            [--allow-existing-root]
            [--clear-cache]
            [--ignore-repos]
@@ -31,7 +31,7 @@ usage: kiwi system prepare -h | --help
            [--set-container-tag=<name>]
            [--add-container-label=<label>...]
            [--signing-key=<key-file>...]
-       kiwi system prepare help
+       kiwi-ng system prepare help
 
 commands:
     prepare

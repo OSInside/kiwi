@@ -1,5 +1,5 @@
-kiwi result bundle
-==================
+kiwi-ng result bundle
+=====================
 
 .. _db_kiwi_result_bundle_synopsis:
 
@@ -8,12 +8,12 @@ SYNOPSIS
 
 .. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi result bundle -h | --help
-   kiwi result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+   kiwi-ng result bundle -h | --help
+   kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
        [--zsync_source=<download_location>]
-   kiwi result bundle help
+   kiwi-ng result bundle help
 
 .. _db_kiwi_result_bundle_desc:
 
