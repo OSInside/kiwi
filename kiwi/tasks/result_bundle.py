@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi result bundle -h | --help
-       kiwi result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+usage: kiwi-ng result bundle -h | --help
+       kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
            [--zsync-source=<download_location>]
-       kiwi result bundle help
+       kiwi-ng result bundle help
 
 commands:
     bundle

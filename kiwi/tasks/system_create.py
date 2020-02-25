@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system create -h | --help
-       kiwi system create --root=<directory> --target-dir=<directory>
+usage: kiwi-ng system create -h | --help
+       kiwi-ng system create --root=<directory> --target-dir=<directory>
            [--signing-key=<key-file>...]
-       kiwi system create help
+       kiwi-ng system create help
 
 commands:
     create

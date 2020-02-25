@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system build -h | --help
-       kiwi system build --description=<directory> --target-dir=<directory>
+usage: kiwi-ng system build -h | --help
+       kiwi-ng system build --description=<directory> --target-dir=<directory>
            [--allow-existing-root]
            [--clear-cache]
            [--ignore-repos]
@@ -31,7 +31,7 @@ usage: kiwi system build -h | --help
            [--set-container-tag=<name>]
            [--add-container-label=<label>...]
            [--signing-key=<key-file>...]
-       kiwi system build help
+       kiwi-ng system build help
 
 commands:
     build

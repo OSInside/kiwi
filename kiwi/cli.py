@@ -16,27 +16,27 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi -h | --help
-       kiwi [--profile=<name>...]
-            [--type=<build_type>]
-            [--logfile=<filename>]
-            [--debug]
-            [--color-output]
+usage: kiwi-ng -h | --help
+       kiwi-ng [--profile=<name>...]
+               [--type=<build_type>]
+               [--logfile=<filename>]
+               [--debug]
+               [--color-output]
            image <command> [<args>...]
-       kiwi [--debug]
-            [--color-output]
+       kiwi-ng [--debug]
+               [--color-output]
            result <command> [<args>...]
-       kiwi [--profile=<name>...]
-            [--shared-cache-dir=<directory>]
-            [--type=<build_type>]
-            [--logfile=<filename>]
-            [--debug]
-            [--color-output]
+       kiwi-ng [--profile=<name>...]
+               [--shared-cache-dir=<directory>]
+               [--type=<build_type>]
+               [--logfile=<filename>]
+               [--debug]
+               [--color-output]
            system <command> [<args>...]
-       kiwi compat <legacy_args>...
-       kiwi --compat <legacy_args>...
-       kiwi -v | --version
-       kiwi help
+       kiwi-ng compat <legacy_args>...
+       kiwi-ng --compat <legacy_args>...
+       kiwi-ng -v | --version
+       kiwi-ng help
 
 global options:
     --color-output
