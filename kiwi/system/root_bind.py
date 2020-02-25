@@ -210,19 +210,48 @@ class RootBind:
 
         # delete stale symlinks if there are any. normally the package
         # installation process should have replaced the symlinks with
-        # real files from the packages
-        for config in self.config_files:
-            if os.path.islink(self.root_dir + config):
-                config_files_to_delete.append(self.root_dir + config)
-
+        # real files from the packages. On deletion check for the
+        # presence of a config file template and restore it
         try:
+            for config in self.config_files:
+                config_file = self.root_dir + config
+                if os.path.islink(config_file):
+                    Command.run(['rm', '-f', config_file])
+                    self._restore_config_template(config_file)
+
             Command.run(['rm', '-f'] + config_files_to_delete)
-        except Exception as e:
+        except Exception as issue:
             log.warning(
-                'Failed to remove intermediate config files: %s', format(e)
+                'Failed to cleanup intermediate config files: {0}'.format(issue)
             )
 
         self._restore_intermediate_config_rpmnew_variants()
+
+    def _restore_config_template(self, config_file):
+        """
+        Systems that use configuration templates and a tool to
+        manage them might have skipped their call due to the
+        presence of intermediate host config files in the new
+        root tree. In this case if no custom file was provided
+        the template file is used to restore the system standard
+        configuration file
+        """
+        template_map = {
+            self.root_dir + '/etc/sysconfig/proxy': 'sysconfig.proxy'
+        }
+        template_dirs = [
+            self.root_dir + '/var/adm/fillup-templates',
+            self.root_dir + '/usr/share/fillup-templates'
+        ]
+        if template_map.get(config_file):
+            for template_dir in template_dirs:
+                template_file = os.sep.join(
+                    [template_dir, template_map.get(config_file)]
+                )
+                if os.path.exists(template_file):
+                    Command.run(
+                        ['cp', template_file, config_file]
+                    )
 
     def _restore_intermediate_config_rpmnew_variants(self):
         """

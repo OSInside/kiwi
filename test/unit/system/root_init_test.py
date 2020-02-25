@@ -28,9 +28,9 @@ class TestRootInit:
     @patch('shutil.rmtree')
     @patch('kiwi.system.root_init.DataSync')
     @patch('kiwi.system.root_init.mkdtemp')
-    @patch('kiwi.system.root_init.Command.run')
+    @patch('kiwi.system.root_init.Path.create')
     def test_create_raises_error(
-        self, mock_command, mock_temp, mock_data_sync, mock_rmtree,
+        self, mock_Path_create, mock_temp, mock_data_sync, mock_rmtree,
         mock_symlink, mock_chwon, mock_makedirs, mock_path
     ):
         mock_path.return_value = False
@@ -50,17 +50,19 @@ class TestRootInit:
     @patch('kiwi.system.root_init.rmtree')
     @patch('kiwi.system.root_init.DataSync')
     @patch('kiwi.system.root_init.mkdtemp')
-    @patch('kiwi.system.root_init.Command.run')
+    @patch('kiwi.system.root_init.Path.create')
     def test_create(
-        self, mock_command, mock_temp, mock_data_sync, mock_rmtree, mock_copy,
-        mock_create, mock_makedev, mock_symlink, mock_chwon, mock_makedirs,
+        self, mock_Path_create, mock_temp, mock_data_sync,
+        mock_rmtree, mock_copy, mock_create, mock_makedev,
+        mock_symlink, mock_chwon, mock_makedirs,
         mock_path
     ):
         data_sync = Mock()
         mock_data_sync.return_value = data_sync
         mock_makedev.return_value = 'makedev'
         mock_path_return = [
-            True, True, True, True, False, False, False, False, False, False, False
+            True, True, True, True, False, False,
+            False, False, False, False, False
         ]
 
         def path_exists(self):
@@ -96,23 +98,6 @@ class TestRootInit:
             call('fd/0', 'tmpdir/dev/stdin'),
             call('fd/1', 'tmpdir/dev/stdout'),
             call('/run', 'tmpdir/var/run')
-        ]
-        assert mock_command.call_args_list == [
-            call([
-                'cp',
-                '/var/adm/fillup-templates/group.aaa_base',
-                'tmpdir/etc/group'
-            ]),
-            call([
-                'cp',
-                '/var/adm/fillup-templates/passwd.aaa_base',
-                'tmpdir/etc/passwd'
-            ]),
-            call([
-                'cp',
-                '/var/adm/fillup-templates/sysconfig.proxy',
-                'tmpdir/etc/sysconfig/proxy'
-            ])
         ]
         mock_data_sync.assert_called_once_with(
             'tmpdir/', 'root_dir'
