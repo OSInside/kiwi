@@ -139,7 +139,15 @@ Requires:       gdisk
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
+%if 0%{?rhel} && 0%{?rhel} < 8
 Requires:       xorriso
+%else
+%ifarch %{ix86} x86_64
+Requires:       xorriso
+%else
+Recommends:     xorriso
+%endif
+%endif
 Requires:       grub2
 Requires:       kiwi-tools
 Requires:       lvm2
