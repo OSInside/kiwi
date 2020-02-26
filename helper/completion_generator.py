@@ -54,13 +54,13 @@ class AppHash:
                         key_list = mod_line.split()
                         result_keys = self.validate(key_list)
                         cur_path = self.merge(result_keys, self.result)
-                    elif re.match('.*kiwi --compat', line):
+                    elif re.match('.*kiwi-ng --compat', line):
                         mod_line = re.sub('[\[\]\|]', '', line)
                         mod_line = re.sub('<legacy_args>...', '', mod_line)
                         key_list = mod_line.split()
                         result_keys = self.validate(key_list)
                         cur_path = self.merge(result_keys, self.result)
-                    elif re.match('.*kiwi \[', line):
+                    elif re.match('.*kiwi-ng \[', line):
                         line = line.replace('[', '')
                         line = line.replace(']', '')
                         line = line.replace('|', '')
@@ -68,7 +68,7 @@ class AppHash:
                         key_list.pop(0)
                         for global_opt in key_list:
                             result_keys = self.validate(
-                                ['kiwi', global_opt]
+                                ['kiwi-ng', global_opt]
                             )
                             cur_path = self.merge(result_keys, self.result)
                     elif re.match('            \[', line):
@@ -78,7 +78,7 @@ class AppHash:
                         key_list = line.split()
                         for global_opt in key_list:
                             result_keys = self.validate(
-                                ['kiwi', global_opt]
+                                ['kiwi-ng', global_opt]
                             )
                             cur_path = self.merge(result_keys, self.result)
                     elif re.match('                \[', line):
@@ -88,12 +88,12 @@ class AppHash:
                         global_opt = global_opt.replace(']', '')
                         global_opt = global_opt.replace('|', '')
                         result_keys = self.validate(
-                            ['kiwi', global_opt]
+                            ['kiwi-ng', global_opt]
                         )
                         cur_path = self.merge(result_keys, self.result)
                     elif re.match('.*kiwi', line):
                         mandatory_options = re.search(
-                            '(.*kiwi.*?) (--.*)', line
+                            '(.*kiwi-ng.*?) (--.*)', line
                         )
                         if mandatory_options:
                             line = mandatory_options.group(1)
@@ -107,7 +107,7 @@ class AppHash:
                                 result_keys = self.validate(key_list)
                                 self.merge(result_keys, self.result)
                     else:
-                        if 'kiwi --' in cur_path:
+                        if 'kiwi-ng --' in cur_path:
                             cur_path = ''
                         for mod_line in line.strip().split('|'):
                             mod_line = cur_path + ' ' + mod_line
@@ -153,9 +153,9 @@ class AppTree:
 
     def traverse(self, tree=None, level=0, origin=None):
         if not tree:
-            tree = self.completion.result['kiwi']
+            tree = self.completion.result['kiwi-ng']
         if not origin:
-            origin = 'kiwi'
+            origin = 'kiwi-ng'
         for key in tree:
             try:
                 if self.level_dict[str(level)]:
@@ -232,7 +232,7 @@ print('        esac')
 print('    done')
 print(
     '    __comp_reply "{0}"'.format(
-        (" ".join(sorted(sorted_levels['0']['kiwi'])))
+        (" ".join(sorted(sorted_levels['0']['kiwi-ng'])))
     )
 )
 print('    return 0')
@@ -248,5 +248,4 @@ function __comp_reply {
 
 complete -F _kiwi -o default kiwi
 complete -F _kiwi -o default kiwi-ng
-complete -F _kiwi -o default kiwi-ng-3
 ''').strip())
