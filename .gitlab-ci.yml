@@ -59,7 +59,13 @@ rpm_fedora_30:
     - >
       mock
       --old-chroot
+      --resultdir $(pwd)/mock-result
       -r /etc/mock/fedora-30-x86_64.cfg $(basename $SRC_RPM)
+  artifacts:
+    when: always
+    paths:
+      - mock-result
+    expire_in: 1 week
   dependencies:
     - build_doc
 
@@ -71,6 +77,12 @@ rpm_suse_TW:
     - >
       mock
       --old-chroot
+      --resultdir $(pwd)/mock-result
       -r /etc/mock/opensuse-tumbleweed-x86_64.cfg $(basename $SRC_RPM)
+  artifacts:
+    when: always
+    paths:
+      - mock-result
+    expire_in: 1 week
   dependencies:
     - build_doc
