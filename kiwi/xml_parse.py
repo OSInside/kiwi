@@ -4065,7 +4065,7 @@ class volume(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_volume_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_volume_size_type_patterns_, ))
-    validate_volume_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G|all$']]
+    validate_volume_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G|all)$']]
     def hasContent_(self):
         if (
 
