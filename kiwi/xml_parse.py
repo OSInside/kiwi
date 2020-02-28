@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/work/kiwi/.env3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2838,7 +2838,7 @@ class type_(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_partition_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
-    validate_partition_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G$']]
+    validate_partition_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G)$']]
     def validate_fs_attributes(self, value):
         # Validate type fs_attributes, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -4065,7 +4065,7 @@ class volume(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_volume_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_volume_size_type_patterns_, ))
-    validate_volume_size_type_patterns_ = [['^\\d+|\\d+M|\\d+G|all$']]
+    validate_volume_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G|all)$']]
     def hasContent_(self):
         if (
 

@@ -48,12 +48,12 @@
   </define>
   <define name="volume-size-type">
     <data type="token">
-      <param name="pattern">\d+|\d+M|\d+G|all</param>
+      <param name="pattern">(\d+|\d+M|\d+G|all)</param>
     </data>
   </define>
   <define name="partition-size-type">
     <data type="token">
-      <param name="pattern">\d+|\d+M|\d+G</param>
+      <param name="pattern">(\d+|\d+M|\d+G)</param>
     </data>
   </define>
   <define name="vhd-tag-type">
