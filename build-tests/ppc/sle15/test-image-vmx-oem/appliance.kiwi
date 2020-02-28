@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.1" name="SLE15">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Virtual and Physical disk image test</specification>
+    </description>
+    <profiles>
+        <profile name="Virtual" description="Image for use with kvm"/>
+        <profile name="PhysicalBSZ_4096" description="Image for physical 4k storage disk"/>
+        <profile name="PhysicalBSZ_512" description="Image for 512byte storage disk"/>
+    </profiles>
+    <preferences>
+        <version>1.15.1</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Virtual">
+        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="ofw" bootloader_console="serial" format="qcow2"/>
+    </preferences>
+    <preferences profiles="PhysicalBSZ_4096">
+        <type image="oem" filesystem="ext4" initrd_system="dracut" bootloader="grub2" bootloader_console="serial" kernelcmdline="console=ttyS0" firmware="ofw" installiso="true" installboot="install" target_blocksize="4096"/>
+    </preferences>
+    <preferences profiles="PhysicalBSZ_512">
+        <type image="oem" filesystem="ext4" initrd_system="dracut" bootloader="grub2" bootloader_console="serial" kernelcmdline="console=ttyS0" firmware="ofw" installiso="true" installboot="install"/>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" >
+        <source path='obsrepositories:/'/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-base-minimal_base"/>
+        <package name="bind-utils"/>
+        <package name="systemd"/>
+        <package name="plymouth-theme-bgrt"/>
+        <package name="iputils"/>
+        <package name="vim"/>
+        <package name="grub2"/>
+        <package name="grub2-powerpc-ieee1275"/>
+        <package name="lvm2"/>
+        <package name="plymouth"/>
+        <package name="fontconfig"/>
+        <package name="fonts-config"/>
+        <package name="tar"/>
+        <package name="parted"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="bash-completion"/>
+        <package name="dhcp-client"/>
+        <package name="which"/>
+        <package name="kernel-default"/>
+        <package name="timezone"/>
+    </packages>
+    <packages type="image" profiles="PhysicalBSZ_512,PhysicalBSZ_4096">
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="sles-release"/>
+    </packages>
+</image>
