@@ -8,7 +8,6 @@ from .test_helper import argv_kiwi_tests
 from kiwi.cli import Cli
 from kiwi.exceptions import (
     KiwiCompatError,
-    KiwiCommandNotFound,
     KiwiLoadCommandUndefined,
     KiwiCommandNotLoaded,
     KiwiUnknownServiceName
@@ -150,16 +149,10 @@ class TestCli:
         with raises(KiwiCompatError):
             self.cli.invoke_kiwicompat([])
 
-    @patch('kiwi.cli.Path.which')
-    def test_invoke_kiwicompat_not_found(self, mock_which):
-        mock_which.return_value = None
-        with raises(KiwiCommandNotFound):
-            self.cli.invoke_kiwicompat([])
-
     def test_load_command_unknown(self):
         self.cli.loaded = False
         self.cli.all_args['<command>'] = 'foo'
-        with raises(SystemExit):
+        with raises(KiwiCommandNotLoaded):
             self.cli.load_command()
 
     def test_load_command_undefined(self):

@@ -11,6 +11,7 @@ Contributing
    :maxdepth: 1
 
    development/kiwi_from_python
+   development/kiwi_plugin_architecture
    development/schema_extensions.rst
 
 The Basics
