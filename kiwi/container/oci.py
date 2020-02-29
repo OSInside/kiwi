@@ -171,8 +171,8 @@ class ContainerImageOCI:
                 if line.startswith('BUILD_DISTURL') and '=' in line:
                     disturl = line.split('=')[1].lstrip('\'\"').rstrip('\n\'\"')
                     if disturl:
-                        self.oci_config['labels'] = {
-                            'org.openbuildservice.disturl': disturl
-                        }
+                        self.oci_config['labels'].update(
+                            {'org.openbuildservice.disturl': disturl}
+                        )
                         return
             log.warning('Could not find BUILD_DISTURL inside .buildenv')
