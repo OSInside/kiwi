@@ -1,6 +1,7 @@
 stages:
   - test
   - documentation
+  - deploy
   - sourcepackage
   - packages
 
@@ -66,7 +67,7 @@ build_suse_doc:
 
 push_suse_doc:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
-  stage: documentation
+  stage: deploy
   only:
     - master
   script:
@@ -85,6 +86,8 @@ push_suse_doc:
     - cd /tmp/kiwi-suse-doc
     - git add .
     - git commit -a -m "upstream sync" && git push || true
+  dependencies:
+    - build_suse_doc
 
 rpm_source_package:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
