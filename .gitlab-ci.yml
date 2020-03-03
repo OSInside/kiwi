@@ -55,9 +55,20 @@ build_doc:
     paths:
       - doc/build
 
-build_and_push_suse_doc:
+build_suse_doc:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
   stage: documentation
+  script:
+    - tox -e doc_suse
+  artifacts:
+    paths:
+      - doc/build/
+
+push_suse_doc:
+  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
+  stage: documentation
+  only:
+    - master
   script:
     - "export GIT_SSH=$(pwd)/run_ssh"
     - "export ID_DOC_SUSE=$(pwd)/id_doc_suse"
@@ -66,7 +77,6 @@ build_and_push_suse_doc:
     - base64 --decode "$DOC_SUSE_SECRET" > id_doc_suse
     - chmod 600 id_doc_suse
     - git clone git@github.com:OSInside/kiwi-suse-doc.git /tmp/kiwi-suse-doc
-    - tox -e doc_suse
     - cp doc/DC-kiwi /tmp/kiwi-suse-doc/doc/build
     - cp doc/source/.images/* /tmp/kiwi-suse-doc/doc/build/build/.images/color
     - cp doc/build/xml/book.xml /tmp/kiwi-suse-doc/doc/build/xml
@@ -75,9 +85,6 @@ build_and_push_suse_doc:
     - cd /tmp/kiwi-suse-doc
     - git add .
     - git commit -a -m "upstream sync" && git push || true
-  artifacts:
-    paths:
-      - doc/build/
 
 rpm_source_package:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
