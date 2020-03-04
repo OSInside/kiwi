@@ -73,11 +73,26 @@ class TestContainerImageOCI:
             m_open.return_value.__iter__ = lambda _:\
                 iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
             container = ContainerImageOCI(
-                'root_dir', 'oci-archive', {'labels': {}}
+                'root_dir', 'oci-archive'
             )
 
         m_open.assert_called_once_with('/.buildenv')
         assert container.oci_config['labels'] == {
+            'org.openbuildservice.disturl':
+            'obs://build.opensuse.org/some:project'
+        }
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            m_open.return_value.__iter__ = lambda _:\
+                iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
+            container = ContainerImageOCI(
+                'root_dir', 'oci-archive', {'labels': {'label': 'value'}}
+            )
+
+        m_open.assert_called_once_with('/.buildenv')
+        assert container.oci_config['labels'] == {
+            'label': 'value',
             'org.openbuildservice.disturl':
             'obs://build.opensuse.org/some:project'
         }
