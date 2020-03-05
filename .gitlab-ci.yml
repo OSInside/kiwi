@@ -79,7 +79,7 @@ push_suse_doc:
     - chmod 600 id_doc_suse
     - git clone git@github.com:OSInside/kiwi-suse-doc.git /tmp/kiwi-suse-doc
     - cp doc/DC-kiwi /tmp/kiwi-suse-doc/doc/build
-    - cp doc/source/.images/* /tmp/kiwi-suse-doc/doc/build/build/.images/color
+    - cp doc/source/.images/* /tmp/kiwi-suse-doc/doc/build/images/src/png
     - cp doc/build/xml/book.xml /tmp/kiwi-suse-doc/doc/build/xml
     - git config --global user.email "kiwi-internal@suse.de"
     - git config --global user.name "SUSE KIWI Team"
