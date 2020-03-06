@@ -382,7 +382,7 @@ class TestInstallImageBuilder:
             ),
             call(
                 'root_dir/config.bootoptions',
-                'tmpdir/pxeboot.result-image.x86_64-1.2.3.config.bootoptions'
+                'tmpdir/result-image.x86_64-1.2.3.config.bootoptions'
             )
         ]
         assert mock_chmod.call_args_list == [

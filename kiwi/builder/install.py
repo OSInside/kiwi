@@ -337,7 +337,7 @@ class InstallImageBuilder:
         # create pxe image bound boot config file, contents can be
         # changed but presence is required.
         log.info('Creating pxe install boot options file')
-        configname = 'pxeboot.{0}.config.bootoptions'.format(self.pxename)
+        configname = '{0}.config.bootoptions'.format(self.pxename)
         shutil.copy(
             os.sep.join([self.root_dir, 'config.bootoptions']),
             os.sep.join([self.pxe_dir, configname])
