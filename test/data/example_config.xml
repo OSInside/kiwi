@@ -130,7 +130,7 @@
                     <label name="somelabel" value="labelvalue"/>
                     <label name="someotherlabel" value="anotherlabelvalue"/>
                 </labels>
-                <history author="history author" created_by="created by text">This is a comment</history>
+                <history author="history author" created_by="created by text" application_id="123" launcher="app" package_version="2003.12.0.0">This is a comment</history>
             </containerconfig>
         </type>
         <type image="iso" mediacheck="true"/>

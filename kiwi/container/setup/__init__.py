@@ -18,6 +18,7 @@
 # project
 from kiwi.container.setup.docker import ContainerSetupDocker
 from kiwi.container.setup.oci import ContainerSetupOCI
+from kiwi.container.setup.appx import ContainerSetupAppx
 
 from kiwi.exceptions import (
     KiwiContainerSetupError
@@ -33,7 +34,9 @@ class ContainerSetup:
             return ContainerSetupDocker(root_dir, custom_args)
         elif name == 'oci':
             return ContainerSetupOCI(root_dir, custom_args)
+        elif name == 'appx':
+            return ContainerSetupAppx(root_dir, custom_args)
         else:
             raise KiwiContainerSetupError(
-                'Support for %s container not implemented' % name
+                'Support for {0} container not implemented'.format(name)
             )

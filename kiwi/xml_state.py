@@ -1979,6 +1979,15 @@ class XMLState:
                 if history[0].get_author():
                     container_history['history']['author'] = \
                         history[0].get_author()
+                if history[0].get_launcher():
+                    container_history['history']['launcher'] = \
+                        history[0].get_launcher()
+                if history[0].get_application_id():
+                    container_history['history']['application_id'] = \
+                        history[0].get_application_id()
+                if history[0].get_package_version():
+                    container_history['history']['package_version'] = \
+                        history[0].get_package_version()
                 container_history['history']['comment'] = \
                     history[0].get_valueOf_()
         return container_history

@@ -36,6 +36,8 @@
         <profile name="vmxFlavour" description="VMX with default kernel" import="true">
             <requires profile="metadata"/>
         </profile>
+        <profile name="wsl_launcher" description="Appx invalid launcher name"/>
+        <profile name="wsl_id" description="Appx invalid id"/>
     </profiles>
     <preferences profiles="noVersion">
         <locale>de_DE</locale>
@@ -50,6 +52,30 @@
         <rpm-excludedocs>true</rpm-excludedocs>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="wsl_launcher">
+        <type image="appx" metadata_path="/usr/share/wsl-appx">
+            <containerconfig name="Tumbleweed">
+                <history
+                    author="KIWI-Team"
+                    application_id="tumbleweed"
+                    package_version="2003.12.0.0"
+                    launcher="Invalid-Launcher"
+                >Tumbleweed JeOS text based</history>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="wsl_id">
+        <type image="appx" metadata_path="/usr/share/wsl-appx">
+            <containerconfig name="Tumbleweed">
+                <history
+                    author="KIWI-Team"
+                    application_id="invalid-id"
+                    package_version="2003.12.0.0"
+                    launcher="openSUSE-Tumbleweed.exe"
+                >Tumbleweed JeOS text based</history>
+            </containerconfig>
+        </type>
     </preferences>
     <preferences profiles="docker">
         <type image="docker">

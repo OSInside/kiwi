@@ -86,6 +86,11 @@
       <param name="pattern">(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*</param>
     </data>
   </define>
+  <define name="package-version-type">
+    <data type="token">
+      <param name="pattern">(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -2312,8 +2317,24 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>vmx</value>
           <value>xfs</value>
           <value>oci</value>
+          <value>appx</value>
         </choice>
       </attribute>
+      <sch:pattern id="metadata_path_mandatory" is-a="image_type_requirement">
+        <sch:param name="attr" value="metadata_path"/>
+        <sch:param name="types" value="appx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.metadata_path.attribute">
+      <attribute name="metadata_path">
+        <a:documentation>Specifies a path to additional metadata required for
+the selected image type or its tools used to create
+that image type</a:documentation>
+      </attribute>
+      <sch:pattern id="metadata_path" is-a="image_type">
+        <sch:param name="attr" value="metadata_path"/>
+        <sch:param name="types" value="appx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.installboot.attribute">
       <attribute name="installboot">
@@ -2665,6 +2686,9 @@ default.</a:documentation>
           <ref name="k.type.initrd_system.attribute"/>
         </optional>
         <ref name="k.type.image.attribute"/>
+        <optional>
+          <ref name="k.type.metadata_path.attribute"/>
+        </optional>
         <optional>
           <ref name="k.type.installboot.attribute"/>
         </optional>
@@ -3264,7 +3288,7 @@ references file names in linux lib directories to keep.</a:documentation>
   -->
   <div>
     <sch:pattern abstract="true" id="container_type">
-      <sch:rule context="containerconfig">
+      <sch:rule context="containerconfig[@$attr]">
         <sch:assert test="contains('$types', ../@image)">containerconfig($attr) is only available for the following image types: $types</sch:assert>
       </sch:rule>
     </sch:pattern>
@@ -3276,7 +3300,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="name" is-a="container_type">
         <sch:param name="attr" value="name"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="docker oci appx"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.tag.attribute">
@@ -3666,6 +3690,25 @@ At least one label must be configured</a:documentation>
         <a:documentation>Specifies the 'author' history record.</a:documentation>
       </attribute>
     </define>
+    <define name="k.history.application_id">
+      <attribute name="application_id">
+        <a:documentation>Specifies a custom application ID, used for WSL containers</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.history.package_version">
+      <attribute name="package_version">
+        <a:documentation>Specifies a version information, used for WSL containers.
+The version given here follows the package numbering rules
+as documented in: https://docs.microsoft.com/en-us/windows/uwp/publish/package-version-numbering</a:documentation>
+        <ref name="package-version-type"/>
+      </attribute>
+    </define>
+    <define name="k.history.launcher">
+      <attribute name="launcher">
+        <a:documentation>Specifies name of the container launcher program
+Used for WSL containers</a:documentation>
+      </attribute>
+    </define>
     <define name="k.history.attlist">
       <interleave>
         <optional>
@@ -3673,6 +3716,15 @@ At least one label must be configured</a:documentation>
         </optional>
         <optional>
           <ref name="k.history.author.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.history.application_id"/>
+        </optional>
+        <optional>
+          <ref name="k.history.package_version"/>
+        </optional>
+        <optional>
+          <ref name="k.history.launcher"/>
         </optional>
       </interleave>
     </define>

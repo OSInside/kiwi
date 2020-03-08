@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import platform
 from textwrap import dedent
 
@@ -278,6 +279,42 @@ class RuntimeChecker:
                 raise_on_error=False
             ):
                 raise KiwiRuntimeError(message)
+
+    def check_appx_naming_conventions_valid(self):
+        """
+        When building wsl images there are some naming conventions that
+        must be fulfilled to run the container on Microsoft Windows
+        """
+        launcher_pattern = r'[^\\]+(\.[Ee][Xx][Ee])$'
+        message_container_launcher_invalid = dedent('''\n
+            Invalid WSL launcher name: {0}
+
+            WSL launcher name must match the pattern: {1}
+        ''')
+        id_pattern = r'^[a-zA-Z0-9]+$'
+        message_container_id_invalid = dedent('''\n
+            Invalid WSL container application id: {0}
+
+            WSL container id must match the pattern: {1}
+        ''')
+        build_type = self.xml_state.get_build_type_name()
+        container_config = self.xml_state.get_container_config()
+        container_history = container_config.get('history') or {}
+        if build_type == 'appx' and container_config:
+            launcher = container_history.get('launcher')
+            if launcher and not re.match(launcher_pattern, launcher):
+                raise KiwiRuntimeError(
+                    message_container_launcher_invalid.format(
+                        launcher, launcher_pattern
+                    )
+                )
+            application_id = container_history.get('application_id')
+            if application_id and not re.match(id_pattern, application_id):
+                raise KiwiRuntimeError(
+                    message_container_id_invalid.format(
+                        application_id, id_pattern
+                    )
+                )
 
     def check_boot_description_exists(self):
         """

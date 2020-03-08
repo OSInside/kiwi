@@ -17,6 +17,7 @@
 #
 # project
 from kiwi.container.oci import ContainerImageOCI
+from kiwi.container.appx import ContainerImageAppx
 
 from kiwi.exceptions import (
     KiwiContainerImageSetupError
@@ -40,7 +41,11 @@ class ContainerImage:
             return ContainerImageOCI(
                 root_dir, 'oci-archive', custom_args=custom_args
             )
+        elif name == 'appx':
+            return ContainerImageAppx(
+                root_dir, custom_args=custom_args
+            )
         else:
             raise KiwiContainerImageSetupError(
-                'Support for %s container not implemented' % name
+                'Support for {0} container not implemented'.format(name)
             )
