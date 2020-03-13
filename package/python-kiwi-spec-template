@@ -284,6 +284,7 @@ BuildRequires:  dracut
 Requires:       dracut-kiwi-lib
 Requires:       kexec-tools
 Requires:       gawk
+Requires:       kpartx
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
