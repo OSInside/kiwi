@@ -221,6 +221,22 @@ class Defaults:
         ]
         return exclude_list
 
+    def get_exclude_list_for_non_physical_devices():
+        """
+        Provides the list of folders that are not associated
+        with a physical device. KIWI returns the basename of
+        the folders typically used as mountpoint for those
+        devices.
+
+        :return: list of file and directory names
+
+        :rtype: list
+        """
+        exclude_list = [
+            'proc', 'sys', 'dev'
+        ]
+        return exclude_list
+
     @staticmethod
     def get_failsafe_kernel_options():
         """
