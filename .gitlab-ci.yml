@@ -31,7 +31,7 @@ build_ubuntu:
   only:
     - branches
   tags:
-    - aws-ubu1604-docker
+    - aws-f31-docker
 
 code_style:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
