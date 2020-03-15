@@ -13,7 +13,7 @@ variables:
   FEDORA_BUILD: buildenv-fedora
 
 build_ubuntu:
-  image: fedora:31
+  image: fedora:30
   stage: build-image
   script:
     - dnf -y install dnf-plugins-core qemu-img
