@@ -16,6 +16,9 @@ build_ubuntu:
   image: fedora:31
   stage: build-image
   script:
+    - mkdir mytest
+    - qemu-img create mytest/LimeJeOS-Ubuntu-18.04.x86_64-1.16.4.raw 1953M
+    - losetup -f --show mytest/LimeJeOS-Ubuntu-18.04.x86_64-1.16.4.raw
     - dnf -y install dnf-plugins-core
     - dnf -y copr enable ngompa/KIWI
     - dnf --assumeyes install kiwi
