@@ -46,13 +46,13 @@
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
         <source path="obs://Virtualization:Appliances:Staging/xUbuntu_18.04"/>
     </repository>
-    <repository type="apt-deb" alias="Bionic-security" distribution="bionic-security" components="main multiverse restricted universe" repository_gpgcheck="false">
+    <repository type="apt-deb" alias="Xenial-security" distribution="xenial-security" components="main multiverse restricted universe" repository_gpgcheck="false">
         <source path="http://security.ubuntu.com/ubuntu"/>
     </repository>
-    <repository type="apt-deb" alias="Bionic-updates" distribution="bionic-updates" components="main multiverse restricted universe" repository_gpgcheck="false">
+    <repository type="apt-deb" alias="Xenial-updates" distribution="xenial-updates" components="main multiverse restricted universe" repository_gpgcheck="false">
         <source path="http://us.archive.ubuntu.com/ubuntu/"/>
     </repository>
-    <repository type="apt-deb" alias="Bionic" distribution="bionic" components="main multiverse restricted universe" repository_gpgcheck="false">
+    <repository type="apt-deb" alias="Xenial" distribution="xenial" components="main multiverse restricted universe" repository_gpgcheck="false">
         <source path="http://us.archive.ubuntu.com/ubuntu/"/>
     </repository>
     <packages type="image">
