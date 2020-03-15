@@ -17,7 +17,7 @@ build_ubuntu:
   stage: build-image
   script:
     - ls /dev
-    - ls /dev/mapper || :
+    - ls /dev/mapper || true
     - dnf -y install dnf-plugins-core qemu-img
     - dnf -y copr enable ngompa/KIWI
     - dnf --assumeyes install kiwi
