@@ -46,11 +46,14 @@
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
         <source path="obs://Virtualization:Appliances:Staging/xUbuntu_18.04"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Bionic-Universe" distribution="bionic" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:18.04/universe"/>
+    <repository type="apt-deb" alias="Bionic-security" distribution="bionic-security" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="http://security.ubuntu.com/ubuntu"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Bionic" distribution="bionic" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:18.04/standard"/>
+    <repository type="apt-deb" alias="Bionic-updates" distribution="bionic-updates" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="http://us.archive.ubuntu.com/ubuntu/"/>
+    </repository>
+    <repository type="apt-deb" alias="Bionic" distribution="bionic" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="http://us.archive.ubuntu.com/ubuntu/"/>
     </repository>
     <packages type="image">
         <package name="grub2-themes-ubuntu-mate"/>
