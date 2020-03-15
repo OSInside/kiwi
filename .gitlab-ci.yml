@@ -19,7 +19,7 @@ build_ubuntu:
     - dnf -y install dnf-plugins-core
     - dnf -y copr enable ngompa/KIWI
     - dnf --assumeyes install kiwi
-    - kiwi-ng --profile Virtual --type vmx system build --description build-tests/x86/ubuntu/test-image-iso-oem-vmx --target-dir ./mytest
+    - kiwi-ng --debug --profile Virtual --type vmx system build --description build-tests/x86/ubuntu/test-image-iso-oem-vmx --target-dir ./mytest
   artifacts:
     when: on_success
     paths:
