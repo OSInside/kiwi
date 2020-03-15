@@ -16,12 +16,14 @@ build_ubuntu:
   image: fedora:31
   stage: build-image
   script:
+    - ls /dev
+    - ls /dev/mapper || :
     - dnf -y install dnf-plugins-core qemu-img
     - dnf -y copr enable ngompa/KIWI
     - dnf --assumeyes install kiwi
     - mkdir mytest
-    - qemu-img create mytest/LimeJeOS-Ubuntu-18.04.x86_64-1.16.4.raw 1700M
-    - losetup -f --show mytest/LimeJeOS-Ubuntu-18.04.x86_64-1.16.4.raw
+#    - qemu-img create mytest/LimeJeOS-Ubuntu-18.04.x86_64-1.16.4.raw 1700M
+#    - losetup -f --show mytest/LimeJeOS-Ubuntu-18.04.x86_64-1.16.4.raw
     - kiwi-ng --debug --profile Virtual --type vmx system build --description build-tests/x86/ubuntu/test-image-iso-oem-vmx --target-dir ./mytest
   artifacts:
     when: on_success
