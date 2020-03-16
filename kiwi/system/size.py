@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
@@ -72,6 +74,11 @@ class SystemSize:
         :rtype: int
         """
         exclude_options = []
+        for nodev in Defaults.get_exclude_list_for_non_physical_devices():
+            exclude_options.append('--exclude')
+            exclude_options.append(
+                os.sep.join([self.source_dir, nodev])
+            )
         if exclude:
             for item in exclude:
                 exclude_options.append('--exclude')

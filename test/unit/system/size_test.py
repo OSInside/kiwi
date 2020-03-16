@@ -27,6 +27,9 @@ class TestSystemSize:
         mock_command.assert_called_once_with(
             [
                 'du', '-s', '--apparent-size', '--block-size', '1',
+                '--exclude', 'directory/proc',
+                '--exclude', 'directory/sys',
+                '--exclude', 'directory/dev',
                 '--exclude', '/foo', 'directory'
             ]
         )
