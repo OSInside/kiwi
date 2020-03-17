@@ -876,6 +876,18 @@ class DiskBuilder:
             device_map['root'].get_device(), '/',
             custom_root_mount_args, fs_check_interval
         )
+        if device_map.get('boot'):
+            if self.bootloader == 'grub2_s390x_emu':
+                boot_mount_point = '/boot/zipl'
+            else:
+                boot_mount_point = '/boot'
+            self._add_generic_fstab_entry(
+                device_map['boot'].get_device(), boot_mount_point
+            )
+        if device_map.get('efi'):
+            self._add_generic_fstab_entry(
+                device_map['efi'].get_device(), '/boot/efi'
+            )
         if self.volume_manager_name:
             volume_fstab_entries = self.system.get_fstab(
                 self.persistency_type, self.requested_filesystem
@@ -897,18 +909,6 @@ class DiskBuilder:
                 self._add_generic_fstab_entry(
                     device_map['swap'].get_device(), 'swap'
                 )
-        if device_map.get('boot'):
-            if self.bootloader == 'grub2_s390x_emu':
-                boot_mount_point = '/boot/zipl'
-            else:
-                boot_mount_point = '/boot'
-            self._add_generic_fstab_entry(
-                device_map['boot'].get_device(), boot_mount_point
-            )
-        if device_map.get('efi'):
-            self._add_generic_fstab_entry(
-                device_map['efi'].get_device(), '/boot/efi'
-            )
         setup.create_fstab(
             self.generic_fstab_entries
         )

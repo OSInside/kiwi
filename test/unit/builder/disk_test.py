@@ -756,19 +756,19 @@ class TestDiskBuilder:
         self.setup.create_fstab.assert_called_once_with(
             [
                 'UUID=blkid_result / blkid_result_fs ro 0 0',
-                'fstab_volume_entries',
-                '/dev/systemVG/LVSwap swap swap defaults 0 0',
                 'UUID=blkid_result /boot blkid_result_fs defaults 0 0',
-                'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0'
+                'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0',
+                'fstab_volume_entries',
+                '/dev/systemVG/LVSwap swap swap defaults 0 0'
             ]
         )
         self.boot_image_task.setup.create_fstab.assert_called_once_with(
             [
                 'UUID=blkid_result / blkid_result_fs ro 0 0',
-                'fstab_volume_entries',
-                '/dev/systemVG/LVSwap swap swap defaults 0 0',
                 'UUID=blkid_result /boot blkid_result_fs defaults 0 0',
-                'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0'
+                'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0',
+                'fstab_volume_entries',
+                '/dev/systemVG/LVSwap swap swap defaults 0 0'
             ]
         )
 
