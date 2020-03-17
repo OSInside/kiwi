@@ -32,6 +32,7 @@ from kiwi.system.root_init import RootInit
 from kiwi.command import Command
 from kiwi.command_process import CommandProcess
 from kiwi.utils.sync import DataSync
+from kiwi.utils.fstab import Fstab
 from kiwi.defaults import Defaults
 from kiwi.system.users import Users
 from kiwi.system.shell import Shell
@@ -633,6 +634,13 @@ class SystemSetup:
                 ['chroot', self.root_dir, '/etc/fstab.script']
             )
             Path.wipe(fstab_script_file)
+
+        # rewrite fstab after initial creation and after all
+        # optional modifications to make sure the canonical
+        # mount order is correct and no garbage exists.
+        fstab_final = Fstab()
+        fstab_final.read(fstab_file)
+        fstab_final.export(fstab_file)
 
     def create_init_link_from_linuxrc(self):
         """
