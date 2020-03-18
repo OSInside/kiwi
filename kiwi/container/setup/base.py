@@ -71,16 +71,6 @@ class ContainerSetupBase:
         """
         raise NotImplementedError
 
-    def create_fstab(self):
-        """
-        Container boot mount setup
-
-        Initialize an empty fstab file, mount processes in a
-        container are controlled by the container infrastructure
-        """
-        with open(self.root_dir + '/etc/fstab', 'w'):
-            pass
-
     def deactivate_bootloader_setup(self):
         """
         Container bootloader setup
