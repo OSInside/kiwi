@@ -32,7 +32,6 @@ from kiwi.system.root_init import RootInit
 from kiwi.command import Command
 from kiwi.command_process import CommandProcess
 from kiwi.utils.sync import DataSync
-from kiwi.utils.fstab import Fstab
 from kiwi.defaults import Defaults
 from kiwi.system.users import Users
 from kiwi.system.shell import Shell
@@ -585,9 +584,9 @@ class SystemSetup:
             working_directory=working_directory
         )
 
-    def create_fstab(self, entries):
+    def create_fstab(self, fstab):
         """
-        Create etc/fstab from given list of entries
+        Create etc/fstab from given Fstab object
 
         Custom fstab modifications are possible and handled
         in the following order:
@@ -608,17 +607,17 @@ class SystemSetup:
            file in the image rootfs. Once called the fstab.script
            file will be deleted
 
-        :param list entries: list of line entries for fstab
+        :param list fstab: instance of Fstab
         """
         fstab_file = self.root_dir + '/etc/fstab'
         fstab_append_file = self.root_dir + '/etc/fstab.append'
         fstab_patch_file = self.root_dir + '/etc/fstab.patch'
         fstab_script_file = self.root_dir + '/etc/fstab.script'
 
-        with open(fstab_file, 'w') as fstab:
-            for entry in entries:
-                fstab.write(entry + os.linesep)
-            if os.path.exists(fstab_append_file):
+        fstab.export(fstab_file)
+
+        if os.path.exists(fstab_append_file):
+            with open(fstab_file, 'a') as fstab:
                 with open(fstab_append_file, 'r') as append:
                     fstab.write(append.read())
                 Path.wipe(fstab_append_file)
@@ -634,13 +633,6 @@ class SystemSetup:
                 ['chroot', self.root_dir, '/etc/fstab.script']
             )
             Path.wipe(fstab_script_file)
-
-        # rewrite fstab after initial creation and after all
-        # optional modifications to make sure the canonical
-        # mount order is correct and no garbage exists.
-        fstab_final = Fstab()
-        fstab_final.read(fstab_file)
-        fstab_final.export(fstab_file)
 
     def create_init_link_from_linuxrc(self):
         """

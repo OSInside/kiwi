@@ -188,6 +188,10 @@ class TestDiskBuilder:
         kiwi.builder.disk.LuksDevice = mock.Mock(
             return_value=self.luks_root
         )
+        self.fstab = mock.Mock()
+        kiwi.builder.disk.Fstab = mock.Mock(
+            return_value=self.fstab
+        )
         self.disk_builder = DiskBuilder(
             XMLState(description.load()), 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
@@ -754,22 +758,10 @@ class TestDiskBuilder:
         volume_manager.umount_volumes.call_args_list[0].assert_called_once_with(
         )
         self.setup.create_fstab.assert_called_once_with(
-            [
-                'UUID=blkid_result / blkid_result_fs ro 0 0',
-                'UUID=blkid_result /boot blkid_result_fs defaults 0 0',
-                'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0',
-                'fstab_volume_entries',
-                '/dev/systemVG/LVSwap swap swap defaults 0 0'
-            ]
+            self.disk_builder.fstab
         )
         self.boot_image_task.setup.create_fstab.assert_called_once_with(
-            [
-                'UUID=blkid_result / blkid_result_fs ro 0 0',
-                'UUID=blkid_result /boot blkid_result_fs defaults 0 0',
-                'UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0',
-                'fstab_volume_entries',
-                '/dev/systemVG/LVSwap swap swap defaults 0 0'
-            ]
+            self.disk_builder.fstab
         )
 
     @patch('kiwi.builder.disk.FileSystem')
@@ -855,8 +847,13 @@ class TestDiskBuilder:
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ]
         )
-        assert 'UUID=blkid_result /var blkid_result_fs defaults 0 0' in \
-            self.disk_builder.generic_fstab_entries
+        assert [
+            call('UUID=blkid_result / blkid_result_fs ro 0 0'),
+            call('UUID=blkid_result /boot blkid_result_fs defaults 0 0'),
+            call('UUID=blkid_result /boot/efi blkid_result_fs defaults 0 0'),
+            call('UUID=blkid_result /var blkid_result_fs defaults 0 0'),
+            call('UUID=blkid_result swap blkid_result_fs defaults 0 0'),
+        ] in self.disk_builder.fstab.add_entry.call_args_list
 
         self.disk.create_root_partition.reset_mock()
         self.disk.create_spare_partition.reset_mock()

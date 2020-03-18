@@ -43,6 +43,7 @@ from kiwi.system.kernel import Kernel
 from kiwi.storage.subformat import DiskFormat
 from kiwi.system.result import Result
 from kiwi.utils.block import BlockID
+from kiwi.utils.fstab import Fstab
 from kiwi.path import Path
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.partitioner import Partitioner
@@ -139,7 +140,7 @@ class DiskBuilder:
         self.boot_is_crypto = True if self.luks and not \
             self.disk_setup.need_boot_partition() else False
         self.install_media = self._install_image_requested()
-        self.generic_fstab_entries = []
+        self.fstab = Fstab()
 
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
@@ -893,8 +894,7 @@ class DiskBuilder:
                 self.persistency_type, self.requested_filesystem
             )
             for volume_fstab_entry in volume_fstab_entries:
-                if volume_fstab_entry not in self.generic_fstab_entries:
-                    self.generic_fstab_entries.append(volume_fstab_entry)
+                self.fstab.add_entry(volume_fstab_entry)
         if device_map.get('spare') and \
            self.spare_part_fs and self.spare_part_mountpoint:
             self._add_generic_fstab_entry(
@@ -910,7 +910,7 @@ class DiskBuilder:
                     device_map['swap'].get_device(), 'swap'
                 )
         setup.create_fstab(
-            self.generic_fstab_entries
+            self.fstab
         )
 
     def _add_simple_fstab_entry(
@@ -923,10 +923,7 @@ class DiskBuilder:
                 device, mount_point, filesystem, ','.join(options), check
             ]
         )
-        if fstab_entry not in self.generic_fstab_entries:
-            self.generic_fstab_entries.append(
-                fstab_entry
-            )
+        self.fstab.add_entry(fstab_entry)
 
     def _add_generic_fstab_entry(
         self, device, mount_point, options=None, check='0 0'
@@ -942,10 +939,7 @@ class DiskBuilder:
                 block_operation.get_filesystem(), ','.join(options), check
             ]
         )
-        if fstab_entry not in self.generic_fstab_entries:
-            self.generic_fstab_entries.append(
-                fstab_entry
-            )
+        self.fstab.add_entry(fstab_entry)
 
     def _write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())
