@@ -31,11 +31,10 @@
         <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash"/>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" bootloader="grub2">
+        <type image="oem" filesystem="ext4" initrd_system="dracut" bootloader="grub2" installiso="true">
             <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
-                <oem-swapsize>200</oem-swapsize>
+                <oem-device-filter>/dev/ram</oem-device-filter>
                 <oem-multipath-scan>false</oem-multipath-scan>
             </oemconfig>
         </type>
@@ -44,10 +43,10 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
-        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_18.04"/>
+       <source path="obs://Virtualization:Appliances:Staging/xUbuntu_18.04"/>
     </repository>
     <repository type="apt-deb" alias="Ubuntu-Bionic-Universe" distribution="bionic" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:18.04/universe"/>
+       <source path="obs://Ubuntu:18.04/universe"/>
     </repository>
     <repository type="apt-deb" alias="Ubuntu-Bionic" distribution="bionic" components="main multiverse restricted universe" repository_gpgcheck="false">
         <source path="obs://Ubuntu:18.04/standard"/>
@@ -56,12 +55,13 @@
         <package name="grub2-themes-ubuntu-mate"/>
         <package name="plymouth-theme-sabily"/>
         <package name="plymouth"/>
+        <package name="grub2"/>
         <package name="linux-generic"/>
         <package name="isolinux"/>
         <package name="syslinux"/>
         <package name="syslinux-common"/>
+        <package name="systemd"/>
         <package name="dracut"/>
-        <package name="grub2"/>
         <package name="init"/>
         <package name="gnupg"/>
         <package name="iproute2"/>
@@ -80,6 +80,9 @@
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
+        <!-- not added by default on OBS -->
         <package name="mawk"/>
+        <!-- comptibility package for /usr/lib paths -->
+        <package name="usrmerge"/>
     </packages>
 </image>
