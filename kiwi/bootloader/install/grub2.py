@@ -120,7 +120,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             return False
         return True
 
-    def install(self):
+    def install(self):  # noqa: C901
         """
         Install bootloader on disk device
         """
@@ -159,11 +159,19 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             device=self.custom_args['boot_device'],
             mountpoint=self.root_mount.mountpoint + '/boot'
         )
+        if self.custom_args.get('efi_device'):
+            self.efi_mount = MountManager(
+                device=self.custom_args['efi_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot/efi'
+            )
 
         self.root_mount.mount()
 
         if not self.root_mount.device == self.boot_mount.device:
             self.boot_mount.mount()
+
+        if self.efi_mount:
+            self.efi_mount.mount()
 
         if self.volumes:
             for volume_path in Path.sort_by_hierarchy(
@@ -238,12 +246,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             # has applied at the bootloader/config level and we expect
             # no further tool calls to be required
             if shim_install:
-                self.efi_mount = MountManager(
-                    device=self.custom_args['efi_device'],
-                    mountpoint=self.root_mount.mountpoint + '/boot/efi'
-                )
-                self.efi_mount.mount()
-
                 # Before we call shim-install, the grub installer binary is
                 # replaced by a noop. Actually there is no reason for
                 # shim-install to call the grub installer because it should
