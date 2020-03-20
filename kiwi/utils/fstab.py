@@ -15,11 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 import os
 from collections import namedtuple
 
 # project
 from kiwi.path import Path
+
+log = logging.getLogger('kiwi')
 
 
 class Fstab:
@@ -38,42 +41,28 @@ class Fstab:
         """
         Import specified fstab file
 
+        Read the given fstab file and initialize a new entry list
+
         :param string filename: path to a fstab file
         """
         self.fstab = []
         with open(filename) as fstab:
             for line in fstab.readlines():
-                mount_record = line.split()
-                if not mount_record or mount_record[0].startswith('#'):
-                    continue
-                device = mount_record[0]
-                mountpoint = mount_record[1]
-                fstype = mount_record[2]
-                options = mount_record[3]
-                if device.startswith('UUID'):
-                    device_path = ''.join(
-                        ['/dev/disk/by-uuid/', device.split('=')[1]]
-                    )
-                elif device.startswith('LABEL'):
-                    device_path = ''.join(
-                        ['/dev/disk/by-label/', device.split('=')[1]]
-                    )
-                elif device.startswith('PARTUUID'):
-                    device_path = ''.join(
-                        ['/dev/disk/by-partuuid/', device.split('=')[1]]
-                    )
-                else:
-                    device_path = device
+                self.add_entry(line)
 
-                self.fstab.append(
-                    self.fstab_entry_type(
-                        fstype=fstype,
-                        mountpoint=mountpoint,
-                        device_path=device_path,
-                        device_spec=device,
-                        options=options
+    def add_entry(self, line):
+        new_entry = self._parse_entry(line)
+        if new_entry:
+            for entry in self.fstab:
+                if entry.mountpoint == new_entry.mountpoint:
+                    log.warning(
+                        'Mountpoint for "{0}" in use by "{1}", skipped'.format(
+                            self._file_entry(new_entry),
+                            self._file_entry(entry)
+                        )
                     )
-                )
+                    return
+            self.fstab.append(new_entry)
 
     def get_devices(self):
         return self.fstab
@@ -94,9 +83,42 @@ class Fstab:
             ):
                 entry = fstab_entries_by_path[device_path]
                 fstab.write(
-                    '{0} {1} {2} {3} 0 0{4}'.format(
-                        entry.device_spec, entry.mountpoint,
-                        entry.fstype, entry.options,
-                        os.linesep
-                    )
+                    self._file_entry(entry) + os.linesep
                 )
+
+    def _file_entry(self, entry):
+        return '{0} {1} {2} {3} 0 0'.format(
+            entry.device_spec, entry.mountpoint,
+            entry.fstype, entry.options
+        )
+
+    def _parse_entry(self, line):
+        data_record = line.split()
+        if data_record and len(data_record) >= 4 \
+           and not data_record[0].startswith('#'):
+            device = data_record[0]
+            mountpoint = data_record[1]
+            fstype = data_record[2]
+            options = data_record[3]
+            if device.startswith('UUID'):
+                device_path = ''.join(
+                    ['/dev/disk/by-uuid/', device.split('=')[1]]
+                )
+            elif device.startswith('LABEL'):
+                device_path = ''.join(
+                    ['/dev/disk/by-label/', device.split('=')[1]]
+                )
+            elif device.startswith('PARTUUID'):
+                device_path = ''.join(
+                    ['/dev/disk/by-partuuid/', device.split('=')[1]]
+                )
+            else:
+                device_path = device
+
+            return self.fstab_entry_type(
+                fstype=fstype,
+                mountpoint=mountpoint,
+                device_path=device_path,
+                device_spec=device,
+                options=options
+            )

@@ -5,5 +5,8 @@ LABEL=BOOT                                 /boot      xfs   defaults        0  0
 LABEL=foo  /home      ext4  defaults        0  0
 PARTUUID=3c8bd108-01 /bar ext4 defaults 0 0
 /dev/mynode /foo ext4 defaults 0 0
+# entry with the same mountpoint, expected to be skipped
+LABEL=bar  /home      xfs  defaults        0  0
+
 
 # this comment line and the line above should be ignored by the parser

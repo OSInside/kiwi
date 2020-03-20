@@ -1,4 +1,6 @@
 import io
+import logging
+from pytest import fixture
 from unittest.mock import (
     MagicMock, patch, call
 )
@@ -6,9 +8,18 @@ from kiwi.utils.fstab import Fstab
 
 
 class TestFstab(object):
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.fstab = Fstab()
-        self.fstab.read('../data/fstab')
+        with self._caplog.at_level(logging.WARNING):
+            self.fstab.read('../data/fstab')
+            assert format(
+                'Mountpoint for "LABEL=bar /home xfs defaults 0 0" '
+                'in use by "LABEL=foo /home ext4 defaults 0 0", skipped'
+            ) in self._caplog.text
 
     def test_get_devices(self):
         assert self.fstab.get_devices() == [
