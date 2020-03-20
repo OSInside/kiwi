@@ -48,7 +48,6 @@ class ContainerSetupOCI(ContainerSetupBase):
             'proc-sys-fs-binfmt_misc.automount'
         ]
 
-        self.create_fstab()
         self.deactivate_bootloader_setup()
         self.deactivate_root_filesystem_check()
         self.setup_static_device_nodes()

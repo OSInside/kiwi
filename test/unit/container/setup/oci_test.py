@@ -14,7 +14,6 @@ class TestContainerSetupOCI:
             'root_dir', {'container_name': 'system'}
         )
 
-        self.container.create_fstab = mock.Mock()
         self.container.deactivate_bootloader_setup = mock.Mock()
         self.container.deactivate_root_filesystem_check = mock.Mock()
         self.container.setup_static_device_nodes = mock.Mock()
@@ -23,7 +22,6 @@ class TestContainerSetupOCI:
 
     def test_setup(self):
         self.container.setup()
-        self.container.create_fstab.assert_called_once_with()
         self.container.deactivate_bootloader_setup.assert_called_once_with()
         self.container.deactivate_root_filesystem_check.assert_called_once_with()
         self.container.setup_static_device_nodes.assert_called_once_with()

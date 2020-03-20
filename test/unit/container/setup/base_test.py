@@ -32,16 +32,6 @@ class TestContainerSetupBase:
     def test_get_container_name(self):
         assert self.container.get_container_name() == 'systemContainer'
 
-    def test_create_fstab(self):
-        m_open = mock_open()
-        with patch('builtins.open', m_open, create=True):
-            self.container.create_fstab()
-
-        m_open.assert_called_once_with(
-            'root_dir/etc/fstab', 'w'
-        )
-        assert m_open.return_value.call_args_list == []
-
     @patch('os.path.exists')
     def test_deactivate_bootloader_setup(self, mock_exists):
         mock_exists.return_value = True
