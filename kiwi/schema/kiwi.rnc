@@ -24,6 +24,7 @@ namespace db  = "http://docbook.org/ns/docbook"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace nul = ""
 
+label-name = xsd:token {pattern = "[a-zA-Z]{1,8}"}
 safe-posix-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
 safe-posix-short-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,32}"}
 locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
@@ -1657,7 +1658,7 @@ div {
         ]
     k.type.rootfs_label.attribute =
         ## label to set for the root filesystem. By default ROOT is used
-        attribute rootfs_label { text }
+        attribute rootfs_label { label-name }
         >> sch:pattern [ id = "rootfs_label" is-a = "image_type"
             sch:param [ name = "attr" value = "rootfs_label" ]
             sch:param [ name = "types" value = "oem vmx pxe docker" ]

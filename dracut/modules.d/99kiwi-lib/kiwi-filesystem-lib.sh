@@ -4,19 +4,34 @@ function resize_filesystem {
     local device=$1
     test -n "${device}" || return
     local resize_fs
+    local set_label="true"
     local mpoint=/fs-resize
     local fstype
+    local fslabel
+    local fslabel_final
     fstype=$(probe_filesystem "${device}")
+    fslabel=$(blkid "${device}" -s LABEL -o value)
+    if [[ "${fslabel}" == *"_IMG" ]];then
+        # The filesystem label is the one set from the image build
+        # this should indicate this is the first time this image
+        # got deployed on the target. Along with the resize of
+        # the filesystem that label will now change to its final
+        # state
+        fslabel_final=${fslabel%%_*}
+    fi
     case ${fstype} in
     ext2|ext3|ext4)
+        set_label="tune2fs -L ${fslabel_final} ${device}"
         resize_fs="resize2fs -f -p ${device}"
     ;;
     btrfs)
+        set_label="btrfs filesystem label ${device} ${fslabel_final}"
         resize_fs="mkdir -p ${mpoint} && mount ${device} ${mpoint} &&"
         resize_fs="${resize_fs} btrfs filesystem resize max ${mpoint}"
         resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
     ;;
     xfs)
+        set_label="xfs_admin -L ${fslabel_final} ${device}"
         resize_fs="mkdir -p ${mpoint} && mount ${device} ${mpoint} &&"
         resize_fs="${resize_fs} xfs_growfs ${mpoint}"
         resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
@@ -32,6 +47,12 @@ function resize_filesystem {
     esac
     if _is_ramdisk_device "${device}"; then
         check_filesystem "${device}"
+    fi
+    if [ -n "${fslabel_final}" ];then
+        info "Set filesystem label ${fslabel_final} on ${device}..."
+        if ! eval "${set_label}"; then
+            die "Failed to set filesystem label"
+        fi
     fi
     info "Resizing ${fstype} filesystem on ${device}..."
     if ! eval "${resize_fs}"; then

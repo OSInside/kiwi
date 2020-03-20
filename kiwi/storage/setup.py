@@ -225,8 +225,19 @@ class DiskSetup:
         :rtype: str
         """
         root_label = self.xml_state.build_type.get_rootfs_label()
+        image_type = self.xml_state.get_build_type_name()
         if not root_label:
             root_label = 'ROOT'
+        if image_type == 'oem':
+            # For the oem image type we append an ID string to
+            # the label of the root filesystem. This information is
+            # used in the kiwi dracut repart module to check for
+            # the initial deployment of the oem image. On resize
+            # the label gets rewritten by the dracut code without
+            # containing the ID string. Subsequent boots of that
+            # deployed machine will now no longer run the resize
+            # code again.
+            root_label += '_IMG'
         return root_label
 
     def get_efi_label(self):

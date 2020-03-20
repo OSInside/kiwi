@@ -149,3 +149,23 @@ function bool {
         echo "false"
     fi
 }
+
+function is_initial_deployment {
+    # """
+    # reads label names from filesystems on given disk
+    # and checks if their name contains the id string
+    # added during build time of the image. If such
+    # label is found the assumption is made that this
+    # is the first time the image got deployed on the
+    # given disk device. During resize of the disk
+    # kiwi changes the label name and deletes the id
+    # string
+    # """
+    local disk=$1
+    for label in $(lsblk --fs -o LABEL "${disk}");do
+        if [[ "${label}" == *"_IMG" ]];then
+            return 0
+        fi
+    done
+    return 1
+}

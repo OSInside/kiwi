@@ -228,10 +228,11 @@ class TestDiskSetup:
         assert self.setup.get_efi_label() == 'EFI'
 
     def test_get_default_root_label(self):
-        assert self.setup.get_root_label() == 'ROOT'
+        assert self.setup_root_volume.get_root_label() == 'ROOT'
+        assert self.setup.get_root_label() == 'ROOT_IMG'
 
     def test_get_custom_root_label(self):
-        assert self.setup_ppc.get_root_label() == 'MYLABEL'
+        assert self.setup_ppc.get_root_label() == 'MYLABEL_IMG'
 
     def _init_bootpart_check(self):
         self.setup.root_filesystem_is_overlay = None

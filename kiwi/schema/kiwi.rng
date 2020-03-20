@@ -21,6 +21,11 @@
   ****************
 -->
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="label-name">
+    <data type="token">
+      <param name="pattern">[a-zA-Z]{1,8}</param>
+    </data>
+  </define>
   <define name="safe-posix-name">
     <data type="token">
       <param name="pattern">[a-zA-Z0-9_\-\.]+</param>
@@ -2467,6 +2472,7 @@ will force any COW action to happen in RAM</a:documentation>
     <define name="k.type.rootfs_label.attribute">
       <attribute name="rootfs_label">
         <a:documentation>label to set for the root filesystem. By default ROOT is used</a:documentation>
+        <ref name="label-name"/>
       </attribute>
       <sch:pattern id="rootfs_label" is-a="image_type">
         <sch:param name="attr" value="rootfs_label"/>

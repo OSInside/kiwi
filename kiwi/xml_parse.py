@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2832,6 +2832,13 @@ class type_(GeneratedsSuper):
                     self.validate_grub_console_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
     validate_grub_console_patterns_ = [['^(console|gfxterm|serial)( (console|gfxterm|serial))*$']]
+    def validate_label_name(self, value):
+        # Validate type label-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_label_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_label_name_patterns_, ))
+    validate_label_name_patterns_ = [['^[a-zA-Z]{1,8}$']]
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3040,7 +3047,7 @@ class type_(GeneratedsSuper):
             outfile.write(' ramonly="%s"' % self.gds_format_boolean(self.ramonly, input_name='ramonly'))
         if self.rootfs_label is not None and 'rootfs_label' not in already_processed:
             already_processed.add('rootfs_label')
-            outfile.write(' rootfs_label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.rootfs_label), input_name='rootfs_label')), ))
+            outfile.write(' rootfs_label=%s' % (quote_attrib(self.rootfs_label), ))
         if self.spare_part is not None and 'spare_part' not in already_processed:
             already_processed.add('spare_part')
             outfile.write(' spare_part=%s' % (quote_attrib(self.spare_part), ))
@@ -3425,6 +3432,8 @@ class type_(GeneratedsSuper):
         if value is not None and 'rootfs_label' not in already_processed:
             already_processed.add('rootfs_label')
             self.rootfs_label = value
+            self.rootfs_label = ' '.join(self.rootfs_label.split())
+            self.validate_label_name(self.rootfs_label)    # validate type label-name
         value = find_attr_value_('spare_part', node)
         if value is not None and 'spare_part' not in already_processed:
             already_processed.add('spare_part')

@@ -18,8 +18,8 @@ install() {
         blkid blockdev parted dd mkdir rmdir \
         grep cut tail head tr bc \
         basename partprobe sfdisk sgdisk mkswap readlink lsblk \
-        btrfs xfs_growfs resize2fs \
-        e2fsck btrfsck xfs_repair \
+        btrfs xfs_growfs resize2fs tune2fs \
+        e2fsck btrfsck xfs_repair xfs_admin \
         vgs vgchange lvextend lvcreate lvresize pvresize \
         mdadm cryptsetup dialog \
         pv curl xz \
