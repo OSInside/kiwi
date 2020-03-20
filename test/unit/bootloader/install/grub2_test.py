@@ -67,11 +67,11 @@ class TestBootLoaderInstallGrub2:
 
         # the order of mount manager is reverse the order in the code
         self.mount_managers = [
-            self.efi_mount,
             self.sysfs_mount,
             self.proc_mount,
             self.device_mount,
             self.volume_mount,
+            self.efi_mount,
             self.boot_mount,
             self.root_mount
         ]
