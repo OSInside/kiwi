@@ -168,14 +168,6 @@
         <package name="yast2-ycp-ui-bindings"/>
         <package name="docker"/>
         <package name="yast2-docker"/>
-        <package name="python-cinderclient"/>
-        <package name="python-glanceclient"/>
-        <package name="python-heatclient"/>
-        <package name="python-keystoneclient"/>
-        <package name="python-neutronclient"/>
-        <package name="python-novaclient"/>
-        <package name="python-openstackclient"/>
-        <package name="python-swiftclient"/>
         <package name="cloud-init"/>
         <package name="cloud-init-config-suse"/>
     </packages>
