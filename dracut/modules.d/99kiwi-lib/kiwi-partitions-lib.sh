@@ -312,9 +312,15 @@ function disk_has_unallocated_space {
     local pt_table_type
     pt_table_type=$(get_partition_table_type "${disk_device}")
     if [ "${pt_table_type}" = "dos" ];then
-        sfdisk --verify "${disk_device}" 2>&1 | grep -q "unallocated"
-    else
+        # we can't distinguish from 'intentional free space left'
+        # and the 'already resized' condition. Thus assume it's
+        # not fully allocated to allow for resize
+        true
+    elif [ "${pt_table_type}" = "gpt" ];then
         sgdisk --verify "${disk_device}" 2>&1 | grep -q "end of the disk"
+    else
+        # assume it's not fully allocated and allow for resize
+        true
     fi
 }
 
