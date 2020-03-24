@@ -189,10 +189,10 @@ class DiskSetup:
             return False
         if self.mdraid:
             return True
-        if self.volume_manager:
+        if self.volume_manager == 'lvm':
             return True
-        if self.filesystem == 'btrfs':
-            return True
+        if self.volume_manager == 'btrfs':
+            return False
         if self.filesystem == 'xfs':
             return True
         if self.root_filesystem_is_overlay:
