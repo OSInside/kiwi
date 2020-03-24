@@ -16,7 +16,7 @@ install() {
     declare moddir=${moddir}
     inst_multiple \
         blkid blockdev parted dd mkdir rmdir \
-        grep cut tail head tr bc \
+        grep cut tail head tr bc true false \
         basename partprobe sfdisk sgdisk mkswap readlink lsblk \
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
