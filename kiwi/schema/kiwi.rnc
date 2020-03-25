@@ -385,6 +385,24 @@ div {
 }
 
 #==========================================
+# common element <oem-resize-once>
+#
+div {
+    k.oem-resize-once.content = xsd:boolean
+    k.oem-resize-once.attlist = empty
+    k.oem-resize-once =
+        ## For oem images: repart/resize only on first boot: true/false
+        ## By default the repart/resize happens on every reboot and
+        ## therefore also allows for disk geometry changes during the
+        ## livetime of the machine. If set to false the repart/resize
+        ## operation happens only once and then never again
+        element oem-resize-once {
+            k.oem-resize-once.attlist,
+            k.oem-resize-once.content
+        }
+}
+
+#==========================================
 # common element <oem-device-filter>
 #
 div {
@@ -2435,6 +2453,7 @@ div {
             k.oemconfig.attlist &
             k.oem-boot-title? &
             k.oem-bootwait? &
+            k.oem-resize-once? &
             k.oem-device-filter? &
             k.oem-nic-filter? &
             k.oem-inplace-recovery? &

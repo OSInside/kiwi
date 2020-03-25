@@ -5742,7 +5742,7 @@ class oemconfig(GeneratedsSuper):
     which are used to repartition and setup the system disk."""
     subclass = None
     superclass = None
-    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
+    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_resize_once=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
         self.original_tagname_ = None
         if oem_boot_title is None:
             self.oem_boot_title = []
@@ -5752,6 +5752,10 @@ class oemconfig(GeneratedsSuper):
             self.oem_bootwait = []
         else:
             self.oem_bootwait = oem_bootwait
+        if oem_resize_once is None:
+            self.oem_resize_once = []
+        else:
+            self.oem_resize_once = oem_resize_once
         if oem_device_filter is None:
             self.oem_device_filter = []
         else:
@@ -5865,6 +5869,11 @@ class oemconfig(GeneratedsSuper):
     def add_oem_bootwait(self, value): self.oem_bootwait.append(value)
     def insert_oem_bootwait_at(self, index, value): self.oem_bootwait.insert(index, value)
     def replace_oem_bootwait_at(self, index, value): self.oem_bootwait[index] = value
+    def get_oem_resize_once(self): return self.oem_resize_once
+    def set_oem_resize_once(self, oem_resize_once): self.oem_resize_once = oem_resize_once
+    def add_oem_resize_once(self, value): self.oem_resize_once.append(value)
+    def insert_oem_resize_once_at(self, index, value): self.oem_resize_once.insert(index, value)
+    def replace_oem_resize_once_at(self, index, value): self.oem_resize_once[index] = value
     def get_oem_device_filter(self): return self.oem_device_filter
     def set_oem_device_filter(self, oem_device_filter): self.oem_device_filter = oem_device_filter
     def add_oem_device_filter(self, value): self.oem_device_filter.append(value)
@@ -5984,6 +5993,7 @@ class oemconfig(GeneratedsSuper):
         if (
             self.oem_boot_title or
             self.oem_bootwait or
+            self.oem_resize_once or
             self.oem_device_filter or
             self.oem_nic_filter or
             self.oem_inplace_recovery or
@@ -6045,6 +6055,9 @@ class oemconfig(GeneratedsSuper):
         for oem_bootwait_ in self.oem_bootwait:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-bootwait>%s</oem-bootwait>%s' % (self.gds_format_boolean(oem_bootwait_, input_name='oem-bootwait'), eol_))
+        for oem_resize_once_ in self.oem_resize_once:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<oem-resize-once>%s</oem-resize-once>%s' % (self.gds_format_boolean(oem_resize_once_, input_name='oem-resize-once'), eol_))
         for oem_device_filter_ in self.oem_device_filter:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-device-filter>%s</oem-device-filter>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), eol_))
@@ -6138,6 +6151,16 @@ class oemconfig(GeneratedsSuper):
                 raise_parse_error(child_, 'requires boolean')
             ival_ = self.gds_validate_boolean(ival_, node, 'oem_bootwait')
             self.oem_bootwait.append(ival_)
+        elif nodeName_ == 'oem-resize-once':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'oem_resize_once')
+            self.oem_resize_once.append(ival_)
         elif nodeName_ == 'oem-device-filter':
             oem_device_filter_ = child_.text
             oem_device_filter_ = self.gds_validate_string(oem_device_filter_, node, 'oem_device_filter')

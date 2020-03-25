@@ -234,8 +234,8 @@ mask_fsck_root_service
 # initialize for disk repartition
 initialize
 
-if ! disk_has_unallocated_space "${disk}";then
-    # already resized or disk has not received any geometry change
+# check if repart/resize is wanted
+if ! resize_wanted "${root_device}" "${disk}"; then
     return
 fi
 

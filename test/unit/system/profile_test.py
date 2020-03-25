@@ -13,6 +13,7 @@ class TestProfile:
     def setup(self):
         self.tmpfile = mock.Mock()
         self.tmpfile.name = 'tmpfile'
+        self.profile_file = 'tmpfile.profile'
         description = XMLDescription('../data/example_dot_profile_config.xml')
         self.profile = Profile(
             XMLState(description.load())
@@ -23,8 +24,9 @@ class TestProfile:
     def test_create(self, mock_which, mock_temp):
         mock_which.return_value = 'cp'
         mock_temp.return_value = self.tmpfile
-        result = self.profile.create()
+        self.profile.create(self.profile_file)
         os.remove(self.tmpfile.name)
+        os.remove(self.profile_file)
         assert self.profile.dot_profile == {
             'kiwi_Volume_1': 'usr_lib|size:1024|usr/lib',
             'kiwi_Volume_2': 'LVRoot|freespace:500|',
@@ -70,6 +72,7 @@ class TestProfile:
             'kiwi_oemrecoveryPartSize': None,
             'kiwi_oemrootMB': 2048,
             'kiwi_oemshutdowninteractive': None,
+            'kiwi_oemresizeonce': None,
             'kiwi_oemshutdown': None,
             'kiwi_oemsilentboot': None,
             'kiwi_oemsilentinstall': None,
@@ -98,38 +101,9 @@ class TestProfile:
             'kiwi_vga': None,
             'kiwi_startsector': 2048,
             'kiwi_wwid_wait_timeout': None,
-            'kiwi_xendomain': 'dom0'
+            'kiwi_xendomain': 'dom0',
+            'kiwi_rootpartuuid': None
         }
-        assert result == [
-            "kiwi_Volume_1='usr_lib|size:1024|usr/lib'",
-            "kiwi_Volume_2='LVRoot|freespace:500|'",
-            "kiwi_Volume_3='etc_volume|freespace:30|etc'",
-            "kiwi_Volume_4='bin_volume|size:all|/usr/bin'",
-            "kiwi_Volume_5='usr_bin|freespace:30|usr/bin'",
-            "kiwi_Volume_6='LVSwap|size:128|'",
-            "kiwi_bootloader='grub2'",
-            "kiwi_cmdline='splash'",
-            "kiwi_displayname='schäfer'",
-            "kiwi_firmware='efi'",
-            "kiwi_iname='LimeJeOS-openSUSE-13.2'",
-            "kiwi_initrd_system='kiwi'",
-            "kiwi_install_volid='INSTALL'",
-            "kiwi_iversion='1.13.2'",
-            "kiwi_keytable='us.map.gz'",
-            "kiwi_language='en_US'",
-            "kiwi_loader_theme='openSUSE'",
-            "kiwi_lvm='true'",
-            "kiwi_lvmgroup='systemVG'",
-            "kiwi_oemrootMB='2048'",
-            "kiwi_oemskipverify='true'",
-            "kiwi_oemtitle='schäfer'",
-            "kiwi_ramonly='true'",
-            "kiwi_splash_theme='openSUSE'",
-            "kiwi_startsector='2048'",
-            "kiwi_timezone='Europe/Berlin'",
-            "kiwi_type='oem'",
-            "kiwi_xendomain='dom0'"
-        ]
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')
@@ -140,9 +114,11 @@ class TestProfile:
         profile = Profile(
             XMLState(description.load())
         )
-        profile.create()
+        profile.create(self.profile_file)
         os.remove(self.tmpfile.name)
-        assert profile.dot_profile['kiwi_displayname'] == 'LimeJeOS-openSUSE-13.2'
+        os.remove(self.profile_file)
+        assert profile.dot_profile['kiwi_displayname'] == \
+            'LimeJeOS-openSUSE-13.2'
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')
@@ -153,9 +129,11 @@ class TestProfile:
         profile = Profile(
             XMLState(description.load(), None, 'cpio')
         )
-        profile.create()
+        profile.create(self.profile_file)
         os.remove(self.tmpfile.name)
-        assert profile.dot_profile['kiwi_cpio_name'] == 'LimeJeOS-openSUSE-13.2'
+        os.remove(self.profile_file)
+        assert profile.dot_profile['kiwi_cpio_name'] == \
+            'LimeJeOS-openSUSE-13.2'
 
     def test_add(self):
         self.profile.add('foo', 'bar')

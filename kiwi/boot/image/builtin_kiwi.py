@@ -88,7 +88,9 @@ class BootImageKiwi(BootImageBase):
         self.setup = SystemSetup(
             self.boot_xml_state, self.boot_root_directory
         )
-        self.setup.import_shell_environment(profile)
+        profile.create(
+            Defaults.get_profile_file(self.boot_root_directory)
+        )
         self.setup.import_description()
         self.setup.import_overlay_files(
             follow_links=True

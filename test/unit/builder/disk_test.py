@@ -380,6 +380,9 @@ class TestDiskBuilder:
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
             call(['mv', 'initrd', 'root_dir/boot/initrd.vmx']),
         ]
+        self.block_operation.get_blkid.assert_has_calls(
+            [call('PARTUUID')]
+        )
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )
@@ -497,6 +500,9 @@ class TestDiskBuilder:
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
             call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img'])
         ]
+        self.block_operation.get_blkid.assert_has_calls(
+            [call('PARTUUID')]
+        )
         self.setup.export_package_list.assert_called_once_with(
             'target_dir'
         )

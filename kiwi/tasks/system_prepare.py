@@ -207,7 +207,10 @@ class SystemPrepareTask(CliTask):
         setup = SystemSetup(
             self.xml_state, abs_root_path
         )
-        setup.import_shell_environment(profile)
+
+        profile.create(
+            Defaults.get_profile_file(abs_root_path)
+        )
 
         setup.import_description()
         setup.import_overlay_files()

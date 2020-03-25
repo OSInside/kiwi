@@ -15,12 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+import logging
 import collections
 from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
+
+log = logging.getLogger('kiwi')
 
 
 class Profile:
@@ -47,6 +51,7 @@ class Profile:
         self._strip_to_profile()
         self._oemconfig_to_profile()
         self._drivers_to_profile()
+        self._root_partition_uuid_to_profile()
 
     def add(self, key, value):
         """
@@ -61,13 +66,11 @@ class Profile:
         if key in self.dot_profile:
             del self.dot_profile[key]
 
-    def create(self):
+    def create(self, filename):
         """
         Create bash quoted profile
 
-        :return: profile dump for bash
-
-        :rtype: str
+        :param str filename: file path name
         """
         sorted_profile = collections.OrderedDict(
             sorted(self.dot_profile.items())
@@ -79,7 +82,11 @@ class Profile:
                     profile.write(
                         format(key) + '=' + self._format(value) + '\n'
                     )
-        return Shell.quote_key_value_file(temp_profile.name)
+        profile_environment = Shell.quote_key_value_file(temp_profile.name)
+        with open(filename, 'w') as profile:
+            for line in profile_environment:
+                profile.write(line + os.linesep)
+                log.debug('--> {0}'.format(line))
 
     def _oemconfig_to_profile(self):
         # kiwi_oemvmcp_parmfile
@@ -87,6 +94,7 @@ class Profile:
         # kiwi_oemswapMB
         # kiwi_oemrootMB
         # kiwi_oemswap
+        # kiwi_oemresizeonce
         # kiwi_oempartition_install
         # kiwi_oemdevicefilter
         # kiwi_oemtitle
@@ -127,6 +135,8 @@ class Profile:
             self.dot_profile['kiwi_oemswap'] = \
                 self._text(False)
 
+            self.dot_profile['kiwi_oemresizeonce'] = \
+                self._text(oemconfig.get_oem_resize_once())
             self.dot_profile['kiwi_oempartition_install'] = \
                 self._text(oemconfig.get_oem_partition_install())
             self.dot_profile['kiwi_oemdevicefilter'] = \
@@ -354,6 +364,11 @@ class Profile:
 
         if self.xml_state.get_build_type_name() == 'cpio':
             self.dot_profile['kiwi_cpio_name'] = self.dot_profile['kiwi_iname']
+
+    def _root_partition_uuid_to_profile(self):
+        # kiwi_rootpartuuid
+        self.dot_profile['kiwi_rootpartuuid'] = \
+            self.xml_state.get_root_partition_uuid()
 
     def _text(self, section_content):
         """

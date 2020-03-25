@@ -817,3 +817,8 @@ class TestXMLState:
         assert self.state.get_rpm_locale() == [
             'POSIX', 'C', 'C.UTF-8', 'en_US', 'de_DE'
         ]
+
+    def test_set_root_partition_uuid(self):
+        assert self.state.get_root_partition_uuid() is None
+        self.state.set_root_partition_uuid('some-id')
+        assert self.state.get_root_partition_uuid() == 'some-id'

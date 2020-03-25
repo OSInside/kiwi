@@ -128,22 +128,18 @@ class BootImageDracut(BootImageBase):
         """
         Prepare dracut caller environment
 
-        * Create kiwi .profile environment to be included in dracut initrd
         * Setup machine_id(s) to be generic and rebuild by dracut on boot
         """
-        profile = Profile(self.xml_state)
-        defaults = Defaults()
-        defaults.to_profile(profile)
         setup = SystemSetup(
             self.xml_state, self.boot_root_directory
         )
-        setup.import_shell_environment(profile)
         setup.setup_machine_id()
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 
     def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
         """
+        Create kiwi .profile environment to be included in dracut initrd.
         Call dracut as chroot operation to create the initrd and move
         the result into the image build target directory
 
@@ -153,6 +149,7 @@ class BootImageDracut(BootImageBase):
         """
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')
+            self._create_profile_environment()
             kernel_info = Kernel(self.boot_root_directory)
             kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
             if basename:
@@ -222,3 +219,11 @@ class BootImageDracut(BootImageBase):
             return True
         log.warning(warn_msg.format(module))
         return False
+
+    def _create_profile_environment(self):
+        profile = Profile(self.xml_state)
+        defaults = Defaults()
+        defaults.to_profile(profile)
+        profile.create(
+            Defaults.get_profile_file(self.boot_root_directory)
+        )

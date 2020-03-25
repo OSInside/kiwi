@@ -311,15 +311,19 @@ function disk_has_unallocated_space {
     local disk_device=$1
     local pt_table_type
     pt_table_type=$(get_partition_table_type "${disk_device}")
-    if [ "${pt_table_type}" = "dos" ];then
-        # we can't distinguish from 'intentional free space left'
-        # and the 'already resized' condition. Thus assume it's
-        # not fully allocated to allow for resize
-        true
-    elif [ "${pt_table_type}" = "gpt" ];then
+    if [ "${pt_table_type}" = "gpt" ];then
+        # GPT disks store a backup table at the end of the disk
+        # if the disk geometry changes the backup table is no
+        # longer at the end and this condition can be easily
+        # checked and used to detect that there is space
+        # unallocated due to a geometry change of the underlying
+        # block device layer
         sgdisk --verify "${disk_device}" 2>&1 | grep -q "end of the disk"
     else
-        # assume it's not fully allocated and allow for resize
+        # There is currently no method we could come up with
+        # to detect a geometry change for non GPT based disks.
+        # Thus we assume it's not fully allocated and allow
+        # for resize
         true
     fi
 }
@@ -496,4 +500,54 @@ function _parted_write {
         die "Failed to create partition table"
     fi
     _parted_init "${disk_device}"
+}
+
+function resize_wanted {
+    # """
+    # check if oem-resize-once was requested in the image
+    # description. If not we always try to repart/resize
+    # the image according to the configured constraints.
+    #
+    # If oem-resize-once is set to true we check if the
+    # system has been already resized compared to the
+    # original image PARTUUID and repart/resize the system
+    # only if the PARTUUID is still the original value.
+    # After resize a new PARTUUID will be written by the
+    # partitioner and that will result in the repart/resize
+    # operation to happen only once in the livetime of
+    # the image
+    #
+    # If the resize is wanted the method also checks for
+    # a real change in geometry on the block device layer
+    # and returns accordingly. Please note geometry change
+    # can currently only be detected on GPT disks. In any
+    # other case it is assumed the geometry has changed
+    # such that a resize can at least be tried
+    # """
+    declare kiwi_oemresizeonce=${kiwi_oemresizeonce}
+    declare kiwi_rootpartuuid=${kiwi_rootpartuuid}
+    local current_rootpart_uuid
+    local root_device=$1
+    local disk_device=$2
+    kiwi_oemresizeonce=$(bool "${kiwi_oemresizeonce}")
+    if [ "${kiwi_oemresizeonce}" = "true" ];then
+        current_rootpart_uuid=$(get_partition_uuid "${root_device}")
+        if [ "${current_rootpart_uuid}" == "${kiwi_rootpartuuid}" ];then
+            info "System was not yet resized"
+        else
+            info "System was already resized and oem-resize-once is requested"
+            info "Skipping resize operation"
+            return 1
+        fi
+    else
+        info "System resize is active on every reboot"
+    fi
+    if disk_has_unallocated_space "${disk_device}";then
+        info "Activating resize operation"
+        return 0
+    else
+        info "Disk geometry did not change"
+        info "Skipping resize operation"
+        return 1
+    fi
 }

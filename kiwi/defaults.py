@@ -1495,6 +1495,12 @@ class Defaults:
         if key in self.defaults:
             return self.defaults[key]
 
+    def get_profile_file(root_dir):
+        """
+        Return name of profile file for given root directory
+        """
+        return root_dir + '/.profile'
+
     def to_profile(self, profile):
         """
         Implements method to add list of profile keys and their values
