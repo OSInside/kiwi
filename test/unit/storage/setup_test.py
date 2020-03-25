@@ -105,8 +105,8 @@ class TestDiskSetup:
 
     def test_need_boot_partition_btrfs(self):
         self._init_bootpart_check()
-        self.setup.filesystem = 'btrfs'
-        assert self.setup.need_boot_partition() is True
+        self.setup.volume_manager = 'btrfs'
+        assert self.setup.need_boot_partition() is False
 
     def test_need_boot_partition_xfs(self):
         self._init_bootpart_check()
@@ -134,7 +134,6 @@ class TestDiskSetup:
 
     def test_get_disksize_mbytes_with_ppc_prep_partition(self):
         assert self.setup_ppc.get_disksize_mbytes() == \
-            Defaults.get_default_boot_mbytes() + \
             Defaults.get_default_prep_mbytes() + \
             self.size.accumulate_mbyte_file_sizes.return_value
 
@@ -143,7 +142,6 @@ class TestDiskSetup:
         assert self.setup_arm.get_disksize_mbytes() == \
             configured_spare_part_size + \
             Defaults.get_default_efi_boot_mbytes() + \
-            Defaults.get_default_boot_mbytes() + \
             self.size.accumulate_mbyte_file_sizes.return_value
 
     def test_get_disksize_mbytes_configured_additive(self):
@@ -155,7 +153,6 @@ class TestDiskSetup:
         assert self.setup.get_disksize_mbytes() == \
             Defaults.get_default_legacy_bios_mbytes() + \
             Defaults.get_default_efi_boot_mbytes() + \
-            Defaults.get_default_boot_mbytes() + \
             Defaults.get_swapsize_mbytes() + \
             root_size + 42 + \
             200 * 1.7
