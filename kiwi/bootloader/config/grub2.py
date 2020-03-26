@@ -483,6 +483,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * LOADER_LOCATION
         * DEFAULT_APPEND
         * FAILSAFE_APPEND
+        * SECURE_BOOT
         """
         sysconfig_bootloader_entries = {
             'LOADER_TYPE':
@@ -490,6 +491,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'LOADER_LOCATION':
                 'none' if self.firmware.efi_mode() else 'mbr'
         }
+        if self.firmware.efi_mode() == 'uefi':
+            sysconfig_bootloader_entries['SECURE_BOOT'] = 'yes'
         if self.cmdline:
             sysconfig_bootloader_entries['DEFAULT_APPEND'] = '"{0}"'.format(
                 self.cmdline

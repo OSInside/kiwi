@@ -371,7 +371,7 @@ class TestBootLoaderConfigGrub2:
             call('LOADER_TYPE', 'grub2')
         ]
         self.firmware.efi_mode = Mock(
-            return_value=True
+            return_value='uefi'
         )
         sysconfig_bootloader.__setitem__.reset_mock()
         self.bootloader._setup_sysconfig_bootloader()
@@ -382,7 +382,8 @@ class TestBootLoaderConfigGrub2:
                 '"some-cmdline root=UUID=foo failsafe-options"'
             ),
             call('LOADER_LOCATION', 'none'),
-            call('LOADER_TYPE', 'grub2-efi')
+            call('LOADER_TYPE', 'grub2-efi'),
+            call('SECURE_BOOT', 'yes')
         ]
 
     def test_setup_live_image_config_multiboot(self):
