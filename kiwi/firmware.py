@@ -97,9 +97,9 @@ class FirmWare:
         """
         Check if EFI mode is requested
 
-        :return: True or False
+        :return: The requested EFI mode or None if no EFI mode requested
 
-        :rtype: bool
+        :rtype: str
         """
         if self.firmware in Defaults.get_efi_capable_firmware_names():
             return self.firmware
