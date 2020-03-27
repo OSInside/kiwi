@@ -119,3 +119,6 @@
 
 #      # verify configured firmware is compatible with host architecture
 #      - check_architecture_supports_iso_firmware_setup
+
+#      # verify WSL naming conventions
+#      - check_appx_naming_conventions_valid

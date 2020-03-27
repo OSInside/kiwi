@@ -720,7 +720,10 @@ class TestXMLState:
             'history': {
                 'author': 'history author',
                 'comment': 'This is a comment',
-                'created_by': 'created by text'
+                'created_by': 'created by text',
+                'application_id': '123',
+                'package_version': '2003.12.0.0',
+                'launcher': 'app'
             }
         }
         xml_data = self.description.load()

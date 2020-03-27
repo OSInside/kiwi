@@ -43,6 +43,7 @@ class ContainerBuilder:
         * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+        self.custom_args = custom_args or {}
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.container_config = xml_state.get_container_config()
@@ -50,8 +51,11 @@ class ContainerBuilder:
         self.base_image = None
         self.base_image_md5 = None
 
-        self.container_config['xz_options'] = custom_args['xz_options'] \
-            if custom_args and 'xz_options' in custom_args else None
+        self.container_config['xz_options'] = \
+            self.custom_args.get('xz_options')
+
+        self.container_config['metadata_path'] = \
+            xml_state.build_type.get_metadata_path()
 
         if xml_state.get_derived_from_image_uri():
             # The base image is expected to be unpacked by the kiwi
@@ -84,7 +88,8 @@ class ContainerBuilder:
                 xml_state.xml_data.get_name(),
                 '.' + platform.machine(),
                 '-' + xml_state.get_image_version(),
-                '.', self.requested_container_type, '.tar'
+                '.', self.requested_container_type,
+                '.tar' if self.requested_container_type != 'appx' else ''
             ]
         )
         self.result = Result(xml_state)
@@ -92,12 +97,14 @@ class ContainerBuilder:
 
     def create(self):
         """
-        Builds a container image which is usually a tarball including
-        container specific metadata.
+        Builds a container image which is usually a data archive
+        including container specific metadata.
 
         Image types which triggers this builder are:
 
         * image="docker"
+        * image="oci"
+        * image="appx"
 
         :return: result
 

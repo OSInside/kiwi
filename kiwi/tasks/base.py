@@ -86,7 +86,8 @@ class CliTask:
             'check_dracut_module_for_disk_overlay_in_package_list': [],
             'check_dracut_module_for_disk_oem_in_package_list': [],
             'check_dracut_module_for_oem_install_in_package_list': [],
-            'check_architecture_supports_iso_firmware_setup': []
+            'check_architecture_supports_iso_firmware_setup': [],
+            'check_appx_naming_conventions_valid': []
         }
         self.checks_after_command_args = {
             'check_repositories_configured': [],

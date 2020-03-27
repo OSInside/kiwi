@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2566,7 +2566,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2602,6 +2602,7 @@ class type_(GeneratedsSuper):
         self.force_mbr = _cast(bool, force_mbr)
         self.initrd_system = _cast(None, initrd_system)
         self.image = _cast(None, image)
+        self.metadata_path = _cast(None, metadata_path)
         self.installboot = _cast(None, installboot)
         self.install_continue_on_timeout = _cast(bool, install_continue_on_timeout)
         self.installprovidefailsafe = _cast(bool, installprovidefailsafe)
@@ -2765,6 +2766,8 @@ class type_(GeneratedsSuper):
     def set_initrd_system(self, initrd_system): self.initrd_system = initrd_system
     def get_image(self): return self.image
     def set_image(self, image): self.image = image
+    def get_metadata_path(self): return self.metadata_path
+    def set_metadata_path(self, metadata_path): self.metadata_path = metadata_path
     def get_installboot(self): return self.installboot
     def set_installboot(self, installboot): self.installboot = installboot
     def get_install_continue_on_timeout(self): return self.install_continue_on_timeout
@@ -2996,6 +2999,9 @@ class type_(GeneratedsSuper):
         if self.image is not None and 'image' not in already_processed:
             already_processed.add('image')
             outfile.write(' image=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.image), input_name='image')), ))
+        if self.metadata_path is not None and 'metadata_path' not in already_processed:
+            already_processed.add('metadata_path')
+            outfile.write(' metadata_path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.metadata_path), input_name='metadata_path')), ))
         if self.installboot is not None and 'installboot' not in already_processed:
             already_processed.add('installboot')
             outfile.write(' installboot=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.installboot), input_name='installboot')), ))
@@ -3317,6 +3323,10 @@ class type_(GeneratedsSuper):
             already_processed.add('image')
             self.image = value
             self.image = ' '.join(self.image.split())
+        value = find_attr_value_('metadata_path', node)
+        if value is not None and 'metadata_path' not in already_processed:
+            already_processed.add('metadata_path')
+            self.metadata_path = value
         value = find_attr_value_('installboot', node)
         if value is not None and 'installboot' not in already_processed:
             already_processed.add('installboot')
@@ -5593,10 +5603,13 @@ class history(GeneratedsSuper):
     'comment' entry."""
     subclass = None
     superclass = None
-    def __init__(self, created_by=None, author=None, valueOf_=None, mixedclass_=None, content_=None):
+    def __init__(self, created_by=None, author=None, application_id=None, package_version=None, launcher=None, valueOf_=None, mixedclass_=None, content_=None):
         self.original_tagname_ = None
         self.created_by = _cast(None, created_by)
         self.author = _cast(None, author)
+        self.application_id = _cast(None, application_id)
+        self.package_version = _cast(None, package_version)
+        self.launcher = _cast(None, launcher)
         self.valueOf_ = valueOf_
         if mixedclass_ is None:
             self.mixedclass_ = MixedContainer
@@ -5622,8 +5635,21 @@ class history(GeneratedsSuper):
     def set_created_by(self, created_by): self.created_by = created_by
     def get_author(self): return self.author
     def set_author(self, author): self.author = author
+    def get_application_id(self): return self.application_id
+    def set_application_id(self, application_id): self.application_id = application_id
+    def get_package_version(self): return self.package_version
+    def set_package_version(self, package_version): self.package_version = package_version
+    def get_launcher(self): return self.launcher
+    def set_launcher(self, launcher): self.launcher = launcher
     def get_valueOf_(self): return self.valueOf_
     def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_package_version_type(self, value):
+        # Validate type package-version-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_package_version_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_package_version_type_patterns_, ))
+    validate_package_version_type_patterns_ = [['^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}$']]
     def hasContent_(self):
         if (
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
@@ -5656,6 +5682,15 @@ class history(GeneratedsSuper):
         if self.author is not None and 'author' not in already_processed:
             already_processed.add('author')
             outfile.write(' author=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.author), input_name='author')), ))
+        if self.application_id is not None and 'application_id' not in already_processed:
+            already_processed.add('application_id')
+            outfile.write(' application_id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.application_id), input_name='application_id')), ))
+        if self.package_version is not None and 'package_version' not in already_processed:
+            already_processed.add('package_version')
+            outfile.write(' package_version=%s' % (quote_attrib(self.package_version), ))
+        if self.launcher is not None and 'launcher' not in already_processed:
+            already_processed.add('launcher')
+            outfile.write(' launcher=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.launcher), input_name='launcher')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='history', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -5679,6 +5714,20 @@ class history(GeneratedsSuper):
         if value is not None and 'author' not in already_processed:
             already_processed.add('author')
             self.author = value
+        value = find_attr_value_('application_id', node)
+        if value is not None and 'application_id' not in already_processed:
+            already_processed.add('application_id')
+            self.application_id = value
+        value = find_attr_value_('package_version', node)
+        if value is not None and 'package_version' not in already_processed:
+            already_processed.add('package_version')
+            self.package_version = value
+            self.package_version = ' '.join(self.package_version.split())
+            self.validate_package_version_type(self.package_version)    # validate type package-version-type
+        value = find_attr_value_('launcher', node)
+        if value is not None and 'launcher' not in already_processed:
+            already_processed.add('launcher')
+            self.launcher = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if not fromsubclass_ and child_.tail is not None:
             obj_ = self.mixedclass_(MixedContainer.CategoryText,

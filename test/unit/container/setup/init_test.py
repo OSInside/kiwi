@@ -20,3 +20,8 @@ class TestContainerSetup:
     def test_container_oci(self, mock_oci):
         ContainerSetup('oci', 'root_dir')
         mock_oci.assert_called_once_with('root_dir', None)
+
+    @patch('kiwi.container.setup.ContainerSetupAppx')
+    def test_container_appx(self, mock_appx):
+        ContainerSetup('appx', 'root_dir')
+        mock_appx.assert_called_once_with('root_dir', None)

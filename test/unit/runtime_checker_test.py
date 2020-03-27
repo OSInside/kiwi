@@ -74,6 +74,22 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_volume_setup_defines_reserved_labels()
 
+    def test_appx_invalid_name(self):
+        xml_state = XMLState(
+            self.description.load(), ['wsl_launcher'], 'appx'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_appx_naming_conventions_valid()
+
+    def test_appx_invalid_id(self):
+        xml_state = XMLState(
+            self.description.load(), ['wsl_id'], 'appx'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_appx_naming_conventions_valid()
+
     def test_check_volume_setup_defines_multiple_fullsize_volumes(self):
         with raises(KiwiRuntimeError):
             self.runtime_checker.\

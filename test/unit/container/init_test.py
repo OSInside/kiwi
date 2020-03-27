@@ -24,3 +24,10 @@ class TestContainerImage:
         mock_oci.assert_called_once_with(
             'root_dir', 'oci-archive', custom_args=None
         )
+
+    @patch('kiwi.container.ContainerImageAppx')
+    def test_container_image_appx(self, mock_appx):
+        ContainerImage('appx', 'root_dir')
+        mock_appx.assert_called_once_with(
+            'root_dir', custom_args=None
+        )
