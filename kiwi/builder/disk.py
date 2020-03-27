@@ -367,6 +367,9 @@ class DiskBuilder:
                 label='SWAP'
             )
 
+        # store root partition uuid for profile
+        self._preserve_root_partition_uuid(device_map)
+
         # create a random image identifier
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
@@ -940,6 +943,16 @@ class DiskBuilder:
             ]
         )
         self.fstab.add_entry(fstab_entry)
+
+    def _preserve_root_partition_uuid(self, device_map):
+        block_operation = BlockID(
+            device_map['root'].get_device()
+        )
+        partition_uuid = block_operation.get_blkid('PARTUUID')
+        if partition_uuid:
+            self.xml_state.set_root_partition_uuid(
+                partition_uuid
+            )
 
     def _write_image_identifier_to_system_image(self):
         log.info('Creating image identifier: %s', self.mbrid.get_id())

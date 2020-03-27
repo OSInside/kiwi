@@ -218,11 +218,13 @@ class SystemBuildTask(CliTask):
 
         defaults = Defaults()
         defaults.to_profile(profile)
+        profile.create(
+            Defaults.get_profile_file(image_root)
+        )
 
         setup = SystemSetup(
             self.xml_state, image_root
         )
-        setup.import_shell_environment(profile)
 
         setup.import_description()
         setup.import_overlay_files()

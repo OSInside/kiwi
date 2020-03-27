@@ -185,20 +185,6 @@ class TestSystemSetup:
             ['rm', '-r', '-f', '/.kconfig', '/image']
         )
 
-    def test_import_shell_environment(self):
-        mock_profile = MagicMock()
-        mock_profile.create = Mock(
-            return_value=['a']
-        )
-
-        m_open = mock_open()
-        with patch('builtins.open', m_open, create=True):
-            self.setup.import_shell_environment(mock_profile)
-
-        mock_profile.create.assert_called_once_with()
-        m_open.assert_called_once_with('root_dir/.profile', 'w')
-        m_open.return_value.write.assert_called_once_with('a\n')
-
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.glob.iglob')
     def test_import_cdroot_files(self, mock_iglob, mock_ArchiveTar):

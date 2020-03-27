@@ -650,6 +650,30 @@ of the OEM image</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <oem-resize-once>
+    
+  -->
+  <div>
+    <define name="k.oem-resize-once.content">
+      <data type="boolean"/>
+    </define>
+    <define name="k.oem-resize-once.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-resize-once">
+      <element name="oem-resize-once">
+        <a:documentation>For oem images: repart/resize only on first boot: true/false
+By default the repart/resize happens on every reboot and
+therefore also allows for disk geometry changes during the
+livetime of the machine. If set to false the repart/resize
+operation happens only once and then never again</a:documentation>
+        <ref name="k.oem-resize-once.attlist"/>
+        <ref name="k.oem-resize-once.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-device-filter>
     
   -->
@@ -3759,6 +3783,9 @@ and setup the system disk.</a:documentation>
           </optional>
           <optional>
             <ref name="k.oem-bootwait"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-resize-once"/>
           </optional>
           <optional>
             <ref name="k.oem-device-filter"/>

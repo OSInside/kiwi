@@ -68,8 +68,8 @@ class TestBootImageKiwi:
         assert self.profile.add.call_args_list[0] == call(
             'kiwi_initrdname', 'initrd-oemboot-suse-13.2'
         )
-        self.setup.import_shell_environment.assert_called_once_with(
-            self.profile
+        self.profile.create.assert_called_once_with(
+            'boot-root-directory/.profile'
         )
         self.setup.import_description.assert_called_once_with()
         self.setup.import_overlay_files.assert_called_once_with(

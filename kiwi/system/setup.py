@@ -151,21 +151,6 @@ class SystemSetup:
                 repo_sourcetype
             )
 
-    def import_shell_environment(self, profile):
-        """
-        Create profile environment to let scripts consume
-        information from the XML description.
-
-        :param object profile: instance of :class:`Profile`
-        """
-        profile_file = self.root_dir + '/.profile'
-        log.info('Creating .profile environment')
-        profile_environment = profile.create()
-        with open(profile_file, 'w') as profile:
-            for line in profile_environment:
-                profile.write(line + '\n')
-                log.debug('--> %s', line)
-
     def import_cdroot_files(self, target_dir):
         """
         Copy cdroot files from the image description to the

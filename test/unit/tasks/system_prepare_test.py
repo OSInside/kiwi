@@ -150,8 +150,8 @@ class TestSystemPrepareTask:
         self.system_prepare.install_system.assert_called_once_with(
             self.manager
         )
-        self.setup.import_shell_environment.assert_called_once_with(
-            self.profile
+        self.profile.create.assert_called_once_with(
+            self.abs_root_dir + '/.profile'
         )
         self.setup.import_description.assert_called_once_with()
         self.setup.import_overlay_files.assert_called_once_with()
