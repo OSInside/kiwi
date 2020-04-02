@@ -264,6 +264,31 @@ class TestSystemSetup:
             'root_dir'
         )
 
+    @patch('kiwi.system.setup.DataSync')
+    @patch('os.path.exists')
+    def test_import_overlay_files_from_profile(
+        self, mock_os_path, mock_DataSync
+    ):
+        exists_results = [True, False, False]
+
+        def side_effect(arg):
+            return exists_results.pop()
+
+        data = Mock()
+        mock_DataSync.return_value = data
+        mock_os_path.side_effect = side_effect
+        self.xml_state.profiles = ['profile_root']
+        self.setup.import_overlay_files()
+        mock_DataSync.assert_called_once_with(
+            'description_dir/profile_root/', 'root_dir'
+        )
+        data.sync_data.assert_called_once_with(
+            options=[
+                '-r', '-p', '-t', '-D', '-H', '-X', '-A',
+                '--one-file-system', '--links'
+            ]
+        )
+
     @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')

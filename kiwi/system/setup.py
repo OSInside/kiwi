@@ -177,7 +177,18 @@ class SystemSetup:
         Copy overlay files from the image description to
         the image root tree. Supported are a root/ directory
         or a root.tar.gz tarball. The root/ directory takes
-        precedence over the tarball
+        precedence over the tarball.
+
+        In addition the method also supports profile specific
+        overlay files which are searched in a directory of the
+        same name as the profile name.
+
+        The overall order for including overlay files is as
+        follows:
+
+        1. root/ dir or root.tar.gz
+        2. PROFILE_NAME/ dir(s) in the order of the selected
+           profiles
 
         :param bool follow_links: follow symlinks true|false
         :param bool preserve_owner_group: preserve permissions true|false
@@ -185,27 +196,23 @@ class SystemSetup:
         overlay_directory = self.description_dir + '/root/'
         overlay_archive = self.description_dir + '/root.tar.gz'
         if os.path.exists(overlay_directory):
-            log.info('Copying user defined files to image tree')
-            sync_options = [
-                '-r', '-p', '-t', '-D', '-H', '-X', '-A', '--one-file-system'
-            ]
-            if follow_links:
-                sync_options.append('--copy-links')
-            else:
-                sync_options.append('--links')
-            if preserve_owner_group:
-                sync_options.append('-o')
-                sync_options.append('-g')
-            data = DataSync(
-                overlay_directory, self.root_dir
-            )
-            data.sync_data(
-                options=sync_options
+            self._sync_overlay_files(
+                overlay_directory, follow_links, preserve_owner_group
             )
         elif os.path.exists(overlay_archive):
             log.info('Extracting user defined files from archive to image tree')
             archive = ArchiveTar(overlay_archive)
             archive.extract(self.root_dir)
+
+        for profile in self.xml_state.profiles:
+            overlay_directory = os.sep.join(
+                [self.description_dir, profile]
+            ) + os.sep
+            if os.path.exists(overlay_directory):
+                self._sync_overlay_files(
+                    overlay_directory, follow_links, preserve_owner_group,
+                    profile
+                )
 
     def setup_machine_id(self):
         """
@@ -1047,3 +1054,29 @@ class SystemSetup:
         if shared_mount.is_mounted():
             shared_mount.umount_lazy()
         return dbpath
+
+    def _sync_overlay_files(
+        self, overlay_directory, follow_links=False,
+        preserve_owner_group=False, profile=None
+    ):
+        log.info(
+            'Copying user defined {0} to image tree'.format(
+                'files for profile: {0}'.format(profile) if profile else 'files'
+            )
+        )
+        sync_options = [
+            '-r', '-p', '-t', '-D', '-H', '-X', '-A', '--one-file-system'
+        ]
+        if follow_links:
+            sync_options.append('--copy-links')
+        else:
+            sync_options.append('--links')
+        if preserve_owner_group:
+            sync_options.append('-o')
+            sync_options.append('-g')
+        data = DataSync(
+            overlay_directory, self.root_dir
+        )
+        data.sync_data(
+            options=sync_options
+        )
