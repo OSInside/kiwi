@@ -31,9 +31,10 @@ Task Plugin Entry Point
 
   .. code:: python
 
+      'packages': ['kiwi_plugin'],
       'entry_points': {
           'kiwi.tasks': [
-              'service_command=kiwi.tasks.service_command'
+              'service_command=kiwi_plugin.tasks.service_command'
           ]
       }
 
@@ -46,7 +47,9 @@ Example Plugin
    which was set up according to the Python project rules
    and standards.
 
-1. Create the task plugin directory :file:`kiwi/tasks`
+1. Assuming the project namespace is **kiwi_relax_plugin**.
+
+   Create the task plugin directory :file:`kiwi_relax_plugin/tasks`
 
 2. Create the entry point in :command:`setup.py`.
 
@@ -56,14 +59,16 @@ Example Plugin
 
    .. code:: python
 
+      'packages': ['kiwi_relax_plugin'],
       'entry_points': {
           'kiwi.tasks': [
-              'relax_justdoit=kiwi.tasks.relax_justdoit'
+              'relax_justdoit=kiwi_relax_plugin.tasks.relax_justdoit'
           ]
       }
 
-3. Create the plugin code in the file :file:`kiwi/tasks/relax_justdoit.py`
-   with the following content:
+3. Create the plugin code in the file
+   :file:`kiwi_relax_plugin/tasks/relax_justdoit.py` with the following
+   content:
 
    .. code:: python
 
@@ -86,7 +91,7 @@ Example Plugin
        from kiwi.tasks.base import CliTask
        from kiwi.help import Help
 
-       class RelaxJustDoItTask(CliTask):
+       class RelaxJustdoitTask(CliTask):
            def process(self):
                self.manual = Help()
                if self.command_args.get('help') is True:
