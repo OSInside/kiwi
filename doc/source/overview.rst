@@ -61,9 +61,12 @@ Overlay Files
    A directory structure with files and subdirectories stored as part
    of the Image Description. This directory structure is packaged as
    a file :file:`root.tar.gz` or stored inside a directory named
-   :file:`root`. The content of the directory structure is copied on top of
-   the the existing file system (overlayed) of the appliance root.
-   This also includes permissions and attributes as a supplement.
+   :file:`root`. Additional overlay directories for selected profiles
+   are supported too and are taken into account if the directory
+   name matches the name of the profile. The content of each of the
+   directory structures is copied on top of the the existing file
+   system (overlayed) of the appliance root. This also includes
+   permissions and attributes as a supplement.
 
 {kiwi}
    An OS appliance builder.
