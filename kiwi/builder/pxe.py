@@ -54,9 +54,11 @@ class PxeBuilder:
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
         self.custom_cmdline = xml_state.build_type.get_kernelcmdline()
-        self.filesystem = FileSystemBuilder(
-            xml_state, target_dir, root_dir + '/'
-        )
+        self.filesystem = xml_state.build_type.get_filesystem()
+        if self.filesystem:
+            self.filesystem = FileSystemBuilder(
+                xml_state, target_dir, root_dir + '/'
+            )
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
         )
@@ -80,6 +82,7 @@ class PxeBuilder:
                 '-' + xml_state.get_image_version()
             ]
         )
+        self.image = None
         self.append_file = ''.join([self.image_name, '.append'])
         self.archive_name = ''.join([self.image_name, '.tar'])
         self.checksum_name = ''.join([self.image_name, '.md5'])
@@ -105,21 +108,22 @@ class PxeBuilder:
 
         :rtype: instance of :class:`Result`
         """
-        log.info('Creating PXE root filesystem image')
-        self.filesystem.create()
-        os.rename(
-            self.filesystem.filename, self.image_name
-        )
-        self.image = self.image_name
-        if self.compressed:
-            log.info('xz compressing root filesystem image')
-            compress = Compress(self.image)
-            compress.xz(self.xz_options)
-            self.image = compress.compressed_filename
+        if self.filesystem:
+            log.info('Creating PXE root filesystem image')
+            self.filesystem.create()
+            os.rename(
+                self.filesystem.filename, self.image_name
+            )
+            self.image = self.image_name
+            if self.compressed:
+                log.info('xz compressing root filesystem image')
+                compress = Compress(self.image)
+                compress.xz(self.xz_options)
+                self.image = compress.compressed_filename
 
-        log.info('Creating PXE root filesystem MD5 checksum')
-        checksum = Checksum(self.image)
-        checksum.md5(self.checksum_name)
+            log.info('Creating PXE root filesystem MD5 checksum')
+            checksum = Checksum(self.image)
+            checksum.md5(self.checksum_name)
 
         # prepare boot(initrd) root system
         log.info('Creating PXE boot image')
@@ -177,7 +181,8 @@ class PxeBuilder:
 
         # create pxe config append information
         # this information helps to configure the boot server correctly
-        if self.filesystem.root_uuid and self.initrd_system == 'dracut':
+        if self.filesystem and self.filesystem.root_uuid \
+           and self.initrd_system == 'dracut':
             cmdline = 'root=UUID={}'.format(self.filesystem.root_uuid)
             if self.custom_cmdline:
                 cmdline += ' {}'.format(self.custom_cmdline)
@@ -191,11 +196,14 @@ class PxeBuilder:
         pxe_tarball_files = [
             self.kernel_filename,
             os.path.basename(self.boot_image_task.initrd_filename),
-            os.path.basename(self.image),
             os.path.basename(self.checksum_name),
         ]
 
-        if self.filesystem.root_uuid and self.initrd_system == 'dracut':
+        if self.image:
+            pxe_tarball_files.append(os.path.basename(self.image))
+
+        if self.filesystem and self.filesystem.root_uuid \
+           and self.initrd_system == 'dracut':
             pxe_tarball_files.append(os.path.basename(self.append_file))
 
         pxe_tarball = ArchiveTar(

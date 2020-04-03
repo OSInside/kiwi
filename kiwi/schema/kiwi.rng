@@ -2104,7 +2104,7 @@ structure</a:documentation>
       </sch:pattern>
       <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>
-        <sch:param name="types" value="vmx oem pxe"/>
+        <sch:param name="types" value="vmx oem"/>
       </sch:pattern>
     </define>
     <define name="k.type.squashfscompression.attribute">
