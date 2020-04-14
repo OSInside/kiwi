@@ -53,7 +53,7 @@ class BootLoaderInstallBase:
 
     def install(self):
         """
-        Istall bootloader on self.device
+        Install bootloader on self.device
 
         Implementation in specialized bootloader install class required
         """
