@@ -24,6 +24,7 @@ import shutil
 from collections import OrderedDict
 
 # project
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.command import Command
@@ -227,6 +228,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.boot_directory_name, 'grub.cfg'
             ]
         )
+        update_bootloader = self._get_update_bootloader_tool()
+        if update_bootloader and CommandCapabilities.has_option_in_help(
+            update_bootloader, '--refresh',
+            root=self.root_mount.mountpoint,
+            raise_on_error=False
+        ):
+            # Call wrapper script to update the bootloader setup
+            # The presence of the script with option --refresh
+            # makes calling it eligible. grub reads its variables from
+            # /etc/default/grub but there are also additional information
+            # in /etc/sysconfig. For moving data to the right place
+            # this update wrapper script exists.
+            Command.run(
+                [
+                    'chroot', self.root_mount.mountpoint,
+                    update_bootloader, '--refresh'
+                ]
+            )
         Command.run(
             [
                 'chroot', self.root_mount.mountpoint,
@@ -838,6 +857,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
             if Path.which(grub_mkconfig_tool, root_dir=self.root_dir):
                 return grub_mkconfig_tool
+
+    def _get_update_bootloader_tool(self):
+        update_bootloader = 'pbl'
+        if Path.which(update_bootloader, root_dir=self.root_dir):
+            return update_bootloader
 
     def _get_grub2_boot_path(self):
         return self.boot_dir + '/boot/' + self.boot_directory_name
