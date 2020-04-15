@@ -32,6 +32,7 @@ from kiwi.firmware import FirmWare
 from kiwi.path import Path
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
+from kiwi.utils.command_capabilities import CommandCapabilities
 
 from kiwi.exceptions import (
     KiwiTemplateError,
@@ -227,6 +228,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.boot_directory_name, 'grub.cfg'
             ]
         )
+
+        self._create_linuxefi_loader_config(self.root_mount.mountpoint)
         Command.run(
             [
                 'chroot', self.root_mount.mountpoint,
@@ -234,6 +237,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 config_file.replace(self.root_mount.mountpoint, '')
             ]
         )
+        self._delete_linuxefi_loader_config(self.root_mount.mountpoint)
+
         if self.root_reference:
             if self.root_filesystem_is_overlay or \
                Defaults.is_buildservice_worker():
@@ -571,16 +576,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 grub_default_entries['GRUB_BACKGROUND'] = theme_background
         if self.firmware.efi_mode():
             # linuxefi/initrdefi only exist on x86, others always use efi
-            if self.arch == 'ix86' or self.arch == 'x86_64':
-                use_linuxefi_implemented = Command.run(
-                    [
-                        'grep', '-q', 'GRUB_USE_LINUXEFI',
-                        Defaults.get_grub_config_tool()
-                    ], raise_on_error=False
-                )
-                if use_linuxefi_implemented.returncode == 0:
-                    grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
-                    grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
+            if self._grub_has_linuxefi():
+                grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
+                grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
+
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('boot_is_crypto'):
@@ -1035,3 +1034,45 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return Path.which(
             filename='shim-install', root_dir=self.boot_dir
         )
+
+    def _grub_has_linuxefi(self):
+        if self.arch == 'ix86' or self.arch == 'x86_64':
+            use_linuxefi_implemented = Command.run(
+                [
+                    'grep', '-q', 'GRUB_USE_LINUXEFI',
+                    Defaults.get_grub_config_tool()
+                ], raise_on_error=False
+            )
+            return use_linuxefi_implemented.returncode == 0
+        return False
+
+    def _create_linuxefi_loader_config(self, root_dir):
+        if not CommandCapabilities.check_version(
+            self._get_grub2_mkconfig_tool(), (2, 4), root=root_dir
+        ) and self._grub_has_linuxefi():
+            config = (
+                '#! /bin/sh\n'
+                'set -e\n'
+                'if [ ! -d /sys/firmware/efi ] && '
+                '[ "x${GRUB_USE_LINUXEFI}" = "xtrue" ]; then\n'
+                '  cat << EOF\n'
+                'function linux {\n'
+                '  linuxefi \$@\n'
+                '}\n'
+                'function initrd {\n'
+                '  initrdefi \$@\n'
+                '}\n'
+                'EOF\n'
+                'fi'
+            )
+            linux_loader = os.sep.join(
+                [root_dir, 'etc/grub.d/05_linux_loader']
+            )
+            with open(linux_loader, 'w+') as f:
+                f.write(config)
+            os.chmod(linux_loader, 0o755)
+
+    def _delete_linuxefi_loader_config(self, root_dir):
+        linux_loader = os.sep.join([root_dir, 'etc/grub.d/05_linux_loader'])
+        if os.path.exists(linux_loader):
+            os.unlink(linux_loader)
