@@ -369,20 +369,6 @@ class Defaults:
             return 'grub'
 
     @staticmethod
-    def get_grub_config_tool():
-        """
-        Provides full qualified path name to grub mkconfig utility
-
-        :return: file path name
-
-        :rtype: str
-        """
-        for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
-            grub_mkconfig_tool_file_path = Path.which(grub_mkconfig_tool)
-            if grub_mkconfig_tool_file_path:
-                return grub_mkconfig_tool_file_path
-
-    @staticmethod
     def get_grub_basic_modules(multiboot):
         """
         Provides list of basic grub modules

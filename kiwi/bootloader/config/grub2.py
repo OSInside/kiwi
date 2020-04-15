@@ -575,7 +575,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 use_linuxefi_implemented = Command.run(
                     [
                         'grep', '-q', 'GRUB_USE_LINUXEFI',
-                        Defaults.get_grub_config_tool()
+                        self._get_grub2_mkconfig_tool()
                     ], raise_on_error=False
                 )
                 if use_linuxefi_implemented.returncode == 0:
@@ -589,7 +589,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         enable_blscfg_implemented = Command.run(
             [
                 'grep', '-q', 'GRUB_ENABLE_BLSCFG',
-                Defaults.get_grub_config_tool()
+                self._get_grub2_mkconfig_tool()
             ], raise_on_error=False
         )
         if enable_blscfg_implemented.returncode == 0:
