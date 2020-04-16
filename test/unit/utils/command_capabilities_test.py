@@ -95,6 +95,15 @@ class TestCommandCapabilities:
         ])
 
     @patch('kiwi.command.Command.run')
+    def test_check_version_complex_pattern(self, mock_run):
+        command_type = namedtuple('command', ['output'])
+        mock_run.return_value = command_type(
+            output="grub2-mkconfig (GRUB2) 2.02\n"
+        )
+        assert CommandCapabilities.check_version('command', (2, 2)) is True
+        assert CommandCapabilities.check_version('command', (2, 4)) is False
+
+    @patch('kiwi.command.Command.run')
     def test_check_version_no_match(self, mock_run):
         command_type = namedtuple('command', ['output'])
         mock_run.return_value = command_type(

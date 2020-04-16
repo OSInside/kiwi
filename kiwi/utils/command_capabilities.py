@@ -103,10 +103,11 @@ class CommandCapabilities:
         try:
             command = Command.run(arguments)
             for line in command.output.splitlines():
-                match = re.search('[0-9]+(\.[0-9]+)*', line)
-                if match:
+                matches = re.findall(r'([0-9]+(\.[0-9]+)*)', line)
+                if matches:
+                    match = max([m[0] for m in matches], key=len)
                     version_info = tuple(
-                        int(elt) for elt in match.group(0).split('.')
+                        int(elt) for elt in match.split('.')
                     )
                     break
             if version_info is None:

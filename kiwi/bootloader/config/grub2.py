@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from string import Template
 import re
 import os
 import logging
@@ -24,6 +25,7 @@ import shutil
 from collections import OrderedDict
 
 # project
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.command import Command
@@ -140,6 +142,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.cmdline = None
         self.iso_boot = False
         self.shim_fallback_setup = False
+        self.validate_use_of_linuxefi = False
 
     def write(self):
         """
@@ -234,6 +237,41 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 config_file.replace(self.root_mount.mountpoint, '')
             ]
         )
+
+        if self.validate_use_of_linuxefi:
+            # On systems that uses GRUB_USE_LINUXEFI with grub2 version
+            # less than 2.04 there is no support for dynamic EFI
+            # environment checking. In this condition we change the
+            # grub config to add this support as follows:
+            #
+            # * Apply only on grub < 2.04
+            #    1. Modify grub.cfg to set linux/initrd as variables
+            #    2. Prepend hybrid setup to select linux vs. linuxefi on demand
+            #
+            # Please note this is a one time modification done by kiwi
+            # Any subsequent call of the grub config tool will overwrite
+            # the setup and disables dynamic EFI environment checking
+            # at boot time
+            if not CommandCapabilities.check_version(
+                self._get_grub2_mkconfig_tool(),
+                version_waterline=(2, 4), raise_on_error=False
+            ):
+                with open(config_file) as grub_config_file:
+                    grub_config = grub_config_file.read()
+                    grub_config = re.sub(
+                        r'([ \t]+)linux[efi]*([ \t]+)', r'\1$linux\2',
+                        grub_config
+                    )
+                    grub_config = re.sub(
+                        r'([ \t]+)initrd[efi]*([ \t]+)', r'\1$initrd\2',
+                        grub_config
+                    )
+                with open(config_file, 'w') as grub_config_file:
+                    grub_config_file.write(
+                        Template(self.grub2.header_hybrid).substitute()
+                    )
+                    grub_config_file.write(grub_config)
+
         if self.root_reference:
             if self.root_filesystem_is_overlay or \
                Defaults.is_buildservice_worker():
@@ -581,6 +619,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 if use_linuxefi_implemented.returncode == 0:
                     grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
                     grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
+                    self.validate_use_of_linuxefi = True
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('boot_is_crypto'):
