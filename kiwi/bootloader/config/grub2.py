@@ -233,7 +233,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Command.run(
             [
                 'chroot', self.root_mount.mountpoint,
-                self._get_grub2_mkconfig_tool(), '-o',
+                os.path.basename(self._get_grub2_mkconfig_tool()), '-o',
                 config_file.replace(self.root_mount.mountpoint, '')
             ]
         )
@@ -875,8 +875,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _get_grub2_mkconfig_tool(self):
         for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
-            if Path.which(grub_mkconfig_tool, root_dir=self.root_dir):
-                return grub_mkconfig_tool
+            return Path.which(grub_mkconfig_tool, root_dir=self.root_dir)
 
     def _get_grub2_boot_path(self):
         return self.boot_dir + '/boot/' + self.boot_directory_name
