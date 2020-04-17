@@ -875,7 +875,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _get_grub2_mkconfig_tool(self):
         for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
-            return Path.which(grub_mkconfig_tool, root_dir=self.root_dir)
+            grub_mkconfig_file_path = Path.which(
+                grub_mkconfig_tool, root_dir=self.root_dir
+            )
+            if grub_mkconfig_file_path:
+                return grub_mkconfig_file_path
 
     def _get_grub2_boot_path(self):
         return self.boot_dir + '/boot/' + self.boot_directory_name
