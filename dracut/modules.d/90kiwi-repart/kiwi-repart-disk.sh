@@ -74,15 +74,15 @@ function repart_standard_disk {
         local disk_have_root_system_mbytes=$((
             disk_root_mbytes + disk_free_mbytes
         ))
-        local min_additional_mbytes=5
+        local min_additional_mbytes=10
     else
         local disk_have_root_system_mbytes=${kiwi_oemrootMB}
         local min_additional_mbytes=$((
             kiwi_oemrootMB - disk_root_mbytes
         ))
     fi
-    if [ "${min_additional_mbytes}" -lt 5 ];then
-        min_additional_mbytes=5
+    if [ "${min_additional_mbytes}" -lt 10 ];then
+        min_additional_mbytes=10
     fi
     # check if we can repart this disk
     if ! check_repart_possible \
@@ -124,7 +124,7 @@ function repart_lvm_disk {
         local disk_have_root_system_mbytes=$((
             disk_root_mbytes + disk_free_mbytes
         ))
-        local min_additional_mbytes=5
+        local min_additional_mbytes=10
     else
         local disk_have_root_system_mbytes=$((
             kiwi_oemrootMB
@@ -133,8 +133,8 @@ function repart_lvm_disk {
             kiwi_oemrootMB - disk_root_mbytes
         ))
     fi
-    if [ "${min_additional_mbytes}" -lt 5 ];then
-        min_additional_mbytes=5
+    if [ "${min_additional_mbytes}" -lt 10 ];then
+        min_additional_mbytes=10
     fi
     # check if we can repart this disk
     if ! check_repart_possible \
