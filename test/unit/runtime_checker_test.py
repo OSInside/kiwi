@@ -321,5 +321,25 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_architecture_supports_iso_firmware_setup()
 
+    @patch('platform.machine')
+    @patch('kiwi.runtime_checker.Path.which')
+    def test_check_syslinux_installed_if_isolinux_is_used(
+        self, mock_Path_which, mock_machine
+    ):
+        mock_Path_which.return_value = None
+        mock_machine.return_value = 'x86_64'
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_syslinux_installed_if_isolinux_is_used()
+        xml_state = XMLState(
+            self.description.load(), ['xenFlavour'], 'oem'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_syslinux_installed_if_isolinux_is_used()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests

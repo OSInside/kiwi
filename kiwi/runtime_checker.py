@@ -21,14 +21,15 @@ import platform
 from textwrap import dedent
 
 # project
-from .xml_description import XMLDescription
-from .xml_state import XMLState
-from .system.uri import Uri
-from .defaults import Defaults
-from .path import Path
-from .utils.command_capabilities import CommandCapabilities
-from .runtime_config import RuntimeConfig
-from .exceptions import (
+from kiwi.xml_description import XMLDescription
+from kiwi.firmware import FirmWare
+from kiwi.xml_state import XMLState
+from kiwi.system.uri import Uri
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.runtime_config import RuntimeConfig
+from kiwi.exceptions import (
     KiwiRuntimeError
 )
 
@@ -445,6 +446,38 @@ class RuntimeChecker:
                         boot_kernel_package_name
                     )
                 )
+
+    def check_syslinux_installed_if_isolinux_is_used(self):
+        """
+        ISO images that are configured to use isolinux
+        requires the host to provide a set of syslinux
+        binaries.
+        """
+        message = dedent('''\n
+            Required syslinux module(s) not found
+
+            The ISO image build for this image setup uses isolinux
+            and therefore requires the syslinux modules to be
+            available on the build host. Please make sure your
+            build host has the syslinux package installed.
+        ''')
+        firmware = FirmWare(self.xml_state)
+        if Defaults.is_x86_arch(platform.machine()) and not firmware.efi_mode():
+            image_builds_iso = False
+            build_type = self.xml_state.get_build_type_name()
+            if build_type == 'iso':
+                image_builds_iso = True
+            elif build_type == 'oem':
+                install_iso = self.xml_state.build_type.get_installiso()
+                install_stick = self.xml_state.build_type.get_installstick()
+                if install_iso or install_stick:
+                    image_builds_iso = True
+            if image_builds_iso:
+                syslinux_check_file = Path.which(
+                    'isohdpfx.bin', Defaults.get_syslinux_search_paths()
+                )
+                if not syslinux_check_file:
+                    raise KiwiRuntimeError(message)
 
     def check_dracut_module_for_oem_install_in_package_list(self):
         """
