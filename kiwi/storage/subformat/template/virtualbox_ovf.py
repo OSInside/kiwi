@@ -53,6 +53,11 @@ class VirtualboxOvfTemplate:
       <Description>${vm_description}</Description>
       <vbox:OSType ovf:required="false">Linux_64</vbox:OSType>
     </OperatingSystemSection>
+    <vbox:Machine ovf:required="false">
+      <Hardware>
+        <AudioAdapter enabled="false"/>
+      </Hardware>
+    </vbox:Machine>
     <VirtualHardwareSection>
       <Info>Virtual hardware requirements for a virtual machine</Info>
       <System>
