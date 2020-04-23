@@ -48,7 +48,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
    * To use the image, all image parts need to be copied to the PXE boot
      server. If you have not set up such a server, refer to
-     :ref:`pxe-boot-server` for instructions.
+     :ref:`network-boot-server` for instructions.
 
    * The following example assumes you will create the PXE image
      on the PXE boot server itself (if not, use :command:`scp` to copy the files

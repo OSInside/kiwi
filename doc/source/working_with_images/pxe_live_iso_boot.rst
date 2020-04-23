@@ -14,7 +14,7 @@ Booting a Live ISO Image from Network
 In {kiwi}, live ISO images can be configured to boot via PXE.
 This functionality requires a network boot server setup on the
 system. Details how to setup such a server can be found in
-:ref:`pxe-boot-server`.
+:ref:`network-boot-server`.
 
 After the live ISO was built as shown in :ref:`hybrid_iso`,
 the following configuration steps are required to boot from

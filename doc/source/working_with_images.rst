@@ -12,7 +12,7 @@ different image types.
    working_with_images/vmx_setup_for_ec2
    working_with_images/vmx_setup_for_azure
    working_with_images/vmx_setup_for_google
-   working_with_images/setup_pxe_bootserver
+   working_with_images/setup_network_bootserver
    working_with_images/setup_yast_on_first_boot
    working_with_images/pxe_client_configuration
    working_with_images/vmx_vagrant_setup
