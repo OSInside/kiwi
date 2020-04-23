@@ -17,7 +17,6 @@ Building Images
    building/build_oem_disk
    building/build_docker_container
    building/build_wsl_container
-   building/build_containerized
 
 Image Types
 -----------
