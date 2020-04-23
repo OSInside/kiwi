@@ -194,15 +194,13 @@ sections):
   installation medium, e.g. a USB drive or a CD. See :ref:`oem`
 - `pxe`: creates an image that can be booted from the network using the
   legacy kiwi netboot infrastructure, see :ref:`build_legacy_pxe`
-
+- `kis`: creates an image that exists out of a kernel and initrd with
+  optional system root filesystem image, see :ref:`kis`
 - `docker`, `oci`: container images, see :ref:`building-docker-build`
-
 - `btrfs`, `ext2`, `ext3`, `ext4`, `xfs`: {kiwi} will convert the
   image into a mountable filesystem of the specified type.
-
 - `squashfs`, `clicfs`: creates the image as a filesystem that can be used
   in live systems
-
 - `tbz`, `cpio`: the unpacked source tree will be compressed into a `XZ
   <https://en.wikipedia.org/wiki/Xz>`_ or `CPIO
   <https://en.wikipedia.org/wiki/Cpio>`_ archive.

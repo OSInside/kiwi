@@ -16,8 +16,7 @@ with other system storage components making it a useful pocket system for
 testing and demo- and debugging-purposes.
 
 To add a live ISO build to your appliance, create a `type` element with
-`image` set to `iso` in your :file:`config.xml` (see
-:ref:`build-types`) as shown below:
+`image` set to `iso` in your :file:`config.xml` as shown below:
 
 .. code:: xml
 

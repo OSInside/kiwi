@@ -99,9 +99,9 @@ system. As diskless client, a QEMU virtual machine is used.
 6. Adjust the PXE configuration file.
    The configuration file controls which kernel and initrd is
    loaded and which kernel parameters are set. A template has been installed
-   at :file:`/srv/tftpboot/pxelinux.cfg/default` from the ``kiwi-pxeboot`` package.
-   The minimal configuration required to boot the example image looks
-   like to following:
+   at :file:`/srv/tftpboot/pxelinux.cfg/default` from the ``kiwi-pxeboot``
+   package. The minimal configuration required to boot the example image
+   looks like to following:
 
    .. code:: bash
 
@@ -111,8 +111,6 @@ system. As diskless client, a QEMU virtual machine is used.
            kernel boot/linux
            append initrd=boot/initrd
            IPAPPEND 2
-
-    Additional configuration files can be found at :ref:`pxe_client_config`.
 
 7. Create the image client configuration file:
 
