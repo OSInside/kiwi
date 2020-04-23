@@ -1,4 +1,4 @@
-.. _pxe_live_boot:
+.. _network_live_boot:
 
 Booting a Live ISO Image from Network
 =====================================
@@ -11,10 +11,10 @@ Booting a Live ISO Image from Network
 
    * :ref:`hybrid_iso`
 
-In {kiwi}, live ISO images can be configured to boot via PXE.
-This functionality requires a network boot server setup on the
-system. Details how to setup such a server can be found in
-:ref:`network-boot-server`.
+In {kiwi}, live ISO images can be configured to boot via the
+PXE boot protocol. This functionality requires a network boot
+server setup on the system. Details how to setup such a server
+can be found in :ref:`network-boot-server`.
 
 After the live ISO was built as shown in :ref:`hybrid_iso`,
 the following configuration steps are required to boot from
@@ -83,6 +83,12 @@ the network:
        by {kiwi} and is a task for the network administrators.
 
 3. Setup live ISO boot entry in PXE configuration
+
+   .. note::
+
+       The following step assumes that the pxelinux.0 loader
+       has been configured on the boot server to boot up network
+       clients
 
    Edit the file :file:`/srv/tftpboot/pxelinux.cfg/default` and create
    a boot entry of the form:
