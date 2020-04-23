@@ -57,7 +57,7 @@ class TestPackageManagerZypper:
                 'zypper', '--reposd-dir', 'root-dir/my/repos',
                 '--root', 'root-dir',
                 'install', '--auto-agree-with-licenses'
-            ] + self.manager.custom_args + ['vim'], self.command_env
+            ] + self.manager.custom_args + ['--', 'vim'], self.command_env
         )
 
     @patch('kiwi.command.Command.call')
@@ -80,7 +80,7 @@ class TestPackageManagerZypper:
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
-            ] + self.manager.custom_args + ['vim'], self.chroot_command_env
+            ] + self.manager.custom_args + ['--', 'vim'], self.chroot_command_env
         )
 
     @patch('kiwi.command.Command.call')
