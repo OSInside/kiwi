@@ -21,4 +21,6 @@ different image types.
    working_with_images/custom_volumes
    working_with_images/custom_fstab_extension
    working_with_images/vmx_setup_for_luks
+   working_with_images/build_with_profiles
+   working_with_images/build_in_buildservice
    working_with_images/legacy_netboot_root_filesystem

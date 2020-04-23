@@ -18,8 +18,6 @@ Building Images
    building/build_docker_container
    building/build_wsl_container
    building/build_containerized
-   building/build_with_profiles
-   building/build_in_buildservice
 
 Image Types
 -----------
