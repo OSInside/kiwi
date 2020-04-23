@@ -14,7 +14,6 @@ different image types.
    working_with_images/vmx_setup_for_google
    working_with_images/setup_network_bootserver
    working_with_images/setup_yast_on_first_boot
-   working_with_images/pxe_client_configuration
    working_with_images/vmx_vagrant_setup
    working_with_images/network_live_iso_boot
    working_with_images/oem_ramdisk_deployment
@@ -22,3 +21,4 @@ different image types.
    working_with_images/custom_volumes
    working_with_images/custom_fstab_extension
    working_with_images/vmx_setup_for_luks
+   working_with_images/legacy_netboot_root_filesystem

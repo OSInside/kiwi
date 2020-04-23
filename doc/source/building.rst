@@ -15,7 +15,6 @@ Building Images
    building/build_live_iso
    building/build_vmx_disk
    building/build_oem_disk
-   building/build_pxe_root_filesystem
    building/build_docker_container
    building/build_wsl_container
    building/build_containerized

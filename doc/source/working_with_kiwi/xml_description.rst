@@ -192,8 +192,8 @@ sections):
 - `vmx`: build a virtual machine image, see: :ref:`vmx`
 - `oem`: results in an expandable image that can be deployed via a bootable
   installation medium, e.g. a USB drive or a CD. See :ref:`oem`
-- `pxe`: creates an image that can be booted via PXE (network boot), see
-  :ref:`build_pxe`
+- `pxe`: creates an image that can be booted from the network using the
+  legacy kiwi netboot infrastructure, see :ref:`build_legacy_pxe`
 
 - `docker`, `oci`: container images, see :ref:`building-docker-build`
 
@@ -216,8 +216,6 @@ above, `oemconfig` is a subelement of `<type image="oem" ...>`):
 
 - `oemconfig`: configurations relevant for building OEM images, see:
   :ref:`oem`
-
-- `pxedeploy`: settings for PXE booting, see :ref:`build_pxe`
 
 - `vagrantconfig`: instructs {kiwi} to build a Vagrant box instead of a
   standard virtual machine image, see :ref:`setup_vagrant`
