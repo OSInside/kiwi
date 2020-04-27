@@ -136,8 +136,8 @@ class XMLState:
 
         :rtype: str
         """
-        if self.get_build_type_name() in ['vmx', 'iso']:
-            # vmx and iso image types always use dracut as initrd system
+        if self.get_build_type_name() in ['vmx', 'iso', 'kis']:
+            # vmx, iso and kis image types always use dracut as initrd system
             initrd_system = 'dracut'
         elif self.get_build_type_name() in ['oem', 'pxe']:
             # pxe and oem image types default to kiwi if unset

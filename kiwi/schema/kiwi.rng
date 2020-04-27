@@ -713,7 +713,7 @@ regular expression. The expression is handled by the bash regexp
 operator. Interface names matching the rule will be skipped. All
 other interface names stay in the list. It is also possible to
 pass the variable kiwi_oemnicfilter as kernel command
-line in a PXE deployment</a:documentation>
+line in a netboot deployment</a:documentation>
         <ref name="k.oem-nic-filter.attlist"/>
         <ref name="k.oem-nic-filter.content"/>
       </element>
@@ -2036,19 +2036,19 @@ to 10sec</a:documentation>
       </attribute>
       <sch:pattern id="boottimeout" is-a="image_type">
         <sch:param name="attr" value="boottimeout"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.compressed.attribute">
       <attribute name="compressed">
         <a:documentation>Specifies whether the image output file should be
 compressed or not. This makes only sense for filesystem
-only images respectively for the pxe or cpio type</a:documentation>
+only images.</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="compressed" is-a="image_type">
         <sch:param name="attr" value="compressed"/>
-        <sch:param name="types" value="pxe"/>
+        <sch:param name="types" value="pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.devicepersistency.attribute">
@@ -2100,7 +2100,7 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="filesystem" is-a="image_type">
         <sch:param name="attr" value="filesystem"/>
-        <sch:param name="types" value="vmx oem pxe"/>
+        <sch:param name="types" value="vmx oem pxe kis"/>
       </sch:pattern>
       <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>
@@ -2121,7 +2121,7 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="squashfscompression" is-a="image_type">
         <sch:param name="attr" value="squashfscompression"/>
-        <sch:param name="types" value="vmx oem pxe iso"/>
+        <sch:param name="types" value="vmx oem pxe kis iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.overlayroot.attribute">
@@ -2450,7 +2450,7 @@ kernel command line options</a:documentation>
       </attribute>
       <sch:pattern id="kernelcmdline" is-a="image_type">
         <sch:param name="attr" value="kernelcmdline"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.luks.attribute">
@@ -2462,7 +2462,7 @@ mount that filesystem while booting</a:documentation>
       </attribute>
       <sch:pattern id="luks" is-a="image_type">
         <sch:param name="attr" value="luks"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.luksOS.attribute">
@@ -2475,7 +2475,7 @@ distribution</a:documentation>
       </attribute>
       <sch:pattern id="luksOS" is-a="image_type">
         <sch:param name="attr" value="luksOS"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.mdraid.attribute">
@@ -2515,7 +2515,7 @@ will force any COW action to happen in RAM</a:documentation>
       </attribute>
       <sch:pattern id="rootfs_label" is-a="image_type">
         <sch:param name="attr" value="rootfs_label"/>
-        <sch:param name="types" value="oem vmx pxe docker"/>
+        <sch:param name="types" value="oem vmx pxe kis docker"/>
       </sch:pattern>
     </define>
     <define name="k.type.vga.attribute">
@@ -2526,7 +2526,7 @@ hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documen
       </attribute>
       <sch:pattern id="vga" is-a="image_type">
         <sch:param name="attr" value="vga"/>
-        <sch:param name="types" value="oem vmx pxe iso"/>
+        <sch:param name="types" value="oem vmx pxe kis iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.gcelicense.attribute">
@@ -4111,6 +4111,7 @@ packages are only installed if this build type is requested.</a:documentation>
           <value>iso</value>
           <value>oem</value>
           <value>pxe</value>
+          <value>kis</value>
           <value>vmx</value>
           <value>oci</value>
           <value>uninstall</value>

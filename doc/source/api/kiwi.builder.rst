@@ -54,10 +54,10 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.builder.pxe` Module
+`kiwi.builder.kis` Module
 -------------------------
 
-.. automodule:: kiwi.builder.pxe
+.. automodule:: kiwi.builder.kis
     :members:
     :undoc-members:
     :show-inheritance:

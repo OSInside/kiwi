@@ -41,9 +41,17 @@ class TestImageBuilder:
             xml_state, 'target_dir', 'root_dir', None
         )
 
-    @patch('kiwi.builder.PxeBuilder')
-    def test_pxe_builder(self, mock_builder):
+    @patch('kiwi.builder.KisBuilder')
+    def test_kis_builder(self, mock_builder):
         xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
+            return_value='kis'
+        )
+        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        mock_builder.assert_called_once_with(
+            xml_state, 'target_dir', 'root_dir', None
+        )
+        mock_builder.reset_mock()
         xml_state.get_build_type_name = Mock(
             return_value='pxe'
         )
