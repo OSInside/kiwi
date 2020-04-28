@@ -47,6 +47,7 @@ class XMLState:
     """
     def __init__(self, xml_data, profiles=None, build_type=None):
         self.root_partition_uuid = None
+        self.root_filesystem_uuid = None
         self.host_architecture = platform.machine()
         self.xml_data = xml_data
         self.profiles = self._used_profiles(profiles)
@@ -1822,6 +1823,20 @@ class XMLState:
         Return preserved PARTUUID
         """
         return self.root_partition_uuid
+
+    def set_root_filesystem_uuid(self, uuid):
+        """
+        Store UUID provided in uuid as state information
+
+        :param string uuid: UUID
+        """
+        self.root_filesystem_uuid = uuid
+
+    def get_root_filesystem_uuid(self):
+        """
+        Return preserved UUID
+        """
+        return self.root_filesystem_uuid
 
     def _used_profiles(self, profiles=None):
         """

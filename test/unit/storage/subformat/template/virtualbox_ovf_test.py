@@ -13,6 +13,7 @@ class TestVirtualboxOvfTemplate:
     def test_ovf_parameters(self):
         args = {
             'vm_name': 'jumper',
+            'root_uuid': 'uuid',
             'vm_description': 'Leap 15 image',
             'disk_image_capacity': 21,
         }
