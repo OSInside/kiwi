@@ -1,7 +1,7 @@
 #
 # spec file for package kiwi
 #
-# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2020 SUSE LLC
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -14,7 +14,7 @@
 #
 # Please submit bugfixes or comments via:
 #
-#       https://github.com/SUSE/kiwi/issues
+#       https://github.com/OSInside/kiwi/issues
 #
 
 # If they aren't provided by a system installed macro, define them
@@ -46,7 +46,7 @@ Name:           python-kiwi
 Version:        %%VERSION
 Provides:       kiwi-schema = 7.1
 Release:        0
-Url:            https://github.com/SUSE/kiwi
+Url:            https://github.com/OSInside/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0-or-later
 %if %{_vendor} == "debbuild"
