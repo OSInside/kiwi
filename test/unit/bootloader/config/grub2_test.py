@@ -338,7 +338,6 @@ class TestBootLoaderConfigGrub2:
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
-            call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call('GRUB_GFXMODE', '800x600'),

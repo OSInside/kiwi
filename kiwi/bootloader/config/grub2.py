@@ -574,13 +574,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_CMDLINE_LINUX_DEFAULT
         * GRUB_GFXMODE
         * GRUB_TERMINAL
-        * GRUB_DISTRIBUTOR
         """
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout,
             'GRUB_GFXMODE': self.gfxmode,
-            'GRUB_TERMINAL': '"{0}"'.format(self.terminal),
-            'GRUB_DISTRIBUTOR': '"{0}"'.format(self.get_menu_entry_title())
+            'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
         }
         if self.cmdline:
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
