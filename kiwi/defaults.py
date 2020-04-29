@@ -299,6 +299,7 @@ class Defaults:
             '0x319': video_type(grub2='1280x1024', isolinux='1280 1024'),
             '0x31a': video_type(grub2='1280x1024', isolinux='1280 1024'),
             '0x31b': video_type(grub2='1280x1024', isolinux='1280 1024'),
+            'auto': video_type(grub2='auto', isolinux='800 600')
         }
 
     @staticmethod
@@ -337,13 +338,15 @@ class Defaults:
     @staticmethod
     def get_default_video_mode():
         """
-        Provides 800x600 default video mode as hex value for the kernel
+        Uses auto mode for default video. See get_video_mode_map
+        for details on the value depending which bootloader is
+        used
 
-        :return: vesa video kernel hex value
+        :return: auto
 
         :rtype: str
         """
-        return '0x303'
+        return 'auto'
 
     @staticmethod
     def get_grub_boot_directory_name(lookup_path):
