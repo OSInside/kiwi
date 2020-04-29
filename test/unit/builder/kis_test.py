@@ -7,20 +7,20 @@ from pytest import (
 )
 import kiwi
 
-from kiwi.builder.pxe import PxeBuilder
-from kiwi.exceptions import KiwiPxeBootImageError
+from kiwi.builder.kis import KisBuilder
+from kiwi.exceptions import KiwiKisBootImageError
 
 
-class TestPxeBuilder:
+class TestKisBuilder:
     @fixture(autouse=True)
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.builder.pxe.FileSystemBuilder')
-    @patch('kiwi.builder.pxe.BootImage')
+    @patch('kiwi.builder.kis.FileSystemBuilder')
+    @patch('kiwi.builder.kis.BootImage')
     def setup(self, mock_boot, mock_filesystem):
         self.setup = Mock()
-        kiwi.builder.pxe.SystemSetup = Mock(
+        kiwi.builder.kis.SystemSetup = Mock(
             return_value=self.setup
         )
         self.boot_image_task = MagicMock()
@@ -58,19 +58,19 @@ class TestPxeBuilder:
         self.kernel.get_xen_hypervisor = Mock(
             return_value=xen_type(filename='hypervisor', name='xen.gz')
         )
-        kiwi.builder.pxe.Kernel = Mock(
+        kiwi.builder.kis.Kernel = Mock(
             return_value=self.kernel
         )
-        self.pxe = PxeBuilder(
+        self.kis = KisBuilder(
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
-        self.pxe.image_name = 'myimage'
-        self.pxe.compressed = True
+        self.kis.image_name = 'myimage'
+        self.kis.compressed = True
 
-    @patch('kiwi.builder.pxe.Checksum')
-    @patch('kiwi.builder.pxe.Compress')
-    @patch('kiwi.builder.pxe.ArchiveTar')
+    @patch('kiwi.builder.kis.Checksum')
+    @patch('kiwi.builder.kis.Compress')
+    @patch('kiwi.builder.kis.ArchiveTar')
     @patch('os.rename')
     def test_create(
         self, mock_rename, mock_tar, mock_compress, mock_checksum
@@ -88,7 +88,7 @@ class TestPxeBuilder:
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            self.pxe.create()
+            self.kis.create()
 
         m_open.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.append', 'w'
@@ -119,11 +119,11 @@ class TestPxeBuilder:
 
         tar.create.assert_called_once_with('target_dir')
 
-        self.pxe.compressed = False
+        self.kis.compressed = False
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            self.pxe.create()
+            self.kis.create()
 
         m_open.return_value.write.assert_called_once_with(
             'root=UUID=some_uuid console=hvc0'
@@ -133,8 +133,8 @@ class TestPxeBuilder:
             'target_dir', xz_options=['--threads=0']
         )
 
-    @patch('kiwi.builder.pxe.Checksum')
-    @patch('kiwi.builder.pxe.Compress')
+    @patch('kiwi.builder.kis.Checksum')
+    @patch('kiwi.builder.kis.Compress')
     @patch('os.rename')
     def test_create_no_kernel_found(
         self, mock_rename, mock_compress, mock_checksum
@@ -143,11 +143,11 @@ class TestPxeBuilder:
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'
         self.kernel.get_kernel.return_value = False
-        with raises(KiwiPxeBootImageError):
-            self.pxe.create()
+        with raises(KiwiKisBootImageError):
+            self.kis.create()
 
-    @patch('kiwi.builder.pxe.Checksum')
-    @patch('kiwi.builder.pxe.Compress')
+    @patch('kiwi.builder.kis.Checksum')
+    @patch('kiwi.builder.kis.Compress')
     @patch('os.rename')
     def test_create_no_hypervisor_found(
         self, mock_rename, mock_compress, mock_checksum
@@ -156,5 +156,5 @@ class TestPxeBuilder:
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'
         self.kernel.get_xen_hypervisor.return_value = False
-        with raises(KiwiPxeBootImageError):
-            self.pxe.create()
+        with raises(KiwiKisBootImageError):
+            self.kis.create()

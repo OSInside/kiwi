@@ -430,7 +430,7 @@ div {
         ## operator. Interface names matching the rule will be skipped. All
         ## other interface names stay in the list. It is also possible to
         ## pass the variable kiwi_oemnicfilter as kernel command
-        ## line in a PXE deployment
+        ## line in a netboot deployment
         element oem-nic-filter {
             k.oem-nic-filter.attlist,
             k.oem-nic-filter.content
@@ -1358,16 +1358,16 @@ div {
         attribute boottimeout { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "boottimeout" is-a = "image_type"
             sch:param [ name = "attr" value = "boottimeout" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.compressed.attribute =
         ## Specifies whether the image output file should be
         ## compressed or not. This makes only sense for filesystem
-        ## only images respectively for the pxe or cpio type
+        ## only images.
         attribute compressed { xsd:boolean }
         >> sch:pattern [ id = "compressed" is-a = "image_type"
             sch:param [ name = "attr" value = "compressed" ]
-            sch:param [ name = "types" value = "pxe" ]
+            sch:param [ name = "types" value = "pxe kis" ]
         ]
     k.type.devicepersistency.attribute =
         ## Specifies which method to use in order to get persistent
@@ -1400,7 +1400,7 @@ div {
         }
         >> sch:pattern [ id = "filesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "filesystem" ]
-            sch:param [ name = "types" value = "vmx oem pxe" ]
+            sch:param [ name = "types" value = "vmx oem pxe kis" ]
         ]
         >> sch:pattern [
             id = "filesystem_mandatory" is-a = "image_type_requirement"
@@ -1414,7 +1414,7 @@ div {
         }
         >> sch:pattern [ id = "squashfscompression" is-a = "image_type"
             sch:param [ name = "attr" value = "squashfscompression" ]
-            sch:param [ name = "types" value = "vmx oem pxe iso" ]
+            sch:param [ name = "types" value = "vmx oem pxe kis iso" ]
         ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
@@ -1643,7 +1643,7 @@ div {
         attribute kernelcmdline { text }
         >> sch:pattern [ id = "kernelcmdline" is-a = "image_type"
             sch:param [ name = "attr" value = "kernelcmdline" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.luks.attribute =
         ## Setup cryptographic volume along with the given filesystem
@@ -1653,7 +1653,7 @@ div {
         attribute luks { text }
         >> sch:pattern [ id = "luks" is-a = "image_type"
             sch:param [ name = "attr" value = "luks" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.luksOS.attribute =
         ## With the luksOS value a predefined set of ciper, keysize
@@ -1665,7 +1665,7 @@ div {
         }
         >> sch:pattern [ id = "luksOS" is-a = "image_type"
             sch:param [ name = "attr" value = "luksOS" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.mdraid.attribute =
         ## Setup software raid in degraded mode with one disk
@@ -1693,7 +1693,7 @@ div {
         attribute rootfs_label { text }
         >> sch:pattern [ id = "rootfs_label" is-a = "image_type"
             sch:param [ name = "attr" value = "rootfs_label" ]
-            sch:param [ name = "types" value = "oem vmx pxe docker" ]
+            sch:param [ name = "types" value = "oem vmx pxe kis docker" ]
         ] 
     k.type.vga.attribute =
         ## Specifies the kernel framebuffer mode. More information
@@ -1702,7 +1702,7 @@ div {
         attribute vga { text }
         >> sch:pattern [ id = "vga" is-a = "image_type"
             sch:param [ name = "attr" value = "vga" ]
-            sch:param [ name = "types" value = "oem vmx pxe iso" ]
+            sch:param [ name = "types" value = "oem vmx pxe kis iso" ]
         ]
     k.type.gcelicense.attribute =
         ## Specifies the license tag in a GCE format
@@ -2621,7 +2621,7 @@ div {
         ## packages are only installed if this build type is requested.
         attribute type {
             "bootstrap" | "delete" | "docker" | "image" |
-            "iso" | "oem" | "pxe" | "vmx" | "oci" |
+            "iso" | "oem" | "pxe" | "kis" | "vmx" | "oci" |
             "uninstall"
         }
     k.packages.profiles.attribute = k.profiles.attribute

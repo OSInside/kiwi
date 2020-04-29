@@ -1208,15 +1208,15 @@ class Defaults:
         return ['iso']
 
     @staticmethod
-    def get_network_image_types():
+    def get_kis_image_types():
         """
-        Provides supported pxe image types
+        Provides supported kis image types
 
-        :return: pxe image type names
+        :return: kis image type names
 
         :rtype: list
         """
-        return ['pxe']
+        return ['kis', 'pxe']
 
     @staticmethod
     def get_boot_image_description_path():

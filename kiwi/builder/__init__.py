@@ -21,7 +21,7 @@ from kiwi.builder.filesystem import FileSystemBuilder
 from kiwi.builder.container import ContainerBuilder
 from kiwi.builder.disk import DiskBuilder
 from kiwi.builder.live import LiveImageBuilder
-from kiwi.builder.pxe import PxeBuilder
+from kiwi.builder.kis import KisBuilder
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
@@ -47,8 +47,8 @@ class ImageBuilder:
             return LiveImageBuilder(
                 xml_state, target_dir, root_dir, custom_args
             )
-        elif requested_image_type in Defaults.get_network_image_types():
-            return PxeBuilder(
+        elif requested_image_type in Defaults.get_kis_image_types():
+            return KisBuilder(
                 xml_state, target_dir, root_dir, custom_args
             )
         elif requested_image_type in Defaults.get_archive_image_types():

@@ -32,15 +32,15 @@ from kiwi.runtime_config import RuntimeConfig
 from kiwi.archive.tar import ArchiveTar
 
 from kiwi.exceptions import (
-    KiwiPxeBootImageError
+    KiwiKisBootImageError
 )
 
 log = logging.getLogger('kiwi')
 
 
-class PxeBuilder:
+class KisBuilder:
     """
-    **Filesystem based PXE image builder.**
+    **Filesystem based image builder.**
 
     :param object xml_state: instance of :class:`XMLState`
     :param str target_dir: target directory path name
@@ -93,23 +93,23 @@ class PxeBuilder:
 
     def create(self):
         """
-        Build a pxe image set consisting out of a boot image(initrd)
+        Build a component image consisting out of a boot image(initrd)
         plus its appropriate kernel files and the root filesystem
-        image with a checksum. The result can be used within the kiwi
-        PXE boot infrastructure
+        image with a checksum.
 
         Image types which triggers this builder are:
 
+        * image="kis"
         * image="pxe"
 
-        :raises KiwiPxeBootImageError: if no kernel or hipervisor is found
+        :raises KiwiKisBootImageError: if no kernel or hipervisor is found
             in boot image tree
         :return: result
 
         :rtype: instance of :class:`Result`
         """
         if self.filesystem:
-            log.info('Creating PXE root filesystem image')
+            log.info('Creating root filesystem image')
             self.filesystem.create()
             os.rename(
                 self.filesystem.filename, self.image_name
@@ -121,12 +121,12 @@ class PxeBuilder:
                 compress.xz(self.xz_options)
                 self.image = compress.compressed_filename
 
-            log.info('Creating PXE root filesystem MD5 checksum')
+            log.info('Creating root filesystem MD5 checksum')
             checksum = Checksum(self.image)
             checksum.md5(self.checksum_name)
 
         # prepare boot(initrd) root system
-        log.info('Creating PXE boot image')
+        log.info('Creating boot image')
         self.boot_image_task.prepare()
 
         # export modprobe configuration to boot image
@@ -148,7 +148,7 @@ class PxeBuilder:
                 self.target_dir, self.kernel_filename
             )
         else:
-            raise KiwiPxeBootImageError(
+            raise KiwiKisBootImageError(
                 'No kernel in boot image tree %s found' %
                 self.boot_image_task.boot_root_directory
             )
@@ -171,16 +171,16 @@ class PxeBuilder:
                     shasum=True
                 )
             else:
-                raise KiwiPxeBootImageError(
+                raise KiwiKisBootImageError(
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
 
-        # create initrd for pxe boot
+        # create initrd
         self.boot_image_task.create_initrd()
 
-        # create pxe config append information
-        # this information helps to configure the boot server correctly
+        # create append information
+        # this information helps to configure the deployment infrastructure
         if self.filesystem and self.filesystem.root_uuid \
            and self.initrd_system == 'dracut':
             cmdline = 'root=UUID={}'.format(self.filesystem.root_uuid)
@@ -193,29 +193,29 @@ class PxeBuilder:
         if not self.xz_options:
             self.xz_options = Defaults.get_xz_compression_options()
 
-        pxe_tarball_files = [
+        kis_tarball_files = [
             self.kernel_filename,
             os.path.basename(self.boot_image_task.initrd_filename),
             os.path.basename(self.checksum_name),
         ]
 
         if self.image:
-            pxe_tarball_files.append(os.path.basename(self.image))
+            kis_tarball_files.append(os.path.basename(self.image))
 
         if self.filesystem and self.filesystem.root_uuid \
            and self.initrd_system == 'dracut':
-            pxe_tarball_files.append(os.path.basename(self.append_file))
+            kis_tarball_files.append(os.path.basename(self.append_file))
 
-        pxe_tarball = ArchiveTar(
+        kis_tarball = ArchiveTar(
             self.archive_name,
             create_from_file_list=True,
-            file_list=pxe_tarball_files
+            file_list=kis_tarball_files
         )
 
         if self.compressed:
-            self.archive_name = pxe_tarball.create(self.target_dir)
+            self.archive_name = kis_tarball.create(self.target_dir)
         else:
-            self.archive_name = pxe_tarball.create_xz_compressed(
+            self.archive_name = kis_tarball.create_xz_compressed(
                 self.target_dir, xz_options=self.xz_options
             )
 
@@ -225,7 +225,7 @@ class PxeBuilder:
         )
         # store results
         self.result.add(
-            key='pxe_archive',
+            key='kis_archive',
             filename=self.archive_name,
             use_for_bundle=True,
             compress=self.runtime_config.get_bundle_compression(

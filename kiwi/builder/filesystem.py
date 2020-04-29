@@ -62,7 +62,7 @@ class FileSystemBuilder:
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.requested_image_type = xml_state.get_build_type_name()
-        if self.requested_image_type == 'pxe':
+        if self.requested_image_type in Defaults.get_kis_image_types():
             self.requested_filesystem = xml_state.build_type.get_filesystem()
         else:
             self.requested_filesystem = self.requested_image_type

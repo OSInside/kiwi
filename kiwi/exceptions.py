@@ -494,10 +494,10 @@ class KiwiProfileNotFound(KiwiError):
     """
 
 
-class KiwiPxeBootImageError(KiwiError):
+class KiwiKisBootImageError(KiwiError):
     """
     Exception raised if a required boot file e.g the kernel could
-    not be found in the process of building a pxe image.
+    not be found in the process of building a kis image.
     """
 
 
