@@ -205,6 +205,15 @@ class PackageManagerBase:
         """
         return True if returncode != 0 else False
 
+    def clean_leftovers(self):
+        """
+        Cleans package manager related data not needed in the
+        resulting image such as custom macros
+
+        Implementation in specialized package manager class
+        """
+        pass
+
     def cleanup_requests(self):
         """
         Cleanup request queues

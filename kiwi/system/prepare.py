@@ -453,6 +453,18 @@ class SystemPrepare:
                 )
             )
 
+    def clean_package_manager_leftovers(self):
+        """
+        This methods cleans some package manager artifacts created
+        at run time such as macros
+        """
+        package_manager = self.xml_state.get_package_manager()
+        manager = PackageManager(
+            Repository(self.root_bind, package_manager),
+            package_manager
+        )
+        manager.clean_leftovers()
+
     def _install_archives(self, archive_list):
         log.info("Installing archives")
         for archive in archive_list:

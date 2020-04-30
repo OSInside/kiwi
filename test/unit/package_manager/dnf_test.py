@@ -148,3 +148,12 @@ class TestPackageManagerDnf:
         mock_RpmDataBase.return_value = rpmdb
         self.manager.post_process_install_requests_bootstrap()
         rpmdb.set_database_to_image_path.assert_called_once_with()
+
+    @patch('kiwi.package_manager.dnf.Rpm')
+    def test_clean_leftovers(self, mock_rpm):
+        mock_rpm.return_value = mock.Mock()
+        self.manager.clean_leftovers()
+        mock_rpm.assert_called_once_with(
+            '/root-dir', 'macros.kiwi-image-config'
+        )
+        mock_rpm.return_value.wipe_config.assert_called_once_with()

@@ -20,9 +20,11 @@ import re
 # project
 from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.utils.rpm import Rpm
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.path import Path
 from kiwi.exceptions import KiwiRequestError
+from kiwi.defaults import Defaults
 
 
 class PackageManagerDnf(PackageManagerBase):
@@ -264,3 +266,12 @@ class PackageManagerDnf(PackageManagerBase):
         rpmdb = RpmDataBase(self.root_dir)
         if rpmdb.has_rpm():
             rpmdb.set_database_to_image_path()
+
+    def clean_leftovers(self):
+        """
+        Cleans package manager related data not needed in the
+        resulting image such as custom macros
+        """
+        Rpm(
+            self.root_dir, Defaults.get_custom_rpm_image_macro_name()
+        ).wipe_config()
