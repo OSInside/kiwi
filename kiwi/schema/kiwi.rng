@@ -2336,6 +2336,7 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>iso</value>
           <value>oem</value>
           <value>pxe</value>
+          <value>kis</value>
           <value>squashfs</value>
           <value>tbz</value>
           <value>vmx</value>
