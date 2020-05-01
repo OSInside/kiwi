@@ -14,8 +14,8 @@ else
     cat > ../doc/source/schema.rst <<- EOF
 	.. _schema-docs:
 
-	Schema Documentation 7.1
-	========================
+	Image Description XML Schema
+	============================
 
 	.. raw:: html
 	    :file: schema/schema.html
