@@ -388,6 +388,13 @@ class TestSystemPrepare:
         self.system.__del__()
         self.system.root_bind.cleanup.assert_called_once_with()
 
+    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.PackageManager')
+    def test_clean_package_manager_leftovers(self, mock_manager, mock_repo):
+        self.system.clean_package_manager_leftovers()
+        assert mock_repo.called
+        assert mock_manager.called
+
     def test_destructor_raising(self):
         self.system.root_bind = mock.Mock()
         self.system.root_bind.cleanup.side_effect = ValueError("nothing")

@@ -100,7 +100,6 @@ from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
 from kiwi.privileges import Privileges
 from kiwi.path import Path
-from kiwi.utils.rpm import Rpm
 
 log = logging.getLogger('kiwi')
 
@@ -253,9 +252,7 @@ class SystemBuildTask(CliTask):
         system.pinch_system(force=True)
 
         # delete any custom rpm macros created
-        Rpm(
-            image_root, Defaults.get_custom_rpm_image_macro_name()
-        ).wipe_config()
+        system.clean_package_manager_leftovers()
 
         # make sure system instance is cleaned up now
         del system

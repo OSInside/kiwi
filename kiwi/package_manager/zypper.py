@@ -22,8 +22,10 @@ import os
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.utils.rpm import Rpm
 from kiwi.path import Path
 from kiwi.exceptions import KiwiRequestError
+from kiwi.defaults import Defaults
 
 
 class PackageManagerZypper(PackageManagerBase):
@@ -44,6 +46,7 @@ class PackageManagerZypper(PackageManagerBase):
 
         :param list custom_args: custom zypper arguments
         """
+        self.anonymousId_file = '/var/lib/zypp/AnonymousUniqueId'
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
@@ -286,6 +289,20 @@ class PackageManagerZypper(PackageManagerBase):
 
         # Treat any other error code as error
         return True
+
+    def clean_leftovers(self):
+        """
+        Cleans package manager related data not needed in the
+        resulting image such as custom macros
+        """
+        Rpm(
+            self.root_dir, Defaults.get_custom_rpm_image_macro_name()
+        ).wipe_config()
+        id_file = os.path.normpath(
+            os.sep.join([self.root_dir, self.anonymousId_file])
+        )
+        if os.path.exists(id_file):
+            os.unlink(id_file)
 
     def _install_items(self):
         items = self.package_requests + self.collection_requests \

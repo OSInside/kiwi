@@ -83,3 +83,6 @@ class TestPackageManagerBase:
         assert self.manager.product_requests == []
         assert self.manager.collection_requests == []
         assert self.manager.exclude_requests == []
+
+    def test_clean_leftovers(self):
+        self.manager.clean_leftovers()
