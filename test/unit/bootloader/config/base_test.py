@@ -261,7 +261,7 @@ class TestBootLoaderConfigBase:
     def test_get_gfxmode_default(self, mock_get_vga):
         mock_get_vga.return_value = None
         assert self.bootloader.get_gfxmode('isolinux') == '800 600'
-        assert self.bootloader.get_gfxmode('grub2') == '800x600'
+        assert self.bootloader.get_gfxmode('grub2') == 'auto'
 
     @patch('kiwi.xml_parse.type_.get_vga')
     def test_get_gfxmode(self, mock_get_vga):
