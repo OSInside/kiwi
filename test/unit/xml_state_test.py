@@ -822,3 +822,8 @@ class TestXMLState:
         assert self.state.get_root_partition_uuid() is None
         self.state.set_root_partition_uuid('some-id')
         assert self.state.get_root_partition_uuid() == 'some-id'
+
+    def test_set_root_filesystem_uuid(self):
+        assert self.state.get_root_filesystem_uuid() is None
+        self.state.set_root_filesystem_uuid('some-id')
+        assert self.state.get_root_filesystem_uuid() == 'some-id'

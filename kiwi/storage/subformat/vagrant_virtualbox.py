@@ -79,11 +79,14 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
             .get_description_section().specification
         with open(box_ovf, "w") as ovf_file:
             ovf_file.write(
-                ovf_template.get_template().substitute({
-                    'vm_name': self.xml_state.xml_data.name,
-                    'disk_image_capacity': disk_image_capacity,
-                    'vm_description': xml_description_specification
-                })
+                ovf_template.get_template().substitute(
+                    {
+                        'root_uuid': self.xml_state.get_root_filesystem_uuid(),
+                        'vm_name': self.xml_state.xml_data.name,
+                        'disk_image_capacity': disk_image_capacity,
+                        'vm_description': xml_description_specification
+                    }
+                )
             )
         return [box_img, box_ovf]
 

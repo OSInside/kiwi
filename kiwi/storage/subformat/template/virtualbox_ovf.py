@@ -38,7 +38,7 @@ class VirtualboxOvfTemplate:
   </References>
   <DiskSection>
     <Info>List of the virtual disks used in the package</Info>
-    <Disk ovf:capacity="${disk_image_capacity}" ovf:diskId="vmdisk1" ovf:fileRef="file1" ovf:format="http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized"/>
+    <Disk ovf:capacity="${disk_image_capacity}" ovf:diskId="vmdisk1" ovf:fileRef="file1" ovf:format="http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized" vbox:uuid="${root_uuid}"/>
   </DiskSection>
   <NetworkSection>
     <Info>Logical networks used in the package</Info>
@@ -53,10 +53,18 @@ class VirtualboxOvfTemplate:
       <Description>${vm_description}</Description>
       <vbox:OSType ovf:required="false">Linux_64</vbox:OSType>
     </OperatingSystemSection>
-    <vbox:Machine ovf:required="false">
+    <vbox:Machine ovf:required="false" name="${vm_name}" uuid="${root_uuid}" OSType="Linux_64">
       <Hardware>
         <AudioAdapter enabled="false"/>
+        <Memory RAMSize="1024"/>
       </Hardware>
+      <StorageControllers>
+        <StorageController name="SATA Controller" type="AHCI" PortCount="1" useHostIOCache="false" Bootable="true" IDE0MasterEmulationPort="0" IDE0SlaveEmulationPort="1" IDE1MasterEmulationPort="2" IDE1SlaveEmulationPort="3">
+          <AttachedDevice type="HardDisk" hotpluggable="false" port="0" device="0">
+            <Image uuid="{${root_uuid}}"/>
+          </AttachedDevice>
+        </StorageController>
+      </StorageControllers>
     </vbox:Machine>
     <VirtualHardwareSection>
       <Info>Virtual hardware requirements for a virtual machine</Info>

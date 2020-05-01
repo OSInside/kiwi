@@ -22,6 +22,9 @@ class TestDiskFormatVagrantVirtualBox:
         )
         self.xml_state = Mock()
         self.xml_state.xml_data = xml_data
+        self.xml_state.get_root_filesystem_uuid = Mock(
+            return_value='some-uuid'
+        )
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
