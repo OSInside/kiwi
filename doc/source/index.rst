@@ -18,6 +18,7 @@
 
    quickstart
    installation
+   self_contained
    overview
    working_with_kiwi
    working_with_images

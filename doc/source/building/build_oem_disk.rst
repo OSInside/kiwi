@@ -138,7 +138,7 @@ Network Deployment
 
 The deployment from the network downloads the OEM disk image from a
 PXE boot server. This requires a PXE network boot server to be setup
-as explained in :ref:`pxe-boot-server`
+as explained in :ref:`network-boot-server`
 
 If the PXE server is running the following steps shows how to test the
 deployment process over the network using a QEMU virtual machine as

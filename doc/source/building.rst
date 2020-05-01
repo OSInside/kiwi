@@ -15,12 +15,9 @@ Building Images
    building/build_live_iso
    building/build_vmx_disk
    building/build_oem_disk
-   building/build_pxe_root_filesystem
    building/build_docker_container
    building/build_wsl_container
-   building/build_containerized
-   building/build_with_profiles
-   building/build_in_buildservice
+   building/build_kis
 
 Image Types
 -----------
@@ -42,12 +39,10 @@ OEM Expandable Disk Image
   and an installation image for CD/DVD, USB stick and Network deployment
   can be created in addition.
 
-PXE root File System Image
-  A root filesystem image which can be deployed via {kiwi}'s PXE netboot
-  infrastructure. A client configuration file on the pxe server controls
-  how the root filesystem image should be deployed. Many different
-  deployment strategies are possible, e.g root over NBD, AoE or NFS for
-  diskless and diskfull clients.
+KIS Root File System Image
+  An optional root filesystem image associated with a kernel and initrd.
+  The use case for this component image type is highly customizable.
+  Many different deployment strategies are possible.
 
 Docker Container Image
   An archive image suitable for the docker container engine.

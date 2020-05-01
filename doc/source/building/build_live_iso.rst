@@ -16,8 +16,7 @@ with other system storage components making it a useful pocket system for
 testing and demo- and debugging-purposes.
 
 To add a live ISO build to your appliance, create a `type` element with
-`image` set to `iso` in your :file:`config.xml` (see
-:ref:`build-types`) as shown below:
+`image` set to `iso` in your :file:`config.xml` as shown below:
 
 .. code:: xml
 
@@ -120,7 +119,7 @@ Live ISO through PXE boot
   Boot the live image via the network. This is possible with both
   modules but uses different technologies. The `overlay` module supports
   network boot only in combination with the AoE (Ata Over Ethernet) protocol.
-  For details see :ref:`pxe_live_boot`. The `dmsquash` module supports
+  For details see :ref:`network_live_boot`. The `dmsquash` module supports
   network boot by fetching the ISO image into memory from `root=live:<url>`
   using the `livenet` module.
 
