@@ -1112,8 +1112,6 @@ function suseCleanup {
     # the final target system
     # ----
     baseCleanup
-    # zypper id
-    rm -f /var/lib/zypp/AnonymousUniqueId
 }
 
 #======================================
