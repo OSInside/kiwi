@@ -64,13 +64,13 @@ class TestDefaults:
             lookup_path='lookup_path'
         ) == 'grub'
 
-    def test_get_live_dracut_module_from_flag(self):
-        assert Defaults.get_live_dracut_module_from_flag('foo') == \
-            'kiwi-live'
-        assert Defaults.get_live_dracut_module_from_flag('overlay') == \
-            'kiwi-live'
-        assert Defaults.get_live_dracut_module_from_flag('dmsquash') == \
-            'dmsquash-live livenet'
+    def test_get_live_dracut_modules_from_flag(self):
+        assert Defaults.get_live_dracut_modules_from_flag('foo') == \
+            ['kiwi-live']
+        assert Defaults.get_live_dracut_modules_from_flag('overlay') == \
+            ['kiwi-live']
+        assert Defaults.get_live_dracut_modules_from_flag('dmsquash') == \
+            ['dmsquash-live', 'livenet']
 
     @patch('platform.machine')
     def test_get_iso_boot_path(self, mock_machine):
