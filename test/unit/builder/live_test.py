@@ -212,12 +212,12 @@ class TestLiveImageBuilder:
         )
 
         assert self.boot_image_task.include_module.call_args_list == [
-            call('pollcdrom'), call('kiwi-live')
+            call('kiwi-live'), call('pollcdrom')
         ]
         self.boot_image_task.omit_module.assert_called_once_with('multipath')
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={
-                'modules': ['pollcdrom', 'kiwi-live'],
+                'modules': ['kiwi-live', 'pollcdrom'],
                 'omit_modules': ['multipath']
             },
             config_file='root_dir/etc/dracut.conf.d/02-livecd.conf'

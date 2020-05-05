@@ -185,15 +185,16 @@ class LiveImageBuilder:
 
         # create dracut initrd for live image
         log.info('Creating live ISO boot image')
-        live_dracut_module = Defaults.get_live_dracut_module_from_flag(
+        live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
             self.live_type
         )
-        self.boot_image.include_module('pollcdrom')
-        self.boot_image.include_module(live_dracut_module)
+        live_dracut_modules.append('pollcdrom')
+        for dracut_module in live_dracut_modules:
+            self.boot_image.include_module(dracut_module)
         self.boot_image.omit_module('multipath')
         self.boot_image.write_system_config_file(
             config={
-                'modules': ['pollcdrom', live_dracut_module],
+                'modules': live_dracut_modules,
                 'omit_modules': ['multipath']
             },
             config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
