@@ -1138,25 +1138,25 @@ class Defaults:
         return '/etc/dracut.conf.d/02-kiwi.conf'
 
     @staticmethod
-    def get_live_dracut_module_from_flag(flag_name):
+    def get_live_dracut_modules_from_flag(flag_name):
         """
-        Provides flag_name to dracut module name map
+        Provides flag_name to dracut modules name map
 
         Depending on the value of the flag attribute in the KIWI image
-        description a specific dracut module needs to be selected
+        description specific dracut modules need to be selected
 
-        :return: dracut module name
+        :return: dracut module names as list
 
-        :rtype: str
+        :rtype: list
         """
         live_modules = {
-            'overlay': 'kiwi-live',
-            'dmsquash': 'dmsquash-live livenet'
+            'overlay': ['kiwi-live'],
+            'dmsquash': ['dmsquash-live', 'livenet']
         }
         if flag_name in live_modules:
             return live_modules[flag_name]
         else:
-            return 'kiwi-live'
+            return ['kiwi-live']
 
     @staticmethod
     def get_default_live_iso_root_filesystem():
