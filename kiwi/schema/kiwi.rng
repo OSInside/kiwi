@@ -130,7 +130,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>7.1</value>
+        <value>7.2</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -1781,38 +1781,6 @@ image description. When kiwi builds the boot image the
 information is passed as add-profile option</a:documentation>
       </attribute>
     </define>
-    <define name="k.type.bootloader.attribute">
-      <attribute name="bootloader">
-        <a:documentation>Specifies the bootloader used for booting the image.
-At the moment grub2, zipl and the combination of zipl plus
-userspace grub2 are supported. The special custom entry
-allows to skip the bootloader configuration and installation
-and leaves this up to the user which can be done by using
-the editbootinstall and editbootconfig custom scripts</a:documentation>
-        <choice>
-          <value>grub2</value>
-          <value>zipl</value>
-          <value>grub2_s390x_emu</value>
-          <value>custom</value>
-        </choice>
-      </attribute>
-      <sch:pattern id="bootloader" is-a="image_type">
-        <sch:param name="attr" value="bootloader"/>
-        <sch:param name="types" value="oem vmx"/>
-      </sch:pattern>
-    </define>
-    <define name="k.type.bootloader_console.attribute">
-      <attribute name="bootloader_console">
-        <a:documentation>Specifies the bootloader console.
-The value only has an effect for the grub bootloader.
-By default a graphics console setup is used</a:documentation>
-        <ref name="grub_console"/>
-      </attribute>
-      <sch:pattern id="bootloader_console" is-a="image_type">
-        <sch:param name="attr" value="bootloader_console"/>
-        <sch:param name="types" value="oem vmx iso"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.xen_server.attribute">
       <attribute name="xen_server">
         <a:documentation>Specify the image is a Xen dom0 (Xen Server) image
@@ -1960,23 +1928,6 @@ attribute that setup can be toggled.</a:documentation>
         <sch:param name="types" value="vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.zipl_targettype.attribute">
-      <attribute name="zipl_targettype">
-        <a:documentation>The device type of the disk zipl should boot. On zFCP
-devices use SCSI, on DASD devices use CDL or LDL on
-emulated DASD devices use FBA</a:documentation>
-        <choice>
-          <value>CDL</value>
-          <value>LDL</value>
-          <value>FBA</value>
-          <value>SCSI</value>
-        </choice>
-      </attribute>
-      <sch:pattern id="zipl_targettype" is-a="image_type">
-        <sch:param name="attr" value="zipl_targettype"/>
-        <sch:param name="types" value="oem vmx"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.bootpartsize.attribute">
       <attribute name="bootpartsize">
         <a:documentation>For images with a separate boot partition this attribute
@@ -2025,18 +1976,6 @@ information is passed as add-profile option</a:documentation>
       <sch:pattern id="bootprofile" is-a="image_type">
         <sch:param name="attr" value="bootprofile"/>
         <sch:param name="types" value="oem vmx iso pxe cpio"/>
-      </sch:pattern>
-    </define>
-    <define name="k.type.boottimeout.attribute">
-      <attribute name="boottimeout">
-        <a:documentation>Specifies the boot timeout in seconds prior to launching
-the default boot option. By default the timeout is set
-to 10sec</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-      <sch:pattern id="boottimeout" is-a="image_type">
-        <sch:param name="attr" value="boottimeout"/>
-        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.compressed.attribute">
@@ -2380,7 +2319,7 @@ only evaluated for grub and ext|syslinux</a:documentation>
     <define name="k.type.install_continue_on_timeout.attribute">
       <attribute name="install_continue_on_timeout">
         <a:documentation>Specifies the boot timeout handling for the KIWI
-install image. If set to "true" the configured boottimeout
+install image. If set to "true" the configured timeout
 or its default value applies. If set to "false" no
 timeout applies in the boot menu of the install image.</a:documentation>
         <data type="boolean"/>
@@ -2624,15 +2563,6 @@ default.</a:documentation>
           <ref name="k.type.bootkernel.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.bootloader.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.bootloader_console.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.zipl_targettype.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.type.bootpartition.attribute"/>
         </optional>
         <optional>
@@ -2646,9 +2576,6 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bootprofile.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.boottimeout.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_quota_groups.attribute"/>
@@ -2811,6 +2738,9 @@ default.</a:documentation>
         <a:documentation>The Image Type of the Logical Extend</a:documentation>
         <interleave>
           <ref name="k.type.attlist"/>
+          <optional>
+            <ref name="k.bootloader"/>
+          </optional>
           <optional>
             <ref name="k.containerconfig"/>
           </optional>
@@ -3302,6 +3232,109 @@ references file names in linux lib directories to keep.</a:documentation>
           <oneOrMore>
             <ref name="k.file"/>
           </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <bootloader>
+    
+  -->
+  <div>
+    <sch:pattern abstract="true" id="bootloader_image_type">
+      <sch:rule context="bootloader[@$attr]">
+        <sch:assert test="contains('$types', ../@image)">bootloader($attr) is only available for the following image types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <sch:pattern abstract="true" id="bootloader_name_type">
+      <sch:rule context="bootloader[@$attr]">
+        <sch:assert test="contains('$types', @name)">bootloader($attr) attribute is only available for the following bootloader types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.bootloader.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies the bootloader used for booting the image.
+At the moment grub2, isolinux, zipl and the combination of
+zipl plus userspace grub2 are supported. The special custom
+entry allows to skip the bootloader configuration and installation
+and leaves this up to the user which can be done by using
+the editbootinstall and editbootconfig custom scripts</a:documentation>
+        <choice>
+          <value>grub2</value>
+          <value>isolinux</value>
+          <value>zipl</value>
+          <value>grub2_s390x_emu</value>
+          <value>custom</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="loader_name" is-a="bootloader_image_type">
+        <sch:param name="attr" value="name"/>
+        <sch:param name="types" value="oem vmx iso"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.console.attribute">
+      <attribute name="console">
+        <a:documentation>Specifies the bootloader console.
+The value is available for grub and isolinux bootloader
+types. By default a graphics console setup is used</a:documentation>
+        <ref name="grub_console"/>
+      </attribute>
+      <sch:pattern id="loader_console" is-a="bootloader_name_type">
+        <sch:param name="attr" value="console"/>
+        <sch:param name="types" value="grub2 isolinux grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.timeout.attribute">
+      <attribute name="timeout">
+        <a:documentation>Specifies the boot timeout in seconds prior to launching
+the default boot option. By default the timeout is set
+to 10sec</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+      <sch:pattern id="timeout" is-a="bootloader_name_type">
+        <sch:param name="attr" value="timeout"/>
+        <sch:param name="types" value="grub2 isolinux zipl grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.targettype.attribute">
+      <attribute name="targettype">
+        <a:documentation>The device type of the disk zipl should boot. On zFCP
+devices use SCSI, on DASD devices use CDL or LDL on
+emulated DASD devices use FBA</a:documentation>
+        <choice>
+          <value>CDL</value>
+          <value>LDL</value>
+          <value>FBA</value>
+          <value>SCSI</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="targettype" is-a="bootloader_name_type">
+        <sch:param name="attr" value="targettype"/>
+        <sch:param name="types" value="zipl"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.attlist">
+      <interleave>
+        <ref name="k.bootloader.name.attribute"/>
+        <optional>
+          <ref name="k.bootloader.console.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.timeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.targettype.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.bootloader">
+      <element name="bootloader">
+        <a:documentation>The bootloader section is used to select the bootloader
+and to provide configuration parameters for it</a:documentation>
+        <interleave>
+          <ref name="k.bootloader.attlist"/>
+          <empty/>
         </interleave>
       </element>
     </define>

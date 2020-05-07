@@ -34,14 +34,14 @@ class TestFirmWare:
 
         mock_platform.return_value = 's390x'
         xml_state.build_type.get_firmware.return_value = None
-        xml_state.build_type.get_zipl_targettype = mock.Mock()
-        xml_state.build_type.get_zipl_targettype.return_value = 'LDL'
+        xml_state.get_build_type_bootloader_targettype = mock.Mock()
+        xml_state.get_build_type_bootloader_targettype.return_value = 'LDL'
         self.firmware_s390_ldl = FirmWare(xml_state)
 
-        xml_state.build_type.get_zipl_targettype.return_value = 'CDL'
+        xml_state.get_build_type_bootloader_targettype.return_value = 'CDL'
         self.firmware_s390_cdl = FirmWare(xml_state)
 
-        xml_state.build_type.get_zipl_targettype.return_value = 'SCSI'
+        xml_state.get_build_type_bootloader_targettype.return_value = 'SCSI'
         self.firmware_s390_scsi = FirmWare(xml_state)
 
         mock_platform.return_value = 'ppc64le'

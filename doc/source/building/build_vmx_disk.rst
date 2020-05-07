@@ -22,12 +22,11 @@ interface is shown below:
 
 .. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
+   <image schemaversion="7.2" name="JeOS-Tumbleweed">
      <!-- snip -->
      <preferences>
-       <type image="vmx" filesystem="ext4"
-             format="vmdk" boottimeout="0"
-             bootloader="grub2">
+       <type image="vmx" filesystem="ext4" format="vmdk">
+         <bootloader name="grub2" timeout="0"/>
          <size unit="G">42</size>
          <machine memory="512" guestOS="suse" HWversion="4">
            <vmdisk id="0" controller="ide"/>
@@ -99,7 +98,7 @@ added to the virtual machine image of which 5 GB are left unpartitioned:
 
 .. code:: xml
 
-   <image schemaversion="7.1" name="JeOS-Tumbleweed">
+   <image schemaversion="7.2" name="JeOS-Tumbleweed">
      <!-- snip -->
      <preferences>
        <type image="vmx" format="vmdk">
@@ -195,11 +194,11 @@ The following example adds the two entries `numvcpus = "4"` and
 
 .. code:: xml
 
-   <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
+   <image schemaversion="7.2" name="openSUSE-15.1" displayname="Bob">
      <preferences>
        <type image="vmx" filesystem="ext4" format="vmdk"
-             bootloader="grub2" kernelcmdline="splash"
-             bootpartition="false">
+             kernelcmdline="splash" bootpartition="false">
+         <bootloader name="grub2"/>
          <machine memory="512" guestOS="suse" HWversion="4">
            <vmconfig-entry>numvcpus = "4"</vmconfig-entry>
            <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
@@ -223,10 +222,10 @@ In the following example we add a bridged network interface using the
 
 .. code:: xml
 
-   <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
+   <image schemaversion="7.2" name="openSUSE-15.1" displayname="Bob">
      <preferences>
-       <type image="vmx" filesystem="btrfs"
-             bootloader="grub2" kernelcmdline="splash">
+       <type image="vmx" filesystem="btrfs" kernelcmdline="splash">
+         <bootloader name="grub2"/>
          <machine memory="4096" guestOS="suse" HWversion="4">
            <vmnic driver="e1000" interface="0" mode="bridged"/>
          </machine>
@@ -262,11 +261,11 @@ The following example adds a disk with the ID 0 using an IDE controller:
 
 .. code:: xml
 
-   <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
+   <image schemaversion="7.2" name="openSUSE-15.1" displayname="Bob">
      <preferences>
        <type image="vmx" filesystem="ext4" format="vmdk"
-             bootloader="grub2" kernelcmdline="splash"
-             bootpartition="false">
+             kernelcmdline="splash" bootpartition="false">
+         <bootloader name="grub2"/>
          <machine memory="512" guestOS="suse" HWversion="4">
            <vmdisk id="0" controller="ide"/>
          </machine>
@@ -303,10 +302,10 @@ IDE controller:
 
 .. code:: xml
 
-   <image schemaversion="7.1" name="openSUSE-15.1" displayname="Bob">
+   <image schemaversion="7.2" name="openSUSE-15.1" displayname="Bob">
      <preferences>
-       <type bootloader="grub2" filesystem="ext4"
-             image="vmx" kernelcmdline="splash">
+       <type image="vmx" filesystem="ext4" kernelcmdline="splash">
+         <bootloader name="grub2"/>
          <machine memory="512" xen_loader="hvmloader">
            <vmdvd id="0" controller="scsi"/>
            <vmdvd id="1" controller="ide"/>

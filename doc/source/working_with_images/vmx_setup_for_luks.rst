@@ -49,7 +49,6 @@ Update the {kiwi} image description as follows:
         <type image="vmx"
             image="vmx"
             filesystem="ext4"
-            bootloader="grub2"
             luks="linux"
             bootpartition="false">
         </type>
@@ -60,7 +59,6 @@ Update the {kiwi} image description as follows:
         <type image="vmx"
             image="vmx"
             filesystem="ext4"
-            bootloader="grub2"
             luks="linux"
             bootpartition="true">
         </type>

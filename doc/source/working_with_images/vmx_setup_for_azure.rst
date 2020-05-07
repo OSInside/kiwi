@@ -45,14 +45,13 @@ description as follows:
 
       <type image="vmx"
             filesystem="ext4"
-            boottimeout="1"
             kernelcmdline="console=ttyS0 rootdelay=300 net.ifnames=0"
             devicepersistency="by-uuid"
             format="vhd-fixed"
             formatoptions="force_size"
-            bootloader="grub2"
             bootpartition="true"
             bootpartsize="1024">
+        <bootloader name="grub2" timeout="1"/>
         <size unit="M">30720</size>
       </type>
 

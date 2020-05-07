@@ -46,13 +46,13 @@ class TestBootLoaderConfigZipl:
         self.xml_state.build_type.get_firmware = mock.Mock(
             return_value=None
         )
-        self.xml_state.build_type.get_boottimeout = mock.Mock(
+        self.xml_state.get_build_type_bootloader_timeout = mock.Mock(
             return_value='200'
         )
         self.xml_state.build_type.get_target_blocksize = mock.Mock(
             return_value=None
         )
-        self.xml_state.build_type.get_zipl_targettype = mock.Mock(
+        self.xml_state.get_build_type_bootloader_targettype = mock.Mock(
             return_value=None
         )
         self.xml_state.build_type.get_kernelcmdline = mock.Mock(

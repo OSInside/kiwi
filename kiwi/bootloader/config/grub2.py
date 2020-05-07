@@ -85,7 +85,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         else:
             self.boot_directory_name = 'grub'
 
-        self.terminal = self.xml_state.build_type.get_bootloader_console() \
+        self.terminal = self.xml_state.get_build_type_bootloader_console() \
             or 'gfxterm'
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()

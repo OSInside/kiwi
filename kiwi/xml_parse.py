@@ -2566,21 +2566,17 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootloader=None, bootloader_console=None, zipl_targettype=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, boottimeout=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
         self.firmware = _cast(None, firmware)
         self.bootkernel = _cast(None, bootkernel)
-        self.bootloader = _cast(None, bootloader)
-        self.bootloader_console = _cast(None, bootloader_console)
-        self.zipl_targettype = _cast(None, zipl_targettype)
         self.bootpartition = _cast(bool, bootpartition)
         self.bootpartsize = _cast(int, bootpartsize)
         self.efipartsize = _cast(int, efipartsize)
         self.efiparttable = _cast(None, efiparttable)
         self.bootprofile = _cast(None, bootprofile)
-        self.boottimeout = _cast(int, boottimeout)
         self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
         self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
@@ -2633,6 +2629,10 @@ class type_(GeneratedsSuper):
         self.xen_server = _cast(bool, xen_server)
         self.publisher = _cast(None, publisher)
         self.disk_start_sector = _cast(int, disk_start_sector)
+        if bootloader is None:
+            self.bootloader = []
+        else:
+            self.bootloader = bootloader
         if containerconfig is None:
             self.containerconfig = []
         else:
@@ -2668,6 +2668,11 @@ class type_(GeneratedsSuper):
         else:
             return type_(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_bootloader(self): return self.bootloader
+    def set_bootloader(self, bootloader): self.bootloader = bootloader
+    def add_bootloader(self, value): self.bootloader.append(value)
+    def insert_bootloader_at(self, index, value): self.bootloader.insert(index, value)
+    def replace_bootloader_at(self, index, value): self.bootloader[index] = value
     def get_containerconfig(self): return self.containerconfig
     def set_containerconfig(self, containerconfig): self.containerconfig = containerconfig
     def add_containerconfig(self, value): self.containerconfig.append(value)
@@ -2706,12 +2711,6 @@ class type_(GeneratedsSuper):
     def set_firmware(self, firmware): self.firmware = firmware
     def get_bootkernel(self): return self.bootkernel
     def set_bootkernel(self, bootkernel): self.bootkernel = bootkernel
-    def get_bootloader(self): return self.bootloader
-    def set_bootloader(self, bootloader): self.bootloader = bootloader
-    def get_bootloader_console(self): return self.bootloader_console
-    def set_bootloader_console(self, bootloader_console): self.bootloader_console = bootloader_console
-    def get_zipl_targettype(self): return self.zipl_targettype
-    def set_zipl_targettype(self, zipl_targettype): self.zipl_targettype = zipl_targettype
     def get_bootpartition(self): return self.bootpartition
     def set_bootpartition(self, bootpartition): self.bootpartition = bootpartition
     def get_bootpartsize(self): return self.bootpartsize
@@ -2722,8 +2721,6 @@ class type_(GeneratedsSuper):
     def set_efiparttable(self, efiparttable): self.efiparttable = efiparttable
     def get_bootprofile(self): return self.bootprofile
     def set_bootprofile(self, bootprofile): self.bootprofile = bootprofile
-    def get_boottimeout(self): return self.boottimeout
-    def set_boottimeout(self, boottimeout): self.boottimeout = boottimeout
     def get_btrfs_quota_groups(self): return self.btrfs_quota_groups
     def set_btrfs_quota_groups(self, btrfs_quota_groups): self.btrfs_quota_groups = btrfs_quota_groups
     def get_btrfs_root_is_snapshot(self): return self.btrfs_root_is_snapshot
@@ -2828,13 +2825,6 @@ class type_(GeneratedsSuper):
     def set_publisher(self, publisher): self.publisher = publisher
     def get_disk_start_sector(self): return self.disk_start_sector
     def set_disk_start_sector(self, disk_start_sector): self.disk_start_sector = disk_start_sector
-    def validate_grub_console(self, value):
-        # Validate type grub_console, a restriction on xs:token.
-        if value is not None and Validate_simpletypes_:
-            if not self.gds_validate_simple_patterns(
-                    self.validate_grub_console_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
-    validate_grub_console_patterns_ = [['^(console|gfxterm|serial)( (console|gfxterm|serial))*$']]
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -2865,6 +2855,7 @@ class type_(GeneratedsSuper):
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
     def hasContent_(self):
         if (
+            self.bootloader or
             self.containerconfig or
             self.machine or
             self.oemconfig or
@@ -2909,15 +2900,6 @@ class type_(GeneratedsSuper):
         if self.bootkernel is not None and 'bootkernel' not in already_processed:
             already_processed.add('bootkernel')
             outfile.write(' bootkernel=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootkernel), input_name='bootkernel')), ))
-        if self.bootloader is not None and 'bootloader' not in already_processed:
-            already_processed.add('bootloader')
-            outfile.write(' bootloader=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootloader), input_name='bootloader')), ))
-        if self.bootloader_console is not None and 'bootloader_console' not in already_processed:
-            already_processed.add('bootloader_console')
-            outfile.write(' bootloader_console=%s' % (quote_attrib(self.bootloader_console), ))
-        if self.zipl_targettype is not None and 'zipl_targettype' not in already_processed:
-            already_processed.add('zipl_targettype')
-            outfile.write(' zipl_targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.zipl_targettype), input_name='zipl_targettype')), ))
         if self.bootpartition is not None and 'bootpartition' not in already_processed:
             already_processed.add('bootpartition')
             outfile.write(' bootpartition="%s"' % self.gds_format_boolean(self.bootpartition, input_name='bootpartition'))
@@ -2933,9 +2915,6 @@ class type_(GeneratedsSuper):
         if self.bootprofile is not None and 'bootprofile' not in already_processed:
             already_processed.add('bootprofile')
             outfile.write(' bootprofile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootprofile), input_name='bootprofile')), ))
-        if self.boottimeout is not None and 'boottimeout' not in already_processed:
-            already_processed.add('boottimeout')
-            outfile.write(' boottimeout="%s"' % self.gds_format_integer(self.boottimeout, input_name='boottimeout'))
         if self.btrfs_quota_groups is not None and 'btrfs_quota_groups' not in already_processed:
             already_processed.add('btrfs_quota_groups')
             outfile.write(' btrfs_quota_groups="%s"' % self.gds_format_boolean(self.btrfs_quota_groups, input_name='btrfs_quota_groups'))
@@ -3097,6 +3076,8 @@ class type_(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
+        for bootloader_ in self.bootloader:
+            bootloader_.export(outfile, level, namespaceprefix_, name_='bootloader', pretty_print=pretty_print)
         for containerconfig_ in self.containerconfig:
             containerconfig_.export(outfile, level, namespaceprefix_, name_='containerconfig', pretty_print=pretty_print)
         for machine_ in self.machine:
@@ -3135,22 +3116,6 @@ class type_(GeneratedsSuper):
         if value is not None and 'bootkernel' not in already_processed:
             already_processed.add('bootkernel')
             self.bootkernel = value
-        value = find_attr_value_('bootloader', node)
-        if value is not None and 'bootloader' not in already_processed:
-            already_processed.add('bootloader')
-            self.bootloader = value
-            self.bootloader = ' '.join(self.bootloader.split())
-        value = find_attr_value_('bootloader_console', node)
-        if value is not None and 'bootloader_console' not in already_processed:
-            already_processed.add('bootloader_console')
-            self.bootloader_console = value
-            self.bootloader_console = ' '.join(self.bootloader_console.split())
-            self.validate_grub_console(self.bootloader_console)    # validate type grub_console
-        value = find_attr_value_('zipl_targettype', node)
-        if value is not None and 'zipl_targettype' not in already_processed:
-            already_processed.add('zipl_targettype')
-            self.zipl_targettype = value
-            self.zipl_targettype = ' '.join(self.zipl_targettype.split())
         value = find_attr_value_('bootpartition', node)
         if value is not None and 'bootpartition' not in already_processed:
             already_processed.add('bootpartition')
@@ -3187,15 +3152,6 @@ class type_(GeneratedsSuper):
         if value is not None and 'bootprofile' not in already_processed:
             already_processed.add('bootprofile')
             self.bootprofile = value
-        value = find_attr_value_('boottimeout', node)
-        if value is not None and 'boottimeout' not in already_processed:
-            already_processed.add('boottimeout')
-            try:
-                self.boottimeout = int(value)
-            except ValueError as exp:
-                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-            if self.boottimeout < 0:
-                raise_parse_error(node, 'Invalid NonNegativeInteger')
         value = find_attr_value_('btrfs_quota_groups', node)
         if value is not None and 'btrfs_quota_groups' not in already_processed:
             already_processed.add('btrfs_quota_groups')
@@ -3533,7 +3489,12 @@ class type_(GeneratedsSuper):
             except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'containerconfig':
+        if nodeName_ == 'bootloader':
+            obj_ = bootloader.factory()
+            obj_.build(child_)
+            self.bootloader.append(obj_)
+            obj_.original_tagname_ = 'bootloader'
+        elif nodeName_ == 'containerconfig':
             obj_ = containerconfig.factory()
             obj_.build(child_)
             self.containerconfig.append(obj_)
@@ -4498,6 +4459,123 @@ class strip(GeneratedsSuper):
             self.file.append(obj_)
             obj_.original_tagname_ = 'file'
 # end class strip
+
+
+class bootloader(GeneratedsSuper):
+    """The bootloader section is used to select the bootloader and to
+    provide configuration parameters for it"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, console=None, timeout=None, targettype=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.console = _cast(None, console)
+        self.timeout = _cast(int, timeout)
+        self.targettype = _cast(None, targettype)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, bootloader)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if bootloader.subclass:
+            return bootloader.subclass(*args_, **kwargs_)
+        else:
+            return bootloader(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_console(self): return self.console
+    def set_console(self, console): self.console = console
+    def get_timeout(self): return self.timeout
+    def set_timeout(self, timeout): self.timeout = timeout
+    def get_targettype(self): return self.targettype
+    def set_targettype(self, targettype): self.targettype = targettype
+    def validate_grub_console(self, value):
+        # Validate type grub_console, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_grub_console_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
+    validate_grub_console_patterns_ = [['^(console|gfxterm|serial)( (console|gfxterm|serial))*$']]
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='bootloader', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('bootloader')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='bootloader')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='bootloader', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='bootloader'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.console is not None and 'console' not in already_processed:
+            already_processed.add('console')
+            outfile.write(' console=%s' % (quote_attrib(self.console), ))
+        if self.timeout is not None and 'timeout' not in already_processed:
+            already_processed.add('timeout')
+            outfile.write(' timeout="%s"' % self.gds_format_integer(self.timeout, input_name='timeout'))
+        if self.targettype is not None and 'targettype' not in already_processed:
+            already_processed.add('targettype')
+            outfile.write(' targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.targettype), input_name='targettype')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='bootloader', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+            self.name = ' '.join(self.name.split())
+        value = find_attr_value_('console', node)
+        if value is not None and 'console' not in already_processed:
+            already_processed.add('console')
+            self.console = value
+            self.console = ' '.join(self.console.split())
+            self.validate_grub_console(self.console)    # validate type grub_console
+        value = find_attr_value_('timeout', node)
+        if value is not None and 'timeout' not in already_processed:
+            already_processed.add('timeout')
+            try:
+                self.timeout = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+            if self.timeout < 0:
+                raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('targettype', node)
+        if value is not None and 'targettype' not in already_processed:
+            already_processed.add('targettype')
+            self.targettype = value
+            self.targettype = ' '.join(self.targettype.split())
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class bootloader
 
 
 class containerconfig(GeneratedsSuper):
@@ -7553,6 +7631,7 @@ if __name__ == '__main__':
 __all__ = [
     "archive",
     "argument",
+    "bootloader",
     "containerconfig",
     "description",
     "drivers",
