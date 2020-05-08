@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="OEM-openSUSE-Tumbleweed">
+<image schemaversion="7.2" name="OEM-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -14,7 +14,8 @@
         <locale>en_US</locale>
         <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
-        <type image="oem" filesystem="xfs" initrd_system="dracut" bootloader="grub2_s390x_emu" zipl_targettype="FBA" kernelcmdline="cio_ignore=all,!ipldev,!condev" bootloader_console="serial">
+        <type image="oem" filesystem="xfs" initrd_system="dracut" kernelcmdline="cio_ignore=all,!ipldev,!condev">
+            <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA"/>
             <systemdisk>
                 <volume name="home"/>
             </systemdisk>
@@ -27,8 +28,8 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>

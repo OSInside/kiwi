@@ -3,7 +3,7 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.1" name="VMX-Fedora-30.0">
+<image schemaversion="7.2" name="VMX-Fedora-30.0">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -28,10 +28,13 @@
         <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash" bootloader_console="serial console"/>
+        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 splash">
+            <bootloader name="grub2" console="serial console"/>
+        </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" bootloader="grub2" firmware="uefi">
+        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" firmware="uefi">
+            <bootloader name="grub2"/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="MicroOS-openSUSE-Tumbleweed">
+<image schemaversion="7.2" name="MicroOS-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -16,24 +16,8 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type
-            image="vmx"
-            filesystem="btrfs"
-            format="qcow2"
-            bootloader="grub2"
-            bootloader_console="gfxterm"
-            firmware="uefi"
-            kernelcmdline="plymouth.enable=0 console=ttyS0,115200 console=tty0 net.ifnames=0 swapaccount=1"
-            bootpartition="false"
-            bootkernel="custom"
-            btrfs_root_is_snapshot="true"
-            btrfs_root_is_readonly_snapshot="true"
-            btrfs_quota_groups="false"
-            spare_part="5G"
-            spare_part_mountpoint="/var"
-            spare_part_fs="ext4"
-            spare_part_is_last="true"
-        >
+        <type image="vmx" filesystem="btrfs" format="qcow2" firmware="uefi" kernelcmdline="plymouth.enable=0 console=ttyS0,115200 console=tty0 net.ifnames=0 swapaccount=1" bootpartition="false" bootkernel="custom" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true" btrfs_quota_groups="false" spare_part="5G" spare_part_mountpoint="/var" spare_part_fs="ext4" spare_part_is_last="true">
+            <bootloader name="grub2" console="gfxterm"/>
             <systemdisk>
                 <volume name="home"/>
                 <volume name="root"/>
@@ -50,8 +34,8 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>

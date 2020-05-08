@@ -4,7 +4,7 @@
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 <!-- OBS-ExclusiveArch: x86_64 -->
 
-<image schemaversion="7.1" name="Tumbleweed">
+<image schemaversion="7.2" name="Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -28,20 +28,22 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="libvirt">
-        <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0" bootloader="grub2" firmware="efi" kernelcmdline="net.ifnames=0">
+        <type image="vmx" filesystem="ext4" format="vagrant" firmware="efi" kernelcmdline="net.ifnames=0">
+            <bootloader name="grub2" timeout="0"/>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
             <size unit="G">42</size>
         </type>
     </preferences>
     <preferences profiles="virtualbox">
-        <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0" bootloader="grub2" kernelcmdline="net.ifnames=0">
+        <type image="vmx" filesystem="ext4" format="vagrant" kernelcmdline="net.ifnames=0">
+            <bootloader name="grub2" timeout="0"/>
             <vagrantconfig provider="virtualbox" virtualbox_guest_additions_present="true" virtualsize="42"/>
             <size unit="G">42</size>
         </type>
     </preferences>
     <users>
-        <user password="vagrant" home="/root" name="root" groups="root" pwdformat="plain" />
-        <user password="vagrant" home="/home/vagrant" name="vagrant" groups="vagrant" pwdformat="plain" />
+        <user password="vagrant" home="/root" name="root" groups="root" pwdformat="plain"/>
+        <user password="vagrant" home="/home/vagrant" name="vagrant" groups="vagrant" pwdformat="plain"/>
     </users>
     <repository>
         <source path="obsrepositories:/"/>

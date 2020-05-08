@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="TW-OpenStack">
+<image schemaversion="7.2" name="TW-OpenStack">
     <description type="system">
         <author>KIWI Team</author>
         <contact>kiwi-images@googlegroups.com</contact>
         <specification>SUSE Tumbleweed guest image for OpenStack</specification>
     </description>
     <preferences>
-        <type image="vmx" filesystem="ext4" format="qcow2" kernelcmdline="console=tty1 console=ttyS0 net.ifnames=0" boottimeout="1" bootloader="grub2">
+        <type image="vmx" filesystem="ext4" format="qcow2" kernelcmdline="console=tty1 console=ttyS0 net.ifnames=0">
+            <bootloader name="grub2" timeout="1"/>
             <size unit="M">10240</size>
         </type>
         <version>0.3.10</version>
@@ -20,8 +21,8 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="patterns-openSUSE-base"/>
