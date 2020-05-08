@@ -1228,6 +1228,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <value>zypper</value>
         <value>yum</value>
         <value>dnf</value>
+	<value>pacman</value>
       </choice>
     </define>
     <define name="k.packagemanager.attlist">

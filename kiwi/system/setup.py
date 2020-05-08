@@ -499,6 +499,9 @@ class SystemSetup:
         elif packager == 'dpkg':
             self._export_deb_package_list(filename)
             return filename
+        elif packager == 'pacman':
+            self._export_pacman_package_list(filename)
+            return filename
 
     def export_package_verification(self, target_dir):
         """
@@ -1015,6 +1018,19 @@ class SystemSetup:
                 os.linesep.join(sorted(query_call.output.splitlines()))
             )
             packages.write(os.linesep)
+
+    def _export_pacman_package_list(self, filename):
+        log.info('Export pacman packages metadata')
+        query_call = Command.run(['pacman', '-Qe'])
+        with open(filename, 'w') as packages:
+            for line in query_call.output.splitlines():
+                package, _, version_release = line.partition(' ')
+                version, _, release = version_release.partition('-')
+                packages.writelines([
+                    '{0}|None|{1}|{2}|None|None|None{3}'.format(
+                        package, version, release, os.linesep
+                    )
+                ])
 
     def _export_rpm_package_verification(self, filename):
         log.info('Export rpm verification metadata')
