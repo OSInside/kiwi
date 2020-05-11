@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="WSL-openSUSE-Tumbleweed">
+<image schemaversion="7.2" name="WSL-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -15,20 +15,15 @@
         <keytable>us</keytable>
         <type image="appx" metadata_path="/usr/share/wsl-appx">
             <containerconfig name="Tumbleweed">
-                <history
-                    author="KIWI-Team"
-                    application_id="tumbleweed"
-                    package_version="2003.12.0.0"
-                    launcher="openSUSE-Tumbleweed.exe"
-                >Tumbleweed JeOS text based</history>
+                <history author="KIWI-Team" application_id="tumbleweed" package_version="2003.12.0.0" launcher="openSUSE-Tumbleweed.exe">Tumbleweed JeOS text based</history>
             </containerconfig>
         </type>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="grub"/>

@@ -54,10 +54,10 @@ description as follows:
 
       <type image="oem"
             initrd_system="dracut"
-            filesystem="ext4" boottimeout="1"
+            filesystem="ext4"
             kernelcmdline="console=ttyS0,38400n8 net.ifnames=0"
-            format="gce"
-            bootloader="grub2">
+            format="gce">
+        <bootloader name="grub2" timeout="1"/>
         <size unit="M">10240</size>
         <oemconfig>
             <oem-swap>false</oem-swap>

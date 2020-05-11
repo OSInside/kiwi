@@ -49,7 +49,7 @@ class DiskSetup:
         self.mdraid = xml_state.build_type.get_mdraid()
         self.luks = xml_state.build_type.get_luks()
         self.volume_manager = xml_state.get_volume_management()
-        self.bootloader = xml_state.build_type.get_bootloader()
+        self.bootloader = xml_state.get_build_type_bootloader_name()
         self.oemconfig = xml_state.get_build_type_oemconfig_section()
         self.volumes = xml_state.get_volumes()
 

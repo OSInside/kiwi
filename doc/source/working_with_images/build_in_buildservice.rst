@@ -100,7 +100,7 @@ The notable differences to running {kiwi} locally include:
 
         <!-- OBS-Profiles: foo_profile bar_profile -->
 
-        <image schemaversion="7.1" name="openSUSE-Leap-15.1">
+        <image schemaversion="7.2" name="openSUSE-Leap-15.1">
           <!-- image description with the profiles foo_profile and bar_profile
         </image>
 
@@ -118,7 +118,7 @@ The notable differences to running {kiwi} locally include:
 
      <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-     <image schemaversion="7.1" name="openSUSE-Leap-15.1">
+     <image schemaversion="7.2" name="openSUSE-Leap-15.1">
        <!-- image description with the profiles foo_profile and bar_profile
      </image>
 

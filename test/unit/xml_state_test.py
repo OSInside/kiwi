@@ -1,6 +1,8 @@
 import logging
 from collections import namedtuple
-from mock import patch
+from mock import (
+    patch, Mock
+)
 from pytest import (
     raises, fixture
 )
@@ -41,6 +43,11 @@ class TestXMLState:
         self.no_image_packages_boot_state = XMLState(
             no_image_packages_description.load()
         )
+        self.bootloader = Mock()
+        self.bootloader.get_name.return_value = 'some-loader'
+        self.bootloader.get_timeout.return_value = 'some-timeout'
+        self.bootloader.get_targettype.return_value = 'some-target'
+        self.bootloader.get_console.return_value = 'some-console'
 
     def test_get_description_section(self):
         description = self.state.get_description_section()
@@ -494,6 +501,13 @@ class TestXMLState:
         systemdisk = self.boot_state.get_build_type_system_disk_section()
         assert systemdisk.get_name() == 'mydisk'
 
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_copy_bootloader_section(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        self.state.copy_bootloader_section(self.boot_state)
+        assert self.boot_state.get_build_type_bootloader_section() == \
+            self.bootloader
+
     def test_copy_strip_sections(self):
         self.state.copy_strip_sections(self.boot_state)
         assert 'del-a' in self.boot_state.get_strip_files_to_delete()
@@ -827,3 +841,28 @@ class TestXMLState:
         assert self.state.get_root_filesystem_uuid() is None
         self.state.set_root_filesystem_uuid('some-id')
         assert self.state.get_root_filesystem_uuid() == 'some-id'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_name(self, mock_bootloader):
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_name() == 'grub2'
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_name() == 'some-loader'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_console(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_console() == \
+            'some-console'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_timeout(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_timeout() == \
+            'some-timeout'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_targettype(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_targettype() == \
+            'some-target'

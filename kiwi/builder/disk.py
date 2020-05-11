@@ -102,7 +102,7 @@ class DiskBuilder:
         self.requested_filesystem = xml_state.build_type.get_filesystem()
         self.requested_boot_filesystem = \
             xml_state.build_type.get_bootfilesystem()
-        self.bootloader = xml_state.build_type.get_bootloader()
+        self.bootloader = xml_state.get_build_type_bootloader_name()
         self.initrd_system = xml_state.get_initrd_system()
         self.target_removable = xml_state.build_type.get_target_removable()
         self.root_filesystem_is_multipath = \

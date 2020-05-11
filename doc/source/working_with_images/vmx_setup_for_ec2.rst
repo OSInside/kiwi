@@ -51,11 +51,10 @@ description as follows:
 
       <type image="vmx"
             filesystem="ext4"
-            bootloader="grub2"
             kernelcmdline="console=xvc0 multipath=off net.ifnames=0"
-            boottimeout="1"
             devicepersistency="by-label"
             firmware="ec2">
+        <bootloader name="grub2" timeout="1"/>
         <size unit="M">10240</size>
         <machine xen_loader="hvmloader"/>
       </type>

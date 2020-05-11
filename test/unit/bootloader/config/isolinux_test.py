@@ -22,7 +22,7 @@ class TestBootLoaderConfigIsoLinux:
         mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         self.state = mock.Mock()
-        self.state.build_type.get_bootloader_console = mock.Mock(
+        self.state.get_build_type_bootloader_console = mock.Mock(
             return_value=None
         )
         self.state.build_type.get_mediacheck = mock.Mock(
@@ -40,7 +40,7 @@ class TestBootLoaderConfigIsoLinux:
         self.state.build_type.get_hybridpersistent_filesystem = mock.Mock(
             return_value=None
         )
-        self.state.build_type.get_boottimeout = mock.Mock(
+        self.state.get_build_type_bootloader_timeout = mock.Mock(
             return_value=None
         )
         self.state.build_type.get_install_continue_on_timeout = mock.Mock(

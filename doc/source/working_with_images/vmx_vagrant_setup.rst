@@ -42,7 +42,8 @@ required:
 
    .. code:: xml
 
-      <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0">
+      <type image="vmx" filesystem="ext4" format="vagrant">
+          <bootloader name="grub2" timeout="0"/>
           <vagrantconfig provider="libvirt" virtualsize="42"/>
           <size unit="G">42</size>
       </type>
@@ -57,7 +58,8 @@ required:
 
    .. code:: xml
 
-      <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0">
+      <type image="vmx" filesystem="ext4" format="vagrant">
+          <bootloader name="grub2" timeout="0"/>
           <vagrantconfig
             provider="virtualbox"
             virtualbox_guest_additions_present="true"
@@ -225,7 +227,8 @@ description directory next to :file:`config.sh`):
 
 .. code:: xml
 
-   <type image="vmx" filesystem="ext4" format="vagrant" boottimeout="0">
+   <type image="vmx" filesystem="ext4" format="vagrant">
+       <bootloader name="grub2" timeout="0"/>
        <vagrantconfig
          provider="libvirt"
          virtualsize="42"
@@ -258,9 +261,8 @@ customized one (the libvirt profile in the following example):
        <type
          image="vmx"
          filesystem="ext4"
-         format="vagrant"
-         boottimeout="0"
-         bootloader="grub2">
+         format="vagrant">
+           <bootloader name="grub2" timeout="0"/>
            <vagrantconfig
              provider="libvirt"
              virtualsize="42"
@@ -273,9 +275,8 @@ customized one (the libvirt profile in the following example):
         <type
           image="vmx"
           filesystem="ext4"
-          format="vagrant"
-          boottimeout="0"
-          bootloader="grub2">
+          format="vagrant">
+            <bootloader name="grub2" timeout="0"/>
             <vagrantconfig
               provider="virtualbox"
               virtualbox_guest_additions_present="true"

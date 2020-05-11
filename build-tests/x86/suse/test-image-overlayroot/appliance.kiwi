@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="VMX-openSUSE-Tumbleweed">
+<image schemaversion="7.2" name="VMX-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -16,15 +16,16 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="vmx" filesystem="ext3" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="efi" format="vmdk" overlayroot="true">
+        <type image="vmx" filesystem="ext3" kernelcmdline="console=ttyS0 splash" firmware="efi" format="vmdk" overlayroot="true">
+            <bootloader name="grub2"/>
             <size unit="G">4</size>
         </type>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="EC2-openSUSE-Tumbleweed">
+<image schemaversion="7.2" name="EC2-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
         <specification>ec2 test build</specification>
     </description>
     <preferences>
-        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 multipath=off net.ifnames=0" boottimeout="1" devicepersistency="by-label" firmware="ec2">
+        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 multipath=off net.ifnames=0" devicepersistency="by-label" firmware="ec2">
+            <bootloader name="grub2" timeout="1"/>
             <size unit="M">10240</size>
             <machine xen_loader="pvgrub"/>
         </type>
@@ -21,8 +22,8 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image" patternType="plusRecommended">
         <package name="patterns-base-minimal_base"/>

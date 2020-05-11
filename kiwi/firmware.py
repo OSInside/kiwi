@@ -38,7 +38,8 @@ class FirmWare:
     """
     def __init__(self, xml_state):
         self.arch = platform.machine()
-        self.zipl_target_type = xml_state.build_type.get_zipl_targettype()
+        self.zipl_target_type = \
+            xml_state.get_build_type_bootloader_targettype()
         self.firmware = xml_state.build_type.get_firmware()
         self.efipart_mbytes = xml_state.build_type.get_efipartsize()
         self.efi_partition_table = xml_state.build_type.get_efiparttable()

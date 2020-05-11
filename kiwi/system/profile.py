@@ -295,7 +295,7 @@ class Profile:
         self.dot_profile['kiwi_compressed'] = \
             type_section.get_compressed()
         self.dot_profile['kiwi_boot_timeout'] = \
-            type_section.get_boottimeout()
+            self.xml_state.get_build_type_bootloader_timeout()
         self.dot_profile['kiwi_wwid_wait_timeout'] = \
             type_section.get_wwid_wait_timeout()
         self.dot_profile['kiwi_hybridpersistent'] = \
@@ -315,9 +315,9 @@ class Profile:
         self.dot_profile['kiwi_firmware'] = \
             type_section.get_firmware()
         self.dot_profile['kiwi_bootloader'] = \
-            type_section.get_bootloader()
+            self.xml_state.get_build_type_bootloader_name()
         self.dot_profile['kiwi_bootloader_console'] = \
-            type_section.get_bootloader_console()
+            self.xml_state.get_build_type_bootloader_console()
         self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
             type_section.get_btrfs_root_is_snapshot()
         self.dot_profile['kiwi_gpt_hybrid_mbr'] = \

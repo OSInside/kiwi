@@ -229,7 +229,7 @@ class BootLoaderConfigBase:
 
         :rtype: int
         """
-        timeout_seconds = self.xml_state.build_type.get_boottimeout()
+        timeout_seconds = self.xml_state.get_build_type_bootloader_timeout()
         if timeout_seconds is None:
             timeout_seconds = Defaults.get_default_boot_timeout_seconds()
         return timeout_seconds

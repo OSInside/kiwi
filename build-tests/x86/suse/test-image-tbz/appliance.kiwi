@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="TBZ-openSUSE-Tumbleweed">
+<image schemaversion="7.2" name="TBZ-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -11,8 +11,8 @@
         <packagemanager>zypper</packagemanager>
         <type image="tbz"/>
     </preferences>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="bootstrap">
         <package name="vim"/>

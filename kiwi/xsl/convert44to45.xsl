@@ -35,7 +35,7 @@
     </xsl:choose>
 </xsl:template>
 
-<!-- remove compressed element -->
+<!-- remove patternPackageType attribute -->
 <para xmlns="http://docbook.org/ns/docbook">
     Remove patternPackageType attribute, it's no longer used
 </para>

@@ -331,10 +331,7 @@ class BootImageBase:
         )
         type_attributes = [
             'bootkernel',
-            'bootloader',
-            'bootloader_console',
             'bootprofile',
-            'boottimeout',
             'btrfs_root_is_snapshot',
             'gpt_hybrid_mbr',
             'devicepersistency',
@@ -354,6 +351,9 @@ class BootImageBase:
         ]
         self.xml_state.copy_build_type_attributes(
             type_attributes, self.boot_xml_state
+        )
+        self.xml_state.copy_bootloader_section(
+            self.boot_xml_state
         )
         self.xml_state.copy_systemdisk_section(
             self.boot_xml_state

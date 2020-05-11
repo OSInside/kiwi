@@ -47,7 +47,7 @@ children, for example:
 
    <?xml version="1.0" encoding="utf-8"?>
 
-   <image schemaversion="7.1" name="{exc_image_base_name}">
+   <image schemaversion="7.2" name="{exc_image_base_name}">
        <!-- all settings belong here -->
    </image>
 
@@ -162,10 +162,10 @@ a virtual machine disk of the same appliance:
            <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
 
            <!-- Virtual machine -->
-           <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="splash" firmware="efi"/>
+           <type image="vmx" filesystem="ext4" kernelcmdline="splash" firmware="efi"/>
 
            <!-- OEM installation image -->
-           <type image="oem" filesystem="ext4" initrd_system="dracut" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
+           <type image="oem" filesystem="ext4" initrd_system="dracut" installiso="true" kernelcmdline="splash" firmware="efi">
                <oemconfig>
                    <oem-systemsize>2048</oem-systemsize>
                    <oem-swap>true</oem-swap>
@@ -235,18 +235,6 @@ The `type` element supports a plethora of optional attributes, some of
 these are only relevant for certain build types and will be covered in the
 appropriate place. Certain attributes are however useful for nearly all
 build types and will be covered here:
-
-- `bootloader`: Specifies the bootloader used for booting the image. At
-  the moment `grub2`, `zipl` and `grub2_s390x_emu` (a combination of zipl
-  and a userspace GRUB2) are supported.
-  The special `custom` entry allows to skip the bootloader configuration
-  and installation and leaves this up to the user which can be done by
-  using the `editbootinstall` and `editbootconfig` custom scripts.
-
-- `boottimeout`: Specifies the boot timeout in seconds prior to launching
-  the default boot option. By default the timeout is set to 10 seconds. It
-  makes sense to set this value to `0` for images intended to be started
-  non-interactively (e.g. virtual machines).
 
 - `bootpartition`: Boolean parameter notifying {kiwi} whether an extra boot
   partition should be used or not (the default depends on the current
@@ -338,6 +326,24 @@ build types and will be covered here:
 
      blockdev --report $DEVICE
 
+Common attributes of the `bootloader` element
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The `bootloader` element is used to select the bootloader. At
+the moment `grub2`, `isolinux`, `zipl` and `grub2_s390x_emu`
+(a combination of zipl and a userspace GRUB2) are supported.
+The special `custom` entry allows to skip the bootloader configuration
+and installation and leaves this up to the user which can be done by
+using the `editbootinstall` and `editbootconfig` custom scripts.
+
+- `timeout`: Specifies the boot timeout in seconds prior to launching
+  the default boot option. By default the timeout is set to 10 seconds. It
+  makes sense to set this value to `0` for images intended to be started
+  non-interactively (e.g. virtual machines).
+
+- `targettype`: Specifies the device type of the disk zipl should boot.
+  On zFCP devices use `SCSI`, on DASD devices use `CDL` or `LDL` on
+  emulated DASD devices use `FBA`
 
 Common Elements
 ---------------
@@ -396,7 +402,7 @@ An example excerpt from a image description using these child-elements of
            <rpm-check-signatures>false</rpm-check-signatures>
            <bootsplash-theme>openSUSE</bootsplash-theme>
            <bootloader-theme>openSUSE</bootloader-theme>
-           <type image="vmx" filesystem="ext4" format="qcow2" boottimeout="0" bootloader="grub2">
+           <type image="vmx" filesystem="ext4" format="qcow2">
        </preferences>
        <!-- snip -->
    </image>
@@ -440,10 +446,10 @@ format).
            <packagemanager>zypper</packagemanager>
        </preferences>
        <preferences profiles="QEMU">
-           <type image="vmx" format="qcow2" filesystem="ext4" bootloader="grub2">
+           <type image="vmx" format="qcow2" filesystem="ext4">
        </preferences>
        <preferences profiles="VMWare">
-           <type image="vmx" format="vmdk" filesystem="ext4" bootloader="grub2">
+           <type image="vmx" format="vmdk" filesystem="ext4">
        </preferences>
        <!-- snip -->
    </image>

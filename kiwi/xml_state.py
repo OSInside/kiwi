@@ -759,6 +759,68 @@ class XMLState:
 
         return []
 
+    def get_build_type_bootloader_section(self):
+        """
+        First bootloader section from the build type section
+
+        :return: <bootloader> section reference
+
+        :rtype: xml_parse::bootloader
+        """
+        bootloader_sections = self.build_type.get_bootloader()
+        if bootloader_sections:
+            return bootloader_sections[0]
+
+    def get_build_type_bootloader_name(self):
+        """
+        Return bootloader name for selected build type
+
+        :return: bootloader name
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        return bootloader.get_name() if bootloader else \
+            Defaults.get_default_bootloader()
+
+    def get_build_type_bootloader_console(self):
+        """
+        Return bootloader console setting for selected build type
+
+        :return: console string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_console()
+
+    def get_build_type_bootloader_timeout(self):
+        """
+        Return bootloader timeout setting for selected build type
+
+        :return: timeout string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_timeout()
+
+    def get_build_type_bootloader_targettype(self):
+        """
+        Return bootloader target type setting. Only relevant for
+        the zipl bootloader because zipl is installed differently
+        depending on the storage target it runs later
+
+        :return: target type string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_targettype()
+
     def get_build_type_oemconfig_section(self):
         """
         First oemconfig section from the build type section
@@ -1518,6 +1580,18 @@ class XMLState:
         if machine_section:
             target_state.build_type.set_machine(
                 [machine_section]
+            )
+
+    def copy_bootloader_section(self, target_state):
+        """
+        Copy bootloader section from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
+        bootloader_section = self.get_build_type_bootloader_section()
+        if bootloader_section:
+            target_state.build_type.set_bootloader(
+                [bootloader_section]
             )
 
     def copy_oemconfig_section(self, target_state):

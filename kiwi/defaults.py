@@ -349,6 +349,17 @@ class Defaults:
         return 'auto'
 
     @staticmethod
+    def get_default_bootloader():
+        """
+        Return default bootloader name which is grub2
+
+        :return: bootloader name
+
+        :rtype: str
+        """
+        return 'grub2'
+
+    @staticmethod
     def get_grub_boot_directory_name(lookup_path):
         """
         Provides grub2 data directory name in boot/ directory

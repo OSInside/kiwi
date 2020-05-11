@@ -20,7 +20,8 @@ oem type definition:
 
 .. code:: xml
 
-    <type image="oem" filesystem="ext4" installiso="true" bootloader="grub2" initrd_system="dracut" installboot="install" boottimeout="1" kernelcmdline="rd.kiwi.ramdisk ramdisk_size=2048000">
+    <type image="oem" filesystem="ext4" installiso="true" initrd_system="dracut" installboot="install" kernelcmdline="rd.kiwi.ramdisk ramdisk_size=2048000">
+        <bootloader name="grub2" timeout="1"/>
         <oemconfig>
             <oem-skip-verify>true</oem-skip-verify>
             <oem-unattended>true</oem-unattended>

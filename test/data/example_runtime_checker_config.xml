@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -83,16 +83,16 @@
         </type>
     </preferences>
     <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
+        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
     </preferences>
     <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
+        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
             <machine memory="512" xen_loader="pvgrub">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash" xen_server="true" firmware="bios">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" kernelcmdline="splash" xen_server="true" firmware="bios">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
@@ -100,7 +100,7 @@
         </type>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
+        <type image="vmx" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
             <systemdisk name="systemVG">
                 <volume name="foo" label="SWAP"/>
             </systemdisk>
@@ -109,7 +109,7 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="btrfs" initrd_system="dracut" installiso="true">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="btrfs" initrd_system="dracut" installiso="true">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk">
                 <volume name="root" size="6G" mountpoint="/" label="foo"/>

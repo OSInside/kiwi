@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.1" name="VMX-Fedora-30.0">
+<image schemaversion="7.2" name="VMX-Fedora-30.0">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -15,13 +15,15 @@
         <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="vmx" filesystem="ext4" bootloader="grub2" kernelcmdline="console=ttyS0 splash" firmware="ofw" bootloader_console="serial" format="qcow2"/>
+        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" format="qcow2">
+            <bootloader name="grub2" console="serial"/>
+        </type>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" >
-        <source path='obsrepositories:/'/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="grub2"/>
