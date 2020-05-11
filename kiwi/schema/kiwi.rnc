@@ -2131,6 +2131,19 @@ div {
             sch:param [ name = "attr" value = "timeout" ]
             sch:param [ name = "types" value = "grub2 isolinux zipl grub2_s390x_emu" ]
         ]
+    k.bootloader.timeout_style.attribute =
+        ## Specifies the boot timeout style to control the way in which
+        ## the timeout interacts with displaying the menu. If set the
+        ## display of the bootloader menu is delayed after the timeout
+        ## expired. In countdown mode an indication of the remaining time
+        ## is displayed. The attribute is available for the grub loader.
+        attribute timeout_style {
+            "countdown" | "hidden"
+        }
+        >> sch:pattern [ id = "timeout_style" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "timeout_style" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
+        ]
     k.bootloader.targettype.attribute =
         ## The device type of the disk zipl should boot. On zFCP
         ## devices use SCSI, on DASD devices use CDL or LDL on
@@ -2146,6 +2159,7 @@ div {
         k.bootloader.name.attribute &
         k.bootloader.console.attribute? &
         k.bootloader.timeout.attribute? &
+        k.bootloader.timeout_style.attribute? &
         k.bootloader.targettype.attribute?
 
     k.bootloader =

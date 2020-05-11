@@ -90,6 +90,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
+        self.timeout_style = \
+            self.xml_state.get_build_type_bootloader_timeout_style()
         self.continue_on_timeout = self.get_continue_on_timeout()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.mediacheck_boot = self.xml_state.build_type.get_mediacheck()
@@ -323,6 +325,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
+            'boot_timeout_style': self.timeout_style or 'menu',
             'title': self.get_menu_entry_install_title(),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
@@ -377,6 +380,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'gfxmode': self.gfxmode,
             'theme': self.theme,
             'boot_timeout': self.timeout,
+            'boot_timeout_style': self.timeout_style or 'menu',
             'title': self.get_menu_entry_title(plain=True),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
@@ -580,6 +584,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'GRUB_GFXMODE': self.gfxmode,
             'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
         }
+        if self.timeout_style:
+            grub_default_entries['GRUB_TIMEOUT_STYLE'] = self.timeout_style
         if self.cmdline:
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
                 re.sub(r'root=.* |root=.*$', '', self.cmdline).strip()

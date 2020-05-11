@@ -326,6 +326,7 @@ class TestBootLoaderConfigGrub2:
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
         self.bootloader.terminal = 'serial'
+        self.bootloader.timeout_style = 'countdown'
         self.bootloader.theme = 'openSUSE'
         self.firmware.efi_mode.return_value = 'efi'
         self.bootloader._setup_default_grub()
@@ -348,6 +349,7 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_TERMINAL', '"serial"'),
             call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
             call('GRUB_TIMEOUT', 10),
+            call('GRUB_TIMEOUT_STYLE', 'countdown'),
             call('GRUB_USE_INITRDEFI', 'true'),
             call('GRUB_USE_LINUXEFI', 'true'),
             call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')

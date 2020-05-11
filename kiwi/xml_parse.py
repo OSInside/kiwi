@@ -730,6 +730,7 @@ class k_packagemanager_content(object):
     ZYPPER='zypper'
     YUM='yum'
     DNF='dnf'
+    PACMAN='pacman'
 
 
 class k_source(GeneratedsSuper):
@@ -4466,11 +4467,12 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, console=None, timeout=None, targettype=None):
+    def __init__(self, name=None, console=None, timeout=None, timeout_style=None, targettype=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.console = _cast(None, console)
         self.timeout = _cast(int, timeout)
+        self.timeout_style = _cast(None, timeout_style)
         self.targettype = _cast(None, targettype)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -4489,6 +4491,8 @@ class bootloader(GeneratedsSuper):
     def set_console(self, console): self.console = console
     def get_timeout(self): return self.timeout
     def set_timeout(self, timeout): self.timeout = timeout
+    def get_timeout_style(self): return self.timeout_style
+    def set_timeout_style(self, timeout_style): self.timeout_style = timeout_style
     def get_targettype(self): return self.targettype
     def set_targettype(self, targettype): self.targettype = targettype
     def validate_grub_console(self, value):
@@ -4535,6 +4539,9 @@ class bootloader(GeneratedsSuper):
         if self.timeout is not None and 'timeout' not in already_processed:
             already_processed.add('timeout')
             outfile.write(' timeout="%s"' % self.gds_format_integer(self.timeout, input_name='timeout'))
+        if self.timeout_style is not None and 'timeout_style' not in already_processed:
+            already_processed.add('timeout_style')
+            outfile.write(' timeout_style=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.timeout_style), input_name='timeout_style')), ))
         if self.targettype is not None and 'targettype' not in already_processed:
             already_processed.add('targettype')
             outfile.write(' targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.targettype), input_name='targettype')), ))
@@ -4568,6 +4575,11 @@ class bootloader(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.timeout < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('timeout_style', node)
+        if value is not None and 'timeout_style' not in already_processed:
+            already_processed.add('timeout_style')
+            self.timeout_style = value
+            self.timeout_style = ' '.join(self.timeout_style.split())
         value = find_attr_value_('targettype', node)
         if value is not None and 'targettype' not in already_processed:
             already_processed.add('targettype')
