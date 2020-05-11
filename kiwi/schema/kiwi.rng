@@ -1228,7 +1228,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <value>zypper</value>
         <value>yum</value>
         <value>dnf</value>
-	<value>pacman</value>
+        <value>pacman</value>
       </choice>
     </define>
     <define name="k.packagemanager.attlist">
@@ -3298,6 +3298,23 @@ to 10sec</a:documentation>
         <sch:param name="types" value="grub2 isolinux zipl grub2_s390x_emu"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.timeout_style.attribute">
+      <attribute name="timeout_style">
+        <a:documentation>Specifies the boot timeout style to control the way in which
+the timeout interacts with displaying the menu. If set the
+display of the bootloader menu is delayed after the timeout
+expired. In countdown mode an indication of the remaining time
+is displayed. The attribute is available for the grub loader.</a:documentation>
+        <choice>
+          <value>countdown</value>
+          <value>hidden</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="timeout_style" is-a="bootloader_name_type">
+        <sch:param name="attr" value="timeout_style"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
     <define name="k.bootloader.targettype.attribute">
       <attribute name="targettype">
         <a:documentation>The device type of the disk zipl should boot. On zFCP
@@ -3323,6 +3340,9 @@ emulated DASD devices use FBA</a:documentation>
         </optional>
         <optional>
           <ref name="k.bootloader.timeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.timeout_style.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootloader.targettype.attribute"/>

@@ -807,6 +807,18 @@ class XMLState:
         if bootloader:
             return bootloader.get_timeout()
 
+    def get_build_type_bootloader_timeout_style(self):
+        """
+        Return bootloader timeout style setting for selected build type
+
+        :return: timeout_style string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_timeout_style()
+
     def get_build_type_bootloader_targettype(self):
         """
         Return bootloader target type setting. Only relevant for
