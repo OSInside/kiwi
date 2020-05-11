@@ -21,6 +21,7 @@ usage: kiwi-ng image info -h | --help
            [--resolve-package-list]
            [--ignore-repos]
            [--add-repo=<source,type,alias,priority>...]
+           [--print-xml|--print-yaml]
        kiwi-ng image info help
 
 commands:
@@ -39,6 +40,8 @@ options:
         solve package dependencies and return a list of all
         packages including their attributes e.g size,
         shasum, etc...
+    --print-xml|--print-yaml
+        print image description in specified format
 """
 # project
 from kiwi.tasks.base import CliTask
@@ -124,6 +127,17 @@ class ImageInfoTask(CliTask):
             DataOutput(result, style='color').display()
         else:
             DataOutput(result).display()
+
+        if self.command_args['--print-xml']:
+            DataOutput.display_file(
+                self.description.markup.get_xml_description(),
+                'Description(XML):'
+            )
+        elif self.command_args['--print-yaml']:
+            DataOutput.display_file(
+                self.description.markup.get_yaml_description(),
+                'Description(YAML):'
+            )
 
     def _setup_solver(self):
         solver = Sat()

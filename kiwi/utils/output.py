@@ -49,6 +49,16 @@ class DataOutput:
         """
         self._json()
 
+    @staticmethod
+    def display_file(filename, message=None):
+        """
+        Show data from file
+        """
+        if message:
+            log.info(message)
+        with open(filename) as data:
+            print(data.read())
+
     def _json(self):
         """
         Show data in json output format and selected style

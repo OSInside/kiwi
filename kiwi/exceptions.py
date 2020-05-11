@@ -607,6 +607,18 @@ class KiwiSatSolverPluginError(KiwiError):
     """
 
 
+class KiwiAnyMarkupPluginError(KiwiError):
+    """
+    Exception raised if the python anymarkup module failed to load.
+    """
+
+
+class KiwiMarkupConversionError(KiwiError):
+    """
+    Exception raised if the markup format conversion is not possible.
+    """
+
+
 class KiwiSchemaImportError(KiwiError):
     """
     Exception raised if the schema file could not be read

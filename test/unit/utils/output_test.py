@@ -25,6 +25,14 @@ class TestDataOutput:
         self.out.display()
         mock_stdout.write.assert_any_call(self.expected_out)
 
+    def test_display_file(self):
+        with self._caplog.at_level(logging.INFO):
+            with patch('builtins.open', create=True) as mock_open:
+                file_handle = mock_open.return_value.__enter__.return_value
+                DataOutput.display_file('some-file', 'some-message')
+                mock_open.assert_called_once_with('some-file')
+                file_handle.read.assert_called_once_with()
+
     @patch('sys.stdout')
     @patch('os.system')
     @patch('kiwi.utils.output.NamedTemporaryFile')
