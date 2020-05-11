@@ -65,7 +65,7 @@ class BootLoaderTemplateGrub2:
         ''').strip() + os.linesep
 
         self.header_serial = dedent('''
-            serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1
+            ${serial_line_setup}
         ''').strip() + os.linesep
 
         self.header_terminal_setup = dedent('''

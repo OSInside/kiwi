@@ -3286,6 +3286,18 @@ types. By default a graphics console setup is used</a:documentation>
         <sch:param name="types" value="grub2 isolinux grub2_s390x_emu"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.serial_line.attribute">
+      <attribute name="serial_line">
+        <a:documentation>Specifies the bootloader serial line setup. The setup
+is effective if the bootloader console is set to use
+the serial line. The attribute is available for the grub
+bootloader</a:documentation>
+      </attribute>
+      <sch:pattern id="serial_line" is-a="bootloader_name_type">
+        <sch:param name="attr" value="serial_line"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
     <define name="k.bootloader.timeout.attribute">
       <attribute name="timeout">
         <a:documentation>Specifies the boot timeout in seconds prior to launching
@@ -3337,6 +3349,9 @@ emulated DASD devices use FBA</a:documentation>
         <ref name="k.bootloader.name.attribute"/>
         <optional>
           <ref name="k.bootloader.console.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.serial_line.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootloader.timeout.attribute"/>

@@ -96,6 +96,12 @@ class TestBootLoaderConfigGrub2:
         self.state.is_xen_guest = Mock(
             return_value=False
         )
+        self.state.get_build_type_bootloader_serial_line_setup = Mock(
+            return_value='serial --speed=38400'
+        )
+        self.state.get_build_type_bootloader_timeout_style = Mock(
+            return_value='countdown'
+        )
         self.bootloader = BootLoaderConfigGrub2(
             self.state, 'root_dir', None, {
                 'grub_directory_name': 'grub2', 'boot_is_crypto': True
@@ -326,7 +332,6 @@ class TestBootLoaderConfigGrub2:
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
         self.bootloader.terminal = 'serial'
-        self.bootloader.timeout_style = 'countdown'
         self.bootloader.theme = 'openSUSE'
         self.firmware.efi_mode.return_value = 'efi'
         self.bootloader._setup_default_grub()
@@ -343,8 +348,7 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call('GRUB_GFXMODE', '800x600'),
             call(
-                'GRUB_SERIAL_COMMAND',
-                '"serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"'
+                'GRUB_SERIAL_COMMAND', '"serial --speed=38400"'
             ),
             call('GRUB_TERMINAL', '"serial"'),
             call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),

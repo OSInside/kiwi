@@ -2122,6 +2122,16 @@ div {
             sch:param [ name = "attr" value = "console" ]
             sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu" ]
         ]
+    k.bootloader.serial_line.attribute =
+        ## Specifies the bootloader serial line setup. The setup
+        ## is effective if the bootloader console is set to use
+        ## the serial line. The attribute is available for the grub
+        ## bootloader
+        attribute serial_line { text }
+        >> sch:pattern [ id = "serial_line" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "serial_line" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
+        ]
     k.bootloader.timeout.attribute =
         ## Specifies the boot timeout in seconds prior to launching
         ## the default boot option. By default the timeout is set
@@ -2158,6 +2168,7 @@ div {
     k.bootloader.attlist =
         k.bootloader.name.attribute &
         k.bootloader.console.attribute? &
+        k.bootloader.serial_line.attribute? &
         k.bootloader.timeout.attribute? &
         k.bootloader.timeout_style.attribute? &
         k.bootloader.targettype.attribute?

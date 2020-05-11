@@ -4467,10 +4467,11 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, console=None, timeout=None, timeout_style=None, targettype=None):
+    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.console = _cast(None, console)
+        self.serial_line = _cast(None, serial_line)
         self.timeout = _cast(int, timeout)
         self.timeout_style = _cast(None, timeout_style)
         self.targettype = _cast(None, targettype)
@@ -4489,6 +4490,8 @@ class bootloader(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_console(self): return self.console
     def set_console(self, console): self.console = console
+    def get_serial_line(self): return self.serial_line
+    def set_serial_line(self, serial_line): self.serial_line = serial_line
     def get_timeout(self): return self.timeout
     def set_timeout(self, timeout): self.timeout = timeout
     def get_timeout_style(self): return self.timeout_style
@@ -4536,6 +4539,9 @@ class bootloader(GeneratedsSuper):
         if self.console is not None and 'console' not in already_processed:
             already_processed.add('console')
             outfile.write(' console=%s' % (quote_attrib(self.console), ))
+        if self.serial_line is not None and 'serial_line' not in already_processed:
+            already_processed.add('serial_line')
+            outfile.write(' serial_line=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.serial_line), input_name='serial_line')), ))
         if self.timeout is not None and 'timeout' not in already_processed:
             already_processed.add('timeout')
             outfile.write(' timeout="%s"' % self.gds_format_integer(self.timeout, input_name='timeout'))
@@ -4566,6 +4572,10 @@ class bootloader(GeneratedsSuper):
             self.console = value
             self.console = ' '.join(self.console.split())
             self.validate_grub_console(self.console)    # validate type grub_console
+        value = find_attr_value_('serial_line', node)
+        if value is not None and 'serial_line' not in already_processed:
+            already_processed.add('serial_line')
+            self.serial_line = value
         value = find_attr_value_('timeout', node)
         if value is not None and 'timeout' not in already_processed:
             already_processed.add('timeout')
