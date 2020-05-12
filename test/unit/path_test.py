@@ -123,8 +123,10 @@ class TestPath:
         with self._caplog.at_level(logging.DEBUG):
             assert Path.which('file') is None
             print(self._caplog.text)
-            assert '"file": in paths "{0}" exists: "False" mode match: '
-            'not checked'.format(mock_env.return_value) in self._caplog.text
+            assert (
+                '"file": in paths "{0}" exists: "False" mode match: '
+                'not checked'
+            ).format(mock_env.return_value) in self._caplog.text
 
     @patch('os.access')
     @patch('os.environ.get')
@@ -137,8 +139,10 @@ class TestPath:
         mock_access.return_value = False
         with self._caplog.at_level(logging.DEBUG):
             assert Path.which('file', access_mode=os.X_OK) is None
-            assert '"file": in paths "{0}" exists: "True" mode match: '
-            '"False"'.format(mock_env.return_value) in self._caplog.text
+            assert (
+                '"file": in paths "{0}" exists: "True" mode match: '
+                '"False"'
+            ).format(mock_env.return_value) in self._caplog.text
 
     def test_access_invalid_mode(self):
         with raises(ValueError) as issue:
