@@ -314,7 +314,7 @@ class Iso:
         )
         if not os.path.exists(loader_file):
             raise KiwiIsoLoaderError(
-                'No isolinux loader %s found'.format(loader_file)
+                'No isolinux loader {} found'.format(loader_file)
             )
         try:
             Command.run(

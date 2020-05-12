@@ -70,7 +70,7 @@ class IsoToolsCdrTools(IsoToolsBase):
                 return tool_found
 
         raise KiwiIsoToolError(
-            'No iso creation tool found, searched for: %s'.format(
+            'No iso creation tool found, searched for: {}'.format(
                 iso_creation_tools
             )
         )
