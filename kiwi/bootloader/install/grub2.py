@@ -18,7 +18,6 @@
 import glob
 import os
 import logging
-import platform
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
@@ -59,7 +58,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 }
 
         """
-        self.arch = platform.machine()
+        self.arch = Defaults.get_platform_name()
         self.custom_args = custom_args
         self.install_arguments = []
         self.firmware = None
@@ -129,7 +128,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if self.target_removable:
             self.install_arguments.append('--removable')
 
-        if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
+        if Defaults.is_x86_arch(self.arch):
             self.target = 'i386-pc'
             self.install_device = self.device
             self.modules = ' '.join(

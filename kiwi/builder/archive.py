@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
 import logging
 
 # project
@@ -132,7 +131,7 @@ class ArchiveBuilder:
             [
                 self.target_dir, '/',
                 self.xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + self.xml_state.get_image_version(),
                 '.', suffix
             ]

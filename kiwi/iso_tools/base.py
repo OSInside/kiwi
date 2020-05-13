@@ -17,7 +17,6 @@
 #
 import os
 import shutil
-import platform
 import logging
 
 # project
@@ -39,7 +38,7 @@ class IsoToolsBase:
     :param str iso_loaders: list of ISO loaders to embed
     """
     def __init__(self, source_dir):
-        self.arch = platform.machine()
+        self.arch = Defaults.get_platform_name()
         self.source_dir = source_dir
 
         self.boot_path = Defaults.get_iso_boot_path()

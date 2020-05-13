@@ -94,6 +94,13 @@ class Defaults:
         ]
 
     @staticmethod
+    def get_platform_name():
+        arch = platform.machine()
+        if arch == 'i686' or arch == 'i586':
+            arch = 'ix86'
+        return arch
+
+    @staticmethod
     def is_x86_arch(arch):
         """
         Checks if machine architecture is x86 based
@@ -104,7 +111,10 @@ class Defaults:
 
         :rtype: bool
         """
-        if arch == 'x86_64' or arch == 'i686' or arch == 'i586':
+        x86_arch_names = [
+            'x86_64', 'i686', 'i586', 'ix86'
+        ]
+        if arch in x86_arch_names:
             return True
         return False
 
@@ -441,7 +451,7 @@ class Defaults:
 
         :rtype: list
         """
-        host_architecture = platform.machine()
+        host_architecture = Defaults.get_platform_name()
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'part_msdos',
@@ -886,6 +896,7 @@ class Defaults:
             'x86_64': ['efi', 'uefi', 'bios', 'ec2hvm', 'ec2'],
             'i586': ['bios'],
             'i686': ['bios'],
+            'ix86': ['bios'],
             'aarch64': ['efi', 'uefi'],
             'arm64': ['efi', 'uefi'],
             'armv5el': ['efi', 'uefi'],
@@ -906,7 +917,7 @@ class Defaults:
         """
         Provides default firmware for specified architecture
 
-        :param string arch: platform.machine
+        :param string arch: machine architecture name
 
         :return: firmware name
 
@@ -916,6 +927,7 @@ class Defaults:
             'x86_64': 'bios',
             'i586': 'bios',
             'i686': 'bios',
+            'ix86': 'bios',
             'ppc': 'ofw',
             'ppc64': 'ofw',
             'ppc64le': 'ofw',
@@ -962,7 +974,7 @@ class Defaults:
         Provides architecture specific EFI directory name which
         stores the EFI binaries for the desired architecture.
 
-        :param string arch: platform.machine
+        :param string arch: machine architecture name
 
         :return: directory name
 
@@ -1002,7 +1014,7 @@ class Defaults:
         """
         Provides architecture specific EFI boot binary name
 
-        :param string arch: platform.machine
+        :param string arch: machine architecture name
 
         :return: name
 
@@ -1336,10 +1348,9 @@ class Defaults:
 
         :rtype: str
         """
-        arch = platform.machine()
-        if arch == 'i686' or arch == 'i586':
-            arch = 'ix86'
-        return os.sep.join(['boot', arch])
+        return os.sep.join(
+            ['boot', Defaults.get_platform_name()]
+        )
 
     @staticmethod
     def get_iso_tool_category():

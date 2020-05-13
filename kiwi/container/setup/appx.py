@@ -16,13 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import platform
 from lxml import etree
 from xml.dom import minidom
 
 # project
 from kiwi.container.setup.base import ContainerSetupBase
 from kiwi.exceptions import KiwiContainerSetupError
+from kiwi.defaults import Defaults
 
 
 class ContainerSetupAppx(ContainerSetupBase):
@@ -164,4 +164,4 @@ class ContainerSetupAppx(ContainerSetupBase):
         windows = {
             'x86_64': 'x64'
         }
-        return windows.get(platform.machine())
+        return windows.get(Defaults.get_platform_name())

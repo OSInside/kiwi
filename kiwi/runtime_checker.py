@@ -17,7 +17,6 @@
 #
 import os
 import re
-import platform
 from textwrap import dedent
 
 # project
@@ -462,7 +461,9 @@ class RuntimeChecker:
             build host has the syslinux package installed.
         ''')
         firmware = FirmWare(self.xml_state)
-        if Defaults.is_x86_arch(platform.machine()) and not firmware.efi_mode():
+        if Defaults.is_x86_arch(
+            Defaults.get_platform_name()
+        ) and not firmware.efi_mode():
             image_builds_iso = False
             build_type = self.xml_state.get_build_type_name()
             if build_type == 'iso':
@@ -535,7 +536,7 @@ class RuntimeChecker:
 
             <type ... firmware="efi"/>
         ''')
-        arch = platform.machine()
+        arch = Defaults.get_platform_name()
         build_type = self.xml_state.get_build_type_name()
         firmware = self.xml_state.build_type.get_firmware() or \
             Defaults.get_default_firmware(arch)

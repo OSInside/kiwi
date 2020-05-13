@@ -17,7 +17,6 @@
 #
 import re
 import os
-import platform
 import pickle
 import logging
 from collections import namedtuple
@@ -69,7 +68,7 @@ class BootImageBase:
         self.initrd_base_name = ''.join(
             [
                 self.xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + self.xml_state.get_image_version(),
                 '.initrd'
             ]
